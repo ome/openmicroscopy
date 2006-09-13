@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,13 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.CategoryImageLink;
+import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -51,11 +58,13 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import pojos.AnnotationData;
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Implementation of the {@link OmeroService} I/F.
@@ -471,6 +480,139 @@ class OmeroServiceImpl
             index++;
         }
         gateway.deleteObjects(objects);
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroService}.
+     * @see OmeroService#loadExistingObjects(Class, Set, Class, long)
+     */
+    public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel,
+                                long rootID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Set all = null;
+        Set objects = new HashSet();
+        if (nodeType.equals(ProjectData.class)) {
+            Set in = loadContainerHierarchy(nodeType, nodeIDs, true, rootLevel, 
+                                            rootID);
+            all = loadContainerHierarchy(DatasetData.class, null, true, 
+                                            rootLevel, rootID);
+            Iterator i = in.iterator();
+            Iterator j; 
+            while (i.hasNext()) {
+                j = (((ProjectData) i.next()).getDatasets()).iterator();
+                while (j.hasNext()) {
+                    objects.add(new Long(((DatasetData) j.next()).getId()));
+                } 
+            }
+        } else if (nodeType.equals(CategoryGroupData.class)) {
+            Set in = loadContainerHierarchy(nodeType, nodeIDs, true, rootLevel, 
+                    rootID);
+            all = loadContainerHierarchy(CategoryData.class, null, true, 
+                                rootLevel, rootID);
+            Iterator i = in.iterator();
+            Iterator j; 
+            while (i.hasNext()) {
+                j = (((CategoryGroupData) i.next()).getCategories()).iterator();
+                while (j.hasNext()) {
+                    objects.add(new Long(((CategoryData) j.next()).getId()));
+                } 
+            }
+        } else if ((nodeType.equals(DatasetData.class)) || 
+                    (nodeType.equals(CategoryData.class))) {
+            Set in = getImages(nodeType, nodeIDs, rootLevel, rootID);
+            all = getUserImages();
+            Iterator i = in.iterator();
+            while (i.hasNext()) {
+                objects.add(new Long(((ImageData) i.next()).getId()));
+            }
+            
+        }
+        if (all == null) return new HashSet(1);
+        Iterator k = all.iterator();
+        Set toRemove = new HashSet();
+        DataObject ho;
+        Long id;
+        while (k.hasNext()) {
+            ho = (DataObject) k.next();
+            id = new Long(ho.getId());
+            if (objects.contains(id)) toRemove.add(ho);
+        }
+        all.removeAll(toRemove);
+        return all;
+        
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroService}.
+     * @see OmeroService#addExistingObjects(DataObject, Set)
+     */
+    public void addExistingObjects(DataObject parent, Set children)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        if (parent instanceof ProjectData) {
+            try {
+                children.toArray(new DatasetData[] {});
+            } catch (ArrayStoreException ase) {
+                throw new IllegalArgumentException(
+                        "items can only be datasets.");
+            }
+        } else if (parent instanceof DatasetData) {
+            try {
+                children.toArray(new ImageData[] {});
+            } catch (ArrayStoreException ase) {
+                throw new IllegalArgumentException(
+                        "items can only be images.");
+            }
+        } else if (parent instanceof CategoryGroupData) {
+                try {
+                    children.toArray(new CategoryData[] {});
+                } catch (ArrayStoreException ase) {
+                    throw new IllegalArgumentException(
+                            "items can only be categories.");
+                }
+        } else
+            throw new IllegalArgumentException("parent object not supported");
+        
+        List objects = new ArrayList();
+        if (parent instanceof ProjectData) {
+            Project mParent = parent.asProject();
+            ProjectDatasetLink l;
+            Iterator child = children.iterator();
+            while (child.hasNext()) {
+                l = new ProjectDatasetLink();
+                l.link(mParent, ((DataObject) child.next()).asDataset());  
+                objects.add(l);
+            }
+        } else if (parent instanceof DatasetData) {
+            Dataset mParent = parent.asDataset();
+            DatasetImageLink l;
+            Iterator child = children.iterator();
+            while (child.hasNext()) {
+                l = new DatasetImageLink();
+                l.link(mParent, ((DataObject) child.next()).asImage());  
+                objects.add(l);
+            }
+        } else if (parent instanceof CategoryGroupData) {
+            CategoryGroup mParent = parent.asCategoryGroup();
+            CategoryGroupCategoryLink l;
+            Iterator child = children.iterator();
+            while (child.hasNext()) {
+                l = new CategoryGroupCategoryLink();
+                l.link(mParent, ((DataObject) child.next()).asCategory());  
+                objects.add(l);
+            }
+        }
+        if (objects.size() != 0) {
+            Iterator i = objects.iterator();
+            IObject[] array = new IObject[objects.size()];
+            int index = 0;
+            while (i.hasNext()) {
+                array[index] = (IObject) i.next();
+                index++;
+            }
+            gateway.createObjects(array, (new PojoOptions()).map());
+        } 
     }
     
 }

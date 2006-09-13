@@ -405,6 +405,39 @@ public interface OmeroService
      */
     public void declassify(Set images, Set categories)
         throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Loads the objects that be added to the node.
+     * 
+     * @param nodeType  The top-most type which will be searched for.
+     *                  Can be <code>Project</code>, <code>CategoryGroup</code>,
+     *                  <code>Dataset</code> or <code>Category</code>.
+     *                  Mustn't be <code>null</code>.
+     * @param nodeIDs   A set of the IDs of top-most containers. 
+     *                  Mustn't be <code>null</code>.
+     * @param rootLevel The level of the hierarchy either <code>GroupData</code>
+     *                  or <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return  A set of existing nodes.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel, 
+                                long rootID)
+        throws DSOutOfServiceException, DSAccessException;
     
+    /**
+     * Adds the given objects to the specified node.
+     * 
+     * @param parent    The <code>DataObject</code> to update. Either a 
+     *                  <code>ProjectData</code> or <code>DatasetData</code>.
+     * @param children  The items to add.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public void addExistingObjects(DataObject parent, Set children)
+        throws DSOutOfServiceException, DSAccessException;
     
 }
