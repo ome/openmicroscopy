@@ -219,13 +219,20 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getImages(Set, Class, long)
+     * @see OmeroService#loadExistingObjects(Class, Set, Class, long)
      */
-    public Set getImages(Set imageIDs, Class rootLevel, long rootLevelID)
+    public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel,
+                long rootID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        return null;
+    }
+
+    public void addExistingObjects(DataObject parent, Set children)
             throws DSOutOfServiceException, DSAccessException
     {
         // TODO Auto-generated method stub
-        return null;
+        
     }
 
 }
