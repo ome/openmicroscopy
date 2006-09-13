@@ -105,8 +105,8 @@ class EditorComponent
     private void checkDataObjectOperation(int i)
     {
         switch (i) {
-            case CREATE_OBJECT:
-            case UPDATE_OBJECT:  
+            case TreeViewer.CREATE_OBJECT:
+            case TreeViewer.UPDATE_OBJECT:  
                 break;
             default:
                 throw new IllegalArgumentException("DataObject operation not " +
@@ -301,10 +301,10 @@ class EditorComponent
             throw new IllegalArgumentException("No DataObject.");
         checkDataObjectOperation(operation);
         switch (operation) {
-            case CREATE_OBJECT:
+            case TreeViewer.CREATE_OBJECT:
                 model.fireDataObjectCreation(object);
                 break;
-            case UPDATE_OBJECT:
+            case TreeViewer.UPDATE_OBJECT:
                 model.fireDataObjectUpdate(object);
                 break;
         }

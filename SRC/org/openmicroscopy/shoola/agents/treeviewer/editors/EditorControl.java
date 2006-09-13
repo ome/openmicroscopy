@@ -130,7 +130,7 @@ public class EditorControl
     {
         if (object == null) 
             throw new IllegalArgumentException("No Data object to create.");
-        model.saveObject(object, Editor.CREATE_OBJECT);
+        model.saveObject(object, TreeViewer.CREATE_OBJECT);
     }
     
     /**
@@ -142,7 +142,7 @@ public class EditorControl
     {
         if (object == null) 
             throw new IllegalArgumentException("No Data object to update.");
-        model.saveObject(object, Editor.UPDATE_OBJECT);
+        model.saveObject(object, TreeViewer.UPDATE_OBJECT);
     }
   
     /**

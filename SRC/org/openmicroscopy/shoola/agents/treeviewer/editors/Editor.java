@@ -86,16 +86,7 @@ public interface Editor
     /** Identifies the <code>Edit</code> type for the editor. */
     public static final int         PROPERTIES_EDITOR = 
                                                 TreeViewer.PROPERTIES_EDITOR;
-    
-    /** Identifies the <code>Create Object</code> operation. */
-    public static final int         CREATE_OBJECT = 300;
-    
-    /** Identifies the <code>Update Object</code> operation. */
-    public static final int         UPDATE_OBJECT = 301;
-    
-    /** Identifies the <code>Update Object</code> operation. */
-    public static final int         DELETE_OBJECT = 302;
-    
+      
     /** 
      * Indicates to create an annotation  when editing the 
      * <code>DataObject</code>.
