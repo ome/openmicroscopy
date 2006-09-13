@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -253,6 +255,31 @@ class DataManagerViewImpl
                                 AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationSaver(images, categories, false);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadExistingObjects(Class, Set, Class, long, 
+     *                                          AgentEventListener)
+     */
+    public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
+            Class rootLevel, long rootLevelID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ExistingObjectsLoader(nodeType, nodeIDs, 
+                                rootLevel, rootLevelID);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#addExistingObjects(DataObject, Set, 
+     *                                          AgentEventListener)
+     */
+    public CallHandle addExistingObjects(DataObject parent, Set children, 
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ExistingObjectsSaver(parent, children);
         return cmd.exec(observer);
     }
     

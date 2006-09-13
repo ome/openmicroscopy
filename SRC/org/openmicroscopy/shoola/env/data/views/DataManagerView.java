@@ -318,4 +318,35 @@ public interface DataManagerView
     public CallHandle declassify(Set images, Set categories, 
                                 AgentEventListener observer);
     
+    /**
+     * Loads existing objects not contained in the specifed containers.
+     * @param nodeType      The type of the node. One out of the following 
+     *                      types:
+     *                      <code>DatasetData</code>, <code>ProjectData</code>,
+     *                      <code>CategoryData</code> or 
+     *                      <code>CategoryGroupData</code>.      
+     * @param nodeIDs       The id of the nodes.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
+                                    Class rootLevel, long rootLevelID,
+                                        AgentEventListener observer);
+
+    /**
+     * Adds the specified items to the parent.
+     * 
+     * @param parent    The <code>DataObject</code> to update. Either a 
+     *                  <code>ProjectData</code> or <code>DatasetData</code>.
+     * @param children  The items to add.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle addExistingObjects(DataObject parent, Set children, 
+                                    AgentEventListener observer);
+    
 }
