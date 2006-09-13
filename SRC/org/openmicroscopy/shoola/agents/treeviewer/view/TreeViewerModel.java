@@ -33,11 +33,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -45,9 +48,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 
 /** 
@@ -321,5 +328,32 @@ class TreeViewerModel
     * @param state The state to set.
     */
    void setState(int state) { this.state = state; }
+
+   /**
+    * Loads existing objects that can be added to the specified 
+    * <code>DataObject</code>.
+    * 
+    * @param ho The node to add the objects to.
+    */
+   void fireDataExistingObjectsLoader(DataObject ho)
+   {
+       state = TreeViewer.LOADING_DATA;
+       currentLoader = new ExistingObjectsLoader(component, ho);
+       currentLoader.load();
+   }
+
+   
+   void fireAddExistingObjects(Set children)
+   {
+       TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
+       Object po = parent.getUserObject();
+       if ((po instanceof ProjectData) || ((po instanceof DatasetData)) ||
+            (po instanceof CategoryGroupData)) {
+           currentLoader = new ExistingObjectsSaver(component, 
+                               (DataObject) po, children);
+           currentLoader.load();
+       }
+       state = TreeViewer.READY;
+   }
    
 }

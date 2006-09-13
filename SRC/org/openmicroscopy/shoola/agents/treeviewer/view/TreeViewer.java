@@ -99,8 +99,11 @@ public interface TreeViewer
     /** Flag to denote the <i>Loading Thumbnail</i> state. */
     public static final int         LOADING_THUMBNAIL = 4;
     
+    /** Flag to denote the <i>Loading Data</i> state. */
+    public static final int         LOADING_DATA = 5;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 5;
+    public static final int         READY = 6;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_EDITOR = 100;
@@ -126,11 +129,8 @@ public interface TreeViewer
      */
     public static final int			USER_ROOT = 201;
     
-
-    
     /** Identifies the <code>Delete Object</code> operation. */
     public static final int         REMOVE_OBJECT = 302;
-
     
     /** Bounds property to indicate that the data retrieval is cancelled. */
     public static final String      CANCEL_LOADING_PROPERTY = "cancelLoading";
@@ -173,6 +173,21 @@ public interface TreeViewer
      * process.
      */
     public static final String      SAVING_TITLE = "Saving Data";
+    
+    /** 
+     * The title displayed in the {@link LoadingWindow} during the saving 
+     * process.
+     */
+    public static final String      LOADING_TITLE = "Loading Data";
+    
+    /** Identifies the <code>Create Object</code> operation. */
+    public static final int         CREATE_OBJECT = 300;
+    
+    /** Identifies the <code>Update Object</code> operation. */
+    public static final int         UPDATE_OBJECT = 301;
+    
+    /** Identifies the <code>Update Object</code> operation. */
+    public static final int         DELETE_OBJECT = 302;
     
     /**
      * Returns the currently selected {@link Browser} or <code>null</code>
@@ -389,5 +404,23 @@ public interface TreeViewer
      * @return See above.
      */
     public boolean isObjectWritable(DataObject ho);
+    
+    /** 
+     * Adds existing objects to the currently selected node. 
+     * 
+     * @param ho The node the objects are added to.
+     */
+    public void addExistingObjects(DataObject ho);
+    
+    /**
+     * Displays the collection of existing nodes.
+     * 
+     * @param nodes The nodes to display.
+     */
+    public void setExistingObjects(Set nodes);
+
+    public void onAddExistingObjects(DataObject parent, Set children);
+    
+    void addExistingObjects(Set set);
     
 }

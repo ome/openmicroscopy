@@ -80,6 +80,9 @@ class PopupMenu
     /** Button to reload the data. */
     private JMenuItem           refresh;
     
+    /** Button to add existing element to the specified container. */
+    private JMenuItem           existingElement;
+    
     /** Button to add element to the specified container. */
     private JMenuItem           newElement;
     
@@ -134,6 +137,9 @@ class PopupMenu
         deleteElement = new JMenuItem(
                 	controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
         initMenuItem(newElement);
+        existingElement = new JMenuItem(
+                controller.getAction(TreeViewerControl.ADD_OBJECT));
+        initMenuItem(existingElement);
     }
       
     /**
@@ -165,6 +171,7 @@ class PopupMenu
         IconManager im = IconManager.getInstance();
         managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         managementMenu.add(newElement);
+        managementMenu.add(existingElement);
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);
         managementMenu.add(deleteElement);

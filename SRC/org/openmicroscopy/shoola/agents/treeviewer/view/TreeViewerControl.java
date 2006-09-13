@@ -49,6 +49,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
@@ -68,6 +69,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
+import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 import pojos.ImageData;
@@ -97,7 +99,7 @@ class TreeViewerControl
     /** Identifies the <code>Refresh action</code> in the File menu. */
     static final Integer	REFRESH = new Integer(2);
     
-    /** Identifies the <code>Create object action</code> in the Edit menu. */
+    /** Identifies the <code>Create object action</code> in the File menu. */
     static final Integer	CREATE_OBJECT = new Integer(3);
     
     /** Identifies the <code>Copy object action</code> in the Edit menu. */
@@ -146,6 +148,9 @@ class TreeViewerControl
     /** Identifies the <code>Clear action</code> in the Edit menu. */
     static final Integer    CLEAR = new Integer(17);
     
+    /** Identifies the <code>Add action</code> in the Edit menu. */
+    static final Integer    ADD_OBJECT = new Integer(18);
+    
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
@@ -185,6 +190,7 @@ class TreeViewerControl
         actionsMap.put(CLOSE,  new CloseTreeViewerAction(model));
         actionsMap.put(CLEAR,  new ClearAction(model));
         actionsMap.put(EXIT,  new ExitApplicationAction());
+        actionsMap.put(ADD_OBJECT,  new AddAction(model));
     }
     
     /** Helper method to create the actions for the group level hierarchy. */
@@ -355,6 +361,9 @@ class TreeViewerControl
             Iterator i = browsers.values().iterator();
             while (i.hasNext())
                 ((Browser) i.next()).refreshTree();
+        } else if (name.equals(
+                AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
+            model.addExistingObjects((Set) pce.getNewValue());
         }
     }
 
@@ -368,6 +377,11 @@ class TreeViewerControl
         switch (model.getState()) {
             case TreeViewer.DISCARDED:
                 view.closeViewer();
+                break;
+            case TreeViewer.LOADING_DATA:
+                LoadingWindow w = view.getLoadingWindow();
+                w.setTitle(TreeViewer.LOADING_TITLE);
+                UIUtilities.centerAndShow(w);
                 break;
             case TreeViewer.SAVE:
                 LoadingWindow window = view.getLoadingWindow();

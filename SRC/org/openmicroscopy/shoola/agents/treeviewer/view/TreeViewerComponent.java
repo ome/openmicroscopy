@@ -44,6 +44,7 @@ import javax.swing.JDialog;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
@@ -52,8 +53,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
+import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -436,8 +439,8 @@ class TreeViewerComponent
         if (data == null) 
             throw new IllegalArgumentException("No data object. ");
         switch (operation) {
-            case Editor.CREATE_OBJECT:
-            case Editor.UPDATE_OBJECT: 
+            case CREATE_OBJECT:
+            case UPDATE_OBJECT: 
             case REMOVE_OBJECT:  
                 break;
             default:
@@ -453,7 +456,7 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = model.getSelectedBrowser();
         browser.refreshEdition(data, operation);
-        if (operation == Editor.UPDATE_OBJECT) {
+        if (operation == UPDATE_OBJECT) {
             Map browsers = model.getBrowsers();
             Iterator i = browsers.keySet().iterator();
             while (i.hasNext()) {
@@ -462,7 +465,7 @@ class TreeViewerComponent
                     browser.refreshEdition(data, operation);
             }
         }
-        if (editor == TreeViewer.CREATE_EDITOR) {
+        if (editor == CREATE_EDITOR) {
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
@@ -619,6 +622,61 @@ class TreeViewerComponent
         }
         if (groupRead) return permissions.isGroupWrite();
         return permissions.isWorldWrite();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#addExistingObjects(DataObject)
+     */
+    public void addExistingObjects(DataObject ho)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        if (ho == null) 
+            throw new IllegalArgumentException("No object.");
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        model.fireDataExistingObjectsLoader(ho);
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setExistingObjects(Set)
+     */
+    public void setExistingObjects(Set nodes)
+    {
+        if (model.getState() != LOADING_DATA)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the LOADING_DATA state.");
+        if (nodes == null)
+            throw new IllegalArgumentException("Nodes cannot be null.");
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        Set n = TreeViewerTranslator.transformIntoCheckNodes(nodes, 
+                getUserDetails().getId(), getRootGroupID());
+        AddExistingObjectsDialog 
+             dialog = new AddExistingObjectsDialog(view, n);
+        dialog.addPropertyChangeListener(
+                AddExistingObjectsDialog.EXISTING_ADD_PROPERTY, controller);   
+        UIUtilities.centerAndShow(dialog);  
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#addExistingObjects(Set)
+     */
+    public void addExistingObjects(Set set)
+    {
+        if (model.getState() != LOADING_DATA)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the LOADING_DATA state.");
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        model.fireAddExistingObjects(set);
+        fireStateChange();
+    }
+
+    public void onAddExistingObjects(DataObject parent, Set children)
+    {
     }
     
 }

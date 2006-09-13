@@ -181,6 +181,8 @@ class TreeViewerWin
         menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.ADD_OBJECT)));
         menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
