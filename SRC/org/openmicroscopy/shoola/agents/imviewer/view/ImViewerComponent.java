@@ -283,6 +283,7 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         if (model.getState() == READY) {
+            System.out.println(play);
             model.playMovie(play);
             if (!play) {
                 displayChannelMovie();

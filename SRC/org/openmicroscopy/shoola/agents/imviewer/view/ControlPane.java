@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -39,8 +40,10 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -88,6 +91,9 @@ class ControlPane
     private static final String T_SLIDER_DESCRIPTION = "Use the slider to " +
                             "select a timepoint.";
     
+    /** Dimension of the box between the channel buttons. */
+    private static final Dimension VBOX = new Dimension(1, 5);
+    
     /** Reference to the Control. */
     private ImViewerControl controller;
     
@@ -117,6 +123,28 @@ class ControlPane
     
     /** Button to play movie across channel. */
     private JButton         channelMovie;
+    
+    private JButton         colorModelButton;
+    
+    /** Helper reference. */
+    private IconManager     icons;
+    
+    /**
+     * Returns the icon corresponding to the current color model.
+     * 
+     * @param model The color model.
+     * @return See above.
+     */
+    private Icon getColorModelIcon(String model)
+    {
+        if (model.equals(ImViewer.GREY_SCALE_MODEL))
+            return icons.getIcon(IconManager.GRAYSCALE);
+        else if (model.equals(ImViewer.RGB_MODEL))
+            return icons.getIcon(IconManager.RGB);
+        else if (model.equals(ImViewer.HSB_MODEL))
+            return icons.getIcon(IconManager.HSB);
+        return null;
+    }
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -155,6 +183,26 @@ class ControlPane
         //tSlider.addChangeListener(this);
         channelMovie = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
+        channelMovie.setBorderPainted(false);
+        colorModelGroup = new ButtonGroup();
+        colorModelButton = new JButton();
+        colorModelButton.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+                String m = model.getColorModel();
+                ViewerAction a = null;
+                if (m.equals(ImViewer.RGB_MODEL)) {
+                     a = controller.getAction(ImViewerControl.HSB_MODEL);
+                } else if (m.equals(ImViewer.HSB_MODEL)) {
+                     a = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
+                } else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
+                     a = controller.getAction(ImViewerControl.RGB_MODEL);
+                }    
+                a.actionPerformed(e);
+            }
+        
+        });
     }
     
     /**
@@ -189,6 +237,7 @@ class ControlPane
         tSlider.setValue(model.getDefaultT());
         zSlider.addChangeListener(this);
         tSlider.addChangeListener(this);
+        colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
     
     /**
@@ -260,7 +309,7 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        colorModelGroup = new ButtonGroup();
+        
         ViewerAction action = 
             controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
         JRadioButton button = new JRadioButton();
@@ -323,13 +372,17 @@ class ControlPane
         ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
         ChannelMetadata d;
+        p.add(colorModelButton);
+        p.add(Box.createRigidArea(VBOX));
         for (int k = 0; k < data.length; k++) {
             d = data[k];
             button = new ChannelButton(""+d.getEmissionWavelength(), 
                     model.getChannelColor(k), k, model.isChannelActive(k));
             button.addPropertyChangeListener(controller);
             channelButtons.add(button);
-            p.add(createButtonPane(button, k));
+            p.add(button);
+            p.add(Box.createRigidArea(VBOX));
+            //p.add(createButtonPane(button, k));
         }
         p.add(channelMovie);
         return p;
@@ -340,8 +393,8 @@ class ControlPane
     {
         JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-        controls.add(createBoxPanes());
-        controls.add(createColorModelPane());
+        //controls.add(createBoxPanes());
+        //controls.add(createColorModelPane());
         controls.add(createChannelsPane());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(controls);
@@ -382,6 +435,7 @@ class ControlPane
         this.model = model;
         this.view = view;
         channelButtons = new HashSet();
+        icons = IconManager.getInstance();
         initComponents();
     }
     
@@ -453,6 +507,7 @@ class ControlPane
                 b.setAction(action);
             }
         }
+        colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
     
     /** 

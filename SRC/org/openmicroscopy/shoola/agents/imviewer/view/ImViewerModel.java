@@ -185,15 +185,17 @@ class ImViewerModel
      */
     void discard()
     {
+        state = ImViewer.DISCARDED;
         if (currentLoader != null) {
             currentLoader.cancel();
             currentLoader = null;
         }
         if (renderer != null) renderer.discard();
-        if (player != null) player.setPlayerState(Player.STOP);
+        if (player == null) return;
+        player.setPlayerState(Player.STOP);
+        player = null;
         //Shut down the service
         ImViewerAgent.getRegistry().getRenderingService().shutDown(pixelsID);
-        state = ImViewer.DISCARDED;
     }
 
     /**
@@ -320,6 +322,11 @@ class ImViewerModel
         
     }
     
+    /**
+     * Returns the newly rendered image.
+     * 
+     * @return See above.
+     */
     BufferedImage getRenderedImage()
     {
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
@@ -343,8 +350,7 @@ class ImViewerModel
     {
         this.rndControl = rndControl;
         renderer = RendererFactory.createRenderer(component, rndControl);
-    }
-    
+    } 
 
     /**
      * Returns the {@link Browser}.

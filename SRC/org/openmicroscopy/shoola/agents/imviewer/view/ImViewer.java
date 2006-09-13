@@ -81,19 +81,19 @@ public interface ImViewer
     //public static final int     LOADING_METADATA = 4;
     
     /** Flag to denote the <i>Loading Plane Info</i> state. */
-    public static final int     LOADING_PLANE_INFO = 5;
+    public static final int     LOADING_PLANE_INFO = 4;
     
     /** Flag to denote the <i>Ready Image</i> state. */
-    public static final int     READY_IMAGE = 6;
+    public static final int     READY_IMAGE = 5;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     READY = 7;
+    public static final int     READY = 6;
     
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     DISCARDED = 8;
+    public static final int     DISCARDED = 7;
     
     /** Flag to denote the <i>Channel Movie</i> state. */
-    public static final int     CHANNEL_MOVIE = 9;
+    public static final int     CHANNEL_MOVIE = 8;
     
     /** Bound property name indicating that a new z-section is selected. */
     public final static String  Z_SELECTED_PROPERTY = "z_selected";

@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.agents.imviewer.util.InfoButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -283,14 +282,14 @@ class ImViewerControl
             
             /** 
              * Required by I/F but not actually needed in our case, 
-             * no op implementation.
+             * no-op implementation.
              * @see MenuListener#menuCanceled(MenuEvent)
              */ 
             public void menuCanceled(MenuEvent e) {}
 
             /** 
              * Required by I/F but not actually needed in our case, 
-             * no op implementation.
+             * no-op implementation.
              * @see MenuListener#menuDeselected(MenuEvent)
              */ 
             public void menuDeselected(MenuEvent e) {}
@@ -300,7 +299,6 @@ class ImViewerControl
         //Listen to keyboard selection
         menu.addMenuKeyListener(new MenuKeyListener() {
 
-            
             public void menuKeyReleased(MenuKeyEvent e)
             {
                 createWindowsMenuItems();
@@ -327,13 +325,11 @@ class ImViewerControl
             public void windowClosing(WindowEvent e) { model.discard(); }
             public void windowDeiconified(WindowEvent e) { 
                 model.iconified(false);
-    
             }
     
             public void windowIconified(WindowEvent e)
-            {
-                model.iconified(true);
-    
+            { 
+                model.iconified(true); 
             }
         });
         view.getLoadingWindow().addPropertyChangeListener(
@@ -413,11 +409,12 @@ class ImViewerControl
         int state = model.getState();
         switch (state) {
             case ImViewer.DISCARDED:
-                view.setVisible(false);
-                view.dispose();
+                
                 LoadingWindow window = view.getLoadingWindow();
                 window.setVisible(false);
                 window.dispose();
+                view.setVisible(false);
+                view.dispose();
                 break;
             case ImViewer.LOADING_RENDERING_CONTROL:
                 UIUtilities.centerAndShow(view.getLoadingWindow());
@@ -487,7 +484,7 @@ class ImViewerControl
                     model.setChannelActive(i, i == c);
                 model.displayChannelMovie();
             }
-        } else if (InfoButton.INFO_PROPERTY.equals(propName)) {
+        } else if (ChannelButton.INFO_PROPERTY.equals(propName)) {
             int index = ((Integer) pce.getNewValue()).intValue();
             ChannelMetadata data = model.getChannelMetadata(index);
             InfoDialog dialog = new InfoDialog(model.getUI(), data);
