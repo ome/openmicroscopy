@@ -53,6 +53,7 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 /** 
  * Customized button used to select the rendered channel.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,6 +71,9 @@ public class ChannelButton
     extends JButton
     implements PropertyChangeListener
 {
+    
+    /** Bound property indicating to bring up the info dialog. */
+    public static final String  INFO_PROPERTY = "info";
     
     /** 
      * Bound property name indicating that the channel is or is not selected. 
@@ -104,6 +108,32 @@ public class ChannelButton
     }
     
     /**
+     * Fires property depending on the keys pressed.
+     * If Ctrl+ left click, we bring the color picker.
+     * If Ctrl+right click, we bring the info button.
+     * otherwise the select the channel.
+     * 
+     * @param e         The mouse event to handle.
+     * @param released  Pass <code>true</code> if the method is invoked when 
+     *                  the mouse is released, pass <code>false</code> if the 
+     *                  mouse is pressed.
+     */
+    private void onClick(MouseEvent e, boolean released)
+    {
+        //Ctrl+ left click to bring color picker
+        //Ctrl+right click to bring up info
+        if (e.isControlDown()) {
+            if (e.isPopupTrigger()) { //info
+                firePropertyChange(INFO_PROPERTY, null, new Integer(index));
+            } else { //color picker
+                
+            }
+        } else {
+            if (!released) setChannelSelected();
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param text      The text of the button. The text should correspond to
@@ -128,15 +158,10 @@ public class ChannelButton
         setRolloverEnabled(false);
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
+            //need the 2  b/c we use the method e.isPopupTrigger() 
+            public void mousePressed(MouseEvent e) { onClick(e, false); }
             
-            public void mousePressed(MouseEvent e)
-            {
-                if (e.isPopupTrigger()) { 
-                    //Bring up color chooser.
-                } else {
-                    setChannelSelected();
-                }
-            }
+            public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
     }
     
