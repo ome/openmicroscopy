@@ -191,6 +191,25 @@ public class TreeViewerTranslator
     }
     
     /**
+     * Transforms a {@link ImageData} into a visualisation object i.e.
+     * a {@link TreeCheckNode}.
+     * 
+     * @param data  The {@link ImageData} to transform.
+     *              Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    private static TreeCheckNode transformImageCheckNode(ImageData data)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        IconManager im = IconManager.getInstance();      
+        TreeCheckNode node =  new TreeCheckNode(data, 
+                                    im.getIcon(IconManager.IMAGE),
+                                    data.getName(), true);
+        return node;
+    }
+    
+    /**
      * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
      * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
      * transformed and linked to the newly created {@link TreeCheckNode}.
@@ -492,6 +511,39 @@ public class TreeViewerTranslator
                 else if (ho instanceof DatasetData) 
                     results.add(transformDatasetCheckNode((DatasetData) ho));
             }  
+        }
+        return results;
+    }
+    
+    /**
+     * Transforms a set of {@link DataObject}s into their corresponding 
+     * visualization objects. The elements of the set can either be
+     * {@link DatasetData}, {@link CategoryData} or {@link ImageData}.
+     * 
+     * @param paths     Collection of {@link DataObject}s to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data. 
+     * @return A set of visualization objects.
+     */
+    public static Set transformIntoCheckNodes(Set paths, long userID, 
+                                                long groupID)
+    {
+        if (paths == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet();
+        Iterator i = paths.iterator();
+        DataObject ho;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            if (isWritable(ho, userID, groupID)) {
+                if (ho instanceof DatasetData)
+                    results.add(transformDatasetCheckNode((DatasetData) ho));
+                else if (ho instanceof CategoryData)
+                    results.add(transformCategoryCheckNode((CategoryData) ho));
+                else if (ho instanceof ImageData)
+                    results.add(transformImageCheckNode((ImageData) ho));
+            }
         }
         return results;
     }

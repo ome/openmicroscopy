@@ -38,6 +38,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -85,7 +86,7 @@ public class DataObjectEditor
             throw new IllegalArgumentException("No DataObject");
         this.userObject = userObject;
         parent = null;
-        operation = Editor.UPDATE_OBJECT;
+        operation = TreeViewer.UPDATE_OBJECT;
     }
     
     /**
@@ -104,7 +105,7 @@ public class DataObjectEditor
             throw new IllegalArgumentException("No DataObject.");
         this.userObject = userObject;
         this.parent = parent;
-        operation = Editor.DELETE_OBJECT;
+        operation = TreeViewer.DELETE_OBJECT;
     }
     
     /** 
@@ -113,9 +114,9 @@ public class DataObjectEditor
      */
     public void load()
     {
-        if (operation == Editor.UPDATE_OBJECT)
+        if (operation == TreeViewer.UPDATE_OBJECT)
             handle = dmView.updateDataObject(userObject, this);
-        else if (operation == Editor.DELETE_OBJECT)   
+        else if (operation == TreeViewer.DELETE_OBJECT)   
             handle = dmView.removeDataObject(userObject, parent, this);
     }
 

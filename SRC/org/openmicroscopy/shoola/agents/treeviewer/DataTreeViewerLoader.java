@@ -42,6 +42,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
+import pojos.ExperimenterData;
+import pojos.GroupData;
+
 /** 
  * Parent of all classes that load data asynchronously for a {@link TreeViewer}.
  * All these classes invoke methods of the {@link DataManagerView},
@@ -73,6 +76,20 @@ public abstract class DataTreeViewerLoader
     
     /** Convenience reference for subclasses. */
     protected final DataManagerView 		dmView;
+    
+    /**
+     * Converts the UI rootLevel into its corresponding class.
+     * @return See above.
+     */
+    protected Class convertRootLevel()
+    {
+        switch (viewer.getRootLevel()) {
+            case TreeViewer.USER_ROOT: return ExperimenterData.class;
+            case TreeViewer.GROUP_ROOT: return GroupData.class;
+            default:
+                throw new IllegalArgumentException("Level not supported");
+        }
+    }
     
     /**
      * Creates a new instance.

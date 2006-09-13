@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -170,7 +171,7 @@ public class AnnotationEditor
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
         System.out.println(result);
-        viewer.setSaveResult((DataObject) result, Editor.UPDATE_OBJECT); 
+        viewer.setSaveResult((DataObject) result, TreeViewer.UPDATE_OBJECT); 
     }
     
 }
