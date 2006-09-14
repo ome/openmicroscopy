@@ -855,13 +855,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		// Experimenter
 
-		final Experimenter exp = localAdmin.lookupExperimenter(p.getName());
+		final Experimenter exp = localAdmin.userProxy(p.getName());
 		exp.getGraphHolder().setToken(token, token);
 		CurrentDetails.setOwner(exp);
 
 		// Member of Groups
-		List<Long> memberOfGroupsIds = exp
-				.eachLinkedExperimenterGroup(new IdBlock());
+		List<Long> memberOfGroupsIds = localAdmin.getMemberOfGroupIds(exp);
 		CurrentDetails.setMemberOfGroups(memberOfGroupsIds);
 
 		// Leader of Groups

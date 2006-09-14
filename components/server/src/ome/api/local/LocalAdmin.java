@@ -92,4 +92,13 @@ public interface LocalAdmin extends ome.api.IAdmin {
      */
     List<Long> getLeaderOfGroupIds( Experimenter e );
 
+	/** 
+     * Finds the ids for all groups for which the given {@link Experimenter}
+     * is a member.
+     * 
+     * @param e Non-null, managed (i.e. with id) {@link Experimenter}
+     * @see ExperimenterGroup#getDetails()
+     * @see Details#getOwner()
+     */
+    List<Long> getMemberOfGroupIds( Experimenter e );
 }
