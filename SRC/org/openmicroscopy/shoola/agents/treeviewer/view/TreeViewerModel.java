@@ -116,20 +116,20 @@ class TreeViewerModel
      * The component to find a given phrase in the currently selected
      * {@link Browser}.
      */
-    private Finder					finder;
+    private Finder              finder;
     
     /** Reference to the component that embeds this model. */
-    protected TreeViewer        	component;
+    protected TreeViewer        component;
     
     /** Creates the browsers controlled by this model. */
     private void createBrowsers()
     {
         Browser browser = 
-                BrowserFactory.createBrowser(Browser.HIERARCHY_EXPLORER, 
+                BrowserFactory.createBrowser(Browser.PROJECT_EXPLORER, 
                         component);
         selectedBrowser = browser;
         browser.setSelected(true);
-        browsers.put(new Integer(Browser.HIERARCHY_EXPLORER), browser);
+        browsers.put(new Integer(Browser.PROJECT_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
                                                 component);
         browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
@@ -144,7 +144,7 @@ class TreeViewerModel
     protected TreeViewerModel()
     {
         state = TreeViewer.NEW;
-        editorType = TreeViewer.NO_EDITOR;
+        editorType = TreeViewer.PROPERTIES_EDITOR;
         rootLevel = TreeViewer.USER_ROOT;
         browsers = new HashMap();
     }
@@ -160,7 +160,6 @@ class TreeViewerModel
         this.component = component; 
         createBrowsers();
     }
-    
     
     /**
      * Sets the root of the retrieved hierarchies. 
@@ -342,10 +341,16 @@ class TreeViewerModel
        currentLoader.load();
    }
 
-   
+   /**
+    * Fires an asynchronous call to add the specified children to the
+    * the currently selected parent.
+    * 
+    * @param children   The children to add.
+    */
    void fireAddExistingObjects(Set children)
    {
        TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
+       if (parent == null) return;
        Object po = parent.getUserObject();
        if ((po instanceof ProjectData) || ((po instanceof DatasetData)) ||
             (po instanceof CategoryGroupData)) {

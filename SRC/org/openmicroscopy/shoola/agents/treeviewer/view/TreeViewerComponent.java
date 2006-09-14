@@ -124,7 +124,6 @@ class TreeViewerComponent
         model.setHierarchyRoot(USER_ROOT, user.getDefaultGroup().getId());
         controller.initialize(view);
         view.initialize(controller, model);
-
     }
 
     /**
@@ -141,7 +140,8 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
 	        case NEW:
-                view.open();
+                view.setOnScreen();
+                model.getSelectedBrowser().activate();
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
@@ -187,10 +187,12 @@ class TreeViewerComponent
                     "state.");
         }
         Browser oldBrowser = model.getSelectedBrowser();
-        if (oldBrowser.equals(browser)) return;
-        model.setSelectedBrowser(browser);
-        removeEditor();
-        firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
+        if (oldBrowser == null || !oldBrowser.equals(browser)) {
+            model.setSelectedBrowser(browser);
+            if (browser != null) browser.activate();
+            removeEditor();
+            firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
+        }
     }
     
     /**
@@ -413,12 +415,13 @@ class TreeViewerComponent
                         "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
                         "state");
         }
-        int editor = model.getEditorType();
+        
         removeEditor(); //remove the currently selected editor.
-        if (editor == TreeViewer.PROPERTIES_EDITOR) {
+        //int editor = model.getEditorType();
+        //if (editor == TreeViewer.PROPERTIES_EDITOR) {
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
-        }
+        //}
     }
 
     /**
@@ -654,10 +657,10 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         Set n = TreeViewerTranslator.transformIntoCheckNodes(nodes, 
                 getUserDetails().getId(), getRootGroupID());
+        model.setState(DIALOG_SELECTION);
         AddExistingObjectsDialog 
              dialog = new AddExistingObjectsDialog(view, n);
-        dialog.addPropertyChangeListener(
-                AddExistingObjectsDialog.EXISTING_ADD_PROPERTY, controller);   
+        dialog.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(dialog);  
     }
 
@@ -667,16 +670,13 @@ class TreeViewerComponent
      */
     public void addExistingObjects(Set set)
     {
-        if (model.getState() != LOADING_DATA)
+        if (model.getState() != DIALOG_SELECTION)
             throw new IllegalStateException(
             "This method cannot be invoked in the LOADING_DATA state.");
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        model.fireAddExistingObjects(set);
+        if (set == null || set.size() == 0) model.setState(READY);
+        else model.fireAddExistingObjects(set);
         fireStateChange();
-    }
-
-    public void onAddExistingObjects(DataObject parent, Set children)
-    {
     }
     
 }

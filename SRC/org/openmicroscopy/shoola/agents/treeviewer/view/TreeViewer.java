@@ -102,8 +102,11 @@ public interface TreeViewer
     /** Flag to denote the <i>Loading Data</i> state. */
     public static final int         LOADING_DATA = 5;
     
+    /** Flag to denote the <i>Loading Data</i> state. */
+    public static final int         DIALOG_SELECTION = 6;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 6;
+    public static final int         READY = 7;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_EDITOR = 100;
@@ -419,8 +422,11 @@ public interface TreeViewer
      */
     public void setExistingObjects(Set nodes);
 
-    public void onAddExistingObjects(DataObject parent, Set children);
-    
+    /**
+     * Adds the specified notes to the tree.
+     * 
+     * @param set The nodes to add.
+     */
     void addExistingObjects(Set set);
     
 }

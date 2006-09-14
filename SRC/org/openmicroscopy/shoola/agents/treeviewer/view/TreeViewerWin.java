@@ -86,10 +86,7 @@ class TreeViewerWin
     
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
-
-    /** The description of the window. */
-    private static final String DESCRIPTION = "Brings up the Data Manager";
-
+    
     /** The location of the verical slipt pane location. */
     private static final int 	DIVIDER_LOCATION = 200;
 
@@ -147,10 +144,12 @@ class TreeViewerWin
 
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(
-                                            Browser.HIERARCHY_EXPLORER));
+                                            Browser.PROJECT_EXPLORER));
         tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(
                                             Browser.CATEGORY_EXPLORER));
+        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        browser = (Browser) browsers.get(new Integer(Browser.IMAGES_EXPLORER));
         tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     }
 
@@ -180,6 +179,8 @@ class TreeViewerWin
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CREATE_TOP_CONTAINER)));
+        menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.ADD_OBJECT)));
@@ -190,6 +191,8 @@ class TreeViewerWin
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.REFRESH_TREE)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.EXIT)));
@@ -342,7 +345,7 @@ class TreeViewerWin
      */
     TreeViewerWin()
     {
-        super(TITLE, TreeViewerAgent.getRegistry().getTaskBar());
+        super(TITLE);
     }
 
     /**

@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseTreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -152,6 +154,18 @@ class TreeViewerControl
     static final Integer    ADD_OBJECT = new Integer(18);
     
     /** 
+     * Identifies the <code>Create top container action</code> in the 
+     * File menu.
+     */
+    static final Integer    CREATE_TOP_CONTAINER = new Integer(19);
+    
+    /** 
+     * Identifies the <code>Refresh tree action</code> in the 
+     * File menu.
+     */
+    static final Integer    REFRESH_TREE = new Integer(20);
+    
+    /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
      */
@@ -177,7 +191,7 @@ class TreeViewerControl
         actionsMap.put(DELETE_OBJECT, new DeleteAction(model));
         actionsMap.put(PASTE_OBJECT, new PasteAction(model));
         actionsMap.put(HIERARCHY_EXPLORER, 
-                 new BrowserSelectionAction(model, Browser.HIERARCHY_EXPLORER));
+                 new BrowserSelectionAction(model, Browser.PROJECT_EXPLORER));
         actionsMap.put(CATEGORY_EXPLORER, 
                 new BrowserSelectionAction(model, Browser.CATEGORY_EXPLORER));
         actionsMap.put(IMAGES_EXPLORER, 
@@ -191,6 +205,9 @@ class TreeViewerControl
         actionsMap.put(CLEAR,  new ClearAction(model));
         actionsMap.put(EXIT,  new ExitApplicationAction());
         actionsMap.put(ADD_OBJECT,  new AddAction(model));
+        actionsMap.put(CREATE_TOP_CONTAINER,  
+                new CreateTopContainerAction(model));
+        actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
     }
     
     /** Helper method to create the actions for the group level hierarchy. */
@@ -364,7 +381,7 @@ class TreeViewerControl
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
             model.addExistingObjects((Set) pce.getNewValue());
-        }
+        } 
     }
 
     /**
@@ -389,6 +406,7 @@ class TreeViewerControl
                 UIUtilities.centerAndShow(window);
                 break;
             case TreeViewer.READY:
+            case TreeViewer.DIALOG_SELECTION:
                 view.getLoadingWindow().setVisible(false); 
                 break;  
         }
