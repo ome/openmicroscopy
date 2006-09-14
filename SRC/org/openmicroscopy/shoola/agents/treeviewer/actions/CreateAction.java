@@ -66,10 +66,10 @@ public class CreateAction
 {
     
     /** The default name of the action. */
-    private static final String NAME = "New...";
+    private static final String NAME = "New node...";
     
     /** The name of the action for the creation of a <code>Project</code>. */
-    private static final String NAME_PROJECT = "Add new Project...";
+    //private static final String NAME_PROJECT = "Add new Project...";
     
     /** The name of the action for the creation of a <code>Dataset</code>. */
     private static final String NAME_DATASET = "Add new Dataset...";
@@ -77,8 +77,8 @@ public class CreateAction
     /** 
      * The name of the action for the creation of a <code>CategoryGroup</code>.
      */
-    private static final String NAME_CATEGORY_GROUP = "Add new Category " +
-                                                        "Group...";
+    //private static final String NAME_CATEGORY_GROUP = "Add new Category " +
+    //                                                    "Group...";
     
     /** The name of the action for the creation of a <code>Category</code>. */
     private static final String NAME_CATEGORY = "Add new Category...";
@@ -107,7 +107,7 @@ public class CreateAction
 	            setEnabled(false);
 	            break;
 	        default:
-                //onDisplayChange(browser.getSelectedDisplay());
+                onDisplayChange(browser.getLastSelectedDisplay());
 	            break;
         }
     }
@@ -125,14 +125,16 @@ public class CreateAction
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
+            
             if (selectedDisplay.getParentDisplay() != null) {
                 setEnabled(false);
                 putValue(Action.NAME, NAME);  
             } else {
+                /*
                 Browser browser = model.getSelectedBrowser();
                 if (browser != null) {
                     switch (browser.getBrowserType()) {
-                        case Browser.HIERARCHY_EXPLORER:
+                        case Browser.PROJECT_EXPLORER:
                             setEnabled(true);
                             putValue(Action.NAME, NAME_PROJECT);  
                             nodeType = CreateCmd.PROJECT;
@@ -146,11 +148,14 @@ public class CreateAction
                             //setEnabled(true);
                             setEnabled(false);
                             putValue(Action.NAME, NAME_IMAGE); 
-                    } 
-                } else {
+                    }
+                  } else {
                     setEnabled(false);
                     putValue(Action.NAME, NAME);  
-                }
+                  }
+                  */
+                setEnabled(false);
+                putValue(Action.NAME, NAME);  
             } 
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable((DataObject) ho));

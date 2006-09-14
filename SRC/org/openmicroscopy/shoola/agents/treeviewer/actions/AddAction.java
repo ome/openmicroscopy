@@ -67,7 +67,7 @@ public class AddAction
 {
 
     /** The default name of the action. */
-    private static final String NAME = "Add existing";
+    private static final String NAME = "Add existing container";
     
     /** The name of the action to add existing <code>Datasets</code>. */
     private static final String NAME_DATASET = "Add existing Dataset...";

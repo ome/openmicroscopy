@@ -84,6 +84,14 @@ public abstract class TreeViewerAction
     protected void onBrowserStateChange(Browser browser) {} ;
     
     /**
+     * Callback to notify that a new browser is selected.
+     * Subclasses override the method.
+     * 
+     * @param browser The selected browser.
+     */
+    protected void onBrowserSelection(Browser browser) {};
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -96,6 +104,8 @@ public abstract class TreeViewerAction
         this.model = model;
         //Attaches listener property change listener to each browser.
        
+        model.addPropertyChangeListener(
+                TreeViewer.SELECTED_BROWSER_PROPERTY, this);
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
         Browser browser;
@@ -114,11 +124,18 @@ public abstract class TreeViewerAction
     public void actionPerformed(ActionEvent e) {}
 
     /**
-     * Reacts to property changes in the {@link Browser}.
+     * Reacts to property changes {@link Browser#SELECTED_DISPLAY_PROPERTY}
+     * event fired by the {@link Browser} and to
+     * the {@link TreeViewer#SELECTED_BROWSER_PROPERTY} event.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
+        String name = evt.getPropertyName();
+        if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
+            onBrowserSelection((Browser) evt.getNewValue());
+            return;
+        }
         Object newValue = evt.getNewValue();
         if (newValue == null) {
             onDisplayChange(null);

@@ -62,7 +62,7 @@ public class RefreshAction
 {
 
     /** Name of the action. */
-    private static final String NAME = "Refresh";
+    private static final String NAME = "Refresh selection";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Reloads data.";
