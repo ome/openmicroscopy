@@ -114,8 +114,8 @@ public class InfoDialog
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { close(); }
         });
-        finishButton = new JButton("Finish");
-        //finishButton.setEnabled(false);
+        finishButton = new JButton("Save");
+        finishButton.setEnabled(false);
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { save(); }
         });
@@ -145,7 +145,7 @@ public class InfoDialog
         toolBar.setBorder(BorderFactory.createEtchedBorder());
         toolBar.setFloatable(true);
         toolBar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-        //toolBar.add(finishButton);
+        toolBar.add(finishButton);
         toolBar.add(Box.createRigidArea(H_BOX));
         toolBar.add(cancelButton);
         return toolBar;
