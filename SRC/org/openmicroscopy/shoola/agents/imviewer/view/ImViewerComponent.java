@@ -462,10 +462,10 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        if (model.getColorModel().equals(RGB_MODEL)) {
-            if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
-            return;
-        }
+        //if (model.getColorModel().equals(RGB_MODEL)) {
+        //    if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
+         //   return;
+        //}
         model.setChannelActive(index, b);
         if (b)
             firePropertyChange(CHANNEL_ACTIVE_PROPERTY, new Integer(index-1),

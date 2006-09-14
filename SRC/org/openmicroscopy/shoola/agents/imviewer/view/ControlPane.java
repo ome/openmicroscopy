@@ -495,6 +495,14 @@ class ControlPane
             }
         }
         */
+        boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
+        Iterator i = channelButtons.iterator();
+        ChannelButton button;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            button.setChannelSelected(
+                    model.isChannelActive(button.getChannelIndex()), gs);
+        }
         setChannelsSelection();
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
@@ -505,14 +513,13 @@ class ControlPane
      */
     void setChannelsSelection()
     {
-        boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator i = channelButtons.iterator();
         ChannelButton button;
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
-            button.setChannelSelected(
-                    model.isChannelActive(button.getChannelIndex()), 
-                                gs);
+            button.setSelected(
+                    model.isChannelActive(button.getChannelIndex())
+                                );
         }
     }
     
