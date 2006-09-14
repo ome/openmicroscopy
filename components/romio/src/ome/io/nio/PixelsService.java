@@ -28,6 +28,7 @@
  */
 package ome.io.nio;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -74,6 +75,7 @@ public class PixelsService extends AbstractFileSystemService
         throws IOException
     {
         String path = getPixelsPath(pixbuf.getId());
+        recursivelyCreateDirectory( new File(path).getParent());
         byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
         FileOutputStream stream = new FileOutputStream(path);
         
@@ -88,5 +90,20 @@ public class PixelsService extends AbstractFileSystemService
                 }
             }
         }
+    }
+    
+    private void recursivelyCreateDirectory(String path)
+    {
+    	File dir = new File(path);
+    	File parent = new File(dir.getParent());
+        if ( ! parent.exists() )
+        {
+        	recursivelyCreateDirectory(dir.getParent());
+        }
+        if ( ! dir.exists() )
+        {
+        	dir.mkdir();
+        }
+       
     }
 }

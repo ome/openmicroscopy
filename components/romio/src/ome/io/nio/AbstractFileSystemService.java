@@ -55,7 +55,11 @@ public class AbstractFileSystemService
 
     public AbstractFileSystemService(String path)
     {
-        log.info("Using root path: '" + path + "'");
+    	if ( log.isDebugEnabled() )
+    	{
+    		log.debug("Using root path: '" + path + "'");
+    	}
+    	
         this.root = path;
         
         File rootDirectory = new File(this.root);
