@@ -92,8 +92,17 @@ public class ChannelButton
     public static final Border  DESELECTED_BORDER = 
                 BorderFactory.createBevelBorder(BevelBorder.RAISED);
     
+    /** 
+     * Default color used when the color mode is set to
+     * <code>GreyScale</code>.
+     */
+    private static final Color  LAYER_COLOR = new Color(192, 192, 192);
+    
     /** The OME index of the channel. */
-    private final int index;
+    private final int   index;
+    
+    /** The color of the node. */
+    private Color       originalColor;
     
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
@@ -108,7 +117,7 @@ public class ChannelButton
     
     /**
      * Fires property depending on the keys pressed.
-     * If Ctrl+ left click, we bring the color picker.
+     * If Ctrl+left click, we bring the color picker.
      * If Ctrl+right click, we bring the info button.
      * otherwise the select the channel.
      * 
@@ -123,6 +132,20 @@ public class ChannelButton
         } else if (e.isShiftDown())
             firePropertyChange(INFO_PROPERTY, null, new Integer(index));
         else setChannelSelected();
+    }
+    
+    
+    /**
+     * Nested class used to set the color of the button when a mouse pressed
+     * event occured.
+     * @see BasicButtonUI#paintButtonPressed(Graphics, AbstractButton)
+     */
+    private class ChannelButtonUI
+        extends BasicButtonUI
+    {
+        protected void paintButtonPressed(Graphics g, AbstractButton b) {
+            b.setBackground(b.getBackground());
+        }
     }
     
     /**
@@ -143,14 +166,14 @@ public class ChannelButton
         super(text);
         if (color == null) 
             throw new IllegalArgumentException("No color.");
+        originalColor = color;
         this.index = index;
-        setEnabled(false);
+        //setEnabled(false);
         setBackground(color);
         setUI(new ChannelButtonUI());
         setRolloverEnabled(false);
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
-            //need the 2  b/c we use the method e.isPopupTrigger() 
             public void mousePressed(MouseEvent e) { onClick(e); }
         });
     }
@@ -170,6 +193,21 @@ public class ChannelButton
     }
     
     /**
+     * Setst the border and the background color depending on the given values.
+     *  
+     * @param selected  Pass <code>true</code> if the node is selected,
+     *                  <code>false</code> otherwise.
+     * @param gs        Pass <code>true</code> to add the greyscale layer,
+     *                  <code>false</code> otherwise.
+     */
+    public void setChannelSelected(boolean selected, boolean gs)
+    {
+        if (gs) setBackground(LAYER_COLOR);
+        else setBackground(originalColor);
+        setSelected(selected);
+    }
+    
+    /**
      * Overriden to set the border depending on the selection state.
      * @see AbstractButton#setSelected(boolean)
      */
@@ -186,19 +224,6 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
-    
-    /**
-     * Nested class used to set the color of the button when a mouse pressed
-     * event occured.
-     * @see BasicButtonUI#paintButtonPressed(Graphics, AbstractButton)
-     */
-    private class ChannelButtonUI
-        extends BasicButtonUI
-    {
-        protected void paintButtonPressed(Graphics g, AbstractButton b) {
-            b.setBackground(b.getBackground());
-        }
-    }
 
     /**
      * Reacts to color selection in the ColorChooser
@@ -214,5 +239,5 @@ public class ChannelButton
             firePropertyChange(CHANNEL_COLOR_PROPERTY, null, map);
         }
     }
-
+    
 }
