@@ -92,6 +92,10 @@ public class AddExistingObjectsDialog
      */
     public static final String  EXISTING_ADD_PROPERTY = "existingAdd";
     
+    /** Bound property indicating that the window has to be closed. */
+    public static final String  CLOSE_PROPERTY = "close";
+    
+    
     /** The default title. */
     private static final String TITLE = "Add existing items";
     
@@ -151,8 +155,7 @@ public class AddExistingObjectsDialog
             object = ((TreeCheckNode) i.next()).getUserObject();
             if (object instanceof DataObject) paths.add(object);
         } 
-        if (paths.size() != 0)
-            firePropertyChange(EXISTING_ADD_PROPERTY, null, paths);
+        firePropertyChange(EXISTING_ADD_PROPERTY, null, paths);
         close();
     }
     
