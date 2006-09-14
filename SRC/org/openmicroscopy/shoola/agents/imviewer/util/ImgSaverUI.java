@@ -95,7 +95,7 @@ class ImgSaverUI
     static {
         selections = new String[2];
         selections[IMAGE] = "image";
-        selections[IMAGE_AND_COMPONENTS] = "image and its components";
+        selections[IMAGE_AND_COMPONENTS] = "image and split channels";
     }
     
     /** Initializes the component composing the display. */
