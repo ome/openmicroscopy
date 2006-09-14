@@ -372,4 +372,7 @@ public interface ImViewer
      */
     public void setUnitBar(boolean b);
     
+    public int getHistoryState();
+    
+    
 }

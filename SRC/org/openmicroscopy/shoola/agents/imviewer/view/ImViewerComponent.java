@@ -84,6 +84,12 @@ class ImViewerComponent
     /** Text message displayed when an image is rendered. */
     private static final String RENDERING_MSG = "Render image";
     
+    /** 
+     * The maximum number of channels that can be mapped using 
+     * the RGB color model.
+     */
+    private static final int    MAX_CHANNELS_RGB = 3;
+    
     /** The Model sub-component. */
     private ImViewerModel    model;
     
@@ -231,20 +237,52 @@ class ImViewerComponent
             value = (ViewerAction) map.get(key);
         }
         String m;
+        List channels = model.getActiveChannels();
+        
         switch (key.intValue()) {
             case ColorModelAction.GREY_SCALE_MODEL:
-                m = GREY_SCALE_MODEL;
+                model.setColorModel(GREY_SCALE_MODEL);
+                if (channels != null && channels.size() > 1) {
+                    i = channels.iterator();
+                    int index;
+                    int j = 0;
+                    while (i.hasNext()) {
+                        index = ((Integer) i.next()).intValue();
+                        setChannelActive(index, j == 0);
+                        j++;
+                    }
+                } else if (channels == null || channels.size() == 0) {
+                    //no channel.
+                    setChannelActive(0, true);
+                }
                 break;
             case ColorModelAction.RGB_MODEL:
-                m = RGB_MODEL;
+                model.setColorModel(RGB_MODEL);
+                if (channels != null && channels.size() > 1) {
+                    i = channels.iterator();
+                    int index;
+                    int j = 0;
+                    while (i.hasNext()) {
+                        index = ((Integer) i.next()).intValue();
+                        setChannelActive(index, j < MAX_CHANNELS_RGB);
+                        j++;
+                    }
+                } else if (channels == null || channels.size() == 0) {
+                    //no channel.
+                    setChannelActive(0, true);
+                }
                 break;
             case ColorModelAction.HSB_MODEL:
                 m = HSB_MODEL;
+                if (channels == null || channels.size() == 0) {
+                    //no channel.
+                    setChannelActive(0, true);
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Color model not supported");
         }
-        model.setColorModel(m);
+        //need
         view.setColorModel(value);
         renderXYPlane();
     }
@@ -308,10 +346,10 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         if (model.getState() == READY) {
-            System.out.println(play);
             model.playMovie(play);
             if (!play) {
                 displayChannelMovie();
+                controller.setHistoryState(READY);
             }
             fireStateChange();
         }    
@@ -423,6 +461,10 @@ class ImViewerComponent
                 throw new IllegalStateException(
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
+        }
+        if (model.getColorModel().equals(RGB_MODEL)) {
+            if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
+            return;
         }
         model.setChannelActive(index, b);
         if (b)
@@ -748,6 +790,16 @@ class ImViewerComponent
             throw new IllegalStateException(
                     "This method can't be invoked in the DISCARDED state.");
         model.setUnitBar(b);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getHistoryState()
+     */
+    public int getHistoryState()
+    {
+        // TODO Auto-generated method stub
+        return controller.getHistoryState();
     }
    
 }

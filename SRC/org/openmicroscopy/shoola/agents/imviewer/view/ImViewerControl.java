@@ -413,30 +413,39 @@ class ImViewerControl
         int state = model.getState();
         switch (state) {
             case ImViewer.DISCARDED:
-                
                 LoadingWindow window = view.getLoadingWindow();
                 window.setVisible(false);
                 window.dispose();
                 view.setVisible(false);
                 view.dispose();
+                historyState = state;
                 break;
             case ImViewer.LOADING_RENDERING_CONTROL:
                 UIUtilities.centerAndShow(view.getLoadingWindow());
+                historyState = state;
                 break;
             case ImViewer.LOADING_IMAGE:
                 //if (historyState == ImViewer.LOADING_METADATA)
                  if (historyState == ImViewer.LOADING_RENDERING_CONTROL)
                     view.getLoadingWindow().setVisible(false);
                 view.onStateChange(false);
-             break;   
+                historyState = state;
+             break;  
             case ImViewer.READY:
                 view.getLoadingWindow().setVisible(false);
-                view.onStateChange(true);
+                if (historyState == ImViewer.CHANNEL_MOVIE)
+                    view.onStateChange(false);
+                else {
+                    view.onStateChange(true);
+                    historyState = state;
+                }
                 break;
-            //case ImViewer.CHANNEL_MOVIE:
+            case ImViewer.CHANNEL_MOVIE:
+                historyState = ImViewer.CHANNEL_MOVIE;
+                view.onStateChange(false);
                 
         }
-        historyState = state;
+        //historyState = state;
     }
 
     /**
@@ -495,6 +504,18 @@ class ImViewerControl
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method
         }
+    }
+
+    int getHistoryState()
+    {
+        // TODO Auto-generated method stub
+        return historyState;
+    }
+
+    void setHistoryState(int s)
+    {
+        historyState = s;
+        
     }
 
 }
