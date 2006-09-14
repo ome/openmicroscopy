@@ -78,7 +78,7 @@ public abstract class SemanticType {
 	}
 	
 	// all properties
-	private Set properties = new HashSet();
+	private Set<Property> properties = new HashSet<Property>();
 	
 	/** future class name; required for all types */
 	private String id;
@@ -214,11 +214,11 @@ public abstract class SemanticType {
 		return immutable;
 	}
 
-	public void setProperties(Set properties) {
+	public void setProperties(Set<Property> properties) {
 		this.properties = properties;
 	}
 
-	public Set getProperties() {
+	public Set<Property> getProperties() {
 		return properties;
 	}
 

@@ -27,7 +27,8 @@ public class ExampleUsageTest extends TestCase
   @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
-        sr = new SaxReader("type.xml");
+	  	File f = new File(ExampleUsageTest.class.getResource("type.xml").getFile());
+        sr = new SaxReader(f);
     }
 
   @Configuration(afterTestMethod = true)
@@ -39,7 +40,8 @@ public class ExampleUsageTest extends TestCase
   @Test
     public void testONE()
     {
-        Set set = sr.parse();
+	  	sr.parse();
+        Set set = sr.process();
         log.info("Results of parse:" + set);
         for (Iterator it = set.iterator(); it.hasNext();)
         {
@@ -58,7 +60,8 @@ public class ExampleUsageTest extends TestCase
   @Test
     public void testWithWriting() throws Exception
     {
-        Set set = sr.parse();
+	  	sr.parse();
+        Set set = sr.process();
         for (Iterator it = set.iterator(); it.hasNext();)
         {
             SemanticType st = (SemanticType) it.next();
@@ -76,7 +79,17 @@ public class ExampleUsageTest extends TestCase
 
     }
 
-    /** disabling; need proper logic to find common/ component FIXME */
+  @Test
+	public void testPostProcessingInverse() throws Exception {
+	  	sr.parse();
+		Set<SemanticType> set = sr.process();
+		Map<String, SemanticType> map = setToMap(set);
+		SemanticType thumbnail = map.get("ome.Thumbnail");
+		assertTrue(thumbnail.getProperties().iterator().next().getInverse()
+				.equals("thumbnails"));
+	}
+  
+	/** disabling; need proper logic to find common/ component FIXME */
     public void DISABLEDtestReal() throws Exception
     {
         File currentDir = new File(System.getProperty("user.dir"));// TODO Util
@@ -85,7 +98,8 @@ public class ExampleUsageTest extends TestCase
                 + "Mappings.ome.xml"); // FIXME circular deps. 
         log.error(mappings);
         SaxReader nsr = new SaxReader(mappings);
-        for (Iterator it = nsr.parse().iterator(); it.hasNext();)
+        nsr.parse();
+        for (Iterator it = nsr.process().iterator(); it.hasNext();)
         {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
@@ -101,4 +115,13 @@ public class ExampleUsageTest extends TestCase
         }
     }
 
+    // ~ Helpers
+	// =========================================================================
+    private Map<String, SemanticType> setToMap(Set<SemanticType> set) {
+    	Map<String,SemanticType> map = new HashMap<String,SemanticType>();
+    	for (SemanticType type : set) {
+			map.put(type.getId(), type);
+		}
+    	return map;
+    }
 }

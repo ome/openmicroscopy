@@ -63,7 +63,8 @@ public class DSLTask extends Task
             throw new BuildException("No fileset specified");
         }
         
-        Set types = new HashSet();
+        Set<SemanticType> types = new HashSet<SemanticType>();
+        DSLHandler handler = new DSLHandler();
         
         java.util.Iterator p = _fileSets.iterator();
         while(p.hasNext())
@@ -79,11 +80,13 @@ public class DSLTask extends Task
             	if (!file.exists()){
             		log("File "+file+" not found.");
             	} else {
-            		SaxReader sr = new SaxReader(file);
-            		types.addAll(sr.parse());
+            		SaxReader sr = new SaxReader(file,handler);
+            		sr.parse();
             	}
             }
         }
+        
+        types.addAll(handler.process());
         
         for (Iterator it = types.iterator(); it.hasNext();) {
 			SemanticType st = (SemanticType) it.next();

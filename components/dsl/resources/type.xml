@@ -35,6 +35,18 @@ EXAMPLE TYPE FILE
 		</properties>
 	</enum>
 	
+	<type id="ome.Pixels">
+		<properties>
+			<zeromany name="thumbnails" type="ome.Thumbnail" inverse="pixels"/>
+		</properties>
+	</type>
+	
+	<type id="ome.Thumbnail">
+		<properties>
+			<required name="pixels" type="ome.Pixels"/>
+		</properties>
+	</type>
+			
 	<!-- examples -->
 	<!--
 	<type id="listOfExamples"><properties>

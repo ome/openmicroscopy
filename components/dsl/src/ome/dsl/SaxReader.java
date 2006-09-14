@@ -33,7 +33,9 @@ package ome.dsl;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -61,20 +63,19 @@ public class SaxReader {
 	URL xmlFile; 
 		
 	/** handler which collects all types and properties from the input file */
-	DSLHandler handler = new DSLHandler();
+	DSLHandler handler;
 	
 	/** SAXparser which does the actualy processing */
 	javax.xml.parsers.SAXParser parser;
 		
-	/**
-	 * @param file input file containing DSL for semantic types
-	 */
-	public SaxReader(String filename){
-		xmlFile = this.getClass().getClassLoader().getResource(filename); 
-		init();
+	public SaxReader(File file){
+		this(file, new DSLHandler());
 	}
 	
-	public SaxReader(File file){
+	public SaxReader(File file, DSLHandler dslHandler)
+	{
+		handler = dslHandler;
+
 		try {
 			xmlFile = file.toURL();
 		} catch (MalformedURLException e) {
@@ -98,16 +99,18 @@ public class SaxReader {
 	}
 	
 	/** parses file and returns types */
-	public Set parse(){
+	public void parse(){
 	    try {
 			parser.parse(xmlFile.getPath(), handler);
 		} catch (Exception e) {
 			throw new RuntimeException(
                     "Error parsing "+xmlFile+" :\n"+e.getMessage(),e);
 		}
-		
+	}
+	
+	public Set<SemanticType> process()
+	{
 		return handler.process();
-
 	}
 	
 }
@@ -123,7 +126,7 @@ class DSLHandler extends DefaultHandler {
 	private String depth="";
 
 	// For handling
-	private Set types = new HashSet();	
+	private Map<String,SemanticType> types = new HashMap<String,SemanticType>();
 	private SemanticType type;
 	private Property property;
 	
@@ -205,15 +208,46 @@ class DSLHandler extends DefaultHandler {
 			}
 			
 			type.validate();
-			types.add(type);
+			types.put(type.getId(),type);
 			type=null;
 		
 		} 
 	}
 	
-    /* TODO */
-    public Set process(){
-        return types;
+    /** Initial processing.
+     * 
+     * Example: 
+     *  Pixels: <zeromany name="thumbnails" type="ome.model.display.Thumbnail" inverse="pixels"/>
+     *  Thumnail: <required name="pixels" type="ome.model.core.Pixels"/>
+     * 
+     *  We want Thumbail.pixels to be given the inverse "thumbnails"
+     * 
+     * */
+    public Set<SemanticType> process(){
+    	for (String id : types.keySet()) {    					// "ome...Pixels"
+			SemanticType t = types.get(id);						// Pixels
+			for (Property p : t.getProperties()) {				// thumbnails
+				String rev = p.getType();						// "ome...Thumbnail"
+				String inv = p.getInverse();					// "pixels"
+				if ( inv != null )
+				{
+					if (types.containsKey(rev))
+					{
+						SemanticType reverse = types.get(rev);		// Thumbail
+						for (Property inverse : reverse.getProperties()) {
+							if ( inverse.getType().equals(id)) {	// "ome...Pixels"
+								inverse.setInverse(p.getName());
+							}
+						}
+					}
+				}
+			}
+		}
+    	System.err.println("xxx");
+    	for (String id : types.keySet()) {
+			System.err.println(id);
+		}
+        return new HashSet<SemanticType>(types.values());
     }
     
 	/** simple outputting routine with indention */

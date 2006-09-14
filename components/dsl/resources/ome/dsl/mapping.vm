@@ -259,7 +259,11 @@
      >
 
 #if($prop.class.name == "ome.dsl.LinkParent" || $prop.class.name == "ome.dsl.LinkChild") 
-	<meta attribute="property-type">IObject</meta>
+	   <meta attribute="property-type">IObject</meta>
+#elseif($prop.inverse && $prop.tag)
+	   <meta attribute="WORKAROUND">${prop.inverse}</meta>
+#elseif($prop.inverse)
+	   <meta attribute="fkInverse">${prop.inverse}</meta>
 #end
      </many-to-one>
 #if($prop.tag)

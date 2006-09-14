@@ -1,14 +1,17 @@
 package ome.model.utests;
 
 import org.testng.annotations.*;
+
 import java.util.List;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.display.Thumbnail;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -134,6 +137,26 @@ public class SetsAndLinksTest extends TestCase
       map.setDefaultGroupLink( true );
       experimenter.addGroupExperimenterMap( map, true );
       testIsDefault(experimenter);
+  }
+  
+  @Test
+  public void testAddingFillsContainer() throws Exception {
+	  Pixels p = new Pixels();
+	  Thumbnail tb = new Thumbnail();
+	  tb.setPixels(p);
+	  assertTrue(p.iterateThumbnails().hasNext());
+  }
+  
+  @Test
+  public void testLinkingFillsContainer() throws Exception {
+	  Project p = new Project();
+	  Dataset d = new Dataset();
+	  ProjectDatasetLink link = new ProjectDatasetLink();
+	  link.link(p,d);
+	  assertNotNull(link.parent());
+	  assertNotNull(link.child());
+	  assertTrue(link.parent().sizeOfDatasetLinks()==1);
+	  assertTrue(link.child().sizeOfProjectLinks()==1);
   }
   
   // ~ Private helpers
