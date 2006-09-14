@@ -46,7 +46,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -86,12 +85,12 @@ public class ChannelButton
     public static final String  CHANNEL_COLOR_PROPERTY = "channelColor";
     
     /** The border set when the channel is selected. */
-    public static final Border  SELECTED_BORDER = 
-                    BorderFactory.createBevelBorder(BevelBorder.RAISED);
+    public static final Border  SELECTED_BORDER =
+        new BevelBorder(BevelBorder.LOWERED, Color.yellow, Color.yellow);
     
     /** The border set when the channel is not selected. */
     public static final Border  DESELECTED_BORDER = 
-        BorderFactory.createBevelBorder(BevelBorder.LOWERED);
+                BorderFactory.createBevelBorder(BevelBorder.RAISED);
     
     /** The OME index of the channel. */
     private final int index;
@@ -114,23 +113,16 @@ public class ChannelButton
      * otherwise the select the channel.
      * 
      * @param e         The mouse event to handle.
-     * @param released  Pass <code>true</code> if the method is invoked when 
-     *                  the mouse is released, pass <code>false</code> if the 
-     *                  mouse is pressed.
      */
-    private void onClick(MouseEvent e, boolean released)
+    private void onClick(MouseEvent e)
     {
-        //Ctrl+ left click to bring color picker
-        //Ctrl+right click to bring up info
+        //Ctrl+ click to bring color picker
+        //Shift+ click to bring up info
         if (e.isControlDown()) {
-            if (e.isPopupTrigger()) { //info
-                firePropertyChange(INFO_PROPERTY, null, new Integer(index));
-            } else { //color picker
-                
-            }
-        } else {
-            if (!released) setChannelSelected();
-        }
+            
+        } else if (e.isShiftDown())
+            firePropertyChange(INFO_PROPERTY, null, new Integer(index));
+        else setChannelSelected();
     }
     
     /**
@@ -159,9 +151,7 @@ public class ChannelButton
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
             //need the 2  b/c we use the method e.isPopupTrigger() 
-            public void mousePressed(MouseEvent e) { onClick(e, false); }
-            
-            public void mouseReleased(MouseEvent e) { onClick(e, true); }
+            public void mousePressed(MouseEvent e) { onClick(e); }
         });
     }
     
@@ -185,8 +175,8 @@ public class ChannelButton
      */
     public void setSelected(boolean b)
     {
-        if (b) setBorder(DESELECTED_BORDER);
-        else setBorder(SELECTED_BORDER); 
+        if (b) setBorder(SELECTED_BORDER);
+        else setBorder(DESELECTED_BORDER); 
         super.setSelected(b);
     }
     
