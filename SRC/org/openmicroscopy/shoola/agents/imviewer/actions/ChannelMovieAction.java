@@ -97,7 +97,7 @@ public class ChannelMovieAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
     }
 
     /** 
@@ -107,15 +107,14 @@ public class ChannelMovieAction
     public void actionPerformed(ActionEvent e)
     {
         Icon icon = (Icon) getValue(Action.SMALL_ICON);
-        boolean play = true;
+        boolean play = false;
         if (icon.toString().equals(
-            icons.getIcon(IconManager.PAUSE).toString())) {
-            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
-        } else {
+            icons.getIcon(IconManager.PLAY).toString())) {
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
-            play = false;
-        }
-            
+            play = true;
+        } else {
+            putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+        }  
         model.playChannelMovie(play);
     }
     

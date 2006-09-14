@@ -34,6 +34,9 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.Action;
 import javax.swing.Icon;
 
@@ -63,11 +66,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ColorModelAction
     extends ViewerAction
 {
-
-    /**
-     * Bounds property indicating that a new color model is selected.
-     */
-    public static final String  COLOR_MODEL_PROPERTY = "colorModel";
     
     /** Identifies the <code>Grey Scale</code>. */
     public static final int     GREY_SCALE_MODEL = 0;
@@ -164,8 +162,9 @@ public class ColorModelAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.setColorModel(modelIndex);
-        firePropertyChange(COLOR_MODEL_PROPERTY, null, this);
+        Map m = new HashMap(1);
+        m.put(new Integer(modelIndex), this);
+        model.setColorModel(m);
     }
     
 }
