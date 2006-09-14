@@ -34,17 +34,16 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
  * Factory to create {@link HiViewer} components.
@@ -252,7 +251,7 @@ public class HiViewerFactory
     private HiViewerFactory() 
     {
         viewers = new HashSet();
-        windowsMenu = new JMenu("HIViewer Window");
+        windowsMenu = new JMenu("HiViewers");
         TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
         tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
     }
