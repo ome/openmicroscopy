@@ -34,6 +34,9 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
@@ -63,6 +66,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ChannelMovieAction
     extends ViewerAction
+    implements PropertyChangeListener
 {
 
     /** The name of the action. */
@@ -74,6 +78,9 @@ public class ChannelMovieAction
     /** Helper reference to the icon manager. */
     private IconManager icons;
     
+    /** Flag to indicate that we play a movie across channels. */
+    private boolean play;
+    
     /** 
      * Overriden to make sure that the movie player is not enabled when 
      * there is only one channel.
@@ -81,7 +88,13 @@ public class ChannelMovieAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-        if (model.getMaxC() <= 1) setEnabled(false);
+        if (play) {
+            setEnabled(true);
+        } else {
+            if (model.getState() == ImViewer.READY) {
+                setEnabled(!(model.getActiveChannels().size() <= 1));
+            }
+        }
     }
     
     /**
@@ -96,8 +109,8 @@ public class ChannelMovieAction
         //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
+        model.addPropertyChangeListener(ImViewer.CHANNEL_ACTIVE_PROPERTY, this);
     }
 
     /** 
@@ -107,7 +120,7 @@ public class ChannelMovieAction
     public void actionPerformed(ActionEvent e)
     {
         Icon icon = (Icon) getValue(Action.SMALL_ICON);
-        boolean play = false;
+        play = false;
         if (icon.toString().equals(
             icons.getIcon(IconManager.PLAY).toString())) {
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PAUSE));
@@ -116,6 +129,22 @@ public class ChannelMovieAction
             putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PLAY));
         }  
         model.playChannelMovie(play);
+    }
+
+    /**
+     * Reacts to propertyChange fired by the {@link ImViewer}.
+     * 
+     * @param evt The event to handle.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if (evt.getPropertyName().equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
+            if (!play) {
+                if (model.getState() == ImViewer.READY) {
+                    setEnabled(!(model.getActiveChannels().size() <= 1));
+                }
+            }    
+        }
     }
     
 }

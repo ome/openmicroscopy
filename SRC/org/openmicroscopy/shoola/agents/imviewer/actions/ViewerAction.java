@@ -123,9 +123,9 @@ public class ViewerAction
     public void stateChanged(ChangeEvent e)
     {
         if (model.getState()  == ImViewer.READY) {
-            setEnabled(true);
-            onStateChange(e);
-        }
+            setEnabled(!(model.getHistoryState() == ImViewer.CHANNEL_MOVIE)); 
+        } else setEnabled(false); 
+        onStateChange(e);
     }
 
     /** 
