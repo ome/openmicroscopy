@@ -245,14 +245,6 @@ class CodomainPane
      * @see ControlPane#getPaneIndex()
      */
     protected int getPaneIndex() { return ControlPane.CODOMAIN_PANE_INDEX; }
-    
-    
-    protected void onStateChange(boolean b)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
 
     /**
      * Updates the corresponding controls when a codomain transformation

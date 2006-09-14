@@ -335,12 +335,6 @@ class DomainPane
         return "Define the mapping context for the pixels intensity values.";
     }
 
-    protected void onStateChange(boolean b)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
     /**
      * Returns the index of the component.
      * @see ControlPane#getPaneIndex()

@@ -34,8 +34,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.util.HashMap;
-import java.util.Iterator;
-
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -180,13 +178,6 @@ class RendererUI
         toolBar = new ToolBar(controller);
         createControlPanes();
         buildGUI();
-    }
-
-    void onStateChange(boolean b)
-    {
-        Iterator i = controlPanes.keySet().iterator();
-        while (i.hasNext())
-            ((ControlPane) i.next()).onStateChange(b);
     }
 
     /**

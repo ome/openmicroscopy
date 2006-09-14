@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.swing.Action;
 import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -73,7 +71,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  * @since OME2.2
  */
 class RendererControl
-    implements ChangeListener, PropertyChangeListener
+    implements PropertyChangeListener
 {
 
     /** Identifies the Save settings action in the menu. */
@@ -222,24 +220,6 @@ class RendererControl
     void setCodomainInterval(int s, int e, boolean released)
     {
         model.setCodomainInterval(s, e, released);
-    }
-    
-    /**
-     * Reacts to state changes in the <code>ImViewer</code>
-     * @see ChangeListener#stateChanged(ChangeEvent)
-     */
-    public void stateChanged(ChangeEvent e)
-    {
-        switch (model.getParentModel().getState()) {
-            case ImViewer.DISCARDED:
-            case ImViewer.LOADING_IMAGE:
-                view.onStateChange(false);
-                break;
-            case ImViewer.LOADING_PLANE_INFO:
-            case ImViewer.READY:
-            case ImViewer.READY_IMAGE:
-                view.onStateChange(true);
-        }  
     }
 
     /**

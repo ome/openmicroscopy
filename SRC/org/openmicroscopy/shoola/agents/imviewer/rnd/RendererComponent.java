@@ -129,7 +129,8 @@ class RendererComponent
      */
     public void updateCodomainMap(CodomainMapContext ctx)
     {
-        //if (model.getState() != DISCARDED) return;
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.updateCodomainMap(ctx);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -140,7 +141,8 @@ class RendererComponent
      */
     public void setInputInterval(double s, double e, boolean released)
     {
-        //if (model.getState() != DISCARDED) return;
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setInputInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
         firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
@@ -153,8 +155,8 @@ class RendererComponent
      */
     public void setCodomainInterval(int s, int e, boolean released)
     {
-        //if (model.getState() != DISCARDED) return;
-        //TODO: remove comments when server problem is fixed
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setCodomainInterval(s, e);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -165,8 +167,8 @@ class RendererComponent
      */
     public void setBitResolution(int v)
     {
-        //if (model.getState() != DISCARDED) return;
-//      TODO: remove comments when server problem is fixed
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setBitResolution(v);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -177,7 +179,8 @@ class RendererComponent
      */
     public void setSelectedChannel(int c)
     {
-        //if (model.getState() != DISCARDED) return;
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         int selectedChannel  = model.getSelectedChannel();
         if (selectedChannel == c) return;
         model.setSelectedChannel(c);
@@ -194,8 +197,8 @@ class RendererComponent
      */
     public void setFamily(String family)
     {
-        //if (model.getState() != DISCARDED) return;
-        
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setFamily(family);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -206,7 +209,8 @@ class RendererComponent
      */
     public void setCurveCoefficient(double k)
     {
-        //if (model.getState() != DISCARDED) return;
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setCurveCoefficient(k);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -217,7 +221,8 @@ class RendererComponent
      */
     public void setNoiseReduction(boolean b)
     {
-        //if (model.getState() != DISCARDED) return;
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.setNoiseReduction(b);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
@@ -249,6 +254,8 @@ class RendererComponent
      */
     public void removeCodomainMap(Class mapType)
     {
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         model.removeCodomainMap(mapType);
         view.removeCodomainMap(mapType);
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
@@ -260,6 +267,8 @@ class RendererComponent
      */
     public void addCodomainMap(Class mapType)
     {
+        if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
+            return;
         if (model.getCodomainMap(mapType) != null) return; //already
         model.addCodomainMap(mapType);
         view.addCodomainMap(mapType);
@@ -270,40 +279,24 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getWindowStart()
      */
-    public double getWindowStart()
-    {
-        // TODO Auto-generated method stub
-        return model.getWindowStart();
-    }
+    public double getWindowStart() { return model.getWindowStart(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getWindowEnd()
      */
-    public double getWindowEnd()
-    {
-        // TODO Auto-generated method stub
-        return model.getWindowEnd();
-    }
+    public double getWindowEnd() { return model.getWindowEnd(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getGlobalMin()
      */
-    public double getGlobalMin()
-    {
-        // TODO Auto-generated method stub
-        return model.getGlobalMin();
-    }
+    public double getGlobalMin() { return model.getGlobalMin(); }
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getGlobalMax()
      */
-    public double getGlobalMax()
-    {
-        // TODO Auto-generated method stub
-        return model.getGlobalMax();
-    }
+    public double getGlobalMax() { return model.getGlobalMax(); }
 
 }
