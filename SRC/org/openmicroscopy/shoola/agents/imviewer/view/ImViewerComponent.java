@@ -37,12 +37,15 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -89,6 +92,18 @@ class ImViewerComponent
     
     /** The View sub-component. */
     private ImViewerUI       view;
+    
+    /** 
+     * Returns the description displayed in the status bar.
+     * 
+     * @return See above
+     */
+    private String getStatusText()
+    {
+        String text = "";
+        text += "Z="+model.getDefaultZ()+" T="+model.getDefaultT();
+        return text;
+    }
     
     /**
      * Creates a new instance.
@@ -194,9 +209,9 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setColorModel(int)
+     * @see ImViewer#setColorModel(Map)
      */
-    public void setColorModel(int colorModel)
+    public void setColorModel(Map map)
     {
         switch (model.getState()) {
             case NEW:
@@ -206,8 +221,17 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
+        if (map == null || map.size() != 1)
+            return;
+        Iterator i = map.keySet().iterator();
+        Integer key = null;
+        ViewerAction value = null;
+        while (i.hasNext()) {
+            key = (Integer) i.next();
+            value = (ViewerAction) map.get(key);
+        }
         String m;
-        switch (colorModel) {
+        switch (key.intValue()) {
             case ColorModelAction.GREY_SCALE_MODEL:
                 m = GREY_SCALE_MODEL;
                 break;
@@ -221,6 +245,7 @@ class ImViewerComponent
                 throw new IllegalArgumentException("Color model not supported");
         }
         model.setColorModel(m);
+        view.setColorModel(value);
         renderXYPlane();
     }
 
@@ -264,7 +289,7 @@ class ImViewerComponent
             throw new IllegalStateException("This method can only be invoked " +
                     "in the LOADING_IMAGE state.");
         model.setImage(image);
-        view.setStatus("", -1, true);
+        view.setStatus(getStatusText(), -1, true);
         fireStateChange();
     }
 
@@ -699,6 +724,30 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         return model.getActiveChannels();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isUnitBar()
+     */
+    public boolean isUnitBar()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        return model.isUnitBar();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setUnitBar(boolean)
+     */
+    public void setUnitBar(boolean b)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method can't be invoked in the DISCARDED state.");
+        model.setUnitBar(b);
     }
    
 }

@@ -194,7 +194,6 @@ class ToolBar
         tSelectionField.addFocusListener(this);
     }
     
-    
     /** 
      * Handles the action event fired by the timepoint text field when the user 
      * enters some text. 
@@ -292,7 +291,7 @@ class ToolBar
     {
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(bar);
-        add(buildFieldsComponent());
+        //add(buildFieldsComponent());
     }
     
     /**

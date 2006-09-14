@@ -119,9 +119,39 @@ class ImViewerUI
     {
         JMenuBar menuBar = new JMenuBar(); 
         menuBar.add(createControlsMenu());
+        menuBar.add(createViewMenu());
         menuBar.add(createZoomMenu());
         menuBar.add(createRatingMenu());
+        menuBar.add(createHelpMenu());
         return menuBar;
+    }
+    
+    /**
+     * Helper method to create the view menu.
+     * 
+     * @return The controls submenu;
+     */
+    private JMenu createViewMenu()
+    {
+        JMenu menu = new JMenu("View");
+        menu.setMnemonic(KeyEvent.VK_V);
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
+        item.setSelected(model.isUnitBar());
+        item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
+        menu.add(item);
+        return menu;
+    }
+    
+    /**
+     * Helper method to create the help menu.
+     * 
+     * @return The controls submenu;
+     */
+    private JMenu createHelpMenu()
+    {
+        JMenu menu = new JMenu("Help");
+        menu.setMnemonic(KeyEvent.VK_H);
+        return menu;
     }
     
     /**

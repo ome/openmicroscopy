@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -172,12 +174,13 @@ public interface ImViewer
     public void setRateImage(int level);
     
     /**
-     * Sets the color model. One of the following constants 
-     * {@link #GREY_SCALE_MODEL}, {@link #RGB_MODEL} or {@link #HSB_MODEL}.
+     * Sets the color model. The key of the map is one out of the following
+     * constants {@link #GREY_SCALE_MODEL}, {@link #RGB_MODEL} or 
+     * {@link #HSB_MODEL} and the value is the action firing the event.
      * 
-     * @param colorModel The value to set.
+     * @param m The value to set.
      */
-    public void setColorModel(int colorModel);
+    public void setColorModel(Map m);
 
     /**
      * Sets the selected XY-plane. A new plane is then rendered.
@@ -352,5 +355,21 @@ public interface ImViewer
      * @return See above.
      */
     ChannelMetadata getChannelMetadata(int index);
+
+    /**
+     * Returns <code>true</code> if the unit bar is painted on top of 
+     * the displayed image, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isUnitBar();
+    
+    /**
+     * Sets the value of the flag controlling if the unit bar is painted or not.
+     * 
+     * @param b Pass <code>true</code> to paint the unit bar, 
+     *          <code>false</code> otherwise.
+     */
+    public void setUnitBar(boolean b);
     
 }

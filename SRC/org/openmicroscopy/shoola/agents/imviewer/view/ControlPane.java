@@ -50,6 +50,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JToolBar;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -59,7 +61,6 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.agents.imviewer.util.InfoButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -92,7 +93,7 @@ class ControlPane
                             "select a timepoint.";
     
     /** Dimension of the box between the channel buttons. */
-    private static final Dimension VBOX = new Dimension(1, 5);
+    private static final Dimension VBOX = new Dimension(1, 10);
     
     /** Reference to the Control. */
     private ImViewerControl controller;
@@ -122,8 +123,9 @@ class ControlPane
     private HashSet         channelButtons;
     
     /** Button to play movie across channel. */
-    private JButton         channelMovie;
+    private JButton         channelMovieButton;
     
+    /** Button to select the color model. */
     private JButton         colorModelButton;
     
     /** Helper reference. */
@@ -145,7 +147,7 @@ class ControlPane
             return icons.getIcon(IconManager.HSB);
         return null;
     }
-    
+
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -181,20 +183,20 @@ class ControlPane
         tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);
-        channelMovie = new JButton(
+        channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
-        channelMovie.setBorderPainted(false);
+        channelMovieButton.setBorder(null);
         colorModelGroup = new ButtonGroup();
         colorModelButton = new JButton();
+        colorModelButton.setBorder(null);
         colorModelButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)
             {
                 String m = model.getColorModel();
                 ViewerAction a = null;
-                if (m.equals(ImViewer.RGB_MODEL)) {
-                     a = controller.getAction(ImViewerControl.HSB_MODEL);
-                } else if (m.equals(ImViewer.HSB_MODEL)) {
+                if (m.equals(ImViewer.RGB_MODEL) || 
+                   m.equals(ImViewer.HSB_MODEL)) {
                      a = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
                 } else if (m.equals(ImViewer.GREY_SCALE_MODEL)) {
                      a = controller.getAction(ImViewerControl.RGB_MODEL);
@@ -332,32 +334,17 @@ class ControlPane
         p.add(button);
         return p;
     }
-
-    /**
-     * Creates a pane hosting the {@link ChannelButton} and the corresponding
-     * {@link InfoButton}.
-     * 
-     * @param b The {@link ChannelButton} to display.
-     * @param i The channel index.
-     * @return See above.
-     */
-    private JPanel createButtonPane(ChannelButton b, int i)
+    
+    private JToolBar buildToolBar()
     {
-        JPanel p = new JPanel();
-        IconManager im = IconManager.getInstance();
-        InfoButton button = new InfoButton(im.getIcon(IconManager.TINY_INFO),
-                                            i);
-        button.addPropertyChangeListener(controller);
-        GridBagConstraints c = new GridBagConstraints();  
-        p.setLayout(new GridBagLayout());
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.NONE;
-        c.gridx = 1;
-        p.add(button, c);
-        c.gridx = 0;
-        c.gridy = 1;
-        p.add(b, c); 
-        return p;
+        JToolBar bar = new JToolBar(JToolBar.VERTICAL);
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(colorModelButton);
+        bar.add(Box.createRigidArea(VBOX));
+        bar.add(channelMovieButton);
+        return bar;
     }
     
     /**
@@ -372,7 +359,6 @@ class ControlPane
         ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
         ChannelMetadata d;
-        p.add(colorModelButton);
         p.add(Box.createRigidArea(VBOX));
         for (int k = 0; k < data.length; k++) {
             d = data[k];
@@ -384,20 +370,23 @@ class ControlPane
             p.add(Box.createRigidArea(VBOX));
             //p.add(createButtonPane(button, k));
         }
-        p.add(channelMovie);
-        return p;
+        
+        JPanel controls = new JPanel();
+        controls.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints(); 
+        c.anchor = GridBagConstraints.NORTH;
+        c.fill = GridBagConstraints.NONE;
+        controls.add(buildToolBar(), c);
+        c.gridy = 1;
+        controls.add(p, c);
+        return UIUtilities.buildComponentPanel(controls);
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-        JPanel controls = new JPanel();
-        controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-        //controls.add(createBoxPanes());
-        //controls.add(createColorModelPane());
-        controls.add(createChannelsPane());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        add(controls);
+        add(createChannelsPane());
         add(createSliderPanes());
     }
     

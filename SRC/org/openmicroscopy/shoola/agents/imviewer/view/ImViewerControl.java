@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
@@ -185,6 +186,11 @@ class ImViewerControl
     public static final Integer     CHANNEL_MOVIE = new Integer(25);
     
     /** 
+     * Identifies the <code>UnitBar</code> action in the menu. 
+     */
+    public static final Integer     UNIT_BAR = new Integer(26);
+    
+    /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
      */
@@ -243,13 +249,10 @@ class ImViewerControl
         actionsMap.put(ZOOM_300, action);
         actionsMap.put(LENS, new LensAction(model));
         action = new ColorModelAction(model, ColorModelAction.GREY_SCALE_MODEL);
-        action.addPropertyChangeListener(this);
         actionsMap.put(GREY_SCALE_MODEL, action);
         action = new ColorModelAction(model, ColorModelAction.RGB_MODEL);
-        action.addPropertyChangeListener(this);
         actionsMap.put(RGB_MODEL, action);
         action = new ColorModelAction(model, ColorModelAction.HSB_MODEL);
-        action.addPropertyChangeListener(this);
         actionsMap.put(HSB_MODEL, action);
         action = new RateImageAction(model, RateImageAction.RATE_ONE);
         action.addPropertyChangeListener(this);
@@ -267,6 +270,7 @@ class ImViewerControl
         action.addPropertyChangeListener(this);
         actionsMap.put(RATING_FIVE, action);
         actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
+        actionsMap.put(UNIT_BAR, new UnitBarAction(model));
     }
     
     /** 
@@ -471,8 +475,6 @@ class ImViewerControl
             view.setZoomFactor((ViewerAction) pce.getNewValue());
         } else if (RateImageAction.RATE_IMAGE_PROPERTY.equals(propName)) {
             view.setRatingFactor((ViewerAction) pce.getNewValue());
-        } else if (ColorModelAction.COLOR_MODEL_PROPERTY.equals(propName)) {
-            view.setColorModel((ViewerAction) pce.getNewValue());
         } else if (LoadingWindow.CLOSED_PROPERTY.equals(propName)) {
             model.discard();
         } else if (Renderer.RENDER_PLANE_PROPERTY.equals(propName)) {

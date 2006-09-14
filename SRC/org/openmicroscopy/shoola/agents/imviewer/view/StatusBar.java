@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-
 //Java imports
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
