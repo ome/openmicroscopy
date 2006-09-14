@@ -135,6 +135,7 @@ class DOInfo
             content.add(label, c);
             area = new JTextField(value);
             area.setEditable(false);
+            area.setEnabled(false);
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row

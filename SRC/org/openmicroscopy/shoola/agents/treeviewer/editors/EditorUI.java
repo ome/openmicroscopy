@@ -192,7 +192,7 @@ public class EditorUI
                 controller.close(true);
             }
         });
-        finishButton = new JButton("Finish");
+        finishButton = new JButton("Save");
         finishButton.setEnabled(false);
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  finish(); }
