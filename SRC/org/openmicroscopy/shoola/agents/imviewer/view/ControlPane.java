@@ -36,10 +36,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -51,7 +49,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -486,6 +483,7 @@ class ControlPane
      */
     void setColorModel(ViewerAction action)
     {
+        /*
         AbstractButton b;
         for (Enumeration e = colorModelGroup.getElements(); 
             e.hasMoreElements();) {
@@ -496,7 +494,26 @@ class ControlPane
                 b.setAction(action);
             }
         }
+        */
+        setChannelsSelection();
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
+    }
+    
+    /** 
+     * Updates the {@link ChannelButton}s when a new one is selected or 
+     * deselected.
+     */
+    void setChannelsSelection()
+    {
+        boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
+        Iterator i = channelButtons.iterator();
+        ChannelButton button;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            button.setChannelSelected(
+                    model.isChannelActive(button.getChannelIndex()), 
+                                gs);
+        }
     }
     
     /** 
@@ -519,6 +536,7 @@ class ControlPane
         Iterator i = channelButtons.iterator();
         while (i.hasNext())
             ((ChannelButton) i.next()).setEnabled(b);
+        colorModelButton.setEnabled(b);
     }
     
     /**
@@ -548,18 +566,6 @@ class ControlPane
         }
     }
 
-    /** 
-     * Updates the {@link ChannelButton}s when a new one is selected or 
-     * deselected.
-     */
-    void setChannelsSelection()
-    {
-        Iterator i = channelButtons.iterator();
-        ChannelButton button;
-        while (i.hasNext()) {
-            button = (ChannelButton) i.next();
-            button.setSelected(model.isChannelActive(button.getChannelIndex()));
-        }
-    }
+
     
 }
