@@ -65,8 +65,8 @@ public class TreeImageSet
      */
     private Boolean     containsImages;
     
+    /** Flag to indicate if the children were loaded for that node. */
     private Boolean     childrenLoaded;
-    
 
     /**
      * Implemented as specified by superclass.

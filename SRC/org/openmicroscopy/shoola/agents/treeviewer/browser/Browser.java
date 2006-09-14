@@ -107,7 +107,7 @@ public interface Browser
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     	HIERARCHY_EXPLORER = 100;
+    public static final int     	PROJECT_EXPLORER = 100;
     
     /** 
      * Indicates that the browser corresponds to an <code>Category</code>
@@ -147,19 +147,19 @@ public interface Browser
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
   
     /** 
-     * The browser's title corresponding to {@link #HIERARCHY_EXPLORER} type.
+     * The browser's title corresponding to {@link #PROJECT_EXPLORER} type.
      */
-    public static final String     HIERARCHY_TITLE = "Project Explorer";
+    public static final String     HIERARCHY_TITLE = "Projects";
     
     /** 
      * The browser's title corresponding to {@link #CATEGORY_EXPLORER} type.
      */
-    public static final String     CATEGORY_TITLE = "Category Explorer";
+    public static final String     CATEGORY_TITLE = "Categories";
     
     /** 
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
      */
-    public static final String     IMAGES_TITLE = "Image Explorer";
+    public static final String     IMAGES_TITLE = "Images";
     
     
     /**

@@ -47,10 +47,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesInContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -121,7 +123,7 @@ class BrowserModel
     private void checkBrowserType(int type)
     {
         switch (type) {
-            case Browser.HIERARCHY_EXPLORER:
+            case Browser.PROJECT_EXPLORER:
             case Browser.CATEGORY_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
                 break;
@@ -269,7 +271,7 @@ class BrowserModel
      */
     void fireDataLoading()
     {
-        if (browserType == Browser.HIERARCHY_EXPLORER) 
+        if (browserType == Browser.PROJECT_EXPLORER) 
             currentLoader = new HierarchyLoader(component, 
                                     HierarchyLoader.PROJECT);
         else if (browserType == Browser.CATEGORY_EXPLORER)
@@ -513,5 +515,19 @@ class BrowserModel
      * @return See above.
      */
     long getUserID() { return parent.getUserDetails().getId(); }
+
+    /**
+     * Brings up the viewer if the last selected data object 
+     * is an <code>Image</code>.
+     */
+    void viewDataObject()
+    {
+        TreeImageDisplay d  = getLastSelectedDisplay();
+        if (d == null) return;
+        if (d.getUserObject() instanceof ImageData) {
+            ViewCmd cmd = new ViewCmd(parent);
+            cmd.execute();
+        }
+    }
     
 }

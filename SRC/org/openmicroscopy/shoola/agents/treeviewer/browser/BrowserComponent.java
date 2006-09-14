@@ -108,7 +108,6 @@ class BrowserComponent
         if (c instanceof JFrame) return (JFrame) c;
         return getViewParent(c.getParent());
     }
-    
 
     /**
      * Helper method to remove the collection of the specified nodes.
@@ -203,7 +202,7 @@ class BrowserComponent
         int state = model.getState();
         switch (state) {
             case NEW:
-                
+                view.loadRoot();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
@@ -471,7 +470,7 @@ class BrowserComponent
     {
         IconManager im = IconManager.getInstance();
         switch (model.getBrowserType()) {
-            case HIERARCHY_EXPLORER:
+            case PROJECT_EXPLORER:
                 return im.getIcon(IconManager.HIERARCHY_EXPLORER);
             case CATEGORY_EXPLORER:
                 return im.getIcon(IconManager.CATEGORY_EXPLORER);
@@ -895,7 +894,7 @@ class BrowserComponent
             if (editorType == CATEGORY_EXPLORER) {
                 if (m == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
                 else removeNodes(nodes);
-            } else if (editorType == HIERARCHY_EXPLORER || 
+            } else if (editorType == PROJECT_EXPLORER || 
                     editorType == IMAGES_EXPLORER)
                 view.updateNodes(nodes, img);
         }
@@ -927,7 +926,7 @@ class BrowserComponent
             default:
                 throw new IllegalArgumentException("Filter not supported.");
         }
-        if (model.getFilterType() == type) return;
+        //if (model.getFilterType() == type) return;
         model.setFilterType(type);
         refreshTree();
     }

@@ -192,14 +192,13 @@ class BrowserControl
         }
     }
     
+    /** Brings up the popup menu. */
+    void showPopupMenu() { model.showPopupMenu(); }
+    
     /**
-     * Reacts to click events on the tree.
-     * 
-     * @param popupTrigger  Pass <code>true</code> is the event is the popup
-     *                      menu trigger event for the platform, 
-     *                      <code>false</code> otherwise.           
+     * Reacts to click events in the tree.        
      */
-    void onClick(boolean popupTrigger)
+    void onClick()
     {
         Object pathComponent;
         TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
@@ -235,7 +234,6 @@ class BrowserControl
         TreeImageDisplay[] nodes = (TreeImageDisplay[]) l.toArray(
                                     new TreeImageDisplay[l.size()]);
         model.setSelectedDisplays(nodes);
-        if (popupTrigger) model.showPopupMenu();
     }
     
     /**
@@ -285,9 +283,7 @@ class BrowserControl
             if (map.get(model) != null) 
                 filterNodes((Set) map.get(model));
         } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY))
-            model.setFilterType(((Integer) pce.getNewValue()).intValue());
-        //else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY))
-        //    model.refreshTree();
+            model.setFilterType(((Integer) pce.getNewValue()).intValue());  
         else if (name.equals(FilterWindow.CLOSE_PROPERTY))
             model.collapse(model.getLastSelectedDisplay());
     }

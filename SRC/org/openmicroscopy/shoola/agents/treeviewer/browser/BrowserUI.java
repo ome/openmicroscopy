@@ -163,16 +163,23 @@ class BrowserUI
     /**
      * Reacts to mouse pressed and mouse release event.
      * 
-     * @param me The event to handle.
+     * @param me        The event to handle.
+     * @param released  Pass <code>true</code> if the method is invoked when
+     *                  the mouse is released, <code>false</code> otherwise.
      */
-    private void onClick(MouseEvent me)
+    private void onClick(MouseEvent me, boolean released)
     {
         Point p = me.getPoint();
         int row = treeDisplay.getRowForLocation(p.x, p.y);
         if (row != -1) {
             //treeDisplay.setSelectionRow(row);
             model.setClickPoint(p);
-            controller.onClick(me.isPopupTrigger());
+            if (me.getClickCount() == 1) {
+                if (me.isPopupTrigger()) controller.showPopupMenu();
+                if (!released) controller.onClick();
+            } else if (me.getClickCount() == 2) {
+                model.viewDataObject();
+            }
         }
     }
     
@@ -186,7 +193,8 @@ class BrowserUI
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-        TreeImageSet root = new TreeImageSet(getBrowserTitle());
+        //TreeImageSet root = new TreeImageSet(getBrowserTitle());
+        TreeImageSet root = new TreeImageSet("");
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
                                 root.getChildCount());
@@ -195,8 +203,8 @@ class BrowserUI
         
         //Add Listeners
         treeDisplay.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e); }
-            public void mouseReleased(MouseEvent e) { onClick(e); }
+            public void mousePressed(MouseEvent e) { onClick(e, false); }
+            public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
         treeDisplay.addTreeExpansionListener(listener);
     }
@@ -285,6 +293,7 @@ class BrowserUI
         createMenuBar();
         createTree();
         buildGUI();
+        treeDisplay.setRootVisible(false);
     }
 
     /**
@@ -311,6 +320,7 @@ class BrowserUI
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         root.removeAllChildren();
+        root.setChildrenLoaded(Boolean.TRUE);
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
@@ -329,6 +339,7 @@ class BrowserUI
     void setViews(Set nodes, TreeImageDisplay parent)
     {
         parent.removeAllChildren();
+        parent.setChildrenLoaded(Boolean.TRUE);
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
@@ -388,7 +399,7 @@ class BrowserUI
     String getBrowserTitle()
     {
         switch (model.getBrowserType()) {
-            case Browser.HIERARCHY_EXPLORER:
+            case Browser.PROJECT_EXPLORER:
                 return Browser.HIERARCHY_TITLE;
             case Browser.CATEGORY_EXPLORER:
                 return Browser.CATEGORY_TITLE;
@@ -584,6 +595,12 @@ class BrowserUI
                 controller.loadData();
             else controller.loadLeaves();
         }
+    }
+    
+    /** Loads the children of the root node. */
+    void loadRoot()
+    {
+        treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
     }
     
 }
