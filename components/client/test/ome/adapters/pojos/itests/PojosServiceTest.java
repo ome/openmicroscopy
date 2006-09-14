@@ -143,7 +143,7 @@ public class PojosServiceTest extends TestCase {
 
       Login rootLogin = (Login) factory.getContext().getBean("rootLogin");
       ServiceFactory rootFactory = new ServiceFactory( rootLogin );
-      fixture = new CreatePojosFixture( rootFactory );
+      fixture = CreatePojosFixture.withNewUser( rootFactory );
       fixture.createAllPojos();
       
       GROUP_FILTER = new PojoOptions().grp(fixture.g.getId());

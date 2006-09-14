@@ -33,31 +33,50 @@ import ome.util.ShallowCopy;
  */
 public class CreatePojosFixture
 {
-	/** requires an admin service factory in order to create user. */
-	public CreatePojosFixture( ServiceFactory rootFactory )
+	/** creates a new fixture logged in as a newly created user.
+	 * requires an admin service factory in order to create user and should NOT
+	 * be used from the server side. */	
+	public static CreatePojosFixture withNewUser( ServiceFactory sf )
 	{
-		IAdmin rootAdmin = rootFactory.getAdminService();
+		CreatePojosFixture fixture = new CreatePojosFixture( );
+		
+		IAdmin rootAdmin = sf.getAdminService();
 		String G_NAME = UUID.randomUUID().toString();
-		g = new ExperimenterGroup();
-		g.setName(G_NAME);
-		g = new ExperimenterGroup( rootAdmin.createGroup(g), false );
+		fixture.g = new ExperimenterGroup();
+		fixture.g.setName(G_NAME);
+		fixture.g = new ExperimenterGroup( rootAdmin.createGroup(fixture.g), false );
 
-		TESTER = "TESTER-"+UUID.randomUUID().toString();
-		e = new Experimenter();
-		e.setOmeName(TESTER);
-		e.setFirstName("Mr.");
-		e.setLastName("Allen");
-		e = new Experimenter( rootAdmin.createUser(e), false );
-		rootAdmin.addGroups(e, g);
-		rootAdmin.setDefaultGroup(e, g);
-		init = true;
+		fixture.TESTER = "TESTER-"+UUID.randomUUID().toString();
+		fixture.e = new Experimenter();
+		fixture.e.setOmeName(fixture.TESTER);
+		fixture.e.setFirstName("Mr.");
+		fixture.e.setLastName("Allen");
+		fixture.e = new Experimenter( rootAdmin.createUser(fixture.e), false );
+		rootAdmin.addGroups(fixture.e, fixture.g);
+		rootAdmin.setDefaultGroup(fixture.e, fixture.g);
 		
-		Login testLogin = new Login(TESTER,"ome",G_NAME,"Test");
+		Login testLogin = new Login(fixture.TESTER,"ome",G_NAME,"Test");
 		ServiceFactory factory = new ServiceFactory(testLogin);
+		fixture.setServices(factory);
 		
+		fixture.init = true;
+		
+		return fixture;
+	}
+	
+	private CreatePojosFixture() {}
+	
+	/** requires an admin service factory in order to create user. */
+	public CreatePojosFixture( ServiceFactory factory )
+	{		
+		setServices(factory);
+	}
+	
+	private void setServices( ServiceFactory factory )
+	{
 		iAdmin = factory.getAdminService();
 		iQuery = factory.getQueryService();
-		iUpdate = factory.getUpdateService();
+		iUpdate = factory.getUpdateService();	
 	}
 	
 	protected IAdmin iAdmin;
