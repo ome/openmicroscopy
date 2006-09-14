@@ -79,7 +79,7 @@ public class ChannelPlayer
         super(model);
         activeChannels = model.getActiveChannels();
         n = 0;
-        if (activeChannels != null)
+        if (activeChannels != null && activeChannels.size() > 0)
             index = ((Integer) activeChannels.get(n)).intValue();
     }
      
@@ -109,7 +109,7 @@ public class ChannelPlayer
      */
     public void actionPerformed(ActionEvent e)
     {
-        if (activeChannels == null) return;
+        if (activeChannels == null || activeChannels.size() == 0) return;
         for (int j = 0; j < model.getMaxC(); j++)
             model.setChannelActive(j, j == index);
         model.displayChannelMovie();
