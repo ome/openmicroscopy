@@ -82,7 +82,7 @@ class BrowserCanvas
     
     /** Location to the origin of the frame. */
     private static final int            ORIGIN_FRAME = 
-                                            BrowserUI.TOP_LEFT_IMAGE-5;
+                                            BrowserUI.TOP_LEFT_IMAGE;
     
     /** Length of the frame axis. */
     private static final int            LENGTH = 20;
@@ -219,16 +219,18 @@ class BrowserCanvas
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         BufferedImage image = model.getDisplayedImage();
         if (image == null) return;
-        paintXYFrame(g2D);
-        double v = model.getPixelsSizeX()/model.getZoomFactor();
-        v = v*2*LENGTH;
-        if (v > 0) {
-            int h = image.getHeight()+3*BrowserUI.TOP_LEFT_IMAGE/2;
-            paintScaleBar(g2D, BrowserUI.TOP_LEFT_IMAGE, h, 2*LENGTH, 
-                      ""+(int) v+NANOMETER);
-        }
+        //paintXYFrame(g2D);
+
         g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
                         BrowserUI.TOP_LEFT_IMAGE);  
+        double v = model.getPixelsSizeX()/model.getZoomFactor();
+        v = v*2*LENGTH;
+        if (v > 0 && model.isUnitBar()) {
+            int h = image.getHeight()-10;
+            int w = image.getWidth()+BrowserUI.TOP_LEFT_IMAGE;
+            paintScaleBar(g2D, w-2*LENGTH-5, h, 2*LENGTH, 
+                          ""+(int) v+NANOMETER);
+        }
     }
 
     /** 

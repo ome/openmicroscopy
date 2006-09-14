@@ -188,6 +188,14 @@ class BrowserModel
      */
     float getPixelsSizeX() { return parent.getPixelsSizeX(); }
     
+    /**
+     * Returns <code>true</code> if the unit bar is painted on top of 
+     * the displayed image, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isUnitBar() { return parent.isUnitBar(); }
+    
     Magnifier getMagnifier() { return magnifier; }
     
     BufferedImage getSubLensImage(Point p)

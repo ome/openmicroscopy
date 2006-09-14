@@ -61,7 +61,7 @@ class BrowserUI
 {
 
     /** Location of the top left corner of the image. */
-    static final int            TOP_LEFT_IMAGE = 35;
+    static final int            TOP_LEFT_IMAGE = 0;//35;
     
     /**
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
