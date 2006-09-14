@@ -228,8 +228,7 @@ class BrowserCanvas
         if (v > 0 && model.isUnitBar()) {
             int h = image.getHeight()-10;
             int w = image.getWidth()+BrowserUI.TOP_LEFT_IMAGE;
-            paintScaleBar(g2D, w-2*LENGTH-5, h, 2*LENGTH, 
-                          ""+(int) v+NANOMETER);
+            paintScaleBar(g2D, w-2*LENGTH-5, h, 2*LENGTH, ""+(int) v);
         }
     }
 
