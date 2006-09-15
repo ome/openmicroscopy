@@ -59,10 +59,10 @@ public class PlanePoint
 {
 
     /** The first element. */
-    public final double     x1;
+    public double     x1;
     
     /** The second element. */
-    public final double     x2;
+    public double     x2;
      
     /**
      * Creates a new instance.
