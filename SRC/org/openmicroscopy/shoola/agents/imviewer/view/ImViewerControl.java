@@ -65,10 +65,11 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
 /** 
  * The ImViewer's Controller.
@@ -204,6 +205,9 @@ class ImViewerControl
     
     /** Keep track of the old state.*/
     private int         historyState;
+    
+    /** Index of the channel invoking the color picker. */
+    private int         colorPickerIndex;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -378,6 +382,7 @@ class ImViewerControl
         this.model = model;
         this.view = view;
         historyState = -1;
+        colorPickerIndex = -1;
         actionsMap = new HashMap();
         createActions();
         model.addChangeListener(this);   
@@ -459,7 +464,7 @@ class ImViewerControl
             view.setZSection(((Integer) pce.getNewValue()).intValue());
         } else if (ImViewer.T_SELECTED_PROPERTY.equals(propName)) {
             view.setTimepoint(((Integer) pce.getNewValue()).intValue());
-        } else if (ColouredButton.CHANNEL_SELECTED_PROPERTY.equals(propName)) {
+        } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(propName)) {
             Map map = (Map) pce.getNewValue();
             if (map == null) return;
             if (map.size() != 1) return;
@@ -469,16 +474,6 @@ class ImViewerControl
                 index = (Integer) i.next();
                 model.setChannelSelection(index.intValue(), 
                                     ((Boolean) map.get(index)).booleanValue());
-            }
-        } else if (ColouredButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
-            Map map = (Map) pce.getNewValue();
-            if (map == null) return;
-            if (map.size() != 1) return;
-            Iterator i = map.keySet().iterator();
-            Integer index;
-            while (i.hasNext()) {
-                index = (Integer) i.next();
-                model.setChannelColor(index.intValue(), (Color) map.get(index));
             }
         } else if (ZoomAction.ZOOM_PROPERTY.equals(propName)) {
             view.setZoomFactor((ViewerAction) pce.getNewValue());
@@ -495,12 +490,24 @@ class ImViewerControl
                     model.setChannelActive(i, i == c);
                 model.displayChannelMovie();
             }
-        } else if (ColouredButton.INFO_PROPERTY.equals(propName)) {
+        } else if (ChannelButton.INFO_PROPERTY.equals(propName)) {
             int index = ((Integer) pce.getNewValue()).intValue();
             ChannelMetadata data = model.getChannelMetadata(index);
             InfoDialog dialog = new InfoDialog(model.getUI(), data);
             dialog.addPropertyChangeListener(this);
             UIUtilities.centerAndShow(dialog);
+        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
+            colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
+            Color c = model.getChannelColor(colorPickerIndex);
+            ColourPicker dialog = new ColourPicker(c);
+            dialog.addPropertyChangeListener(this);
+            UIUtilities.centerAndShow(dialog);
+        } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
+            Color c = (Color) pce.getNewValue();
+            if (colorPickerIndex != -1) {
+                model.setChannelColor(c, colorPickerIndex);
+                colorPickerIndex = -1;
+            }
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method
         }

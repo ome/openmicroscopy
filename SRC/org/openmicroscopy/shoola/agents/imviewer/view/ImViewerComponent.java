@@ -801,5 +801,27 @@ class ImViewerComponent
         // TODO Auto-generated method stub
         return controller.getHistoryState();
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getChannelColor(int)
+     */
+    public Color getChannelColor(int index)
+    {
+        // TODO Auto-generated method stub
+        return model.getChannelColor(index);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setChannelColor(int, Color)
+     */
+    public void setChannelColor(Color c, int index)
+    {
+        model.setChannelColor(index, c);
+        view.setChannelColor(index, c);
+        renderXYPlane();
+        
+    }
    
 }

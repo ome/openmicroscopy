@@ -374,5 +374,8 @@ public interface ImViewer
     
     public int getHistoryState();
     
+    public Color getChannelColor(int index);
+    
+    public void setChannelColor(Color c, int index);
     
 }

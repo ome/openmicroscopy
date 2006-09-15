@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -57,8 +58,8 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -354,12 +355,12 @@ class ControlPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelMetadata[] data = model.getChannelData();
-        ColouredButton button;
+        ChannelButton button;
         ChannelMetadata d;
         p.add(Box.createRigidArea(VBOX));
         for (int k = 0; k < data.length; k++) {
             d = data[k];
-            button = new ColouredButton(""+d.getEmissionWavelength(), 
+            button = new ChannelButton(""+d.getEmissionWavelength(), 
                     model.getChannelColor(k), k, model.isChannelActive(k));
             button.addPropertyChangeListener(controller);
             channelButtons.add(button);
@@ -497,9 +498,9 @@ class ControlPane
         */
         boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator i = channelButtons.iterator();
-        ColouredButton button;
+        ChannelButton button;
         while (i.hasNext()) {
-            button = (ColouredButton) i.next();
+            button = (ChannelButton) i.next();
             button.setChannelSelected(
                     model.isChannelActive(button.getChannelIndex()), gs);
         }
@@ -508,18 +509,36 @@ class ControlPane
     }
     
     /** 
-     * Updates the {@link ColouredButton}s when a new one is selected or 
+     * Updates the {@link ChannelButton}s when a new one is selected or 
      * deselected.
      */
     void setChannelsSelection()
     {
         Iterator i = channelButtons.iterator();
-        ColouredButton button;
+        ChannelButton button;
         while (i.hasNext()) {
-            button = (ColouredButton) i.next();
+            button = (ChannelButton) i.next();
             button.setSelected(
                     model.isChannelActive(button.getChannelIndex())
                                 );
+        }
+    }
+    
+    /**
+     * Sets the color of selected channel.
+     * 
+     * @param index The channel index.
+     * @param c     The color to set.
+     */
+    void setChannelColor(int index, Color c)
+    {
+        Iterator i = channelButtons.iterator();
+        ChannelButton button;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            if (index == button.getChannelIndex()) {
+                button.setBackground(c);
+            }
         }
     }
     
@@ -542,7 +561,7 @@ class ControlPane
         ratingBox.setEnabled(b);
         Iterator i = channelButtons.iterator();
         while (i.hasNext())
-            ((ColouredButton) i.next()).setEnabled(b);
+            ((ChannelButton) i.next()).setEnabled(b);
         colorModelButton.setEnabled(b);
     }
     
@@ -572,6 +591,8 @@ class ControlPane
                     tSlider.getValue());
         }
     }
+
+
 
 
     

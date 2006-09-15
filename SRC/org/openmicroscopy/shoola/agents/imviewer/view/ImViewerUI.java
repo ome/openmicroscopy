@@ -523,6 +523,17 @@ class ImViewerUI
     }
 
     /** 
+     * Sets the color of the specified channel. 
+     * 
+     * @param index The channel index. 
+     * @param c     The color to set.
+     */
+    void setChannelColor(int index, Color c)
+    {
+        controlPane.setChannelColor(index, c);
+    }
+    
+    /** 
      * Overriden to set the size of the window. 
      * @see TopWindow#setOnScreen()
      */
@@ -534,5 +545,7 @@ class ImViewerUI
         setSize(width, height);
         UIUtilities.centerAndShow(this);
     }
+
+
     
 }
