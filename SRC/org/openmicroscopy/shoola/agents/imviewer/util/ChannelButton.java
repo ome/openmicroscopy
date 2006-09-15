@@ -125,7 +125,7 @@ public class ChannelButton
         //Shift+ click to bring up info
         if (e.isShiftDown()) {
             firePropertyChange(INFO_PROPERTY, null, new Integer(index));
-        } else if (e.getClickCount() == 2) 
+        } else if (e.isControlDown()) 
             firePropertyChange(CHANNEL_COLOR_PROPERTY, null, 
                     new Integer(index));
         else setChannelSelected();
