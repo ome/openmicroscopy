@@ -65,9 +65,9 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -459,7 +459,7 @@ class ImViewerControl
             view.setZSection(((Integer) pce.getNewValue()).intValue());
         } else if (ImViewer.T_SELECTED_PROPERTY.equals(propName)) {
             view.setTimepoint(((Integer) pce.getNewValue()).intValue());
-        } else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(propName)) {
+        } else if (ColouredButton.CHANNEL_SELECTED_PROPERTY.equals(propName)) {
             Map map = (Map) pce.getNewValue();
             if (map == null) return;
             if (map.size() != 1) return;
@@ -470,7 +470,7 @@ class ImViewerControl
                 model.setChannelSelection(index.intValue(), 
                                     ((Boolean) map.get(index)).booleanValue());
             }
-        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
+        } else if (ColouredButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             Map map = (Map) pce.getNewValue();
             if (map == null) return;
             if (map.size() != 1) return;
@@ -495,7 +495,7 @@ class ImViewerControl
                     model.setChannelActive(i, i == c);
                 model.displayChannelMovie();
             }
-        } else if (ChannelButton.INFO_PROPERTY.equals(propName)) {
+        } else if (ColouredButton.INFO_PROPERTY.equals(propName)) {
             int index = ((Integer) pce.getNewValue()).intValue();
             ChannelMetadata data = model.getChannelMetadata(index);
             InfoDialog dialog = new InfoDialog(model.getUI(), data);
