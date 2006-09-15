@@ -4,6 +4,8 @@ import ome.conditions.SecurityViolation;
 import ome.model.ILink;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
@@ -12,6 +14,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.testing.ObjectFactory;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
@@ -199,6 +202,21 @@ public class LockingTest extends AbstractManagedContextTest
 		
 	}
 	
+	@Test( groups = "ticket:357" )
+	public void test_OneToOnesGetLockedAsWell() throws Exception 
+	{
+		login( uname, gname, "Test" );
+		
+		Image i = new Image(); i.setName( "ticket:357");
+		Pixels p = ObjectFactory.createPixelGraph(null);
+		i.addPixels(p);
+		
+		i = iUpdate.saveAndReturnObject(i);
+		p = (Pixels) i.iteratePixels().next();
+		
+		assertTrue( p.getDetails().getPermissions().isSet( Flag.LOCKED ));
+		
+	}
 	// ~ Helpers
 	// =========================================================================
 
