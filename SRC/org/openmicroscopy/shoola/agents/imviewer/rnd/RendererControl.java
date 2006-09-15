@@ -256,8 +256,8 @@ class RendererControl
             int v = ((Integer) evt.getNewValue()).intValue();
             model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
-            int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v);
+            //int v = ((Integer) evt.getNewValue()).intValue();
+            //model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
             if (((Boolean) evt.getNewValue()).booleanValue()) view.iconify();
             //else view.deIconify();
