@@ -87,7 +87,7 @@
 			<required name="type" type="string"/>
 			<required name="action" type="string"/>
 			<component id="ome.model.internal.StringArray" required="true">
-				<required name="idList" type="string"/>
+				<required name="idList" type="text"/>
 			</component>
 			<manyone name="event" type="ome.model.meta.Event"/>
 			<onemany name="diffs" type="ome.model.meta.EventDiff" inverse="logs"/>
