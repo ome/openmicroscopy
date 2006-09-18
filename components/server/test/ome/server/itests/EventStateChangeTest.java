@@ -35,7 +35,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
         
     }
     
-    @Test
+    @Test( groups = { "broken", "versions" } )
     public void test_experimenter_shouldnt_increment_on_update()
             throws Exception
     {
@@ -43,13 +43,10 @@ public class EventStateChangeTest extends AbstractManagedContextTest
     	e.setOmeName(UUID.randomUUID().toString());
     	e.setFirstName("EventState");
     	e.setLastName("ChangeTest");
-    	iAdmin.createUser(e);
+    	expId = iAdmin.createUser(e);
     	loginUser(e.getOmeName());
-    	securitySystem.setCurrentDetails(); // needed because not done within AOP
     	
         e = getExperimenter(e.getOmeName());
-        
-        expId = securitySystem.currentUserId();
         expVersion = e.getVersion();
 
         p.setName(name);

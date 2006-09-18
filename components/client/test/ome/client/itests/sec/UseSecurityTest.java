@@ -3,7 +3,6 @@ package ome.client.itests.sec;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
 import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
@@ -17,7 +16,10 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.ServiceFactory;
@@ -31,12 +33,47 @@ import org.testng.annotations.Test;
 
 import junit.framework.TestCase;
 
-@Test(groups = { "ticket:200", "security", "integration" })
-public class UseSecurityTest extends AbstractPermissionsTest 
+@Test(groups = { "ticket:337", "security", "integration" })
+public class UseSecurityTest extends AbstractPermissionsTest
 {
 	
-	// single plays no role in USE
+//  unlike READ and WRITE tests, we don't need to repeat the tests for each user
+//	create and the the test is what the user is trying to change.
+//	what's allowed when locked. then it makes sense to also test root 
+//	too see if it will fail. don't need to test the unlinkable configurations.	
 	
+	boolean will_lock;
+	
+	// ~ single
+	// =========================================================================
+	
+	// single plays little role in USE, but verify not locked
+	public void testSingleProject_U() throws Exception 
+	{
+		createProject(u, RW_Rx_Rx, user_other_group);
+		verifyDetails(prj, user, user_other_group, RW_Rx_Rx);
+		verifyLockStatus(prj, false);
+		verifyLocked(u, prj, d(prj,RW_xx_xx), true);
+		verifyLocked(u, prj, d(prj,common_group), true);
+	}
+	public void testSingleProject_W() throws Exception
+	{
+		createProject(w, RW_Rx_Rx, common_group);
+		verifyDetails(prj, world, common_group, RW_Rx_Rx);
+		verifyLockStatus(prj, false);
+		verifyLocked(w, prj, d(prj,RW_xx_xx), true); // no other group
+	}
+
+	public void testSingleProject_R() throws Exception
+	{
+		createProject(r, RW_Rx_Rx, system_group);
+		verifyDetails(prj, root, system_group, RW_Rx_Rx);
+		verifyLockStatus(prj, false);
+		verifyLocked(r, prj, d(prj,RW_xx_xx), true);
+		verifyLocked(r, prj, d(prj,common_group), true);
+		verifyLocked(r, prj, d(prj,world), true);
+	}
+
 	
 	// ~ one-to-many
 	// =========================================================================
@@ -50,104 +87,62 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		ownerB = user;
 		groupB = user_other_group;
 		
+		will_lock = false;
+				
 		// RW_RW_RW / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 		// RW_RW_RW / RW_RW_Rx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_Rx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 		// RW_RW_RW / RW_RW_xxx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 
 		// RW_RW_RW / RW_Rx_Rx
 		permsA = RW_RW_RW;
 		permsB = RW_Rx_Rx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 		// RW_RW_RW / RW_xxx_xxx		
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 
 		// RW_RW_Rx / RW_RW_Rx
 		permsA = RW_RW_Rx;
 		permsB = RW_RW_Rx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
-		
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+
 		// RW_RW_xxx / RW_RW_xxx
 		permsA = RW_RW_xx;
 		permsB = RW_RW_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 
 		// RW_Rx_Rx / RW_Rx_Rx
 		permsA = RW_Rx_Rx;
 		permsB = RW_Rx_Rx;
-		oneToMany(u, true);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 		// RW_xxx_xxx / RW_xxx_xxx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 
 		// Rx_Rx_Rx / Rx_Rx_Rx
 		permsA = Rx_Rx_Rx;
 		permsB = Rx_Rx_Rx;
-		oneToMany(u, false);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 		// xxx_xxx_xxx / xxx_xxx_xxx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
-		oneToMany(u, false);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
 	}
 
@@ -159,70 +154,56 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		ownsfB = u;
 		ownerB = user;
 		groupB = user_other_group;
+		
+		will_lock = true;
 
 		// RW_RW_RW / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 
 		// RW_RW_RW / RW_RW_Rx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_Rx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 		
 		// RW_RW_RW / RW_RW_xxx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
-		oneToMany(u, false); // see NOTE below (U_pix_R_tb)
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 		
 		// RW_RW_RW / RW_xxx_xxx
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 
 		// RW_RW_RW / xxx_xxx_xxx		
 		permsA = RW_RW_RW;
 		permsB = xx_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 		
 		// RW_xxx_xxx / RW_xxx_xxx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(u, false);
-		oneToMany(o, true);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, false, user);
 
 		// xxx_xxx_xxx / xxx_xxx_xxx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
-		oneToMany(u, false);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, false, user);
 		
+	}
+	
+	/** */ @Override
+	public void test_U_Pixels_And_O_Thumbnails() throws Exception {
+		fail("implement");
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
@@ -233,179 +214,85 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		ownsfB = r;
 		ownerB = root;
 		groupB = system_group;
+
+		will_lock = true;
+		
+		// root can read everything and so can lock everything.
 		
 		// RW_RW_RW / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
-		
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
+
 		// RW_RW_RW / RW_RW_Rx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_Rx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 		
 		// RW_RW_RW / RW_RW_xxx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
-		oneToMany(u, false); // NOTE: this fails on update(pix) because
-		oneToMany(o, false); // the thumbnail (detached) isn't loadable.
-		oneToMany(w, false); // a similar problem to trying to filter 
-		oneToMany(p, false); // many-to-ones.
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
 		
 		// RW_RW_RW / RW_xxx_xxx
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, true);
-		oneToMany(w, true);
-		oneToMany(p, true);
-		oneToMany(r, true);
-				
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
+
+		// RW_RW_RW / xxx_xxx_xxx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, user);
+		
 		// RW_xxx_xxx / RW_xxx_xxx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(u, true);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, false, user);
 
 		// xxx_xxx_xxx / xxx_xxx_xxx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
-		oneToMany(u, false);
-		oneToMany(o, false);
-		oneToMany(w, false);
-		oneToMany(p, true);
-		oneToMany(r, true);
+		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, false, user);
 		
 	}
 	
-	/** first tries to change both the pixel and the thumbnail and the tries
-	 * to delete them
-	 */
-	protected void oneToMany(ServiceFactory sf, 
-			boolean link_ok)
+	protected void oneToMany(ServiceFactory sf, boolean can_change, Object...details_changed)
 	{
+
+//		link no read
+//		OR link then locked
+//		try to unlock (reload & check) ...only root works
 		
+		// whether or not this is valid is handled in the ReadSecurityTest.
+		// an exception here means something went wrong elsewhere.
 		createPixels(ownsfA,groupA,permsA);
 		verifyDetails(pix, ownerA, groupA, permsA);
+		createThumbnail(ownsfB,groupB,permsB,pix);
+		verifyDetails(tb,  ownerB,  groupB,  permsB); 
 
-		try {
-			createThumbnail(ownsfB,groupB,permsB,pix);
-			if (!link_ok) fail("secvio!");
-		} catch (SecurityViolation sv) {
-			if (link_ok) throw sv;
+		verifyLockStatus(pix,will_lock);
+		for (Object object : details_changed) {
+			verifyLocked(sf, pix, d(pix,object), can_change);
 		}
-
-		// ok the linking was ok, then pixels should be locked.
-		verifyDetails(tb,  ownerB,  groupB,  permsB); // and locked??
-		Pixels test = tb.getPixels();
-		Details test_d = test.getDetails();
-		assertTrue( test.getDetails().getPermissions().isSet( Flag.LOCKED ));
-
-		Details tmp;
-
-		// and so userA shouldn't be able to change anything
-		try {
-			tmp = new Details( test_d ); 
-			tmp.setPermissions( xx_xx_xx );
-			test.setDetails( tmp );
-			ownsfA.getUpdateService().saveObject( test );
-			fail("secvio!");
-		} catch (SecurityViolation sv) {
-			// ok
-		}
-		
-		// TODO group, etc...
-
+			
 	}
-	
-	// ~ many-to-one
+
+	// ~ unidirectional many-to-one
 	// =========================================================================
-	public void test_U_Thumbnails_And_U_Pixels() throws Exception {
-		ownsfA = ownsfB = u;
-		ownerA = ownerB = user;
-		groupA = groupB = user_other_group;
-		
-		// RW_RW_RW / RW_RW_RW
-		permsA = RW_RW_RW;
-		permsB = RW_RW_RW;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, true, true);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-		
-		// RW_RW_xxx / RW_RW_RW
-		permsA = RW_RW_xx;
-		permsB = RW_RW_RW;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, false, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
-		// RW_RW_RW / Rx_Rx_Rx
-		permsA = RW_RW_RW;
-		permsB = Rx_Rx_Rx;
-		manyToOne(u, true, false);
-		manyToOne(o, true, false);
-		manyToOne(w, true, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
-		// RW_RW_RW / xxx_xxx_xxx
-		permsA = RW_RW_RW;
-		permsB = xx_xx_xx;
-		manyToOne(u, false, false); // see NOTE (U_pix_R_tb)
-		manyToOne(o, false, false);
-		manyToOne(w, false, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
+	
+	/** */ @Override
+	public void test_U_Instrument_And_U_Microscope() throws Exception 
+	{
+		fail("implement");
 	}
 	
-	/** performs various types of Omero lookups for a particular user 
-	 * proxied by a {@link ServiceFactory}. If pix_ok is true, then the lookups
-	 * should succeed for the top-level pixel, and if tb_ok is true, then that
-	 * pixel should contain a single thumbnail.
-	 */
-	protected void manyToOne(ServiceFactory sf, 
-			boolean tb_ok, 
-			boolean pix_ok)
-	{
-		
-		createPixels(ownsfB,groupB,permsB);
-		verifyDetails(pix, ownerB, groupB, permsB);
-		
-		createThumbnail(ownsfA,groupA,permsA,pix);
-		verifyDetails(tb,  ownerA,  groupA,  permsA);
-		
-		// almost identical copy of oneToMany starting here. refactor.
-		
-		Thumbnail test = null;
-		tb.setPixels(pix);
-		
-		try {
-			test = sf.getUpdateService().saveAndReturnObject(tb);
-			if (!tb_ok) fail("secvio!");
-			assertNotNull( test.getPixels() );
-		} catch (SecurityViolation sv) {
-			if (tb_ok) throw sv;
-		}
-						
-	}
-
 	// ~ many-to-many
 	// =========================================================================
 
@@ -487,33 +374,33 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		// try to change the link to point to something different. 
 		// should be immutable!!!
 		
-		try 
-		{
-			sf.getUpdateService().deleteObject(link);
-			if (!link_ok) fail("secvio!");
-		} catch (SecurityViolation sv) { 
-			if (link_ok) throw sv;
-		} finally {
-			prj.clearDatasetLinks(); // done for later recursive delete.
-			ds.clearProjectLinks();  // ditto;
-		}
-		
-		
-		try 
-		{
-			deleteRecurisvely(sf, ds);
-			if (!ds_ok) fail("secvio!");
-		} catch (SecurityViolation sv) { 
-			if (ds_ok) throw sv;
-		} 
-		
-		try 
-		{
-			deleteRecurisvely( sf, prj );
-			if (!prj_ok) fail("secvio!");
-		} catch (SecurityViolation sv) { 
-			if (prj_ok) throw sv;
-		}
+//		try 
+//		{
+//			sf.getUpdateService().deleteObject(link);
+//			if (!link_ok) fail("secvio!");
+//		} catch (SecurityViolation sv) { 
+//			if (link_ok) throw sv;
+//		} finally {
+//			prj.clearDatasetLinks(); // done for later recursive delete.
+//			ds.clearProjectLinks();  // ditto;
+//		}
+//		
+//		
+//		try 
+//		{
+//			deleteRecurisvely(sf, ds);
+//			if (!ds_ok) fail("secvio!");
+//		} catch (SecurityViolation sv) { 
+//			if (ds_ok) throw sv;
+//		} 
+//		
+//		try 
+//		{
+//			deleteRecurisvely( sf, prj );
+//			if (!prj_ok) fail("secvio!");
+//		} catch (SecurityViolation sv) { 
+//			if (prj_ok) throw sv;
+//		}
 		
 	}
 	
@@ -612,34 +499,40 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	// ~ Helpers
 	// =========================================================================
 	
-	// will need to eventually use meta-data to get the one-to-manys and 
-	// many-to-ones right
-	protected void deleteRecurisvely( ServiceFactory sf, IObject target )
-	{
-		// Deleting all links to target
-		Set<String> fields = target.fields();
-		for (String field : fields) {
-			Object obj = target.retrieve(field);
-			if (obj instanceof IObject && ! (obj instanceof IEnum)) {
-				
-				IObject iobj = (IObject) obj;
-				//deleteRecurisvely(sf, iobj);
-			} else if (obj instanceof Collection	) {
-				Collection coll = (Collection) obj;
-				for (Object object : coll) {
-					if (object instanceof IObject) {
-						IObject iobj = (IObject) object;
-						deleteRecurisvely(sf, iobj);
-					}
-				}
-			}
-		}
-		// Now actually delete target
-		sf.getUpdateService().deleteObject(target);
-
+	protected void verifyLockStatus(IObject _i,boolean was_locked) {
+		IObject v = rootQuery.get(_i.getClass(), _i.getId());
+		Details d = v.getDetails();
+		assertEquals( was_locked, d.getPermissions().isSet( Flag.LOCKED ));	
 	}
 	
-	private String makeModifiedMessage() {
-		return "user can modify:"+UUID.randomUUID();
+	protected void verifyLocked(ServiceFactory sf, IObject _i, Details d, 
+			boolean can_change) {
+
+		// shouldn't be able to remove read
+		try {
+			_i.setDetails( d );
+			sf.getUpdateService().saveObject( _i );
+			if (!can_change) fail("secvio!");
+		} catch (SecurityViolation sv) {
+			if (can_change) throw sv;
+		}
+	}
+	
+	protected Details d(IObject _i, Object _o)
+	{
+		Details retVal = new Details( _i.getDetails() );
+		if (_o instanceof Experimenter) {
+			Experimenter _e = (Experimenter) _o;
+			retVal.setOwner(_e);
+		} else if (_o instanceof ExperimenterGroup) {
+			ExperimenterGroup _g = (ExperimenterGroup) _o;
+			retVal.setGroup(_g);
+		} else if (_o instanceof Permissions) {
+			Permissions _p = (Permissions) _o;
+			retVal.setPermissions(_p);
+		} else {
+			throw new IllegalArgumentException("Not user/group/permissions:"+_o);
+		}
+		return retVal;
 	}
 }

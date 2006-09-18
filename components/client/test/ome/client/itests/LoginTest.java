@@ -21,9 +21,7 @@ import ome.system.ServiceFactory;
 @Test(groups = { "client", "integration" })
 public class LoginTest extends TestCase {
 
-	//	 for this to work, we need an empty local.properties
-	@Test( groups = {"ignore","broken"}) 
-	@ExpectedExceptions(RuntimeException.class)
+	@Test
 	public void test_withPropertiesNull() throws Exception {
 		Properties p = new Properties();
 		ServiceFactory factory = new ServiceFactory(p);
@@ -62,7 +60,7 @@ public class LoginTest extends TestCase {
 	public void testLoginWithUmask() throws Exception {
 		Login login = new Login("root","ome");
 		ServiceFactory factory = new ServiceFactory(login);
-		factory.setUmask(Permissions.IMMUTABLE);
+		factory.setUmask(Permissions.READ_ONLY);
 		Image i = new Image();
 		i.setName(UUID.randomUUID().toString());
 		Image test = factory.getUpdateService().saveAndReturnObject(i);

@@ -60,12 +60,6 @@ public class UpdateFilterMockTest extends AbstractLoginMockTest
         filter.filter( null, (IObject) null );
         filter.filter( null, (Details) null );
         filter.filter( null, (Map) null );
-    }
-    
-    @Test( groups = "todo" )
-    @ExpectedExceptions( RuntimeException.class )
-    public void test_filter_null_collection() throws Exception
-    {
         filter.filter( null, (Collection) null );
     }
     

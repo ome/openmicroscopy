@@ -4,6 +4,7 @@ import org.testng.annotations.*;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -11,6 +12,7 @@ import junit.framework.TestCase;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -40,6 +42,7 @@ public class TicketsUpTo500Test extends TestCase
     public void test_planeInfoSetPixelsSavePixels() throws Exception
     {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
+        pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
@@ -54,6 +57,7 @@ public class TicketsUpTo500Test extends TestCase
     public void test_planeInfoSetPixelsSavePlaneInfo() throws Exception
     {
         Pixels pixels = ObjectFactory.createPixelGraph(null);
+        pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
         planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
@@ -68,6 +72,7 @@ public class TicketsUpTo500Test extends TestCase
     {
         IUpdate iUpdate = sf.getUpdateService();
         Pixels pixels = ObjectFactory.createPixelGraph(null);
+        pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         pixels.addPlaneInfo(planeInfo);
         pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);

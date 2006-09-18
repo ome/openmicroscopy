@@ -13,12 +13,13 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
+import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.testing.CreatePojosFixture;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
-public class LoadContainersQueryTest extends AbstractInternalContextTest
+public class LoadContainersQueryTest extends AbstractManagedContextTest
 {
     PojosLoadHierarchyQueryDefinition q;
     List list;
@@ -38,7 +39,7 @@ public class LoadContainersQueryTest extends AbstractInternalContextTest
     {
     	try {
     		setUp();
-    		DATA = new CreatePojosFixture( this.serviceFactory );
+    		DATA = new CreatePojosFixture( this.factory );
     		DATA.createAllPojos();
     		level2cg = DATA.asIdList( DATA.cgu9991, DATA.cgu9992 );
     		level2p = DATA.asIdList( DATA.pu9991, DATA.pu9992 );

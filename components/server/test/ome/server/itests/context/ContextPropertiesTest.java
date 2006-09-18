@@ -1,11 +1,13 @@
 package ome.server.itests.context;
 
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.model.meta.Experimenter;
+import ome.system.OmeroContext;
 
 @Test(
         groups = {"integration","ignore"}
@@ -32,11 +34,17 @@ public class ContextPropertiesTest extends AbstractDependencyInjectionSpringCont
     // =========================================================================
     
     @Override
+    protected ConfigurableApplicationContext loadContextLocations(String[] locations) {
+    	return new OmeroContext(locations);
+    }
+    
+    @Override
     protected String[] getConfigLocations()
     {
         return new String[]{
                 "ome/services/out-of-container.xml",
                 "ome/services/hibernate.xml",
+                "ome/services/security.xml",
                 "ome/server/itests/context/ContextPropertiesTest.xml"}; 
         // sets initial url (for *first* call)
     }

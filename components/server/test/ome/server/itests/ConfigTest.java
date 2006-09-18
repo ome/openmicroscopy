@@ -71,7 +71,7 @@ public class ConfigTest extends AbstractManagedContextTest
 
 		/* Developer notes:
 		 * ---------------
-		 * HIGHLY unlikely that this will be available
+		 * HIGHLY unlikely that the UUID string will be available
 		 */ 
 		String value = iConfig.getConfigValue( UUID.randomUUID().toString() );
 		assertNull( value );
@@ -80,12 +80,19 @@ public class ConfigTest extends AbstractManagedContextTest
 	
 	/* Developer notes:
 	 * ---------------
-	 * A test that should not be run, either because it's not yet finished, or 
-	 * because it's waiting on a known issue, can be marked "ignore" or "broken"
+	 * Tests that should not be run, either because they're not yet finished, or 
+	 * because they're waiting on a known issue, can be added to the "ignore" or
+	 * "broken" group or marked "enabled = false"
 	 */
 	@Test( groups = "ignore" )
-	public void testThisTestDoesntWork() throws Exception {
-		fail("Should not be called.");
+	public void testThisTestUsuallyWontBeCalled() throws Exception {
+		fail("This usually won't be called. You're probably using " +
+				"the developer test suite; don't worry about this.");
+	}
+	
+	@Test( enabled = false )
+	public void testThisTestWontBeCalled() throws Exception {
+		fail("Error in TestNG!");
 	}
 	
     

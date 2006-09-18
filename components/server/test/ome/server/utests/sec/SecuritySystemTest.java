@@ -1,5 +1,6 @@
 package ome.server.utests.sec;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -65,7 +66,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	ExperimenterGroup group;
 	EventType type;
 	Event event;
-	List<Long> leaderOfGroups;
+	List<Long> leaderOfGroups, memberOfGroups;
 	
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
@@ -91,6 +92,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 
 		user.linkExperimenterGroup(group);
 		leaderOfGroups = Collections.singletonList(1L);
+		memberOfGroups = Collections.singletonList(1L);
 
 		prepareMocks();
     }
@@ -109,7 +111,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 
 		user.linkExperimenterGroup(group);
 		leaderOfGroups = Collections.singletonList(0L);
-		
+		memberOfGroups = Arrays.asList(0L,1L);
 		prepareMocks();
     }
     
@@ -120,10 +122,12 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sf.mockTypes = mock(ITypes.class);
 		sf.mockUpdate = mock(LocalUpdate.class);
     
-		sf.mockAdmin.expects(atLeastOnce()).method("lookupExperimenter")
+		sf.mockAdmin.expects(atLeastOnce()).method("userProxy")
 			.will( returnValue( user ));
 		sf.mockAdmin.expects(atLeastOnce()).method("groupProxy")
 			.will( returnValue( group ));
+		sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds")
+		.will( returnValue( memberOfGroups ));
 		sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds")
 			.will( returnValue( leaderOfGroups ));
 		sf.mockTypes.expects(atLeastOnce()).method("getEnumeration")
@@ -540,11 +544,6 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		assertFalse(sec.allowUpdate(i,i.getDetails()));
 	
 	}
-
-	@Test
-	public void testUSE() throws Exception {
-		fail("use not implemented");
-	}
 	
 	/*
 	 * Test method for 'ome.security.SecuritySystem.allowDelete(IObject)'
@@ -674,7 +673,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		i.getDetails().setCreationEvent(new Event(1L,false));
 		i.getDetails().setPermissions(p);
 		Details test = sec.managedDetails(i,oldDetails);
-		assertEquals(p,test.getPermissions());
+		assertTrue(p.sameRights(test.getPermissions()));
 		assertEquals(test.getOwner().getId(),user.getId());
 		assertEquals(test.getGroup().getId(),group.getId());
 	

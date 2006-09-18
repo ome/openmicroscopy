@@ -34,6 +34,7 @@ import java.util.Set;
 //Third-party libraries
 import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.ServiceFactory;
 import ome.testing.CreatePojosFixture;
 
 import org.apache.commons.logging.Log;
@@ -59,7 +60,7 @@ import org.testng.annotations.Test;
 )
 public class AnalysisLogicTest
         extends
-            AbstractInternalContextTest {
+            AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
 
@@ -70,7 +71,7 @@ public class AnalysisLogicTest
     {
     	try {
     		setUp();
-    		DATA = new CreatePojosFixture( this.serviceFactory );
+    		DATA = new CreatePojosFixture( this.factory );
     		DATA.pdi();
     	} finally {
     		tearDown();

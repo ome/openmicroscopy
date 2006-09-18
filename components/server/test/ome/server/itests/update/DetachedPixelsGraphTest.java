@@ -174,7 +174,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest
         p = (Pixels) iUpdate.saveAndReturnObject(p);
         
         // TEST ----------------------------------------------------
-        assertTrue("Need two pixInfos, please.",p.collectPlaneInfo(null).size() == 2);
+        // ObjectFactory now creations PlaneInfos, so this p already has one.
+        assertTrue("Need at least two pixInfos, please.",
+        		p.collectPlaneInfo(null).size() >= 2);
         for (PlaneInfo pi : (List<PlaneInfo>)p.collectPlaneInfo(null))
         {
             assertTrue("Need an id, please.", pi.getId().longValue()>0);

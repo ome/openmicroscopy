@@ -19,13 +19,14 @@ import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
+import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.QueryParameterDef;
 import ome.testing.CreatePojosFixture;
 import ome.util.builders.PojoOptions;
 
-public class FindAnnotationsQueryTest extends AbstractInternalContextTest
+public class FindAnnotationsQueryTest extends AbstractManagedContextTest
 {
     PojosFindAnnotationsQueryDefinition q;
     List                                list;
@@ -37,7 +38,7 @@ public class FindAnnotationsQueryTest extends AbstractInternalContextTest
     {
     	try {
     		setUp();
-    		DATA = new CreatePojosFixture( this.serviceFactory );
+    		DATA = new CreatePojosFixture( this.factory );
     		DATA.pdi();
     		DATA.annotations();
     	} finally {

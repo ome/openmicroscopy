@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class AdminTest extends AbstractAccountTest {
 
-	// ~ chown / chgrp
+	// ~ chown / chgrp / chmod
 	// =========================================================================
 	
 	@Test

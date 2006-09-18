@@ -6,12 +6,15 @@ import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.acquisition.ImagingEnvironment;
+import ome.model.acquisition.Instrument;
+import ome.model.acquisition.Microscope;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
+import ome.model.enums.MicroscopeType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
@@ -31,8 +34,13 @@ import org.testng.annotations.Test;
 
 import junit.framework.TestCase;
 
-@Test(groups = { "ticket:200", "security", "integration" })
-public class AbstractPermissionsTest extends AbstractSecurityTest {
+/**
+ * The subclasses of {@link AbstractPermissionsTest} define the proper working
+ * and the completeness of the security system. 
+ *
+ */
+@Test(groups = { "security", "integration" })
+public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
 	/*
 	 * factors: 
@@ -114,6 +122,10 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 	protected Thumbnail tb;
 
 	protected Image img;
+	
+	protected Microscope micro;
+	
+	protected Instrument instr;
 
 	protected ServiceFactory 		ownsfA,ownsfB,ownsfC;
 	protected Permissions 			permsA,permsB,permsC;
@@ -176,6 +188,23 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 
 	}
 	
+	// ~ Tests
+	// =========================================================================
+	// single
+	public abstract void testSingleProject_U() throws Exception;
+	public abstract void testSingleProject_W() throws Exception;
+	public abstract void testSingleProject_R() throws Exception;
+	// bidirectional one-to-many
+	public abstract void test_U_Pixels_And_U_Thumbnails() throws Exception;
+	public abstract void test_O_Pixels_And_U_Thumbnails() throws Exception;
+	public abstract void test_U_Pixels_And_O_Thumbnails() throws Exception;
+	public abstract void test_U_Pixels_And_R_Thumbnails() throws Exception;
+	// unidirectional many-to-one
+	public abstract void test_U_Instrument_And_U_Microscope() throws Exception;
+	// many-to-many with a mapping table
+	public abstract void test_U_Projects_U_Datasets_U_Link() throws Exception;
+	// special
+	public abstract void test_U_Image_U_Pixels() throws Exception;
 	// ~ Helpers
 	// ========================================================================
 	
@@ -242,6 +271,35 @@ public class AbstractPermissionsTest extends AbstractSecurityTest {
 		p.setDefaultPixels(Boolean.TRUE);
 		img.addPixels(p);
 		img = sf.getUpdateService().saveAndReturnObject(img);
+	}
+
+	protected void createMicroscope(ServiceFactory sf, ExperimenterGroup group, Permissions perms)
+	{
+		MicroscopeType type = new MicroscopeType();
+		type.setValue("Upright");
+		micro = new Microscope();
+		micro.setManufacturer("test");
+		micro.setModel("model");
+		micro.setSerialNumber("123456789");
+		micro.setType( type );
+		Details d = micro.getDetails();
+		d.setGroup(group);
+		d.setPermissions(perms);
+		micro = sf.getUpdateService().saveAndReturnObject(micro);
+	}
+	
+	protected void createInstrument(ServiceFactory sf, ExperimenterGroup group, Permissions perms, Microscope m)
+	{
+		instr = new Instrument();
+		instr.setMicroscope(m);
+		Details d = instr.getDetails();
+		d.setGroup(group);
+		d.setPermissions(perms);
+		instr = sf.getUpdateService().saveAndReturnObject(instr);
+	}
+	
+	protected String makeModifiedMessage() {
+		return "user can modify:"+UUID.randomUUID();
 	}
 	
 }

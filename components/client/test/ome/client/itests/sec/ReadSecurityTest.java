@@ -1,6 +1,7 @@
 package ome.client.itests.sec;
 
 import ome.conditions.SecurityViolation;
+import ome.model.acquisition.Instrument;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -14,7 +15,7 @@ import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:200", "security", "integration" })
-public class ReadSecurityTest extends AbstractPermissionsTest 
+public class ReadSecurityTest extends AbstractPermissionsTest
 {
 	/** due to permission restrictions, certain user combinations will not be
 	 * able to even create the needed test instances. this provides a check for 
@@ -189,7 +190,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 		
 	}
 	
-	// ~ one-to-many
+	// ~ bidirectional one-to-many
 	// =========================================================================
 	
 	public void test_U_Pixels_And_U_Thumbnails() throws Exception {
@@ -344,6 +345,47 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 		
 	}
 	
+	public void test_U_Pixels_And_O_Thumbnails() throws Exception {
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+
+		ownsfB = o;
+		ownerB = other;
+		groupB = user_other_group;
+		
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, true, true);
+		manyToOne(w, true, true);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+		
+		// RW_RW_RW / RW_RW_xx
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		canCreate = true;
+		manyToOne(u, true, true);
+		manyToOne(o, true, true);
+		manyToOne(w, false, false);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+		
+		// xx_xx_xx / RW_RW_RW
+		permsA = xx_xx_xx;
+		permsB = RW_RW_RW;
+		canCreate = false;
+		manyToOne(u, false, true);
+		manyToOne(o, false, true);
+		manyToOne(w, false, true);
+		manyToOne(p, true, true);
+		manyToOne(r, true, true);
+
+	}
+	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
 		ownsfA = u;
 		ownerA = user;
@@ -442,6 +484,25 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 				
 			} else {
 				assertNull(test);
+			}
+	
+			outerJoin = "select t from Thumbnail t left outer join fetch t.pixels where t.id = :id";
+			innerJoin = "select t from Thumbnail t join fetch t.pixels where t.id = :id";
+			params = new Parameters().addId(tb.getId());
+	
+			Thumbnail test2 = sf.getQueryService().findByQuery(outerJoin, params);
+			if (tb_ok)
+			{		
+				assertNotNull(test2);
+				if (pix_ok)
+				{
+					assertNotNull(test2.getPixels());
+				} else {
+					fail("should not be possible (null)");
+				}
+				
+			} else {
+				assertNull(test2);
 			}
 		
 		} catch (SecurityViolation sv) {
@@ -600,6 +661,61 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 		}
 	}
 
+	// ~ unidirectional many-to-one
+	// =========================================================================
+	@Override
+	public void test_U_Instrument_And_U_Microscope() throws Exception 
+	{
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
+		
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		canCreate = true;
+		uniManyOne(u, true, true);
+		
+		
+		
+	}
+	
+	protected void uniManyOne( ServiceFactory sf,
+			boolean instr_ok,
+			boolean micro_ok)
+	{
+		
+		createMicroscope(ownsfB, groupB, permsB);
+		verifyDetails(micro, ownerB, groupB, permsB);
+		
+		try {
+			createInstrument(ownsfA, groupA, permsA, micro);
+			verifyDetails(instr, ownerA, groupA, permsA);
+			if (!canCreate) fail("secvio!");
+		} catch (SecurityViolation sv) {
+			if (canCreate) throw sv;
+		}
+		
+		String outerJoin = "select i from Instrument i left outer join fetch i.microscope where i.id = :id";
+		String innerJoin = "select p from Instrument i join fetch i.microscope where i.id = :id";
+		Parameters params = new Parameters().addId(instr.getId());
+
+		Instrument test = sf.getQueryService().findByQuery(outerJoin, params);
+		if (instr_ok)
+		{
+			assertNotNull(test);
+			if (micro_ok)
+			{
+				assertNotNull(test.getMicroscope());
+			}
+			else {
+				fail("should not be possibe (null)");
+			}
+		} else {
+			assertNull(test);
+		}
+	}
+	
 	// ~ many-to-many
 	// =========================================================================
 

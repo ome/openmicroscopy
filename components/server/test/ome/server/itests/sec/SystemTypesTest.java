@@ -145,12 +145,22 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 	}
 
 	@Test
+	public void testRootCanCreateEnumsWithIUpdate() throws Exception {
+
+		loginRoot();
+
+		AcquisitionMode test = new AcquisitionMode();
+		test.setValue("ticket:157/"+uuid());
+		factory.getUpdateService().saveObject(test);
+	}
+	
+	@Test
 	public void testCanCreateEnumsWithITypes() throws Exception {
 		
 		loginUser(e.getOmeName());
 
 		AcquisitionMode test = new AcquisitionMode();
-		test.setValue("ticket:157");
+		test.setValue("ticket:157/"+uuid());
 		factory.getTypesService().createEnumeration(test);
 	}
 	

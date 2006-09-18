@@ -43,13 +43,24 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
 	Permissions groupReadable = new Permissions().revoke(WORLD, READ);
 
-	List<Experimenter> users = new ArrayList<Experimenter>();
+	List<Experimenter>   users   = new ArrayList<Experimenter>();
+	List<String>         names = new ArrayList<String>();
 
     @Configuration(beforeTestClass = true)
     public void createData() throws Exception{
     	setUp();
 		for (int i = 0; i < 3; i++) {
-			users.add(createUser());
+			String name = UUID.randomUUID().toString();
+			Experimenter e2 = new Experimenter();
+			e2.setOmeName( name );
+			e2.setFirstName("security");
+			e2.setLastName("filter too");
+			users.add( 
+					new Experimenter(
+							factory.getAdminService().createUser(e2),
+							false));
+			names.add( name );
+			
 		}
 		tearDown();
 	}
@@ -59,13 +70,13 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
 		Image i;
 
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		i = createImage(userReadableOnly);
 
-		loginUser(users.get(1).getOmeName());
+		loginUser(names.get(1));
 		assertCannotReadImage(i);
 
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		assertCanReadImage(i);
 	}
 
@@ -74,11 +85,11 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
 		Image i;
 
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		i = createImage(unreadable);
 		assertCannotReadImage(i);
 
-		loginUser(users.get(1).getOmeName());
+		loginUser(names.get(1));
 		assertCannotReadImage(i);
 
 		loginRoot();
@@ -100,15 +111,15 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 		factory.getAdminService().addGroups(users.get(0), proxy);
 		factory.getAdminService().addGroups(users.get(1), proxy);
 
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		i = createImage(groupReadable);
 		factory.getAdminService().changeGroup(i, group.getName());
 		assertCanReadImage(i);
 
-		loginUser(users.get(1).getOmeName());
+		loginUser(names.get(1));
 		assertCanReadImage(i);
 
-		loginUser(users.get(2).getOmeName());
+		loginUser(names.get(2));
 		assertCannotReadImage(i);
 
 	}
@@ -132,17 +143,17 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 		factory.getAdminService().addGroups(users.get(2), proxy);
 
 		// as non-PI create an image..
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		i = createImage(userReadableOnly);
 		factory.getAdminService().changeGroup(i, group.getName());
 		assertCanReadImage(i);
 
 		// others in group can't read
-		loginUser(users.get(1).getOmeName());
+		loginUser(names.get(1));
 		assertCannotReadImage(i);
 
 		// but PI can
-		loginUser(users.get(2).getOmeName());
+		loginUser(names.get(2));
 		assertCanReadImage(i);
 	}
 	
@@ -151,7 +162,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 		Image i;
 
 		// create an image with no permissions
-		loginUser(users.get(0).getOmeName());
+		loginUser(names.get(0));
 		i = createImage(unreadable);
 		assertCannotReadImage(i);
 
@@ -174,16 +185,6 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 
 	// ~ Helpers
 	// =========================================================================
-
-	private Experimenter createUser() {
-		Experimenter e2 = new Experimenter();
-		e2.setOmeName(UUID.randomUUID().toString());
-		e2.setFirstName("security");
-		e2.setLastName("filter too");
-		e2 = factory.getAdminService().getExperimenter(
-				factory.getAdminService().createUser(e2));
-		return e2;
-	}
 
 	private Image createImage(Permissions p) {
 		Image img = new Image();

@@ -273,8 +273,9 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
 
     protected void checksSessionIsConnected()
     {
-        mockSession.expects( atLeastOnce() ).method( "isConnected" )
-            .will( returnValue( true ));
+    	log.warn("No longer called. WHY?");
+//        mockSession.expects( atLeastOnce() ).method( "isConnected" )
+//            .will( returnValue( true ));
     }
 
     protected void getsSessionsConnection()

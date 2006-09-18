@@ -392,7 +392,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
 
     }
     
-    @Test( groups = { "ticket:177" } )
+    @Test( groups = { "ticket:177", /*?*/ "ticket:350" } )
     public void testGetImagesReturnsDefaultPixels() throws Exception
     {
     		Pixels p = ObjectFactory.createPixelGraph(null);

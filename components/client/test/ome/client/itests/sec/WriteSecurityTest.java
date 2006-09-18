@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.UUID;
 
 import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
@@ -31,8 +30,8 @@ import org.testng.annotations.Test;
 
 import junit.framework.TestCase;
 
-@Test(groups = { "ticket:200", "security", "integration" })
-public class WriteSecurityTest extends AbstractPermissionsTest 
+@Test(groups = { "ticket:236", "security", "integration" })
+public class WriteSecurityTest extends AbstractPermissionsTest
 {
 
 	/* notes:
@@ -420,7 +419,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		// RW_xx_xx / RW_xx_xx
 		permsA = RW_Rx_Rx;
 		permsB = RW_xx_xx;
-		oneToMany(u, true, true);
+		oneToMany(u, false, true);
 		oneToMany(o, true, false);
 		oneToMany(w, false, false);
 		oneToMany(p, true, true);
@@ -435,6 +434,11 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		oneToMany(p, true, true);
 		oneToMany(r, true, true);
 		
+	}
+	
+	@Override
+	public void test_U_Pixels_And_O_Thumbnails() throws Exception {
+		fail("implement");	
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
@@ -519,6 +523,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		Pixels t = null;
 		Thumbnail tB = null;
 		String MSG = makeModifiedMessage();
+		String oldMsg = pix.getSha1();
+		
 		pix.setSha1(MSG);
 		
 		try {
@@ -528,6 +534,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			if (!pix_ok) fail("secvio!");
 			assertTrue( MSG.equals( t.getSha1() ));
 		} catch (SecurityViolation sv) {
+			// rollback
+			pix.setSha1( oldMsg );
 			if (pix_ok) throw sv;
 		}
 		
@@ -550,124 +558,21 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			pix.putAt( Pixels.THUMBNAILS, null );
 			// must be internal to try/catch otherwise, explodes
 			// since tb still references the pix.
-			try 
-			{
-				deleteRecurisvely( sf, pix );
-				if (!pix_ok) fail("secvio!");
-			} catch (SecurityViolation sv) { 
-				if (pix_ok) throw sv;
-			}
+			deleteRecurisvely( sf, pix );
+			if (!pix_ok) fail("secvio!");
 			
 		} catch (SecurityViolation sv) { 
-			if (tb_ok) throw sv;
+			if (tb_ok&&pix_ok) throw sv;
 		} 
 				
 	}
 	
-	// ~ many-to-one
+	// ~ unidirectional many-to-one
 	// =========================================================================
-	public void test_U_Thumbnails_And_U_Pixels() throws Exception {
-		ownsfA = ownsfB = u;
-		ownerA = ownerB = user;
-		groupA = groupB = user_other_group;
-		
-		// RW_RW_RW / RW_RW_RW
-		permsA = RW_RW_RW;
-		permsB = RW_RW_RW;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, true, true);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-		
-		// RW_RW_xx / RW_RW_RW
-		permsA = RW_RW_xx;
-		permsB = RW_RW_RW;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, false, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
-		// RW_RW_RW / Rxx_Rxx_Rxx
-		permsA = RW_RW_RW;
-		permsB = Rx_Rx_Rx;
-		manyToOne(u, true, false);
-		manyToOne(o, true, false);
-		manyToOne(w, true, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
-		// RW_RW_RW / xx_xx_xx
-		permsA = RW_RW_RW;
-		permsB = Rx_Rx_Rx;
-		manyToOne(u, true, false);
-		manyToOne(o, true, false);
-		manyToOne(w, true, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
-
+	@Override
+	public void test_U_Instrument_And_U_Microscope() throws Exception {
+		fail("implement");	
 	}
-	
-	/** performs various types of Omero lookups for a particular user 
-	 * proxied by a {@link ServiceFactory}. If pix_ok is true, then the lookups
-	 * should succeed for the top-level pixel, and if tb_ok is true, then that
-	 * pixel should contain a single thumbnail.
-	 */
-	protected void manyToOne(ServiceFactory sf, 
-			boolean tb_ok, 
-			boolean pix_ok)
-	{
-		
-		createPixels(ownsfB,groupB,permsB);
-		createThumbnail(ownsfA,groupA,permsA, pix);
-		pix = tb.getPixels();
-		verifyDetails(pix, ownerB, groupB, permsB);
-		verifyDetails(tb,  ownerA,  groupA,  permsA);
-		
-		// almost identical copy of oneToMany starting here. refactor.
-		
-		Pixels testB = null;
-		Thumbnail test = null;
-		String MSG = makeModifiedMessage();
-		pix.setSha1(MSG);
-		
-		try {
-			testB = sf.getUpdateService().saveAndReturnObject(pix);
-			if (!pix_ok) fail("secvio!");
-			assertTrue( MSG.equals( testB.getSha1() ));
-		} catch (SecurityViolation sv) {
-			if (pix_ok) throw sv;
-		}
-		
-		tb.setRef(MSG);
-		
-		try {
-			
-			// must reload since we modified the SHA1 
-			// though it might have failed. 
-			tb.setPixels( sf.getQueryService().get(pix.getClass(),pix.getId()) );
-			test = sf.getUpdateService().saveAndReturnObject(tb);
-			if (!tb_ok) fail("secvio!");
-			assertTrue( MSG.equals( test.getRef() ));
-		} catch (SecurityViolation sv) {
-			if (tb_ok) throw sv;
-		}
-		
-		try 
-		{
-			sf.getUpdateService().deleteObject(tb);
-			if (!tb_ok) fail("secvio!");
-			pix.putAt( Pixels.THUMBNAILS, null );
-			deleteRecurisvely( sf, pix );
-			if (!pix_ok) fail("secvio!");
-
-		} catch (SecurityViolation sv) { 
-			if (tb_ok&&pix_ok) throw sv;
-		} 
-						
-	}
-
 	// ~ many-to-many
 	// =========================================================================
 
@@ -729,6 +634,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		
 		ds.setName(MSG);
 		try {
+			ds.putAt( Dataset.PROJECTLINKS, null );
 			testB = sf.getUpdateService().saveAndReturnObject(ds);
 			if (!ds_ok) fail("secvio!");
 			assertTrue( MSG.equals( testB.getName() ));
@@ -887,9 +793,5 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 		// Now actually delete target
 		sf.getUpdateService().deleteObject(target);
 
-	}
-	
-	private String makeModifiedMessage() {
-		return "user can modify:"+UUID.randomUUID();
 	}
 }

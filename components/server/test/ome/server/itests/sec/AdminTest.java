@@ -8,8 +8,10 @@ import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
@@ -36,11 +38,7 @@ public class AdminTest extends AbstractManagedContextTest
 	
 	@Test
 	public void testUserAccountCreation() throws Exception {
-		Experimenter e = new Experimenter();
-		e.setEmail("blah");
-		e.setFirstName("foo");
-		e.setLastName("bar");
-		e.setOmeName(UUID.randomUUID().toString());
+		Experimenter e = testExperimenter();
 		e = iAdmin.getExperimenter(iAdmin.createUser(e));
 		assertNotNull(e.getEmail());
 		assertNotNull(e.getOmeName());
@@ -67,11 +65,7 @@ public class AdminTest extends AbstractManagedContextTest
 	
 	@Test
 	public void testSysUserAccountCreation() throws Exception {
-		Experimenter e = new Experimenter();
-		e.setEmail("blah");
-		e.setFirstName("foo");
-		e.setLastName("bar");
-		e.setOmeName(UUID.randomUUID().toString());
+		Experimenter e = testExperimenter();
 		e = iAdmin.getExperimenter(iAdmin.createSystemUser(e));
 		assertNotNull(e.getEmail());
 		assertNotNull(e.getOmeName());
@@ -99,11 +93,7 @@ public class AdminTest extends AbstractManagedContextTest
 	
 	@Test
 	public void testExperimenterAccountCreation() throws Exception {
-		Experimenter e = new Experimenter();
-		e.setEmail("blah");
-		e.setFirstName("foo");
-		e.setLastName("bar");
-		e.setOmeName(UUID.randomUUID().toString());
+		Experimenter e = testExperimenter();
 		e = iAdmin.getExperimenter(
 				iAdmin.createExperimenter(e, 
 						new ExperimenterGroup(0L,false), null));
@@ -113,13 +103,48 @@ public class AdminTest extends AbstractManagedContextTest
 		assertNotNull(e.getLastName());
 		assertTrue(e.sizeOfGroupExperimenterMap() == 1);
 	}
+
+	private Experimenter testExperimenter() {
+		Experimenter e = new Experimenter();
+		e.setEmail("blah");
+		e.setFirstName("foo");
+		e.setLastName("bar");
+		e.setOmeName(UUID.randomUUID().toString());
+		return e;
+	}
 	
 	// ~ Groups
 	// =========================================================================
 	@Test
 	public void testUserCanOnlySetDetailsOnOwnObject() throws Exception 
 	{
-		fail("implement"); // also verify for 
+		Experimenter e1 = testExperimenter();
+		iAdmin.createUser( e1 );
+		
+		loginUser( e1.getOmeName() );
+		
+		Image i = new Image(); i.setName( "test" );
+		i = iUpdate.saveAndReturnObject( i );
+		
+		// this user should not be able to change things
+		Experimenter e2 = testExperimenter();
+		iAdmin.createUser( e2 );
+
+		loginUser( e2.getOmeName() );
+		
+		try { 
+			iAdmin.changeOwner(i, e2.getOmeName() );
+			fail ("secvio!");
+		} catch (SecurityViolation sv) {}
+		try { 
+			iAdmin.changeGroup(i, "system" );
+			fail ("secvio!");
+		} catch (SecurityViolation sv) {}
+		try { 
+			iAdmin.changePermissions(i, Permissions.EMPTY );
+			fail ("secvio!");
+		} catch (SecurityViolation sv) {}
+		
 	}
 	
 	@Test

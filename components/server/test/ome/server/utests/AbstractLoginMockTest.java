@@ -40,7 +40,9 @@ import org.testng.annotations.*;
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.ITypes;
+import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.enums.EventType;
@@ -100,8 +102,9 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         sf = new MockServiceFactory();
         sec = new BasicSecuritySystem (sf,new ThreadLocalEventContext() ); // hiding Ectx
         
-        sf.mockAdmin = mock(IAdmin.class);
+        sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockQuery = mock(LocalQuery.class);
+        sf.mockUpdate = mock(LocalUpdate.class);
         sf.mockTypes = mock(ITypes.class);
 
         filter = new UpdateFilter( );
@@ -112,7 +115,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
     protected void rootLogin()
     {
-        sf.mockAdmin.expects( atLeastOnce() ).method( "lookupExperimenter" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
         	.with(eq("root"))
 			.will( returnValue( ROOT ));
         sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
@@ -127,7 +130,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
     protected void userLogin( )
     {
-        sf.mockAdmin.expects( atLeastOnce() ).method( "lookupExperimenter" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
     		.with(eq("user1"))
 			.will( returnValue( USER ));
         sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
