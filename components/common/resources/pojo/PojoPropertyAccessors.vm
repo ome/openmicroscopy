@@ -540,30 +540,6 @@ $templates.Ejb3PropertyGetAnnotation
 		try {
 			preSetter( $FIELD, ${property.name} );
 	        this.$property.Name = $property.Name;
-#if( $c2j.hasMetaAttribute($property, "WORKAROUND") )	
-#set( $fkInverse = $c2j.getMetaAsString($property, "WORKAROUND"))
-			// This should be done, but because of the property-ref
-			// tag it will fail. See : 
-			// http://opensource.atlassian.com/projects/hibernate/browse/HHH-2075
-			// https://trac.openmicroscopy.org.uk/omero/ticket/350
-/*
-			if ( $property.Name != null )
-			{
-	       		Collection c = (Collection) ${property.Name}.retrieve(${pojo.getJavaTypeName($property, $jdk5)}.${fkInverse.toUpperCase()});
-	       		if ( c != null ) c.add(this);
-	       	}
-*/		
-#elseif( $c2j.hasMetaAttribute($property, "fkInverse") )	
-#set( $fkInverse = $c2j.getMetaAsString($property, "fkInverse"))
-			// Now adding to the inverse side of the this relationship
-			// If the instance isn't null and the collections isn't null, then
-			// add us to it.
-			if ( $property.Name != null )
-			{
-	       		Collection c = (Collection) ${property.Name}.retrieve(${pojo.getJavaTypeName($property, $jdk5)}.${fkInverse.toUpperCase()});
-	       		if ( c != null ) c.add(this);
-	       	}
-#end
 		} finally {
 			postSetter( $FIELD, ${property.name});
 		}			
