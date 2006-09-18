@@ -243,10 +243,6 @@ class DSLHandler extends DefaultHandler {
 				}
 			}
 		}
-    	System.err.println("xxx");
-    	for (String id : types.keySet()) {
-			System.err.println(id);
-		}
         return new HashSet<SemanticType>(types.values());
     }
     
