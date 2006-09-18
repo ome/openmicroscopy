@@ -99,7 +99,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsB = RW_RW_Rx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
-		// RW_RW_RW / RW_RW_xxx 
+		// RW_RW_RW / RW_RW_xx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
@@ -109,7 +109,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsB = RW_Rx_Rx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
-		// RW_RW_RW / RW_xxx_xxx		
+		// RW_RW_RW / RW_xx_xx		
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
@@ -119,7 +119,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsB = RW_RW_Rx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 
-		// RW_RW_xxx / RW_RW_xxx
+		// RW_RW_xx / RW_RW_xx
 		permsA = RW_RW_xx;
 		permsB = RW_RW_xx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
@@ -129,7 +129,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsB = RW_Rx_Rx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
-		// RW_xxx_xxx / RW_xxx_xxx
+		// RW_xx_xx / RW_xx_xx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
@@ -139,7 +139,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsB = Rx_Rx_Rx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
 		
-		// xxx_xxx_xxx / xxx_xxx_xxx
+		// xx_xx_xx / xx_xx_xx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
 		oneToMany(ownsfA,true,RW_xx_xx,common_group);
@@ -169,33 +169,27 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_RW_RW / RW_RW_xxx 
+		// RW_RW_RW / RW_RW_xx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_RW_RW / RW_xxx_xxx
+		// RW_RW_RW / RW_xx_xx
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 
-		// RW_RW_RW / xxx_xxx_xxx		
+		// RW_RW_RW / xx_xx_xx		
 		permsA = RW_RW_RW;
 		permsB = xx_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_xxx_xxx / RW_xxx_xxx
-		permsA = RW_xx_xx;
+		// RW_RW_xx / RW_xx_xx
+		permsA = RW_RW_xx;
 		permsB = RW_xx_xx;
-		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, false, user);
-
-		// xxx_xxx_xxx / xxx_xxx_xxx
-		permsA = xx_xx_xx;
-		permsB = xx_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, false, user);
 		
@@ -231,31 +225,31 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_RW_RW / RW_RW_xxx 
+		// RW_RW_RW / RW_RW_xx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_RW_RW / RW_xxx_xxx
+		// RW_RW_RW / RW_xx_xx
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 
-		// RW_RW_RW / xxx_xxx_xxx		
+		// RW_RW_RW / xx_xx_xx		
 		permsA = RW_RW_RW;
 		permsB = xx_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, true, user);
 		
-		// RW_xxx_xxx / RW_xxx_xxx
+		// RW_xx_xx / RW_xx_xx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
 		oneToMany(r, false, user);
 
-		// xxx_xxx_xxx / xxx_xxx_xxx
+		// xx_xx_xx / xx_xx_xx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
@@ -309,7 +303,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		manyToMany(p,true,true,true);
 		manyToMany(r,true,true,true);
 		
-		// RW_RW_RW / RW_RW_xxx / RW_RW_RW
+		// RW_RW_RW / RW_RW_xx / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		permsC = RW_RW_RW;
@@ -319,7 +313,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		manyToMany(p,true,true,true);
 		manyToMany(r,true,true,true);
 		
-		// RW_RW_RW / RW_xxx_xxx / RW_RW_RW
+		// RW_RW_RW / RW_xx_xx / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		permsC = RW_RW_RW;
@@ -421,7 +415,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RW_RW_RW / RW_RW_xxx
+		// RW_RW_RW / RW_RW_xx
 		u.getAdminService().changePermissions(pix, RW_RW_xx);
 		verifyDetails(img,user,user_other_group,RW_RW_RW);
 		verifyDetails(pix,user,user_other_group,RW_RW_xx);
@@ -431,7 +425,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		imagePixels(p,true,true);
 		imagePixels(r,true,true);
 		
-		// RW_RW_RW / RW_xxx_xxx
+		// RW_RW_RW / RW_xx_xx
 		u.getAdminService().changePermissions(pix, RW_xx_xx);
 		verifyDetails(img,user,user_other_group,RW_RW_RW);
 		verifyDetails(pix,user,user_other_group,RW_xx_xx);

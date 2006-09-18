@@ -734,7 +734,13 @@ public class BasicSecuritySystem implements SecuritySystem {
 				return true;
 			}
 			
-			if (locked) {
+			// Locked items cannot have their owner altered, unless they
+			// are world-readable. In that case, the owner will play no 
+			// real role. The WORLD-READ is also not removable. The check for 
+			// this is in managedPermissions()
+			if (locked && 
+					! currentDetails.getPermissions().isGranted( WORLD, READ )) 
+			{	
 				throw new SecurityViolation("Object locked! " +
 						"Cannot change owner for:" + obj);
 			}
