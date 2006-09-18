@@ -262,6 +262,38 @@ public class PermissionsTest extends TestCase {
 	}
 	
 	@Test
+	public void testCompareWithString() throws Exception
+	{
+		assertTrue( Permissions.EMPTY.sameRights( 
+				Permissions.parseString("______")));
+		assertTrue( Permissions.DEFAULT.sameRights( 
+				Permissions.parseString("rwr_r_")));
+		assertTrue( Permissions.GROUP_IMMUTABLE.sameRights( 
+				Permissions.parseString("r_r___")));
+		assertTrue( Permissions.GROUP_PRIVATE.sameRights( 
+				Permissions.parseString("rwrw__")));
+		assertTrue( Permissions.GROUP_READABLE.sameRights( 
+				Permissions.parseString("rwr___")));
+		assertTrue( Permissions.GROUP_WRITEABLE.sameRights( 
+				Permissions.parseString("rwrwr_")));
+		assertTrue( Permissions.PUBLIC.sameRights( 
+				Permissions.parseString("rwrwrw")));
+		assertTrue( Permissions.READ_ONLY.sameRights( 
+				Permissions.parseString("r_r_r_")));
+		assertTrue( Permissions.USER_IMMUTABLE.sameRights( 
+				Permissions.parseString("r_____")));
+		assertTrue( Permissions.USER_PRIVATE.sameRights( 
+				Permissions.parseString("rw____")));
+		assertTrue( Permissions.USER_WRITEABLE.sameRights( 
+				Permissions.parseString("rwr_r_")));
+		assertTrue( Permissions.WORLD_IMMUTABLE.sameRights( 
+				Permissions.parseString("r_r_r_")));
+		assertTrue( Permissions.WORLD_WRITEABLE.sameRights( 
+				Permissions.parseString("rwrwrw")));
+
+	}
+	
+	@Test
 	public void testDelegationFunctionsProperly() throws Exception 
 	{
 		Permissions.DEFAULT.toString();
@@ -294,6 +326,36 @@ public class PermissionsTest extends TestCase {
 		p.grant(GROUP, READ); // is this what we want?
 	}
 	
+	// ~ Parse String
+	// =========================================================================
+	@Test
+	public void testParseString() throws Exception 
+	{
+		p = Permissions.parseString("rwrwrw");
+		assertTrue( p.isGranted( USER, READ ));
+		assertTrue( p.isGranted( USER, WRITE ));
+		assertTrue( p.isGranted( GROUP, READ ));
+		assertTrue( p.isGranted( GROUP, WRITE ));
+		assertTrue( p.isGranted( WORLD, READ ));
+		assertTrue( p.isGranted( WORLD, WRITE ));
+	
+		p = Permissions.parseString("RWRWRW");
+		assertTrue( p.isGranted( USER, READ ));
+		assertTrue( p.isGranted( USER, WRITE ));
+		assertTrue( p.isGranted( GROUP, READ ));
+		assertTrue( p.isGranted( GROUP, WRITE ));
+		assertTrue( p.isGranted( WORLD, READ ));
+		assertTrue( p.isGranted( WORLD, WRITE ));
+	
+		p = Permissions.parseString("______");
+		assertFalse( p.isGranted( USER, READ ));
+		assertFalse( p.isGranted( USER, WRITE ));
+		assertFalse( p.isGranted( GROUP, READ ));
+		assertFalse( p.isGranted( GROUP, WRITE ));
+		assertFalse( p.isGranted( WORLD, READ ));
+		assertFalse( p.isGranted( WORLD, WRITE ));
+	
+	}
 	// ~ Private helpers
 	// ===========================================================================
 

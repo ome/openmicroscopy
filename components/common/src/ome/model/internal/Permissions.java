@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.parameters.QueryParameter;
 
@@ -181,6 +182,33 @@ public class Permissions implements Serializable
     public static int bit( Role role, Right right )
     {
     	return right.mask() << role.shift();
+    }
+    
+    public static Permissions parseString( String rwrwrw )
+    {
+    	
+    	Permissions p = new Permissions( ZERO );
+    	String regex = "([Rr_][Ww_]){3}";
+    	
+    	if ( rwrwrw == null || ! rwrwrw.matches(regex) )
+    		throw new ApiUsageException( "Permissions are of the form: "+regex);
+    	
+    	char c;
+    	
+    	c = rwrwrw.charAt(0);
+    	if ( c == 'r' || c == 'R' ) p.grant( USER, READ );
+    	c = rwrwrw.charAt(1);
+    	if ( c == 'w' || c == 'W' ) p.grant( USER, WRITE );
+    	c = rwrwrw.charAt(2);
+    	if ( c == 'r' || c == 'R' ) p.grant( GROUP, READ );
+    	c = rwrwrw.charAt(3);
+    	if ( c == 'w' || c == 'W' ) p.grant( GROUP, WRITE );
+    	c = rwrwrw.charAt(4);
+    	if ( c == 'r' || c == 'R' ) p.grant( WORLD, READ );
+    	c = rwrwrw.charAt(5);
+    	if ( c == 'w' || c == 'W' ) p.grant( WORLD, WRITE );    	
+    
+    	return p;
     }
 
     // ~ Setters (return this)
@@ -621,7 +649,7 @@ public class Permissions implements Serializable
 	 * R_R_R_ : all can only read
 	 */
 	public final static Permissions	WORLD_IMMUTABLE
-		= new ImmutablePermissions( new Permissions(GROUP_READABLE)
+		= new ImmutablePermissions( new Permissions(USER_WRITEABLE)
 				.revoke( USER, WRITE ));
 	
 	/**
