@@ -31,6 +31,7 @@ package ome.security;
 
 //Java imports
 import java.util.Collection;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -45,6 +46,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Event;
+import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Principal;
@@ -323,6 +325,7 @@ public interface SecuritySystem
 	
 	boolean emptyDetails( );
 	void addLog( String action, Class klass, Long id );
+	Map<Class, Map<String, EventLog>> getLogs();
 	void newEvent( EventType type );
 	Event getCurrentEvent();
 	void setCurrentEvent( Event event );

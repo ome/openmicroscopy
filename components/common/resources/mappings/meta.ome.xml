@@ -82,7 +82,7 @@
 		</properties>
 	</type>    
 
-	<type id="ome.model.meta.EventLog" mutable="false">
+	<type id="ome.model.meta.EventLog" mutable="false" global="true">
 		<properties>
 			<required name="type" type="string"/>
 			<required name="action" type="string"/>
@@ -95,7 +95,7 @@
 	</type>
 	
 
-	<type id="ome.model.meta.EventDiff" mutable="false">
+	<type id="ome.model.meta.EventDiff" mutable="false" global="true">
 		<properties>
 			<manyone name="logs" type="ome.model.meta.EventLog"/>
 		</properties>

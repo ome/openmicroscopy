@@ -100,9 +100,9 @@
 <!-- TODO: these should be changed to code. a simple groovy/java client. -->
                         <transaction>
  insert into experimenter
- (id, permissions, version, omename, firstname, lastname)
+ (id, version, omename, firstname, lastname)
  values
- (nextval('seq_experimenter'),-35, 0,'${db.user}','My','Name');
+ (nextval('seq_experimenter'),0,'${db.user}','My','Name');
 
  insert into groupexperimentermap
  (id, permissions, version, owner_id, group_id, creation_id, child, parent)

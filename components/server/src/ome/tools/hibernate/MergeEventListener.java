@@ -199,7 +199,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     
 	protected void propagateHiddenValues(IObject from, IObject to) {
 		secSys.copyToken(from,to);
-		if ( from.getDetails().filteredSize() > 0 )
+		if ( from.getDetails() != null && from.getDetails().filteredSize() > 0 )
 		{
 			to.getDetails().addFiltered(from.getDetails().filteredSet());
 		}

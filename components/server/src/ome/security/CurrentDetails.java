@@ -33,7 +33,9 @@ package ome.security;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -47,6 +49,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.model.meta.Event;
+import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -68,39 +71,30 @@ abstract class CurrentDetails
 {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
     
-    private static ThreadLocal<Details> detailsHolder = 
-        new ThreadLocal<Details>();
+    private static class Data {
+    	public Data() { }
+    	Details details;
+    	Permissions umask;
+    	boolean isAdmin = false;
+    	Collection<Long> memberOfGroups;
+    	Collection<Long> leaderOfGroups;
+    	Set<String> disabledSubsystems;
+    	Set<IObject> lockCandidates;
+    	Map<Class,Map<String,EventLog>> logs;
+    }
 
-    private static ThreadLocal<Permissions> umaskHolder = 
-        new ThreadLocal<Permissions>();
-
-    private static ThreadLocal<Boolean> isAdminHolder = 
-    	new ThreadLocal<Boolean>();
-
-    private static ThreadLocal<Collection<Long>> memberOfGroupsHolder =
-    	new ThreadLocal<Collection<Long>>();
-    
-    private static ThreadLocal<Collection<Long>> leaderOfGroupsHolder =
-    	new ThreadLocal<Collection<Long>>();
-    
-    private static ThreadLocal<Set<String>> disabledSubsystemsHolder =
-    	new ThreadLocal<Set<String>>();
-    
-    private static ThreadLocal<Set<IObject>> lockCandidatesHolder = 
-    	new ThreadLocal<Set<IObject>>();
+    private static ThreadLocal<Data> data = 
+    	new ThreadLocal<Data>(){
+    	@Override
+    	protected Data initialValue() { return new Data(); };
+    };
     
     /** removes all current context. This must stay in sync with the instance
      * fields. If a new {@link ThreadLocal} is added, {@link ThreadLocal#remove()}
      * <em>must</em> be called.
      */
     public static void clear(){
-        detailsHolder.remove();
-        isAdminHolder.remove();
-        umaskHolder.remove();
-        leaderOfGroupsHolder.remove();
-        memberOfGroupsHolder.remove();
-        disabledSubsystemsHolder.remove();
-        lockCandidatesHolder.remove();
+    	data.remove();
     }
     
     // ~ Internals
@@ -108,12 +102,12 @@ abstract class CurrentDetails
 
     protected static void setDetails(Details details)
     {
-        detailsHolder.set(details);
+        data.get().details = details;
     }
 
     protected static Details getDetails()
     {
-        Details details = detailsHolder.get();
+        Details details = data.get().details;
         if (details == null)
         {
             details = new Details();
@@ -122,7 +116,7 @@ abstract class CurrentDetails
         return details;
     }
 
-    // ~ Main methods
+    // ~ Events and Details
     // =================================================================
     public static void newEvent(EventType type, Token token) // TODO keep up with stack here?
     {
@@ -130,13 +124,51 @@ abstract class CurrentDetails
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
         e.getGraphHolder().setToken(token, token);
-        e.getDetails().setPermissions( Permissions.IMMUTABLE );
+        e.getDetails().setPermissions( Permissions.READ_ONLY );
         setCreationEvent(e);
+    }
+    
+    public static void addLog( String action, Class klass, Long id )
+    {
+    	Map<Class, Map<String, EventLog>> map = data.get().logs;
+    	if ( map == null )
+    	{
+    		map = new HashMap<Class, Map<String, EventLog>>();
+    		data.get().logs = map;
+    	}
+    	
+    	Map<String,EventLog> m = map.get( klass );
+    	if ( m == null )
+    	{
+    		m = new HashMap<String, EventLog>();
+    		map.put( klass, m );
+    	}
+    	
+    	EventLog l = m.get( action );
+    	if ( l == null )
+    	{
+			l = new EventLog();
+			l.setAction(action);
+			l.setType(klass.getName()); // TODO could be id to Type entity
+			l.setIdList(id.toString());
+			l.setEvent(getCreationEvent());
+			m.put( action, l );
+    	} else {
+    		l.setIdList( l.getIdList() + " " +id.toString() );
+    	}	
+    }
+    
+    public static Map<Class,Map<String,EventLog>> getLogs()
+    { // TODO defensive copy
+    	return data.get().logs == null ? 
+    			new HashMap<Class,Map<String,EventLog>>() : 
+    				data.get().logs;
     }
     
     public static void clearLogs()
     {
-        getCreationEvent().clearLogs();
+    	data.get().logs = null;
+//        getCreationEvent().clearLogs();
     }
     
     public static Details createDetails()
@@ -153,7 +185,7 @@ abstract class CurrentDetails
     // =========================================================================
     public static Permissions getUmask()
     {
-        Permissions umask = umaskHolder.get();
+        Permissions umask = data.get().umask;
         if (umask == null)
         {
             umask = new Permissions();
@@ -171,7 +203,7 @@ abstract class CurrentDetails
     
     public static void setUmask(Permissions umask)
     {
-        umaskHolder.set(umask);
+        data.get().umask = umask;
     }
     
     // ~ Delegation FIXME possibly remove setters for set(Exp,Grp)
@@ -227,26 +259,31 @@ abstract class CurrentDetails
     {
         getDetails().setGroup(group);
     }
+    
+    // ~ Admin
+	// =========================================================================
  
     public static void setAdmin( boolean isAdmin )
     {
-    	isAdminHolder.set( Boolean.valueOf(isAdmin));
+    	data.get().isAdmin = isAdmin;
     }
     
     public static boolean isAdmin( )
     {
-    	return isAdminHolder.get() == null ? false : 
-    		isAdminHolder.get().booleanValue();
+    	return data.get().isAdmin;
     }
         
+    // ~ Groups
+	// =========================================================================
+    
     public static void setMemberOfGroups( Collection<Long> groupIds )
     {
-    	memberOfGroupsHolder.set( groupIds );
+    	data.get().memberOfGroups = groupIds;
     }
     
     public static Collection<Long> getMemberOfGroups( )
     {
-		Collection<Long> c = memberOfGroupsHolder.get();    	
+		Collection<Long> c = data.get().memberOfGroups;    	
     	if ( c == null || c.size() == 0 )
     	{
     		c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as well.
@@ -256,12 +293,12 @@ abstract class CurrentDetails
     
     public static void setLeaderOfGroups( Collection<Long> groupIds )
     {
-    	leaderOfGroupsHolder.set( groupIds );
+    	data.get().leaderOfGroups = groupIds;
     }
     
     public static Collection<Long> getLeaderOfGroups( )
     {
-		Collection<Long> c = leaderOfGroupsHolder.get();    	
+		Collection<Long> c = data.get().leaderOfGroups;    	
     	if ( c == null || c.size() == 0 )
     	{
     		c = Collections.singletonList(Long.MIN_VALUE); // FIXME hack as well.
@@ -269,13 +306,16 @@ abstract class CurrentDetails
     	return c;
     }
     
+    // ~ Subsystems
+	// =========================================================================
+    
     public static boolean addDisabled(String id)
     {
-    	Set<String> s = disabledSubsystemsHolder.get( );
+    	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null )
     	{
     		s = new HashSet<String>();
-    		disabledSubsystemsHolder.set( s );
+    		data.get().disabledSubsystems = s;
     		return s.add(id);
     	}
     	return false;	
@@ -284,11 +324,11 @@ abstract class CurrentDetails
     
     public static boolean addAllDisabled(String...ids)
     {
-    	Set<String> s = disabledSubsystemsHolder.get( );
+    	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null )
     	{
     		s = new HashSet<String>();
-    		disabledSubsystemsHolder.set( s );
+    		data.get().disabledSubsystems = s;
     	}
     	if (ids != null )
     	{
@@ -300,7 +340,7 @@ abstract class CurrentDetails
     
     public static boolean removeDisabled(String id)
     {
-    	Set<String> s = disabledSubsystemsHolder.get( );
+    	Set<String> s = data.get().disabledSubsystems;
     	if ( s != null && id != null )
     	{
     		return s.remove(id);
@@ -310,7 +350,7 @@ abstract class CurrentDetails
     
     public static boolean removeAllDisabled(String...ids)
     {
-    	Set<String> s = disabledSubsystemsHolder.get( );
+    	Set<String> s = data.get().disabledSubsystems;
     	if ( s != null && ids != null )
     	{
     		boolean changed = false;
@@ -323,31 +363,34 @@ abstract class CurrentDetails
     
     public static void clearDisabled()
     {
-    	disabledSubsystemsHolder.remove();
+    	data.get().disabledSubsystems = null;
     }
     
     public static boolean isDisabled(String id)
     {
-    	Set<String> s = disabledSubsystemsHolder.get( );
+    	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null || id == null || ! s.contains(id)) return false;
     	return true;
     	
     }
     
+    // ~ Locks
+	// =========================================================================
+    
     public static Set<IObject> getLockCandidates()
     {
-    	Set<IObject> s = lockCandidatesHolder.get();
+    	Set<IObject> s = data.get().lockCandidates;
     	if ( s == null ) return new HashSet<IObject>();
     	return s;
     }
     
     public static void appendLockCandidates( Set<IObject> set )
     {
-    	Set<IObject> s = lockCandidatesHolder.get();
+    	Set<IObject> s = data.get().lockCandidates;
     	if ( s == null ) 
     	{
     		s = new HashSet<IObject>( );
-    		lockCandidatesHolder.set( s );
+    		data.get().lockCandidates = s;
     	}
     	s.addAll( set );
     }

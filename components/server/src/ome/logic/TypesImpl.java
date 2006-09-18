@@ -60,7 +60,10 @@ import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.model.IEnum;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.SecureAction;
 
 /**
@@ -97,6 +100,13 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
     public <T extends IEnum> T createEnumeration( T newEnum )
     {
     	final LocalUpdate up = iUpdate;
+    	
+    	// TODO this should be delegated to security system.
+    	Details d = newEnum.getDetails();
+    	d.setOwner( new Experimenter( 0L, false ) );
+    	d.setGroup( new ExperimenterGroup( 0L, false ) );
+    	d.setPermissions( Permissions.DEFAULT );
+    	d.setCreationEvent( getSecuritySystem().currentEvent() );
     	return getSecuritySystem().doAction(newEnum, new SecureAction(){
     		public IObject updateObject(IObject iObject) {
     			return up.saveAndReturnObject(iObject);

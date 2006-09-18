@@ -41,6 +41,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -52,6 +55,7 @@ import org.springframework.util.Assert;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.Event;
+import ome.model.meta.EventLog;
 import ome.security.SecuritySystem;
 
 /**
@@ -143,9 +147,16 @@ public class EventHandler implements MethodInterceptor
         		
         		boolean stateful = (arg0.getThis() instanceof StatefulServiceInterface);
 
+        		// on failure, we want to make sure that no one attempts 
+        		// any further changes.
+        		if ( failure )
+	        	{
+        			// TODO we should probably do some forced clean up here.
+	        	}
+        		
         		// stateful services should NOT be flushed, because that's part 
         		// of the state that should hang around.
-        		if ( stateful ) 
+        		else if ( stateful ) 
         		{
         			// we don't want to do anything, really.
         		}
@@ -155,21 +166,16 @@ public class EventHandler implements MethodInterceptor
 	        	{
 	        		ht.execute(new ClearIfDirtyAction(secSys));
 	        	}
-        		
-        		// on failure, we want to make sure that no one attempts 
-        		// any further changes.
-        		else if ( failure )
-	        	{
-        			// TODO we should probably do some forced clean up here.
-	        	}
-        		
+        		        		
         		// stateless services, don't keep their sesssions about.
         		else
         		{
 	        		ht.flush();
 	        		ht.execute(new CheckDirtyAction(secSys));
 	        		ht.execute(new DisableFilterAction(secSys));
-	        	} 
+	        		ht.clear();
+        			saveLogs();
+        		} 
         		
         	} finally {
         		secSys.clearCurrentDetails();
@@ -195,6 +201,31 @@ public class EventHandler implements MethodInterceptor
     	
     	return ta == null ? true : ta.isReadOnly();
     	
+    }
+    
+    void saveLogs()
+    {
+		final SessionFactory sf = this.ht.getSessionFactory();
+		this.ht.execute( new HibernateCallback() {
+			public Object doInHibernate(Session session) 
+			throws HibernateException
+			{
+				StatelessSession s = sf.openStatelessSession( session.connection() );
+
+				Map<Class,Map<String,EventLog>> logs = secSys.getLogs();
+				for (Class k : logs.keySet()) {
+					Map<String,EventLog> m = logs.get(k);
+					if ( m != null )
+					for (EventLog l : m.values()) {
+						s.insert( l );
+					}
+				}
+				
+				//s.close();
+				return null;
+			}			
+		});
+		
     }
     
 }
@@ -279,7 +310,7 @@ class CheckDirtyAction implements HibernateCallback
 		if (session.isDirty())
 		{
 			throw new InternalException("Session is dirty. Cannot properly " +
-					"reset security system. Must rollback.");
+					"reset security system. Must rollback.\n Session="+session);
 		}
 		return null;
 	}

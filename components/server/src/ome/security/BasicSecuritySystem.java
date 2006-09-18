@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
@@ -277,8 +278,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 	 */
 	public boolean allowLoad(Class<? extends IObject> klass, Details d) {
 		Assert.notNull(klass);
-		Assert.notNull(d);
-		if (isSystemType(klass))
+//		Assert.notNull(d);
+		if ( d == null || isSystemType(klass) )
 			return true;
 		return SecurityFilter.passesFilter(this, d);
 	}
@@ -404,7 +405,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 	// =========================================================================
 
 	public void markLockedIfNecessary(IObject iObject) {
-		if (iObject == null)
+		if (iObject == null || isSystemType( iObject.getClass() ))
 			return;
 
 		Set<IObject> s = new HashSet<IObject>();
@@ -725,19 +726,25 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		if (!idEqual(previousDetails.getOwner(), currentDetails.getOwner())) {
 
+			// !idEquals implies that they aren't both null; if current_owner is
+			// null, then it was *probably* not intended, so just fix it and 
+			// move on. this goes for root and admins as well.
+			if ( currentDetails.getOwner() == null ) {
+				newDetails.setOwner(previousDetails.getOwner());
+				return true;
+			}
+			
 			if (locked) {
-				throw new SecurityViolation("Cannot change owner for:" + obj);
+				throw new SecurityViolation("Object locked! " +
+						"Cannot change owner for:" + obj);
 			}
 
 			// if the current user is an admin or if the entity has been
 			// marked privileged, then use the current owner.
 			else if (currentUserIsAdmin() || privileged) {
-				// even root can't set them to null.
-				if (currentDetails.getOwner() == null) {
-					newDetails.setOwner(previousDetails.getOwner());
-					return true;
-				}
+				// ok
 			}
+			
 			// everyone else can't change them at all.
 			else {
 				throw new SecurityViolation(String.format(
@@ -763,15 +770,17 @@ public class BasicSecuritySystem implements SecuritySystem {
 		// true if permitted, or throw an exception.
 		if (!idEqual(previousDetails.getGroup(), currentDetails.getGroup())) {
 
-			if (locked) {
-				throw new SecurityViolation("Cannot change group for entity:"
-						+ obj);
-			}
-
-			// even root can't set them to null.
-			else if (currentDetails.getGroup() == null) {
+			// !idEquals implies that they aren't both null; if current_group is
+			// null, then it was *probably* not intended, so just fix it and 
+			// move on. this goes for root and admins as well.
+			if ( currentDetails.getGroup() == null ) {
 				newDetails.setGroup(previousDetails.getGroup());
 				return true;
+			}
+			
+			if (locked) {
+				throw new SecurityViolation("Object locked! " +
+						"Cannot change group for entity:" + obj);
 			}
 
 			// if user is a member of the group or the current user is an admin
@@ -812,6 +821,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 		if (!idEqual(previousDetails.getCreationEvent(), currentDetails
 				.getCreationEvent())) {
 
+			// !idEquals implies that they aren't both null; if current_event is
+			// null, then it was *probably* not intended, so just fix it and 
+			// move on. this goes for root and admins as well.
+			if ( currentDetails.getCreationEvent() == null ) {
+				newDetails.setCreationEvent( previousDetails.getCreationEvent() );
+				return true;
+			}
+			
 			// no one change them.
 			throw new SecurityViolation(String.format(
 					"You are not authorized to change "
@@ -911,7 +928,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 		CurrentDetails.newEvent(type, token);
 	}
 
-	public void addLog(String action, Class klass, Long id) {
+	public void addLog(String action, Class klass, Long id) 
+	{
 
 		Assert.notNull(action);
 		Assert.notNull(klass);
@@ -928,15 +946,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 			log.info("Adding log:" + action + "," + klass + "," + id);
 
-			EventLog l = new EventLog();
-			l.setAction(action);
-			l.setType(klass.getName()); // TODO could be id to Type entity
-			l.setIdList(id.toString());
-			l.setDetails(CurrentDetails.createDetails());
-			l.getGraphHolder().setToken(null, token);
-
-			CurrentDetails.getCreationEvent().addEventLog(l);
+//			CurrentDetails.getCreationEvent().addEventLog(l);
+			CurrentDetails.addLog( action, klass, id );
 		}
+	}
+	
+	public Map<Class,Map<String,EventLog>> getLogs( )
+	{
+		return CurrentDetails.getLogs();
 	}
 
 	public void setCurrentEvent(Event event) {
