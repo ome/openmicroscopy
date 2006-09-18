@@ -1,5 +1,10 @@
 package ome.model.utests;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.testng.annotations.*;
 
 import ome.model.internal.Permissions;
@@ -245,6 +250,50 @@ public class PermissionsTest extends TestCase {
 		
 	}
 	
+	// ~ Immutables
+	// =========================================================================
+	
+	@Test
+	public void testRandomSample() throws Exception 
+	{
+		assertFalse( Permissions.GROUP_READABLE.isGranted(WORLD, READ));
+		assertTrue( Permissions.GROUP_READABLE.isGranted(GROUP, READ));
+		assertTrue( Permissions.GROUP_READABLE.isGranted(USER, READ));
+	}
+	
+	@Test
+	public void testDelegationFunctionsProperly() throws Exception 
+	{
+		Permissions.DEFAULT.toString();
+		Permissions.DEFAULT.identical(Permissions.EMPTY);
+		Permissions.DEFAULT.isGranted(GROUP, READ);
+		Permissions.DEFAULT.isSet(LOCKED);
+		Permissions.DEFAULT.sameRights(p);
+		try { Permissions.DEFAULT.grant(GROUP, READ);}
+		catch (UnsupportedOperationException uoe) {};
+		try { Permissions.DEFAULT.grantAll(Permissions.EMPTY);}
+		catch (UnsupportedOperationException uoe) {};
+		try { Permissions.DEFAULT.revoke(GROUP, READ);}
+		catch (UnsupportedOperationException uoe) {};
+		try { Permissions.DEFAULT.revokeAll(Permissions.EMPTY);}
+		catch (UnsupportedOperationException uoe) {};
+		try { Permissions.DEFAULT.set(LOCKED);}
+		catch (UnsupportedOperationException uoe) {};
+		try { Permissions.DEFAULT.unSet(LOCKED);}
+		catch (UnsupportedOperationException uoe) {};	
+	}
+	
+	// ~ Serialization
+	// =========================================================================
+	
+	@Test
+	public void testImmutableSerialization() throws Exception 
+	{
+		byte[] ser = serialize(Permissions.DEFAULT);
+		p = deserialize(ser);
+		p.grant(GROUP, READ); // is this what we want?
+	}
+	
 	// ~ Private helpers
 	// ===========================================================================
 
@@ -266,4 +315,30 @@ public class PermissionsTest extends TestCase {
 
 	}
 		
+	private Permissions deserialize(byte[] stream) throws Exception
+	{
+		ByteArrayInputStream bais;
+		ObjectInputStream ois;
+		
+		bais = new ByteArrayInputStream(stream);
+		ois = new ObjectInputStream(bais);
+		Permissions p = (Permissions) ois.readObject();
+		ois.close();
+		bais.close();
+		return p;
+	}
+	
+	private byte[] serialize(Permissions p) throws Exception
+	{
+		ByteArrayOutputStream baos;
+		ObjectOutputStream oos;
+		
+		baos = new ByteArrayOutputStream();
+		oos = new ObjectOutputStream(baos);
+		oos.writeObject(p);
+		oos.close();
+		byte[] retVal = baos.toByteArray();
+		baos.close();
+		return retVal;
+	}
 }

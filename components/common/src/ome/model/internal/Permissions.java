@@ -29,9 +29,16 @@
 package ome.model.internal;
 
 //Java imports
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import ome.model.IObject;
+import ome.parameters.QueryParameter;
 
 //Third-party libraries
 
@@ -55,7 +62,7 @@ import static ome.model.internal.Permissions.Flag.*;
 public class Permissions implements Serializable
 {
 
-	private static final long serialVersionUID = 7089149309186580237L;
+	private static final long serialVersionUID = 7089149309186580238L;
 
 	/** enumeration of currently active roles. The {@link #USER} role is active 
 	 * when the contents of {@link Details#getOwner()} equals the current user
@@ -377,11 +384,15 @@ public class Permissions implements Serializable
 	 *  constants.
 	 */
 	private static class ImmutablePermissions extends Permissions
+	implements Serializable
 	{
+
+		private static final long serialVersionUID = -4407900270934589522L;
+
 		/** the delegate {@link Permissions} which this immutable wrapper
-		 * bases all of its logic on.
+		 * bases all of its logic on. Not final for reasons of serialization.
 		 */
-		final private Permissions delegate;
+		private Permissions delegate;
 		
 		/** the sole constructor for an {@link ImmutablePermissions}. Note: this
 		 * does not behave like {@link Permissions#Permissions(Permissions)} --
@@ -392,7 +403,10 @@ public class Permissions implements Serializable
 		 */
 		ImmutablePermissions( Permissions p )
 		{
-			this.delegate = p;
+			if ( p == null )
+				throw new IllegalArgumentException("Permissions may not be null");
+			
+			this.delegate = new Permissions( p );
 		}
 	
 		// ~ SETTERS
@@ -425,6 +439,22 @@ public class Permissions implements Serializable
 			throw new UnsupportedOperationException();
 		}
 	
+		/** delegates to {@link #set(ome.model.internal.Permissions.Flag)}
+		 */
+		@Override
+		public Permissions set(Flag flag) 
+		{
+			return delegate.set(flag);
+		}
+		
+		/** delegates to {@link #unSet(ome.model.internal.Permissions.Flag)}
+		 */
+		@Override
+		public Permissions unSet(Flag flag) 
+		{
+			return delegate.unSet(flag);
+		}
+		
 		// ~ GETTERS
 		// =========================================================================
 		
@@ -450,8 +480,65 @@ public class Permissions implements Serializable
 	    {
 	        delegate.setPerm1(value);
 	    }
+		
+		/** delegates to {@link #isSet(ome.model.internal.Permissions.Flag)} 
+		 */
+		@Override
+		public boolean isSet(Flag flag)
+		{
+			return delegate.isSet(flag);
+		}
+		
+		// ~ Other
+		// =====================================================================
+		
+		/** delegates to {@link #identical(Permissions)}
+		 */
+		@Override
+		public boolean identical(Permissions p) 
+		{
+			return delegate.identical(p);
+		}
+		
+		/** delegates to {@link #sameRights(Permissions)}
+		 */
+		@Override
+		public boolean sameRights(Permissions p) 
+		{
+			return delegate.sameRights(p);
+		}
+		
+		/** delegates to {@link #toString()}
+		 */
+		@Override
+		public String toString() 
+		{
+			return delegate.toString();
+		}
+		
+		// ~ Serialization
+		// =====================================================================
+		
+	    private void readObject(ObjectInputStream s)
+	    throws IOException, ClassNotFoundException
+	    {
+	    	Permissions p = (Permissions) s.readObject();
+	    	if ( p == null )
+	    		throw new IllegalArgumentException("Permissions may not be null");
+	    	
+	    	this.delegate = new Permissions( p );
+	    }
+	    
+		private void writeObject(ObjectOutputStream s)
+	    throws IOException 
+	    {
+			s.writeObject( delegate );
+	    }
+		
 	}
 
+
+	
 	/** only used to construct the {@link #EMPTY} instance }
 	 */
 	final static private Permissions ZERO;
@@ -465,46 +552,103 @@ public class Permissions implements Serializable
 	 */
 	public final static Permissions EMPTY = new ImmutablePermissions(ZERO);
 	
+	// ~ Systematic
+	// =========================================================================	
+	/*
+	 *  All possible (sensible) permission combinations are:
+	 *   
+	 *    R_____  user immutable
+	 *    RW____  user private
+	 *    RWR___  group readable
+	 *    RWRW__  group private
+	 *    RWRWR_  group writeable
+	 *    RWRWRW  world writeable
+	 *    RWR_R_  user writeable
+	 *    R_R_R_  world immutable
+	 *    R_R___  group immutable
+	 */
+	
+	/**
+	 * R______ : user and only the user can only read
+	 */
+	public final static Permissions USER_IMMUTABLE
+		= new ImmutablePermissions( new Permissions(ZERO)
+				.grant( USER, READ ));
+	
+	/** RW____ : user and only user can read and write
+	 */
+	public final static Permissions USER_PRIVATE 
+		= new ImmutablePermissions( new Permissions(ZERO)
+				.grant( USER, READ, WRITE ));
+	
+	/**
+	 * RWR___ : user can read and write, group can read
+	 */
+	public final static Permissions	GROUP_READABLE
+		= new ImmutablePermissions( new Permissions(USER_PRIVATE)
+			.grant( GROUP, READ));
+
+	
+	/** RWRW__ : user and group can read and write
+	 */
+	public final static Permissions GROUP_PRIVATE 
+		= new ImmutablePermissions( new Permissions(GROUP_READABLE)
+				.grant( GROUP, WRITE ));
+	
+	/**
+	 * RWRWR_ : user and group can read and write, world can read
+	 */
+
+	public final static Permissions	GROUP_WRITEABLE
+		= new ImmutablePermissions( new Permissions(GROUP_PRIVATE)
+			.grant( WORLD, READ ));
+
+	/**
+	 * RWRWRW : everyone can read and write
+	 */
+	public final static Permissions	WORLD_WRITEABLE
+		= new ImmutablePermissions( new Permissions(GROUP_WRITEABLE)
+			.grant( WORLD, WRITE));
+
+	/**
+	 * RWR_R_ : all can read, user can write
+	 */
+	public final static Permissions	USER_WRITEABLE
+		= new ImmutablePermissions( new Permissions(GROUP_READABLE)
+			.grant( WORLD, READ ));
+	
+	/**
+	 * R_R_R_ : all can only read
+	 */
+	public final static Permissions	WORLD_IMMUTABLE
+		= new ImmutablePermissions( new Permissions(GROUP_READABLE)
+				.revoke( USER, WRITE ));
+	
+	/**
+	 * R_R___ : user and group can only read
+	 */
+	public final static Permissions GROUP_IMMUTABLE
+		= new ImmutablePermissions( new Permissions(WORLD_IMMUTABLE)
+				.revoke( WORLD, READ ));
+	
+
+	// ~ Non-systematic (easy to remember)
+	// =========================================================================
+	
 	/** an immutable {@link Permissions} instance which is used as the default
 	 * value in all persistent classes. It revokes {@link Right#WRITE} to both
 	 * {@link Role#GROUP} and {@link Role#WORLD} 
 	 */
-	public final static Permissions DEFAULT = new ImmutablePermissions(
-			new Permissions()
-				.revoke(GROUP,WRITE)
-				.revoke(WORLD,WRITE));
+	public final static Permissions DEFAULT = USER_WRITEABLE;
 	
 	/** an immutable {@link Permissions} instance with all {@link Right#WRITE}
-	 * and {@link Right#USE} rights turned off.
+	 * rights turned off. Identical to {@link #WORLD_IMMUTABLE} 
 	 */
-	public final static Permissions READ_ONLY = new ImmutablePermissions(
-			new Permissions()
-				.revoke(USER, WRITE, USE)
-				.revoke(GROUP, WRITE, USE)
-				.revoke(WORLD, WRITE, USE));
+	public final static Permissions READ_ONLY = WORLD_IMMUTABLE;
 
-	/** an immutable {@link Permissions} instance with all {@link Right#WRITE}
-	 * rights turned off.
+	/** an immutable {@link Permissions} instance with all {@link Right Rights}
+	 * granted. Identical to {@link #WORLD_WRITEABLE}
 	 */
-	public final static Permissions IMMUTABLE = new ImmutablePermissions(
-			new Permissions()
-				.revoke(USER, WRITE)
-				.revoke(GROUP, WRITE)
-				.revoke(WORLD, WRITE));
-	
-	/** an immutable {@link Permissions} instance with all {@link Right rights}
-	 * turned off for {@link Role#GROUP} and {@link Role#WORLD}.
-	 */
-	public final static Permissions PRIVATE = new ImmutablePermissions(
-			new Permissions()
-				.revoke(GROUP, READ, WRITE, USE)
-				.revoke(WORLD, READ, WRITE, USE));
-	
-	/** an immutable {@link Permissions} instance with all {@link Right rights}
-	 * turned off for {@link Role#WORLD}.
-	 */
-	public final static Permissions GROUP_PRIVATE = new ImmutablePermissions(
-			new Permissions()
-				.revoke(WORLD, READ, WRITE, USE));
+	public final static Permissions PUBLIC = WORLD_WRITEABLE;
 
 }
