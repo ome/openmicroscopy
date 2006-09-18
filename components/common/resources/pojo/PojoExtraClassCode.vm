@@ -31,17 +31,17 @@ $pojo.getExtraClassCode()
 
 #end ## end !abstract
 
-  public boolean acceptFilter(ome.util.Filter filter){
+  public boolean acceptFilter(ome.util.Filter __filter){
 #foreach($property in $pojo.allPropertiesIterator)
 #set( $fulltype = $c2j.getJavaTypeName($property,false) ) ## , $generics)
 #set( $type = $c2j.unqualify($fulltype) )
 #set( $get = "$pojo.getGetterSignature($property)()" )
 #set( $set = "set$pojo.getPropertyName($property)" )
 #set( $field = $property.name )
-	  this.$property.name = ($type) filter.filter(${field.toUpperCase()}, $property.name ); 
+	  this.$property.name = ($type) __filter.filter(${field.toUpperCase()}, $property.name ); 
 #end ## foreach
 #if($pojo.isSubclass())
-  	 return super.acceptFilter(filter);
+  	 return super.acceptFilter(__filter);
 #else
 	 return true;
 #end
