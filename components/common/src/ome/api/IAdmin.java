@@ -41,6 +41,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.system.Roles;
 
 /**
  *  Administration interface providing access to admin-only functionality as 
@@ -255,4 +256,11 @@ public interface IAdmin extends ServiceInterface{
      */
     void synchronizeLoginCache();
 
+    // ~ Security context
+	// =========================================================================
+
+    /** returns the active {@link Roles} in use by the server. 
+     * @return Non-null, immutable {@link Roles} instance.
+     */
+    Roles getSecurityRoles();
 }

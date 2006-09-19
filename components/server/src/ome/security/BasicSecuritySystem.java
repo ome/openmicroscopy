@@ -75,6 +75,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.SecurityFilter;
@@ -129,6 +130,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 	/** metadata for calculating certain walks */
 	protected ExtendedMetadata em;
 
+	// Configured Elements
+	
+	protected Roles roles = new Roles();
+	
 	/**
 	 * only public constructor for this {@link SecuritySystem} implementation.
 	 * 
@@ -902,7 +907,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		// isAdmin
 
-		if (isSystemGroup(grp)) {
+		if (roles.isSystemGroup(grp)) {
 			CurrentDetails.setAdmin(true);
 		}
 
@@ -1149,38 +1154,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 		}
 		return false;
 	}
-
-	// ~ Privileged accounts
+	
+	// ~ Configured Elements
 	// =========================================================================
-	// TODO This information is also encoded at:
 
-	public long getRootId() {
-		return 0L;
-	}
-
-	public long getSystemGroupId() {
-		return 0L;
-	}
-
-	public long getUserGroupId() {
-		return 1L;
-	}
-
-	public String getRootName() {
-		return "root";
-	}
-
-	public String getSystemGroupName() {
-		return "system";
-	}
-
-	public String getUserGroupName() {
-		return "user";
-	}
-
-	public boolean isSystemGroup(ExperimenterGroup group) {
-		return group == null || group.getId() == null ? false : group.getId()
-				.equals(getSystemGroupId());
+	public Roles getSecurityRoles() {
+		return roles;
 	}
 
 	// ~ Helpers

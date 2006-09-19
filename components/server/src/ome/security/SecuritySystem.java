@@ -50,6 +50,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.tools.hibernate.EventHandler;
 import ome.tools.hibernate.FlushEntityEventListener;
 import ome.tools.hibernate.MergeEventListener;
@@ -265,16 +266,6 @@ public interface SecuritySystem
 	 */
 	boolean isDisabled( String id );
 	
-	// ~ Privileged accounts
-	// =========================================================================
-	long getRootId();
-	long getSystemGroupId();
-	long getUserGroupId();
-	String getRootName();
-	String getSystemGroupName();
-	String getUserGroupName();
-	boolean isSystemGroup(ExperimenterGroup g);
-	
 	// ~ Details (for OmeroInterceptor)
 	// =========================================================================
 	
@@ -338,4 +329,8 @@ public interface SecuritySystem
 	void runAsAdmin( AdminAction action );
 	<T extends IObject> T doAction( T obj, SecureAction action );
 	void copyToken( IObject source, IObject copy );
+	
+	// ~ Configured Elements
+	// =========================================================================
+	Roles getSecurityRoles();
 }

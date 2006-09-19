@@ -19,6 +19,7 @@ import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.system.Roles;
 import ome.util.IdBlock;
 
 public class AdminTest extends AbstractManagedContextTest
@@ -406,7 +407,23 @@ public class AdminTest extends AbstractManagedContextTest
 			// ok.
 		}
 		
-		
-		
 	}
+	
+	// ~ Security context
+	// =========================================================================
+
+	@Test( groups = "ticket:328" )
+	public void testRoles() throws Exception 
+	{
+		loginRoot();
+		
+		Roles r = iAdmin.getSecurityRoles();
+		assertNotNull( r.getRootName() );
+		assertNotNull( r.getSystemGroupName()() );
+		assertNotNull( r.getUserGroupName() );
+		assertNotNull( r.getRootName() );
+		assertNotNull( r.getRootName() );
+		assertNotNull( r.getRootName() );
+	}
+	
 }

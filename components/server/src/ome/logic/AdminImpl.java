@@ -90,6 +90,7 @@ import ome.security.SecuritySystem;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.Utils;
 
@@ -713,7 +714,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public void changePassword(String newPassword)
     {
     	internalChangeUserPasswordById(
-    			//  TODO when AdminBean+AdminImpl then use EventContext.
     			getSecuritySystem().currentUserId(),
     			newPassword);
     }
@@ -723,6 +723,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     {
     	Experimenter e = lookupExperimenter(omeName);
     	internalChangeUserPasswordById(e.getId(),newPassword);
+    }
+    
+    // ~ Security context
+	// =========================================================================
+    
+    @RolesAllowed("user")
+    public Roles getSecurityRoles()
+    {
+    	return getSecuritySystem().getSecurityRoles();
     }
     
     // ~ Helpers
