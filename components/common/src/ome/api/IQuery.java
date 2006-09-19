@@ -52,7 +52,7 @@ import ome.parameters.Page;
  * data in some situations. 
  * 
  * By convention, all methods that begin with <code>get</code> will never return
- * a null or empty {@link java.util.Colllection}, but instead will 
+ * a null or empty {@link java.util.Collection}, but instead will 
  * throw a {@link ome.conditions.ValidationException}. 
  * 
  * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -219,4 +219,20 @@ public interface IQuery extends ServiceInterface {
     <T extends IObject> List<T> findAllByQuery(
             @NotNull String queryName, Parameters parameters);
     
+    // ~ Other
+	// =========================================================================
+
+    /** refreshes an entire {@link IObject} graph, recursive loading all data
+     * for the managed instances in the graph from the database. If any 
+     * non-managed entities are detected (e.g. without ids), an 
+     * {@link ApiUsageException} will be thrown.
+     * 
+     * @param iObject Non-null managed {@link IObject} graph which should
+     * 		have all values re-assigned from the database
+     * @return a similar {@link IObject} graph (with possible additions and
+     * 		deletions) which is in-sync with the database.
+     * @throws ApiUsageException if any non-managed entities are found.
+     */
+    <T extends IObject> T refresh( @NotNull T iObject )
+    	throws ApiUsageException;
 }

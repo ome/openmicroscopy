@@ -382,7 +382,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         return execute(q);
     }
 
+    // ~ Others
+	// =========================================================================
 
+    /**
+     * @see IQuery#refresh(IObject)
+     */
+    public <T extends IObject> T refresh(T iObject) throws ApiUsageException 
+    {
+    	getHibernateTemplate().refresh(iObject);
+    	return iObject;
+    }
+    
     // ~ HELPERS
     // =========================================================================
     

@@ -31,10 +31,10 @@ package ome.tools.hibernate;
 // Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +62,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	
 	private EventListeners eventListeners = new EventListeners();
 
-	private Map<String,Collection> map = new HashMap<String, Collection>();
+	private Map<String,LinkedList> map = new HashMap<String, LinkedList>();
 	
 	private Set<String> keys;
 	
@@ -148,6 +148,10 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	
 	protected void additions()
 	{
+		// This must be prepended because it updates the alreadyRefreshed
+		// cache before passing the event on the default listener.
+		prepend("refresh", new ReloadingRefreshEventListener());
+		
 		for (String key : keys) {
 			final String k = key;
 			EventMethodInterceptor emi = new EventMethodInterceptor(
@@ -158,14 +162,14 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 						}
 					}
 			);
-			add(key,getProxy(emi));
+			append(key,getProxy(emi));
 		}
 		
 		ACLEventListener acl = new ACLEventListener(secSys);
-		add("post-load", acl);
-		add("pre-insert", acl);
-		add("pre-update", acl);
-		add("pre-delete", acl);
+		append("post-load", acl);
+		append("pre-insert", acl);
+		append("pre-update", acl);
+		append("pre-delete", acl);
 		
 		if (debugAll)
 		{
@@ -239,38 +243,59 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	private void override(String key, Object object)
 	{
 		put(key,null);
-		add(key,object);
+		append(key,object);
 	}
 
-	/** calls add for each key */
-	private void add(Iterable<String> keys, Object... objs)
+	/** calls append for each key */
+	private void append(Iterable<String> keys, Object... objs)
 	{
 		for (String key : keys) {
-			add(key,objs);
+			append(key,objs);
+		}
+	}
+	
+	/** appends the objects to the existing list identified by key. If no list is 
+	 * found, initializes. If there are no objects, just initializes if necessary.
+	 */
+	private void append(String key, Object... objs)
+	{
+		LinkedList l = map.get(key);
+		if ( l == null ) put(key,null);
+		if( objs == null ) return;
+		if ( objs != null )
+			for (Object object : objs) {
+				l.addLast( object );
+			}
+	}
+
+	/** calls prepend for each key */
+	private void prepend(Iterable<String> keys, Object... objs)
+	{
+		for (String key : keys) {
+			prepend(key,objs);
 		}
 	}
 	
 	/** adds the objects to the existing list identified by key. If no list is 
 	 * found, initializes. If there are no objects, just initializes if necessary.
 	 */
-	private void add(String key, Object... objs)
+	private void prepend(String key, Object... objs)
 	{
-		Collection c = map.get(key);
-		if ( c == null ) put(key,null);
+		LinkedList l = map.get(key);
+		if ( l == null ) put(key,null);
 		if( objs == null ) return;
 		if ( objs != null )
 			for (Object object : objs) {
-				c.add( object );
+				l.addFirst( object );
 			}
 	}
-
 	
 	/** replaces the key with the provided objects or an empty list if 
 	 * none provided
 	 */
 	private void put(String key, Object[] objs)
 	{
-		List list = new ArrayList();
+		LinkedList list = new LinkedList();
 		if ( objs != null )
 		{
 			Collections.addAll(list, objs);
