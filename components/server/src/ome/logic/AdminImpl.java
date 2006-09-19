@@ -609,11 +609,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     }
 
     @RolesAllowed("system")
-    public void unlock(final IObject...iObjects )
+    public boolean[] unlock(final IObject...iObjects )
     {
     	// do nothing if possible
     	if ( iObjects == null | iObjects.length < 1 )
-    		return;
+    		return new boolean[]{};
     	
     	// create a new session. It's important that we pass in the empty
     	// interceptor here, otherwise even root wouldn't be allowed to unlock
@@ -626,10 +626,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     	
     	try 
     	{
-	    	for (IObject orig : iObjects) {
+    		boolean[] isUnlocked = new boolean[iObjects.length];
+    		for (int i = 0; i < iObjects.length; i++) {
+				IObject orig = iObjects[i];
 				
 	    		// do nothing if possible again.
-	    		if ( orig == null || orig.getId() == null ) continue;
+	    		if ( orig == null || orig.getId() == null ) 
+	    		{
+	    			isUnlocked[i] = true;
+	    			continue;
+	    		}
 	    		
 	    		// get the original to operate on
 	    		final IObject object = (IObject) 
@@ -637,9 +643,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	    		
 	    		// if it's not locked, we don't need to look further.
 	    		if ( ! object.getDetails().getPermissions().isSet(Flag.LOCKED) )
-					continue;
-				
-	    		// since it's a managed entity it's class.getName() will contain
+	    		{
+	    			isUnlocked[i] = true;
+	    			continue;
+	    		}
+	    		
+	    		// since it's a managed entity it's class.getName() might contain
 	    		// some byte-code generation string
 	    		final Class<? extends IObject> klass = 
 	    			Utils.trueClass( object.getClass() );
@@ -680,9 +689,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	    		if ( total == 0 )
 	    		{
 	    			object.getDetails().getPermissions().unSet( Flag.LOCKED );
+	    			isUnlocked[i] = true;
+	    		} else {
+	    			isUnlocked[i] = false;
 	    		}
 	    		
 			}
+    		return isUnlocked;
 	    } 
     	
     	finally

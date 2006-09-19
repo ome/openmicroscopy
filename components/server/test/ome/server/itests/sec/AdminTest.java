@@ -10,8 +10,12 @@ import org.testng.annotations.Test;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
+import ome.model.IObject;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
@@ -342,6 +346,39 @@ public class AdminTest extends AbstractManagedContextTest
 		
 		assertTrue(test_e.linkedExperimenterGroupList().size() == 2);
 		assertTrue(test_g.eachLinkedExperimenter(new IdBlock()).contains(e.getId()));
+	}
+	
+	// ~ IAdmin.unlock
+	// =========================================================================
+	
+	@Test
+	public void testUnlock() throws Exception 
+	{
+		loginRoot();
+		
+		boolean[] unlocked;
+		
+		Project pt, p = new Project();
+		p.setName("unlock test");
+		
+		Dataset dt, d = new Dataset();
+		d.setName("unlock test");
+		
+		pt = iUpdate.saveAndReturnObject(p);
+		unlocked = iAdmin.unlock(pt);
+		assertTrue(unlocked[0]);
+		
+		pt.linkDataset(d);
+		pt = iUpdate.saveAndReturnObject(pt);
+		assertTrue(pt.getDetails().getPermissions().isSet(Flag.LOCKED));
+		unlocked = iAdmin.unlock(pt);
+		assertFalse(unlocked[0]);
+		iUpdate.deleteObject((IObject)pt.collectDatasetLinks(null).get(0));
+		unlocked = iAdmin.unlock(pt);
+		assertTrue(unlocked[0]);
+		pt = iQuery.get( pt.getClass(), pt.getId() );
+		assertFalse(pt.getDetails().getPermissions().isSet(Flag.LOCKED));
+		
 	}
 	
 }
