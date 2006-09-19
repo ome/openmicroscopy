@@ -381,4 +381,32 @@ public class AdminTest extends AbstractManagedContextTest
 		
 	}
 	
+	// ~ Passwords
+	// =========================================================================
+
+	/** using this test to visually inspect the log output for changeUserPassword
+	 * it will fail and so there should be no side-effects.
+	 */
+	@Test(groups = {"ticket:209", "security"} )
+	public void testUnallowedPasswordChange() throws Exception
+	{
+		loginRoot();
+		// create a new user for the test
+		Experimenter e = new Experimenter();
+		e.setFirstName("user admin setters");
+		e.setLastName("test");
+		e.setOmeName(UUID.randomUUID().toString());
+		iAdmin.createUser(e);
+		
+		loginUser(e.getOmeName());
+		try {
+			iAdmin.changeUserPassword("root", "THIS SHOULD NOT BE VISIBLE.");
+			fail("secvio!");
+		} catch (Exception ex) {
+			// ok.
+		}
+		
+		
+		
+	}
 }

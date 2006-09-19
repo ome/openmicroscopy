@@ -30,6 +30,7 @@
 package ome.services.util;
 
 //Java imports
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -44,7 +45,9 @@ import org.springframework.dao.OptimisticLockingFailureException;
 //import com.caucho.burlap.io.BurlapOutput;
 
 //Application-internal dependencies
+import ome.annotations.AnnotationUtils;
 import ome.annotations.ApiConstraintChecker;
+import ome.annotations.Hidden;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
@@ -82,16 +85,9 @@ public class ServiceHandler implements MethodInterceptor {
 
         if ( log.isInfoEnabled() )
         {
-            // Method
+            // Method and arguments
             log.info("Meth:\t"+arg0.getMethod().getName());
-        
-            // Arguments
-            String arguments;
-            if (arg0.getArguments() == null || arg0.getArguments().length < 1) 
-                arguments = "()";
-            else
-                arguments = Arrays.asList(arg0.getArguments()).toString(); 
-            log.info("Args:\t"+arguments);
+            log.info("Args:\t"+getArgumentsString(arg0));
         }
 
         
@@ -183,6 +179,51 @@ public class ServiceHandler implements MethodInterceptor {
             
         }
             
+    }
+    
+    /** produces a String from the arguments array. Argument parameters
+     * marked as {@link Hidden} will be replaced by "*******". 
+     */
+    private String getArgumentsString(MethodInvocation mi)
+    {
+        String arguments;
+        Object[] args = mi.getArguments();
+        
+        if (args == null || args.length < 1)
+        {
+            arguments = "()";
+        }
+        
+        else
+        {
+        	Object[] allAnnotations = 
+        	AnnotationUtils.findParameterAnnotations(
+        			mi.getThis().getClass(), mi.getMethod());
+        	
+            for (int j = 0; j < allAnnotations.length; j++)
+            {
+                Annotation[][] anns = (Annotation[][]) allAnnotations[j];            
+                if (anns == null) continue;
+                
+                for (int i = 0; i < args.length; i++)
+                {
+                    Annotation[] annotations = anns[i];
+        
+                    for (Annotation annotation : annotations)
+                    {
+                        if (Hidden.class.equals(annotation.annotationType()))
+                        {
+                        	args[i] = "********";
+                        }
+                    }
+                }
+            }
+        	
+        	arguments = Arrays.asList(mi.getArguments()).toString(); 
+        
+        }
+        
+        return arguments;
     }
 
 }

@@ -34,6 +34,7 @@ package ome.api;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -238,14 +239,14 @@ public interface IAdmin extends ServiceInterface{
      * Must pass validation in the security sub-system.
      * @throws ome.conditions.SecurityViolation if the new password is too weak. 
      */
-    void changePassword( String newPassword );
+    void changePassword( @Hidden String newPassword );
     
     /** change the password for the a given user.
      * @param newPassword. Not-null. 
      * Might must pass validation in the security sub-system.
      * @throws ome.conditions.SecurityViolation if the new password is too weak. 
      */
-    void changeUserPassword( @NotNull String omeName, String newPassword );
+    void changeUserPassword( @NotNull String omeName, @Hidden String newPassword );
     
     /** uses JMX to refresh the login cache <em>if supported</em>. Some backends
      * may not provide refreshing. This may be called internally during some
