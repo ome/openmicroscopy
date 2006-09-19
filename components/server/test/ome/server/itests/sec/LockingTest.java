@@ -195,7 +195,7 @@ public class LockingTest extends AbstractManagedContextTest
 		d.setName( "ticket:339" );
 		p.linkDataset( d );
 		
-		Permissions perms = Permissions.IMMUTABLE; // relatively common use-case		
+		Permissions perms = Permissions.READ_ONLY; // relatively common use-case		
 		p.getDetails().setPermissions( perms );
 		
 		Project t = iUpdate.saveAndReturnObject( p );
