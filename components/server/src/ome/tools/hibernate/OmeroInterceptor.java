@@ -228,11 +228,6 @@ public class OmeroInterceptor implements Interceptor
 	}
 
 	public Boolean isTransient(Object entity) {
-		if ( entity instanceof IObject ) {
-			IObject  iobj = (IObject )  entity;
-			if ( iobj.getId() == null ) return Boolean.TRUE;
-			return Boolean.FALSE;
-		}
 		return EMPTY.isTransient(entity);
 	}
 	
