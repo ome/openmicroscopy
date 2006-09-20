@@ -18,6 +18,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
@@ -253,48 +254,46 @@ public class PojosTest extends TestCase
 	  public void testPermissionsData() throws Exception {
 		  PermissionData pd = new PermissionData();
 		  assertTrue(pd.isGroupRead());
-		  assertTrue(pd.isGroupUse());
 		  assertTrue(pd.isGroupWrite());
 		  assertTrue(pd.isUserRead());
-		  assertTrue(pd.isUserUse());
 		  assertTrue(pd.isUserWrite());
 		  assertTrue(pd.isWorldRead());
-		  assertTrue(pd.isWorldUse());
 		  assertTrue(pd.isWorldWrite());
+		  assertFalse(pd.isLocked());
 
-		  pd = new PermissionData( new Permissions( Permissions.GROUP_PRIVATE ));
+		  Permissions p = new Permissions( Permissions.GROUP_PRIVATE );
+		  p.set( Flag.LOCKED );
+		  pd = new PermissionData( p );
 		  assertTrue(pd.isGroupRead());
-		  assertTrue(pd.isGroupUse());
 		  assertTrue(pd.isGroupWrite());
 		  assertTrue(pd.isUserRead());
-		  assertTrue(pd.isUserUse());
 		  assertTrue(pd.isUserWrite());
 		  assertFalse(pd.isWorldRead());
-		  assertFalse(pd.isWorldUse());
 		  assertFalse(pd.isWorldWrite());
+		  assertTrue(pd.isLocked());
 		  
 		  Image i = new Image();
 		  i.getDetails().setPermissions( new Permissions() );
 		  ImageData id = new ImageData( i );
 		  pd = id.getPermissions();
 		  assertTrue(pd.isGroupRead());
-		  assertTrue(pd.isGroupUse());
 		  assertTrue(pd.isGroupWrite());
 		  assertTrue(pd.isUserRead());
-		  assertTrue(pd.isUserUse());
 		  assertTrue(pd.isUserWrite());
 		  assertTrue(pd.isWorldRead());
-		  assertTrue(pd.isWorldUse());
 		  assertTrue(pd.isWorldWrite());
 
-		  Permissions p = id.asImage().getDetails().getPermissions();
+		  p = id.asImage().getDetails().getPermissions();
 		  p.revoke(Role.GROUP, Right.WRITE);
+		  p.set(Flag.LOCKED);
 		  assertFalse(pd.isGroupWrite());
+		  assertTrue(pd.isLocked());
 		  
+		  pd.setLocked(false);
 		  pd.setUserRead(false);
 		  assertFalse(pd.isUserRead());
 		  assertFalse(p.isGranted(Role.USER, Right.READ));
-	  
+		  assertFalse(p.isSet(Flag.LOCKED));
 	  }
 	  
 	  @Test( groups = "ticket:308" )

@@ -35,8 +35,10 @@ package pojos;
 
 //Application-internal dependencies
 import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import static ome.model.internal.Permissions.Flag.*;
 import static ome.model.internal.Permissions.Right.*;
 import static ome.model.internal.Permissions.Role.*;
 
@@ -69,18 +71,14 @@ public class PermissionData
 	    	this.p = permissions;
 	    }
 	    
+	    // ~ Rights
+		// =====================================================================
+	    
 		/** Indicates if the group has read access.
 		 * @return the groupRead
 		 */
 		public boolean isGroupRead() {
 			return p.isGranted(GROUP,READ);
-		}
-
-		/** Indicates if the group has read access.
-		 * @return the groupUse
-		 */
-		public boolean isGroupUse() {
-			return p.isGranted(GROUP, USE);
 		}
 
 		/** Indicates if the group has write access.
@@ -97,13 +95,6 @@ public class PermissionData
 			return p.isGranted(USER, READ);
 		}
 
-		/** Indicates if the user has use access.
-		 * @return the userUse
-		 */
-		public boolean isUserUse() {
-			return p.isGranted(USER, USE);
-		}
-
 		/** Indicates if the user has write access.
 		 * @return the userWrite
 		 */
@@ -116,13 +107,6 @@ public class PermissionData
 		 */
 		public boolean isWorldRead() {
 			return p.isGranted(WORLD, READ);
-		}
-
-		/** Indicates if the world has use access.
-		 * @return the worldUse
-		 */
-		public boolean isWorldUse() {
-			return p.isGranted(WORLD, USE);
 		}
 
 		/** Indicates if the world has write access.
@@ -140,13 +124,6 @@ public class PermissionData
 		}
 
 		/**
-		 * @param groupUse the groupUse to set
-		 */
-		public void setGroupUse(boolean groupUse) {
-			set(groupUse,GROUP,USE);
-		}
-
-		/**
 		 * @param groupWrite the groupWrite to set
 		 */
 		public void setGroupWrite(boolean groupWrite) {
@@ -158,13 +135,6 @@ public class PermissionData
 		 */
 		public void setUserRead(boolean userRead) {
 			set(userRead,USER,READ);
-		}
-
-		/**
-		 * @param userUse the userUse to set
-		 */
-		public void setUserUse(boolean userUse) {
-			set(userUse,USER,USE);
 		}
 
 		/**
@@ -182,17 +152,27 @@ public class PermissionData
 		}
 
 		/**
-		 * @param worldUse the worldUse to set
-		 */
-		public void setWorldUse(boolean worldUse) {
-			set(worldUse,WORLD,USE);
-		}
-
-		/**
 		 * @param worldWrite the worldWrite to set
 		 */
 		public void setWorldWrite(boolean worldWrite) {
 			set(worldWrite,WORLD,WRITE);
+		}
+		
+		// ~ Flags
+		// =====================================================================
+
+		/** Indicates if the instance is locked.
+		 * @return locked
+		 */
+		public boolean isLocked() {
+			return p.isSet(LOCKED);
+		}
+
+		/**
+		 * @param groupRead the groupRead to set
+		 */
+		public void setLocked(boolean locked) {
+			set(locked,LOCKED);
 		}
 		
 		// ~ Helpers
@@ -205,6 +185,16 @@ public class PermissionData
 				p.grant(role, right);
 			} else {
 				p.revoke(role, right);
+			}
+		}
+		
+		private void set(boolean set, Flag flag)
+		{
+			if (set) 
+			{
+				p.set(flag);
+			} else {
+				p.unSet(flag);
 			}
 		}
 }
