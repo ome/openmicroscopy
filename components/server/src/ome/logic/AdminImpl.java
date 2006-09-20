@@ -161,6 +161,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public Experimenter userProxy(final Long id)
     {
+    	if ( id == null )
+    		throw new ApiUsageException("Id argument cannot be null.");
+    	
     	Experimenter e = iQuery.get(Experimenter.class, id);
     	return e;
     }
@@ -168,6 +171,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public Experimenter userProxy(final String omeName)
     {
+    	if ( omeName == null )
+    		throw new ApiUsageException("omeName argument cannot be null.");
+    	
     	Experimenter e = iQuery.findByString(Experimenter.class,"omeName",omeName);
    
     	if (e == null) 
@@ -181,6 +187,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public ExperimenterGroup groupProxy(Long id)
     {
+    	if ( id == null )
+    		throw new ApiUsageException("Id argument cannot be null.");
+
     	ExperimenterGroup g = iQuery.get(ExperimenterGroup.class,id);
     	return g;
     }
@@ -188,6 +197,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public ExperimenterGroup groupProxy(final String groupName)
     {
+    	if ( groupName == null )
+    		throw new ApiUsageException("groupName argument cannot be null.");
+
     	ExperimenterGroup g = iQuery.findByString(
     			ExperimenterGroup.class,"name",groupName);
 
@@ -600,16 +612,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public void changePermissions(final IObject iObject, final Permissions perms)
     {
+    	final LocalUpdate update = iUpdate;
     	final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-    	getSecuritySystem().managedDetails(iObject, copy.getDetails());
-    	AdminAction action = new AdminAction(){
-    		public void runAsAdmin() {
-    	    	Permissions p = new Permissions(perms); // FIXME ticket:215
-    	    	copy.getDetails().setPermissions(p);
-    	    	iUpdate.saveObject(copy);    
+    	copy.getDetails().setPermissions(perms);
+    	getSecuritySystem().doAction(copy, new SecureAction(){
+    		public <T extends IObject> T updateObject(T obj) {
+    			update.flush();
+    			return null;
     		}
-    	};
-    	getSecuritySystem().runAsAdmin(action);
+    	});
     }
 
     @RolesAllowed("system")
