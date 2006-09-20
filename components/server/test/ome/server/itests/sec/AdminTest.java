@@ -120,7 +120,7 @@ public class AdminTest extends AbstractManagedContextTest
 	
 	// ~ Groups
 	// =========================================================================
-	@Test
+	@Test( groups = "ticket:293" )
 	public void testUserCanOnlySetDetailsOnOwnObject() throws Exception 
 	{
 		Experimenter e1 = testExperimenter();
@@ -149,6 +149,15 @@ public class AdminTest extends AbstractManagedContextTest
 			iAdmin.changePermissions(i, Permissions.EMPTY );
 			fail ("secvio!");
 		} catch (SecurityViolation sv) {}
+		
+		// guarantee that the client-side check for ticket:293 still holds.
+		// see: TicketsUpTo500Test
+		loginUser( e1.getOmeName() );
+		iAdmin.changePermissions(i, Permissions.EMPTY);
+		iAdmin.changePermissions(i, Permissions.DEFAULT);
+		loginRoot();
+		iAdmin.changePermissions(i, Permissions.EMPTY);
+		iAdmin.changePermissions(i, Permissions.DEFAULT);
 		
 	}
 	
