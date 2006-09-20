@@ -29,6 +29,11 @@
 
 package ome.system;
 
+import java.io.Serializable;
+import java.util.List;
+
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 import ome.system.Principal;
 
 
@@ -39,27 +44,74 @@ import ome.system.Principal;
 //Application-internal dependencies
 
 /**
-* simple, non-thread-safe {@link ome.system.EventContext}
-* 
-* @author <br>
-*         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
-* @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
-*          </small>
-* @since OME3.0
-*/
-public class SimpleEventContext implements EventContext
+ * simple, non-thread-safe {@link ome.system.EventContext}
+ * 
+ * @author Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see EventContext
+ * @since 3.0
+ */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$") 
+public class SimpleEventContext implements EventContext, Serializable
 {
-    protected Principal principal;
 
-    public Principal getPrincipal()
-    {
-        return principal;
-    }
+	private static final long serialVersionUID = -3918201598642847439L;
+
+	private Long cgId;
+	private Long cuId;
+	private Long ceId;
+	private String cgName;
+	private String cuName;
+	private String ceType;
+	private boolean isAdmin;
+	private boolean isReadyOnly;
+	private List<Long> memberOfGroups;
+	private List<Long> leaderOfGroups;
+	
+	public Long getCurrentGroupId() 
+	{
+		return cgId;
+	}
+
+	public String getCurrentGroupName() 
+	{
+		return cgName;
+	}
+
+	public Long getCurrentUserId()
+	{
+		return cuId;
+	}
+
+	public String getCurrentUserName()
+	{
+		return cuName;
+	}
+
+	public boolean isCurrentUserAdmin()
+	{
+		return isAdmin;
+	}
+
+	public boolean isReadyOnly()
+	{
+		return isReadyOnly;
+	}
+
+	public List<Long> getMemberOfGroupsList() {
+		return memberOfGroups;
+	}
     
-    public void setPrincipal(Principal principal)
-    {
-        this.principal = principal;
-    }
-    
+	public List<Long> getLeaderOfGroupsList() {
+		return leaderOfGroups;
+	}
+	
+	public Long getCurrentEventId() {
+		return ceId;
+	}
+	
+	public String getCurrentEventType() {
+		return ceType;
+	}
 }

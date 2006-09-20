@@ -50,14 +50,6 @@
   </bean>
 
   <!-- Scope: private -->
-
-  <bean id="eventHandler" class="ome.tools.hibernate.EventHandler">
-    <description>
-    Scope: private
-    </description>
-  	<constructor-arg ref="securitySystem"/>
-  	<constructor-arg ref="hibernateTemplate"/>
-  </bean>
   
   <bean id="proxyHandler" class="ome.tools.hibernate.ProxyCleanupFilter$Interceptor">
     <description>
@@ -80,31 +72,21 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
   </bean>
-  
-  <bean id="omeroInterceptor" class="ome.tools.hibernate.OmeroInterceptor">
-    <description>
-    Scope: private
-    </description>
-    <constructor-arg ref="securitySystem"/>
-  </bean>
  
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <description>
     Scope: private
+    Note:  many of the references for the sessionFactory are defined in 
+           security.xml
     </description>
     <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
     <property name="hibernateProperties" ref="hibernateProperties"/>
     <property name="dataSource" ref="dataSource"/>
     <property name="entityInterceptor" ref="omeroInterceptor"/>
-    <property name="eventListeners">
-		<bean class="ome.tools.hibernate.EventListenersFactoryBean">
-			<constructor-arg ref="securitySystem"/>
-			<property name="debugAll" value="false"/>
-		</bean>
-    </property>
+    <property name="eventListeners" ref="eventListeners"/>
 	<property name="filterDefinitions">
 		<list>
-			<bean class="ome.tools.hibernate.SecurityFilter"/>
+			<ref bean="securityFilter"/>
 		</list>
 	</property>
   </bean>

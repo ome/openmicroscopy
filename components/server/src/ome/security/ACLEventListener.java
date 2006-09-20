@@ -61,7 +61,6 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
-import ome.tools.hibernate.EventListenersFactoryBean;
 
 
 
@@ -76,7 +75,6 @@ import ome.tools.hibernate.EventListenersFactoryBean;
  * @version $Revision$, $Date$
  * @see     SecuritySystem
  * @see		SecurityViolation
- * @see     EventListenersFactoryBean
  * @since   3.0-M3
  */
 @RevisionDate("$Date$")
@@ -93,14 +91,14 @@ public class ACLEventListener
 
 	private static Log log = LogFactory.getLog(ACLEventListener.class);
 
-	private SecuritySystem secSys;
+	private ACLVoter aclVoter;
 	
     /**
      * main constructor. controls access to individual db rows..
      */
-    public ACLEventListener(SecuritySystem securitySystem)
+    public ACLEventListener(ACLVoter aclVoter)
     {
-        this.secSys = securitySystem;
+        this.aclVoter = aclVoter;
     }
 
     // 
@@ -124,9 +122,9 @@ public class ACLEventListener
     	if ( entity instanceof IObject )
     	{
     		IObject obj = (IObject) entity;
-            if ( ! secSys.allowLoad(obj.getClass(),obj.getDetails()))
+            if ( ! aclVoter.allowLoad(obj.getClass(),obj.getDetails()))
             {
-            	secSys.throwLoadViolation(obj);
+            	aclVoter.throwLoadViolation(obj);
             }
     	}
     }
@@ -138,9 +136,9 @@ public class ACLEventListener
 		if ( entity instanceof IObject )
 		{
 			IObject obj = (IObject) entity;
-	        if ( ! secSys.allowCreation(obj) )
+	        if ( ! aclVoter.allowCreation(obj) )
 	        {
-	        	secSys.throwCreationViolation(obj);
+	        	aclVoter.throwCreationViolation(obj);
 	        }
 		}
         return false;
@@ -156,9 +154,9 @@ public class ACLEventListener
 			IObject obj = (IObject) entity;
 			
 	        if ( ! onlyLockChanged( event, obj, state, names ) && 
-	        		! secSys.allowUpdate(obj, getDetails(state, names)) )
+	        		! aclVoter.allowUpdate(obj, getDetails(state, names)) )
 	        {
-	        	secSys.throwUpdateViolation(obj);
+	        	aclVoter.throwUpdateViolation(obj);
 	        }
 		}
         return false;
@@ -172,9 +170,9 @@ public class ACLEventListener
 		if ( entity instanceof IObject )
 		{
 			IObject obj = (IObject) entity;
-	        if ( ! secSys.allowDelete(obj,getDetails(state,names)) )
+	        if ( ! aclVoter.allowDelete(obj,getDetails(state,names)) )
 	        {
-	        	secSys.throwDeleteViolation(obj);
+	        	aclVoter.throwDeleteViolation(obj);
 	        }
 		}
         return false;

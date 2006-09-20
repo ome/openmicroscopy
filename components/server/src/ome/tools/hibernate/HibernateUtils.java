@@ -1,4 +1,4 @@
-/* ome.tools.hibernate.Reloader
+/* ome.tools.hibernate.HibernateUtils
  *
  *------------------------------------------------------------------------------
  *
@@ -33,40 +33,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.collection.PersistentCollection;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.event.EventSource;
-import org.hibernate.event.MergeEvent;
-import org.hibernate.event.RefreshEvent;
-import org.hibernate.event.RefreshEventListener;
 import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.type.ForeignKeyDirection;
 import org.hibernate.type.Type;
-import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
-import org.springframework.util.Assert;
 
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
-import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.security.SecuritySystem;
 import ome.tools.lsid.LsidUtils;
 
 /**
- * responsible for reloading {@link IObject#unload() unloaded} entities and 
- * nulled collections.
+ * contains methods for reloading {@link IObject#unload() unloaded} entities and 
+ * nulled collections as well as determining the index of certain properties in
+ * a dehydrated Hiberante array.
  * 
  * @author  Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
@@ -75,10 +63,10 @@ import ome.tools.lsid.LsidUtils;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public abstract class Reloader 
+public abstract class HibernateUtils 
 { 
 
-	private static Log log = LogFactory.getLog(Reloader.class);
+	private static Log log = LogFactory.getLog(HibernateUtils.class);
 	
     // ~ Static methods
     // =========================================================================
@@ -112,14 +100,14 @@ public abstract class Reloader
 		String[] propertyNames = persister.getPropertyNames();
 		Type[] types   = persister.getPropertyTypes();
 
-		int detailsIndex = OmeroInterceptor.detailsIndex(propertyNames);
+		int detailsIndex = detailsIndex(propertyNames);
 		Details d = (Details) currentState[detailsIndex];
 		if ( d != null )
 		{
 			Set<String> s = d.filteredSet();
 			for (String string : s) {
 				string = LsidUtils.parseField(string);
-				int idx = OmeroInterceptor.index(string,propertyNames);
+				int idx = index(string,propertyNames);
 				Object previous = previousState[idx];
 				if ( ! (previous instanceof PersistentCollection) ) // implies not null
 				{
@@ -153,6 +141,21 @@ public abstract class Reloader
 		}
 	}
 
+    public static int detailsIndex( String[] propertyNames )
+    {
+    	return index( "details", propertyNames );
+    }
+    
+    public static int index( String str, String[] propertyNames )
+    {
+        for (int i = 0; i < propertyNames.length; i++)
+        {
+            if ( propertyNames[i].equals( str ))
+                return i;
+        }
+        throw new InternalException( "No \""+str+"\" property found." );
+    }
+	
 	@SuppressWarnings("unchecked")
 	protected static Collection copy(PersistentCollection c)
 	{

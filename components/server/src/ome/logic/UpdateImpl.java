@@ -288,7 +288,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     }
     
     
-    private void afterUpdate( Event currentEvent, UpdateFilter filter)
+    private void afterUpdate( UpdateFilter filter)
     {
         
         if ( getLogger().isDebugEnabled() )
@@ -304,15 +304,13 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     {
     	T retVal;
         UpdateFilter filter = new UpdateFilter( );
-        Event currentEvent = getSecuritySystem().getCurrentEvent();
         try 
         {
         	beforeUpdate( graph, filter );
         	retVal = action.run( graph, filter );
-        	afterUpdate( currentEvent, filter );
+        	afterUpdate( filter );
         } finally {
-            // Return the previous event.
-            getSecuritySystem().setCurrentEvent( currentEvent );
+        	// currently nothing.
         }
         return retVal;
     }

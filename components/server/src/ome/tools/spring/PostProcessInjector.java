@@ -34,7 +34,7 @@ package ome.tools.spring;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 //Application-internal dependencies
-import ome.security.BasicSecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.tools.hibernate.ExtendedMetadata;
 
 /** catch all {@link BeanPostProcessor} which handles cyclical references.

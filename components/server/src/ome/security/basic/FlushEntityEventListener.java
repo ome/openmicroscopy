@@ -1,4 +1,4 @@
-/* ome.tools.hibernate.FlushEntityListener
+/* ome.security.basic.FlushEntityListener
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.tools.hibernate;
+package ome.security.basic;
 
 // Java imports
 
@@ -42,7 +42,6 @@ import org.springframework.util.Assert;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.security.SecuritySystem;
 
 /**
  * responsible for responding to {@link FlushEntityEvent}. Necessary to perform
@@ -51,7 +50,7 @@ import ome.security.SecuritySystem;
  * @author  Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @since   3.0
- * @see     SecuritySystem#lockMarked()
+ * @see     BasicSecuritySystem#lockMarked()
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
@@ -62,10 +61,10 @@ public class FlushEntityEventListener extends DefaultFlushEntityEventListener
 
 	private static Log log = LogFactory.getLog( FlushEntityEventListener.class );
 	
-	private SecuritySystem secSys;
+	private BasicSecuritySystem secSys;
 	
 	/** main constructor. Requires a non-null security system */
-	public FlushEntityEventListener( SecuritySystem securitySystem )
+	public FlushEntityEventListener( BasicSecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;

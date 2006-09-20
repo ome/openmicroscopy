@@ -1,4 +1,4 @@
-/* ome.tools.hibernate.MergeEventListener
+/* ome.security.basic.MergeEventListener
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.tools.hibernate;
+package ome.security.basic;
 
 // Java imports
 import java.util.Map;
@@ -49,7 +49,7 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.model.IEnum;
 import ome.model.IObject;
-import ome.security.SecuritySystem;
+import ome.tools.hibernate.HibernateUtils;
 
 /**
  * responsible for responding to merge events. in particular in load/re-loading
@@ -73,10 +73,10 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 
 	private static Log log = LogFactory.getLog( MergeEventListener.class );
 	
-	private SecuritySystem secSys;
+	private BasicSecuritySystem secSys;
 	
 	/** main constructor. Requires a non-null security system */
-	public MergeEventListener( SecuritySystem securitySystem )
+	public MergeEventListener( BasicSecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
@@ -88,7 +88,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 		
 		if (entity instanceof IObject)
 		{
-			Reloader.fixNulledOrFilteredCollections(
+			HibernateUtils.fixNulledOrFilteredCollections(
 					(IObject)entity,(IObject)target,persister,source);
 			propagateHiddenValues((IObject)entity,(IObject)target);
 		}
@@ -102,7 +102,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 		
 		if (entity instanceof IObject)
 		{
-			Reloader.fixNulledOrFilteredCollections(
+			HibernateUtils.fixNulledOrFilteredCollections(
 					(IObject)entity,(IObject)target,persister,source);
 			propagateHiddenValues((IObject)entity, (IObject)target);
 		}
@@ -146,7 +146,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
     protected void entityIsDetached(MergeEvent event, Map copyCache)
     {
     	IObject orig = (IObject) event.getOriginal();
-    	if (Reloader.isUnloaded( orig ))
+    	if (HibernateUtils.isUnloaded( orig ))
     	{
            	final EventSource source = event.getSession();
     		log("Reloading unloaded entity:",event.getEntityName(),":", orig.getId());

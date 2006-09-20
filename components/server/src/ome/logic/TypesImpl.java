@@ -100,13 +100,10 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
     public <T extends IEnum> T createEnumeration( T newEnum )
     {
     	final LocalUpdate up = iUpdate;
-    	
-    	// TODO this should be delegated to security system.
-    	Details d = newEnum.getDetails();
-    	d.setOwner( new Experimenter( 0L, false ) );
-    	d.setGroup( new ExperimenterGroup( 0L, false ) );
-    	d.setPermissions( Permissions.DEFAULT );
-    	d.setCreationEvent( getSecuritySystem().currentEvent() );
+
+    	// TODO should this belong to root?
+    	Details d = getSecuritySystem().transientDetails(newEnum);
+    	newEnum.setDetails(d);
     	return getSecuritySystem().doAction(newEnum, new SecureAction(){
     		public IObject updateObject(IObject iObject) {
     			return up.saveAndReturnObject(iObject);

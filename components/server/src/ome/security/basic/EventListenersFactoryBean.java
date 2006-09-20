@@ -1,4 +1,4 @@
-/* ome.tools.hibernate.EventListenersFactoryBean
+/* ome.security.basic.EventListenersFactoryBean
  *
  *------------------------------------------------------------------------------
  *
@@ -26,16 +26,13 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.tools.hibernate;
+package ome.security.basic;
 
 // Java imports
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,12 +42,15 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.event.EventListeners;
 
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
 import ome.security.ACLEventListener;
-import ome.security.SecuritySystem;
+import ome.tools.hibernate.EventMethodInterceptor;
+import ome.tools.hibernate.ReloadingRefreshEventListener;
 
 /**
  * configuring all the possible {@link EventListeners event listeners} within
@@ -58,7 +58,7 @@ import ome.security.SecuritySystem;
  */
 public class EventListenersFactoryBean extends AbstractFactoryBean
 {
-	private SecuritySystem secSys;
+	private BasicSecuritySystem secSys;
 	
 	private EventListeners eventListeners = new EventListeners();
 
@@ -72,7 +72,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	/** adds all default listeners. These will be overwritten during 
 	 * {@link #createInstance()}. Do not configure listeners here.
 	 */
-	public EventListenersFactoryBean( SecuritySystem securitySystem )
+	public EventListenersFactoryBean( BasicSecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
@@ -108,10 +108,17 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		assertHasAllKeys(keys);
 	}
 
+	/** this {@link FactoryBean} produces a {@link Map} instance for use in 
+	 * {@link LocalSessionFactoryBean#setEventListeners(Map)}
+	 */
 	public Class getObjectType() {
 		return Map.class;
 	}
 
+	/** being a singleton implies that this {@link FactoryBean} will only 
+	 * ever create one instance.
+	 */
+	@Override
 	public boolean isSingleton() {
 		return true;
 	}
@@ -135,11 +142,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	protected void overrides()
 	{
 		override("merge", 
-				new ome.tools.hibernate.MergeEventListener(secSys));
-		override(new String[]{"pre-load","post-load","pre-update","post-update",
-				"pre-insert","post-insert","pre-delete","post-delete"},
-				new ome.tools.hibernate.EventLogListener(
-						new EventDiffHolder(secSys)));
+				new MergeEventListener(secSys));
 		override(new String[]{"replicate","save","update"},
 				getDisablingProxy());
 		// TODO this could be a prepend.
@@ -165,11 +168,16 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 			append(key,getProxy(emi));
 		}
 		
-		ACLEventListener acl = new ACLEventListener(secSys);
+		ACLEventListener acl = new ACLEventListener(secSys.getACLVoter());
 		append("post-load", acl);
 		append("pre-insert", acl);
 		append("pre-update", acl);
 		append("pre-delete", acl);
+
+		EventLogListener ell = new ome.security.basic.EventLogListener(secSys);
+		append("post-insert", ell);
+		append("post-update", ell);
+		append("post-delete", ell);
 		
 		if (debugAll)
 		{

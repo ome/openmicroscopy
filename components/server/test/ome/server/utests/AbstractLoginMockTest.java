@@ -31,6 +31,9 @@ package ome.server.utests;
 // Java imports
 
 // Third-party libraries
+import java.util.Arrays;
+import java.util.List;
+
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.orm.hibernate3.HibernateOperations;
@@ -50,7 +53,7 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.BasicSecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -87,6 +90,8 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
     public final static Experimenter USER = new Experimenter( USER_OWNER_ID );
     public final static ExperimenterGroup USER_GROUP = new ExperimenterGroup( USER_GROUP_ID );
+    public List<Long> LEADER_OF_GROUPS;
+    public List<Long> MEMBER_OF_GROUPS;
     
     protected UpdateFilter filter;
     protected Event userEvent;
@@ -100,7 +105,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         super.setUp();
         
         sf = new MockServiceFactory();
-        sec = new BasicSecuritySystem (sf,new ThreadLocalEventContext() ); // hiding Ectx
+        sec = new BasicSecuritySystem (sf);
         
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockQuery = mock(LocalQuery.class);
@@ -115,32 +120,48 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
     protected void rootLogin()
     {
+        LEADER_OF_GROUPS = Arrays.asList(0L);
+        MEMBER_OF_GROUPS = Arrays.asList(0L, 1L);
         sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
         	.with(eq("root"))
 			.will( returnValue( ROOT ));
         sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
 			.with(eq("system"))
         	.will( returnValue( ROOT_GROUP ));
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getLeaderOfGroupsIds" )
+			.with(eq(ROOT))
+			.will( returnValue( LEADER_OF_GROUPS ));
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getMemberOfGroupsIds" )
+			.with(eq(ROOT))
+			.will( returnValue( MEMBER_OF_GROUPS ));
         sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
     		.with(eq(EventType.class),eq("Bootstrap"))
         	.will( returnValue( BOOTSTRAP ));
         sec.login( new Principal("root","system","Bootstrap") );
-    	sec.setCurrentDetails();
+    	sec.setCurrentDetails(false);
     }
 
     protected void userLogin( )
     {
+    	LEADER_OF_GROUPS = Arrays.asList(1L);
+        MEMBER_OF_GROUPS = Arrays.asList(1L);
         sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
     		.with(eq("user1"))
 			.will( returnValue( USER ));
         sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
 			.with(eq("user"))
 			.will( returnValue( USER_GROUP ));
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getLeaderOfGroupIds" )
+			.with(eq(USER))
+			.will( returnValue( LEADER_OF_GROUPS ));
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getMemberOfGroupIds" )
+			.with(eq(USER))
+			.will( returnValue( MEMBER_OF_GROUPS ));
     	sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
 			.with(eq(EventType.class), eq("User"))
 			.will( returnValue( USEREVENT ));
     	sec.login( new Principal("user1","user","User") );
-    	sec.setCurrentDetails();
+    	sec.setCurrentDetails(false);
     }
 
     
@@ -158,9 +179,9 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
     protected void checkSomeoneIsLoggedIn()
     {
-        assertNotNull( sec.currentUser() );
-        assertNotNull( sec.currentEvent() );
-        assertNotNull( sec.currentEvent() );
+        assertNotNull( sec.getEventContext().getCurrentUserId() );
+        assertNotNull( sec.getEventContext().getCurrentGroupId() );
+        assertNotNull( sec.getEventContext().getCurrentEventType() );
     }
     
     /** creates a "managed image" (has ID) to the currently logged in user. */
@@ -169,9 +190,9 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         checkSomeoneIsLoggedIn();
         Image i = new Image( 0L );
         Details managed = new Details();
-        managed.setOwner( sec.currentUser() );
-        managed.setGroup( sec.currentGroup() );
-        managed.setCreationEvent( sec.currentEvent() );
+        managed.setOwner( new Experimenter( sec.getEventContext().getCurrentUserId(), false ));
+        managed.setGroup( new ExperimenterGroup( sec.getEventContext().getCurrentGroupId(), false ));
+        managed.setCreationEvent( new Event( sec.getEventContext().getCurrentEventId(), false ));
         i.setDetails( managed );
         return i;
     }

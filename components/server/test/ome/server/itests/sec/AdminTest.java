@@ -419,11 +419,8 @@ public class AdminTest extends AbstractManagedContextTest
 		
 		Roles r = iAdmin.getSecurityRoles();
 		assertNotNull( r.getRootName() );
-		assertNotNull( r.getSystemGroupName()() );
+		assertNotNull( r.getSystemGroupName() );
 		assertNotNull( r.getUserGroupName() );
-		assertNotNull( r.getRootName() );
-		assertNotNull( r.getRootName() );
-		assertNotNull( r.getRootName() );
 	}
 	
 }

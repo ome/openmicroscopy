@@ -28,7 +28,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.AdminAction;
-import ome.security.BasicSecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.security.JBossLoginModule;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
@@ -53,101 +53,8 @@ import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 @Test
-public class SecuritySystemTest extends MockObjectTestCase {
+public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
-	MockServiceFactory sf;
-	SecuritySystem sec; 
-	
-	// login information
-	Principal p;
-	
-	// "current" details
-	Experimenter user;
-	ExperimenterGroup group;
-	EventType type;
-	Event event;
-	List<Long> leaderOfGroups, memberOfGroups;
-	
-    @Configuration(beforeTestMethod = true)
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-        
-        sf = new MockServiceFactory();
-        sec = new BasicSecuritySystem(sf,new SimpleEventContext()); // hiding EvtCtx
-           
-    }
-    
-    protected void prepareMocksWithUserDetails()
-    {
-        // login
-    	p = new Principal("test","test","test");
-        sec.login(p);
-        
-        // context 
-		user = new Experimenter(1L);
-		group = new ExperimenterGroup(1L);
-		type = new EventType(1L);
-		event = new Event(1L);
-
-		user.linkExperimenterGroup(group);
-		leaderOfGroups = Collections.singletonList(1L);
-		memberOfGroups = Collections.singletonList(1L);
-
-		prepareMocks();
-    }
-
-    protected void prepareMocksWithRootDetails()
-    {
-        // login
-    	p = new Principal("root","system","internal");
-    	sec.login(p);
-    	
-        // context 
-		user = new Experimenter(0L);
-		group = new ExperimenterGroup(0L);
-		type = new EventType(0L);
-		event = new Event(0L);
-
-		user.linkExperimenterGroup(group);
-		leaderOfGroups = Collections.singletonList(0L);
-		memberOfGroups = Arrays.asList(0L,1L);
-		prepareMocks();
-    }
-    
-    protected void prepareMocks()
-    {
-        // prepare mocks
-		sf.mockAdmin = mock(LocalAdmin.class);
-		sf.mockTypes = mock(ITypes.class);
-		sf.mockUpdate = mock(LocalUpdate.class);
-    
-		sf.mockAdmin.expects(atLeastOnce()).method("userProxy")
-			.will( returnValue( user ));
-		sf.mockAdmin.expects(atLeastOnce()).method("groupProxy")
-			.will( returnValue( group ));
-		sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds")
-		.will( returnValue( memberOfGroups ));
-		sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds")
-			.will( returnValue( leaderOfGroups ));
-		sf.mockTypes.expects(atLeastOnce()).method("getEnumeration")
-			.will(returnValue( type ));
-		sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
-			.will(returnValue( event ));
-	
-    }
-    
-    @Configuration(afterTestMethod = true)
-    protected void tearDown() throws Exception
-    {
-        super.verify();
-        sec.clearCurrentDetails();
-        super.tearDown();
-    }
-	
-    // ~ TESTS
-	// =========================================================================
-    
 	/*
 	 * Test method for 'ome.security.SecuritySystem.isReady()'
 	 */
@@ -155,7 +62,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		prepareMocksWithUserDetails();
 		
 		assertFalse( sec.isReady() );
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertTrue( sec.isReady() );
 		sec.clearCurrentDetails();
 		assertFalse( sec.isReady() );
@@ -163,19 +70,14 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		// don't need ready sec.sys.
 		sec.isReady( );
 		sec.isSystemType( null );	
-		sec.allowLoad( user.getClass(), new Details() );
-		sec.allowCreation( user );
-		sec.allowUpdate( user, new Details() );
-		sec.allowDelete( user, new Details() );
-		sec.getRootId();
-		sec.getRootName();
-		sec.getSystemGroupName();
-		sec.getSystemGroupId();
-		sec.getUserGroupId();
-		sec.getUserGroupName();
+		sec.getACLVoter().allowLoad( user.getClass(), new Details() );
+		sec.getACLVoter().allowCreation( user );
+		sec.getACLVoter().allowUpdate( user, new Details() );
+		sec.getACLVoter().allowDelete( user, new Details() );
+		sec.getSecurityRoles();
 		sec.doAction(user,new SecureAction(){public <T extends IObject> T updateObject(T obj) {return null;};});
 		sec.copyToken(user,user);
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		sec.clearCurrentDetails();
 		sec.newEvent(type);
 		sec.setCurrentEvent(event);
@@ -200,10 +102,10 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		try { sec.addLog("",Image.class,1L); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
 		
 		// throw no matter what
-		try { sec.throwLoadViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
-		try { sec.throwCreationViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
-		try { sec.throwUpdateViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
-		try { sec.throwDeleteViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
+		try { sec.getACLVoter().throwLoadViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
+		try { sec.getACLVoter().throwCreationViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
+		try { sec.getACLVoter().throwUpdateViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
+		try { sec.getACLVoter().throwDeleteViolation( user ); fail("Should throw SecViol"); } catch (SecurityViolation sv) {};
 		
 	}
 
@@ -249,7 +151,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		mockSession.expects(once()).method("disableFilter").with(eq("securityFilter"));
 		Session s = (Session) mockSession.proxy();
 	
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		sec.enableReadFilter(s);
 		sec.disableReadFilter(s);
 		sec.clearCurrentDetails();
@@ -261,7 +163,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testCurrentUserId() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.currentUserId(),(Long)1L);
 		sec.clearCurrentDetails();
 	}
@@ -271,7 +173,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testCurrentUser() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.currentUser(),user);
 		sec.clearCurrentDetails();
 	}
@@ -281,7 +183,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testCurrentGroup() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.currentGroup(),group);
 		sec.clearCurrentDetails();
 	}
@@ -291,7 +193,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testCurrentEvent() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.currentEvent(),event);
 		sec.clearCurrentDetails();
 	}
@@ -303,7 +205,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		prepareMocksWithUserDetails();
 		sec.clearCurrentDetails();
 		assertTrue(sec.emptyDetails());
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertFalse(sec.emptyDetails());
 		sec.clearCurrentDetails();
 		assertTrue(sec.emptyDetails());
@@ -314,7 +216,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testAddLog() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertTrue(event.sizeOfLogs()==0);
 		sec.addLog("SHOULDN'T BE ADDED", Event.class, 1L); 
 		assertTrue(event.sizeOfLogs()==0); 
@@ -333,7 +235,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testNewEvent() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.currentEvent(),event);
 		sec.newEvent(type);
 		assertNotSame(event, sec.currentEvent());
@@ -345,7 +247,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testGetCurrentEvent() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertSame(sec.currentEvent(),event);
 		sec.clearCurrentDetails();
 	}
@@ -355,7 +257,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testSetCurrentEvent() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertSame(sec.currentEvent(),event);
 		Event newEvent = new Event();
 		sec.setCurrentEvent(newEvent);
@@ -370,7 +272,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	public void testClearCurrentDetails() {
 		prepareMocksWithUserDetails();
 		assertFalse(sec.isReady());
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertTrue(sec.isReady());
 		sec.clearCurrentDetails();
 		assertFalse(sec.isReady());
@@ -382,7 +284,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	public void testSetCurrentDetails() {
 		prepareMocksWithUserDetails();
 		
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertSame(user,sec.currentUser());
 		assertSame(event,sec.currentEvent());
 		assertSame(group,sec.currentGroup());
@@ -393,7 +295,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	@Test
 	public void testNullChecksOnAllMethods() throws Exception {
 		prepareMocksWithRootDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		// can handle nulls
 		sec.isSystemType( null );	
@@ -403,16 +305,16 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		sec.enable(null);
 		
 		// uses Springs assert
-		try { sec.allowLoad( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.allowCreation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.allowUpdate( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.allowDelete( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().allowLoad( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().allowCreation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().allowUpdate( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().allowDelete( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.doAction( null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		try { sec.addLog( null, null,null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.throwLoadViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.throwCreationViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.throwUpdateViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
-		try { sec.throwDeleteViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().throwLoadViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().throwCreationViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().throwUpdateViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
+		try { sec.getACLVoter().throwDeleteViolation( null ); fail("Should throw IllegalArg"); } catch (IllegalArgumentException iae) {};
 		
 		// api usage
 		try { sec.enableReadFilter( null ); fail("Should throw ApiUsage"); } catch (ApiUsageException api) {};
@@ -427,15 +329,15 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	@Test
 	public void testIsSystemGroup() throws Exception {
 		prepareMocksWithRootDetails();
-		sec.setCurrentDetails();
-		assertTrue(sec.isSystemGroup(group));
+		sec.setCurrentDetails(false);
+		assertTrue(sec.getSecurityRoles().isSystemGroup(group));
 		sec.clearCurrentDetails();
 	}
 	
 	@Test
 	public void testLeaderOfGroups() throws Exception {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		assertEquals(sec.leaderOfGroups(),leaderOfGroups);
 		sec.clearCurrentDetails();
 	}
@@ -467,15 +369,15 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		prepareMocksWithUserDetails();
 		
 		// 1. not system type
-		sec.setCurrentDetails();
-		assertFalse(sec.allowCreation(e));
-		assertTrue(sec.allowCreation(i));
+		sec.setCurrentDetails(false);
+		assertFalse(sec.getACLVoter().allowCreation(e));
+		assertTrue(sec.getACLVoter().allowCreation(i));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
 		SecureAction checkAllowCreate = new SecureAction(){
 			public <T extends IObject> T updateObject(T obj) {
-				assertTrue(sec.allowCreation(obj));
+				assertTrue(sec.getACLVoter().allowCreation(obj));
 				return null;
 			}
 		};
@@ -484,9 +386,9 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 3. user is admin.
 		prepareMocksWithRootDetails();
-		sec.setCurrentDetails();
-		assertTrue(sec.allowCreation(e));
-		assertTrue(sec.allowCreation(i));
+		sec.setCurrentDetails(false);
+		assertTrue(sec.getACLVoter().allowCreation(e));
+		assertTrue(sec.getACLVoter().allowCreation(i));
 		sec.clearCurrentDetails();
 		
 	}
@@ -506,15 +408,15 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		// BASICS
 		
 		// 1. not system type
-		sec.setCurrentDetails();
-		assertFalse(sec.allowUpdate(e,d));
-		assertTrue(sec.allowUpdate(i,d));
+		sec.setCurrentDetails(false);
+		assertFalse(sec.getACLVoter().allowUpdate(e,d));
+		assertTrue(sec.getACLVoter().allowUpdate(i,d));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
 		SecureAction checkAllowCreate = new SecureAction(){
 			public <T extends IObject> T updateObject(T obj) {
-				assertTrue(sec.allowUpdate(obj,obj.getDetails()));
+				assertTrue(sec.getACLVoter().allowUpdate(obj,obj.getDetails()));
 				return null;
 			}
 		};
@@ -523,25 +425,25 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 3. user is admin.
 		prepareMocksWithRootDetails();
-		sec.setCurrentDetails();
-		assertTrue(sec.allowUpdate(e,e.getDetails()));
-		assertTrue(sec.allowUpdate(i,i.getDetails()));
+		sec.setCurrentDetails(false);
+		assertTrue(sec.getACLVoter().allowUpdate(e,e.getDetails()));
+		assertTrue(sec.getACLVoter().allowUpdate(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		// different owner but all permissions
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
 		i.getDetails().setPermissions(new Permissions());
-		assertTrue(sec.allowUpdate(i,i.getDetails()));
+		assertTrue(sec.getACLVoter().allowUpdate(i,i.getDetails()));
 		
 		// now lower permissions
 		i.getDetails().setPermissions(Permissions.READ_ONLY);
-		assertFalse(sec.allowUpdate(i,i.getDetails()));
+		assertFalse(sec.getACLVoter().allowUpdate(i,i.getDetails()));
 	
 	}
 	
@@ -557,15 +459,15 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		prepareMocksWithUserDetails();
 		
 		// 1. not system type
-		sec.setCurrentDetails();
-		assertFalse(sec.allowDelete(e,d));
-		assertTrue(sec.allowDelete(i,d));
+		sec.setCurrentDetails(false);
+		assertFalse(sec.getACLVoter().allowDelete(e,d));
+		assertTrue(sec.getACLVoter().allowDelete(i,d));
 		sec.clearCurrentDetails();
 
 		// 2. is privileged
 		SecureAction checkAllowCreate = new SecureAction(){
 			public <T extends IObject> T updateObject(T obj) {
-				assertTrue(sec.allowDelete(obj,obj.getDetails()));
+				assertTrue(sec.getACLVoter().allowDelete(obj,obj.getDetails()));
 				return null;
 			}
 		};
@@ -574,25 +476,25 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		
 		// 3. user is admin.
 		prepareMocksWithRootDetails();
-		sec.setCurrentDetails();
-		assertTrue(sec.allowDelete(e,e.getDetails()));
-		assertTrue(sec.allowDelete(i,i.getDetails()));
+		sec.setCurrentDetails(false);
+		assertTrue(sec.getACLVoter().allowDelete(e,e.getDetails()));
+		assertTrue(sec.getACLVoter().allowDelete(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		// different owner but all permissions
 		i = new Image(2L);
 		i.getDetails().setOwner(new Experimenter(2L));
 		i.getDetails().setGroup(new ExperimenterGroup(2L));
 		i.getDetails().setPermissions(new Permissions());
-		assertTrue(sec.allowDelete(i,i.getDetails()));
+		assertTrue(sec.getACLVoter().allowDelete(i,i.getDetails()));
 		
 		// now lower permissions
 		i.getDetails().setPermissions(Permissions.READ_ONLY);
-		assertFalse(sec.allowDelete(i,i.getDetails()));
+		assertFalse(sec.getACLVoter().allowDelete(i,i.getDetails()));
 		
 		sec.clearCurrentDetails();
 	}
@@ -609,14 +511,14 @@ public class SecuritySystemTest extends MockObjectTestCase {
 		d.setGroup(new ExperimenterGroup(2L));
 		d.setPermissions( new Permissions() );
 		
-		sec.setCurrentDetails();
-		assertTrue(sec.allowLoad(Image.class,d));
+		sec.setCurrentDetails(false);
+		assertTrue(sec.getACLVoter().allowLoad(Image.class,d));
 		d.setPermissions(new Permissions().revoke(WORLD,READ));
-		assertFalse(sec.allowLoad(Image.class, d));
+		assertFalse(sec.getACLVoter().allowLoad(Image.class, d));
 		// now in my group where i'm PI
 		d.setPermissions(new Permissions().revoke(GROUP,READ));
 		d.setGroup(group);
-		assertTrue(sec.allowLoad(Image.class,d));
+		assertTrue(sec.getACLVoter().allowLoad(Image.class,d));
 		
 		sec.clearCurrentDetails();
 		
@@ -627,7 +529,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testTransientDetails() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		Permissions p = new Permissions();
 		Image i = new Image();
@@ -656,7 +558,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	 */
 	public void testManagedDetails() {
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		Permissions p = new Permissions();
 		Image i = new Image(1L);
@@ -689,7 +591,7 @@ public class SecuritySystemTest extends MockObjectTestCase {
 	@Test
 	public void testRunAsAdmin(){
 		prepareMocksWithUserDetails();
-		sec.setCurrentDetails();
+		sec.setCurrentDetails(false);
 		
 		assertFalse(sec.currentUserIsAdmin());
 		

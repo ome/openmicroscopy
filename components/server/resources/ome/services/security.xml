@@ -46,16 +46,47 @@
 
 <beans>
 
-  <bean id="eventContext" class="ome.system.ThreadLocalEventContext"/>
-
-  <bean id="securitySystem" class="ome.security.BasicSecuritySystem">
+  <bean id="securitySystem" class="ome.security.basic.BasicSecuritySystem">
     <constructor-arg>
       <bean class="ome.tools.spring.InternalServiceFactory"/>
   	</constructor-arg>
-  	<constructor-arg ref="eventContext"/>
+  </bean>
+
+  <!-- Scope: private -->
+  
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="securitySystem"/>
+    <property name="debugAll" value="false"/>
+  </bean>
+
+  <bean id="eventHandler" class="ome.security.basic.EventHandler">
+    <description>
+    Scope: private
+    </description>
+  	<constructor-arg ref="securitySystem"/>
+  	<constructor-arg ref="hibernateTemplate"/>
   </bean>
   
+  <bean id="omeroInterceptor" class="ome.security.basic.OmeroInterceptor">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="securitySystem"/>
+  </bean>
+
+  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter">
+    <description>
+    Scope: private
+    </description>
+  </bean>
+ 
   <bean class="ome.tools.spring.PostProcessInjector">
+    <description>
+    Scope: private
+    </description>
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="extendedMetadata"/>
   </bean>

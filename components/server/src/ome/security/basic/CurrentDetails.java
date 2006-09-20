@@ -1,5 +1,5 @@
 /*
- * ome.security.CurrentDetails
+ * ome.security.basic.CurrentDetails
  *
  *------------------------------------------------------------------------------
  *
@@ -27,14 +27,16 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.security;
+package ome.security.basic;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,6 +54,10 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.basic.BasicEventContext;
+import ome.system.EventContext;
+import ome.system.Principal;
+import ome.system.SimpleEventContext;
 
 /** Stores information related to the security context of the current thread.
  * Code calling into the server must setup CurrentDetails properly. An existing
@@ -67,45 +73,38 @@ import ome.model.meta.ExperimenterGroup;
  * CurrentDetails:  user == null ==> current user is "nobody" (anonymous)
  * 
  */
-abstract class CurrentDetails
+class CurrentDetails
 {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
-    
-    private static class Data {
-    	public Data() { }
-    	Details details;
-    	Permissions umask;
-    	boolean isAdmin = false;
-    	Collection<Long> memberOfGroups;
-    	Collection<Long> leaderOfGroups;
-    	Set<String> disabledSubsystems;
-    	Set<IObject> lockCandidates;
-    	Map<Class,Map<String,EventLog>> logs;
-    }
 
-    private static ThreadLocal<Data> data = 
-    	new ThreadLocal<Data>(){
+    private ThreadLocal<BasicEventContext> data = 
+    	new ThreadLocal<BasicEventContext>(){
     	@Override
-    	protected Data initialValue() { return new Data(); };
+    	protected BasicEventContext initialValue() { return new BasicEventContext(); };
     };
     
     /** removes all current context. This must stay in sync with the instance
      * fields. If a new {@link ThreadLocal} is added, {@link ThreadLocal#remove()}
      * <em>must</em> be called.
      */
-    public static void clear(){
+    public void clear(){
     	data.remove();
+    }
+    
+    public EventContext getCurrentEventContext()
+    {
+    	return data.get();
     }
     
     // ~ Internals
     // ================================================================
 
-    protected static void setDetails(Details details)
+    protected void setDetails(Details details)
     {
         data.get().details = details;
     }
 
-    protected static Details getDetails()
+    protected Details getDetails()
     {
         Details details = data.get().details;
         if (details == null)
@@ -118,7 +117,7 @@ abstract class CurrentDetails
 
     // ~ Events and Details
     // =================================================================
-    public static void newEvent(EventType type, Token token) // TODO keep up with stack here?
+    public void newEvent(EventType type, Token token) // TODO keep up with stack here?
     {
         Event e = new Event();
         e.setType(type);
@@ -128,7 +127,7 @@ abstract class CurrentDetails
         setCreationEvent(e);
     }
     
-    public static void addLog( String action, Class klass, Long id )
+    public void addLog( String action, Class klass, Long id )
     {
     	Map<Class, Map<String, EventLog>> map = data.get().logs;
     	if ( map == null )
@@ -158,20 +157,21 @@ abstract class CurrentDetails
     	}	
     }
     
-    public static Map<Class,Map<String,EventLog>> getLogs()
+    public Map<Class,Map<String,EventLog>> getLogs()
     { // TODO defensive copy
     	return data.get().logs == null ? 
     			new HashMap<Class,Map<String,EventLog>>() : 
     				data.get().logs;
     }
     
-    public static void clearLogs()
+    public void clearLogs()
     {
     	data.get().logs = null;
 //        getCreationEvent().clearLogs();
     }
     
-    public static Details createDetails()
+    // TODO move to BSS
+    public Details createDetails()
     {
         Details d = new Details();
         d.setCreationEvent(getCreationEvent());
@@ -183,7 +183,7 @@ abstract class CurrentDetails
     
     // ~ Umask
     // =========================================================================
-    public static Permissions getUmask()
+    public Permissions getUmask()
     {
         Permissions umask = data.get().umask;
         if (umask == null)
@@ -201,7 +201,7 @@ abstract class CurrentDetails
          */
     }
     
-    public static void setUmask(Permissions umask)
+    public void setUmask(Permissions umask)
     {
         data.get().umask = umask;
     }
@@ -209,53 +209,53 @@ abstract class CurrentDetails
     // ~ Delegation FIXME possibly remove setters for set(Exp,Grp)
     // =========================================================================
     
-    public static Event getCreationEvent()
+    public Event getCreationEvent()
     {
         return getDetails().getCreationEvent();
     }
 
-    public static Experimenter getOwner()
+    public Experimenter getOwner()
     {
         return getDetails().getOwner();
     }
 
-    public static Permissions getPermissions()
+    public Permissions getPermissions()
     {
         return getDetails().getPermissions();
     }
 
-    public static Event getUpdateEvent()
+    public Event getUpdateEvent()
     {
         return getDetails().getUpdateEvent();
     }
 
-    public static void setCreationEvent(Event e)
+    public void setCreationEvent(Event e)
     {
         getDetails().setCreationEvent(e);
     }
 
-    public static void setOwner(Experimenter exp)
+    public void setOwner(Experimenter exp)
     {
         getDetails().setOwner(exp);
     }
 
-    public static void setPermissions(Permissions perms)
+    public void setPermissions(Permissions perms)
     {
         getDetails().setPermissions(perms);
     }
 
     // TODO hide these specifics. possibly also Owner->User & CreationEvent -> Event
-    public static void setUpdateEvent(Event e)
+    public void setUpdateEvent(Event e)
     {
         getDetails().setUpdateEvent(e);
     }
     
-    public static ExperimenterGroup getGroup()
+    public ExperimenterGroup getGroup()
     {
         return getDetails().getGroup();
     }
     
-    public static void setGroup(ExperimenterGroup group)
+    public void setGroup(ExperimenterGroup group)
     {
         getDetails().setGroup(group);
     }
@@ -263,25 +263,38 @@ abstract class CurrentDetails
     // ~ Admin
 	// =========================================================================
  
-    public static void setAdmin( boolean isAdmin )
+    public void setAdmin( boolean isAdmin )
     {
     	data.get().isAdmin = isAdmin;
     }
     
-    public static boolean isAdmin( )
+    public boolean isAdmin( )
     {
     	return data.get().isAdmin;
+    }
+    
+    // ~ ReadOnly
+	// =========================================================================
+ 
+    public void setReadOnly( boolean isReadOnly )
+    {
+    	data.get().isReadyOnly = isReadOnly;
+    }
+    
+    public boolean isReadOnly( )
+    {
+    	return data.get().isReadyOnly;
     }
         
     // ~ Groups
 	// =========================================================================
     
-    public static void setMemberOfGroups( Collection<Long> groupIds )
+    public void setMemberOfGroups( Collection<Long> groupIds )
     {
     	data.get().memberOfGroups = groupIds;
     }
     
-    public static Collection<Long> getMemberOfGroups( )
+    public Collection<Long> getMemberOfGroups( )
     {
 		Collection<Long> c = data.get().memberOfGroups;    	
     	if ( c == null || c.size() == 0 )
@@ -291,12 +304,12 @@ abstract class CurrentDetails
     	return c;
     }
     
-    public static void setLeaderOfGroups( Collection<Long> groupIds )
+    public void setLeaderOfGroups( Collection<Long> groupIds )
     {
     	data.get().leaderOfGroups = groupIds;
     }
     
-    public static Collection<Long> getLeaderOfGroups( )
+    public Collection<Long> getLeaderOfGroups( )
     {
 		Collection<Long> c = data.get().leaderOfGroups;    	
     	if ( c == null || c.size() == 0 )
@@ -309,7 +322,7 @@ abstract class CurrentDetails
     // ~ Subsystems
 	// =========================================================================
     
-    public static boolean addDisabled(String id)
+    public boolean addDisabled(String id)
     {
     	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null )
@@ -322,7 +335,7 @@ abstract class CurrentDetails
 
     }
     
-    public static boolean addAllDisabled(String...ids)
+    public boolean addAllDisabled(String...ids)
     {
     	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null )
@@ -338,7 +351,7 @@ abstract class CurrentDetails
 
     }
     
-    public static boolean removeDisabled(String id)
+    public boolean removeDisabled(String id)
     {
     	Set<String> s = data.get().disabledSubsystems;
     	if ( s != null && id != null )
@@ -348,7 +361,7 @@ abstract class CurrentDetails
     	return false;	
     }
     
-    public static boolean removeAllDisabled(String...ids)
+    public boolean removeAllDisabled(String...ids)
     {
     	Set<String> s = data.get().disabledSubsystems;
     	if ( s != null && ids != null )
@@ -361,12 +374,12 @@ abstract class CurrentDetails
     	return false;	
     }
     
-    public static void clearDisabled()
+    public void clearDisabled()
     {
     	data.get().disabledSubsystems = null;
     }
     
-    public static boolean isDisabled(String id)
+    public boolean isDisabled(String id)
     {
     	Set<String> s = data.get().disabledSubsystems;
     	if ( s == null || id == null || ! s.contains(id)) return false;
@@ -377,14 +390,14 @@ abstract class CurrentDetails
     // ~ Locks
 	// =========================================================================
     
-    public static Set<IObject> getLockCandidates()
+    public Set<IObject> getLockCandidates()
     {
     	Set<IObject> s = data.get().lockCandidates;
     	if ( s == null ) return new HashSet<IObject>();
     	return s;
     }
     
-    public static void appendLockCandidates( Set<IObject> set )
+    public void appendLockCandidates( Set<IObject> set )
     {
     	Set<IObject> s = data.get().lockCandidates;
     	if ( s == null ) 
@@ -394,5 +407,6 @@ abstract class CurrentDetails
     	}
     	s.addAll( set );
     }
+
     
 } 

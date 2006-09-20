@@ -29,31 +29,42 @@
 
 package ome.system;
 
-import ome.system.Principal;
-
-
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
 
 /**
-* manages authenticated principals and other context for a given event. Just
-* as all API method calls take place in a transaction and a session (in that 
-* order), they also take place within an Event.  
-* 
-* @author <br>
-*         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
-*         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
-* @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
-*          </small>
-* @since OME3.0
-*/
+ * manages authenticated principals and other context for a given event. Just
+ * as all API method calls take place in a transaction and a session (in that 
+ * order), they also take place within an Event.  
+ * 
+ * @author Josh Moore, josh.moore at gmx.de
+ * @version $Revision$, $Date$
+ * @see ome.model.meta.Experimenter
+ * @see ome.model.meta.ExperimenterGroup
+ * @since 3.0
+ */
+@RevisionDate("$Date$")
+@RevisionNumber("$Revision$")
 public interface EventContext 
 {
+
+    Long getCurrentUserId();
+    String getCurrentUserName();
+    Long getCurrentGroupId();
+    String getCurrentGroupName();
+    boolean isCurrentUserAdmin();
+    boolean isReadyOnly();
     
-    Principal getPrincipal( );    
-    void setPrincipal( Principal principal );
+    Long getCurrentEventId();
+    String getCurrentEventType();
+    
+    List<Long> getMemberOfGroupsList();
+    List<Long> getLeaderOfGroupsList();
     
 }

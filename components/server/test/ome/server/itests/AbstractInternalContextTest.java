@@ -15,11 +15,7 @@ import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
-import ome.model.enums.EventType;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -112,7 +108,7 @@ public class AbstractInternalContextTest
     protected void login( Principal p )
     {
     	securitySystem.login(p);
-    	securitySystem.setCurrentDetails();
+    	securitySystem.setCurrentDetails(false);
     }
 
     protected void openSession()

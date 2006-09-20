@@ -1,5 +1,5 @@
 /*
- * ome.tools.hibernate.EventHandler
+ * ome.security.basic.EventHandler
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.tools.hibernate;
+package ome.security.basic;
 
 // Java imports
 import java.sql.SQLException;
@@ -43,7 +43,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.AnnotationTransactionAttributeSource;
@@ -56,16 +55,16 @@ import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
-import ome.security.SecuritySystem;
+import ome.system.EventContext;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are 
- * made to the {@link SecuritySystem} provided in the 
- * {@link EventHandler#EventHandler(SecuritySystem, HibernateTemplate) constructor}.
+ * made to the {@link BasicSecuritySystem} provided in the 
+ * {@link EventHandler#EventHandler(BasicSecuritySystem, HibernateTemplate) constructor}.
  * 
  * After the method is {@link MethodInterceptor#invoke(MethodInvocation) invoked}
  * various cleanup actions are performed and finally all credentials all 
- * {@link SecuritySystem#clearCurrentDetails() cleared} from the {@link Thread}.
+ * {@link BasicSecuritySystem#clearCurrentDetails() cleared} from the {@link Thread}.
  * 
  *  
  * 
@@ -80,7 +79,7 @@ public class EventHandler implements MethodInterceptor
     private static Log log 
         = LogFactory.getLog(EventHandler.class);
 
-    protected final SecuritySystem secSys;
+    protected final BasicSecuritySystem secSys;
     
     protected HibernateTemplate ht;
     
@@ -89,13 +88,13 @@ public class EventHandler implements MethodInterceptor
     .synchronizedMap(new WeakHashMap<Session, Event>());
 
     /** only public constructor, used for dependency injection. Requires an 
-     * active {@link HibernateTemplate} and {@link SecuritySystem}.
+     * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
      * 
      * @param securitySystem Not null.
      * @param template Not null.
      */
     public EventHandler( 
-    		SecuritySystem securitySystem, 
+    		BasicSecuritySystem securitySystem, 
     		HibernateTemplate template )
     {
     	Assert.notNull(securitySystem);
@@ -111,27 +110,16 @@ public class EventHandler implements MethodInterceptor
      */
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
-        secSys.setCurrentDetails();
         boolean readOnly = checkReadOnly(arg0);
-
-        // If read-only, we don't save the new current event, which should 
-        // allow us to clear the session.
-        if ( readOnly )
-        {
-        	if (log.isDebugEnabled())
-        	{
-        		log.debug("Tx readonly. Not saving current event.");
-        	}
-        // write operations are to be expected, prepare the current details
-        // by saving the current event.
-        } else {
-        	secSys.setCurrentEvent((Event)ht.merge(secSys.getCurrentEvent()));
-        }
+        secSys.setCurrentDetails(readOnly);
+        // TODO check for an existing session here.
 
         // now the user can be considered to be logged in.
-        log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)",
-        		secSys.currentUserId(),secSys.currentGroup().getId(),
-        		secSys.currentEvent().getId(),secSys.currentEvent().getType()));
+        EventContext ec = secSys.getEventContext();
+        if ( log.isInfoEnabled() )
+        	log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)",
+        			ec.getCurrentUserId(),ec.getCurrentGroupId(),
+        			ec.getCurrentEventId(),ec.getCurrentEventType()));
         
         boolean failure = false;
         Object retVal = null;
@@ -238,8 +226,8 @@ public class EventHandler implements MethodInterceptor
  */
 class EnableFilterAction implements HibernateCallback 
 {
-	private SecuritySystem secSys;
-	public EnableFilterAction( SecuritySystem sec )
+	private BasicSecuritySystem secSys;
+	public EnableFilterAction( BasicSecuritySystem sec )
 	{
 		this.secSys = sec;
 	}
@@ -255,8 +243,8 @@ class EnableFilterAction implements HibernateCallback
  */
 class DisableFilterAction implements HibernateCallback 
 {
-	private SecuritySystem secSys;
-	public DisableFilterAction( SecuritySystem sec )
+	private BasicSecuritySystem secSys;
+	public DisableFilterAction( BasicSecuritySystem sec )
 	{
 		this.secSys = sec;
 	}
@@ -275,8 +263,8 @@ class ClearIfDirtyAction implements HibernateCallback
 {
 	private static Log log = LogFactory.getLog(ClearIfDirtyAction.class); 
 	
-	private SecuritySystem secSys;
-	public ClearIfDirtyAction( SecuritySystem sec )
+	private BasicSecuritySystem secSys;
+	public ClearIfDirtyAction( BasicSecuritySystem sec )
 	{
 		this.secSys = sec;
 	}
@@ -300,8 +288,8 @@ class ClearIfDirtyAction implements HibernateCallback
  */
 class CheckDirtyAction implements HibernateCallback
 {
-	private SecuritySystem secSys;
-	public CheckDirtyAction( SecuritySystem sec )
+	private BasicSecuritySystem secSys;
+	public CheckDirtyAction( BasicSecuritySystem sec )
 	{
 		this.secSys = sec;
 	}

@@ -1,5 +1,5 @@
 /*
- * ome.security.BasicSecuritySystem
+ * ome.security.basic.BasicSecuritySystem
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.security;
+package ome.security.basic;
 
 // Java imports
 import java.util.Collection;
@@ -73,6 +73,11 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
+import ome.security.ACLVoter;
+import ome.security.AdminAction;
+import ome.security.SecureAction;
+import ome.security.SecuritySystem;
+import ome.security.basic.BasicACLVoter;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -108,45 +113,33 @@ public class BasicSecuritySystem implements SecuritySystem {
 	 */
 	private Token token = new Token();
 
-	/**
-	 * inner private class for holding one-time tokens in a {@link ThreadLocal}
-	 * one-time tokens are currently not used because of the difficulty of
-	 * guaranteeing just one access.
-	 */
-	private OneTimeTokens oneTimeTokens = new OneTimeTokens();
-
 	/** {@link ServiceFactory} for accessing all available services */
 	private ServiceFactory sf;
-
-	/**
-	 * conduit for login information from the outer-most levels. Session bean
-	 * implementations and other in-JVM clients can fill the
-	 * {@link EventContext}. Note, however, the execution must pass through the
-	 * {@link EventHandler} for proper calls to be made to the
-	 * {@link SecuritySystem}
-	 */
-	private EventContext ec;
 
 	/** metadata for calculating certain walks */
 	protected ExtendedMetadata em;
 
+	/** active principal */
+	protected ThreadLocal<Principal> principalHolder =
+		new ThreadLocal<Principal>();
+	
 	// Configured Elements
 	
+	protected CurrentDetails cd = new CurrentDetails();
+	
 	protected Roles roles = new Roles();
+		
+	protected ACLVoter acl = new BasicACLVoter(this); // FIXME dangerous
 	
 	/**
 	 * only public constructor for this {@link SecuritySystem} implementation.
 	 * 
 	 * @param factory
 	 *            Not null.
-	 * @param eventContext
-	 *            Not null.
 	 */
-	public BasicSecuritySystem(ServiceFactory factory, EventContext eventContext) {
+	public BasicSecuritySystem(ServiceFactory factory) {
 		Assert.notNull(factory);
-		Assert.notNull(eventContext);
 		this.sf = factory;
-		this.ec = eventContext;
 	}
 
 	/**
@@ -165,11 +158,11 @@ public class BasicSecuritySystem implements SecuritySystem {
 	// =========================================================================
 
 	public void login(Principal principal) {
-		ec.setPrincipal(principal);
+		principalHolder.set(principal);
 	}
 
 	public void logout() {
-		ec.setPrincipal(null);
+		principalHolder.remove();
 	}
 
 	// ~ Checks
@@ -180,16 +173,16 @@ public class BasicSecuritySystem implements SecuritySystem {
 	 */
 	public boolean isReady() {
 		// TODO could check for open session.
-		if (CurrentDetails.getCreationEvent() != null
-				&& CurrentDetails.getGroup() != null
-				&& CurrentDetails.getOwner() != null) {
+		if (cd.getCreationEvent() != null
+				&& cd.getGroup() != null
+				&& cd.getOwner() != null) {
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * implements {@link SecuritySystem#isReady()} classes without owners and
+	 * implements {@link SecuritySystem#isGlobal()} classes without owners and
 	 * events
 	 */
 	public boolean isGlobal(Class<? extends IObject> klass) {
@@ -198,6 +191,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 		if (Experimenter.class.isAssignableFrom(klass))
 			return true;
 		if (Event.class.isAssignableFrom(klass))
+			return true;
+		if (EventLog.class.isAssignableFrom(klass))
+			return true;
+		if (EventDiff.class.isAssignableFrom(klass))
 			return true;
 		return false;
 	}
@@ -230,16 +227,20 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	// ~ Read security
 	// =========================================================================
-	/**
-	 * implements {@link SecuritySystem#enableReadFilter(Object)} Turns on the
-	 * read filter defined by {@link SecurityFilter} using the user in the
-	 * current Thread context as parameters.
+	/** enables the read filter such that graph queries will have non-visible
+	 * entities silently removed from the return value. This filter does <em>
+	 * not</em> apply to single value loads from the database. See 
+	 * {@link #allowLoad(Class, Details)} for more.
 	 * 
-	 * Note: the {@link Session} argument cannot be used to load objects, either
-	 * directly via {@link Session#createQuery(String)} etc. or indirectly via
-	 * lazy loading, while the {@link Filter} is being enabled.
+	 * Note: this filter must be disabled on logout, otherwise the necessary
+	 * parameters (current user, current group, etc.) for building the filters 
+	 * will not be available. Similarly, while enabling this filter, no calls 
+	 * should be made on the given session object.
 	 * 
-	 * @see SecurityFilter
+	 * @param session a generic session object which can be used to enable
+	 *   this filter. Each {@link SecuritySystem} implementation will require
+	 *   a specific session type.
+	 * @see EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public void enableReadFilter(Object session) {
 		if (session == null || !(session instanceof Session)) {
@@ -261,9 +262,13 @@ public class BasicSecuritySystem implements SecuritySystem {
 						leaderOfGroups());
 	}
 
-	/**
-	 * implements {@link SecuritySystem#disableReadFilter(Object)} Turns of the
-	 * secu
+	/** disable this filer. All future queries will have no security context
+	 * associated with them and all items will be visible. 
+	 * 
+	 * @param session a generic session object which can be used to disable
+	 * 		this filter. Each {@link SecuritySystem} implementation will require
+	 * 		a specifc session type.
+	 * @see EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)
 	 */
 	public void disableReadFilter(Object session) {
 		checkReady("disableReadFilter");
@@ -272,143 +277,50 @@ public class BasicSecuritySystem implements SecuritySystem {
 		sess.disableFilter(SecurityFilter.filterName);
 	}
 
-	// ~ Write security (mostly for the Hibernate events)
-	// =========================================================================
-
-	/**
-	 * 
-	 * 
-	 * delegates to SecurityFilter because that is where the logic is defined
-	 * for the {@link #enableReadFilter(Object) read filter}
-	 */
-	public boolean allowLoad(Class<? extends IObject> klass, Details d) {
-		Assert.notNull(klass);
-//		Assert.notNull(d);
-		if ( d == null || isSystemType(klass) )
-			return true;
-		return SecurityFilter.passesFilter(this, d);
-	}
-
-	public void throwLoadViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Cannot read "
-				+ iObject.getClass().getName());
-	}
-
-	public boolean allowCreation(IObject iObject) {
-		Assert.notNull(iObject);
-		Class cls = iObject.getClass();
-
-		if (hasPrivilegedToken(iObject) || currentUserIsAdmin()) {
-			return true;
-		}
-
-		else if (isSystemType((Class<? extends IObject>) cls)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	public void throwCreationViolation(IObject iObject)
-			throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation(iObject.getClass().getName()
-				+ " is a System-type, and may only be "
-				+ "created through privileged APIs.");
-	}
-
-	public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-		return allowUpdateOrDelete(iObject, trustedDetails);
-	}
-
-	public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Updating " + iObject + " not allowed.");
-	}
-
-	public boolean allowDelete(IObject iObject, Details trustedDetails) {
-		return allowUpdateOrDelete(iObject, trustedDetails);
-	}
-
-	public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Deleting " + iObject + " not allowed.");
-	}
-
-	private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) {
-		Assert.notNull(iObject);
-
-		// needs no details info
-		if (hasPrivilegedToken(iObject) || currentUserIsAdmin())
-			return true;
-		else if (isSystemType((Class<? extends IObject>) iObject.getClass())) {
-			return false;
-		}
-
-		// previously we were taking the details directly from iObject
-		// iObject, however, is in a critical state. Values such as
-		// Permissions, owner, and group may have been changed.
-		Details d = trustedDetails;
-
-		// this can now only happen if a table doesn't have permissions
-		// and there aren't any of those. so let it be updated.
-		if (d == null)
-			return true;
-
-		Long o = d.getOwner() == null ? null : d.getOwner().getId();
-		Long g = d.getGroup() == null ? null : d.getGroup().getId();
-
-		// needs no permissions info
-		if (g != null && leaderOfGroups().contains(g))
-			return true;
-
-		Permissions p = d.getPermissions();
-
-		// this should never occur.
-		if (p == null) {
-			throw new InternalException(
-					"Permissions null! Security system "
-							+ "failure -- refusing to continue. The Permissions should "
-							+ "be set to a default value.");
-		}
-
-		// standard
-		if (p.isGranted(WORLD, WRITE))
-			return true;
-		if (p.isGranted(USER, WRITE) && o != null && o.equals(currentUserId()))
-			return true;
-		if (p.isGranted(GROUP, WRITE) && g != null
-				&& memberOfGroups().contains(g))
-			return true;
-
-		return false;
-	}
-
 	// ~ Subsystem disabling
 	// =========================================================================
 
 	public void disable(String... ids) {
 		if (ids == null || ids.length == 0)
 			throw new ApiUsageException("Ids should not be empty.");
-		CurrentDetails.addAllDisabled(ids);
+		cd.addAllDisabled(ids);
 	}
 
 	public void enable(String... ids) {
 		if (ids == null || ids.length == 0)
-			CurrentDetails.clearDisabled();
-		CurrentDetails.removeAllDisabled(ids);
+			cd.clearDisabled();
+		cd.removeAllDisabled(ids);
 	}
 
 	public boolean isDisabled(String id) {
 		if (id == null)
 			throw new ApiUsageException("Id should not be null.");
-		return CurrentDetails.isDisabled(id);
+		return cd.isDisabled(id);
 	}
 
 	// ~ Details (for OmeroInterceptor)
 	// =========================================================================
 
+	/** checks, and if necessary, stores argument and entities attached to the 
+	 * argument entity in the current context for later modification 
+	 * (see {@link #lockMarked()} 
+	 * 
+	 * These modifications cannot be done during save and update because not just
+	 * the entity itself but entities 1-step down the graph are to be edited, 
+	 * and it cannot be guaranteed that the graph walk will not subsequently
+	 * re-write the changes. Instead, changes are all made during the flush
+	 * procedure of {@link FlushEntityEventListener}. This also prevents 
+	 * accidental changes by administrative users by making the locking of an
+	 * element the very last action.
+	 * 
+	 * This method is called during 
+	 * {@link OmeroInterceptor#onSave(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[]) save}
+	 * and {@link OmeroInterceptor#onFlushDirty(Object, java.io.Serializable, Object[], Object[], String[], org.hibernate.type.Type[]) update}
+	 * since this is the only time that new entity references can be created.  
+	 * 
+	 * @param iObject new or updated entity which may reference other entities
+	 * 		which then require locking. Nulls are tolerated but do nothing.
+	 */
 	public void markLockedIfNecessary(IObject iObject) {
 		if (iObject == null || isSystemType( iObject.getClass() ))
 			return;
@@ -421,11 +333,15 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// TODO NEED TO CHECK FOR OWNERSHIP etc. etc.
 		}
 
-		CurrentDetails.appendLockCandidates(s);
+		cd.appendLockCandidates(s);
 	}
 
+	/** sets the {@link Flag#LOCKED LOCKED flag} on the entities stored in the 
+	 * context from the {@link #markLockedIfNecessary(IObject)} method. Called
+	 * from {@link FlushEntityEventListener#onFlushEntity(org.hibernate.event.FlushEntityEvent)}
+	 */
 	public void lockMarked() {
-		Set<IObject> c = CurrentDetails.getLockCandidates();
+		Set<IObject> c = cd.getLockCandidates();
 
 		for (IObject i : c) {
 
@@ -457,7 +373,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 			return obj.getDetails(); // EARLY EXIT
 
 		Details source = obj.getDetails();
-		Details newDetails = CurrentDetails.createDetails();
+		Details newDetails = cd.createDetails();
 
 		if (source != null) {
 
@@ -533,7 +449,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 		boolean altered = false;
 
 		final Details currentDetails = iobj.getDetails();
-		/* not final! */Details newDetails = CurrentDetails.createDetails();
+		/* not final! */Details newDetails = cd.createDetails();
 
 		// This happens if all fields of details are null (which can't happen)
 		// And is so uninteresting for all of our checks. The object can't be
@@ -860,40 +776,42 @@ public class BasicSecuritySystem implements SecuritySystem {
 	// ~ CurrentDetails delegation (ensures proper settings of Tokens)
 	// =========================================================================
 
-	public void setCurrentDetails() {
+	public void setCurrentDetails(boolean isReadyOnly) {
+
+		// needed services
 		LocalAdmin localAdmin = (LocalAdmin) sf.getAdminService();
 		ITypes iTypes = sf.getTypesService();
 		IUpdate iUpdate = sf.getUpdateService();
 
-		clearCurrentDetails();
+		// clear
+		cd.clear();
+		
+		// start refilling current details
+		cd.setReadOnly(isReadyOnly);
 
-		if (ec == null)
+		if (principalHolder.get() == null)
+			throw new SecurityViolation(
+					"Principal is null. Not logged in to SecuritySystem.");
+
+		if (principalHolder.get().getName() == null)
 			throw new InternalException(
-					"EventContext is null in EventContext. Invalid configuration.");
-
-		if (ec.getPrincipal() == null)
-			throw new InternalException(
-					"Principal is null in EventContext. Security system failure.");
-
-		if (ec.getPrincipal().getName() == null)
-			throw new InternalException(
-					"Principal.name is null in EventContext. Security system failure.");
-
-		final Principal p = ec.getPrincipal();
-
+					"Principal.name is null. Security system failure.");
+		
+		final Principal p = principalHolder.get();
+		
 		// Experimenter
 
 		final Experimenter exp = localAdmin.userProxy(p.getName());
 		exp.getGraphHolder().setToken(token, token);
-		CurrentDetails.setOwner(exp);
+		cd.setOwner(exp);
 
 		// Member of Groups
 		List<Long> memberOfGroupsIds = localAdmin.getMemberOfGroupIds(exp);
-		CurrentDetails.setMemberOfGroups(memberOfGroupsIds);
+		cd.setMemberOfGroups(memberOfGroupsIds);
 
 		// Leader of Groups
 		List<Long> leaderOfGroupsIds = localAdmin.getLeaderOfGroupIds(exp);
-		CurrentDetails.setLeaderOfGroups(leaderOfGroupsIds);
+		cd.setLeaderOfGroups(leaderOfGroupsIds);
 
 		// Active group
 
@@ -903,12 +821,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		ExperimenterGroup grp = localAdmin.groupProxy(p.getGroup());
 		grp.getGraphHolder().setToken(token, token);
-		CurrentDetails.setGroup(grp);
+		cd.setGroup(grp);
 
 		// isAdmin
 
 		if (roles.isSystemGroup(grp)) {
-			CurrentDetails.setAdmin(true);
+			cd.setAdmin(true);
 		}
 
 		// Event
@@ -920,23 +838,33 @@ public class BasicSecuritySystem implements SecuritySystem {
 		EventType type = iTypes.getEnumeration(EventType.class, p
 				.getEventType());
 		type.getGraphHolder().setToken(token, token);
-		CurrentDetails.newEvent(type, token);
+		cd.newEvent(type, token);
 
 		Event event = getCurrentEvent();
 		event.getGraphHolder().setToken(token, token);
-		try {
+		
+		// If this event is not read only, then lets save this event to prevent
+		// flushing issues later.
+		if ( ! isReadyOnly )
+		{
 			setCurrentEvent(iUpdate.saveAndReturnObject(event));
-		} catch (InvalidDataAccessApiUsageException ex) {
-			// TODO check for read-only bef. exception
-			log.warn("Attempt to save event in SecuritySystem failed. "
-					+ "Using unsaved.", ex);
-			setCurrentEvent(event);
 		}
 
 	}
 
+	// TODO should possible set all or nothing.
+	
+	public Details createDetails() 
+	{
+		return cd.createDetails();
+	}
+	
 	public void newEvent(EventType type) {
-		CurrentDetails.newEvent(type, token);
+		cd.newEvent(type, token);
+	}
+	
+	public void setCurrentEvent(Event event) {
+		cd.setCreationEvent(event);
 	}
 
 	public void addLog(String action, Class klass, Long id) 
@@ -958,112 +886,74 @@ public class BasicSecuritySystem implements SecuritySystem {
 			log.info("Adding log:" + action + "," + klass + "," + id);
 
 //			CurrentDetails.getCreationEvent().addEventLog(l);
-			CurrentDetails.addLog( action, klass, id );
+			cd.addLog( action, klass, id );
 		}
 	}
 	
 	public Map<Class,Map<String,EventLog>> getLogs( )
 	{
-		return CurrentDetails.getLogs();
-	}
-
-	public void setCurrentEvent(Event event) {
-		CurrentDetails.setCreationEvent(event);
+		return cd.getLogs();
 	}
 
 	public void clearCurrentDetails() {
-		CurrentDetails.clear();
+		cd.clear();
 	}
 
 	// read-only ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	public boolean emptyDetails() {
-		return CurrentDetails.getOwner() == null
-				&& CurrentDetails.getGroup() == null
-				&& CurrentDetails.getCreationEvent() == null;
+		return cd.getOwner() == null
+				&& cd.getGroup() == null
+				&& cd.getCreationEvent() == null;
 	}
 
 	public Long currentUserId() {
 		checkReady("currentUserId");
-		return CurrentDetails.getOwner().getId();
+		return cd.getOwner().getId();
 	}
 
 	public Long currentGroupId() {
 		checkReady("currentGroupId");
-		return CurrentDetails.getGroup().getId();
+		return cd.getGroup().getId();
 	}
 
 	public Collection<Long> leaderOfGroups() {
 		checkReady("leaderOfGroups");
-		return CurrentDetails.getLeaderOfGroups();
+		return cd.getLeaderOfGroups();
 	}
 
 	public Collection<Long> memberOfGroups() {
 		checkReady("memberOfGroups");
-		return CurrentDetails.getMemberOfGroups();
+		return cd.getMemberOfGroups();
 	}
 
 	public Experimenter currentUser() {
 		checkReady("currentUser");
-		return CurrentDetails.getOwner();
+		return cd.getOwner();
 	}
 
 	public ExperimenterGroup currentGroup() {
 		checkReady("currentGroup");
-		return CurrentDetails.getGroup();
+		return cd.getGroup();
 	}
 
 	public Event currentEvent() {
 		checkReady("currentEvent");
-		return CurrentDetails.getCreationEvent();
+		return cd.getCreationEvent();
 	}
 
 	public Event getCurrentEvent() {
 		checkReady("getCurrentEvent");
-		return CurrentDetails.getCreationEvent();
+		return cd.getCreationEvent();
 	}
 
 	public boolean currentUserIsAdmin() {
 		checkReady("currentUserIsAdmin");
-		return CurrentDetails.isAdmin();
+		return cd.isAdmin();
 	}
 
 	// ~ Tokens & Actions
 	// =========================================================================
-
-	class OneTimeTokens {
-		private ThreadLocal<IdentityHashMap<Token, Token>> tokens = new ThreadLocal<IdentityHashMap<Token, Token>>();
-
-		public Set<Token> allTokens() {
-			if (tokens.get() == null)
-				return Collections.emptySet();
-			return tokens.get().keySet();
-		}
-
-		public void put(Token token) {
-			if (tokens.get() == null)
-				tokens.set(new IdentityHashMap<Token, Token>());
-			tokens.get().put(token, token);
-		}
-
-		public void remove(Token t) {
-			if (tokens.get() == null)
-				return;
-			tokens.get().remove(t);
-		}
-
-		public Token find(GraphHolder gh) {
-			if (tokens.get() == null)
-				return null;
-			for (Token t : allTokens()) {
-				if (gh.tokenMatches(t)) {
-					return t;
-				}
-			}
-			return null;
-		}
-
-	}
 
 	/**
 	 * 
@@ -1093,11 +983,11 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	public void runAsAdmin(AdminAction action) {
 		Assert.notNull(action);
-		CurrentDetails.setAdmin(true);
+		cd.setAdmin(true);
 		try {
 			action.runAsAdmin();
 		} finally {
-			CurrentDetails.setAdmin(false);
+			cd.setAdmin(false);
 		}
 	}
 
@@ -1119,20 +1009,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 			gh2.setToken(token, token);
 		}
 
-		else // now we'll have to loop through
-		{
-			Token t = oneTimeTokens.find(gh1);
-			if (t != null) {
-				gh2.setToken(t, t);
-			}
-		}
 	}
 
-	/**
-	 * checks that the {@link IObject} argument has been granted a {@link Token}
-	 * by the {@link SecuritySystem}.
-	 */
-	private boolean hasPrivilegedToken(IObject obj) {
+	public boolean hasPrivilegedToken(IObject obj) {
+		
+		if (obj == null) return false;
+		
 		GraphHolder gh = obj.getGraphHolder();
 
 		// most objects will not have a token
@@ -1140,17 +1022,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// check if truly secure.
 			if (gh.tokenMatches(token))
 				return true;
-
-			// oh well, now see if this object has a one-time token.
-			Token t = oneTimeTokens.find(gh);
-			if (t != null) {
-				// it does have the token, so it is privileged for one action
-				// set token to null for future checks.
-
-				gh.setToken(t, null);
-				oneTimeTokens.remove(t);
-				return true;
-			}
 		}
 		return false;
 	}
@@ -1162,6 +1033,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 		return roles;
 	}
 
+	public EventContext getEventContext() {
+		return cd.getCurrentEventContext();
+	}
+	
+	public ACLVoter getACLVoter() {
+		return acl;
+	}
+	
 	// ~ Helpers
 	// =========================================================================
 
@@ -1243,9 +1122,9 @@ public class BasicSecuritySystem implements SecuritySystem {
 	void applyUmaskIfNecessary(Details d) {
 		Permissions p = d.getPermissions();
 		if (p.isSet(Flag.SOFT)) {
-			if (ec.getPrincipal().hasUmask()) {
-				p.grantAll(ec.getPrincipal().getUmask());
-				p.revokeAll(ec.getPrincipal().getUmask());
+			if (principalHolder.get().hasUmask()) {
+				p.grantAll(principalHolder.get().getUmask());
+				p.revokeAll(principalHolder.get().getUmask());
 			}
 			// don't store it in the DB.
 			p.unSet(Flag.SOFT);

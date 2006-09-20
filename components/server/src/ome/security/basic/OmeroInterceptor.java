@@ -1,5 +1,5 @@
 /*
- * ome.tools.hibernate.OmeroSessionFactoryBean
+ * ome.security.basic.OmeroInterceptor
  *
  *------------------------------------------------------------------------------
  *
@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.tools.hibernate;
+package ome.security.basic;
 
 //Java imports
 import java.io.IOException;
@@ -53,7 +53,7 @@ import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions.Flag;
-import ome.security.SecuritySystem;
+import ome.tools.hibernate.HibernateUtils;
 
 /** 
  * implements {@link org.hibernate.Interceptor} for controlling various
@@ -81,10 +81,10 @@ public class OmeroInterceptor implements Interceptor
 	
 	private Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 	
-	protected SecuritySystem secSys;
+	protected BasicSecuritySystem secSys;
 		
-	/** only public ctor, requires a non-null {@link SecuritySystem} */
-	public OmeroInterceptor( SecuritySystem securitySystem )
+	/** only public ctor, requires a non-null {@link BasicSecuritySystem} */
+	public OmeroInterceptor( BasicSecuritySystem securitySystem )
 	{
 		Assert.notNull(securitySystem);
 		this.secSys = securitySystem;
@@ -121,7 +121,7 @@ public class OmeroInterceptor implements Interceptor
     			propertyNames, types);
     }
     
-    /** callsback to {@link SecuritySystem#transientDetails(IObject)} for 
+    /** callsback to {@link BasicSecuritySystem#transientDetails(IObject)} for 
      * properly setting {@link IObject#getDetails() Details}
      */
     public boolean onSave(Object entity, Serializable id, 
@@ -133,7 +133,7 @@ public class OmeroInterceptor implements Interceptor
     	if ( entity instanceof IObject )
     	{
     		IObject iobj = (IObject) entity;
-    		int idx = detailsIndex( propertyNames );
+    		int idx = HibernateUtils.detailsIndex( propertyNames );
 
     		secSys.markLockedIfNecessary( iobj );
 
@@ -145,7 +145,7 @@ public class OmeroInterceptor implements Interceptor
         return true; // transferDetails ALWAYS edits the new entity.
     }
 
-    /** callsback to {@link SecuritySystem#managedDetails(IObject, Details)} for 
+    /** callsback to {@link BasicSecuritySystem#managedDetails(IObject, Details)} for 
      * properly setting {@link IObject#getDetails() Details}.
      */
     public boolean onFlushDirty(Object entity, Serializable id, 
@@ -158,7 +158,7 @@ public class OmeroInterceptor implements Interceptor
     	if ( entity instanceof IObject)
     	{
     		IObject iobj = (IObject) entity;		
-    		int idx = detailsIndex( propertyNames );
+    		int idx = HibernateUtils.detailsIndex( propertyNames );
     		
     		secSys.markLockedIfNecessary( iobj );
     		
@@ -265,7 +265,7 @@ public class OmeroInterceptor implements Interceptor
 	// ~ Helpers
 	// =========================================================================
 	
-	/** asks {@link SecuritySystem} to create a new managed {@link Details}
+	/** asks {@link BasicSecuritySystem} to create a new managed {@link Details}
 	 * based on the previous state of this entity.
 	 * 
 	 * @param entity IObject to be updated
@@ -303,22 +303,6 @@ public class OmeroInterceptor implements Interceptor
 			count = 1;
 		}
 	}
-	
-//	 TODO move somewhere sensible.
-    public static int detailsIndex( String[] propertyNames )
-    {
-    	return index( "details", propertyNames );
-    }
-    
-    public static int index( String str, String[] propertyNames )
-    {
-        for (int i = 0; i < propertyNames.length; i++)
-        {
-            if ( propertyNames[i].equals( str ))
-                return i;
-        }
-        throw new InternalException( "No \""+str+"\" property found." );
-    }
     
     private void debug(String msg)
     {

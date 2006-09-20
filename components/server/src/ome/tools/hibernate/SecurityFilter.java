@@ -43,8 +43,6 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.security.SecuritySystem;
-import ome.util.IdBlock;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 
@@ -92,9 +90,9 @@ extends FilterDefinitionFactoryBean
 	/** default constructor which calls all the necessary setters for this
 	 * {@link FactoryBean}. Also constructs the {@link #defaultFilterCondition }
 	 * This query clause must be kept in sync with 
-	 * {@link #passesFilter(SecuritySystem, Details)}
+	 * {@link #passesFilter(Details, Long, Collection, Collection, boolean)}
 	 * 
-	 * @see #passesFilter(SecuritySystem, Details)
+	 * @see #passesFilter(Details, Long, Collection, Collection, boolean)
 	 * @see FilterDefinitionFactoryBean#setFilterName(String)
 	 * @see FilterDefinitionFactoryBean#setParameterTypes(Properties)
 	 * @see FilterDefinitionFactoryBean#setDefaultFilterCondition(String)
@@ -112,14 +110,15 @@ extends FilterDefinitionFactoryBean
 	 * {@link OmeroInterceptor#onLoad(Object, java.io.Serializable, Object[], String[], org.hibernate.type.Type[])}
 	 * method.
 	 * 
-	 * @param secSys Not null. Should be the same {@link SecuritySystem} that is 
-	 * 		currently in effect for all queries. 
-	 * 		See {@link EventHandler#invoke(org.aopalliance.intercept.MethodInvocation)}
 	 * @param d Details instance. If null (or if its {@link Permissions} are null
 	 * 		all {@link Right rights} will be assumed.
 	 * @return true if the object to which this 
 	 */
-	public static boolean passesFilter( SecuritySystem secSys, Details d )
+	public static boolean passesFilter( Details d,
+			Long currentUserId, 
+			Collection<Long> memberOfGroups,
+			Collection<Long> leaderOfGroups,
+			boolean admin)
 	{
 		if ( d == null || d.getPermissions() == null )
 		{
@@ -136,17 +135,15 @@ extends FilterDefinitionFactoryBean
 		// most likely and fastest first
 		if ( p.isGranted(WORLD, READ)) return true;
 		
-		if ( secSys.currentUserId().equals( o ) 
+		if ( currentUserId.equals( o ) 
 				&& p.isGranted(USER, READ)) return true;
 		
-		// TODO these ids should be stored in CurrentDetails. perf opt.
-		if ( secSys.currentUser().eachLinkedExperimenterGroup(new IdBlock()).contains( g )
+		if ( memberOfGroups.contains( g )
 				&& d.getPermissions().isGranted(GROUP, READ)) return true;
 		
-		if ( secSys.currentUserIsAdmin()) return true;
+		if ( admin ) return true;
 		
-		Collection<Long> groups = secSys.leaderOfGroups();
-		if ( groups != null && groups.contains(g)) return true;
+		if ( leaderOfGroups.contains(g)) return true;
 		
 		return false;
 	}

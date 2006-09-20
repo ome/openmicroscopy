@@ -83,7 +83,7 @@ public class ReloadingRefreshEventListener implements RefreshEventListener {
 		if (orig.getId() == null)
 			throw new ApiUsageException("Transient entities cannot be refreshed.");
 		
-		if (Reloader.isUnloaded(orig)) {
+		if (HibernateUtils.isUnloaded(orig)) {
 			final EventSource source = event.getSession();
 			log("Reloading unloaded entity:", orig.getClass(), ":", orig
 					.getId());

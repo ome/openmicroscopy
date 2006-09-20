@@ -48,7 +48,7 @@ public class SimpleQueriesTest extends AbstractManagedContextTest
         iQuery.findAll(Project.class, null);
     }            
     
-    @Test( groups = TICKET_347 )
+    @Test( groups = {TICKET_347,"broken","Unscheduled"} )
     public void testRefresh() throws Exception
     {
     	Project p = new Project();
