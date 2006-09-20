@@ -21,9 +21,11 @@ import ome.api.IPojos;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.testing.OMEData;
 
@@ -67,6 +69,8 @@ public class AbstractManagedContextTest
     
     protected SecuritySystem securitySystem;
     
+    protected Roles roles;
+    
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
@@ -89,18 +93,32 @@ public class AbstractManagedContextTest
         hibernateTemplate = (HibernateTemplate) applicationContext.getBean("hibernateTemplate");
         
         securitySystem = (SecuritySystem) applicationContext.getBean("securitySystem");
+        roles = securitySystem.getSecurityRoles();
         loginRoot();
         
     }
     
     protected void loginRoot()
     {
-        login("root","system","Test");
+    	
+        login(roles.getRootName(),roles.getSystemGroupName(),"Test");
     }
 
+    protected void loginNewUser()
+    {
+    	loginRoot();
+    	String uuid = uuid();
+    	Experimenter e = new Experimenter();
+    	e.setFirstName("New");
+    	e.setLastName("User");
+    	e.setOmeName(uuid);
+    	iAdmin.createUser(e);
+    	loginUser(uuid);
+    }
+    
     protected void loginUser( String omeName )
     {
-        login(omeName,"user","Test");
+        login(omeName,roles.getUserGroupName(),"Test");
     }
 
     

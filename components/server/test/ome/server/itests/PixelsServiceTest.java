@@ -108,7 +108,7 @@ public class PixelsServiceTest
     	assertNotNull(test);
     }
     
-    @Test( groups = {"broken","119"} )
+    @Test( groups = {"broken","ticket:119"} )
     public void testLetsSaveADefinition() throws Exception
     {
         Pixels p = pix.retrievePixDescription(1L);

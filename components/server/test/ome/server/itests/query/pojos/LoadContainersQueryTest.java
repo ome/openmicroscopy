@@ -12,13 +12,13 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.testing.CreatePojosFixture;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
+@Test
 public class LoadContainersQueryTest extends AbstractManagedContextTest
 {
     PojosLoadHierarchyQueryDefinition q;
@@ -39,6 +39,7 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest
     {
     	try {
     		setUp();
+    		loginNewUser();
     		DATA = new CreatePojosFixture( this.factory );
     		DATA.createAllPojos();
     		level2cg = DATA.asIdList( DATA.cgu9991, DATA.cgu9992 );
@@ -47,6 +48,11 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest
     	    level1ds = DATA.asIdList( DATA.du7771, DATA.du7772 );
     	    level0img = DATA.asIdList( DATA.iu5551, DATA.iu5552 );
     
+    	    // if something goes wrong and the fixture has root as the
+    	    // user, things will be weird.
+    	    assertFalse( DATA.e.getId().equals( 
+    	    		securitySystem.getSecurityRoles().getRootId()));
+    	    
     	    po10000 = new PojoOptions().exp( DATA.e.getId() );
 			filterForUser = new Parameters().addOptions( po10000.map() );
 			noFilter = new Parameters().addOptions( null );
@@ -191,8 +197,8 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest
         assertTrue( list.size() > 0 );
 
     }
-// TODO commenting out this new method declaration, causes an exception. ??
-    @Test
+
+    @Test( groups = {"broken","ticket:356"})
     public void test_owner_filter_root_obj() throws Exception 
     {
         Parameters ids;

@@ -112,11 +112,20 @@ public class LockingTest extends AbstractManagedContextTest
 		reacquire();
 		p.getDetails().getPermissions().unSet( Flag.LOCKED );
 		assertNoChange();
-		
+	
+		// this succeeds because of loosened semantics. see:
+		// https://trac.openmicroscopy.org.uk/omero/changeset/944
+		// https://trac.openmicroscopy.org.uk/omero/ticket/337
 		reacquire();
 		p.getDetails().setOwner( e2 );
-		assertFails();
-	
+		assertSucceeds();
+
+		// now return it to the previous owner for testing.
+		reacquire();
+		p.getDetails().setOwner( e1 );
+		assertSucceeds();
+		
+		// but we can't change the group. too dynamic.
 		reacquire();
 		p.getDetails().setGroup( g2 );
 		assertFails();
@@ -226,10 +235,15 @@ public class LockingTest extends AbstractManagedContextTest
 				p.getDetails().getPermissions().isSet( Flag.LOCKED ));
 	}
 
+	private void assertSucceeds()
+	{
+		p = iUpdate.saveAndReturnObject( p );		
+	}
+	
 	private void assertFails() {
 		try 
 		{
-			p = iUpdate.saveAndReturnObject( p );
+			assertSucceeds();
 			fail("secvio!");
 		} catch (SecurityViolation sv) {
 			// ok

@@ -77,7 +77,7 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
            
     }
     
-    protected void prepareMocksWithUserDetails()
+    protected void prepareMocksWithUserDetails(boolean readOnly)
     {
         // login
     	p = new Principal("test","test","test");
@@ -93,10 +93,10 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
 		leaderOfGroups = Collections.singletonList(1L);
 		memberOfGroups = Collections.singletonList(1L);
 
-		prepareMocks();
+		prepareMocks(readOnly);
     }
 
-    protected void prepareMocksWithRootDetails()
+    protected void prepareMocksWithRootDetails(boolean readOnly)
     {
         // login
     	p = new Principal("root","system","internal");
@@ -111,10 +111,10 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
 		user.linkExperimenterGroup(group);
 		leaderOfGroups = Collections.singletonList(0L);
 		memberOfGroups = Arrays.asList(0L,1L);
-		prepareMocks();
+		prepareMocks(readOnly);
     }
     
-    protected void prepareMocks()
+    protected void prepareMocks(boolean readOnly)
     {
         // prepare mocks
 		sf.mockAdmin = mock(LocalAdmin.class);
@@ -131,9 +131,11 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
 			.will( returnValue( leaderOfGroups ));
 		sf.mockTypes.expects(atLeastOnce()).method("getEnumeration")
 			.will(returnValue( type ));
-		sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
-			.will(returnValue( event ));
-	
+		if (!readOnly)
+		{
+			sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
+				.will(returnValue( event ));
+		}
     }
     
     @Configuration(afterTestMethod = true)

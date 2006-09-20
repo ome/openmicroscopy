@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import omeis.providers.re.RenderingEngine;
 
-@Test( enabled = false, groups = {"broken", "#119","#120" } )
+@Test( enabled = false, groups = {"broken", "ticket:119","ticket:120" } )
 public class RenderingEngineTest extends AbstractManagedContextTest
 {
 

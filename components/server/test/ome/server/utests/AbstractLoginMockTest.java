@@ -34,14 +34,11 @@ package ome.server.utests;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.springframework.orm.hibernate3.HibernateOperations;
+import org.jmock.core.Constraint;
 import org.testng.annotations.*;
 
 // Application-internal dependencies
-import ome.api.IAdmin;
-import ome.api.IQuery;
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
@@ -55,9 +52,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.SecuritySystem;
-import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.ThreadLocalEventContext;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.UpdateFilter;
 
@@ -67,34 +62,28 @@ import ome.tools.hibernate.UpdateFilter;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
-@Test( groups = "broken" )
+@Test
 public class AbstractLoginMockTest extends MockObjectTestCase
 {
 
     public final static Long ROOT_OWNER_ID = 0L;
     public final static Long SYS_GROUP_ID = 0L;
     public final static Long INITIAL_EVENT_ID = 0L;
+    public Long USER_OWNER_ID = 1L;
+    public Long USER_GROUP_ID = 1L;
+    
+    public Experimenter ROOT;
+    public ExperimenterGroup ROOT_GROUP;
+    public Event INITIAL_EVENT;
+    public EventType BOOTSTRAP;
+    public EventType USEREVENT;
 
-    public final static Experimenter ROOT = new Experimenter( ROOT_OWNER_ID );
-    public final static ExperimenterGroup ROOT_GROUP = new ExperimenterGroup( SYS_GROUP_ID );
-    public final static Event INITIAL_EVENT = new Event( INITIAL_EVENT_ID );
-    public final static EventType BOOTSTRAP = new EventType( INITIAL_EVENT_ID );
-    public final static EventType USEREVENT = new EventType( INITIAL_EVENT_ID + 1);
-    static {
-    	BOOTSTRAP.setValue( "Bootstrap" );
-    	USEREVENT.setValue( "User" );
-    }
-
-    public final static Long USER_OWNER_ID = 1L;
-    public final static Long USER_GROUP_ID = 1L;
-
-    public final static Experimenter USER = new Experimenter( USER_OWNER_ID );
-    public final static ExperimenterGroup USER_GROUP = new ExperimenterGroup( USER_GROUP_ID );
+    public Experimenter USER;
+    public ExperimenterGroup USER_GROUP;
     public List<Long> LEADER_OF_GROUPS;
     public List<Long> MEMBER_OF_GROUPS;
     
     protected UpdateFilter filter;
-    protected Event userEvent;
     
     protected SecuritySystem sec;
     protected MockServiceFactory sf;
@@ -114,6 +103,18 @@ public class AbstractLoginMockTest extends MockObjectTestCase
 
         filter = new UpdateFilter( );
         
+        ROOT = new Experimenter( ROOT_OWNER_ID );
+        ROOT_GROUP = new ExperimenterGroup( SYS_GROUP_ID );
+        INITIAL_EVENT = new Event( INITIAL_EVENT_ID );
+        BOOTSTRAP = new EventType( INITIAL_EVENT_ID );
+        USEREVENT = new EventType( INITIAL_EVENT_ID + 1);
+
+        BOOTSTRAP.setValue( "Bootstrap" );
+        USEREVENT.setValue( "User" );
+
+        USER = new Experimenter( USER_OWNER_ID );
+        USER_GROUP = new ExperimenterGroup( USER_GROUP_ID );
+        
         rootLogin();
         
     }
@@ -125,18 +126,22 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
         	.with(eq("root"))
 			.will( returnValue( ROOT ));
-        sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "groupProxy" )
 			.with(eq("system"))
         	.will( returnValue( ROOT_GROUP ));
-        sf.mockAdmin.expects( atLeastOnce() ).method( "getLeaderOfGroupsIds" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getLeaderOfGroupIds" )
 			.with(eq(ROOT))
 			.will( returnValue( LEADER_OF_GROUPS ));
-        sf.mockAdmin.expects( atLeastOnce() ).method( "getMemberOfGroupsIds" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "getMemberOfGroupIds" )
 			.with(eq(ROOT))
 			.will( returnValue( MEMBER_OF_GROUPS ));
         sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
     		.with(eq(EventType.class),eq("Bootstrap"))
         	.will( returnValue( BOOTSTRAP ));
+        INITIAL_EVENT.setType(BOOTSTRAP);
+        sf.mockUpdate.expects( atLeastOnce() ).method( "saveAndReturnObject" )
+        	.with(new Type(Event.class))
+        	.will( returnValue( INITIAL_EVENT ));
         sec.login( new Principal("root","system","Bootstrap") );
     	sec.setCurrentDetails(false);
     }
@@ -148,7 +153,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         sf.mockAdmin.expects( atLeastOnce() ).method( "userProxy" )
     		.with(eq("user1"))
 			.will( returnValue( USER ));
-        sf.mockAdmin.expects( atLeastOnce() ).method( "lookupGroup" )
+        sf.mockAdmin.expects( atLeastOnce() ).method( "groupProxy" )
 			.with(eq("user"))
 			.will( returnValue( USER_GROUP ));
         sf.mockAdmin.expects( atLeastOnce() ).method( "getLeaderOfGroupIds" )
@@ -160,6 +165,10 @@ public class AbstractLoginMockTest extends MockObjectTestCase
     	sf.mockTypes.expects( atLeastOnce() ).method( "getEnumeration" )
 			.with(eq(EventType.class), eq("User"))
 			.will( returnValue( USEREVENT ));
+    	INITIAL_EVENT.setType(USEREVENT);
+        sf.mockUpdate.expects( atLeastOnce() ).method( "saveAndReturnObject" )
+        	.with(new Type(Event.class))
+        	.will( returnValue( INITIAL_EVENT ));
     	sec.login( new Principal("user1","user","User") );
     	sec.setCurrentDetails(false);
     }
@@ -327,4 +336,17 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         i.setDetails( myDetails );
     }
     
+    private static class Type implements Constraint {
+    	private Class type;
+    	public Type(Class type){ this.type = type; }
+    	public StringBuffer describeTo(StringBuffer buffer) {
+    		buffer.append(" of type ");
+    		buffer.append(type);
+    		return buffer;
+    	}
+    	public boolean eval(Object o) {
+    		if (type.isAssignableFrom(o.getClass())) return true;
+    		return false;
+    	}
+    }
 }

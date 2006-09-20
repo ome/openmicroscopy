@@ -1,0 +1,18 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="server.integration" >
+  
+  <test name="server.integration.broken">
+    <groups>
+      <run>
+        <include name="broken"/>
+        <include name="ignore"/>
+      </run>        
+    </groups>
+    <packages>
+      <package name="ome.*"/>
+      <package name="omeis.*"/>
+    </packages>
+  </test>
+
+</suite>

@@ -74,7 +74,8 @@ public class ImmutabilityTest extends AbstractManagedContextTest
 		
 		// Saving and reacquiring to be sure.
 		iUpdate.saveObject(i);
-		i = iQuery.refresh(i);
+		// unfortunately still not working properly i = iQuery.refresh(i);
+		i = iQuery.get(i.getClass(), i.getId());
 		assertEquals( i.getDetails().getCreationEvent().getId(), oldEvent.getId());
 			
 	}

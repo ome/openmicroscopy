@@ -35,7 +35,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
         
     }
     
-    @Test( groups = { "broken", "versions" } )
+    @Test( groups = { "broken", "versions", "ticket:118" } )
     public void test_experimenter_shouldnt_increment_on_update()
             throws Exception
     {

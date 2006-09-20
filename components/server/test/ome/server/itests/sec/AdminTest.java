@@ -155,7 +155,37 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	public void testUserCanOnlySetDetailsToOwnGroup() throws Exception 
 	{
-		fail("implement"); // also verify iupdate 
+		Experimenter e1 = testExperimenter();
+		e1.setId( iAdmin.createUser( e1 ) );
+		
+		ExperimenterGroup 
+			g1 = new ExperimenterGroup(),
+			g2 = new ExperimenterGroup();
+		
+		g1.setName(uuid());
+		g2.setName(uuid());
+		
+		g1.setId( iAdmin.createGroup(g1) );
+		g2.setId( iAdmin.createGroup(g2) );
+				
+		login( e1.getOmeName(), g1.getName(), "Test" );
+		
+		Image i = new Image(); i.setName( "test" );
+		i = iUpdate.saveAndReturnObject( i );
+		
+		try {
+			iAdmin.changeGroup(i, g2.getName() );
+			fail("secvio!");
+		} catch (SecurityViolation sv) {
+			// ok
+		}
+		
+		// add the user to these groups and try again.
+		iAdmin.addGroups(e1,g1,g2);
+
+		// should now work.
+		iAdmin.changeGroup(i, g2.getName() );
+		
 	}
 	
 	// ~ chgrp
@@ -167,7 +197,7 @@ public class AdminTest extends AbstractManagedContextTest
 		e.setFirstName("chgrp");
 		e.setLastName("test");
 		e.setOmeName(UUID.randomUUID().toString());
-		e = e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e));
 	
 		// and a new group
 		ExperimenterGroup g = new ExperimenterGroup();
@@ -200,29 +230,6 @@ public class AdminTest extends AbstractManagedContextTest
 		
 	}
 	
-	@Test
-	public void testUserAdminSettersOnOwnObjects() throws Exception 
-	{
-		loginRoot();
-		// create a new user for the test
-		Experimenter e = new Experimenter();
-		e.setFirstName("user admin setters");
-		e.setLastName("test");
-		e.setOmeName(UUID.randomUUID().toString());
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
-		
-		Image mine = new Image(1L);
-		mine.getDetails().setOwner(e);
-		
-		Image notMine = new Image(1L);
-		notMine.getDetails().setOwner(iAdmin.userProxy(0L));
-
-		loginUser(e.getOmeName());
-		
-		fail("implement");
-		
-	}
-
 	// ~ IAdmin.setDefaultGroup
 	// =========================================================================
 	@Test

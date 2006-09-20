@@ -59,7 +59,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.isReady()'
 	 */
 	public void testIsReady() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		assertFalse( sec.isReady() );
 		sec.setCurrentDetails(false);
@@ -129,7 +129,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.disableReadFilter(Object)'
 	 */
 	public void testEnableAndDisableReadFilter() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		Mock mockFilter = mock(Filter.class);
 		Filter f = (Filter) mockFilter.proxy();
@@ -162,7 +162,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.currentUserId()'
 	 */
 	public void testCurrentUserId() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.currentUserId(),(Long)1L);
 		sec.clearCurrentDetails();
@@ -172,7 +172,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.currentUser()'
 	 */
 	public void testCurrentUser() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.currentUser(),user);
 		sec.clearCurrentDetails();
@@ -182,7 +182,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.currentGroup()'
 	 */
 	public void testCurrentGroup() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.currentGroup(),group);
 		sec.clearCurrentDetails();
@@ -192,7 +192,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.currentEvent()'
 	 */
 	public void testCurrentEvent() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.currentEvent(),event);
 		sec.clearCurrentDetails();
@@ -202,7 +202,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.emptyDetails()'
 	 */
 	public void testEmptyDetails() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.clearCurrentDetails();
 		assertTrue(sec.emptyDetails());
 		sec.setCurrentDetails(false);
@@ -215,15 +215,19 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.addLog(String, Class, Long)'
 	 */
 	public void testAddLog() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertTrue(event.sizeOfLogs()==0);
 		sec.addLog("SHOULDN'T BE ADDED", Event.class, 1L); 
 		assertTrue(event.sizeOfLogs()==0); 
 		sec.addLog("SHOULD BE ADDED", Image.class, 2L);
-		assertTrue(event.sizeOfLogs()==1);
-		List<EventLog> logs = event.collectLogs(null);
-		EventLog onlyLog = logs.iterator().next();
+		
+		//ticket:328
+		//assertTrue(event.sizeOfLogs()==1);
+		//List<EventLog> logs = event.collectLogs(null);
+		assertFalse(sec.getLogs().containsKey(Event.class));
+		assertTrue(sec.getLogs().containsKey(Image.class));
+		EventLog onlyLog = sec.getLogs().get(Image.class).values().iterator().next();
 		assertEquals(onlyLog.getAction(),"SHOULD BE ADDED");
 		assertEquals(onlyLog.getType(),Image.class.getName());
 		assertEquals(onlyLog.getIdList(),"2");
@@ -234,7 +238,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.newEvent(EventType)'
 	 */
 	public void testNewEvent() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.currentEvent(),event);
 		sec.newEvent(type);
@@ -246,7 +250,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.getCurrentEvent()'
 	 */
 	public void testGetCurrentEvent() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertSame(sec.currentEvent(),event);
 		sec.clearCurrentDetails();
@@ -256,7 +260,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.setCurrentEvent(Event)'
 	 */
 	public void testSetCurrentEvent() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertSame(sec.currentEvent(),event);
 		Event newEvent = new Event();
@@ -270,7 +274,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.clearCurrentDetails()'
 	 */
 	public void testClearCurrentDetails() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		assertFalse(sec.isReady());
 		sec.setCurrentDetails(false);
 		assertTrue(sec.isReady());
@@ -282,7 +286,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.setCurrentDetails()'
 	 */
 	public void testSetCurrentDetails() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		sec.setCurrentDetails(false);
 		assertSame(user,sec.currentUser());
@@ -294,7 +298,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
 	@Test
 	public void testNullChecksOnAllMethods() throws Exception {
-		prepareMocksWithRootDetails();
+		prepareMocksWithRootDetails(false);
 		sec.setCurrentDetails(false);
 		
 		// can handle nulls
@@ -328,7 +332,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	
 	@Test
 	public void testIsSystemGroup() throws Exception {
-		prepareMocksWithRootDetails();
+		prepareMocksWithRootDetails(false);
 		sec.setCurrentDetails(false);
 		assertTrue(sec.getSecurityRoles().isSystemGroup(group));
 		sec.clearCurrentDetails();
@@ -336,7 +340,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	
 	@Test
 	public void testLeaderOfGroups() throws Exception {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		assertEquals(sec.leaderOfGroups(),leaderOfGroups);
 		sec.clearCurrentDetails();
@@ -366,7 +370,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		Experimenter e = new Experimenter();
 		Image i = new Image();
 		
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		// 1. not system type
 		sec.setCurrentDetails(false);
@@ -385,7 +389,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		sec.doAction(i, checkAllowCreate);
 		
 		// 3. user is admin.
-		prepareMocksWithRootDetails();
+		prepareMocksWithRootDetails(false);
 		sec.setCurrentDetails(false);
 		assertTrue(sec.getACLVoter().allowCreation(e));
 		assertTrue(sec.getACLVoter().allowCreation(i));
@@ -403,7 +407,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		Details d = new Details();
 		d.setPermissions( new Permissions() );
 		
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		// BASICS
 		
@@ -424,14 +428,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		sec.doAction(i, checkAllowCreate);
 		
 		// 3. user is admin.
-		prepareMocksWithRootDetails();
+		prepareMocksWithRootDetails(false);
 		sec.setCurrentDetails(false);
 		assertTrue(sec.getACLVoter().allowUpdate(e,e.getDetails()));
 		assertTrue(sec.getACLVoter().allowUpdate(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		
 		// different owner but all permissions
@@ -456,7 +460,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		Details d = new Details();
 		d.setPermissions( new Permissions() );
 		
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		// 1. not system type
 		sec.setCurrentDetails(false);
@@ -475,14 +479,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		sec.doAction(i, checkAllowCreate);
 		
 		// 3. user is admin.
-		prepareMocksWithRootDetails();
+		prepareMocksWithRootDetails(false);
 		sec.setCurrentDetails(false);
 		assertTrue(sec.getACLVoter().allowDelete(e,e.getDetails()));
 		assertTrue(sec.getACLVoter().allowDelete(i,i.getDetails()));
 		sec.clearCurrentDetails();
 		
 		// PERMISSIONS BASED
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		
 		// different owner but all permissions
@@ -504,7 +508,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 */
 	public void testAllowLoad() {
 
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		
 		Details d = new Details();
 		d.setOwner(new Experimenter(2L));
@@ -528,7 +532,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Test method for 'ome.security.SecuritySystem.transientDetails(IObject)'
 	 */
 	public void testTransientDetails() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		
 		Permissions p = new Permissions();
@@ -557,7 +561,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	 * Details)'
 	 */
 	public void testManagedDetails() {
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		
 		Permissions p = new Permissions();
@@ -590,7 +594,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
 	@Test
 	public void testRunAsAdmin(){
-		prepareMocksWithUserDetails();
+		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
 		
 		assertFalse(sec.currentUserIsAdmin());
@@ -608,17 +612,64 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
 	@Test
 	public void testDoAction() {
-		fail("implement");
+		prepareMocksWithUserDetails(false);
+		sec.setCurrentDetails(false);
+		try {
+			sec.doAction(null, new SecureAction(){
+				public <T extends IObject> T updateObject(T obj) {
+					fail("implement");
+					return null;
+				}
+			});
+			fail("Where's the IllegalArgumentEx?");
+		} catch (IllegalArgumentException iae) {
+			// ok
+		}
 	}
 
 	@Test
 	public void testTokenFunctionality() throws Exception {
-		fail("also can't access from outside");
+		
+		Image i = new Image();
+		assertFalse(sec.hasPrivilegedToken(i));
+		
+		prepareMocksWithUserDetails(false);
+		sec.setCurrentDetails(false);
+		sec.doAction(i, new SecureAction(){
+			public <T extends IObject> T updateObject(T obj) {
+				assertTrue(sec.hasPrivilegedToken(obj));
+				Image test = new Image();
+				sec.copyToken(obj, test);
+				assertTrue(sec.hasPrivilegedToken(test));
+				return null;
+			}
+		});
+	
 	}
 	
 	@Test
-	public void testLeaderOfGroupsProperlyFilled() throws Exception {
-		fail("add to security interface.");
-	}
+	public void testLeaderAndMemberOfGroupsProperlyFilled() throws Exception{
+		prepareMocksWithUserDetails(false);
+		sec.setCurrentDetails(false);
 		
+		List<Long> l;
+		
+		l = sec.getEventContext().getLeaderOfGroupsList();
+		assertTrue(l.containsAll(leaderOfGroups));
+		assertTrue(leaderOfGroups.containsAll(l));
+
+		l = sec.getEventContext().getMemberOfGroupsList();
+		assertTrue(l.containsAll(memberOfGroups));
+		assertTrue(memberOfGroups.containsAll(l));
+
+	}
+
+	@Test
+	public void testReadOnlyFunctionality() throws Exception {
+		prepareMocksWithUserDetails(true);
+		sec.setCurrentDetails(true);
+		assertTrue(sec.getEventContext().isReadOnly());
+		assertNull(sec.getEventContext().getCurrentEventId());
+	}
+	
 }

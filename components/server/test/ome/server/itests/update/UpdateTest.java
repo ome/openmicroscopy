@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -147,22 +148,29 @@ public class UpdateTest extends AbstractUpdateTest
         g_1.setName( "DEFAULT: "+System.currentTimeMillis());
         g_2.setName( "NOTDEFAULT: "+System.currentTimeMillis());
         
-        GroupExperimenterMap m_1 = new GroupExperimenterMap();
-        m_1.setDefaultGroupLink( true );
-        m_1.link( g_1, e );
-
-        GroupExperimenterMap defaultLink = 
-            (GroupExperimenterMap) iUpdate.saveAndReturnObject( m_1 );
+        // The instances must be unloaded to prevent spurious deletes! 
+        // Need versions. See: 
+        // https://trac.openmicroscopy.org.uk/omero/ticket/118
+        // https://trac.openmicroscopy.org.uk/omero/ticket/346
+        e = iUpdate.saveAndReturnObject(e);
+        g_1 = iUpdate.saveAndReturnObject(g_1);
+        g_2 = iUpdate.saveAndReturnObject(g_2);
+        e.unload(); g_1.unload(); g_2.unload();
         
-        GroupExperimenterMap m_2 = new GroupExperimenterMap();
-        m_2.setDefaultGroupLink( false );
-        m_2.link( g_2, defaultLink.child() ); // Need the new exp.id here.
-
-        GroupExperimenterMap notDefaultLink = 
-            (GroupExperimenterMap) iUpdate.saveAndReturnObject( m_2 );
+        GroupExperimenterMap defaultLink = new GroupExperimenterMap();
+        defaultLink.setDefaultGroupLink( true );
+        defaultLink.link( g_1, e );
+        defaultLink = iUpdate.saveAndReturnObject( defaultLink );
+        
+        GroupExperimenterMap notDefaultLink = new GroupExperimenterMap();
+        notDefaultLink.setDefaultGroupLink( false );
+        notDefaultLink.link( g_2, e );
+        notDefaultLink = iUpdate.saveAndReturnObject( notDefaultLink );
         
         Experimenter test = (Experimenter) iQuery.findByQuery(
-                " select e from Experimenter e join fetch e.defaultGroupLink " +
+                " select e from Experimenter e " +
+                " join fetch e.defaultGroupLink l " +
+                " join fetch l.parent p " +
                 " where e.id = :id ", 
                 new Parameters().addId(defaultLink.child().getId()));
         assertNotNull(test.getDefaultGroupLink());
@@ -172,7 +180,7 @@ public class UpdateTest extends AbstractUpdateTest
     
     @Test
     /** attempt to reproduce an error seen on the client side */
-    public void testSaveArray() throws Exception {
+    public void test_save_array() throws Exception {
     	
     	loginRoot();
  
@@ -214,7 +222,7 @@ public class UpdateTest extends AbstractUpdateTest
     
 	String err = "obj is loaded, set is not null AND not filled!";
 
-    @Test( groups = "ticket:346")
+    @Test( groups = {"broken","ticket:346"})
     public void testAddingReturnsNonEmptySets() throws Exception 
     {
     	// using the add method works
@@ -247,7 +255,7 @@ public class UpdateTest extends AbstractUpdateTest
     	assertFalse(err,test.getPixels().isLoaded() && test.getPixels().sizeOfThumbnails()==0);
     }
     
-    @Test( groups = "ticket:346")
+    @Test( groups = {"broken","ticket:346"})
     public void testLinkingReturnsNonEmptySets() throws Exception {
     	
     	// using the link methods does what it's supposed to
