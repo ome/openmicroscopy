@@ -90,7 +90,9 @@ import ome.security.SecuritySystem;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.system.EventContext;
 import ome.system.Roles;
+import ome.system.SimpleEventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.Utils;
 
@@ -598,9 +600,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("user")
     public void changePermissions(final IObject iObject, final Permissions perms)
     {
+    	final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+    	getSecuritySystem().managedDetails(iObject, copy.getDetails());
     	AdminAction action = new AdminAction(){
     		public void runAsAdmin() {
-    	    	IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
     	    	Permissions p = new Permissions(perms); // FIXME ticket:215
     	    	copy.getDetails().setPermissions(p);
     	    	iUpdate.saveObject(copy);    
@@ -732,6 +735,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public Roles getSecurityRoles()
     {
     	return getSecuritySystem().getSecurityRoles();
+    }
+    
+    @RolesAllowed("user")
+    public EventContext getEventContext()
+    {
+    	return new SimpleEventContext( getSecuritySystem().getEventContext() );
     }
     
     // ~ Helpers

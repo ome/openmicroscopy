@@ -278,12 +278,12 @@ class CurrentDetails
  
     public void setReadOnly( boolean isReadOnly )
     {
-    	data.get().isReadyOnly = isReadOnly;
+    	data.get().isReadOnly = isReadOnly;
     }
     
     public boolean isReadOnly( )
     {
-    	return data.get().isReadyOnly;
+    	return data.get().isReadOnly;
     }
         
     // ~ Groups

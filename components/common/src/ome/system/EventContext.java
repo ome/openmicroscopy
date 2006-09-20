@@ -59,7 +59,7 @@ public interface EventContext
     Long getCurrentGroupId();
     String getCurrentGroupName();
     boolean isCurrentUserAdmin();
-    boolean isReadyOnly();
+    boolean isReadOnly();
     
     Long getCurrentEventId();
     String getCurrentEventType();

@@ -30,6 +30,7 @@
 package ome.system;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import ome.annotations.RevisionDate;
@@ -44,7 +45,7 @@ import ome.system.Principal;
 //Application-internal dependencies
 
 /**
- * simple, non-thread-safe {@link ome.system.EventContext}
+ * simple, non-thread-safe, serializable {@link ome.system.EventContext}
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
@@ -65,9 +66,27 @@ public class SimpleEventContext implements EventContext, Serializable
 	private String cuName;
 	private String ceType;
 	private boolean isAdmin;
-	private boolean isReadyOnly;
+	private boolean isReadOnly;
 	private List<Long> memberOfGroups;
 	private List<Long> leaderOfGroups;
+	
+	/** copy constructor. Makes defensive copies where necessary */
+	public SimpleEventContext( EventContext ec )
+	{
+		if ( ec == null )
+			throw new IllegalArgumentException("Argument cannot be null.");
+		
+		cgId = ec.getCurrentGroupId();
+		cuId = ec.getCurrentUserId();
+		ceId = ec.getCurrentEventId();
+		cgName = ec.getCurrentGroupName();
+		cuName = ec.getCurrentUserName();
+		ceType = ec.getCurrentEventType();
+		isAdmin = ec.isCurrentUserAdmin();
+		isReadOnly = ec.isReadOnly();
+		memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
+		leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+	}
 	
 	public Long getCurrentGroupId() 
 	{
@@ -94,9 +113,9 @@ public class SimpleEventContext implements EventContext, Serializable
 		return isAdmin;
 	}
 
-	public boolean isReadyOnly()
+	public boolean isReadOnly()
 	{
-		return isReadyOnly;
+		return isReadOnly;
 	}
 
 	public List<Long> getMemberOfGroupsList() {

@@ -57,7 +57,7 @@ class BasicEventContext implements EventContext
 	Details details;
 	Permissions umask;
 	boolean isAdmin = false;
-	boolean isReadyOnly = false;
+	boolean isReadOnly = false;
 	Collection<Long> memberOfGroups;
 	Collection<Long> leaderOfGroups;
 	Set<String> disabledSubsystems;
@@ -113,8 +113,8 @@ class BasicEventContext implements EventContext
 		return this.isAdmin;
 	}
 
-	public boolean isReadyOnly() {
-		return this.isReadyOnly;
+	public boolean isReadOnly() {
+		return this.isReadOnly;
 	}
     
 } 
