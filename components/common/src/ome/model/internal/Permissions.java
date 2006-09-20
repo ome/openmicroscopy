@@ -187,7 +187,7 @@ public class Permissions implements Serializable
     public static Permissions parseString( String rwrwrw )
     {
     	
-    	Permissions p = new Permissions( ZERO );
+    	Permissions p = new Permissions( EMPTY );
     	String regex = "([Rr_][Ww_]){3}";
     	
     	if ( rwrwrw == null || ! rwrwrw.matches(regex) )
@@ -564,21 +564,20 @@ public class Permissions implements Serializable
 	    }
 		
 	}
-
-
 	
-	/** only used to construct the {@link #EMPTY} instance }
-	 */
-	final static private Permissions ZERO;
-	static {
-		ZERO = new Permissions();
-		ZERO.setPerm1(0L);
-	}
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// NOTE: when rights or roles change, the definition of EMPTY needs to
+	// be kept in sync.
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	/** an immutable {@link Permissions} instance with all {@link Right rights} 
 	 * turned off.
 	 */
-	public final static Permissions EMPTY = new ImmutablePermissions(ZERO);
+	public final static Permissions EMPTY 
+		= new ImmutablePermissions( new Permissions()
+			.revoke( USER, READ, WRITE )
+			.revoke( GROUP, READ, WRITE )
+			.revoke( WORLD, READ, WRITE ));
 	
 	// ~ Systematic
 	// =========================================================================	
@@ -600,13 +599,13 @@ public class Permissions implements Serializable
 	 * R______ : user and only the user can only read
 	 */
 	public final static Permissions USER_IMMUTABLE
-		= new ImmutablePermissions( new Permissions(ZERO)
+		= new ImmutablePermissions( new Permissions(EMPTY)
 				.grant( USER, READ ));
 	
 	/** RW____ : user and only user can read and write
 	 */
 	public final static Permissions USER_PRIVATE 
-		= new ImmutablePermissions( new Permissions(ZERO)
+		= new ImmutablePermissions( new Permissions(EMPTY)
 				.grant( USER, READ, WRITE ));
 	
 	/**

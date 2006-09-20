@@ -8,14 +8,14 @@ import java.io.ObjectOutputStream;
 import org.testng.annotations.*;
 
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 
 import junit.framework.TestCase;
 
 import static ome.model.internal.Permissions.Role.*;
-import static ome.model.internal.Permissions.Right.*;
+import static ome.model.internal.Permissions.Right.READ;
+import static ome.model.internal.Permissions.Right.WRITE; // not USE
 import static ome.model.internal.Permissions.Flag.*;
 
 public class PermissionsTest extends TestCase {
@@ -33,13 +33,10 @@ public class PermissionsTest extends TestCase {
 	public void testSimplePermissionsAllowsEverything() throws Exception {
 		assertTrue(p.isGranted(USER, READ));
 		assertTrue(p.isGranted(USER, WRITE));
-		assertTrue(p.isGranted(USER, USE));
 		assertTrue(p.isGranted(GROUP, READ));
 		assertTrue(p.isGranted(GROUP, WRITE));
-		assertTrue(p.isGranted(GROUP, USE));
 		assertTrue(p.isGranted(WORLD, READ));
 		assertTrue(p.isGranted(WORLD, WRITE));
-		assertTrue(p.isGranted(WORLD, USE));
 		// assertTrue( p.isGranted(ALL, READ) );
 		// assertTrue( p.isGranted(ALL, WRITE) );
 		// assertTrue( p.isGranted(ALL, USE) );
@@ -49,13 +46,10 @@ public class PermissionsTest extends TestCase {
 	public void testGrantAndRevokePermissions() throws Exception {
 		revokeGrantCheck(USER, READ);
 		revokeGrantCheck(USER, WRITE);
-		revokeGrantCheck(USER, USE);
 		revokeGrantCheck(GROUP, READ);
 		revokeGrantCheck(GROUP, WRITE);
-		revokeGrantCheck(GROUP, USE);
 		revokeGrantCheck(WORLD, READ);
 		revokeGrantCheck(WORLD, WRITE);
-		revokeGrantCheck(WORLD, USE);
 	}
 
 	@Test
@@ -81,10 +75,9 @@ public class PermissionsTest extends TestCase {
 	
 	@Test
 	public void testVarArgs() throws Exception {
-		p.revoke(GROUP, USE,READ,WRITE);
+		p.revoke(GROUP, READ,WRITE);
 		assertFalse( p.isGranted(GROUP, READ));
 		assertFalse( p.isGranted(GROUP, WRITE));
-		assertFalse( p.isGranted(GROUP, USE));
 	}
 	
 	@Test
@@ -144,13 +137,10 @@ public class PermissionsTest extends TestCase {
 		Permissions none = new Permissions(Permissions.EMPTY);
 		assertFalse(none.isGranted(USER, READ));
 		assertFalse(none.isGranted(USER, WRITE));
-		assertFalse(none.isGranted(USER, USE));
 		assertFalse(none.isGranted(GROUP, READ));
 		assertFalse(none.isGranted(GROUP, WRITE));
-		assertFalse(none.isGranted(GROUP, USE));
 		assertFalse(none.isGranted(WORLD, READ));
 		assertFalse(none.isGranted(WORLD, WRITE));
-		assertFalse(none.isGranted(WORLD, USE));
 		
 	}
 	
@@ -178,13 +168,10 @@ public class PermissionsTest extends TestCase {
 	public void testToBits() throws Exception {
 		bitCompare(USER, READ);
 		bitCompare(USER, WRITE);
-		bitCompare(USER, USE);
 		bitCompare(GROUP, READ);
 		bitCompare(GROUP, WRITE);
-		bitCompare(GROUP, USE);
 		bitCompare(WORLD, READ);
 		bitCompare(WORLD, WRITE);
-		bitCompare(WORLD, USE);
 	}
 
 	// ~ Equals && HashCode
@@ -313,6 +300,23 @@ public class PermissionsTest extends TestCase {
 		catch (UnsupportedOperationException uoe) {};
 		try { Permissions.DEFAULT.unSet(LOCKED);}
 		catch (UnsupportedOperationException uoe) {};	
+	}
+	
+	@Test
+	public void testConstantsAreNotLocked() throws Exception {
+		assertFalse( Permissions.EMPTY.isSet(LOCKED) ); 
+		assertFalse( Permissions.DEFAULT.isSet(LOCKED) ); 
+		assertFalse( Permissions.GROUP_IMMUTABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.GROUP_PRIVATE.isSet(LOCKED) ); 
+		assertFalse( Permissions.GROUP_READABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.GROUP_WRITEABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.PUBLIC.isSet(LOCKED) ); 
+		assertFalse( Permissions.READ_ONLY.isSet(LOCKED) ); 
+		assertFalse( Permissions.USER_IMMUTABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.USER_PRIVATE.isSet(LOCKED) ); 
+		assertFalse( Permissions.USER_WRITEABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.WORLD_IMMUTABLE.isSet(LOCKED) ); 
+		assertFalse( Permissions.WORLD_WRITEABLE.isSet(LOCKED) ); 
 	}
 	
 	// ~ Serialization
