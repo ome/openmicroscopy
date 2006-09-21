@@ -32,23 +32,14 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Map;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicButtonUI;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 /** 
  * Customized button used to select the rendered channel.
@@ -64,7 +55,7 @@ import javax.swing.plaf.basic.BasicButtonUI;
  * @since OME2.2
  */
 public class ChannelButton
-    extends JButton
+    extends ColouredButton
 {
     
     /** Bound property indicating to bring up the info dialog. */
@@ -79,20 +70,6 @@ public class ChannelButton
      * Bound property name indicating that the channel is mapped to a new color. 
      */
     public static final String  CHANNEL_COLOR_PROPERTY = "channelColor";
-    
-    /** The border set when the channel is selected. */
-    public static final Border  SELECTED_BORDER =
-        new BevelBorder(BevelBorder.LOWERED, Color.yellow, Color.yellow);
-    
-    /** The border set when the channel is not selected. */
-    public static final Border  DESELECTED_BORDER = 
-                BorderFactory.createBevelBorder(BevelBorder.RAISED);
-    
-    /** 
-     * Default color used when the color mode is set to
-     * <code>GreyScale</code>.
-     */
-    private static final Color  LAYER_COLOR = new Color(192, 192, 192);
     
     /** The OME index of the channel. */
     private final int   index;
@@ -131,20 +108,6 @@ public class ChannelButton
         else setChannelSelected();
     }
     
-    
-    /**
-     * Nested class used to set the color of the button when a mouse pressed
-     * event occured.
-     * @see BasicButtonUI#paintButtonPressed(Graphics, AbstractButton)
-     */
-    private class ColouredButtonUI
-        extends BasicButtonUI
-    {
-        protected void paintButtonPressed(Graphics g, AbstractButton b) {
-            b.setBackground(b.getBackground());
-        }
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -160,15 +123,11 @@ public class ChannelButton
     public ChannelButton(String text, Color color, int index, 
                         boolean selected)
     {
-        super(text);
+        super(text, color);
         if (color == null) 
             throw new IllegalArgumentException("No color.");
         originalColor = color;
         this.index = index;
-        //setEnabled(false);
-        setBackground(color);
-        setUI(new ColouredButtonUI());
-        setRolloverEnabled(false);
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
@@ -188,33 +147,7 @@ public class ChannelButton
     {
         this(text, color, index, false);
     }
-    
-    /**
-     * Setst the border and the background color depending on the given values.
-     *  
-     * @param selected  Pass <code>true</code> if the node is selected,
-     *                  <code>false</code> otherwise.
-     * @param gs        Pass <code>true</code> to add the greyscale layer,
-     *                  <code>false</code> otherwise.
-     */
-    public void setChannelSelected(boolean selected, boolean gs)
-    {
-        if (gs) setBackground(LAYER_COLOR);
-        else setBackground(originalColor);
-        setSelected(selected);
-    }
-    
-    /**
-     * Overriden to set the border depending on the selection state.
-     * @see AbstractButton#setSelected(boolean)
-     */
-    public void setSelected(boolean b)
-    {
-        if (b) setBorder(SELECTED_BORDER);
-        else setBorder(DESELECTED_BORDER); 
-        super.setSelected(b);
-    }
-    
+
     /**
      * Returns the index of the channel.
      * 
@@ -222,4 +155,9 @@ public class ChannelButton
      */
     public int getChannelIndex() { return index; }
 
+    public void setSelected(boolean b)
+    {
+        super.setSelected(b);
+    }
+    
 }
