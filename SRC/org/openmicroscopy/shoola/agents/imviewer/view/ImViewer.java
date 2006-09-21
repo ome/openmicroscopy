@@ -376,6 +376,5 @@ public interface ImViewer
     
     public Color getChannelColor(int index);
     
-    public void setChannelColor(Color c, int index);
     
 }

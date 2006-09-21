@@ -370,6 +370,7 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         model.setChannelColor(index, c);
+        view.setChannelColor(index, c);
         if (model.isChannelActive(index)) renderXYPlane();
     }
 
@@ -819,7 +820,7 @@ class ImViewerComponent
     public void setChannelColor(Color c, int index)
     {
         model.setChannelColor(index, c);
-        view.setChannelColor(index, c);
+       
         renderXYPlane();
         
     }

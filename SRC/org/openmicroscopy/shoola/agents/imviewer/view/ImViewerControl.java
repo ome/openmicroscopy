@@ -498,6 +498,7 @@ class ImViewerControl
             UIUtilities.centerAndShow(dialog);
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
+            System.out.println("index: "+colorPickerIndex);
             Color c = model.getChannelColor(colorPickerIndex);
             ColourPicker dialog = new ColourPicker(c);
             dialog.addPropertyChangeListener(this);
@@ -505,8 +506,7 @@ class ImViewerControl
         } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
             Color c = (Color) pce.getNewValue();
             if (colorPickerIndex != -1) {
-                model.setChannelColor(c, colorPickerIndex);
-                colorPickerIndex = -1;
+                model.setChannelColor(colorPickerIndex, c);
             }
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method

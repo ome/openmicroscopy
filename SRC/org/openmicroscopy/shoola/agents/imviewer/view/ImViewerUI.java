@@ -546,6 +546,4 @@ class ImViewerUI
         UIUtilities.centerAndShow(this);
     }
 
-
-    
 }
