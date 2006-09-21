@@ -404,10 +404,10 @@ class ImViewerUI
     void setZoomFactor(ViewerAction action)
     {
         controlPane.setZoomFactor(action);
-        AbstractButton b;
+        JCheckBoxMenuItem b;
         Enumeration e;
         for (e = zoomingGroup.getElements(); e.hasMoreElements();) {
-            b = (AbstractButton) e.nextElement();
+            b = (JCheckBoxMenuItem) e.nextElement();
             if ((b.getAction()).equals(action)) {
                 b.removeActionListener(action);
                 b.setSelected(true);

@@ -501,8 +501,7 @@ class ControlPane
         ChannelButton button;
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
-            button.setChannelSelected(
-                    model.isChannelActive(button.getChannelIndex()), gs);
+            button.setGrayedOut(gs);
         }
         setChannelsSelection();
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
