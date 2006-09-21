@@ -130,7 +130,7 @@
 #if(!$type.immutable)
             <many-to-one name="updateEvent" class="ome.model.meta.Event" 
                 column="update_id" update="true"
-                not-null="false" cascade="$cascade_settings"/>			
+                not-null="true" cascade="$cascade_settings"/>			
 #end
             <component name="permissions" class="ome.model.internal.Permissions">
                 <!-- meta is ignored. We control Details -->

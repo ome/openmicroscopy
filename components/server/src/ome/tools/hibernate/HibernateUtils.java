@@ -38,8 +38,10 @@ import java.util.Set;
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.EntityMode;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionImplementor;
+import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
@@ -48,7 +50,10 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.internal.Permissions.Flag;
 import ome.tools.lsid.LsidUtils;
 
 /**
@@ -67,6 +72,9 @@ public abstract class HibernateUtils
 { 
 
 	private static Log log = LogFactory.getLog(HibernateUtils.class);
+
+	// using Image as an example. All details fields are named the same.
+	private static String DETAILS = LsidUtils.parseField( Image.DETAILS ); 
 	
     // ~ Static methods
     // =========================================================================
@@ -140,10 +148,45 @@ public abstract class HibernateUtils
 			}
 		}
 	}
+    
+    /** calculates if only the {@link Flag#LOCKED} marker has 
+     * been changed. If not, the normal criteria apply.
+     */
+    public static boolean onlyLockChanged( SessionImplementor session,
+    		EntityPersister persister, IObject entity, Object[] state, String[] names )
+    {
+    	
+    	Object[] current = persister.getPropertyValues(entity, EntityMode.POJO);
+    	int[] dirty = persister.findDirty( state, current, entity, session);
 
+		if ( dirty != null ) 
+		{
+			if ( dirty.length > 1 ) return false;
+			if ( ! DETAILS.equals( names[dirty[0]] )) return false;
+			Details new_d = getDetails(current, names);
+			Details old_d = getDetails(state, names);
+			if ( new_d.getOwner() != old_d.getOwner() ||
+					new_d.getGroup() != old_d.getGroup() ||
+					new_d.getCreationEvent() != old_d.getCreationEvent() ||
+					new_d.getUpdateEvent() != old_d.getUpdateEvent() )
+				return false;
+			Permissions new_p = new Permissions( new_d.getPermissions() );
+			Permissions old_p = new Permissions( old_d.getPermissions() );
+			old_p.set( Flag.LOCKED );
+			return new_p.identical( old_p );
+		}
+		return false;
+		
+    }
+
+    public static Details getDetails( Object[] state, String[] names)
+    {
+		return (Details) state[detailsIndex(names)];
+    }
+    
     public static int detailsIndex( String[] propertyNames )
     {
-    	return index( "details", propertyNames );
+    	return index( DETAILS, propertyNames );
     }
     
     public static int index( String str, String[] propertyNames )

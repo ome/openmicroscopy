@@ -175,6 +175,7 @@ class CurrentDetails
     {
         Details d = new Details();
         d.setCreationEvent(getCreationEvent());
+        d.setUpdateEvent(getCreationEvent());
         d.setOwner(getOwner());
         d.setGroup(getGroup());
         d.setPermissions(getUmask());

@@ -58,13 +58,12 @@ import ome.tools.hibernate.ReloadingRefreshEventListener;
  */
 public class EventListenersFactoryBean extends AbstractFactoryBean
 {
-	private BasicSecuritySystem secSys;
+	protected BasicSecuritySystem secSys;
 	
 	private EventListeners eventListeners = new EventListeners();
 
-	private Map<String,LinkedList> map = new HashMap<String, LinkedList>();
-	
-	private Set<String> keys;
+	private Map<String,LinkedList<Object>> map = 
+		new HashMap<String, LinkedList<Object>>();
 	
 	// ~ FactoryBean
 	// =========================================================================
@@ -104,8 +103,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		put("post-commit-update", eventListeners.getPostCommitUpdateEventListeners());
 		put("post-commit-delete", eventListeners.getPostCommitDeleteEventListeners());
 		put("post-commit-insert", eventListeners.getPostCommitInsertEventListeners());
-		keys = new HashSet<String>( map.keySet() );
-		assertHasAllKeys(keys);
+		assertHasAllKeys();
 	}
 
 	/** this {@link FactoryBean} produces a {@link Map} instance for use in 
@@ -134,6 +132,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 
 	protected boolean debugAll = false;
 	
+	/** for setter injection */
 	public void setDebugAll( boolean debug )
 	{
 		this.debugAll = debug;
@@ -155,7 +154,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		// cache before passing the event on the default listener.
 		prepend("refresh", new ReloadingRefreshEventListener());
 		
-		for (String key : keys) {
+		for (String key : map.keySet()) {
 			final String k = key;
 			EventMethodInterceptor emi = new EventMethodInterceptor(
 					new EventMethodInterceptor.DisableAction(){
@@ -179,6 +178,9 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		append("post-update", ell);
 		append("post-delete", ell);
 		
+		UpdateEventListener uel = new UpdateEventListener(secSys);
+		append("pre-update", uel);
+		
 		if (debugAll)
 		{
 			Object debug = getDebuggingProxy();
@@ -190,7 +192,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	
 	// ~ Helpers
 	// =========================================================================
-	private void assertHasAllKeys(Set<String> keys)
+	private void assertHasAllKeys()
 	{
 		// eventListeners has only private state. :(
 	}
@@ -253,34 +255,17 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 		put(key,null);
 		append(key,object);
 	}
-
-	/** calls append for each key */
-	private void append(Iterable<String> keys, Object... objs)
-	{
-		for (String key : keys) {
-			append(key,objs);
-		}
-	}
 	
 	/** appends the objects to the existing list identified by key. If no list is 
 	 * found, initializes. If there are no objects, just initializes if necessary.
 	 */
 	private void append(String key, Object... objs)
 	{
-		LinkedList l = map.get(key);
+		LinkedList<Object> l = map.get(key);
 		if ( l == null ) put(key,null);
 		if( objs == null ) return;
-		if ( objs != null )
-			for (Object object : objs) {
-				l.addLast( object );
-			}
-	}
-
-	/** calls prepend for each key */
-	private void prepend(Iterable<String> keys, Object... objs)
-	{
-		for (String key : keys) {
-			prepend(key,objs);
+		for (Object object : objs) {
+			l.addLast( object );
 		}
 	}
 	
@@ -289,13 +274,12 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	 */
 	private void prepend(String key, Object... objs)
 	{
-		LinkedList l = map.get(key);
+		LinkedList<Object> l = map.get(key);
 		if ( l == null ) put(key,null);
 		if( objs == null ) return;
-		if ( objs != null )
-			for (Object object : objs) {
-				l.addFirst( object );
-			}
+		for (Object object : objs) {
+			l.addFirst( object );
+		}
 	}
 	
 	/** replaces the key with the provided objects or an empty list if 
@@ -303,7 +287,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean
 	 */
 	private void put(String key, Object[] objs)
 	{
-		LinkedList list = new LinkedList();
+		LinkedList<Object> list = new LinkedList<Object>();
 		if ( objs != null )
 		{
 			Collections.addAll(list, objs);

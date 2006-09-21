@@ -444,6 +444,18 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		// Note: privileged check moved into the if statement below.
 
+		// done first as validation.
+		if (iobj instanceof IMutable) {
+			Integer version = ((IMutable) iobj).getVersion();
+			if (version == null || version.intValue() < 0)
+				;
+			// throw new ValidationException(
+			// "Version must properly be set on managed objects :\n"+
+			// obj.toString()
+			// );
+			// TODO
+		}
+		
 		// check if the newDetails variable has been reset or if the instance
 		// has been changed.
 		boolean altered = false;
@@ -509,23 +521,15 @@ public class BasicSecuritySystem implements SecuritySystem {
 						previousDetails, currentDetails, newDetails);
 			}
 
+			// the event check needs to be last, because we need to test
+			// whether or not it is necessary to change the updateEvent 
+			// (i.e. last modification)
 			if (!isGlobal(iobj.getClass())) // implies that event doesn't matter
 			{
 				altered |= managedEvent(locked, privileged, iobj,
 						previousDetails, currentDetails, newDetails);
 			}
 
-		}
-
-		if (iobj instanceof IMutable) {
-			Integer version = ((IMutable) iobj).getVersion();
-			if (version == null || version.intValue() < 0)
-				;
-			// throw new ValidationException(
-			// "Version must properly be set on managed objects :\n"+
-			// obj.toString()
-			// );
-			// TODO
 		}
 
 		return altered ? newDetails : previousDetails;
@@ -745,23 +749,41 @@ public class BasicSecuritySystem implements SecuritySystem {
 	protected boolean managedEvent(boolean locked, boolean privileged,
 			IObject obj, Details previousDetails, Details currentDetails,
 			Details newDetails) {
+		
+		// TODO no longer need to keep track of alteration boolean. like
+		// transient with update event, managedDetails will now ALWAYS return
+		// an updated details.
+		// -------------------
+		
+		boolean altered = false;
+		
+		// creation event~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		
 		if (!idEqual(previousDetails.getCreationEvent(), currentDetails
 				.getCreationEvent())) {
 
 			// !idEquals implies that they aren't both null; if current_event is
 			// null, then it was *probably* not intended, so just fix it and 
 			// move on. this goes for root and admins as well.
-			if ( currentDetails.getCreationEvent() == null ) {
+			if ( currentDetails.getCreationEvent() == null ) 
+			{
 				newDetails.setCreationEvent( previousDetails.getCreationEvent() );
-				return true;
+				altered = true;
+			} 
+			// otherwise throw an exception, because as seen in ticket:346, 
+			// it can lead to confusion otherwise. See:
+			// https://trac.openmicroscopy.org.uk/omero/ticket/346
+			else 
+			{
+			
+				// no one change them.
+				throw new SecurityViolation(String.format(
+						"You are not authorized to change "
+								+ "the creation event for %s from %s to %s", obj,
+						previousDetails.getCreationEvent(), currentDetails
+								.getCreationEvent()));
 			}
 			
-			// no one change them.
-			throw new SecurityViolation(String.format(
-					"You are not authorized to change "
-							+ "the creation event for %s from %s to %s", obj,
-					previousDetails.getCreationEvent(), currentDetails
-							.getCreationEvent()));
 		}
 
 		// they are equal meaning no change was intended but in case other
@@ -770,7 +792,49 @@ public class BasicSecuritySystem implements SecuritySystem {
 		else {
 			newDetails.setCreationEvent(previousDetails.getCreationEvent());
 		}
-		return false;
+		
+		// update event ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		
+		if (!idEqual(previousDetails.getUpdateEvent(), currentDetails
+				.getUpdateEvent())) {
+
+			// !idEquals implies that they aren't both null; if current_event is
+			// null, then it was *probably* not intended, so just fix it and 
+			// move on. this goes for root and admins as well.
+			if ( currentDetails.getUpdateEvent() == null ) 
+			{
+				newDetails.setUpdateEvent( previousDetails.getUpdateEvent() );
+				altered = true;
+			} 
+			// otherwise throw an exception, because as seen in ticket:346, 
+			// it can lead to confusion otherwise. See:
+			// https://trac.openmicroscopy.org.uk/omero/ticket/346
+			else 
+			{
+			
+				// no one change them.
+				throw new SecurityViolation(String.format(
+						"You are not authorized to change "
+								+ "the update event for %s from %s to %s", obj,
+						previousDetails.getUpdateEvent(), currentDetails
+								.getUpdateEvent()));
+			}
+			
+		}
+
+		// they are equal meaning no change was intended but in case other
+		// changes took place, we have to make sure newDetails has the correct
+		// value
+		else {
+			newDetails.setUpdateEvent(previousDetails.getUpdateEvent());
+		}
+		
+		// QUATSCH
+		// update event : newDetails keeps its update event, which is by 
+		// necessity different then what was in currentDetails and there-
+		// fore we now return true;
+		
+		return altered;
 	}
 
 	// ~ CurrentDetails delegation (ensures proper settings of Tokens)

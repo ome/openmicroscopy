@@ -105,8 +105,8 @@
  (nextval('seq_experimenter'),0,'${db.user}','My','Name');
 
  insert into groupexperimentermap
- (id, permissions, version, owner_id, group_id, creation_id, child, parent)
- select nextval('seq_groupexperimentermap'), -35, 0, 0, 0, 0, e.id, g.id
+ (id, permissions, version, owner_id, group_id, creation_id, update_id, child, parent)
+ select nextval('seq_groupexperimentermap'), -35, 0, 0, 0, 0, 0, e.id, g.id
  from experimenter e, experimentergroup g
  where e.omename = '${db.user}' and g.name = 'user';
 
