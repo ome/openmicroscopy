@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Action to display or hide the scale bar.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,10 +60,10 @@ public class UnitBarAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Show/Hide unit bar";
+    private static final String NAME = "Show Scale bar";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Show or hide the unit bar " +
+    private static final String DESCRIPTION = "Show or hide the Scale bar " +
             "displayed on top of the image.";
     
     /**
