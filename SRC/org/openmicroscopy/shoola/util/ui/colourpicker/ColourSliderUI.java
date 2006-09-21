@@ -34,7 +34,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-
 import javax.swing.ImageIcon;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
@@ -42,6 +41,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
  * ColourSliderUI is a derived class of BasicSliderUI which replaces the track 
@@ -327,11 +327,11 @@ public class ColourSliderUI
 				for( int x = 0 ; x < 255 ; x++)
 				{
 					if (channel == HSV_CHANNEL_HUE)
-						HSVStart.h = start+((float) x/255)*range;
+						HSVStart.setHue(start+((float) x/255)*range);
 					if (channel == HSV_CHANNEL_SATURATION)
-						HSVStart.s = start+((float) x/255)*range;
+						HSVStart.setSaturation(start+((float) x/255)*range);
 					if (channel == HSV_CHANNEL_VALUE)
-						HSVStart.v = start+((float) x/255)*range;				
+						HSVStart.setValue(start+((float) x/255)*range);				
 					g.setPaint(HSVStart.toColor());
 					g.fillRect((int) (smallTrackFilled.getX()+x*steps),
 							(int) smallTrackFilled.getY(),
@@ -374,11 +374,11 @@ public class ColourSliderUI
 				for (int x = 0 ; x < 255 ; x++)
 				{
 					if(channel == HSV_CHANNEL_HUE)
-						HSVStart.h = end-((float) x/255)*range;
+						HSVStart.setHue(end-((float) x/255)*range);
 					if(channel == HSV_CHANNEL_SATURATION)
-						HSVStart.s = end-((float) x/255)*range;
+						HSVStart.setSaturation(end-((float) x/255)*range);
 					if(channel == HSV_CHANNEL_VALUE)
-						HSVStart.v = end-((float) x/255)*range;
+						HSVStart.setValue(end-((float) x/255)*range);
 					g.setPaint(HSVStart.toColor());
 					
 					g.fillRect((int) smallTrackFilled.getX(), 

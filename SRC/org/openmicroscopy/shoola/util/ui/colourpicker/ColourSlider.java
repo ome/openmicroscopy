@@ -35,6 +35,8 @@ import java.awt.Graphics;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -131,7 +133,7 @@ public class ColourSlider
 	 */
 	ColourSlider(int min, int max, HSV s, HSV e)
 	{
-		ui = new ColourSliderUI(this,s,e);
+		ui = new ColourSliderUI(this, s, e);
 		ui.setColourSpace(HSV_COLOURSPACE);
 		this.setPaintTrack(true);
 		this.setPaintTicks(true);

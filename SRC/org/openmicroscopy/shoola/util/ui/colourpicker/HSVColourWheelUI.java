@@ -41,6 +41,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -139,8 +141,8 @@ class HSVColourWheelUI
 	{
 		HSV startcol = new HSV(control.getColour());
 		HSV endcol = new HSV(control.getColour());
-		startcol.v = 0;
-		endcol.v = 1;
+		startcol.setValue(0);
+		endcol.setValue(1);
 		HSVSlider = new ColourSlider(0, 255, startcol, endcol);
 		HSVSlider.setColourSpace(ColourSlider.HSV_COLOURSPACE);
 		HSVSlider.setChannel(ColourSlider.HSV_CHANNEL_VALUE);
