@@ -68,7 +68,7 @@ class FilterMenuAction
 
     /** The description of the action. */
     private static final String DESCRIPTION = "Menu. Press (Shift) to keep " +
-                                        "the menu on screen during selection";
+                 "the menu on screen when making selection.";
     
     /** The location of the mouse pressed. */
     private Point pressedPoint;
