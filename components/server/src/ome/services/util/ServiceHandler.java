@@ -191,38 +191,38 @@ public class ServiceHandler implements MethodInterceptor {
         
         if (args == null || args.length < 1)
         {
-            arguments = "()";
+            return "()";
         }
+
+        String[] prnt = new String[args.length];
+        for (int i = 0; i < prnt.length; i++) {
+			prnt[i] = args[i].toString();
+		}
         
-        else
+    	Object[] allAnnotations = 
+    	AnnotationUtils.findParameterAnnotations(
+    			mi.getThis().getClass(), mi.getMethod());
+    	
+        for (int j = 0; j < allAnnotations.length; j++)
         {
-        	Object[] allAnnotations = 
-        	AnnotationUtils.findParameterAnnotations(
-        			mi.getThis().getClass(), mi.getMethod());
-        	
-            for (int j = 0; j < allAnnotations.length; j++)
+            Annotation[][] anns = (Annotation[][]) allAnnotations[j];            
+            if (anns == null) continue;
+            
+            for (int i = 0; i < args.length; i++)
             {
-                Annotation[][] anns = (Annotation[][]) allAnnotations[j];            
-                if (anns == null) continue;
-                
-                for (int i = 0; i < args.length; i++)
+                Annotation[] annotations = anns[i];
+    
+                for (Annotation annotation : annotations)
                 {
-                    Annotation[] annotations = anns[i];
-        
-                    for (Annotation annotation : annotations)
+                    if (Hidden.class.equals(annotation.annotationType()))
                     {
-                        if (Hidden.class.equals(annotation.annotationType()))
-                        {
-                        	args[i] = "********";
-                        }
+                    	prnt[i] = "********";
                     }
                 }
             }
-        	
-        	arguments = Arrays.asList(mi.getArguments()).toString(); 
-        
         }
-        
+    	
+    	arguments = Arrays.asList(prnt).toString(); 
         return arguments;
     }
 
