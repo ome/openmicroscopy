@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 
@@ -76,9 +78,20 @@ public class ResetSettingsAction
     {
         super(model);
         //putValue(Action.NAME, NAME);
+        setEnabled(true);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RESET_SETTINGS));
     }
+    
+    /**
+     * Resets the default settings.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        model.setDefaultSettings();
+    }
+    
 }
