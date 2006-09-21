@@ -88,5 +88,5 @@ public class ColouredButton
         uiDelegate.setGrayedOut(greyedOut);
         repaint();
     }
-    
+
 }
