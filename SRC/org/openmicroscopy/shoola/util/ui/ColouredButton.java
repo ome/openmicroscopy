@@ -32,19 +32,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.plaf.basic.BasicButtonUI;
 
 //Third-party libraries
 
@@ -98,6 +86,7 @@ public class ColouredButton
     public void setGrayedOut(boolean greyedOut)
     {
         uiDelegate.setGrayedOut(greyedOut);
+        repaint();
     }
     
 }
