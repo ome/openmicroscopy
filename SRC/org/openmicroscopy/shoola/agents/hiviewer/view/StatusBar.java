@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-public class StatusBar
+class StatusBar
     extends JPanel
 {
     
@@ -94,7 +94,7 @@ public class StatusBar
      * 
      * @param statusIcon The icon displayed in the left corner.
      */
-    public StatusBar(Icon statusIcon)
+    StatusBar(Icon statusIcon)
     {
         initComponents(statusIcon);
         buildUI();
@@ -105,7 +105,7 @@ public class StatusBar
      * 
      * @param s The message to display.
      */
-    public void setStatus(String s) { status.setText(s); }
+    void setStatus(String s) { status.setText(s); }
     
     /**
      * Sets the value of the progress bar.
@@ -114,7 +114,7 @@ public class StatusBar
      *              <code>false</otherwise>
      * @param perc  The value to set.
      */
-    public void setProgress(boolean hide, int perc)
+    void setProgress(boolean hide, int perc)
     {
         progressBar.setVisible(!hide);
         if (perc < 0) progressBar.setIndeterminate(true);

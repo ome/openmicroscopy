@@ -373,7 +373,7 @@ class HiViewerWin
      * 
      * @return See above.
      */
-    public String getViewTitle()
+    String getViewTitle()
     {
         Set roots = model.getBrowser().getRootNodes();
         Iterator i = roots.iterator();
