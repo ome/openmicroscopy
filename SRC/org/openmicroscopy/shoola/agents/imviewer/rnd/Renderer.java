@@ -87,49 +87,7 @@ public interface Renderer
      */
     public final static String  INPUT_INTERVAL_PROPERTY = "inputInterval";
     
-    /**
-     * Returns the current state.
-     * 
-     * @return See above
-     */
-    public int getState();
-    
-    /** Closes and disposes. */
-    public void discard();
-    
-    /** Moves the window to front and de-iconifies it necessary. */
-    public void moveToFront();
-
-    /**
-     * Returns the lower bound of the pixels intensity interval for the
-     * currently selected channel.
-     * 
-     * @return See above.
-     */
-    public double getWindowStart();
-    
-    /**
-     * Returns the upper bound of the pixels intensity interval for the
-     * currently selected channel.
-     * 
-     * @return See above.
-     */
-    public double getWindowEnd();
-    
-    /**
-     * Returns the global minimum for the currently selected channel.
-     * 
-     * @return See above.
-     */
-    public double getGlobalMin();
-    
-    /**
-     * Returns the global maximum for the currently selected channel.
-     * 
-     * @return See above.
-     */
-    public double getGlobalMax();
-    
+   
     /**
      * Updates the codomain map corresponding to the specified 
      * {@link CodomainMapContext}.
@@ -227,5 +185,51 @@ public interface Renderer
      * @return See above.
      */
     CodomainMapContext getCodomainMapContext(Class mapType);
+
+    /**
+     * Returns the current state.
+     * 
+     * @return See above
+     */
+    public int getState();
+    
+    /** Closes and disposes. */
+    public void discard();
+    
+    /** Moves the window to front and de-iconifies it necessary. */
+    public void moveToFront();
+
+    /**
+     * Returns the lower bound of the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getWindowStart();
+    
+    /**
+     * Returns the upper bound of the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getWindowEnd();
+    
+    /**
+     * Returns the global minimum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getGlobalMin();
+    
+    /**
+     * Returns the global maximum for the currently selected channel.
+     * 
+     * @return See above.
+     */
+    public double getGlobalMax();
+    
+    /** Resets the default settings. */
+    public void setDefaultSettings();
     
 }

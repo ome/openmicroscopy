@@ -380,12 +380,14 @@ class DomainPane
         noiseReduction.setSelected(model.isNoiseReduction());
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
-        // noise reduction.
         // histogram.
     }
     
     /** Sets the pixels intensity interval. */
     void setInputInterval() { graphicsPane.setInputInterval(); }
+    
+    /** Sets the value of the codomain interval. */
+    void setCodomainInterval() { graphicsPane.setCodomainInterval(); }
     
     /**
      * Depending on the source of the event. Sets the gamma value or
@@ -411,7 +413,7 @@ class DomainPane
     }
 
     /**
-     * 
+     * Reacts to family or channel selection.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
@@ -438,5 +440,5 @@ class DomainPane
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
-    
+  
 }

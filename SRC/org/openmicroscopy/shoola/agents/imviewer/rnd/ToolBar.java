@@ -70,8 +70,8 @@ class ToolBar
         putClientProperty("JToolBar.isRollover", Boolean.TRUE);
         add(new JButton(
                 controller.getAction(RendererControl.RESET_SETTINGS)));
-        add(new JButton(
-                controller.getAction(RendererControl.SAVE_SETTINGS)));
+        //add(new JButton(
+         //       controller.getAction(RendererControl.SAVE_SETTINGS)));
     }
     
     /**

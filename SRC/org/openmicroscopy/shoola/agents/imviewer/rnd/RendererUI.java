@@ -49,7 +49,8 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 
 /** 
- * 
+ * The {@link Renderer} view. Provides a menu bar, a status bar and a 
+ * panel hosting various controls.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -108,7 +109,7 @@ class RendererUI
         Action a = controller.getAction(RendererControl.SAVE_SETTINGS);
         JMenuItem item = new JMenuItem(a);
         item.setText(SaveSettingsAction.NAME);
-        menu.add(item);
+        //menu.add(item);
         a = controller.getAction(RendererControl.RESET_SETTINGS);
         item = new JMenuItem(a);
         item.setText(ResetSettingsAction.NAME);
@@ -156,7 +157,7 @@ class RendererUI
      */
     RendererUI(String title)
     {
-        super("Renderer:  "+title);
+        super("Display Settings:  "+title);
         controlPanes = new HashMap(2);
     }
     
@@ -221,6 +222,15 @@ class RendererUI
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.setInputInterval();
         
+    }
+
+    /** Resets the UI controls. */
+    void setDefaultSettings()
+    {
+        setInputInterval();
+        setSelectedChannel(model.getSelectedChannel());
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setCodomainInterval();
     }
     
 }

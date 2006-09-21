@@ -452,5 +452,12 @@ class RendererModel
     {
         return rndControl.getChannelWindowEnd(selectedChannelIndex);
     }
+
+    /** Resets the default settings. */
+    void setDefaultSettings()
+    {
+        rndControl.resetDefaults();
+        
+    }
     
 }

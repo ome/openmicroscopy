@@ -300,6 +300,13 @@ class GraphicsPane
         domainSlider.setEndValue(e);
     }
     
+    /** Sets the value of the codomain interval. */
+    void setCodomainInterval()
+    {
+        codomainSlider.setStartValue(model.getCodomainStart());
+        codomainSlider.setEndValue(model.getCodomainEnd());
+    }
+    
     /**
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

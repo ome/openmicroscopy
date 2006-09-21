@@ -299,4 +299,15 @@ class RendererComponent
      */
     public double getGlobalMax() { return model.getGlobalMax(); }
 
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setDefaultSettings()
+     */
+    public void setDefaultSettings()
+    {
+        model.setDefaultSettings();
+        view.setDefaultSettings();
+        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    }
+
 }
