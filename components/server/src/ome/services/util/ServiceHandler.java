@@ -196,7 +196,7 @@ public class ServiceHandler implements MethodInterceptor {
 
         String[] prnt = new String[args.length];
         for (int i = 0; i < prnt.length; i++) {
-			prnt[i] = args[i].toString();
+			prnt[i] = args[i] == null ? "null" : args[i].toString();
 		}
         
     	Object[] allAnnotations = 
