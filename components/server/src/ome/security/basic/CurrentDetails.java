@@ -122,6 +122,8 @@ class CurrentDetails
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
+        e.setExperimenter(getOwner());
+        e.setExperimenterGroup(getGroup());
         e.getGraphHolder().setToken(token, token);
         e.getDetails().setPermissions( Permissions.READ_ONLY );
         setCreationEvent(e);

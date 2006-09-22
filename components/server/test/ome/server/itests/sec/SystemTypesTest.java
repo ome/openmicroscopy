@@ -102,6 +102,8 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 		test.setTime( new Timestamp( System.currentTimeMillis()) );
 		test.setStatus("hi");
 		test.setType(new EventType(0L,false));
+		test.setExperimenter(new Experimenter(0L,false));
+		test.setExperimenterGroup(new ExperimenterGroup(0L,false));
 		factory.getUpdateService().saveObject(test);
 	}
 	

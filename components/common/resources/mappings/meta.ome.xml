@@ -73,12 +73,15 @@
 
 	<type id="ome.model.meta.Event" mutable="false" global="true">
 		<properties>
-      <!-- Type is not really optional. Needed to bootstrap.
-        Constraint is added later -->
-			<optional name="type" type="ome.model.enums.EventType"/>
-			<required name="time" type="timestamp"/>
+      <!-- Type & Group are not really optional. Needed to bootstrap.
+        Constraints are added later -->
 			<optional name="status" type="string"/>
-			<onemany name="logs" type="ome.model.meta.EventLog" inverse="event"/>
+			<required name="time" type="timestamp"/>
+			<required name="experimenter" type="ome.model.meta.Experimenter"/>
+			<optional name="experimenterGroup" type="ome.model.meta.ExperimenterGroup"/>
+			<optional name="type" type="ome.model.enums.EventType"/>
+			<optional name="containingEvent" type="ome.model.meta.Event"/>
+			<onemany  name="logs" type="ome.model.meta.EventLog" inverse="event"/>
 		</properties>
 	</type>    
 
