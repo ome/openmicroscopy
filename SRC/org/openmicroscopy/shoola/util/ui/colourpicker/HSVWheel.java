@@ -394,7 +394,7 @@ class HSVWheel
 		float dy2 = dy*dy;
 		float dist = dx2+dy2;
 		float r2 = radius*radius;
-		if (dist<r2)
+		if (dist<=r2)
 		{
 			puck = new PlanePoint(x,y);
 			return true;
@@ -431,7 +431,7 @@ class HSVWheel
 		float s = (control.getSaturation());
 		double x =  s*Math.cos(Math.toRadians(h));
 		double y =  s*Math.sin(Math.toRadians(h));
-		if (h != 0 && s != 0)
+		if ( s != 0)
 		{
 			puck.x1 = x*radius+radius;
 			puck.x2 = y*radius+radius;
