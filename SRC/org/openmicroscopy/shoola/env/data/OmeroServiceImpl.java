@@ -354,10 +354,15 @@ class OmeroServiceImpl
         if (child == null) 
             throw new IllegalArgumentException("The child cannot be null.");
         if (!(child instanceof ImageData)) {
-            IObject object = ModelMapper.removeIObject(child.asIObject(),
-                    parent.asIObject());
-            PojoMapper.asDataObject(gateway.updateObject(object,
-                    (new PojoOptions()).map()));
+            if (parent == null) { //top container
+                PojoMapper.asDataObject(gateway.updateObject(child.asIObject(),
+                        (new PojoOptions()).map()));
+            } else {
+                IObject object = ModelMapper.removeIObject(child.asIObject(),
+                        parent.asIObject());
+                PojoMapper.asDataObject(gateway.updateObject(object,
+                        (new PojoOptions()).map()));
+            }
         } else {
             IObject p = parent.asIObject();
             Image img = child.asImage();
