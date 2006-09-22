@@ -42,6 +42,8 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
+import pojos.PixelsData;
+
 /** 
  * 
  *
@@ -101,5 +103,17 @@ public interface RenderingService
      * @param pixelsID  The ID of the pixels set.
      */
     public void shutDown(long pixelsID);
+    
+    /**
+     * 
+     * @param pix
+     * @param sizeX
+     * @param sizeY
+     * @return See above.
+     * @throws RenderingServiceException    If the server cannot retrieve the 
+     *                                      thumbnail.
+     */
+    public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
+        throws RenderingServiceException;
     
 }

@@ -46,6 +46,8 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingServicesFactory;
 
+import pojos.PixelsData;
+
 
 /** 
  * Implementation of the {@link RenderingService} I/F.
@@ -72,6 +74,11 @@ class RenderingServiceImpl
 
     /** Keep track of all the rendering service already initialized. */
     private HashMap                 rndSvcProxies;
+    
+    private BufferedImage createImage(byte[] values) 
+    {
+        return null;
+    }
     
     /**
      * Creates a new instance.
@@ -153,6 +160,21 @@ class RenderingServiceImpl
         } 
     }
     
+    /** 
+     * Implemented as specified by {@link RenderingService}. 
+     * @see RenderingService#getThumbnail(PixelsData, int, int)
+     */
+    public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
+        throws RenderingServiceException
+    {
+        try {
+            byte[] v = gateway.getThumbnail(pix.asPixels(), sizeX, sizeY);
+            return createImage(v);
+        } catch (Exception e) {
+            throw new RenderingServiceException("Get Thumbnail", e);
+        }
+    }
+    
     /** Destroys all active rendering engines. */
     void shutDown()
     {
@@ -162,5 +184,5 @@ class RenderingServiceImpl
 
         rndSvcProxies.clear();
     }
-    
+
 }
