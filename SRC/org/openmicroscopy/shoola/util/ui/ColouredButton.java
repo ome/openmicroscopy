@@ -85,9 +85,19 @@ public class ColouredButton
      */
     public void setGrayedOut(boolean greyedOut)
     {
+        if (uiDelegate == null) return;
         uiDelegate.setGrayedOut(greyedOut);
         repaint();
     }
+    
+    /**
+     * Sets the Background colour of the button, this will 
+     * be used as the base colour to generate the gradient fill of the 
+     * buttons. 
+     * 
+     * @param c The color to set.
+     */
+    public void setColor(Color c) { setBackground(c); }
     
     /**
      * Overridden. Sets the Background colour of the button, this will 
@@ -97,7 +107,8 @@ public class ColouredButton
      */
     public void setBackground(Color c)
     {
-    	uiDelegate.setColor(c);
+        if (uiDelegate != null) uiDelegate.setColor(c);
+        super.setBackground(c);
     }
 
 }

@@ -29,6 +29,10 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
+
+
+
+//Java imports
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -37,23 +41,17 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import org.openmicroscopy.shoola.util.ui.colour.HSV;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
- * 
+ * Basic UI for coloured button.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -467,7 +465,10 @@ class ColouredButtonUI
      */
     ColouredButtonUI(JButton b, Color c)
     {
-        //Add controls
+        if (b == null)
+            throw new IllegalArgumentException("No button.");
+        if (c == null) 
+            throw new IllegalArgumentException("No color.");
         colour = c;
         button = b;
         greyedOut = false;
