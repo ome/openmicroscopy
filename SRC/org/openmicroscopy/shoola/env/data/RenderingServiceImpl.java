@@ -31,9 +31,14 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import javax.imageio.ImageIO;
 
 //Third-party libraries
 
@@ -76,8 +81,16 @@ class RenderingServiceImpl
     private HashMap                 rndSvcProxies;
     
     private BufferedImage createImage(byte[] values) 
+        throws RenderingServiceException
     {
-        return null;
+        try {
+            ByteArrayInputStream stream = new ByteArrayInputStream(values);
+            return ImageIO.read(stream);
+        } catch (Exception e) {
+            throw new RenderingServiceException("Cannot create buffered image",
+                    e);
+        }
+        
     }
     
     /**

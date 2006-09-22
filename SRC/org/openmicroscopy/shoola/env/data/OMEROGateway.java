@@ -807,7 +807,7 @@ class OMEROGateway
     {
         try {
             IThumb service = getIThumbService();
-            return service.getThumbnail(pixels, null, new Integer(sizeX), 
+            return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
                                     new Integer(sizeY));
         } catch (Exception e) {
             new RenderingServiceException("Cannot get thumbnail", e);
