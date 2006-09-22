@@ -159,8 +159,9 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	private RenderingDef getRenderingDef(Pixels p)
 	{
 		Parameters param = new Parameters();
-		param.addId(p.getId());
-		param.addLong("owner", getSecuritySystem().currentUser().getId());
+		param.addId(p.getId());  // Pixels ID
+		param.addLong("owner",
+				getSecuritySystem().getEventContext().getCurrentUserId());
 		return (RenderingDef)
 			iQuery.findByQuery("select def from RenderingDef as def where " +
 					"def.details.owner.id = :owner and def.pixels.id = :id", param);
