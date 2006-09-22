@@ -43,9 +43,11 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-import ome.api.IPixels;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IThumb;
 import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.containers.Category;
@@ -292,6 +294,14 @@ class OMEROGateway
     private IUpdate getIUPdateService() { return entry.getUpdateService(); }
     
     /**
+     * Returns the {@link IThumb} service.
+     *  
+     * @return See above.
+     */
+    private IThumb getIThumbService() { return entry.getThumbnailService(); }
+    
+    
+    /**
      * Returns the {@link RenderingEngine Rendering service}.
      * 
      * @return See above.
@@ -343,7 +353,7 @@ class OMEROGateway
         throws DSOutOfServiceException
     {
         try {
-            entry = new ServiceFactory(server, new Login(userName, "ome")); 
+            entry = new ServiceFactory(server, new Login(userName, password)); 
             connected = true;
             return getUserDetails(userName);
         } catch (Exception e) {
@@ -754,7 +764,6 @@ class OMEROGateway
             service.lookupPixels(pixelsID);
             service.lookupRenderingDef(pixelsID);
             service.load();
-            System.out.println("L:"+service.getPixels().getChannels());
             return service;
         } catch (Exception e) {
             handleException(e, "Cannot start the Rendering Engine.");
@@ -775,14 +784,34 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            IQuery query = getIQueryService();
-            Pixels pixs = (Pixels) query.get(Pixels.class, pixelsID);
-            return (PixelsDimensions) query.get(PixelsDimensions.class,
+            IQuery service = getIQueryService();
+            Pixels pixs = (Pixels) service.get(Pixels.class, pixelsID);
+            return (PixelsDimensions) service.get(PixelsDimensions.class,
                     pixs.getPixelsDimensions().getId().longValue());
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the dimension of "+
                                 "the pixels set.");
         }
+        return null;
+    }
+
+    /**
+     * 
+     * @param pixels
+     * @param sizeX
+     * @param sizeY
+     * @return
+     */
+    byte[] getThumbnail(Pixels pixels, int sizeX, int sizeY)
+        throws RenderingServiceException
+    {
+        try {
+            IThumb service = getIThumbService();
+            return service.getThumbnail(pixels, null, new Integer(sizeX), 
+                                    new Integer(sizeY));
+        } catch (Exception e) {
+            new RenderingServiceException("Cannot get thumbnail", e);
+        }// TODO Auto-generated method stub
         return null;
     }
     
