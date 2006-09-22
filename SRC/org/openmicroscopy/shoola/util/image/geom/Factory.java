@@ -88,6 +88,8 @@ public class Factory
     /** Border added to the text. */
     private static final int            BORDER = 2;
     
+    private static final String         DEFAULT_TEXT = "No thumbnail";
+    
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
             0.f, -1.f,  0.f,
@@ -99,6 +101,29 @@ public class Factory
             0.1f, 0.1f, 0.1f,   
             0.1f, 0.2f, 0.1f,
             0.1f, 0.1f, 0.1f};
+    
+    /**
+     * Creates a default thumbnail image.
+     * 
+     * @param sizeX The width of the thumbnail
+     * @param sizeY The height of the thumbnail.
+     * @return See above.
+     */
+    public static BufferedImage createDefaultThumbnail(int sizeX, int sizeY)
+    {
+        BufferedImage thumbPix = new BufferedImage(sizeX, sizeY, 
+                                BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) thumbPix.getGraphics();
+        g.setColor(Color.BLACK);
+        g.drawRect(0, 0, sizeX, sizeY);
+        FontMetrics fontMetrics = g.getFontMetrics();
+        int xTxt = BORDER;
+        int yTxt = sizeY/2-fontMetrics.getHeight();
+        g.setColor(Color.WHITE);
+        g.setFont(g.getFont().deriveFont(Font.BOLD));
+        g.drawString(DEFAULT_TEXT, xTxt, yTxt);
+        return thumbPix;
+    }
     
     /** 
      * Magnifies the specified {@link BufferedImage}.
