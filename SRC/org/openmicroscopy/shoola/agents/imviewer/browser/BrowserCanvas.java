@@ -36,11 +36,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
@@ -65,7 +61,6 @@ import javax.swing.JPanel;
  */
 class BrowserCanvas
     extends JPanel
-    implements MouseListener, MouseMotionListener
 {
 
     /** String to representing the nanometer symbol. */
@@ -92,12 +87,6 @@ class BrowserCanvas
     
     /** Width of a character w.r.t. the font metrics. */
     private int             charWidth;
-    
-    /** Flag to determine if a dragging event is ongoing. */
-    private boolean         dragging;
-    
-    /** The anchor point. */
-    private Point           anchor;
     
     /** Reference to the Model. */
     private BrowserModel    model;
@@ -165,41 +154,6 @@ class BrowserCanvas
         this.view = view;
         charWidth = getFontMetrics(getFont()).charWidth('m');
         setDoubleBuffered(true);
-        dragging = false;
-        addMouseListener(this);
-        addMouseMotionListener(this);
-    }
-
-    /**
-     * Determines the location of the mouse and paints a lens image if the
-     * <code>Magnifier</code> is on screen.
-     * @see MouseListener#mousePressed(MouseEvent)
-     */
-    public void mousePressed(MouseEvent e)
-    {
-        if (e.getClickCount() != 1) return;
-        Point p = new Point(e.getPoint());
-        if (!dragging) {
-            dragging = true;
-        }
-    }
-
-    /**
-     * @see MouseListener#mouseReleased(MouseEvent)
-     */
-    public void mouseReleased(MouseEvent e)
-    {
-        dragging = false;
-    }
-    
-    /**
-     * Paints the lens image if the <code>Magnifier</code> is on screen.
-     * @see MouseMotionListener#mouseDragged(MouseEvent)
-     */
-    public void mouseDragged(MouseEvent e)
-    {
-        // TODO Auto-generated method stub
-        
     }
 
     /**
@@ -231,33 +185,5 @@ class BrowserCanvas
             paintScaleBar(g2D, w-2*LENGTH-5, h, 2*LENGTH, ""+(int) v);
         }
     }
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in our 
-     * case, no op implementation.
-     * @see MouseListener#mouseClicked(MouseEvent)
-     */ 
-    public void mouseClicked(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in our 
-     * case, no op implementation.
-     * @see MouseListener#mouseEntered(MouseEvent)
-     */ 
-    public void mouseEntered(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseListener} I/F but not actually needed in our 
-     * case, no op implementation.
-     * @see MouseListener#mouseExited(MouseEvent)
-     */ 
-    public void mouseExited(MouseEvent e) {}
-
-    /** 
-     * Required by {@link MouseMotionListener} I/F but not actually needed
-     * in our case, no op implementation.
-     * @see MouseMotionListener#mouseMoved(MouseEvent)
-     */ 
-    public void mouseMoved(MouseEvent e) {}
     
 }
