@@ -88,5 +88,16 @@ public class ColouredButton
         uiDelegate.setGrayedOut(greyedOut);
         repaint();
     }
+    
+    /**
+     * Overridden. Sets the Background colour of the button, this will 
+     * be used as the base colour to generate the gradient fill of the 
+     * buttons. 
+     * @see javax.swing.JComponent#setBackground(Color)
+     */
+    public void setBackground(Color c)
+    {
+    	uiDelegate.setColor(c);
+    }
 
 }

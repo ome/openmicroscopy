@@ -169,8 +169,7 @@ class ColouredButtonUI
     private void setGradientColours()
     {
         HSV col = new HSV(colour);
-            
-        // top gradient value from HSV model. 
+         // top gradient value from HSV model. 
             float topGradientValue = col.getValue();
             // bottom gradient value from HSV model. 
             float bottomGradientValue = col.getValue();
@@ -196,17 +195,17 @@ class ColouredButtonUI
                 // We're in a colour space. 
                 // Increase topGradientValue to 1.5 * value of colour face.
                 topGradientValue = col.getValue()*1.5f;
-                if(topGradientValue>1) topGradientValue = 1;
+                if (topGradientValue>1) topGradientValue = 1;
                 topGradientSaturation = col.getSaturation()*0.3f;
                 bottomGradientSaturation = col.getSaturation();
             }
             
             gradientStartHSV = new HSV(col.getHue(), topGradientSaturation,
-                                topGradientValue, 0.7f);
+                                topGradientValue, 1.0f);
             gradientStartRGB = gradientStartHSV.toColorA();
     
             gradientEndHSV = new HSV(col.getHue(),
-                        bottomGradientSaturation, bottomGradientValue, 0.7f);
+                        bottomGradientSaturation, bottomGradientValue, 1.0f);
             gradientEndRGB = gradientEndHSV.toColorA();
     }
 
@@ -268,8 +267,8 @@ class ColouredButtonUI
         g.drawLine(0, 0, (int) buttonRect.getWidth(), 0);
         g.drawLine(1, 1, 1, (int) buttonRect.getHeight()-1);
         g.drawLine(1, 1, (int) buttonRect.getWidth()-1, 1);
+        
         borderColour = gradientEndRGB.darker();
-
         // Set the colour of the top, left bevels to be a lighter colour
         // than the gradient at that same corner.
         g.setPaint(borderColour);
@@ -446,7 +445,7 @@ class ColouredButtonUI
         {
             // If the button is not selected draw unselected button face.  
             // Check to see if it's greyed out, if not draw border else
-            // draw mask and draw the grey mask unselected border. 
+            // draw mask and draw the grey mask unselected border.
             drawButtonFace(g);
             if (!greyedOut) drawBorder(g);
             else 
@@ -486,6 +485,13 @@ class ColouredButtonUI
     void setGrayedOut(boolean greyedOut) { this.greyedOut = greyedOut; }
     
     /**
+     * Sets the colour of the button. 
+     * 
+     * @param c Color to set.
+     */
+    void setColor(Color c)  { this.colour = c; }
+       
+    /**
      * Overridden, Paints the button, and Renders the text in the centre of
      * the button.
      * @see BasicButtonUI#paint(Graphics, JComponent)
@@ -495,15 +501,6 @@ class ColouredButtonUI
         Graphics2D g = (Graphics2D) og;
         buttonRect = new Rectangle(comp.getWidth(), comp.getHeight());
         paintSquareButton(g);
-    }
-    
-    /** 
-     * Overridden, 
-     * @see BasicButtonUI#paintButtonPressed(Graphics, AbstractButton)
-     */
-    protected void paintButtonPressed(Graphics g, AbstractButton b)
-    {
-        super.paintButtonPressed(g, b);
     }
     
 }
