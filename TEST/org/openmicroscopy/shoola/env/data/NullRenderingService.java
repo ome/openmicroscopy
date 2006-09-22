@@ -41,6 +41,8 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
+import pojos.PixelsData;
+
 
 /** 
  * 
@@ -86,6 +88,13 @@ public class NullRenderingService
     {
         // TODO Auto-generated method stub
         
+    }
+
+    public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
+            throws RenderingServiceException
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
