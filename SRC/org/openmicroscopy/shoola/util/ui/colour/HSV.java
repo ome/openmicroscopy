@@ -198,7 +198,6 @@ public class HSV
             
         h = h/360.0f;
         v = v/255.0f;
-        s = s/255.0f;
         a = c.getAlpha()/255.0f;
     }
 
