@@ -31,16 +31,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.RenderingService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -88,41 +89,24 @@ public class ThumbnailLoader
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
      * @param index The index of the image in the {@link #images} array.
-     * @throws ImageServerException If an error occurs.
+     * @throws RenderingServiceException If an error occurs.
      */
     private void loadThumbail(int index) 
-        //throws ImageServerException
+        throws RenderingServiceException
     {
-        /*
         PixelsData pxd = images[index].getDefaultPixels();
         int sizeX = maxWidth, sizeY = maxHeight;
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-        */
-        /*
-        //TO REMOVE ASAP.
-        Map map = new HashMap();
-        map.put("id", new Integer(1));
-        map.put("ImageServerURL", pxd.getImageServerURL());
-        RepositoryDTO rep = new RepositoryDTO(map);
-        map = new HashMap();
-        map.put("Repository", rep);
-        map.put("ImageServerID", new Long(pxd.getImageServerID()));
-        PixelsDTO pixels = new PixelsDTO(map); 
-        BufferedImage thumbPix = context.getPixelsService().getThumbnail(
-                                                pixels, sizeX, sizeY);
-                                                */
-        BufferedImage thumbPix = new BufferedImage(48, 48, 
-                                            BufferedImage.TYPE_INT_ARGB);
-        thumbPix.getGraphics().setColor(Color.RED);
+        RenderingService rds = context.getRenderingService();
+        BufferedImage thumbPix = rds.getThumbnail(pxd, sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     
     /**
      * Adds a {@link BatchCall} to the tree for each thumbnail to retrieve.
      * The batch call simply invokes {@link #loadThumbail(int)}.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
@@ -132,7 +116,7 @@ public class ThumbnailLoader
             description = "Loading thumbnail: "+images[i].getName();
             final int index = i;
             add(new BatchCall(description) {
-                    public void doCall() 
+                    public void doCall() throws Exception
                     { 
                         loadThumbail(index); 
                     }
