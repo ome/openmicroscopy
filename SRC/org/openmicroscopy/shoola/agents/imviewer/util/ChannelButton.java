@@ -74,9 +74,6 @@ public class ChannelButton
     /** The OME index of the channel. */
     private final int   index;
     
-    /** The color of the node. */
-    private Color       originalColor;
-    
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -126,7 +123,6 @@ public class ChannelButton
         super(text, color);
         if (color == null) 
             throw new IllegalArgumentException("No color.");
-        originalColor = color;
         this.index = index;
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
@@ -154,10 +150,5 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
-
-    public void setSelected(boolean b)
-    {
-        super.setSelected(b);
-    }
     
 }
