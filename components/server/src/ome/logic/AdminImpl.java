@@ -57,8 +57,6 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
@@ -80,6 +78,7 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -88,6 +87,7 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
@@ -607,83 +607,98 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 		// the instance.
 		Session s = SessionFactoryUtils.getNewSession(sf,
 				EmptyInterceptor.INSTANCE);
+		
+		// similarly, we need to disable certain backend systems. first we
+		// disable the UpdateEventListener because it wants to set entities
+		// from a different session on these IObjects. 
+		// See: https://trac.openmicroscopy.org.uk/omero/ticket/366
+		getSecuritySystem().disable(UpdateEventListener.UPDATE_EVENT);
+		
+		try 
+		{
+			Long eventId = getSecuritySystem().getEventContext().getCurrentEventId(); 
+			Event updateEvent = (Event) s.get(Event.class, eventId);
 
-		Transaction tx = s.beginTransaction();
-
-		try {
-			boolean[] isUnlocked = new boolean[iObjects.length];
-			for (int i = 0; i < iObjects.length; i++) {
-				IObject orig = iObjects[i];
-
-				// do nothing if possible again.
-				if (orig == null || orig.getId() == null) {
-					isUnlocked[i] = true;
-					continue;
-				}
-
-				// get the original to operate on
-				final IObject object = (IObject) s.load(orig.getClass(), orig
-						.getId());
-
-				// if it's not locked, we don't need to look further.
-				if (!object.getDetails().getPermissions().isSet(Flag.LOCKED)) {
-					isUnlocked[i] = true;
-					continue;
-				}
-
-				// since it's a managed entity it's class.getName() might
-				// contain
-				// some byte-code generation string
-				final Class<? extends IObject> klass = Utils.trueClass(object
-						.getClass());
-
-				final long id = object.getId().longValue();
-
-				// the values that could possibly link to this instance.
-				String[][] checks = em.getLockChecks(klass);
-
-				// reporting
-				long total = 0L;
-				Map<String, Long> counts = new HashMap<String, Long>();
-
-				// run the individual queries
-				for (String[] check : checks) {
-					final String hql = String.format(
-							"select count(*) from %s where %s%s = :id ",
-							check[0], check[1], ".id");
-					org.hibernate.Query q = s.createQuery(hql);
-					q.setLong("id", id);
-					Long count = (Long) q.iterate().next();
-
-					if (count != null && count.longValue() > 0) {
-						total += count.longValue();
-						counts.put(hql, count);
+			try {
+				boolean[] isUnlocked = new boolean[iObjects.length];
+				for (int i = 0; i < iObjects.length; i++) {
+					IObject orig = iObjects[i];
+	
+					// do nothing if possible again.
+					if (orig == null || orig.getId() == null) {
+						isUnlocked[i] = true;
+						continue;
 					}
+	
+					// get the original to operate on
+					final IObject object = (IObject) s.load(orig.getClass(), orig
+							.getId());
+	
+					// if it's not locked, we don't need to look further.
+					if (!object.getDetails().getPermissions().isSet(Flag.LOCKED)) {
+						isUnlocked[i] = true;
+						continue;
+					}
+	
+					// since it's a managed entity it's class.getName() might
+					// contain
+					// some byte-code generation string
+					final Class<? extends IObject> klass = Utils.trueClass(object
+							.getClass());
+	
+					final long id = object.getId().longValue();
+	
+					// the values that could possibly link to this instance.
+					String[][] checks = em.getLockChecks(klass);
+	
+					// reporting
+					long total = 0L;
+					Map<String, Long> counts = new HashMap<String, Long>();
+	
+					// run the individual queries
+					for (String[] check : checks) {
+						final String hql = String.format(
+								"select count(*) from %s where %s%s = :id ",
+								check[0], check[1], ".id");
+						org.hibernate.Query q = s.createQuery(hql);
+						q.setLong("id", id);
+						Long count = (Long) q.iterate().next();
+	
+						if (count != null && count.longValue() > 0) {
+							total += count.longValue();
+							counts.put(hql, count);
+						}
+					}
+	
+					// reporting
+					if (getLogger().isDebugEnabled()) {
+						getLogger().debug(counts);
+					}
+	
+					// if there are no links, the we can unlock
+					// the actual unlocking happens on flush below.
+					if (total == 0) {
+						object.getDetails().getPermissions().unSet(Flag.LOCKED);
+						object.getDetails().setUpdateEvent( updateEvent );
+						isUnlocked[i] = true;
+					} else {
+						isUnlocked[i] = false;
+					}
+	
 				}
-
-				// reporting
-				if (getLogger().isDebugEnabled()) {
-					getLogger().debug(counts);
-				}
-
-				// if there are no links, the we can unlock
-				// the actual unlocking happens on flush below.
-				if (total == 0) {
-					object.getDetails().getPermissions().unSet(Flag.LOCKED);
-					isUnlocked[i] = true;
-				} else {
-					isUnlocked[i] = false;
-				}
-
+				return isUnlocked;
 			}
-			return isUnlocked;
+	
+			finally {
+				s.flush();
+				s.disconnect();
+				s.close();
+			}
+			
+		} finally { 
+			getSecuritySystem().enable(UpdateEventListener.UPDATE_EVENT);
 		}
-
-		finally {
-			s.flush();
-			tx.commit();
-			s.close();
-		}
+		
 	}
 
 	// ~ Passwords

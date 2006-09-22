@@ -58,6 +58,8 @@ import ome.security.basic.BasicSecuritySystem;
 public class UpdateEventListener implements PreUpdateEventListener
 {
 
+	public final static String UPDATE_EVENT = "UpdateEvent";
+	
 	private static final long serialVersionUID = -7607753637653567889L;
 
 	private static Log log = LogFactory.getLog(UpdateEventListener.class);
@@ -78,7 +80,7 @@ public class UpdateEventListener implements PreUpdateEventListener
     public boolean onPreUpdate(PreUpdateEvent event)
     {
     	Object entity = event.getEntity();
-		if ( entity instanceof IObject )
+		if ( entity instanceof IObject && ! secSys.isDisabled(UPDATE_EVENT))
 		{
 	    	int[] dirty = event.getPersister().findDirty(
 	    				event.getState(),

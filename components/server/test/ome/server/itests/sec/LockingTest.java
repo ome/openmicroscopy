@@ -155,7 +155,8 @@ public class LockingTest extends AbstractManagedContextTest
 	
 	}
 	
-	@Test( dependsOnMethods = {"test_RootCantOverride","test_UserCantOverride"} )
+	@Test( dependsOnMethods = {"test_RootCantOverride","test_UserCantOverride"} ,
+		groups = "ticket:366")
 	public void test_OnceDatasetIsRemovedCanUnlock() throws Exception {
 		
 		login( uname, gname, "Test" );
