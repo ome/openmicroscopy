@@ -41,6 +41,7 @@ import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IThumb;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.RawPixelsStore;
@@ -210,6 +211,10 @@ public class ServiceFactory {
     
     public IUpdate getUpdateService(){
         return getServiceByClass(IUpdate.class);
+    }
+    
+    public IThumb getThumbnailService(){
+    	return getServiceByClass(IThumb.class);
     }
     
     // ~ Stateful services

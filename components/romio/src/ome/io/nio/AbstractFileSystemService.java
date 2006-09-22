@@ -51,6 +51,8 @@ public class AbstractFileSystemService
     
     public final static String FILES_PATH = "Files" + File.separator;
     
+    public final static String THUMBNAILS_PATH = "Thumbnails" + File.separator;
+    
     private final String root;
 
     public AbstractFileSystemService(String path)
@@ -71,6 +73,23 @@ public class AbstractFileSystemService
             throw new IllegalArgumentException("Invalid directory specified for file system service.");
     }
     
+    /**
+     * Makes sure that for a given path, it's subpath exists. For example,
+     * given the path "/foo/bar/foobar.txt" the method will make sure the
+     * directory structure "/foo/bar" exists.
+     * @param path the path to check for subpath existance.
+     */
+    protected void createSubpath(String path)
+    {
+    	File file = new File(path);
+    	if (!file.exists())
+    	{
+    		File directory = new File(file.getParent());
+    		if (!directory.exists())
+    			directory.mkdirs();
+    	}
+    }
+    
     public String getPixelsPath(Long id)
     {
         return getPath(PIXELS_PATH, id);
@@ -79,6 +98,11 @@ public class AbstractFileSystemService
     public String getFilesPath(Long id)
     {
         return getPath(FILES_PATH, id);
+    }
+    
+    public String getThumbnailPath(Long id)
+    {
+        return getPath(THUMBNAILS_PATH, id);
     }
     
     private String getPath(String prefix, Long id)

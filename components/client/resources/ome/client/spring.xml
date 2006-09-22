@@ -145,6 +145,11 @@
     <property name="jndiName" value="omero/remote/ome.api.ITypes"/>
     <property name="proxyInterface" value="ome.api.ITypes"/>
   </bean>
+  
+  <bean id="managed:ome.api.IThumb" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.IThumb"/>
+    <property name="proxyInterface" value="ome.api.IThumb"/>
+  </bean>
 
   <bean id="managed:ome.api.IUpdate" parent="statelessJndi">
     <property name="jndiName" value="omero/remote/ome.api.IUpdate"/>
