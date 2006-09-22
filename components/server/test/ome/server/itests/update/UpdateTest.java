@@ -227,21 +227,20 @@ public class UpdateTest extends AbstractUpdateTest
     {
     	// using the add method works
     	Pixels p = ObjectFactory.createPixelGraph(null);
-    	Thumbnail tb = new Thumbnail(); tb.setMimeType(1);
-    	p.addThumbnail(tb);
+    	Thumbnail tb = ObjectFactory.createThumbnails(p);
     	assertPixels(tb);
     	
     	// passing it in as a proxy is ok.
     	p = ObjectFactory.createPixelGraph(null);
     	p = iUpdate.saveAndReturnObject(p);
     	p = new Pixels( p.getId(), false );
-    	tb = new Thumbnail(); tb.setMimeType(1);
+    	tb = ObjectFactory.createThumbnails(p);
     	tb.setPixels(p);
     	assertPixels(tb);
     	
     	// issues with using the setter with a non-proxy
     	p = ObjectFactory.createPixelGraph(null);
-    	tb = new Thumbnail(); tb.setMimeType(1);
+    	tb = new Thumbnail(); tb.setMimeType("");tb.setSizeX(1);tb.setSizeY(1);
     	tb.setPixels(p);
     	assertPixels(tb);
     	

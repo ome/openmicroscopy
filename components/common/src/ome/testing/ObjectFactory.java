@@ -38,7 +38,9 @@ public class ObjectFactory
 	public static Thumbnail createThumbnails(Pixels p)
 	{
 		Thumbnail t = new Thumbnail();
-		t.setMimeType(1);
+		t.setMimeType("txt");
+		t.setSizeX(1);
+		t.setSizeY(1);
 		p.addThumbnail(t);
 		return t;
 	}

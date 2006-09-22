@@ -269,7 +269,9 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     {
     	Thumbnail thumb = new Thumbnail();
 		thumb.setPixels(p);
-		thumb.setMimeType(1);  // FIXME: Hack, this really should be a string
+		thumb.setMimeType("image");  // FIXME: Hack
+		thumb.setSizeX(sizeX);
+		thumb.setSizeY(sizeY);
 		return iUpdate.saveAndReturnObject(thumb);
     }
     

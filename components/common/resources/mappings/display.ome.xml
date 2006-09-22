@@ -34,7 +34,9 @@
   <type id="ome.model.display.Thumbnail">
 		<properties>
 			<required name="pixels" type="ome.model.core.Pixels"/>
-			<required name="mimeType" type="int"/><!--TODO: MimeType or string -->
+			<required name="mimeType" type="string"/>
+			<required name="sizeX" type="int"/>
+			<required name="sizeY" type="int"/>
 			<optional name="ref" type="string"/>
 		</properties>
 	</type>
