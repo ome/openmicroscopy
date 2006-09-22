@@ -372,8 +372,20 @@ public interface ImViewer
      */
     public void setUnitBar(boolean b);
     
+    /**
+     * Returns the previous state of the component
+     * 
+     * @return See above.
+     * @see #getState()
+     */
     public int getHistoryState();
     
+    /**
+     * Returns the color of the channel.
+     * 
+     * @param index The index of the channel.
+     * @return See above.
+     */
     public Color getChannelColor(int index);
     
     

@@ -498,7 +498,6 @@ class ImViewerControl
             UIUtilities.centerAndShow(dialog);
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
-            System.out.println("index: "+colorPickerIndex);
             Color c = model.getChannelColor(colorPickerIndex);
             ColourPicker dialog = new ColourPicker(c);
             dialog.addPropertyChangeListener(this);
@@ -513,16 +512,18 @@ class ImViewerControl
         }
     }
 
-    int getHistoryState()
-    {
-        // TODO Auto-generated method stub
-        return historyState;
-    }
+    /**
+     * Returns the previous state.
+     * 
+     * @return See above.
+     */
+    int getHistoryState() { return historyState; }
 
-    void setHistoryState(int s)
-    {
-        historyState = s;
-        
-    }
+    /**
+     * Sets the previous state.
+     * 
+     * @param s The value to set.
+     */
+    void setHistoryState(int s) { historyState = s; }
 
 }

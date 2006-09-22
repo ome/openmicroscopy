@@ -236,7 +236,6 @@ class ImViewerComponent
             key = (Integer) i.next();
             value = (ViewerAction) map.get(key);
         }
-        String m;
         List channels = model.getActiveChannels();
         
         switch (key.intValue()) {
@@ -273,7 +272,6 @@ class ImViewerComponent
                 }
                 break;
             case ColorModelAction.HSB_MODEL:
-                m = HSB_MODEL;
                 if (channels == null || channels.size() == 0) {
                     //no channel.
                     setChannelActive(0, true);
@@ -813,16 +811,4 @@ class ImViewerComponent
         return model.getChannelColor(index);
     }
 
-    /** 
-     * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setChannelColor(int, Color)
-     */
-    public void setChannelColor(Color c, int index)
-    {
-        model.setChannelColor(index, c);
-       
-        renderXYPlane();
-        
-    }
-   
 }
