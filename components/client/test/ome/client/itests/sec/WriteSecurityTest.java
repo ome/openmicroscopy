@@ -438,7 +438,76 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 	
 	@Override
 	public void test_U_Pixels_And_O_Thumbnails() throws Exception {
-		fail("implement");	
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+		
+		ownsfB = o;
+		ownerB = other;
+		groupB = user_other_group;
+
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, true);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+
+		// RW_RW_RW / RW_RW_Rxx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_Rx;
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+		
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+		
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		oneToMany(u, true, false);
+		oneToMany(o, true, true);
+		oneToMany(w, true, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+
+		// RW_RW_RW / xx_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		oneToMany(u, true, false);
+		oneToMany(o, true, false);
+		oneToMany(w, true, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+		
+		// RW_xx_xx / RW_xx_xx
+		permsA = RW_Rx_Rx;
+		permsB = RW_xx_xx;
+		oneToMany(u, true, false);
+		oneToMany(o, true, true);
+		oneToMany(w, false, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
+
+		// xx_xx_xx / xx_xx_xx
+		permsA = Rx_Rx_Rx;
+		permsB = xx_xx_xx;
+		oneToMany(u, false, false);
+		oneToMany(o, false, false);
+		oneToMany(w, false, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
@@ -531,6 +600,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest
 			pix.putAt( Pixels.THUMBNAILS,  
 					Collections.singleton( new Thumbnail( tb.getId(), false ) ));
 			t = sf.getUpdateService().saveAndReturnObject(pix);
+			t.addThumbnail(tb); // used to update the pixel version in tb 
 			if (!pix_ok) fail("secvio!");
 			assertTrue( MSG.equals( t.getSha1() ));
 		} catch (SecurityViolation sv) {

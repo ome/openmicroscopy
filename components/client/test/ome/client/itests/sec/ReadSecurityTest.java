@@ -358,31 +358,31 @@ public class ReadSecurityTest extends AbstractPermissionsTest
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
 		canCreate = true;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, true, true);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, true);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
 		
 		// RW_RW_RW / RW_RW_xx
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		canCreate = true;
-		manyToOne(u, true, true);
-		manyToOne(o, true, true);
-		manyToOne(w, false, false);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
+		oneToMany(u, true, true);
+		oneToMany(o, true, true);
+		oneToMany(w, true, false);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
 		
 		// xx_xx_xx / RW_RW_RW
 		permsA = xx_xx_xx;
 		permsB = RW_RW_RW;
 		canCreate = false;
-		manyToOne(u, false, true);
-		manyToOne(o, false, true);
-		manyToOne(w, false, true);
-		manyToOne(p, true, true);
-		manyToOne(r, true, true);
+		oneToMany(u, false, true);
+		oneToMany(o, false, true);
+		oneToMany(w, false, true);
+		oneToMany(p, true, true);
+		oneToMany(r, true, true);
 
 	}
 	

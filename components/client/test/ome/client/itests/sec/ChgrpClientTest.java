@@ -86,7 +86,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     }
     
     @Test
-    // no change.
+    @ExpectedExceptions( SecurityViolation.class ) // because root logged into sys.
     public void test_RootImageAsUserChgrpToUserGroup() throws Exception
     {
         updateAsUserToGroup( managedImage(asRoot), asUser, toUserGroup );

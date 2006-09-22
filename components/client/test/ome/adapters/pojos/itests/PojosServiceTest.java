@@ -32,6 +32,7 @@ package ome.adapters.pojos.itests;
 //Java imports
 import org.testng.annotations.*;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -369,7 +370,7 @@ public class PojosServiceTest extends TestCase {
     public void test_loadContainerHierarchy() throws Exception
     {
         
-        ids = new HashSet(data.getMax("Project.ids",2));
+        ids = new HashSet(Arrays.asList(fixture.pu9990.getId(),fixture.pu9991.getId()));
         results = iPojos.loadContainerHierarchy(Project.class, ids, null);
 
         PojoOptions po = new PojoOptions().exp( new Long(0L) );
@@ -656,7 +657,7 @@ public class PojosServiceTest extends TestCase {
     // Misc
     //
     
-  @Test
+  @Test( groups = { "broken","ticket:334"} )
     public void testAndForTheFunOfItLetsGetTheREWorking() throws Exception
     {
 
@@ -676,7 +677,7 @@ public class PojosServiceTest extends TestCase {
     /// ~ Versions
     /// ========================================================================
 
-  @Test( groups = {"versions","broken"} )
+  @Test( groups = {"versions","broken","ticket:118" } )
     public void test_version_doesnt_increase_on_non_change() throws Exception
     {
         Image img = new Image();
@@ -692,7 +693,7 @@ public class PojosServiceTest extends TestCase {
         
     }
     
-  @Test( groups = {"versions","broken"} )
+  @Test( groups = {"versions","broken","ticket:118" } )
     public void test_version_doesnt_increase_on_linked_update() throws Exception
     {
         ImageAnnotation ann = new ImageAnnotation();

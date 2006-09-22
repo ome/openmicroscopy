@@ -7,6 +7,7 @@ import java.util.Set;
 import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.containers.Dataset;
@@ -18,11 +19,14 @@ import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.internal.Permissions.Right;
+import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.ServiceFactory;
+import ome.testing.ObjectFactory;
 import ome.util.ShallowCopy;
 
 import static ome.model.internal.Permissions.Right.*;
@@ -87,63 +91,73 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		ownerB = user;
 		groupB = user_other_group;
 		
-		will_lock = false;
+		will_lock = true;
 				
 		// RW_RW_RW / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 		
 		// RW_RW_RW / RW_RW_Rx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_Rx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 		
 		// RW_RW_RW / RW_RW_xx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
-
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
+		
 		// RW_RW_RW / RW_Rx_Rx
 		permsA = RW_RW_RW;
 		permsB = RW_Rx_Rx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 		
 		// RW_RW_RW / RW_xx_xx		
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 
 		// RW_RW_Rx / RW_RW_Rx
 		permsA = RW_RW_Rx;
 		permsB = RW_RW_Rx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
-
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
+		
 		// RW_RW_xx / RW_RW_xx
 		permsA = RW_RW_xx;
 		permsB = RW_RW_xx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
-
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, false, other);
+		
 		// RW_Rx_Rx / RW_Rx_Rx
 		permsA = RW_Rx_Rx;
 		permsB = RW_Rx_Rx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 		
 		// RW_xx_xx / RW_xx_xx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
-
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, false, other);
+		
 		// Rx_Rx_Rx / Rx_Rx_Rx
 		permsA = Rx_Rx_Rx;
 		permsB = Rx_Rx_Rx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, true, other);
 		
 		// xx_xx_xx / xx_xx_xx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
-		oneToMany(ownsfA,true,RW_xx_xx,common_group);
-		
+		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(r, false, other);
 	}
 
 	public void test_O_Pixels_And_U_Thumbnails() throws Exception {
@@ -260,12 +274,9 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	protected void oneToMany(ServiceFactory sf, boolean can_change, Object...details_changed)
 	{
 
-//		link no read
-//		OR link then locked
-//		try to unlock (reload & check) ...only root works
-		
 		// whether or not this is valid is handled in the ReadSecurityTest.
-		// an exception here means something went wrong elsewhere.
+		// an exception here means something went wrong elsewhere; most likely,
+		// that one tried to creat objects with permissions xx_xx_xx
 		createPixels(ownsfA,groupA,permsA);
 		verifyDetails(pix, ownerA, groupA, permsA);
 		createThumbnail(ownsfB,groupB,permsB,pix);
@@ -416,9 +427,9 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		imagePixels(r,true,true);
 		
 		// RW_RW_RW / RW_RW_xx
-		u.getAdminService().changePermissions(pix, RW_RW_xx);
+		u.getAdminService().changePermissions(pix, RW_RW_Rx); // locking. can't remove read permission!
 		verifyDetails(img,user,user_other_group,RW_RW_RW);
-		verifyDetails(pix,user,user_other_group,RW_RW_xx);
+		verifyDetails(pix,user,user_other_group,RW_RW_Rx);
 		imagePixels(u,true,true);
 		imagePixels(o,true,true);
 		imagePixels(w,true,false);
@@ -426,9 +437,9 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		imagePixels(r,true,true);
 		
 		// RW_RW_RW / RW_xx_xx
-		u.getAdminService().changePermissions(pix, RW_xx_xx);
+		u.getAdminService().changePermissions(pix, RW_Rx_Rx);
 		verifyDetails(img,user,user_other_group,RW_RW_RW);
-		verifyDetails(pix,user,user_other_group,RW_xx_xx);
+		verifyDetails(pix,user,user_other_group,RW_Rx_Rx);
 		imagePixels(u,true,true);
 		imagePixels(o,true,false);
 		imagePixels(w,true,false);
@@ -476,23 +487,204 @@ public class UseSecurityTest extends AbstractPermissionsTest
 
 	@Test
 	public void testNoLoadOnNonReadableProxy() throws Exception {
-		fail("A user should not be able to pass in an unreadable, unloaded" +
+		
+		prj = new Project();
+		prj.setName("noloadonnonreadable");
+		prj.getDetails().setPermissions( Permissions.USER_PRIVATE );
+		prj = u.getUpdateService().saveAndReturnObject(prj);
+		assertFalse(prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+
+		prj.unload();
+		ds = new Dataset();
+		ds.setName("tryingtoattachtononloadablenonreadable");
+		link = new ProjectDatasetLink();
+		link.link(prj,ds);
+		try {
+			w.getUpdateService().saveObject(link);
+			fail("secvio!: A user should not be able to pass in an unreadable, unloaded" +
 				" proxy and have it linked. This would allow RW to suffice" +
 				" for RW*U*");
+		} catch (SecurityViolation sv){
+			// ok.
+		}
 	}
 	
-	@Test
-	public void testRootCanRemove() throws Exception {fail("implement!");}
-	@Test
-	public void testAttachedHasPermissionsChanged() throws Exception {fail("implement!");}
-	@Test
-	public void testCantChangePermissionsForMe() throws Exception {fail("implement!");}
-	// tough because I don't know who's attached?!?! Perhaps GROUP_LOCKED, WORLD_LOCKED?
-	// but then if a user leaves the group. (garbage collected)
+	// ~ Copy of server-side locking test. See: 
+	// https://trac.openmicroscopy.org.uk/omero/ticket/366
+	// =========================================================================
+	/** tests both transient and managed entities */
+	public void test_ProjectIsLockedOnAddedDataset() throws Exception {
+
+		prj = new Project();
+		prj.setName("ticket:337");
+		prj = u.getUpdateService().saveAndReturnObject(prj);
+		
+		assertFalse( prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+		
+		ds = new Dataset();
+		ds.setName("ticket:337");
+		prj.linkDataset(ds);
+		
+		prj = u.getUpdateService().saveAndReturnObject(prj);
+		ds = (Dataset) prj.linkedDatasetList().get(0);
 	
+		prj = u.getQueryService().find(prj.getClass(), prj.getId().longValue() );
+		ds = u.getQueryService().find(ds.getClass(), ds.getId().longValue() );
+		
+		assertTrue( prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+		assertTrue( ds.getDetails().getPermissions().isSet(Flag.LOCKED));
+	
+	}
+	
+	@Test( dependsOnMethods = "test_ProjectIsLockedOnAddedDataset" ) 
+	public void test_RootCantOverride() throws Exception 
+	{
+		reacquire(r);	
+		
+		// try to change
+		prj.getDetails().getPermissions().revoke( Role.USER, Right.READ );
+		assertFails(r);
+		
+		reacquire(r);
+		prj.getDetails().getPermissions().unSet( Flag.LOCKED );
+		assertNoChange(r);
+	
+		// this succeeds because of loosened semantics. see:
+		// https://trac.openmicroscopy.org.uk/omero/changeset/944
+		// https://trac.openmicroscopy.org.uk/omero/ticket/337
+		reacquire(r);
+		prj.getDetails().setOwner( other );
+		assertSucceeds(r);
+
+		// now return it to the previous owner for testing.
+		reacquire(r);
+		prj.getDetails().setOwner( user );
+		assertSucceeds(r);
+		
+		// but we can't change the group. too dynamic.
+		reacquire(r);
+		prj.getDetails().setGroup( common_group );
+		assertFails(r);
+		
+	}
+	
+	@Test( dependsOnMethods = "test_ProjectIsLockedOnAddedDataset" ) 
+	public void test_UserCantOverride() throws Exception 
+	{
+		reacquire(u);		
+		
+		// try to change
+		prj.getDetails().getPermissions().revoke( Role.USER, Right.READ );
+		assertFails(u);
+		
+		reacquire(u);
+		prj.getDetails().getPermissions().unSet( Flag.LOCKED );
+		assertNoChange(u);
+	
+		// no set owner
+		
+		reacquire(u);
+		prj.getDetails().setGroup( common_group );
+		assertFails(u);
+	
+	}
+	
+	@Test( dependsOnMethods = {"test_RootCantOverride","test_UserCantOverride"} )
+	public void test_OnceDatasetIsRemovedCanUnlock() throws Exception {
+		
+		ILink link = r.getQueryService().findByQuery("select pdl from ProjectDatasetLink pdl " +
+				"where parent.id = :pid and child.id = :cid", new Parameters()
+				.addLong("pid", prj.getId())
+				.addLong("cid", ds.getId()));
+		r.getUpdateService().deleteObject(link);
+		
+		r.getAdminService().unlock( prj );
+		
+		prj = r.getQueryService().find(prj.getClass(), prj.getId());
+		assertFalse( prj.getDetails().getPermissions().isSet(Flag.LOCKED));
+	}	
+	
+	@Test
+	public void test_AllowInitialLock() throws Exception {
+		
+		Permissions perms = new Permissions().set( Flag.LOCKED );
+		
+		prj = new Project();
+		prj.setName("ticket:337");
+		prj.getDetails().setPermissions( perms );
+		
+		Project t = u.getUpdateService().saveAndReturnObject(prj);
+		assertTrue( t.getDetails().getPermissions().isSet( Flag.LOCKED ));
+		
+		t = u.getUpdateService().saveAndReturnObject(prj); // cloning
+		t.getDetails().getPermissions().set( Flag.LOCKED );
+		t = u.getUpdateService().saveAndReturnObject(t); // save changes on managed
+		assertTrue( t.getDetails().getPermissions().isSet( Flag.LOCKED ));
+		
+	}
+	
+	@Test( groups = "ticket:339" )
+	public void test_HandlesExplicitPermissionReduction() throws Exception
+	{
+
+		prj = new Project();
+		prj.setName( "ticket:339" );
+		ds = new Dataset();
+		ds.setName( "ticket:339" );
+		prj.linkDataset( ds );
+		
+		Permissions perms = Permissions.READ_ONLY; // relatively common use-case		
+		prj.getDetails().setPermissions( perms );
+		
+		Project t = u.getUpdateService().saveAndReturnObject( prj );
+		
+	}
+	
+	@Test( groups = "ticket:357" )
+	public void test_OneToOnesGetLockedAsWell() throws Exception 
+	{
+		
+		img = new Image(); img.setName( "ticket:357");
+		pix = ObjectFactory.createPixelGraph(null);
+		img.addPixels(pix);
+		
+		img = u.getUpdateService().saveAndReturnObject(img);
+		pix = (Pixels) img.iteratePixels().next();
+		
+		assertTrue( pix.getDetails().getPermissions().isSet( Flag.LOCKED ));
+		
+	}
 	// ~ Helpers
 	// =========================================================================
+
+	private void reacquire(ServiceFactory sf) {
+		prj = sf.getQueryService().find( prj.getClass(), prj.getId().longValue() );
+		assertTrue( "Permissions should still be locked.", 
+				prj.getDetails().getPermissions().isSet( Flag.LOCKED ));
+	}
+
+	private void assertSucceeds(ServiceFactory sf)
+	{
+		prj = sf.getUpdateService().saveAndReturnObject( prj );		
+	}
 	
+	private void assertFails(ServiceFactory sf) {
+		try 
+		{
+			assertSucceeds(sf);
+			fail("secvio!");
+		} catch (SecurityViolation sv) {
+			// ok
+		}
+	}
+
+	private void assertNoChange(ServiceFactory sf) {
+		Permissions p1 = prj.getDetails().getPermissions();
+		prj = sf.getUpdateService().saveAndReturnObject( prj );
+		Permissions p2 = prj.getDetails().getPermissions();
+		assertTrue( p1.sameRights(p2));
+	}
+
 	protected void verifyLockStatus(IObject _i,boolean was_locked) {
 		IObject v = rootQuery.get(_i.getClass(), _i.getId());
 		Details d = v.getDetails();
@@ -515,6 +707,9 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	protected Details d(IObject _i, Object _o)
 	{
 		Details retVal = new Details( _i.getDetails() );
+		// prevent error on different update event versions.
+		retVal.setCreationEvent(null);
+		retVal.setUpdateEvent(null);
 		if (_o instanceof Experimenter) {
 			Experimenter _e = (Experimenter) _o;
 			retVal.setOwner(_e);
