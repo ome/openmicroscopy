@@ -68,7 +68,6 @@ import static ome.model.internal.Permissions.Role.*;
 import ome.model.internal.Token;
 import ome.model.internal.Permissions.Flag;
 import ome.model.meta.Event;
-import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -194,8 +193,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 			return true;
 		if (EventLog.class.isAssignableFrom(klass))
 			return true;
-		if (EventDiff.class.isAssignableFrom(klass))
-			return true;
 		return false;
 	}
 
@@ -217,8 +214,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 		if (Event.class.isAssignableFrom(klass))
 			return true;
 		if (EventLog.class.isAssignableFrom(klass))
-			return true;
-		if (EventDiff.class.isAssignableFrom(klass))
 			return true;
 		if (IEnum.class.isAssignableFrom(klass))
 			return true;
@@ -939,8 +934,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 		Assert.notNull(id);
 
 		if (Event.class.isAssignableFrom(klass)
-				|| EventLog.class.isAssignableFrom(klass)
-				|| EventDiff.class.isAssignableFrom(klass)) {
+				|| EventLog.class.isAssignableFrom(klass)) {
 			log.debug("Not logging creation of logging type:" + klass);
 		}
 
@@ -954,7 +948,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 		}
 	}
 	
-	public Map<Class,Map<String,EventLog>> getLogs( )
+	public List<EventLog> getLogs( )
 	{
 		return cd.getLogs();
 	}

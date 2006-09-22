@@ -62,7 +62,7 @@ class BasicEventContext implements EventContext
 	Collection<Long> leaderOfGroups;
 	Set<String> disabledSubsystems;
 	Set<IObject> lockCandidates;
-	Map<Class,Map<String,EventLog>> logs;
+	List<EventLog> logs;
 
     // ~ EventContext interface
 	// =========================================================================

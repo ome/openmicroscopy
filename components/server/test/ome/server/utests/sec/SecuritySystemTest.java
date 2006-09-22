@@ -23,7 +23,6 @@ import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
-import ome.model.meta.EventDiff;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -118,7 +117,6 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		assertTrue(sec.isSystemType(ExperimenterGroup.class));
 		assertTrue(sec.isSystemType(Event.class));
 		assertTrue(sec.isSystemType(EventLog.class));
-		assertTrue(sec.isSystemType(EventDiff.class));
 		assertTrue(sec.isSystemType(IEnum.class));
 		assertFalse(sec.isSystemType(Image.class));
 		// TODO what else
@@ -217,20 +215,17 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 	public void testAddLog() {
 		prepareMocksWithUserDetails(false);
 		sec.setCurrentDetails(false);
-		assertTrue(event.sizeOfLogs()==0);
+		assertTrue(sec.getLogs().size()==0);
 		sec.addLog("SHOULDN'T BE ADDED", Event.class, 1L); 
-		assertTrue(event.sizeOfLogs()==0); 
+		assertTrue(sec.getLogs().size()==0); 
 		sec.addLog("SHOULD BE ADDED", Image.class, 2L);
 		
 		//ticket:328
-		//assertTrue(event.sizeOfLogs()==1);
-		//List<EventLog> logs = event.collectLogs(null);
-		assertFalse(sec.getLogs().containsKey(Event.class));
-		assertTrue(sec.getLogs().containsKey(Image.class));
-		EventLog onlyLog = sec.getLogs().get(Image.class).values().iterator().next();
+		assertTrue(sec.getLogs().size()==1);
+		EventLog onlyLog = sec.getLogs().get(0);
 		assertEquals(onlyLog.getAction(),"SHOULD BE ADDED");
-		assertEquals(onlyLog.getType(),Image.class.getName());
-		assertEquals(onlyLog.getIdList(),"2");
+		assertEquals(onlyLog.getEntityType(),Image.class.getName());
+		assertEquals(onlyLog.getEntityId(),new Long(2L));
 		sec.clearCurrentDetails();
 	}
 

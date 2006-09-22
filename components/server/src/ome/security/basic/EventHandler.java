@@ -31,6 +31,7 @@ package ome.security.basic;
 // Java imports
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -200,13 +201,9 @@ public class EventHandler implements MethodInterceptor
 			{
 				StatelessSession s = sf.openStatelessSession( session.connection() );
 
-				Map<Class,Map<String,EventLog>> logs = secSys.getLogs();
-				for (Class k : logs.keySet()) {
-					Map<String,EventLog> m = logs.get(k);
-					if ( m != null )
-					for (EventLog l : m.values()) {
-						s.insert( l );
-					}
+				List<EventLog> logs = secSys.getLogs();
+				for (EventLog l : logs) {
+					s.insert( l );
 				}
 				
 				//s.close();

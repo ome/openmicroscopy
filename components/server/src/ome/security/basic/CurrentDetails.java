@@ -131,38 +131,25 @@ class CurrentDetails
     
     public void addLog( String action, Class klass, Long id )
     {
-    	Map<Class, Map<String, EventLog>> map = data.get().logs;
-    	if ( map == null )
+    	List<EventLog> list = data.get().logs;
+    	if ( list == null )
     	{
-    		map = new HashMap<Class, Map<String, EventLog>>();
-    		data.get().logs = map;
+    		list = new ArrayList<EventLog>();
+    		data.get().logs = list;
     	}
-    	
-    	Map<String,EventLog> m = map.get( klass );
-    	if ( m == null )
-    	{
-    		m = new HashMap<String, EventLog>();
-    		map.put( klass, m );
-    	}
-    	
-    	EventLog l = m.get( action );
-    	if ( l == null )
-    	{
-			l = new EventLog();
-			l.setAction(action);
-			l.setType(klass.getName()); // TODO could be id to Type entity
-			l.setIdList(id.toString());
-			l.setEvent(getCreationEvent());
-			m.put( action, l );
-    	} else {
-    		l.setIdList( l.getIdList() + " " +id.toString() );
-    	}	
+
+		EventLog l = new EventLog();
+		l.setAction(action);
+		l.setEntityType(klass.getName()); // TODO could be id to Type entity
+		l.setEntityId(id);
+		l.setEvent(getCreationEvent());
+		list.add( l );
     }
     
-    public Map<Class,Map<String,EventLog>> getLogs()
+    public List<EventLog> getLogs()
     { // TODO defensive copy
     	return data.get().logs == null ? 
-    			new HashMap<Class,Map<String,EventLog>>() : 
+    			new ArrayList<EventLog>() : 
     				data.get().logs;
     }
     

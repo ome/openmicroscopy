@@ -87,20 +87,10 @@
 
 	<type id="ome.model.meta.EventLog" mutable="false" global="true">
 		<properties>
-			<required name="type" type="string"/>
+			<required name="entityId" type="long"/>
+			<required name="entityType" type="string"/>
 			<required name="action" type="string"/>
-			<component id="ome.model.internal.StringArray" required="true">
-				<required name="idList" type="text"/>
-			</component>
 			<manyone name="event" type="ome.model.meta.Event"/>
-			<onemany name="diffs" type="ome.model.meta.EventDiff" inverse="logs"/>
-		</properties>
-	</type>
-	
-
-	<type id="ome.model.meta.EventDiff" mutable="false" global="true">
-		<properties>
-			<manyone name="logs" type="ome.model.meta.EventLog"/>
 		</properties>
 	</type>
 
