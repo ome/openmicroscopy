@@ -578,8 +578,7 @@ class ControlPane
     }
 
     /**
-     *  to selection of a new 
-     * plane.
+     * Reacts to selection of a new plane.
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
