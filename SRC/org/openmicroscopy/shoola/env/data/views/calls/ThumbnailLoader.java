@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
@@ -42,6 +43,8 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -101,6 +104,8 @@ public class ThumbnailLoader
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         RenderingService rds = context.getRenderingService();
         BufferedImage thumbPix = rds.getThumbnail(pxd, sizeX, sizeY);
+        if (thumbPix == null) // create a default black one.
+            thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     
