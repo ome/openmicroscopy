@@ -590,9 +590,5 @@ class ControlPane
                     tSlider.getValue());
         }
     }
-
-
-
-
     
 }
