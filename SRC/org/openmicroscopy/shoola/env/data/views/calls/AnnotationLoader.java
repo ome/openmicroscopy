@@ -38,7 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.DatasetData;
@@ -108,7 +108,7 @@ public class AnnotationLoader
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 annotations = os.findAnnotations(nodeType, nodeIDs, null);
             }
         };

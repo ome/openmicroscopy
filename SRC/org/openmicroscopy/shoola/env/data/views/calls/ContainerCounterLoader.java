@@ -38,7 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -99,9 +99,9 @@ public class ContainerCounterLoader
 				    { 
 				        HashSet ids = new HashSet(1);
 				        ids.add(idFinal);
-				        OmeroService os = context.getOmeroService();
+				        OmeroDataService os = context.getDataService();
 				        currentMap = os.getCollectionCount(rootTypeFinal, 
-				                		OmeroService.IMAGES_PROPERTY, ids);
+				                		OmeroDataService.IMAGES_PROPERTY, ids);
 				    }
 				});
             }

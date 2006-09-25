@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -86,7 +86,7 @@ public class DataObjectSaver
         return new BatchCall("Create Data object.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.createDataObject(object, parent);
             }
         };
@@ -103,7 +103,7 @@ public class DataObjectSaver
         return new BatchCall("Update Data object.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.updateDataObject(object);
             }
         };
@@ -121,7 +121,7 @@ public class DataObjectSaver
         return new BatchCall("Remove Data object.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.removeDataObject(object, parent);
                 //result = object;
             }

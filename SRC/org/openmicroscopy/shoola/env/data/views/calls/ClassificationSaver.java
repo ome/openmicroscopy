@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -83,7 +83,7 @@ public class ClassificationSaver
         return new BatchCall("Saving classification tree.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 os.classify(images, categories);
                 result = categories;
             }
@@ -103,7 +103,7 @@ public class ClassificationSaver
         return new BatchCall("Declassifying images.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 os.declassify(images, categories);
                 result = categories;
             }

@@ -36,7 +36,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.AnnotationData;
@@ -90,7 +90,7 @@ public class AnnotationSaver
         return new BatchCall("Remove dataset annotation.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.removeAnnotationFrom(object, data);
             }
         };
@@ -109,7 +109,7 @@ public class AnnotationSaver
         return new BatchCall("Update image annotation.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.updateAnnotationFor(object, data);
             }     
         };
@@ -128,7 +128,7 @@ public class AnnotationSaver
         return new BatchCall("Create dataset annotation.") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 result = os.createAnnotationFor(object, data);
             }
         };

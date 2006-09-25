@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryGroupData;
@@ -113,7 +113,7 @@ public class HierarchyFinder
         return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 rootNodes = os.findContainerHierarchy(hierarchyRootNodeType,
                                ids, rootLevel, rootLevelID);
             }

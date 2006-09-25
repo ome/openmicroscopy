@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
@@ -92,7 +92,7 @@ public class ImagesLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 results = os.getUserImages();
             }
         };
@@ -118,7 +118,7 @@ public class ImagesLoader
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                OmeroService os = context.getOmeroService();
+                OmeroDataService os = context.getDataService();
                 results = os.getImages(nodeType, nodeIDs, rootLevel, 
                                         rootLevelID);
             }

@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -73,7 +73,7 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private ImageData[]  images;
+    private ImageData[]     images;
     
     /** The maximum acceptable width of the thumbnails. */
     private int             maxWidth;
@@ -96,15 +96,17 @@ public class ThumbnailLoader
         double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-        RenderingService rds = context.getRenderingService();
+        OmeroImageService rds = context.getImageService();
         BufferedImage thumbPix = null;
         try {
             thumbPix = rds.getThumbnail(pxd, sizeX, sizeY);
+            
         } catch (Exception e) {
             context.getLogger().error(this, 
                     "Cannot retrieve thumbnail: "+e.getMessage());
-            thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         }
+        if (thumbPix == null) 
+            thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     

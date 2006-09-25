@@ -38,7 +38,7 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -79,7 +79,7 @@ public class ImageRenderer
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
-                RenderingService rds = context.getRenderingService();
+                OmeroImageService rds = context.getImageService();
                 result = rds.renderImage(pixelsID, pd);
             }
         };

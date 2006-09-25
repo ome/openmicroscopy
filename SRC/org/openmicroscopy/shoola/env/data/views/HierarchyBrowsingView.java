@@ -36,7 +36,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -61,21 +61,21 @@ public interface HierarchyBrowsingView
 
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
-                                OmeroService.DECLASSIFICATION;
+                                OmeroDataService.DECLASSIFICATION;
     
     /**
      * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_ME = 
-                                OmeroService.CLASSIFICATION_ME;
+                                OmeroDataService.CLASSIFICATION_ME;
     
     /**
      * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_NME = 
-                            OmeroService.CLASSIFICATION_NME;
+                            OmeroDataService.CLASSIFICATION_NME;
     
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -234,9 +234,9 @@ public interface HierarchyBrowsingView
      * 
      * @param imageIDs  The id of the images.
      * @param algorithm  One of the following constants:
-     *                  {@link OmeroService#DECLASSIFICATION},
-     *                  {@link OmeroService#CLASSIFICATION_ME},
-     *                  {@link OmeroService#CLASSIFICATION_NME}.
+     *                  {@link OmeroDataService#DECLASSIFICATION},
+     *                  {@link OmeroDataService#CLASSIFICATION_ME},
+     *                  {@link OmeroDataService#CLASSIFICATION_NME}.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
