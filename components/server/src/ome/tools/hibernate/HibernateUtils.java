@@ -172,28 +172,47 @@ public abstract class HibernateUtils
 			Details old_d = getDetails(state, names);
 			
 			// have to handle nulls because of ticket:307
-			if (old_d == null || new_d == null) 
+			if (new_d == null) 
 			{
-				if (new_d == null && old_d == null) 
+				throw new InternalException(
+						"New details null. Not currently handled.");
+			}
+			
+			// This is normal enough. However, since new_d is not null, we 
+			// need to see just what the user did to the new_details to make
+			// it not also null.
+			else if (old_d == null)
+			{ 
+				if (new_d.getOwner()!=null||new_d.getGroup()!=null||
+						new_d.getCreationEvent()!=null||
+						new_d.getUpdateEvent()!=null)
 				{
 					throw new InternalException(
-							"Both details null. Can't have changed!");
+							"These circumstances should never happen.");
+				}
+
+				// ok. all the fields of Details are null. This is a simple
+				// instantiated Details. No need to panic.
+				else if (new_d.getPermissions()==null) {
+					return true;
 				}
 				
-				else if (new_d == null) 
-				{
-					// don't worry about it. 
+				// WORKAROUND for ticket:307 by checking for SOFT below
+				// see https://trac.openmicroscopy.org.uk/omero/ticket/307
+				// see http://opensource.atlassian.com/projects/hibernate/browse/HHH-2027
+				// due to ticket:307 the permissions has been filled in. 
+				// ignore.
+				else if (new_d.getPermissions().isSet(Flag.SOFT)) {
 					return true;
 				} 
 				
-				else 
-				{ // then new_d != null. What's up?
-					if (new_d.getPermissions() != null && 
-							new_d.getPermissions().isSet(Flag.SOFT)) 
-						return true;	
+				// something is weird.
+				else {
 					return false;
 				}
 			}
+			
+			// both details are non-null, this is the easy case.
 			else {
 				if ( ! onlyPermissionsChanged(new_d, old_d)) return false;
 				Permissions new_p = new Permissions( new_d.getPermissions() );

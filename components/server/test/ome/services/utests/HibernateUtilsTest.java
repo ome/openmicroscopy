@@ -32,10 +32,18 @@ package ome.services.utests;
 
 //Third-party libraries
 import junit.framework.TestCase;
+
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.entity.EntityPersister;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
 import org.testng.annotations.*;
 
 //Application-internal dependencies
 import ome.model.core.Image;
+import ome.model.internal.Details;
+import ome.model.internal.Permissions;
+import ome.model.meta.Event;
 import ome.tools.hibernate.HibernateUtils;
 
 /**
@@ -47,8 +55,21 @@ import ome.tools.hibernate.HibernateUtils;
  * </small>
  * @since Omero 3.0
  */
-public class HibernateUtilsTest extends TestCase {
-
+public class HibernateUtilsTest extends MockObjectTestCase {
+	
+    @Configuration(beforeTestMethod = true)
+    protected void setUp() throws Exception
+    {
+        super.setUp();
+    }
+	
+    @Configuration(afterTestMethod = true)
+    protected void tearDown() throws Exception
+    {
+        super.verify();
+        super.tearDown();
+    }
+	
 	@Test
 	public void testIdEquals() throws Exception {
 		assertTrue(HibernateUtils.idEqual(null,null));
@@ -61,5 +82,49 @@ public class HibernateUtilsTest extends TestCase {
 		assertFalse(HibernateUtils.idEqual(null, new Image(null)));
 	}
 
+
+	Mock mockPersister;
+	EntityPersister persister;
+	
+	String[] names = {"details","field1","field2"};
+	Event entity = new Event();
+	int[] dirty = { 0 };
+	
+    @Test
+    public void testOnlyLockedChanged() throws Exception {
+
+    	Object[] state = { null, null, null };
+    	Object[] current = { new Details(), null, null };
+    	setupMocks(current);
+    	
+    	assertOnlyLockedChanged(state, true);
+	
+    	Details d = new Details(); d.setPermissions(Permissions.READ_ONLY);
+    	current = new Object[] { d, null, null };
+    	setupMocks(current);
+    	
+    	assertOnlyLockedChanged(state, false);
+    	
+    }
     
+    // ~ Helpers
+	// =========================================================================
+    
+    protected void setupMocks(Object[] current)
+    {
+    	mockPersister = mock(EntityPersister.class);
+    	persister = (EntityPersister) mockPersister.proxy();
+    	mockPersister.expects( once() ).method( "getPropertyValues" )
+    	.will( returnValue( current ));
+    	mockPersister.expects( once() ).method( "findDirty" )
+    	.will( returnValue( dirty ));
+
+    }
+    
+    protected void assertOnlyLockedChanged(Object[] state, boolean onlyLockChanged)
+    {
+    	assertTrue( onlyLockChanged ==  
+    			HibernateUtils.onlyLockChanged(
+    					null, persister, entity, state, names));
+    }
 }
