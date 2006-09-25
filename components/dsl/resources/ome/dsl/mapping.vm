@@ -139,6 +139,8 @@
                     type="long" column="permissions"/> 
                 <!-- TODO possibly just default CHMOD here -->
             </component>
+            <many-to-one name="externalInfo" class="ome.model.meta.ExternalInfo"
+            	column="external_id" not-null="false" cascade="$cascade_settings"/>
 #end
         </component>
         

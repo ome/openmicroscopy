@@ -1,5 +1,5 @@
 /*
- * ome.server.itests.events.EventFieldsTest
+ * ome.server.itests.details.EventFieldsTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests.events;
+package ome.server.itests.details;
 
 //Java imports
 import java.sql.Timestamp;

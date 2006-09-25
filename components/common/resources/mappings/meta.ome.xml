@@ -93,5 +93,13 @@
 			<manyone name="event" type="ome.model.meta.Event"/>
 		</properties>
 	</type>
+	
+	<type id="ome.model.meta.ExternalInfo" global="true">
+		<properties>
+			<required name="entityId" type="long"/>
+			<required name="entityType" type="string"/>
+			<required name="lsid" type="string"/>
+		</properties>
+	</type>
 
 </types>

@@ -1,5 +1,5 @@
 /*
- * ome.server.itests.events.UpdateEventsTest
+ * ome.server.itests.details.UpdateEventsTest
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.server.itests.events;
+package ome.server.itests.details;
 
 //Java imports
 

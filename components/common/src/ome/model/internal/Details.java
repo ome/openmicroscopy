@@ -44,6 +44,7 @@ import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.ExternalInfo;
 import ome.util.Filter;
 import ome.util.Filterable;
 
@@ -74,6 +75,7 @@ public class Details implements IDetails, Filterable, Serializable
     public final static String UPDATEEVENT = "Details_updateEvent";
     public final static String OWNER = "Details_owner";
     public final static String GROUP = "Details_group";
+    public final static String EXTERNALINFO = "Details_externalInfo";
     
     IObject _context;
     
@@ -82,7 +84,8 @@ public class Details implements IDetails, Filterable, Serializable
     Event _update;
     Experimenter _owner;
     ExperimenterGroup _group;
-
+    ExternalInfo _externalInfo;
+    
     // Non-entity fields
     Set<String> _filteredCollections;
     Map _counts;
@@ -98,6 +101,7 @@ public class Details implements IDetails, Filterable, Serializable
         setUpdateEvent(copy.getUpdateEvent());
         setOwner(copy.getOwner());
         setGroup(copy.getGroup());
+        setExternalInfo(copy.getExternalInfo());
         // Non-entity fields 
         _filteredCollections = copy.filteredSet();
         _counts = copy.getCounts() == null ? null :
@@ -117,6 +121,8 @@ public class Details implements IDetails, Filterable, Serializable
                 new Event( this.getUpdateEvent().getId(), false ));
         newDetails.setPermissions( this.getPermissions() == null ? null :
         		new Permissions( ).revokeAll( this.getPermissions() ));
+        newDetails.setExternalInfo( this.getExternalInfo() == null ? null :
+        		new ExternalInfo( this.getExternalInfo().getId(), false ));
         newDetails._filteredCollections = this.filteredSet();
         newDetails.setCounts( this.getCounts() == null ? null :
             new HashMap(this.getCounts()));
@@ -281,6 +287,14 @@ public class Details implements IDetails, Filterable, Serializable
         this._group = _group;
     }
 
+    public ExternalInfo getExternalInfo() {
+		return _externalInfo;
+	}
+    
+    public void setExternalInfo(ExternalInfo info) {
+		_externalInfo = info;
+	}
+    
     public Map getCounts()
     {
         return _counts; // TODO unmodifiable?
@@ -300,6 +314,7 @@ public class Details implements IDetails, Filterable, Serializable
           setPermissions((Permissions) filter.filter(PERMISSIONS, getPermissions()));
           setCreationEvent((Event) filter.filter(CREATIONEVENT, getCreationEvent()));
           setUpdateEvent((Event) filter.filter(UPDATEEVENT, getUpdateEvent()));
+          setExternalInfo( (ExternalInfo) filter.filter(EXTERNALINFO, getExternalInfo()));
           return true;
     
     }
@@ -320,6 +335,8 @@ public class Details implements IDetails, Filterable, Serializable
             return getCreationEvent();
         else if (field.equals(UPDATEEVENT))
             return getUpdateEvent();
+        else if (field.equals(EXTERNALINFO))
+        	return getExternalInfo();
         else {
             if (_dynamicFields != null)
             {
@@ -343,6 +360,8 @@ public class Details implements IDetails, Filterable, Serializable
             setCreationEvent( (Event) value );
         else if (field.equals(UPDATEEVENT))
             setUpdateEvent( (Event) value );
+        else if (field.equals(EXTERNALINFO))
+        	setExternalInfo( (ExternalInfo) value );
         else {
             if (_dynamicFields == null)
                 _dynamicFields = new HashMap();
