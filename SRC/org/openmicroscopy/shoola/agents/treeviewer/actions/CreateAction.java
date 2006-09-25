@@ -177,6 +177,7 @@ public class CreateAction
             setEnabled(false);
             putValue(Action.NAME, NAME);
         }
+        name = (String) getValue(Action.NAME);
     }
     
     /**
@@ -188,6 +189,7 @@ public class CreateAction
     {
         super(model);
         putValue(Action.NAME, NAME);
+        name = (String) getValue(Action.NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

@@ -99,6 +99,7 @@ public class DeleteAction
     public DeleteAction(TreeViewer model)
     {
         super(model);
+        name = NAME;
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

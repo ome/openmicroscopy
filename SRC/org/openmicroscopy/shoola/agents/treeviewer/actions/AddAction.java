@@ -96,7 +96,7 @@ public class AddAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
             setEnabled(false);
-            putValue(Action.NAME, NAME);  
+            putValue(Action.NAME, NAME); 
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             putValue(Action.NAME, NAME_DATASET); 
@@ -113,6 +113,7 @@ public class AddAction
             setEnabled(false);
             putValue(Action.NAME, NAME);
         }
+        name = (String) getValue(Action.NAME);
     }
     
     /**
@@ -124,10 +125,11 @@ public class AddAction
     {
         super(model);
         putValue(Action.NAME, NAME);
+        name = (String) getValue(Action.NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.ADD_EXISTING));
     }
 
     /**

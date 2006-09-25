@@ -69,8 +69,7 @@ public class RefreshAction
     
     /**
      * Callback to notify of a change in the currently selected display
-     * in the currently selected 
-     * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+     * in the currently selected {@link Browser}.
      * 
      * @param selectedDisplay The newly selected display node.
      */
@@ -113,7 +112,8 @@ public class RefreshAction
     public RefreshAction(TreeViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        //putValue(Action.NAME, NAME);
+        name = NAME;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

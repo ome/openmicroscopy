@@ -71,6 +71,7 @@ public class PasteAction
     {
         super(model);
         setEnabled(false);
+        name = NAME;
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

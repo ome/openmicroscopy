@@ -32,8 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -44,6 +42,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -60,7 +59,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 public class ExitApplicationAction
-    extends AbstractAction
+    extends TreeViewerAction
 {
 
     /** The name of the action. */
@@ -69,9 +68,15 @@ public class ExitApplicationAction
     /** The description of the action. */
     public static final String DESCRIPTION = "Exit the application.";
     
-    /** Creates a new instance. */
-    public ExitApplicationAction()
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    public ExitApplicationAction(TreeViewer model)
     {
+        super(model);
+        setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

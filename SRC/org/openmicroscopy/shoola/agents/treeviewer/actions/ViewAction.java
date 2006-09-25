@@ -84,7 +84,7 @@ public class ViewAction
             return;
         }
         if (selectedDisplay.getParentDisplay() == null) { //root
-            putValue(Action.NAME, BROWSE);
+            name = BROWSE;
             setEnabled(model.getSelectedBrowser().getBrowserType() == 
                 Browser.IMAGES_EXPLORER);
             return;
@@ -96,12 +96,12 @@ public class ViewAction
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
-                    putValue(Action.NAME, BROWSE);
+                    name = BROWSE;
                     return;
                 }
             }
-            if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   
-            else putValue(Action.NAME, BROWSE);
+            if ((ho instanceof ImageData)) name = VIEW;  
+            else name = BROWSE;
             setEnabled(true);
         }
     }
@@ -115,7 +115,7 @@ public class ViewAction
     {
         super(model);
         setEnabled(true);
-        putValue(Action.NAME, VIEW);
+        name = BROWSE;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

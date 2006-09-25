@@ -98,7 +98,8 @@ public class PropertiesAction
     public PropertiesAction(TreeViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        name = NAME;
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

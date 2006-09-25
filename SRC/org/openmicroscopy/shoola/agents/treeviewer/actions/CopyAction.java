@@ -86,6 +86,7 @@ public class CopyAction
     public CopyAction(TreeViewer model)
     {
         super(model);
+        name = NAME;
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

@@ -38,6 +38,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -64,8 +65,12 @@ public abstract class TreeViewerAction
     implements ChangeListener, PropertyChangeListener
 {
 
+    
     /** A reference to the Model. */
-    protected TreeViewer      model;
+    protected TreeViewer    model;
+    
+    /** The name of the action. */
+    protected String        name;
     
     /**
      * Callback to notify of a change in the currently selected display
@@ -115,6 +120,18 @@ public abstract class TreeViewerAction
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
             browser.addChangeListener(this);
         }    
+    }
+    
+    /**
+     * Returns the name of the action.
+     * 
+     * @return See above.
+     */
+    public String getActionName()
+    { 
+        if (name == null || name.length() == 0)
+            return System.getProperty(Action.NAME); 
+        return name;
     }
     
     /** 
