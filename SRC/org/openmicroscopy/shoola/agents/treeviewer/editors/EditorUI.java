@@ -52,7 +52,6 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
