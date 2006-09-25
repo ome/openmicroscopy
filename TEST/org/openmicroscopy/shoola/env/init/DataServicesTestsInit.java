@@ -43,8 +43,8 @@ import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.Env;
-import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.SyncMonitorFactory;
 
 /** 
@@ -108,10 +108,10 @@ public class DataServicesTestsInit
                                      DataServicesFactory.getInstance(container);
             
             //Link them to the container's registry.
-            RenderingService ps = factory.getRDS();
+            OmeroImageService ps = factory.getRDS();
             RegistryFactory.linkRDS(ps, reg);
             
-            OmeroService ops = factory.getOS();
+            OmeroDataService ops = factory.getOS();
             RegistryFactory.linkOS(ops, reg);
             
             //Finally create and bind the factory used by the async data views

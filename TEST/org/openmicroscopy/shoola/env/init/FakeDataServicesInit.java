@@ -39,8 +39,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.NullOmeroPojoService;
 import org.openmicroscopy.shoola.env.data.NullRenderingService;
-import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 
 /** 
  * Fake intialization task.
@@ -66,13 +66,13 @@ public class FakeDataServicesInit
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static RenderingService      rds = new NullRenderingService();
+    public static OmeroImageService      rds = new NullRenderingService();
     
     /** 
      * Default Null service.
      * Change it to whatever implementation is required by your tests.
      */
-    public static OmeroService          os = new NullOmeroPojoService();
+    public static OmeroDataService          os = new NullOmeroPojoService();
 
     /**
      * Constructor required by superclass.
