@@ -113,13 +113,13 @@ class ClassifierControl
     {
         switch (model.getState()) {
             case Classifier.SAVING_CLASSIFICATION:   
-                TreeViewerFactory.getLoadingWindow().setTitle(
-                        TreeViewer.SAVING_TITLE);
+                //TreeViewerFactory.getLoadingWindow().setTitle(
+                //        TreeViewer.SAVING_TITLE);
             case Classifier.LOADING_CLASSIFICATION:
-                UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
+                //UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
                 break;
             case Classifier.READY:
-                TreeViewerFactory.getLoadingWindow().setVisible(false);
+                //TreeViewerFactory.getLoadingWindow().setVisible(false);
                 break;
         }
     }

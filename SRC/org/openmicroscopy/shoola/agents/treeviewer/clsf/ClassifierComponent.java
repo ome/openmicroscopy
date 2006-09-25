@@ -118,6 +118,8 @@ class ClassifierComponent
         switch (model.getState()) {
             case NEW:
                 model.fireClassificationLoading();
+                model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE,
+                                                false);
                 fireStateChange();
                 break;
             case DISCARDED:
@@ -186,6 +188,7 @@ class ClassifierComponent
         if (model.getDataObjects().length == 1)
             firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, null,
                                 model.getDataObject());
+        model.getParentModel().setStatus(false, "", true);
     }
 
     /**
@@ -208,6 +211,7 @@ class ClassifierComponent
                     "supported.");
         model.saveClassification(images, categories, mode);
         fireStateChange();
+        model.getParentModel().setStatus(false, "", true);
     }
 
     /**
