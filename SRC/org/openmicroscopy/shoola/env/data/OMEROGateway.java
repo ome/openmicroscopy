@@ -161,20 +161,20 @@ class OMEROGateway
     }
     
     /**
-     * Maps the constant defined by {@link OmeroService}
+     * Maps the constant defined by {@link OmeroDataService}
      * to the corresponding value defined by {@link IPojos}.
      * 
-     * @param algorithm One of the constant defined by {@link OmeroService}.
+     * @param algorithm One of the constant defined by {@link OmeroDataService}.
      * @return See above.
      */
     private String mapAlgorithmToString(int algorithm)
     {
         switch (algorithm) {
-            case OmeroService.CLASSIFICATION_ME:
+            case OmeroDataService.CLASSIFICATION_ME:
                 return IPojos.CLASSIFICATION_ME;
-            case OmeroService.CLASSIFICATION_NME:
+            case OmeroDataService.CLASSIFICATION_NME:
                 return IPojos.CLASSIFICATION_NME;
-            case OmeroService.DECLASSIFICATION:
+            case OmeroDataService.DECLASSIFICATION:
                 return IPojos.DECLASSIFICATION;
         }
         throw new IllegalArgumentException("Algorithm not valid.");
@@ -213,10 +213,10 @@ class OMEROGateway
     private String convertProperty(Class nodeType, String property)
     {
         if (nodeType.equals(DatasetData.class)) {
-            if (property.equals(OmeroService.IMAGES_PROPERTY))
+            if (property.equals(OmeroDataService.IMAGES_PROPERTY))
                 return DatasetData.IMAGE_LINKS;
         } else if (nodeType.equals(CategoryData.class)) {
-            if (property.equals(OmeroService.IMAGES_PROPERTY))
+            if (property.equals(OmeroDataService.IMAGES_PROPERTY))
                 return CategoryData.IMAGES;
         }
         else throw new IllegalArgumentException("NodeType or " +

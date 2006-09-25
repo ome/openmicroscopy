@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import pojos.ExperimenterData;
 
 /** 
- * A factory for the {@link OmeroService} and the {@link RenderingService}.
+ * A factory for the {@link OmeroDataService} and the {@link OmeroImageService}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -85,10 +85,10 @@ public class DataServicesFactory
     private OMEROGateway            omeroGateway;
 	
     /** The omero service adapter. */
-    private OmeroService           ops;
+    private OmeroDataService           ops;
     
     /** The rendering service adapter. */
-    private RenderingService        rds;
+    private OmeroImageService        rds;
     
 	/**
 	 * Attempts to create a new instance.
@@ -105,25 +105,25 @@ public class DataServicesFactory
         omeroGateway = new OMEROGateway(omeroInfo.getHostName(), 
                                         omeroInfo.getPort(), this);
 		//Create the adapters.
-        ops = new OmeroServiceImpl(omeroGateway, registry);
-        rds = new RenderingServiceImpl(omeroGateway, registry);
+        ops = new OmeroDataServiceImpl(omeroGateway, registry);
+        rds = new OmeroImageServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
 	}
 	
     /**
-     * Returns the {@link OmeroService}.
+     * Returns the {@link OmeroDataService}.
      * 
      * @return See above.
      */
-    public OmeroService getOS() { return ops; }
+    public OmeroDataService getOS() { return ops; }
     
     /**
-     * Returns the {@link RenderingService}.
+     * Returns the {@link OmeroImageService}.
      * 
      * @return See above.
      */
-    public RenderingService getRDS() { return rds; }
+    public OmeroImageService getRDS() { return rds; }
     
     /**
      * Returns the {@link LoginService}. 
@@ -174,7 +174,7 @@ public class DataServicesFactory
     /** Shuts down the connection. */
 	public void shutdown()
     { 
-        ((RenderingServiceImpl) rds).shutDown();
+        ((OmeroImageServiceImpl) rds).shutDown();
         omeroGateway.logout(); 
     }
 	
