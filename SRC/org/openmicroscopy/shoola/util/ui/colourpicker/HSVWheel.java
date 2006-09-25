@@ -431,7 +431,7 @@ class HSVWheel
 		float s = (control.getSaturation());
 		double x =  s*Math.cos(Math.toRadians(h));
 		double y =  s*Math.sin(Math.toRadians(h));
-		if ( s != 0)
+		if (s != 0)
 		{
 			puck.x1 = x*radius+radius;
 			puck.x2 = y*radius+radius;
@@ -445,8 +445,7 @@ class HSVWheel
 	
 	/** Refreshes the display. */
 	void refresh() { createColourWheelFromLUT(); }
-    
-    
+
     /**
      * Overridden, calls the {@link #changePanelSize()} method, to create
      * a new LUT and wheel to the size of the window. 
