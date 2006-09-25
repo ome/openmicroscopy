@@ -73,7 +73,7 @@ public class ColourPicker
 	{
 	    super();
 		setTitle("Colour Picker Window");
-		setSize(250, 350);
+		//setSize(250, 350);
         setModal(true);
        // setResizable(false);
         float[] vals = new float[4];
@@ -93,7 +93,7 @@ public class ColourPicker
 		gbc.fill = GridBagConstraints.BOTH;
 			
 		this.getContentPane().add(tabbedPane, gbc);
-        //pack();
+        pack();
 	}
 
     /** Closes and disposes. */
