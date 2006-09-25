@@ -35,8 +35,8 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -68,7 +68,7 @@ public class NullRegistry
     public TaskBar getTaskBar() { return null; }
     public UserNotifier getUserNotifier() { return null; }
     public DataServicesView getDataServicesView(Class view) { return null; }
-    public OmeroService getOmeroService() { return null; }
-    public RenderingService getRenderingService() { return null; }
+    public OmeroDataService getDataService() { return null; }
+    public OmeroImageService getImageService() { return null; }
 
 }
