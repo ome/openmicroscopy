@@ -35,8 +35,8 @@ import java.util.HashMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -85,10 +85,10 @@ class RegistryImpl
    	private UserNotifier            un;
    	
     /** Reference to the container's rendering service. */
-    private RenderingService        rds;
+    private OmeroImageService        rds;
     
     /** Reference to the Omero service. */
-    private OmeroService            os;
+    private OmeroDataService            os;
 
     /** Just creates an empty map. */
     RegistryImpl()
@@ -147,15 +147,15 @@ class RegistryImpl
    	
 	/** 
      * Implemented as specified by {@link Registry}.
-     * @see Registry#getRenderingService()
+     * @see Registry#getImageService()
      */
-    public RenderingService getRenderingService() { return rds; }
+    public OmeroImageService getImageService() { return rds; }
     
     /** 
      * Implemented as specified by {@link Registry}.
-     * @see Registry#getOmeroService()
+     * @see Registry#getDataService()
      */
-    public OmeroService getOmeroService() { return os; }
+    public OmeroDataService getDataService() { return os; }
     
     /** 
      * Implemented as specified by {@link Registry}.
@@ -182,11 +182,11 @@ class RegistryImpl
 	void setEventBus(EventBus eb) { this.eb = eb; }
     
     /**
-     * Stores a reference to the {@link RenderingService}.
+     * Stores a reference to the {@link OmeroImageService}.
      * 
-     * @param rds The {@link RenderingService}.
+     * @param rds The {@link OmeroImageService}.
      */
-    void setRenderingService(RenderingService rds) { this.rds = rds; }
+    void setRenderingService(OmeroImageService rds) { this.rds = rds; }
    	
 	/**
 	 * Stores a reference to the {@link TaskBar}.
@@ -210,10 +210,10 @@ class RegistryImpl
 	void setUserNotifier(UserNotifier un) { this.un = un; }
     
     /**
-     * Stores a reference to the {@link OmeroService}.
+     * Stores a reference to the {@link OmeroDataService}.
      * 
-     * @param os    The {@link OmeroService}.
+     * @param os    The {@link OmeroDataService}.
      */
-    void setOS(OmeroService os) { this.os = os; }
+    void setOS(OmeroDataService os) { this.os = os; }
 	
 }

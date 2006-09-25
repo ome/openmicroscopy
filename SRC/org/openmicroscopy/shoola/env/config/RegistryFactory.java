@@ -34,8 +34,8 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroService;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -117,13 +117,13 @@ public class RegistryFactory
 	}
     
     /**
-     * Adds the {@link RenderingService} instance to the specified
+     * Adds the {@link OmeroImageService} instance to the specified
      * {@link Registry}.
      * 
-     * @param rds   The {@link RenderingService} instance.
+     * @param rds   The {@link OmeroImageService} instance.
      * @param reg   The {@link Registry}.
      */
-    public static void linkRDS(RenderingService rds, Registry reg)
+    public static void linkRDS(OmeroImageService rds, Registry reg)
     {
         ((RegistryImpl) reg).setRenderingService(rds);
     }
@@ -162,13 +162,13 @@ public class RegistryFactory
 	}
     
     /**
-     * Adds the {@link OmeroService} instance to
+     * Adds the {@link OmeroDataService} instance to
      * the specified {@link Registry}.
      * 
-     * @param os    The {@link OmeroService} instance.
+     * @param os    The {@link OmeroDataService} instance.
      * @param reg   The {@link Registry}.
      */
-    public static void linkOS(OmeroService os, Registry reg)
+    public static void linkOS(OmeroDataService os, Registry reg)
     {
         ((RegistryImpl) reg).setOS(os);
     }
