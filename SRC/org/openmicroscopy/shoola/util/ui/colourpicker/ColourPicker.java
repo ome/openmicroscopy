@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JDialog;
 
@@ -83,10 +84,15 @@ public class ColourPicker
         TabbedPaneUI tabbedPane = new TabbedPaneUI(this, control);
         
 		setLayout(new GridBagLayout());
-		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 80;
+		gbc.weighty = 30;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
 			
-		this.getContentPane().add(tabbedPane, new GBC(0, 0).setWeight(80, 30).
-				setAnchor(GBC.CENTER).setFill(GBC.BOTH));
+		this.getContentPane().add(tabbedPane, gbc);
         //pack();
 	}
 
