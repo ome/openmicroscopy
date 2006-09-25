@@ -45,6 +45,7 @@ import javax.swing.border.BevelBorder;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 
 
 /** 
@@ -95,6 +96,9 @@ class PopupMenu
     /** Button to delete the selected elements. */
     private JMenuItem           deleteElement;
     
+    /** Button to go into the selected element. */
+    private JMenuItem           goIntoElement;
+    
     /** Reference to the Control. */
     private TreeViewerControl   controller;
     
@@ -102,9 +106,11 @@ class PopupMenu
      * Sets the defaults of the specified menu item.
      * 
      * @param item The menu item.
+     * @param name The name of the item.
      */
-    private void initMenuItem(JMenuItem item)
+    private void initMenuItem(JMenuItem item, String name)
     {
+        item.setText(name);
         item.setBorder(null);
         item.setFont((Font) 
                 TreeViewerAgent.getRegistry().lookup(
@@ -114,32 +120,36 @@ class PopupMenu
     /** Helper method to create the menu items with the given actions. */
     private void createMenuItems()
     {
-        properties = new JMenuItem(
-                	controller.getAction(TreeViewerControl.PROPERTIES));
-        initMenuItem(properties);
-        annotate = new JMenuItem(
-                controller.getAction(TreeViewerControl.ANNOTATE));
-        initMenuItem(annotate);
-        view = new JMenuItem(controller.getAction(TreeViewerControl.VIEW));
-        initMenuItem(view);
-        refresh = new JMenuItem(
-                	controller.getAction(TreeViewerControl.REFRESH));
-        initMenuItem(refresh);
-        newElement = new JMenuItem(
-                	controller.getAction(TreeViewerControl.CREATE_OBJECT));
-        initMenuItem(newElement);
-        copyElement = new JMenuItem(
-                	controller.getAction(TreeViewerControl.COPY_OBJECT)); 
-        initMenuItem(newElement);
-        pasteElement = new JMenuItem(
-                	controller.getAction(TreeViewerControl.PASTE_OBJECT)); 
-        initMenuItem(newElement);
-        deleteElement = new JMenuItem(
-                	controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
-        initMenuItem(newElement);
-        existingElement = new JMenuItem(
-                controller.getAction(TreeViewerControl.ADD_OBJECT));
-        initMenuItem(existingElement);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.PROPERTIES);
+        properties = new JMenuItem(a);
+        initMenuItem(properties, a.getActionName());
+        a = controller.getAction(TreeViewerControl.ANNOTATE);
+        annotate = new JMenuItem(a);
+        initMenuItem(annotate, a.getActionName());
+        a = controller.getAction(TreeViewerControl.VIEW);
+        view = new JMenuItem(a);
+        initMenuItem(view, a.getActionName());
+        a = controller.getAction(TreeViewerControl.REFRESH);
+        refresh = new JMenuItem(a);
+        initMenuItem(refresh, a.getActionName());
+        a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
+        newElement = new JMenuItem(a);
+        initMenuItem(newElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.COPY_OBJECT);
+        copyElement = new JMenuItem(a); 
+        initMenuItem(copyElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.PASTE_OBJECT);
+        pasteElement = new JMenuItem(a); 
+        initMenuItem(pasteElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.DELETE_OBJECT);
+        deleteElement = new JMenuItem(a); 
+        initMenuItem(deleteElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.ADD_OBJECT);
+        existingElement = new JMenuItem(a);
+        initMenuItem(existingElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.GO_INTO);
+        goIntoElement = new JMenuItem(a);
+        initMenuItem(goIntoElement, a.getActionName());
     }
       
     /**
@@ -166,8 +176,8 @@ class PopupMenu
      */
     private JMenu createManagementMenu()
     {
-        JMenu managementMenu = new JMenu("Manage");
-        initMenuItem(managementMenu);
+        JMenu managementMenu = new JMenu();
+        initMenuItem(managementMenu, "Manage");
         IconManager im = IconManager.getInstance();
         managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         managementMenu.add(newElement);
@@ -190,6 +200,7 @@ class PopupMenu
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
         add(new JSeparator(JSeparator.HORIZONTAL));
+        //add(goIntoElement);
         add(refresh);
     }
     

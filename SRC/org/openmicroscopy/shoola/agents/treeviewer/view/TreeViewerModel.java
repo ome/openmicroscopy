@@ -256,12 +256,13 @@ class TreeViewerModel
        TreeImageDisplay parent = 
            selectedBrowser.getLastSelectedDisplay().getParentDisplay();
        Object po = parent.getUserObject();
-       if (po instanceof String) //root.
-           currentLoader = new DataObjectRemover(component, userObject, null);
-       else 
-           currentLoader = new DataObjectRemover(component, userObject, 
-                                                 (DataObject) po);
+       DataObject data = null;
+       if (!((userObject instanceof ProjectData) || 
+               (userObject instanceof CategoryGroupData)))//root.
+           data = ((DataObject) po);
+       currentLoader = new DataObjectRemover(component, userObject, data);
        currentLoader.load();
+       
    }
    
    /**

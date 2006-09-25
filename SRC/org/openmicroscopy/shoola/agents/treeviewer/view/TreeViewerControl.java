@@ -49,9 +49,11 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseTreeViewerAction;
@@ -62,17 +64,19 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.GoIntoAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.GroupData;
 import pojos.ImageData;
 
@@ -166,6 +170,24 @@ class TreeViewerControl
     static final Integer    REFRESH_TREE = new Integer(20);
     
     /** 
+     * Identifies the <code>Refresh tree action</code> in the 
+     * File menu.
+     */
+    static final Integer    GO_INTO = new Integer(21);
+    
+    /** 
+     * Identifies the <code>Refresh tree action</code> in the 
+     * File menu.
+     */
+    static final Integer    MANAGER = new Integer(22);
+    
+    /** 
+     * Identifies the <code>Refresh tree action</code> in the 
+     * File menu.
+     */
+    static final Integer    CLASSIFIER = new Integer(23);
+    
+    /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
      */
@@ -203,11 +225,14 @@ class TreeViewerControl
         actionsMap.put(ANNOTATE,  new AnnotateAction(model));
         actionsMap.put(CLOSE,  new CloseTreeViewerAction(model));
         actionsMap.put(CLEAR,  new ClearAction(model));
-        actionsMap.put(EXIT,  new ExitApplicationAction());
+        actionsMap.put(EXIT,  new ExitApplicationAction(model));
         actionsMap.put(ADD_OBJECT,  new AddAction(model));
         actionsMap.put(CREATE_TOP_CONTAINER,  
                 new CreateTopContainerAction(model));
         actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
+        actionsMap.put(GO_INTO, new GoIntoAction(model));
+        actionsMap.put(CLASSIFIER, new ClassifierAction(model));
+        actionsMap.put(MANAGER, new ManagerAction(model));
     }
     
     /** Helper method to create the actions for the group level hierarchy. */
@@ -316,15 +341,16 @@ class TreeViewerControl
         });
     }
     
-
-
     /**
      * Returns the action corresponding to the specified id.
      * 
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    Action getAction(Integer id) { return (Action) actionsMap.get(id); }
+    TreeViewerAction getAction(Integer id)
+    { 
+        return (TreeViewerAction) actionsMap.get(id);
+    }
     
     /**
      * Returns the action corresponding to the specified id.
@@ -391,23 +417,29 @@ class TreeViewerControl
      */
     public void stateChanged(ChangeEvent ce)
     {
+        IconManager icons = IconManager.getInstance();
         switch (model.getState()) {
             case TreeViewer.DISCARDED:
                 view.closeViewer();
                 break;
             case TreeViewer.LOADING_DATA:
-                LoadingWindow w = view.getLoadingWindow();
-                w.setTitle(TreeViewer.LOADING_TITLE);
-                UIUtilities.centerAndShow(w);
+                view.setStatus(TreeViewer.LOADING_TITLE, false);
+                view.setStatusIcon(true);
+                //LoadingWindow w = view.getLoadingWindow();
+                //w.setTitle(TreeViewer.LOADING_TITLE);
+                //UIUtilities.centerAndShow(w);
                 break;
             case TreeViewer.SAVE:
-                LoadingWindow window = view.getLoadingWindow();
-                window.setTitle(TreeViewer.SAVING_TITLE);
-                UIUtilities.centerAndShow(window);
+                view.setStatus(TreeViewer.SAVING_TITLE, false);
+                view.setStatusIcon(true);
+                //LoadingWindow window = view.getLoadingWindow();
+                //window.setTitle(TreeViewer.SAVING_TITLE);
+                //UIUtilities.centerAndShow(window);
                 break;
             case TreeViewer.READY:
             case TreeViewer.DIALOG_SELECTION:
-                view.getLoadingWindow().setVisible(false); 
+                view.setStatus(null, true);
+                view.setStatusIcon(false);
                 break;  
         }
     }

@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.Set;
@@ -134,6 +136,12 @@ public interface TreeViewer
     
     /** Identifies the <code>Delete Object</code> operation. */
     public static final int         REMOVE_OBJECT = 302;
+    
+    /** Identifies the <code>Manager</code> menu. */
+    public static final int         MANAGER_MENU = 0;
+    
+    /** Identifies the <code>Manager</code> menu. */
+    public static final int         CLASSIFIER_MENU = 1;
     
     /** Bounds property to indicate that the data retrieval is cancelled. */
     public static final String      CANCEL_LOADING_PROPERTY = "cancelLoading";
@@ -427,6 +435,29 @@ public interface TreeViewer
      * 
      * @param set The nodes to add.
      */
-    void addExistingObjects(Set set);
+    public void addExistingObjects(Set set);
+
+    public void navigate();
+    
+    /**
+     * Brings up the menu on top of the specified component at 
+     * the specified location.
+     * 
+     * @param menuID    The id of the menu. One out of the following constants:
+     *                  {@link #MANAGER_MENU}, {@link #CLASSIFIER_MENU}.
+     * @param c         The component that requested the popup menu.
+     * @param p         The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+    public void showMenu(int menuID, Component c, Point p);
+    
+
+    /**
+     * 
+     * @param enable
+     * @param text
+     * @param hide
+     */
+    public void setStatus(boolean enable, String text, boolean hide);
     
 }

@@ -34,6 +34,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -60,6 +61,7 @@ import javax.swing.JViewport;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -87,8 +89,8 @@ class TreeViewerWin
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
     
-    /** The location of the verical slipt pane location. */
-    private static final int 	DIVIDER_LOCATION = 200;
+    /** The location of the vertical split pane location. */
+    private static final int 	DIVIDER_LOCATION = 300;
 
     /** The Controller. */
     private TreeViewerControl	controller;
@@ -109,13 +111,19 @@ class TreeViewerWin
     private JTabbedPane 		tabs;
 
     /** The popup menu. */
-    private PopupMenu 			popupMenu;
+    //private PopupMenu 			popupMenu;
 
     /** The loading window. */
     private LoadingWindow 		loadingWin;
 
     /** The menu hosting the root levels. */
     private JMenu 				rootLevelMenu;
+    
+    /** The tool bar hosting the controls displaying by the popup menu. */
+    private ToolBar             toolBar;
+    
+    /** The status bar. */
+    private StatusBar           statusBar;
     
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -189,8 +197,10 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLOSE)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.REFRESH)));
+        TreeViewerAction a = controller.getAction(TreeViewerControl.REFRESH);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH_TREE)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -220,15 +230,21 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.VIEW)));
+        TreeViewerAction a = controller.getAction(TreeViewerControl.VIEW);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createClassifySubMenu());
-        menu.add( new JMenuItem(
-                controller.getAction(TreeViewerControl.ANNOTATE)));
+        a = controller.getAction(TreeViewerControl.ANNOTATE);
+        item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.PROPERTIES)));
+        a = controller.getAction(TreeViewerControl.PROPERTIES);
+        item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         return menu;
     }
     
@@ -323,7 +339,9 @@ class TreeViewerWin
         splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
+        c.add(toolBar, BorderLayout.NORTH);
         c.add(splitPane, BorderLayout.CENTER);
+        c.add(statusBar, BorderLayout.SOUTH);
     }
 
     /**
@@ -358,7 +376,11 @@ class TreeViewerWin
     {
         this.controller = controller;
         this.model = model;
-        popupMenu = new PopupMenu(controller);
+        IconManager icons = IconManager.getInstance();
+        statusBar = new StatusBar(icons.getIcon(IconManager.STATUS_INFO));
+        statusBar.addPropertyChangeListener(controller);
+        toolBar = new ToolBar(controller);
+        //popupMenu = new PopupMenu(controller);
         loadingWin = new LoadingWindow(this);
         loadingWin.addPropertyChangeListener(controller);
         initComponents();
@@ -433,7 +455,11 @@ class TreeViewerWin
      *            <code>component</code>'s coordinates.
      *  
      */
-    void showPopup(Component c, Point p) { popupMenu.show(c, p.x, p.y); }
+    void showPopup(Component c, Point p)
+    { 
+        PopupMenu popupMenu = new PopupMenu(controller);
+        popupMenu.show(c, p.x, p.y);
+    }
 
     /**
      * Adds the specified component to the {@link #workingPane}.
@@ -485,6 +511,58 @@ class TreeViewerWin
         c.validate();
     }
   
+    /**
+     * Brings up the menu on top of the specified component at 
+     * the specified location.
+     * 
+     * @param menuID    The id of the menu.
+     * @param c         The component that requested the popup menu.
+     * @param p         The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+    void showMenu(int menuID, Component c, Point p)
+    {
+        switch (menuID) {
+            case TreeViewer.MANAGER_MENU:
+                toolBar.showManagementMenu(c, p);
+                break;
+            case TreeViewer.CLASSIFIER_MENU:
+                toolBar.showClassifyMenu(c, p);
+        }  
+    }
+    
+    /** 
+     * Sets the status message.
+     * 
+     * @param text  The message to display.
+     * @param hide  Pass <code>true</code> to hide the progress bar, 
+     *              <code>false</otherwise>.
+     */
+    void setStatus(String text, boolean hide)
+    {
+        statusBar.setStatus(text);
+        statusBar.setProgress(hide, -1);
+    }
+    
+    /**
+     * Sets the icon depending on the passed flag.
+     * 
+     * @param b Pass <code>true</code> when loading data, <code>false</code>
+     *          otherwise.
+     */
+    void setStatusIcon(boolean b)
+    {
+        IconManager icons = IconManager.getInstance();
+        if (b) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            statusBar.setStatusIcon(icons.getIcon(IconManager.CANCEL), b); 
+        } else {
+            //statusBar.setStatusIcon(icons.getIcon(IconManager.STATUS_INFO), b); 
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            statusBar.setStatusIcon(icons.getIcon(IconManager.TRANSPARENT), b); 
+        }
+    }
+    
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Map;
@@ -472,8 +474,8 @@ class TreeViewerComponent
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
         }
+        setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
     }
 
     /**
@@ -677,6 +679,45 @@ class TreeViewerComponent
         if (set == null || set.size() == 0) model.setState(READY);
         else model.fireAddExistingObjects(set);
         fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#navigate()
+     */
+    public void navigate()
+    {
+        int state = model.getState();
+        //TODO: 
+        Browser b = model.getSelectedBrowser();
+        if (b != null) b.navigate(false);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#showMenu(int, Component, Point)
+     */
+    public void showMenu(int menuID, Component c, Point p)
+    {
+        //TODO: check state
+        switch (menuID) {
+            case MANAGER_MENU:
+            case CLASSIFIER_MENU:  
+                break;
+            default:
+                throw new IllegalArgumentException("Menu not supported.");
+        }
+        view.showMenu(menuID, c, p);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setStatus(boolean, String, boolean)
+     */
+    public void setStatus(boolean enable, String text, boolean hide)
+    {
+        view.setStatus(text, hide);
+        view.setStatusIcon(enable);
     }
     
 }
