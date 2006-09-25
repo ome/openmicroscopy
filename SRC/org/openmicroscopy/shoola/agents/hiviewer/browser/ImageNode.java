@@ -106,7 +106,8 @@ public class ImageNode
             ImageData data = (ImageData) hierarchyObject;
             HashSet nodes = new HashSet();
             Long n = data.getAnnotationCount();
-            if (n != null && n.longValue() > 0) nodes.add(new AnnotatedButton());
+            if (n != null && n.longValue() > 0) 
+                nodes.add(new AnnotatedButton());
             Long m = data.getClassificationCount();
             if (m != null && m.longValue() > 0) 
                 nodes.add(new ClassifiedButton());
