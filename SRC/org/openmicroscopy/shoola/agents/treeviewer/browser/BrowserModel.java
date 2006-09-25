@@ -109,6 +109,9 @@ class BrowserModel
     /** Indicates if the browser is currently selected. */
     private boolean				selected;
     
+    /** Indicates if it's the main which is visible. */
+    private boolean             mainTree;
+    
     /** Reference to the parent. */
     private TreeViewer          parent;
     
@@ -149,6 +152,7 @@ class BrowserModel
         filterType = Browser.IN_DATASET_FILTER;
         foundNodeIndex = -1;
         selectedNodes = new HashSet();
+        mainTree = true;
     }
 
     /**
@@ -314,7 +318,6 @@ class BrowserModel
      */
     void fireLeavesLoading()
     {
-        System.out.println(getLastSelectedDisplay());
         Object ho = getLastSelectedDisplay().getUserObject();
         long id = 0;
         Class nodeType = null;
@@ -529,5 +532,16 @@ class BrowserModel
             cmd.execute();
         }
     }
+    
+    /**
+     * Flag to indicate if the main is displayed on screen.
+     * 
+     * @return See above.
+     */
+    boolean isMainTree() { return mainTree; }
+    
+    void setMainTree(boolean b) { mainTree = b; }
+    
+    TreeViewer getParentModel() { return parent; }
     
 }

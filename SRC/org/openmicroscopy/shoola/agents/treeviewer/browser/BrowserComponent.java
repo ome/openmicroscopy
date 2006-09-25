@@ -64,8 +64,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -117,7 +120,8 @@ class BrowserComponent
     private void removeNodes(List nodes)
     {
         TreeImageDisplay parentDisplay;
-        if (getLastSelectedDisplay() == null) parentDisplay = view.getTreeRoot();
+        if (getLastSelectedDisplay() == null) 
+            parentDisplay = view.getTreeRoot();
         else {
             parentDisplay = getLastSelectedDisplay().getParentDisplay();
         }   
@@ -294,6 +298,7 @@ class BrowserComponent
             throw new IllegalArgumentException("Method should only be invoked" +
                     " by the Hiearchy and Category Explorer.");
         model.fireDataLoading();
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
 
@@ -315,6 +320,7 @@ class BrowserComponent
         if (model.getFilterType() == NO_IMAGES_FILTER) 
             view.loadAction(view.getTreeRoot());
         model.fireFilterDataLoading();
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
     
@@ -330,6 +336,7 @@ class BrowserComponent
                     "This method cannot be invoked in the DISCARDED or " +
                     "LOADING_LEAVES state.");
         model.fireLeavesLoading();
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
 
@@ -350,6 +357,7 @@ class BrowserComponent
                                                                 groupID);
         view.setLeavesViews(visLeaves);
         model.setState(READY);
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
 
@@ -360,8 +368,8 @@ class BrowserComponent
     public void setSelectedDisplay(TreeImageDisplay display)
     {
         switch (model.getState()) {
-            case LOADING_DATA:
-            case LOADING_LEAVES:
+            //case LOADING_DATA:
+            //case LOADING_LEAVES:
             case DISCARDED:
                 throw new IllegalStateException(
                         "This method cannot be invoked in the LOADING_DATA, "+
@@ -388,7 +396,7 @@ class BrowserComponent
                         "This method can only be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        firePropertyChange(POPUP_MENU_PROPERTY, null, view.getTreeDisplay());
+        firePropertyChange(POPUP_MENU_PROPERTY, null, view.getSelectedTree());
     }
 
     /**
@@ -526,6 +534,7 @@ class BrowserComponent
             index = FilterWindow.CATEGORY;
         if (index == -1) throw new IllegalStateException("Index not valid.");
         model.setState(READY);
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
         JFrame frame = getViewParent(view.getParent());
         long userID = model.getUserID();
@@ -568,6 +577,7 @@ class BrowserComponent
         if (nodes == null || nodes.size() == 0) 
             throw new IllegalArgumentException("No nodes.");
         model.fireFilteredImageDataLoading(nodes);
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
     }
 
@@ -649,6 +659,7 @@ class BrowserComponent
         if (parentDisplay != null)
             parentDisplay.setChildrenLoaded(Boolean.TRUE);
         model.fireContainerCountLoading();
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
 
@@ -700,7 +711,7 @@ class BrowserComponent
 	                    "This method can only be invoked in the " +
 	                    "COUNTING_ITEMS or READY state.");
         }
-        
+        model.getParentModel().setStatus(false, "", true);
     }
 
     /**
@@ -808,9 +819,10 @@ class BrowserComponent
     public void setSelected(boolean b)
     {
         switch (model.getState()) {
-	        case LOADING_DATA:
-	        case LOADING_LEAVES:
-	        case COUNTING_ITEMS:
+	        //case LOADING_DATA:
+	        //case LOADING_LEAVES:
+	        //case COUNTING_ITEMS:
+            //    return;
 	        case DISCARDED:
 	            throw new IllegalStateException(
 	                    "This method can only be invoked in the " +
@@ -837,8 +849,13 @@ class BrowserComponent
                         "in the NEW or READY state.");
         }
         Object o = object;
-        if (op == TreeViewer.CREATE_OBJECT)
-            o = getLastSelectedDisplay().getUserObject();
+        if (op == TreeViewer.CREATE_OBJECT) {
+            TreeImageDisplay node = getLastSelectedDisplay();
+            if ((object instanceof ProjectData) ||
+                (object instanceof CategoryGroupData) || node == null)
+                refreshTree();
+            else o = node.getUserObject();
+        }
         EditVisitor visitor = new EditVisitor(this, o);
         accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
         List nodes = visitor.getFoundNodes();
@@ -850,8 +867,7 @@ class BrowserComponent
             createNodes(nodes, 
                     TreeViewerTranslator.transformDataObject(object, userID, 
                             groupID));
-        }
-            
+        }     
     }
     
     /**
@@ -898,7 +914,6 @@ class BrowserComponent
                     editorType == IMAGES_EXPLORER)
                 view.updateNodes(nodes, img);
         }
-        
     }
 
     /**
@@ -966,6 +981,18 @@ class BrowserComponent
         if (oldDisplay != null && oldDisplay.equals(display)) return;
         model.setSelectedDisplays(nodes);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#navigate(boolean)
+     */
+    public void navigate(boolean v)
+    {
+        controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
+        boolean old = model.isMainTree();
+        model.setMainTree(v);
+        view.navigate(old);
     }
     
 }

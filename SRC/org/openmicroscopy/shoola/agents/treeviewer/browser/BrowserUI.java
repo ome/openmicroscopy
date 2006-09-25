@@ -90,6 +90,9 @@ class BrowserUI
     /** The tree hosting the display. */
     private JTree           		treeDisplay;
     
+    /** The tree displaying one selected node. */
+    private JTree                   goIntoTree;
+    
     /** The tool bar hosting the controls. */
     private JToolBar				menuBar;
     
@@ -108,8 +111,11 @@ class BrowserUI
      */
     private ViewerSorter    		sorter;
     
-    /** Reference to the listner. */
+    /** Reference to the listener. */
     private TreeExpansionListener	listener;
+    
+    /** The component hosting the tree. */
+    private JScrollPane             scrollPane;
     
     /** Builds and lays out the UI. */
     private void buildGUI()
@@ -121,7 +127,8 @@ class BrowserUI
         p.add(menuBar);
         p.setPreferredSize(menuBar.getPreferredSize());
         add(p, BorderLayout.NORTH);
-        add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+        scrollPane = new JScrollPane(treeDisplay);
+        add(scrollPane, BorderLayout.CENTER);
     }
     
     /** Helper method to create the menu bar. */
@@ -131,26 +138,39 @@ class BrowserUI
         menuBar.setBorder(null);
         menuBar.setRollover(true);
         menuBar.setFloatable(false);
-        JButton button = new JButton(controller.getAction(BrowserControl.SORT));
+        JButton button = new JButton(
+                controller.getAction(BrowserControl.BACKWARD_NAV));
+        button.setBorderPainted(false);
+        //menuBar.add(button);
+        //button = new JButton(
+        //        controller.getAction(BrowserControl.FORWARD_NAV));
+        //menuBar.add(button);
+        menuBar.add(new JSeparator(SwingConstants.VERTICAL));
+        button = new JButton(controller.getAction(BrowserControl.SORT));
+        button.setBorderPainted(false);
         menuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.SORT_DATE));
+        button.setBorderPainted(false);
         menuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.FILTER_MENU));
         button.addMouseListener((FilterMenuAction) 
                             controller.getAction(BrowserControl.FILTER_MENU));
+        button.setBorderPainted(false);
         menuBar.add(button);
         menuBar.add(new JSeparator(SwingConstants.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
+        button.setBorderPainted(false);
         menuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.CLOSE));
+        button.setBorderPainted(false);
         menuBar.add(button);
     }
-    
+
     /** 
      * Reacts to node expansion event.
      * 
-     * @param tee The event to handle.
-     * @param expanded 	<code>true</code> is the node is expanded,
+     * @param tee       The event to handle.
+     * @param expanded 	Pass <code>true</code> is the node is expanded,
      * 					<code>false</code> otherwise.
      */
     private void onNodeNavigation(TreeExpansionEvent tee, boolean expanded)
@@ -200,13 +220,32 @@ class BrowserUI
                                 root.getChildCount());
         treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.collapsePath(new TreePath(root.getPath()));
-        
+        treeDisplay.setRootVisible(false);
         //Add Listeners
         treeDisplay.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e, false); }
             public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
         treeDisplay.addTreeExpansionListener(listener);
+                
+        //Initialize the goIntoTree
+        goIntoTree = new JTree();       
+        ToolTipManager.sharedInstance().registerComponent(goIntoTree);
+        goIntoTree.setCellRenderer(new TreeCellRenderer());
+        goIntoTree.setShowsRootHandles(true);
+        goIntoTree.putClientProperty("JTree.lineStyle", "Angled");
+        goIntoTree.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        TreeImageSet r = new TreeImageSet("");
+        treeModel = (DefaultTreeModel) goIntoTree.getModel();
+        goIntoTree.setModel(new DefaultTreeModel(r));
+        goIntoTree.expandPath(new TreePath(r.getPath()));
+        goIntoTree.setRootVisible(false);
+        goIntoTree.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) { onClick(e, false); }
+            public void mouseReleased(MouseEvent e) { onClick(e, true); }
+        });
+        goIntoTree.addTreeExpansionListener(listener);
     }
     
     /**
@@ -263,6 +302,53 @@ class BrowserUI
     }
     
     /**
+     * Expands the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to expand.
+     */
+    private void expandGoIntoTreeNode(DefaultMutableTreeNode node)
+    {
+        //First remove listener otherwise an event is fired.
+        goIntoTree.removeTreeExpansionListener(listener);
+        goIntoTree.expandPath(new TreePath(node.getPath()));
+        goIntoTree.addTreeExpansionListener(listener);
+    }
+    
+    /**
+     * Selects the specified node.
+     * 
+     * @param node The node to select.
+     */
+    private void selectGoIntoTreeFoundNode(TreeImageDisplay node) 
+    {
+        TreePath path = new TreePath(node.getPath());
+        goIntoTree.setSelectionPath(path);
+        TreeCellRenderer renderer = (TreeCellRenderer) 
+                    goIntoTree.getCellRenderer();
+        goIntoTree.requestFocus();
+        renderer.getTreeCellRendererComponent(goIntoTree, node, 
+                            goIntoTree.isPathSelected(path),
+                                    false, true, 0, false);
+    }
+    
+    /** Navigates into the selected node. */
+    private void loadGoIntoTree()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) goIntoTree.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        Object path = treeDisplay.getLastSelectedPathComponent();
+        if (path == null) return;
+        root.removeAllChildren();
+        dtm.insertNodeInto((TreeImageDisplay) path, root, root.getChildCount());
+        dtm.reload();
+        expandGoIntoTreeNode((TreeImageDisplay) path);
+        scrollPane.getViewport().removeAll();
+        scrollPane.getViewport().add(goIntoTree);
+        repaint();
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
@@ -293,7 +379,6 @@ class BrowserUI
         createMenuBar();
         createTree();
         buildGUI();
-        treeDisplay.setRootVisible(false);
     }
 
     /**
@@ -328,6 +413,7 @@ class BrowserUI
             buildTreeNode(root, sorter.sort(nodes));
         } else buildEmptyNode(root);
         dtm.reload();
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -349,6 +435,7 @@ class BrowserUI
         else buildEmptyNode(parent);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         dtm.reload(parent);
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -371,6 +458,7 @@ class BrowserUI
         } else buildEmptyNode(node);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         dtm.reload(node);
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -379,6 +467,17 @@ class BrowserUI
      * @return See above.
      */
     JTree getTreeDisplay() { return treeDisplay; }
+    
+    /**
+     * Returns the tree currently displayed.
+     * 
+     * @return See above.
+     */
+    JTree getSelectedTree()
+    {
+       if (model.isMainTree()) return treeDisplay;
+       return goIntoTree;
+    }
     
     /**
      * Returns the root node of the tree.
@@ -427,6 +526,7 @@ class BrowserUI
         }
         else buildEmptyNode(root);
         dtm.reload();
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -446,7 +546,7 @@ class BrowserUI
     }
     
     /**
-     * Selects the sepcified node.
+     * Selects the specified node.
      * 
      * @param node The node to select.
      */
@@ -460,6 +560,10 @@ class BrowserUI
         renderer.getTreeCellRendererComponent(treeDisplay, node, 
                 					treeDisplay.isPathSelected(path),
                 					false, true, 0, false);
+        if (!model.isMainTree()) {
+            loadGoIntoTree();
+            selectGoIntoTreeFoundNode(node);
+        }
     }
     
     /** Removes all the nodes from the tree, excepted the root node. */
@@ -472,6 +576,7 @@ class BrowserUI
         buildEmptyNode(root);
         dtm.reload();
         collapsePath(root);
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -522,6 +627,7 @@ class BrowserUI
             node.setUserObject(object);
             dtm.nodeChanged(node);
         }
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -549,6 +655,7 @@ class BrowserUI
                             new TreePath(parent.getPath()));
             }
         }
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /**
@@ -595,12 +702,40 @@ class BrowserUI
                 controller.loadData();
             else controller.loadLeaves();
         }
+        if (!model.isMainTree()) loadGoIntoTree();
     }
     
     /** Loads the children of the root node. */
     void loadRoot()
     {
         treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
+    }
+
+    /** Displays the main tree or navigates into the selected node. 
+     * 
+     * @param previous Indicates which element tree was displayed.
+     */
+    void navigate(boolean previous)
+    {
+        if (model.isMainTree()) {
+            scrollPane.getViewport().removeAll();
+            scrollPane.getViewport().add(treeDisplay);
+            repaint();
+            return;
+        }
+        DefaultTreeModel dtm = (DefaultTreeModel) goIntoTree.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        Object path = treeDisplay.getLastSelectedPathComponent();
+        if (!previous) //
+            path = goIntoTree.getLastSelectedPathComponent();
+        if (path == null) return;
+        root.removeAllChildren();
+        dtm.insertNodeInto((TreeImageDisplay) path, root, root.getChildCount());
+        dtm.reload(root);
+        //expandGoIntoTreeNode((TreeImageDisplay) path);
+        scrollPane.getViewport().removeAll();
+        scrollPane.getViewport().add(goIntoTree);
+        repaint();
     }
     
 }

@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.NavigationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
@@ -74,21 +75,27 @@ class BrowserControl
     implements ChangeListener, PropertyChangeListener
 {
 
-    /** Identifies the Collapse action in the Actions menu. */
+    /** Identifies the <code>Collapse</code> action in the Actions menu. */
     static final Integer     COLLAPSE = new Integer(0);
     
-    /** Identifies the Close action in the Actions menu. */
+    /** Identifies the <code>Close</code> action in the Actions menu. */
     static final Integer     CLOSE = new Integer(1);
     
-    /** Identifies the Sort action in the Actions menu. */
+    /** Identifies the <code>Sort</code> action in the Actions menu. */
     static final Integer     SORT = new Integer(2);
     
-    /** Identifies the Sort by Date action in the Actions menu. */
+    /** Identifies the <code>Sort by Date</code> action in the Actions menu. */
     static final Integer     SORT_DATE = new Integer(3);
     
-    /** Identifies the Filter Menu action in the Actions menu. */
-    static final Integer     FILTER_MENU = new Integer(6);
-       
+    /** Identifies the <code>Filter Menu</code> action in the Actions menu. */
+    static final Integer     FILTER_MENU = new Integer(4);
+     
+    /** Identifies the <code>Forward Nav</code> action in the Actions menu. */
+    static final Integer     FORWARD_NAV = new Integer(5);
+    
+    /** Identifies the <code>Backward Nav</code> action in the Actions menu. */
+    static final Integer     BACKWARD_NAV = new Integer(6);
+    
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -109,6 +116,8 @@ class BrowserControl
         actionsMap.put(SORT, new SortAction(model));
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(FILTER_MENU, new FilterMenuAction(model));
+        actionsMap.put(FORWARD_NAV, new NavigationAction(model, true));
+        actionsMap.put(BACKWARD_NAV, new NavigationAction(model, false));
     }
     
     /**
@@ -201,7 +210,8 @@ class BrowserControl
     void onClick()
     {
         Object pathComponent;
-        TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
+        //TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
+        TreePath[] paths = view.getSelectedTree().getSelectionPaths();
         if (paths == null) return;
         int n = paths.length;
         if (n == 0) return;
@@ -261,10 +271,11 @@ class BrowserControl
         switch (state) {
             case Browser.LOADING_DATA:
             case Browser.LOADING_LEAVES:
-                UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
+                //model.get
+                //UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
                 break;
             case Browser.READY:
-                TreeViewerFactory.getLoadingWindow().setVisible(false);
+                //TreeViewerFactory.getLoadingWindow().setVisible(false);
                 break;
             case Browser.DISCARDED:
                 break;

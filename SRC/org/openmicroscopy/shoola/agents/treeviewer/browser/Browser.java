@@ -483,4 +483,11 @@ public interface Browser
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes);
     
+    /**
+     * Displays the main tree or go into a node.
+     * 
+     * @param v
+     */
+    void navigate(boolean v);
+    
 }
