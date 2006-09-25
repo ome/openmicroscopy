@@ -58,12 +58,12 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class NullOmeroPojoService
-    implements OmeroService
+    implements OmeroDataService
 {
 
     /**
      * No-op implementation
-     * @see OmeroService#findCGCPaths(Set, int)
+     * @see OmeroDataService#findCGCPaths(Set, int)
      */
     public Set findCGCPaths(Set imgIDs, int algorithm) 
     	throws DSOutOfServiceException, DSAccessException 
@@ -73,7 +73,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getUserImages()
+     * @see OmeroDataService#getUserImages()
      */
     public Set getUserImages()
     	throws DSOutOfServiceException, DSAccessException
@@ -83,7 +83,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getCollectionCount(Class, String, Set)
+     * @see OmeroDataService#getCollectionCount(Class, String, Set)
      */
     public Map getCollectionCount(Class rootNodeType, String property,
             						Set rootNodeIDs)
@@ -94,7 +94,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#loadContainerHierarchy(Class, Set, boolean, Class,
+     * @see OmeroDataService#loadContainerHierarchy(Class, Set, boolean, Class,
      *                                              long)
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
@@ -106,7 +106,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#findContainerHierarchy(Class, Set, Class, long)
+     * @see OmeroDataService#findContainerHierarchy(Class, Set, Class, long)
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
                 Class rootLevel, long rootLevelID)
@@ -117,7 +117,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#findAnnotations(Class, Set, Set)
+     * @see OmeroDataService#findAnnotations(Class, Set, Set)
      */
     public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs)
             throws DSOutOfServiceException, DSAccessException
@@ -127,7 +127,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#getImages(Class, Set, Class, long)
+     * @see OmeroDataService#getImages(Class, Set, Class, long)
      */
     public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel,
                         long rootLevelID)
@@ -138,7 +138,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#createDataObject(DataObject, DataObject)
+     * @see OmeroDataService#createDataObject(DataObject, DataObject)
      */
     public DataObject createDataObject(DataObject newObject, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
@@ -148,7 +148,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#updateDataObject(DataObject)
+     * @see OmeroDataService#updateDataObject(DataObject)
      */
     public DataObject updateDataObject(DataObject object)
             throws DSOutOfServiceException, DSAccessException
@@ -158,7 +158,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#classify(Set, Set)
+     * @see OmeroDataService#classify(Set, Set)
      */
     public void classify(Set images, Set categories)
             throws DSOutOfServiceException, DSAccessException
@@ -167,7 +167,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#declassify(Set, Set)
+     * @see OmeroDataService#declassify(Set, Set)
      */
     public void declassify(Set images, Set categories)
             throws DSOutOfServiceException, DSAccessException
@@ -176,7 +176,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#removeDataObject(DataObject, DataObject)
+     * @see OmeroDataService#removeDataObject(DataObject, DataObject)
      */
     public DataObject removeDataObject(DataObject child, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
@@ -186,7 +186,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#createAnnotationFor(DataObject, AnnotationData)
+     * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
      */
     public DataObject createAnnotationFor(DataObject annotatedObject,
                                             AnnotationData data)
@@ -197,7 +197,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#removeAnnotationFrom(DataObject, AnnotationData)
+     * @see OmeroDataService#removeAnnotationFrom(DataObject, AnnotationData)
      */
     public DataObject removeAnnotationFrom(DataObject annotatedObject,
                                             AnnotationData data)
@@ -208,7 +208,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#updateAnnotationFor(DataObject, AnnotationData)
+     * @see OmeroDataService#updateAnnotationFor(DataObject, AnnotationData)
      */
     public DataObject updateAnnotationFor(DataObject annotatedObject,
                                             AnnotationData data)
@@ -219,7 +219,7 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroService#loadExistingObjects(Class, Set, Class, long)
+     * @see OmeroDataService#loadExistingObjects(Class, Set, Class, long)
      */
     public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel,
                 long rootID)

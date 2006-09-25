@@ -38,7 +38,7 @@ package org.openmicroscopy.shoola.env.data.t;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesTestCase;
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
@@ -104,7 +104,7 @@ public class TestExample
         throws DSOutOfServiceException, DSAccessException
     {
         //Get a reference to the Data Management Service.
-        OmeroService os = registry.getOmeroService();
+        OmeroDataService os = registry.getDataService();
         //Measure how long this call takes and fail if it takes too long.
         //Note that calls to the DMS are synchronous even when the Container
         //is not in test mode.

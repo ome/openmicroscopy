@@ -60,7 +60,7 @@ import pojos.PixelsData;
  * @since OME2.2
  */
 public class NullRenderingService
-    implements RenderingService
+    implements OmeroImageService
 {
 
     public RenderingControl loadRenderingControl(long pixelsID)
