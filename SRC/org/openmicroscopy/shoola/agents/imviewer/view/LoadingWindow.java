@@ -126,7 +126,7 @@ class LoadingWindow
     LoadingWindow(JFrame owner)
     {
         super(owner);
-        setTitle("Loading...");
+        setTitle("Loading image...");
         setModal(true);
         initComponents();
         buildGUI();
