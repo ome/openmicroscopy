@@ -141,7 +141,7 @@ class BrowserUI
         JButton button = new JButton(
                 controller.getAction(BrowserControl.BACKWARD_NAV));
         button.setBorderPainted(false);
-        //menuBar.add(button);
+        menuBar.add(button);
         //button = new JButton(
         //        controller.getAction(BrowserControl.FORWARD_NAV));
         //menuBar.add(button);

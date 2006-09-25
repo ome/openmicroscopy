@@ -257,6 +257,7 @@ class BrowserComponent
                                                             groupID);
         view.setViews(visNodes);
         model.setState(READY);
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
 
