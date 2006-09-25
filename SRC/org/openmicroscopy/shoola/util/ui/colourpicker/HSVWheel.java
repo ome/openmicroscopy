@@ -341,8 +341,6 @@ class HSVWheel
 	 */
 	void render(Graphics2D g)
 	{
-		wheelwidth = this.getWidth() < this.getHeight() ?
-				this.getWidth() : this.getHeight();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                   RenderingHints.VALUE_ANTIALIAS_ON);
 		g.drawImage(img, 0, 0, (int) wheelwidth, (int) wheelwidth, null);
@@ -366,7 +364,8 @@ class HSVWheel
 	 */
 	void changePanelSize()
 	{
-		wheelwidth = this.getWidth();
+		wheelwidth = this.getWidth() < this.getHeight() ?
+					this.getWidth() : this.getHeight();
 		radius = wheelwidth/2;
 		puckColour = Color.black;
 		puckfillColour = Color.white;

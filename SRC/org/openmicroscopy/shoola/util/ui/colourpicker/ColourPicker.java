@@ -75,7 +75,7 @@ public class ColourPicker
 		setTitle("Colour Picker Window");
 		//setSize(250, 350);
         setModal(true);
-       // setResizable(false);
+        setResizable(false);
         float[] vals = new float[4];
         vals = color.getComponents(vals);
         model = new RGBModel(vals[0], vals[1], vals[2], vals[3]);

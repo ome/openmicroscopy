@@ -226,10 +226,14 @@ class HSVColourWheelUI
 		createAlphaSlider();
 		createAlphaTextbox();	
         JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0.0;
+        container.setLayout(new GridBagLayout());
 		//setLayout(new FlowLayout());
-        container.add(wheel);
-        container.add(UIUtilities.buildComponentPanel(HSVSlider));
+        container.add(wheel, gbc);
+        gbc.gridx = 1;
+        container.add(HSVSlider);
         //
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
