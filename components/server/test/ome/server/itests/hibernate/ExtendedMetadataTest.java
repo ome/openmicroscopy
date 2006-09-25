@@ -7,6 +7,7 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.meta.Experimenter;
@@ -57,6 +58,20 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest
 		r.setPixels(p);
 		
 		assertContains( metadata.getLockCandidates(r), p );
+	
+	}
+	
+	@Test( groups = "ticket:357" )
+	// quirky because of defaultTag
+	// see https://trac.openmicroscopy.org.uk/omero/ticket/357
+	public void testPixelsLocksImage() throws Exception
+	{
+		Pixels p = ObjectFactory.createPixelGraph(null);
+		p.setDefaultPixels(Boolean.TRUE);
+		Image i = new Image(); i.setName("locking");
+		i.addPixels(p);
+		
+		assertContains( metadata.getLockCandidates(p), i );
 	
 	}
 	
