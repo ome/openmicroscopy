@@ -31,7 +31,9 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -136,8 +138,16 @@ public class ColourSwatchUI
 		
 		scrollpane = new JScrollPane(colourlist);
 		this.setLayout(new GridBagLayout());
-		this.add(scrollpane,new GBC(0,0).setWeight(80,20).setFill(GBC.BOTH).
-				setAnchor(GBC.NORTH).setInsets(20,30,20,30));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 80;
+		gbc.weighty = 20;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(20,30,20,30);
+		
+		this.add(scrollpane, gbc);
 	}
 	
 }
