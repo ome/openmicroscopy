@@ -71,7 +71,7 @@
 		<entry name="Test"/>
 	</enum>
 
-	<type id="ome.model.meta.Event" mutable="false" global="true">
+	<type id="ome.model.meta.Event" immutable="true" global="true">
 		<properties>
       <!-- Type & Group are not really optional. Needed to bootstrap.
         Constraints are added later -->
@@ -85,7 +85,7 @@
 		</properties>
 	</type>    
 
-	<type id="ome.model.meta.EventLog" mutable="false" global="true">
+	<type id="ome.model.meta.EventLog" immutable="true" global="true">
 		<properties>
 			<required name="entityId" type="long"/>
 			<required name="entityType" type="string"/>
@@ -94,11 +94,11 @@
 		</properties>
 	</type>
 	
-	<type id="ome.model.meta.ExternalInfo" global="true">
+	<type id="ome.model.meta.ExternalInfo" immutable="true">
 		<properties>
-			<required name="entityId" type="long"/>
-			<required name="entityType" type="string"/>
-			<required name="lsid" type="string"/>
+			<required name="entityId" type="long" mutable="false"/>
+			<required name="entityType" type="string" mutable="false"/>
+			<required name="lsid" type="string" mutable="false"/>
 		</properties>
 	</type>
 
