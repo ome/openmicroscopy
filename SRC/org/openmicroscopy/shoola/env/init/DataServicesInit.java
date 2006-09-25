@@ -47,11 +47,11 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.RenderingService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.MonitorFactory;
 
 /** 
- * Creates the {@link org.openmicroscopy.shoola.env.data.OmeroService}
+ * Creates the {@link org.openmicroscopy.shoola.env.data.OmeroDataService}
  * and links them to the container's {@link Registry}.
  *
  * @author Douglas Creager (dcreager@alum.mit.edu)
@@ -90,7 +90,7 @@ public final class DataServicesInit
 			DataServicesFactory 
 				factory = DataServicesFactory.getInstance(container);
 			//Retrieve them.
-			RenderingService rds = factory.getRDS();
+			OmeroImageService rds = factory.getRDS();
 			//Link them to the container's registry.
 			Registry reg = container.getRegistry();
 			RegistryFactory.linkRDS(rds, reg);

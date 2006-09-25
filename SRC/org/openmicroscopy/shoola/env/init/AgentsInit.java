@@ -123,12 +123,12 @@ public final class AgentsInit
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
-        RegistryFactory.linkRDS(containerReg.getRenderingService(),
+        RegistryFactory.linkRDS(containerReg.getImageService(),
                                agentReg);
 		RegistryFactory.linkTaskBar(containerReg.getTaskBar(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
-        RegistryFactory.linkOS(containerReg.getOmeroService(), agentReg);
+        RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
 		return agentReg;
 	}
 	
