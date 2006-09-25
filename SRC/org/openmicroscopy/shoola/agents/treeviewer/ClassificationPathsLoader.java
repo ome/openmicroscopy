@@ -37,7 +37,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -87,7 +87,7 @@ public class ClassificationPathsLoader
     public void load()
     {
         handle = dmView.loadClassificationPaths(imageIDs,
-                                    OmeroService.DECLASSIFICATION, this);
+                                    OmeroDataService.DECLASSIFICATION, this);
     }
 
     /** 
