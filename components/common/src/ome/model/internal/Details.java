@@ -229,6 +229,7 @@ public class Details implements IDetails, Filterable, Serializable
         sb.append(";perm=");sb.append(_perms==null?null:_perms.toString());
         sb.append(";create=");sb.append(_creation==null?null:_creation.getId());
         sb.append(";update=");sb.append(_update==null?null:_update.getId());
+        if (_externalInfo!=null)sb.append(";external="+_externalInfo.getId());
         sb.append("}");
         return sb.toString();
     }

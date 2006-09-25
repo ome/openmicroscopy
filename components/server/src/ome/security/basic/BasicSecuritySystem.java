@@ -71,6 +71,7 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.ExternalInfo;
 import ome.model.meta.GroupExperimenterMap;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
@@ -82,6 +83,7 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
 import ome.tools.spring.PostProcessInjector;
 import ome.util.IdBlock;
@@ -372,9 +374,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		if (source != null) {
 
+			// PERMISSIONS
+			// users _are_ allowed to alter the permissions of new objects.
+			// this entity may be locked in the same operation, in which case
+			// the READ permissions which are set will not be removable.
 			copyNonNullPermissions(newDetails, source.getPermissions());
 			applyUmaskIfNecessary(newDetails);
 
+			// OWNER
 			// users *aren't* allowed to set the owner of an item.
 			if (source.getOwner() != null
 					&& !source.getOwner().getId().equals(
@@ -391,6 +398,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 			}
 
+			// GROUP
 			// users are only allowed to set to another of their groups
 			if (source.getGroup() != null && source.getGroup().getId() != null) {
 				// users can change to their own group
@@ -411,6 +419,15 @@ public class BasicSecuritySystem implements SecuritySystem {
 									.getId()));
 				}
 			}
+
+			// EXTERNALINFO
+			// useres _are_ allowed to set the external info on a new object.
+			// subsequent operations, however, will not be able to edit this
+			// value.
+			newDetails.setExternalInfo( source.getExternalInfo() );
+
+			// CREATION/UPDATEVENT : currently ignore what users do
+			
 
 		}
 
@@ -499,11 +516,17 @@ public class BasicSecuritySystem implements SecuritySystem {
 			if (hasPrivilegedToken(iobj))
 				privileged = true;
 
-			// isGlobal implies nothing (currently) about permissions
+			// isGlobal implies nothing (currently) about external info
 			// see mapping.vm for more.
-			altered |= managedPermissions(locked, privileged, iobj,
+			altered |= managedExternalInfo(locked, privileged, iobj,
 					previousDetails, currentDetails, newDetails);
-
+			
+			if (!isGlobal(iobj.getClass())) // implies that Permissions dosn't matter
+			{
+				altered |= managedPermissions(locked, privileged, iobj,
+						previousDetails, currentDetails, newDetails);
+			}
+			
 			if (!isGlobal(iobj.getClass())) // implies that owner doesn't matter
 			{
 				altered |= managedOwner(locked, privileged, iobj,
@@ -515,6 +538,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 				altered |= managedGroup(locked, privileged, iobj,
 						previousDetails, currentDetails, newDetails);
 			}
+			
+			if (!isGlobal(iobj.getClass())) 
 
 			// the event check needs to be last, because we need to test
 			// whether or not it is necessary to change the updateEvent 
@@ -531,6 +556,57 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	}
 
+	/**
+	 * responsible for guaranteeing that external info is not modified by 
+	 * any users, including rot.
+	 * 
+	 * @param locked
+	 * @param privileged
+	 * @param obj
+	 * @param previousDetails
+	 *            details representing the known DB state
+	 * @param currentDetails
+	 *            details representing the user request (UNTRUSTED)
+	 * @param newDetails
+	 *            details from the current context. Holder for the merged
+	 *            {@link Permissions}
+	 * @return true if the {@link Permissions} of newDetails are changed.
+	 */
+	protected boolean managedExternalInfo(boolean locked, boolean privileged,
+			IObject obj, Details previousDetails, Details currentDetails,
+			Details newDetails) {
+		
+		boolean altered = false;
+		
+		ExternalInfo previous = previousDetails == null ? null
+				: previousDetails.getExternalInfo();
+
+		ExternalInfo current = currentDetails == null ? null 
+				: currentDetails.getExternalInfo();
+		
+		if (previous == null)
+		{
+			// do we allow a change?
+			newDetails.setExternalInfo( current );
+			altered |= 
+				newDetails.getExternalInfo() != currentDetails.getExternalInfo();
+		} 
+		
+		// The ExternalInfo was previously set. We do not allow it to be changed,
+		// similar to not allowing the Event for an entity to be changed.
+		else
+		{
+			if (!HibernateUtils.idEqual(previous, current))
+			{
+				throw new SecurityViolation(String.format(
+						"Cannot update ExternalInfo for %s from %s to %s",
+						obj,previous,current));
+			}
+		}
+		
+		return altered;
+	}
+	
 	/**
 	 * responsible for properly copying user-requested permissions taking into
 	 * account the {@link Flag#LOCKED} status. This method does not need to
@@ -644,7 +720,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 			IObject obj, Details previousDetails, Details currentDetails,
 			Details newDetails) {
 
-		if (!idEqual(previousDetails.getOwner(), currentDetails.getOwner())) {
+		if (!HibernateUtils.idEqual(previousDetails.getOwner(), 
+				currentDetails.getOwner())) {
 
 			// !idEquals implies that they aren't both null; if current_owner is
 			// null, then it was *probably* not intended, so just fix it and 
@@ -694,7 +771,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 			Details newDetails) {
 		// previous and current have different ids. either change it and return
 		// true if permitted, or throw an exception.
-		if (!idEqual(previousDetails.getGroup(), currentDetails.getGroup())) {
+		if (!HibernateUtils.idEqual(previousDetails.getGroup(), 
+				currentDetails.getGroup())) {
 
 			// !idEquals implies that they aren't both null; if current_group is
 			// null, then it was *probably* not intended, so just fix it and 
@@ -754,8 +832,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 		
 		// creation event~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		
-		if (!idEqual(previousDetails.getCreationEvent(), currentDetails
-				.getCreationEvent())) {
+		if (!HibernateUtils.idEqual(previousDetails.getCreationEvent(), 
+				currentDetails.getCreationEvent())) {
 
 			// !idEquals implies that they aren't both null; if current_event is
 			// null, then it was *probably* not intended, so just fix it and 
@@ -790,8 +868,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 		
 		// update event ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		
-		if (!idEqual(previousDetails.getUpdateEvent(), currentDetails
-				.getUpdateEvent())) {
+		if (!HibernateUtils.idEqual(previousDetails.getUpdateEvent(), 
+				currentDetails.getUpdateEvent())) {
 
 			// !idEquals implies that they aren't both null; if current_event is
 			// null, then it was *probably* not intended, so just fix it and 
@@ -1117,48 +1195,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	// ~ Details checks. Used by to examine transient and managed Details.
 	// =========================================================================
-
-	protected boolean idEqual(IObject arg1, IObject arg2) {
-
-		// arg1 is null
-		if (arg1 == null) {
-			// both are null, therefore equal
-			if (arg2 == null)
-				return true;
-
-			// just arg1 is null, can't be equal
-			return false;
-		}
-
-		// just arg2 is null, also can't be equal
-		else if (arg2 == null)
-			return false;
-
-		// neither argument is null,
-		// so let's move a level down.
-
-		Long arg1_id = arg1.getId();
-		Long arg2_id = arg2.getId();
-
-		// arg1_id is null
-		if (arg1_id == null) {
-
-			// both are null, therefore equal
-			if (arg2_id == null)
-				return true;
-
-			// just arg2_id is null, can't be equal
-			return false;
-		}
-
-		// just arg2_id null, and also can't be equal
-		else if (arg2_id == null)
-			return false;
-
-		// neither null, then we can just test the ids.
-		else
-			return arg1_id.equals(arg2_id);
-	}
 
 	/**
 	 * everyone is allowed to set the umask if desired. if the user does not set

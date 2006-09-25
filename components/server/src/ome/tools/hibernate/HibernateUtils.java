@@ -41,7 +41,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
@@ -49,6 +48,7 @@ import org.hibernate.type.Type;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.InternalException;
+import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.internal.Details;
@@ -150,7 +150,12 @@ public abstract class HibernateUtils
 	}
     
     /** calculates if only the {@link Flag#LOCKED} marker has 
-     * been changed. If not, the normal criteria apply.
+     * been changed. If not, the normal criteria apply. 
+     * 
+     * In the case of system types (the only types which can have null details)
+     * a true will be returned even though {@link Flag#LOCKED} can't be set
+     * to prevent spurious {@link SecurityViolation}. This is due to ticket:307
+     * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/307">ticket:307</a>
      */
     public static boolean onlyLockChanged( SessionImplementor session,
     		EntityPersister persister, IObject entity, Object[] state, String[] names )
@@ -165,20 +170,114 @@ public abstract class HibernateUtils
 			if ( ! DETAILS.equals( names[dirty[0]] )) return false;
 			Details new_d = getDetails(current, names);
 			Details old_d = getDetails(state, names);
-			if ( new_d.getOwner() != old_d.getOwner() ||
-					new_d.getGroup() != old_d.getGroup() ||
-					new_d.getCreationEvent() != old_d.getCreationEvent() ||
-					new_d.getUpdateEvent() != old_d.getUpdateEvent() )
-				return false;
-			Permissions new_p = new Permissions( new_d.getPermissions() );
-			Permissions old_p = new Permissions( old_d.getPermissions() );
-			old_p.set( Flag.LOCKED );
-			return new_p.identical( old_p );
+			
+			// have to handle nulls because of ticket:307
+			if (old_d == null || new_d == null) 
+			{
+				if (new_d == null && old_d == null) 
+				{
+					throw new InternalException(
+							"Both details null. Can't have changed!");
+				}
+				
+				else if (new_d == null) 
+				{
+					// don't worry about it. 
+					return true;
+				} 
+				
+				else 
+				{ // then new_d != null. What's up?
+					if (new_d.getPermissions() != null && 
+							new_d.getPermissions().isSet(Flag.SOFT)) 
+						return true;	
+					return false;
+				}
+			}
+			else {
+				if ( ! onlyPermissionsChanged(new_d, old_d)) return false;
+				Permissions new_p = new Permissions( new_d.getPermissions() );
+				Permissions old_p = new Permissions( old_d.getPermissions() );
+				old_p.set( Flag.LOCKED );
+				return new_p.identical( old_p );
+			}
+			
 		}
 		return false;
 		
     }
 
+    /** 
+     * 
+     * @param newD Not null.
+     * @param oldD Not null.
+     * @return
+     */
+    public static boolean onlyPermissionsChanged(Details new_d, Details old_d)
+    {
+		if ( idEqual(new_d.getOwner(), old_d.getOwner()) &&
+				idEqual(new_d.getGroup(), old_d.getGroup()) &&
+				idEqual(new_d.getCreationEvent(),old_d.getCreationEvent()) &&
+				idEqual(new_d.getUpdateEvent(),old_d.getUpdateEvent()) &&
+				idEqual(new_d.getExternalInfo(),old_d.getExternalInfo()))
+			return true;
+		return false;
+    }
+    
+    /** returns true under the following circumstatnces:
+     * <ul>
+     *  <li>both arguments are null, or</li>
+     *  <li>both arguments are identical (==), or</li>
+     *  <li>both arguments have the same id value(equals)</li>  
+     * </ul>
+     */
+	public static boolean idEqual(IObject arg1, IObject arg2) {
+
+		// arg1 is null
+		if (arg1 == null) {
+			// both are null, therefore equal
+			if (arg2 == null)
+				return true;
+
+			// just arg1 is null, can't be equal
+			return false;
+		}
+
+		// just arg2 is null, also can't be equal
+		else if (arg2 == null)
+			return false;
+
+		// neither argument is null,
+		// so let's move a level down,
+		// but first test reference equality
+		// as a performance op.
+		
+		if ( arg1 == arg2 ) return true;             // OP
+ 
+		Long arg1_id = arg1.getId();
+		Long arg2_id = arg2.getId();
+
+		// arg1_id is null
+		if (arg1_id == null) {
+
+			// both are null, and not identical (see OP above)
+			// therefore different
+			if (arg2_id == null)
+				return false;
+
+			// just arg2_id is null, can't be equal
+			return false;
+		}
+
+		// just arg2_id null, and also can't be equal
+		else if (arg2_id == null)
+			return false;
+
+		// neither null, then we can just test the ids.
+		else
+			return arg1_id.equals(arg2_id);
+	}
+    
     public static Details getDetails( Object[] state, String[] names)
     {
 		return (Details) state[detailsIndex(names)];
