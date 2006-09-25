@@ -155,6 +155,8 @@ class EditorComponent
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
                     if (model.isAnnotatable()) {
                         model.fireAnnotationsLoading();
+                        model.getParentModel().setStatus(true, 
+                                TreeViewer.LOADING_TITLE, false);
                         fireStateChange();
                     }
                 }
@@ -192,6 +194,7 @@ class EditorComponent
                                         null, model.getHierarchyObject());
             }
             model.setState(READY);
+            model.getParentModel().setStatus(false, "", true);
             fireStateChange();
         }
     }
@@ -228,6 +231,7 @@ class EditorComponent
                                                         groupID);
         model.setClassifications(set);
         view.showClassifications();
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
 
@@ -308,6 +312,7 @@ class EditorComponent
                 model.fireDataObjectUpdate(object);
                 break;
         }
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
     /**
@@ -340,6 +345,7 @@ class EditorComponent
             case DELETE_ANNOTATION:
                 model.fireAnnotationDelete(data, object);
         }
+        model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
 
@@ -359,6 +365,8 @@ class EditorComponent
         }
         //model.setClassifications(null);
         model.fireClassificationLoading();
+        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
+        fireStateChange();
     }
 
     /**
@@ -377,6 +385,7 @@ class EditorComponent
             (object instanceof CategoryData)) {
             view.showLeavesAnnotations();
         }
+        model.getParentModel().setStatus(false, "", true);
     }
     
 }

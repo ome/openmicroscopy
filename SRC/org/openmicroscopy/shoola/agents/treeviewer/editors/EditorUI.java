@@ -247,12 +247,12 @@ public class EditorUI
      * 
      * @return See above;
      */
-    private JToolBar buildToolBar()
+    private JPanel buildToolBar()
     {
-        JToolBar bar = new JToolBar();
+        JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setRollover(true);
-        bar.setFloatable(false);
+        //bar.setRollover(true);
+        //bar.setFloatable(false);
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);

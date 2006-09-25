@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.EditorLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
@@ -523,11 +524,16 @@ class EditorModel
         Browser b = parentModel.getSelectedBrowser();
         if (b == null) return;
         state = Editor.SAVE_EDITION;
-        Object p =  b.getLastSelectedDisplay().getUserObject();
-        if (p instanceof String) //root
-            currentLoader = new DataObjectCreator(component, object, null);
-        else currentLoader = new DataObjectCreator(component, object,
-                                                    (DataObject) p);
+        TreeImageDisplay node = b.getLastSelectedDisplay();
+        DataObject data = null;
+        if (node != null) {
+            Object p =  node.getUserObject();
+            if (!((object instanceof ProjectData) || 
+                    (object instanceof CategoryGroupData)))//root.
+                data = ((DataObject) p);
+        
+        }
+        currentLoader = new DataObjectCreator(component, object, data);
         currentLoader.load();
     }
     

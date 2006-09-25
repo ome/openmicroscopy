@@ -204,15 +204,15 @@ public class EditorControl
     {
         switch (model.getState()) {
             case Editor.SAVE_EDITION: 
-                TreeViewerFactory.getLoadingWindow().setTitle(
-                                TreeViewer.SAVING_TITLE);
+                //TreeViewerFactory.getLoadingWindow().setTitle(
+                 //               TreeViewer.SAVING_TITLE);
             case Editor.LOADING_ANNOTATION:
             case Editor.LOADING_CLASSIFICATION: 
-                UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
+                //UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
                 break;
             case Editor.READY:
             case Editor.DISCARDED:
-                TreeViewerFactory.getLoadingWindow().setVisible(false);
+                //TreeViewerFactory.getLoadingWindow().setVisible(false);
                 break;
         }
     }
