@@ -37,6 +37,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -267,10 +269,10 @@ class TabbedPaneUI
         createPanels();
                 
         JPanel container = new JPanel();
-        container.setLayout(new BorderLayout());
-        container.add(toolbar,BorderLayout.WEST);
-        container.add(userActionbar,BorderLayout.EAST);
-        
+        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+        container.add(toolbar , BorderLayout.WEST);
+        container.add(Box.createHorizontalBox());
+        container.add(userActionbar, BorderLayout.EAST);
         this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -279,18 +281,18 @@ class TabbedPaneUI
 		gbc.weighty = 0;
 		gbc.anchor = GridBagConstraints.NORTH;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
+		gbc.insets = new Insets(0, 5, 0, 5);
 		
-        this.add(container,gbc);
+        this.add(container, gbc);
         gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.weightx = 100;
 		gbc.weighty = 10;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(5,5,0,5);
+		gbc.insets = new Insets(5, 5, 0, 5);
 		
-        this.add(paintPotPane,gbc);
+        this.add(paintPotPane, gbc);
         
         gbc.gridx = 0;
 		gbc.gridy = 2;
@@ -298,18 +300,18 @@ class TabbedPaneUI
 		gbc.weighty = 150;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0,0,0,0);
+		gbc.insets = new Insets(0, 0, 0, 0);
         
-		this.add(colourWheelPane,gbc);
+		this.add(colourWheelPane, gbc);
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weightx = 100;
 		gbc.weighty = 50;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0,0,0,0);
+		gbc.insets = new Insets(0, 0, 0, 0);
 	       
-        this.add(RGBSliderPane,gbc);
+        this.add(RGBSliderPane, gbc);
         
         gbc.gridx = 0;
 		gbc.gridy = 2;
@@ -317,9 +319,9 @@ class TabbedPaneUI
 		gbc.weighty = 150;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0,0,0,0);
+		gbc.insets = new Insets(0, 0, 0, 0);
 	       
-        this.add(swatchPane,gbc);
+        this.add(swatchPane, gbc);
         RGBSliderPane.setVisible(false);
         swatchPane.setVisible(false);
         colourWheelButton.setSelected(true);
@@ -395,14 +397,6 @@ class TabbedPaneUI
 		createUI();
 		control.addListener(this);
 	}
-
-	/** 
-     * User has clicked accept button. Returns the current colour to the user.
-     */
-	private void acceptAction()
-	{
-		
-	}
 	
 	/** 
 	 * User has clicked revert button. Revert current colour to the original 
@@ -412,8 +406,6 @@ class TabbedPaneUI
 	{
 		control.revert();
 	}
-
-
 
 	/** 
 	 * Listens to ChangeEvent. 

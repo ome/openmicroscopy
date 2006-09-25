@@ -33,19 +33,21 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openmicroscopy.shoola.util.ui.colour.HSV;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
  * This is the UI Panel which contains the HSV elements including Colour
@@ -223,11 +225,23 @@ class HSVColourWheelUI
 		createHSVSlider();
 		createAlphaSlider();
 		createAlphaTextbox();	
-		this.setLayout(new FlowLayout());
-		this.add(wheel);
-		this.add(HSVSlider);
-		this.add(alphaSlider);
-		this.add(alphaTextbox);
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+		//setLayout(new FlowLayout());
+        container.add(wheel);
+        container.add(UIUtilities.buildComponentPanel(HSVSlider));
+        //
+        JPanel p = new JPanel();
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 0.0;  
+        p.setLayout(new GridBagLayout());
+		p.add(alphaSlider, c);
+        c.gridx = 1;
+		p.add(alphaTextbox, c);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(container);
+        add(UIUtilities.buildComponentPanel(p));
 	}
 
 	/** Updates UI components based on chahnges to the model. */
