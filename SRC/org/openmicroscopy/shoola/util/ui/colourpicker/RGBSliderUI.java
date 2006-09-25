@@ -31,7 +31,9 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JLabel;
@@ -378,30 +380,126 @@ class RGBSliderUI
 	{
 		layout = new GridBagLayout();
 		this.setLayout(layout);
-		this.add(redLabel,new GBC(0, 0).setAnchor(GBC.WEST).setWeight(80, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(redSlider,new GBC(0, 1).setAnchor(GBC.WEST).setWeight(20, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(redTextbox,new GBC(1, 1).setAnchor(GBC.WEST).setWeight(40, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(greenLabel,new GBC(0, 2).setAnchor(GBC.WEST).setWeight(20,5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(greenSlider,new GBC(0, 3).setAnchor(GBC.WEST).setWeight(20,5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(greenTextbox,new GBC(1, 3).setAnchor(GBC.WEST).setWeight(40, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(blueLabel,new GBC(0, 4).setAnchor(GBC.WEST).setWeight(20,5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(blueSlider,new GBC(0, 5).setAnchor(GBC.WEST).setWeight(20, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(blueTextbox,new GBC(1, 5).setAnchor(GBC.WEST).setWeight(40, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(alphaLabel,new GBC(0, 6).setAnchor(GBC.WEST).setWeight(20,5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(alphaSlider,new GBC(0, 7).setAnchor(GBC.WEST).setWeight(20, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
-		this.add(alphaTextbox,new GBC(1, 7).setAnchor(GBC.WEST).setWeight(40, 5).
-				setInsets(0, 5, 0, 5).setFill(GBC.HORIZONTAL));
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(redLabel, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(redSlider, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 20;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(redTextbox,gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(greenLabel, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(greenSlider, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 3;
+		gbc.weightx = 20;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(greenTextbox,gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(blueLabel, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(blueSlider, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 5;
+		gbc.weightx = 20;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(blueTextbox,gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(alphaLabel, gbc);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 7;
+		gbc.weightx = 80;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(alphaSlider, gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 7;
+		gbc.weightx = 20;
+		gbc.weighty = 5;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+		this.add(alphaTextbox,gbc);
+	
 	}
 	
 	/**
