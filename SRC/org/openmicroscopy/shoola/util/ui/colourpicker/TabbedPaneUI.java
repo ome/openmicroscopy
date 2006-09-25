@@ -31,7 +31,9 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -270,16 +272,54 @@ class TabbedPaneUI
         container.add(userActionbar,BorderLayout.EAST);
         
         this.setLayout(new GridBagLayout());
-        this.add(container,new GBC(0, 0).setWeight(40, 0).setAnchor(GBC.NORTH).
-        setFill(GBC.HORIZONTAL));
-        this.add(paintPotPane,new GBC(0, 1).setWeight(100, 10).
-                setAnchor(GBC.CENTER).setFill(GBC.BOTH).setInsets(5 ,5, 0, 5));
-        this.add(colourWheelPane,new GBC(0, 2).setWeight(100, 150).
-                setAnchor(GBC.CENTER).setFill(GBC.BOTH));
-        this.add(RGBSliderPane,new GBC(0, 2).setWeight(100, 50).
-                setAnchor(GBC.CENTER).setFill(GBC.BOTH));
-        this.add(swatchPane,new GBC(0, 2).setWeight(100, 150).
-                setAnchor(GBC.CENTER).setFill(GBC.BOTH));
+        GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 40;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0,5,0,5);
+		
+        this.add(container,gbc);
+        gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 100;
+		gbc.weighty = 10;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(5,5,0,5);
+		
+        this.add(paintPotPane,gbc);
+        
+        gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 100;
+		gbc.weighty = 150;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(0,0,0,0);
+        
+		this.add(colourWheelPane,gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 100;
+		gbc.weighty = 50;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(0,0,0,0);
+	       
+        this.add(RGBSliderPane,gbc);
+        
+        gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 100;
+		gbc.weighty = 150;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(0,0,0,0);
+	       
+        this.add(swatchPane,gbc);
         RGBSliderPane.setVisible(false);
         swatchPane.setVisible(false);
         colourWheelButton.setSelected(true);
