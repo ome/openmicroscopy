@@ -61,6 +61,7 @@ import ome.api.IUpdate;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.tools.hibernate.UpdateFilter;
@@ -237,6 +238,10 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     @RolesAllowed("user")
     public void deleteObject( IObject row )
     {
+    	if ( row == null ) return;
+    	if ( row.getId() == null ) throw new ApiUsageException(
+    			"Non-managed IObject entity cannot be deleted. Must have an id."
+    			);
     	doAction( row, new UpdateAction<IObject>()
     	{
     		@Override
