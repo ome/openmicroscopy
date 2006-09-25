@@ -136,7 +136,7 @@ class ToolBar
         JButton b = new JButton(controller.getAction(
                                 TreeViewerControl.GO_INTO));
         b.setBorderPainted(false);
-        //bar.add(b);
+        bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH));
         b.setBorderPainted(false);
         bar.add(b);

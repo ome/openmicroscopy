@@ -252,6 +252,10 @@ class TreeViewerModel
     */
    void fireDataObjectDeletion(DataObject userObject)
    {
+       if (currentLoader != null) {
+           currentLoader.cancel();
+           currentLoader = null;
+       }
        state = TreeViewer.SAVE;
        TreeImageDisplay parent = 
            selectedBrowser.getLastSelectedDisplay().getParentDisplay();
@@ -262,7 +266,6 @@ class TreeViewerModel
            data = ((DataObject) po);
        currentLoader = new DataObjectRemover(component, userObject, data);
        currentLoader.load();
-       
    }
    
    /**
@@ -272,6 +275,10 @@ class TreeViewerModel
     */
    void fireThumbnailLoading(ImageData image)
    {
+       if (currentLoader != null) {
+           currentLoader.cancel();
+           currentLoader = null;
+       }
        state = TreeViewer.LOADING_THUMBNAIL;
        currentLoader = new ThumbnailLoader(component, image);
        currentLoader.load();
@@ -337,6 +344,10 @@ class TreeViewerModel
     */
    void fireDataExistingObjectsLoader(DataObject ho)
    {
+       if (currentLoader != null) {
+           currentLoader.cancel();
+           currentLoader = null;
+       }
        state = TreeViewer.LOADING_DATA;
        currentLoader = new ExistingObjectsLoader(component, ho);
        currentLoader.load();
@@ -350,6 +361,10 @@ class TreeViewerModel
     */
    void fireAddExistingObjects(Set children)
    {
+       if (currentLoader != null) {
+           currentLoader.cancel();
+           currentLoader = null;
+       }
        TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
        if (parent == null) return;
        Object po = parent.getUserObject();

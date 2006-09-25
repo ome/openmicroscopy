@@ -49,7 +49,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
@@ -417,7 +416,6 @@ class TreeViewerControl
      */
     public void stateChanged(ChangeEvent ce)
     {
-        IconManager icons = IconManager.getInstance();
         switch (model.getState()) {
             case TreeViewer.DISCARDED:
                 view.closeViewer();
@@ -425,6 +423,7 @@ class TreeViewerControl
             case TreeViewer.LOADING_DATA:
                 view.setStatus(TreeViewer.LOADING_TITLE, false);
                 view.setStatusIcon(true);
+                view.onStateChanged(false);
                 //LoadingWindow w = view.getLoadingWindow();
                 //w.setTitle(TreeViewer.LOADING_TITLE);
                 //UIUtilities.centerAndShow(w);
@@ -432,6 +431,7 @@ class TreeViewerControl
             case TreeViewer.SAVE:
                 view.setStatus(TreeViewer.SAVING_TITLE, false);
                 view.setStatusIcon(true);
+                view.onStateChanged(false);
                 //LoadingWindow window = view.getLoadingWindow();
                 //window.setTitle(TreeViewer.SAVING_TITLE);
                 //UIUtilities.centerAndShow(window);
@@ -440,6 +440,7 @@ class TreeViewerControl
             case TreeViewer.DIALOG_SELECTION:
                 view.setStatus(null, true);
                 view.setStatusIcon(false);
+                view.onStateChanged(true);
                 break;  
         }
     }

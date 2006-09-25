@@ -531,6 +531,15 @@ class TreeViewerWin
         }  
     }
     
+    /**
+     * 
+     * @param b
+     */
+    void onStateChanged(boolean b)
+    {
+        tabs.setEnabled(b);
+    }
+    
     /** 
      * Sets the status message.
      * 

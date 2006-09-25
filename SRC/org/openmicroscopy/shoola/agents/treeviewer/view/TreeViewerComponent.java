@@ -485,7 +485,7 @@ class TreeViewerComponent
     public void clearFoundResults()
     {
         switch (model.getState()) {
-            case LOADING_THUMBNAIL:
+            //case LOADING_THUMBNAIL:
             case DISCARDED:
             case SAVE:  
                 throw new IllegalStateException("This method cannot be " +
