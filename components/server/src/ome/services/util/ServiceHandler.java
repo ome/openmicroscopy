@@ -30,6 +30,9 @@
 package ome.services.util;
 
 //Java imports
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -39,8 +42,11 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.PropertyValueException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.orm.hibernate3.HibernateSystemException;
 
 //import com.caucho.burlap.io.BurlapOutput;
 
@@ -52,6 +58,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
+import ome.conditions.ValidationException;
 
 /** 
  *   
@@ -136,8 +143,6 @@ public class ServiceHandler implements MethodInterceptor {
                 + t.getClass().getName()+"):\n"
                 + t.getMessage();
             
-            log.error("Exception thrown: "+msg);
-            
             if ( RootException.class
                     .isAssignableFrom( t.getClass() ) )
                 return t;
@@ -147,6 +152,7 @@ public class ServiceHandler implements MethodInterceptor {
             {
                 OptimisticLockException ole = new OptimisticLockException( t.getMessage() );
                 ole.setStackTrace( t.getStackTrace() );
+                printException("OptimisticLockingFailureException thrown.", t);
                 return ole;
             }
             
@@ -155,7 +161,7 @@ public class ServiceHandler implements MethodInterceptor {
             {
                 ApiUsageException aue = new ApiUsageException( t.getMessage() );
                 aue.setStackTrace( t.getStackTrace() );
-                log.warn("IllegalArgumentException thrown:\n"+aue.getStackTrace());
+                printException("IllegalArgumentException thrown.",t);
                 return aue;
             }
             
@@ -164,22 +170,56 @@ public class ServiceHandler implements MethodInterceptor {
             {
                 ApiUsageException aue = new ApiUsageException( t.getMessage() );
                 aue.setStackTrace( t.getStackTrace() );
-                log.warn("InvalidDataAccessResourceUsageException thrown:\n"+aue.getStackTrace());
+                printException("InvalidDataAccessResourceUsageException thrown.",t);
                 return aue;
+            }
+            
+            else if ( DataIntegrityViolationException.class
+            		.isAssignableFrom( t.getClass() ) )
+            {
+            	ValidationException ve = new ValidationException( t.getMessage() );
+            	ve.setStackTrace( t.getStackTrace() );
+            	printException("DataIntegrityViolationException thrown.",t);
+            	return ve;
+            }
+            
+            else if ( HibernateSystemException.class
+            		.isAssignableFrom( t.getClass() ) )
+            {
+            	Throwable cause = t.getCause();
+            	if ( cause == null || cause == t )
+            	{
+            		return wrapUnknown(t, msg);
+            	} else if ( PropertyValueException.class
+            			.isAssignableFrom( cause.getClass() ) )
+            	{
+            		ValidationException ve = new ValidationException( cause.getMessage() );
+            		ve.setStackTrace( cause.getStackTrace() );
+            		printException("PropertyValueException thrown.", cause);
+            		return ve;
+            	} else {
+            		return wrapUnknown(t, msg);
+            	}
             }
             
             else 
             {
-                // Wrap all other exceptions in InternalException
-                InternalException re = new InternalException(msg);
-                re.setStackTrace(t.getStackTrace());
-                return re;
+                return wrapUnknown(t, msg);
             }
            
             
         }
             
     }
+
+
+	private Throwable wrapUnknown(Throwable t, String msg) {
+		// Wrap all other exceptions in InternalException
+		InternalException re = new InternalException(msg);
+		re.setStackTrace(t.getStackTrace());
+		printException("Unknown exception thrown.", t);
+		return re;
+	}
     
     /** produces a String from the arguments array. Argument parameters
      * marked as {@link Hidden} will be replaced by "*******". 
@@ -226,4 +266,35 @@ public class ServiceHandler implements MethodInterceptor {
         return arguments;
     }
 
+    private void printException(String msg, Throwable ex)
+    {
+    	if (log.isWarnEnabled())
+    	{
+    		StringWriter sw = null;
+    		PrintWriter pw = null;
+   
+    		try {
+    			sw = new StringWriter();
+    			pw = new PrintWriter(sw);
+    			ex.printStackTrace(pw);
+    			pw.flush();
+    			sw.flush();
+    			log.warn(msg+"\n"+sw.toString());
+    		} finally {
+    			if ( pw != null )
+    			{
+    				pw.close();
+    			}
+    			if (sw != null)
+    			{
+    				try {
+    					sw.close();
+    				} catch (IOException ioe) {
+    					// ignore.
+    				}
+    			}
+    		}
+    	}
+    }
 }
+
