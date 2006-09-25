@@ -69,6 +69,10 @@ class CollapseVisitor
      * Collapses the node. 
      * @see BrowserVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node) { model.collapse(node); }
+    public void visit(TreeImageSet node)
+    { 
+        if (node.getParentDisplay() != null)
+            model.collapse(node);
+    }
 
 }

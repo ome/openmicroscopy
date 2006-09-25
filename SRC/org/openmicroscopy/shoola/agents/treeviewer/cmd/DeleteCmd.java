@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 import pojos.DataObject;
@@ -74,7 +75,9 @@ public class DeleteCmd
     {
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
-        Object userObject = browser.getLastSelectedDisplay().getUserObject();
+        TreeImageDisplay node = browser.getLastSelectedDisplay();
+        if (node == null) return;
+        Object userObject = node.getUserObject();
         if (userObject instanceof DataObject)
             model.removeObject((DataObject) userObject);
     }
