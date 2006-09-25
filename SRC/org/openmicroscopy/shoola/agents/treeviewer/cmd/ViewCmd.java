@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.OmeroService;
+import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -82,7 +82,7 @@ public class ViewCmd
     
     /**
      * Converts the specified UI rootLevel into its corresponding 
-     * constant defined by the {@link OmeroService}.
+     * constant defined by the {@link OmeroDataService}.
      * 
      * @param level The level to convert.
      * @return See above.
