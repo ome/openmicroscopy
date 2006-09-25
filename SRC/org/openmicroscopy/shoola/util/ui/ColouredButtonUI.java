@@ -194,16 +194,16 @@ class ColouredButtonUI
                 // Increase topGradientValue to 1.5 * value of colour face.
                 topGradientValue = col.getValue()*1.5f;
                 if (topGradientValue>1) topGradientValue = 1;
-                topGradientSaturation = col.getSaturation()*0.3f;
+                topGradientSaturation = col.getSaturation()*0.6f;
                 bottomGradientSaturation = col.getSaturation();
             }
             
             gradientStartHSV = new HSV(col.getHue(), topGradientSaturation,
-                                topGradientValue, 1.0f);
+                                topGradientValue, 0.6f);
             gradientStartRGB = gradientStartHSV.toColorA();
     
             gradientEndHSV = new HSV(col.getHue(),
-                        bottomGradientSaturation, bottomGradientValue, 1.0f);
+                        bottomGradientSaturation, bottomGradientValue, 0.6f);
             gradientEndRGB = gradientEndHSV.toColorA();
     }
 
@@ -238,7 +238,7 @@ class ColouredButtonUI
         gp = new GradientPaint((int) buttonRect.getX(),
                  (int) buttonRect.getY(), gradientEndRGB,
                  (int) buttonRect.getWidth(),
-                 (int) buttonRect.getHeight(), gradientStartRGB, false);
+                 (int) buttonRect.getHeight(), gradientEndRGB, false);
     
         g.setPaint(gp);
         g.fill(buttonRect);
