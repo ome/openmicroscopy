@@ -185,11 +185,35 @@ public class IconManager
     /** The <code>Filter Big</code> icon. */
     public static int           FILTER_BIG = 41;
     
+    /** The <code>Navigation Forward</code> icon. */
+    public static int           FORWARD_NAV = 42;
+    
+    /** The <code>Navigation Forward</code> icon. */
+    public static int           BACKWARD_NAV = 43;
+    
+    /** The <code>Status Info</code> icon. */
+    public static int           STATUS_INFO = 44;
+    
+    /** The <code>Cancel</code> icon. */
+    public static int           CANCEL = 45;
+    
+    /** The <code>Data Manager</code> icon. */
+    public static int           DATA_MANAGER = 46;
+    
+    /** The <code>Classifier</code> icon. */
+    public static int           CLASSIFIER = 47;
+    
+    /** The <code>Add top container</code> icon. */
+    public static int           ADD_CONTAINER = 48;
+    
+    /** The <code>Add existing</code> icon. */
+    public static int           ADD_EXISTING = 49;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 41;
+    private static int          MAX_ID = 49;
     
     
     /** Paths of the icon files. */
@@ -240,11 +264,18 @@ public class IconManager
         relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
         relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
         relPaths[FILTER_BIG] = "nuvola_find48.png";
+        relPaths[FORWARD_NAV] = "eclipse_forward_nav16.png";
+        relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
+        relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
+        relPaths[CANCEL] = "nuvola_button_cancel16.png";
+        relPaths[DATA_MANAGER] = "eclipse_external_tools16.png";
+        relPaths[CLASSIFIER] = "eclipse_sroot_obj16.png";
+        relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
+        relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
     }
     
     /** The sole instance. */
     private static IconManager  singleton;
-    
     
     /** 
      * Returns the <code>IconManager</code> object. 
