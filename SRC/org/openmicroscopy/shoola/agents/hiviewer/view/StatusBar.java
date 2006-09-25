@@ -111,7 +111,7 @@ class StatusBar
      * Sets the value of the progress bar.
      * 
      * @param hide  Pass <code>true</code> to hide the progress bar, 
-     *              <code>false</otherwise>
+     *              <code>false</otherwise>.
      * @param perc  The value to set.
      */
     void setProgress(boolean hide, int perc)
