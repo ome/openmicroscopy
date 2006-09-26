@@ -33,17 +33,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-
-import ome.conditions.ApiUsageException;
-import ome.model.IObject;
-import ome.parameters.QueryParameter;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.ApiUsageException;
+import ome.model.IObject;
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 import static ome.model.internal.Permissions.Flag.*;
@@ -87,18 +82,20 @@ public class Permissions implements Serializable
 	
 	/** enumeration of granted rights. The {@link #READ} right allows for a user
 	 * with the given role to retrieve an entity. This means that all fields of 
-	 * that entity can be retrieved. It is not given that all linked entities
-	 * can also be retrieved. The {@link #WRITE} right allows for a user with 
+	 * that entity can be retrieved. Care is taken by the server, that once an
+	 * entity was readable and another entity was attached to it, that further
+	 * READ access will not throw an exception. See {@link #LOCKED}. In turn, 
+	 * care should be taken by users to not overly soon grant {@link #READ} 
+	 * permissions lest they no longer be revokable.
+	 * 
+	 * The {@link #WRITE} right allows for a user with 
 	 * the given role to alter the fields of an entity, including changing the
 	 * contents of its collection. This does not include changing the fields of
 	 * those linked entities, only whether or not they are members of the
-	 * given collection. Finally, the {@link #USE} right allows for the linking
-	 * of information to a given entity. Care should be taken when granting 
-	 * {@link #USE} permissions, because that will hinder the ability to delete
-	 * data in the future.
+	 * given collection. 
 	 */ 
 	public enum Right {
-		@Deprecated USE(1),
+		/* TODO on db update, test changing WRITE(1) and READ(2) @Deprecated USE(1),*/
 		WRITE(2),
 		READ(4),
 		/* UNUSED(8) */ ;
