@@ -91,7 +91,7 @@ public class ChannelButton
      * If Ctrl+right click, we bring the info button.
      * otherwise the select the channel.
      * 
-     * @param e         The mouse event to handle.
+     * @param e The mouse event to handle.
      */
     private void onClick(MouseEvent e)
     {
