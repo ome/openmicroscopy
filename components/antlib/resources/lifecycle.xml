@@ -88,7 +88,7 @@
 	</target>
 
 	<target name="testng-init" unless="test.skip">
-		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.classpath"/>
+		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
 	</target>
 
 	<macrodef name="suite">
@@ -99,8 +99,9 @@
 			haltonskipped="${test.with.fail}"
 			>
  			<classpath>
-				<path refid="omero.classpath"/>
+				<path refid="omero.test.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
+				<pathelement location="${classes.dir}"/>
 			</classpath>
 			<files/>
 		</testng>

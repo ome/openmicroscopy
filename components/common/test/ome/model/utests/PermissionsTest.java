@@ -322,7 +322,7 @@ public class PermissionsTest extends TestCase {
 	// ~ Serialization
 	// =========================================================================
 	
-	@Test
+	@Test( groups = {"broken","ticket:375"} )
 	public void testImmutableSerialization() throws Exception 
 	{
 		byte[] ser = serialize(Permissions.DEFAULT);

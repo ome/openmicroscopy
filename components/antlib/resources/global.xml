@@ -59,6 +59,7 @@
 	<property file="${root.dir}/etc/local.properties" />
 	<property file="${root.dir}/etc/omero.properties" />
 	<property file="${root.dir}/etc/hibernate.properties" />
+	<property name="test.with.fail" value="true"/>
 	
 	<!-- Imports -->
 	<import file="${import.dir}/patterns.xml"/>

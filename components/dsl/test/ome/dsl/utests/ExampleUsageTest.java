@@ -1,5 +1,6 @@
 package ome.dsl.utests;
 
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,8 +28,8 @@ public class ExampleUsageTest extends TestCase
   @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
     {
-	  	File f = new File(ExampleUsageTest.class.getResource("type.xml").getFile());
-        sr = new SaxReader(f);
+	  	File f = ResourceUtils.getFile("classpath:type.xml");
+	  	sr = new SaxReader(f);
     }
 
   @Configuration(afterTestMethod = true)

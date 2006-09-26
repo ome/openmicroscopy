@@ -144,7 +144,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		// RW_xx_xx / RW_xx_xx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(ownsfA,false,RW_xx_xx,common_group);
+		oneToMany(ownsfA,false,xx_xx_xx,common_group);
 		oneToMany(r, false, other);
 		
 		// Rx_Rx_Rx / Rx_Rx_Rx
@@ -153,11 +153,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		oneToMany(ownsfA,false,RW_xx_xx,common_group);
 		oneToMany(r, true, other);
 		
-		// xx_xx_xx / xx_xx_xx
-		permsA = xx_xx_xx;
-		permsB = xx_xx_xx;
-		oneToMany(ownsfA,false,RW_xx_xx,common_group);
-		oneToMany(r, false, other);
+		// xx_xx_xx / xx_xx_xx No need. can't create.
 	}
 
 	public void test_O_Pixels_And_U_Thumbnails() throws Exception {
@@ -211,7 +207,51 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	
 	/** */ @Override
 	public void test_U_Pixels_And_O_Thumbnails() throws Exception {
-		fail("implement");
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+		
+		ownsfB = o;
+		ownerB = other;
+		groupB = user_other_group;
+		
+		will_lock = true;
+
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, other);
+
+		// RW_RW_RW / RW_RW_Rx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_Rx;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, other);
+		
+		// RW_RW_RW / RW_RW_xx 
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, other);
+		
+		// RW_RW_RW / RW_xx_xx
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, other);
+
+		// RW_RW_RW / xx_xx_xx		
+		permsA = RW_RW_RW;
+		permsB = xx_xx_xx;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, true, other);
+		
+		// RW_RW_xx / RW_xx_xx
+		permsA = RW_RW_xx;
+		permsB = RW_xx_xx;
+		oneToMany(ownsfB, false, common_group, RW_xx_xx, RW_RW_xx);
+		oneToMany(r, false, other);
 	}
 	
 	public void test_U_Pixels_And_R_Thumbnails() throws Exception {
@@ -231,43 +271,43 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		permsA = RW_RW_RW;
 		permsB = RW_RW_RW;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, true, user);
+		oneToMany(r, true, other);
 
 		// RW_RW_RW / RW_RW_Rx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_Rx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, true, user);
+		oneToMany(r, true, other);
 		
 		// RW_RW_RW / RW_RW_xx 
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, true, user);
+		oneToMany(r, true, other);
 		
 		// RW_RW_RW / RW_xx_xx
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, true, user);
+		oneToMany(r, true, other);
 
 		// RW_RW_RW / xx_xx_xx		
 		permsA = RW_RW_RW;
 		permsB = xx_xx_xx;
 		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, true, user);
+		oneToMany(r, true, other);
 		
 		// RW_xx_xx / RW_xx_xx
 		permsA = RW_xx_xx;
 		permsB = RW_xx_xx;
-		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, false, user);
+		oneToMany(ownsfA, false, common_group, xx_xx_xx, RW_RW_xx);
+		oneToMany(r, false, other);
 
 		// xx_xx_xx / xx_xx_xx
 		permsA = xx_xx_xx;
 		permsB = xx_xx_xx;
-		oneToMany(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
-		oneToMany(r, false, user);
+		oneToMany(ownsfA, false, common_group);
+		oneToMany(r, false, other);
 		
 	}
 	
@@ -295,7 +335,45 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	/** */ @Override
 	public void test_U_Instrument_And_U_Microscope() throws Exception 
 	{
-		fail("implement");
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
+		
+		will_lock = true;
+		
+		// root can read everything and so can lock everything.
+		
+		// RW_RW_RW / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		uniManyToOne(ownsfA, false, common_group, RW_xx_xx, RW_RW_xx);
+		uniManyToOne(r, true, other);
+	}
+	
+	protected void uniManyToOne(ServiceFactory sf, boolean can_change, Object...details_changed)
+	{
+
+		// whether or not this is valid is handled in the ReadSecurityTest.
+		// an exception here means something went wrong elsewhere; most likely,
+		// that one tried to creat objects with permissions xx_xx_xx
+		createMicroscope(ownsfA,groupA,permsA);
+		verifyDetails(micro, ownerA, groupA, permsA);
+		createInstrument(ownsfB,groupB,permsB,micro);
+		verifyDetails(instr,  ownerB,  groupB,  permsB); 
+
+		verifyLockStatus(micro,will_lock);
+		for (Object object : details_changed) {
+			verifyLocked(sf, micro, d(micro,object), can_change);
+		}
+		// it is not at all easy to clear a Pixels locked status, but
+		// microscope should be easy enough
+		if (will_lock)
+		{
+			r.getUpdateService().deleteObject(instr);
+			boolean[] unlocked = r.getAdminService().unlock(micro);
+			assertTrue(unlocked[0]);
+		}
+			
 	}
 	
 	// ~ many-to-many
@@ -414,72 +492,57 @@ public class UseSecurityTest extends AbstractPermissionsTest
 
 	@Test
 	public void test_U_Image_U_Pixels() throws Exception {
-		createPixels(u, user_other_group, RW_RW_RW);
-		createImage(u, user_other_group, RW_RW_RW, pix);
+		ownsfA = ownsfB = u;
+		ownerA = ownerB = user;
+		groupA = groupB = user_other_group;
+		
+		will_lock = true;
 		
 		// RW_RW_RW / RW_RW_RW
-		verifyDetails(img,user,user_other_group,RW_RW_RW);
-		verifyDetails(pix,user,user_other_group,RW_RW_RW);
-		imagePixels(u,true,true);
-		imagePixels(o,true,true);
-		imagePixels(w,true,true);
-		imagePixels(p,true,true);
-		imagePixels(r,true,true);
+		permsA = RW_RW_RW;
+		permsB = RW_RW_RW;
+		imagePixels(u,false,false,common_group);
+		imagePixels(r,true,true,other);
 		
-		// RW_RW_RW / RW_RW_xx
-		u.getAdminService().changePermissions(pix, RW_RW_Rx); // locking. can't remove read permission!
-		verifyDetails(img,user,user_other_group,RW_RW_RW);
-		verifyDetails(pix,user,user_other_group,RW_RW_Rx);
-		imagePixels(u,true,true);
-		imagePixels(o,true,true);
-		imagePixels(w,true,false);
-		imagePixels(p,true,true);
-		imagePixels(r,true,true);
+		// RW_RW_RW / RW_RW_Rx
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		imagePixels(u,false,false,common_group);
+		imagePixels(r,true,false,other);
 		
 		// RW_RW_RW / RW_xx_xx
-		u.getAdminService().changePermissions(pix, RW_Rx_Rx);
-		verifyDetails(img,user,user_other_group,RW_RW_RW);
-		verifyDetails(pix,user,user_other_group,RW_Rx_Rx);
-		imagePixels(u,true,true);
-		imagePixels(o,true,false);
-		imagePixels(w,true,false);
-		imagePixels(p,true,true);
-		imagePixels(r,true,true);
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		imagePixels(u,false,false,common_group);
+		imagePixels(r,true,false,other);
 		
-	}
-	
-	@Test
-	public void test_ImagesAndDefaultPixels() throws Exception {
-		fail("	see UpdateTest(server).test_experimenters_groups ");
 	}
 	
 	protected void imagePixels(ServiceFactory sf, 
-			boolean img_ok, 
-			boolean pix_ok)
+			boolean can_change_img, 
+			boolean can_change_pix, Object...details_changed)
 	{
-		String outerJoin = "select i from Image i " +
-				"left outer join fetch i.defaultPixels " +
-				"left outer join fetch i.pixels " +
-				"where i.id = :id";
-		Parameters params = new Parameters().addId(img.getId());
 
-		Image test = sf.getQueryService().findByQuery(outerJoin, params);
-		if (img_ok)
-		{		
-			assertNotNull(test);
-			if (pix_ok)
-			{
-				assertNotNull(test.getDefaultPixels());
-				assertTrue(test.sizeOfPixels() > 0);
-			} else {
-				assertNull(test.getDefaultPixels());
-				assertTrue(test.sizeOfPixels() == 0); // TODO should it be null?
-			}
-			
-		} else {
-			assertNull(test);
-		}
+		// whether or not this is valid is handled in the ReadSecurityTest.
+		// an exception here means something went wrong elsewhere; most likely,
+		// that one tried to creat objects with permissions xx_xx_xx
+		createPixels(ownsfB, groupB, permsB);
+		createImage( ownsfA, groupA, permsA, pix);
+		verifyDetails(img,ownerA,groupA,permsA);
+		verifyDetails(pix,ownerB,groupB,permsB);
 		
+		verifyLockStatus(img,will_lock);
+		verifyLockStatus(pix,will_lock); // both locked. see https://trac.openmicroscopy.org.uk/omero/ticket/357
+		
+		for (Object object : details_changed) {
+			verifyLocked(sf, img, d(img,object), can_change_img);
+		}
+		for (Object object : details_changed) {
+			verifyLocked(sf, pix, d(pix,object), can_change_pix);
+		}
+
+		// TODO should try to clear lock status.
+			
 	}
 	
 	// ~ Other

@@ -139,7 +139,7 @@ public class SetsAndLinksTest extends TestCase
       testIsDefault(experimenter);
   }
   
-  @Test
+  @Test( groups = {"broken","ticket:346"} )
   public void testAddingFillsContainer() throws Exception {
 	  Pixels p = new Pixels();
 	  Thumbnail tb = new Thumbnail();
@@ -147,7 +147,7 @@ public class SetsAndLinksTest extends TestCase
 	  assertTrue(p.iterateThumbnails().hasNext());
   }
   
-  @Test
+  @Test( groups = {"broken","ticket:346"} )
   public void testLinkingFillsContainer() throws Exception {
 	  Project p = new Project();
 	  Dataset d = new Dataset();
