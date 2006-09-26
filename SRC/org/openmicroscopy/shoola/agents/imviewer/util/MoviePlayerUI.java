@@ -281,6 +281,47 @@ class MoviePlayerUI
         return p;
     }
     
+    /** 
+     * Builds panel with frames pers second controls.
+     * 
+     * @return See above.
+     */
+    private JPanel createFPSControls()
+    {
+    	 JPanel p = new JPanel();
+         GridBagConstraints c = new GridBagConstraints();
+         p.setLayout(new GridBagLayout());
+         JLabel l = new JLabel("Rate");
+         c.fill = GridBagConstraints.NONE;
+         c.anchor = GridBagConstraints.WEST;
+         p.add(l, c);
+         c.gridx = 1;
+         c.insets = new Insets(0,10,0,0);
+         p.add(fps, c);
+         return p;
+    }
+    
+    /** 
+     * 	Builds a panel containing the plays label and the plays
+     *  control combo box.
+     *  
+     *  @return Panel containing label and combobox for direction controls.
+     */
+    private JPanel createDirectionControls()
+    {
+    	JPanel contain = new JPanel();
+    	GridBagConstraints gbc = new GridBagConstraints();
+    	gbc.gridx = 0;
+    	gbc.gridy = 1;
+    	gbc.anchor = GridBagConstraints.WEST;
+        JLabel l = new JLabel("Play");
+        contain.add(l, gbc);
+        gbc.gridx = 1;
+        gbc.insets = new Insets(0,10,0,0);
+        contain.add(movieTypes, gbc);
+        return contain;
+    }
+    
     /**
      * Builds a panel wrapping the start and end text.
      * 
@@ -342,33 +383,58 @@ class MoviePlayerUI
     {
         // lays out the movie selection
         JPanel movie = new JPanel();
-        movie.setLayout(new BoxLayout(movie, BoxLayout.Y_AXIS));
+        movie.setLayout(new GridBagLayout());
+        GridBagConstraints mc = new GridBagConstraints();
+        mc.gridx = 0;
+        mc.gridy = 0;
+        mc.insets = new Insets(5, 5, 5, 5);
         JPanel p = buildGroupPanel(zSlider, acrossZ, 
                 buildControlsMoviePanel((""+model.getMaxZ()).length(), startZ, 
                                         endZ));
-        movie.add(p);
+        mc.gridy = 1;
+        mc.anchor = GridBagConstraints.WEST;
+        movie.add(p, mc);
         p = buildGroupPanel(tSlider, acrossT, 
             buildControlsMoviePanel((""+model.getMaxT()).length(), startT, 
                                         endT));
-        movie.add(p);
-        movie.add(acrossZT);
-        movie.add(new JSeparator());
+        mc.gridy = 2;
+        movie.add(p, mc);
+        mc.gridy = 3;
+        movie.add(acrossZT, mc);
+       
         
         //lays out the controls
         JPanel controls = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
-        controls.setLayout( new GridBagLayout());
-        c.weightx = 0.5;
+        controls.setLayout(new GridBagLayout());
+        c.gridx = 0;
+        c.gridy = 0;
         c.anchor = GridBagConstraints.WEST;
-        controls.add(buildControlsPanel(), c);
-        c.gridx = 1;
         controls.add(buildToolBar(), c);
+        c.gridx = 1;
+        controls.add(createDirectionControls(), c);
+        c.insets = new Insets(10, 0, 10, 0);
+         c.gridx = 0;
+        c.gridy = 1;
+        controls.add(createFPSControls(), c);
+        
         
         //lays out components
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(movie);
-        add(Box.createRigidArea(VSPACE));
-        add(controls);
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        add(controls, gbc);
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+        sep.setPreferredSize(new Dimension(this.getWidth(), 2));
+        sep.setMinimumSize(new Dimension(this.getWidth(), 2));
+      
+        add(sep, gbc);
+        gbc.gridy = 2;
+        add(movie, gbc);
     }
     
     /**
