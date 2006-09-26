@@ -45,6 +45,7 @@ import javax.swing.JProgressBar;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -73,6 +74,9 @@ class StatusBar
 
     /** Displays the status message. */
     private JLabel              status;
+    
+    /** The label displaying the progress icon. */
+    private JLabel              progressLabel;
     
     /** Displays the status icon. */
     private JButton             statusButton;
@@ -115,7 +119,13 @@ class StatusBar
         p.add(statusButton);
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
-        add(UIUtilities.buildComponentPanelRight(progressBar));
+        JPanel progress = new JPanel();
+        progress.setLayout(new BoxLayout(progress, BoxLayout.X_AXIS));
+        progress.add(progressBar);
+        IconManager icons = IconManager.getInstance();
+        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
+        progress.add(progressLabel);
+        add(UIUtilities.buildComponentPanelRight(progress));
     }
     
     /**
@@ -159,6 +169,7 @@ class StatusBar
     void setProgress(boolean hide, int perc)
     {
         progressBar.setVisible(!hide);
+        progressLabel.setVisible(!hide);
         /*
         if (perc < 0) progressBar.setIndeterminate(true);
         else {
