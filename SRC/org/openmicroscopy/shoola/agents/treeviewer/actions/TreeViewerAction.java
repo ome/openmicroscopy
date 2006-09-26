@@ -111,6 +111,8 @@ public abstract class TreeViewerAction
        
         model.addPropertyChangeListener(
                 TreeViewer.SELECTED_BROWSER_PROPERTY, this);
+        model.addPropertyChangeListener(
+                TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY, this);
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
         Browser browser;
@@ -152,7 +154,12 @@ public abstract class TreeViewerAction
         if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
             onBrowserSelection((Browser) evt.getNewValue());
             return;
+        } else if (name.equals(TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY)) 
+        {
+            setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+            return;
         }
+            
         Object newValue = evt.getNewValue();
         if (newValue == null) {
             onDisplayChange(null);
