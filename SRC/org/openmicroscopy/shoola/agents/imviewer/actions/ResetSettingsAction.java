@@ -33,19 +33,17 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Resets the rendering settings.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -64,10 +62,10 @@ public class ResetSettingsAction
 {
 
     /** The name of the action. */
-    public static final String  NAME = "Reset settings";
+    public static final String  NAME = "Revert";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Reset the default settings.";
+    private static final String DESCRIPTION = "Revert to Original Settings";
     
     /**
      * Creates a new instance.
@@ -77,12 +75,11 @@ public class ResetSettingsAction
     public ResetSettingsAction(Renderer model)
     {
         super(model);
-        //putValue(Action.NAME, NAME);
+        putValue(Action.NAME, NAME);
         setEnabled(true);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RESET_SETTINGS));
+
     }
     
     /**

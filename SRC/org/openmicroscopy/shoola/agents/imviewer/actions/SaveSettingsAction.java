@@ -38,7 +38,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -62,7 +61,7 @@ public class SaveSettingsAction
 {
 
     /** The name of the action. */
-    public static final String  NAME = "Save settings";
+    public static final String  NAME = "Save";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Save the current settings.";
@@ -75,11 +74,9 @@ public class SaveSettingsAction
     public SaveSettingsAction(Renderer model)
     {
         super(model);
-        //putValue(Action.NAME, NAME);
+        putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE_SETTINGS));
     }
     
 }
