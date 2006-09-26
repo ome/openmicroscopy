@@ -64,7 +64,28 @@ public class ColourPicker
     /** Reference to the model. */
     private RGBModel model;
     
-	/** Creates a new instance. 
+    /** Closes and disposes. */
+    void cancel()
+    {
+        setVisible(false);
+        dispose(); 
+    }
+
+    /**  Returns the current colour to the user. */
+    void accept()
+    {
+        Color c = model.getColour();
+        Color original = model.getOriginalColor();
+        if ((original.getRed() == c.getRed()) && 
+                (original.getGreen() == c.getGreen()) &&
+                (original.getBlue() == c.getBlue()) &&
+                (original.getAlpha() == c.getAlpha())) return;
+        firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
+        cancel();
+    }
+    
+	/** 
+     * Creates a new instance. 
      * 
      * @param color     The original color. If <code>null</code>, sets to 
      *                  the default color.
@@ -92,28 +113,8 @@ public class ColourPicker
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 			
-		this.getContentPane().add(tabbedPane, gbc);
+		getContentPane().add(tabbedPane, gbc);
         pack();
 	}
-
-    /** Closes and disposes. */
-    void cancel()
-    {
-        setVisible(false);
-        dispose(); 
-    }
-
-    /**  Returns the current colour to the user. */
-    void accept()
-    {
-        Color c = model.getColour();
-        Color original = model.getOriginalColor();
-        if ((original.getRed() == c.getRed()) && 
-                (original.getGreen() == c.getGreen()) &&
-                (original.getBlue() == c.getBlue()) &&
-                (original.getAlpha() == c.getAlpha())) return;
-        firePropertyChange(COLOUR_PROPERTY, model.getOriginalColor(), c);
-        cancel();
-    }
 	
 }
