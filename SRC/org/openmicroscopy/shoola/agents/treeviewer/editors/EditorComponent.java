@@ -157,8 +157,8 @@ class EditorComponent
                         model.fireAnnotationsLoading();
                         model.getParentModel().setStatus(true, 
                                 TreeViewer.LOADING_TITLE, false);
-                        fireStateChange();
-                    }
+                    } else model.setState(READY);
+                    fireStateChange();
                 }
                 break;
             case DISCARDED:

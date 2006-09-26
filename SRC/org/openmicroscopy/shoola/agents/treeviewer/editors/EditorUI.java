@@ -574,12 +574,24 @@ public class EditorUI
         if (doBasic != null) doBasic.showClassifications();
     }
     
+    /** 
+     * Reacts to state change.
+     * 
+     * @param b Pass <code>true</code> to enable the trees, <code>false</code>
+     *          otherwise.
+     */
+    void onStateChanged(boolean b)
+    {
+        model.getParentModel().onComponentStateChange(b);
+        finishButton.setEnabled(b);
+    }
+    
     /**
      * Sets the size of the {@link #titlePanel} and the {@link #titleLayer}.
      * 
      * @param width The width of the components.
      */
-    public void setComponentsSize(int width)
+   public void setComponentsSize(int width)
     {
         Dimension d  = new Dimension(width, TITLE_HEIGHT);
         titlePanel.setSize(d);
@@ -588,6 +600,4 @@ public class EditorUI
         titleLayer.setPreferredSize(d);
     }
 
-
-    
 }

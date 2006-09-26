@@ -42,8 +42,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -202,19 +200,7 @@ public class EditorControl
      */
     public void stateChanged(ChangeEvent e)
     {
-        switch (model.getState()) {
-            case Editor.SAVE_EDITION: 
-                //TreeViewerFactory.getLoadingWindow().setTitle(
-                 //               TreeViewer.SAVING_TITLE);
-            case Editor.LOADING_ANNOTATION:
-            case Editor.LOADING_CLASSIFICATION: 
-                //UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
-                break;
-            case Editor.READY:
-            case Editor.DISCARDED:
-                //TreeViewerFactory.getLoadingWindow().setVisible(false);
-                break;
-        }
+        view.onStateChanged(model.getState() == Editor.READY);
     }
 
     /**
