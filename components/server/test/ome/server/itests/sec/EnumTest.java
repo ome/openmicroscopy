@@ -18,6 +18,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.AcquisitionMode;
 import ome.model.enums.DimensionOrder;
+import ome.model.enums.EventType;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -78,6 +79,16 @@ public class EnumTest extends AbstractManagedContextTest {
 		factory.getUpdateService().saveObject(test);
 	
 	}
+	
+	@Test( groups = "ticket:226" )
+	public void testStringConstructor() throws Exception {
+		
+		loginUser(e.getOmeName());
+		
+		EventType type = new EventType(uuid());
+		factory.getTypesService().createEnumeration(type);
+	}
+	
 
 	
 	

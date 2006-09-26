@@ -68,6 +68,15 @@
 #end
 #if($type.class.name.equals( "ome.dsl.EnumType" ) )
 	<meta attribute="implements">ome.model.IEnum</meta>
+	<meta attribute="class-code">
+#set( $name_idx = ${type.id.lastIndexOf(".")} )
+#set( $name_idx = ${name_idx} + 1 )
+#set( $name_max = ${type.id.length()} )
+#set( $name_end = ${type.id.substring($name_idx,$name_max)} ) 
+	public $name_end (String value) {
+	  setValue(value);
+	}
+	</meta>
 #end
 #if( ! $type.class.name.equals("ome.dsl.LinkType"))
 	<meta attribute="implements">ome.model.IObject</meta>
