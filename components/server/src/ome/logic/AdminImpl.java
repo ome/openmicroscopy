@@ -506,6 +506,28 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	}
 
 	@RolesAllowed("system")
+	public void setGroupOwner(ExperimenterGroup group, Experimenter owner) {
+		if (owner == null) return;
+		if (group == null) return;
+
+		if (group.getId() == null) {
+			throw new ApiUsageException("Group argument to setGroupOwner "
+					+ "must be managed (i.e. have an id)");
+		}
+
+		// TODO add an @Managed annotation
+		if (owner.getId() == null) {
+			throw new ApiUsageException("Owner argument to setGroupOwner "
+					+ "must be managed (i.e. have an id)");
+		}
+
+		Experimenter foundUser = userProxy(owner.getId());
+		ExperimenterGroup foundGroup = groupProxy(group.getId());
+		foundGroup.getDetails().setOwner(foundUser);
+		iUpdate.flush();
+	}
+	
+	@RolesAllowed("system")
 	public ExperimenterGroup getDefaultGroup(@NotNull
 	Long experimenterId) {
 		ExperimenterGroup g = iQuery.findByQuery(

@@ -141,9 +141,9 @@ public interface IAdmin extends ServiceInterface{
     long createSystemUser( @NotNull Experimenter newSystemUser );
 
     /** create and return a new user in the given groups. 
-     * @param experimenter. A new {@link Experimenter} instance. Not null.
-     * @param defaultGroup. Instance of {@link ExperimenterGroup. Not null.
-     * @param otherGroups. Array of {@link ExperimenterGroup} instances. Can be null.     
+     * @param experimenter A new {@link Experimenter} instance. Not null.
+     * @param defaultGroup Instance of {@link ExperimenterGroup}. Not null.
+     * @param otherGroups Array of {@link ExperimenterGroup} instances. Can be null.     
      * @return id of the newly created {@link Experimenter}
      *  Not null.
      */
@@ -159,33 +159,41 @@ public interface IAdmin extends ServiceInterface{
     long createGroup( ExperimenterGroup group );
 
     /** adds a user to the given groups. 
-     * @param user. A currently managed entity. Not null.
-     * @param groups. Groups to which the user will be added. Not null. 
+     * @param user A currently managed entity. Not null.
+     * @param groups Groups to which the user will be added. Not null. 
      */
     void addGroups( 
     		@NotNull Experimenter user, 
     		@NotNull ExperimenterGroup...groups );
     
     /** removes a user from the given groups. 
-     * @param user. A currently managed entity. Not null.
-     * @param groups. Groups from which the user will be removed. Not null. 
+     * @param user A currently managed entity. Not null.
+     * @param groups Groups from which the user will be removed. Not null. 
      */
     void removeGroups( 
     		@NotNull Experimenter user, 
     		@NotNull ExperimenterGroup...groups );
     
     /** sets the default group for a given user. 
-     * @param user. A currently managed entity. Not null.
-     * @param group. The group which should be set as default group for this 
+     * @param user A currently managed {@link Experimenter}. Not null.
+     * @param group The group which should be set as default group for this 
      *  user. Not null. 
      */
     void setDefaultGroup( 
     		@NotNull Experimenter user, 
     		@NotNull ExperimenterGroup group );
     
+    /** sets the owner of a group to be a given user.
+     * @param group A currently managed {@link ExperimenterGroup}. Not null.
+     * @param owner A currently managed {@link Experimenter}. Not null.
+     */
+    void setGroupOwner(
+    		@NotNull ExperimenterGroup group,
+    		@NotNull Experimenter owner);
+    
     /** removes a user after removing the password information for that user. 
      * This prevents constraint violations for DB-based login modules. 
-     * @param user. Experimenter to be deleted. Not null.
+     * @param user Experimenter to be deleted. Not null.
      */
     void deleteExperimenter( @NotNull Experimenter user );
     
@@ -197,8 +205,8 @@ public interface IAdmin extends ServiceInterface{
      * on this instance. It is valid for the instance to be 
      * {@link IObject#unload() unloaded} (or constructed with an 
      * unloading-constructor.)
-     * @param iObject. An entity or an unloaded reference to an entity. Not null.
-     * @param omeName. The user name who should gain ownership of this entity. Not null.
+     * @param iObject An entity or an unloaded reference to an entity. Not null.
+     * @param omeName The user name who should gain ownership of this entity. Not null.
      */
     void changeOwner( @NotNull IObject iObject, @NotNull String omeName );
 
@@ -207,8 +215,8 @@ public interface IAdmin extends ServiceInterface{
      * on this instance. It is valid for the instance to be 
      * {@link IObject#unload() unloaded} (or constructed with an 
      * unloading-constructor.)
-     * @param iObject. An entity or an unloaded reference to an entity. Not null.
-     * @param groupName. The group name who should gain ownership of this entity. Not null.
+     * @param iObject An entity or an unloaded reference to an entity. Not null.
+     * @param groupName The group name who should gain ownership of this entity. Not null.
      */
     void changeGroup( @NotNull IObject iObject, @NotNull String groupName );
 
@@ -217,8 +225,8 @@ public interface IAdmin extends ServiceInterface{
      * on this instance. It is valid for the instance to be 
      * {@link IObject#unload() unloaded} (or constructed with an 
      * unloading-constructor.)
-     * @param iObject. An entity or an unloaded reference to an entity. Not null.
-     * @param perms. The permissions value for this entity. Not null.
+     * @param iObject An entity or an unloaded reference to an entity. Not null.
+     * @param perms The permissions value for this entity. Not null.
      */
     void changePermissions( @NotNull IObject iObject, @NotNull Permissions perms );
     
@@ -237,14 +245,14 @@ public interface IAdmin extends ServiceInterface{
     // =========================================================================
     
     /** change the password for the current user
-     * @param newPassword. Not-null. 
+     * @param newPassword Not-null. 
      * Must pass validation in the security sub-system.
      * @throws ome.conditions.SecurityViolation if the new password is too weak. 
      */
     void changePassword( @Hidden String newPassword );
     
     /** change the password for the a given user.
-     * @param newPassword. Not-null. 
+     * @param newPassword Not-null. 
      * Might must pass validation in the security sub-system.
      * @throws ome.conditions.SecurityViolation if the new password is too weak. 
      */

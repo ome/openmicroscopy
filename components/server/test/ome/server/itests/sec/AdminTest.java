@@ -197,6 +197,25 @@ public class AdminTest extends AbstractManagedContextTest
 		
 	}
 	
+	@Test( groups = "ticket:343" )
+	public void testSetGroupOwner() throws Exception 
+	{
+		Experimenter e1 = testExperimenter();
+		e1.setId( iAdmin.createUser( e1 ) );
+		
+		ExperimenterGroup g1 = new ExperimenterGroup();
+		g1.setName(uuid());
+		g1.setId( iAdmin.createGroup(g1) );
+
+		loginRoot();
+		
+		iAdmin.setGroupOwner(g1, e1);
+		
+		ExperimenterGroup test = iQuery.get(ExperimenterGroup.class, g1.getId());
+		assertEquals(test.getDetails().getOwner().getId(),e1.getId());
+		
+	}
+	
 	// ~ chgrp
 	// =========================================================================
 	@Test
