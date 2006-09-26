@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Graphics;
+
 import javax.swing.JButton;
 
 //Third-party libraries
@@ -73,7 +75,7 @@ public class ColouredButton
             throw new IllegalArgumentException("No color.");
         setBackground(color);
         uiDelegate = new ColouredButtonUI(this, color);
-        setUI(uiDelegate);
+        //setUI(uiDelegate);
         setRolloverEnabled(false);
     }
     
@@ -110,5 +112,14 @@ public class ColouredButton
         if (uiDelegate != null) uiDelegate.setColor(c);
         super.setBackground(c);
     }
-
+    
+    /**
+     * Overridden to paint the button.
+     * @see JButton#paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
+    {
+        if (uiDelegate != null) uiDelegate.paint(g, this);
+    }
+    
 }

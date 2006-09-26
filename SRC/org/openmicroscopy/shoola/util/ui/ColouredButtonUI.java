@@ -460,7 +460,7 @@ class ColouredButtonUI
     /**
      * Constructor for ButtonUI component.
      * 
-     * @param b Refernce to parent Button.
+     * @param b Reference to parent Button.
      * @param c Colour of the button.
      */
     ColouredButtonUI(JButton b, Color c)
@@ -472,6 +472,7 @@ class ColouredButtonUI
         colour = c;
         button = b;
         greyedOut = false;
+        uninstallListeners(b);
     }
     
     /**
