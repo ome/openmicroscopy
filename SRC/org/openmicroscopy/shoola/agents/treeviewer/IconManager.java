@@ -209,11 +209,14 @@ public class IconManager
     /** The <code>Add existing</code> icon. */
     public static int           ADD_EXISTING = 49;
     
+    /** The <code>Progress</code> icon. */
+    public static int           PROGRESS = 50;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 49;
+    private static int          MAX_ID = 50;
     
     
     /** Paths of the icon files. */
@@ -272,6 +275,7 @@ public class IconManager
         relPaths[CLASSIFIER] = "eclipse_sroot_obj16.png";
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
         relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
+        relPaths[PROGRESS] = "eclipse_progress_none16.png";
     }
     
     /** The sole instance. */
