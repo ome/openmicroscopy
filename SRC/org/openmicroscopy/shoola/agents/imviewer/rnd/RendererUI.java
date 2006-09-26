@@ -31,13 +31,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -48,8 +46,7 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 
@@ -84,9 +81,6 @@ class RendererUI
     
     /** Reference to the model. */
     private RendererModel       model;
-
-    /** The tool bar composing the display. */
-    private ToolBar             toolBar;
     
     /** The map hosting the controls pane. */
     private HashMap             controlPanes;
@@ -110,14 +104,15 @@ class RendererUI
      */
     private JMenu createControlsMenu()
     {
+        IconManager icons = IconManager.getInstance();
         JMenu menu = new JMenu("Controls");
-        Action a = controller.getAction(RendererControl.SAVE_SETTINGS);
-        JMenuItem item = new JMenuItem(a);
-        item.setText(SaveSettingsAction.NAME);
-        //menu.add(item);
-        a = controller.getAction(RendererControl.RESET_SETTINGS);
-        item = new JMenuItem(a);
-        item.setText(ResetSettingsAction.NAME);
+        JMenuItem item = new JMenuItem(
+                controller.getAction(RendererControl.SAVE_SETTINGS));
+        item.setIcon(icons.getIcon(IconManager.SAVE_SETTINGS));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(RendererControl.RESET_SETTINGS));
+        item.setIcon(icons.getIcon(IconManager.RESET_SETTINGS));
         menu.add(item);
         return menu;
     }
@@ -133,27 +128,29 @@ class RendererUI
         controlPanes.put(CODOMAIN, p);
     }
     
-    /** Create the accept, revert buttons on the bottom on the panel */
-    JPanel createButtonPanel()
+    /**
+     * Creates the accept, revert buttons on the bottom on the panel.
+     * 
+     * @return See above.
+     */
+    private JPanel createButtonPanel()
     {
     	JButton acceptButton, revertButton;
     	JPanel p = new JPanel();
     	GridBagConstraints gbc = new GridBagConstraints();
    	   	
-    	revertButton = new JButton("Revert");
-        revertButton.setToolTipText("Revert to Original Settings");
-        revertButton.addActionListener(controller.getAction(RendererControl.RESET_SETTINGS));
+    	revertButton = new JButton(
+                controller.getAction(RendererControl.RESET_SETTINGS));
         
-        acceptButton = new JButton("Accept");
-        acceptButton.setToolTipText("Accept Current Settings");
-        acceptButton.addActionListener(controller.getAction(RendererControl.SAVE_SETTINGS));
+        acceptButton = new JButton(
+                controller.getAction(RendererControl.SAVE_SETTINGS));
         
-      	p.setLayout( new GridBagLayout() );
+      	p.setLayout(new GridBagLayout());
     	gbc.gridx = 0;
     	gbc.anchor = GridBagConstraints.EAST;
         p.add(acceptButton, gbc);
         gbc.gridx = 1;
-        gbc.insets = new Insets(0,0,0,14);
+        gbc.insets = new Insets(0, 0, 0, 14);
         p.add(revertButton, gbc);
         return p;
     }
@@ -161,10 +158,7 @@ class RendererUI
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	JButton acceptButton, revertButton;
-    	     
         Container c = getContentPane();
-        //c.setLayout(new BorderLayout(0, 0));
         c.setLayout(new GridBagLayout());
         //      Create and initialize the tabs
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
@@ -176,7 +170,6 @@ class RendererUI
         pane = (ControlPane) controlPanes.get(CODOMAIN);
         tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
                         pane.getPaneDescription(), pane.getPaneIndex());
-      // DM  c.add(toolBar, BorderLayout.NORTH);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -186,11 +179,8 @@ class RendererUI
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.EAST;
         c.add(createButtonPanel(),gbc);
-         pack();
     }
-    
-   
-    
+
     /**
      * Creates a new instance. The method 
      * {@link #initialize(RendererControl, RendererModel) initialize}
@@ -222,6 +212,7 @@ class RendererUI
       // DM  toolBar = new ToolBar(controller);
         createControlPanes();
         buildGUI();
+        pack();
     }
 
     /**
