@@ -67,7 +67,7 @@ public class AddAction
 {
 
     /** The default name of the action. */
-    private static final String NAME = "Add existing container";
+    private static final String NAME = "...";
     
     /** The name of the action to add existing <code>Datasets</code>. */
     private static final String NAME_DATASET = "Add existing Dataset...";
@@ -91,6 +91,7 @@ public class AddAction
     {
         if (selectedDisplay == null) {
             setEnabled(false);
+            putValue(Action.NAME, NAME); 
             return;
         }
         Object ho = selectedDisplay.getUserObject();

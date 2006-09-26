@@ -29,24 +29,24 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-import java.awt.event.ActionEvent;
 
+
+
+//Java imports
+import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Reloads the tree.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

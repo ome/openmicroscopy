@@ -66,7 +66,7 @@ public class CreateAction
 {
     
     /** The default name of the action. */
-    private static final String NAME = "New node...";
+    private static final String NAME = "...";
     
     /** The name of the action for the creation of a <code>Project</code>. */
     //private static final String NAME_PROJECT = "Add new Project...";
@@ -121,6 +121,7 @@ public class CreateAction
     {
         if (selectedDisplay == null) {
             setEnabled(false);
+            putValue(Action.NAME, NAME); 
             return;
         }
         Object ho = selectedDisplay.getUserObject();
