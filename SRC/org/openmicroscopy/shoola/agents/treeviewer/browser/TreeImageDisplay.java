@@ -441,6 +441,11 @@ public abstract class TreeImageDisplay
      */
     public abstract void setChildrenLoaded(Boolean childrenLoaded);
     
+    /**
+     * Makes a copy of the current object.
+     * 
+     * @return See above.
+     */
     public abstract TreeImageDisplay copy();
     
 }

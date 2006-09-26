@@ -29,9 +29,6 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-import java.util.Iterator;
-
-
 
 //Java imports
 
@@ -113,6 +110,10 @@ public class TreeImageNode
                 "A TreeImageNode doesn't have children.");
     }
 
+    /**
+     * Makes a copy of the node.
+     * @see TreeImageDisplay#copy()
+     */
     public TreeImageDisplay copy()
     {
         TreeImageNode copy = new TreeImageNode(this.getUserObject());

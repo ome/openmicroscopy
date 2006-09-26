@@ -29,10 +29,10 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-import java.util.Iterator;
 
 
 //Java imports
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -187,6 +187,10 @@ public class TreeImageSet
         this.childrenLoaded = childrenLoaded;
     }
 
+    /**
+     * Makes a copy of the node.
+     * @see TreeImageDisplay#copy()
+     */
     public TreeImageDisplay copy()
     {
         TreeImageSet copy = new TreeImageSet(this.getUserObject());
