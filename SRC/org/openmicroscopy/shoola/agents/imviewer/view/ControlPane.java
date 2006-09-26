@@ -352,17 +352,18 @@ class ControlPane
      */
     private JPanel createChannelsPane()
     {
-            JPanel p = new JPanel();
+        JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
         ChannelMetadata d;
-         p.add(Box.createRigidArea(VBOX));
-        
+        p.add(Box.createRigidArea(VBOX));
+        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         for (int k = 0; k < data.length; k++) {
             d = data[k];
             button = new ChannelButton(""+d.getEmissionWavelength(), 
                     model.getChannelColor(k), k, model.isChannelActive(k));
+            if (gs) button.setGrayedOut(gs);
             button.addPropertyChangeListener(controller);
             button.setPreferredSize(new Dimension(30, 30));
             channelButtons.add(button);
