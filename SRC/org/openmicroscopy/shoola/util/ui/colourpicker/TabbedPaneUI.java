@@ -287,7 +287,7 @@ class TabbedPaneUI
         gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.weightx = 100;
-		gbc.weighty = 10;
+		gbc.weighty = 100;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(5, 5, 0, 5);
@@ -297,7 +297,7 @@ class TabbedPaneUI
         gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weightx = 100;
-		gbc.weighty = 150;
+		gbc.weighty = 5;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(0, 0, 0, 0);
@@ -306,7 +306,7 @@ class TabbedPaneUI
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weightx = 100;
-		gbc.weighty = 50;
+		gbc.weighty = 300;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(0, 0, 0, 0);
@@ -316,7 +316,7 @@ class TabbedPaneUI
         gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weightx = 100;
-		gbc.weighty = 150;
+		gbc.weighty = 1700;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(0, 0, 0, 0);

@@ -227,25 +227,34 @@ class HSVColourWheelUI
 		createAlphaTextbox();	
         JPanel container = new JPanel();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 0.0;
         container.setLayout(new GridBagLayout());
-		//setLayout(new FlowLayout());
+    	gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 30.0;
+        gbc.weighty = 30.0;
+        //gbc.fill = gbc.BOTH;
+    	//setLayout(new FlowLayout());
         container.add(wheel, gbc);
         gbc.gridx = 1;
-        container.add(HSVSlider);
+        container.add(HSVSlider,gbc);
         //
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 0.0;  
         p.setLayout(new GridBagLayout());
-		p.add(alphaSlider, c);
+        c.fill = gbc.VERTICAL;
+    	p.add(alphaSlider, c);
         c.gridx = 1;
-		p.add(alphaTextbox, c);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(container);
-        add(UIUtilities.buildComponentPanel(p));
+        p.add(alphaTextbox, c);
+        gbc.fill = gbc.BOTH;
+    	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new GridBagLayout());
+        gbc.gridx =0;
+        gbc.gridy = 0;
+        add(container,gbc);
+        //add(UIUtilities.buildComponentPanel(p));
+        gbc.gridy = 1;
+        add(p,gbc);
 	}
 
 	/** Updates UI components based on chahnges to the model. */
