@@ -33,11 +33,16 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.HashMap;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
@@ -128,11 +133,39 @@ class RendererUI
         controlPanes.put(CODOMAIN, p);
     }
     
+    /** Create the accept, revert buttons on the bottom on the panel */
+    JPanel createButtonPanel()
+    {
+    	JButton acceptButton, revertButton;
+    	JPanel p = new JPanel();
+    	GridBagConstraints gbc = new GridBagConstraints();
+   	   	
+    	revertButton = new JButton("Revert");
+        revertButton.setToolTipText("Revert to Original Settings");
+        revertButton.addActionListener(controller.getAction(RendererControl.RESET_SETTINGS));
+        
+        acceptButton = new JButton("Accept");
+        acceptButton.setToolTipText("Accept Current Settings");
+        acceptButton.addActionListener(controller.getAction(RendererControl.SAVE_SETTINGS));
+        
+      	p.setLayout( new GridBagLayout() );
+    	gbc.gridx = 0;
+    	gbc.anchor = GridBagConstraints.EAST;
+        p.add(acceptButton, gbc);
+        gbc.gridx = 1;
+        gbc.insets = new Insets(0,0,0,14);
+        p.add(revertButton, gbc);
+        return p;
+    }
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	JButton acceptButton, revertButton;
+    	     
         Container c = getContentPane();
-        c.setLayout(new BorderLayout(0, 0));
+        //c.setLayout(new BorderLayout(0, 0));
+        c.setLayout(new GridBagLayout());
         //      Create and initialize the tabs
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
@@ -143,10 +176,20 @@ class RendererUI
         pane = (ControlPane) controlPanes.get(CODOMAIN);
         tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
                         pane.getPaneDescription(), pane.getPaneIndex());
-        c.add(toolBar, BorderLayout.NORTH);
-        c.add(tabs, BorderLayout.CENTER);
-        pack();
+      // DM  c.add(toolBar, BorderLayout.NORTH);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.CENTER;
+        
+        c.add(tabs, gbc);
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.EAST;
+        c.add(createButtonPanel(),gbc);
+         pack();
     }
+    
+   
     
     /**
      * Creates a new instance. The method 
@@ -176,7 +219,7 @@ class RendererUI
         this.controller = controller;
         this.model = model;
         setJMenuBar(createMenuBar());
-        toolBar = new ToolBar(controller);
+      // DM  toolBar = new ToolBar(controller);
         createControlPanes();
         buildGUI();
     }

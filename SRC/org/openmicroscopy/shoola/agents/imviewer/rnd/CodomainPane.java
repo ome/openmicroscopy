@@ -183,14 +183,25 @@ class CodomainPane
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(gridbag);
-        c.ipadx = 10;
-        c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
         p.add(reverseIntensity, c);
         c.gridy = 1;
-        p.add(buildPane(contrastStretching, contrastStretchingButton), c);
+        c.gridx = 0;
+        c.fill = GridBagConstraints.NONE;
+        p.add(contrastStretching , c);
+        c.gridx = 1;
+        c.anchor = GridBagConstraints.EAST;
+        p.add(contrastStretchingButton, c);
+        
         c.gridy = 2;
-        p.add(buildPane(planeSlicing, planeSlicingButton), c);
+        c.gridx = 0;
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.NONE;
+        p.add(planeSlicing , c);
+        c.gridx = 1;
+        c.anchor = GridBagConstraints.EAST;
+        p.add(planeSlicingButton, c);
         return p;
     }
     

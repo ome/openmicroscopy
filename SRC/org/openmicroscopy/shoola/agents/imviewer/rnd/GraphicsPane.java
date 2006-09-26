@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -149,7 +150,7 @@ class GraphicsPane
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(codomainSlider);
@@ -158,7 +159,7 @@ class GraphicsPane
         p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(domainSlider);
-        p.add(buildFielsControls());
+        p.add(buildFieldsControls());
         add(p);
     }
     
@@ -167,14 +168,17 @@ class GraphicsPane
      * 
      * @return See above.
      */
-    private JPanel buildFielsControls()
+    private JPanel buildFieldsControls()
     {
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
-        p.add(buildFielsPanel("Min", minLabel, "Start", startField), c);
+        c.insets = new Insets(5,20,5,30);
+        c.anchor = GridBagConstraints.WEST;
+        p.add(buildFieldsPanel("Min", minLabel, "Start", startField), c);
+        c.anchor = GridBagConstraints.EAST;
         c.gridx = 1;
-        p.add(buildFielsPanel("Max", maxLabel, "End", endField), c);
+        p.add(buildFieldsPanel("Max", maxLabel, "End", endField), c);
         return p;
     }
     
@@ -187,22 +191,35 @@ class GraphicsPane
      * @param f     The text field displaying the interval bound.
      * @return  See above.
      */
-    private JPanel buildFielsPanel(String txt1, JLabel l, String txt2, 
+    private JPanel buildFieldsPanel(String txt1, JLabel l, String txt2, 
                                 JTextField f)
     {
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(0,10,5,10);
+        c.weightx = 60;
+        c.anchor = GridBagConstraints.WEST;
         p.setLayout(new GridBagLayout());
         JLabel label = new JLabel(txt1);
         p.add(label, c);
         c.gridx = 1;
+        c.weightx = 40;
+        c.anchor = GridBagConstraints.WEST;
         p.add(l, c);
         c.gridx = 0;
         c.gridy = 1;
+        c.weightx = 60;
+        
         label = new JLabel(txt2);
+        c.anchor = GridBagConstraints.CENTER;
+        
         p.add(label, c);
         c.gridx = 1;
+        c.weightx = 40;
+       
+        
         p.add(f, c);
+        p.validate();
         return p;
     }
     
