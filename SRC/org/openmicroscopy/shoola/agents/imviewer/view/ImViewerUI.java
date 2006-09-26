@@ -431,7 +431,7 @@ class ImViewerUI
             b = (AbstractButton) e.nextElement();
             if ((b.getAction()).equals(action)) {
                 b.removeActionListener(action);
-                b.setSelected(true);
+                //b.setSelected(true);
                 b.setAction(action);
             }
         }

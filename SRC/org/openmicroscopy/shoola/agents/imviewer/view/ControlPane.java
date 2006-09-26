@@ -484,18 +484,6 @@ class ControlPane
      */
     void setColorModel(ViewerAction action)
     {
-        /*
-        AbstractButton b;
-        for (Enumeration e = colorModelGroup.getElements(); 
-            e.hasMoreElements();) {
-            b = (AbstractButton) e.nextElement();
-            if ((b.getAction()).equals(action)) {
-                b.removeActionListener(action);
-                b.setSelected(true);
-                b.setAction(action);
-            }
-        }
-        */
         boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator i = channelButtons.iterator();
         ChannelButton button;
