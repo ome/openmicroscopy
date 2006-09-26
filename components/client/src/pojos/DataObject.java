@@ -31,7 +31,6 @@ package pojos;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -280,8 +279,7 @@ public abstract class DataObject
     {
         if (event==null || !event.isLoaded() || event.getTime()==null)
         {
-            // TODO temporary bugfixreturn null;
-            return new Timestamp( new Date().getTime() );
+        	throw new IllegalStateException("Event does not contain timestamp.");
         }
         return new Timestamp( event.getTime().getTime() );
     }
