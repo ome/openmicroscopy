@@ -1,6 +1,7 @@
 package ome.server.itests.query.pojos;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Configuration;
@@ -230,6 +231,50 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest
         run_null_filter_check_size(Category.class, 10);
     }
 
+    @Test( groups = "ticket:376" )
+    public void test_leaves_handled_properly() throws Exception 
+    {
+    	PojoOptions 
+    	withLeaves = new PojoOptions().leaves(),
+    	noLeaves = new PojoOptions().noLeaves();
+    	
+    	runLevel( Project.class, 
+    			Arrays.asList(DATA.pu9992.getId(),DATA.pu9991.getId()), 
+    			withLeaves );
+    	
+    	for (Project project : (List<Project>) list) {
+    		for (Dataset dataset : (List<Dataset>)project.linkedDatasetList()) {
+				assertTrue(dataset.sizeOfImageLinks()>0);
+			}
+		}
+
+    	runLevel( Project.class, 
+    			Arrays.asList(DATA.pu9992.getId(),DATA.pu9991.getId()), 
+    			noLeaves );
+    	
+    	for (Project project : (List<Project>) list) {
+    		for (Dataset dataset : (List<Dataset>)project.linkedDatasetList()) {
+				assertTrue(dataset.sizeOfImageLinks()<0);
+			}
+		}
+    	
+    	runLevel( Dataset.class, 
+    			Arrays.asList(DATA.du7772.getId(),DATA.du7771.getId()), 
+    			withLeaves );
+    	
+		for (Dataset dataset : (List<Dataset>) list) {
+			assertTrue(dataset.sizeOfImageLinks()>0);
+		}
+    
+    	runLevel( Dataset.class, 
+    			Arrays.asList(DATA.du7772.getId(),DATA.du7771.getId()), 
+    			noLeaves );
+    	
+		for (Dataset dataset : (List<Dataset>) list) {
+			assertTrue(dataset.sizeOfImageLinks()<0);
+		}
+    	
+	}
     // ~ Helpers
     // =========================================================================
 

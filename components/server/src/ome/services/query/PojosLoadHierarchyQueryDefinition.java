@@ -47,7 +47,10 @@ public class PojosLoadHierarchyQueryDefinition
             c.add(Restrictions.in("id",(Collection) value(IDS)));
         
         // fetch hierarchy
-        int depth = po.isLeaves() ? Integer.MAX_VALUE : 1; 
+        // TODO this should be pushed into Hierarchy
+        int idx = Hierarchy.Nodes.lookupWithError(klass);
+        int depth = Hierarchy.Nodes.depth[idx];
+        if ( ! po.isLeaves() ) depth--;
         Hierarchy.fetchChildren(c,klass,depth); 
     
         setCriteria( c );
