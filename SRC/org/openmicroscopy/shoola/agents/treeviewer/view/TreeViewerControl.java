@@ -383,6 +383,7 @@ class TreeViewerControl
         } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY) ||
                 name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
             model.removeEditor();
+            model.onComponentStateChange(true);
         } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
             Boolean b = (Boolean) pce.getNewValue();
             if (!b.booleanValue()) model.clearFoundResults();
@@ -424,17 +425,11 @@ class TreeViewerControl
                 view.setStatus(TreeViewer.LOADING_TITLE, false);
                 view.setStatusIcon(true);
                 view.onStateChanged(false);
-                //LoadingWindow w = view.getLoadingWindow();
-                //w.setTitle(TreeViewer.LOADING_TITLE);
-                //UIUtilities.centerAndShow(w);
                 break;
             case TreeViewer.SAVE:
                 view.setStatus(TreeViewer.SAVING_TITLE, false);
                 view.setStatusIcon(true);
                 view.onStateChanged(false);
-                //LoadingWindow window = view.getLoadingWindow();
-                //window.setTitle(TreeViewer.SAVING_TITLE);
-                //UIUtilities.centerAndShow(window);
                 break;
             case TreeViewer.READY:
             case TreeViewer.DIALOG_SELECTION:

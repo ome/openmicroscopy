@@ -532,13 +532,12 @@ class TreeViewerWin
     }
     
     /**
+     * Enables the tabbed pane depending on the specified parameter.
      * 
-     * @param b
+     * @param b Pass <code>true</code> to enable the tabbed pane,
+     *          <code>false</code> otherwise.
      */
-    void onStateChanged(boolean b)
-    {
-        tabs.setEnabled(b);
-    }
+    void onStateChanged(boolean b) { tabs.setEnabled(b); }
     
     /** 
      * Sets the status message.

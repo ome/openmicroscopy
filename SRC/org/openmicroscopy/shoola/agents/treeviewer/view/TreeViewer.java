@@ -179,6 +179,8 @@ public interface TreeViewer
     /** Bound property indicating to change the root of the hierarchy. */
     public static final String      HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
     
+    public static final String      ON_COMPONENT_STATE_CHANGED_PROPERTY = 
+                                        "OnComponentStateChanged";
     /** 
      * The title displayed in the {@link LoadingWindow} during the saving 
      * process.
@@ -437,6 +439,7 @@ public interface TreeViewer
      */
     public void addExistingObjects(Set set);
 
+    /** Navigates into the selected node or displays the main tree. */
     public void navigate();
     
     /**
@@ -451,13 +454,24 @@ public interface TreeViewer
      */
     public void showMenu(int menuID, Component c, Point p);
     
-
     /**
+     * Sets the text in the status bar and modifies display.
      * 
-     * @param enable
-     * @param text
-     * @param hide
+     * @param enable    Pass <code>true</code> to allow cancellation, 
+     *                  <code>false</code> otherwise.
+     * @param text      The text to display.
+     * @param hide      Pass <code>true</code> to hide the progress bar.
+     *                  <code>false</code> otherwise.
      */
     public void setStatus(boolean enable, String text, boolean hide);
+    
+    /**
+     * Enables the components composing the display depending on the specified
+     * parameter.
+     * 
+     * @param b Pass <code>true</code> to enable the component, 
+     *          <code>false</code> otherwise.
+     */
+    public void onComponentStateChange(boolean b);
     
 }

@@ -244,6 +244,7 @@ class TreeViewerComponent
         Editor editor = EditorFactory.getEditor(this, object, editorType);
         editor.addPropertyChangeListener(controller);
         editor.activate();
+        if (editorType == CREATE_EDITOR) onComponentStateChange(false);
         view.addComponent(editor.getUI());
     }
 
@@ -718,6 +719,24 @@ class TreeViewerComponent
     {
         view.setStatus(text, hide);
         view.setStatusIcon(enable);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#onComponentStateChange(boolean)
+     */
+    public void onComponentStateChange(boolean b)
+    {
+       if (model.getState() == DISCARDED)
+               throw new IllegalStateException(
+               "This method cannot be invoked in the DISCARDED state.");
+       Browser browser = model.getSelectedBrowser();
+       if (browser != null) browser.onComponentStateChange(b);
+       Boolean oldValue = Boolean.TRUE;
+       if (b) oldValue = Boolean.FALSE;
+       view.onStateChanged(b);
+       firePropertyChange(ON_COMPONENT_STATE_CHANGED_PROPERTY, oldValue, 
+                               new Boolean(b));
     }
     
 }

@@ -104,22 +104,22 @@ class TreeViewerModel
      * The level of the hierarchy root. One of the following constants:
      * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
      */
-    private int                 rootLevel;
+    private int                     rootLevel;
     
     /** 
      * The ID of the root. This parameter will be used only when the 
      * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
      */
-    private long                rootGroupID;
+    private long                    rootGroupID;
     
     /**
      * The component to find a given phrase in the currently selected
      * {@link Browser}.
      */
-    private Finder              finder;
+    private Finder                  finder;
     
     /** Reference to the component that embeds this model. */
-    protected TreeViewer        component;
+    protected TreeViewer            component;
     
     /** Creates the browsers controlled by this model. */
     private void createBrowsers()
