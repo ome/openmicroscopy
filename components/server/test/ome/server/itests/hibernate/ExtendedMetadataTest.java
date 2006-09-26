@@ -117,6 +117,16 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest
 				"pixels");
 	}
 
+	@Test( groups = "ticket:357" )
+	// quirky because of defaultTag
+	// see https://trac.openmicroscopy.org.uk/omero/ticket/357
+	public void testImageCanBeUnlockedFromPixels() throws Exception
+	{
+		assertContains( metadata.getLockChecks( Image.class ), 
+				Pixels.class.getName(),
+				"defaultPixelsTag.image");
+	}
+
 	// ~ Helpers
 	// =========================================================================
 	
