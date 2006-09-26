@@ -457,6 +457,22 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
 		assertNotNull(test);
 		assertEquals(i.getId(),test.getId());
 	}
+    
+    @Test( groups = { "ticket:172" } )
+    public void testGetImagesReturnsEventTimes() throws Exception {
+		Image i = new Image();
+		i.setName("ticket:172");
+		i = iUpdate.saveAndReturnObject(i);
+		
+		q= new PojosGetImagesQueryDefinition(
+				new Parameters( new Filter().unique() ).
+				addClass(Image.class).
+				addIds(Collections.singleton(i.getId())));
+		Image test = (Image) iQuery.execute(q);
+		assertNotNull(test.getDetails().getCreationEvent().getTime());
+		assertNotNull(test.getDetails().getUpdateEvent().getTime());
+	}
+    
     // ~ Helpers
     // =========================================================================
 

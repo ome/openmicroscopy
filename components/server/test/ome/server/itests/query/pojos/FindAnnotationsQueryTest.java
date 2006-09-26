@@ -17,11 +17,13 @@ import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
+import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
+import ome.services.query.PojosGetImagesQueryDefinition;
 import ome.services.query.QueryParameterDef;
 import ome.testing.CreatePojosFixture;
 import ome.util.builders.PojoOptions;
@@ -140,6 +142,31 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest
         }
     }
     
-    
+    @Test( groups = { "ticket:172" } )
+    public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
+		Image i = new Image();
+		i.setName("ticket:172");
+		ImageAnnotation a = new ImageAnnotation();
+		a.setImage(i);
+		a.setContent("ticket:172");
+		a = iUpdate.saveAndReturnObject(a);
+		
+        ids = new HashSet(Arrays.asList(a.getImage().getId()));
+        q = new PojosFindAnnotationsQueryDefinition(
+                new Parameters()
+                .addIds(ids) 
+                .addOptions(null)
+                .addClass(Image.class)
+                .addSet("annotatorIds",Collections.emptySet()));
+
+        Collection<ImageAnnotation> results = (Collection) iQuery.execute(q);
+        for ( ImageAnnotation annotation : results )
+        {
+        	assertNotNull(annotation.getDetails().getCreationEvent().getTime());
+        	assertNotNull(annotation.getDetails().getUpdateEvent().getTime());
+        	assertNotNull(annotation.getImage().getDetails().getCreationEvent().getTime());
+        	assertNotNull(annotation.getImage().getDetails().getUpdateEvent().getTime());
+        }
+	}
 
 }

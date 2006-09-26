@@ -26,6 +26,8 @@ public class PojosGetImagesQueryDefinition
     throws HibernateException, SQLException
     {
         Criteria c = session.createCriteria(Image.class);
+        c.createAlias("details.creationEvent", "create");
+        c.createAlias("details.updateEvent", "update");
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         
         Criteria pix = c.createCriteria("defaultPixels",LEFT_JOIN);

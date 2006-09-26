@@ -65,19 +65,23 @@ public class PojosFindAnnotationsQueryDefinition extends Query
         Class target = typeToAnnotationType.get((Class) value(CLASS));
         String path = annotationTypeToPath.get(target);
         
-        Criteria c = session.createCriteria(target);
+        Criteria ann = session.createCriteria(target);
+        ann.createAlias("details.creationEvent", "ann_create");
+        ann.createAlias("details.updateEvent", "ann_update");
+        ann.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        ann.add(Restrictions.in(path+".id",(Collection) value(IDS)));
         
-        c.createCriteria(path,LEFT_JOIN);
-        c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-        c.add(Restrictions.in(path+".id",(Collection) value(IDS)));
+        Criteria obj = ann.createCriteria(path,LEFT_JOIN);
+        obj.createAlias("details.creationEvent", "obj_create");
+        obj.createAlias("details.updateEvent", "obj_update");
         
         if (check("annotatorIds"))
         {
             Collection annotatorIds = (Collection) value("annotatorIds");
             if (annotatorIds != null && annotatorIds.size() > 0)
-                c.add(Restrictions.in("details.id", annotatorIds ));
+                ann.add(Restrictions.in("details.id", annotatorIds ));
         }
-        setCriteria( c );
+        setCriteria( ann );
     }
 
 
