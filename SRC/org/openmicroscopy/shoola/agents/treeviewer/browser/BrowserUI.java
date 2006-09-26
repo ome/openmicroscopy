@@ -37,6 +37,7 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -203,8 +204,8 @@ class BrowserUI
         }
     }
     
-    /** Helper method to create the tree hosting the display. */
-    private void createTree()
+    /** Helper method to create the trees hosting the display. */
+    private void createTrees()
     {
         treeDisplay = new JTree();
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
@@ -251,12 +252,18 @@ class BrowserUI
     /**
      * Adds the nodes to the specified parent.
      * 
-     * @param parent The parent node.
-     * @param nodes The list of nodes to add.
+     * @param parent    The parent node.
+     * @param nodes     The list of nodes to add.
+     * @param tm        The  tree model.
      */
-    private void buildTreeNode(DefaultMutableTreeNode parent, List nodes)
+    private void buildTreeNode(DefaultMutableTreeNode parent, Collection nodes, 
+                                DefaultTreeModel tm)
     {
-        DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+        if (nodes.size() == 0) {
+            tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                    parent, parent.getChildCount());
+            return;
+        }
         Iterator i = nodes.iterator();
         TreeImageDisplay display;
         Set children;
@@ -266,13 +273,14 @@ class BrowserUI
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
                 if (children.size() != 0)
-                    buildTreeNode(display, sorter.sort(children));
+                    buildTreeNode(display, sorter.sort(children), tm);
                 else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         display, display.getChildCount());
                 }    
             }
         } 
+
     }
     
     /**
@@ -336,13 +344,16 @@ class BrowserUI
     private void loadGoIntoTree()
     {
         DefaultTreeModel dtm = (DefaultTreeModel) goIntoTree.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        Object path = treeDisplay.getLastSelectedPathComponent();
-        if (path == null) return;
-        root.removeAllChildren();
-        dtm.insertNodeInto((TreeImageDisplay) path, root, root.getChildCount());
-        dtm.reload();
-        expandGoIntoTreeNode((TreeImageDisplay) path);
+        DefaultMutableTreeNode r = (DefaultMutableTreeNode) dtm.getRoot();
+        TreeImageDisplay d = model.getLastSelectedDisplay();
+        //if (!previous) //
+        //    path = goIntoTree.getLastSelectedPathComponent();
+        //if (path == null) return;
+        r.removeAllChildren();
+        TreeImageDisplay copy = d.copy();
+        dtm.insertNodeInto(copy, r, r.getChildCount());
+        buildTreeNode(copy, copy.getChildrenDisplay(), dtm);
+        dtm.reload(r);
         scrollPane.getViewport().removeAll();
         scrollPane.getViewport().add(goIntoTree);
         repaint();
@@ -377,7 +388,7 @@ class BrowserUI
         this.controller = controller;
         this.model = model;
         createMenuBar();
-        createTree();
+        createTrees();
         buildGUI();
     }
 
@@ -410,7 +421,8 @@ class BrowserUI
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 root.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(root, sorter.sort(nodes));
+            buildTreeNode(root, sorter.sort(nodes), 
+                    (DefaultTreeModel) treeDisplay.getModel());
         } else buildEmptyNode(root);
         dtm.reload();
         if (!model.isMainTree()) loadGoIntoTree();
@@ -426,14 +438,13 @@ class BrowserUI
     {
         parent.removeAllChildren();
         parent.setChildrenLoaded(Boolean.TRUE);
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 parent.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(parent, sorter.sort(nodes));
-        }
-        else buildEmptyNode(parent);
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+            buildTreeNode(parent, sorter.sort(nodes), dtm);
+        } else buildEmptyNode(parent);
         dtm.reload(parent);
         if (!model.isMainTree()) loadGoIntoTree();
     }
@@ -447,6 +458,7 @@ class BrowserUI
     void setLeavesViews(Set nodes)
     {
         TreeImageDisplay node = model.getLastSelectedDisplay();
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         if (node instanceof TreeImageNode) return;
         node.removeAllChildren();
         node.setChildrenLoaded(Boolean.TRUE);
@@ -454,9 +466,8 @@ class BrowserUI
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 node.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(node, sorter.sort(nodes));
+            buildTreeNode(node, sorter.sort(nodes), dtm);
         } else buildEmptyNode(node);
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         dtm.reload(node);
         if (!model.isMainTree()) loadGoIntoTree();
     }
@@ -522,9 +533,9 @@ class BrowserUI
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 root.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(root, nodes);
-        }
-        else buildEmptyNode(root);
+            buildTreeNode(root, nodes, dtm);
+        } else buildEmptyNode(root);
+        
         dtm.reload();
         if (!model.isMainTree()) loadGoIntoTree();
     }
@@ -711,31 +722,40 @@ class BrowserUI
         treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
     }
 
-    /** Displays the main tree or navigates into the selected node. 
-     * 
-     * @param previous Indicates which element tree was displayed.
-     */
-    void navigate(boolean previous)
+    /** Displays the main tree or navigates into the selected node. */
+    void navigate()
     {
         if (model.isMainTree()) {
             scrollPane.getViewport().removeAll();
             scrollPane.getViewport().add(treeDisplay);
             repaint();
-            return;
-        }
-        DefaultTreeModel dtm = (DefaultTreeModel) goIntoTree.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        Object path = treeDisplay.getLastSelectedPathComponent();
-        if (!previous) //
-            path = goIntoTree.getLastSelectedPathComponent();
-        if (path == null) return;
-        root.removeAllChildren();
-        dtm.insertNodeInto((TreeImageDisplay) path, root, root.getChildCount());
-        dtm.reload(root);
-        //expandGoIntoTreeNode((TreeImageDisplay) path);
-        scrollPane.getViewport().removeAll();
-        scrollPane.getViewport().add(goIntoTree);
-        repaint();
+        } else {
+            loadGoIntoTree();
+        } 
+    }
+
+    /** 
+     * Reacts to state change.
+     * 
+     * @param b Pass <code>true</code> to enable the trees, <code>false</code>
+     *          otherwise.
+     */
+    void onStateChanged(boolean b)
+    {
+        model.getParentModel().onComponentStateChange(b);
+    }
+
+    /**
+     * Enables the components composing the display depending on the specified
+     * parameter.
+     * 
+     * @param b Pass <code>true</code> to enable the component, 
+     *          <code>false</code> otherwise.
+     */
+    void onComponentStateChange(boolean b)
+    {
+        treeDisplay.setEnabled(b);
+        goIntoTree.setEnabled(b);
     }
     
 }

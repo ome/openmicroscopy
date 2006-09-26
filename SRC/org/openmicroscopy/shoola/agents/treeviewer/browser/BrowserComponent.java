@@ -991,9 +991,18 @@ class BrowserComponent
     public void navigate(boolean v)
     {
         controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
-        boolean old = model.isMainTree();
         model.setMainTree(v);
-        view.navigate(old);
+        view.navigate();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#onComponentStateChange(boolean)
+     */
+    public void onComponentStateChange(boolean b)
+    {
+        view.onComponentStateChange(b);
+        
     }
     
 }

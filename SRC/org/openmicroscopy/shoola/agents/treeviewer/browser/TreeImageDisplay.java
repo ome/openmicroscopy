@@ -114,7 +114,7 @@ public abstract class TreeImageDisplay
      * The set of nodes that have been added to this node.
      * Will always be empty for a leaf node. 
      */
-    private Set                 childrenDisplay;
+    protected Set                 childrenDisplay;
     
     /**
      * The tooltip: annotation if the <code>DataObject</code>
@@ -205,9 +205,6 @@ public abstract class TreeImageDisplay
     
     /**
      * Adds a node to the visualization tree as a child of this node.
-     * The node is added to the internal desktop of this node, but you
-     * will have to set its bounds for it to show up &#151; this is a
-     * consequence of the fact that a desktop has no layout manager.
      * The <code>child</code>'s parent is set to be this node.  If <code>
      * child</code> is currently a child to another node <code>n</code>, 
      * then <code>child</code> is first 
@@ -443,5 +440,7 @@ public abstract class TreeImageDisplay
      * @param childrenLoaded    The value to set.
      */
     public abstract void setChildrenLoaded(Boolean childrenLoaded);
+    
+    public abstract TreeImageDisplay copy();
     
 }

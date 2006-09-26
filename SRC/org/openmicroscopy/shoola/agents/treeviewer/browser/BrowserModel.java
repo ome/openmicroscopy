@@ -384,10 +384,6 @@ class BrowserModel
      */
     void fireContainerCountLoading()
     {
-        //state = Browser.READY;
-        //return;
-        
-        
         Set containers = component.getContainersWithImages();
         if (containers.size() == 0) {
             state = Browser.READY;
@@ -540,8 +536,19 @@ class BrowserModel
      */
     boolean isMainTree() { return mainTree; }
     
+    /**
+     * Indicates which tree is currently displayed in the browser.
+     * 
+     * @param b Pass <code>true</code> for the main tree, <code>false</code>
+     *          otherwise.
+     */
     void setMainTree(boolean b) { mainTree = b; }
     
+    /**
+     * Returns the parent of the component.
+     * 
+     * @return See above.
+     */
     TreeViewer getParentModel() { return parent; }
     
 }

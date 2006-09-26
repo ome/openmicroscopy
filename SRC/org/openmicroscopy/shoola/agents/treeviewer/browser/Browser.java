@@ -484,10 +484,19 @@ public interface Browser
     public void setSelectedDisplays(TreeImageDisplay[] nodes);
     
     /**
+     * Enables the components composing the display depending on the specified
+     * parameter.
+     * 
+     * @param b Pass <code>true</code> to enable the component, 
+     *          <code>false</code> otherwise.
+     */
+    public void onComponentStateChange(boolean b);
+    
+    /**
      * Displays the main tree or go into a node.
      * 
      * @param v
      */
-    void navigate(boolean v);
+    public void navigate(boolean v);
     
 }

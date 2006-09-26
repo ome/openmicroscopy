@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
+import java.util.Iterator;
+
 
 //Java imports
 
@@ -183,6 +185,20 @@ public class TreeImageSet
     public void setChildrenLoaded(Boolean childrenLoaded)
     {
         this.childrenLoaded = childrenLoaded;
+    }
+
+    public TreeImageDisplay copy()
+    {
+        TreeImageSet copy = new TreeImageSet(this.getUserObject());
+        copy.setChildrenLoaded(new Boolean(this.isChildrenLoaded()));
+        copy.setNumberItems(this.getNumberItems());
+        copy.setHighLight(this.getHighLight());
+        copy.setToolTip(this.getToolTip());
+        Iterator i = this.getChildrenDisplay().iterator();
+        while (i.hasNext()) {
+            copy.addChildDisplay(((TreeImageDisplay) i.next()).copy());
+        }
+        return copy;
     }
     
 }
