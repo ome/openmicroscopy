@@ -32,6 +32,7 @@ package ome.tools.hibernate;
 // Java imports
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -113,6 +114,8 @@ public class ProxyCleanupFilter extends ContextFilter
     @Override
     public Collection filter(String fieldId, Collection c)
     {
+    	// is a proxy. null it. will be refilled by 
+    	// MergeEventListener on re-entry.
         if (null == c || !Hibernate.isInitialized(c))
         {
             return null;
@@ -120,7 +123,7 @@ public class ProxyCleanupFilter extends ContextFilter
         
         Collection retVal = super.filter(fieldId, c);
         
-        // BUG 647 : preventing Hibernate collection types from escaping.
+        // ticket:61 : preventing Hibernate collection types from escaping.
         if ( retVal instanceof AbstractPersistentCollection )
         { 
             if ( retVal instanceof Set)
@@ -129,11 +132,31 @@ public class ProxyCleanupFilter extends ContextFilter
             else if ( retVal instanceof List )
                 retVal = new ArrayList( retVal );
             
-        } // end bug
+        } // end ticket:61
         
         return retVal;
     }
 
+    @Override
+    public Map filter(String fieldId, Map m)
+    {
+
+        if (null == m || !Hibernate.isInitialized(m))
+        {
+            return null;
+        }
+        
+        Map retVal = super.filter(fieldId, m);
+        
+        // ticket:61 : preventing Hibernate collection types from escaping.
+        if ( retVal instanceof AbstractPersistentCollection )
+        { 
+            retVal = new HashMap( retVal );
+        } // end ticket:61
+        
+        return retVal;
+    }
+    
     // TODO FIXME need to further test this.
     @Override
     protected void doFilter(String arg0, Object arg1)
