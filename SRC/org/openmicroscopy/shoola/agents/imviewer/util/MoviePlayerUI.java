@@ -38,7 +38,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -78,9 +77,6 @@ import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 class MoviePlayerUI
     extends JPanel
 {
-    
-    /** Vertical space between the panes. */
-    private static final Dimension  VSPACE = new Dimension(0, 20);
     
     /** UI identifier corresponding to {@link MoviePlayer#LOOP}. */
     private static final int        LOOP_CMD = 0;
@@ -244,41 +240,11 @@ class MoviePlayerUI
     {
         toolBar = new JToolBar();
         toolBar.setBorder(BorderFactory.createEtchedBorder());
-        toolBar.setFloatable(true);
+        toolBar.setFloatable(false);
         toolBar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
         toolBar.add(play);
-        //bar.add(Box.createRigidArea(HBOX));
-        //bar.add(pause);
-        //bar.add(Box.createRigidArea(HBOX));
         toolBar.add(stop);
         return toolBar;
-    }
-    
-    /** 
-     * Builds panel with text editor.
-     * 
-     * @return See below.
-     */
-    private JPanel buildControlsPanel()
-    {
-        JPanel p = new JPanel();
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(new GridBagLayout());
-        JLabel l = new JLabel("Rate");
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.WEST;
-        p.add(l, c);
-        c.gridx = 1;
-        JPanel contain = UIUtilities.buildComponentPanel(fps);
-        p.add(contain, c);
-        c.gridx = 0;
-        c.gridy = 1;
-        l = new JLabel("Play");
-        p.add(l, c);
-        c.gridx = 1;
-        contain = UIUtilities.buildComponentPanel(movieTypes);
-        p.add(contain, c);
-        return p;
     }
     
     /** 
@@ -291,12 +257,12 @@ class MoviePlayerUI
     	 JPanel p = new JPanel();
          GridBagConstraints c = new GridBagConstraints();
          p.setLayout(new GridBagLayout());
-         JLabel l = new JLabel("Rate");
+         JLabel l = new JLabel("Frame Rate");
          c.fill = GridBagConstraints.NONE;
          c.anchor = GridBagConstraints.WEST;
          p.add(l, c);
          c.gridx = 1;
-         c.insets = new Insets(0,10,0,0);
+         c.insets = new Insets(0, 10, 0, 0);
          p.add(fps, c);
          return p;
     }
@@ -317,7 +283,7 @@ class MoviePlayerUI
         JLabel l = new JLabel("Play");
         contain.add(l, gbc);
         gbc.gridx = 1;
-        gbc.insets = new Insets(0,10,0,0);
+        gbc.insets = new Insets(0, 10, 0, 0);
         contain.add(movieTypes, gbc);
         return contain;
     }
