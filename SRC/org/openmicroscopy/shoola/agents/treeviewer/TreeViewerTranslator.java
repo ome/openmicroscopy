@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Java imports
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -73,6 +74,17 @@ import pojos.ProjectData;
  */
 public class TreeViewerTranslator
 {
+    
+    /**
+     * Creates a default timestamp.
+     * 
+     * @return See above.
+     */
+    private static Timestamp getDefaultTimestamp()
+    {
+        Date today = new Date();
+        return new Timestamp(today.getTime());
+    }
     
     /**
      * Returns <code>true</code> if the specified data object is readable,
@@ -146,6 +158,7 @@ public class TreeViewerTranslator
         String title = null;
         if (node.getUserObject() instanceof ImageData) {
             Timestamp time = ((ImageData) node.getUserObject()).getInserted();
+            if (time == null) time = getDefaultTimestamp();
             title = DateFormat.getDateInstance().format(time);   
             toolTip = UIUtilities.formatToolTipText(title);
             node.setToolTip(toolTip); 
