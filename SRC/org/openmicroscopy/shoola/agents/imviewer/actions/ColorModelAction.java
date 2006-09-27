@@ -92,7 +92,7 @@ public class ColorModelAction
     static {
         names = new String[MAX+1];
         names[GREY_SCALE_MODEL] = "Grey Scale";
-        names[RGB_MODEL] = "RGB";
+        names[RGB_MODEL] = "Color";
         names[HSB_MODEL] = "HSB/HSV"; 
     }
     
@@ -132,7 +132,7 @@ public class ColorModelAction
             case RGB_MODEL:
                 return icons.getIcon(IconManager.RGB);
             case HSB_MODEL:
-                return icons.getIcon(IconManager.HSB);
+                return icons.getIcon(IconManager.RGB);
         }
     }
     
