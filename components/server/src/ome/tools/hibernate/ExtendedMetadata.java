@@ -38,6 +38,7 @@ import java.util.Map;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.EmbeddedComponentType;
 import org.hibernate.type.Type;
@@ -67,6 +68,7 @@ public class ExtendedMetadata
 	
 	private final Map<String,Locks> locksHolder = new HashMap<String,Locks>();
 	private final Map<String,String[][]> lockedByHolder = new HashMap<String,String[][]>();
+	private final Map<String,Immutables> immutablesHolder = new HashMap<String,Immutables>();
 	
 	// NOTES:
 	// TODO we could just delegate to sf and implement the same interface.		
@@ -103,7 +105,13 @@ public class ExtendedMetadata
 			ClassMetadata cm = m.get(key);	
 			lockedByHolder.put( key, lockedByFields(key, m) );
 		}
-
+		
+		for (String  key : m.keySet()) 
+		{
+			ClassMetadata cm = m.get(key);	
+			immutablesHolder.put( key, new Immutables(cm) );
+		}
+		
 	}
 
 	/** walks the {@link IObject} argument <em>non-</em>recursively and gathers
@@ -145,6 +153,16 @@ public class ExtendedMetadata
 					+klass.getName());
 		
 		return checks;		
+	}
+	
+	public String[] getImmutableFields( Class<? extends IObject> klass )
+	{
+		if ( klass == null ) 
+			throw new ApiUsageException( "Cannot proceed with null klass." );
+		
+		Immutables i = immutablesHolder.get( klass.getName() );
+		return i.getImmutableFields();
+		
 	}
 
 	// ~ Helpers
@@ -399,4 +417,53 @@ class Locks
 	{
 		return subnames[i][j];
 	}
+}
+
+class Immutables
+{
+	String[] immutableFields;
+	EntityPersister ep;
+	Immutables( ClassMetadata metadata )
+	{
+		if ( metadata instanceof EntityPersister )
+			this.ep = (EntityPersister) metadata;
+		else 
+			throw new IllegalArgumentException( "Metadata passed to Immutables"
+					+ " must be an instanceof EntityPersister, not "
+					+ (metadata == null ? null : metadata.getClass()) );
+
+		List<String> retVal = new ArrayList<String>();
+		Type[] type   = this.ep.getPropertyTypes();
+		String[] name = this.ep.getPropertyNames(); 
+		boolean[] up  = this.ep.getPropertyUpdateability();
+		
+		for (int i = 0; i < type.length; i++) {
+			
+			// not updateable, so our work (for this type) is done.
+			if ( ! up[i])
+			{
+				retVal.add( name[i] );
+			}
+
+			// updateable, but maybe a component subtype is NOT.
+			else if ( type[i].isComponentType() && ((ComponentType)type[i]).isEmbedded())
+			{
+				EmbeddedComponentType embedded = (EmbeddedComponentType) type[i];
+				String[]     sub_name = embedded.getPropertyNames();
+				Type[]       sub_type = embedded.getSubtypes();
+				List<String> name_list = new ArrayList<String>();
+				List<Type>   type_list = new ArrayList<Type>();
+				for (int j = 0; j < sub_type.length; j++) {
+					// INCOMPLETE !!!
+				}
+			}
+		}
+		immutableFields = retVal.toArray(new String[retVal.size()]);
+	}
+
+	public String[] getImmutableFields()
+	{
+		return immutableFields;
+	}
+
 }

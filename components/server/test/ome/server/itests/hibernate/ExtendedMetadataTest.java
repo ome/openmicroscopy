@@ -127,6 +127,15 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest
 				"defaultPixelsTag.image");
 	}
 
+	// ~ Updating
+	// =========================================================================
+	
+	@Test( groups = {"ticket:346","broken"} )
+	public void testCreateEventImmutable() throws Exception {
+		assertContains( metadata.getImmutableFields( Image.class ),
+				"details.creationEvent" );
+	}
+	
 	// ~ Helpers
 	// =========================================================================
 	
