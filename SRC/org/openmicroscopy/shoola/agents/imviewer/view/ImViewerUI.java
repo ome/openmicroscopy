@@ -45,6 +45,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 
 //Third-party libraries
@@ -339,6 +340,10 @@ class ImViewerUI
     {
         //tabbedPane =  new JTabbedPane();
         Browser browser = model.getBrowser();
+        browser.getUI().setPreferredSize(new 
+        		Dimension(model.getRenderedImage().getWidth()+5,
+        				model.getRenderedImage().getHeight()));
+        
         //tabbedPane.addTab(browser.getTitle(), browser.getUI());
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
@@ -347,6 +352,7 @@ class ImViewerUI
         container.add(controlPane, BorderLayout.WEST);
         container.add(browser.getUI(), BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
+        pack();
     }
     
     /**
@@ -393,6 +399,7 @@ class ImViewerUI
         toolBar.buildComponent();
         controlPane.buildComponent();
         buildGUI();
+        pack();
     }
     
     /**
@@ -539,10 +546,10 @@ class ImViewerUI
      */
     public void setOnScreen()
     {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = 7*(screenSize.width/10);
-        int height = 7*(screenSize.height/10);
-        setSize(width, height);
+  //      Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+ //       int width = 7*(screenSize.width/10);
+ //       int height = 7*(screenSize.height/10);
+ //       setSize(width, height);
         UIUtilities.centerAndShow(this);
     }
 
