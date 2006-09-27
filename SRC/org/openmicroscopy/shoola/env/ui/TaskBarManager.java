@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -114,7 +115,13 @@ class TaskBarManager
 	 * The exit action.
 	 * Just forwards to the container.
 	 */
-	private void doExit() { container.exit(); }
+	private void doExit()
+    { 
+        IconManager icons = IconManager.getInstance(container.getRegistry());
+        ExitDialog d = new ExitDialog(view, 
+                                icons.getIcon(IconManager.QUESTION), container);
+        UIUtilities.centerAndShow(d);
+    }
 	
 	/**
 	 * Temporary action to notify the user that the action associated to a
