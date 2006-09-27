@@ -199,9 +199,9 @@ class TreeViewerComponent
     
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#addBrowser(int)
+     * @see TreeViewer#displayBrowser(int)
      */
-    public void addBrowser(int browserType)
+    public void displayBrowser(int browserType)
     {
         switch (model.getState()) {
             case DISCARDED:
@@ -212,10 +212,14 @@ class TreeViewerComponent
         }
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(browserType));
-        if (browser != null) {
+        if (browser.isDisplayed()) {
+            view.removeBrowser(browser);
+        } else {
             model.setSelectedBrowser(browser);
             view.addBrowser(browser);
+
         }
+        browser.setDisplayed(!browser.isDisplayed());
     }
 
     /**

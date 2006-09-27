@@ -256,12 +256,12 @@ public interface TreeViewer
     public void discard();
     
     /** 
-     * Adds the {@link Browser} corresponding to the specified type to
-     * the display.
+     * Adds or removes the {@link Browser} corresponding to the specified type
+     * to the display depending on the actual status of the browseer.
      * 
      * @param browserType The browser's type.
      */
-    public void addBrowser(int browserType);
+    public void displayBrowser(int browserType);
     
     /**
      * Brings up the editor corresponding to the specified type ang object.
