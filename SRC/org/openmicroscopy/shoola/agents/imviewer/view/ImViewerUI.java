@@ -36,7 +36,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
@@ -45,7 +44,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 
 //Third-party libraries
@@ -340,9 +338,7 @@ class ImViewerUI
     {
         //tabbedPane =  new JTabbedPane();
         Browser browser = model.getBrowser();
-        browser.getUI().setPreferredSize(new 
-        		Dimension(model.getRenderedImage().getWidth()+5,
-        				model.getRenderedImage().getHeight()));
+        browser.setComponentsSize(model.getMaxX(), model.getMaxY());
         
         //tabbedPane.addTab(browser.getTitle(), browser.getUI());
         Container container = getContentPane();
