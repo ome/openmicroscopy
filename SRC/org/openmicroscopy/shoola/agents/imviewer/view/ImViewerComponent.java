@@ -256,6 +256,7 @@ class ImViewerComponent
                 }
                 break;
             case ColorModelAction.RGB_MODEL:
+                /*
                 model.setColorModel(RGB_MODEL);
                 if (channels != null && channels.size() > 1) {
                     i = channels.iterator();
@@ -271,7 +272,9 @@ class ImViewerComponent
                     setChannelActive(0, true);
                 }
                 break;
+                */
             case ColorModelAction.HSB_MODEL:
+                model.setColorModel(HSB_MODEL);
                 if (channels == null || channels.size() == 0) {
                     //no channel.
                     setChannelActive(0, true);
