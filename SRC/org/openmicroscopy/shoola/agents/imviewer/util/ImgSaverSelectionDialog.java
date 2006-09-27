@@ -69,7 +69,7 @@ class ImgSaverSelectionDialog
     private ImgSaver    model;
     
     /**
-     * Overriden to bring up the preview image widget.
+     * Overridden to bring up the preview image widget.
      * @see OptionsDialog#onYesSelection()
      */
     protected void onYesSelection() { model.previewImage(false); }
