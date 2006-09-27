@@ -326,7 +326,16 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		IObject[] candidates = em.getLockCandidates(iObject);
 		for (IObject object : candidates) {
-			s.add(object);
+			// omitting system types since they don't have permissions
+			// which can be locked.
+			if (isSystemType(object.getClass()))
+			{
+				// do nothing.
+			}
+			else 
+			{
+				s.add(object);
+			}
 			// TODO NEED TO CHECK FOR OWNERSHIP etc. etc.
 		}
 
@@ -539,8 +548,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 						previousDetails, currentDetails, newDetails);
 			}
 			
-			if (!isGlobal(iobj.getClass())) 
-
 			// the event check needs to be last, because we need to test
 			// whether or not it is necessary to change the updateEvent 
 			// (i.e. last modification)
