@@ -142,7 +142,7 @@ class ControlPane
         else if (model.equals(ImViewer.RGB_MODEL))
             return icons.getIcon(IconManager.RGB);
         else if (model.equals(ImViewer.HSB_MODEL))
-            return icons.getIcon(IconManager.HSB);
+            return icons.getIcon(IconManager.RGB);
         return null;
     }
 
