@@ -197,7 +197,8 @@ class ImViewerUI
         action = controller.getAction(ImViewerControl.RGB_MODEL);
         item = new JRadioButtonMenuItem();
         item.setAction(action);
-        item.setSelected(cm.equals(ImViewer.RGB_MODEL));
+        item.setSelected(cm.equals(ImViewer.RGB_MODEL) || 
+                        cm.equals(ImViewer.HSB_MODEL));
         colorModelGroup.add(item);
         menu.add(item);
         //action = controller.getAction(ImViewerControl.HSB_MODEL);
