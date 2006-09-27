@@ -259,7 +259,7 @@ class TaskBarView
 	{
 		createMenuItems();
 		///menus[FILE_MENU] = createFileMenu();
-		menus[CONNECT_MENU] = createConnectMenu();
+		//menus[CONNECT_MENU] = createConnectMenu();
 		menus[TASKS_MENU] = createTasksMenu();
 		menus[WINDOW_MENU] = createWindowMenu();
 		menus[HELP_MENU] = createHelpMenu();
@@ -353,7 +353,7 @@ class TaskBarView
 	{
 		super("Open Microscopy Environment");
 		buttons = new AbstractButton[MAX_ID+1];
-		menus = new JMenu[4];
+		menus = new JMenu[3];
 		toolbars = new JToolBar[2];
 		toolbars[QUICK_LAUNCH_TOOLBAR] = createToolBar();
 		toolbars[TASKS_TOOLBAR] = createToolBar();
