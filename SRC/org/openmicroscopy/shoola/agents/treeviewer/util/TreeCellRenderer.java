@@ -143,6 +143,7 @@ public class TreeCellRenderer
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
+        setFont(getFont().deriveFont(node.getFontStyle()));
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
