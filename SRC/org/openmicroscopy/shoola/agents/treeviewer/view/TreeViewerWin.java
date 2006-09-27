@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -153,12 +154,15 @@ class TreeViewerWin
         Map browsers = model.getBrowsers();
         Browser browser = (Browser) browsers.get(new Integer(
                                             Browser.PROJECT_EXPLORER));
-        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        if (browser.isDisplayed())
+            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(
                                             Browser.CATEGORY_EXPLORER));
-        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        if (browser.isDisplayed())
+            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(Browser.IMAGES_EXPLORER));
-        tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        if (browser.isDisplayed())
+            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     }
 
     /**
@@ -178,6 +182,40 @@ class TreeViewerWin
     }
     
     /**
+     * Helper method to create the Views menu.
+     * 
+     * @return The Views menu.
+     */
+    private JMenu createViewMenu()
+    {
+        JMenu menu = new JMenu("View");
+        menu.setMnemonic(KeyEvent.VK_V);
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
+        Map browsers = model.getBrowsers();
+        Browser browser = (Browser) browsers.get(new Integer(
+                                            Browser.PROJECT_EXPLORER));
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        browser = (Browser) browsers.get(new Integer(
+                                    Browser.CATEGORY_EXPLORER));
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.CATEGORY_EXPLORER));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        browser = (Browser) browsers.get(new Integer(
+                            Browser.IMAGES_EXPLORER));
+        item.setSelected(browser.isDisplayed());
+        item.setAction(
+                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
+        menu.add(item);
+        return menu;
+    }
+    
+    /**
      * Helper method to create the <code>File</code> menu.
      * 
      * @return See above.
@@ -190,14 +228,11 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.CREATE_TOP_CONTAINER)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.ADD_OBJECT)));
+        //menu.add(new JMenuItem(
+        //        controller.getAction(TreeViewerControl.ADD_OBJECT)));
         menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CLOSE)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        TreeViewerAction a = controller.getAction(TreeViewerControl.REFRESH);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.VIEW);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
         menu.add(item);
@@ -230,14 +265,9 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        TreeViewerAction a = controller.getAction(TreeViewerControl.VIEW);
-        JMenuItem item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menu.add(item);
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createClassifySubMenu());
-        a = controller.getAction(TreeViewerControl.ANNOTATE);
-        item = new JMenuItem(a);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.ANNOTATE);
+        JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
         menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -272,7 +302,7 @@ class TreeViewerWin
      */
     private JMenu createRootMenu()
     {
-        rootLevelMenu = new JMenu("Hierarchy root");
+        rootLevelMenu = new JMenu("Select Hierarchy root");
         IconManager im = IconManager.getInstance();
         rootLevelMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         ButtonGroup bGroup = new ButtonGroup();
@@ -298,23 +328,7 @@ class TreeViewerWin
         return rootLevelMenu;
     }
 
-    /**
-     * Helper method to create the Views menu.
-     * 
-     * @return The Views menu.
-     */
-    private JMenu createViewMenu()
-    {
-        JMenu menu = new JMenu("View");
-        menu.setMnemonic(KeyEvent.VK_V);
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER)));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CATEGORY_EXPLORER)));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.IMAGES_EXPLORER)));
-        return menu;
-    }
+
 
     /** Initializes the UI components. */
     private void initComponents()
@@ -414,7 +428,9 @@ class TreeViewerWin
     {
         if (!(isBrowserVisible(browser)))
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        tabs.removeChangeListener(controller.getTabbedListener());
         tabs.setSelectedComponent(browser.getUI());
+        tabs.addChangeListener(controller.getTabbedListener());
     }
 
     /**
@@ -507,7 +523,9 @@ class TreeViewerWin
         } else pane = splitPane;
         Container c = getContentPane();
         c.removeAll();
+        c.add(toolBar, BorderLayout.NORTH);
         c.add(pane, BorderLayout.CENTER);
+        c.add(statusBar, BorderLayout.SOUTH);
         c.validate();
     }
   
@@ -565,7 +583,6 @@ class TreeViewerWin
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             statusBar.setStatusIcon(icons.getIcon(IconManager.CANCEL), b); 
         } else {
-            //statusBar.setStatusIcon(icons.getIcon(IconManager.STATUS_INFO), b); 
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             statusBar.setStatusIcon(icons.getIcon(IconManager.TRANSPARENT), b); 
         }
