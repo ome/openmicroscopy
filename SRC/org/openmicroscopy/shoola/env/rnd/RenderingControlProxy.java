@@ -115,6 +115,8 @@ class RenderingControlProxy
     
     private ChannelMetadata[]       metadata;
     
+    private BufferedImage           xyImage;
+    
     /**
      * Returns the size of the cache.
      * 
@@ -213,6 +215,7 @@ class RenderingControlProxy
                         "not supported.");
         }
     }
+    
     /**
      * Creates a new instance.
      * 
@@ -243,7 +246,7 @@ class RenderingControlProxy
             metadata[k] = new ChannelMetadata(k, (Channel) i.next());
             k++;  
         }
-        setModel(RGB);
+        setModel(HSB);
         setDefaultPlane();
     }
 
@@ -500,6 +503,11 @@ class RenderingControlProxy
         setDefaultPlane();
     }
 
+    private int makeRGB(int r, int g, int b)
+    {
+        return r << 16 | g << 8 | b;
+    }
+    
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#render(PlaneDef)
@@ -509,16 +517,35 @@ class RenderingControlProxy
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
         //See if the requested image is in cache.
-        BufferedImage img = null;//getFromCache(pDef);
-        if (img == null) {  //If not, ask the server to render the plane.
+        //BufferedImage img = null;//getFromCache(pDef);
+
+        //if (img == null) {  //If not, ask the server to render the plane.
             RGBBuffer buf = servant.render(pDef);   //TO BE modified.
-            
+            if (xyImage == null) {
+                xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+                            BufferedImage.TYPE_INT_RGB);
+            }
             //See if we can/need work out the XY image size.
             if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
                 xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
                             buf.getBlueBand().length;
             
+            //RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
+            long s = System.currentTimeMillis();
+            int sizeX1 = buf.getSizeX1();
+            int sizeX2 = buf.getSizeX2();
+            int pos = 0;
+            for (int y = sizeX2-1; y >= 0; y--) {
+                for (int x = sizeX1-1; x >= 0; x--) {
+                    pos = sizeX1*y+x;
+                    xyImage.setRGB(x, y, makeRGB(buf.getRedBand()[pos], 
+                            buf.getGreenBand()[pos], buf.getBlueBand()[pos]));
+                }
+                
+            }
+            System.out.println("creation: "+(System.currentTimeMillis()-s));
             //Then create a Java2D buffer for buf.
+            /*
             RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
             //Now we only need to tell Java2D how to handle the RGB buffer. 
             BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
@@ -529,11 +556,12 @@ class RenderingControlProxy
                     DataBuffer.TYPE_BYTE);
             img = new BufferedImage(cm, 
                    Raster.createWritableRaster(csm, j2DBuf, null), false, null);
-            
+            */
             //Finally add to cache.
-            cache(pDef, img);
-        }
-        return img;
+           // cache(pDef, img);
+        //}
+        //return img;
+            return xyImage;
     }
     
     /** 
