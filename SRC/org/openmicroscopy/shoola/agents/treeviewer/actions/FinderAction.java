@@ -59,11 +59,11 @@ public class FinderAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Find in Browser";
+    private static final String NAME = "Find in tree";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Finds a phrase in the " +
-    		"currently selected browser."; 
+    		"currently selected tree."; 
     
     /** 
      * Sets the action enabled depending on the 

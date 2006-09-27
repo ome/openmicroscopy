@@ -66,7 +66,7 @@ public class CreateAction
 {
     
     /** The default name of the action. */
-    private static final String NAME = "...";
+    private static final String NAME = "Add new...";
     
     /** The name of the action for the creation of a <code>Project</code>. */
     //private static final String NAME_PROJECT = "Add new Project...";
@@ -84,7 +84,7 @@ public class CreateAction
     private static final String NAME_CATEGORY = "Add new Category...";
     
     /** The name of the action for the creation of a <code>Image</code>. */
-    private static final String NAME_IMAGE = "Add new Image...";
+    private static final String NAME_IMAGE = "Import Image...";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Add a new element to the " +

@@ -85,13 +85,12 @@ public class ExitApplicationAction
     }
     
     /** 
-     * Posts an event to exit the application.
+     * Closes the application.
      * @see AbstractAction#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ExitApplication());
+        model.closeWindow();
     }
 
 }

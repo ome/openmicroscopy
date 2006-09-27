@@ -117,7 +117,7 @@ public class BrowserSelectionAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-        model.addBrowser(browserType);
+        model.displayBrowser(browserType);
     }
     
 }

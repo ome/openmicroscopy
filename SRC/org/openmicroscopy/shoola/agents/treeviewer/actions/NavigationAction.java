@@ -43,7 +43,10 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * 
@@ -70,6 +73,39 @@ public class NavigationAction
     
     /** Flag to indicate the navigation orientation. */
     private boolean v;
+    
+    /**
+     * Enables the action depending on the selected node.
+     * @see BrowserAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
+        Object ho = selectedDisplay.getUserObject();
+        setEnabled(!(ho == null || (ho instanceof ImageData)));
+    }
+    
+    /**
+     * Enables the action depending on the current state.
+     * @see BrowserAction#onStateChange()
+     */
+    protected void onStateChange()
+    {
+        switch (model.getState()) {
+            case Browser.LOADING_DATA:
+            case Browser.LOADING_LEAVES:
+            case Browser.COUNTING_ITEMS:  
+                setEnabled(false);
+                break;
+            default:
+                setEnabled(true);
+                onDisplayChange(model.getLastSelectedDisplay());
+                break;
+        }
+    }
     
     /**
      * Creates a new instance.
