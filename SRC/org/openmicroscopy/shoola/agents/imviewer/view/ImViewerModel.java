@@ -206,11 +206,26 @@ class ImViewerModel
     }
 
     /**
+     * Returns the sizeX.
+     * 
+     * @return See above.
+     */
+    int getMaxX() { return rndControl.getPixelsDimensionsX(); }
+    
+    /**
+     * Returns the sizeY.
+     * 
+     * @return See above.
+     */
+    int getMaxY() { return rndControl.getPixelsDimensionsY(); }
+    
+    /**
      * Returns the maximum number of z-sections.
      * 
      * @return See above.
      */
     int getMaxZ() { return rndControl.getPixelsDimensionsZ()-1; }
+
 
     /**
      * Returns the maximum number of timepoints.
