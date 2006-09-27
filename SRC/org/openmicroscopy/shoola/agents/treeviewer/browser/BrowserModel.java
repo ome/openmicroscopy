@@ -112,6 +112,9 @@ class BrowserModel
     /** Indicates if it's the main which is visible. */
     private boolean             mainTree;
     
+    /** Flag to indicate if the browser is visible or not. */
+    private boolean             displayed;
+    
     /** Reference to the parent. */
     private TreeViewer          parent;
     
@@ -153,6 +156,7 @@ class BrowserModel
         foundNodeIndex = -1;
         selectedNodes = new HashSet();
         mainTree = true;
+        displayed = true;
     }
 
     /**
@@ -550,5 +554,21 @@ class BrowserModel
      * @return See above.
      */
     TreeViewer getParentModel() { return parent; }
+    
+    /**
+     * Returns <code>true</code> if the browser is displayed on screen,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isDisplayed() { return displayed; }
+    
+    /**
+     * Sets the {@link #displayed} flag. 
+     * 
+     * @param displayed Pass <code>true</code> to indicate the browser is on 
+     *                  screen, <code>false</code> otherwise.
+     */
+    void setDisplayed(boolean displayed) { this.displayed = displayed; }
     
 }

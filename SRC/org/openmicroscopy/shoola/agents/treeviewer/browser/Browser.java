@@ -498,5 +498,22 @@ public interface Browser
      * @param v
      */
     public void navigate(boolean v);
+
+
+    /**
+     * Returns <code>true</code> if the browser is displayed on screen,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isDisplayed();
+    
+    /**
+     * Sets the <code>Displayed</code> flag. 
+     * 
+     * @param displayed Pass <code>true</code> to indicate the browser is on 
+     *                  screen, <code>false</code> otherwise.
+     */
+    public void setDisplayed(boolean displayed);
     
 }

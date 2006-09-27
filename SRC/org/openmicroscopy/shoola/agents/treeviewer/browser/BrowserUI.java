@@ -143,9 +143,9 @@ class BrowserUI
                 controller.getAction(BrowserControl.BACKWARD_NAV));
         button.setBorderPainted(false);
         menuBar.add(button);
-        //button = new JButton(
-        //        controller.getAction(BrowserControl.FORWARD_NAV));
-        //menuBar.add(button);
+        button = new JButton(
+                controller.getAction(BrowserControl.FORWARD_NAV));
+        menuBar.add(button);
         menuBar.add(new JSeparator(SwingConstants.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.SORT));
         button.setBorderPainted(false);
@@ -162,9 +162,9 @@ class BrowserUI
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         menuBar.add(button);
-        button = new JButton(controller.getAction(BrowserControl.CLOSE));
-        button.setBorderPainted(false);
-        menuBar.add(button);
+        //button = new JButton(controller.getAction(BrowserControl.CLOSE));
+        //button.setBorderPainted(false);
+        //menuBar.add(button);
     }
 
     /** 
@@ -307,20 +307,6 @@ class BrowserUI
         treeDisplay.removeTreeExpansionListener(listener);
         treeDisplay.expandPath(new TreePath(node.getPath()));
         treeDisplay.addTreeExpansionListener(listener);
-    }
-    
-    /**
-     * Expands the specified node. To avoid loop, we first need to 
-     * remove the <code>TreeExpansionListener</code>.
-     * 
-     * @param node The node to expand.
-     */
-    private void expandGoIntoTreeNode(DefaultMutableTreeNode node)
-    {
-        //First remove listener otherwise an event is fired.
-        goIntoTree.removeTreeExpansionListener(listener);
-        goIntoTree.expandPath(new TreePath(node.getPath()));
-        goIntoTree.addTreeExpansionListener(listener);
     }
     
     /**

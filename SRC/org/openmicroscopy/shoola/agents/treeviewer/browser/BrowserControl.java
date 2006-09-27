@@ -281,8 +281,10 @@ class BrowserControl
                 filterNodes((Set) map.get(model));
         } else if (name.equals(FilterMenu.FILTER_SELECTED_PROPERTY))
             model.setFilterType(((Integer) pce.getNewValue()).intValue());  
-        else if (name.equals(FilterWindow.CLOSE_PROPERTY))
+        else if (name.equals(FilterWindow.CLOSE_PROPERTY)) {
+            view.onStateChanged(true);
             model.collapse(model.getLastSelectedDisplay());
+        }
     }
     
 }

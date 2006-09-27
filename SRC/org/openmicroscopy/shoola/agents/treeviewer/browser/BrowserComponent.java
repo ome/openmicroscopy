@@ -1002,6 +1002,20 @@ class BrowserComponent
     public void onComponentStateChange(boolean b)
     {
         view.onComponentStateChange(b);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isDisplayed()
+     */
+    public boolean isDisplayed()
+    {
+        return model.isDisplayed();
+    }
+
+    public void setDisplayed(boolean displayed)
+    {
+        model.setDisplayed(displayed);
         
     }
     
