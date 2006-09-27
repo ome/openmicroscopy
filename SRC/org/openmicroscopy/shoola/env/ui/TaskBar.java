@@ -95,16 +95,16 @@ public interface TaskBar
 	 * Entries in this menu trigger actions to connect/disconnect to/from
 	 * remote services.
 	 */
-	public static final int		CONNECT_MENU = 1;
+	//public static final int		CONNECT_MENU = 1;
 	
 	/** 
 	 * Identifies the window menu within the menu bar.
 	 * Entries in this menu trigger actions to bring up top level windows.
 	 */
-	public static final int		WINDOW_MENU = 2;
+	public static final int		WINDOW_MENU = 1;
 	
 	/** Identifies the help menu within the menu bar. */
-	public static final int		HELP_MENU = 3;
+	public static final int		HELP_MENU = 2;
 	
 	/**
 	 * Identifies the tasks toolbar.
