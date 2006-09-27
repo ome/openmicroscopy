@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Font;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -102,6 +103,12 @@ public abstract class TreeImageDisplay
     extends DefaultMutableTreeNode
 {
     
+    /** Identifies the <code>plain</code> style constant. */
+    public static final int     FONT_PLAIN = Font.PLAIN;
+    
+    /** Identifies the <code>bold</code> style constant. */
+    public static final int     FONT_BOLD = Font.BOLD;
+    
     /** The gap between the number of items and the name. */
     private static final String SPACE = " ";
     
@@ -129,6 +136,9 @@ public abstract class TreeImageDisplay
      * using the specified color. 
      */
     private Color				highlight;
+    
+    /** The font style used for the node. */
+    private int                 fontStyle;
     
     /** The number of items. */
     protected int				numberItems;
@@ -168,6 +178,7 @@ public abstract class TreeImageDisplay
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet();
         numberItems = -1;
+        fontStyle = FONT_PLAIN;
     }
     
     /**
@@ -366,6 +377,32 @@ public abstract class TreeImageDisplay
         if (numberItems == -1) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
+    
+    /**
+     * Sets the font style of the node.
+     * 
+     * @param style The font style to set. One out of the following constants
+     *              {@link #FONT_BOLD} or {@link #FONT_PLAIN}.
+     */
+    public void setFontStyle(int style)
+    {
+        switch (style) {
+            case FONT_BOLD:
+            case FONT_PLAIN: 
+                fontStyle = style;
+                break;
+            default:
+                fontStyle = FONT_PLAIN;
+        }
+    }
+    
+    /**
+     * Returns the font style for this node. One out of the following constants
+     * {@link #FONT_BOLD} or {@link #FONT_PLAIN}.
+     * 
+     * @return See above.
+     */
+    public int getFontStyle() { return fontStyle; }
     
     /**
      * Sets the highlight color. 
