@@ -137,9 +137,6 @@ class ToolBar
                                 TreeViewerControl.GO_INTO));
         b.setBorderPainted(false);
         bar.add(b);
-        b = new JButton(controller.getAction(TreeViewerControl.REFRESH));
-        b.setBorderPainted(false);
-        bar.add(b);
         return bar;
     }
     
@@ -151,7 +148,7 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         bars.add(createEditBar());
-        bars.add(createGeneralBar());
+        //bars.add(createGeneralBar());
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);

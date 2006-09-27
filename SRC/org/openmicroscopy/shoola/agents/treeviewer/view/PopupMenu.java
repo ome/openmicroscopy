@@ -78,9 +78,6 @@ class PopupMenu
     /** Button to browse a container or bring up the Viewer for an image. */
     private JMenuItem           view;
     
-    /** Button to reload the data. */
-    private JMenuItem           refresh;
-    
     /** Button to add existing element to the specified container. */
     private JMenuItem           existingElement;
     
@@ -129,9 +126,6 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.VIEW);
         view = new JMenuItem(a);
         initMenuItem(view, a.getActionName());
-        a = controller.getAction(TreeViewerControl.REFRESH);
-        refresh = new JMenuItem(a);
-        initMenuItem(refresh, a.getActionName());
         a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
         newElement = new JMenuItem(a);
         initMenuItem(newElement, a.getActionName());
@@ -199,9 +193,8 @@ class PopupMenu
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
-        add(new JSeparator(JSeparator.HORIZONTAL));
+        //add(new JSeparator(JSeparator.HORIZONTAL));
         //add(goIntoElement);
-        add(refresh);
     }
     
     /** 
