@@ -121,4 +121,12 @@ public interface Browser
      */
     public BufferedImage getLensImage(double lensFactor);
     
+    /**
+     * Sets the size of the components composing the display.
+     * 
+     * @param w The width to set.
+     * @param h The height to set.
+     */
+    public void setComponentsSize(int w, int h);
+    
 }

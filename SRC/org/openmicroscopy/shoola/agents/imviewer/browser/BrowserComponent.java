@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
@@ -182,6 +183,16 @@ class BrowserComponent
     public BufferedImage getLensImage(double lensFactor)
     {
         return null;
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setComponentsSize(int, int)
+     */
+    public void setComponentsSize(int w, int h)
+    {
+        view.setComponentsSize(w, h);
+        view.setPreferredSize(new Dimension(w+5, h));
     }
 
 }

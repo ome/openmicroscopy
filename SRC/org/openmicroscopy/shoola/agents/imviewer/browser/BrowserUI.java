@@ -93,22 +93,6 @@ class BrowserUI
         getViewport().add(layeredPane);
     }
     
-    /**
-     * Sets the size of the components b/c a layeredPane doesn't have a layout
-     * manager.
-     * 
-     * @param w The width to set.
-     * @param h The height to set.
-     */
-    private void setComponentsSize(int w, int h)
-    {
-        Dimension d = new Dimension(w, h);
-        layeredPane.setPreferredSize(d);
-        layeredPane.setSize(d);
-        browserCanvas.setPreferredSize(d);
-        browserCanvas.setSize(d);
-    }
-    
     /** Creates a new instance. */
     BrowserUI() {}
     
@@ -159,14 +143,15 @@ class BrowserUI
     void paintImage()
     {
         if (model.getRenderedImage() == null) return;
-        BufferedImage img = model.getDisplayedImage();
         model.createDisplayedImage();
         //first time so we set the size of the canvas and layeredPane.
+        /*
         if (img == null) {
             img = model.getDisplayedImage();
             setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
                                 img.getHeight()+2*TOP_LEFT_IMAGE);
         }
+        */
         browserCanvas.repaint();
     }
     
@@ -179,6 +164,22 @@ class BrowserUI
         setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
                             img.getHeight()+2*TOP_LEFT_IMAGE);
         browserCanvas.repaint();
+    }
+    
+    /**
+     * Sets the size of the components b/c a layeredPane doesn't have a layout
+     * manager.
+     * 
+     * @param w The width to set.
+     * @param h The height to set.
+     */
+    void setComponentsSize(int w, int h)
+    {
+        Dimension d = new Dimension(w, h);
+        layeredPane.setPreferredSize(d);
+        layeredPane.setSize(d);
+        browserCanvas.setPreferredSize(d);
+        browserCanvas.setSize(d);
     }
     
 }
