@@ -162,42 +162,44 @@ public class IconManager
     private static final String     DEFAULT_PLUS_OVER_PATH = 
                                         "graphx/plus_over.png";
     
-	/** ID of the help icon. */
+	/** ID of the <code>help</code> icon. */
 	static final int		HELP = 0;
 	
-	/** ID of the connect to DS icon. */
+	/** ID of the <code>connect to DS</code> icon. */
 	static final int		CONNECT_DS = 1;
 	
-	/** ID of the disconnect from DS icon. */
+	/** ID of the <code>disconnect from DS</code> icon. */
 	static final int		DISCONNECT_DS = 2;
 	
-	/** ID of the exit icon. */
+	/** ID of the <code>exit</code> icon. */
 	static final int		EXIT = 3;
 		
-	/** ID of the login icon. */
+	/** ID of the <code>login init</code> icon. */
 	static final int		LOGIN_INIT = 4;
 
-	/** ID of the login icon. */
+	/** ID of the <code>login</code> icon. */
 	static final int		LOGIN = 5;
 	
-	/** ID of the connect to DS icon. */
+	/** ID of the <code>connect to DS</code> big icon. */
 	static final int		CONNECT_DS_BIG = 6;
 	
-	/** ID of the welcome icon. */
+	/** ID of the <code>welcome</code> icon. */
 	static final int		WELCOME = 7;
 	
-	/** ID of the how to icon. */
+	/** ID of the <code>how to</code> icon. */
 	static final int		HOW_TO = 8;
 	
-	/** ID of the software updates icon. */
+	/** ID of the <code>software updates</code> icon. */
 	static final int		SW_UPDATES = 9;
 	
-			
+    /** ID of the <code>question</code> icon. */
+    static final int        QUESTION = 10;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 9;
+	private static int      MAX_ID = 10;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -212,13 +214,12 @@ public class IconManager
 		relPaths[WELCOME] = "nuvola_background16.png";
 		relPaths[HOW_TO] = "nuvola_artscontrol16.png";
 		relPaths[SW_UPDATES] = "nuvola_download_manager16.png";
+        relPaths[QUESTION] = "nuvola_filetypes32.png";
 	}
 	
 	/** The sole instance. */
 	private static IconManager	singleton;
 	
-
-    
 	/**
 	 * Returns the splash screen.
 	 * 
