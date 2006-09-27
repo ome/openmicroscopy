@@ -83,6 +83,7 @@ public class FilterMenuAction
     public FilterMenuAction(Finder model)
     {
         super(model);
+        setEnabled(true);
         IconManager im = IconManager.getInstance();
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
