@@ -331,6 +331,7 @@ class PermissionPane
         if (model == null)
             throw new IllegalArgumentException("No model.");
         this.model = model;
+        this.view = view;
         buildGUI(details, permission);
     }
     
