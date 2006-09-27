@@ -31,11 +31,13 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
+
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -159,8 +161,6 @@ class RendererUI
     private void buildGUI()
     {
         Container c = getContentPane();
-        c.setLayout(new GridBagLayout());
-        //      Create and initialize the tabs
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
@@ -170,15 +170,9 @@ class RendererUI
         pane = (ControlPane) controlPanes.get(CODOMAIN);
         tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
                         pane.getPaneDescription(), pane.getPaneIndex());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.CENTER;
-        
-        c.add(tabs, gbc);
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.EAST;
-        c.add(createButtonPanel(),gbc);
+        c.setLayout(new BorderLayout());
+        c.add(tabs,BorderLayout.NORTH);
+        c.add(createButtonPanel(),BorderLayout.SOUTH);
     }
 
     /**
