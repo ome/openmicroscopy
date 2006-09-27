@@ -200,12 +200,12 @@ class ImViewerUI
         item.setSelected(cm.equals(ImViewer.RGB_MODEL));
         colorModelGroup.add(item);
         menu.add(item);
-        action = controller.getAction(ImViewerControl.HSB_MODEL);
-        item = new JRadioButtonMenuItem();
-        item.setAction(action);
-        item.setSelected(cm.equals(ImViewer.HSB_MODEL));
-        colorModelGroup.add(item);
-        menu.add(item);
+        //action = controller.getAction(ImViewerControl.HSB_MODEL);
+        //item = new JRadioButtonMenuItem();
+        //item.setAction(action);
+        //item.setSelected(cm.equals(ImViewer.HSB_MODEL));
+        //colorModelGroup.add(item);
+        //menu.add(item);
         return menu;
     }
     
