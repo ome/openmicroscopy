@@ -36,6 +36,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
@@ -56,15 +57,27 @@ public class ClearVisitor
 {
 
     /**
+     * Resets the highlight color to <code>null</code>
+     * and the font to {@link TreeImageDisplay#FONT_PLAIN}.
+     * 
+     * @param n The node to clear.
+     */
+    private void clearNode(TreeImageDisplay n)
+    {
+        n.setHighLight(null);
+        n.setFontStyle(TreeImageDisplay.FONT_PLAIN);
+    }
+    
+    /**
      * Sets the color of the node to <code>null</code>.
      * @see TreeImageDisplayVisitor#visit(TreeImageNode)
      */
-    public void visit(TreeImageNode node) { node.setHighLight(null); }
+    public void visit(TreeImageNode node) { clearNode(node); }
 
     /**
      * Sets the color of the node to <code>null</code>.
      * @see TreeImageDisplayVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node) { node.setHighLight(null); }
+    public void visit(TreeImageSet node) { clearNode(node); }
 
 }
