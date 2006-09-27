@@ -148,12 +148,14 @@ public class RegExVisitor
     {
         Object userObject = node.getUserObject();
         Color c = null;
+        int style = TreeImageDisplay.FONT_PLAIN;
         if (model.isNameSelected()) {
             String name = getName(userObject);
             if (name != null) {
                 if (RegExFactory.find(pattern, name)) {
                     foundNodes.add(node);
                     c = color;
+                    style = TreeImageDisplay.FONT_BOLD;
                 }
             }
         }
@@ -163,6 +165,7 @@ public class RegExVisitor
                 if (RegExFactory.find(pattern, description)) {
                     foundNodes.add(node);
                     c = color;
+                    style = TreeImageDisplay.FONT_BOLD;
                 }
             } 
         }
@@ -172,9 +175,11 @@ public class RegExVisitor
             if (RegExFactory.find(pattern, s)) {
                 foundNodes.add(node);
                 c = color;
+                style = TreeImageDisplay.FONT_BOLD;
             }
         }
         node.setHighLight(c);
+        node.setFontStyle(style);
     }
     
     /**
