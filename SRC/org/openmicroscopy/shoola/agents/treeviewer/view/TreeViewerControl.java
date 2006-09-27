@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionActio
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseTreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
@@ -67,7 +66,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.GoIntoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -100,9 +98,6 @@ class TreeViewerControl
     
     /** Identifies the <code>View action</code> in the Edit menu. */
     static final Integer	VIEW = new Integer(1);
-    
-    /** Identifies the <code>Refresh action</code> in the File menu. */
-    static final Integer	REFRESH = new Integer(2);
     
     /** Identifies the <code>Create object action</code> in the File menu. */
     static final Integer	CREATE_OBJECT = new Integer(3);
@@ -147,44 +142,41 @@ class TreeViewerControl
     /** Identifies the <code>Exit action</code> in the File menu. */
     static final Integer    EXIT = new Integer(15);
     
-    /** Identifies the <code>Close action</code> in the File menu. */
-    static final Integer    CLOSE = new Integer(16);
-    
     /** Identifies the <code>Clear action</code> in the Edit menu. */
-    static final Integer    CLEAR = new Integer(17);
+    static final Integer    CLEAR = new Integer(16);
     
     /** Identifies the <code>Add action</code> in the Edit menu. */
-    static final Integer    ADD_OBJECT = new Integer(18);
+    static final Integer    ADD_OBJECT = new Integer(17);
     
     /** 
      * Identifies the <code>Create top container action</code> in the 
      * File menu.
      */
-    static final Integer    CREATE_TOP_CONTAINER = new Integer(19);
+    static final Integer    CREATE_TOP_CONTAINER = new Integer(18);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    REFRESH_TREE = new Integer(20);
+    static final Integer    REFRESH_TREE = new Integer(19);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    GO_INTO = new Integer(21);
+    static final Integer    GO_INTO = new Integer(20);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    MANAGER = new Integer(22);
+    static final Integer    MANAGER = new Integer(21);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    CLASSIFIER = new Integer(23);
+    static final Integer    CLASSIFIER = new Integer(22);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -201,12 +193,14 @@ class TreeViewerControl
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map				groupLevelActionsMap;
     
+    /** The tabbed pane listener. */
+    private ChangeListener  tabsListener;
+    
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
         actionsMap.put(VIEW, new ViewAction(model));
-        actionsMap.put(REFRESH, new RefreshAction(model));
         actionsMap.put(CREATE_OBJECT, new CreateAction(model));
         actionsMap.put(COPY_OBJECT, new CopyAction(model));
         actionsMap.put(DELETE_OBJECT, new DeleteAction(model));
@@ -222,7 +216,6 @@ class TreeViewerControl
         actionsMap.put(CLASSIFY,  new ClassifyAction(model));
         actionsMap.put(DECLASSIFY,  new DeclassifyAction(model));
         actionsMap.put(ANNOTATE,  new AnnotateAction(model));
-        actionsMap.put(CLOSE,  new CloseTreeViewerAction(model));
         actionsMap.put(CLEAR,  new ClearAction(model));
         actionsMap.put(EXIT,  new ExitApplicationAction(model));
         actionsMap.put(ADD_OBJECT,  new AddAction(model));
@@ -305,6 +298,37 @@ class TreeViewerControl
         attachListeners();
     }
     
+    ChangeListener getTabbedListener()
+    {
+        if (tabsListener ==  null) {
+            tabsListener = new ChangeListener() {
+                // This method is called whenever the selected tab changes
+                public void stateChanged(ChangeEvent ce) {
+                    JTabbedPane pane = (JTabbedPane) ce.getSource();
+                    model.clearFoundResults();
+                    Component c = pane.getSelectedComponent();
+                    if (c == null) {
+                        model.setSelectedBrowser(null);
+                        return;
+                    }
+                    Map browsers = model.getBrowsers();
+                    Iterator i = browsers.values().iterator();
+                    boolean selected = false;
+                    Browser browser;
+                    while (i.hasNext()) {
+                        browser = (Browser) i.next();
+                        if (c.equals(browser.getUI())) {
+                            model.setSelectedBrowser(browser);
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if (!selected) model.setSelectedBrowser(null);
+                }
+            };
+        }
+        return tabsListener;
+    }
     /**
      * Adds listeners to UI components.
      *
@@ -313,31 +337,7 @@ class TreeViewerControl
     void attachUIListeners(JTabbedPane tabs)
     {
         //Register listener
-        tabs.addChangeListener(new ChangeListener() {
-            // This method is called whenever the selected tab changes
-            public void stateChanged(ChangeEvent ce) {
-                JTabbedPane pane = (JTabbedPane) ce.getSource();
-                model.clearFoundResults();
-                Component c = pane.getSelectedComponent();
-                if (c == null) {
-                    model.setSelectedBrowser(null);
-                    return;
-                }
-                Map browsers = model.getBrowsers();
-                Iterator i = browsers.values().iterator();
-                boolean selected = false;
-                Browser browser;
-                while (i.hasNext()) {
-                    browser = (Browser) i.next();
-                    if (c.equals(browser.getUI())) {
-                        model.setSelectedBrowser(browser);
-                        selected = true;
-                        break;
-                    }
-                }
-                if (!selected) model.setSelectedBrowser(null);
-            }
-        });
+        tabs.addChangeListener(getTabbedListener());
     }
     
     /**
