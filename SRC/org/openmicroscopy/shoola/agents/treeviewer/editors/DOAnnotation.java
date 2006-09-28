@@ -327,11 +327,13 @@ class DOAnnotation
         while (i.hasNext()) {
             id = (Long) i.next();
             list = (List) annotations.get(id);
-            data = ((AnnotationData) list.get(0)).getOwner();
-            if (userDetails.getId() == id.intValue()) userIndex = index;
-            owners[index] = data.getLastName();
-            ownersMap.put(new Integer(index), id);
-            index++;
+            if (list != null || list.size() > 0) {
+                data = ((AnnotationData) list.get(0)).getOwner();
+                if (userDetails.getId() == id.intValue()) userIndex = index;
+                owners[index] = data.getLastName();
+                ownersMap.put(new Integer(index), id);
+                index++;
+            } 
         }
         //No annotation for the current user, so allow creation.
         if (userIndex != -1) annotatedByList.setSelectedIndex(userIndex);
