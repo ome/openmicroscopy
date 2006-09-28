@@ -693,7 +693,6 @@ class TreeViewerComponent
     public void navigate()
     {
         int state = model.getState();
-        //TODO: 
         Browser b = model.getSelectedBrowser();
         if (b != null) b.navigate(false);
     }

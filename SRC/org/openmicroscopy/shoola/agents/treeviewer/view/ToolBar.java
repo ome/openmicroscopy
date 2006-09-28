@@ -122,24 +122,6 @@ class ToolBar
         return bar;
     }
     
-    /**
-     * Helper method to create the tool bar hosting the edit items.
-     * 
-     * @return See above.
-     */
-    private JToolBar createGeneralBar()
-    {
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        JButton b = new JButton(controller.getAction(
-                                TreeViewerControl.GO_INTO));
-        b.setBorderPainted(false);
-        bar.add(b);
-        return bar;
-    }
-    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -148,7 +130,6 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         bars.add(createEditBar());
-        //bars.add(createGeneralBar());
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);

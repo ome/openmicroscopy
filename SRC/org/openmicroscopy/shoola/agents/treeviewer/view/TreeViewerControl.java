@@ -62,7 +62,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.GoIntoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
@@ -164,19 +163,13 @@ class TreeViewerControl
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    GO_INTO = new Integer(20);
+    static final Integer    MANAGER = new Integer(20);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    MANAGER = new Integer(21);
-    
-    /** 
-     * Identifies the <code>Refresh tree action</code> in the 
-     * File menu.
-     */
-    static final Integer    CLASSIFIER = new Integer(22);
+    static final Integer    CLASSIFIER = new Integer(21);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -222,7 +215,6 @@ class TreeViewerControl
         actionsMap.put(CREATE_TOP_CONTAINER,  
                 new CreateTopContainerAction(model));
         actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
-        actionsMap.put(GO_INTO, new GoIntoAction(model));
         actionsMap.put(CLASSIFIER, new ClassifierAction(model));
         actionsMap.put(MANAGER, new ManagerAction(model));
     }
@@ -386,7 +378,10 @@ class TreeViewerControl
             model.onComponentStateChange(true);
         } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
             Boolean b = (Boolean) pce.getNewValue();
-            if (!b.booleanValue()) model.clearFoundResults();
+            if (!b.booleanValue()) {
+                model.clearFoundResults();
+                model.onComponentStateChange(true);
+            }
         } else if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
             Browser  b = model.getSelectedBrowser();
             Iterator i = model.getBrowsers().values().iterator();

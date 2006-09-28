@@ -93,9 +93,6 @@ class PopupMenu
     /** Button to delete the selected elements. */
     private JMenuItem           deleteElement;
     
-    /** Button to go into the selected element. */
-    private JMenuItem           goIntoElement;
-    
     /** Reference to the Control. */
     private TreeViewerControl   controller;
     
@@ -141,9 +138,6 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.ADD_OBJECT);
         existingElement = new JMenuItem(a);
         initMenuItem(existingElement, a.getActionName());
-        a = controller.getAction(TreeViewerControl.GO_INTO);
-        goIntoElement = new JMenuItem(a);
-        initMenuItem(goIntoElement, a.getActionName());
     }
       
     /**
@@ -193,8 +187,6 @@ class PopupMenu
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
-        //add(new JSeparator(JSeparator.HORIZONTAL));
-        //add(goIntoElement);
     }
     
     /** 

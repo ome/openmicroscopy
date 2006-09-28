@@ -179,6 +179,7 @@ public interface TreeViewer
     /** Bound property indicating to change the root of the hierarchy. */
     public static final String      HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
     
+    /** Bound property indicating to state of the components has changed. */
     public static final String      ON_COMPONENT_STATE_CHANGED_PROPERTY = 
                                         "OnComponentStateChanged";
     /** 
