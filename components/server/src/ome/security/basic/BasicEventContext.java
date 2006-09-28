@@ -34,12 +34,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -54,7 +55,9 @@ import ome.system.EventContext;
  */
 class BasicEventContext implements EventContext
 {
-	Details details;
+	// this should never be null. Making private
+	private Details details = new Details();
+	
 	Permissions umask;
 	boolean isAdmin = false;
 	boolean isReadOnly = false;
@@ -116,5 +119,24 @@ class BasicEventContext implements EventContext
 	public boolean isReadOnly() {
 		return this.isReadOnly;
 	}
+	
+	// ~ Accessors
+	// =========================================================================
+    public Details getDetails() {
+    	if (this.details == null)
+    	{
+    		throw new InternalException(
+    				"BasicEventContext.details should never be null.");
+    	}
+		return details;
+	}
     
+    public void setDetails(Details details) {
+    	if (details == null)
+    	{
+    		throw new ApiUsageException(
+    				"Details argument cannot be null.");
+    	}
+		this.details = details;
+	}
 } 

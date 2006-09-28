@@ -362,19 +362,15 @@ public class BasicSecuritySystem implements SecuritySystem {
 	// details are the only thing that users can change the rest is
 	// read only...
 	/**
-	 * creates a new secure {@link IObject#getDetails() details} for transient
-	 * entities. Non-privileged users can only edit the
-	 * {@link Details#getPermissions() Permissions} field. Privileged users can
-	 * use the {@link Details} object as a single-step <code>chmod</code> and
-	 * <code>chgrp</code>.
-	 * 
-	 * {@link #transientDetails(IObject) transientDetails} always returns a
-	 * non-null Details that is not equivalent (==) to the Details argument.
+	 * @see SecuritySystem#newTransientDetails(IObject)
 	 */
-	public Details transientDetails(IObject obj) {
+	public Details newTransientDetails(IObject obj) {
 
 		checkReady("transientDetails");
 
+		if (obj == null)
+			throw new ApiUsageException("Argument cannot be null.");
+		
 		if (hasPrivilegedToken(obj))
 			return obj.getDetails(); // EARLY EXIT
 
@@ -445,20 +441,16 @@ public class BasicSecuritySystem implements SecuritySystem {
 	}
 
 	/**
-	 * checks that a non-privileged user has not attempted to edit the entity's
-	 * {@link IObject#getDetails() security details}. Privileged users can set
-	 * fields on {@link Details} as a single-step <code>chmod</code> and
-	 * <code>chgrp</code>.
-	 * 
-	 * {@link #managedDetails(IObject, Details) managedDetails} may create a new
-	 * Details instance and return that if needed. If the returned Details is
-	 * not equivalent (==) to the argument Details, then values have been
-	 * changed.
+	 * @see SecuritySystem#checkManagedDetails(IObject, Details)
 	 */
-	public Details managedDetails(final IObject iobj,
-			final Details previousDetails) {
+	public Details checkManagedDetails(final IObject iobj,
+			final Details previousDetails) 
+	{
 		checkReady("managedDetails");
 
+		if (iobj == null)
+			throw new ApiUsageException("Argument cannot be null.");
+		
 		if (iobj.getId() == null)
 			throw new ValidationException(
 					"Id required on all detached instances.");
@@ -617,7 +609,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 	/**
 	 * responsible for properly copying user-requested permissions taking into
 	 * account the {@link Flag#LOCKED} status. This method does not need to
-	 * (like {@link #transientDetails(IObject)} take into account the session
+	 * (like {@link #newTransientDetails(IObject)} take into account the session
 	 * umask available from {@link CurrentDetails#createDetails()}
 	 * 
 	 * @param locked
@@ -920,28 +912,17 @@ public class BasicSecuritySystem implements SecuritySystem {
 	// ~ CurrentDetails delegation (ensures proper settings of Tokens)
 	// =========================================================================
 
-	public void setCurrentDetails(boolean isReadyOnly) {
+	public void loadEventContext(boolean isReadyOnly) {
 
 		// needed services
 		LocalAdmin localAdmin = (LocalAdmin) sf.getAdminService();
 		ITypes iTypes = sf.getTypesService();
 		IUpdate iUpdate = sf.getUpdateService();
 
-		// clear
-		cd.clear();
-		
+		final Principal p = clearAndCheckPrincipal();
+
 		// start refilling current details
 		cd.setReadOnly(isReadyOnly);
-
-		if (principalHolder.get() == null)
-			throw new SecurityViolation(
-					"Principal is null. Not logged in to SecuritySystem.");
-
-		if (principalHolder.get().getName() == null)
-			throw new InternalException(
-					"Principal.name is null. Security system failure.");
-		
-		final Principal p = principalHolder.get();
 		
 		// Experimenter
 
@@ -959,10 +940,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		// Active group
 
-		if (p.getGroup() == null)
-			throw new InternalException(
-					"Principal.group is null in EventContext. Security system failure.");
-
 		ExperimenterGroup grp = localAdmin.groupProxy(p.getGroup());
 		grp.getGraphHolder().setToken(token, token);
 		cd.setGroup(grp);
@@ -974,10 +951,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 		}
 
 		// Event
-
-		if (p.getEventType() == null)
-			throw new InternalException(
-					"Principal.eventType is null in EventContext. Security system failure.");
 
 		EventType type = iTypes.getEnumeration(EventType.class, p
 				.getEventType());
@@ -995,7 +968,40 @@ public class BasicSecuritySystem implements SecuritySystem {
 		}
 
 	}
+	
+	/**
+	 * @see SecuritySystem#setEventContext(EventContext)
+	 */
+	public void setEventContext(EventContext context) 
+	{
+		final Principal p = clearAndCheckPrincipal();
+		throw new UnsupportedOperationException("not implemented.");
+	}
 
+	private Principal clearAndCheckPrincipal() {
+		// clear even if this fails. (make SecuritySystem unusable)
+		cd.clear();
+		
+		final Principal p = principalHolder.get();
+		
+		if (p == null)
+			throw new SecurityViolation(
+					"Principal is null. Not logged in to SecuritySystem.");
+
+		if (p.getName() == null)
+			throw new InternalException(
+					"Principal.name is null. Security system failure.");
+
+		if (p.getGroup() == null)
+			throw new InternalException(
+					"Principal.group is null in EventContext. Security system failure.");
+		
+		if (p.getEventType() == null)
+			throw new InternalException(
+					"Principal.eventType is null in EventContext. Security system failure.");
+		return p;
+	}
+	
 	// TODO should possible set all or nothing.
 	
 	public Details createDetails() 
@@ -1038,16 +1044,22 @@ public class BasicSecuritySystem implements SecuritySystem {
 		return cd.getLogs();
 	}
 
-	public void clearCurrentDetails() {
+	public void clearEventContext() {
 		cd.clear();
 	}
 
 	// read-only ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	public boolean emptyDetails() {
-		return cd.getOwner() == null
-				&& cd.getGroup() == null
-				&& cd.getCreationEvent() == null;
+	/**
+	 * @see SecuritySystem#isEmptyEventContext()
+	 */
+	public boolean isEmptyEventContext() {
+		EventContext ctx = cd.getCurrentEventContext();
+		// These are the only values which can be null checked in
+		// EventContext. Others (like leaderOfGroups) are never null.
+		return ctx.getCurrentEventId() == null &&
+			ctx.getCurrentGroupId() == null &&
+			ctx.getCurrentUserId() == null;
 	}
 
 	public Long currentUserId() {

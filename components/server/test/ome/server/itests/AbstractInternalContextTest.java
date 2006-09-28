@@ -108,7 +108,7 @@ public class AbstractInternalContextTest
     protected void login( Principal p )
     {
     	securitySystem.login(p);
-    	securitySystem.setCurrentDetails(false);
+    	securitySystem.loadEventContext(false);
     }
 
     protected void openSession()

@@ -121,7 +121,7 @@ public class OmeroInterceptor implements Interceptor
     			propertyNames, types);
     }
     
-    /** callsback to {@link BasicSecuritySystem#transientDetails(IObject)} for 
+    /** callsback to {@link BasicSecuritySystem#newTransientDetails(IObject)} for 
      * properly setting {@link IObject#getDetails() Details}
      */
     public boolean onSave(Object entity, Serializable id, 
@@ -138,14 +138,14 @@ public class OmeroInterceptor implements Interceptor
     		secSys.markLockedIfNecessary( iobj );
 
     		// Get a new details based on the current context
-    		Details d = secSys.transientDetails( iobj );
+    		Details d = secSys.newTransientDetails( iobj );
     		state[idx] = d;    		
     	}
     	
         return true; // transferDetails ALWAYS edits the new entity.
     }
 
-    /** callsback to {@link BasicSecuritySystem#managedDetails(IObject, Details)} for 
+    /** callsback to {@link BasicSecuritySystem#checkManagedDetails(IObject, Details)} for 
      * properly setting {@link IObject#getDetails() Details}.
      */
     public boolean onFlushDirty(Object entity, Serializable id, 
@@ -277,7 +277,7 @@ public class OmeroInterceptor implements Interceptor
 			Object[] previousState, int idx)
 	{
 		Details previous = (Details) previousState[idx];
-		Details result = secSys.managedDetails( entity, previous ); 
+		Details result = secSys.checkManagedDetails( entity, previous ); 
 
 		if ( previous != result )
 		{

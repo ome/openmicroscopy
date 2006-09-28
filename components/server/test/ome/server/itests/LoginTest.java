@@ -63,7 +63,7 @@ public class LoginTest extends TestCase
     {
         login("root","system","Test");
         q.find(Experimenter.class,0l);
-        assertTrue( sec.emptyDetails() );
+        assertTrue( sec.isEmptyEventContext() );
     }
     
   @Test

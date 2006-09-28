@@ -143,7 +143,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         	.with(new Type(Event.class))
         	.will( returnValue( INITIAL_EVENT ));
         sec.login( new Principal("root","system","Bootstrap") );
-    	sec.setCurrentDetails(false);
+    	sec.loadEventContext(false);
     }
 
     protected void userLogin( )
@@ -170,7 +170,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
         	.with(new Type(Event.class))
         	.will( returnValue( INITIAL_EVENT ));
     	sec.login( new Principal("user1","user","User") );
-    	sec.setCurrentDetails(false);
+    	sec.loadEventContext(false);
     }
 
     
@@ -179,7 +179,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase
     {
         super.verify();
         super.tearDown();
-        sec.clearCurrentDetails();
+        sec.clearEventContext();
     }
   
     

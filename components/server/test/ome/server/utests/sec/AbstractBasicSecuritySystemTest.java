@@ -108,7 +108,7 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
     protected void tearDown() throws Exception
     {
         super.verify();
-        sec.clearCurrentDetails();
+        sec.clearEventContext();
         super.tearDown();
     }
 

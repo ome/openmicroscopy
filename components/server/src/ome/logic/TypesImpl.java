@@ -102,7 +102,7 @@ public class TypesImpl extends AbstractLevel2Service implements ITypes
     	final LocalUpdate up = iUpdate;
 
     	// TODO should this belong to root?
-    	Details d = getSecuritySystem().transientDetails(newEnum);
+    	Details d = getSecuritySystem().newTransientDetails(newEnum);
     	newEnum.setDetails(d);
     	return getSecuritySystem().doAction(newEnum, new SecureAction(){
     		public IObject updateObject(IObject iObject) {

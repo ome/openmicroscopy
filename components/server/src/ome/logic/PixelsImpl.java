@@ -117,7 +117,10 @@ class PixelsImpl extends AbstractLevel2Service
     @RolesAllowed("user") 
     public RenderingDef retrieveRndSettings(final long pixId) {
         
-        final Long userId = getSecuritySystem().currentUserId();
+        final Long userId = getSecuritySystem()
+        	.getEventContext()
+        	.getCurrentUserId();
+        
         return (RenderingDef) iQuery.findByQuery(
                 " select rdef from RenderingDef rdef where " +
                 " rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",

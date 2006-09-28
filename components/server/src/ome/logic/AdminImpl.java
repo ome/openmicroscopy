@@ -383,7 +383,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 		defaultGroupMap.link(groupProxy(defaultGroup.getId()), userProxy(e
 				.getId()));
 		defaultGroupMap.setDefaultGroupLink(Boolean.TRUE);
-		defaultGroupMap.setDetails(getSecuritySystem().transientDetails(
+		defaultGroupMap.setDetails(getSecuritySystem().newTransientDetails(
 				defaultGroupMap));
 		getSecuritySystem().doAction(defaultGroupMap, action);
 
@@ -399,7 +399,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 				GroupExperimenterMap groupMap = new GroupExperimenterMap();
 				groupMap.link(groupProxy(group.getId()), userProxy(e.getId()));
 				groupMap.setDefaultGroupLink(Boolean.FALSE);
-				groupMap.setDetails(getSecuritySystem().transientDetails(
+				groupMap.setDetails(getSecuritySystem().newTransientDetails(
 						groupMap));
 				getSecuritySystem().doAction(groupMap, action);
 			}
@@ -433,7 +433,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 			ExperimenterGroup foundGroup = groupProxy(group.getId());
 			GroupExperimenterMap map = new GroupExperimenterMap();
 			map.link(foundGroup, foundUser);
-			map.setDetails(getSecuritySystem().transientDetails(map));
+			map.setDetails(getSecuritySystem().newTransientDetails(map));
 			getSecuritySystem().doAction(map, new SecureAction() {
 				public <T extends IObject> T updateObject(T obj) {
 					return iUpdate.saveAndReturnObject(obj);
@@ -728,7 +728,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
 	@RolesAllowed("user")
 	public void changePassword(String newPassword) {
-		internalChangeUserPasswordById(getSecuritySystem().currentUserId(),
+		internalChangeUserPasswordById(
+				getSecuritySystem().getEventContext().getCurrentUserId(),
 				newPassword);
 	}
 
@@ -779,7 +780,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 		ExperimenterGroup copy = new ExperimenterGroup();
 		copy.setDescription(g.getDescription());
 		copy.setName(g.getName());
-		copy.setDetails(getSecuritySystem().transientDetails(g));
+		copy.setDetails(getSecuritySystem().newTransientDetails(g));
 		// TODO see shallow copy comment on copy user
 		return copy;
 	}

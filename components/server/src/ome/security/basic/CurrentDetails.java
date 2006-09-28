@@ -95,26 +95,12 @@ class CurrentDetails
     {
     	return data.get();
     }
+
+    private Details getDetails()
+    {
+    	return data.get().getDetails();
+    }
     
-    // ~ Internals
-    // ================================================================
-
-    protected void setDetails(Details details)
-    {
-        data.get().details = details;
-    }
-
-    protected Details getDetails()
-    {
-        Details details = data.get().details;
-        if (details == null)
-        {
-            details = new Details();
-            setDetails(details);
-        }
-        return details;
-    }
-
     // ~ Events and Details
     // =================================================================
     public void newEvent(EventType type, Token token) // TODO keep up with stack here?
@@ -201,7 +187,7 @@ class CurrentDetails
     
     public Event getCreationEvent()
     {
-        return getDetails().getCreationEvent();
+        return data.get().getDetails().getCreationEvent();
     }
 
     public Experimenter getOwner()

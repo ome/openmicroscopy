@@ -65,7 +65,7 @@ import ome.system.EventContext;
  * 
  * After the method is {@link MethodInterceptor#invoke(MethodInvocation) invoked}
  * various cleanup actions are performed and finally all credentials all 
- * {@link BasicSecuritySystem#clearCurrentDetails() cleared} from the {@link Thread}.
+ * {@link BasicSecuritySystem#clearEventContext() cleared} from the {@link Thread}.
  * 
  *  
  * 
@@ -112,7 +112,7 @@ public class EventHandler implements MethodInterceptor
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
         boolean readOnly = checkReadOnly(arg0);
-        secSys.setCurrentDetails(readOnly);
+        secSys.loadEventContext(readOnly);
         // TODO check for an existing session here.
 
         // now the user can be considered to be logged in.
@@ -167,7 +167,7 @@ public class EventHandler implements MethodInterceptor
         		} 
         		
         	} finally {
-        		secSys.clearCurrentDetails();
+        		secSys.clearEventContext();
         	}
         }
 
