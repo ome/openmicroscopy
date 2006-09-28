@@ -196,8 +196,7 @@ class FinderUI
         leftBar.setBorder(null);
         leftBar.setRollover(true);
         leftBar.setFloatable(false);
-        JButton button = new JButton(controller.getAction(FinderControl.CLOSE));	
-        leftBar.add(button);
+        leftBar.add(new JButton(controller.getAction(FinderControl.CLOSE)));
     }
     
     /** Helper method to create the menu bar. */
