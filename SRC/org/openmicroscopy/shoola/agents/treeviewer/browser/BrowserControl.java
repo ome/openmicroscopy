@@ -73,26 +73,26 @@ class BrowserControl
     implements ChangeListener, PropertyChangeListener
 {
 
-    /** Identifies the <code>Collapse</code> action in the Actions menu. */
+    /** Identifies the <code>Collapse</code> action. */
     static final Integer     COLLAPSE = new Integer(0);
     
-    /** Identifies the <code>Close</code> action in the Actions menu. */
+    /** Identifies the <code>Close</code> action. */
     static final Integer     CLOSE = new Integer(1);
     
-    /** Identifies the <code>Sort</code> action in the Actions menu. */
+    /** Identifies the <code>Sort</code> action. */
     static final Integer     SORT = new Integer(2);
     
-    /** Identifies the <code>Sort by Date</code> action in the Actions menu. */
+    /** Identifies the <code>Sort by Date</code> action. */
     static final Integer     SORT_DATE = new Integer(3);
     
-    /** Identifies the <code>Filter Menu</code> action in the Actions menu. */
+    /** Identifies the <code>Filter Menu</code> action. */
     static final Integer     FILTER_MENU = new Integer(4);
-     
-    /** Identifies the <code>Forward Nav</code> action in the Actions menu. */
-    static final Integer     FORWARD_NAV = new Integer(5);
-    
-    /** Identifies the <code>Backward Nav</code> action in the Actions menu. */
+
+    /** Identifies the <code>Backward Nav</code> action. */
     static final Integer     BACKWARD_NAV = new Integer(6);
+
+    /** Identifies the <code>Forward Nav</code> action.*/
+    static final Integer    FORWARD_NAV = new Integer(7);
     
     /** 
      * Reference to the {@link Browser} component, which, in this context,
@@ -168,8 +168,8 @@ class BrowserControl
     /**
      * Reacts to tree expansion events.
      * 
-     * @param display The selected node.
-     * @param expanded 	<code>true</code> if the node is expanded,
+     * @param display   The selected node.
+     * @param expanded  Pass <code>true</code> if the node is expanded,
      * 					<code>false</code> otherwise.
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
@@ -182,10 +182,14 @@ class BrowserControl
         model.setSelectedDisplay(display); 
         if (!expanded) return;
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
-            if (display.getChildrenDisplay().size() == 0) {
+            if (!display.isChildrenLoaded()) {
                 view.loadAction(display);
                 model.loadLeaves();
-            }    
+            }
+            //if (display.getChildrenDisplay().size() == 0) {
+            //    view.loadAction(display);
+            //    model.loadLeaves();
+            //}    
         } else {
             TreeImageDisplay root = view.getTreeRoot();
             if (root.equals(display) && root.getChildrenDisplay().size() == 0) {
@@ -202,9 +206,7 @@ class BrowserControl
     /** Brings up the popup menu. */
     void showPopupMenu() { model.showPopupMenu(); }
     
-    /**
-     * Reacts to click events in the tree.        
-     */
+    /** Reacts to click events in the tree. */
     void onClick()
     {
         Object pathComponent;

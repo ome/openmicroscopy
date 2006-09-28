@@ -236,8 +236,12 @@ class BrowserModel
     void setSelectedDisplays(TreeImageDisplay[] nodes) 
     {
         selectedNodes.removeAll(selectedNodes);
-        for (int i = 0; i < nodes.length; i++)
-            selectedNodes.add(nodes[i]);
+        TreeImageDisplay node;
+        for (int i = 0; i < nodes.length; i++) {
+            node = nodes[i];
+            if (node != null && !(node.getUserObject() instanceof String))
+                selectedNodes.add(node);
+        }    
     }
     
     /**
@@ -249,6 +253,7 @@ class BrowserModel
     {
         selectedNodes.removeAll(selectedNodes);
         if (selectedDisplay == null) return;
+        if (selectedDisplay.getUserObject() instanceof String) return;
         selectedNodes.add(selectedDisplay);
     }
     

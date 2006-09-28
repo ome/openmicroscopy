@@ -143,8 +143,7 @@ class BrowserUI
                 controller.getAction(BrowserControl.BACKWARD_NAV));
         button.setBorderPainted(false);
         menuBar.add(button);
-        button = new JButton(
-                controller.getAction(BrowserControl.FORWARD_NAV));
+        button = new JButton(controller.getAction(BrowserControl.FORWARD_NAV));
         menuBar.add(button);
         menuBar.add(new JSeparator(SwingConstants.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.SORT));
@@ -230,7 +229,8 @@ class BrowserUI
         treeDisplay.addTreeExpansionListener(listener);
                 
         //Initialize the goIntoTree
-        goIntoTree = new JTree();       
+        goIntoTree = new JTree();      
+        goIntoTree.setVisible(true);
         ToolTipManager.sharedInstance().registerComponent(goIntoTree);
         goIntoTree.setCellRenderer(new TreeCellRenderer());
         goIntoTree.setShowsRootHandles(true);
@@ -310,6 +310,20 @@ class BrowserUI
     }
     
     /**
+     * Expands the specified node. To avoid loop, we first need to 
+     * remove the <code>TreeExpansionListener</code>.
+     * 
+     * @param node The node to expand.
+     */
+    private void expandGoIntoTreeNode(DefaultMutableTreeNode node)
+    {
+        //First remove listener otherwise an event is fired.
+        goIntoTree.removeTreeExpansionListener(listener);
+        goIntoTree.expandPath(new TreePath(node.getPath()));
+        goIntoTree.addTreeExpansionListener(listener);
+    }
+    
+    /**
      * Selects the specified node.
      * 
      * @param node The node to select.
@@ -340,6 +354,7 @@ class BrowserUI
         dtm.insertNodeInto(copy, r, r.getChildCount());
         buildTreeNode(copy, copy.getChildrenDisplay(), dtm);
         dtm.reload(r);
+        if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
         scrollPane.getViewport().removeAll();
         scrollPane.getViewport().add(goIntoTree);
         repaint();

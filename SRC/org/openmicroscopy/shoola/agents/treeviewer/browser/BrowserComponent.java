@@ -1013,10 +1013,16 @@ class BrowserComponent
         return model.isDisplayed();
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setDisplayed(boolean)
+     */
     public void setDisplayed(boolean displayed)
     {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked "+
+                    "in the DISCARDED state.");
         model.setDisplayed(displayed);
-        
     }
     
 }
