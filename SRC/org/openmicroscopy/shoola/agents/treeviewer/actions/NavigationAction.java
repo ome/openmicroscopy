@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 
@@ -49,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
 /** 
- * 
+ * Moves back to the main tree.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,11 +74,12 @@ public class NavigationAction
     private boolean v;
     
     /**
-     * Enables the action depending on the selected node.
+     * Enables the action depending on the selected item.
      * @see BrowserAction#onDisplayChange(TreeImageDisplay)
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        if (!v) return;
         if (selectedDisplay == null) {
             setEnabled(false);
             return;
@@ -88,12 +88,13 @@ public class NavigationAction
         setEnabled(!(ho == null || (ho instanceof ImageData)));
     }
     
-    /**
-     * Enables the action depending on the current state.
+    /** 
+     * Sets the action enabled dependong on the state of the {@link Browser}.
      * @see BrowserAction#onStateChange()
      */
     protected void onStateChange()
     {
+        if (!v) return;
         switch (model.getState()) {
             case Browser.LOADING_DATA:
             case Browser.LOADING_LEAVES:
@@ -101,7 +102,7 @@ public class NavigationAction
                 setEnabled(false);
                 break;
             default:
-                setEnabled(true);
+                //setEnabled(true);
                 onDisplayChange(model.getLastSelectedDisplay());
                 break;
         }
@@ -117,7 +118,6 @@ public class NavigationAction
     public NavigationAction(Browser model, boolean forward)
     {
         super(model);
-        //setEnabled(true);
         v = forward;
         IconManager im = IconManager.getInstance();
         if (forward) {
