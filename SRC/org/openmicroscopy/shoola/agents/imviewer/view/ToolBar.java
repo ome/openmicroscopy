@@ -57,6 +57,7 @@ import javax.swing.SwingConstants;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Presents the variable controls of the viewer.
@@ -119,7 +120,7 @@ class ToolBar
     
     /** Width of a character w.r.t. the font metric. */
     private int             charWidth;
-    
+
     /**
      * Helper method to create a {@link JButton} with an icon and an action.
      * 
@@ -144,16 +145,20 @@ class ToolBar
         IconManager im = IconManager.getInstance();
         JButton button =  createButton(im.getIcon(IconManager.RENDERER), 
                             controller.getAction(ImViewerControl.RENDERER));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         button =  createButton(im.getIcon(IconManager.MOVIE), 
                 controller.getAction(ImViewerControl.MOVIE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);    
         button =  createButton(im.getIcon(IconManager.LENS), 
                 controller.getAction(ImViewerControl.LENS));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         button =  createButton(im.getIcon(IconManager.SAVE), 
                 controller.getAction(ImViewerControl.SAVE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
     }
     
