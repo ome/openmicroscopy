@@ -183,10 +183,10 @@ class ControlPane
         //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
-        channelMovieButton.setBorder(null);
+        UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
         colorModelGroup = new ButtonGroup();
         colorModelButton = new JButton();
-        colorModelButton.setBorder(null);
+        UIUtilities.unifiedButtonLookAndFeel(colorModelButton);
         colorModelButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)
