@@ -62,33 +62,25 @@ public class ShowTitleBarCmd
     /** Reference to the Model. */
     private HiViewer    model;
     
-    /** 
-     * Tells whether to show (<code>true</code>) or hide (<code>false</code>). 
-     */
-    private boolean     show;
-    
-    
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
-     * @param show  Tells whether to show (<code>true</code>) or hide 
-     *              (<code>false</code>).
      */
-    public ShowTitleBarCmd(HiViewer model, boolean show)
+    public ShowTitleBarCmd(HiViewer model)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        this.show = show;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
-        ShowTitleBarVisitor visitor = new ShowTitleBarVisitor(model, show);
-        selectedDisplay.accept(visitor);
+        ShowTitleBarVisitor visitor = new ShowTitleBarVisitor(model, 
+                                    !browser.isTitleBarVisible());
+        browser.accept(visitor);
+        browser.setTitleBarVisible(!browser.isTitleBarVisible());
     }
 
 }
