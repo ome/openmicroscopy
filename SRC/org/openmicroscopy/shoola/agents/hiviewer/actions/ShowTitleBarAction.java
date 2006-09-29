@@ -37,11 +37,8 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ShowTitleBarCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -66,22 +63,19 @@ public class ShowTitleBarAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Show Title Bars";
+    private static final String NAME = "Show Image Title Bars";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Show the title bar of every "+
-                                    "image below the currently selected node.";
-
+    private static final String DESCRIPTION = "Show or hide the title bar of " +
+                                        "every  displayed image.";
     
     /**
      * Sets the action enabled depending on the currently selected display
-     * @see HiViewerAction#onDisplayChange(ImageDisplay)
+     * @see HiViewerAction#onStateChange()
      */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
+    protected void onStateChange()
     {
-        if (selectedDisplay != null)
-            setEnabled(!(model.getBrowser().getSelectedLayout() == 
-                		LayoutFactory.TREE_LAYOUT));
+        if (model.getBrowser() != null) setEnabled(true);
     }
     
     /**
@@ -95,8 +89,8 @@ public class ShowTitleBarAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.TRANSPARENT));
+        //IconManager im = IconManager.getInstance();
+        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.TRANSPARENT));
     }
 
     /** 
@@ -105,7 +99,7 @@ public class ShowTitleBarAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        ShowTitleBarCmd cmd = new ShowTitleBarCmd(model, true);
+        ShowTitleBarCmd cmd = new ShowTitleBarCmd(model);
         cmd.execute();
     }
 
