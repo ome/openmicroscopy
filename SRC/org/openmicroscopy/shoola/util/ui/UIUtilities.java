@@ -42,6 +42,8 @@ import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+
+import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -283,6 +285,18 @@ public class UIUtilities
         p.setLayout(new FlowLayout(FlowLayout.RIGHT));
         p.add(component);
         return p;
+    }
+    
+    /**
+     * Sets the UI properties of the button to unify the L&F.
+     * 
+     * @param b The button.
+     */
+    public static void unifiedButtonLookAndFeel(AbstractButton b)
+    {
+        b.setMargin(new Insets(0, 0, 0, 0));
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
     }
     
 }
