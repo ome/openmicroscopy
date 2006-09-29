@@ -84,9 +84,9 @@ public class IconManager
         relPaths[COLOUR_SLIDER] = "coloursliders24.png";
         relPaths[COLOUR_SWATCH] = "colourswatch24.png";
         relPaths[COLOUR_WHEEL] = "colourwheel24.png";
-        relPaths[CANCEL] = "nuvola_button_cancel16.png";
-        relPaths[OK] = "nuvola_button_ok16.png";
-        relPaths[UNDO] = "nuvola_undo16.png";
+        relPaths[CANCEL] = "nuvola_cancel22.png";
+        relPaths[OK] = "nuvola_button_accept22.png";
+        relPaths[UNDO] = "nuvola_undo22.png";
     }
     
     /** 
