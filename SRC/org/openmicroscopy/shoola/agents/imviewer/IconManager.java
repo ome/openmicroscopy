@@ -143,11 +143,17 @@ public class IconManager
     /** The <code>HSB</code> icon. */
     public static  int          HSB = 25;
     
+    /** The <code>Plus</code> icon. */
+    public static  int          PLUS = 26;
+    
+    /** The <code>MINUS</code> icon. */
+    public static  int          MINUS = 27;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 25;
+    private static int          MAX_ID = 27;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -180,6 +186,8 @@ public class IconManager
         relPaths[GRAYSCALE] = "grayscale16.png";
         relPaths[RGB] = "rgb16.png";
         relPaths[HSB] = "hsb16.png";
+        relPaths[PLUS] = "nuvola_edit_add16.png";
+        relPaths[MINUS] = "nuvola_edit_remove16.png";
     }
     
     /** The sole instance. */
