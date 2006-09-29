@@ -388,5 +388,12 @@ public interface ImViewer
      */
     public Color getChannelColor(int index);
     
+    /**
+     * Sets the size of the unit bar.
+     * 
+     * @param increase  Pass <code>true</code> to increase the size,
+     *                  <code>false</code> to decrease it.
+     */
+    public void setUnitBarSize(boolean increase);
     
 }

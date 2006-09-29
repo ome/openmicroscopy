@@ -381,8 +381,7 @@ class ImViewerUI
         this.model = model;
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
-        IconManager im = IconManager.getInstance();
-        statusBar = new StatusBar(im.getIcon(IconManager.STATUS_INFO));
+        statusBar = new StatusBar(controller);
     }
     
     /** 

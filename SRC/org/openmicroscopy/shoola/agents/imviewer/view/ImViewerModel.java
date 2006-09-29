@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -123,12 +121,6 @@ class ImViewerModel
     /** Reference to the current player. */
     private ChannelPlayer       player;
     
-    /** 
-     * Flag to indicate if the unit bar is painted or not on top of the
-     * displayed image.
-     */
-    private boolean             unitBar;
-    
     /**
      * Creates a new object and sets its state to {@link ImViewer#NEW}.
      * 
@@ -142,7 +134,6 @@ class ImViewerModel
         this.imageID = imageID;
         imageName = name;
         state = ImViewer.NEW;
-        unitBar = true;
     }
     
     /**
@@ -561,18 +552,6 @@ class ImViewerModel
      * 
      * @return See above.
      */
-    boolean isUnitBar() { return unitBar; }
-    
-    /**
-     * Sets the value of the flag controlling if the unit bar is painted or not.
-     * 
-     * @param unitBar   Pass <code>true</code> to paint the unit bar, 
-     *                  <code>false</code> otherwise.
-     */
-    void setUnitBar(boolean unitBar)
-    { 
-        this.unitBar = unitBar; 
-        browser.getUI().repaint();
-    }
+    boolean isUnitBar() { return browser.isUnitBar(); }
     
 }

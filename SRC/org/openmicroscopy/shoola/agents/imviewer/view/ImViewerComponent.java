@@ -791,7 +791,7 @@ class ImViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method can't be invoked in the DISCARDED state.");
-        model.setUnitBar(b);
+        model.getBrowser().setUnitBar(b);
     }
 
     /** 
@@ -812,6 +812,16 @@ class ImViewerComponent
     {
         // TODO Auto-generated method stub
         return model.getChannelColor(index);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setUnitBarSize(boolean)
+     */
+    public void setUnitBarSize(boolean increase)
+    {
+        model.getBrowser().setUnitBarSize(increase);
+        
     }
 
 }

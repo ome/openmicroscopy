@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
@@ -186,10 +187,14 @@ class ImViewerControl
      */
     public static final Integer     CHANNEL_MOVIE = new Integer(25);
     
-    /** 
-     * Identifies the <code>UnitBar</code> action in the menu. 
-     */
+    /** Identifies the <code>UnitBar</code> action in the menu. */
     public static final Integer     UNIT_BAR = new Integer(26);
+    
+    /** Identifies the <code>Size plus unit bar</code> action. */
+    public static final Integer     UNIT_BAR_PLUS = new Integer(27);
+    
+    /** Identifies the <code>Size minus unit bar</code> action. */
+    public static final Integer     UNIT_BAR_MINUS = new Integer(28);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -275,6 +280,8 @@ class ImViewerControl
         actionsMap.put(RATING_FIVE, action);
         actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
         actionsMap.put(UNIT_BAR, new UnitBarAction(model));
+        actionsMap.put(UNIT_BAR_PLUS, new UnitBarSizeAction(model, true));
+        actionsMap.put(UNIT_BAR_MINUS, new UnitBarSizeAction(model, false));
     }
     
     /** 
