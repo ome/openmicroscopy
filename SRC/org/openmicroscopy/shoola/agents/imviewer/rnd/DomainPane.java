@@ -209,8 +209,9 @@ class DomainPane
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
-        c.ipadx = 10;
+       // c.ipadx = 10;
         c.weightx = 0.5;
+        c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         JLabel label = new JLabel("Channels");
         p.add(label, c);
