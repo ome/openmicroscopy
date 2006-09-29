@@ -192,7 +192,7 @@ class BrowserComponent
     public void setComponentsSize(int w, int h)
     {
         view.setComponentsSize(w, h);
-        view.setPreferredSize(new Dimension(w+5, h));
+        view.setPreferredSize(new Dimension(w+5, h+5));
     }
 
     /** 
