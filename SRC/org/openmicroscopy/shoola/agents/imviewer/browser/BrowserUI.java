@@ -59,9 +59,6 @@ import javax.swing.JScrollPane;
 class BrowserUI
     extends JScrollPane
 {
-
-    /** Location of the top left corner of the image. */
-    static final int            TOP_LEFT_IMAGE = 0;//35;
     
     /**
      * The Layered pane hosting the {@link BrowserCanvas} and any other 
@@ -161,8 +158,7 @@ class BrowserUI
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
-        setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
-                            img.getHeight()+2*TOP_LEFT_IMAGE);
+        setComponentsSize(img.getWidth(), img.getHeight());
         browserCanvas.repaint();
     }
     

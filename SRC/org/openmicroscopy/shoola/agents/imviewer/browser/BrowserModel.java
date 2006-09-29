@@ -60,6 +60,12 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 class BrowserModel
 {
 
+    /** Default length of the scale bar. */
+    private static final int    LENGTH = 40;
+    
+    /** Value by which the size of the unit bar is increased or decreased. */
+    private static final int    INCREMENT = 5;
+    
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
     
@@ -88,6 +94,18 @@ class BrowserModel
     private ImViewer        parent;
     
     /** 
+     * Flag to indicate if the unit bar is painted or not on top of the
+     * displayed image.
+     */
+    private boolean         unitBar;
+    
+    /** Indicate to increase or decrease the size of the unit bar. */
+    private boolean         increase;
+    
+    /** The value by which to increase or decrease the size of the unit bar. */
+    private int             unit;
+    
+    /** 
      * Creates a new instance.
      * 
      * @param title The title of the  {@link Browser}.
@@ -99,6 +117,9 @@ class BrowserModel
         if (parent == null) throw new IllegalArgumentException("No parent.");
         this.parent = parent;
         this.title = title;
+        unitBar = true;
+        increase = true;
+        unit = LENGTH;
     }
     
     /**
@@ -194,7 +215,42 @@ class BrowserModel
      * 
      * @return See above.
      */
-    boolean isUnitBar() { return parent.isUnitBar(); }
+    boolean isUnitBar() { return unitBar; }
+    
+    /**
+     * Sets the value of the flag controlling if the unit bar is painted or not.
+     * 
+     * @param unitBar   Pass <code>true</code> to paint the unit bar, 
+     *                  <code>false</code> otherwise.
+     */
+    void setUnitBar(boolean unitBar) { this.unitBar = unitBar; }
+    
+    /**
+     * Increases the size of the unit bar if the passed flag is 
+     * <code>true</code>, decreases the size otherwise.
+     * 
+     * @param b Pass <code>true</code> to increase the size, 
+     *          <code>false</code> to increase.
+     */
+    void setUnitBarSize(boolean b)
+    {
+        increase = b;
+        if (increase) {
+            int w = getDisplayedImage().getWidth();
+            unit += INCREMENT;
+            if (unit > w/2) unit = w/2;
+        } else {
+            unit -= INCREMENT;
+            if (unit <= 0) unit += INCREMENT;
+        }
+    }
+    
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    int getUnitBarSize() { return unit; }
     
     Magnifier getMagnifier() { return magnifier; }
     

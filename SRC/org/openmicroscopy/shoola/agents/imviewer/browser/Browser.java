@@ -128,5 +128,11 @@ public interface Browser
      * @param h The height to set.
      */
     public void setComponentsSize(int w, int h);
+
+    public void setUnitBar(boolean b);
+
+    public void setUnitBarSize(boolean increase);
+
+    public boolean isUnitBar();
     
 }

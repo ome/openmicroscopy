@@ -72,19 +72,6 @@ class BrowserCanvas
     /** Color of the scale bar. */
     private static final Color          UNIT_BAR_COLOR = Color.GRAY;
     
-    /** Color of the axis. */
-    private static final Color          AXIS_COLOR = Color.GRAY;
-    
-    /** Location to the origin of the frame. */
-    private static final int            ORIGIN_FRAME = 
-                                            BrowserUI.TOP_LEFT_IMAGE;
-    
-    /** Length of the frame axis. */
-    private static final int            LENGTH = 20;
-    
-    /** Length of the arrow. */
-    private static final int            ARROW = 3;
-    
     /** Width of a character w.r.t. the font metrics. */
     private int             charWidth;
     
@@ -99,6 +86,7 @@ class BrowserCanvas
      * 
      * @param g2D The graphics context.
      */
+    /*
     private void paintXYFrame(Graphics2D g2D)
     {
         g2D.setColor(AXIS_COLOR);
@@ -118,6 +106,7 @@ class BrowserCanvas
         g2D.drawString("x", x1+LENGTH/2, y1-hFont);
         g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont); 
     }
+    */
     
     /**
      * Paints the scale bar.
@@ -135,7 +124,7 @@ class BrowserCanvas
         int hFont = fontMetrics.getHeight()/3;
         int size = s.length()*charWidth;
         g2D.setColor(UNIT_BAR_COLOR);
-        g2D.drawString(s, x+l/2-size/2, y-hFont);
+        g2D.drawString(s, x+l/2-size/2+1, y-hFont);
         g2D.setStroke(UNIT_BAR_STROKE);
         g2D.drawLine(x, y, x+l, y);
     }
@@ -171,18 +160,17 @@ class BrowserCanvas
                             RenderingHints.VALUE_RENDER_QUALITY);
         g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        BufferedImage image = model.getDisplayedImage();
-        if (image == null) return;
+        BufferedImage img = model.getDisplayedImage();
+        if (img == null) return;
         //paintXYFrame(g2D);
 
-        g2D.drawImage(image, null, BrowserUI.TOP_LEFT_IMAGE,
-                        BrowserUI.TOP_LEFT_IMAGE);  
+        g2D.drawImage(img, null, 0, 0);  
         double v = model.getPixelsSizeX()/model.getZoomFactor();
-        v = v*2*LENGTH;
+        int size = model.getUnitBarSize();
+        v *= size;
         if (v > 0 && model.isUnitBar()) {
-            int h = image.getHeight()-10;
-            int w = image.getWidth()+BrowserUI.TOP_LEFT_IMAGE;
-            paintScaleBar(g2D, w-2*LENGTH-5, h, 2*LENGTH, ""+(int) v);
+            paintScaleBar(g2D, img.getWidth()-size-5, img.getHeight()-10, 
+                            size, ""+(int) v);
         }
     }
     

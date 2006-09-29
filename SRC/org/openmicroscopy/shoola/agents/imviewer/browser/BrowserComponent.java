@@ -195,4 +195,35 @@ class BrowserComponent
         view.setPreferredSize(new Dimension(w+5, h));
     }
 
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setUnitBar(boolean)
+     */
+    public void setUnitBar(boolean b)
+    {
+        if (b == model.isUnitBar()) return;
+        model.setUnitBar(b);
+        view.repaint();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setUnitBarSize(boolean)
+     */
+    public void setUnitBarSize(boolean increase)
+    {
+        model.setUnitBarSize(increase);
+        view.repaint();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isUnitBar()
+     */
+    public boolean isUnitBar()
+    {
+        // TODO Auto-generated method stub
+        return model.isUnitBar();
+    }
+
 }
