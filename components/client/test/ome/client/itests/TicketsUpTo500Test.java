@@ -2,8 +2,10 @@ package ome.client.itests;
 
 import org.testng.annotations.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,8 +22,10 @@ import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.internal.Permissions;
 import ome.parameters.Parameters;
+import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+import ome.util.builders.PojoOptions;
 import pojos.ImageData;
 
 @Test( 
@@ -125,6 +129,127 @@ public class TicketsUpTo500Test extends TestCase
 		iAdmin.changePermissions(p, Permissions.EMPTY);
 		iAdmin.changePermissions(p, Permissions.DEFAULT);
 	}
+    
+    @Test( groups = {"ticket:376"} )
+    public void testLeavesFunctional() throws Exception {
+    	
+    	Long id = iAdmin.getEventContext().getCurrentUserId();
+
+  	  	PojoOptions leaves = new PojoOptions().exp(id).leaves();
+  	  	PojoOptions noleaves = new PojoOptions().exp(id).noLeaves();
+    	
+  	  	Project p = new Project();
+  	  	p.setName("ticket:376");
+    	Dataset d = new Dataset();
+  	  	d.setName("ticket:376");
+  	  	Image i = new Image();
+  	  	i.setName("ticket:376");
+  	  	p.linkDataset(d);
+  	  	d.linkImage(i);
+  	  	p = iUpdate.saveAndReturnObject(p);
+  	  	d = (Dataset) p.linkedDatasetList().get(0);
+  	  	
+  	  	boolean found = false;
+  	  	
+  	  	// Project --------------------------------------
+		Set<Long> ids = new HashSet<Long>( Arrays.asList(p.getId()) ); 
+
+		// with leaves & ids
+  	  	Set<Project> set = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  			Project.class, ids, leaves.map());
+  	  	
+  	  	Project tP = set.iterator().next();
+  	  	Dataset tD = (Dataset) tP.linkedDatasetList().get(0);
+  	  	assertTrue( tD.sizeOfImageLinks() > 0 );
+
+  	  	// with ids & no leaves
+  	  	set = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Project.class, ids, noleaves.map());
+  	  	  	
+  	  	tP = set.iterator().next();
+  	  	tD = (Dataset) tP.linkedDatasetList().get(0);
+  	  	assertTrue( tD.sizeOfImageLinks() < 0 );
+
+  	  	// with no ids & no leaves
+  	  	set = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Project.class, null, noleaves.map());
+  	  	  	
+  	  	found = false;
+  	  	for (Project project : set) {
+  	  		if (!project.getId().equals(p.getId())) continue;
+  	  	  	tP = project;
+  	  	  	tD = (Dataset) tP.linkedDatasetList().get(0);
+  	  	  	assertTrue( tD.sizeOfImageLinks() < 0 );
+  	  	  	found = true;
+		}
+  	  	if (!found) fail(" prj not found (no ids/no leaves)");
+
+  	  	// with no ids but leaves
+  	  	set = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Project.class, null, leaves.map());
+  	  	  	
+  	  	found = false;
+  	  	for (Project project : set) {
+  	  		if (!project.getId().equals(p.getId())) continue;
+  	  	  	tP = project;
+  	  	  	tD = (Dataset) tP.linkedDatasetList().get(0);
+  	  	  	assertTrue( tD.sizeOfImageLinks() > 0 );
+  	  	  	found = true;
+		}
+  	  	if (!found) fail(" prj not found (no ids/leaves)");
+  	  	
+  	  	// Dataset --------------------------------------
+		ids = new HashSet<Long>( Arrays.asList(d.getId()) ); 
+
+		// with leaves & ids
+  	  	Set<Dataset> set2 = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  			Dataset.class, ids, leaves.map());
+  	  	
+  	  	tD = set2.iterator().next();
+  	  	assertTrue( tD.sizeOfImageLinks() > 0 );
+
+  	  	// with ids & no leaves
+  	  	set2 = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Dataset.class, ids, noleaves.map());
+  	  	  	
+  	  	tD = set2.iterator().next();
+  	  	assertTrue( tD.sizeOfImageLinks() < 0 );
+
+  	  	// with no ids & no leaves
+  	  	set2 = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Dataset.class, null, noleaves.map());
+  	  	  	
+  	  	found = false;
+  	  	for (Dataset dataset : set2) {
+  	  		if (!dataset.getId().equals(d.getId())) continue;
+  	  	  	tD = dataset;
+  	  	  	assertTrue( tD.sizeOfImageLinks() < 0 );
+  	  	  	found = true;
+		}
+  	  	if (!found) fail(" ds not found (no ids/no leaves)");
+
+  	  	// with no ids & no leaves
+  	  	set2 = 
+  	  	sf.getPojosService().loadContainerHierarchy(
+  	  	  		Dataset.class, null, leaves.map());
+  	  	  	
+  	  	found = false;
+  	  	for (Dataset dataset : set2) {
+  	  		if (!dataset.getId().equals(d.getId())) continue;
+  	  	  	tD = dataset;
+  	  	  	assertTrue( tD.sizeOfImageLinks() > 0 );
+  	  	  	found = true;
+  	  	}
+  	  	if (!found) fail(" ds not found (no ids/leaves)");
+  	  	
+    }
 
     // ~ Helpers
     // =========================================================================
