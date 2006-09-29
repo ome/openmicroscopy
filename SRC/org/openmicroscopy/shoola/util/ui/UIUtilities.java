@@ -294,7 +294,7 @@ public class UIUtilities
      */
     public static void unifiedButtonLookAndFeel(AbstractButton b)
     {
-        b.setMargin(new Insets(0, 0, 0, 0));
+        b.setMargin(new Insets(0, 2, 0, 3));
         b.setBorderPainted(false);
         b.setFocusPainted(false);
     }
