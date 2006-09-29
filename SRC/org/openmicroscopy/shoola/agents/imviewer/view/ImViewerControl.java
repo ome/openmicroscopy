@@ -92,109 +92,109 @@ class ImViewerControl
 {
 
     /** Identifies the <code>Close</code> action in the menu. */
-    public static final Integer     CLOSE = new Integer(0);
+    static final Integer     CLOSE = new Integer(0);
     
     /** Identifies the <code>Renderer</code> action in the menu. */
-    public static final Integer     RENDERER = new Integer(1);     
+    static final Integer     RENDERER = new Integer(1);     
     
     /** Identifies the <code>Movie</code> action in the menu. */
-    public static final Integer     MOVIE = new Integer(2);
+    static final Integer     MOVIE = new Integer(2);
     
     /** Identifies the <code>Save</code> action in the menu. */
-    public static final Integer     SAVE = new Integer(3);
+    static final Integer     SAVE = new Integer(3);
     
     /** Identifies the <code>Zooming 25%</code> action in the menu. */
-    public static final Integer     ZOOM_25 = new Integer(4);
+    static final Integer     ZOOM_25 = new Integer(4);
     
     /** Identifies the <code>Zooming 50%</code> action in the menu. */
-    public static final Integer     ZOOM_50 = new Integer(5);
+    static final Integer     ZOOM_50 = new Integer(5);
     
     /** Identifies the <code>Zooming 75%</code> action in the menu. */
-    public static final Integer     ZOOM_75 = new Integer(6);
+    static final Integer     ZOOM_75 = new Integer(6);
     
     /** Identifies the <code>Zooming 100%</code> action in the menu. */
-    public static final Integer     ZOOM_100 = new Integer(7);
+    static final Integer     ZOOM_100 = new Integer(7);
     
     /** Identifies the <code>Zooming 125%</code> action in the menu. */
-    public static final Integer     ZOOM_125 = new Integer(8);
+    static final Integer     ZOOM_125 = new Integer(8);
     
     /** Identifies the <code>Zooming 150%</code> action in the menu. */
-    public static final Integer     ZOOM_150 = new Integer(9);
+    static final Integer     ZOOM_150 = new Integer(9);
     
     /** Identifies the <code>Zooming 175%</code> action in the menu. */
-    public static final Integer     ZOOM_175 = new Integer(10);
+    static final Integer     ZOOM_175 = new Integer(10);
     
     /** Identifies the <code>Zooming 200%</code> action in the menu. */
-    public static final Integer     ZOOM_200 = new Integer(11);
+    static final Integer     ZOOM_200 = new Integer(11);
     
     /** Identifies the <code>Zooming 225%</code> action in the menu. */
-    public static final Integer     ZOOM_225 = new Integer(12);
+    static final Integer     ZOOM_225 = new Integer(12);
     
     /** Identifies the <code>Zooming 250%</code> action in the menu. */
-    public static final Integer     ZOOM_250 = new Integer(13);
+    static final Integer     ZOOM_250 = new Integer(13);
     
     /** Identifies the <code>Zooming 275%</code> action in the menu. */
-    public static final Integer     ZOOM_275 = new Integer(14);
+    static final Integer     ZOOM_275 = new Integer(14);
     
     /** Identifies the <code>Zooming 300%</code> action in the menu. */
-    public static final Integer     ZOOM_300 = new Integer(15);
+    static final Integer     ZOOM_300 = new Integer(15);
     
     /** Identifies the <code>Lens</code> action in the menu. */
-    public static final Integer     LENS = new Integer(16);
+    static final Integer     LENS = new Integer(16);
     
     /** Identifies the <code>Grey Scale</code> action in the menu. */
-    public static final Integer     GREY_SCALE_MODEL = new Integer(17);
+    static final Integer     GREY_SCALE_MODEL = new Integer(17);
     
     /** Identifies the <code>RGB</code> action in the menu. */
-    public static final Integer     RGB_MODEL = new Integer(18);
+    static final Integer     RGB_MODEL = new Integer(18);
     
     /** Identifies the <code>HSB</code> action in the menu. */
-    public static final Integer     HSB_MODEL = new Integer(19);
+    static final Integer     HSB_MODEL = new Integer(19);
     
     /** 
      * Identifies the <code>First</code> level of the rating action in the 
      * menu. 
      */
-    public static final Integer     RATING_ONE = new Integer(20);
+    static final Integer     RATING_ONE = new Integer(20);
     
     /** 
      * Identifies the <code>Second</code> level of the rating action in the 
      * menu. 
      */
-    public static final Integer     RATING_TWO = new Integer(21);
+    static final Integer     RATING_TWO = new Integer(21);
     
     /** 
      * Identifies the <code>Third</code> level of the rating action in the 
      * menu. 
      */
-    public static final Integer     RATING_THREE = new Integer(22);
+    static final Integer     RATING_THREE = new Integer(22);
     
     /** 
      * Identifies the <code>Fourth</code> level of the rating action in the 
      * menu. 
      */
-    public static final Integer     RATING_FOUR = new Integer(23);
+    static final Integer     RATING_FOUR = new Integer(23);
     
     /** 
      * Identifies the <code>Fifth</code> level of the rating action in the 
      * menu. 
      */
-    public static final Integer     RATING_FIVE = new Integer(24);
+    static final Integer     RATING_FIVE = new Integer(24);
     
     /** 
      * Identifies the <code>Channel movie</code> action in the 
      * menu. 
      */
-    public static final Integer     CHANNEL_MOVIE = new Integer(25);
+    static final Integer     CHANNEL_MOVIE = new Integer(25);
     
     /** Identifies the <code>UnitBar</code> action in the menu. */
-    public static final Integer     UNIT_BAR = new Integer(26);
+    static final Integer     UNIT_BAR = new Integer(26);
     
     /** Identifies the <code>Size plus unit bar</code> action. */
-    public static final Integer     UNIT_BAR_PLUS = new Integer(27);
+    static final Integer     UNIT_BAR_PLUS = new Integer(27);
     
     /** Identifies the <code>Size minus unit bar</code> action. */
-    public static final Integer     UNIT_BAR_MINUS = new Integer(28);
+    static final Integer     UNIT_BAR_MINUS = new Integer(28);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
