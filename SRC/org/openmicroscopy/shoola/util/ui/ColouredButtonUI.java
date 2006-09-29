@@ -114,8 +114,8 @@ class ColouredButtonUI
         
         // Set a gradient mask of V=.5 to V = 0.3; this has an alpha
         // value to show the colours of the button underlying the mask.
-        Color gradientStart = new Color(0.5f, 0.5f, 0.5f, 0.8f);
-        Color gradientEnd = new Color(0.3f, 0.3f, 0.3f, 0.9f);
+        Color gradientStart = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+        Color gradientEnd = new Color(0.3f, 0.3f, 0.3f, 1.0f);
                 
         // Draw the gradient mask.
         gp = new GradientPaint((int) buttonRect.getX(),
@@ -199,11 +199,11 @@ class ColouredButtonUI
             }
             
             gradientStartHSV = new HSV(col.getHue(), topGradientSaturation,
-                                topGradientValue, 0.6f);
+                                topGradientValue, 1.0f);
             gradientStartRGB = gradientStartHSV.toColorA();
     
             gradientEndHSV = new HSV(col.getHue(),
-                        bottomGradientSaturation, bottomGradientValue, 0.6f);
+                        bottomGradientSaturation, bottomGradientValue, 1.0f);
             gradientEndRGB = gradientEndHSV.toColorA();
     }
 
