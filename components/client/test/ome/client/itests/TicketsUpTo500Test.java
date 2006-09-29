@@ -12,9 +12,11 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import ome.api.IAdmin;
+import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
+import ome.model.annotations.DatasetAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -251,6 +253,40 @@ public class TicketsUpTo500Test extends TestCase
   	  	
     }
 
+    /** trying to find a null constraint violation of Event.experimenter 
+     */
+    @SuppressWarnings("unchecked")
+    @Test( groups = "ticket:396" )
+    public void testAnnotationIsUpdatable() throws Exception {
+
+    	final IPojos pojosService = sf.getPojosService();
+    	
+    	// create dataset
+    	Dataset dataset = new Dataset();
+    	dataset.setName( "ticket:396" );
+		dataset = pojosService.updateDataObject( dataset, null );
+
+		// load dataset via loadContainerHierarchy
+		dataset = pojosService.loadContainerHierarchy(Dataset.class, 
+    			new HashSet<Long>( Arrays.asList(dataset.getId())), null).iterator().next();
+    	
+		// create annotation
+    	DatasetAnnotation annotation = new DatasetAnnotation();
+    	annotation.setContent( "ticket:396" );
+    	annotation.setDataset( dataset );	
+    	pojosService.updateDataObject( annotation, null );
+    	
+    	// load annotation via findAnnotations
+    	annotation = ((Set<DatasetAnnotation>) pojosService.findAnnotations(Dataset.class, 
+    			new HashSet<Long>( Arrays.asList( dataset.getId() )), null,null).
+    			get(dataset.getId())).iterator().next();
+    	
+    	// update annotation
+    	annotation.setContent( annotation.getContent()+":updated");
+    	pojosService.updateDataObject( annotation, null );
+    
+	}
+    
     // ~ Helpers
     // =========================================================================
     // TODO refactor to ObjectFactory
