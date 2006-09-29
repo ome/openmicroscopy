@@ -239,6 +239,22 @@ public interface Browser
      * @return See above.
      */
     public Set getSelectedDisplays();
+
+    /**
+     * Returns <code>true</code> if the image's title bar is visible,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isTitleBarVisible();
+
+    /**
+     * Sets the title bar visible flag.
+     *  
+     * @param b Pass <code>true</code> to show the image's title bar,
+     *          <code>false</code> to hide it.
+     */
+    public void setTitleBarVisible(boolean b);
     
     
 }

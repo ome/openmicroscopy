@@ -90,6 +90,9 @@ class BrowserModel
     /** The selected nodes. */
     private Set             selectedDisplays;
     
+    /** Indicates if the image's title bar is visible. */
+    private boolean         titleBarVisible;
+    
     /**
      * Creates a new instance.
      * 
@@ -103,6 +106,7 @@ class BrowserModel
         if (view == null) throw new NullPointerException("No view.");
         rootDisplay = view;
         selectedDisplays = new HashSet();
+        titleBarVisible = false;
     }
     
     /** 
@@ -310,5 +314,17 @@ class BrowserModel
      * @see Browser#isMultiSelection()
      */
     public boolean isMultiSelection() { return multiSelection; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isTitleBarVisible()
+     */
+    public boolean isTitleBarVisible() { return titleBarVisible; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setTitleBarVisible(boolean)
+     */
+    public void setTitleBarVisible(boolean b) { titleBarVisible = b; }
     
 }
