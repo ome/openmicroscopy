@@ -67,7 +67,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.HideTitleBarAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
@@ -130,50 +129,47 @@ class HiViewerControl
     /** Identifies the <code>Show Title Bar</code> action in the View menu. */
     static final Integer     SHOW_TITLEBAR = new Integer(7);
     
-    /** Identifies the Hide Title Bar action in the Layout menu. */
-    static final Integer     HIDE_TITLEBAR = new Integer(8);
-    
     /** Identifies the Save Layout action in the Layout menu. */
-    static final Integer     SAVE = new Integer(9);
+    static final Integer     SAVE = new Integer(8);
     
     /** Identifies the <code>Properties</code> action in the Edit menu. */
-    static final Integer     PROPERTIES = new Integer(10);
+    static final Integer     PROPERTIES = new Integer(9);
     
     /** Identifies the <code>Annotate</code> action in the Edit menu. */
-    static final Integer     ANNOTATE = new Integer(11);
+    static final Integer     ANNOTATE = new Integer(10);
     
     /** Identifies the <code>Classify</code> action in the Edit menu. */
-    static final Integer     CLASSIFY = new Integer(12);
+    static final Integer     CLASSIFY = new Integer(11);
     
     /** Identifies the <code>Declassify</code> action in the Edit menu. */
-    static final Integer     DECLASSIFY = new Integer(13);
+    static final Integer     DECLASSIFY = new Integer(12);
     
     /** Identifies the <code>View</code> action in the Edit menu. */
-    static final Integer     VIEW = new Integer(14);
+    static final Integer     VIEW = new Integer(13);
     
     /** Identifies the <code>Zoom In</code> action in the View menu. */
-    static final Integer     ZOOM_IN = new Integer(15);
+    static final Integer     ZOOM_IN = new Integer(14);
     
     /** Identifies the <code>Zoom Out</code> action in the View menu. */
-    static final Integer     ZOOM_OUT = new Integer(16);
+    static final Integer     ZOOM_OUT = new Integer(15);
     
     /** Identifies the <code>Zoom Fit</code> action in the View menu. */
-    static final Integer     ZOOM_FIT = new Integer(17);
+    static final Integer     ZOOM_FIT = new Integer(16);
     
     /** Identifies the <code>Refresh</code> action in the File menu. */
-    static final Integer     REFRESH = new Integer(18);
+    static final Integer     REFRESH = new Integer(17);
     
     /** Identifies the <code>Save thumbnails</code> action in the File menu. */
-    static final Integer     SAVE_THUMB = new Integer(19);
+    static final Integer     SAVE_THUMB = new Integer(18);
       
     /** Identifies the <code>ree view</code>T action in the View menu. */
-    static final Integer     TREE_VIEW = new Integer(20);
+    static final Integer     TREE_VIEW = new Integer(19);
     
     /** Identifies the <code>Exit Application</code> action in the File menu. */
-    static final Integer     EXIT_APPLICATION = new Integer(21);
+    static final Integer     EXIT_APPLICATION = new Integer(20);
     
     /** Identifies the <code>Find</code> action in the Edit menu. */
-    static final Integer     FIND = new Integer(22);
+    static final Integer     FIND = new Integer(21);
     
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -200,7 +196,6 @@ class HiViewerControl
         actionsMap.put(SQUARY, new SquaryLayoutAction(model));
         actionsMap.put(TREE, new TreeLayoutAction(model));
         actionsMap.put(SHOW_TITLEBAR, new ShowTitleBarAction(model));
-        actionsMap.put(HIDE_TITLEBAR, new HideTitleBarAction(model));
         actionsMap.put(SAVE, new SaveLayoutAction(model));
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
         actionsMap.put(ANNOTATE, new AnnotateAction(model));

@@ -41,6 +41,8 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -229,12 +231,14 @@ class HiViewerWin
                             controller.getAction(HiViewerControl.VIEW_CGCI)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
-        menu.add(new JMenuItem(controller.getAction(
-                            HiViewerControl.TREE_VIEW)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewerControl.SHOW_TITLEBAR)));
-        menu.add(new JMenuItem(
-                controller.getAction(HiViewerControl.HIDE_TITLEBAR)));
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
+        item.setSelected(false);
+        item.setAction(controller.getAction(HiViewerControl.TREE_VIEW));
+        menu.add(item);
+        item = new JCheckBoxMenuItem();
+        item.setSelected(true);
+        item.setAction(controller.getAction(HiViewerControl.SHOW_TITLEBAR));
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));
