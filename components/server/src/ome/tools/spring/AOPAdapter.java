@@ -103,7 +103,7 @@ public class AOPAdapter extends ReflectiveMethodInvocation
     
     protected static Object proxy( ProxyFactoryBean factory )
     {
-        return null;
+        return factory.getObject();
     }
     
     protected static Object target( InvocationContext context )
