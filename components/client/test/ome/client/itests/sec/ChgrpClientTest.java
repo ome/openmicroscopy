@@ -12,6 +12,7 @@ import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -79,10 +80,22 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     }
     
     @Test
-    // no change
+    @ExpectedExceptions( SecurityViolation.class ) 
+    // default permissions causes this to be illegal
     public void test_OtherImageAsUserChgrpToUserGroup() throws Exception
     {
         updateAsUserToGroup( managedImage(asOther), asUser, toUserGroup );
+    }
+    
+    @Test
+    public void test_OtherGroupWritableImageAsUserChgrpToUserGroup() throws Exception
+    {
+    	Long groupWritableImage = managedImage(asOther);
+    	new ServiceFactory(asOther).getAdminService().changePermissions(
+    			new Image(groupWritableImage,false),
+    			Permissions.GROUP_WRITEABLE
+    	);
+        updateAsUserToGroup( groupWritableImage, asUser, toUserGroup );
     }
     
     @Test
