@@ -6,6 +6,7 @@ import java.util.List;
 
 import ome.api.ITypes;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.enums.EventType;
 import ome.model.meta.Event;
@@ -85,6 +86,7 @@ public abstract class AbstractBasicSecuritySystemTest extends MockObjectTestCase
         // prepare mocks
 		sf.mockAdmin = mock(LocalAdmin.class);
 		sf.mockTypes = mock(ITypes.class);
+		sf.mockQuery = mock(LocalQuery.class);
 		sf.mockUpdate = mock(LocalUpdate.class);
     
 		sf.mockAdmin.expects(atLeastOnce()).method("userProxy")

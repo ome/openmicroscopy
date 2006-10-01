@@ -35,6 +35,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.event.EventSource;
@@ -47,6 +48,7 @@ import org.springframework.util.Assert;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.conditions.SecurityViolation;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
@@ -69,6 +71,8 @@ import ome.tools.hibernate.HibernateUtils;
 public class MergeEventListener extends IdTransferringMergeEventListener
 {
 
+	public final static String MERGE_EVENT = "MergeEvent";
+	
 	private static final long serialVersionUID = 240558701677298961L;
 
 	private static Log log = LogFactory.getLog( MergeEventListener.class );
@@ -82,6 +86,20 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 		this.secSys = securitySystem;
 	}
     
+	@Override
+	public void onMerge(MergeEvent event) throws HibernateException {
+		if (secSys.isDisabled(MERGE_EVENT)) throw new SecurityViolation(
+			"The MergeEventListener has been disabled.");
+		super.onMerge(event);
+	}
+	
+	@Override
+	public void onMerge(MergeEvent event, Map copyCache) throws HibernateException {
+		if (secSys.isDisabled(MERGE_EVENT)) throw new SecurityViolation(
+			"The MergeEventListener has been disabled.");
+		super.onMerge(event, copyCache);
+	}
+	
 	@Override
 	protected void copyValues(EntityPersister persister, Object entity, 
 			Object target, SessionImplementor source, Map copyCache) {

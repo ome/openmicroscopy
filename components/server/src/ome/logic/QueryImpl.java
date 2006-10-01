@@ -110,6 +110,12 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     
     @RolesAllowed("user")
     @Transactional(readOnly=false)
+    public boolean contains(Object obj){
+        return getHibernateTemplate().contains(obj);
+    }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly=false)
     public void evict(Object obj){
         getHibernateTemplate().evict(obj);
     }

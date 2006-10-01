@@ -82,6 +82,11 @@ public interface LocalQuery extends ome.api.IQuery {
      */
     <T> T execute(Query<T> query);
 
+    /** Tests if an object is currently contained in the session. 
+     * @param object
+     */
+    boolean contains(Object object);
+    
     /** Removes an object graph from the session. This allows for
      * non-permanent, mutable calls on the graph.
      * @param object

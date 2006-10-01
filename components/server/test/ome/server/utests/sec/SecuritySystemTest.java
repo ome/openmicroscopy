@@ -74,6 +74,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 		sec.getACLVoter().allowUpdate( user, new Details() );
 		sec.getACLVoter().allowDelete( user, new Details() );
 		sec.getSecurityRoles();
+		sf.mockQuery.expects(atLeastOnce()).method("contains").will(returnValue(true));
 		sec.doAction(user,new SecureAction(){public <T extends IObject> T updateObject(T obj) {return null;};});
 		sec.copyToken(user,user);
 		sec.loadEventContext(false);

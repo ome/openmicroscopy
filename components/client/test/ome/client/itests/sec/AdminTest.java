@@ -38,7 +38,7 @@ public class AdminTest extends AbstractAccountTest {
 		assertEquals(test.getDetails().getOwner().getId(),target.getId());
 	}
 	
-	@Test
+	@Test( groups = "ticket:397" )
 	public void testChangePermissionsCantMisuseAdminAction() throws Exception {
 		
 		Experimenter e = createNewUser(rootAdmin);

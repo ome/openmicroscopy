@@ -602,22 +602,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	@RolesAllowed("user")
 	public void changePermissions(final IObject iObject, final Permissions perms) {
 
-		final ACLVoter aclVoter = 
-			getSecuritySystem().getACLVoter(); // TODO inject
+		final ACLVoter aclVoter = getSecuritySystem().getACLVoter(); // TODO inject
 
-		if (aclVoter.allowChmod(iObject))
-		{
-			getSecuritySystem().runAsAdmin(new AdminAction(){
-				public void runAsAdmin() {
-					IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-					copy.getDetails().setPermissions(perms);
-					iUpdate.flush();
-				}
-			});
-		} else {
-			throw new SecurityViolation("Cannot change permissions for:"+
-					iObject);
-		}
+		getSecuritySystem().runAsAdmin(new AdminAction(){
+			public void runAsAdmin() {
+				IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
+				if (!aclVoter.allowChmod(copy))
+					throw new SecurityViolation("Cannot change permissions for:"+
+							iObject);
+					
+				copy.getDetails().setPermissions(perms);
+				iUpdate.flush();
+			}
+		});
 	}
 
 	@RolesAllowed("system")

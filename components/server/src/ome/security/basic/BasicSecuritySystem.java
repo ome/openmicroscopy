@@ -52,6 +52,7 @@ import ome.annotations.RevisionNumber;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
@@ -1152,10 +1153,20 @@ public class BasicSecuritySystem implements SecuritySystem {
 	 * but since flush can be so poorly controlled that's not possible. instead,
 	 * we use the one time token which is removed this Object is checked for
 	 * {@link #hasPrivilegedToken(IObject) privileges}.
+	 * 
+	 * @param obj A managed (non-detached) entity. Not null.
+	 * @param action A code-block that will be given the entity argument with
+	 * 		a {@link #hasPrivilegedToken(IObject)} privileged token}. 
 	 */
 	public <T extends IObject> T doAction(T obj, SecureAction action) {
 		Assert.notNull(obj);
 		Assert.notNull(action);
+		
+		// TODO inject
+		if (obj.getId() != null && 
+				!((LocalQuery)sf.getQueryService()).contains(obj))
+			throw new SecurityViolation("Services are not allowed to call " +
+					"doAction() on non-Session-managed entities.");
 
 		// FIXME
 		// Token oneTimeToken = new Token();
@@ -1171,13 +1182,19 @@ public class BasicSecuritySystem implements SecuritySystem {
 		return retVal;
 	}
 
+	/** merge event is disabled for {@link #runAsAdmin(AdminAction)} because
+	 * passing detached (client-side) entities to this method is particularly
+	 * dangerous. 
+	 */
 	public void runAsAdmin(AdminAction action) {
 		Assert.notNull(action);
+		disable(MergeEventListener.MERGE_EVENT);
 		cd.setAdmin(true);
 		try {
 			action.runAsAdmin();
 		} finally {
 			cd.setAdmin(false);
+			enable(MergeEventListener.MERGE_EVENT);
 		}
 	}
 
