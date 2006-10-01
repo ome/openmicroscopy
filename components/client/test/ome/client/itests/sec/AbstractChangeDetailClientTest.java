@@ -22,14 +22,17 @@ import ome.system.ServiceFactory;
 public class AbstractChangeDetailClientTest extends AbstractSecurityTest
 {
 	
-    protected Login
-    asRoot = super.rootLogin,
-    asUser = new Login( UUID.randomUUID().toString()+"1", "ome" ),
-    other = new Login( UUID.randomUUID().toString()+"2", "ome" );
+	private String user_name  = "USER:"+UUID.randomUUID().toString();
+	private String other_name = "OTHER:"+UUID.randomUUID().toString();
+	private String world_name = "WORLD:"+UUID.randomUUID().toString();
+	private String pi_name    = "PI:"+UUID.randomUUID().toString();
+	private String pi_group   = "PIGRP:"+UUID.randomUUID().toString();
+	
+    protected Login asRoot, asUser, asOther, asWorld, asPI;
 
-    protected Experimenter toRoot, toUser, toOther;
+    protected Experimenter toRoot, toUser, toOther, toWorld, toPI;
     
-    protected ExperimenterGroup toSystem, toUserGroup, toOtherGroup;
+    protected ExperimenterGroup toSystem, toUserGroup, toOtherGroup, toPIGroup;
 
     // ~ Testng Adapter
     // =========================================================================
@@ -37,28 +40,55 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest
     public void createUsersAndImages() throws Exception
     {
         init();
-        
+
+        // TODO USE ROLES HERE
         toRoot = new Experimenter( 0L, false );        
         toSystem = new ExperimenterGroup( 0L, false ); 
         toUserGroup = new ExperimenterGroup( 1L, false ); 
-        toOtherGroup = new ExperimenterGroup( 2L, false ); 
 
         toUser = new Experimenter();
         toUser.setFirstName("test");
         toUser.setLastName("test");
-        toUser.setOmeName(asUser.getName());
+        toUser.setOmeName(user_name);
         toUser = new Experimenter( rootAdmin.createUser( toUser ), false );
         
         toOther = new Experimenter();
         toOther.setFirstName("test");
         toOther.setLastName("test");
-        toOther.setOmeName(other.getName());
+        toOther.setOmeName(other_name);
         toOther = new Experimenter( rootAdmin.createUser(toOther), false );
+
+        toWorld = new Experimenter();
+        toWorld.setFirstName("test");
+        toWorld.setLastName("test");
+        toWorld.setOmeName(world_name);
+        toWorld = new Experimenter( rootAdmin.createUser(toWorld), false );
+
+        toPI = new Experimenter();
+        toPI.setFirstName("test");
+        toPI.setLastName("test");
+        toPI.setOmeName(pi_name);
+        toPI = new Experimenter( rootAdmin.createUser(toPI), false );
         
         toOtherGroup = new ExperimenterGroup();
         toOtherGroup.setName(UUID.randomUUID().toString());
         toOtherGroup = new ExperimenterGroup( rootAdmin.createGroup( toOtherGroup ), false );
 
+        toPIGroup = new ExperimenterGroup();
+        toPIGroup.setName(pi_group);
+        toPIGroup = new ExperimenterGroup( rootAdmin.createGroup( toPIGroup ), false );
+
+        rootAdmin.addGroups(toUser, toPIGroup);
+        rootAdmin.addGroups(toOther, toPIGroup);
+        rootAdmin.addGroups(toPI, toPIGroup);
+        rootAdmin.setGroupOwner(toPIGroup, toPI);
+        
+        asRoot  = super.rootLogin;
+        asUser  = new Login( user_name,  "ome", pi_group, "Test" );
+        asOther = new Login( other_name, "ome", pi_group, "Test" );
+        asWorld = new Login( world_name, "ome" );
+        asPI    = new Login( pi_name,    "ome" );
+   
     }
 
     // ~ Helpers

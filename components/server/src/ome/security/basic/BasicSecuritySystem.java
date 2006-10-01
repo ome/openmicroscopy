@@ -222,6 +222,32 @@ public class BasicSecuritySystem implements SecuritySystem {
 		return false;
 	}
 
+	/** 
+	 * tests whether or not the current user is either the owner of this entity,
+	 * or the superivsor of this entity, for example as root or as group
+	 * owner.
+	 * 
+	 * @param iObject Non-null managed entity. 
+	 * @return true if the current user is owner or supervisor of this entity
+	 */
+	public boolean isOwnerOrSupervisor( IObject iObject )
+	{
+		if ( iObject == null ) throw new ApiUsageException("Object can't be null");
+		final Long o = iObject.getDetails().getOwner().getId();
+		final Long g = iObject.getDetails().getGroup().getId();
+		
+		final EventContext ec = cd.getCurrentEventContext();
+		final boolean isAdmin = ec.isCurrentUserAdmin();
+		final boolean isPI    = ec.getLeaderOfGroupsList().contains(g);
+		final boolean isOwner = ec.getCurrentUserId().equals(o);
+
+		if (isAdmin || isPI || isOwner)
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	// ~ Read security
 	// =========================================================================
 	/** enables the read filter such that graph queries will have non-visible
@@ -627,7 +653,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 	protected boolean managedPermissions(boolean locked, boolean privileged,
 			IObject obj, Details previousDetails, Details currentDetails,
 			Details newDetails) {
-
+		
 		// setup
 
 		boolean altered = false;
@@ -640,6 +666,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 		// ignore newDetails permissions.
 
+		if ( ! isOwnerOrSupervisor(obj))
+			throw new SecurityViolation(String.format(
+					"You are not authorized to change "
+							+ "the permissions for %s from %s to %s", obj,
+					previousP, currentP));
+		
 		// If the stored perms are null, then we can't validate anything
 		if (previousP == null) {
 			if (currentP == null) {

@@ -75,9 +75,16 @@ public class BasicACLVoter implements ACLVoter {
 		this.secSys = securitySystem;
 	}
 	
-	// ~ Write security (mostly for the Hibernate events)
+	// ~ Interface methods
 	// =========================================================================
 
+	/**
+	 * 
+	 */
+	public boolean allowChmod(IObject iObject) {
+		return secSys.isOwnerOrSupervisor(iObject);
+	}
+	
 	/**
 	 * 
 	 * 

@@ -84,9 +84,11 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
@@ -591,31 +593,31 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	 * not. Therefore, we must manually check if the object belongs to this user
 	 * or is admin (before the call to {@link SecuritySystem#runAsAdmin(AdminAction)}
 	 * 
+	 * This logic is duplicated in {@link BasicSecuritySystem#checkManagedDetails(IObject, ome.model.internal.Details)}.
+	 * 
 	 * @see IAdmin#changePermissions(IObject, Permissions)
 	 * @see <a
 	 *      href="http://trac.openmicroscopy.org.uk/omero/ticket/293">ticket:293</a>
 	 */
 	@RolesAllowed("user")
 	public void changePermissions(final IObject iObject, final Permissions perms) {
-		
-		final LocalUpdate update = iUpdate;
-		final EventContext ec = getSecuritySystem().getEventContext();
-		final boolean isAdmin = ec.isCurrentUserAdmin(); // before the runAsAdmin call.
-		
-		getSecuritySystem().runAsAdmin(new AdminAction(){
-			public void runAsAdmin() {
-				IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-				if (isAdmin || ec.getCurrentUserId().equals(
-						copy.getDetails().getOwner().getId()))
-				{
+
+		final ACLVoter aclVoter = 
+			getSecuritySystem().getACLVoter(); // TODO inject
+
+		if (aclVoter.allowChmod(iObject))
+		{
+			getSecuritySystem().runAsAdmin(new AdminAction(){
+				public void runAsAdmin() {
+					IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
 					copy.getDetails().setPermissions(perms);
-					update.flush();
-				} else {
-					throw new SecurityViolation("Cannot change permissions for:"+
-							copy);
+					iUpdate.flush();
 				}
-			}
-		});
+			});
+		} else {
+			throw new SecurityViolation("Cannot change permissions for:"+
+					iObject);
+		}
 	}
 
 	@RolesAllowed("system")

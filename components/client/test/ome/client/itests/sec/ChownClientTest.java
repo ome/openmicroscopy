@@ -50,7 +50,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChownToROOT() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asUser, toRoot );
+        updateAsUserToOwner( managedImage(asOther), asUser, toRoot );
     }
     
     @Test
@@ -78,7 +78,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChownToUSER() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asUser, toUser );
+        updateAsUserToOwner( managedImage(asOther), asUser, toUser );
     }
     
     @Test
@@ -107,7 +107,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsUserChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asUser, toOther );
+        updateAsUserToOwner( managedImage(asOther), asUser, toOther );
     }
     
     @Test
@@ -135,7 +135,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChownToUSER() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asRoot, toUser );
+        updateAsUserToOwner( managedImage(asOther), asRoot, toUser );
     }
     
     @Test
@@ -162,7 +162,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChownToOTHER() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asRoot, toOther );
+        updateAsUserToOwner( managedImage(asOther), asRoot, toOther );
     }
     
     @Test
@@ -189,7 +189,7 @@ public class ChownClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChownToROOT() throws Exception
     {
-        updateAsUserToOwner( managedImage(other), asRoot, toRoot );
+        updateAsUserToOwner( managedImage(asOther), asRoot, toRoot );
     }
     
     @Test

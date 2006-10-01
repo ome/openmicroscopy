@@ -54,7 +54,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asUser, toSystem );
+        updateAsUserToGroup( managedImage(asOther), asUser, toSystem );
     }
     
     @Test
@@ -82,7 +82,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     // no change
     public void test_OtherImageAsUserChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asUser, toUserGroup );
+        updateAsUserToGroup( managedImage(asOther), asUser, toUserGroup );
     }
     
     @Test
@@ -112,7 +112,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @ExpectedExceptions( SecurityViolation.class )
     public void test_OtherImageAsUserChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asUser, toOtherGroup );
+        updateAsUserToGroup( managedImage(asOther), asUser, toOtherGroup );
     }
     
     @Test
@@ -140,7 +140,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChgrpToUserGroup() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asRoot, toUserGroup );
+        updateAsUserToGroup( managedImage(asOther), asRoot, toUserGroup );
     }
     
     @Test
@@ -167,7 +167,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChgrpToOtherGroup() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asRoot, toOtherGroup );
+        updateAsUserToGroup( managedImage(asOther), asRoot, toOtherGroup );
     }
     
     @Test
@@ -194,7 +194,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest
     @Test
     public void test_OtherImageAsRootChgrpToSystem() throws Exception
     {
-        updateAsUserToGroup( managedImage(other), asRoot, toSystem );
+        updateAsUserToGroup( managedImage(asOther), asRoot, toSystem );
     }
     
     @Test

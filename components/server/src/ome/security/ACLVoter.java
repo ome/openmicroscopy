@@ -39,6 +39,7 @@ import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.system.EventContext;
 
 
 
@@ -57,8 +58,12 @@ import ome.model.internal.Details;
 public interface ACLVoter
 {
 
-	// ~ Write security
-	// =========================================================================
+	/** test whether the given object can have its 
+	 * {@link Details#getPermissions() Permissions} changed within the current
+	 * {@link EventContext security context}. 
+	 */
+	boolean allowChmod( IObject iObject );
+	
 	/** test whether the object of the given {@link Class} with the given 
 	 * {@link Details} should be loadable in the current security context. 
 	 * 
