@@ -35,6 +35,7 @@ import java.util.List;
 // Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
@@ -62,7 +63,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase
 
     protected IQuery iQuery;
     protected QueryImpl impl;
-    protected Mock mockSession;
+    protected Mock mockSession, mockFactory;
 
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception
@@ -72,7 +73,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase
         ProxyFactory pf = new ProxyFactory( impl );
         pf.addAdvice( new ServiceHandler() );
         iQuery = (IQuery) pf.getProxy();
-        mockSession = newMock();
+        createMocks();
     }
     
     @Configuration(afterTestMethod = true)
@@ -82,19 +83,25 @@ public class IQueryMockSessionTest extends MockObjectTestCase
         super.tearDown();
     }
     
-    protected Mock newMock(){
-        final Mock mock = mock(Session.class);
+    protected void createMocks(){
+        mockSession = mock(Session.class);
+        mockFactory = mock(SessionFactory.class);
         impl.setHibernateTemplate(new HibernateTemplate(){
             @Override
             protected Session getSession()
             {
-                mock.setDefaultStub( new DefaultResultStub() );
+                mockSession.setDefaultStub( new DefaultResultStub() );
                 // mock.expects( once() ).method( "close" ).after( "test" );
-                return (Session) mock.proxy();
+                return (Session) mockSession.proxy();
+            }
+            
+            @Override
+            public SessionFactory getSessionFactory() {
+            	mockFactory.setDefaultStub( new DefaultResultStub() );
+            	return (SessionFactory) mockFactory.proxy();
             }
             
         });
-        return mock;
     }
 
     protected Mock criteriaUniqueResultCall(Object obj)

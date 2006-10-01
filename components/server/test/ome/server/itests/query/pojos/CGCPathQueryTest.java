@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractInternalContextTest;
+import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.util.builders.PojoOptions;
 
@@ -17,7 +17,7 @@ import ome.util.builders.PojoOptions;
 TODO FIXME NEW Data with only one in each group (not all images in all categories in cg e.g.)
  */ 
 
-public class CGCPathQueryTest extends AbstractInternalContextTest
+public class CGCPathQueryTest extends AbstractManagedContextTest
 {
     PojosCGCPathsQueryDefinition q;
     List list;

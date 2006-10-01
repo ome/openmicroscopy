@@ -74,17 +74,9 @@ public class PojosDaoTest
 
     private static Log log = LogFactory.getLog(PojosDaoTest.class);
 
-    /**
-     * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
-     */
-    protected String[] getConfigLocations() {
 
-        return ConfigHelper.getDaoConfigLocations(); 
-    }
-    
-    @Override
-    protected ConfigurableApplicationContext getContext(Object key)
-    {
+    @Override protected String[] getConfigLocations() { return new String[]{}; }
+    @Override protected ConfigurableApplicationContext loadContextLocations(String[] locations) {
         return OmeroContext.getManagedServerContext();
     }
 

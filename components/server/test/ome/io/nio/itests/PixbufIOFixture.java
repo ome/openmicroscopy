@@ -73,6 +73,6 @@ public class PixbufIOFixture
     
     protected void tearDown()
     {
-        ((LocalUpdate) updater).rollback();
+        //((LocalUpdate) updater).rollback();
     }
 }

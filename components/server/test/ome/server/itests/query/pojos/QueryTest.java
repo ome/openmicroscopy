@@ -38,12 +38,10 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
-import ome.conditions.InternalException;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
@@ -66,7 +64,7 @@ import ome.util.RdfPrinter;
 @Test( groups = "internal")
 public class QueryTest
         extends
-            AbstractInternalContextTest {
+            AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(QueryTest.class);
     

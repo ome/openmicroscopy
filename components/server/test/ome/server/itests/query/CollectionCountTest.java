@@ -9,18 +9,12 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractInternalContextTest;
+import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.CollectionCountQueryDefinition;
-import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.util.IdBlock;
-import ome.util.builders.PojoOptions;
 
-public class CollectionCountTest extends AbstractInternalContextTest
+public class CollectionCountTest extends AbstractManagedContextTest
 {
    
     private static Log log = LogFactory.getLog(CollectionCountTest.class);

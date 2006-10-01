@@ -123,7 +123,8 @@ public class AbstractManagedContextTest
 
     
     protected String[] getConfigLocations() { return new String[]{}; }
-    protected ConfigurableApplicationContext getContext(Object key)
+    @Override
+    protected ConfigurableApplicationContext loadContextLocations(String[] locations)
     {
         return OmeroContext.getManagedServerContext();
     }
