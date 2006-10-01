@@ -577,7 +577,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 		final LocalUpdate update = iUpdate;
 		// should take a group
 		final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-		ExperimenterGroup group = groupProxy(groupName);
+		final ExperimenterGroup group = groupProxy(groupName);
+		
+		// do check TODO refactor
+		final EventContext ec = getSecuritySystem().getEventContext();
+		if ( ! ec.getMemberOfGroupsList().contains(group.getId()) && 
+				! ec.isCurrentUserAdmin() )
+			throw new SecurityViolation("Cannot change group for:"+iObject);
+		
+		// make change.
 		copy.getDetails().setGroup(group);
 		getSecuritySystem().doAction(copy, new SecureAction() {
 			public IObject updateObject(IObject obj) {
@@ -603,15 +611,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 	public void changePermissions(final IObject iObject, final Permissions perms) {
 
 		final ACLVoter aclVoter = getSecuritySystem().getACLVoter(); // TODO inject
+		final IObject[] copy = new IObject[1];
 
+		// first load the instance.
 		getSecuritySystem().runAsAdmin(new AdminAction(){
 			public void runAsAdmin() {
-				IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
-				if (!aclVoter.allowChmod(copy))
-					throw new SecurityViolation("Cannot change permissions for:"+
-							iObject);
-					
-				copy.getDetails().setPermissions(perms);
+				copy[0] = iQuery.get(iObject.getClass(), iObject.getId());
+			}
+		});
+
+		// now check for ownership _outside_ of runAsAdmin
+		if (!aclVoter.allowChmod(copy[0]))
+			throw new SecurityViolation("Cannot change permissions for:"+
+					copy[0]);
+		
+		// if we reach here, ok to save.
+		getSecuritySystem().runAsAdmin(new AdminAction(){
+			public void runAsAdmin() {
+				copy[0].getDetails().setPermissions(perms);
 				iUpdate.flush();
 			}
 		});

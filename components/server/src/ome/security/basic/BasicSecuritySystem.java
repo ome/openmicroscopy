@@ -703,7 +703,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 			newDetails.setPermissions(currentP);
 			if (!currentP.identical(previousP)) 
 			{
-				if ( ! isOwnerOrSupervisor(obj))
+				if ( ! isOwnerOrSupervisor(obj)) // TODO and privileged? if not, remove from below??
 					throw new SecurityViolation(String.format(
 							"You are not authorized to change "
 									+ "the permissions for %s from %s to %s", obj,
@@ -825,6 +825,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// if user is a member of the group or the current user is an admin
 			// or if the entity has been marked as privileged, then use the
 			// current group.
+			// TODO refactor
 			else if (memberOfGroups().contains(
 					currentDetails.getGroup().getId())
 					|| currentUserIsAdmin() || privileged) {
@@ -1189,11 +1190,12 @@ public class BasicSecuritySystem implements SecuritySystem {
 	public void runAsAdmin(AdminAction action) {
 		Assert.notNull(action);
 		disable(MergeEventListener.MERGE_EVENT);
+		boolean wasAdmin = cd.isAdmin();
 		cd.setAdmin(true);
 		try {
 			action.runAsAdmin();
 		} finally {
-			cd.setAdmin(false);
+			cd.setAdmin(wasAdmin);
 			enable(MergeEventListener.MERGE_EVENT);
 		}
 	}
