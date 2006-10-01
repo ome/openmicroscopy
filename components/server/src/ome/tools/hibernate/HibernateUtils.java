@@ -54,6 +54,7 @@ import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
+import ome.model.meta.Experimenter;
 import ome.tools.lsid.LsidUtils;
 
 /**
@@ -79,6 +80,8 @@ public abstract class HibernateUtils
     // ~ Static methods
     // =========================================================================
 
+	// TODO isUnloaded/nullSafe*Id actually belong in ModelUtils.
+	
     public static boolean isUnloaded( Object original )
     {
 		if ( original != null 
@@ -88,7 +91,35 @@ public abstract class HibernateUtils
 		}
 		return false;
     }
-	
+
+    /** returns the id of the {@link Experimenter owner} of this entity,
+     * or null if: (1) the object is null, (2) the {@link Details} is null,
+     * (3) the owner is null.
+     * @param iobject Can be null.
+     * @return the id or null.
+     */
+    public static Long nullSafeOwnerId( IObject iobject )
+    {
+    	if (iobject==null) return null;
+    	if (iobject.getDetails()==null) return null;
+    	if (iobject.getDetails().getOwner()==null) return null;
+    	return iobject.getDetails().getOwner().getId();
+    }
+    
+    /** returns the id of the {@link ExperimenterGroup group} of this entity,
+     * or null if: (1) the object is null, (2) the {@link Details} is null,
+     * (3) the group is null.
+     * @param iobject Can be null.
+     * @return the id or null.
+     */
+    public static Long nullSafeGroupId( IObject iobject )
+    {
+    	if (iobject==null) return null;
+    	if (iobject.getDetails()==null) return null;
+    	if (iobject.getDetails().getGroup()==null) return null;
+    	return iobject.getDetails().getGroup().getId();
+    }
+    
 	/** loads collections which have been filtered or nulled by the user 
 	 * 
 	 * @param entity IObject to have its collections reloaded

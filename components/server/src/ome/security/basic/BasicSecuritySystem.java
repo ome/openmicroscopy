@@ -233,8 +233,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 	public boolean isOwnerOrSupervisor( IObject iObject )
 	{
 		if ( iObject == null ) throw new ApiUsageException("Object can't be null");
-		final Long o = iObject.getDetails().getOwner().getId();
-		final Long g = iObject.getDetails().getGroup().getId();
+		final Long o = HibernateUtils.nullSafeOwnerId(iObject);
+		final Long g = HibernateUtils.nullSafeGroupId(iObject);
 		
 		final EventContext ec = cd.getCurrentEventContext();
 		final boolean isAdmin = ec.isCurrentUserAdmin();
