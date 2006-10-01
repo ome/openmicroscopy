@@ -665,14 +665,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 				.getPermissions();
 
 		// ignore newDetails permissions.
-
-		if ( ! isOwnerOrSupervisor(obj))
-			throw new SecurityViolation(String.format(
-					"You are not authorized to change "
-							+ "the permissions for %s from %s to %s", obj,
-					previousP, currentP));
 		
 		// If the stored perms are null, then we can't validate anything
+		// TODO : is this alright. Should only happen for system types. 
+		// Then can silently ignore ??
 		if (previousP == null) {
 			if (currentP == null) {
 				newDetails.setPermissions(null);
@@ -704,7 +700,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// if we need to filter any permissions, do it here!
 
 			newDetails.setPermissions(currentP);
-			if (!currentP.identical(previousP)) {
+			if (!currentP.identical(previousP)) 
+			{
+				if ( ! isOwnerOrSupervisor(obj))
+					throw new SecurityViolation(String.format(
+							"You are not authorized to change "
+									+ "the permissions for %s from %s to %s", obj,
+							previousP, currentP));
+			
 				altered = true;
 			}
 		}
