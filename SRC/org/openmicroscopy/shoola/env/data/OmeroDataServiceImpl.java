@@ -162,7 +162,8 @@ class OmeroDataServiceImpl
         PojoOptions po = new PojoOptions();
         po.allCounts();
         setRootOptions(po, rootLevel, rootLevelID);
-        if (!withLeaves) po.noLeaves();
+        if (withLeaves) po.leaves();
+        else po.noLeaves();
         po.countsFor(new Long(getUserDetails().getId()));
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
                                             po.map());                              
@@ -194,7 +195,7 @@ class OmeroDataServiceImpl
         po.noCounts();
         po.noLeaves();
         return gateway.findAnnotations(nodeType, nodeIDs, annotatorIDs, 
-                                        po.map());
+                new PojoOptions().map());
     }
 
     /** 
