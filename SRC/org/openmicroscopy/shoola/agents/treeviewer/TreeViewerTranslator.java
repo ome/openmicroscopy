@@ -37,6 +37,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -157,7 +158,12 @@ public class TreeViewerTranslator
         String toolTip = "";
         String title = null;
         if (node.getUserObject() instanceof ImageData) {
-            Timestamp time = ((ImageData) node.getUserObject()).getInserted();
+            Timestamp time = null;
+            try {
+                time = ((ImageData) node.getUserObject()).getInserted();
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             if (time == null) time = getDefaultTimestamp();
             title = DateFormat.getDateInstance().format(time);   
             toolTip = UIUtilities.formatToolTipText(title);
@@ -260,16 +266,34 @@ public class TreeViewerTranslator
      * Transforms a {@link DatasetData} into a visualisation object i.e.
      * a {@link TreeImageSet}.
      * 
-     * @param data  The {@link DatasetData} to transform.
-     *              Mustn't be <code>null</code>.
+     * @param data      The {@link DatasetData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                 
      * @return See above.
      */
-    private static TreeImageDisplay transformDataset(DatasetData data)
+    private static TreeImageDisplay transformDataset(DatasetData data, 
+                                            long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet dataset =  new TreeImageSet(data);
-        dataset.setNumberItems(0);
+        Set images = data.getImages();
+        if (images == null) { dataset.setNumberItems(0);
+        } else {
+            dataset.setChildrenLoaded(Boolean.TRUE);
+            dataset.setNumberItems(images.size());
+            Iterator i = images.iterator();
+            ImageData child;
+            while (i.hasNext()) {
+                child = (ImageData) i.next();
+                if (isReadable(child, userID, groupID))
+                    dataset.addChildDisplay(transformImage(child));
+                
+            }
+        }
+        
         formatToolTipFor(dataset);
         return dataset;
     }
@@ -281,18 +305,18 @@ public class TreeViewerTranslator
      * 
      * @param data      The {@link ProjectData} to transform.
      *                  Mustn't be <code>null</code>.
+     * @param datasets  The list of datasets to add.
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
      *                      retrieving the data.             
      * @return See above.
      */
-    private static TreeImageDisplay transformProject(ProjectData data,
-                                                long userID, long groupID)
+    private static TreeImageDisplay transformProject(ProjectData data, 
+                        Set datasets, long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet project = new TreeImageSet(data);
-        Set datasets = data.getDatasets();
         if (datasets != null) {
             project.setChildrenLoaded(Boolean.TRUE);
             Iterator i = datasets.iterator();
@@ -300,7 +324,8 @@ public class TreeViewerTranslator
             while (i.hasNext()) {
                 child = (DatasetData) i.next();
                 if (isReadable(child, userID, groupID))
-                    project.addChildDisplay(transformDataset(child));
+                    project.addChildDisplay(transformDataset(child, userID, 
+                                                            groupID));
             }
             project.setNumberItems(datasets.size());
         } else {
@@ -315,16 +340,32 @@ public class TreeViewerTranslator
      * Transforms a {@link CategoryData} into a visualisation object i.e.
      * a {@link TreeImageSet}.
      * 
-     * @param data  The {@link CategoryData} to transform.
-     *              Mustn't be <code>null</code>.
+     * @param data      The {@link CategoryData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                
      * @return See above.
      */
-    private static TreeImageDisplay transformCategory(CategoryData data)
+    private static TreeImageDisplay transformCategory(CategoryData data, 
+                                                long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet category =  new TreeImageSet(data);
-        category.setNumberItems(0);
+        Set images = data.getImages();
+        if (images == null) { category.setNumberItems(0);
+        } else {
+            category.setChildrenLoaded(Boolean.TRUE);
+            category.setNumberItems(images.size());
+            Iterator i = images.iterator();
+            ImageData child;
+            while (i.hasNext()) {
+                child = (ImageData) i.next();
+                if (isReadable(child, userID, groupID))
+                    category.addChildDisplay(transformImage(child));
+            }
+        }
         return category;
     } 
     
@@ -333,20 +374,20 @@ public class TreeViewerTranslator
      * a {@link TreeImageSet}. The {@link CategoryData categories} are also
      * transformed and linked to the newly created {@link TreeImageSet}.
      * 
-     * @param data      The {@link CategoryGroupData} to transform.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
+     * @param data          The {@link CategoryGroupData} to transform.
+     *                      Mustn't be <code>null</code>.
+     * @param categories    The categories to add.
+     * @param userID        The id of the current user.
+     * @param groupID       The id of the group the current user selects when 
      *                      retrieving the data.                    
      * @return See above.
      */
     private static TreeImageDisplay transformCategoryGroup(
-            CategoryGroupData data, long userID, long groupID)
+            CategoryGroupData data, Set categories, long userID, long groupID)
     {
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet group = new TreeImageSet(data);
-        Set categories = data.getCategories();
         if (categories != null) {
             group.setChildrenLoaded(Boolean.TRUE);
             Iterator i = categories.iterator();
@@ -354,7 +395,8 @@ public class TreeViewerTranslator
             while (i.hasNext())  {
                 child = (CategoryData) i.next();
                 if (isReadable(child, userID, groupID))
-                    group.addChildDisplay(transformCategory(child));
+                    group.addChildDisplay(transformCategory(child, userID, 
+                                                            groupID));
             }   
             group.setNumberItems(categories.size());
         } else {
@@ -404,12 +446,14 @@ public class TreeViewerTranslator
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID)) {
-                if (ho instanceof ProjectData) 
-                    results.add(transformProject((ProjectData) ho, userID, 
+                if (ho instanceof ProjectData)
+                  results.add(transformProject((ProjectData) ho, 
+                            ((ProjectData) ho).getDatasets(), userID, 
                                                 groupID));
                 else if (ho instanceof CategoryGroupData)
                     results.add(transformCategoryGroup((CategoryGroupData) ho, 
-                                                userID, groupID));
+                            ((CategoryGroupData) ho).getCategories(),
+                            userID, groupID));
                 else if (ho instanceof ImageData)
                     results.add(transformImage((ImageData) ho));
             }   
@@ -424,12 +468,12 @@ public class TreeViewerTranslator
      * 
      * @param dataObjects   The collection of {@link DataObject}s to transform.
      * @param userID        The id of the current user.
-     * @param rootGroupID   The id of the group the current user selects when 
+     * @param groupID       The id of the group the current user selects when 
      *                      retrieving the data.    
      * @return A set of visualization objects.
      */
     public static Set transformContainers(Set dataObjects, long userID,
-                                        long rootGroupID)
+                                        long groupID)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
@@ -443,16 +487,44 @@ public class TreeViewerTranslator
                 j = ((ProjectData) ho).getDatasets().iterator();
                 while (j.hasNext()) {
                     child = (DataObject) j.next();
-                    if (isReadable(child, userID, rootGroupID))
-                        results.add(transformDataset((DatasetData) child));
+                    if (isReadable(child, userID, groupID))
+                        results.add(transformDataset((DatasetData) child, 
+                                                    userID, groupID));
                 }  
             } else if (ho instanceof CategoryGroupData) {
                 j = ((CategoryGroupData) ho).getCategories().iterator();
                 while (j.hasNext()) {
                     child = (DataObject) j.next();
-                    if (isReadable(child, userID, rootGroupID))
-                        results.add(transformCategory((CategoryData) child));
+                    if (isReadable(child, userID, groupID))
+                        results.add(transformCategory((CategoryData) child, 
+                                                    userID, groupID));
                 }   
+            }
+        }
+        return results;
+    }
+    
+    public static Set refreshHierarchy(Map nodes, long userID, long groupID)
+    {
+        if (nodes == null)
+            throw new IllegalArgumentException("No objects.");
+        Set results = new HashSet(nodes.size());
+        Iterator i = nodes.keySet().iterator();
+        DataObject ho;
+        while (i.hasNext()) {
+            ho = (DataObject) i.next();
+            System.out.println(ho);
+            if (isReadable(ho, userID, groupID)) {
+                if (ho instanceof ProjectData) {
+                    results.add(transformProject((ProjectData) ho, 
+                                            (Set) nodes.get(ho), 
+                                            userID, groupID));
+                } else if (ho instanceof CategoryGroupData) {
+                    results.add(transformCategoryGroup(
+                            (CategoryGroupData) ho, 
+                            (Set) nodes.get(ho), 
+                            userID, groupID)); 
+                }
             }
         }
         return results;
@@ -477,13 +549,15 @@ public class TreeViewerTranslator
         if (!(isReadable(object, userID, groupID)))
             throw new IllegalArgumentException("Data object not readable.");
         if (object instanceof ProjectData)
-            return transformProject((ProjectData) object, userID, groupID);
+            return transformProject((ProjectData) object, 
+                    ((ProjectData) object).getDatasets(), userID, groupID);
         else if (object instanceof DatasetData)
-            return transformDataset((DatasetData) object);
+            return transformDataset((DatasetData) object, userID, groupID);
         else if (object instanceof CategoryData)
-            return transformCategory((CategoryData) object);
+            return transformCategory((CategoryData) object, userID, groupID);
         else if (object instanceof CategoryGroupData)
             return transformCategoryGroup((CategoryGroupData) object, 
+                    ((CategoryGroupData) object).getCategories(),
                                         userID, groupID);
         else if (object instanceof ImageData)
             return transformImage((ImageData) object);
@@ -560,5 +634,6 @@ public class TreeViewerTranslator
         }
         return results;
     }
+
     
 }
