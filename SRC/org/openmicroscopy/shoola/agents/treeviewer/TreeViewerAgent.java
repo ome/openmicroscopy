@@ -117,6 +117,7 @@ public class TreeViewerAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, ShowProperties.class);
+        //TODO need to review that code.
         TreeViewer viewer = TreeViewerFactory.getViewer();
         if (viewer != null) viewer.activate();
     }
