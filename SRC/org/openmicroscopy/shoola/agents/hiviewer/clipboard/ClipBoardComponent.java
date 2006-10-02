@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
@@ -348,6 +349,23 @@ class ClipBoardComponent
         if (object == null)
             throw new IllegalArgumentException("No object to save.");
         model.getParentModel().saveObject(object);
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#showProperties(DataObject)
+     */
+    public void showProperties(DataObject object)
+    {
+        if (object == null)
+            throw new IllegalArgumentException("No object to edit.");
+        if (model.getPaneIndex() != ClipBoard.EDITOR_PANE) {
+            model.setPaneIndex(ClipBoard.EDITOR_PANE);
+            view.setSelectedPane(ClipBoard.EDITOR_PANE);
+        }
+        EditorPane pane = ((EditorPane) model.getClipboardPane(
+                                ClipBoard.EDITOR_PANE));
+        pane.edit(object);
     }
 
 }

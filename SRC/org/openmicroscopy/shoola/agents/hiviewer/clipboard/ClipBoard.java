@@ -254,6 +254,13 @@ public interface ClipBoard
      * @param object The object to save.
      */
     public void saveObject(DataObject object);
+
+    /**
+     * Displays the properties of the currently selected node.
+     * 
+     * @param object The Data object to edit.
+     */
+    public void showProperties(DataObject object);
     
 }
 

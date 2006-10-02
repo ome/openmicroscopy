@@ -134,27 +134,18 @@ public class EditorPane
         add(uiDelegate, c);
     }
     
-    
     /**
-     * Overriden to update the UI components when a new node is selected in the
-     * <code>Browser</code>.
-     * @see ClipBoardPane#onDisplayChange(ImageDisplay)
+     * Edits the specified object.
+     * 
+     * @param ho    The object to edit.
      */
-    public void onDisplayChange(ImageDisplay selectedDisplay)
+    public void edit(Object ho)
     {
-        objectOwner = false;
-        if (model.getSelectedPaneIndex() != ClipBoard.EDITOR_PANE) return;
-        if (selectedDisplay == null) {
-            uiDelegate.setAreas("", "", uiDelegate.getMessage(null), false);
-            uiDelegate.displayDetails(null, null);
-            return;
-        }
-        Object ho = selectedDisplay.getHierarchyObject();
-        if (ho == null) {
+        if (ho == null || !(ho instanceof DataObject)) {
             uiDelegate.setAreas("", "", uiDelegate.getMessage(null), false);
             uiDelegate.displayDetails(null, null);
             return; //root
-        }
+        } 
         ExperimenterData user = model.getUserDetails();
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
@@ -196,11 +187,21 @@ public class EditorPane
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions());
-        } else {
-            uiDelegate.setAreas("", "", uiDelegate.getMessage(null), false);
-            uiDelegate.displayDetails(null, null);
         }
         uiDelegate.repaint();
+    }
+    
+    /**
+     * Overridden to update the UI components when a new node is selected in the
+     * <code>Browser</code>.
+     * @see ClipBoardPane#onDisplayChange(ImageDisplay)
+     */
+    public void onDisplayChange(ImageDisplay selectedDisplay)
+    {
+        objectOwner = false;
+        if (model.getSelectedPaneIndex() != ClipBoard.EDITOR_PANE) return;
+        if (selectedDisplay == null) edit(null);
+        else edit(selectedDisplay.getHierarchyObject());
     }
     
     /**
@@ -248,11 +249,5 @@ public class EditorPane
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Data object editor."; }
-
-
-
-
-
-
 
 }
