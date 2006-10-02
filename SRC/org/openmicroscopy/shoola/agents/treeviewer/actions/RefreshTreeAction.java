@@ -63,7 +63,7 @@ public class RefreshTreeAction
 {
 
     /** Name of the action. */
-    private static final String NAME = "Refresh tree";
+    private static final String NAME = "Refresh current tree";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Reloads the tree.";

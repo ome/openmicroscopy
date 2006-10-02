@@ -114,7 +114,6 @@ public class ViewAction
     public ViewAction(TreeViewer model)
     {
         super(model);
-        setEnabled(true);
         name = BROWSE;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

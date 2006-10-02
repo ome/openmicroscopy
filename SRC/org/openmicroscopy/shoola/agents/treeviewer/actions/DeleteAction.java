@@ -83,6 +83,13 @@ public class DeleteAction
             setEnabled(false);
             return;
         }
+        if (model.getSelectedBrowser() != null) {
+            if (model.getSelectedBrowser().getSelectedDisplays().length > 1) {
+                setEnabled(false);
+                return;
+            }
+        }
+            
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof ProjectData) || (ho instanceof DatasetData) ||
             (ho instanceof ImageData) || (ho instanceof CategoryData) ||
