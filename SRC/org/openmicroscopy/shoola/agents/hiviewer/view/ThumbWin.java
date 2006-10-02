@@ -79,7 +79,7 @@ class ThumbWin
     /** The parent frame of this window. */
     private JFrame          parentFrame;
     
-    /** The action to execute an annotation. */
+    /** Reference to the model. */
     private HiViewer        model;
     
     /**
@@ -93,7 +93,7 @@ class ThumbWin
     {
         if (me.isPopupTrigger()) {
             popupPoint = me.getPoint();
-            ThumbWinPopupMenu.showMenuFor(this);
+            ThumbWinPopupMenu.showMenuFor(this, model);
         }
     }
     
