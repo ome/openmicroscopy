@@ -153,7 +153,6 @@ public class AnnotationEditor
 	            break;
 	        case DELETE:
 	            handle = dmView.deleteAnnotation(annotatedObject, data, this);
-	            break;
         }
     }
 
@@ -170,7 +169,6 @@ public class AnnotationEditor
     public void handleResult(Object result)
     {
         if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        System.out.println(result);
         viewer.setSaveResult((DataObject) result, TreeViewer.UPDATE_OBJECT); 
     }
     
