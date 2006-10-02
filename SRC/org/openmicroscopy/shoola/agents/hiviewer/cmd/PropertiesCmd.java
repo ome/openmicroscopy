@@ -114,6 +114,7 @@ public class PropertiesCmd
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
+        //NEED to review that code.
         //post a show properties event.
         if (model != null) model.moveToBack(); //move the window to the back.
         EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
