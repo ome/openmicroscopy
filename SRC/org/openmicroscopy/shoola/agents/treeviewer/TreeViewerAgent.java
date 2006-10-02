@@ -100,7 +100,11 @@ public class TreeViewerAgent
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
-    public void activate() {}
+    public void activate()
+    {
+        TreeViewer viewer = TreeViewerFactory.getViewer();
+        if (viewer != null) viewer.activate();
+    }
 
     /**
      * Implemented as specified by {@link Agent}.
@@ -117,9 +121,6 @@ public class TreeViewerAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, ShowProperties.class);
-        //TODO need to review that code.
-        TreeViewer viewer = TreeViewerFactory.getViewer();
-        if (viewer != null) viewer.activate();
     }
 
     /**
