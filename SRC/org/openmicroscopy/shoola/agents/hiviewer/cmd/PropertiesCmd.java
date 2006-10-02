@@ -37,11 +37,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.DataObject;
 
 /** 
@@ -67,19 +64,7 @@ public class PropertiesCmd
     
     /** The selected hierarchy object. */
     private DataObject  hierarchyObject;
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param hierarchyObject The selected hierarchy object.
-     */
-    public PropertiesCmd(DataObject hierarchyObject)
-    {
-        if (hierarchyObject == null)
-            throw new IllegalArgumentException("No hierarchy object.");
-        this.hierarchyObject = hierarchyObject;
-    }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -116,9 +101,10 @@ public class PropertiesCmd
         if (hierarchyObject == null) return;
         //NEED to review that code.
         //post a show properties event.
-        if (model != null) model.moveToBack(); //move the window to the back.
-        EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
-        eventBus.post(new ShowProperties(hierarchyObject, ShowProperties.EDIT)); 
+        //if (model != null) model.moveToBack(); //move the window to the back.
+        //EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
+        //eventBus.post(new ShowProperties(hierarchyObject, ShowProperties.EDIT));
+        model.showProperties(hierarchyObject);
     }
 
 }
