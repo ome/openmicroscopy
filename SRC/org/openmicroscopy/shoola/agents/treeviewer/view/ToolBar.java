@@ -36,7 +36,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.Point;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -69,8 +72,23 @@ class ToolBar
     extends JPanel
 {
     
+    /** Size of the horizontal box. */
+    private static final Dimension HBOX = new Dimension(100, 16);
+    
     /** Reference to the control. */
     private TreeViewerControl   controller;
+    
+    /**
+     * Sets the UI properties of the button.
+     * 
+     * @param b The button.
+     */
+    private void setButtonProperties(JButton b)
+    {
+        //b.setOpaque(false);  
+        b.setMargin(new Insets(0, 0, 0, 0));
+        //b.setBorder(BorderFactory.createEmptyBorder()); //No border around icon.
+    }
     
     /**
      * Helper method to create the tool bar hosting the management items.
@@ -84,11 +102,11 @@ class ToolBar
         bar.setRollover(true);
         bar.setBorder(null);
         JButton b = new JButton(controller.getAction(TreeViewerControl.VIEW));
-        b.setBorderPainted(false);
+        setButtonProperties(b);
         bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
-        b.setBorderPainted(false);
+        setButtonProperties(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
@@ -108,15 +126,15 @@ class ToolBar
         bar.setBorder(null);
         JButton b = new JButton(controller.getAction(
                                     TreeViewerControl.ANNOTATE));
-        b.setBorderPainted(false);
+        setButtonProperties(b);
         bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.CLASSIFIER);
         b = new JButton(a);
         b.addMouseListener((ClassifierAction) a);
-        b.setBorderPainted(false);
+        setButtonProperties(b);
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
-        b.setBorderPainted(false);
+        setButtonProperties(b);
         bar.add(b);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;
@@ -133,7 +151,7 @@ class ToolBar
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
-        outerPanel.add(Box.createRigidArea(new Dimension(100, 16)));
+        outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createHorizontalGlue());  
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(outerPanel);

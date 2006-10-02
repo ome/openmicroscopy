@@ -276,9 +276,9 @@ public interface TreeViewer
     /**
      * Removes the specified {@link DataObject}.
      * 
-     * @param object The {@link DataObject} to save.
+     * @param objects The {@link DataObject} to remove.
      */
-    public void removeObject(DataObject object);
+    public void removeObjects(DataObject objects);
     
     /** Cancels any ongoing data loading. */
     public void cancel();

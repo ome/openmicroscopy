@@ -142,8 +142,8 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
 	        case NEW:
-                view.setOnScreen();
                 model.getSelectedBrowser().activate();
+                view.setOnScreen();
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
@@ -248,7 +248,8 @@ class TreeViewerComponent
         Editor editor = EditorFactory.getEditor(this, object, editorType);
         editor.addPropertyChangeListener(controller);
         editor.activate();
-        if (editorType == CREATE_EDITOR) onComponentStateChange(false);
+        if (editorType == CREATE_EDITOR) 
+            onComponentStateChange(false);
         view.addComponent(editor.getUI());
     }
 
@@ -324,9 +325,9 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#removeObject(DataObject)
+     * @see TreeViewer#removeObjects(DataObject)
      */
-    public void removeObject(DataObject object)
+    public void removeObjects(DataObject object)
     {
         switch (model.getState()) {
             case READY:
@@ -336,7 +337,7 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method should only be " +
                 "invoked in the READY or NEW state.");
         }
-        model.fireDataObjectDeletion(object);
+        model.fireDataObjectsDeletion(object);
         fireStateChange();
     }
     
@@ -457,8 +458,8 @@ class TreeViewerComponent
                 throw new IllegalArgumentException("Save operation not " +
                         "supported.");
         }    
-        int editor = model.getEditorType();
-        removeEditor(); //remove the currently selected editor.
+        //int editor = model.getEditorType();
+        //removeEditor(); //remove the currently selected editor.
         if (operation == REMOVE_OBJECT) {
             model.setState(READY);
             fireStateChange();
@@ -475,10 +476,11 @@ class TreeViewerComponent
                     browser.refreshEdition(data, operation);
             }
         }
-        if (editor == CREATE_EDITOR) {
-            PropertiesCmd cmd = new PropertiesCmd(this);
-            cmd.execute();
-        }
+        //onComponentStateChange(true);
+       // if (editor == CREATE_EDITOR) {
+        //    PropertiesCmd cmd = new PropertiesCmd(this);
+       //     cmd.execute();
+       // }
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }

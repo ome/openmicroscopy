@@ -390,8 +390,7 @@ class TreeViewerWin
     {
         this.controller = controller;
         this.model = model;
-        IconManager icons = IconManager.getInstance();
-        statusBar = new StatusBar(icons.getIcon(IconManager.STATUS_INFO));
+        statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
         toolBar = new ToolBar(controller);
         //popupMenu = new PopupMenu(controller);
@@ -555,7 +554,19 @@ class TreeViewerWin
      * @param b Pass <code>true</code> to enable the tabbed pane,
      *          <code>false</code> otherwise.
      */
-    void onStateChanged(boolean b) { tabs.setEnabled(b); }
+    void onStateChanged(boolean b)
+    { 
+        Map browsers = model.getBrowsers();
+        if (browsers != null) {
+            Iterator i = browsers.keySet().iterator();
+            while (i.hasNext()) {
+                ((Browser) browsers.get(i.next())).onComponentStateChange(b);
+            }
+            
+        }
+        //if (browser != null) browser.onComponentStateChange(b);
+        tabs.setEnabled(b);
+    }
     
     /** 
      * Sets the status message.

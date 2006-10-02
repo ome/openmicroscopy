@@ -84,26 +84,26 @@ class StatusBar
     /** Flag to indicate if the button is enabled. */
     private boolean             buttonEnabled;
     
-    /** 
-     * Initializes the components. 
-     * 
-     * @param statusIcon The icon displayed in the left corner.
-     */
-    private void initComponents(Icon statusIcon)
+    /** Reference to the control. */
+    private TreeViewerControl   controller;
+    
+    /** Initializes the components. */
+    private void initComponents()
     {
+        IconManager icons = IconManager.getInstance();
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
-        statusButton = new JButton(statusIcon);
+        statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
         statusButton.setBorder(null);
         statusButton.setBorderPainted(false);
+        statusButton.setFocusPainted(false);
+        statusButton.setOpaque(false);
         statusButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)
             {
-                if (buttonEnabled)
-                    firePropertyChange(CANCEL_PROPERTY, Boolean.FALSE, 
-                                Boolean.TRUE);
+                if (buttonEnabled) controller.cancel();
             }
         
         });
@@ -131,11 +131,15 @@ class StatusBar
     /**
      * Creates a new instance.
      * 
-     * @param statusIcon The icon displayed in the left corner.
+     * @param controller    Reference to the control. Mustn't be 
+     *                      <code>null</code>.
      */
-    StatusBar(Icon statusIcon)
+    StatusBar(TreeViewerControl controller)
     {
-        initComponents(statusIcon);
+        if (controller == null)
+            throw new IllegalArgumentException("No control.");
+        this.controller = controller;
+        initComponents();
         buildUI();
     }
     

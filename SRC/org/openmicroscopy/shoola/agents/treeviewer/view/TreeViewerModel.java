@@ -248,9 +248,9 @@ class TreeViewerModel
     * Starts the asynchronous creation of the data 
     * and sets the state to {@link TreeViewer#SAVE}.
     * 
-    * @param userObject The <code>DataObject</code> to remove.
+    * @param object The <code>DataObject</code> to remove.
     */
-   void fireDataObjectDeletion(DataObject userObject)
+   void fireDataObjectsDeletion(DataObject object)
    {
        if (currentLoader != null) {
            currentLoader.cancel();
@@ -261,10 +261,10 @@ class TreeViewerModel
            selectedBrowser.getLastSelectedDisplay().getParentDisplay();
        Object po = parent.getUserObject();
        DataObject data = null;
-       if (!((userObject instanceof ProjectData) || 
-               (userObject instanceof CategoryGroupData)))//root.
+       if (!((object instanceof ProjectData) || 
+               (object instanceof CategoryGroupData)))//root.
            data = ((DataObject) po);
-       currentLoader = new DataObjectRemover(component, userObject, data);
+       currentLoader = new DataObjectRemover(component, object, data);
        currentLoader.load();
    }
    

@@ -354,6 +354,9 @@ class TreeViewerControl
         return (Action) groupLevelActionsMap.get(id);
     }
     
+    /** Forwards call to the {@link TreeViewer}. */
+    void cancel() { model.cancel(); }
+    
     /**
      * Reacts to property changed. 
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -402,7 +405,7 @@ class TreeViewerControl
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
             model.addExistingObjects((Set) pce.getNewValue());
-        } 
+        }
     }
 
     /**
