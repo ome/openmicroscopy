@@ -301,6 +301,7 @@ public abstract class TreeImageDisplay
         if (!checkAlgoType(algoType))
             throw new IllegalArgumentException("Algorithm not supported.");
         Iterator i = childrenDisplay.iterator();
+        
         TreeImageDisplay child;
         switch (algoType) {
             case TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY:

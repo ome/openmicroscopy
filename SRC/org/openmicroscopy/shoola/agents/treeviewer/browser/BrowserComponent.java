@@ -39,12 +39,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -58,13 +58,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -133,14 +133,14 @@ class BrowserComponent
     /**
      * Helper method to create the specified nodes.
      * 
-     * @param nodes     The list of nodes to add the specified 
-     *                  <code>display</code> node to.
-     * @param display   The node to add to the 
+     * @param nodes         The list of nodes to add the specified 
+     *                      <code>display</code> node to.
+     * @param display       The node to add to.
+     * @param parentDisplay The parent of the node.
      */
-    private void createNodes(List nodes, TreeImageDisplay display)
+    private void createNodes(List nodes, TreeImageDisplay display, 
+                            TreeImageDisplay parentDisplay)
     {
-        TreeImageDisplay parentDisplay = getLastSelectedDisplay();
-        if (parentDisplay == null) parentDisplay = view.getTreeRoot();
         setSelectedDisplay(display);
         view.createNodes(nodes, display, parentDisplay);
     }
@@ -255,7 +255,7 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
                                                             groupID);
-        view.setViews(visNodes);
+        view.setViews(visNodes, true);
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -336,6 +336,7 @@ class BrowserComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED or " +
                     "LOADING_LEAVES state.");
+        System.out.println("leaves");
         model.fireLeavesLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
@@ -377,7 +378,9 @@ class BrowserComponent
                         " LOADING_LEAVES or DISCARDED state.");
         }
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
-        if (oldDisplay != null && oldDisplay.equals(display)) return;
+        //if (oldDisplay != null && oldDisplay.equals(display)) return;
+        if (display != null && display.getUserObject() instanceof String) 
+            display = null;
         model.setSelectedDisplay(display);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
     }
@@ -457,11 +460,8 @@ class BrowserComponent
      */
     public void accept(TreeImageDisplayVisitor visitor, int algoType)
     {
-        DefaultTreeModel model = (DefaultTreeModel) 
-                view.getTreeDisplay().getModel();
-        TreeImageDisplay root = (TreeImageDisplay) model.getRoot();
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        root.accept(visitor, algoType);
+        view.getTreeRoot().accept(visitor, algoType);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
@@ -624,16 +624,23 @@ class BrowserComponent
 	                    " LOADING_LEAVES or DISCARDED state.");
         }
         TreeImageDisplay root = view.getTreeRoot();
-        if (!root.isChildrenLoaded()) return;
+        //if (!root.isChildrenLoaded()) return;
 	    if (!model.isSelected()) {
 	        view.clearTree();
 	        return;
 	    }
-	    root.removeAllChildrenDisplay();
-	    model.setSelectedDisplay(root);
         if (model.getBrowserType() == IMAGES_EXPLORER) {
+            root.removeAllChildrenDisplay();
+            model.setSelectedDisplay(root);
             loadFilteredImagesForHierarchy();
-        } else loadData();
+        } else {
+            RefreshVisitor visitor = new RefreshVisitor(this);
+            accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+            root.removeAllChildrenDisplay();
+            model.setSelectedDisplay(root);
+            if (visitor.getFoundNodes().size() == 0) loadData();
+            else model.loadRefreshedData(visitor.getFoundNodes());
+        }
     }
     
     /**
@@ -653,7 +660,7 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         if (parent == null) { //root
             view.setViews(TreeViewerTranslator.transformHierarchy(nodes, userID,
-                                                            groupID));
+                                                            groupID), true);
         }  else view.setViews(TreeViewerTranslator.transformContainers(nodes, 
                                         userID, groupID), 
                             parentDisplay);
@@ -850,24 +857,34 @@ class BrowserComponent
                         "in the NEW or READY state.");
         }
         Object o = object;
+        List nodes = null;
+        TreeImageDisplay parentDisplay = null;
         if (op == TreeViewer.CREATE_OBJECT) {
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
-                (object instanceof CategoryGroupData) || node == null)
-                refreshTree();
-            else o = node.getUserObject();
+                (object instanceof CategoryGroupData)) {
+                nodes = new ArrayList(1);
+                nodes.add(view.getTreeRoot());
+                parentDisplay = view.getTreeRoot();
+            } else 
+                o = node.getUserObject();
         }
-        EditVisitor visitor = new EditVisitor(this, o);
-        accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
-        List nodes = visitor.getFoundNodes();
+        if (nodes == null) {
+            EditVisitor visitor = new EditVisitor(this, o);
+            accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
+            nodes = visitor.getFoundNodes();
+        }
+        
         if (op == TreeViewer.UPDATE_OBJECT) view.updateNodes(nodes, object);
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
             long groupID = model.getRootGroupID();
+            if (parentDisplay == null)
+                parentDisplay = getLastSelectedDisplay();
             createNodes(nodes, 
                     TreeViewerTranslator.transformDataObject(object, userID, 
-                            groupID));
+                            groupID), parentDisplay);
         }     
     }
     
@@ -909,7 +926,10 @@ class BrowserComponent
             nodes = visitor.getFoundNodes();
             d = TreeViewerTranslator.transformDataObject(img, userID, groupID);
             if (editorType == CATEGORY_EXPLORER) {
-                if (m == Classifier.CLASSIFY_MODE) createNodes(nodes, d);
+                if (m == Classifier.CLASSIFY_MODE) {
+                    createNodes(nodes, d, 
+                            getLastSelectedDisplay().getParentDisplay());
+                }
                 else removeNodes(nodes);
             } else if (editorType == PROJECT_EXPLORER || 
                     editorType == IMAGES_EXPLORER)
@@ -1023,6 +1043,24 @@ class BrowserComponent
             throw new IllegalStateException("This method cannot be invoked "+
                     "in the DISCARDED state.");
         model.setDisplayed(displayed);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setRefreshedHierarchy(Map)
+     */
+    public void setRefreshedHierarchy(Map nodes)
+    {
+        if (model.getState() != LOADING_DATA)
+            throw new IllegalStateException("This method cannot be invoked "+
+                "in the LOADING_DATA state.");
+        long userID = model.getUserID();
+        long groupID = model.getRootGroupID();
+        view.setViews(TreeViewerTranslator.refreshHierarchy(nodes, userID,
+                groupID), false); 
+        model.fireContainerCountLoading();
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange(); 
     }
     
 }

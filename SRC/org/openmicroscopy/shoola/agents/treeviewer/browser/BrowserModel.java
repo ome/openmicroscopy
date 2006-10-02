@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.HierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesInContainerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ImagesLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.RefreshDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
@@ -575,5 +576,22 @@ class BrowserModel
      *                  screen, <code>false</code> otherwise.
      */
     void setDisplayed(boolean displayed) { this.displayed = displayed; }
+
+    /** 
+     * Loads the data to refresh the tree.
+     * 
+     * @param nodes The Collection of expanded nodes.
+     */
+    void loadRefreshedData(List nodes)
+    {
+        Class klass = null;
+        if (browserType == Browser.PROJECT_EXPLORER) klass = ProjectData.class;
+        else if (browserType == Browser.CATEGORY_EXPLORER) 
+            klass = CategoryGroupData.class;
+        if (klass == null) return;
+        state = Browser.LOADING_DATA;
+        currentLoader = new RefreshDataLoader(component, klass, nodes);
+        currentLoader.load();   
+    }
     
 }

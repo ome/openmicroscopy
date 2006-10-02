@@ -161,9 +161,6 @@ class BrowserUI
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         menuBar.add(button);
-        //button = new JButton(controller.getAction(BrowserControl.CLOSE));
-        //button.setBorderPainted(false);
-        //menuBar.add(button);
     }
 
     /** 
@@ -207,6 +204,7 @@ class BrowserUI
     private void createTrees()
     {
         treeDisplay = new JTree();
+        treeDisplay.setVisible(true);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
@@ -272,15 +270,19 @@ class BrowserUI
             tm.insertNodeInto(display, parent, parent.getChildCount());
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
-                if (children.size() != 0)
+                
+                if (children.size() != 0) {
                     buildTreeNode(display, sorter.sort(children), tm);
-                else {
+                    if (display.containsImages()) {
+                        expandNode(display);
+                        tm.reload(display);
+                    }
+                } else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         display, display.getChildCount());
-                }    
+                }  
             }
         } 
-
     }
     
     /**
@@ -381,8 +383,8 @@ class BrowserUI
     /**
      * Links this View to its Controller and its Model.
      * 
-     * @param controller The Controller.
-     * @param model		The Model
+     * @param controller    The Controller.
+     * @param model         The Model
      */
     void initialize(BrowserControl controller, BrowserModel model)
     {
@@ -410,14 +412,17 @@ class BrowserUI
     /**
      * Displays the specified nodes in the tree.
      * 
-     * @param nodes The collection of nodes to add.
+     * @param nodes     The collection of nodes to add.
+     * @param reload    Pass <code>true</code> to reload the tree.
      */
-    void setViews(Set nodes)
+    void setViews(Set nodes, boolean reload)
     {
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         root.removeAllChildren();
         root.setChildrenLoaded(Boolean.TRUE);
+        //if (index == 1) dtm.reload();
+        dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
@@ -425,7 +430,7 @@ class BrowserUI
             buildTreeNode(root, sorter.sort(nodes), 
                     (DefaultTreeModel) treeDisplay.getModel());
         } else buildEmptyNode(root);
-        dtm.reload();
+        if (reload) dtm.reload();
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -612,6 +617,7 @@ class BrowserUI
      */
     void cancel(DefaultMutableTreeNode node)
     {
+        if (node == null) return;
         if (node.getChildCount() <= 1) {
             if (node.getUserObject() instanceof String) {
                 node.removeAllChildren(); 

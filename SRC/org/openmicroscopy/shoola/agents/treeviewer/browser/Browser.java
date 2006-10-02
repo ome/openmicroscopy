@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -499,7 +500,6 @@ public interface Browser
      */
     public void navigate(boolean v);
 
-
     /**
      * Returns <code>true</code> if the browser is displayed on screen,
      * <code>false</code> otherwise.
@@ -515,5 +515,12 @@ public interface Browser
      *                  screen, <code>false</code> otherwise.
      */
     public void setDisplayed(boolean displayed);
+
+    /**
+     * Rebuilds the hierarchy tree.
+     * 
+     * @param set The nodes to set.
+     */
+    public void setRefreshedHierarchy(Map set);
     
 }
