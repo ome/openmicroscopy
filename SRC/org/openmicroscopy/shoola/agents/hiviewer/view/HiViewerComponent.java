@@ -488,5 +488,16 @@ class HiViewerComponent
         //TODO check state.
         model.fireDataObjectUpdate(object);
     }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#showProperties(DataObject)
+     */
+    public void showProperties(DataObject object)
+    {
+        if (object == null)
+            throw new IllegalArgumentException("No object to update");
+        model.getClipBoard().showProperties(object);
+    }
     
 }

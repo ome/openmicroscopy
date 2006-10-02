@@ -362,5 +362,12 @@ public interface HiViewer
      * @param object The object to save
      */
     public void saveObject(DataObject object);
+
+    /**
+     * Displays the properties of the currently selected node.
+     * 
+     * @param hierarchyObject The Data object to edit.
+     */
+    public void showProperties(DataObject hierarchyObject);
     
 }
