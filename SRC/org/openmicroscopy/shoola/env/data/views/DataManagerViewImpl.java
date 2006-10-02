@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
@@ -280,6 +282,20 @@ class DataManagerViewImpl
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new ExistingObjectsSaver(parent, children);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#refreshHierarchy(Class, Set, Class, long, 
+     *                                      AgentEventListener)
+     */
+    public CallHandle refreshHierarchy(Class rootNodeType, 
+            List containerWithImages, Class rootLevel, long rootLevelID, 
+            AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DMRefreshLoader(rootNodeType, 
+                    containerWithImages, rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
     

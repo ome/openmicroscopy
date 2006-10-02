@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -78,6 +79,27 @@ public interface DataManagerView
      */
     public static final int CLASSIFICATION_NME = 
                             OmeroDataService.CLASSIFICATION_NME;
+    
+    /**
+     * Reloads the hierarchy currently displayed.
+     * 
+     * @param rootNodeType          The type of the root node. Can only be one 
+     *                              out of:
+     *                              <code>ProjectData, CategoryGroupData</code>.
+     * @param expandedNodes   The nodes in the hierarchy whose children
+     *                              have been loaded. Can only be one out of:
+     *                              <code>DatasetData, CategoryData</code>.
+     * @param rootLevel             The level of the hierarchy either 
+     *                              <code>GroupData</code> or 
+     *                              <code>ExperimenterData</code>.
+     * @param rootLevelID           The Id of the root.
+     * @param observer              Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle refreshHierarchy(Class rootNodeType,
+                                        List expandedNodes,
+                                        Class rootLevel, long rootLevelID,
+                                        AgentEventListener observer);
     
     /**
      * Retrieves the hierarchies specified by the 
