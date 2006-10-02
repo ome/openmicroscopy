@@ -69,7 +69,7 @@ public class EditorFactory
      * @param editorType        The type of editor. 
      *                          One of the following constants:
      *                          {@link Editor#CREATE_EDITOR}, 
-     *                          {@link Editor#PROPERTIES_EDITOR}.
+     *                          {@link Editor#PROPERTIES_EDITOR}.                  
      * @return A {@link Editor}
      */
     public static Editor getEditor(TreeViewer model,
@@ -93,19 +93,20 @@ public class EditorFactory
      * 
      * @param model             Reference to {@link TreeViewer}.
      *                          Mustn't be <code>null</code>.
-     * @param hierarchyObject   The {@link DataObject} to edit.
+     * @param ho                The {@link DataObject} to edit.
      * @param editorType        The type of editor. 
      *                          One of the following constants:
      *                          {@link Editor#CREATE_EDITOR}, 
      *                          {@link Editor#PROPERTIES_EDITOR}.
+     * @param previousType      The previous editor type.                              
      * @return A {@link Editor}
      */
-    private Editor getDOEditor(TreeViewer model, DataObject hierarchyObject,
+    private Editor getDOEditor(TreeViewer model, DataObject ho,
                                 int editorType)
     { 
         model.addPropertyChangeListener(this);
         if (editor != null) return editor;
-        EditorModel m = new EditorModel(model, editorType, hierarchyObject);
+        EditorModel m = new EditorModel(model, editorType, ho);
         EditorComponent component = new EditorComponent(m);
         m.initialize(component);
         component.initialize();

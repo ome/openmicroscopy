@@ -159,7 +159,7 @@ class EditorModel
      *                          Mustn't be <code>null</code>.
      */
     protected EditorModel(TreeViewer parentModel, int editorType,
-                        DataObject hierarchyObject)
+                          DataObject hierarchyObject)
     {
         if (parentModel == null) 
             throw new NullPointerException("No parent model.");
