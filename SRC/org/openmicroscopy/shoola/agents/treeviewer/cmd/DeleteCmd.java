@@ -79,7 +79,7 @@ public class DeleteCmd
         if (node == null) return;
         Object userObject = node.getUserObject();
         if (userObject instanceof DataObject)
-            model.removeObject((DataObject) userObject);
+            model.removeObjects((DataObject) userObject);
     }
     
 }
