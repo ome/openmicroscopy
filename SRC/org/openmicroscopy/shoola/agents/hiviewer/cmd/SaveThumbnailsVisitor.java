@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * Creates a image composed of all thumbnails displayed in the HiViewer.
+ * Creates an image composed of all thumbnails displayed in the HiViewer.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

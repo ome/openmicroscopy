@@ -61,8 +61,7 @@ class ShowTitleBarVisitor
      * Tells whether to show (<code>true</code>) or hide (<code>false</code>). 
      */
     private boolean     show;
-    
-    
+      
     /**
      * Creates a new instance.
      * 

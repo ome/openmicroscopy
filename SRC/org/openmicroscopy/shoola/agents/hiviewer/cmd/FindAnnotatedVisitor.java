@@ -71,19 +71,20 @@ public class FindAnnotatedVisitor
     /**
      * Creates a new instance. 
      * 
-     * @param viewer    Reference to the model. Mustn't be <code>null</code>.
+     * @param model     Reference to the model. Mustn't be <code>null</code>.
      * @param ho        The updated <code>DataObject</code>.
      *                  Mustn't be <code>null</code>.
      */
-    public FindAnnotatedVisitor(HiViewer viewer, DataObject ho)
+    public FindAnnotatedVisitor(HiViewer model, DataObject ho)
     {
-        super(viewer);
+        super(model);
         if (ho == null) throw new IllegalArgumentException("No DataObject.");
         this.ho = ho;
     }
     
     /**
-     * Highlights the images.
+     * Updates the <code>DataObject</code> hosted by the node and updates
+     * icon.
      * @see HiViewerVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node)
@@ -91,13 +92,16 @@ public class FindAnnotatedVisitor
         Object object = node.getHierarchyObject();
         if (object instanceof ImageData) {
             if (((ImageData) object).getId() == ho.getId()) {
+                node.setNodeDecoration();
                 node.setHierarchyObject(ho);
+                node.repaint();
             }
         }
     }
 
     /**
-     * Highlights the annotated dataset.
+     * Updates the <code>DataObject</code> hosted by the node and updates
+     * icon.
      * @see HiViewerVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
@@ -105,15 +109,14 @@ public class FindAnnotatedVisitor
         Object object = node.getHierarchyObject();
         if (object instanceof DatasetData) {
             if (((DatasetData) object).getId() == ho.getId()) {
-                DatasetData data = (DatasetData) ho;
-                Long n = data.getAnnotationCount();
                 IconManager im = IconManager.getInstance();
-                if (n != null && n.longValue() > 0 )
+                node.setHierarchyObject(ho);
+                if (node.isAnnotated())
                     node.setFrameIcon(im.getIcon(
-                            IconManager.ANNOTATED_DATASET));
+                                    IconManager.ANNOTATED_DATASET));
                 else 
                     node.setFrameIcon(im.getIcon(IconManager.DATASET));
-                node.setHierarchyObject(ho);
+                node.repaint();
             }
         }
     }

@@ -142,7 +142,7 @@ public class ClassifyCmd
     /**
      * Creates a new command to classify/declassify the specified Image.
      * 
-     * @param image    Represents the Image to classify/declassify.
+     * @param image     Represents the Image to classify/declassify.
      *                  If <code>null</code>, no acion is taken.
      * @param mode      The classification mode.  This is one of the constants 
      *                  defined by the {@link Classifier} interface and tells 
