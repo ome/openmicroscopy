@@ -33,14 +33,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 //Java imports
 import java.awt.Dimension;
 import java.util.HashSet;
-
 import javax.swing.JComponent;
-
-import pojos.ImageData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ImageData;
 
 /** 
  * Represents a leaf in the composite structure used to visualize an
@@ -62,6 +60,9 @@ import pojos.ImageData;
 public class ImageNode
     extends ImageDisplay
 {
+    
+    /** Bound property indicating a classification visualization. */
+    public final static String     CLASSIFY_NODE_PROPERTY = "classifyNode";
 
     /** The thumbnail this node is going to display. */
     private Thumbnail       thumbnail;
@@ -85,6 +86,12 @@ public class ImageNode
      */
     JComponent getCanvas() { return canvas; }
     
+    /** Fired a property change event to bring up the classification widget. */
+    void fireClassification()
+    {
+        firePropertyChange(CLASSIFY_NODE_PROPERTY, null, this);
+    }
+    
     /**
      * Creates a new leaf node.
      * 
@@ -102,23 +109,43 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
-        if (hierarchyObject instanceof ImageData) { 
-            ImageData data = (ImageData) hierarchyObject;
-            HashSet nodes = new HashSet();
-            Long n = data.getAnnotationCount();
-            if (n != null && n.longValue() > 0) 
-                nodes.add(new AnnotatedButton());
-            Long m = data.getClassificationCount();
-            if (m != null && m.longValue() > 0) 
-                nodes.add(new ClassifiedButton());
-            if (nodes.size() > 0) setDecoration(nodes);
-        }
+        setNodeDecoration();
         setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
         canvas = new ThumbnailCanvas(this);
         getInternalDesktop().add(canvas);
         setCanvasSize(t.getWidth(), t.getHeight());
+    }
+    
+    /**
+     * Adds an <code>AnnoatedButton</code> and/or <code>ClassifiedButton</code>
+     * depending on the hosted <code>DataObject</code> status.
+     */
+    public void setNodeDecoration()
+    {
+        if (hierarchyObject instanceof ImageData) { 
+            HashSet nodes = new HashSet();
+            if (isAnnotated()) nodes.add(new AnnotatedButton(this));
+            if (isClassified()) nodes.add(new ClassifiedButton(this));
+            if (nodes.size() > 0) setDecoration(nodes);
+        }
+    }
+    
+    /**
+     * Returns <code>true</code> if the hosted object is classified, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isClassified()
+    {
+        if (hierarchyObject instanceof ImageData) {
+            ImageData d =  (ImageData) hierarchyObject;
+            Long n = d.getClassificationCount();
+            return (n != null && n.longValue() > 0);
+        }
+        return false;
     }
     
     /**

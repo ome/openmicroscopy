@@ -31,10 +31,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
+import pojos.DatasetData;
 
 /** 
  * Represents a container in the composite structure used to visualize an
@@ -57,6 +62,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
  */
 public class ImageSet
     extends ImageDisplay
+    implements PropertyChangeListener
 {
 
     /**
@@ -103,6 +109,10 @@ public class ImageSet
     {
         super(title, note, hierarchyObject);
         setResizable(true);
+        if (hierarchyObject instanceof DatasetData) {
+            addPropertyChangeListener(TinyPane.FRAME_ICON_PRESSED_PROPERTY, 
+                    this);
+        }
     }
     
     /**
@@ -150,6 +160,16 @@ public class ImageSet
     {
         if (containsImages == null) return false;
         return containsImages.booleanValue();
+    }
+
+    /**
+     * Reacts to the property <code>FrameIconPressed</code> fired
+     * by the parent.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if (isAnnotated()) fireAnnotation();
     }
     
 }

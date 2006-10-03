@@ -105,6 +105,10 @@ public abstract class ImageDisplay
     extends TinyPane
 {
     
+    
+    /** Bound property indicating an annotation visualization. */
+    public final static String     ANNOTATE_NODE_PROPERTY = "annotateNode";
+    
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -120,7 +124,7 @@ public abstract class ImageDisplay
      * The original object in the image hierarchy which is visualized by this 
      * node.
      */
-    private Object          hierarchyObject;
+    protected Object        hierarchyObject;
     
     /**
      * Checks if the algorithm to visit the tree is one of the constants
@@ -158,6 +162,15 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet();
+    }
+
+    
+    /** Fired a property change event to bring up the annotation widget. */
+    protected void fireAnnotation()
+    {
+        if ((hierarchyObject instanceof ImageData) ||
+                (hierarchyObject instanceof DatasetData))
+        firePropertyChange(ANNOTATE_NODE_PROPERTY, null, this);
     }
     
     /**
@@ -250,6 +263,26 @@ public abstract class ImageDisplay
     public Object getHierarchyObject() { return hierarchyObject; }
     
     /**
+     * Returns <code>true</code> if the hosted object is annotated, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isAnnotated() 
+    {
+        if (hierarchyObject instanceof DatasetData) {
+            DatasetData d =  (DatasetData) hierarchyObject;
+            Long n = d.getAnnotationCount();
+            return (n != null && n.longValue() > 0);
+        } else if (hierarchyObject instanceof ImageData) {
+            ImageData d =  (ImageData) hierarchyObject;
+            Long n = d.getAnnotationCount();
+            return (n != null && n.longValue() > 0);
+        }
+        return false;
+    }
+    
+    /**
      * Has the specified object visit this node and all nodes below this one
      * in the visualization tree.
      * For each node, the <code>visit</code> method is called passing in the
@@ -312,7 +345,7 @@ public abstract class ImageDisplay
     }
     
     /** 
-     * Overriden to return the name of the hierarchy object. 
+     * Overridden to return the name of the hierarchy object. 
      * @see #toString()
      */
     public String toString()
