@@ -213,7 +213,7 @@ public class TinyDialog
     public void moveToFront() { setVisible(true); }
     
     /** 
-     * Moves the window to the Front and sets the location
+     * Moves the window to the Front and sets the location.
      * 
      * @param x The x-coordinate.
      * @param y The y-coordinate.

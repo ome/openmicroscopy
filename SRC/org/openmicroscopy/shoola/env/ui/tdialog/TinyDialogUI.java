@@ -138,7 +138,7 @@ public class TinyDialogUI
         canvas.setSize(d);
     }
     
-    /** Build and lay out the UI. */ 
+    /** Builds and lays out the UI. */ 
     private void buildUI()
     {
         Container container = window.getContentPane();

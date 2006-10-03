@@ -75,7 +75,10 @@ class ThumbnailCanvas
         this.image = image;
     }
     
-    /** Overrides the {@link #paintComponent(Graphics)} method. */
+    /**
+     * Overriden to paint the thumbnail.
+     * @see JComponent#paintComponent(Graphics)
+     */
     public void paintComponent(Graphics g)
     {
         Graphics2D g2D = (Graphics2D) g;
