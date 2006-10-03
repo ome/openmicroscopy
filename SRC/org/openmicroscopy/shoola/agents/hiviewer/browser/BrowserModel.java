@@ -67,6 +67,12 @@ class BrowserModel
 {
 
     /** 
+     * Flag to control the zoom action when the user mouses over an 
+     * {@link ImageNode}. 
+     */
+    private boolean             rollOver;
+    
+    /** 
      * Tells if a thumbnail has been selected in the case the 
      * last selected display is an {@link ImageNode}. 
      */
@@ -93,6 +99,9 @@ class BrowserModel
     /** Indicates if the image's title bar is visible. */
     private boolean         titleBarVisible;
     
+    /** The node on which the mouse was located before exited. */
+    private ImageDisplay    rollOverNode;
+    
     /**
      * Creates a new instance.
      * 
@@ -109,48 +118,6 @@ class BrowserModel
         titleBarVisible = false;
     }
     
-    /** 
-     * Returns the set with all the children of the root node. 
-     * 
-     * @return See above.
-     */
-    public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
-    
-    /**
-     * String-ifies the path from the last selected ndoe to the
-     * {@link #rootDisplay}.
-     * 
-     * @return The above described string.
-     */
-    String currentPathString()
-    {
-        StringBuffer buf = new StringBuffer();
-        String title;
-        ImageDisplay parent = getLastSelectedDisplay();//selectedDisplay;
-        while (parent != null && !(parent instanceof RootDisplay)) {
-            title = parent.getTitle();
-            if (title == null || title.length() == 0) title = "[..]";
-            buf.insert(0, " > ");
-            buf.insert(0, title);
-            parent = parent.getParentDisplay();
-        }
-        return buf.toString();
-    }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getSelectedDisplays()
-     */
-    public Set getSelectedDisplays() { return selectedDisplays; }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSelectedDisplay(ImageDisplay)
-     */
-    public void setSelectedDisplay(ImageDisplay node)
-    {
-        setSelectedDisplay(node, false);
-    }
     
     /**
      * Sets the specified <code>node</code> to be the currently selected
@@ -175,6 +142,72 @@ class BrowserModel
             selectedDisplays.removeAll(selectedDisplays);
         selectedDisplays.add(node);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
+    }
+    
+    /**
+     * String-ifies the path from the last selected ndoe to the
+     * {@link #rootDisplay}.
+     * 
+     * @return The above described string.
+     */
+    String currentPathString()
+    {
+        StringBuffer buf = new StringBuffer();
+        String title;
+        ImageDisplay parent = getLastSelectedDisplay();//selectedDisplay;
+        while (parent != null && !(parent instanceof RootDisplay)) {
+            title = parent.getTitle();
+            if (title == null || title.length() == 0) title = "[..]";
+            buf.insert(0, " > ");
+            buf.insert(0, title);
+            parent = parent.getParentDisplay();
+        }
+        return buf.toString();
+    }
+    
+    /** 
+     * Fires a property whose new value if the passed object.
+     * 
+     * @param propName  The name of the property.
+     * @param node      The new value.
+     */
+    void setNodeForProperty(String propName, Object node)
+    {
+        firePropertyChange(propName, null, node);
+    }
+    
+    /**
+     * Sets the node which has to be zoomed.
+     * 
+     * @param newNode The node to zoom.
+     */
+    void setRollOverNode(ImageNode newNode)
+    {
+        ImageDisplay previousNode = rollOverNode;
+        rollOverNode = newNode;
+        firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
+    }
+    
+    /** 
+     * Returns the set with all the children of the root node. 
+     * 
+     * @return See above.
+     */
+    public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDisplays()
+     */
+    public Set getSelectedDisplays() { return selectedDisplays; }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedDisplay(ImageDisplay)
+     */
+    public void setSelectedDisplay(ImageDisplay node)
+    {
+        setSelectedDisplay(node, false);
     }
     
     /**
@@ -326,5 +359,17 @@ class BrowserModel
      * @see Browser#setTitleBarVisible(boolean)
      */
     public void setTitleBarVisible(boolean b) { titleBarVisible = b; }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setRollOver(boolean)
+     */
+    public void setRollOver(boolean rollOver) { this.rollOver = rollOver; }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isRollOver()
+     */
+    public boolean isRollOver() { return rollOver; }
     
 }

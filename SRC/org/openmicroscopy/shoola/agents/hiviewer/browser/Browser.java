@@ -81,16 +81,25 @@ public interface Browser
      * latter property will be set to the {@link ImageNode} the 
      * {@link Thumbnail} belong in.
      */
-    public static final String THUMB_SELECTED_PROPERTY = "thumbSelected";
+    public static final String  THUMB_SELECTED_PROPERTY = "thumbSelected";
     
     /** 
      * Bound property name indicating a pop-up trigger event occurred at a 
      * given point within the browser component. 
      */
-    public static final String POPUP_POINT_PROPERTY = "popupPoint";
+    public static final String  POPUP_POINT_PROPERTY = "popupPoint";
 
     /** Bound property name indicating a layout selection. */
-    public static final String LAYOUT_PROPERTY = "layout";
+    public static final String  LAYOUT_PROPERTY = "layout";
+    
+    /** Bound property indicating an annotation visualization. */
+    public static final String  ANNOTATED_NODE_PROPERTY = "annotatedNode";
+    
+    /** Bound property indicating a classification visualization. */
+    public static final String  CLASSIFIED_NODE_PROPERTY = "classifiedNode";
+    
+    /** Bound property indicating to rool over nodes. */
+    public static final String  ROLL_OVER_PROPERTY = "rollOver";
     
     /**
      * Sets the specified <code>node</code> to be the currently selected
@@ -256,5 +265,21 @@ public interface Browser
      */
     public void setTitleBarVisible(boolean b);
     
+    /**
+     * Sets the value of the <code>Roll over</code> flag.
+     * 
+     * @param rollOver  Pass <code>true</code> to zoom the image when the user
+     *                  mouses over an {@link ImageNode}, 
+     *                  <code>false</code> otherwise.
+     */
+    public void setRollOver(boolean rollOver);
     
+    /**
+     * Returns <code>true</code> if the image is zoomed when the user mouses
+     * over an {@link ImageNode}, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isRollOver();
+
 }

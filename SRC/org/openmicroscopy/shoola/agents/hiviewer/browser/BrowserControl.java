@@ -44,6 +44,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import pojos.DatasetData;
 
 /** 
  * Handles input events originating from the {@link Browser}'s View.
@@ -66,7 +67,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.Colors;
  * @since OME2.2
  */
 class BrowserControl
-    implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
+    implements MouseListener, ImageDisplayVisitor, 
+    PropertyChangeListener
 {
     
     //TODO: Implement scroll listener.  When the currently selected node is 
@@ -133,6 +135,9 @@ class BrowserControl
     { 
         node.getTitleBar().addMouseListener(this);
         node.getCanvas().addMouseListener(this);
+        node.addPropertyChangeListener(ImageNode.CLASSIFY_NODE_PROPERTY, this);
+        node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
+                                    this);
     }
 
     /**
@@ -143,6 +148,10 @@ class BrowserControl
     {
         node.getTitleBar().addMouseListener(this);
         node.getInternalDesktop().addMouseListener(this);
+        if (node.getHierarchyObject() instanceof DatasetData) {
+            node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
+                                            this);
+        }
     }
     
     /** 
@@ -152,21 +161,29 @@ class BrowserControl
      */ 
     public void propertyChange(PropertyChangeEvent evt)
     {
-        view.setTitle(model.currentPathString());
-        //paint the nodes
-        ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
-        Colors colors = Colors.getInstance();
-        newNode.setHighlight(colors.getSelectedHighLight(newNode));
-        Set nodes = (Set) evt.getOldValue();
-        if (nodes != null && !model.isMultiSelection()) {
-            Iterator i = nodes.iterator();
-            ImageDisplay n;
-            while (i.hasNext()) {
-                n = (ImageDisplay) i.next();
-                    n.setHighlight(colors.getDeselectedHighLight(n));
+        String name = evt.getPropertyName();
+        if (ImageNode.CLASSIFY_NODE_PROPERTY.equals(name)) {
+            model.setNodeForProperty(Browser.CLASSIFIED_NODE_PROPERTY, 
+                        evt.getNewValue());
+        } else if (ImageDisplay.ANNOTATE_NODE_PROPERTY.equals(name)) {
+            model.setNodeForProperty(Browser.ANNOTATED_NODE_PROPERTY, 
+                                    evt.getNewValue());
+        } else {
+            view.setTitle(model.currentPathString());
+            //paint the nodes
+            ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
+            Colors colors = Colors.getInstance();
+            newNode.setHighlight(colors.getSelectedHighLight(newNode));
+            Set nodes = (Set) evt.getOldValue();
+            if (nodes != null && !model.isMultiSelection()) {
+                Iterator i = nodes.iterator();
+                ImageDisplay n;
+                while (i.hasNext()) {
+                    n = (ImageDisplay) i.next();
+                        n.setHighlight(colors.getDeselectedHighLight(n));
+                }
             }
         }
-        
     }
     
     /**
@@ -207,20 +224,22 @@ class BrowserControl
         }
         popupTrigger = false; 
     }
-    
+
     /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
-     * in our case.
-     * @see MouseListener#mouseClicked(MouseEvent)
-     */
-    public void mouseClicked(MouseEvent me) {}
-    
-    /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
-     * in our case.
+     * Sets the node which has to be zoomed when the roll over flag
+     * is turned on. Note that the {@link ImageNode}s are the only nodes
+     * considered.
      * @see MouseListener#mouseEntered(MouseEvent)
      */
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent me)
+    {
+        if (!model.isRollOver()) return;
+        Object src = me.getSource();
+        ImageDisplay d = findParentDisplay(src);
+        if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
+            model.setRollOverNode((ImageNode) d);
+        } else model.setRollOverNode(null);
+    }
 
     /**
      * Required by the {@link MouseListener} I/F but no-op implementation
@@ -229,4 +248,11 @@ class BrowserControl
      */
     public void mouseExited(MouseEvent me) {}
 
+    /**
+     * Required by the {@link MouseListener} I/F but no-op implementation
+     * in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */
+    public void mouseClicked(MouseEvent me) {}
+    
 }
