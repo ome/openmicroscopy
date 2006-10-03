@@ -45,6 +45,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.hiviewer.util.RollOverWin;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import pojos.ImageData;
 
@@ -68,21 +69,75 @@ import pojos.ImageData;
 class ThumbWinManager
 {
     
-    /** Maps image ids onto on-screen windows. */
-    private static Map  windows = new HashMap();
+    /** The sole instance. */
+    private static final ThumbWinManager singleton = new ThumbWinManager();
     
+    /**
+     * Brings a window on screen to display <code>node</code>'s thumbnail.
+     * The window will be centered on top of the <code>node</code>.
+     * 
+     * @param node  The image node for which a window is needed.
+     *              Mustn't be <code>null</code>.
+     * @param model A reference to the model. Mustn't be <code>null</code>.
+     */
+    static void display(ImageNode node, HiViewer model)
+    {
+        singleton.displayNode(node, model);
+    }
+    
+    /**
+     * Brings a window on screen to display <code>node</code>'s thumbnail.
+     * The window will be centered on top of the <code>node</code>. The same
+     * window is recycled.
+     * 
+     * @param node  The image node for which a window is needed.
+     */
+    static void rollOverDisplay(ImageNode node)
+    {
+        if (node == null) {
+            if (rollOverDialog != null) {
+                rollOverDialog.close();
+                rollOverDialog = null;
+            }
+        } else {
+            if (rollOverDialog == null) 
+                rollOverDialog = new RollOverWin(
+                                        (JFrame) node.getTopLevelAncestor());
+            Thumbnail prv = node.getThumbnail();
+            BufferedImage full = prv.getFullScaleThumb();
+            if (full != null) 
+                rollOverDialog.setBufferedImage(full);
+            rollOverDialog.pack();  //Now we have the right width and height.
+            Point p = singleton.getWindowLocation(node, 
+                                        rollOverDialog.getWidth(), 
+                                        rollOverDialog.getHeight());
+            rollOverDialog.moveToFront(p);
+            rollOverDialog.setVisible(true);
+        }
+    }
+    
+    /** Maps image ids onto on-screen windows. */
+    private static Map  windows;
+    
+    private static RollOverWin rollOverDialog;
+    
+    /** Creates a new instance. */
+    private ThumbWinManager()
+    {
+        windows = new HashMap();
+        rollOverDialog = null;
+    }
     
     /**
      * Returns a window to display the thumbnail in the given <code>node</code>.
      * If a window for the image represented by <code>node</code> is on screen,
      * then it will be recycled.  Otherwise a new one is created.
      * 
-     * @param node The image node for which a window is needed.
+     * @param node  The image node for which a window is needed.
      * @param model A reference to the model.
      * @return A window for <code>node</code>.
      */
-    private static TinyDialog getWindowFor(ImageNode node,
-                                            HiViewer model)
+    private TinyDialog getWindowFor(ImageNode node, HiViewer model)
     {
         ImageData ho = (ImageData) node.getHierarchyObject();
         final Long id = new Long(ho.getId());
@@ -122,7 +177,7 @@ class ThumbWinManager
      * @param winH The height of the window.
      * @return The window's top left corner, in screen coordinates.
      */
-    private static Point getWindowLocation(ImageNode node, int winW, int winH)
+    private Point getWindowLocation(ImageNode node, int winW, int winH)
     {
         Rectangle r = node.getBounds();
         int offsetX = Math.abs(winW-r.width)/2,
@@ -141,7 +196,7 @@ class ThumbWinManager
      *              Mustn't be <code>null</code>.
      * @param model A reference to the model. Mustn't be <code>null</code>.
      */
-    static void display(ImageNode node, HiViewer model)
+    private void displayNode(ImageNode node, HiViewer model)
     {
         if (node == null) throw new IllegalArgumentException("No node.");
         if (model == null) throw new IllegalArgumentException("No model.");
