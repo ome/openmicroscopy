@@ -294,22 +294,6 @@ class AnnotationPaneUI
         return (List) annotations.get(ownerID);
     }
     
-    /** 
-     * Sets the UI components enabled.
-     * 
-     * @param b The enabled flag. 
-     */
-    private void setComponentsEnabled(boolean b)
-    {
-        saveButton.setEnabled(b);
-        deleteBox.setEnabled(b);
-        annotationArea.setEditable(b);
-        if (b) {
-            annotationArea.requestFocus();
-            annotationArea.selectAll();
-        }
-    }
-    
     /** Shows a single annotation. */
     private void showSingleAnnotation()
     {
@@ -343,9 +327,26 @@ class AnnotationPaneUI
         buildGUI();
     }
     
+    /** 
+     * Sets the UI components enabled.
+     * 
+     * @param b The enabled flag. 
+     */
+    void setComponentsEnabled(boolean b)
+    {
+        saveButton.setEnabled(b);
+        deleteBox.setEnabled(b);
+        annotationArea.setEditable(b);
+        if (b) {
+            annotationArea.requestFocus();
+            annotationArea.selectAll();
+        }
+    }
+    
     /** Shows the annotations. */
     void showAnnotations()
     {
+        deleteBox.setSelected(false);
         ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
         Map annotations = model.getAnnotations();

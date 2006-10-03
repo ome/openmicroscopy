@@ -139,6 +139,7 @@ public class AnnotationPane
                 model.editAnnotation(data, ClipBoard.UPDATE_ANNOTATION);
             }
         }
+        uiDelegate.setComponentsEnabled(false);
     }
     
     /**
