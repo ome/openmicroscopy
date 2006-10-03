@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
@@ -55,9 +58,20 @@ class ClassifiedButton
     extends JButton
 {
 
-    /** Creates a new instance. */
-    ClassifiedButton()
+    /** Description of the button. */
+    private final String DESCRIPTION = "Classified image. Click to " +
+            "declassify the image. ";
+    
+    /** The node hosting this button. */
+    private final ImageNode parentNode;
+    
+    /** Creates a new instance. 
+     * 
+     * @param node    The node hosting this button. 
+     */
+    ClassifiedButton(ImageNode node)
     {
+        parentNode = node;
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
         setMargin(new Insets(0, 0, 0, 0));//Just to make sure button sz=icon sz.
         setOpaque(false);  //B/c button=icon.
@@ -66,6 +80,15 @@ class ClassifiedButton
         IconManager im = IconManager.getInstance();
         setIcon(im.getIcon(IconManager.CLASSIFIED_SMALL));
         setRolloverIcon(im.getIcon(IconManager.CLASSIFIED_SMALL_OVER));
+        setToolTipText(DESCRIPTION);
+        addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+                parentNode.fireClassification();
+            }
+        
+        });
     }
     
 }
