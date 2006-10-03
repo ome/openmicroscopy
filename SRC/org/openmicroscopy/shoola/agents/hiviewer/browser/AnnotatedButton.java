@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
@@ -57,11 +60,20 @@ class AnnotatedButton
     extends JButton
 {
 
-    /**
-     * Creates a new instance.
+    /** Description of the button. */
+    private final String DESCRIPTION = "Annotated object. Click to view " +
+            "the annotation. ";
+    
+    /** The node hosting this button. */
+    private final ImageNode    parentNode;
+    
+    /** Creates a new instance. 
+     * 
+     * @param node    The node hosting this button. 
      */
-    AnnotatedButton()
+    AnnotatedButton(ImageNode node)
     {
+        parentNode = node;
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
         setMargin(new Insets(0, 0, 0, 0));//Just to make sure button sz=icon sz.
         setOpaque(false);  //B/c button=icon.
@@ -70,6 +82,15 @@ class AnnotatedButton
         IconManager im = IconManager.getInstance();
         setIcon(im.getIcon(IconManager.ANNOTATED_SMALL));
         setRolloverIcon(im.getIcon(IconManager.ANNOTATED_SMALL_OVER));
+        setToolTipText(DESCRIPTION);
+        addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e)
+            {
+                parentNode.fireAnnotation();
+            }
+        
+        });
     }
     
 }
