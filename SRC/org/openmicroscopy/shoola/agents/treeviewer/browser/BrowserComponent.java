@@ -336,7 +336,6 @@ class BrowserComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED or " +
                     "LOADING_LEAVES state.");
-        System.out.println("leaves");
         model.fireLeavesLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
