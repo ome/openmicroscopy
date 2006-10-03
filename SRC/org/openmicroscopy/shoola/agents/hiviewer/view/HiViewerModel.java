@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
@@ -53,7 +54,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -332,6 +332,32 @@ abstract class HiViewerModel
     }
     
     /**
+     * Sets the value of the <code>Roll over</code> flag.
+     * 
+     * @param rollOver  Pass <code>true</code> to zoom the image when the user
+     *                  mouses over a{@link ImageNode}, <code>false</code> 
+     *                  otherwise.
+     * @see Browser#setRollOver(boolean)                 
+     */
+    void setRollOver(boolean rollOver)
+    { 
+        if (browser != null) browser.setRollOver(rollOver); 
+    }
+    
+    /**
+     * Returns <code>true</code> if the image is zoomed when the user mouses
+     * over an {@link ImageNode},  <code>false</code> otherwise.
+     * 
+     * @return See above.
+     * @see Browser#isRollOver()
+     */
+    boolean isRollOver()
+    { 
+        if (browser == null) return false;
+        return browser.isRollOver(); 
+    }
+    
+    /**
      * Indicates what kind of hierarchy this model is for.
      * 
      * @return One of the hierarchy flags defined by the {@link HiViewer} 
@@ -368,6 +394,8 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+
 
 
     

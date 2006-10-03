@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
@@ -84,8 +85,12 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.SelectedNodeVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import pojos.ImageData;
 
 /** 
  * The HiViewer's Controller.
@@ -171,6 +176,10 @@ class HiViewerControl
     /** Identifies the <code>Find</code> action in the Edit menu. */
     static final Integer     FIND = new Integer(21);
     
+    
+    /** Identifies the <code>Roll over</code> action in the View menu. */
+    static final Integer     ROLL_OVER = new Integer(22);
+    
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
@@ -210,6 +219,7 @@ class HiViewerControl
         actionsMap.put(TREE_VIEW, new TreeViewAction(model));
         actionsMap.put(FIND, new FindAction(model));
         actionsMap.put(EXIT_APPLICATION, new ExitApplicationAction());
+        actionsMap.put(ROLL_OVER, new RollOverAction(model));
     }
   
     /** Creates the windowsMenuItems. */
@@ -289,11 +299,7 @@ class HiViewerControl
     private void setViews()
     {
         Browser browser = model.getBrowser();
-        browser.addPropertyChangeListener(Browser.POPUP_POINT_PROPERTY, this);
-        browser.addPropertyChangeListener(Browser.THUMB_SELECTED_PROPERTY, 
-                							this); 
-        browser.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY, 
-											this); 
+        browser.addPropertyChangeListener(this);
         view.setViews(browser.getUI(), model.getClipBoard().getUI());
         view.setViewTitle();
     }
@@ -444,11 +450,29 @@ class HiViewerControl
             ImageDisplay img = (ImageDisplay) pce.getNewValue();
             if (img != null) {
                 if (!(img.equals(browser.getLastSelectedDisplay())))
-                    model.getBrowser().setSelectedDisplay(img);
-            } else model.getBrowser().setSelectedDisplay(img);
+                    browser.setSelectedDisplay(img);
+            } else browser.setSelectedDisplay(img);
             
         } else if (HiViewer.SCROLL_TO_NODE_PROPERTY.equals(propName)) {
             scrollToNode((ImageDisplay) pce.getNewValue());
+        } else if (Browser.ANNOTATED_NODE_PROPERTY.equals(propName)) {
+            ImageDisplay n = (ImageDisplay) pce.getNewValue();
+            model.getClipBoard().setSelectedPane(ClipBoard.ANNOTATION_PANE, n);  
+            model.getBrowser().setSelectedDisplay(n);
+        } else if (Browser.CLASSIFIED_NODE_PROPERTY.equals(propName)) {
+            ImageNode n = (ImageNode) pce.getNewValue();
+            ClassifyCmd cmd = new ClassifyCmd(
+                    (ImageData) n.getHierarchyObject(), 
+                    Classifier.DECLASSIFICATION_MODE, view, 
+                    model.getUserDetails().getId(), model.getRootID());
+            cmd.execute();
+        } else if (Browser.ROLL_OVER_PROPERTY.equals(propName)) {
+            if (model.isRollOver()) {
+                ImageDisplay n = (ImageDisplay) pce.getNewValue();
+                if (n instanceof ImageNode)
+                    ThumbWinManager.rollOverDisplay((ImageNode) n);
+                else ThumbWinManager.rollOverDisplay(null);
+            }  
         }
     }
 

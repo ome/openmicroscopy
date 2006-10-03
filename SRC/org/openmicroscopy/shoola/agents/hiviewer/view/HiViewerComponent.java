@@ -499,5 +499,24 @@ class HiViewerComponent
             throw new IllegalArgumentException("No object to update");
         model.getClipBoard().showProperties(object);
     }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setRollOver(boolean)
+     */
+    public void setRollOver(boolean b)
+    {
+        model.setRollOver(b);
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#isRollOver()
+     */
+    public boolean isRollOver()
+    {
+        // TODO Auto-generated method stub
+        return model.isRollOver();
+    }
     
 }

@@ -239,6 +239,10 @@ class HiViewerWin
         item.setSelected(true);
         item.setAction(controller.getAction(HiViewerControl.SHOW_TITLEBAR));
         menu.add(item);
+        item = new JCheckBoxMenuItem();
+        item.setSelected(model.isRollOver());
+        item.setAction(controller.getAction(HiViewerControl.ROLL_OVER));
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));

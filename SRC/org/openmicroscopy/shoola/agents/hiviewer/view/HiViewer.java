@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -369,5 +370,22 @@ public interface HiViewer
      * @param hierarchyObject The Data object to edit.
      */
     public void showProperties(DataObject hierarchyObject);
+    
+    /**
+     * Sets the value of the <code>Roll over</code> flag.
+     * 
+     * @param rollOver  Pass <code>true</code> to zoom the image when the user
+     *                  mouses over an {@link ImageNode}, 
+     *                  <code>false</code> otherwise.
+     */
+    public void setRollOver(boolean rollOver);
+    
+    /**
+     * Returns <code>true</code> if the image is zoomed when the user mouses
+     * over an {@link ImageNode}, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isRollOver();
     
 }
