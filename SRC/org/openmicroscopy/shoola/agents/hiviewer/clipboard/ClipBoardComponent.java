@@ -30,6 +30,7 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.Point;
 import java.util.Map;
 import java.util.Set;
@@ -185,7 +186,8 @@ class ClipBoardComponent
         if (model.getState() != ClipBoard.EDIT_ANNOTATIONS)
             throw new IllegalStateException("This method can only be invoked " +
                     "in the EDIT_ANNOTATIONS state.");
-        if (object == null)
+        if (object == null) retrieveAnnotations(object);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         retrieveAnnotations(object);
         model.getParentModel().setAnnotationEdition(object);
     }
@@ -309,6 +311,8 @@ class ClipBoardComponent
                 throw new IllegalArgumentException("Annotation index not " +
                                                     "supported");
         }
+        fireStateChange();
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
     /**

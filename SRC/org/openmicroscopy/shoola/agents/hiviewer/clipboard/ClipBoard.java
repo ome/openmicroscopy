@@ -166,7 +166,8 @@ public interface ClipBoard
      * Sets the selected {@link ClipBoardPane}.
      * 
      * @param index The index of the {@link ClipBoardPane}. One of the following
-     *              constants: {@link #FIND_PANE}, {@link #ANNOTATION_PANE}.
+     *              constants: {@link #FIND_PANE}, {@link #ANNOTATION_PANE},
+     *              {@link #EDITOR_PANE} or {@link #INFO_PANE}.
      * @param node  Passed <code>null</code> to modify the diplay.
      */
     public void setSelectedPane(int index, ImageDisplay node);
