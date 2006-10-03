@@ -100,12 +100,14 @@ class ThumbWin
     /**
      * Creates a new instance.
      * 
-     * @param parent The parent frame. Mustn't be <code>null</code>.
-     * @param fullScaleThumb The thumbnail. Mustn't be <code>null</code>.
-     * @param image The Image object the thumbnail is for.
-     *              Mustn't be <code>null</code>.
-     * @param model A reference to the model. Mustn't be <code>null</code>.
-     * @param node The node hosting the display. Mustn't be <code>null</code>.
+     * @param parent            The parent frame. Mustn't be <code>null</code>.
+     * @param fullScaleThumb    The thumbnail. Mustn't be <code>null</code>.
+     * @param image             The Image object the thumbnail is for.
+     *                          Mustn't be <code>null</code>.
+     * @param model             A reference to the model. 
+     *                          Mustn't be <code>null</code>.
+     * @param node              The node hosting the display. 
+     *                          Mustn't be <code>null</code>.
      */
     ThumbWin(JFrame parent, BufferedImage fullScaleThumb, DataObject image, 
              HiViewer model, ImageDisplay node)
