@@ -70,7 +70,7 @@ public class ShowTitleBarAction
                                         "every  displayed image.";
     
     /**
-     * Sets the action enabled depending on the currently selected display
+     * Sets the action enabled depending when the browser is ready.
      * @see HiViewerAction#onStateChange()
      */
     protected void onStateChange()
