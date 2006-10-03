@@ -77,9 +77,7 @@ public class IconsVisitor
         if (ho instanceof ProjectData)
             node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
         else if (ho instanceof DatasetData) {
-            DatasetData data = (DatasetData) ho;
-            Long n = data.getAnnotationCount();
-            if (n != null && n.longValue() > 0 )
+            if (node.isAnnotated())
                 node.setFrameIcon(icons.getIcon(IconManager.ANNOTATED_DATASET));
             else 
                 node.setFrameIcon(icons.getIcon(IconManager.DATASET));
@@ -93,7 +91,6 @@ public class IconsVisitor
     
     /**
      * Does nothing, as {@link ImageNode}s have no icon.
-     * 
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
     public void visit(ImageNode node) {}
