@@ -37,6 +37,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Set;
 import javax.swing.DesktopManager;
@@ -138,6 +139,14 @@ public class TinyPane
     
     /** Bound property name indicating if the frame is resizable. */
     public final static String  DECORATION_PROPERTY = "decoration";  
+    
+    /** 
+     * Bound property name indicating if the mouse pressed eventhappens
+     * on the frame icon. 
+     */
+    public final static String  FRAME_ICON_PRESSED_PROPERTY = 
+                                "frameIconPressed";  
+    
     
     /** The View component that renders this frame. */
     private TinyPaneUI      uiDelegate;
@@ -256,6 +265,20 @@ public class TinyPane
      * @return See above.
      */
     Set getDecoration() { return model.getDecoration(); }
+    
+    /**
+     * Fires a property change if the mouse pressed happens on the frame icon.
+     * 
+     * @param p The location of the mouse pressed.
+     */
+    void onFrameIconPressed(Point p)
+    {
+        Rectangle bounds = uiDelegate.getFrameIconBounds();
+        if (bounds.contains(p)) {
+            firePropertyChange(FRAME_ICON_PRESSED_PROPERTY, Boolean.FALSE, 
+                                Boolean.TRUE);
+        }
+    }
     
     /** Resizes and repaints the component. */
     public void pack()
@@ -510,6 +533,8 @@ public class TinyPane
      * @return See above.
      */
     public Icon getFrameIcon() { return model.getFrameIcon(); }
+    
+    
     
     /**
      * Passes <code>true</code> to listen to the border.

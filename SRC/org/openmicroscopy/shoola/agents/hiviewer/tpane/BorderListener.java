@@ -173,12 +173,12 @@ class BorderListener
         Insets i = frame.getInsets();
         Point ep = new Point(xView, yView);
         JComponent titleBar = frame.getTitleBar();
-        if (e.getSource() == frame.getTitleBar()) {
+        if (e.getSource() == titleBar) {
             Point np = titleBar.getLocation();
             ep.x += np.x;
             ep.y += np.y;
         }
-
+        frame.onFrameIconPressed(ep);
         if (e.getSource() == titleBar) {
             if (ep.x > i.left && ep.y > i.top && ep.x < 
                     frame.getWidth()-i.right) {

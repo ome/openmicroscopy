@@ -247,6 +247,19 @@ class TitleBar
      */
     int getFixedHeight() { return fixedHeight; }
     
+    /**
+     * Returns the bounds of the icon. Returns a new <code>Rectangle</code>
+     * whose top-left corner is at (0,&nbsp;0) in the coordinate space, 
+     * and whose width and height are both zero if no icon. 
+     * 
+     * @return See above.
+     */
+    Rectangle getFrameIconBounds()
+    {
+        if (icon == null) return new Rectangle(0, 0, 0, 0);
+        return icon.getBounds();
+    }
+    
     /** 
      * Overridden to do custom painting required for this component. 
      * @see JComponent#paintComponent(Graphics)

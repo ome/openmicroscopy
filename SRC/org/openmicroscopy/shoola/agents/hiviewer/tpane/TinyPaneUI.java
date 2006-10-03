@@ -226,6 +226,15 @@ class TinyPaneUI
     JComponent getTitleBar() { return titleBar; }
     
     /**
+     * Returns the bounds of the icon. Returns a new <code>Rectangle</code>
+     * whose top-left corner is at (0,&nbsp;0) in the coordinate space, 
+     * and whose width and height are both zero if no icon. 
+     * 
+     * @return See above.
+     */
+    Rectangle getFrameIconBounds() { return titleBar.getFrameIconBounds(); }
+    
+    /**
      * Returns the size this widget should have to fully display the layered 
      * pane at its preferred size.
      * 
