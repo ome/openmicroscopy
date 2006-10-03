@@ -136,7 +136,7 @@ public class TreeViewerAgent
     public void eventFired(AgentEvent ae)
     {
         if (ae instanceof ShowProperties)
-            handleShowProperties((ShowProperties) ae);   
+           handleShowProperties((ShowProperties) ae);   
     }
 
 }
