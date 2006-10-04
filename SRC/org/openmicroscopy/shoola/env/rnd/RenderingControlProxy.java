@@ -530,20 +530,20 @@ class RenderingControlProxy
                 xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
                             buf.getBlueBand().length;
             
-            //RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
-            long s = System.currentTimeMillis();
+            RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
             int sizeX1 = buf.getSizeX1();
             int sizeX2 = buf.getSizeX2();
             int pos = 0;
             for (int y = sizeX2-1; y >= 0; y--) {
                 for (int x = sizeX1-1; x >= 0; x--) {
                     pos = sizeX1*y+x;
-                    xyImage.setRGB(x, y, makeRGB(buf.getRedBand()[pos], 
-                            buf.getGreenBand()[pos], buf.getBlueBand()[pos]));
+                    xyImage.setRGB(x, y, makeRGB(
+                    		j2DBuf.getElem(0,pos),
+                    		j2DBuf.getElem(1,pos),
+                    		j2DBuf.getElem(2,pos)));
                 }
                 
             }
-            System.out.println("creation: "+(System.currentTimeMillis()-s));
             //Then create a Java2D buffer for buf.
             /*
             RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
