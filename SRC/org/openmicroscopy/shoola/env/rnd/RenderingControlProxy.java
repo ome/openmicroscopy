@@ -519,49 +519,35 @@ class RenderingControlProxy
         //See if the requested image is in cache.
         //BufferedImage img = null;//getFromCache(pDef);
 
-        //if (img == null) {  //If not, ask the server to render the plane.
-            RGBBuffer buf = servant.render(pDef);   //TO BE modified.
-            if (xyImage == null) {
-                xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+        RGBBuffer buf = servant.render(pDef);   //TO BE modified.
+        if (xyImage == null) {
+        	xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
                             BufferedImage.TYPE_INT_RGB);
-            }
-            //See if we can/need work out the XY image size.
-            if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
-                xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
-                            buf.getBlueBand().length;
+        	}
+        
+        //See if we can/need work out the XY image size.
+        if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
+        	xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
+            buf.getBlueBand().length;
             
-            RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
-            int sizeX1 = buf.getSizeX1();
-            int sizeX2 = buf.getSizeX2();
-            int pos = 0;
-            for (int y = sizeX2-1; y >= 0; y--) {
-                for (int x = sizeX1-1; x >= 0; x--) {
-                    pos = sizeX1*y+x;
-                    xyImage.setRGB(x, y, makeRGB(
-                    		j2DBuf.getElem(0,pos),
-                    		j2DBuf.getElem(1,pos),
-                    		j2DBuf.getElem(2,pos)));
-                }
-                
-            }
-            //Then create a Java2D buffer for buf.
-            /*
-            RGBByteBuffer j2DBuf = new RGBByteBuffer(buf);
-            //Now we only need to tell Java2D how to handle the RGB buffer. 
-            BandedSampleModel csm = new BandedSampleModel(DataBuffer.TYPE_BYTE, 
-                                        buf.getSizeX1(), buf.getSizeX2(), 3);
-            ColorModel cm = new ComponentColorModel(
-                    ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-                    null, false, false, Transparency.OPAQUE, 
-                    DataBuffer.TYPE_BYTE);
-            img = new BufferedImage(cm, 
-                   Raster.createWritableRaster(csm, j2DBuf, null), false, null);
-            */
-            //Finally add to cache.
-           // cache(pDef, img);
-        //}
-        //return img;
-            return xyImage;
+        int sizeX1 = buf.getSizeX1();
+        int sizeX2 = buf.getSizeX2();
+        
+        byte[] r = buf.getRedBand();
+        byte[] g = buf.getGreenBand();
+        byte[] b = buf.getBlueBand();
+        
+        int i = 0;
+        for (int y = 0 ; y < sizeX2; y++) {
+         	for (int x = 0 ; x < sizeX1 ; x++) {
+         			xyImage.setRGB(x, y, makeRGB(
+                   		r[i] & 0xFF,
+                   		g[i] & 0xFF,
+                   		b[i] & 0xFF));
+           		i++;
+         	}
+        }
+       return xyImage;
     }
     
     /** 
