@@ -91,9 +91,9 @@
 		description="Tries to contact JBoss with increasing intervals">
 		<groovy>
 			jboss_home = properties["env.JBOSS_HOME"]
-			status = ["${jboss_home}/bin/twiddle.sh","serverinfo","-l"]
+			status = ["${jboss_home}/bin/twiddle.sh","query","jboss.j2ee:ear=app-3.0-TRUNK.ear,jar=server-3.0-TRUNK.jar,name=QueryImpl,service=EJB3"]
 			int ret = -1;
-			[0,1,2,4,8,16].each { |i|
+			[2,4,8,16,32].each { |i|
 			  if (ret != 0) {
 			    println "Waiting on JBoss..."
 			    Thread.currentThread().sleep(i*1000)
