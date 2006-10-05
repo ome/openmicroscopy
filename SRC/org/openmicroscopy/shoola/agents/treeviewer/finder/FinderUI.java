@@ -126,7 +126,7 @@ class FinderUI
         caseSensitive.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 JCheckBox source = (JCheckBox) e.getSource();
-                model.setCaseSensitive(source.isSelected());
+                finder.setCaseSensitive(source.isSelected());
             }
         });
         infoComponent = new JPanel();

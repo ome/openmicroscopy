@@ -124,6 +124,7 @@ public class Finder
     void setNameSelected(boolean b)
     {
         if (b == model.isNameSelected()) return;
+        found = false;
         Boolean oldValue = 
             model.isNameSelected() ? Boolean.TRUE : Boolean.FALSE,
         newValue = b ? Boolean.TRUE : Boolean.FALSE;
@@ -140,6 +141,7 @@ public class Finder
     void setDescriptionSelected(boolean b)
     {
         if (b == model.isDescriptionSelected()) return;
+        found = false;
         Boolean oldValue = 
             model.isDescriptionSelected() ? Boolean.TRUE : Boolean.FALSE,
         newValue = b ? Boolean.TRUE : Boolean.FALSE;
@@ -156,7 +158,7 @@ public class Finder
     void setAnnotationSelected(boolean b)
     {
         if (b == model.isAnnotationSelected()) return;
-        
+        found = false;
         Boolean oldValue = 
             model.isAnnotationSelected() ? Boolean.TRUE : Boolean.FALSE,
         newValue = b ? Boolean.TRUE : Boolean.FALSE;
@@ -185,6 +187,7 @@ public class Finder
     void setCaseSensitive(boolean b)
     {
         if (b == model.isCaseSensitive()) return;
+        found = false;
         model.setCaseSensitive(b);
     }
     
