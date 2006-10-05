@@ -116,7 +116,7 @@ class ManagePopupMenu
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(newElement);
-        add(existingElement);
+        //add(existingElement);
         add(copyElement);
         add(pasteElement);
         add(deleteElement);
