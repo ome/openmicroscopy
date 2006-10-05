@@ -43,6 +43,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
 import ome.api.IPojos;
@@ -800,23 +802,26 @@ class OMEROGateway
     }
 
     /**
+     * Retrieves the thumbnail for the passed set of pixels.
      * 
-     * @param pixels
-     * @param sizeX
-     * @param sizeY
-     * @return
+     * @param pixels    The set of pixels the thumbnail is for.
+     * @param sizeX     The size of the thumbnail along the X-axis.
+     * @param sizeY     The size of the thumbnail along the Y-axis.
+     * @return See above.
+     * @throws RenderingServiceException If an error occured while trying to 
+     *              retrieve data from the service. 
      */
     byte[] getThumbnail(Pixels pixels, int sizeX, int sizeY)
         throws RenderingServiceException
     {
         try {
             IThumb service = getIThumbService();
+            
             return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
                                     new Integer(sizeY));
         } catch (Exception e) {
-            new RenderingServiceException("Cannot get thumbnail", e);
-        }// TODO Auto-generated method stub
-        return null;
+            throw new RenderingServiceException("Cannot get thumbnail", e);
+        }
     }
     
 }

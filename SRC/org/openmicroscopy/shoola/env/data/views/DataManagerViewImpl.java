@@ -287,7 +287,7 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#refreshHierarchy(Class, Set, Class, long, 
+     * @see DataManagerView#refreshHierarchy(Class, List, Class, long, 
      *                                      AgentEventListener)
      */
     public CallHandle refreshHierarchy(Class rootNodeType, 

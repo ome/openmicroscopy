@@ -33,9 +33,6 @@ package org.openmicroscopy.shoola.env.data.login;
 //Java imports
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 //Third-party libraries
@@ -146,24 +143,20 @@ public class LoginServiceImpl
             if (s == null) {
                 listOfServers = uc.getHostName();
             } else {
-                List l = Arrays.asList(
-                        s.split(LookupNames.SERVER_NAME_SEPARATOR, 0));
-                if (l == null || l.size() == 0) {
+                String[] l = s.split(LookupNames.SERVER_NAME_SEPARATOR, 0);
+                if (l == null || l.length == 0) {
                     listOfServers = uc.getHostName();
                 } else {
-                    Iterator i = l.iterator();
                     boolean b = false;
-                    int index = 0;
-                    int n = l.size()-1;
+                    int n = l.length-1;
                     String name = uc.getHostName();
                     String host;
-                    while (i.hasNext()) {
-                        host = ((String) i.next()).trim();
+                    for (int index = 0; index < l.length; index++) {
+                        host = l[index].trim();
                         if (name.equals(host)) b = true;
                         if (index == 0) listOfServers = host;
                         else listOfServers += host;
                         if (index != n) listOfServers += ",";
-                        index++;
                     }
                     if (!b)
                         listOfServers += ","+uc.getHostName();

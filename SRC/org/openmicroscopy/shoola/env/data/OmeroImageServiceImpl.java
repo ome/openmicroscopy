@@ -44,6 +44,8 @@ import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingServicesFactory;
@@ -177,6 +179,10 @@ class OmeroImageServiceImpl
         throws RenderingServiceException
     {
         try {
+            LogMessage msg = new LogMessage();
+            msg.println("Get thumbnail direct, PixelsID: "+pix.getId());
+            Logger logger = context.getLogger();
+            logger.debug(this, msg);
             byte[] v = gateway.getThumbnail(pix.asPixels(), sizeX, sizeY);
             return createImage(v);
         } catch (Exception e) {
