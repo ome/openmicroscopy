@@ -80,7 +80,7 @@ public class HistogramAction
     public HistogramAction(Renderer model)
     {
         super(model);
-        setEnabled(true);
+        //setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -66,6 +67,11 @@ public class LensAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the lens.";
 
+    //Tmp
+    protected void onStateChange(ChangeEvent e) {
+        setEnabled(false);
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -74,6 +80,7 @@ public class LensAction
     public LensAction(ImViewer model)
     {
         super(model, NAME);
+        setEnabled(false);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();

@@ -76,7 +76,7 @@ public class ContrastStretchingAction
     public ContrastStretchingAction(Renderer model)
     {
         super(model);
-        setEnabled(true);
+        setEnabled(false);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
