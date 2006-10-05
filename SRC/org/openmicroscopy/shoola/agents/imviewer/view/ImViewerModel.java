@@ -44,6 +44,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -320,18 +321,19 @@ class ImViewerModel
     void fireImageRetrieval()
     {
         if (currentLoader != null) currentLoader.cancel();
-
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
+        /**
         OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
         try {
             component.setImage(rs.renderImage(pixelsID, pDef));
         } catch (Exception e) {
             // TODO: handle exception
         }
-        //currentLoader = new ImageLoader(component, pixelsID, pDef);
-        //currentLoader.load();
+        */
+        currentLoader = new ImageLoader(component, pixelsID, pDef);
+        currentLoader.load();
         
     }
     
@@ -345,9 +347,9 @@ class ImViewerModel
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
-        OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
+        //OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
         try {
-            return rs.renderImage(pixelsID, pDef);
+            return rndControl.renderCopy(pDef);
         } catch (Exception e) {
             // TODO: handle exception
         }

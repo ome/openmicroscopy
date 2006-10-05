@@ -683,7 +683,7 @@ class ImViewerComponent
         while (i.hasNext()) {
             index = ((Integer) i.next()).intValue();
             for (int j = 0; j < model.getMaxC(); j++)
-                model.setChannelActive(j, j == index);
+                model.setChannelActive(j, j == index); 
             images.add(model.getRenderedImage());
         }
         i = l.iterator();
