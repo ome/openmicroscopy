@@ -109,7 +109,7 @@ public class TreeImageNode
         throw new IllegalArgumentException(
                 "A TreeImageNode doesn't have children.");
     }
-
+    
     /**
      * Makes a copy of the node.
      * @see TreeImageDisplay#copy()

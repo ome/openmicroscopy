@@ -39,6 +39,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 //Third-party libraries
@@ -142,6 +144,29 @@ public abstract class TreeImageDisplay
     
     /** The number of items. */
     protected int				numberItems;
+    
+    /**
+     * Returns the partial name of the image's name
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    private String getPartialName(String originalName)
+    {
+        if (Pattern.compile("/").matcher(originalName).find()) {
+            String[] l = originalName.split("/", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return l[n-2]+"/"+l[n-1]; 
+        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            String[] l = originalName.split("\\\\", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return l[n-2]+"\\"+l[n-1];
+        } 
+        return originalName;
+    }
+    
     
     /**
      * Checks if the algorithm to visit the tree is one of the constants
@@ -351,7 +376,6 @@ public abstract class TreeImageDisplay
     public String getNodeName()
     { 
         Object obj = getUserObject();
-        //System.out.println("Node: "+obj+" "+obj.hashCode());
         if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
         else if (obj instanceof DatasetData) 
             return ((DatasetData) obj).getName();
@@ -365,6 +389,7 @@ public abstract class TreeImageDisplay
         return "";
     }
     
+
     /**
      * Returns the name of the node and the number of items
      * in the specified containers.
@@ -374,7 +399,7 @@ public abstract class TreeImageDisplay
     public String getNodeText()
     {
         String name = getNodeName();
-        if (getUserObject() instanceof ImageData) return name;
+        if (getUserObject() instanceof ImageData) return getPartialName(name);
         if (numberItems == -1) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
