@@ -63,6 +63,7 @@
 		<antRun component="server"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="app"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="client"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="bioformats-omero"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		</sequential>
 	</macrodef>
 

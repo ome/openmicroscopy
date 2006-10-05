@@ -65,6 +65,7 @@
     <module>components/ejb</module>
     <module>components/app</module>
     <module>components/client</module>
+    <module>components/bioformats-omero</module>
     <!--module>components/ice</module-->
   </modules>
   <repositories>
