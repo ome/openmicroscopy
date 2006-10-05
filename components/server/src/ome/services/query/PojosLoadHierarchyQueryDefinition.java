@@ -50,9 +50,19 @@ public class PojosLoadHierarchyQueryDefinition
         // TODO this should be pushed into Hierarchy
         int idx = Hierarchy.Nodes.lookupWithError(klass);
         int depth = Hierarchy.Nodes.depth[idx];
-        if ( ! po.isLeaves() ) depth--;
-        Hierarchy.fetchChildren(c,klass,depth); 
-    
+        if ( ! po.isLeaves() ) 
+        {
+        	depth--;
+        } 
+        Criteria[] hierarchy = Hierarchy.fetchChildren(c,klass,depth); 
+        if ( po.isLeaves() )
+        {
+        	// TODO refactor out the pix criteria below. (in several queries)
+        	Criteria pix = 
+        	hierarchy[hierarchy.length-1].createCriteria("defaultPixels",LEFT_JOIN);
+            pix.createCriteria("pixelsType",LEFT_JOIN);
+            pix.createCriteria("pixelsDimensions",LEFT_JOIN);
+        }
         setCriteria( c );
     }
 

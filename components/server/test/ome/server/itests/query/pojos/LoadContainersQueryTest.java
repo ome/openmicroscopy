@@ -12,10 +12,13 @@ import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.testing.CreatePojosFixture;
+import ome.testing.ObjectFactory;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
@@ -275,6 +278,46 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest
 		}
     	
 	}
+    
+    @Test( groups = "ticket:401" )
+    public void testReturnsDefaultPixels() throws Exception {
+    	PojoOptions 
+    	withLeaves = new PojoOptions().leaves();
+    	
+    	runLevel( Dataset.class, 
+    			Arrays.asList(DATA.du7771.getId()), 
+    			withLeaves );
+    	
+    	Long id = null;
+    	
+    	assertTrue(list.size()>0);
+		for (Dataset dataset : (List<Dataset>)list) {
+			assertTrue(dataset.sizeOfImageLinks()>0);
+			Image image = (Image) dataset.linkedImageList().get(0);
+			id = image.getId(); // store for later.
+			Pixels p = ObjectFactory.createPixelGraph(null);
+			p.setDefaultPixels(Boolean.TRUE);
+			p.setImage( new Image(id,false) );
+			iUpdate.saveObject(p);
+		}
+
+		runLevel( Dataset.class, 
+    			Arrays.asList(DATA.du7771.getId()), 
+    			withLeaves );
+    	
+		boolean found = false;
+		for (Dataset dataset : (List<Dataset>)list) {
+			for (Image image : (List<Image>) dataset.linkedImageList()){
+				if (!image.getId().equals(id)) continue;
+				found = true;
+				assertNotNull(image.getDefaultPixels());
+			}
+		}
+		assertTrue(found);
+
+		
+	}
+    
     // ~ Helpers
     // =========================================================================
 

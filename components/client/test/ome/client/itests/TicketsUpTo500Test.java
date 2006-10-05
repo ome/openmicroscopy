@@ -287,6 +287,34 @@ public class TicketsUpTo500Test extends TestCase
     
 	}
     
+    @Test( groups = "ticket:401" )
+    public void testLoadContainerReturnsDefaultPixels() throws Exception {
+    	PojoOptions 
+    	withLeaves = new PojoOptions().leaves();
+    	
+    	Dataset d = new Dataset();
+    	d.setName("ticket:401");
+    	Image i = new Image();
+    	i.setName("ticket:401");
+    	Pixels p = ObjectFactory.createPixelGraph(null);
+    	p.setDefaultPixels(Boolean.TRUE);
+    	d.linkImage(i);
+    	i.addPixels(p);
+    	
+    	final IPojos pj = sf.getPojosService();
+    	
+    	d = (Dataset) pj.updateDataObject( d, null );
+    	
+    	Set<Dataset> ds = (Set<Dataset>)
+    	pj.loadContainerHierarchy(Dataset.class, Collections.singleton(d.getId()), 
+    			withLeaves.map());
+    	    	
+		for (Dataset dataset : ds) {
+			Image image = (Image) dataset.linkedImageList().get(0);
+			assertNotNull(image.getDefaultPixels());
+		}
+    }
+    
     // ~ Helpers
     // =========================================================================
     // TODO refactor to ObjectFactory
