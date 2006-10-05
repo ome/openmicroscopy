@@ -32,9 +32,6 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 //Third-party libraries
@@ -116,19 +113,16 @@ public class UIFactory
             listOfServers = new String[1];
             listOfServers[0] = LookupNames.DEFAULT_SERVER;
         } else {
-            List l = Arrays.asList(s.split(LookupNames.SERVER_NAME_SEPARATOR, 
-                                            0));
+            String[] l = s.split(LookupNames.SERVER_NAME_SEPARATOR, 0);
             if (l == null) {
                 listOfServers = new String[1];
                 listOfServers[0] = LookupNames.DEFAULT_SERVER;
             } else {
-                listOfServers = new String[l.size()+1];
-                Iterator i = l.iterator();
-                int index = 0;
-                while (i.hasNext()) {
-                    listOfServers[index] = ((String) i.next()).trim();
-                    index++;
-                }
+                listOfServers = new String[l.length+1];
+                int index;
+                for (index = 0; index < l.length; index++)
+                    listOfServers[index] = l[index].trim();
+                index = l.length;
                 listOfServers[index] = LookupNames.DEFAULT_SERVER;
             }
         }   
