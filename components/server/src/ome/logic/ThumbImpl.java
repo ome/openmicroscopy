@@ -327,7 +327,9 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 		
 		// Retrieve our rendered data and translate to a buffered image
 		initializeRenderingEngine(pixels, def);
-		RGBBuffer buf = re.render(new PlaneDef(PlaneDef.XY, re.getDefaultT()));
+		PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
+		pd.setZ(re.getDefaultZ());
+		RGBBuffer buf = re.render(pd);
 		BufferedImage image = createBufferedImage(buf, origSizeX, origSizeY);
 		
 		// Finally, scale our image using scaling factors (percentage).
