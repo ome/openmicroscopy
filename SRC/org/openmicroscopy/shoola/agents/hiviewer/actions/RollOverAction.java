@@ -60,7 +60,7 @@ public class RollOverAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Roll Over";
+    private static final String NAME = "Magnification";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Zoom the image.";
