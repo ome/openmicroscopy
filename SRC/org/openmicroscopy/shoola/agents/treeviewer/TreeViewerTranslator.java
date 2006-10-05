@@ -88,66 +88,6 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Returns <code>true</code> if the specified data object is readable,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    private static boolean isReadable(DataObject ho, long userID, long groupID)
-    {
-        PermissionData permissions = ho.getPermissions();
-        if (userID == ho.getOwner().getId())
-            return permissions.isUserRead();
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupRead();
-        return permissions.isWorldRead();
-    }
-    
-    /**
-     * Returns <code>true</code> if the specified data object is readable,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    private static boolean isWritable(DataObject ho, long userID, long groupID)
-    {
-        PermissionData permissions = ho.getPermissions();
-        if (userID == ho.getOwner().getId())
-            return permissions.isUserWrite();
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupWrite();
-        return permissions.isWorldWrite();
-    }
-    
-    /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      * 
      * @param node The specified node. Mustn't be <code>null</code>.
@@ -635,5 +575,70 @@ public class TreeViewerTranslator
         return results;
     }
 
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static boolean isReadable(DataObject ho, long userID, long groupID)
+    {
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserRead();
+        /*
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupRead();
+        return permissions.isWorldRead();
+        */ 
+        return permissions.isGroupRead();
+    }
+    
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static boolean isWritable(DataObject ho, long userID, long groupID)
+    {
+        PermissionData permissions = ho.getPermissions();
+        if (userID == ho.getOwner().getId())
+            return permissions.isUserWrite();
+        /*
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupWrite();
+        return permissions.isWorldWrite();
+        */
+        return permissions.isGroupWrite();
+    }
     
 }
