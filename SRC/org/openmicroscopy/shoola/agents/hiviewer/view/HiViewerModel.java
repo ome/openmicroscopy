@@ -394,9 +394,5 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
-
-
-
-
     
 }
