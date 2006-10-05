@@ -52,7 +52,6 @@ import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Pane displaying the controls used to define the transformations happening 
@@ -154,22 +153,6 @@ class CodomainPane
                 planeSlicingButton.setEnabled(true);
             } 
         }
-    }
-    
-    /**
-     * Builds a pane laying out the selection box and the related button
-     * to bring up the dialog window.
-     *  
-     * @param box       A component to add.
-     * @param button    A component to add.
-     * @return See above.
-     */
-    private JPanel buildPane(JCheckBox box, JButton button)
-    {
-        JPanel p = new JPanel();
-        p.add(box);
-        p.add(button);
-        return UIUtilities.buildComponentPanel(p);
     }
     
     /**
