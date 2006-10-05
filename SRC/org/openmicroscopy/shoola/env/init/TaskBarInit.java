@@ -104,6 +104,10 @@ public final class TaskBarInit
 			lookAndFeelClass = (String) reg.lookup(LookupNames.LOOK_N_FEEL);
 			if (SYSTEM_LF.equalsIgnoreCase(lookAndFeelClass))
 				lookAndFeelClass = UIManager.getSystemLookAndFeelClassName();
+            //lookAndFeelClass = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+            //lookAndFeelClass = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+            //lookAndFeelClass = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+            //lookAndFeelClass = "javax.swing.plaf.metal.MetalLookAndFeel";
 			UIManager.setLookAndFeel(lookAndFeelClass);
 			JFrame.setDefaultLookAndFeelDecorated(true);
 			reg.getLogger().info(this, "Loaded L&F: "+lookAndFeelClass);
