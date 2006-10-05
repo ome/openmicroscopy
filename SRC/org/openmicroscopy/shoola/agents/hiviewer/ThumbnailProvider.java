@@ -141,7 +141,9 @@ public class ThumbnailProvider
         int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
         originalWidth = THUMB_MAX_WIDTH;
         originalHeight = THUMB_MAX_HEIGHT;
-        double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+        double ratio = 1;
+        if (pxd != null) 
+            ratio = (double) pxd.getSizeX()/pxd.getSizeY();
         if (ratio < 1) {
             sizeX *= ratio;
             originalWidth *= ratio;
