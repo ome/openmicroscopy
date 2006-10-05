@@ -100,8 +100,8 @@ public class DataServicesTestsInit
         Registry reg = container.getRegistry();
         try {
             //Rebind OMERO config entries with test entries
-            OMEROInfo omeroAddr = new OMEROInfo(Env.getOmedsHost(),
-                                                Env.getOmedsPort());
+            OMEROInfo omeroAddr = new OMEROInfo(Env.getOmeroHost(),
+                                                Env.getOmeroPort());
             reg.bind(LookupNames.OMERODS, omeroAddr);
             //Create services.
             DataServicesFactory factory = 
