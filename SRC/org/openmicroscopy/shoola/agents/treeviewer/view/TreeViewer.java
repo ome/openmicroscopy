@@ -175,7 +175,6 @@ public interface TreeViewer
      */
     public static final String      FINDER_VISIBLE_PROPERTY = "finderVisible";
     
-    
     /** Bound property indicating to change the root of the hierarchy. */
     public static final String      HIERARCHY_ROOT_PROPERTY = "hierarchyRoot";
     
