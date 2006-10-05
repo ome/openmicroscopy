@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
@@ -84,6 +85,18 @@ class SplashScreenManager
 	/** The current number of tasks that have been executed. */
 	private int					doneTasks;
 	
+    /** 
+     * Handles the selection of a new item. Allows the user to enter
+     * the name of a new server if the selected item is 
+     * the last one displayed
+     *
+     */
+    private void handleServerSelection()
+    {
+        view.server.setEditable(
+                (view.server.getSelectedItem().equals(
+                        LookupNames.DEFAULT_SERVER)));
+    }
     
 	/**
 	 * Creates the splash screen component.
@@ -99,6 +112,15 @@ class SplashScreenManager
 		view.pass.addActionListener(this);
 		view.login.addActionListener(this);
         view.cancel.addActionListener(listener);
+        view.server.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+                handleServerSelection();
+            }
+        
+        });
+        view.server.setSelectedIndex(0);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -168,6 +190,7 @@ class SplashScreenManager
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
         view.cancel.setEnabled(true);
+        view.server.setEnabled(true);
         if (!init) {
             view.setCursor(Cursor.getDefaultCursor());
             view.user.setText("");
@@ -187,6 +210,7 @@ class SplashScreenManager
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
+        view.server.setEnabled(true);
     }
     
 	/** 
@@ -199,15 +223,17 @@ class SplashScreenManager
 	{
         StringBuffer buf = new StringBuffer();
         buf.append(view.pass.getPassword());
-        String usr = view.user.getText(), psw = buf.toString();
+        String usr = view.user.getText().trim(), psw = buf.toString();
+        String s = ((String) view.server.getSelectedItem()).trim();
         try {
-            UserCredentials uc = new UserCredentials(usr, psw);
+            UserCredentials uc = new UserCredentials(usr, psw, s);
             if (userCredentials != null) { 
                 userCredentials.set(uc);
                 view.user.setEnabled(false);
                 view.pass.setEnabled(false);
                 view.login.setEnabled(false);
                 view.cancel.setEnabled(false);
+                view.server.setEnabled(false);
                 view.setCursor(
                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             }

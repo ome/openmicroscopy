@@ -43,6 +43,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -113,12 +114,27 @@ public class LoginOMEDS
 	/** Login button. */
 	JButton     					loginButton;
 	
+    /** Box displaying the user preferred server on the current machine. */
+    JComboBox                       server;
+    
     /** The Controller. */
 	private LoginOMEDSManager		manager;
 	
     /** Reference to the Container's registry. */
 	private Registry				registry;
 	
+    /** 
+     * Creates and initializes the box displaying the list of available
+     * servers.
+     */
+    private void initBox()
+    {
+        Font font = (Font) registry.lookup("/resources/fonts/Titles");
+        server = new JComboBox(UIFactory.getServersAsArray());
+        server.setFont(font);
+        server.setForeground(FONT_COLOR);
+    }
+    
     /** Creates and initializes the login fields. */
     private void initLoginFields()
     {
@@ -165,11 +181,9 @@ public class LoginOMEDS
      */
     private JPanel buildBody()
     {
-        
         JPanel body = new JPanel();
         body.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagLayout gridbag = new GridBagLayout();
-        body.setLayout(gridbag);
+        body.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         
         JLabel label = UIUtilities.setTextFont(" Name: ");
@@ -178,21 +192,21 @@ public class LoginOMEDS
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.EAST;
         c.insets = TOP_PADDING;
-        gridbag.setConstraints(label, c);
-        body.add(label);
+        body.add(label, c);
         c.gridy = 1;
         label = UIUtilities.setTextFont(" Password: ");
-        gridbag.setConstraints(label, c);
-        body.add(label);
+        body.add(label, c);
+        c.gridy = 2;
+        label = UIUtilities.setTextFont(" Server: ");
+        body.add(label, c);
         c.gridx = 1;
         c.gridy = 0;
         c.ipadx = TEXTFIELD_WIDTH;
-        gridbag.setConstraints(user, c);
-        body.add(user);
-        c.gridx = 1;
+        body.add(user, c);
         c.gridy = 1;
-        gridbag.setConstraints(pass, c);
-        body.add(pass);
+        body.add(pass, c);
+        c.gridy = 2;
+        body.add(server, c);
         return body;
     }
     
@@ -219,8 +233,8 @@ public class LoginOMEDS
     /**
      * Creates a new instance.
      * 
-     * @param parent The parent of this window.
-     * @param registry The Container's registry. Mustn't be <code>null</code>.
+     * @param parent    The parent of this window.
+     * @param registry  The Container's registry. Mustn't be <code>null</code>.
      */
 	public LoginOMEDS(JFrame parent, Registry registry)
 	{
@@ -230,6 +244,7 @@ public class LoginOMEDS
 		manager = new LoginOMEDSManager(registry, this);
 		initLoginFields();
 		initLoginButton();
+        initBox();
 		buildGUI();
 		manager.initListeners();
 		pack();

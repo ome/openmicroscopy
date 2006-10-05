@@ -38,10 +38,10 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -98,23 +98,27 @@ class SplashScreenView
 		
 	/** Absolute positioning and size of the user text field. */
 	private static final Rectangle	USER_BOUNDS = 
-											new Rectangle(173, 283, 115, 15);
+											new Rectangle(150, 240, 115, 15);
 											
 	/** Absolute positioning and size of the password text field. */
 	private static final Rectangle	PASS_BOUNDS = 
-											new Rectangle(173, 300, 115, 15);
-											
+											new Rectangle(150, 257, 115, 15);
+	
+    /** Absolute positioning and size of the password text field. */
+    private static final Rectangle  SERVER_BOUNDS = 
+                                            new Rectangle(150, 274, 230, 15);
+    
 	/** Absolute positioning and size of the login button. */
 	private static final Rectangle	LOGIN_BOUNDS = 
-											new Rectangle(242, 323, 50, 20);
+											new Rectangle(242, 320, 50, 20);
 	
     /** Absolute positioning and size of the cancel button. */
     private static final Rectangle  CANCEL_BOUNDS = 
-                                            new Rectangle(172, 323, 50, 20);
+                                            new Rectangle(172, 320, 50, 20);
     
     /** Absolute positioning of the version label. */
     private static final Rectangle  VERSION_BOUNDS =
-                                            new Rectangle(62, 346, 250, 20);
+                                            new Rectangle(62, 347, 250, 20);
     
 	/** Font for progress bar label and text fields. */
 	private static final Font		FONT = 
@@ -144,33 +148,37 @@ class SplashScreenView
     
     /** The server's version. For developers' purpose only. */
     private static final String     OMERO_VERSION = " server: OMERO M3";
-    
+
 	/** Text field to enter the login user name. */
-	JTextField     user;
+	JTextField          user;
 	
 	/** Password field to enter login password. */
-	JPasswordField pass;
+	JPasswordField      pass;
 	
 	/** Login button. */
-	JButton        login;
+	JButton             login;
 	
     /** Cancel button. */
-    JButton         cancel;
+    JButton             cancel;
     
 	/** Displays the name of the task that is currently being executed. */
-	JLabel         currentTask;
+	JLabel              currentTask;
 	
 	/** Provides feedback on the state of the initialization process. */
-	JProgressBar   progressBar;
+	JProgressBar        progressBar;
 	
     /** Label hosting the version of shoola. */
-	JLabel         versionLabel;
+	JLabel              versionLabel;
+    
+    /** Box displaying the user preferred server on the current machine. */
+    JComboBox           server;
     
 	/** Creates the splash screen UI. */
 	SplashScreenView() 
 	{
 		super("Open Microscopy Environment");
-		initProgressDisplay(); 
+		initProgressDisplay();
+        initBox();
 		initFields();
 		initButtons();
 		buildGUI();
@@ -214,6 +222,17 @@ class SplashScreenView
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
 	}
+    
+    /** 
+     * Creates and initializes the box displaying the list of available
+     * servers.
+     */
+    private void initBox()
+    {
+        server = new JComboBox(UIFactory.getServersAsArray());
+        server.setFont(FONT);
+        server.setForeground(FONT_COLOR);
+    }
     
     /**
      * Removes border and margin for the specified button and sets the default
@@ -266,6 +285,7 @@ class SplashScreenView
         layers.add(cancel, new Integer(1));
 		layers.add(login, new Integer(1));
 		layers.add(versionLabel, new Integer(1));
+        layers.add(server, new Integer(1));
 		//Add components to content pane.
 		getContentPane().setLayout(null);  //Absolute layout.
 		getContentPane().add(layers);
@@ -277,6 +297,7 @@ class SplashScreenView
 		progressBar.setBounds(PROGRESS_BOUNDS);
 		user.setBounds(USER_BOUNDS);
 		pass.setBounds(PASS_BOUNDS);
+        server.setBounds(SERVER_BOUNDS);
         cancel.setBounds(CANCEL_BOUNDS);
 		login.setBounds(LOGIN_BOUNDS);
         versionLabel.setBounds(VERSION_BOUNDS);

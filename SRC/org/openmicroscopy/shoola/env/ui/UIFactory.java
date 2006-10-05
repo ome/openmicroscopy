@@ -31,11 +31,17 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 
 /** 
  * Factory for the various windows and widgets used within the container.
@@ -88,4 +94,45 @@ public class UIFactory
 		return new UserNotifierImpl();
 	}
 	
+    /**
+     * Returns an array of the available servers.
+     * 
+     * @return See above.
+     */
+    public static String[] getServersAsArray()
+    {
+        String[] listOfServers = null;
+        Properties defaultProp = new Properties();
+        try {
+            FileInputStream in = new FileInputStream(
+                                        LookupNames.OMERO_PROPERTIES);
+            defaultProp.load(in);
+            in.close(); 
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        String s = defaultProp.getProperty(LookupNames.OMERO_SERVER);
+        if (s == null || s.length() == 0) {
+            listOfServers = new String[1];
+            listOfServers[0] = LookupNames.DEFAULT_SERVER;
+        } else {
+            List l = Arrays.asList(s.split(LookupNames.SERVER_NAME_SEPARATOR, 
+                                            0));
+            if (l == null) {
+                listOfServers = new String[1];
+                listOfServers[0] = LookupNames.DEFAULT_SERVER;
+            } else {
+                listOfServers = new String[l.size()+1];
+                Iterator i = l.iterator();
+                int index = 0;
+                while (i.hasNext()) {
+                    listOfServers[index] = ((String) i.next()).trim();
+                    index++;
+                }
+                listOfServers[index] = LookupNames.DEFAULT_SERVER;
+            }
+        }   
+        return listOfServers;
+    }
+    
 }

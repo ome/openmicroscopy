@@ -84,6 +84,19 @@ class LoginOMEDSManager
         else view.loginButton.setIcon(im.getIcon(IconManager.LOGIN_INIT));
     }
     
+    /** 
+     * Handles the selection of a new item. Allows the user to enter
+     * the name of a new server if the selected item is 
+     * the last one displayed
+     *
+     */
+    private void handleServerSelection()
+    {
+        view.server.setEditable(
+                (view.server.getSelectedItem().equals(
+                        LookupNames.DEFAULT_SERVER)));
+    }
+    
 	/** 
 	 * Creates a new instance.
 	 * 
@@ -109,6 +122,15 @@ class LoginOMEDSManager
 		dUser.addDocumentListener(this);
 		dPass.addDocumentListener(this);
 		view.loginButton.addActionListener(this);
+        view.server.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e)
+            {
+                handleServerSelection();
+            }
+        
+        });
+        view.server.setSelectedIndex(0);
 	}
 	
 	/** 
@@ -124,8 +146,9 @@ class LoginOMEDSManager
 		StringBuffer buf = new StringBuffer();
 		buf.append(view.pass.getPassword());
 		String usr = view.user.getText(), psw = buf.toString();
+        String s = ""; //TODO
         try {
-            UserCredentials uc = new UserCredentials(usr, psw);
+            UserCredentials uc = new UserCredentials(usr, psw, s);
             view.dispose();
             LoginService ls = (LoginService) registry.lookup(LookupNames.LOGIN);
             ls.login(uc);
