@@ -106,6 +106,8 @@ class OMEROGateway
     /** Server instance to log in. */
     private Server                  server;
     
+    private int                     port;
+    
     /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
@@ -325,8 +327,9 @@ class OMEROGateway
     {
         if (dsFactory == null) 
             throw new IllegalArgumentException("No Data service factory.");
-        server = new Server(hostName, port);
+        //server = new Server(hostName, port);
         this.dsFactory = dsFactory;
+        this.port = port;
     }
     
     /**
@@ -349,10 +352,11 @@ class OMEROGateway
      * @throws DSOutOfServiceException If the connection can't be established
      *                                  or the credentials are invalid.
      */
-    ExperimenterData login(String userName, String password)
+    ExperimenterData login(String userName, String password, String hostName)
         throws DSOutOfServiceException
     {
         try {
+            server = new Server(hostName, port);
             entry = new ServiceFactory(server, new Login(userName, password)); 
             connected = true;
             return getUserDetails(userName);

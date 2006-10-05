@@ -148,7 +148,8 @@ public class DataServicesFactory
 		if (uc == null)
             throw new NullPointerException("No user credentials.");
         ExperimenterData exp = omeroGateway.login(uc.getUserName(), 
-                									uc.getPassword());
+                									uc.getPassword(),
+                                                    uc.getHostName());
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
