@@ -48,7 +48,6 @@ import javax.swing.JRadioButtonMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -119,7 +118,8 @@ class ImViewerUI
         menuBar.add(createControlsMenu());
         menuBar.add(createViewMenu());
         menuBar.add(createZoomMenu());
-        menuBar.add(createRatingMenu());
+        createRatingMenu();
+        //menuBar.add(createRatingMenu());
         menuBar.add(createHelpMenu());
         return menuBar;
     }
