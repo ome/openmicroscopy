@@ -38,8 +38,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Point;
-
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -54,6 +52,7 @@ import javax.swing.SwingConstants;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The tool bar of {@link TreeViewer}.
@@ -102,11 +101,11 @@ class ToolBar
         bar.setRollover(true);
         bar.setBorder(null);
         JButton b = new JButton(controller.getAction(TreeViewerControl.VIEW));
-        setButtonProperties(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);
-        setButtonProperties(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         b.addMouseListener((ManagerAction) a);
         bar.add(b);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
@@ -126,15 +125,15 @@ class ToolBar
         bar.setBorder(null);
         JButton b = new JButton(controller.getAction(
                                     TreeViewerControl.ANNOTATE));
-        setButtonProperties(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.CLASSIFIER);
         b = new JButton(a);
         b.addMouseListener((ClassifierAction) a);
-        setButtonProperties(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
-        setButtonProperties(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;
