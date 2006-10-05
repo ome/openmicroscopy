@@ -98,15 +98,15 @@ class SplashScreenView
 		
 	/** Absolute positioning and size of the user text field. */
 	private static final Rectangle	USER_BOUNDS = 
-											new Rectangle(150, 240, 115, 15);
+											new Rectangle(149, 242, 115, 15);
 											
 	/** Absolute positioning and size of the password text field. */
 	private static final Rectangle	PASS_BOUNDS = 
-											new Rectangle(150, 257, 115, 15);
+											new Rectangle(149, 259, 115, 15);
 	
     /** Absolute positioning and size of the password text field. */
     private static final Rectangle  SERVER_BOUNDS = 
-                                            new Rectangle(150, 274, 230, 15);
+                                            new Rectangle(149, 276, 230, 15);
     
 	/** Absolute positioning and size of the login button. */
 	private static final Rectangle	LOGIN_BOUNDS = 
