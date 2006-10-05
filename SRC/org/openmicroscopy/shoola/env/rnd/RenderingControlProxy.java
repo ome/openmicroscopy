@@ -216,6 +216,37 @@ class RenderingControlProxy
         }
     }
     
+    private int makeRGB(int r, int g, int b)
+    {
+        return r << 16 | g << 8 | b;
+    }
+    
+    
+    /**
+     * Paints the {@link RGBBuffer} on the specified image.
+     * 
+     * @param img   The image to paint onto.
+     * @param buf   The buffer.
+     */
+    private void paintImage(BufferedImage img, RGBBuffer buf)
+    {
+        int sizeX1 = buf.getSizeX1();
+        int sizeX2 = buf.getSizeX2();
+        
+        byte[] r = buf.getRedBand();
+        byte[] g = buf.getGreenBand();
+        byte[] b = buf.getBlueBand();
+        
+        int i = 0;
+        for (int y = 0 ; y < sizeX2; y++) {
+            for (int x = 0 ; x < sizeX1 ; x++) {
+                img.setRGB(x, y, makeRGB(r[i] & 0xFF, g[i] & 0xFF,
+                                                b[i] & 0xFF));
+                i++;
+            }
+        }
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -503,9 +534,23 @@ class RenderingControlProxy
         setDefaultPlane();
     }
 
-    private int makeRGB(int r, int g, int b)
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#renderCopy(PlaneDef)
+     */
+    public BufferedImage renderCopy(PlaneDef pDef)
     {
-        return r << 16 | g << 8 | b;
+        if (pDef == null) 
+            throw new IllegalArgumentException("Plane def cannot be null.");
+        RGBBuffer buf = servant.render(pDef);
+        //See if we can/need work out the XY image size.
+        if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
+            xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
+            buf.getBlueBand().length;
+        BufferedImage img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+                                BufferedImage.TYPE_INT_RGB);
+        paintImage(img, buf);
+        return img;
     }
     
     /** 
@@ -523,31 +568,16 @@ class RenderingControlProxy
         if (xyImage == null) {
         	xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
                             BufferedImage.TYPE_INT_RGB);
-        	}
+        }
         
         //See if we can/need work out the XY image size.
         if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
         	xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
             buf.getBlueBand().length;
-            
-        int sizeX1 = buf.getSizeX1();
-        int sizeX2 = buf.getSizeX2();
-        
-        byte[] r = buf.getRedBand();
-        byte[] g = buf.getGreenBand();
-        byte[] b = buf.getBlueBand();
-        
-        int i = 0;
-        for (int y = 0 ; y < sizeX2; y++) {
-         	for (int x = 0 ; x < sizeX1 ; x++) {
-         			xyImage.setRGB(x, y, makeRGB(
-                   		r[i] & 0xFF,
-                   		g[i] & 0xFF,
-                   		b[i] & 0xFF));
-           		i++;
-         	}
-        }
-       return xyImage;
+         
+        paintImage(xyImage, buf);
+        //cache(pDef, xyImage);
+        return xyImage;
     }
     
     /** 

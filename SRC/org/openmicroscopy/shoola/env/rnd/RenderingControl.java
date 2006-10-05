@@ -404,6 +404,14 @@ public interface RenderingControl
     public BufferedImage render(PlaneDef pDef);
 	
     /**
+     * Renders the specified {@link PlaneDef plane}.
+     * 
+     * @param pDef
+     * @return The rendered image.
+     */
+    public BufferedImage renderCopy(PlaneDef pDef);
+    
+    /**
      * Returns the <code>ChannelMetadata</code> object specified
      * by the passed index.
      * 
