@@ -87,6 +87,9 @@
 	<!-- Files relative to basedir: different for each component -->
 	<property name="hibernate.properties" value="${resrc.dest}/hibernate.properties"/>
 
+	<!-- Special directories (rely on above definitions) -->
+	<property name="sql.dir"	value="${common.comp}/${generated.rel}/resources"/>
+
 	<path id="source.path">
 		<fileset dir="${src.dir}">
 			<include name="**/*.java"/>

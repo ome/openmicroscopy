@@ -14,4 +14,44 @@
 		</jar>
 	</target>
 	
+	
+        <target name="addgroup" depends="prepare,load-groovy">
+               <groovy>
+                        g = new ome.model.meta.ExperimenterGroup()
+			println "Please enter group name:"
+			g.name = System.in.readLine()
+			println "Please enter group description: (optional)"
+			g.description = System.in.readLine()
+			println "Please enter group owner's id:"
+			id = System.in.readLine()
+			g.details.owner = new ome.model.meta.Experimenter( Long.valueOf(id), false )
+                        l  = new ome.system.Login("root",properties["omero.rootpass"])
+                        sf = new ome.system.ServiceFactory(l)
+                        sf.getAdminService().createGroup(g)
+                </groovy>
+        </target>
+
+        <target name="adduser" depends="prepare,load-groovy">
+               <groovy>
+			user = System.getProperty("user.name")
+                        e = new ome.model.meta.Experimenter()
+			println "Please enter login name: [${user}]"
+			e.omeName = System.in.readLine()
+			if (e.omeName == null || e.omeName.length() == 0) e.omeName=user
+			println "Please enter user's first name:"
+			e.firstName = System.in.readLine()
+			println "Please enter user's last name:"
+			e.lastName = System.in.readLine()
+			println "Please enter user's middle name: (optional)"
+			e.middleName = System.in.readLine()
+			println "Please enter user's email: (optional)"
+			e.email = System.in.readLine()
+			println "Please enter user's institution: (optional)"
+			e.institution = System.in.readLine()
+                        l  = new ome.system.Login("root",properties["omero.rootpass"])
+                        sf = new ome.system.ServiceFactory(l)
+                        sf.getAdminService().createUser(e)
+                </groovy>
+        </target>
+
 </project>

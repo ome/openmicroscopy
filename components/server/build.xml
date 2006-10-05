@@ -2,5 +2,20 @@
 <project name="services" default="install" basedir=".">
     
 	<import file="classpath.xml"/>
-	
+
+        <target name="reload-db" depends="prepare,load-groovy">
+                <groovy>
+                        rootpass=properties["omero.rootpass"]
+                        rootpass=new ome.logic.AdminImpl().preparePassword(rootpass)
+                        properties["ROOTPASS"]=rootpass
+                </groovy>
+		<copy file="${sql.dir}/ddl.sql" todir="${target.dir}"/>
+		<copy file="${sql.dir}/data.sql" todir="${target.dir}"/>
+                <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
+                <sql_run>
+                        <transaction src="${target.dir}/ddl.sql"/>
+                        <transaction src="${target.dir}/data.sql"/>
+                </sql_run>
+        </target>
+
 </project>

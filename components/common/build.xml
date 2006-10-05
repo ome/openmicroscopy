@@ -4,9 +4,6 @@
     
 	<import file="classpath.xml"/>
 	
-	<!-- Local properties -->
-	<property name="ddl.file" value="ddl.sql" />
-	
 	<!-- Lifecycle Overrides -->
 	<target name="prepare" depends="lifecycle.prepare,load-hibernate"/>
 	<target name="generate" depends="lifecycle.generate,dsl,hib" unless="generate.skip"/>
@@ -63,7 +60,7 @@
 		<hibernate>			
 			<hbm2java destdir="${src.dest}"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
-			<hbm2ddl destdir="${resrc.dest}" outputfilename="${ddl.file}" drop="false" console="false" format="true" export="false" />
+			<hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" />
 			<hbm2cfgXml destdir="${resrc.dest}"/>
 		</hibernate>
 		<done name="hib"/>
@@ -78,44 +75,27 @@
           misc          
          = = = = = = = = = = = = = = = = = -->
 	
+<!-- TODO move to antlib -->
 	<target name="check-db" depends="lifecycle.prepare">
 		<sql_run>
 			<transaction> select 'database exists.' </transaction>
 		</sql_run>
 	</target>
 
-	<target name="reload-db" depends="lifecycle.prepare,generate">
-		<sql_run>
-  			<transaction src="${resrc.dest}/${ddl.file}"/>
-  			<transaction src="${resrc.dest}/data.sql"/>
-		</sql_run>
-	</target>
-
-	<target name="adduser" depends="lifecycle.prepare">
+	<target name="adduser" depends="lifecycle.prepare,load-groovy">
                 <input
-                        message="Please enter username:"
-                        addproperty="db.user"
+                        message="Please enter login username:"
+                        addproperty="user.name"
                 />
-                <sql_run>
-<!-- TODO: these should be changed to code. a simple groovy/java client. -->
-                        <transaction>
- insert into experimenter
- (id, version, omename, firstname, lastname)
- values
- (nextval('seq_experimenter'),0,'${db.user}','My','Name');
-
- insert into groupexperimentermap
- (id, permissions, version, owner_id, group_id, creation_id, update_id, child, parent)
- select nextval('seq_groupexperimentermap'), -35, 0, 0, 0, 0, 0, e.id, g.id
- from experimenter e, experimentergroup g
- where e.omename = '${db.user}' and g.name = 'user';
-
-insert into password 
-(experimenter_id, hash) 
-select
-id, ' ' from experimenter where omeName = '${db.user}';
-                        </transaction>
-                </sql_run>
+		<groovy>
+			e = new ome.model.meta.Experimenter()
+			e.omeName=properties["user.name"]
+			e.firstName="test"
+			e.lastName="test"
+			l  = new ome.system.Login("root",properties["omero.rootpass"])
+			sf = new ome.system.ServiceFactory(l)
+			sf.getAdminService().createUser(e)
+		</groovy>
 	</target>
 
 	<target name="cache">

@@ -423,7 +423,8 @@ public class AdminTest extends AbstractManagedContextTest
 	/** using this test to visually inspect the log output for changeUserPassword
 	 * it will fail and so there should be no side-effects.
 	 */
-	@Test(groups = {"ticket:209", "security"} )
+	// SECURITY CHECKS AREN'T DONE FROM WITHIN. NEED TO HANDLE THIS!!!
+	@Test(groups = {"ticket:209", "security", "broken"} )
 	public void testUnallowedPasswordChange() throws Exception
 	{
 		loginRoot();
@@ -438,7 +439,7 @@ public class AdminTest extends AbstractManagedContextTest
 		try {
 			iAdmin.changeUserPassword("root", "THIS SHOULD NOT BE VISIBLE.");
 			fail("secvio!");
-		} catch (Exception ex) {
+		} catch (SecurityViolation ex) {
 			// ok.
 		}
 		

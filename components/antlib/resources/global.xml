@@ -164,7 +164,7 @@ ${msg.global.old.files}
 			<path refid="omero.test.classpath"/>
 			<pathelement location="${classes.dir}/" />
 			<pathelement location="${resrc.dir}/" />
-			<pathelement location="${resrc.dest}/" />
+			<pathelement location="${resrc.dest}/"/>
 		</path>
 		<pathconvert property="omero.path" refid="omero.classpath"/>
 		<pathconvert property="compile.path" refid="omero.compile.classpath"/>
@@ -185,7 +185,13 @@ ${msg.global.old.files}
 	<target name="load-groovy">
 		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
 		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>
-		<taskdef classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" name="groovy"/>
+
+		<!-- http://groovy.codehaus.org/Ant+Task+Troubleshooting -->
+		<taskdef name="rootLoaderRef" classname="org.codehaus.groovy.ant.RootLoaderRef" classpathref="omero.classpath"/>
+		<rootLoaderRef ref="groovy.classpath">
+  			<classpath refid="omero.classpath"/>
+		</rootLoaderRef>
+		<taskdef classname="org.codehaus.groovy.ant.Groovy" loaderref="groovy.classpath" name="groovy"/>
 	</target>
 		
 	<!-- 	===============================================
@@ -214,13 +220,19 @@ ${msg.global.old.files}
 	</target>
 
 	<target name="reload-db">
-		<antRun component="common">
+		<antRun component="server">
 			<target name="reload-db"/>
 		</antRun>
 	</target>
 
+	<target name="addgroup">
+		<antRun component="client">
+			<target name="addgroup"/>
+		</antRun>
+	</target>
+
 	<target name="adduser">
-		<antRun component="common">
+		<antRun component="client">
 			<target name="adduser"/>
 		</antRun>
 	</target>

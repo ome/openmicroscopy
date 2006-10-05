@@ -61,6 +61,11 @@
       <artifactId>jboss-ejb3</artifactId>
       <version>4.0.4.GA</version>
     </dependency>
+    <dependency>
+      <groupId>omero</groupId>
+      <artifactId>jbossall-client</artifactId>
+      <version>4.0.4.GA</version>
+    </dependency>
 
     
     <!-- FROM project.xml -->
