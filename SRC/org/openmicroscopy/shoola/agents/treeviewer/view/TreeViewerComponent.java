@@ -64,7 +64,6 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PermissionData;
 
 /** 
  * Implements the {@link TreeViewer} interface to provide the functionality
@@ -123,7 +122,15 @@ class TreeViewerComponent
     void initialize()
     {
         ExperimenterData user = model.getUserDetails();
-        model.setHierarchyRoot(USER_ROOT, user.getDefaultGroup().getId());
+        //TMP
+        Set sets = user.getGroups();
+        Iterator i = sets.iterator();
+        long id = -1;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+        }
+        //model.setHierarchyRoot(USER_ROOT, user.getDefaultGroup().getId());
+        model.setHierarchyRoot(USER_ROOT, id);
         controller.initialize(view);
         view.initialize(controller, model);
     }
@@ -144,6 +151,7 @@ class TreeViewerComponent
 	        case NEW:
                 model.getSelectedBrowser().activate();
                 view.setOnScreen();
+                model.setState(READY);
 	            break;
 	        case DISCARDED:
                 throw new IllegalStateException(
@@ -585,13 +593,11 @@ class TreeViewerComponent
      */
     public void setHierarchyRoot(int rootLevel, long rootID)
     {
-        int state = model.getState();
-        if (state != READY && state != NEW)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the READY state.");
         int oldLevel = model.getRootLevel();
         model.setHierarchyRoot(rootLevel, rootID);
-        firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
+        System.out.println("state: "+model.getState());
+        if (model.getState() == READY)
+            firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
                                new Integer(rootLevel));
     }
 
@@ -616,24 +622,8 @@ class TreeViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
             "This method cannot be invoked in the DISCARDED state.");
-        //logic here to see if the object has write access
-        long userID = model.getUserDetails().getId();
-        PermissionData permissions = ho.getPermissions();
-        if (userID == ho.getOwner().getId())
-            return permissions.isUserWrite();
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (model.getRootGroupID() == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupWrite();
-        return permissions.isWorldWrite();
+        return TreeViewerTranslator.isWritable(ho, getUserDetails().getId(), 
+                                                getRootGroupID()); 
     }
 
     /**

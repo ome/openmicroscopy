@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -376,5 +375,5 @@ class TreeViewerModel
        }
        state = TreeViewer.READY;
    }
-   
+
 }
