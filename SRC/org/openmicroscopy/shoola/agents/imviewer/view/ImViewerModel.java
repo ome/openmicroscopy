@@ -324,16 +324,15 @@ class ImViewerModel
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
-        /**
         OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
         try {
             component.setImage(rs.renderImage(pixelsID, pDef));
         } catch (Exception e) {
             // TODO: handle exception
         }
-        */
-        currentLoader = new ImageLoader(component, pixelsID, pDef);
-        currentLoader.load();
+        
+        //currentLoader = new ImageLoader(component, pixelsID, pDef);
+        //currentLoader.load();
         
     }
     
