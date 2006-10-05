@@ -31,11 +31,18 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -119,17 +126,66 @@ public class LoginServiceImpl
 
             //Log success.
             LogMessage msg = new LogMessage();
-            msg.println("Logged onto OMERO at: "+config.getOmedsAddress());
+            msg.println("Logged onto OMERO at: "+uc.getHostName());
             msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
             
+            //Write property.
+            Properties defaultProp = new Properties();
+            try {
+                FileInputStream in = new FileInputStream(
+                                            LookupNames.OMERO_PROPERTIES);
+                defaultProp.load(in);
+                in.close(); 
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            String s = defaultProp.getProperty(LookupNames.OMERO_SERVER);
+            String listOfServers = null;
+            if (s == null) {
+                listOfServers = uc.getHostName();
+            } else {
+                List l = Arrays.asList(
+                        s.split(LookupNames.SERVER_NAME_SEPARATOR, 0));
+                if (l == null || l.size() == 0) {
+                    listOfServers = uc.getHostName();
+                } else {
+                    Iterator i = l.iterator();
+                    boolean b = false;
+                    int index = 0;
+                    int n = l.size()-1;
+                    String name = uc.getHostName();
+                    String host;
+                    while (i.hasNext()) {
+                        host = ((String) i.next()).trim();
+                        if (name.equals(host)) b = true;
+                        if (index == 0) listOfServers = host;
+                        else listOfServers += host;
+                        if (index != n) listOfServers += ",";
+                        index++;
+                    }
+                    if (!b)
+                        listOfServers += ","+uc.getHostName();
+                }
+            }
+            Properties prop = new Properties();
+            if (listOfServers != null)
+                prop.setProperty(LookupNames.OMERO_SERVER, listOfServers);
+            try {
+                FileOutputStream out = new FileOutputStream(
+                                        LookupNames.OMERO_PROPERTIES);
+                prop.store(out, "");
+                out.close();
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
             return true;
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
             msg.println("Reason: "+dsose);
-            msg.println("OMERO Address: "+config.getOmedsAddress());
+            msg.println("OMERO Address: "+uc.getHostName());
             if (uc != null) msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.error(this, msg);

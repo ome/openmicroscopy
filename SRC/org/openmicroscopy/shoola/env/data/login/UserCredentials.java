@@ -67,6 +67,8 @@ public class UserCredentials
      */
     private String  password;
     
+    /** The name of the <i>OMERO</i> server. */
+    private String  hostName;
     
     /**
      * Creates a new instance.
@@ -77,10 +79,11 @@ public class UserCredentials
      * @param password The <i>OMERO</i> login password of the user.
      *                 This is the password that was chosen for the user when
      *                 it was created in the DB.
+     * @param hostName
      * @throws IllegalArgumentException If the user name and/or the password is
      *                 <code>null</code> or has <code>0</code>-length.
      */
-    public UserCredentials(String userName, String password)
+    public UserCredentials(String userName, String password, String hostName)
     {
         if (userName == null || userName.length() == 0)
             throw new IllegalArgumentException("Please specify a user name.");
@@ -88,7 +91,15 @@ public class UserCredentials
             throw new IllegalArgumentException("Please specify a password.");
         this.userName = userName;
         this.password = password;
+        this.hostName = hostName;
     }
+    
+    /**
+     * Returns the name of the <i>OMERO</i> server.
+     * 
+     * @return See above.
+     */
+    public String getHostName() { return hostName; }
     
     /**
      * Returns the <i>OMERO</i> login name of the user.
