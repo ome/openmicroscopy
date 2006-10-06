@@ -149,11 +149,15 @@ public class IconManager
     /** The <code>MINUS</code> icon. */
     public static  int          MINUS = 27;
     
+    /** The <code>Histogram</code> icon. */
+    public static int 			TEMPORARY_HISTOGRAM = 28;
+
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 27;
+    private static int          MAX_ID = 28;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -188,6 +192,7 @@ public class IconManager
         relPaths[HSB] = "hsb16.png";
         relPaths[PLUS] = "nuvola_edit_add16.png";
         relPaths[MINUS] = "nuvola_edit_remove16.png";
+        relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.jpg";
     }
     
     /** The sole instance. */
