@@ -246,7 +246,6 @@ class TinyPaneUI
         int h = titleBar.getPreferredSize().height;
         JComponent dskDecorator = frame.getInternalDesktop();
         Dimension internalDesktopSz = frame.getContentPane().getPreferredSize();
-        //System.out.println("ideal Size:"+dskDecorator.getPreferredSize()+" "+internalDesktopSz);
         Insets scrollPaneInsets = dskDecorator.getInsets(),
                 frameInsets = frame.getInsets();
         sz.width = frameInsets.left+scrollPaneInsets.left+
