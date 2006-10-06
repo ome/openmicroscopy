@@ -54,6 +54,7 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
     
+    /** Name of the properties stored on the user's machine. */
     public static final String OMERO_PROPERTIES = "omeroProperties";
     
     /** Separator used when storing various servers. */
