@@ -74,6 +74,12 @@ import javax.swing.SwingConstants;
 public class UIUtilities
 {
 
+    /** 
+     * The string displayed before an item name if the name has been
+     * truncated.
+     */
+    public static final String              DOTS = "...";
+    
     /** The Steelblue color. */
     public static final Color               STEELBLUE = new Color(0x4682B4);
     
