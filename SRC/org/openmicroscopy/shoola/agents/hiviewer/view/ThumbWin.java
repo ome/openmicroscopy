@@ -43,8 +43,10 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * A floating window to display a thumbnail at its maximum scaling size.
@@ -175,7 +177,14 @@ class ThumbWin
      * and display the popup menu.
      * @see MouseListener#mouseReleased(MouseEvent)
      */
-    public void mouseReleased(MouseEvent me) { onClick(me); }
+    public void mouseReleased(MouseEvent me)
+    { 
+        onClick(me); 
+        if (me.getClickCount() == 2) {
+            ViewCmd cmd = new ViewCmd((ImageData) node.getHierarchyObject());
+            cmd.execute();
+        }      
+    }
     
     /** 
      * Hides the menu when a mousePressed event occurs.

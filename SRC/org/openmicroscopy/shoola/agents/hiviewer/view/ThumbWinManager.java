@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.util.RollOverWin;
@@ -90,9 +91,10 @@ class ThumbWinManager
      * The window will be centered on top of the <code>node</code>. The same
      * window is recycled.
      * 
-     * @param node  The image node for which a window is needed.
+     * @param node      The image node for which a window is needed.
+     * @param browser   Reference to the <code>Browser</code>. 
      */
-    static void rollOverDisplay(ImageNode node)
+    static void rollOverDisplay(ImageNode node, Browser browser)
     {
         if (node == null) {
             if (rollOverDialog != null) {
@@ -102,11 +104,9 @@ class ThumbWinManager
         } else {
             if (rollOverDialog == null) 
                 rollOverDialog = new RollOverWin(
-                                        (JFrame) node.getTopLevelAncestor());
-            Thumbnail prv = node.getThumbnail();
-            BufferedImage full = prv.getFullScaleThumb();
-            if (full != null) 
-                rollOverDialog.setBufferedImage(full);
+                                        (JFrame) node.getTopLevelAncestor(),
+                                        browser);
+            rollOverDialog.setImageNode(node);
             rollOverDialog.pack();  //Now we have the right width and height.
             Point p = singleton.getWindowLocation(node, 
                                         rollOverDialog.getWidth(), 
