@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Color;
+
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -123,6 +125,16 @@ class RendererComponent
         UIUtilities.centerOnScreen(view);
     }
 
+    public void SetLocation(int x, int y)
+    {
+    	view.setLocation(x, y);
+    }
+    
+    public int getWidth()
+    {
+    	return view.getWidth();
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#updateCodomainMap(CodomainMapContext)
@@ -191,6 +203,16 @@ class RendererComponent
                     new Integer(selectedChannel), new Integer(c));
     }
 
+    public void setChannelButtonColor(int changedChannel)
+    {
+    	   view.setChannelButtonColor(changedChannel);  
+    }
+    
+    public void setColorModelChanged()
+    {
+    	view.setColorModelChanged();
+    }
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setFamily(String)

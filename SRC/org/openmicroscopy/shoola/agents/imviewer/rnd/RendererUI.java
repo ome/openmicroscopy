@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -244,6 +245,13 @@ class RendererUI
         pane.setSelectedChannel(c);
     }
 
+    void setChannelButtonColor(int c)
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.setChannelButtonColor(c);
+    }
+    
+    
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
@@ -260,5 +268,15 @@ class RendererUI
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.setCodomainInterval();
     }
+
+	/**
+	 * 
+	 */
+	public void setColorModelChanged() 
+	{
+	     DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+	     pane.setColorModelChanged();
+	 
+	}
     
 }

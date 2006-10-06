@@ -158,12 +158,13 @@ class GraphicsPane
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.VERTICAL;
-        gbc.weightx = 10;
+        gbc.weightx = 1;
         p.add(codomainSlider,gbc);
         gbc.gridx = 1;
-        gbc.weightx = 100000;
+        gbc.weightx = 60;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0,0,0,50);
         p.add(uiDelegate, gbc);
         add(p);
         p = new JPanel();

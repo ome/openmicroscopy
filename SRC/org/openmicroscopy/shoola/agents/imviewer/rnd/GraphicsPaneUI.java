@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -66,8 +67,6 @@ class GraphicsPaneUI
     GraphicsPaneUI()
     {
         IconManager icons = IconManager.getInstance();
-        
-       // setPreferredSize(new Dimension(100, 100));
         histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
     }
     

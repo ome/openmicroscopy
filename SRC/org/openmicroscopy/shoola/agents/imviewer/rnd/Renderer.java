@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Color;
+
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -231,5 +233,15 @@ public interface Renderer
     
     /** Resets the default settings. */
     public void setDefaultSettings();
+
+	/**
+	 * Set the colour of the channel button in the renderer.
+	 * 
+	 * @param newValue
+	 */
+	void setChannelButtonColor(int changedChannel);
+    void setColorModelChanged();
+    public void SetLocation(int x, int y);
+    public int getWidth();
     
 }

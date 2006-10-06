@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -137,7 +138,7 @@ class DomainPane
     /** An collection of ColourButtons which represent the channel selected in the
      *  mapping process. 
      */
-    private List			channelList;
+    private List				channelList;
     
     /** A panel containing the channel buttons. */
     private JPanel				channelButtonPanel;
@@ -210,6 +211,7 @@ class DomainPane
         									(ImViewer.GREY_SCALE_MODEL);
         ChannelMetadata d;
         ChannelToggleButton channelButton;
+        p.add(Box.createRigidArea(VBOX));
         for (int j = 0; j < data.length; j++)
         {
         	d = data[j];
@@ -221,20 +223,14 @@ class DomainPane
             if( model.getSelectedChannel() == j)
             	channelButton.setSelected(true);
 
-            if (gs) 
-            	channelButton.setGrayedOut(gs);
+           	channelButton.setGrayedOut(gs);
             channelButton.addPropertyChangeListener(controller);
             channelButton.setPreferredSize(new Dimension(30, 30));
             p.add(channelButton);
             p.add(Box.createRigidArea(VBOX));
         }
-        return UIUtilities.buildComponentPanel(p);
-        
-/*        channelBox = new JComboBox(channels);
-        channelBox.setSelectedIndex(model.getSelectedChannel());
-        channelBox.addActionListener(this);
-        channelBox.setActionCommand(""+CHANNEL);*/
-    }
+        return UIUtilities.buildComponentPanel(p);     
+   }
     
     private JPanel buildChannelGraphicsPanel()
     {
@@ -499,5 +495,29 @@ class DomainPane
         } 
     }
     
-  
+    void setChannelButtonColor(int c)
+    {
+    	ChannelToggleButton btn = (ChannelToggleButton)channelList.get(c);
+    	btn.setColor(model.getChannelColor(c));
+    	boolean gs = model.getColorModel().equals
+			(ImViewer.GREY_SCALE_MODEL);
+    	if(gs) 
+    		btn.setGrayedOut(gs);
+ }
+
+
+	/**
+	 * 
+	 */
+	public void setColorModelChanged() 
+	{
+		for( int i = 0 ; i < channelList.size() ; i++)
+		{
+		ChannelToggleButton btn = (ChannelToggleButton)channelList.get(i);
+    	btn.setColor(model.getChannelColor(i));
+    	boolean gs = model.getColorModel().equals
+			(ImViewer.GREY_SCALE_MODEL);
+   		btn.setGrayedOut(gs);
+		}
+	}
 }
