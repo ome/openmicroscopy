@@ -408,6 +408,7 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/* (non-Javadoc)
 	 * @see ome.api.IThumb#getThumbnailDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
 	 */
+	@Transactional( readOnly = true )
 	public byte[] getThumbnailDirect(Pixels pixels, RenderingDef def,
 	                                 Integer sizeX, Integer sizeY)
 	{
@@ -435,6 +436,7 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/* (non-Javadoc)
 	 * @see ome.api.IThumb#thumbnailExists(ome.model.core.Pixels, java.lang.Integer, java.lang.Integer)
 	 */
+	@Transactional( readOnly = false )
 	public boolean thumbnailExists(Pixels pixels, Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
