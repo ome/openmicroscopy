@@ -123,14 +123,15 @@ public interface Browser
      * Sets a flag to indicate if a {@link Thumbnail} has been selected
      * within an {@link ImageNode}.
      * 
-     * @param selected Pass <code>true</code> if the currently selected display
-     *                 is an {@link ImageNode} and its {@link Thumbnail} has
-     *                 been selected.  Pass <code>false</code> in any other
-     *                 case.
+     * @param selected  Pass <code>true</code> if the currently passed display
+     *                  is an {@link ImageNode} and its {@link Thumbnail} has
+     *                  been selected. Pass <code>false</code> in any other
+     *                  case.
+     * @param node      The selected node.                    
      * @throws IllegalArgumentException If you pass <code>true</code> but the
      *         currently selected display is <i>not</i> an {@link ImageNode}.
      */
-    public void setThumbSelected(boolean selected);
+    public void setThumbSelected(boolean selected, ImageNode node);
     
     /**
      * Tells if a {@link Thumbnail} has been selected within an 

@@ -44,7 +44,10 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+
 import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * Handles input events originating from the {@link Browser}'s View.
@@ -155,7 +158,8 @@ class BrowserControl
     }
     
     /** 
-     * Listens to the {@link Browser#SELECTED_DISPLAY_PROPERTY} property.
+     * Listens to the property event fired by {@link Browser} and 
+     * {@link ImageDisplay}.
      * Necessary for clarity.
      * @see #propertyChange(PropertyChangeEvent)
      */ 
@@ -219,8 +223,10 @@ class BrowserControl
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
             if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                && me.getClickCount() == 2)
-                model.setThumbSelected(true);   
+                && me.getClickCount() == 2) {
+                ViewCmd cmd = new ViewCmd((ImageData) d.getHierarchyObject());
+                cmd.execute();
+            }   
         }
         popupTrigger = false; 
     }

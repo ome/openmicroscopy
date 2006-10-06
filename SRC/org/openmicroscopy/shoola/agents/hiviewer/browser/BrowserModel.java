@@ -70,7 +70,7 @@ class BrowserModel
      * Flag to control the zoom action when the user mouses over an 
      * {@link ImageNode}. 
      */
-    private boolean             rollOver;
+    private boolean         rollOver;
     
     /** 
      * Tells if a thumbnail has been selected in the case the 
@@ -115,9 +115,8 @@ class BrowserModel
         if (view == null) throw new NullPointerException("No view.");
         rootDisplay = view;
         selectedDisplays = new HashSet();
-        titleBarVisible = false;
+        titleBarVisible = true;
     }
-    
     
     /**
      * Sets the specified <code>node</code> to be the currently selected
@@ -228,18 +227,16 @@ class BrowserModel
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setThumbSelected(boolean)
+     * @see Browser#setThumbSelected(boolean, ImageNode)
      */
-    public void setThumbSelected(boolean selected)
+    public void setThumbSelected(boolean selected, ImageNode node)
     {
-        if (!(getLastSelectedDisplay() instanceof ImageNode) && selected)
-            throw new IllegalArgumentException(
-                "Can only select a thumbnail on an ImageNode.");
+        if (node == null)
+            throw new IllegalArgumentException("No node");
+        if (!selected) return;
         popupPoint = null;
-        Boolean oldVal = thumbSelected ? Boolean.TRUE : Boolean.FALSE,
-                newVal = selected ? Boolean.TRUE : Boolean.FALSE;
         thumbSelected = selected;
-        firePropertyChange(THUMB_SELECTED_PROPERTY, oldVal, newVal);
+        firePropertyChange(THUMB_SELECTED_PROPERTY, null, node);
     }
 
     /**
