@@ -36,11 +36,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -144,6 +147,28 @@ public abstract class ImageDisplay
             default:
                 return false;
         }
+    }
+    
+    /**
+     * Returns the partial name of the image's name.
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    protected String getPartialName(String originalName)
+    {
+        if (Pattern.compile("/").matcher(originalName).find()) {
+            String[] l = originalName.split("/", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            String[] l = originalName.split("\\\\", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
+        } 
+        return originalName;
     }
     
     /**
@@ -356,7 +381,7 @@ public abstract class ImageDisplay
         else if (hierarchyObject instanceof DatasetData)
             s = ((DatasetData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ImageData) 
-            s = ((ImageData) hierarchyObject).getName();
+            s = getPartialName(((ImageData) hierarchyObject).getName());
         else if (hierarchyObject instanceof CategoryData) 
             s = ((CategoryData) hierarchyObject).getName();
         else if (hierarchyObject instanceof CategoryGroupData) 
