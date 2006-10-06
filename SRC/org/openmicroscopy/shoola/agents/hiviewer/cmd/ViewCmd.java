@@ -148,10 +148,17 @@ public class ViewCmd
         else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             ImageData is = (ImageData) hierarchyObject;
-            Set images = model.getBrowser().getSelectedDisplays();
-            Iterator i = images.iterator();
-            while (i.hasNext()) {
-                is = (ImageData) ((ImageDisplay) i.next()).getHierarchyObject();
+            if (model != null) {
+                Set images = model.getBrowser().getSelectedDisplays();
+                Iterator i = images.iterator();
+                ImageDisplay d;
+                while (i.hasNext()) {
+                    d = (ImageDisplay) i.next();
+                    is = (ImageData) d.getHierarchyObject();
+                    eventBus.post(new ViewImage(is.getId(), 
+                            is.getDefaultPixels().getId(), is.getName())); 
+                }
+            } else {
                 eventBus.post(new ViewImage(is.getId(), 
                         is.getDefaultPixels().getId(), is.getName())); 
             }
