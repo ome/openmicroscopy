@@ -236,7 +236,7 @@ class HiViewerWin
         item.setAction(controller.getAction(HiViewerControl.TREE_VIEW));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        item.setSelected(true);
+        item.setSelected(model.isTitleBarVisible());
         item.setAction(controller.getAction(HiViewerControl.SHOW_TITLEBAR));
         menu.add(item);
         item = new JCheckBoxMenuItem();

@@ -429,8 +429,8 @@ class HiViewerControl
             Point p = browser.getPopupPoint();
             if (d != null && p != null) view.showPopup(d, p);
         } else if (Browser.THUMB_SELECTED_PROPERTY.equals(propName)) {  
-            ImageDisplay d = model.getBrowser().getLastSelectedDisplay();
-            ThumbWinManager.display((ImageNode) d, model);
+            ImageNode d = (ImageNode) pce.getNewValue();
+            if (d != null) ThumbWinManager.display(d, model);
         } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(propName)) {
                 TreeView treeView = model.getTreeView();
                 if (treeView == null) return; 
@@ -470,8 +470,9 @@ class HiViewerControl
             if (model.isRollOver()) {
                 ImageDisplay n = (ImageDisplay) pce.getNewValue();
                 if (n instanceof ImageNode)
-                    ThumbWinManager.rollOverDisplay((ImageNode) n);
-                else ThumbWinManager.rollOverDisplay(null);
+                    ThumbWinManager.rollOverDisplay((ImageNode) n, 
+                                                model.getBrowser());
+                else ThumbWinManager.rollOverDisplay(null, model.getBrowser());
             }  
         }
     }

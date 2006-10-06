@@ -358,6 +358,18 @@ abstract class HiViewerModel
     }
     
     /**
+     * Returns <code>true</code> if the title bar of the {@link ImageNode}s
+     * is visible, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isTitleBarVisible()
+    {
+        if (browser == null) return true;
+        return browser.isTitleBarVisible();
+    }
+    
+    /**
      * Indicates what kind of hierarchy this model is for.
      * 
      * @return One of the hierarchy flags defined by the {@link HiViewer} 
