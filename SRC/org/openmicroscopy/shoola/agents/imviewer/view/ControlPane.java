@@ -369,17 +369,13 @@ class ControlPane
             channelButtons.add(button);
             p.add(button);
             p.add(Box.createRigidArea(VBOX));
-            //p.add(createButtonPane(button, k));
         }
         
         JPanel controls = new JPanel();
-        controls.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints(); 
-        c.anchor = GridBagConstraints.NORTH;
-        c.fill = GridBagConstraints.NONE;
-        controls.add(buildToolBar(), c);
-        c.gridy = 1;
-        controls.add(p, c);
+        controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
+        controls.add(Box.createVerticalStrut(20));
+        controls.add(buildToolBar());
+        controls.add(p);
         return UIUtilities.buildComponentPanel(controls);
     }
     

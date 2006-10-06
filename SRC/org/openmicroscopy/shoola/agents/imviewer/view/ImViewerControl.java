@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -541,7 +543,20 @@ class ImViewerControl
             Color c = model.getChannelColor(colorPickerIndex);
             ColourPicker dialog = new ColourPicker(c);
             dialog.addPropertyChangeListener(this);
-            UIUtilities.centerAndShow(dialog);
+            dialog.setSize(240,310);
+            int x = view.getX()+view.getWidth();
+            int y = view.getY();
+            int pickerWidth = 240;
+        	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        	
+            if (x+pickerWidth > screenSize.getWidth())
+            	if (pickerWidth < view.getX())
+            		x = view.getX()-pickerWidth;
+            	else
+            		x = (int) (screenSize.getWidth()-pickerWidth);
+            dialog.setLocation(x, y);
+            //UIUtilities.centerAndShow(dialog);
+            dialog.setVisible(true);
         } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
             Color c = (Color) pce.getNewValue();
             if (colorPickerIndex != -1) {
