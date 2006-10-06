@@ -63,9 +63,6 @@ class BrowserModel
     /** Default length of the scale bar. */
     private static final int    LENGTH = 40;
     
-    /** Value by which the size of the unit bar is increased or decreased. */
-    private static final int    INCREMENT = 5;
-    
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
     
@@ -99,9 +96,6 @@ class BrowserModel
      */
     private boolean         unitBar;
     
-    /** Indicate to increase or decrease the size of the unit bar. */
-    private boolean         increase;
-    
     /** The value by which to increase or decrease the size of the unit bar. */
     private int             unit;
     
@@ -118,7 +112,6 @@ class BrowserModel
         this.parent = parent;
         this.title = title;
         unitBar = true;
-        increase = true;
         unit = LENGTH;
     }
     
@@ -226,23 +219,13 @@ class BrowserModel
     void setUnitBar(boolean unitBar) { this.unitBar = unitBar; }
     
     /**
-     * Increases the size of the unit bar if the passed flag is 
-     * <code>true</code>, decreases the size otherwise.
+     * Sets the size of the unit bar.
      * 
-     * @param b Pass <code>true</code> to increase the size, 
-     *          <code>false</code> to increase.
+     * @param size The size of the unit bar.
      */
-    void setUnitBarSize(boolean b)
+    void setUnitBarSize(double size)
     {
-        increase = b;
-        if (increase) {
-            int w = getDisplayedImage().getWidth();
-            unit += INCREMENT;
-            if (unit > w/2) unit = w/2;
-        } else {
-            unit -= INCREMENT;
-            if (unit <= 0) unit += INCREMENT;
-        }
+        unit = (int) (getPixelsSizeX()/getZoomFactor()*size);
     }
     
     /**

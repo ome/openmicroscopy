@@ -208,11 +208,11 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setUnitBarSize(boolean)
+     * @see Browser#setUnitBarSize(double)
      */
-    public void setUnitBarSize(boolean increase)
+    public void setUnitBarSize(double size)
     {
-        model.setUnitBarSize(increase);
+        model.setUnitBarSize(size);
         view.repaint();
     }
 

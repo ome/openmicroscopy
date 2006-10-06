@@ -62,9 +62,6 @@ import javax.swing.JPanel;
 class BrowserCanvas
     extends JPanel
 {
-
-    /** String to representing the nanometer symbol. */
-    private static final String         NANOMETER = " \u00B5m";
     
     /** Stroke of the scale bar. */
     private static final BasicStroke    UNIT_BAR_STROKE = new BasicStroke(2.0f);

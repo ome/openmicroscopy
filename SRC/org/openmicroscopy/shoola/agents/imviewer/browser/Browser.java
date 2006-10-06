@@ -129,10 +129,28 @@ public interface Browser
      */
     public void setComponentsSize(int w, int h);
 
+    /**
+     * Displays if the passed value is <code>true</code>, doesn't display it
+     * if if the passed value is <code>false</code>.
+     * 
+     * @param b Pass <code>true</code> to display the unit bar, 
+     *          <code>false</code> otherwise.
+     */
     public void setUnitBar(boolean b);
 
-    public void setUnitBarSize(boolean increase);
+    /**
+     * Sets the size of the unit bar in microns.
+     * 
+     * @param size The size of the unit bar in microns.
+     */
+    public void setUnitBarSize(double size);
 
+    /**
+     * Returns <code>true</code> if the unit bar is displayed, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     public boolean isUnitBar();
     
 }
