@@ -122,6 +122,7 @@ public interface ImViewer
     public static final String	CHANNEL_COLOR_CHANGE_PROPERTY = 
     												"channelColorChanged";
     
+    /** Bound Property name indicating that the colour model has changed. */
     public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
     												"colorModelChanged";
     
@@ -396,11 +397,15 @@ public interface ImViewer
     public Color getChannelColor(int index);
     
     /**
-     * Sets the size of the unit bar.
+     * Sets the size of the unit bar in microns.
      * 
-     * @param increase  Pass <code>true</code> to increase the size,
-     *                  <code>false</code> to decrease it.
+     * @param size The size of the unit bar in microns.
      */
-    public void setUnitBarSize(boolean increase);
+    public void setUnitBarSize(double size);
+    
+    /**
+     * Brings up on screen the unit bar selection widget.
+     */
+    public void showUnitBarSelection();
     
 }
