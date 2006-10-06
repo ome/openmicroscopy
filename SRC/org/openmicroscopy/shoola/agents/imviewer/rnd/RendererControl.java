@@ -52,7 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.CodomainMapContextDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
