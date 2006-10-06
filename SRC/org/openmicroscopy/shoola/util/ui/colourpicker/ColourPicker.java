@@ -94,7 +94,7 @@ public class ColourPicker
 	{
 	    super();
 		setTitle("Colour Picker Window");
-		//setSize(250, 350);
+		setSize(240, 310);
         setModal(true);
         setResizable(false);
         float[] vals = new float[4];
