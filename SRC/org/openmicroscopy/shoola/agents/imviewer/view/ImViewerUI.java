@@ -125,6 +125,42 @@ class ImViewerUI
     }
     
     /**
+     * Helper method to create the unit bar sub-menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createScaleBarLenghtSubMenu()
+    {
+        JMenu menu = new JMenu("Scale bar length " +
+                "(in "+UIUtilities.NANOMETER+")");
+        JMenuItem item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_ONE));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_TWO));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_TEN));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
+        menu.add(item);
+        item = new JMenuItem(
+                controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
+        menu.add(item);
+        return menu;
+    }
+    
+    /**
      * Helper method to create the view menu.
      * 
      * @return The controls submenu;
@@ -137,6 +173,7 @@ class ImViewerUI
         item.setSelected(model.isUnitBar());
         item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
         menu.add(item);
+        menu.add(createScaleBarLenghtSubMenu());
         return menu;
     }
     
@@ -381,7 +418,7 @@ class ImViewerUI
         this.model = model;
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
-        statusBar = new StatusBar(controller);
+        statusBar = new StatusBar();
     }
     
     /** 
