@@ -36,7 +36,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
+
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 //Third-party libraries
 
@@ -78,12 +88,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * operations that can then be applied to the tree by calling the 
  * {@link #accept(TreeViewNodeVisitor) accept} method, usually on the root node.
  * An example of this is layout management. In fact, an {@link TreeViewImageSet}
- * can contain other nodes &#151; this class inherits from 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tframe.TinyFrame} and
- * nodes are added to its internal desktop, which has no layout manager. In
- * order to position the contained nodes properly, you can write a layout class
- * that implements the {@link TreeViewNodeVisitor} interface to lay out the
- * contents of every {@link TreeViewImageSet} node in a visualization tree.</p>
+ * can contain other nodes &#151.</p>
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -124,6 +129,28 @@ public abstract class TreeViewNode
             default:
                 throw new IllegalArgumentException("Algorithm not supported.");
         }
+    }
+    
+    /**
+     * Returns the partial name of the image's name.
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    private String getPartialName(String originalName)
+    {
+        if (Pattern.compile("/").matcher(originalName).find()) {
+            String[] l = originalName.split("/", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+        } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+            String[] l = originalName.split("\\\\", 0);
+            int n = l.length;
+            if (n == 1) return l[0];
+            return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
+        } 
+        return originalName;
     }
     
     /**
@@ -217,7 +244,7 @@ public abstract class TreeViewNode
         while (i.hasNext())
             removeChildNode((TreeViewNode) i.next());
     }
-    
+
     /**
      * Has the specified object visit this node and all nodes below this one
      * in the visualization tree.
@@ -286,6 +313,26 @@ public abstract class TreeViewNode
      */
     public final boolean equals(Object x) { return (this == x); }
     
+    /** 
+     * Overridden to return the name of the hierarchy object. 
+     * @see #toString()
+     */
+    public String toString()
+    { 
+        Object obj = getUserObject();
+        if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
+        else if (obj instanceof DatasetData) 
+            return ((DatasetData) obj).getName();
+        else if (obj instanceof ImageData) 
+            return getPartialName(((ImageData) obj).getName());
+        else if (obj instanceof CategoryGroupData) 
+            return ((CategoryGroupData) obj).getName();
+        else if (obj instanceof CategoryData) 
+            return ((CategoryData) obj).getName();
+        else if (obj instanceof String) return (String) obj;
+        return "";
+    }
+    
     /**
      * Implemented by subclasses to call the right version of the <code>visit
      * </code> method on the specified <code>visitor</code>.
@@ -304,5 +351,7 @@ public abstract class TreeViewNode
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
+    
+
     
 }
