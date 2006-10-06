@@ -117,6 +117,20 @@ public class IconFactory
 	 */
 	public Icon getIcon(String name)
 	{
+		return (Icon) getImageIcon(name);
+	}
+	
+	/** 
+	 * Creates an {@link ImageIcon} from the specified file.
+	 * 
+	 * @param name	The file name.  Must be a valid name within the location
+	 * 				specified in the configuration file.
+	 * @return	An {@link ImageIcon} object created from the image file.  The 
+	 * 			return value will be <code>null</code> if the file couldn't be 
+	 * 			found or an image icon couldn't be created from that file.
+	 */
+	public ImageIcon getImageIcon(String name)
+	{
 		ImageIcon icon = null;
 		try {
 			String path = getResourcePathname(name);
@@ -125,5 +139,4 @@ public class IconFactory
 		} catch (Exception e) {} 
 		return icon;
 	}
-
 }
