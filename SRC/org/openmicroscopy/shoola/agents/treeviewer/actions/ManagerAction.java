@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.Action;
@@ -136,14 +135,6 @@ public class ManagerAction
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.DATA_MANAGER));
         
-    }
-
-    /** 
-     * Brings ups the classify menu.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
     }
     
     /** 
