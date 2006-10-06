@@ -49,6 +49,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -375,7 +376,8 @@ class ImViewerComponent
         }
         model.setChannelColor(index, c);
         view.setChannelColor(index, c);
-        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, index-1, index);
+        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
+                new Integer(index));
         if (model.isChannelActive(index)) renderXYPlane();
     }
 
@@ -831,12 +833,21 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setUnitBarSize(boolean)
+     * @see ImViewer#setUnitBarSize(double)
      */
-    public void setUnitBarSize(boolean increase)
+    public void setUnitBarSize(double size)
     {
-        model.getBrowser().setUnitBarSize(increase);
-        
+        model.getBrowser().setUnitBarSize(size);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#showUnitBarSelection()
+     */
+    public void showUnitBarSelection()
+    {
+        UnitBarSizeDialog d = new UnitBarSizeDialog(view);
+        d.addPropertyChangeListener(controller);
     }
 
 }
