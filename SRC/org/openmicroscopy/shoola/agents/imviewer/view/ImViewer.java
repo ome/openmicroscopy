@@ -122,6 +122,9 @@ public interface ImViewer
     public static final String	CHANNEL_COLOR_CHANGE_PROPERTY = 
     												"channelColorChanged";
     
+    public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
+    												"colorModelChanged";
+    
     /**
      * Iconified if the specified value is <code>true</code>, deiconified
      * otherwise.
