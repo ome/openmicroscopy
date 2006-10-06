@@ -40,14 +40,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.swing.tree.DefaultMutableTreeNode;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -444,14 +445,32 @@ public abstract class TreeImageDisplay
      */
     public Color getHighLight() { return highlight; }
     
+    /**
+     * Returns the id of the node's user object if it is an instance of
+     * <code>DataObject</code> otherwise returns <code>-1</code>.
+     * 
+     * @return See above.
+     */
+    public long getUserObjectId()
+    {
+        Object uo = getUserObject();
+        if (uo instanceof DataObject) return ((DataObject) uo).getId();
+        return -1;
+    }
+    
     /** 
-     * Overriden to return the name of the hierarchy object. 
+     * Overridden to return the name of the hierarchy object. 
      * @see #toString()
      */
-    public String toString() { return getNodeName(); }
+    public String toString()
+    { 
+        if (getUserObject() instanceof ImageData) 
+            return getPartialName(getNodeName());
+        return getNodeName(); 
+    }
     
     /**
-     * Overriden to make sure that the userObject is not <code>null</code>.
+     * Overridden to make sure that the userObject is not <code>null</code>.
      * @see DefaultMutableTreeNode#setUserObject(Object)
      */
     public void setUserObject(Object userObject)
