@@ -109,6 +109,7 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
+        setTitle(getPartialName(title));
         setNodeDecoration();
         setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
