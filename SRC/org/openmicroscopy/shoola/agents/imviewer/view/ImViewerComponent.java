@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -284,6 +286,7 @@ class ImViewerComponent
                 throw new IllegalArgumentException("Color model not supported");
         }
         //need
+        firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), new Integer(-1));
         view.setColorModel(value);
         renderXYPlane();
     }
@@ -372,7 +375,7 @@ class ImViewerComponent
         }
         model.setChannelColor(index, c);
         view.setChannelColor(index, c);
-        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, index, index-1);
+        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, index-1, index);
         if (model.isChannelActive(index)) renderXYPlane();
     }
 
@@ -559,6 +562,17 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         model.getRenderer().moveToFront();
+        int x = view.getX()+view.getWidth();
+        int y = view.getY();
+        int rendererWidth = model.getRenderer().getWidth();
+    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    	
+        if (x+rendererWidth > screenSize.getWidth())
+        	if (rendererWidth < view.getX())
+        		x = view.getX()-rendererWidth;
+        	else
+        		x = (int) (screenSize.getWidth()-rendererWidth);
+        model.getRenderer().SetLocation(x, y);
     }
 
     /** 
