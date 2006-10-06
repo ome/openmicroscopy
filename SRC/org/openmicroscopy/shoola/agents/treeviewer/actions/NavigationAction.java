@@ -86,6 +86,10 @@ public class NavigationAction
         }
         Object ho = selectedDisplay.getUserObject();
         setEnabled(!(ho == null || (ho instanceof ImageData)));
+        
+        if (selectedDisplay.containsImages()) {
+            setEnabled(model.isMainTree());
+        }
     }
     
     /** 
