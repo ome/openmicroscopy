@@ -74,6 +74,9 @@ import javax.swing.SwingConstants;
 public class UIUtilities
 {
 
+    /** String to representing the nanometer symbol. */
+    public static final String              NANOMETER = " \u00B5m";
+    
     /** 
      * The string displayed before an item name if the name has been
      * truncated.
