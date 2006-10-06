@@ -486,8 +486,7 @@ class TreeViewerComponent
         }
         //onComponentStateChange(true);
        // if (editor == CREATE_EDITOR) {
-        //    PropertiesCmd cmd = new PropertiesCmd(this);
-       //     cmd.execute();
+           onSelectedDisplay();
        // }
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
