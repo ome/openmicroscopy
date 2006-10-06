@@ -192,7 +192,7 @@ public class IconManager
         relPaths[HSB] = "hsb16.png";
         relPaths[PLUS] = "nuvola_edit_add16.png";
         relPaths[MINUS] = "nuvola_edit_remove16.png";
-        relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.jpg";
+        relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
     }
     
     /** The sole instance. */
