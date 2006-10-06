@@ -92,12 +92,10 @@ public class TreeCellRenderer
     private void setValues(Object usrObject, Icon icon)
     {
         if (usrObject instanceof ProjectData)  {
-            setText(((ProjectData) usrObject).getName());
             if (icon == null) icon = icons.getIcon(IconManager.PROJECT);
             setIcon(icon);
         } else if (usrObject instanceof DatasetData) {
             DatasetData data = (DatasetData) usrObject;
-            setText(data.getName());
             if (icon == null) {
                 Long i = data.getAnnotationCount();
                 if (i == null || i.longValue() == 0)
@@ -106,8 +104,6 @@ public class TreeCellRenderer
             }
             setIcon(icon);
         } else if (usrObject instanceof ImageData) {
-            ImageData data = (ImageData) usrObject;
-            setText(data.getName());
             if (icon == null) {
                 if (thumbnail) icon = icons.getIcon(IconManager.IMAGE_MEDIUM);
                 else {
@@ -130,11 +126,9 @@ public class TreeCellRenderer
             }
             setIcon(icon);
         } else if (usrObject instanceof CategoryGroupData) {
-            setText(((CategoryGroupData) usrObject).getName());
             if (icon == null) icon = icons.getIcon(IconManager.CATEGORY_GROUP);
             setIcon(icon);
         } else if (usrObject instanceof CategoryData) {
-            setText(((CategoryData) usrObject).getName());
             if (icon == null) icon = icons.getIcon(IconManager.CATEGORY);
             setIcon(icon);
         } else if (usrObject instanceof String) setIcon(null);
@@ -149,10 +143,10 @@ public class TreeCellRenderer
     /**
      * Creates a new instance.
      * 
-     * @param visibleColor  <code>true</code> to modify the backgroundColor
+     * @param visibleColor  Pass <code>true</code> to modify the backgroundColor
      *                      according to the highlight color of the node.,
      *                      <code>false</code> otherwise.
-     * @param thumbnail		<code>true</code> to display a thumbnail of the 
+     * @param thumbnail		Pass <code>true</code> to display a thumbnail of the 
      * 						image, <code>false</code> otherwise.                     
      */
     public TreeCellRenderer(boolean visibleColor, boolean thumbnail)
@@ -161,8 +155,7 @@ public class TreeCellRenderer
         this.thumbnail = thumbnail;
         icons = IconManager.getInstance();
     }
-    
-    
+  
     /**
      * Overriden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
@@ -184,7 +177,9 @@ public class TreeCellRenderer
         Object usrObject = node.getUserObject();
         Color c = null;
         if (usrObject instanceof ImageSet) {
-            setValues(((ImageSet) usrObject).getHierarchyObject(), null);
+            ImageSet set = (ImageSet) usrObject;
+            setText(set.toString());
+            setValues(set.getHierarchyObject(), null);
             if (visibleColor) {
                 c = ((ImageSet) usrObject).getHighlight();
                 if (c == null) c = getForeground();
@@ -192,6 +187,7 @@ public class TreeCellRenderer
             }
         } else if (usrObject instanceof ImageNode) {
             ImageNode imgNode = (ImageNode) usrObject;
+            setText(imgNode.toString());
             if (thumbnail) setValues(imgNode.getHierarchyObject(),
                     					imgNode.getThumbnail().getIcon());
             else setValues(imgNode.getHierarchyObject(), null);
@@ -200,7 +196,10 @@ public class TreeCellRenderer
                 if (c == null) c = getForeground();
                 setForeground(c);
             }
-        } else setValues(usrObject, null);
+        } else {
+            setText(node.toString());
+            setValues(usrObject, null);
+        }
         return this;
     }
     
