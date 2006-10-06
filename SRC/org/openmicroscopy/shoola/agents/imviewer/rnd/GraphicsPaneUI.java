@@ -32,9 +32,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Dimension;
-import javax.swing.JLabel;
+import java.awt.Graphics;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 
 //Third-party libraries
 
@@ -58,10 +60,21 @@ import javax.swing.JPanel;
 class GraphicsPaneUI
     extends JPanel
 {
+	/** A temporary image of a histogram */
+	ImageIcon histogramImage;
+	
     GraphicsPaneUI()
     {
-        setPreferredSize(new Dimension(100, 100));
-        add(new JLabel("Histogram displayed here."));
+        IconManager icons = IconManager.getInstance();
+        
+       // setPreferredSize(new Dimension(100, 100));
+        histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
     }
     
+    public void paintComponent(Graphics g)
+    {
+    	super.paintComponent(g);
+    	g.drawImage(histogramImage.getImage(), 0, 0, this.getWidth()-1, 
+    			this.getHeight()-1, null);
+    }
 }

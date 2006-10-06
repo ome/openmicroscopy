@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
@@ -252,7 +253,7 @@ class RendererControl
             Integer newValue = (Integer) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
             model.setBitResolution(newValue.intValue());
-        } else if (name.equals(ControlPane.CHANNEL_SELECTION_PROPERTY)) {
+        } else if (name.equals(ChannelToggleButton.CHANNEL_PICKED_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
             model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
@@ -263,7 +264,10 @@ class RendererControl
             //else view.deIconify();
         } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
             view.setInputInterval();
+        } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY)) {
+            // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
         }
+        
     }
     
 }

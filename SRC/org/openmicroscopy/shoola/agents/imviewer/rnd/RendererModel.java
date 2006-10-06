@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Color;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,6 +137,18 @@ class RendererModel
         this.rndControl = rndControl;
         visible = false;
         //state = Renderer.READY;
+    }
+    
+    /**
+     * Gets the colour of the channel from the model. 
+     * 
+     * @param index Channel.
+     *  
+     * @return Color of the channel specified by index.
+     */
+    Color getChannelColor(int index)
+    {
+    	return parentModel.getChannelColor(index);
     }
     
     /**
@@ -459,5 +472,15 @@ class RendererModel
         rndControl.resetDefaults();
         
     }
+
+	/**
+	 * Get the colour model of the image.
+	 * 
+	 * @return A string containing the colour model.
+	 */
+	String getColorModel() {
+		// TODO Auto-generated method stub
+		return rndControl.getModel();
+	}
     
 }
