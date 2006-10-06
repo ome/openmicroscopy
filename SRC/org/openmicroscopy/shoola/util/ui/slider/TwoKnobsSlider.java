@@ -186,7 +186,23 @@ public class TwoKnobsSlider
         if (model.isPaintTicks()) h += knobHeight;
         if (model.isPaintLabels() || model.isPaintEndLabels())
             h += TwoKnobsSliderUI.EXTRA+fontHeight+2*TwoKnobsSliderUI.BUFFER;
-        preferredSize_ = new Dimension(width_, h);
+        if( model.getOrientation() == VERTICAL )
+        	preferredSize_ = new Dimension(width_, h);
+        else
+        {
+        	width_ = calculateVerticalWidth();
+        	preferredSize_ = new Dimension(width_,h);
+        }
+    }
+    
+    private int calculateVerticalWidth()
+    {
+    	int w = (KNOB_WIDTH+6)*2+6;
+    	if( model.isPaintTicks() )
+    		w += KNOB_WIDTH+6;
+    	if( model.isPaintLabels() || model.isPaintEndLabels() )
+    		w += 30;
+    	return w;
     }
     
     /** Sets the default values. */
