@@ -197,6 +197,32 @@ public abstract class AbstractIconManager
 	}
 	
 	/** 
+	 * Retrieves the ImageIcon specified by <code>name</code>.
+	 * If the icon can't be retrieved, then this method will log the error and
+	 * return <code>null</code>.
+	 *
+	 * @param name    Must be one a valid icon file name within the directory
+	 * 					used by the {@link IconFactory} instance specified via
+	 * 					this class' constructor.
+	 * @return  An {@link Icon} object created from the image file.  The return
+	 * 			value will be <code>null</code> if the file couldn't be found
+	 * 			or an image icon couldn't be created from that file.
+	 */ 
+	public ImageIcon getImageIcon(String name)
+	{
+		ImageIcon icon = factory.getImageIcon(name);
+		if (icon == null) {
+			StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
+			buf.append("<classpath>");
+			buf.append(factory.getResourcePathname(name));
+			buf.append(".");
+			registry.getLogger().error(this, buf.toString());
+		}
+		return icon;
+	}
+	
+	
+	/** 
 	 * Retrieves the icon specified by <code>id</code>.
 	 * If the icon can't be retrieved, then this method will log the error and
 	 * return <code>null</code>.
@@ -214,6 +240,26 @@ public abstract class AbstractIconManager
 			return null;
 		}
 		return getIcon(iconFiles[id]);
+	}
+	
+	/** 
+	 * Retrieves the ImageIcon specified by <code>id</code>.
+	 * If the icon can't be retrieved, then this method will log the error and
+	 * return <code>null</code>.
+	 *
+	 * @param id	The index of the file name in the array of file names 
+	 * 				specified to this class' constructor.
+	 * @return  An {@link Icon} object created from the image file.  The return
+	 * 			value will be <code>null</code> if the file couldn't be found
+	 * 			or an image icon couldn't be created from that file.
+	 */ 
+	public ImageIcon getImageIcon(int id)
+	{
+		if (id < 0 || iconFiles.length <= id) {
+			registry.getLogger().error(this, "Icon id out of range: "+id+".");
+			return null;
+		}
+		return getImageIcon(iconFiles[id]);
 	}
 
 }
