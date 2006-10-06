@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -301,9 +302,15 @@ class DomainPane
     private JPanel buildPane()
     {
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
-        p.add(noiseReduction);
-        p.add(histogramButton);
+        //p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
+        p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0;
+        
+        p.add(noiseReduction,c);
+        c.gridy = 1;
+        p.add(histogramButton,c);
         return p;
     }
     
@@ -315,7 +322,11 @@ class DomainPane
         add(new JSeparator());
         add(buildControlsPane());
         add(new JSeparator());
-        add(buildPane());
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p,BoxLayout.X_AXIS));
+        p.add(buildPane());
+        p.add(Box.createHorizontalStrut(300));
+        add(p);
     }
     
     /**
