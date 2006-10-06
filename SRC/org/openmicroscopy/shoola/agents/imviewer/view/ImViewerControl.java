@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -190,11 +191,29 @@ class ImViewerControl
     /** Identifies the <code>UnitBar</code> action in the menu. */
     static final Integer     UNIT_BAR = new Integer(26);
     
-    /** Identifies the <code>Size plus unit bar</code> action. */
-    static final Integer     UNIT_BAR_PLUS = new Integer(27);
+    /** Identifies the <code>Size one of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_ONE = new Integer(27);
     
-    /** Identifies the <code>Size minus unit bar</code> action. */
-    static final Integer     UNIT_BAR_MINUS = new Integer(28);
+    /** Identifies the <code>Size two of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_TWO = new Integer(28);
+    
+    /** Identifies the <code>Size five of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_FIVE = new Integer(29);
+    
+    /** Identifies the <code>Size ten of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_TEN = new Integer(30);
+    
+    /** Identifies the <code>Size twenty of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_TWENTY = new Integer(31);
+    
+    /** Identifies the <code>Size fifty of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_FIFTY = new Integer(32);
+    
+    /** Identifies the <code>Size hundred of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_HUNDRED = new Integer(33);
+    
+    /** Identifies the <code>customized size of the unit bar</code> action. */
+    static final Integer     UNIT_BAR_CUSTOM = new Integer(34);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -280,8 +299,22 @@ class ImViewerControl
         actionsMap.put(RATING_FIVE, action);
         actionsMap.put(CHANNEL_MOVIE, new ChannelMovieAction(model));
         actionsMap.put(UNIT_BAR, new UnitBarAction(model));
-        actionsMap.put(UNIT_BAR_PLUS, new UnitBarSizeAction(model, true));
-        actionsMap.put(UNIT_BAR_MINUS, new UnitBarSizeAction(model, false));
+        actionsMap.put(UNIT_BAR_ONE, new UnitBarSizeAction(model, 
+                                    UnitBarSizeAction.ONE));
+        actionsMap.put(UNIT_BAR_TWO, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.TWO));
+        actionsMap.put(UNIT_BAR_FIVE, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.FIVE));
+        actionsMap.put(UNIT_BAR_TEN, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.TEN));
+        actionsMap.put(UNIT_BAR_TWENTY, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.TWENTY));
+        actionsMap.put(UNIT_BAR_FIFTY, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.FIFTY));
+        actionsMap.put(UNIT_BAR_HUNDRED, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.HUNDRED));
+        actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model, 
+                UnitBarSizeAction.CUSTOMIZED));
     }
     
     /** 
@@ -514,6 +547,9 @@ class ImViewerControl
             if (colorPickerIndex != -1) {
                 model.setChannelColor(colorPickerIndex, c);
             }
+        } else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(propName)) {
+            double v = ((Double) pce.getNewValue()).doubleValue();
+            model.setUnitBarSize(v);
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method
         }
