@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -69,28 +68,12 @@ class StatusBar
     /** Displays the status message. */
     private JLabel              status;
     
-    /** Button to increase the size of the unit bar. */
-    private JButton             plusUnitBar;
-    
-    /** Button to decrease the size of the unit bar. */
-    private JButton             minusUnitBar;
-    
-    /** 
-     * Initializes the components. 
-     * 
-     * @param controller Reference to the Control.
-     */
-    private void initComponents(ImViewerControl controller)
+    /** Initializes the components. */
+    private void initComponents()
     {
         IconManager icons = IconManager.getInstance();
         progressBar = new JProgressBar();
         status = new JLabel(icons.getIcon(IconManager.STATUS_INFO));
-        plusUnitBar = new JButton(
-                controller.getAction(ImViewerControl.UNIT_BAR_PLUS));
-        UIUtilities.unifiedButtonLookAndFeel(plusUnitBar);
-        minusUnitBar = new JButton(
-                controller.getAction(ImViewerControl.UNIT_BAR_MINUS));
-        UIUtilities.unifiedButtonLookAndFeel(minusUnitBar);
     }
     
     /** Build and lay out the UI. */
@@ -102,21 +85,13 @@ class StatusBar
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(progressBar);
-        p.add(minusUnitBar);
-        p.add(plusUnitBar);
         add(UIUtilities.buildComponentPanelRight(p));
     }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param controller Reference to the Control. Mustn't be <code>null</code>.
-     */
-    StatusBar(ImViewerControl controller)
+    /** Creates a new instance. */
+    StatusBar()
     {
-        if (controller == null) 
-            throw new IllegalArgumentException("No control.");
-        initComponents(controller);
+        initComponents();
         buildUI();
     }
     
