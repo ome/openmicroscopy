@@ -74,7 +74,7 @@ abstract class ControlPane
     /** Bounds property indicating that a family is selected. */
     static final String BIT_RESOLUTION_PROPERTY = "bit_resolution";
     
-    static final String CHANNEL_SELECTION_PROPERTY = "channel_selection";
+    //static final String CHANNEL_SELECTION_PROPERTY = "channel_selection";
     
     /** Reference to the Model.*/
     protected RendererModel     model;
