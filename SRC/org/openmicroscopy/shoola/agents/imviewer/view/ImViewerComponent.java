@@ -372,6 +372,7 @@ class ImViewerComponent
         }
         model.setChannelColor(index, c);
         view.setChannelColor(index, c);
+        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, index, index-1);
         if (model.isChannelActive(index)) renderXYPlane();
     }
 

@@ -98,13 +98,13 @@ public interface ImViewer
     public static final int     CHANNEL_MOVIE = 8;
     
     /** Bound property name indicating that a new z-section is selected. */
-    public final static String  Z_SELECTED_PROPERTY = "z_selected";
+    public final static String  Z_SELECTED_PROPERTY = "zSelected";
     
     /** Bound property name indicating that a new timepoint is selected. */
-    public final static String  T_SELECTED_PROPERTY = "t_selected";
+    public final static String  T_SELECTED_PROPERTY = "tSelected";
     
     /** Bound property name indicating that a channel is activated. */
-    public final static String  CHANNEL_ACTIVE_PROPERTY = "channel_active";
+    public final static String  CHANNEL_ACTIVE_PROPERTY = "channelActive";
     
     /** Bound property indicating that the window state has changed. */
     public final static String  ICONIFIED_PROPERTY = "iconified";
@@ -117,6 +117,10 @@ public interface ImViewer
     
     /** Identifies the HSB color model. */
     public static final String  HSB_MODEL = RenderingControl.HSB;
+    
+    /** Bound Property name indicating that a channel colour has changed. */
+    public static final String	CHANNEL_COLOR_CHANGE_PROPERTY = 
+    												"channelColorChanged";
     
     /**
      * Iconified if the specified value is <code>true</code>, deiconified
