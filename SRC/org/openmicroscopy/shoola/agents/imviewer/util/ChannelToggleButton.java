@@ -26,11 +26,17 @@
  *
  *------------------------------------------------------------------------------
  */
+package org.openmicroscopy.shoola.agents.imviewer.util;
+
 //Java imports
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 /** 
  * 
@@ -45,45 +51,35 @@
  * </small>
  * @since OME2.2
  */
-package org.openmicroscopy.shoola.agents.imviewer.util;
-
-import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
-
-/**
- * @author donald
- *
- */
 public class ChannelToggleButton 
-extends ColouredButton
+    extends ColouredButton
 {
+    
+    /** Bound property indicating that the channel is selected. */
 	public static final String		CHANNEL_PICKED_PROPERTY = 
-		"channelPicked";
+		                                "channelPicked";
 
-	int 							index;
+    /** The channel index. */
+	private final int    index;
 	
 	/**
-	 * @param text
-	 * @param color
+     * Creates a new instance.
+     * 
+	 * @param text      The text to display.
+	 * @param color     The button's color.
+     * @param i         The channel's index.
 	 */
-	public ChannelToggleButton(String text, Color color, int index) {
-		super(text, color);
-		this.index = index;
-        addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e); }
-        });
-		// TODO Auto-generated constructor stub
-	}
-
-	
-
-    private void onClick(MouseEvent e)
+	public ChannelToggleButton(String text, Color color, int i)
     {
-       firePropertyChange(CHANNEL_PICKED_PROPERTY,new Integer(-1),
-    		   new Integer(index));
-    }
+		super(text, color);
+		index = i;
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e)
+            { 
+                firePropertyChange(CHANNEL_PICKED_PROPERTY,new Integer(-1),
+                       new Integer(index));
+            }
+        });
+	}
     
 }
