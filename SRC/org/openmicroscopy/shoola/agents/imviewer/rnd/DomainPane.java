@@ -33,11 +33,17 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -54,8 +60,13 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * Pane displaying the controls used to define the transformation process
@@ -114,32 +125,43 @@ class DomainPane
     /** Identifies the <code>Channel</code> selection. */
     private static final int    CHANNEL = 1;
     
+    /** Dimension of the box between the channel buttons. */
+    private static final Dimension VBOX = new Dimension(1, 10);
+       
     /** Box to select the family used in the mapping process. */
-    private JComboBox       familyBox;
+    private JComboBox       	familyBox;
     
     /** Box to select the current channel. */
-    private JComboBox       channelBox;
+   // private JComboBox       	channelBox;
+    
+    /** An collection of ColourButtons which represent the channel selected in the
+     *  mapping process. 
+     */
+    private List			channelList;
+    
+    /** A panel containing the channel buttons. */
+    private JPanel				channelButtonPanel;
     
     /** Slider to select a curve in the family. */
-    private JSlider         gammaSlider;
+    private JSlider         	gammaSlider;
     
     /** Slider to select the bit resolution of the rendered image. */
-    private JSlider         bitDepthSlider;
+    private JSlider        	 	bitDepthSlider;
     
     /** Field displaying the <code>Gamma</code> value. */
-    private JTextField      gammaLabel;
+    private JTextField      	gammaLabel;
     
     /** Field displaying the <code>Bit Depth</code> value. */
-    private JTextField      bitDepthLabel;
+    private JTextField      	bitDepthLabel;
     
     /** Box to select the mapping algorithm. */
-    private JCheckBox       noiseReduction;
+    private JCheckBox       	noiseReduction;
     
     /** Button to bring up the histogram widget on screen. */
-    private JButton         histogramButton;
+    private JButton         	histogramButton;
     
     /** The UI component hosting the interval selections. */
-    private GraphicsPane    graphicsPane;
+    private GraphicsPane    	graphicsPane;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -174,14 +196,53 @@ class DomainPane
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
-        ChannelMetadata[] l = model.getChannelData();
-        String[] channels = new String[l.length];
-        for (int j = 0; j < channels.length; j++) 
-            channels[j] = ""+l[j].getEmissionWavelength();
-        channelBox = new JComboBox(channels);
+        channelList = new ArrayList();
+        channelButtonPanel = createChannelButtons();
+    }
+
+    
+    private JPanel createChannelButtons()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        ChannelMetadata[] data = model.getChannelData();
+        boolean gs = model.getColorModel().equals
+        									(ImViewer.GREY_SCALE_MODEL);
+        ChannelMetadata d;
+        ChannelToggleButton channelButton;
+        for (int j = 0; j < data.length; j++)
+        {
+        	d = data[j];
+        
+        	channelButton = new ChannelToggleButton(""+d.getEmissionWavelength()
+        						,model.getChannelColor(j),j);
+        	channelList.add(channelButton);
+        	p.add(Box.createRigidArea(VBOX));
+            if( model.getSelectedChannel() == j)
+            	channelButton.setSelected(true);
+
+            if (gs) 
+            	channelButton.setGrayedOut(gs);
+            channelButton.addPropertyChangeListener(controller);
+            channelButton.setPreferredSize(new Dimension(30, 30));
+            p.add(channelButton);
+            p.add(Box.createRigidArea(VBOX));
+        }
+        return UIUtilities.buildComponentPanel(p);
+        
+/*        channelBox = new JComboBox(channels);
         channelBox.setSelectedIndex(model.getSelectedChannel());
         channelBox.addActionListener(this);
-        channelBox.setActionCommand(""+CHANNEL);
+        channelBox.setActionCommand(""+CHANNEL);*/
+    }
+    
+    private JPanel buildChannelGraphicsPanel()
+    {
+    	JPanel p = new JPanel();
+    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+    	p.add(channelButtonPanel);
+    	p.add(graphicsPane);
+    	return p;
     }
     
     /**
@@ -209,14 +270,11 @@ class DomainPane
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
-       // c.ipadx = 10;
         c.weightx = 0.5;
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        JLabel label = new JLabel("Channels");
-        p.add(label, c);
+        JLabel label;
         c.gridx = 1;
-        p.add(UIUtilities.buildComponentPanel(channelBox), c);
         label = new JLabel("Map");
         c.gridx = 0;
         c.gridy = 1;
@@ -247,12 +305,9 @@ class DomainPane
     private JPanel buildPane()
     {
         JPanel p = new JPanel();
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        p.setLayout(gridbag);
-        p.add(noiseReduction, c);
-        c.gridy = 1;
-        p.add(histogramButton, c);
+        p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
+        p.add(noiseReduction);
+        p.add(histogramButton);
         return p;
     }
     
@@ -260,7 +315,7 @@ class DomainPane
     private void buildGUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(graphicsPane);
+        add(buildChannelGraphicsPanel());
         add(new JSeparator());
         add(buildControlsPane());
         add(new JSeparator());
@@ -366,9 +421,6 @@ class DomainPane
     void setSelectedChannel(int c)
     {
         graphicsPane.setSelectedChannel();
-        channelBox.removeActionListener(this);
-        channelBox.setSelectedIndex(c);
-        channelBox.addActionListener(this);
         String f = model.getFamily();
         familyBox.removeActionListener(this);
         familyBox.setSelectedItem(f);
@@ -381,6 +433,16 @@ class DomainPane
         noiseReduction.setSelected(model.isNoiseReduction());
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
+        noiseReduction.setText((String) controller.getAction(RendererControl.NOISE_REDUCTION).getValue(
+        		controller.getAction(RendererControl.NOISE_REDUCTION).NAME));
+        for( int i=0; i < channelList.size(); i++)
+        {
+        	if(i!=c)
+        		((ChannelToggleButton)channelList.get(i)).setSelected(false);
+        	else
+        		((ChannelToggleButton)channelList.get(i)).setSelected(true);
+
+        }
         // histogram.
     }
     
@@ -420,6 +482,7 @@ class DomainPane
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;
+        System.err.println("Action Performed");
         index = Integer.parseInt(e.getActionCommand());
         try {
             switch (index) {
@@ -430,16 +493,11 @@ class DomainPane
                                         f.equals(RendererModel.LOGARITHMIC)));
                     firePropertyChange(FAMILY_PROPERTY, model.getFamily(), f);
                     break;
-                case CHANNEL:
-                    int i = ((JComboBox) e.getSource()).getSelectedIndex();
-                    firePropertyChange(CHANNEL_SELECTION_PROPERTY, 
-                            new Integer(model.getSelectedChannel()), 
-                            new Integer(i));
-                   
             }
         } catch(NumberFormatException nfe) {  
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
+    
   
 }
