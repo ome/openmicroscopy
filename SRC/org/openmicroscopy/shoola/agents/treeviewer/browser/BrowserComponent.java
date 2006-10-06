@@ -1009,9 +1009,25 @@ class BrowserComponent
      */
     public void navigate(boolean v)
     {
-        controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
-        model.setMainTree(v);
-        view.navigate();
+        TreeImageDisplay display = getLastSelectedDisplay();
+        if (display != null) { //shouldn't happen
+            if (display.containsImages()) {
+                controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(!v);
+            } else {
+                controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(v);
+            }
+            controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
+            long id = -1;
+            if (model.getGoIntoNode() != null)
+                id = model.getGoIntoNode().getUserObjectId();
+            if (v) {
+                model.setMainTree(v, null);
+                view.navigate();
+            } else if (!v && !(display.getUserObjectId() == id)) {
+                model.setMainTree(v, display);
+                view.navigate();
+            } 
+        } 
     }
 
     /**
@@ -1060,6 +1076,16 @@ class BrowserComponent
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange(); 
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isMainTree()
+     */
+    public boolean isMainTree()
+    {
+        // TODO Auto-generated method stub
+        return model.isMainTree();
     }
     
 }

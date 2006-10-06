@@ -523,4 +523,11 @@ public interface Browser
      */
     public void setRefreshedHierarchy(Map set);
     
+    /**
+     * Returns <code>true</code> if the main tree is currently displayed
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isMainTree();
 }

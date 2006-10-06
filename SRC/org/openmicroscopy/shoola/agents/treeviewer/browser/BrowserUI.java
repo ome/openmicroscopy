@@ -354,7 +354,7 @@ class BrowserUI
         r.removeAllChildren();
         TreeImageDisplay copy = d.copy();
         dtm.insertNodeInto(copy, r, r.getChildCount());
-        buildTreeNode(copy, copy.getChildrenDisplay(), dtm);
+        buildTreeNode(copy, sorter.sort(copy.getChildrenDisplay()), dtm);
         dtm.reload(r);
         if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
         scrollPane.getViewport().removeAll();

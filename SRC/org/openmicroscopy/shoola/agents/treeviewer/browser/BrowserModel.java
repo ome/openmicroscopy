@@ -116,6 +116,9 @@ class BrowserModel
     /** Flag to indicate if the browser is visible or not. */
     private boolean             displayed;
     
+    /** The node we go into. */
+    private TreeImageDisplay    goIntoNode;
+    
     /** Reference to the parent. */
     private TreeViewer          parent;
     
@@ -549,10 +552,23 @@ class BrowserModel
     /**
      * Indicates which tree is currently displayed in the browser.
      * 
-     * @param b Pass <code>true</code> for the main tree, <code>false</code>
-     *          otherwise.
+     * @param b             Pass <code>true</code> for the main tree, 
+     *                      <code>false</code> otherwise.
+     * @param goIntoNode    The node we go into. Pass <code>null</code>
+     *                      if we show the main tree.
      */
-    void setMainTree(boolean b) { mainTree = b; }
+    void setMainTree(boolean b, TreeImageDisplay goIntoNode)
+    { 
+        this.goIntoNode = goIntoNode;
+        mainTree = b; 
+    }
+    
+    /**
+     * Returns the node we are currently exploring.
+     * 
+     * @return See above.
+     */
+    TreeImageDisplay getGoIntoNode() { return goIntoNode; }
     
     /**
      * Returns the parent of the component.
