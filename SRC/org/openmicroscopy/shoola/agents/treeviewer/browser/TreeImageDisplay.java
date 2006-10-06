@@ -42,6 +42,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Third-party libraries
 
@@ -158,17 +160,16 @@ public abstract class TreeImageDisplay
             String[] l = originalName.split("/", 0);
             int n = l.length;
             if (n == 1) return l[0];
-            return l[n-2]+"/"+l[n-1]; 
+            return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
         } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
             String[] l = originalName.split("\\\\", 0);
             int n = l.length;
             if (n == 1) return l[0];
-            return l[n-2]+"\\"+l[n-1];
+            return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
         } 
         return originalName;
     }
-    
-    
+
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -389,7 +390,6 @@ public abstract class TreeImageDisplay
         else if (obj instanceof String) return (String) obj;
         return "";
     }
-    
 
     /**
      * Returns the name of the node and the number of items
