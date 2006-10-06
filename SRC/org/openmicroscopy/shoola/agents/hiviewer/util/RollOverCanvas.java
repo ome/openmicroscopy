@@ -35,9 +35,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.util;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
-
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.border.BevelBorder;
 
@@ -75,21 +79,41 @@ class RollOverCanvas
     static final Color      INNER_BORDER_SHADOW = new Color(200, 200, 200);
     
     /** Reference to the model. */
-    private RollOverWin model;
+    private final RollOverWin   model;
+    
+    /** The pin image painted in the top-left corner. */
+    private ImageIcon           pinIcon;
+    
+    private Rectangle           pinRectangle;
     
     /**
      * Creates a new instance. 
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param m         Reference to the model. Mustn't be <code>null</code>.
+     * @param pinIcon   The pin icon painted in the top-left corner.
      */
-    RollOverCanvas(RollOverWin model)
+    RollOverCanvas(RollOverWin m, ImageIcon pinIcon)
     {
-        if (model == null) throw new IllegalArgumentException("No model.");
-        this.model = model;
+        if (m == null) throw new IllegalArgumentException("No model.");
+        if (pinIcon == null) throw new IllegalArgumentException("No pin.");
+        model = m;
+        this.pinIcon = pinIcon;
+        pinRectangle = new Rectangle();
         setOpaque(false); 
         setBorder(BorderFactory.createBevelBorder(
                 BevelBorder.LOWERED, INNER_BORDER_HIGHLIGHT, 
                 INNER_BORDER_SHADOW));
+        addMouseListener(new MouseAdapter() {
+
+        
+            public void mousePressed(MouseEvent e)
+            {
+                if (pinRectangle.contains(e.getPoint())) model.pinThumbnail();
+        
+            }
+        
+        
+        });
     }
     
     /** 
@@ -101,7 +125,14 @@ class RollOverCanvas
         Graphics2D g2D = (Graphics2D) g;
         if (model.getImage() != null) {
             Insets i = getInsets();
-            g2D.drawImage(model.getImage(), null, i.left+1, i.top+1);
+            int x = i.left+1;
+            int y = i.top+1;
+            g2D.drawImage(model.getImage(), null, x, y);
+            Image img = pinIcon.getImage();
+            pinRectangle.setBounds(x, y, 2*pinIcon.getIconWidth(), 
+                    2*pinIcon.getIconHeight());
+            g2D.drawImage(img, x, y, pinIcon.getIconWidth(), 
+                    pinIcon.getIconHeight(), null);
         }  
     }
     

@@ -40,10 +40,15 @@ import java.awt.image.BufferedImage;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+
+
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 
 
 /** 
@@ -65,11 +70,16 @@ public class RollOverWin
     extends JDialog
 {
 
+    /** ImageNode displayed. */
+    public ImageNode        node;
+    
     /** The image to display. */
     private BufferedImage   image;
     
     /** The canvas hosting the image. */
     private RollOverCanvas  canvas;
+    
+    private Browser         browser;
     
     /** Sets the property of the dialog window. */ 
     private void setProperties()
@@ -106,15 +116,24 @@ public class RollOverWin
     /**
      * Creates a new instance.
      * 
-     * @param parent The parent of the window.
+     * @param parent    The parent of the window.
+     * @param browser   Reference to the {@link Browser}. 
+     *                  Mustn't be <code>null</code>.
      */
-    public RollOverWin(JFrame parent)
+    public RollOverWin(JFrame parent, Browser browser)
     {
         super(parent);
-        canvas = new RollOverCanvas(this);
+        if (browser == null) 
+            throw new IllegalArgumentException("No browser.");
+        this.browser = browser;
+        IconManager icons = IconManager.getInstance();
+        canvas = new RollOverCanvas(this, icons.getImageIcon(IconManager.PIN));
         setProperties();
         buildUI();
     }
+    
+    /** Pins the thumbnail. */
+    void pinThumbnail() { browser.setThumbSelected(true, node); }
     
     /**
      * Returns the image to display.
@@ -126,15 +145,20 @@ public class RollOverWin
     /**
      * Sets the image and resizes the components. 
      * 
-     * @param image The image to display.
+     * @param node The image to display.
      */
-    public void setBufferedImage(BufferedImage image)
+    public void setImageNode(ImageNode node)
     {
-        if (image == null)
-            throw new IllegalArgumentException("No thumbnail.");
-        this.image = image;
-        makeComponentsSize(image.getWidth(), image.getHeight());
-        canvas.repaint();
+        if (node == null)
+            throw new IllegalArgumentException("No node.");
+        this.node = node;
+        Thumbnail prv = node.getThumbnail();
+        BufferedImage full = prv.getFullScaleThumb();
+        if (full != null)  {
+            image = full;
+            makeComponentsSize(image.getWidth(), image.getHeight());
+            canvas.repaint();
+        }
     }
     
     /** Hides and disposes. */
@@ -162,5 +186,7 @@ public class RollOverWin
         setLocation(x, y);
         setVisible(true);
     }
+
+
     
 }
