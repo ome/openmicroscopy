@@ -189,6 +189,7 @@ class TreeViewUI
         tree.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         TreeViewImageSet root = new TreeViewImageSet(node);
+        tree.setRootVisible(false);
         tree.setModel(new DefaultTreeModel(root));
         tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
