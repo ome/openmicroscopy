@@ -848,6 +848,7 @@ class ImViewerComponent
     {
         UnitBarSizeDialog d = new UnitBarSizeDialog(view);
         d.addPropertyChangeListener(controller);
+        UIUtilities.centerAndShow(d);
     }
 
 }
