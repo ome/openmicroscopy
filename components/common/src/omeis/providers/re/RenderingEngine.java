@@ -42,6 +42,8 @@ import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.meta.Event;
+import ome.system.EventContext;
 import ome.system.SelfConfigurableService;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -114,6 +116,11 @@ public interface RenderingEngine
     /** Creates a instance of the rendering engine. */
 	public void load();
     
+	/** Returns the current {@link EventContext} for this instance. This is
+	 * useful for later identifying changes made by this {@link Event}.
+	 */
+	public EventContext getCurrentEventContext();
+	
 	/**
      * Specifies the model that dictates how transformed raw data has to be 
      * mapped onto a color space.

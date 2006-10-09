@@ -37,7 +37,7 @@
 
   <bean parent="level2" id="internal:ome.api.IThumb" class="ome.logic.ThumbImpl">
     <property name="ioService" ref="/OME/OMEIS/Thumbs"/>
-    <property name="renderingEngine" ref="internal:ome.services.RenderingWrapper"/>
+    <property name="renderingEngine" ref="internal:omeis.providers.re.RenderingEngine"/>
     <property name="scaleService" ref="internal:ome.api.IScale"/>
   </bean>
   

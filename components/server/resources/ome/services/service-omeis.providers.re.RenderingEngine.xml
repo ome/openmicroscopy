@@ -35,9 +35,12 @@
 
 <beans>	
 
-  <bean singleton="false" parent="binary"
+  <bean singleton="false" parent="level2"
         id="internal:omeis.providers.re.RenderingEngine" 
-     class="omeis.providers.re.RenderingEngineImpl">
+     class="ome.services.RenderingBean">
+	<!-- following copied from parent="binary" -->
+    <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
+    <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
   </bean>
 
   <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedService">
@@ -45,14 +48,4 @@
     <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
   </bean>
 
-  <bean singleton="false" parent="level2"
-        id="internal:ome.services.RenderingWrapper" 
-     class="ome.services.RenderingBean">
-     <property name="delegate" ref="internal:omeis.providers.re.RenderingEngine"/>
-  </bean>
-  
-  <bean id="managed:ome.services.RenderingWrapper" parent="managedService">
-    <property name="proxyInterfaces" value="ome.services.RenderingWrapper"/>
-    <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
-  </bean>
 </beans>
