@@ -30,23 +30,17 @@
 package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
-
-
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -63,11 +57,10 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
-import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -125,10 +118,10 @@ class DomainPane
     /** Identifies the <code>Family</code> selection. */
     private static final int    FAMILY = 0;
     
-    /** Identifies the <code>Channel</code> selection. */
-    private static final int    CHANNEL = 1;
-    
+    /** Text displayed when the advanced options are hidden. */
     private static final String	SHOW_ADVANCED_OPTIONS = "Show Advanced Options"; 
+    
+    /** Text displayed when the advanced options are shown. */
     private static final String	HIDE_ADVANCED_OPTIONS = "Hide Advanced Options"; 
     
     /** Dimension of the box between the channel buttons. */
@@ -136,12 +129,10 @@ class DomainPane
        
     /** Box to select the family used in the mapping process. */
     private JComboBox       	familyBox;
-    
-    /** Box to select the current channel. */
-   // private JComboBox       	channelBox;
-    
-    /** An collection of ColourButtons which represent the channel selected in the
-     *  mapping process. 
+
+    /** 
+     * A collection of ColourButtons which represent the channel selected 
+     * in the mapping process. 
      */
     private List				channelList;
     
@@ -213,14 +204,12 @@ class DomainPane
         channelList = new ArrayList();
         channelButtonPanel = createChannelButtons();
         isAdvancedSettingsShowing = false;
-        advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS
-        		);
+        advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS);
         advancedOptionsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { handleClick(); }
 		});
     }
     
-
 	/**
 	 * Handles mouse clicks on the {@link #advancedOptionsButton}.
 	 * The {@link #advancedPanel} is shown/hidden depending on the current 
@@ -230,8 +219,7 @@ class DomainPane
 	 */
 	private void handleClick()
 	{
-		if (isAdvancedSettingsShowing) 
-		{
+		if (isAdvancedSettingsShowing) {
 			advancedOptionsButton.setText(SHOW_ADVANCED_OPTIONS);
 			this.remove(advancedPanel);
 		} else {
@@ -253,20 +241,18 @@ class DomainPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelMetadata[] data = model.getChannelData();
-        boolean gs = model.getColorModel().equals
-        									(ImViewer.GREY_SCALE_MODEL);
+        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelMetadata d;
         ChannelToggleButton channelButton;
         p.add(Box.createRigidArea(VBOX));
-        for (int j = 0; j < data.length; j++)
-        {
+        for (int j = 0; j < data.length; j++) {
         	d = data[j];
         
         	channelButton = new ChannelToggleButton(""+d.getEmissionWavelength()
         						,model.getChannelColor(j),j);
         	channelList.add(channelButton);
         	p.add(Box.createRigidArea(VBOX));
-            if( model.getSelectedChannel() == j)
+            if (model.getSelectedChannel() == j)
             	channelButton.setSelected(true);
 
            	channelButton.setGrayedOut(gs);
@@ -356,7 +342,6 @@ class DomainPane
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.gridy = 0;
-        
         p.add(noiseReduction,c);
         c.gridy = 1;
         p.add(histogramButton,c);
@@ -372,7 +357,6 @@ class DomainPane
         p.setLayout(new BorderLayout());
         p.add(advancedOptionsButton,BorderLayout.EAST);
         this.add(p);
-        
         advancedPanel = new JPanel();
         advancedPanel.setLayout(new BoxLayout(advancedPanel, 
         		BoxLayout.Y_AXIS));
@@ -384,8 +368,7 @@ class DomainPane
         p.add(buildPane());
         p.add(Box.createHorizontalStrut(300));
         advancedPanel.add(p);
-        if(isAdvancedSettingsShowing)
-        	add(advancedPanel);
+        if (isAdvancedSettingsShowing) add(advancedPanel);
     }
     
     /**
@@ -499,16 +482,9 @@ class DomainPane
         noiseReduction.setSelected(model.isNoiseReduction());
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
-        noiseReduction.setText((String) controller.getAction(RendererControl.NOISE_REDUCTION).getValue(
-        		controller.getAction(RendererControl.NOISE_REDUCTION).NAME));
-        for( int i=0; i < channelList.size(); i++)
-        {
-        	if(i!=c)
-        		((ChannelToggleButton)channelList.get(i)).setSelected(false);
-        	else
-        		((ChannelToggleButton)channelList.get(i)).setSelected(true);
-
-        }
+        noiseReduction.setText(NoiseReductionAction.NAME);
+        for ( int i=0; i < channelList.size(); i++) 
+        	((ChannelToggleButton)channelList.get(i)).setSelected(i==c);
         // histogram.
     }
     
@@ -548,7 +524,6 @@ class DomainPane
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;
-        System.err.println("Action Performed");
         index = Integer.parseInt(e.getActionCommand());
         try {
             switch (index) {
