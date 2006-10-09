@@ -119,9 +119,8 @@ class BrowserCanvas
     {
         FontMetrics fontMetrics = g2D.getFontMetrics();
         int hFont = fontMetrics.getHeight()/3;
-        int size = s.length()*charWidth;
         g2D.setColor(UNIT_BAR_COLOR);
-        g2D.drawString(s, x+l/2-size/2+1, y-hFont);
+        g2D.drawString(s, x+(l-fontMetrics.stringWidth(s))/2+1, y-hFont);
         g2D.setStroke(UNIT_BAR_STROKE);
         g2D.drawLine(x, y, x+l, y);
     }
@@ -164,10 +163,14 @@ class BrowserCanvas
         g2D.drawImage(img, null, 0, 0);  
         double v = model.getPixelsSizeX()/model.getZoomFactor();
         v *= model.getUnitBarSize();
+        String value;
+        double c = v;
+        if (Math.ceil(v) == c) value = ""+(int) c;
+        else value = ""+c;
         int size = (int) model.getUnitBarSize();
         if (v > 0 && model.isUnitBar()) {
             paintScaleBar(g2D, img.getWidth()-size-5, 
-                        img.getHeight()-10, size, ""+v);
+                        img.getHeight()-10, size, value);
         }
     }
     
