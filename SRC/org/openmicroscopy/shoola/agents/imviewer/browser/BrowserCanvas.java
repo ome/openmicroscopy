@@ -163,11 +163,11 @@ class BrowserCanvas
 
         g2D.drawImage(img, null, 0, 0);  
         double v = model.getPixelsSizeX()/model.getZoomFactor();
-        int size = model.getUnitBarSize();
-        v *= size;
+        v *= model.getUnitBarSize();
+        int size = (int) model.getUnitBarSize();
         if (v > 0 && model.isUnitBar()) {
-            paintScaleBar(g2D, img.getWidth()-size-5, img.getHeight()-10, 
-                            size, ""+(int) v);
+            paintScaleBar(g2D, img.getWidth()-size-5, 
+                        img.getHeight()-10, size, ""+(int) v);
         }
     }
     

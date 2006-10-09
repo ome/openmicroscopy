@@ -97,7 +97,7 @@ class BrowserModel
     private boolean         unitBar;
     
     /** The value by which to increase or decrease the size of the unit bar. */
-    private int             unit;
+    private double          unit;
     
     /** 
      * Creates a new instance.
@@ -112,7 +112,7 @@ class BrowserModel
         this.parent = parent;
         this.title = title;
         unitBar = true;
-        unit = LENGTH;
+        unit = -1;
     }
     
     /**
@@ -225,7 +225,7 @@ class BrowserModel
      */
     void setUnitBarSize(double size)
     {
-        unit = (int) (getPixelsSizeX()/getZoomFactor()*size);
+        unit = size/getPixelsSizeX();
     }
     
     /**
@@ -233,7 +233,11 @@ class BrowserModel
      * 
      * @return See above.
      */
-    int getUnitBarSize() { return unit; }
+    double getUnitBarSize()
+    { 
+        if (unit == -1) setUnitBarSize(5);
+        return unit; 
+    }
     
     Magnifier getMagnifier() { return magnifier; }
     
