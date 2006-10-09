@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.env.rnd;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
 
 //Third-party libraries
 
@@ -43,7 +45,11 @@ import org.openmicroscopy.shoola.env.config.Registry;
 
 
 /** 
- * 
+ * Factory to create the {@link RenderingControl} proxies.
+ * This class keeps track of all {@link RenderingControl} instances
+ * that have been created and are not yet shutted down. A new
+ * component is only created if none of the <i>tracked</i> ones is already
+ * active. Otherwise, the existing proxy is recycled.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,6 +64,9 @@ import org.openmicroscopy.shoola.env.config.Registry;
 public class RenderingServicesFactory
 {
 
+    /** The default size in MB of the general cache. */
+    private static final int                DEFAULT_CACHE_SIZE = 40;
+    
     /** The sole instance. */
     private static RenderingServicesFactory singleton;
     
@@ -108,10 +117,69 @@ public class RenderingServicesFactory
         return singleton.makeNew(re, pixDims);
     }
     
+    /**
+     * Shuts downs the rendering service attached to the specified 
+     * pixels set.
+     * 
+     * @param context   Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * @param pixelsID  The ID of the pixels set.
+     */
+    public static void shutDownRenderingControl(Registry context, long pixelsID)
+    {
+        if (!(context.equals(registry)))
+            throw new IllegalArgumentException("Not allow to access method.");
+        RenderingControl proxy = (RenderingControl) 
+            singleton.rndSvcProxies.get(new Long(pixelsID));
+        if (proxy != null)
+            singleton.rndSvcProxies.remove(new Long(pixelsID));
+    }
+    
+    /** 
+     * Shuts downs all running rendering services. 
+     * 
+     * @param context   Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * */
+    public static void shutDownRenderingControls(Registry context)
+    {
+        if (!(context.equals(registry)))
+            throw new IllegalArgumentException("Not allow to access method.");
+        Iterator i = singleton.rndSvcProxies.keySet().iterator();
+        while (i.hasNext())
+          ((RenderingControl) singleton.rndSvcProxies.get(i.next())).shutDown();
+
+        singleton.rndSvcProxies.clear();
+    }
+    
+    /**
+     * Returns the {@link RenderingControl} linked to the passed set of pixels,
+     * returns <code>null</code> if no proxy associated.
+     * 
+     * @param context   Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * @param pixelsID  The id of the pixels set.
+     * @return See above.
+     */
+    public static RenderingControl getRenderingControl(Registry context,
+                                                        Long pixelsID)
+    {
+        if (!(context.equals(registry)))
+            throw new IllegalArgumentException("Not allow to access method.");
+        return (RenderingControl) singleton.rndSvcProxies.get(pixelsID);
+    }
+    
+    /** Keep track of all the rendering service already initialized. */
+    private HashMap                 rndSvcProxies;
+    
     /** Creates the sole instance. */
     private RenderingServicesFactory()
     {
-        cacheSize = 0;
+        cacheSize = DEFAULT_CACHE_SIZE;
+        rndSvcProxies = new HashMap();
         Integer size = (Integer) registry.lookup(LookupNames.RE_CACHE_SZ);
         if (size != null) cacheSize = size.intValue();
     }
@@ -127,7 +195,23 @@ public class RenderingServicesFactory
                                     PixelsDimensions pixDims)
     {
         if (singleton == null) throw new NullPointerException();
-        return new RenderingControlProxy(re, pixDims, cacheSize);
+        Long id = re.getPixels().getId();
+        RenderingControl rnd = getRenderingControl(registry, id);
+        if (rnd != null) return rnd;
+        int l = singleton.rndSvcProxies.size();
+        int size = cacheSize;
+        if (l != 0) size = cacheSize/l;
+        rnd = new RenderingControlProxy(re, pixDims, size);
+        //reset the size of the caches.
+        Iterator i = singleton.rndSvcProxies.keySet().iterator();
+        RenderingControlProxy proxy;
+        while (i.hasNext()) {
+            proxy = (RenderingControlProxy) singleton.rndSvcProxies.get(
+                                            i.next());
+            proxy.resetCacheSize(l);
+        }
+        singleton.rndSvcProxies.put(id, rnd);
+        return rnd;
     }
     
 }
