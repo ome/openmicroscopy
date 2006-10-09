@@ -79,7 +79,7 @@ import pojos.ProjectData;
  * </small>
  * @since OME2.2
  */
-public class EditorUI
+class EditorUI
     extends JPanel
 {
     
@@ -461,8 +461,10 @@ public class EditorUI
     /**
      * Links MVC.
      * 
-     * @param controller Reference to the control. Mustn't be <code>null</code>.   
-     * @param model Reference to the control. Mustn't be <code>null</code>.   
+     * @param controller    Reference to the control.
+     *                      Mustn't be <code>null</code>.   
+     * @param model         Reference to the control. 
+     *                      Mustn't be <code>null</code>.   
      */
     void initialize(EditorControl controller, EditorModel model)
     {
@@ -479,7 +481,7 @@ public class EditorUI
      * Displays an error message when the length of the inserted name is
      * <code>0</code>.
      * 
-     * @param length The length of the 
+     * @param length The length of the inserted text.
      */
     void handleNameAreaRemove(int length)
     {
@@ -587,12 +589,12 @@ public class EditorUI
     }
     
     /**
-     * Sets the size of the {@link #titlePanel} and the {@link #titleLayer}.
-     * 
-     * @param width The width of the components.
+     * Overridden to set the size of the title panel.
+     * @see JPanel#setSize(int, int)
      */
-   public void setComponentsSize(int width)
+    public void setSize(int width, int height)
     {
+        super.setSize(width, height);
         Dimension d  = new Dimension(width, TITLE_HEIGHT);
         titlePanel.setSize(d);
         titlePanel.setPreferredSize(d);
