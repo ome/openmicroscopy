@@ -89,7 +89,6 @@ public class ClassifyCmd
                         images[index] = (ImageData) x;
                         index++;
                     }
-                    index++;
                 }
             }
         }
