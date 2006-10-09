@@ -32,13 +32,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
-
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -270,8 +268,8 @@ class RendererUI
     }
 
 	/**
-	 * This is a method which is triggered from the {@link RenderControl} if the
-	 * colour model has changed.
+	 * This is a method which is triggered from the {@link RendererControl} 
+     * if the colour model has changed.
 	 */
 	void setColorModelChanged() 
 	{

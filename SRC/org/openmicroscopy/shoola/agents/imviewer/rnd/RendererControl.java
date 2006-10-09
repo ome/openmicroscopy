@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -275,7 +274,6 @@ class RendererControl
         	  model.setColorModelChanged();
            
         }
-        
     }
     
     /**

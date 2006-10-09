@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -227,7 +226,6 @@ class GraphicsPane
         p.add(label, c);
         c.gridx = 1;
         c.weightx = 40;
-       
         
         p.add(f, c);
         p.validate();

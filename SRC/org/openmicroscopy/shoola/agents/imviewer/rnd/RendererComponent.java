@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Color;
-
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -125,11 +123,19 @@ class RendererComponent
         UIUtilities.centerOnScreen(view);
     }
 
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#setLocation(int, int)
+     */
     public void setLocation(int x, int y)
     {
     	view.setLocation(x, y);
     }
     
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getWidth()
+     */
     public int getWidth()
     {
     	return view.getWidth();

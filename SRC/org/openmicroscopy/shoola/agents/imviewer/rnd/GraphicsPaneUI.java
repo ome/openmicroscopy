@@ -32,16 +32,16 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 
 /** 
  * Component displaying the plane histogram.
@@ -64,12 +64,17 @@ class GraphicsPaneUI
 	/** A temporary image of a histogram */
 	ImageIcon histogramImage;
 	
+    /** Creates a new instance. */
     GraphicsPaneUI()
     {
         IconManager icons = IconManager.getInstance();
         histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
     }
     
+    /**
+     * Overridden to paint the histogram image.
+     * @see JPanel#paintComponent(Graphics)
+     */
     public void paintComponent(Graphics g)
     {
     	super.paintComponent(g);

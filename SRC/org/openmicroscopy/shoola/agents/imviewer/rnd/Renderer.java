@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Color;
-
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -262,4 +260,5 @@ public interface Renderer
      * @return See Above.
      */
     public int getWidth();
+    
 }
