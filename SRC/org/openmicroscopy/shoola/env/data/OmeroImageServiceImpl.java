@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.Iterator;
 import javax.imageio.ImageIO;
 
 //Third-party libraries
@@ -75,9 +73,13 @@ class OmeroImageServiceImpl
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway            gateway;
 
-    /** Keep track of all the rendering service already initialized. */
-    private HashMap                 rndSvcProxies;
-    
+    /**
+     * Creates a <code>BufferedImage</code> from the passed array of bytes.
+     * 
+     * @param values    The array of bytes.
+     * @return See above.
+     * @throws RenderingServiceException If we cannot create an image.
+     */
     private BufferedImage createImage(byte[] values) 
         throws RenderingServiceException
     {
@@ -88,7 +90,6 @@ class OmeroImageServiceImpl
             throw new RenderingServiceException("Cannot create buffered image",
                     e);
         }
-        
     }
     
     /**
@@ -106,7 +107,6 @@ class OmeroImageServiceImpl
             throw new IllegalArgumentException("No gateway.");
         context = registry;
         this.gateway = gateway;
-        rndSvcProxies = new HashMap();
     }
 
     /** 
@@ -116,14 +116,14 @@ class OmeroImageServiceImpl
     public RenderingControl loadRenderingControl(long pixelsID)
             throws DSOutOfServiceException, DSAccessException
     {
-        RenderingControl proxy = (RenderingControl) 
-                                rndSvcProxies.get(new Long(pixelsID));
+        RenderingControl proxy = 
+                RenderingServicesFactory.getRenderingControl(context, 
+                                                new Long(pixelsID));
         if (proxy == null) {
             RenderingEngine re = gateway.createRenderingEngine(pixelsID);
             PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
             proxy = RenderingServicesFactory.createRenderingControl(context, re,
                                                     pixDims);
-            rndSvcProxies.put(new Long(pixelsID), proxy);
         }
         return proxy;
     }
@@ -136,8 +136,9 @@ class OmeroImageServiceImpl
             throws RenderingServiceException
     {
         try {
-            RenderingControl proxy = (RenderingControl) 
-                        rndSvcProxies.get(new Long(pixelsID));
+            RenderingControl proxy = 
+                RenderingServicesFactory.getRenderingControl(context, 
+                                                        new Long(pixelsID));
             if (proxy == null) 
                 throw new RuntimeException("No rendering service " +
                         "initialized for the specified pixels set.");
@@ -163,12 +164,7 @@ class OmeroImageServiceImpl
      */
     public void shutDown(long pixelsID)
     {
-        RenderingControl proxy = (RenderingControl) 
-                                        rndSvcProxies.get(new Long(pixelsID));
-        if (proxy != null) {
-            //proxy.shutDown();
-            rndSvcProxies.remove(new Long(pixelsID));
-        } 
+        RenderingServicesFactory.shutDownRenderingControl(context, pixelsID);
     }
     
     /** 
@@ -190,14 +186,10 @@ class OmeroImageServiceImpl
         }
     }
     
-    /** Destroys all active rendering engines. */
+    /** Shuts down all active rendering engines. */
     void shutDown()
     {
-        Iterator i = rndSvcProxies.keySet().iterator();
-        while (i.hasNext())
-            ((RenderingControl) rndSvcProxies.get(i.next())).shutDown();
-
-        rndSvcProxies.clear();
+        RenderingServicesFactory.shutDownRenderingControls(context);
     }
 
 }

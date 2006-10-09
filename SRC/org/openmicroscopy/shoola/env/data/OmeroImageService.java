@@ -105,10 +105,12 @@ public interface OmeroImageService
     public void shutDown(long pixelsID);
     
     /**
+     * Returns a thumbnail of the currently selected 2D-plane for the
+     * passed pixels set.
      * 
-     * @param pix
-     * @param sizeX
-     * @param sizeY
+     * @param pix   The pixels data object hosting the pixels set.
+     * @param sizeX The width of the thumbnail.
+     * @param sizeY The height of the thumnail.
      * @return See above.
      * @throws RenderingServiceException    If the server cannot retrieve the 
      *                                      thumbnail.
