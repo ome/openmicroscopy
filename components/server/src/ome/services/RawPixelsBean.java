@@ -99,6 +99,11 @@ public class RawPixelsBean extends AbstractBean
     	return RawPixelsStore.class;
     }
     
+    public RawPixelsBean()
+    {
+    	super.contextLoaded = false;
+    }
+    
     public final void setPixelsMetadata(IPixels metaService)
     {
     	throwIfAlreadySet(this.metadataService, metaService);
@@ -141,7 +146,7 @@ public class RawPixelsBean extends AbstractBean
     // ~ Lifecycle
     // =========================================================================
     
-    @RolesAllowed("user") 
+    @RolesAllowed("user")
     public void setPixelsId( long pixelsId )
     {
         if ( id == null || id.longValue() != pixelsId )

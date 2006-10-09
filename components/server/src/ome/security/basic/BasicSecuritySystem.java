@@ -1012,7 +1012,30 @@ public class BasicSecuritySystem implements SecuritySystem {
 	public void setEventContext(EventContext context) 
 	{
 		final Principal p = clearAndCheckPrincipal();
-		throw new UnsupportedOperationException("not implemented.");
+		
+		if ( ! (context instanceof BasicEventContext) )
+			throw new ApiUsageException( "BasicSecuritySystem can only accept " +
+					"BasicEventContext instances.");
+		
+		final BasicEventContext bec = (BasicEventContext) context;
+		final String u_name = bec.getCurrentUserName();
+		final String g_name = bec.getCurrentGroupName();
+		final String t_name = bec.getCurrentEventType();
+		
+		if ( p.getName().equals( u_name ) && 
+				p.getGroup().equals( g_name ) &&
+				p.getEventType().equals( t_name ))
+		{
+			cd.setCurrentEventContext( bec );
+		} 
+		
+		else
+		{
+			throw new InternalException(String.format(
+					"Principal:%s/%s/%s does not match Context:%s/%s/%s",
+					p.getName(),p.getGroup(),p.getEventType(),
+					u_name,g_name,t_name));
+		}
 	}
 
 	private Principal clearAndCheckPrincipal() {

@@ -57,6 +57,7 @@ import ome.conditions.InternalException;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
+import ome.tools.spring.AOPAdapter;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are 
@@ -85,8 +86,8 @@ public class EventHandler implements MethodInterceptor
     protected HibernateTemplate ht;
     
     // for StatefulServices TODO
-    private Map<Session, Event> events = Collections
-    .synchronizedMap(new WeakHashMap<Session, Event>());
+    private Map<Object, EventContext> objCtxMap = Collections
+    .synchronizedMap(new WeakHashMap<Object, EventContext>());
 
     /** only public constructor, used for dependency injection. Requires an 
      * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
@@ -112,8 +113,54 @@ public class EventHandler implements MethodInterceptor
     public Object invoke(MethodInvocation arg0) throws Throwable
     {
         boolean readOnly = checkReadOnly(arg0);
-        secSys.loadEventContext(readOnly);
-        // TODO check for an existing session here.
+        boolean stateful = StatefulServiceInterface.class.isAssignableFrom(
+        		arg0.getThis().getClass());
+        
+    	if ( stateful )
+    	{
+			EventContext prevCtx = objCtxMap.get( arg0.getThis() );
+			boolean      needCtx = false;
+			if ( arg0 instanceof AOPAdapter )
+			{
+				// TODO needs refactoring. Perhaps better to add this to
+				// SecuritySystem. Or when OmeroContext is reworked, that this
+				// is added to that interface.
+				AOPAdapter adapter = (AOPAdapter) arg0;
+				Map attributes = adapter.getUserAttributes();
+				if ( attributes != null )
+				{
+					Object o = attributes.get( EventContext.class );
+					if ( o instanceof Boolean && ((Boolean)o).booleanValue() )
+					{
+						needCtx = true;
+					}
+				}
+			}
+
+			if ( null == prevCtx )
+			{
+				if ( ! needCtx )
+				{
+					throw new InternalException( 
+						"Stateful service missing context." );
+				}
+				
+				else 
+				{
+					secSys.loadEventContext(false);
+					objCtxMap.put( arg0.getThis(), secSys.getEventContext() );
+					prevCtx = secSys.getEventContext();
+				}	
+			}
+			secSys.setEventContext( prevCtx );
+    	}
+    	
+    	else // stateless
+    	{
+    		// this is usually done manually by stateful services 
+    		// in their @PostConstruct methods
+	        secSys.loadEventContext(readOnly);
+    	}
 
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
@@ -133,8 +180,6 @@ public class EventHandler implements MethodInterceptor
         	throw ex;
         } finally {
         	try {
-        		
-        		boolean stateful = (arg0.getThis() instanceof StatefulServiceInterface);
 
         		// on failure, we want to make sure that no one attempts 
         		// any further changes.
@@ -292,7 +337,8 @@ class CheckDirtyAction implements HibernateCallback
 	}
 	public Object doInHibernate(Session session) 
 	throws HibernateException, SQLException {
-		if (session.isDirty())
+		boolean dirty = session.isDirty();
+		if (dirty)
 		{
 			throw new InternalException("Session is dirty. Cannot properly " +
 					"reset security system. Must rollback.\n Session="+session);

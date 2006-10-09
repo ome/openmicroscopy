@@ -49,6 +49,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.SelfConfigurableService;
@@ -81,6 +82,8 @@ public abstract class AbstractBean implements SelfConfigurableService
     
     private @Resource SessionContext sessionContext;
 
+    protected boolean contextLoaded = true; // always true for stateless services.
+
     // ~ Lifecycle implementations
 	// =========================================================================
     
@@ -108,6 +111,11 @@ public abstract class AbstractBean implements SelfConfigurableService
             AOPAdapter.create( 
                     (ProxyFactoryBean) applicationContext.getBean(factoryName),
                     context );
+            if (!contextLoaded)
+            {
+            	adapter.getUserAttributes().put( EventContext.class, Boolean.TRUE );
+            	contextLoaded = true;
+            }
             return adapter.proceed( );   
         } catch (Throwable t) {
             throw translateException( t );

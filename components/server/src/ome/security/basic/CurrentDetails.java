@@ -95,6 +95,11 @@ class CurrentDetails
     {
     	return data.get();
     }
+    
+    void setCurrentEventContext( BasicEventContext bec )
+    {
+    	data.set( bec );
+    }
 
     private Details getDetails()
     {
