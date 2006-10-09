@@ -167,7 +167,7 @@ class BrowserCanvas
         int size = (int) model.getUnitBarSize();
         if (v > 0 && model.isUnitBar()) {
             paintScaleBar(g2D, img.getWidth()-size-5, 
-                        img.getHeight()-10, size, ""+(int) v);
+                        img.getHeight()-10, size, ""+v);
         }
     }
     
