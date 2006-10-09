@@ -143,7 +143,6 @@ public class TreeCellRenderer
             setIcon(icons.getIcon(IconManager.ROOT));
             return this;
         }
-        setFont(getFont().deriveFont(node.getFontStyle()));
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
@@ -151,7 +150,8 @@ public class TreeCellRenderer
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();
         setForeground(c);
+        
         return this;
     }
-    
+  
 }
