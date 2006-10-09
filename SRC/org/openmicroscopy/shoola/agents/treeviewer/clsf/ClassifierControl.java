@@ -40,9 +40,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link Classifier}'s controller.
