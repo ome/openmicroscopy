@@ -421,7 +421,6 @@ class BrowserUI
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         root.removeAllChildren();
         root.setChildrenLoaded(Boolean.TRUE);
-        //if (index == 1) dtm.reload();
         dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
