@@ -61,7 +61,7 @@ public class NoiseReductionAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Noise reduction";
+    public static final String  NAME = "Noise reduction";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Select or deselect the noise " +
