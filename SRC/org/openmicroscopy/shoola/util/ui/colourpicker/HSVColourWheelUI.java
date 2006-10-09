@@ -229,12 +229,13 @@ class HSVColourWheelUI
         GridBagConstraints gbc = new GridBagConstraints();
         container.setLayout(new GridBagLayout());
     	gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 30.0;
-        gbc.weighty = 30.0;
-        //gbc.fill = gbc.BOTH;
+        gbc.weightx = 1600.0;
+        gbc.weighty = 600.0;
+        gbc.fill = gbc.BOTH;
     	//setLayout(new FlowLayout());
         container.add(wheel, gbc);
         gbc.gridx = 1;
+        gbc.weightx = 100;
         container.add(HSVSlider,gbc);
         //
         JPanel p = new JPanel();
@@ -251,8 +252,11 @@ class HSVColourWheelUI
         setLayout(new GridBagLayout());
         gbc.gridx =0;
         gbc.gridy = 0;
+        gbc.weightx = 100;
+        gbc.weighty = 100;
         add(container,gbc);
         //add(UIUtilities.buildComponentPanel(p));
+        gbc.weighty = 15;
         gbc.gridy = 1;
         add(p,gbc);
 	}
