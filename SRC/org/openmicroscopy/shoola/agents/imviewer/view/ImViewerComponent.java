@@ -574,7 +574,7 @@ class ImViewerComponent
         		x = view.getX()-rendererWidth;
         	else
         		x = (int) (screenSize.getWidth()-rendererWidth);
-        model.getRenderer().SetLocation(x, y);
+        model.getRenderer().setLocation(x, y);
     }
 
     /** 

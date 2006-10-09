@@ -555,7 +555,6 @@ class ImViewerControl
             	else
             		x = (int) (screenSize.getWidth()-pickerWidth);
             dialog.setLocation(x, y);
-            //UIUtilities.centerAndShow(dialog);
             dialog.setVisible(true);
         } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
             Color c = (Color) pce.getNewValue();
