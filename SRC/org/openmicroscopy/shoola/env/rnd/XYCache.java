@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
@@ -67,24 +68,23 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 public class XYCache
 {
 
+    /** The size, in bytes, of a rendered XY image. */
+    private final int           image_size;
+    
     /** 
      * The size, in bytes, of the image cache.
      * Rendered images will be cached until we reach this value.  Subsequent
      * requests to cache an image will result in the removal of some already
      * cached images.
      */
-    final int   CACHE_SIZE;
-    
-    /** The size, in bytes, of a rendered XY image. */
-    final int   IMAGE_SIZE;
-    
+    private int                 cache_size;
     /** 
      * Maximum number of entries allowed in the cache.
      * This is the greatest integer <code>M</code> such that 
      * <nobr><code>
-     * M*{@link #IMAGE_SIZE} &lt;= {@link #CACHE_SIZE}</code></nobr>.
+     * M*{@link #image_size} &lt;= {@link #cache_size}</code></nobr>.
      */
-    final int   MAX_ENTRIES;
+    private int                 max_entries;
     
     /**
      * Maps {@link PlanePoint}s onto {@link BufferedImage}s.
@@ -105,7 +105,7 @@ public class XYCache
      * Makes enough room in {@link #cache} for a new entry to be added.
      * We remove an existing entry according to the removal algorithm 
      * specified by this class.  It is assumed that this method will
-     * only be invoked when the cache size equals {@link #MAX_ENTRIES}
+     * only be invoked when the cache size equals {@link #max_entries}
      * and is one at least.
      * 
      * @param p The key for the new entry that has to be added.
@@ -163,13 +163,13 @@ public class XYCache
      * An <code>ImageCache</code> works with a given pixels set and
      * with the {@link NavigationHistory} serving that pixels set.  The
      * <code>cacheSize</code> and <code>imageSize</code> parameters determine
-     * how many {@link #MAX_ENTRIES entries} the cache will allow before
+     * how many {@link #max_entries entries} the cache will allow before
      * purging old entries.  In particular, if the <code>imageSize</code> is
      * greater than the <code>cacheSize</code>, no element will ever be
      * cached.
      * 
-     * @param cacheSize The size, in bytes, of the cache.  Must be positive.
-     * @param imageSize The size, in bytes, of an XY image.  Must be positive.
+     * @param cacheSize The size, in bytes, of the cache. Must be positive.
+     * @param imageSize The size, in bytes, of an XY image. Must be positive.
      * @param nh        Reference to the {@link NavigationHistory} serving 
      *                  the pixels set this cache was associated to.  
      *                  Mustn't be <code>null</code>.  
@@ -184,10 +184,10 @@ public class XYCache
                     "Image size must be positive: "+imageSize+".");
         if (nh == null)
             throw new NullPointerException("No navigation history.");
-        CACHE_SIZE = cacheSize;
-        IMAGE_SIZE = imageSize;
-        MAX_ENTRIES = CACHE_SIZE/IMAGE_SIZE;
-        cache = new HashMap(MAX_ENTRIES);
+        cache_size = cacheSize;
+        image_size = imageSize;
+        max_entries = cache_size/image_size;
+        cache = new HashMap(max_entries);
         navigHistory = nh;
     }
     
@@ -200,7 +200,7 @@ public class XYCache
      */
     void add(PlaneDef pd, BufferedImage img)
     {
-        if (MAX_ENTRIES == 0) return;  //Caching disabled.
+        if (max_entries == 0) return;  //Caching disabled.
         
         //Sanity checks.
         if (pd == null)
@@ -213,11 +213,34 @@ public class XYCache
         
         //Will the next entry fit into the cache?
         PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
-        if (MAX_ENTRIES <= cache.size())  //Nope, make room for it.
+        if (max_entries <= cache.size())  //Nope, make room for it.
             ensureCapacity(key);
         
         //Once we're here we have enough room for the new element.
         cache.put(key, img);
+    }
+    
+    //tmp
+    void addBuffer(PlaneDef pd, RGBBuffer buffer)
+    {
+        if (max_entries == 0) return;  //Caching disabled.
+        
+        //Sanity checks.
+        if (pd == null)
+            throw new NullPointerException("No plane def.");
+        if (pd.getSlice() != PlaneDef.XY)
+            throw new IllegalArgumentException(
+                    "Can only accept XY planes: "+pd.getSlice()+".");
+        if (buffer == null)
+            throw new NullPointerException("No buffer.");
+        
+        //Will the next entry fit into the cache?
+        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
+        if (max_entries <= cache.size())  //Nope, make room for it.
+            ensureCapacity(key);
+        
+        //Once we're here we have enough room for the new element.
+        cache.put(key, buffer);
     }
     
     /**
@@ -237,6 +260,18 @@ public class XYCache
                     "Can only accept XY planes: "+pd.getSlice()+".");
         PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
         return (BufferedImage) cache.get(key);
+    }
+    
+    //tmp method
+    RGBBuffer extractBuffer(PlaneDef pd)
+    {
+        if (pd == null)
+            throw new NullPointerException("No plane def.");
+        if (pd.getSlice() != PlaneDef.XY)
+            throw new IllegalArgumentException(
+                    "Can only accept XY planes: "+pd.getSlice()+".");
+        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
+        return (RGBBuffer) cache.get(key);
     }
     
     /**
@@ -262,6 +297,20 @@ public class XYCache
         cache = new HashMap(oldSize);
     }
     
+    /**
+     * Resets the size of the cache.
+     * 
+     * @param size
+     */
+    void resetCacheSize(int size)
+    {
+        if (size < 0)
+            throw new IllegalArgumentException(
+                    "Cache size must be positive: "+size+".");
+        cache_size = size;
+        max_entries = cache_size/image_size;
+        cache = new HashMap(max_entries);
+    }
     
 /* 
  * ==============================================================
