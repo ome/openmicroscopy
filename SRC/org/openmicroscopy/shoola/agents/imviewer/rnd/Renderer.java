@@ -237,11 +237,29 @@ public interface Renderer
 	/**
 	 * Set the colour of the channel button in the renderer.
 	 * 
-	 * @param newValue
+	 * @param changedChannel
 	 */
 	void setChannelButtonColor(int changedChannel);
+	
+    /**
+     * Fired if the colour model has been changed from RGB -> Greyscale or 
+     * vise versa.
+     */
     void setColorModelChanged();
-    public void SetLocation(int x, int y);
-    public int getWidth();
     
+    /**
+     * Set the location of the rendererUI, used to make sure it is at the side
+     * of the imageviewer window.
+     * 
+     * @param x coordinate.
+     * @param y coordinate.
+     */
+    public void setLocation(int x, int y);
+    
+    /** 
+     * Returns the width of the renderer window, used in {@link #setLocation}.
+     * 
+     * @return See Above.
+     */
+    public int getWidth();
 }

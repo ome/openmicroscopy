@@ -270,13 +270,14 @@ class RendererUI
     }
 
 	/**
-	 * 
+	 * This is a method which is triggered from the {@link RenderControl} if the
+	 * colour model has changed.
 	 */
-	public void setColorModelChanged() 
+	void setColorModelChanged() 
 	{
 	     DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 	     pane.setColorModelChanged();
 	 
 	}
-    
+
 }

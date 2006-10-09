@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -127,6 +128,9 @@ class DomainPane
     /** Identifies the <code>Channel</code> selection. */
     private static final int    CHANNEL = 1;
     
+    private static final String	SHOW_ADVANCED_OPTIONS = "Show Advanced Options"; 
+    private static final String	HIDE_ADVANCED_OPTIONS = "Hide Advanced Options"; 
+    
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
        
@@ -143,6 +147,8 @@ class DomainPane
     
     /** A panel containing the channel buttons. */
     private JPanel				channelButtonPanel;
+    
+    private JPanel				advancedPanel;
     
     /** Slider to select a curve in the family. */
     private JSlider         	gammaSlider;
@@ -164,6 +170,12 @@ class DomainPane
     
     /** The UI component hosting the interval selections. */
     private GraphicsPane    	graphicsPane;
+    
+    /** The button will display the advanced mapping options when clicked. */
+    private JButton				advancedOptionsButton;
+    
+    /** A flag denoting whether the advanced options are showing. */
+    private boolean 			isAdvancedSettingsShowing;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -200,9 +212,42 @@ class DomainPane
         
         channelList = new ArrayList();
         channelButtonPanel = createChannelButtons();
+        isAdvancedSettingsShowing = false;
+        advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS
+        		);
+        advancedOptionsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { handleClick(); }
+		});
     }
-
     
+
+	/**
+	 * Handles mouse clicks on the {@link #advancedOptionsButton}.
+	 * The {@link #advancedPanel} is shown/hidden depending on the current 
+	 * value of {@link #isAdvancedSettingsShowing}, which is then modified to
+	 * reflect the new state.  Also the {@link #advancedOptionsButton} text 
+	 * is changed accordingly.
+	 */
+	private void handleClick()
+	{
+		if (isAdvancedSettingsShowing) 
+		{
+			advancedOptionsButton.setText(SHOW_ADVANCED_OPTIONS);
+			this.remove(advancedPanel);
+		} else {
+			advancedOptionsButton.setText(HIDE_ADVANCED_OPTIONS);
+			this.add(advancedPanel);
+		}
+		controller.resizeRenderUI();
+		isAdvancedSettingsShowing = !isAdvancedSettingsShowing;
+	}
+	
+    
+    /**
+     * Creates the channel buttons on the left hand side of the histogram.
+     * 
+     * @return panel containing the buttons.
+     */
     private JPanel createChannelButtons()
     {
         JPanel p = new JPanel();
@@ -233,12 +278,17 @@ class DomainPane
         return UIUtilities.buildComponentPanel(p);     
    }
     
+    /**
+     * Create a panel showing the channel buttons and histogram.
+     *  
+     * @return See above.
+     */
     private JPanel buildChannelGraphicsPanel()
     {
     	JPanel p = new JPanel();
-    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	p.add(channelButtonPanel);
-    	p.add(graphicsPane);
+    	p.setLayout(new BorderLayout());
+    	p.add(channelButtonPanel,BorderLayout.WEST);
+    	p.add(graphicsPane,BorderLayout.CENTER);
     	return p;
     }
     
@@ -302,7 +352,6 @@ class DomainPane
     private JPanel buildPane()
     {
         JPanel p = new JPanel();
-        //p.setLayout(new BoxLayout(p,BoxLayout.Y_AXIS));
         p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -319,14 +368,24 @@ class DomainPane
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(buildChannelGraphicsPanel());
-        add(new JSeparator());
-        add(buildControlsPane());
-        add(new JSeparator());
         JPanel p = new JPanel();
+        p.setLayout(new BorderLayout());
+        p.add(advancedOptionsButton,BorderLayout.EAST);
+        this.add(p);
+        
+        advancedPanel = new JPanel();
+        advancedPanel.setLayout(new BoxLayout(advancedPanel, 
+        		BoxLayout.Y_AXIS));
+        advancedPanel.add(new JSeparator());
+        advancedPanel.add(buildControlsPane());
+        advancedPanel.add(new JSeparator());
+        p = new JPanel();
         p.setLayout(new BoxLayout(p,BoxLayout.X_AXIS));
         p.add(buildPane());
         p.add(Box.createHorizontalStrut(300));
-        add(p);
+        advancedPanel.add(p);
+        if(isAdvancedSettingsShowing)
+        	add(advancedPanel);
     }
     
     /**
@@ -506,6 +565,11 @@ class DomainPane
         } 
     }
     
+    /**
+     * Set the colour of the channel button c.
+     *  
+     * @param c The channel whos colour changed.
+     */
     void setChannelButtonColor(int c)
     {
     	ChannelToggleButton btn = (ChannelToggleButton)channelList.get(c);
@@ -518,7 +582,8 @@ class DomainPane
 
 
 	/**
-	 * 
+	 * Fired if the colour model has been changed, toggles between RGB and 
+	 * Greyscale. 
 	 */
 	public void setColorModelChanged() 
 	{

@@ -125,7 +125,7 @@ class RendererComponent
         UIUtilities.centerOnScreen(view);
     }
 
-    public void SetLocation(int x, int y)
+    public void setLocation(int x, int y)
     {
     	view.setLocation(x, y);
     }
@@ -203,11 +203,21 @@ class RendererComponent
                     new Integer(selectedChannel), new Integer(c));
     }
 
+    /**
+     * @see org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer
+     * #setChannelButtonColor(int)
+     * 
+     */
     public void setChannelButtonColor(int changedChannel)
     {
     	   view.setChannelButtonColor(changedChannel);  
     }
     
+    /**
+     *
+     * @see org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer#
+     * setColorModelChanged()
+     */
     public void setColorModelChanged()
     {
     	view.setColorModelChanged();

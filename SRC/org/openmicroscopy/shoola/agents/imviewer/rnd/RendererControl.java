@@ -278,4 +278,12 @@ class RendererControl
         
     }
     
+    /**
+     * Resizes the RenderUI after the advanced options button has been selected.
+     */
+    void resizeRenderUI()
+    {
+    	view.pack();
+    }
+    
 }
