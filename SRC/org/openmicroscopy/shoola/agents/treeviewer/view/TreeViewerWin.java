@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorUI;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -328,8 +327,6 @@ class TreeViewerWin
         return rootLevelMenu;
     }
 
-
-
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -357,19 +354,7 @@ class TreeViewerWin
         c.add(splitPane, BorderLayout.CENTER);
         c.add(statusBar, BorderLayout.SOUTH);
     }
-
-    /**
-     * Specifies icons, text, and tooltips for the display buttons in the
-     * TaskBar. Those buttons are managed by the superclass, we only have to
-     * specify what they should look like.
-     */
-    private void configureDisplayButtons()
-    {
-        //IconManager im = IconManager.getInstance();
-        //configureQuickLaunchBtn(im.getIcon(IconManager.MANAGER), DESCRIPTION);
-        //configureWinMenuEntry(TITLE, im.getIcon(IconManager.MANAGER));
-    }
-
+    
     /**
      * Creates a new instance. The
      * {@link #initialize(TreeViewerControl, TreeViewerModel) initialize}method
@@ -397,7 +382,6 @@ class TreeViewerWin
         loadingWin = new LoadingWindow(this);
         loadingWin.addPropertyChangeListener(controller);
         initComponents();
-        configureDisplayButtons();
         setJMenuBar(createMenuBar());
         buildGUI();
         controller.attachUIListeners(tabs);
@@ -484,9 +468,6 @@ class TreeViewerWin
     void addComponent(JComponent component)
     {
         JViewport viewPort = workingPane.getViewport();
-        if (component instanceof EditorUI)
-            ((EditorUI) component)
-                    .setComponentsSize(viewPort.getBounds().width);
         viewPort.removeAll();
         viewPort.add(component);
         viewPort.validate();

@@ -36,7 +36,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Insets;
 import java.awt.Point;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -76,18 +75,6 @@ class ToolBar
     
     /** Reference to the control. */
     private TreeViewerControl   controller;
-    
-    /**
-     * Sets the UI properties of the button.
-     * 
-     * @param b The button.
-     */
-    private void setButtonProperties(JButton b)
-    {
-        //b.setOpaque(false);  
-        b.setMargin(new Insets(0, 0, 0, 0));
-        //b.setBorder(BorderFactory.createEmptyBorder()); //No border around icon.
-    }
     
     /**
      * Helper method to create the tool bar hosting the management items.
