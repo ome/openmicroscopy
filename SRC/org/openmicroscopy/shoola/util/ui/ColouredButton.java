@@ -33,10 +33,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.MouseEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 
 //Third-party libraries
