@@ -286,8 +286,8 @@ public class IconManager
                                     "annotated_classified_image16.png";
         relPaths[ANNOTATED_SMALL] = "kwrite8.png";
         relPaths[ANNOTATED_SMALL_OVER] = "kwrite_over8.png";
-        relPaths[CLASSIFIED_SMALL] = "classified8.png";
-        relPaths[CLASSIFIED_SMALL_OVER] = "classified_over8.png";
+        relPaths[CLASSIFIED_SMALL] = "category8.png";
+        relPaths[CLASSIFIED_SMALL_OVER] = "category_over8.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png";  
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
