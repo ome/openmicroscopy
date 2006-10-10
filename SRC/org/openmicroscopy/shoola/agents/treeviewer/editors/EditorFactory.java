@@ -97,8 +97,7 @@ public class EditorFactory
      * @param editorType        The type of editor. 
      *                          One of the following constants:
      *                          {@link Editor#CREATE_EDITOR}, 
-     *                          {@link Editor#PROPERTIES_EDITOR}.
-     * @param previousType      The previous editor type.                              
+     *                          {@link Editor#PROPERTIES_EDITOR}.                            
      * @return A {@link Editor}
      */
     private Editor getDOEditor(TreeViewer model, DataObject ho,

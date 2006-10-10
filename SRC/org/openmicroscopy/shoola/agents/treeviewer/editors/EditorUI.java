@@ -250,8 +250,6 @@ class EditorUI
     {
         JPanel bar = new JPanel();
         bar.setBorder(null);
-        //bar.setRollover(true);
-        //bar.setFloatable(false);
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
@@ -595,6 +593,7 @@ class EditorUI
     public void setSize(int width, int height)
     {
         super.setSize(width, height);
+        //super.setPreferredSize(new Dimension(width, height));
         Dimension d  = new Dimension(width, TITLE_HEIGHT);
         titlePanel.setSize(d);
         titlePanel.setPreferredSize(d);
@@ -602,4 +601,10 @@ class EditorUI
         titleLayer.setPreferredSize(d);
     }
 
+    /**
+     * Overridden to set the size of the title panel.
+     * @see JPanel#setSize(Dimension)
+     */
+    public void setSize(Dimension d) { setSize(d.width, d.height); }
+    
 }
