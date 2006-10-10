@@ -37,6 +37,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -59,7 +60,7 @@ public class ClassifyAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Add to category";
+    private static final String NAME = "Classify";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Classify the currently " +
@@ -86,9 +87,12 @@ public class ClassifyAction
     public ClassifyAction(TreeViewer model)
     {
         super(model);
+        name = NAME;
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
     }
     
     /**
