@@ -800,7 +800,7 @@ class OMEROGateway
         }
         return null;
     }
-
+    
     /**
      * Retrieves the thumbnail for the passed set of pixels.
      * 
@@ -816,8 +816,32 @@ class OMEROGateway
     {
         try {
             IThumb service = getIThumbService();
-            
             return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
+                                    new Integer(sizeY));
+        } catch (Exception e) {
+            throw new RenderingServiceException("Cannot get thumbnail", e);
+        }
+    }
+    
+    /**
+     * Retrieves the thumbnail for the passed set of pixels.
+     * 
+     * @param pixelsID  The id of the pixels set the thumbnail is for.
+     * @param sizeX     The size of the thumbnail along the X-axis.
+     * @param sizeY     The size of the thumbnail along the Y-axis.
+     * @return See above.
+     * @throws RenderingServiceException If an error occured while trying to 
+     *              retrieve data from the service. 
+     */
+    byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
+        throws RenderingServiceException
+    {
+        try {
+            IQuery service = getIQueryService();
+            Pixels pixels = (Pixels) service.get(Pixels.class, pixelsID);
+            IThumb serv = getIThumbService();
+            
+            return serv.getThumbnailDirect(pixels, null, new Integer(sizeX), 
                                     new Integer(sizeY));
         } catch (Exception e) {
             throw new RenderingServiceException("Cannot get thumbnail", e);

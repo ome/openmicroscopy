@@ -37,11 +37,10 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
- * 
+ * Provides methods to support image viewing.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,13 +58,47 @@ public interface ImViewerView
     extends DataServicesView
 {
 
+    /**
+     * Retrieves the metadata.
+     * 
+     * @param imageID
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle loadChannelMetadata(long imageID,
                                     AgentEventListener observer);
     
+    /**
+     * Loads the rendering proxy associated to the pixels set.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle loadRenderingControl(long pixelsID,
                         AgentEventListener observer);
     
+    /**
+     * Renders the specified plane.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param pd        The plane to render.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
     public CallHandle render(long pixelsID, PlaneDef pd, 
                             AgentEventListener observer);
+
+    /**
+     * Retrieves an iconified version of the currently displayed image.
+     * 
+     * @param pixelsID      The id of the pixels set.
+     * @param iconWidth     The width of the icon.
+     * @param iconHeight    The height of the icon.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadIconImage(long pixelsID, int iconWidth, 
+                            int iconHeight, AgentEventListener observer);
     
 }

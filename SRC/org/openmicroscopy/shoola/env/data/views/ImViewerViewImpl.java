@@ -41,6 +41,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
@@ -92,6 +93,18 @@ class ImViewerViewImpl
                         AgentEventListener observer)
     {
         BatchCallTree cmd = new ImageRenderer(pixelsID, pd);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see ImViewerView#loadIconImage(long, int, int, AgentEventListener)
+     */
+    public CallHandle loadIconImage(long pixelsID, int iconWidth, 
+                        int iconHeight, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ThumbnailLoader(pixelsID, iconWidth, 
+                                                iconHeight);
         return cmd.exec(observer);
     }
 

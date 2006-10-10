@@ -82,8 +82,14 @@ public class ThumbnailLoader
     private int             maxHeight;
     
     /** The lastly retrieved thumbnail. */
-    private ThumbnailData   currentThumbnail;
+    private Object          currentThumbnail;
 
+    /** Flag to indicate if the class was invoked for a pixels ID. */
+    private boolean         pixelsCall;
+    
+    /** The id of the pixels set this loader is for. */
+    private long            pixelsID;
+    
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
@@ -111,22 +117,53 @@ public class ThumbnailLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve rendering control.
+     * 
+     * @return          The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall()
+    {
+        return new BatchCall("Loading thumbnail for: "+pixelsID) {
+            public void doCall() throws Exception
+            {
+                OmeroImageService rds = context.getImageService();
+                BufferedImage thumbPix = null;
+                try {
+                    thumbPix = rds.getThumbnail(pixelsID, maxWidth, maxHeight);
+                    
+                } catch (Exception e) {
+                    context.getLogger().error(this, 
+                    "Cannot retrieve thumbnail from ID: "+e.getMessage());
+                }
+                if (thumbPix == null) 
+                    thumbPix = Factory.createDefaultThumbnail(maxWidth, 
+                            maxHeight);
+                currentThumbnail = thumbPix;
+            }
+        };
+    } 
+    
+    /**
      * Adds a {@link BatchCall} to the tree for each thumbnail to retrieve.
      * The batch call simply invokes {@link #loadThumbail(int)}.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
     {
-        String description;
-        for (int i = 0;  i < images.length; ++i) {
-            description = "Loading thumbnail: "+images[i].getName();
-            final int index = i;
-            add(new BatchCall(description) {
-                    public void doCall()
-                    { 
-                        loadThumbail(index); 
-                    }
-            });
+        if (pixelsCall) {
+            add(makeBatchCall());
+        } else {
+            String description;
+            for (int i = 0;  i < images.length; ++i) {
+                description = "Loading thumbnail: "+images[i].getName();
+                final int index = i;
+                add(new BatchCall(description) {
+                        public void doCall()
+                        { 
+                            loadThumbail(index); 
+                        }
+                });
+            }
         }
     }
 
@@ -194,6 +231,32 @@ public class ThumbnailLoader
         images[0] = image;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param pixelsID  The id of the pixel set.
+     * @param maxWidth  The maximum acceptable width of the thumbnails.
+     * @param maxHeight The maximum acceptable height of the thumbnails.
+     */
+    public ThumbnailLoader(long pixelsID, int maxWidth, int maxHeight)
+    {
+        if (maxWidth <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive id: "+pixelsID+".");
+        if (maxWidth <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive width: "+maxWidth+".");
+        if (maxHeight <= 0)
+            throw new IllegalArgumentException(
+                    "Non-positive height: "+maxHeight+".");
+        pixelsCall = true;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.pixelsID = pixelsID;
     }
     
 }

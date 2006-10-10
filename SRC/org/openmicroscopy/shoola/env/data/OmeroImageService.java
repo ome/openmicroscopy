@@ -118,4 +118,18 @@ public interface OmeroImageService
     public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
         throws RenderingServiceException;
     
+    /**
+     * Returns a thumbnail of the currently selected 2D-plane for the
+     * passed pixels set.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param sizeX     The width of the thumbnail.
+     * @param sizeY     The height of the thumnail.
+     * @return See above.
+     * @throws RenderingServiceException    If the server cannot retrieve the 
+     *                                      thumbnail.
+     */
+    public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
+        throws RenderingServiceException;
+    
 }

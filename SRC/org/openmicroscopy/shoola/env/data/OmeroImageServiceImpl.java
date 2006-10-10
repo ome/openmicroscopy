@@ -186,6 +186,25 @@ class OmeroImageServiceImpl
         }
     }
     
+    /** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#getThumbnail(long, int, int)
+     */
+    public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
+        throws RenderingServiceException
+    {
+        try {
+            LogMessage msg = new LogMessage();
+            msg.println("Get thumbnail direct from ID, PixelsID: "+pixID);
+            Logger logger = context.getLogger();
+            logger.debug(this, msg);
+            byte[] v = gateway.getThumbnail(pixID, sizeX, sizeY);
+            return createImage(v);
+        } catch (Exception e) {
+            throw new RenderingServiceException("Get Thumbnail", e);
+        }
+    }
+    
     /** Shuts down all active rendering engines. */
     void shutDown()
     {
