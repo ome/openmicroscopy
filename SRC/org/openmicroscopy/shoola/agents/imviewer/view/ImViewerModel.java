@@ -32,8 +32,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +47,6 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.ImageIconLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -135,16 +136,47 @@ class ImViewerModel
     /** The height of the thumbnail if the window is iconified. */
     private int                 sizeY;
     
+    private double              factor;
+    
+    /** The image icon. */
+    private BufferedImage       imageIcon;
+    
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
     {
         if (sizeX == -1 && sizeY == -1) {
             sizeX = THUMB_MAX_WIDTH;
             sizeY = THUMB_MAX_HEIGHT;
+            double x = sizeX/(double) getMaxX();
+            double y =  sizeY/(double) getMaxY();
+            if (x > y) factor = x;
+            else factor = y;
             double ratio =  (double) getMaxX()/getMaxY();
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         }
+    }
+    
+    /** 
+     * Magnifies the specified image.
+     * 
+     * @param f the magnification factor.
+     * @param img The image to magnify.
+     * 
+     * @return The magnified image.
+     */
+    private BufferedImage magnifyImage(double f, BufferedImage img)
+    {
+        if (img == null) return null;
+        int width = img.getWidth(), height = img.getHeight();
+        AffineTransform at = new AffineTransform();
+        at.scale(f, f);
+        BufferedImageOp biop = new AffineTransformOp(at, 
+            AffineTransformOp.TYPE_BILINEAR); 
+        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
+                        (int) (height*f), img.getType());
+        biop.filter(img, rescaleBuff);
+        return rescaleBuff;
     }
     
     /**
@@ -413,6 +445,9 @@ class ImViewerModel
     void setImage(BufferedImage image)
     {
         browser.setRenderedImage(image);
+        //update image icon
+        computeSizes();
+        imageIcon = magnifyImage(factor, image);
         state = ImViewer.READY; 
     }
 
@@ -580,19 +615,6 @@ class ImViewerModel
      */
     boolean isUnitBar() { return browser.isUnitBar(); }
 
-    void fireIconImageLoading()
-    {
-        computeSizes();
-        /*
-        OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
-        try {
-            component.setIconImage(rs.getThumbnail(pixelsID, sizeX, sizeY));
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-        */
-        currentLoader = new ImageIconLoader(component, pixelsID, sizeX, sizeY);
-        currentLoader.load();
-    }
+    BufferedImage getImageIcon() { return imageIcon; }
     
 }

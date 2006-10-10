@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -95,6 +94,7 @@ class ImViewerComponent
     
     /** The View sub-component. */
     private ImViewerUI       view;
+    
     
     /** 
      * Returns the description displayed in the status bar.
@@ -328,6 +328,7 @@ class ImViewerComponent
                     "in the LOADING_IMAGE state.");
         model.setImage(image);
         view.setStatus(getStatusText(), -1, true);
+        view.setIconImage(model.getImageIcon());
         fireStateChange();
     }
 
@@ -634,7 +635,6 @@ class ImViewerComponent
         if (b) {
             newValue = Boolean.TRUE;
             oldValue = Boolean.FALSE;
-            model.fireIconImageLoading();
         } 
         firePropertyChange(ICONIFIED_PROPERTY, oldValue, newValue);
     }
@@ -848,18 +848,6 @@ class ImViewerComponent
         UnitBarSizeDialog d = new UnitBarSizeDialog(view);
         d.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(d);
-    }
-
-    /** 
-     * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#setIconImage(BufferedImage)
-     */
-    public void setIconImage(BufferedImage image)
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException("The method cannot be invoked in " +
-                    "the DISCARDED state.");
-        view.setIconImage(image);
     }
 
 }

@@ -405,12 +405,5 @@ public interface ImViewer
     
     /** Brings up on screen the unit bar selection widget. */
     public void showUnitBarSelection();
-
-    /**
-     * Sets the image icon.
-     * 
-     * @param image The icon to set.
-     */
-    public void setIconImage(BufferedImage image);
     
 }
