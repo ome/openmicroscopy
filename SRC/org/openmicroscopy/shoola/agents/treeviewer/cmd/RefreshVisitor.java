@@ -45,7 +45,7 @@ import pojos.DatasetData;
 
 
 /** 
- * 
+ * Retrieves the nodes containing images and whose children are loaded.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -94,10 +94,8 @@ public class RefreshVisitor
     public void visit(TreeImageSet node)
     {
         Object userObject = node.getUserObject();
-        System.out.println("userObject "+node.getChildrenDisplay());
         if ((userObject instanceof DatasetData) || 
                 (userObject instanceof CategoryData)) {
-            System.out.println("userObject "+userObject);
             if (node.isChildrenLoaded()) foundNodes.add(userObject);
         }
     }
