@@ -187,6 +187,4 @@ public class RollOverWin
         setVisible(true);
     }
 
-
-    
 }
