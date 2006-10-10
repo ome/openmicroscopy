@@ -87,12 +87,6 @@ class ImViewerComponent
     /** Text message displayed when an image is rendered. */
     private static final String RENDERING_MSG = "Render image";
     
-    /** 
-     * The maximum number of channels that can be mapped using 
-     * the RGB color model.
-     */
-    private static final int    MAX_CHANNELS_RGB = 3;
-    
     /** The Model sub-component. */
     private ImViewerModel    model;
     
