@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 
 import ome.api.IPixels;
 import ome.api.IQuery;
+import ome.services.RenderingBean;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
@@ -25,7 +26,7 @@ public class ContextTest extends TestCase
 
     protected RE re;
     
-    static class RE  extends RenderingEngineImpl {
+    static class RE  extends RenderingBean {
         public boolean pdCalled = false, pmCalled = false;
         public void setPixelsData(ome.io.nio.PixelsService arg0) {
             pdCalled = true;

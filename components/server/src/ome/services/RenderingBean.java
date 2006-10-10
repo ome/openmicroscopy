@@ -106,14 +106,6 @@ import omeis.providers.re.quantum.QuantizationException;
  * that could compromise liveness.
  * </p>
  * 
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author <br>
- *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.4 $ $Date:
- *          2005/07/05 16:13:52 $) </small>
- * @since OME2.2
  * @author Andrea Falconi, a.falconi at dundee.ac.uk
  * @author Chris Allan, callan at blackcat.ca
  * @author Jean-Marie Burel, j.burel at dundee.ac.uk
@@ -427,7 +419,6 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.writeLock().unlock();
         }
         iUpdate.flush();
-        iUpdate.commit();
     }
 
     //  ~ Renderer Delegation (READ)
