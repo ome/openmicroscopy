@@ -144,16 +144,16 @@ class BrowserModel
     }
     
     /**
-     * String-ifies the path from the last selected ndoe to the
+     * String-ifies the path from the specified node to the
      * {@link #rootDisplay}.
      * 
+     * @param parent The node to start from.
      * @return The above described string.
      */
-    String currentPathString()
+    String currentPathString(ImageDisplay parent)
     {
         StringBuffer buf = new StringBuffer();
         String title;
-        ImageDisplay parent = getLastSelectedDisplay();//selectedDisplay;
         while (parent != null && !(parent instanceof RootDisplay)) {
             title = parent.getTitle();
             if (title == null || title.length() == 0) title = "[..]";

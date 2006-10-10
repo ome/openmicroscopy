@@ -119,6 +119,8 @@ class BrowserControl
         if (view == null) throw new NullPointerException("No view.");
         model.addPropertyChangeListener(Browser.SELECTED_DISPLAY_PROPERTY,
                                         this);
+        model.addPropertyChangeListener(Browser.ROLL_OVER_PROPERTY,
+                                            this);
         this.model = model;
         this.view = view;
         popupTrigger = false;
@@ -172,10 +174,14 @@ class BrowserControl
         } else if (ImageDisplay.ANNOTATE_NODE_PROPERTY.equals(name)) {
             model.setNodeForProperty(Browser.ANNOTATED_NODE_PROPERTY, 
                                     evt.getNewValue());
-        } else {
-            view.setTitle(model.currentPathString());
-            //paint the nodes
+        } else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
             ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
+            view.setTitle(model.currentPathString(newNode));
+        } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
+            ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
+            view.setTitle(model.currentPathString(newNode));
+            //paint the nodes
+            
             Colors colors = Colors.getInstance();
             newNode.setHighlight(colors.getSelectedHighLight(newNode));
             Set nodes = (Set) evt.getOldValue();
@@ -239,9 +245,10 @@ class BrowserControl
      */
     public void mouseEntered(MouseEvent me)
     {
-        if (!model.isRollOver()) return;
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
+        view.setTitle(model.currentPathString(d));
+        if (!model.isRollOver()) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
         } else model.setRollOverNode(null);
