@@ -185,7 +185,7 @@ class ClassifierUI
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onClick(e); }
         });
-        finishButton = new JButton("Finish");
+        finishButton = new JButton("Save");
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { finish(); }
         });
