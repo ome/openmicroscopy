@@ -301,7 +301,8 @@ class AnnotationPaneUI
         saveButton.setEnabled(true);
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
-            addAnnotationText("No annotations for "+details.getLastName());
+            addAnnotationText("No annotations for "+details.getFirstName()+" "+
+                                details.getLastName());
             setComponentsEnabled(true);
             deleteBox.setEnabled(false);
             return;
