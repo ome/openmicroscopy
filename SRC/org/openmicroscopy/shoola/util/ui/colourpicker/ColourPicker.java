@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -58,11 +59,29 @@ public class ColourPicker
 	extends JDialog
 {
    
+    /** The default with of the component. */
+    public static final int     DEFAULT_WIDTH = 240;
+    
+    /** The default height of the component. */
+    public static final int     DEFAULT_HEIGHT = 310;
+    
     /** Bounds property indicating that a new color is selected. */
     public static final String COLOUR_PROPERTY = "colour";
     
+    /** The title of the window. */
+    private static final String TITLE = "Colour Picker Window";
+    
     /** Reference to the model. */
     private RGBModel model;
+    
+    /** Sets the properties of the window. */
+    private void setWindowProperties()
+    {
+        setTitle(TITLE);
+        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        setModal(true);
+        setResizable(false);
+    }
     
     /** Closes and disposes. */
     void cancel()
@@ -87,16 +106,14 @@ public class ColourPicker
 	/** 
      * Creates a new instance. 
      * 
+     * @param owner     The owner of the window.
      * @param color     The original color. If <code>null</code>, sets to 
      *                  the default color.
      */
-	public ColourPicker(Color color)
+	public ColourPicker(JFrame owner, Color color)
 	{
-	    super();
-		setTitle("Colour Picker Window");
-		setSize(240, 310);
-        setModal(true);
-        setResizable(false);
+	    super(owner);
+        setWindowProperties();
         float[] vals = new float[4];
         vals = color.getComponents(vals);
         model = new RGBModel(vals[0], vals[1], vals[2], vals[3]);
