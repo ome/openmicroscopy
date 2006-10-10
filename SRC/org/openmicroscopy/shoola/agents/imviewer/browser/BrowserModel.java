@@ -60,9 +60,6 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 class BrowserModel
 {
 
-    /** Default length of the scale bar. */
-    private static final int    LENGTH = 40;
-    
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
     
