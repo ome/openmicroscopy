@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.swing.Action;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -106,6 +108,23 @@ class ImViewerComponent
         String text = "";
         text += "Z="+model.getDefaultZ()+" T="+model.getDefaultT();
         return text;
+    }
+    
+
+    private void setImageIcon()
+    {
+        view.setIconImage(model.getImageIcon());
+        Set viewers = ImViewerFactory.getViewers();
+        Iterator i = viewers.iterator();
+        ImViewer viewer;
+        while (i.hasNext()) {
+            viewer = (ImViewer) i.next();
+            if (viewer == this) {
+                controller.menuItem.getAction().putValue(Action.SMALL_ICON, 
+                                            model.getImageIcon());
+                controller.menuItem.repaint();
+            }
+        }
     }
     
     /**
@@ -317,6 +336,7 @@ class ImViewerComponent
         renderXYPlane();
     }
 
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#setImage(BufferedImage)
@@ -328,7 +348,7 @@ class ImViewerComponent
                     "in the LOADING_IMAGE state.");
         model.setImage(image);
         view.setStatus(getStatusText(), -1, true);
-        view.setIconImage(model.getImageIcon());
+        setImageIcon();
         fireStateChange();
     }
 
