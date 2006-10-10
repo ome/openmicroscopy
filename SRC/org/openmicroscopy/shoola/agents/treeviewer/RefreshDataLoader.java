@@ -31,25 +31,19 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.containers.CategoryGroup;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
+import pojos.CategoryGroupData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Refreshes the tree.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -85,7 +79,7 @@ public class RefreshDataLoader
     private void checkClass(Class klass)
     {
         if (klass.equals(ProjectData.class) || 
-                klass.equals(CategoryGroup.class))
+                klass.equals(CategoryGroupData.class))
             return;
         throw new IllegalArgumentException("Root node not supported.");
     }
