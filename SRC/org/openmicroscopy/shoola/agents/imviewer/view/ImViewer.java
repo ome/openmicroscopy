@@ -403,9 +403,14 @@ public interface ImViewer
      */
     public void setUnitBarSize(double size);
     
-    /**
-     * Brings up on screen the unit bar selection widget.
-     */
+    /** Brings up on screen the unit bar selection widget. */
     public void showUnitBarSelection();
+
+    /**
+     * Sets the image icon.
+     * 
+     * @param image The icon to set.
+     */
+    public void setIconImage(BufferedImage image);
     
 }

@@ -541,12 +541,11 @@ class ImViewerControl
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
             Color c = model.getChannelColor(colorPickerIndex);
-            ColourPicker dialog = new ColourPicker(c);
+            ColourPicker dialog = new ColourPicker(view, c);
             dialog.addPropertyChangeListener(this);
-            dialog.setSize(240,310);
             int x = view.getX()+view.getWidth();
             int y = view.getY();
-            int pickerWidth = 240;
+            int pickerWidth = ColourPicker.DEFAULT_WIDTH;
         	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         	
             if (x+pickerWidth > screenSize.getWidth())

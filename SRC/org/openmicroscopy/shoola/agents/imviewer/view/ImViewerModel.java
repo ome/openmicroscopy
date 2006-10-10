@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,6 +45,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.imviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ImageIconLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -88,6 +90,12 @@ class ImViewerModel
     
     static final int     RATING_FIVE = 7;
     
+    /** The maximum width of the thumbnail. */
+    private static final int    THUMB_MAX_WIDTH = 48; 
+    
+    /** The maximum height of the thumbnail. */
+    private static final int    THUMB_MAX_HEIGHT = 48;
+    
     /** The id of the set of pixels. */
     private long                pixelsID;
     
@@ -121,6 +129,24 @@ class ImViewerModel
     /** Reference to the current player. */
     private ChannelPlayer       player;
     
+    /** The width of the thumbnail if the window is iconified. */
+    private int                 sizeX;
+    
+    /** The height of the thumbnail if the window is iconified. */
+    private int                 sizeY;
+    
+    /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
+    private void computeSizes()
+    {
+        if (sizeX == -1 && sizeY == -1) {
+            sizeX = THUMB_MAX_WIDTH;
+            sizeY = THUMB_MAX_HEIGHT;
+            double ratio =  (double) getMaxX()/getMaxY();
+            if (ratio < 1) sizeX *= ratio;
+            else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+        }
+    }
+    
     /**
      * Creates a new object and sets its state to {@link ImViewer#NEW}.
      * 
@@ -134,6 +160,7 @@ class ImViewerModel
         this.imageID = imageID;
         imageName = name;
         state = ImViewer.NEW;
+        sizeX = sizeY = -1;
     }
     
     /**
@@ -319,7 +346,6 @@ class ImViewerModel
     /** Fires an asynchronous retrieval of the rendered image. */
     void fireImageRetrieval()
     {
-        if (currentLoader != null) currentLoader.cancel();
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
@@ -553,5 +579,20 @@ class ImViewerModel
      * @return See above.
      */
     boolean isUnitBar() { return browser.isUnitBar(); }
+
+    void fireIconImageLoading()
+    {
+        computeSizes();
+        /*
+        OmeroImageService rs = ImViewerAgent.getRegistry().getImageService();
+        try {
+            component.setIconImage(rs.getThumbnail(pixelsID, sizeX, sizeY));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        */
+        currentLoader = new ImageIconLoader(component, pixelsID, sizeX, sizeY);
+        currentLoader.load();
+    }
     
 }

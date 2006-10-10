@@ -431,6 +431,8 @@ class ImViewerUI
         toolBar.buildComponent();
         controlPane.buildComponent();
         buildGUI();
+        //tmp
+        //model.fireIconImageLoading();
         pack();
     }
     
@@ -570,15 +572,6 @@ class ImViewerUI
     void setChannelColor(int index, Color c)
     {
         controlPane.setChannelColor(index, c);
-    }
-    
-    /** 
-     * Overriden to set the size of the window. 
-     * @see TopWindow#setOnScreen()
-     */
-    public void setOnScreen()
-    {
-        UIUtilities.centerAndShow(this);
     }
 
 }

@@ -281,7 +281,8 @@ class ImViewerComponent
                 throw new IllegalArgumentException("Color model not supported");
         }
         //need
-        firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), new Integer(-1));
+        firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
+                                                        new Integer(-1));
         view.setColorModel(value);
         renderXYPlane();
     }
@@ -633,6 +634,7 @@ class ImViewerComponent
         if (b) {
             newValue = Boolean.TRUE;
             oldValue = Boolean.FALSE;
+            model.fireIconImageLoading();
         } 
         firePropertyChange(ICONIFIED_PROPERTY, oldValue, newValue);
     }
@@ -761,7 +763,6 @@ class ImViewerComponent
             throw new IllegalStateException(
                     "This method can't be invoked in the DISCARDED state.");
         return model.getChannelData(index);
-        
     }
 
     /** 
@@ -821,7 +822,7 @@ class ImViewerComponent
      */
     public Color getChannelColor(int index)
     {
-        // TODO Auto-generated method stub
+        // TODO Check state
         return model.getChannelColor(index);
     }
 
@@ -831,6 +832,7 @@ class ImViewerComponent
      */
     public void setUnitBarSize(double size)
     {
+//      TODO Check state
         model.getBrowser().setUnitBarSize(size);
     }
 
@@ -840,9 +842,24 @@ class ImViewerComponent
      */
     public void showUnitBarSelection()
     {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
         UnitBarSizeDialog d = new UnitBarSizeDialog(view);
         d.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(d);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setIconImage(BufferedImage)
+     */
+    public void setIconImage(BufferedImage image)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
+        view.setIconImage(image);
     }
 
 }
