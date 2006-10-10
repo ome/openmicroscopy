@@ -110,23 +110,6 @@ class ImViewerComponent
         return text;
     }
     
-
-    private void setImageIcon()
-    {
-        view.setIconImage(model.getImageIcon());
-        Set viewers = ImViewerFactory.getViewers();
-        Iterator i = viewers.iterator();
-        ImViewer viewer;
-        while (i.hasNext()) {
-            viewer = (ImViewer) i.next();
-            if (viewer == this) {
-                controller.menuItem.getAction().putValue(Action.SMALL_ICON, 
-                                            model.getImageIcon());
-                controller.menuItem.repaint();
-            }
-        }
-    }
-    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -348,7 +331,7 @@ class ImViewerComponent
                     "in the LOADING_IMAGE state.");
         model.setImage(image);
         view.setStatus(getStatusText(), -1, true);
-        setImageIcon();
+        view.setIconImage(model.getImageIcon());
         fireStateChange();
     }
 

@@ -234,9 +234,7 @@ class ImViewerControl
     
     /** Index of the channel invoking the color picker. */
     private int         colorPickerIndex;
-    
-    JMenuItem           menuItem;
-    
+
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -396,13 +394,9 @@ class ImViewerControl
         JMenu menu = ImViewerFactory.getWindowsMenu();
         menu.removeAll();
         ImViewer viewer;
-        JMenuItem item;
         while (i.hasNext()) {
             viewer = (ImViewer) i.next();
-            item = new JMenuItem(new ActivationAction(viewer));
-            menu.add(item);
-            if (!(viewer == model)) menuItem = item;
-                
+            menu.add(new JMenuItem(new ActivationAction(viewer)));
         }
     }
     
