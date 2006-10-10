@@ -194,7 +194,7 @@ class BrowserUI
             if (me.getClickCount() == 1) {
                 if (me.isPopupTrigger()) controller.showPopupMenu();
                 if (!released) controller.onClick();
-            } else if (me.getClickCount() == 2) {
+            } else if (me.getClickCount() == 2 && released) {
                 model.viewDataObject();
             }
         }

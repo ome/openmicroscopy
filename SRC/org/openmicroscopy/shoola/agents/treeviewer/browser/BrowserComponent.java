@@ -914,25 +914,33 @@ class BrowserComponent
         ImageData img;
         ClassificationVisitor visitor;
         List nodes;
-        long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
-        TreeImageDisplay d;
+        //long userID = model.getUserID();
+        //long groupID = model.getRootGroupID();
+        
         int editorType = model.getBrowserType();
+        if (editorType == CATEGORY_EXPLORER) {
+            refreshTree();
+            return;
+        }
         for (int i = 0; i < images.length; i++) {
             img = images[i];
             visitor = new ClassificationVisitor(this, img, categories);
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
             nodes = visitor.getFoundNodes();
+            /*
             d = TreeViewerTranslator.transformDataObject(img, userID, groupID);
             if (editorType == CATEGORY_EXPLORER) {
                 if (m == Classifier.CLASSIFY_MODE) {
-                    createNodes(nodes, d, 
-                            getLastSelectedDisplay().getParentDisplay());
+                    last = getLastSelectedDisplay();
+                    if (last == null) 
+                        createNodes(nodes, d, null);
+                    else  createNodes(nodes, d, last.getParentDisplay());
                 }
                 else removeNodes(nodes);
             } else if (editorType == PROJECT_EXPLORER || 
                     editorType == IMAGES_EXPLORER)
-                view.updateNodes(nodes, img);
+                    */
+           view.updateNodes(nodes, img);
         }
     }
 
