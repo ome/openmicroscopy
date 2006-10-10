@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -49,7 +48,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -227,8 +225,6 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.CREATE_TOP_CONTAINER)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
-        //menu.add(new JMenuItem(
-        //        controller.getAction(TreeViewerControl.ADD_OBJECT)));
         menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         TreeViewerAction a = controller.getAction(TreeViewerControl.VIEW);
@@ -264,7 +260,8 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(createClassifySubMenu());
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CLASSIFY)));
         TreeViewerAction a = controller.getAction(TreeViewerControl.ANNOTATE);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -282,6 +279,7 @@ class TreeViewerWin
      * 
      * @return  The Classify submenu.
      */
+    /*
     private JMenu createClassifySubMenu()
     {
         IconManager im = IconManager.getInstance();
@@ -293,7 +291,7 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.DECLASSIFY))); 
         return menu;
     }
-    
+    */
     /**
      * Helper method to create the Hierarchy root menu.
      * 
@@ -332,9 +330,9 @@ class TreeViewerWin
     {
         createTabbedPane();
         workingPane = new JScrollPane();
-        JPanel p = new JPanel();
-        p.setBackground(Color.RED);
-        workingPane.add(p);
+        //JPanel p = new JPanel();
+        //p.setBackground(Color.RED);
+        //workingPane.add(p);
     }
 
     /** Builds and lays out the GUI. */
@@ -468,6 +466,7 @@ class TreeViewerWin
     void addComponent(JComponent component)
     {
         JViewport viewPort = workingPane.getViewport();
+        component.setPreferredSize(viewPort.getExtentSize());
         viewPort.removeAll();
         viewPort.add(component);
         viewPort.validate();
@@ -579,7 +578,7 @@ class TreeViewerWin
             statusBar.setStatusIcon(icons.getIcon(IconManager.TRANSPARENT), b); 
         }
     }
-    
+
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

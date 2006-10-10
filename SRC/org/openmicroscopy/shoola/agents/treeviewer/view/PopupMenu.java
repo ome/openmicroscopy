@@ -93,6 +93,9 @@ class PopupMenu
     /** Button to delete the selected elements. */
     private JMenuItem           deleteElement;
     
+    /** Button to classify the selected elements. */
+    private JMenuItem          classifyElement;
+    
     /** Reference to the Control. */
     private TreeViewerControl   controller;
     
@@ -138,6 +141,9 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.ADD_OBJECT);
         existingElement = new JMenuItem(a);
         initMenuItem(existingElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.CLASSIFY);
+        classifyElement = new JMenuItem(a);
+        initMenuItem(classifyElement, a.getActionName());
     }
       
     /**
@@ -145,6 +151,7 @@ class PopupMenu
      * 
      * @return  The Classify submenu.
      */
+    /*
     private JMenu createClassifySubMenu()
     {
         IconManager im = IconManager.getInstance();
@@ -155,7 +162,7 @@ class PopupMenu
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DECLASSIFY))); 
         return menu;
-    }
+    }*/
     
     /**
      * Creates the sub-menu to manage the data.
@@ -183,7 +190,7 @@ class PopupMenu
         add(view);
         add(createManagementMenu());
         add(new JSeparator(JSeparator.HORIZONTAL));
-        add(createClassifySubMenu());
+        add(classifyElement);
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
