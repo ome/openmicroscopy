@@ -72,6 +72,9 @@ class LoadingWindow
     /** Bounds property indicating that the window is closed. */
     static final String         CLOSED_PROPERTY = "closed";
     
+    /** The title of the window. */
+    private static final String TITLE = "Loading window";
+    
     /** The message displayed. */
     private static final String LOADING_TXT = "Loaded: ";
     
@@ -111,11 +114,19 @@ class LoadingWindow
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
             { 
-                if (isVisible())
+                if (isVisible()) {
                     firePropertyChange(CLOSED_PROPERTY, Boolean.FALSE, 
-                        Boolean.TRUE);
+                            Boolean.TRUE);
+                }   
             }
         });
+    }
+    
+    /** Sets the properties of the component. */
+    private void setWindowProperties()
+    {
+        setTitle(TITLE);
+        setModal(true);
     }
     
     /**
@@ -126,8 +137,7 @@ class LoadingWindow
     LoadingWindow(JFrame owner)
     {
         super(owner);
-        setTitle("Loading image...");
-        setModal(true);
+        setWindowProperties();
         initComponents();
         buildGUI();
         attachWindowListeners();
