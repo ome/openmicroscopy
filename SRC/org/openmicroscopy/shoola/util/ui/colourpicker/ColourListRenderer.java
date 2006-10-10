@@ -63,23 +63,18 @@ class ColourListRenderer
 	implements ListCellRenderer  
 {
 	
-	/**
-	 * Create the colouricon which will hold the colours.
-	 */
+	/** Create the colouricon which will hold the colours. */
 	private static ColourIcon icon = new ColourIcon(32, 24);
 	
-	/**
-	 * Border colour of the cell when the icon is selected.
-	 */
+	/** Border colour of the cell when the icon is selected. */
 	private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
 	
-	/**
-	 * Border colour of the cell when the icon is not selected.
-	 */
+	/** Border colour of the cell when the icon is not selected. */
 	private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
 		
 	/**
-	 * Constructor for the ColourListRenderer. Sets the background to opaque.
+	 * Creates a new intance.
+     * Sets the background to opaque.
 	 */
 	ColourListRenderer()
 	{

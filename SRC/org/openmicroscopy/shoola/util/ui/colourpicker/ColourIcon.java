@@ -61,11 +61,11 @@ class ColourIcon
     /** Colour of the icon */
     private static  Color   colour;
     
-	/** Width of the icon. */
-	private int			h;
+	/** Height of the icon. */
+	private int            h;
 	
-	/** Height of the icon. */	
-	private int			w;
+	/** Width of the icon. */	
+	private int            w;
 
 	/**
 	 * Creates a new intance. 
@@ -104,12 +104,11 @@ class ColourIcon
 	 */
 	public void paintIcon(Component arg0, Graphics og, int arg2, int arg3) 
 	{
-		Graphics2D g = (Graphics2D)og;
+		Graphics2D g = (Graphics2D) og;
 		g.setColor(colour);
 		g.fillRect(4, 4, w-3, h-3);
 		g.setColor(colour.darker());
 		g.drawRect(4, 4, w-3, h-3);
-		
 	}
 
 }
