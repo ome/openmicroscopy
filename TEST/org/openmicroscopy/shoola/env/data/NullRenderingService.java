@@ -97,4 +97,11 @@ public class NullRenderingService
         return null;
     }
 
+    public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
+            throws RenderingServiceException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
