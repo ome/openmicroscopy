@@ -102,6 +102,12 @@ class RendererModel
     /** Identifies the <code>Exponential</code> family. */
     static final String LOGARITHMIC = RenderingControl.LOGARITHMIC;
     
+    /** Identifies the <code>Exponential</code> family. */
+    static final String EXPONENTIAL = RenderingControl.EXPONENTIAL;
+    
+    /** Identifies the <code>Exponential</code> family. */
+    static final String POLYNOMIAL = RenderingControl.POLYNOMIAL;
+    
     /** Reference to the {@link ImViewer viewer}. */
     private ImViewer            parentModel;
     

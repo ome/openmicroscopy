@@ -111,7 +111,7 @@ class GraphicsPane
     /** Initializes the components. */
     private void initComponents()
     {
-        uiDelegate = new GraphicsPaneUI();
+        uiDelegate = new GraphicsPaneUI(model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START, 
                                         RendererModel.CD_END, 
                                         model.getCodomainStart(),
@@ -249,6 +249,7 @@ class GraphicsPane
         } catch(NumberFormatException nfe) {}
         if (valid) {
             controller.setInputInterval(val, model.getWindowEnd(), true);
+            updateHistogram();
         } else {
             startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -274,6 +275,7 @@ class GraphicsPane
         } catch(NumberFormatException nfe) {}
         if (valid) {
             controller.setInputInterval(model.getWindowStart(), val, true);
+            updateHistogram();
         } else {
             endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -313,6 +315,7 @@ class GraphicsPane
         minLabel.setText(""+min);
         maxLabel.setText(""+max);
         domainSlider.setValues(max, min, s, e);
+        updateHistogram();
     }
     
     /** Sets the pixels intensity interval. */
@@ -324,6 +327,7 @@ class GraphicsPane
         startField.setText(""+s);
         domainSlider.setStartValue(s);
         domainSlider.setEndValue(e);
+        updateHistogram();
     }
     
     /** Sets the value of the codomain interval. */
@@ -331,6 +335,7 @@ class GraphicsPane
     {
         codomainSlider.setStartValue(model.getCodomainStart());
         codomainSlider.setEndValue(model.getCodomainEnd());
+        updateHistogram();
     }
     
     /**
@@ -345,10 +350,12 @@ class GraphicsPane
             if (source.equals(domainSlider)) {
                 controller.setInputInterval(domainSlider.getStartValue(), 
                         domainSlider.getEndValue(), true);
+                updateHistogram();
             } else if (source.equals(codomainSlider)) {
                 int s = codomainSlider.getStartValue();
                 int e = codomainSlider.getEndValue();
                 controller.setCodomainInterval(s, e, true);
+                updateHistogram();
             }
         }
     }
@@ -395,5 +402,11 @@ class GraphicsPane
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
+    
+    private void updateHistogram()
+    {
+    	uiDelegate.invalidate();
+    	uiDelegate.repaint();
+    }
     
 }
