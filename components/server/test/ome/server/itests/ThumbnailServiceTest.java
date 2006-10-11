@@ -95,7 +95,7 @@ public class ThumbnailServiceTest
     // Currently this assumes that all renderingdefs are valid. This may
     // not be the case. Need better integration with bioformats-omero.
     // see ticket:218
-    @Test( groups = {"ticket:410","tickets:218"} )
+    @Test( groups = {"ticket:410","tickets:218","broken"} )
     public void testThumbnailsDirect() throws Exception {
     	
 		RenderingDef def = (RenderingDef) qs.findAllByQuery(
