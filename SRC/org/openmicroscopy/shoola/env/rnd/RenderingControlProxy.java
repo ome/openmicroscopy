@@ -73,7 +73,6 @@ class RenderingControlProxy
     /** The dimensions in microns of a pixel. */
     private final PixelsDimensions  pixDims;
     
-    
     /** List of supported families. */
     private final List              families;
     
@@ -95,15 +94,11 @@ class RenderingControlProxy
     /** The size of the cache. No caching if <= 0.*/
     private int                     sizeCache;
     
-    /** The default z-section. Cached value to speed up the process. */
-    private int                     defaultZ;
-    
-    /** The default timepoint. Cached value to speed up the process. */
-    private int                     defaultT;
-    
     private ChannelMetadata[]       metadata;
     
     private BufferedImage           xyImage;
+    
+    private RndProxyDef             rndDef;
     
     /**
      * Returns the size of the cache.
@@ -214,13 +209,6 @@ class RenderingControlProxy
         if (xyCache != null) xyCache.clear();
     }
     
-    /** Sets the default z-section and the default timepoint. */
-    private void setDefaultPlane()
-    {
-        defaultZ = servant.getDefaultZ();
-        defaultT = servant.getDefaultT();
-    }
-    
     /**
      * Checks if the passed bit resolution is supported.
      * 
@@ -275,6 +263,30 @@ class RenderingControlProxy
         }
     }
     
+    private void initialize()
+    {
+        rndDef.setDefaultZ(servant.getDefaultZ());
+        rndDef.setDefaultT(servant.getDefaultT());
+        QuantumDef qDef = servant.getQuantumDef();
+        rndDef.setBitResolution(qDef.getBitResolution().intValue());
+        rndDef.setColorModel(servant.getModel().getValue());
+        rndDef.setCodomain(qDef.getCdStart().intValue(), 
+                            qDef.getCdEnd().intValue());
+        
+        ChannelBindingsProxy cb;
+        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+            cb = new ChannelBindingsProxy();
+            cb.setActive(servant.isActive(i));
+            cb.setInterval(servant.getChannelWindowStart(i), 
+                            servant.getChannelWindowEnd(i));
+            cb.setQuantization(servant.getChannelFamily(i).getValue(), 
+                    servant.getChannelCurveCoefficient(i), 
+                    servant.getChannelNoiseReduction(i));
+            cb.setRGBA(servant.getRGBA(i));
+            rndDef.setChannel(i, cb);
+        }
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -297,6 +309,8 @@ class RenderingControlProxy
         pixs = servant.getPixels();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
+        rndDef = new RndProxyDef();
+        initialize();
         List l = pixs.getChannels();
         metadata = new ChannelMetadata[l.size()];
         Iterator i = l.iterator();
@@ -305,8 +319,8 @@ class RenderingControlProxy
             metadata[k] = new ChannelMetadata(k, (Channel) i.next());
             k++;  
         }
+        
         setModel(HSB);
-        setDefaultPlane();
     }
 
     /** 
@@ -332,6 +346,7 @@ class RenderingControlProxy
             model= (RenderingModel) i.next();
             if (model.getValue().equals(value)) {
                 servant.setModel(model); 
+                rndDef.setColorModel(value);
                 invalidateCache();
             }
         }
@@ -343,20 +358,21 @@ class RenderingControlProxy
      */
     public String getModel()
     { 
-        return servant.getModel().getValue(); 
+        return rndDef.getColorModel();
+        //return servant.getModel().getValue(); 
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getDefaultZ()
      */
-    public int getDefaultZ() { return defaultZ; }
+    public int getDefaultZ() { return rndDef.getDefaultZ(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getDefaultT()
      */
-    public int getDefaultT() { return defaultT; }
+    public int getDefaultT() { return rndDef.getDefaultT(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -365,7 +381,7 @@ class RenderingControlProxy
     public void setDefaultZ(int z)
     { 
         servant.setDefaultZ(z);
-        defaultZ = z;
+        rndDef.setDefaultZ(z);
     }
 
     /** 
@@ -375,7 +391,7 @@ class RenderingControlProxy
     public void setDefaultT(int t)
     { 
         servant.setDefaultT(t);
-        defaultT = t;
+        rndDef.setDefaultT(t);
     }
 
     /** 
@@ -387,6 +403,7 @@ class RenderingControlProxy
         //TODO: need to convert value.
         checkBitResolution(bitResolution);
         servant.setQuantumStrategy(bitResolution);
+        rndDef.setBitResolution(bitResolution);
         invalidateCache();
     }
 
@@ -398,13 +415,8 @@ class RenderingControlProxy
     {
         servant.setCodomainInterval(start, end);
         invalidateCache();
+        rndDef.setCodomain(start, end);
     }
-
-    /** 
-     * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#getQuantumDef()
-     */
-    public QuantumDef getQuantumDef() { return servant.getQuantumDef(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -421,6 +433,8 @@ class RenderingControlProxy
             if (family.getValue().equals(value)) {
                 servant.setQuantizationMap(w, family, coefficient, 
                                             noiseReduction);
+                rndDef.getChannel(w).setQuantization(value, coefficient, 
+                                            noiseReduction);
                 invalidateCache();
             }
         }
@@ -432,7 +446,8 @@ class RenderingControlProxy
      */
     public String getChannelFamily(int w)
     { 
-        return servant.getChannelFamily(w).getValue();
+        return rndDef.getChannel(w).getFamily();
+        //return servant.getChannelFamily(w).getValue();
     }
 
     /** 
@@ -441,7 +456,8 @@ class RenderingControlProxy
      */
     public boolean getChannelNoiseReduction(int w)
     {
-        return servant.getChannelNoiseReduction(w);
+        return rndDef.getChannel(w).isNoiseReduction();
+        //return servant.getChannelNoiseReduction(w);
     }
 
     /** 
@@ -450,7 +466,8 @@ class RenderingControlProxy
      */
     public double getChannelCurveCoefficient(int w)
     {
-        return servant.getChannelCurveCoefficient(w);
+        return rndDef.getChannel(w).getCurveCoefficient();
+        //return servant.getChannelCurveCoefficient(w);
     }
 
     /** 
@@ -460,6 +477,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     {
         servant.setChannelWindow(w, start, end);
+        rndDef.getChannel(w).setInterval(start, end);
         invalidateCache();
     }
 
@@ -469,7 +487,8 @@ class RenderingControlProxy
      */
     public double getChannelWindowStart(int w)
     {
-        return servant.getChannelWindowStart(w);
+        return rndDef.getChannel(w).getInputStart();
+        //return servant.getChannelWindowStart(w);
     }
 
     /** 
@@ -478,7 +497,8 @@ class RenderingControlProxy
      */
     public double getChannelWindowEnd(int w)
     {
-        return servant.getChannelWindowEnd(w);
+        return rndDef.getChannel(w).getInputEnd();
+        //return servant.getChannelWindowEnd(w);
     }
 
     /** 
@@ -488,6 +508,8 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     {
         servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
+                                     c.getAlpha());
         invalidateCache();
     }
 
@@ -497,7 +519,8 @@ class RenderingControlProxy
      */
     public Color getRGBA(int w)
     {
-        int[] rgba = servant.getRGBA(w);
+        //int[] rgba = servant.getRGBA(w);
+        int[] rgba = rndDef.getChannel(w).getRGBA();
         return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
@@ -508,6 +531,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     { 
         servant.setActive(w, active);
+        rndDef.getChannel(w).setActive(active);
         invalidateCache();
     }
 
@@ -515,7 +539,11 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#isActive(int)
      */
-    public boolean isActive(int w) { return servant.isActive(w); }
+    public boolean isActive(int w)
+    { 
+        return rndDef.getChannel(w).isActive();
+        //return servant.isActive(w);
+    }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -570,7 +598,7 @@ class RenderingControlProxy
     public void resetDefaults()
     { 
         servant.resetDefaults();
-        setDefaultPlane();
+        initialize();
     }
 
     /** 
@@ -709,6 +737,23 @@ class RenderingControlProxy
      * @see RenderingControl#getChannelData()
      */
     public ChannelMetadata[] getChannelData() { return metadata; }
-    
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getCodomainStart()
+     */
+    public int getCodomainStart() { return rndDef.getCdStart(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getCodomainEnd()
+     */
+    public int getCodomainEnd() { return rndDef.getCdEnd(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#getBitResolution()
+     */
+    public int getBitResolution() { return rndDef.getBitResolution(); }
 
 }

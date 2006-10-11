@@ -39,7 +39,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
-import ome.model.display.QuantumDef;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
@@ -234,11 +233,25 @@ public interface RenderingControl
     public void setCodomainInterval(int start, int end);
     
     /**
-     * Returns the mapping context used during the mapping process. 
+     * Returns the lower bound of the codomain.
      * 
      * @return See above.
      */
-    public QuantumDef getQuantumDef();
+    public int getCodomainStart();
+    
+    /**
+     * Returns the upper bound of the codomain.
+     * 
+     * @return See above.
+     */
+    public int getCodomainEnd();
+    
+    /**
+     * Returns the bit resolution value.
+     * 
+     * @return See above.
+     */
+    public int getBitResolution();
     
     /**
      * Sets the values used during the mapping of the specified wavelength.
