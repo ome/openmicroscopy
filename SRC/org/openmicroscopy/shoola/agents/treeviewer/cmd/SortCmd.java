@@ -60,13 +60,16 @@ public class SortCmd
 {
     
     /** Reference to the model. */
-    private Browser model;
+    private Browser             model;
     
     /** The sorting type. One of the constants defined by this class. */
-    private int     sortType;
+    private int                 sortType;
     
     /** The list of sorted nodes. */
-    private List    sortedNodes;
+    private List                sortedNodes;
+    
+    /** The node whose children needed to be ordered. */
+    private TreeImageDisplay    node;
     
     /**
      * Checks if the specified type is one of the constants defined by this 
@@ -137,15 +140,18 @@ public class SortCmd
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
-     * @param sortType One of the constants defined by this class.
+     * @param model     Reference to the model. Mustn't be <code>null</code>.
+     * @param sortType  One of the constants defined by this class.
+     * @param node      The node to sort. If <code>null</code>, 
+     *                  we visit the tree.
      */
-    public SortCmd(Browser model, int sortType)
+    public SortCmd(Browser model, int sortType, TreeImageDisplay node)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
         checkSortType(sortType);
         this.sortType = sortType;
+        this.node = node;
     }
     
     /** 
@@ -160,7 +166,9 @@ public class SortCmd
     public void execute()
     {
         SortVisitor visitor = new SortVisitor(model);
-        model.accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+        if (node == null)
+            model.accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+        else node.accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         sortedNodes = sort(visitor.getNodes(), true);
     }
 

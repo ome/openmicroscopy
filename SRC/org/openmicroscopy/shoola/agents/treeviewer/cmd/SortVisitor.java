@@ -56,6 +56,7 @@ class SortVisitor
 
     /** Collection of retrieved {@link TreeImageNode}s. */
     private List nodes;
+    
     /**
      * Creates a new instance.
      * 
