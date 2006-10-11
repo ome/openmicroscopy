@@ -99,14 +99,17 @@ public class ThumbnailServiceTest
     public void testThumbnailsDirect() throws Exception {
     	
 		RenderingDef def = (RenderingDef) qs.findAllByQuery(
-				"from RenderingDef where pixels.sizeX > 8 and pixels.sizeY > 8",
-				null).get(0);
-		
-		Pixels p = qs.get(Pixels.class, 
-				def.getPixels().getId());
-		
-		tb.getThumbnailDirect(p, def, 8, 8);
-		
+				"from RenderingDef where pixels.sizeX > 8 and pixels.sizeY > 8"+
+				" and details.owner.id = :id and pixels.details.owner.id = :id",
+				new Parameters().addId( iAdmin.getEventContext().getCurrentUserId()))
+				.get(0);
+		if ( def != null )
+		{
+			Pixels p = qs.get(Pixels.class, 
+					def.getPixels().getId());
+			
+			tb.getThumbnailDirect(p, def, 8, 8);
+		}		
 	}
     
 }
