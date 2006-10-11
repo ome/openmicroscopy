@@ -242,11 +242,13 @@ class RendererControl
             String oldValue = (String) evt.getOldValue();
             String newValue = (String) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
+            view.onCurveChange();
             model.setFamily(newValue);
         } else if (name.equals(ControlPane.GAMMA_PROPERTY)) {
             Double oldValue = (Double) evt.getOldValue();
             Double newValue = (Double) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
+            view.onCurveChange();
             model.setCurveCoefficient(newValue.doubleValue());
         } else if (name.equals(ControlPane.BIT_RESOLUTION_PROPERTY)) {
             Integer oldValue = (Integer) evt.getOldValue();
@@ -266,22 +268,17 @@ class RendererControl
             view.setInputInterval();
         } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
-    	  	  int oldValue =  ((Integer) evt.getOldValue()).intValue();
     	  	  int newValue =  ((Integer) evt.getNewValue()).intValue();
       	  model.setChannelButtonColor(newValue);
         } else if (name.equals(ImViewer.COLOR_MODEL_CHANGE_PROPERTY)) {
             // DO SOME UPDATES ON THE CHANNEL TOGGLE BUTTON MODEL.
         	  model.setColorModelChanged();
-           
         }
     }
     
     /**
      * Resizes the RenderUI after the advanced options button has been selected.
      */
-    void resizeRenderUI()
-    {
-    	view.pack();
-    }
+    void resizeRenderUI() { view.pack(); }
     
 }

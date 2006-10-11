@@ -139,6 +139,7 @@ class DomainPane
     /** A panel containing the channel buttons. */
     private JPanel				channelButtonPanel;
     
+    /** A panel displaying the advanced features. */
     private JPanel				advancedPanel;
     
     /** Slider to select a curve in the family. */
@@ -483,9 +484,8 @@ class DomainPane
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setText(NoiseReductionAction.NAME);
-        for ( int i=0; i < channelList.size(); i++) 
-        	((ChannelToggleButton)channelList.get(i)).setSelected(i==c);
-        // histogram.
+        for (int i=0; i < channelList.size(); i++) 
+        	((ChannelToggleButton) channelList.get(i)).setSelected(i==c);
     }
     
     /** Sets the pixels intensity interval. */
@@ -493,6 +493,46 @@ class DomainPane
     
     /** Sets the value of the codomain interval. */
     void setCodomainInterval() { graphicsPane.setCodomainInterval(); }
+    
+    /**
+     * Set the colour of the channel button c.
+     *  
+     * @param c The channel whos colour changed.
+     */
+    void setChannelButtonColor(int c)
+    {
+        ChannelToggleButton btn = (ChannelToggleButton)channelList.get(c);
+        btn.setColor(model.getChannelColor(c));
+        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+        if (gs)  btn.setGrayedOut(gs);
+    }
+
+    /**
+     * Fired if the colour model has been changed, toggles between RGB and 
+     * Greyscale. 
+     */
+    void setColorModelChanged() 
+    {
+        ChannelToggleButton btn;
+        String colorModel = model.getColorModel();
+        for (int i = 0 ; i < channelList.size() ; i++) {
+            btn = (ChannelToggleButton) channelList.get(i);
+            btn.setColor(model.getChannelColor(i));
+            btn.setGrayedOut(colorModel.equals (ImViewer.GREY_SCALE_MODEL));
+        }
+    }
+    
+    /** 
+     * Updates the UI when a new curve is selected i.e. when a new family
+     * is selected or when a new gamma value is selected.
+     */
+    void onCurveChange()
+    { 
+        String f = model.getFamily();
+        gammaSlider.setEnabled(!(f.equals(RendererModel.LINEAR) || 
+                f.equals(RendererModel.LOGARITHMIC)));
+        graphicsPane.onCurveChange(); 
+    }
     
     /**
      * Depending on the source of the event. Sets the gamma value or
@@ -530,8 +570,6 @@ class DomainPane
                 case FAMILY:
                     String f = (String) 
                             ((JComboBox) e.getSource()).getSelectedItem();
-                    gammaSlider.setEnabled(!(f.equals(RendererModel.LINEAR) || 
-                                        f.equals(RendererModel.LOGARITHMIC)));
                     firePropertyChange(FAMILY_PROPERTY, model.getFamily(), f);
                     break;
             }
@@ -539,36 +577,5 @@ class DomainPane
             throw new Error("Invalid Action ID "+index, nfe);
         } 
     }
-    
-    /**
-     * Set the colour of the channel button c.
-     *  
-     * @param c The channel whos colour changed.
-     */
-    void setChannelButtonColor(int c)
-    {
-    	ChannelToggleButton btn = (ChannelToggleButton)channelList.get(c);
-    	btn.setColor(model.getChannelColor(c));
-    	boolean gs = model.getColorModel().equals
-			(ImViewer.GREY_SCALE_MODEL);
-    	if(gs) 
-    		btn.setGrayedOut(gs);
- }
 
-
-	/**
-	 * Fired if the colour model has been changed, toggles between RGB and 
-	 * Greyscale. 
-	 */
-	public void setColorModelChanged() 
-	{
-		for( int i = 0 ; i < channelList.size() ; i++)
-		{
-		ChannelToggleButton btn = (ChannelToggleButton)channelList.get(i);
-    	btn.setColor(model.getChannelColor(i));
-    	boolean gs = model.getColorModel().equals
-			(ImViewer.GREY_SCALE_MODEL);
-   		btn.setGrayedOut(gs);
-		}
-	}
 }

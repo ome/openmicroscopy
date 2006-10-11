@@ -473,20 +473,13 @@ class RendererModel
     }
 
     /** Resets the default settings. */
-    void setDefaultSettings()
-    {
-        rndControl.resetDefaults();
-        
-    }
+    void setDefaultSettings() { rndControl.resetDefaults(); }
 
 	/**
-	 * Get the colour model of the image.
+	 * Returns the currently selected color model.
 	 * 
 	 * @return A string containing the colour model.
 	 */
-	String getColorModel() {
-		// TODO Auto-generated method stub
-		return rndControl.getModel();
-	}
+	String getColorModel() { return rndControl.getModel(); }
     
 }

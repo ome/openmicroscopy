@@ -235,7 +235,7 @@ class RendererUI
     /**
      * Sets the specified channel as current.
      * 
-     * @param c The channel to set.
+     * @param c The channel's index.
      */
     void setSelectedChannel(int c)
     {
@@ -243,19 +243,22 @@ class RendererUI
         pane.setSelectedChannel(c);
     }
 
+    /** 
+     * Sets the color of the specified channel
+     * 
+     * @param c The channel's index.
+     */
     void setChannelButtonColor(int c)
     {
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.setChannelButtonColor(c);
     }
     
-    
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
         DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
         pane.setInputInterval();
-        
     }
 
     /** Resets the UI controls. */
@@ -278,4 +281,14 @@ class RendererUI
 	 
 	}
 
+    /** 
+     * Updates the UI when a new curve is selected i.e. when a new family
+     * is selected or when a new gamma value is selected.
+     */
+    void onCurveChange()
+    {
+        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+        pane.onCurveChange();
+    }
+    
 }

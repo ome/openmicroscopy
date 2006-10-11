@@ -108,6 +108,8 @@ class GraphicsPane
     /** Reference to the Control.*/
     protected RendererControl   controller;
 
+
+    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -152,7 +154,6 @@ class GraphicsPane
     {
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel p = new JPanel();
-        //p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
@@ -163,7 +164,7 @@ class GraphicsPane
         gbc.weightx = 60;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(0,0,0,50);
+        gbc.insets = new Insets(0, 0, 0, 50);
         p.add(uiDelegate, gbc);
         add(p);
         p = new JPanel();
@@ -183,7 +184,7 @@ class GraphicsPane
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
         p.setLayout(new GridBagLayout());
-        c.insets = new Insets(5,20,5,30);
+        c.insets = new Insets(5, 20, 5, 30);
         c.anchor = GridBagConstraints.WEST;
         p.add(buildFieldsPanel("Min", minLabel, "Start", startField), c);
         c.anchor = GridBagConstraints.EAST;
@@ -206,7 +207,7 @@ class GraphicsPane
     {
         JPanel p = new JPanel();
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(0,10,5,10);
+        c.insets = new Insets(0, 10, 5, 10);
         c.weightx = 60;
         c.anchor = GridBagConstraints.WEST;
         p.setLayout(new GridBagLayout());
@@ -242,19 +243,19 @@ class GraphicsPane
     {
         boolean valid = false;
         int val = 0;
+        double e = model.getWindowEnd();
         try {
             val = Integer.parseInt(startField.getText());
-            if (model.getGlobalMin() <= val && val < model.getWindowEnd()) 
-                valid = true;
+            if (model.getGlobalMin() <= val && val < e) valid = true;
         } catch(NumberFormatException nfe) {}
         if (valid) {
-            controller.setInputInterval(val, model.getWindowEnd(), true);
-            updateHistogram();
+            controller.setInputInterval(val, e, true);
+            onCurveChange();
         } else {
             startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+val+","+model.getWindowEnd()+"]");
+                    "["+val+","+e+"]");
         }
     }
     
@@ -268,19 +269,19 @@ class GraphicsPane
     {
         boolean valid = false;
         int val = 0;
+        double s = model.getWindowStart();
         try {
             val = Integer.parseInt(endField.getText());
-            if (model.getWindowStart() < val && val <= model.getGlobalMax()) 
-                valid = true;
+            if (s < val && val <= model.getGlobalMax()) valid = true;
         } catch(NumberFormatException nfe) {}
         if (valid) {
-            controller.setInputInterval(model.getWindowStart(), val, true);
-            updateHistogram();
+            controller.setInputInterval(s, val, true);
+            onCurveChange();
         } else {
             endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+model.getWindowStart()+","+val+"]");
+                    "["+s+","+val+"]");
         }
     }
     
@@ -315,7 +316,7 @@ class GraphicsPane
         minLabel.setText(""+min);
         maxLabel.setText(""+max);
         domainSlider.setValues(max, min, s, e);
-        updateHistogram();
+        onCurveChange();
     }
     
     /** Sets the pixels intensity interval. */
@@ -327,7 +328,7 @@ class GraphicsPane
         startField.setText(""+s);
         domainSlider.setStartValue(s);
         domainSlider.setEndValue(e);
-        updateHistogram();
+        onCurveChange();
     }
     
     /** Sets the value of the codomain interval. */
@@ -335,7 +336,17 @@ class GraphicsPane
     {
         codomainSlider.setStartValue(model.getCodomainStart());
         codomainSlider.setEndValue(model.getCodomainEnd());
-        updateHistogram();
+        onCurveChange();
+    }
+    
+    /** 
+     * Updates the UI when a new curve is selected i.e. when a new family
+     * is selected or when a new gamma value is selected.
+     */
+    void onCurveChange()
+    {
+        uiDelegate.invalidate();
+        uiDelegate.repaint();
     }
     
     /**
@@ -350,12 +361,12 @@ class GraphicsPane
             if (source.equals(domainSlider)) {
                 controller.setInputInterval(domainSlider.getStartValue(), 
                         domainSlider.getEndValue(), true);
-                updateHistogram();
+                onCurveChange();
             } else if (source.equals(codomainSlider)) {
                 int s = codomainSlider.getStartValue();
                 int e = codomainSlider.getEndValue();
                 controller.setCodomainInterval(s, e, true);
-                updateHistogram();
+                onCurveChange();
             }
         }
     }
@@ -402,11 +413,5 @@ class GraphicsPane
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
-    
-    private void updateHistogram()
-    {
-    	uiDelegate.invalidate();
-    	uiDelegate.repaint();
-    }
     
 }
