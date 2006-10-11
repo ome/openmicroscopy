@@ -529,8 +529,8 @@ class DomainPane
     void onCurveChange()
     { 
         String f = model.getFamily();
-        gammaSlider.setEnabled((f.equals(RendererModel.POLYNOMIAL) || 
-                                f.equals(RendererModel.EXPONENTIAL)));
+        gammaSlider.setEnabled(!(f.equals(RendererModel.LINEAR) || 
+                                f.equals(RendererModel.LOGARITHMIC)));
         graphicsPane.onCurveChange(); 
     }
     

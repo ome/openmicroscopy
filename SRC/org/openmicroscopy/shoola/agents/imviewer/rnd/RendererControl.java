@@ -242,14 +242,14 @@ class RendererControl
             String oldValue = (String) evt.getOldValue();
             String newValue = (String) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
-            view.onCurveChange();
             model.setFamily(newValue);
+            view.onCurveChange();
         } else if (name.equals(ControlPane.GAMMA_PROPERTY)) {
             Double oldValue = (Double) evt.getOldValue();
             Double newValue = (Double) evt.getNewValue();
             if (newValue.equals(oldValue)) return;
-            view.onCurveChange();
             model.setCurveCoefficient(newValue.doubleValue());
+            view.onCurveChange();
         } else if (name.equals(ControlPane.BIT_RESOLUTION_PROPERTY)) {
             Integer oldValue = (Integer) evt.getOldValue();
             Integer newValue = (Integer) evt.getNewValue();
