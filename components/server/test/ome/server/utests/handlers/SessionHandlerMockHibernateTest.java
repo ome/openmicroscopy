@@ -46,12 +46,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.builder.MatchBuilder;
+import org.jmock.builder.ArgumentsMatchBuilder;
 import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.jmock.core.stub.DefaultResultStub;
-import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testng.annotations.*;
@@ -69,7 +68,7 @@ import omeis.providers.re.RenderingEngine;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
-@Test( groups = {"ignore","sessions","hibernate","priority"} )
+@Test( groups = {"hibernate","stateful","ticket:326"} )
 public class SessionHandlerMockHibernateTest extends MockObjectTestCase
 {
 
@@ -107,44 +106,51 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         
         // Things should always be cleaned up by handler/interceptor
         assertFalse( TransactionSynchronizationManager.hasResource(factory) );
+        if (!TransactionSynchronizationManager.isSynchronizationActive())
+        	TransactionSynchronizationManager.initSynchronization();
     }
 
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception
     {
+    	session = null;
+    	mockStateful.reset();
+    	mockStateless.reset();
+    	mockSession.reset();
+    	mockFactory.reset();
+    	mockTransaction.reset();
+    	mockDataSource.reset();
+    	mockConnection.reset();
+    	mockInvocation.reset();
         super.tearDown();
+        if (TransactionSynchronizationManager.isSynchronizationActive())
+        	TransactionSynchronizationManager.clearSynchronization();
     }
 
     // ~ Tests
     // =========================================================================
 
     @Test
+    @ExpectedExceptions( InternalException.class )
     public void testStatelessInvocation() throws Throwable
     {
         newStatelessInvocation();
-        HibernateInterceptor interceptor = new HibernateInterceptor() {
-            @Override
-            public Object invoke(MethodInvocation methodInvocation) throws Throwable
-            {
-                return null;
-            }
-        };
-        interceptor.setSessionFactory( factory );
-        // for testing stateless, we need control over the interceptor.
-        handler = new SessionHandler( dataSource, interceptor );
+        handler = new SessionHandler( dataSource, factory );
         handler.invoke( invocation );
         super.verify();
     }
 
     @Test
-    public void testStatefulInvocation() throws Throwable
+    public void testStatefulInvocationGetsNewSession() throws Throwable
     {
         newStatefulReadInvocation();
         opensSession();
+        setsFlushMode();
         beginsTransaction(1);
         checksSessionIsOpen();
         getsFactoryFromSession();
         getsAutoFlushMode();
+        // invocation here
         checksSessionIsConnected();
         disconnectsSession();
         handler.invoke( invocation );
@@ -152,38 +158,64 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     }
 
     @Test
-    public void testTwoStatefulInvocations() throws Throwable
+    public void testSecondStatefulInvocationsReusesSession() throws Throwable
     {
         newStatefulReadInvocation();
         opensSession();
+        setsFlushMode();
         beginsTransaction(2);
         checksSessionIsOpen();
         getsFactoryFromSession();
         getsAutoFlushMode();
+        // invocation here
         checksSessionIsConnected();
         disconnectsSession();
         handler.invoke( invocation );
+        
         // And a second call should just work.
         newStatefulReadInvocation();
+        // invocation here
+        checksSessionIsConnected();
+        disconnectsSession();
         handler.invoke( invocation );
         super.verify();
     }
     
     @Test
-    @ExpectedExceptions(InternalException.class)
+    @ExpectedExceptions( InternalException.class )
     public void testStatefulInvocationWithExistingSession() throws Throwable
     {
-        // setup Session
-        prepareThread();
+        prepareThreadWithSession();
         
         newStatefulReadInvocation();
         checksSessionIsOpen();
-        //checksSessionIsConnected();
+        checksSessionIsConnected();
         getsFactoryFromSession();
+        getsAutoFlushMode();
         disconnectsSession();
         closesSession();
         handler.invoke( invocation );
         super.verify();
+    }
+    
+    @Test
+    public void testClosedOnException() throws Throwable
+    {
+        prepareThreadWithSession();
+
+        try {
+        newStatefulReadInvocationThrows();
+        checksSessionIsOpen();
+        checksSessionIsConnected();
+        getsFactoryFromSession();
+        getsAutoFlushMode();
+        // here it throws
+        disconnectsSession();
+        closesSession();
+        handler.invoke( invocation );
+        fail("Should have thrown.");
+        } catch (Exception e)
+        {}
     }
     
     @Test
@@ -193,7 +225,9 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         checksSessionIsOpen();
         getsFactoryFromSession();
         getsAutoFlushMode();
+        setsFlushMode();
         opensSession();
+//        setsFlushMode(); TODO huh?
         beginsTransaction(1);
         getsSessionsConnection();
         commitsConnection();
@@ -203,36 +237,31 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     }
     
     @Test
-    public void testSyncResetEvenOnException() throws Throwable
+    @ExpectedExceptions( InternalException.class )
+    public void testStatefulReentrantCallThrows() throws Throwable
     {
-        // setup Session
-        prepareThread();
-
-        try {
-        newStatefulReadInvocation();
-        checksSessionIsOpen();
-        //checksSessionIsConnected();
-        getsFactoryFromSession();
-        disconnectsSession();
-        closesSession();
-        handler.invoke( invocation );
-        fail("Should have thrown.");
-        } catch (Exception e)
-        {}
-    
-        newStatefulDestroyInvocation();
+        Method method = RenderingEngine.class.getMethod("getDefaultZ");
+        newStatefulInvocation( method, new Stub() {
+        	public Object invoke(Invocation dummy) throws Throwable {
+        		handler.invoke( invocation );
+        		return null;
+        	}
+        	public StringBuffer describeTo(StringBuffer buffer) {
+        		return buffer.append(" reentrant call ");
+        	}
+        });
+        opensSession();
+        setsFlushMode();
+        beginsTransaction(2);
         checksSessionIsOpen();
         getsFactoryFromSession();
         getsAutoFlushMode();
-        opensSession();
-        beginsTransaction(1);
-        getsSessionsConnection();
-        commitsConnection();
+        // invocation here
+        checksSessionIsConnected();
+        disconnectsSession();
         closesSession();
         handler.invoke( invocation );
-        super.verify();
     }
-    
     // ~ Once Expectations (creation events)
     // =========================================================================
     
@@ -248,18 +277,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         newConnection();
         newTransaction();
         mockSession.expects( exactly(count) ).method("beginTransaction");
-//        MatchBuilder builder = 
-//            mockSession.expects( once() ).method( "beginTransaction" );
-//        builder.will( returnValue( transaction ) );
-//        builder.will( printStackTrace() );
-//        if ( id != null )
-//        {
-//            builder.id(id);
-//        }
-//        if ( after != null )
-//        {
-//            builder.after(after);
-//        }
     }
 
     // ~ More-than-once Expectations (somewhat idempotent)
@@ -273,7 +290,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
 
     protected void checksSessionIsConnected()
     {
-    	log.warn("No longer called. WHY?");
         mockSession.expects( atLeastOnce() ).method( "isConnected" )
             .will( returnValue( true ));
     }
@@ -288,6 +304,12 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     {
         mockSession.expects( atLeastOnce() ).method( "getFlushMode" )
             .will( returnValue( FlushMode.AUTO ));
+    }
+
+    protected void setsFlushMode()
+    {
+        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
+        	.with( eq( FlushMode.COMMIT ));
     }
     
     protected void getsFactoryFromSession()
@@ -361,16 +383,32 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     }
     
     protected void newStatefulReadInvocation() throws Exception    {
-        Method method = RenderingEngine.class.getMethod("load");
+        Method method = RenderingEngine.class.getMethod("getDefaultZ");
         newStatefulInvocation( method );
     }
 
+    protected void newStatefulReadInvocationThrows() throws Exception    {
+        Method method = RenderingEngine.class.getMethod("getDefaultZ");
+        newStatefulInvocation( method, throwException(new RuntimeException()) );
+    }
+
+    protected void newStatefulWriteInvocation() throws Exception    {
+        Method method = RenderingEngine.class.getMethod("setDefaultZ");
+        newStatefulInvocation( method );
+    }
+
+    protected void newStatefulWriteInvocationThrows() throws Exception    {
+        Method method = RenderingEngine.class.getMethod("setDefaultZ");
+        newStatefulInvocation( method, throwException( new RuntimeException() ) );
+    }
+    
     protected void newStatefulDestroyInvocation() throws Exception    {
         Method method = RenderingEngine.class.getMethod("destroy");
         newStatefulInvocation( method );
     }
 
-    protected void newStatefulInvocation( Method method )
+    /** uses the first stub passed (if any) on the will(); clause. */
+    protected void newStatefulInvocation( Method method, Stub...stubs )
     {
         mockInvocation = mock(MethodInvocation.class);
         invocation = (MethodInvocation) mockInvocation.proxy();
@@ -378,18 +416,18 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
             .will( returnValue(stateful));
         mockInvocation.expects( atLeastOnce() ).method("getMethod")
             .will( returnValue(method));
+        ArgumentsMatchBuilder amb = 
         mockInvocation.expects( once() ).method( "proceed" );
-
+        if ( stubs != null && stubs.length > 0 ) amb.will(stubs[0]);
     }
     
-    protected void prepareThread()
+    protected void prepareThreadWithSession()
     {
         mockSession.expects( once() ).method( "beginTransaction" ).id("prep");
         SessionHolder sessionHolder = new SessionHolder(session);
         sessionHolder.setTransaction(sessionHolder.getSession()
                 .beginTransaction());
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
-        TransactionSynchronizationManager.initSynchronization();
     }
 
     protected Stub printStackTrace()
@@ -414,6 +452,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         return new InvokedRecorder( count );
     }
     
+    // TODO refactor out to ome.testing
     private class InvokedRecorder implements InvocationMatcher
     {
         private int actual = 0;

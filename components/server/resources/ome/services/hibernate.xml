@@ -64,7 +64,14 @@
     <constructor-arg ref="dataSource"/>
     <constructor-arg ref="sessionFactory"/>    
   </bean>
-    
+
+  <bean id="hibernateHandler" class="org.springframework.orm.hibernate3.HibernateInterceptor">
+    <description>
+    Scope: private
+    </description>
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
   <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
     <description>
     Scope: private

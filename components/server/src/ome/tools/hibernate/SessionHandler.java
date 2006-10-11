@@ -114,8 +114,6 @@ public class SessionHandler implements MethodInterceptor
     private Map<Object, SessionStatus> sessions = Collections
                                                         .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
 
-    private HibernateInterceptor       delegate;
-
     private DataSource                 dataSource;
 
     private SessionFactory             factory;
@@ -130,51 +128,29 @@ public class SessionHandler implements MethodInterceptor
      */
     public SessionHandler(DataSource dataSource, SessionFactory factory)
     {
-        if ( dataSource == null | factory == null )
+        if ( dataSource == null || factory == null )
         {
             throw new ApiUsageException(CTOR_MSG);
         }
 
         this.dataSource = dataSource;
-        this.delegate = new HibernateInterceptor();
         this.factory = factory;
-
-        this.delegate.setSessionFactory(factory);
     }
     
-    /** constructor taking a {@link DataSource} and a {@link HibernateInterceptor}
-     * as arguments. The needed {@link SessionFactory} will be taken from the
-     * interceptor's {@link HibernateInterceptor#getSessionFactory() getSessionFactory}
-     * method.  
-     * @param dataSource Not null.
-     * @param interceptor Not null.
-     */
-    public SessionHandler(DataSource dataSource, HibernateInterceptor interceptor)
-    {
-        if ( dataSource == null | interceptor == null )
-        {
-            throw new ApiUsageException(CTOR_MSG);
-        }
-        
-        this.dataSource = dataSource;
-        this.delegate = interceptor;
-        this.factory = interceptor.getSessionFactory();
-    }
-
     /**
      * delegates to {@link HibernateInterceptor} or manages sessions internally,
      * based on the type of service.
      */
-    public Object invoke(MethodInvocation invocation) throws Throwable
+    public Object invoke(final MethodInvocation invocation) throws Throwable
     {
         // Stateless; normal semantics.
         if (!StatefulServiceInterface.class.isAssignableFrom(
                 invocation.getThis().getClass()))
         {
-            debug("Delegating session creation to HibernateInterceptor.");
-            return delegate.invoke(invocation);
+        	throw new InternalException( 
+        			"Stateless service configured as stateful." );
         }
-
+        
         // Stateful; let's get to work.
         debug("Performing action in stateful session.");
         return doStateful(invocation);
@@ -223,39 +199,48 @@ public class SessionHandler implements MethodInterceptor
         }
     }
 
-    private void newOrRestoredSession(MethodInvocation invocation)
+    private SessionStatus newOrRestoredSession(MethodInvocation invocation)
             throws HibernateException
     {
-        
-        if (isSessionBoundToThread())
+
+        SessionStatus status = sessions.get(invocation.getThis());
+    	Session previousSession = ! isSessionBoundToThread() ? null : 
+    		sessionBoundToThread();
+
+        // a session is currently running.
+        // something has gone wrong (e.g. with cleanup) abort!
+        if ( previousSession != null )
         {
+        		String msg = "Dirty Hibernate Session "
+        			+ sessionBoundToThread() + " found in Thread "
+        			+ Thread.currentThread();
 
-            String msg = "Dirty Hibernate Session "
-                    + sessionBoundToThread() + " found in Thread "
-                    + Thread.currentThread();
+		        sessionBoundToThread().close();
+		        resetThreadSession();
+		        throw new InternalException(msg);
+        } 
+    	
+    	// we may or may not be in a session, but if we haven't yet bound 
+    	// it to This, then we need to.
+        else if (status == null || !status.session.isOpen())
+        {
+            Session currentSession = acquireBindAndConfigureSession();
+            status = new SessionStatus( currentSession );
+            sessions.put(invocation.getThis(), status);
+        } 
 
-            sessionBoundToThread().close();
-            resetThreadSession();
-            throw new InternalException(msg);
+        // the session bound to This is already currently being called. abort!
+        else if (status.calls > 1)
+        {
+            throw new InternalException(
+                    "Hibernate session is not re-entrant.\n" +
+                    "Either you have two threads operating on the same " +
+                    "stateful object (don't do this)\n or you have a " +
+                    "recursive call (recurse on the unwrapped object). ");
         }
         
-        SessionStatus status = sessions.get(invocation.getThis());
-
-        if (status == null || !status.session.isOpen())
-        {
-            
-            debug("Replacing null or closed session.");
-            status = new SessionStatus(acquireBindAndConfigureSession());
-            sessions.put(invocation.getThis(), status);
-        } else
-        {
-            if (status.calls > 1)
-                throw new InternalException(
-                        "Hibernate session is not re-entrant.\n" +
-                        "Either you have two threads operating on the same " +
-                        "stateful object (don't do this)\n or you have a " +
-                        "recursive call (recurse on the unwrapped object). ");
-
+        // all is fine.
+        else {
             debug("Binding and reconnecting session.");
             bindSession(status.session);
             reconnectSession(status.session);
@@ -263,31 +248,7 @@ public class SessionHandler implements MethodInterceptor
 
         // It's ready to be used. Increment.
         status.calls++;
-
-    }
-
-    private void closeSession() throws Exception
-    {
-
-        if (isSessionBoundToThread())
-        {
-            debug("Session bound to thread. Closing.");
-            Session session = sessionBoundToThread();
-            try
-            {
-                session.connection().commit();
-                sessionBoundToThread().close();
-            } catch (Exception e)
-            {
-                throw e;
-            } finally
-            {
-                resetThreadSession();
-            }
-
-        } else {
-            debug("No session bound to thread. Can't close.");
-        }
+        return status;
 
     }
 
@@ -315,7 +276,9 @@ public class SessionHandler implements MethodInterceptor
         sessionHolder.setTransaction(sessionHolder.getSession()
                 .beginTransaction());
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
-        TransactionSynchronizationManager.initSynchronization();
+        if ( ! TransactionSynchronizationManager.isSynchronizationActive())
+        	throw new InternalException( "Synchronization not active for " +
+        			"TransactionSynchronizationManager");
     }
     
     private Session sessionBoundToThread()
@@ -335,7 +298,6 @@ public class SessionHandler implements MethodInterceptor
         {
             debug("Session bound to thread. Reseting.");
             TransactionSynchronizationManager.unbindResource(factory);
-            TransactionSynchronizationManager.clearSynchronization();
         } else {
             debug("Session not bound to thread. No need to reset.");
         }
@@ -355,8 +317,7 @@ public class SessionHandler implements MethodInterceptor
 
     private void disconnectSession() throws HibernateException
     {
-        if (isSessionBoundToThread()
-                && SessionFactoryUtils.getSession(factory, false).isConnected())
+        if (isSessionBoundToThread() && sessionBoundToThread().isConnected())
         {
             debug("Session bound to thread. Disconnecting.");
             sessionBoundToThread().disconnect();
@@ -364,6 +325,30 @@ public class SessionHandler implements MethodInterceptor
             debug("No session bound to thread. Can't disconnect.");
         }
         
+    }
+    
+    private void closeSession() throws Exception
+    {
+
+        if (isSessionBoundToThread())
+        {
+            debug("Session bound to thread. Closing.");
+            Session session = sessionBoundToThread();
+            try
+            {
+                session.connection().commit();
+                sessionBoundToThread().close();
+            } 
+            
+            finally
+            {
+                resetThreadSession();
+            }
+
+        } else {
+            debug("No session bound to thread. Can't close.");
+        }
+
     }
     
     private void debug(String message)

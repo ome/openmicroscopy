@@ -47,7 +47,7 @@
     <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
   </bean>
 
-  <bean id="managed:ome.api.RawPixelsStore" parent="managedService">
+  <bean id="managed:ome.api.RawPixelsStore" parent="managedStatefulService">
     <property name="proxyInterfaces" value="ome.api.RawPixelsStore"/>
     <property name="target" ref="internal:ome.api.RawPixelsStore"/>
   </bean>

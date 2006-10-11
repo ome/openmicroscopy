@@ -58,12 +58,11 @@
   </bean>  
   
   <bean id="transactionManager" lazy-init="true"
-        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <description>
     Scope: private
     </description>
-    <property name="dataSource" ref="dataSource"/>
-    <property name="sessionFactory" ref="sessionFactory"/>
+    <constructor-arg ref="dataSource"/>
   </bean>
 
   <bean id="transactionHandler" 

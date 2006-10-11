@@ -43,7 +43,7 @@
     <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
   </bean>
 
-  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedService">
+  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
     <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
   </bean>
