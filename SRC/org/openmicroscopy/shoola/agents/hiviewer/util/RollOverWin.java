@@ -37,6 +37,8 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -135,6 +137,12 @@ public class RollOverWin
     /** Pins the thumbnail. */
     void pinThumbnail() { browser.setThumbSelected(true, node); }
     
+    /** Brings up the panel displaying the image's annotation. */
+    void annotate() { node.fireAnnotation(); }
+    
+    /** Brings up the panel displaying the categories containing the image. */
+    void classify() { node.fireClassification(); }
+    
     /**
      * Returns the image to display.
      * 
@@ -152,6 +160,14 @@ public class RollOverWin
         if (node == null)
             throw new IllegalArgumentException("No node.");
         this.node = node;
+        IconManager icons = IconManager.getInstance();
+        ImageIcon annotatedIcon = null;
+        if (node.isAnnotated())
+            annotatedIcon = icons.getImageIcon(IconManager.ANNOTATE);
+        ImageIcon classifiedIcon = null;
+        if (node.isClassified())
+            classifiedIcon = icons.getImageIcon(IconManager.CLASSIFY);
+        canvas.initialize(annotatedIcon, classifiedIcon);
         Thumbnail prv = node.getThumbnail();
         BufferedImage full = prv.getFullScaleThumb();
         if (full != null)  {

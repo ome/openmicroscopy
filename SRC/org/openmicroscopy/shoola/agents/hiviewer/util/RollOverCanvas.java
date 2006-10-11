@@ -35,8 +35,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.util;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -81,11 +81,24 @@ class RollOverCanvas
     /** Reference to the model. */
     private final RollOverWin   model;
     
-    /** The pin image painted in the top-left corner. */
+    /** The pin image painted in the top-right corner. */
     private ImageIcon           pinIcon;
     
+    /** The pin image painted in the top-right corner. */
+    private ImageIcon           annotatedIcon;
+    
+    /** The pin image painted in the top-right corner. */
+    private ImageIcon           classifiedIcon;
+    
+    /** The location of the pin icon. */
     private Rectangle           pinRectangle;
     
+    /** The location of the pin icon. */
+    private Rectangle           annotatedRectangle;
+    
+    /** The location of the pin icon. */
+    private Rectangle           classifiedRectangle;
+
     /**
      * Creates a new instance. 
      * 
@@ -99,21 +112,27 @@ class RollOverCanvas
         model = m;
         this.pinIcon = pinIcon;
         pinRectangle = new Rectangle();
+        annotatedRectangle = new Rectangle();
+        classifiedRectangle = new Rectangle();
         setOpaque(false); 
         setBorder(BorderFactory.createBevelBorder(
                 BevelBorder.LOWERED, INNER_BORDER_HIGHLIGHT, 
                 INNER_BORDER_SHADOW));
         addMouseListener(new MouseAdapter() {
-
-        
             public void mousePressed(MouseEvent e)
             {
-                if (pinRectangle.contains(e.getPoint())) model.pinThumbnail();
-        
+                Point p = e.getPoint();
+                if (pinRectangle.contains(p)) model.pinThumbnail();
+                else if (annotatedRectangle.contains(p)) model.annotate();
+                else if (classifiedRectangle.contains(p)) model.classify();
             }
-        
-        
         });
+    }
+    
+    void initialize(ImageIcon annotatedIcon, ImageIcon classifiedIcon)
+    {
+        this.annotatedIcon = annotatedIcon;
+        this.classifiedIcon = classifiedIcon;
     }
     
     /** 
@@ -128,11 +147,27 @@ class RollOverCanvas
             int x = i.left+1;
             int y = i.top+1;
             g2D.drawImage(model.getImage(), null, x, y);
-            Image img = pinIcon.getImage();
-            pinRectangle.setBounds(x, y, 2*pinIcon.getIconWidth(), 
-                    2*pinIcon.getIconHeight());
-            g2D.drawImage(img, x, y, pinIcon.getIconWidth(), 
-                    pinIcon.getIconHeight(), null);
+            int w = getWidth();
+            int width = pinIcon.getIconWidth();
+            int height = pinIcon.getIconHeight();
+            pinRectangle.setBounds(w-width-5, y, width, height);
+            g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, null);
+            if (annotatedIcon != null) {
+                width = annotatedIcon.getIconWidth();
+                height = annotatedIcon.getIconHeight();
+                annotatedRectangle.setBounds(x, y, width, height);
+                g2D.drawImage(annotatedIcon.getImage(), x, y, width, height, 
+                                null);
+                x += annotatedIcon.getIconWidth()+2;
+            }
+            if (classifiedIcon != null) {
+                width = classifiedIcon.getIconWidth();
+                height = classifiedIcon.getIconHeight();
+                classifiedRectangle.setBounds(x, y, width, height);
+                g2D.drawImage(classifiedIcon.getImage(), x, y, width, height, 
+                                null);
+                //x += annotatedIcon.getIconWidth()+2;
+            }
         }  
     }
     
