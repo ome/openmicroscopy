@@ -181,7 +181,7 @@ public class FilterWindow
     {
         IconManager im = IconManager.getInstance();
         tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
-        
+        tree.setRootVisible(false);
         selectAll = new JButton("Select All");
         selectAll.setToolTipText(
                 UIUtilities.formatToolTipText("Select all items."));
@@ -279,20 +279,22 @@ public class FilterWindow
         }
         //      populates the tree
         DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
-        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        TreeCheckNode r = (TreeCheckNode) dtm.getRoot();
         Iterator i = nodes.iterator();
         while (i.hasNext())
-            root.addChildDisplay((TreeCheckNode) i.next()) ;
+            r.addChildDisplay((TreeCheckNode) i.next()) ;
         ViewerSorter sorter = new ViewerSorter();
         List sortedNodes = sorter.sort(nodes);
         i = sortedNodes.iterator();
-        TreeCheckNode display;
+        TreeCheckNode n;
         while (i.hasNext()) {
-            display = (TreeCheckNode) i.next();
-            dtm.insertNodeInto(display, root, root.getChildCount());
-        }  
+            n = (TreeCheckNode) i.next();
+            r.addChildDisplay(n);
+            dtm.insertNodeInto(n, r, r.getChildCount());
+        }
+           
         dtm.reload();
-        tree.expandPath(new TreePath(root.getPath()));
+        tree.expandPath(new TreePath(r.getPath()));
         return new JScrollPane(tree);
     }
     
