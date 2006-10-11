@@ -108,7 +108,7 @@ class TreeViewUI
         JButton button = new CollapseButton(model);
         toolBar.add(button);
         button = new CloseButton(model);
-        toolBar.add(button);
+        //toolBar.add(button);
     }
     
     /** Helper method to create the {@link #menuBar}. */
