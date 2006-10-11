@@ -37,6 +37,7 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -523,27 +524,6 @@ class BrowserUI
         }
         return "";
     }
-
-    /**
-     * Sets the sorted nodes.
-     * 
-     * @param nodes The collection of nodes to set.
-     */
-    void setSortedNodes(List nodes)
-    {
-        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        root.removeAllChildren();
-        if (nodes.size() != 0) {
-            Iterator i = nodes.iterator();
-            while (i.hasNext())
-                root.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(root, nodes, dtm);
-        } else buildEmptyNode(root);
-        
-        dtm.reload();
-        if (!model.isMainTree()) loadGoIntoTree();
-    }
     
     /**
      * Creates or recycles the {@link FilterMenu} and brings it on screen.
@@ -720,6 +700,47 @@ class BrowserUI
             else controller.loadLeaves();
         }
         if (!model.isMainTree()) loadGoIntoTree();
+    }
+    
+    /**
+     * Sets the sorted nodes.
+     * 
+     * @param nodes     The collection of nodes to set.
+     * @param parentNode The parent whose children have been sorted.
+     */
+    void setSortedNodes(List nodes, TreeImageDisplay parentNode)
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        parentNode.removeAllChildren();
+        Iterator i = nodes.iterator(); 
+        boolean b = (parentNode.equals(dtm.getRoot()));
+        TreeImageDisplay child;
+        while (i.hasNext()) {
+            child = (TreeImageDisplay) i.next();
+            if (b) parentNode.addChildDisplay(child);
+            dtm.insertNodeInto(child, parentNode, parentNode.getChildCount());
+        }
+        dtm.reload(parentNode);
+        expandNode(parentNode);
+        if (!model.isMainTree()) {
+            i = nodes.iterator();
+            List copies = new ArrayList(nodes.size());
+            while (i.hasNext()) {
+                copies.add(((TreeImageDisplay) i.next()).copy());
+            }
+            dtm = (DefaultTreeModel) goIntoTree.getModel();
+            DefaultMutableTreeNode r = (DefaultMutableTreeNode) dtm.getRoot();
+            TreeImageDisplay d = model.getLastSelectedDisplay();
+            r.removeAllChildren();
+            TreeImageDisplay copy = d.copy();
+            dtm.insertNodeInto(copy, r, r.getChildCount());
+            buildTreeNode(copy, copies, dtm);
+            dtm.reload(r);
+            if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
+            scrollPane.getViewport().removeAll();
+            scrollPane.getViewport().add(goIntoTree);
+            repaint();
+        }
     }
     
     /** Loads the children of the root node. */

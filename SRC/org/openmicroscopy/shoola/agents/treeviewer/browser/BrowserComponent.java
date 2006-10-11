@@ -511,9 +511,14 @@ class BrowserComponent
                 throw new IllegalArgumentException("SortType not supported.");
         }
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        SortCmd cmd = new SortCmd(this, sortType);
+        SortCmd cmd;
+        TreeImageDisplay node;
+        if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
+            node = view.getTreeRoot();
+        else node = getLastSelectedDisplay();
+        cmd = new SortCmd(this, sortType, node);
         cmd.execute();
-        view.setSortedNodes(cmd.getSortedNodes());
+        view.setSortedNodes(cmd.getSortedNodes(), node);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
