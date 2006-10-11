@@ -31,6 +31,7 @@ package ome.server.utests.handlers;
 // Java imports
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.Iterator;
 
 import javax.sql.DataSource;
 
@@ -114,14 +115,8 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     protected void tearDown() throws Exception
     {
     	session = null;
-    	mockStateful.reset();
-    	mockStateless.reset();
-    	mockSession.reset();
-    	mockFactory.reset();
-    	mockTransaction.reset();
-    	mockDataSource.reset();
-    	mockConnection.reset();
-    	mockInvocation.reset();
+    	reset(mockStateful,mockStateless,mockSession,mockFactory,mockTransaction,
+    			mockDataSource,mockConnection,mockInvocation);
         super.tearDown();
         if (TransactionSynchronizationManager.isSynchronizationActive())
         	TransactionSynchronizationManager.clearSynchronization();
@@ -430,6 +425,14 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
     }
 
+    
+    private void reset(Mock...mocks)
+    {
+    	for (Mock mock : mocks) {
+			if (mock!=null) mock.reset();
+		}
+    }
+    
     protected Stub printStackTrace()
     {
         return new StackTraceStub();
