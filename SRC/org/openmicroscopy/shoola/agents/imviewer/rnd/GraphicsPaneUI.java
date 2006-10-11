@@ -99,8 +99,8 @@ class GraphicsPaneUI
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g.drawImage(histogramImage.getImage(), 0, 0, getWidth()-1, getHeight()-1
-				    , null);
+		g.drawImage(histogramImage.getImage(), 0, 0, getWidth()-1, 
+				getHeight()-1, null);
 		double width = this.getWidth();
 		double height = this.getHeight();
 		double codomainMin = model.getCodomainStart();
@@ -108,12 +108,13 @@ class GraphicsPaneUI
 		double domainGlobalMax = model.getGlobalMax();
 		double domainMin = model.getWindowStart();
 		double domainMax = model.getWindowEnd();
-		double domainMinScreenX = (domainMin/domainGlobalMax)*width;
-		double domainMaxScreenX = (domainMax/domainGlobalMax)*width;
-		double codomainMinScreenY = ((255-codomainMin)/255.0f)*height;
-		double codomainMaxScreenY = ((255-codomainMax)/255.0f)*height;
-		double domainRangeScreen = domainMaxScreenX-domainMinScreenX;
-		double codomainRangeScreen = codomainMinScreenY-codomainMaxScreenY;
+		
+		double domainMinScreenX = (domainMin / domainGlobalMax) * width;
+		double domainMaxScreenX = (domainMax / domainGlobalMax) * width;
+		double codomainMinScreenY = ((255 - codomainMin) / 255.0f) * height;
+		double codomainMaxScreenY = ((255 - codomainMax) / 255.0f) * height;
+		double domainRangeScreen = domainMaxScreenX - domainMinScreenX;
+		double codomainRangeScreen = codomainMinScreenY - codomainMaxScreenY;
 
 		g.setColor(GREYCOLOUR);
 		g.fillRect(0, 0, (int) domainMinScreenX, (int) height);
@@ -122,74 +123,44 @@ class GraphicsPaneUI
 		g.fillRect(0, 0, (int) width, (int) codomainMaxScreenY);
 		g.fillRect(0, (int) codomainMinScreenY, (int) width, (int) height);
 
-        String family = model.getFamily();
-		if (family.equals(RendererModel.LINEAR)) {
-			double b = codomainMinScreenY;
-			double a = codomainRangeScreen/(domainRangeScreen);
-			double currentX = domainMinScreenX;
-			double currentY = b;
-			double oldX, oldY;
-            g.setColor(RANGECOLOUR);
-            g.setStroke(STROKE);
-			for (double x = 0; x < domainRangeScreen; x += 1) {
-				oldX = currentX;
-				oldY = currentY;
-				currentX = x+domainMinScreenX;
-				currentY = b-a*x;
-				g.drawLine((int) oldX, (int) oldY, (int) currentX,
-						(int) currentY);
-			}
-		} else if (family.equals(RendererModel.LOGARITHMIC)) {
-			double b = codomainMinScreenY;
-			double a = codomainRangeScreen/Math.log(domainRangeScreen);
-			double currentX = domainMinScreenX-1;
-			double currentY = b;
-			double oldX, oldY;
-            g.setColor(RANGECOLOUR);
-            g.setStroke(STROKE);
-			for (double x = 1; x < domainRangeScreen; x += 1) {
-				oldX = currentX;
-				oldY = currentY;
-				currentX = x+domainMinScreenX-1;
-				currentY = b-a*Math.log(x);
-				g.drawLine((int) oldX, (int) oldY, (int) currentX,
-						(int) currentY);
-			}
-		} else if (family.equals(RendererModel.EXPONENTIAL)) {
-            double coeff = model.getCurveCoefficient();
-			double b = codomainMinScreenY;
-			double a = codomainRangeScreen/Math.exp(Math.pow(domainRangeScreen
-					, coeff));
-			double currentX = domainMinScreenX-1;
-			double currentY = b;
-			double oldX, oldY;
-            g.setColor(RANGECOLOUR);
-            g.setStroke(STROKE);
-			for (double x = 1; x < domainRangeScreen; x += 1) {
-				oldX = currentX;
-				oldY = currentY;
-				currentX = x+domainMinScreenX-1;
-				currentY = b-a*Math.exp(Math.pow(x, coeff));
-				g.drawLine((int) oldX, (int) oldY, (int) currentX,
-						(int) currentY);
-			}
-		} else if (family.equals(RendererModel.POLYNOMIAL)) {
-            double coeff = model.getCurveCoefficient();
-			double b = codomainMinScreenY;
-			double a = codomainRangeScreen/Math.pow(domainRangeScreen, coeff);
-			double currentX = domainMinScreenX-1;
-			double currentY = b;
-			double oldX, oldY;
-            g.setColor(RANGECOLOUR);
-            g.setStroke(STROKE);
-			for (double x = 1; x < domainRangeScreen; x += 1) {
+		String family = model.getFamily();
+		double coeff = model.getCurveCoefficient();
+		double a = 0;
+		if (family.equals(RendererModel.LINEAR)) 
+			a = codomainRangeScreen/(domainRangeScreen);
+		else if (family.equals(RendererModel.POLYNOMIAL)) 
+			a = codomainRangeScreen/Math.pow(domainRangeScreen,	coeff);
+		else if (family.equals(RendererModel.EXPONENTIAL)) 
+			a = codomainRangeScreen/Math.exp(Math.pow(domainRangeScreen,
+					coeff));
+		else if (family.equals(RendererModel.LOGARITHMIC)) 
+			a = codomainRangeScreen/Math.log(domainRangeScreen);
+			
+		double b = codomainMinScreenY;
+		double currentX = domainMinScreenX-1;
+		double currentY = b;
+		double oldX, oldY;
+		
+		g.setColor(RANGECOLOUR);
+		g.setStroke(STROKE);
+	
+		for (double x = 1; x < domainRangeScreen; x += 1) {
 				oldX = currentX;
 				oldY = currentY;
 				currentX = x + domainMinScreenX-1;
-				currentY = b-a*Math.pow(x, coeff);
+				
+				if (family.equals(RendererModel.LINEAR)) 
+					currentY = b - a * x;
+				else if (family.equals(RendererModel.EXPONENTIAL)) 
+					currentY = b - a * Math.exp(Math.pow(x,	coeff));
+				else if (family.equals(RendererModel.POLYNOMIAL)) 
+					currentY = b - a * Math.pow(x, coeff);
+				else if (family.equals(RendererModel.LOGARITHMIC)) 
+					currentY = b - a * Math.log(x);
+				
 				g.drawLine((int) oldX, (int) oldY, (int) currentX,
-						    (int) currentY);
-			}
+						(int) currentY);
 		}
 	}
+	
 }
