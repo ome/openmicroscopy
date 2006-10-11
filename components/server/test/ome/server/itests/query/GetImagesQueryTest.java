@@ -108,7 +108,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
         
     }
 
-    @Test( groups = { "ticket:159" })
+    @Test( groups = { "ticket:159", "broken", "ticket:422" })
     public void test_shouldReturnImages() throws Exception
     {
         Project prj = (Project)
