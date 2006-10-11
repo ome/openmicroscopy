@@ -207,20 +207,14 @@ class RendererModel
      * 
      * @return See above.
      */
-    int getCodomainEnd()
-    { 
-        return rndControl.getQuantumDef().getCdEnd().intValue();
-    }
+    int getCodomainEnd() { return rndControl.getCodomainEnd(); }
     
     /**
      * Returns the lower bound of the sub-interval of the device space.
      * 
      * @return See above.
      */
-    int getCodomainStart()
-    { 
-        return rndControl.getQuantumDef().getCdStart().intValue();
-    }
+    int getCodomainStart() { return rndControl.getCodomainStart(); }
     
     /**
      * Sets the sub-interval of the device space. 
@@ -404,10 +398,7 @@ class RendererModel
      * 
      * @return See above.
      */
-    int getBitResolution()
-    {
-        return rndControl.getQuantumDef().getBitResolution().intValue();
-    }
+    int getBitResolution() { return rndControl.getBitResolution(); }
     
     /**
      * Returns <code>true</code> if the noise reduction flag is turned on 
