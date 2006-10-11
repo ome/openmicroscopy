@@ -45,7 +45,7 @@ import ome.logic.PojosImpl;
 import ome.model.IObject;
 import ome.model.containers.Project;
 
-import omeis.providers.re.RenderingEngineImpl;
+import ome.services.RenderingBean;
 
 
 //Third-party libraries
@@ -87,32 +87,32 @@ public class ApiConstraintCheckerTest extends TestCase {
 
     @Test
     public void testRenderingImplCreate() throws Exception {
-        c = RenderingEngineImpl.class;
-        m = RenderingEngineImpl.class.getMethod("create");
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("create");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }
 
     @Test
     public void testRenderingImplGetModel() throws Exception {
-        c = RenderingEngineImpl.class;
-        m = RenderingEngineImpl.class.getMethod("getModel");
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("getModel");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }
 
     @Test
-    public void testRenderingEngineImplCreate() throws Exception {
-        c = RenderingEngineImpl.class;
-        m = RenderingEngineImpl.class.getMethod("create");
+    public void testRenderingBeanCreate() throws Exception {
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("create");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }
 
     @Test
-    public void testRenderingEngineImplGetModel() throws Exception {
-        c = RenderingEngineImpl.class;
-        m = RenderingEngineImpl.class.getMethod("getModel");
+    public void testRenderingBeanGetModel() throws Exception {
+        c = RenderingBean.class;
+        m = RenderingBean.class.getMethod("getModel");
         args = null;
         ApiConstraintChecker.errorOnViolation(c,m,args);
     }

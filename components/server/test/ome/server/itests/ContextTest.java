@@ -16,7 +16,6 @@ import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
 import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.RenderingEngineImpl;
 
 @Test(
         groups = "integration"

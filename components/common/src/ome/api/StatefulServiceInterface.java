@@ -30,6 +30,8 @@
 package ome.api;
 
 import ome.conditions.ApiUsageException;
+import ome.model.meta.Event;
+import ome.system.EventContext;
 
 // Java imports
 
@@ -57,5 +59,9 @@ public interface StatefulServiceInterface extends ServiceInterface {
      * @throws ApiUsageException
      */
     void destroy() throws ApiUsageException;
-    
+
+	/** Returns the current {@link EventContext} for this instance. This is
+	 * useful for later identifying changes made by this {@link Event}.
+	 */
+    EventContext getCurrentEventContext();
 }
