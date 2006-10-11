@@ -54,10 +54,8 @@ import org.springframework.util.Assert;
 // Application-internal dependencies
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
-import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
-import ome.tools.spring.AOPAdapter;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are 
@@ -88,6 +86,9 @@ public class EventHandler implements MethodInterceptor
     // for StatefulServices TODO
     private Map<Object, EventContext> objCtxMap = Collections
     .synchronizedMap(new WeakHashMap<Object, EventContext>());
+    
+    private Map<Object, Object> objSeen = Collections
+    .synchronizedMap(new WeakHashMap<Object, Object>());
 
     /** only public constructor, used for dependency injection. Requires an 
      * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
@@ -119,23 +120,7 @@ public class EventHandler implements MethodInterceptor
     	if ( stateful )
     	{
 			EventContext prevCtx = objCtxMap.get( arg0.getThis() );
-			boolean      needCtx = false;
-			if ( arg0 instanceof AOPAdapter )
-			{
-				// TODO needs refactoring. Perhaps better to add this to
-				// SecuritySystem. Or when OmeroContext is reworked, that this
-				// is added to that interface.
-				AOPAdapter adapter = (AOPAdapter) arg0;
-				Map attributes = adapter.getUserAttributes();
-				if ( attributes != null )
-				{
-					Object o = attributes.get( EventContext.class );
-					if ( o instanceof Boolean && ((Boolean)o).booleanValue() )
-					{
-						needCtx = true;
-					}
-				}
-			}
+			boolean      needCtx = ! objSeen.containsKey( arg0.getThis() );
 
 			if ( null == prevCtx )
 			{
@@ -150,6 +135,7 @@ public class EventHandler implements MethodInterceptor
 					secSys.loadEventContext(false);
 					objCtxMap.put( arg0.getThis(), secSys.getEventContext() );
 					prevCtx = secSys.getEventContext();
+					objSeen.put( arg0.getThis(), arg0.getThis() );
 				}	
 			}
 			secSys.setEventContext( prevCtx );
@@ -174,6 +160,8 @@ public class EventHandler implements MethodInterceptor
         try {
         	ht.execute(new EnableFilterAction(secSys));
             retVal = arg0.proceed();
+			saveLogs();
+			secSys.clearLogs();
             return retVal;
         } catch (Exception ex){
         	failure = true;
@@ -208,7 +196,6 @@ public class EventHandler implements MethodInterceptor
 	        		ht.execute(new CheckDirtyAction(secSys));
 	        		ht.execute(new DisableFilterAction(secSys));
 	        		ht.clear();
-        			saveLogs();
         		} 
         		
         	} finally {

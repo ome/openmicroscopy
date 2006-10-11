@@ -31,19 +31,14 @@ package ome.security.basic;
 
 // Java imports
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Filter;
 import org.hibernate.Session;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.util.Assert;
 
 // Application-internal dependencies
@@ -87,7 +82,6 @@ import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecurityFilter;
 import ome.tools.spring.PostProcessInjector;
-import ome.util.IdBlock;
 
 /**
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
@@ -1104,6 +1098,11 @@ public class BasicSecuritySystem implements SecuritySystem {
 		return cd.getLogs();
 	}
 
+	public void clearLogs( )
+	{
+		cd.clearLogs();
+	}
+	
 	public void clearEventContext() {
 		cd.clear();
 	}

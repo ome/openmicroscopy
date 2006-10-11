@@ -176,11 +176,6 @@ public class RenderingBean extends AbstractLevel2Service
      */
     private transient ReentrantReadWriteLock         rwl 
     	= new ReentrantReadWriteLock();
-
-    public RenderingBean()
-    {
-    	super.contextLoaded = false;
-    }
     
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsMetadata(IPixels metaService)
@@ -965,7 +960,7 @@ public class RenderingBean extends AbstractLevel2Service
     {
     		if ( argument == null ) return null;
     		if ( argument.getId() == null ) return argument;
-    		return iQuery.get(
+    		return (T) iQuery.get(
     				argument.getClass(),
     				argument.getId().longValue());
     }

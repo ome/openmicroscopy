@@ -82,8 +82,6 @@ public abstract class AbstractBean implements SelfConfigurableService
     
     private @Resource SessionContext sessionContext;
 
-    protected boolean contextLoaded = true; // always true for stateless services.
-
     // ~ Lifecycle implementations
 	// =========================================================================
     
@@ -101,8 +99,16 @@ public abstract class AbstractBean implements SelfConfigurableService
         logger.debug("Destroying:\n"+getLogString());
     }
     
+    /** Responsible for using the {@link Principal} in the 
+     * {@link SessionContext} and for wrapping all calls to Omero services with
+     * the method interceptors defined in Spring. No other logic should be 
+     * added here, otherwise server-side internal calls will no longer work.
+     * (They don't use client {@link Principal principals} to login and are
+     * already wrapped when acquired from the application context.
+     */
     @AroundInvoke
-    protected final Object wrap( InvocationContext context ) throws Exception
+    protected final Object loginAndSpringWrap( InvocationContext context )
+    throws Exception
     {
         try {
             login();
@@ -111,11 +117,6 @@ public abstract class AbstractBean implements SelfConfigurableService
             AOPAdapter.create( 
                     (ProxyFactoryBean) applicationContext.getBean(factoryName),
                     context );
-            if (!contextLoaded)
-            {
-            	adapter.getUserAttributes().put( EventContext.class, Boolean.TRUE );
-            	contextLoaded = true;
-            }
             return adapter.proceed( );   
         } catch (Throwable t) {
             throw translateException( t );

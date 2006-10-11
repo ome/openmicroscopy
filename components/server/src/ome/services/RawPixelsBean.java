@@ -59,6 +59,8 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.logic.AbstractBean;
 import ome.model.core.Pixels;
+import ome.system.EventContext;
+import ome.system.SimpleEventContext;
 
 import omeis.providers.re.RenderingEngine;
 
@@ -97,11 +99,6 @@ public class RawPixelsBean extends AbstractBean
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface() {
     	return RawPixelsStore.class;
-    }
-    
-    public RawPixelsBean()
-    {
-    	super.contextLoaded = false;
     }
     
     public final void setPixelsMetadata(IPixels metaService)
@@ -143,9 +140,6 @@ public class RawPixelsBean extends AbstractBean
         buffer = null;
     }
     
-    // ~ Lifecycle
-    // =========================================================================
-    
     @RolesAllowed("user")
     public void setPixelsId( long pixelsId )
     {
@@ -159,6 +153,11 @@ public class RawPixelsBean extends AbstractBean
         	buffer = dataService.getPixelBuffer( pixelsInstance );
 		}
     }
+
+    @RolesAllowed("user")
+    public EventContext getCurrentEventContext() {
+    	return new SimpleEventContext( getSecuritySystem().getEventContext() );
+    };
     
     private void errorIfNotLoaded()
     {
