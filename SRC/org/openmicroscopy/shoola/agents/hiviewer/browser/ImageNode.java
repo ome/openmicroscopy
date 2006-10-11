@@ -86,12 +86,6 @@ public class ImageNode
      */
     JComponent getCanvas() { return canvas; }
     
-    /** Fired a property change event to bring up the classification widget. */
-    void fireClassification()
-    {
-        firePropertyChange(CLASSIFY_NODE_PROPERTY, null, this);
-    }
-    
     /**
      * Creates a new leaf node.
      * 
@@ -117,6 +111,12 @@ public class ImageNode
         canvas = new ThumbnailCanvas(this);
         getInternalDesktop().add(canvas);
         setCanvasSize(t.getWidth(), t.getHeight());
+    }
+    
+    /** Fired a property change event to bring up the classification widget. */
+    public void fireClassification()
+    {
+        firePropertyChange(CLASSIFY_NODE_PROPERTY, null, this);
     }
     
     /**

@@ -188,10 +188,9 @@ public abstract class ImageDisplay
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet();
     }
-
-    
+ 
     /** Fired a property change event to bring up the annotation widget. */
-    protected void fireAnnotation()
+    public void fireAnnotation()
     {
         if ((hierarchyObject instanceof ImageData) ||
                 (hierarchyObject instanceof DatasetData))
