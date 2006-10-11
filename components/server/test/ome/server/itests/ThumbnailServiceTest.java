@@ -98,8 +98,9 @@ public class ThumbnailServiceTest
     @Test( groups = {"ticket:410","tickets:218"} )
     public void testThumbnailsDirect() throws Exception {
     	
-		RenderingDef def = qs
-			.findAll(RenderingDef.class, null).get(0);
+		RenderingDef def = (RenderingDef) qs.findAllByQuery(
+				"from RenderingDef where pixels.sizeX > 8 and pixels.sizeY > 8",
+				null).get(0);
 		
 		Pixels p = qs.get(Pixels.class, 
 				def.getPixels().getId());
