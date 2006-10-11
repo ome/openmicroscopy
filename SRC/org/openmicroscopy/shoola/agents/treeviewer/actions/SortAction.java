@@ -41,6 +41,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,13 +62,30 @@ public class SortAction
     /** Description of the action. */
     private static final String DESCRIPTION = "Sort by name";
     
-    /** Reacts to {@link Browser}'s state change  */
+    /**
+     * Enables the action depending on the currently selected node.
+     * @see BrowserAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay == null) setEnabled(false);
+        else if (selectedDisplay.containsImages()) {
+            setEnabled(selectedDisplay.isChildrenLoaded());
+        } else setEnabled(false);
+    }
+    
+    /** 
+     * Reacts to {@link Browser}'s state change.
+     *  @see BrowserAction#onStateChange()
+     */
     protected void onStateChange()
     {
         int state = model.getState();
-        if (state == Browser.READY)
-            setEnabled(model.getBrowserType() == Browser.IMAGES_EXPLORER);
-        else setEnabled(false);
+        if (state == Browser.READY) {
+            if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
+                setEnabled(true);
+            else onDisplayChange(model.getLastSelectedDisplay());
+        } else setEnabled(false);
     }
     
     /**
