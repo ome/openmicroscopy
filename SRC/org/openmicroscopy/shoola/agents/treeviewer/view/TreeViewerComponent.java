@@ -37,6 +37,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
@@ -333,9 +335,9 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#removeObjects(DataObject)
+     * @see TreeViewer#removeObject(TreeImageDisplay)
      */
-    public void removeObjects(DataObject object)
+    public void removeObject(TreeImageDisplay node)
     {
         switch (model.getState()) {
             case READY:
@@ -345,7 +347,29 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method should only be " +
                 "invoked in the READY or NEW state.");
         }
-        model.fireDataObjectsDeletion(object);
+        if (node == null)
+            throw new IllegalArgumentException("No node to remove.");
+        if (!(node.getUserObject() instanceof DataObject))
+            throw new IllegalArgumentException("Can only remove DataObject.");
+        model.fireDataObjectsDeletion(node);
+        fireStateChange();
+    }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#removeObjects(List)
+     */
+    public void removeObjects(List nodes)
+    {
+        switch (model.getState()) {
+            case READY:
+            case NEW:  
+                break;
+            default:
+                throw new IllegalStateException("This method should only be " +
+                "invoked in the READY or NEW state.");
+        }
+        model.fireDataObjectsDeletion(nodes);
         fireStateChange();
     }
     
@@ -434,10 +458,10 @@ class TreeViewerComponent
         
         removeEditor(); //remove the currently selected editor.
         //int editor = model.getEditorType();
-        //if (editor == TreeViewer.PROPERTIES_EDITOR) {
+        if (model.getEditorType() == TreeViewer.PROPERTIES_EDITOR) {
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
-        //}
+        }
     }
 
     /**
@@ -492,6 +516,26 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * @see TreeViewer#onNodesRemoved()
+     */
+    public void onNodesRemoved()
+    {
+        if (model.getState()!= SAVE)
+            throw new IllegalStateException("This method can only be " +
+                    "invoked in the SAVE state");
+        model.setState(READY);
+        fireStateChange();
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Browser browser = model.getSelectedBrowser();
+        browser.refreshTree();
+        onSelectedDisplay();
+        setStatus(false, "", true);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
+    }
+    
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#clearFoundResults()

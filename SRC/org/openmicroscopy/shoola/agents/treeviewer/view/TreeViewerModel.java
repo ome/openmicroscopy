@@ -31,7 +31,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -244,22 +247,66 @@ class TreeViewerModel
    }
    
    /**
-    * Starts the asynchronous creation of the data 
+    * Starts the asynchronous removal of the data 
     * and sets the state to {@link TreeViewer#SAVE}.
     * 
-    * @param object The <code>DataObject</code> to remove.
+    * @param node The node hosting the <code>DataObject</code> to remove.
     */
-   void fireDataObjectsDeletion(DataObject object)
+   void fireDataObjectsDeletion(TreeImageDisplay node)
    {
        state = TreeViewer.SAVE;
-       TreeImageDisplay parent = 
-           selectedBrowser.getLastSelectedDisplay().getParentDisplay();
+       TreeImageDisplay parent = node.getParentDisplay();
+       DataObject object = (DataObject) node.getUserObject();
        Object po = parent.getUserObject();
        DataObject data = null;
        if (!((object instanceof ProjectData) || 
                (object instanceof CategoryGroupData)))//root.
            data = ((DataObject) po);
-       currentLoader = new DataObjectRemover(component, object, data);
+       List l = new ArrayList(1);
+       l.add(object);
+       currentLoader = new DataObjectRemover(component, l, data);
+       currentLoader.load();
+   }
+   
+   /**
+    * Starts the asynchronous removal of the data and sets the state to 
+    * {@link TreeViewer#SAVE}.
+    * This method should be invoked to remove a collection of nodes of the
+    * same type.
+    * 
+    * @param nodes The nodes to remove.
+    */
+   void fireDataObjectsDeletion(List nodes)
+   {
+       state = TreeViewer.SAVE;
+       DataObject object, po;
+       Iterator i = nodes.iterator();
+       TreeImageDisplay n, parent;
+       Map map = null;
+       List toRemove = null;  
+       List l;
+       while (i.hasNext()) {
+           n = (TreeImageDisplay) i.next();
+           parent = n.getParentDisplay();
+           object = (DataObject) n.getUserObject();
+           if ((object instanceof ProjectData) || 
+                   (object instanceof CategoryGroupData)) {
+               if (toRemove == null) toRemove = new ArrayList();
+               toRemove.add(object);
+           } else {
+               po = (DataObject) parent.getUserObject();
+               if (map == null) map = new HashMap();
+               l = (List) map.get(po);
+               if (l == null) l = new ArrayList();
+               l.add(object);
+               map.put(po, l);
+           }
+       }
+       if (toRemove != null) {
+           currentLoader = new DataObjectRemover(component, toRemove, null);
+       } else { 
+           currentLoader = new DataObjectRemover(component, map);
+       }
        currentLoader.load();
    }
    

@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
@@ -42,6 +43,7 @@ import javax.swing.JDialog;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -273,11 +275,18 @@ public interface TreeViewer
     public void showProperties(DataObject object, int editorType);
     
     /**
-     * Removes the specified {@link DataObject}.
+     * Removes the {@link DataObject} hosted by the passed node.
      * 
-     * @param objects The {@link DataObject} to remove.
+     * @param object The node hosting the {@link DataObject} to remove.
      */
-    public void removeObjects(DataObject objects);
+    public void removeObject(TreeImageDisplay object);
+    
+    /**
+     * Removes the {@link DataObject}s hosted by the passed nodes.
+     * 
+     * @param nodes The nodes hosting the {@link DataObject}s to remove.
+     */
+    public void removeObjects(List nodes);
     
     /** Cancels any ongoing data loading. */
     public void cancel();
@@ -349,6 +358,9 @@ public interface TreeViewer
      * @param operation The type of operation.
      */
     public void onDataObjectSave(DataObject data, int operation);
+    
+    /** Refreshes the view when the nodes have been removed. */
+    public void onNodesRemoved();
     
     /**
      * 
