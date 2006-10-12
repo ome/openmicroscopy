@@ -119,6 +119,9 @@ class BrowserUI
     /** The component hosting the tree. */
     private JScrollPane             scrollPane;
     
+    /** Flag to indicate if we reload the root node when we refresh the tree. */
+    private boolean                 reloadRoot = true;
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -247,7 +250,7 @@ class BrowserUI
         });
         goIntoTree.addTreeExpansionListener(listener);
     }
-    
+
     /**
      * Adds the nodes to the specified parent.
      * 
@@ -255,8 +258,8 @@ class BrowserUI
      * @param nodes     The list of nodes to add.
      * @param tm        The  tree model.
      */
-    private void buildTreeNode(DefaultMutableTreeNode parent, Collection nodes, 
-                                DefaultTreeModel tm)
+    private void buildTreeNode(DefaultMutableTreeNode parent, 
+                                Collection nodes, DefaultTreeModel tm)
     {
         if (nodes.size() == 0) {
             tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
@@ -266,23 +269,23 @@ class BrowserUI
         Iterator i = nodes.iterator();
         TreeImageDisplay display;
         Set children;
+        
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
-                
                 if (children.size() != 0) {
                     buildTreeNode(display, sorter.sort(children), tm);
                     if (display.containsImages()) {
                         expandNode(display);
                         tm.reload(display);
-                    }
+                    } 
                 } else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         display, display.getChildCount());
                 }  
-            }
+            } else reloadRoot = false;
         } 
     }
     
@@ -427,10 +430,13 @@ class BrowserUI
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 root.addChildDisplay((TreeImageDisplay) i.next()) ;
+            
             buildTreeNode(root, sorter.sort(nodes), 
-                    (DefaultTreeModel) treeDisplay.getModel());
+                        (DefaultTreeModel) treeDisplay.getModel());
+            if (!reload) reload = reloadRoot;
+            reloadRoot = true;
         } else buildEmptyNode(root);
-        if (reload) dtm.reload();
+        if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -459,22 +465,21 @@ class BrowserUI
      * Adds the specifies nodes to the currently selected
      * {@link TreeImageDisplay}.
      * 
-     * @param nodes The collection of nodes to add.
+     * @param nodes     The collection of nodes to add.
+     * @param parent    The parent of the nodes.
      */
-    void setLeavesViews(Set nodes)
+    void setLeavesViews(Set nodes, TreeImageSet parent)
     {
-        TreeImageDisplay node = model.getLastSelectedDisplay();
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        if (node instanceof TreeImageNode) return;
-        node.removeAllChildren();
-        node.setChildrenLoaded(Boolean.TRUE);
+        parent.removeAllChildren();
+        parent.setChildrenLoaded(Boolean.TRUE);
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())
-                node.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(node, sorter.sort(nodes), dtm);
-        } else buildEmptyNode(node);
-        dtm.reload(node);
+                parent.addChildDisplay((TreeImageDisplay) i.next()) ;
+            buildTreeNode(parent, sorter.sort(nodes), dtm);
+        } else buildEmptyNode(parent);
+        dtm.reload(parent);
         if (!model.isMainTree()) loadGoIntoTree();
     }
     

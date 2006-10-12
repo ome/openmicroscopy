@@ -224,11 +224,12 @@ public interface Browser
      * Callback used by a data loader to set the leaves contained in the 
      * currently selected node.
      * 
-     * @param leaves The collection of leaves.
+     * @param leaves    The collection of leaves.
+     * @param parent    The parent of the leaves.
      * @throws IllegalStateException If the current state is not 
      *                               {@link #LOADING_LEAVES}.
      */
-    public void setLeaves(Set leaves);
+    public void setLeaves(Set leaves, TreeImageSet parent);
     
     /** 
      * Returns the type of this browser.

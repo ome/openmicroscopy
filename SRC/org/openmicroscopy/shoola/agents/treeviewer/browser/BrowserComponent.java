@@ -343,9 +343,9 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setLeaves(Set)
+     * @see Browser#setLeaves(Set, TreeImageSet)
      */
-    public void setLeaves(Set leaves)
+    public void setLeaves(Set leaves, TreeImageSet parent)
     {
         if (model.getState() != LOADING_LEAVES)
             throw new IllegalStateException(
@@ -356,7 +356,7 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
-        view.setLeavesViews(visLeaves);
+        view.setLeavesViews(visLeaves, parent);
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();

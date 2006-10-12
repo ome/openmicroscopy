@@ -309,19 +309,20 @@ class BrowserModel
     {
         Set ids = new HashSet(nodes.size());
         Iterator i = nodes.iterator();
+        Class klass = null;
         if (filterType == Browser.IN_DATASET_FILTER) {
             while (i.hasNext())
                 ids.add(new Long(((DatasetData) i.next()).getId()));
-            currentLoader = new ImagesInContainerLoader(component, 
-                                            DatasetData.class, ids, true);
+            klass = DatasetData.class;
         } else if (filterType == Browser.IN_CATEGORY_FILTER) {
             while (i.hasNext())
                 ids.add(new Long(((CategoryData) i.next()).getId()));
-            currentLoader = new ImagesInContainerLoader(component, 
-                                                CategoryData.class, ids, true);
+            klass =  CategoryData.class;
         }
-        currentLoader.load();
         state = Browser.LOADING_DATA;
+        currentLoader = new ImagesInContainerLoader(component, klass, ids, 
+                                                    null);
+        currentLoader.load();
     }
     
     /**
@@ -331,7 +332,9 @@ class BrowserModel
      */
     void fireLeavesLoading()
     {
-        Object ho = getLastSelectedDisplay().getUserObject();
+        TreeImageDisplay node = getLastSelectedDisplay();
+        if (node instanceof TreeImageNode) return;
+        Object ho = node.getUserObject();
         long id = 0;
         Class nodeType = null;
         if (ho instanceof DatasetData) {
@@ -343,7 +346,8 @@ class BrowserModel
         } else 
             throw new IllegalArgumentException("Not valid selected display");
         state = Browser.LOADING_LEAVES;
-        currentLoader = new ImagesInContainerLoader(component, nodeType, id);
+        currentLoader = new ImagesInContainerLoader(component, nodeType, id,
+                                                    (TreeImageSet) node);
         currentLoader.load();
     }
 
@@ -536,8 +540,9 @@ class BrowserModel
     {
         TreeImageDisplay d  = getLastSelectedDisplay();
         if (d == null) return;
-        if (d.getUserObject() instanceof ImageData) {
-            ViewCmd cmd = new ViewCmd(parent);
+        Object o = d.getUserObject();
+        if (o instanceof ImageData) {
+            ViewCmd cmd = new ViewCmd(parent, (ImageData) o);
             cmd.execute();
         }
     }
