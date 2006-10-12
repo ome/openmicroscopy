@@ -37,6 +37,9 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -116,8 +119,11 @@ public class DataObjectEditor
     {
         if (operation == TreeViewer.UPDATE_OBJECT)
             handle = dmView.updateDataObject(userObject, this);
-        else if (operation == TreeViewer.DELETE_OBJECT)   
-            handle = dmView.removeDataObject(userObject, parent, this);
+        else if (operation == TreeViewer.DELETE_OBJECT) {
+            List l = new ArrayList(1);
+            l.add(userObject);
+            handle = dmView.removeDataObjects(l, parent, this);
+        }     
     }
 
     /**

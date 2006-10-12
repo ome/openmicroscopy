@@ -128,7 +128,7 @@ public class ExistingObjectsSaver
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.getSelectedBrowser().refresh();
+        viewer.getSelectedBrowser().refreshTree();
         //viewer.onDataObjectSave((DataObject) result, TreeViewer.UPDATE_OBJECT);
     }
     

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 import java.util.HashSet;
 import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 //Third-party libraries
@@ -66,16 +67,16 @@ public class ImagesInContainerLoader
     public static final int CATEGORY = 1;
     
     /** Collection of the ID of the selected nodes. */
-    private Set         nodeIDs;
-    
-    /** Indicate to add the results to the <code>root</code> node or not. */
-    private boolean     forRoot;
+    private Set             nodeIDs;
     
     /** The type of the node. */
-    private Class       nodeType;
+    private Class           nodeType;
+    
+    /** The parent of the nodes. */
+    private TreeImageSet    parent;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle      handle;
     
     /**
      * Returns the class corresponding to the specified type.
@@ -98,8 +99,11 @@ public class ImagesInContainerLoader
      *                      Mustn't be <code>null</code>.
      * @param nodeType      The type of the node.
      * @param nodeID        The ID of the node.
+     * @param parent        The parent of the nodes. If <code>null</code>, the 
+     *                      nodes are added to the root.
      */
-    public ImagesInContainerLoader(Browser viewer, Class nodeType, long nodeID)
+    public ImagesInContainerLoader(Browser viewer, Class nodeType, long nodeID, 
+                                    TreeImageSet parent)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -107,8 +111,10 @@ public class ImagesInContainerLoader
         if (nodeID < 0)
             throw new IllegalArgumentException("RootId not valid");
         this.nodeType = nodeType;
+        this.parent = parent;
         nodeIDs = new HashSet(1);
         nodeIDs.add(new Long(nodeID));
+        
     }
     
     /**
@@ -118,12 +124,11 @@ public class ImagesInContainerLoader
      *                      Mustn't be <code>null</code>.
      * @param nodeType      The type of the node.
      * @param nodeIDs       Collection of the ID of the selected nodes.
-     * @param forRoot       <code>true</code> to indicate that the results of 
-     *                      the call will should be added to the
-     *                      <code>root</code>, <code>false</code> otherwise.
+     * @param parent        The parent of the nodes. If <code>null</code>, the 
+     *                      nodes are added to the root.
      */
     public ImagesInContainerLoader(Browser viewer, Class nodeType, Set nodeIDs, 
-                                    boolean forRoot)
+                                    TreeImageSet parent)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -132,7 +137,7 @@ public class ImagesInContainerLoader
             throw new IllegalArgumentException("RootIds not valid");
         this.nodeType = nodeType;
         this.nodeIDs = nodeIDs;
-        this.forRoot = forRoot;
+        this.parent = parent;
     }
     
     /**
@@ -158,8 +163,8 @@ public class ImagesInContainerLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (forRoot) viewer.setNodes((Set) result);
-        else viewer.setLeaves((Set) result);
+        if (parent == null) viewer.setNodes((Set) result);
+        else viewer.setLeaves((Set) result, parent);
     }
  
 }
