@@ -44,7 +44,8 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
-import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 
 import static javax.ejb.TransactionAttributeType.*;
 
@@ -124,6 +125,7 @@ import omeis.providers.re.quantum.QuantizationException;
 @LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
 @Cache(NoPassivationCache.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional // TODO previously not here. examine the difference.
 public class RenderingBean extends AbstractLevel2Service 
     implements RenderingEngine, Serializable
@@ -241,7 +243,6 @@ public class RenderingBean extends AbstractLevel2Service
      * @see RenderingEngine#lookupPixels(long)
      */
     @RolesAllowed("user")
-    @TransactionAttribute(REQUIRED)
     public void lookupPixels(long pixelsId)
     {
         rwl.writeLock().lock();
@@ -268,7 +269,6 @@ public class RenderingBean extends AbstractLevel2Service
      * @see RenderingEngine#lookupRenderingDef(long)
      */
     @RolesAllowed("user")
-    @TransactionAttribute(REQUIRED)
     public void lookupRenderingDef(long pixelsId)
     {
         rwl.writeLock().lock();
@@ -294,7 +294,6 @@ public class RenderingBean extends AbstractLevel2Service
      * @see RenderingEngine#load()
      */
     @RolesAllowed("user")
-    @TransactionAttribute(REQUIRED)
     public void load()
     {
         rwl.writeLock().lock();
@@ -319,7 +318,6 @@ public class RenderingBean extends AbstractLevel2Service
      * @see RenderingEngine#getCurrentEventContext()
      */
     @RolesAllowed("user")
-    @TransactionAttribute(REQUIRED)
     public EventContext getCurrentEventContext()
     {
         return new SimpleEventContext( getSecuritySystem().getEventContext() );

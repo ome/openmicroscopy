@@ -38,6 +38,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 //Third-party libraries
@@ -71,6 +73,7 @@ import ome.parameters.Parameters;
  * </small>
  * @since OME2.2
  */
+@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=true)
 @Stateless
 @Remote(IPixels.class)

@@ -43,6 +43,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 //Third-party libraries
@@ -88,6 +90,14 @@ import ome.api.ServiceInterface;
 
 // ~ Service annotations
 // =============================================================================
+
+/* Source: EJB3 Specification
+ * Purpose:  Prevents the Container from managing transactions (CMT), and
+ * instead delegates commits and rollbacks to user code. This is, however, 
+ * managed by Spring (@Transactional below)
+ *  @see https://trac.openmicroscopy.org.uk/omero/ticket/427
+ */
+@TransactionManagement(TransactionManagementType.BEAN)
 
 /* Source: Spring
  * Purpose:  Used by EventHandler#checkReadyOnly(MethodInvocation) to deteremine

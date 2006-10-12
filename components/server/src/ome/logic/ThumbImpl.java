@@ -42,6 +42,8 @@ import java.io.OutputStream;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
@@ -85,6 +87,7 @@ import omeis.providers.re.data.PlaneDef;
  * @since 3.0
  * 
  */
+@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
 @Stateless
 @Remote(IThumb.class)

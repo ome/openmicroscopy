@@ -30,6 +30,8 @@
 package ome.services;
 
 // Java imports
+import static javax.ejb.TransactionAttributeType.REQUIRED;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
@@ -43,11 +45,14 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
 import ome.api.IPixels;
@@ -74,6 +79,8 @@ import omeis.providers.re.RenderingEngine;
  *          2005/07/05 16:13:52 $) </small>
  * @since OMERO3
  */
+@TransactionManagement(TransactionManagementType.BEAN)
+@Transactional
 @Stateful
 @Remote(RawPixelsStore.class)
 @RemoteBinding(jndiBinding="omero/remote/ome.api.RawPixelsStore")
@@ -141,6 +148,7 @@ public class RawPixelsBean extends AbstractBean
     }
     
     @RolesAllowed("user")
+    @Transactional( readOnly = true )
     public void setPixelsId( long pixelsId )
     {
         if ( id == null || id.longValue() != pixelsId )

@@ -40,6 +40,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -113,9 +115,10 @@ import ome.util.Utils;
  * @see Permissions
  * @since 3.0-M3
  */
+@TransactionManagement(TransactionManagementType.BEAN)
+@Transactional
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-@Transactional
 @Stateless
 @Remote(IAdmin.class)
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.IAdmin")

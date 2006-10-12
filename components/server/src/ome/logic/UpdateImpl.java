@@ -45,6 +45,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 // Third-party libraries
@@ -75,6 +77,7 @@ import ome.util.Utils;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
+@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=false)
 @Stateless
 @Remote(IUpdate.class)

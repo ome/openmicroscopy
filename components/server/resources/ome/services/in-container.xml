@@ -65,14 +65,18 @@
     <description>
     Scope: private
     </description>
+    <property name="userTransactionName" value="UserTransaction"/>
   </bean>
 
-  <!-- Does nothing; the Application Server	will handle this -->
   <bean id="transactionHandler" 
-        class="org.springframework.aop.interceptor.DebugInterceptor">
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
     <description>
     Scope: private
     </description>
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="transactionAttributeSource">
+      <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+    </property>
   </bean>
 
   <bean id="simpleJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">

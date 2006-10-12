@@ -40,6 +40,9 @@ package ome.logic;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+
 //Third-party libraries
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +64,7 @@ import ome.parameters.Parameters;
  * </small>
  * @since OMERO 1.0
  */
+@TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=true)
 public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
