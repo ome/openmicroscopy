@@ -52,7 +52,6 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
@@ -444,6 +443,16 @@ public class TreeViewerTranslator
         return results;
     }
     
+    /**
+     * Transforms the data objects into their corresponding 
+     * visualization objects.
+     * 
+     * @param nodes     The nodes to transform.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.    
+     * @return A set of visualization objects.
+     */
     public static Set refreshHierarchy(Map nodes, long userID, long groupID)
     {
         if (nodes == null)
@@ -453,7 +462,6 @@ public class TreeViewerTranslator
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            System.out.println(ho);
             if (isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
                     results.add(transformProject((ProjectData) ho, 
