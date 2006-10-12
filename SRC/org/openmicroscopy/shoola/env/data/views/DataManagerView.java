@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -175,13 +176,24 @@ public interface DataManagerView
      * Removes the specified <code>DataObject</code> from the specified 
      * parents.
      * 
-     * @param userObject 	The <code>DataObject</code> to remove.
+     * @param userObjects 	The <code>DataObject</code>s to remove.
      * @param parent 		The parent of the <code>DataObject</code>.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle removeDataObject(DataObject userObject, DataObject parent, 
+    public CallHandle removeDataObjects(List userObjects, DataObject parent, 
             						AgentEventListener observer);
+    
+    /**
+     * Removes the specified <code>DataObject</code> from the specified 
+     * parents.
+     * 
+     * @param objects   The <code>DataObject</code>s to remove.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle removeDataObjects(Map objects, 
+                                    AgentEventListener observer);
     
     /**
      * Counts the number of items contained in the specified containers.

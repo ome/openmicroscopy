@@ -35,6 +35,12 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -112,18 +118,43 @@ public class DataObjectSaver
     /**
      * Creates a {@link BatchCall} to update the specified {@link DataObject}.
      * 
-     * @param object	The <code>DataObject</code> to remove.
+     * @param objects	The <code>DataObject</code>s to remove.
      * @param parent    The parent of the <code>DataObject</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall remove(final DataObject object, final DataObject parent)
+    private BatchCall remove(final List objects, final DataObject parent)
     {
-        return new BatchCall("Remove Data object.") {
+        return new BatchCall("Remove Data objects.") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.removeDataObject(object, parent);
-                //result = object;
+                result = os.removeDataObjects(objects, parent);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to update the specified {@link DataObject}.
+     * 
+     * @param objects   The <code>DataObject</code>s to remove.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall remove(final Map objects)
+    {
+        return new BatchCall("Remove Data objects.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Iterator i = objects.keySet().iterator();
+                DataObject p;
+                List nodes;
+                Map results = new HashMap(objects.size());
+                while (i.hasNext()) {
+                    p = (DataObject) i.next();
+                    nodes = os.removeDataObjects((List) objects.get(p), p);
+                    results.put(p, nodes);
+                }
+                result = results;
             }
         };
     }
@@ -171,12 +202,60 @@ public class DataObjectSaver
                 saveCall = update(userObject);
                 break;
             case REMOVE:
-                saveCall = remove(userObject, parent);   
+                List l = new ArrayList(1);
+                l.add(userObject);
+                saveCall = remove(l, parent);   
                 break;
             default:
                 throw new IllegalArgumentException("Operation not supported.");
         }
     }
   
+    /**
+     * Creates a new instance.
+     * 
+     * @param userObjects   The {@link DataObject} to remove.
+     *                      Mustn't be <code>null</code>.
+     * @param parent        The parent of the <code>DataObject</code>. 
+     *                      The value is <code>null</code> if there 
+     *                      is no parent.
+     * @param index         One of the following constants: {@link #REMOVE}.
+     */
+    public  DataObjectSaver(List userObjects, DataObject parent, int index)
+    {
+        if (userObjects == null)
+            throw new IllegalArgumentException("No DataObject.");
+        if (userObjects.size() == 0)
+            throw new IllegalArgumentException("No DataObject.");
+        switch (index) {
+            case REMOVE:
+                saveCall = remove(userObjects, parent);   
+                break;
+            default:
+                throw new IllegalArgumentException("Operation not supported.");
+        }
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param objects       The {@link DataObject} to remove.
+     *                      Mustn't be <code>null</code>.
+     * @param index         One of the following constants: {@link #REMOVE}.
+     */
+    public DataObjectSaver(Map objects, int index)
+    {
+        if (objects == null)
+            throw new IllegalArgumentException("No DataObject.");
+        if (objects.size() == 0)
+            throw new IllegalArgumentException("No DataObject.");
+        switch (index) {
+            case REMOVE:
+                saveCall = remove(objects);   
+                break;
+            default:
+                throw new IllegalArgumentException("Operation not supported.");
+        }
+    }
     
 }

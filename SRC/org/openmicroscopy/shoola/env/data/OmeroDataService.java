@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -358,7 +359,7 @@ public interface OmeroDataService
     /**
      * Unlinks the specified <code>DataObject</code> and the parent object.
      * 
-     * @param child     The child to remove. Mustn't be <code>null</code>.
+     * @param children  The children to remove. Mustn't be <code>null</code>.
      * @param parent    The child's parent. The parent is <code>null</code> if 
      *                  the child is a top node container i.e. 
      *                  <code>Project</code> or <code>Categorygroup</code>.
@@ -367,7 +368,7 @@ public interface OmeroDataService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public DataObject removeDataObject(DataObject child, DataObject parent)
+    public List removeDataObjects(List children, DataObject parent)
         throws DSOutOfServiceException, DSAccessException;
     
     /**

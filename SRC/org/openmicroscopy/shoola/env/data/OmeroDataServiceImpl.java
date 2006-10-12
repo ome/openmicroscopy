@@ -344,44 +344,62 @@ class OmeroDataServiceImpl
             ModelMapper.linkParentToChild(created, parent.asIObject());
         return  PojoMapper.asDataObject(created);
     }
-
+    
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#removeDataObject(DataObject, DataObject)
+     * @see OmeroDataService#removeDataObjects(List, DataObject)
      */
-    public DataObject removeDataObject(DataObject child, DataObject parent)
+    public List removeDataObjects(List children, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
     {
-        if (child == null) 
-            throw new IllegalArgumentException("The child cannot be null.");
-        if (!(child instanceof ImageData)) {
-            if (parent == null) { //top container
-                gateway.deleteObject(child.asIObject(),
-                                        (new PojoOptions()).map());
-            } else {
-                IObject object = ModelMapper.removeIObject(child.asIObject(),
-                        parent.asIObject());
-                PojoMapper.asDataObject(gateway.updateObject(object,
-                        (new PojoOptions()).map()));
+        if (children == null) 
+            throw new IllegalArgumentException("The children cannot be null.");
+        if (children.size() == 0) 
+            throw new IllegalArgumentException("The children cannot be null.");
+        Iterator i = children.iterator();
+        if (parent == null) {
+            int index = 0;
+            IObject[] ioObjects  = new IObject[children.size()];
+            while (i.hasNext()) {
+                ioObjects[index] = ((DataObject) i.next()).asIObject();
+                index++;
             }
+            gateway.deleteObjects(ioObjects);
         } else {
+            DataObject child;
             IObject p = parent.asIObject();
-            Image img = child.asImage();
-            IObject link = ModelMapper.unlinkChildFromParent(img, p);
-            if (link != null)
-                gateway.deleteObject(link, (new PojoOptions()).map());
-            IObject[] objects = new IObject[1];
-            objects[0] = p;
-            //objects[1] = p;
-            IObject[] results = gateway.updateObjects(objects,
-                                (new PojoOptions()).map());
-            for (int i = 0; i < results.length; i++)
-                PojoMapper.asDataObject(results[i]);
+            Image img;
+            IObject link;
+            List links = null;
+            List toUpdate = new ArrayList();
+            while (i.hasNext()) {
+                child = (DataObject) i.next();
+                if (child instanceof ImageData) {
+                    img = child.asImage();
+                    link = ModelMapper.unlinkChildFromParent(img, p);
+                    if (links == null) links = new ArrayList();
+                    if (link != null) links.add(link);
+                    if (!(toUpdate.contains(p))) toUpdate.add(p);
+                } else {
+                    toUpdate.add(ModelMapper.removeIObject(child.asIObject(), 
+                                                        p));
+                }
+            }
+            if (links != null) {
+                gateway.deleteObjects((IObject[]) 
+                        links.toArray(new IObject[links.size()]));
+            }
+            IObject[] results = gateway.updateObjects(
+                                (IObject[]) toUpdate.toArray(
+                                        new IObject[toUpdate.size()]),
+                                    (new PojoOptions()).map());
+            for (int j = 0; j < results.length; j++)
+                PojoMapper.asDataObject(results[j]);
         }
-        
-        return child;
-    }
 
+        return children;
+    }
+    
     /**
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#updateDataObject(DataObject)

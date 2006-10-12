@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -138,17 +139,28 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#removeDataObject(DataObject, DataObject, 
+     * @see DataManagerView#removeDataObjects(List, DataObject, 
      * 										AgentEventListener)
      */
-    public CallHandle removeDataObject(DataObject userObject, DataObject parent, 
+    public CallHandle removeDataObjects(List userObjects, DataObject parent, 
             						AgentEventListener observer)
     {
-        BatchCallTree cmd = new DataObjectSaver(userObject, parent, 
+        BatchCallTree cmd = new DataObjectSaver(userObjects, parent, 
                 							DataObjectSaver.REMOVE);
         return cmd.exec(observer);  
     }
     
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#removeDataObjects(Map, AgentEventListener)
+     */
+    public CallHandle removeDataObjects(Map objects,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(objects, 
+                                           DataObjectSaver.REMOVE);
+        return cmd.exec(observer);                            
+    }
     /**
      * Implemented as specified by the view interface.
      * @see DataManagerView#countContainerItems(Set, AgentEventListener)

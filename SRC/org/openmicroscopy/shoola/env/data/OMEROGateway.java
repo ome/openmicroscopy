@@ -295,7 +295,7 @@ class OMEROGateway
      *  
      * @return See above.
      */
-    private IUpdate getIUPdateService() { return entry.getUpdateService(); }
+    private IUpdate getIUpdateService() { return entry.getUpdateService(); }
     
     /**
      * Returns the {@link IThumb} service.
@@ -679,7 +679,7 @@ class OMEROGateway
     {
         try {
             //IPojos service = getIPojosService();
-            IUpdate service = getIUPdateService();
+            IUpdate service = getIUpdateService();
             service.deleteObject(object);
         } catch (Exception e) {
             handleException(e, "Cannot delete the object.");
@@ -699,7 +699,7 @@ class OMEROGateway
     {
         try {
             //IPojos service = getIPojosService();
-            IUpdate service = getIUPdateService();
+            IUpdate service = getIUpdateService();
             for (int i = 0; i < objects.length; i++) {
                 service.deleteObject(objects[i]);
             }
