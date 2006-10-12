@@ -118,8 +118,14 @@ class EditorUtil
             //details.put(INSTITUTION, "");
             
         } else {
-            details.put(NAME, data.getFirstName()+" "+data.getLastName());
-            details.put(EMAIL, data.getEmail());
+            try {
+                details.put(NAME, data.getFirstName()+" "+data.getLastName());
+                details.put(EMAIL, data.getEmail());
+            } catch (Exception e) {
+                details.put(NAME, "");
+                details.put(EMAIL, "");
+            }
+            
             //details.put(INSTITUTION, data.getInstitution());
         }
         return details;
@@ -183,9 +189,14 @@ class EditorUtil
         } else {
             details.put(NAME, data.getName());
             ExperimenterData exp = data.getOwner();
-            if (exp != null)
-                details.put(LEADER, exp.getFirstName()+" "+exp.getLastName());
-            else details.put(LEADER, "");
+            try {
+                if (exp != null) 
+                    details.put(LEADER, 
+                                exp.getFirstName()+" "+exp.getLastName());
+                else details.put(LEADER, "");
+            } catch (Exception e) {
+                details.put(LEADER, "");
+            }
         }
         return details;
     }
