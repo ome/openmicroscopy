@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -233,6 +234,13 @@ public class NullOmeroPojoService
     {
         // TODO Auto-generated method stub
         
+    }
+
+    public List removeDataObjects(List children, DataObject parent)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
