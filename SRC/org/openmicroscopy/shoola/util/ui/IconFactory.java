@@ -34,9 +34,6 @@ import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.openmicroscopy.shoola.env.ui.IconManager;
-
-
 //Java imports
 
 //Third-party libraries
@@ -99,4 +96,23 @@ class IconFactory
         return icon;
     }
 
+	/** 
+	 * Creates an {@link ImageIcon} from the specified file.
+	 * 
+	 * @param name	The file name.  Must be a valid name within the location
+	 * 				specified in the configuration file.
+	 * @return	An {@link ImageIcon} object created from the image file.  The 
+	 * 			return value will be <code>null</code> if the file couldn't be 
+	 * 			found or an image icon couldn't be created from that file.
+	 */
+	public ImageIcon getImageIcon(String name)
+	{
+		ImageIcon icon = null;
+		try {
+			String path = getResourcePathname(name);
+			URL url = IconFactory.class.getResource(path);
+			icon = new ImageIcon(url);
+		} catch (Exception e) {} 
+		return icon;
+	}
 }

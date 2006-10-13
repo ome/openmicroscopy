@@ -32,6 +32,10 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.xml.registry.infomodel.RegistryEntry;
+
+import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 
 //Third-party libraries
@@ -72,11 +76,14 @@ public class IconManager
     /** ID of the <code>Undo</code> icon. */
     public static final int UNDO = 5;
     
+    /** ID of the <code>Undo</code> icon. */
+    public static final int THUMB = 6;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 5;
+    private static int      MAX_ID = 6;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -87,6 +94,7 @@ public class IconManager
         relPaths[CANCEL] = "nuvola_cancel22.png";
         relPaths[OK] = "nuvola_button_accept22.png";
         relPaths[UNDO] = "nuvola_undo22.png";
+        relPaths[THUMB] = "sliderthumb.png";
     }
     
     /** 
@@ -121,6 +129,47 @@ public class IconManager
     public Icon getIcon(String name)
     {
         Icon icon = factory.getIcon(name);
+        if (icon == null) {
+            StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
+            buf.append("<classpath>");
+            buf.append(factory.getResourcePathname(name));
+            buf.append(".");
+        }
+        return icon;
+    }
+    
+    /** 
+     * Retrieves the icon specified by <code>id</code>.
+     * If the icon can't be retrieved, then this method will log the error and
+     * return <code>null</code>.
+     *
+     * @param id    The index of the file name in the array of file names 
+     *              specified to this class' constructor.
+     * @return  An {@link Icon} object created from the image file.  The return
+     *          value will be <code>null</code> if the file couldn't be found
+     *          or an image icon couldn't be created from that file.
+     */ 
+    public ImageIcon getImageIcon(int id)
+    {
+        if (id < 0 || relPaths.length <= id) return null;
+        return getImageIcon(relPaths[id]);
+    }
+    
+    /** 
+     * Retrieves the icon specified by <code>name</code>.
+     * If the icon can't be retrieved, then this method will log the error and
+     * return <code>null</code>.
+     *
+     * @param name    Must be one a valid icon file name within the directory
+     *                  used by the {@link IconFactory} instance specified via
+     *                  this class' constructor.
+     * @return  An {@link Icon} object created from the image file.  The return
+     *          value will be <code>null</code> if the file couldn't be found
+     *          or an image icon couldn't be created from that file.
+     */ 
+    public ImageIcon getImageIcon(String name)
+    {
+        ImageIcon icon = factory.getImageIcon(name);
         if (icon == null) {
             StringBuffer buf = new StringBuffer("Failed to retrieve icon: ");
             buf.append("<classpath>");
