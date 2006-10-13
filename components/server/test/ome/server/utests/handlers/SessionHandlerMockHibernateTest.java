@@ -144,7 +144,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         beginsTransaction(1);
         checksSessionIsOpen();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         // invocation here
         checksSessionIsConnected();
         disconnectsSession();
@@ -161,7 +161,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         beginsTransaction(2);
         checksSessionIsOpen();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         // invocation here
         checksSessionIsConnected();
         disconnectsSession();
@@ -186,7 +186,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         checksSessionIsOpen();
         checksSessionIsConnected();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         disconnectsSession();
         closesSession();
         handler.invoke( invocation );
@@ -203,7 +203,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         checksSessionIsOpen();
         checksSessionIsConnected();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         // here it throws
         disconnectsSession();
         closesSession();
@@ -219,7 +219,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         newStatefulDestroyInvocation();
         checksSessionIsOpen();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         setsFlushMode();
         opensSession();
 //        setsFlushMode(); TODO huh?
@@ -250,7 +250,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         beginsTransaction(2);
         checksSessionIsOpen();
         getsFactoryFromSession();
-        getsAutoFlushMode();
+        getsFlushMode();
         // invocation here
         checksSessionIsConnected();
         disconnectsSession();
@@ -295,20 +295,24 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
             .will( returnValue( connection ));
     }
     
-    protected void getsAutoFlushMode()
+    protected void getsFlushMode()
     {
         mockSession.expects( atLeastOnce() ).method( "getFlushMode" )
-            .will( returnValue( FlushMode.AUTO ));
+            .will( returnValue( FlushMode.MANUAL ));
     }
 
     protected void setsFlushMode()
     {
+        // done by handler
         mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
-        	.with( eq( FlushMode.COMMIT ));
+        	.with( eq( FlushMode.MANUAL ));
     }
     
     protected void getsFactoryFromSession()
     {
+    	// done by SFUtils
+        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
+    	.with( eq( FlushMode.AUTO ));
         mockSession.expects( atLeastOnce() ).method( "getSessionFactory" )
         .will( returnValue( factory ));
     }

@@ -41,9 +41,8 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry exported="true" sourcepath="/HIBERNATE_SVN/src" kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.0.cr2/hibernate-3.2.0.cr2.jar"/>
-	<classpathentry exported="true" sourcepath="/SPRING_HOME/src" kind="var" path="M2_REPO/org/springframework/spring-hibernate3/2.0-rc1/spring-hibernate3-2.0-rc1.jar"/>
-	<classpathentry exported="true" sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0-rc1/spring-mock-2.0-rc1.jar"/>
-	<classpathentry exported="true" sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring/2.0-rc1/spring-2.0-rc1.jar"/>
+	<classpathentry exported="true" sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
+	<classpathentry exported="true" sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/testng/testng/4.7-jdk15/testng-4.7-jdk15.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>

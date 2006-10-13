@@ -160,9 +160,11 @@ public class SessionHandler implements MethodInterceptor
     {
         Object result = null;
 
+        SessionStatus status = null;
         try
         {
-            newOrRestoredSession(invocation);
+        	status = newOrRestoredSession(invocation);
+        	status.session.setFlushMode( FlushMode.MANUAL );
             result = invocation.proceed();
             return result;
         }
@@ -180,7 +182,12 @@ public class SessionHandler implements MethodInterceptor
                 }
                 else
                 {
-                    disconnectSession();
+                	if (status != null )
+                	{
+                		// Guarantee that no one has changed the FlushMode
+                		status.session.setFlushMode( FlushMode.MANUAL );
+                		disconnectSession();
+                	}
                 }
             } catch (Exception e) {
                 
@@ -224,7 +231,7 @@ public class SessionHandler implements MethodInterceptor
     	// it to This, then we need to.
         else if (status == null || !status.session.isOpen())
         {
-            Session currentSession = acquireBindAndConfigureSession();
+            Session currentSession = acquireAndBindSession();
             status = new SessionStatus( currentSession );
             sessions.put(invocation.getThis(), status);
         } 
@@ -260,11 +267,10 @@ public class SessionHandler implements MethodInterceptor
         return "destroy".equals(invocation.getMethod().getName());
     }
 
-    private Session acquireBindAndConfigureSession() throws HibernateException
+    private Session acquireAndBindSession() throws HibernateException
     {
         debug("Opening and binding session.");
         Session session = factory.openSession();
-        session.setFlushMode( FlushMode.COMMIT );
         bindSession(session);
         return session;
     }
@@ -279,6 +285,11 @@ public class SessionHandler implements MethodInterceptor
         if ( ! TransactionSynchronizationManager.isSynchronizationActive())
         	throw new InternalException( "Synchronization not active for " +
         			"TransactionSynchronizationManager");
+    }
+    
+    private Session nullOrSessionBoundToThread()
+    {
+    	return isSessionBoundToThread() ? sessionBoundToThread() : null;
     }
     
     private Session sessionBoundToThread()
@@ -317,27 +328,26 @@ public class SessionHandler implements MethodInterceptor
 
     private void disconnectSession() throws HibernateException
     {
-        if (isSessionBoundToThread() && sessionBoundToThread().isConnected())
+    	Session session = nullOrSessionBoundToThread();
+        if ( session != null && session.isConnected())
         {
             debug("Session bound to thread. Disconnecting.");
-            sessionBoundToThread().disconnect();
+            session.disconnect();
         } else {
             debug("No session bound to thread. Can't disconnect.");
         }
-        
     }
     
     private void closeSession() throws Exception
     {
-
-        if (isSessionBoundToThread())
+    	Session session = nullOrSessionBoundToThread();
+        if (session != null)
         {
             debug("Session bound to thread. Closing.");
-            Session session = sessionBoundToThread();
             try
             {
                 session.connection().commit();
-                sessionBoundToThread().close();
+                session.close();
             } 
             
             finally

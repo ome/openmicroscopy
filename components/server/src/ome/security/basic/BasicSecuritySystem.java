@@ -1034,7 +1034,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	private Principal clearAndCheckPrincipal() {
 		// clear even if this fails. (make SecuritySystem unusable)
-		cd.clear();
+		clearEventContext();
 		
 		final Principal p = principalHolder.get();
 		
@@ -1100,10 +1100,16 @@ public class BasicSecuritySystem implements SecuritySystem {
 
 	public void clearLogs( )
 	{
+		if ( log.isDebugEnabled() )
+			log.debug("Clearing EventLogs.");
+		
 		cd.clearLogs();
 	}
 	
 	public void clearEventContext() {
+		if ( log.isDebugEnabled() )
+			log.debug("Clearing EventContext.");
+		
 		cd.clear();
 	}
 

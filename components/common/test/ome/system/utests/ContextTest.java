@@ -8,12 +8,9 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanReferenceFactoryBean;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.config.TypedStringValue;
-import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
