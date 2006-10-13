@@ -35,11 +35,18 @@ package org.openmicroscopy.shoola.util.ui.slider;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Paint;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
+
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 //Third-party libraries
 
@@ -70,8 +77,16 @@ class TwoKnobsSliderUI
     static final int            BUFFER = 1;
     
     /** The default color of a knob. */
-    private static final Color  KNOB_COLOR = Color.LIGHT_GRAY;
+    private static final Color  KNOB_COLOR = new Color(54,131,210,255);
     
+    /** The starting color of the gradient used in the track. */
+    private static final Color 	TRACK_GRADIENT_START = 
+    									new Color(76, 76, 76, 255);
+    
+    /** The final color of the gradient used in the track. */
+    private static final Color 	TRACK_GRADIENT_END = 
+    									new Color(176, 176, 176, 255);
+        
     /** The default color of the track. */
     private static final Color  TRACK_COLOR = Color.LIGHT_GRAY;
     
@@ -105,6 +120,9 @@ class TwoKnobsSliderUI
     /** The color of the font. */
     private Color                   fontColor;
     
+    /** The image used to draw the two knob slider.  */
+    private Image 					knobImage;
+    
     /** Initializes the components. */
     private void initialize()
     {
@@ -117,6 +135,68 @@ class TwoKnobsSliderUI
         fontColor = LINE_COLOR;
     }
 
+    /**
+     * load the thumb for the two knob slider.  
+     */
+    private void createThumbImage()
+    {
+    	// Create the thumb image 
+    	IconManager icons = IconManager.getInstance();
+    	ImageIcon knobImageIcon =  icons.getImageIcon(IconManager.THUMB);
+    	knobImage = knobImageIcon.getImage();
+    	/*
+       	* I will come back to list later to fix a nicer graphic. 
+       	* 
+       	* Graphics2D bg = thumbImage.createGraphics();
+       	bg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+       			RenderingHints.VALUE_ANTIALIAS_ON);
+
+       	bg.setColor(new Color(255,255,255,0));
+		bg.fillRect(0, 0, thumbWidth, thumbHeight);
+
+       	// set the background of the image to white
+       	bg.setColor(Color.WHITE);
+		bg.fillRoundRect(0, 0, thumbWidth, thumbHeight, thumbHeight,
+				thumbHeight);
+		
+		// Create the gradient paint for the first layer of the button
+		Color gradientStart =  KNOB_COLOR;
+		Color gradientEnd = KNOB_COLOR.darker();
+
+		Paint vPaint = new GradientPaint(0, 0, gradientStart, 0, 
+				thumbHeight, gradientEnd, false);
+
+		bg.setPaint(vPaint);
+		//	Paint the first layer of the button
+
+		bg.fillRoundRect(0, 0, thumbWidth, thumbHeight, thumbHeight, 
+				thumbHeight);
+
+		// Calulate the size of the second layer of the button
+		int highlightInset = 1;
+		int thumbHighlightHeight = thumbHeight-(highlightInset*2);
+		int thumbHighlightWidth = thumbWidth-(highlightInset * 2);
+		int highlightArcSize = thumbHighlightHeight;
+
+		// Create the paint for the second layer of the button
+		gradientStart = Color.WHITE;
+		gradientEnd = KNOB_HIGHLIGHT_COLOR.brighter();
+		vPaint = new GradientPaint(0,1, gradientStart, 0,
+				(thumbHighlightHeight/2), 
+				KNOB_COLOR.brighter(), false);
+
+		// Paint the second layer of the button
+		bg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,.8f));
+		bg.setPaint(vPaint);
+		bg.setClip(new RoundRectangle2D.Float(highlightInset, 0,
+				thumbHighlightWidth, thumbHighlightHeight/2,
+				thumbHighlightHeight/3, thumbHighlightHeight/3));
+		bg.fillRoundRect(highlightInset, 1, thumbHighlightWidth,
+				thumbHighlightHeight, highlightArcSize, highlightArcSize);
+		*/
+    }
+
+    
     /**
      * Paints the ticks.
      * 
@@ -296,19 +376,23 @@ class TwoKnobsSliderUI
     {
         int l = xPositionForValue(model.getStartValue());
         int r = xPositionForValue(model.getEndValue());
-        int w = component.getKnobWidth();
-        int h = component.getKnobHeight();
-        g2D.fill3DRect(trackRect.x, trackRect.y, trackRect.width,
-                trackRect.height-2*EXTRA, false); 
-        //Draw the knobs
-        g2D.setColor(startKnobColor);
-        g2D.fill3DRect(l-w, 0, 2*w+1, h, true);
-        g2D.setColor(endKnobColor);
-        g2D.fill3DRect(r-w, 0,  2*w+1, h, true);
-        g2D.setColor(LINE_COLOR);
-        g2D.drawLine(l, BUFFER+1, l, h-2*BUFFER);
-        g2D.drawLine(r, BUFFER+1, r, h-2*BUFFER);
-    }
+        
+        Color gradientStart = TRACK_GRADIENT_START;
+		Color gradientEnd = TRACK_GRADIENT_END;
+		Paint paint = new GradientPaint(0, trackRect.y, 
+				gradientStart, 0, trackRect.y+trackRect.height-10, 
+				gradientEnd, false);
+		g2D.setPaint(paint);
+		
+		g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
+				trackRect.height-12, trackRect.height/3, trackRect.height/3);
+	
+		//Draw the knobs
+        g2D.drawImage(knobImage, l-TwoKnobsSlider.KNOB_WIDTH/2, 1, 
+        		TwoKnobsSlider.KNOB_WIDTH, TwoKnobsSlider.KNOB_HEIGHT, null);
+        g2D.drawImage(knobImage, r-TwoKnobsSlider.KNOB_WIDTH/2, 1,
+        		TwoKnobsSlider.KNOB_WIDTH, TwoKnobsSlider.KNOB_HEIGHT, null);
+     }
     
     /**
      * Paints the track and the knobs for a vertical slider.
@@ -321,18 +405,28 @@ class TwoKnobsSliderUI
         int up = yPositionForValue(model.getEndValue());
         int w = component.getKnobWidth();
         int h = component.getKnobHeight();
-        int x = trackRect.x-w+EXTRA;
-        g2D.fill3DRect(trackRect.x, trackRect.y+h/2, trackRect.width-w,
-                        trackRect.height, false);
-        //Draw the knobs
+        int x = trackRect.x-w/2+(trackRect.width-w)/2;
+       
+    	Color gradientStart = TRACK_GRADIENT_START;
+		Color gradientEnd = TRACK_GRADIENT_END;
+		Paint paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
+				gradientStart, 
+				trackRect.x+1+trackRect.width-w-2, trackRect.y+h/2, gradientEnd,
+				false);
+
+		g2D.setPaint(paint);
+		g2D.fillRoundRect(trackRect.x+1, trackRect.y+h/2, trackRect.width-w-2,
+                trackRect.height, trackRect.width/3, trackRect.width/3);
+
+		//Draw the knobs
         g2D.setColor(startKnobColor);
-        g2D.fill3DRect(x, up, 2*w+1, h, true);
+        g2D.drawImage(knobImage, x, up, TwoKnobsSlider.KNOB_WIDTH, 
+        		TwoKnobsSlider.KNOB_HEIGHT, null);
+     
         g2D.setColor(endKnobColor);
-        g2D.fill3DRect(x, down,  2*w+1, h, true);
-        g2D.setColor(LINE_COLOR);
-        g2D.drawLine(x+1, up+h/2, x+2*w, up+h/2);
-        g2D.drawLine(x+1, down+h/2, x+2*w, down+h/2);
-    }
+        g2D.drawImage(knobImage,x, down, TwoKnobsSlider.KNOB_WIDTH, 
+        		TwoKnobsSlider.KNOB_HEIGHT, null);
+     }
     
     /**
      * Determines the boundary of each rectangle composing the slider
@@ -386,6 +480,7 @@ class TwoKnobsSliderUI
         this.component = component;
         this.model = model;
         initialize();
+        createThumbImage();
     }
     
     /**

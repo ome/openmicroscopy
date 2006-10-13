@@ -124,10 +124,10 @@ public class TwoKnobsSlider
     protected static final Dimension    PREFERRED_HORIZONTAL =
                                                     new Dimension(200, 21);
     /** The default width of a knob. */
-    private static final int            KNOB_WIDTH = 8;
+    public static final int            KNOB_WIDTH = 16;
     
     /** The default height of the knob. */
-    private static final int            KNOB_HEIGHT = 12;
+    public static final int            KNOB_HEIGHT = 16;
 
     /** The default width of the slider. */
     private static final int            DEFAULT_WIDTH = 300;
@@ -195,6 +195,11 @@ public class TwoKnobsSlider
         }
     }
     
+    /**
+     * Calculates the vertical width of the slider. 
+     * 
+     * @return See above.
+     */
     private int calculateVerticalWidth()
     {
     	int w = (KNOB_WIDTH+6)*2+6;
@@ -298,24 +303,24 @@ public class TwoKnobsSlider
         
         if (knobControl == LEFT) { //left knob moved.
             if (left < xmin) left = xmin;
-            else if (left > (xmax-2*knobWidth)) left = xmax-2*knobWidth;
+            else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
             else {
-                if (left > (right-2*knobWidth) && right < xmax ) {
+                if (left > (right-knobWidth) && right < xmax ) {
                     //push right
                     pushKnobControl = RIGHT_KNOB_PUSHED;
-                    right = left+2*knobWidth;  
+                    right = left+knobWidth;  
                     model.setEndValue(uiDelegate.xValueForPosition(right+1));
                 }   
             }
             model.setStartValue(uiDelegate.xValueForPosition(left+1));
         } else if (knobControl == RIGHT) { //right knob moved.
             if (right > xmax) right = xmax;
-            else if (right < (xmin+2*knobWidth)) right = xmin+2*knobWidth;
+            else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
             else {
-                if (right < (left+2*knobWidth) && left > xmin) {
+                if (right < (left+knobWidth) && left > xmin) {
                     //push left
                     pushKnobControl = LEFT_KNOB_PUSHED;
-                    left = right-2*knobWidth;    
+                    left = right-knobWidth;    
                     model.setStartValue(uiDelegate.xValueForPosition(left+1));
                 }
             }
