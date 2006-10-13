@@ -153,24 +153,6 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	}
 	
 	/**
-	 * Retrieves the current user's rendering settings for a particular pixels
-	 * set.
-	 * @param p a pixels set.
-	 * @return the rendering settings for the pixels set. <code>null</code> if
-	 * non-existant.
-	 */
-	private RenderingDef getRenderingDef(Pixels p)
-	{
-		Parameters param = new Parameters();
-		param.addId(p.getId());  // Pixels ID
-		param.addLong("owner",
-				getSecuritySystem().getEventContext().getCurrentUserId());
-		return (RenderingDef)
-			iQuery.findByQuery("select def from RenderingDef as def where " +
-					"def.details.owner.id = :owner and def.pixels.id = :id", param);
-	}
-	
-	/**
 	 * Creates a buffered image from a rendering engine RGB buffer without data
 	 * copying.
 	 * @param buf the rendering engine RGB buffer.
@@ -281,12 +263,11 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     /**
      * Initializes the rendering engine.
      * @param pixels the pixels set to load.
-     * @param def the rendering settings to use.
      */
-    private void initializeRenderingEngine(Pixels pixels, RenderingDef def)
+    private void initializeRenderingEngine(Pixels pixels)
     {
 		re.lookupPixels(pixels.getId());
-		re.lookupRenderingDef(def.getId());
+		re.lookupRenderingDef(pixels.getId());
 		re.load();
     }
     
@@ -324,12 +305,8 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 		int origSizeX = pixels.getSizeX();
 		int origSizeY = pixels.getSizeY();
 		
-		// Lookup user's rendering definition if one is not given to us
-		if (def == null)
-			def = getRenderingDef(pixels);
-		
 		// Retrieve our rendered data and translate to a buffered image
-		initializeRenderingEngine(pixels, def);
+		initializeRenderingEngine(pixels);
 		PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
 		pd.setZ(re.getDefaultZ());
 		RGBBuffer buf = re.render(pd);
