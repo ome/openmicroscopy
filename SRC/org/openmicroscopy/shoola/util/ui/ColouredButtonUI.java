@@ -68,37 +68,40 @@ class ColouredButtonUI
 {
 
     /** Current Colour of the button. */
-    private Color       colour;
+    private Color           colour;
 
     /** Reference to parent button. */
-    private JButton     button;
+    private JButton         button;
     
     /** The button's size, used by paint to draw onto component. */
-    private Rectangle   buttonRect;
+    private Rectangle       buttonRect;
     
     /** 
      * HSV colour user to determine the start(top) of the gradient in the
      * button.
      */
-    private HSV         gradientStartHSV;
+    private HSV             gradientStartHSV;
     
     /** The Color conversion from HSV used in the paintGradient command.*/
-    private Color       gradientStartRGB;
+    private Color           gradientStartRGB;
     
     /** 
      * HSV colour user to determine the End(bottom) of the gradient in the
      * button.
      */
-    private HSV         gradientEndHSV;
+    private HSV             gradientEndHSV;
     
     /** The Color conversion from HSV used in the paintGradient command.*/
-    private Color       gradientEndRGB;
+    private Color           gradientEndRGB;
     
     /** 
      * If true the buttons will have a grey mask painted on top of their
      * button face. 
      */
-    private boolean             greyedOut;
+    private boolean         greyedOut;
+    
+    /** The index of the derived font. */
+    private int             fontIndex;
     
     /**
      * Buttons can be greyed out, representing that the current model is
@@ -139,7 +142,7 @@ class ColouredButtonUI
     {
         HSV col = new HSV(colour);
         Font fnt = button.getFont();
-        fnt = fnt.deriveFont(Font.PLAIN, 10);
+        fnt = fnt.deriveFont(fontIndex, 10);
         g.setFont(fnt);
         FontMetrics fm = g.getFontMetrics();
         
@@ -168,43 +171,40 @@ class ColouredButtonUI
     {
         HSV col = new HSV(colour);
          // top gradient value from HSV model. 
-            float topGradientValue = col.getValue();
-            // bottom gradient value from HSV model. 
-            float bottomGradientValue = col.getValue();
-            // top and bottom gradient saturation from HSV model. 
-            float topGradientSaturation, bottomGradientSaturation;
-            
-            // if colour greyscale(achromatic) don't touch saturation
-            if (col.getSaturation() == 0)
-            {
-                topGradientSaturation = bottomGradientSaturation = 
-                    col.getSaturation();
-                // A check to see what gives greatest increase, +0.3 or *1.3 
-                // and set topGradientValue to that.
-                topGradientValue = col.getValue()+0.3f;
-                if (col.getValue()*1.3f > topGradientValue)
-                    topGradientValue = col.getValue()*1.3f;
-                if (topGradientValue>1) topGradientValue = 1;
-                // Set bottomGradientValue to 75% of colour value.
-                bottomGradientValue = col.getValue()*0.75f;      
-            }
-            else
-            {
-                // We're in a colour space. 
-                // Increase topGradientValue to 1.5 * value of colour face.
-                topGradientValue = col.getValue()*1.5f;
-                if (topGradientValue>1) topGradientValue = 1;
-                topGradientSaturation = col.getSaturation()*0.6f;
-                bottomGradientSaturation = col.getSaturation();
-            }
-            
-            gradientStartHSV = new HSV(col.getHue(), topGradientSaturation,
-                                topGradientValue, 1.0f);
-            gradientStartRGB = gradientStartHSV.toColorA();
-    
-            gradientEndHSV = new HSV(col.getHue(),
-                        bottomGradientSaturation, bottomGradientValue, 1.0f);
-            gradientEndRGB = gradientEndHSV.toColorA();
+        float topGradientValue = col.getValue();
+        // bottom gradient value from HSV model. 
+        float bottomGradientValue = col.getValue();
+        // top and bottom gradient saturation from HSV model. 
+        float topGradientSaturation, bottomGradientSaturation;
+        
+        // if colour greyscale(achromatic) don't touch saturation
+        if (col.getSaturation() == 0) {
+            topGradientSaturation = bottomGradientSaturation = 
+                col.getSaturation();
+            // A check to see what gives greatest increase, +0.3 or *1.3 
+            // and set topGradientValue to that.
+            topGradientValue = col.getValue()+0.3f;
+            if (col.getValue()*1.3f > topGradientValue)
+                topGradientValue = col.getValue()*1.3f;
+            if (topGradientValue>1) topGradientValue = 1;
+            // Set bottomGradientValue to 75% of colour value.
+            bottomGradientValue = col.getValue()*0.75f;      
+        } else {
+            // We're in a colour space. 
+            // Increase topGradientValue to 1.5 * value of colour face.
+            topGradientValue = col.getValue()*1.5f;
+            if (topGradientValue>1) topGradientValue = 1;
+            topGradientSaturation = col.getSaturation()*0.6f;
+            bottomGradientSaturation = col.getSaturation();
+        }
+        
+        gradientStartHSV = new HSV(col.getHue(), topGradientSaturation,
+                            topGradientValue, 1.0f);
+        gradientStartRGB = gradientStartHSV.toColorA();
+
+        gradientEndHSV = new HSV(col.getHue(),
+                    bottomGradientSaturation, bottomGradientValue, 1.0f);
+        gradientEndRGB = gradientEndHSV.toColorA();
     }
 
     /** 
@@ -472,6 +472,7 @@ class ColouredButtonUI
         colour = c;
         button = b;
         greyedOut = false;
+        fontIndex = Font.PLAIN;
         uninstallListeners(b);
     }
     
@@ -493,6 +494,13 @@ class ColouredButtonUI
      */
     void setColor(Color c)  { this.colour = c; }
        
+    /**
+     * Sets the index of the derived font used to paint the text.
+     * 
+     * @param index The font index. 
+     */
+    void setDeriveFont(int fontIndex) { this.fontIndex = fontIndex; }
+    
     /**
      * Overridden, Paints the button, and Renders the text in the centre of
      * the button.

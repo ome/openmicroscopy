@@ -101,6 +101,16 @@ public class ColouredButton
     public void setColor(Color c) { setBackground(c); }
     
     /**
+     * Sets the index of the derived font used to paint the text.
+     * 
+     * @param index The font index. 
+     */
+    public void setFontIndex(int index)
+    {
+        if (uiDelegate != null) uiDelegate.setDeriveFont(index);
+    }
+    
+    /**
      * Overridden. Sets the Background colour of the button, this will 
      * be used as the base colour to generate the gradient fill of the 
      * buttons. 
