@@ -65,10 +65,19 @@ class GraphicsPaneUI
     private final static Color       GREYCOLOUR = new Color(128, 128, 128, 128);
     
     /** The color of the selected area. */
-    private final static Color       RANGECOLOUR = new Color(198, 198, 198, 255);
+    private final static Color       RANGECOLOUR = new Color(32,32,32,255);
     
+    /** The color of the filled bacground area. */
+    private final static Color       FILLCOLOUR = new Color(255,245,225,255);
+
+    /** The color of the border of the histogram. */
+    private final static Color       BORDERCOLOUR = new Color(224,209,207,255);
+        
     /** The curve's stroke. */
-    private final static BasicStroke STROKE = new BasicStroke(2.0f);
+    private final static BasicStroke STROKE1_5 = new BasicStroke(1.5f);
+
+    /** The border stroke. */
+    private final static BasicStroke STROKE2 = new BasicStroke(2.0f);
     
 	/** A temporary image of a histogram */
 	private ImageIcon       histogramImage;
@@ -100,6 +109,12 @@ class GraphicsPaneUI
 				RenderingHints.VALUE_ANTIALIAS_ON);
         double width = getWidth();
         double height = getHeight();
+        g.setColor(FILLCOLOUR);
+        g.fillRect(1, 1, (int) width-1, (int) height-1);
+        g.setColor(BORDERCOLOUR);
+        g.setStroke(STROKE2);
+        g.drawRect(0, 0, (int) width-1, (int) height-1);
+        
 		g.drawImage(histogramImage.getImage(), 0, 0, (int) width-1, 
                     (int) height-1, null);
 		
@@ -108,7 +123,7 @@ class GraphicsPaneUI
 		double domainGlobalMax = model.getGlobalMax();
 		double domainMin = model.getWindowStart();
 		double domainMax = model.getWindowEnd();
-		
+
 		double domainMinScreenX = (domainMin/domainGlobalMax)*width;
 		double domainMaxScreenX = (domainMax/domainGlobalMax)*width;
 		double codomainMinScreenY = ((255-codomainMin)/255.0f)*height;
@@ -117,14 +132,19 @@ class GraphicsPaneUI
 		double codomainRangeScreen = codomainMinScreenY-codomainMaxScreenY;
 
 		g.setColor(GREYCOLOUR);
+		
+		g.fillRect(0, 0, (int) domainMinScreenX+1, (int) height);
+		g.fillRect((int) domainMaxScreenX-1, 0, (int) width, (int) height);
+
 		g.fillRect(0, 0, (int) domainMinScreenX, (int) height);
 		g.fillRect((int) domainMaxScreenX, 0, (int) width, (int) height);
 
 		g.fillRect(0, 0, (int) width, (int) codomainMaxScreenY);
 		g.fillRect(0, (int) codomainMinScreenY, (int) width, (int) height);
-
+		
 		String family = model.getFamily();
 		double coeff = model.getCurveCoefficient();
+	
 		double a = 0;
 		if (family.equals(RendererModel.LINEAR)) 
 			a = codomainRangeScreen/domainRangeScreen;
@@ -137,31 +157,32 @@ class GraphicsPaneUI
             if (domainRangeScreen <= 1) domainRangeScreen = 1;
             a = codomainRangeScreen/Math.log(domainRangeScreen);
         }	
+	
 		double b = codomainMinScreenY;
 		double currentX = domainMinScreenX-1;
 		double currentY = b;
 		double oldX, oldY;
 		
 		g.setColor(RANGECOLOUR);
-		g.setStroke(STROKE);
-	
+		g.setStroke(STROKE1_5);
+		
 		for (double x = 1; x < domainRangeScreen; x += 1) {
 				oldX = currentX;
 				oldY = currentY;
 				currentX = x+domainMinScreenX-1;
-                //currentX = x;
-				if (family.equals(RendererModel.LINEAR)) 
+         		if (family.equals(RendererModel.LINEAR)) 
 					currentY = b-a*x;
 				else if (family.equals(RendererModel.EXPONENTIAL)) 
+
 					currentY = b-a*Math.exp(Math.pow(x,	coeff));
 				else if (family.equals(RendererModel.POLYNOMIAL)) 
 					currentY = b-a*Math.pow(x, coeff);
 				else if (family.equals(RendererModel.LOGARITHMIC)) 
 					currentY = b-a*Math.log(x);
-				
 				g.drawLine((int) oldX, (int) oldY, (int) currentX,
 						(int) currentY);
 		}
+		
 	}
 	
 }
