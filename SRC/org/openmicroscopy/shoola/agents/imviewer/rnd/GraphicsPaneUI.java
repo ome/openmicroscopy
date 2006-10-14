@@ -62,13 +62,14 @@ class GraphicsPaneUI
 {
     
     /** The color used to grey out the non selected area. */
-    private final static Color       GREYCOLOUR = new Color(128, 128, 128, 128);
+    private final static Color       GREYCOLOUR = new Color(196, 196, 196, 128);
     
     /** The color of the selected area. */
-    private final static Color       RANGECOLOUR = new Color(32,32,32,255);
+    private final static Color       RANGECOLOUR =
+    									new Color(178, 178, 178, 255);
     
     /** The color of the filled bacground area. */
-    private final static Color       FILLCOLOUR = new Color(255,245,225,255);
+    private final static Color       FILLCOLOUR = new Color(255,255,255,255);
 
     /** The color of the border of the histogram. */
     private final static Color       BORDERCOLOUR = new Color(224,209,207,255);
@@ -163,7 +164,7 @@ class GraphicsPaneUI
 		double currentY = b;
 		double oldX, oldY;
 		
-		g.setColor(RANGECOLOUR);
+		g.setColor(model.getChannelColor(model.getSelectedChannel()));
 		g.setStroke(STROKE1_5);
 		
 		for (double x = 1; x < domainRangeScreen; x += 1) {
