@@ -383,4 +383,24 @@ public interface DataManagerView
     public CallHandle addExistingObjects(DataObject parent, Set children, 
                                     AgentEventListener observer);
     
+    /**
+     * Adds the specified items to the parent.
+     * 
+     * @param objects   The objects to update.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle addExistingObjects(Map objects, 
+                                    AgentEventListener observer);
+    
+    /**
+     * 
+     * @param toPaste
+     * @param toCut
+     * @param observer
+     * @return
+     */
+    public CallHandle cutAndPaste(Map toPaste, Map toCut, 
+                                    AgentEventListener observer);
+    
 }

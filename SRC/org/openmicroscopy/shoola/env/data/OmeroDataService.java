@@ -440,5 +440,17 @@ public interface OmeroDataService
      */
     public void addExistingObjects(DataObject parent, Set children)
         throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Cuts and paste the specified nodes.
+     * 
+     * @param toPaste   The nodes to paste.
+     * @param toCut     The nodes to cut.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public void cutAndPaste(Map toPaste, Map toCut)
+        throws DSOutOfServiceException, DSAccessException;
     
 }

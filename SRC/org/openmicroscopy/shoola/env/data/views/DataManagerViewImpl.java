@@ -299,6 +299,18 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
+     * @see DataManagerView#addExistingObjects(Map, 
+     *                                          AgentEventListener)
+     */
+    public CallHandle addExistingObjects(Map toPaste, 
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ExistingObjectsSaver(toPaste, null);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
      * @see DataManagerView#refreshHierarchy(Class, List, Class, long, 
      *                                      AgentEventListener)
      */
@@ -308,6 +320,17 @@ class DataManagerViewImpl
     {
         BatchCallTree cmd = new DMRefreshLoader(rootNodeType, 
                     containerWithImages, rootLevel, rootLevelID);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#cutAndPaste(Map, Map, AgentEventListener)
+     */
+    public CallHandle cutAndPaste(Map toPaste, Map toCut, 
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toCut);
         return cmd.exec(observer);
     }
     

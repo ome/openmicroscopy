@@ -29,25 +29,25 @@
 
 package org.openmicroscopy.shoola.env.data.views.calls;
 
+
+//Java imports
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -90,6 +90,73 @@ public class ExistingObjectsSaver
                 OmeroDataService os = context.getDataService();
                 os.addExistingObjects(parent, children);
                 result = parent;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to add the given children to the 
+     * specified parent.
+     * 
+     * @param toPaste   The <code>DataObjects</code> to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final Map toPaste)
+    {
+        return new BatchCall("Loading container tree: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                Iterator i = toPaste.keySet().iterator();
+                Object p;
+                while (i.hasNext()) {
+                    p = i.next();
+                    if (p instanceof DataObject) {
+                        os.addExistingObjects((DataObject) p, (Set)
+                                toPaste.get(p));
+                    }
+                }
+                result = toPaste;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to add the given children to the 
+     * specified parent.
+     * 
+     * @param toPaste   The <code>DataObjects</code> to update.
+     * @param toRemove  The <code>DataObjects</code> to remove.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final Map toPaste, final Map toRemove)
+    {
+        return new BatchCall("Loading container tree: ") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                /*
+                Iterator i = toPaste.keySet().iterator();
+                Object p;
+                while (i.hasNext()) {
+                    p = i.next();
+                    if (p instanceof DataObject) {
+                        os.addExistingObjects((DataObject) p, (Set)
+                                toPaste.get(p));
+                    }
+                }
+                i = toRemove.keySet().iterator();
+                while (i.hasNext()) {
+                    p = i.next();
+                    if (p instanceof DataObject) {
+                        os.removeDataObjects((List) toRemove.get(p), 
+                                           (DataObject) p);
+                    }
+                }
+                */
+                os.cutAndPaste(toPaste, toRemove);
+
+                result = toPaste;
             }
         };
     }
@@ -145,6 +212,21 @@ public class ExistingObjectsSaver
         } else
             throw new IllegalArgumentException("parent object not supported");
         call = makeBatchCall(parent, children);
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param toPaste   The <code>DataObjects</code> to update. 
+     * @param toRemove  The <code>DataObjects</code> to cut. 
+     */
+    public ExistingObjectsSaver(Map toPaste, Map toRemove)
+    {
+        if (toPaste == null || toPaste.size() == 0)
+            throw new IllegalArgumentException("No item to add.");
+       
+        if (toRemove == null) call = makeBatchCall(toPaste);
+        else call = makeBatchCall(toPaste, toRemove);
     }
     
 }

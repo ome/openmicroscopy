@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -595,6 +596,17 @@ class OmeroDataServiceImpl
                     throw new IllegalArgumentException(
                             "items can only be categories.");
                 }
+        } else if (parent instanceof CategoryData) {
+            try {
+                children.toArray(new ImageData[] {});
+            } catch (ArrayStoreException ase) {
+                throw new IllegalArgumentException(
+                        "items can only be images.");
+            }
+            Set cat = new HashSet(1);
+            cat.add(parent);
+            classify(children, cat);
+            return ;
         } else
             throw new IllegalArgumentException("parent object not supported");
         
@@ -637,6 +649,29 @@ class OmeroDataServiceImpl
             }
             gateway.createObjects(array, (new PojoOptions()).map());
         } 
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#cutAndPaste(Map, Map)
+     */
+    public void cutAndPaste(Map toPaste, Map toCut)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        Iterator i = toCut.keySet().iterator();
+        Object node;
+        while (i.hasNext()) {
+            node = i.next();
+            if (node instanceof DataObject) 
+                removeDataObjects((List) toCut.get(node), (DataObject) node);
+        }
+        i = toPaste.keySet().iterator();
+        while (i.hasNext()) {
+            node = i.next();
+            if (node instanceof DataObject) 
+                addExistingObjects((DataObject) node, (Set) toPaste.get(node));
+            
+        }
     }
     
 }
