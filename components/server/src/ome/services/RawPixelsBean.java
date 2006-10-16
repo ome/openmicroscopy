@@ -35,6 +35,7 @@ import static javax.ejb.TransactionAttributeType.REQUIRED;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
 import javax.annotation.PostConstruct;
@@ -59,6 +60,7 @@ import ome.api.IPixels;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
@@ -80,7 +82,7 @@ import omeis.providers.re.RenderingEngine;
  * @since OMERO3
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly=false)
 @Stateful
 @Remote(RawPixelsStore.class)
 @RemoteBinding(jndiBinding="omero/remote/ome.api.RawPixelsStore")
@@ -148,7 +150,6 @@ public class RawPixelsBean extends AbstractBean
     }
     
     @RolesAllowed("user")
-    @Transactional( readOnly = true )
     public void setPixelsId( long pixelsId )
     {
         if ( id == null || id.longValue() != pixelsId )
@@ -186,11 +187,12 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             return buffer.calculateMessageDigest();
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
+        catch (Exception e)
+        {
+        	handleException(e);
+        }
+		return null;
     }
 
     @RolesAllowed("user")
@@ -198,17 +200,17 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        MappedByteBuffer plane;
+        MappedByteBuffer plane = null;
 		try
 		{
 			plane = buffer.getPlane(arg0, arg1, arg2);
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException(e);
+			handleException(e);
 		}
 
-        return bufferAsByteArrayWithExceptionIfNull( plane );
+		return bufferAsByteArrayWithExceptionIfNull(plane);
     }
 
     @RolesAllowed("user")
@@ -219,11 +221,12 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             return buffer.getPlaneOffset(arg0, arg1, arg2);
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
+        catch (Exception e)
+        {
+			handleException(e);
+        }
+        return null;
     }
 
     @RolesAllowed("user")
@@ -239,16 +242,15 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        MappedByteBuffer region;
+        MappedByteBuffer region = null;
         try
         {
             region = buffer.getRegion(arg0, arg1);
-        } catch (IOException e)
+        } catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+			handleException(e);
         }
-        return bufferAsByteArrayWithExceptionIfNull( region ); 
+        return bufferAsByteArrayWithExceptionIfNull(region); 
     }
 
     @RolesAllowed("user")
@@ -256,18 +258,14 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        MappedByteBuffer row;
+        MappedByteBuffer row = null;
         try
         {
             row = buffer.getRow(arg0, arg1, arg2, arg3);
-        } catch (IOException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+			handleException(e);
         }
         return bufferAsByteArrayWithExceptionIfNull( row ); 
         
@@ -281,11 +279,12 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             return buffer.getRowOffset(arg0, arg1, arg2, arg3);
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
+        catch (Exception e)
+        {
+			handleException(e);
+        }
+        return null;
     }
 
     @RolesAllowed("user")
@@ -301,18 +300,14 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        MappedByteBuffer stack;
+        MappedByteBuffer stack = null;
         try
         {
             stack = buffer.getStack(arg0, arg1);
-        } catch (IOException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+			handleException(e);
         }
         return bufferAsByteArrayWithExceptionIfNull( stack );
     }
@@ -325,11 +320,12 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             return buffer.getStackOffset(arg0, arg1);
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
+        catch (Exception e)
+        {
+			handleException(e);
+        }
+        return null;
     }
 
     @RolesAllowed("user")
@@ -345,20 +341,16 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        MappedByteBuffer timepoint;
+        MappedByteBuffer timepoint = null;
         try
         {
             timepoint = buffer.getTimepoint(arg0);
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
-        return bufferAsByteArrayWithExceptionIfNull( timepoint );
+        catch (Exception e)
+        {
+			handleException(e);
+        }
+        return bufferAsByteArrayWithExceptionIfNull(timepoint);
     }
 
     @RolesAllowed("user")
@@ -369,11 +361,12 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             return buffer.getTimepointOffset(arg0);
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
         }
+        catch (Exception e)
+        {
+			handleException(e);
+        }
+        return null;
     }
 
     @RolesAllowed("user")
@@ -400,18 +393,10 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             buffer.setPlane(arg0, arg1, arg2, arg3);
-        } catch (BufferOverflowException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+			handleException(e);
         }
     }
 
@@ -423,14 +408,10 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             buffer.setRegion(arg0, arg1, arg2);
-        } catch (BufferOverflowException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+			handleException(e);
         }
     }
 
@@ -439,8 +420,15 @@ public class RawPixelsBean extends AbstractBean
     {
         errorIfNotLoaded();
         
-        // FIXME buffer.setRow(arg0, arg1, arg2, arg3, arg4);
-        throw new RuntimeException("Not implemented yet.");
+        try
+        {
+        	ByteBuffer buf = ByteBuffer.wrap(arg0);
+        	buffer.setRow(buf, arg1, arg2, arg3, arg4);
+        }
+        catch (Exception e)
+        {
+        	handleException(e);
+        }
     }
 
     @RolesAllowed("user")
@@ -451,18 +439,10 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             buffer.setStack(arg0, arg1, arg2, arg3);
-        } catch (BufferOverflowException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+        	handleException(e);
         }
     }
 
@@ -474,18 +454,10 @@ public class RawPixelsBean extends AbstractBean
         try
         {
             buffer.setTimepoint(arg0, arg1);
-        } catch (BufferOverflowException e)
+        }
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
-        } catch (DimensionsOutOfBoundsException e)
-        {
-            e.printStackTrace();
-            throw new RuntimeException("Unimplemented exception.");
+        	handleException(e);
         }
     }
     
@@ -497,5 +469,26 @@ public class RawPixelsBean extends AbstractBean
 		byte[] b = new byte[buffer.capacity()];
 		buffer.get(b, 0, buffer.capacity());
 		return b;
+    }
+    
+    private void handleException(Exception e)
+    {
+		e.printStackTrace();
+		
+    	if (e instanceof IOException)
+		{
+			throw new ResourceError(e.getMessage());
+		}
+    	if (e instanceof DimensionsOutOfBoundsException)
+		{
+			throw new ApiUsageException(e.getMessage());
+		}
+    	if (e instanceof BufferOverflowException)
+    	{
+    		throw new ResourceError(e.getMessage());
+    	}
+
+    	// Fallthrough
+    	throw new RuntimeException(e);
     }
 }
