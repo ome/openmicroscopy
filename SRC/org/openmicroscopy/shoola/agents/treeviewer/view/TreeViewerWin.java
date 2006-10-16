@@ -108,9 +108,6 @@ class TreeViewerWin
     /** The tabbed pane hosting the {@link Browser}s. */
     private JTabbedPane 		tabs;
 
-    /** The popup menu. */
-    //private PopupMenu 			popupMenu;
-
     /** The loading window. */
     private LoadingWindow 		loadingWin;
 
@@ -248,6 +245,8 @@ class TreeViewerWin
     {
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
+        //menu.add(new JMenuItem(
+        //        controller.getAction(TreeViewerControl.CUT_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.COPY_OBJECT)));
         menu.add(new JMenuItem(

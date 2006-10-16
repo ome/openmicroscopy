@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
@@ -71,5 +72,9 @@ public class PasteCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) return;
+        model.paste(browser.getSelectedDisplays());
     }
+    
 }

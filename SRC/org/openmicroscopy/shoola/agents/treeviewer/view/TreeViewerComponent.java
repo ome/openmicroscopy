@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -775,6 +776,51 @@ class TreeViewerComponent
        view.onStateChanged(b);
        firePropertyChange(ON_COMPONENT_STATE_CHANGED_PROPERTY, oldValue, 
                                new Boolean(b));
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setNodesToCopy(TreeImageDisplay[], int)
+     */
+    public void setNodesToCopy(TreeImageDisplay[] nodes, int index)
+    {
+        //Add controls.
+        if (nodes == null || nodes.length == 0) {
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Copy action", "You first need to select " +
+                            "the nodes to copy."); 
+            return;
+        }
+        switch (index) {
+            case CUT_AND_PASTE:
+            case COPY_AND_PASTE:    
+                break;
+
+            default:
+                throw new IllegalArgumentException("Index not supported.");
+        }
+        model.setNodesToCopy(nodes, index);
+        //controller.getAction(TreeViewerControl.PASTE_OBJECT).setEnabled(true);
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#paste(TreeImageDisplay[])
+     */
+    public void paste(TreeImageDisplay[] parents)
+    {
+        UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+        if (parents == null || parents.length == 0) {
+            un.notifyInfo("Paste action", "You first need to select " +
+            "the nodes to copy into"); 
+        }
+        TreeImageDisplay[] nodes = model.getNodesToCopy();
+        if (nodes == null || nodes.length == 0) return; //shouldn't happen
+        boolean b = model.paste(parents);
+        if (!b) {
+            un.notifyInfo("Paste action", "The nodes to copy cannot " +
+            "be added to the selected nodes."); 
+        } else fireStateChange();
     }
     
 }

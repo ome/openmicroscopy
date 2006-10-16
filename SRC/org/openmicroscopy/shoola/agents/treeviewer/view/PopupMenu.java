@@ -84,6 +84,9 @@ class PopupMenu
     /** Button to add element to the specified container. */
     private JMenuItem           newElement;
     
+    /** Button to cut the selected elements. */
+    private JMenuItem           cutElement;
+    
     /** Button to copy the selected elements. */
     private JMenuItem           copyElement;
     
@@ -129,6 +132,9 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
         newElement = new JMenuItem(a);
         initMenuItem(newElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.CUT_OBJECT);
+        cutElement = new JMenuItem(a); 
+        initMenuItem(cutElement, a.getActionName());
         a = controller.getAction(TreeViewerControl.COPY_OBJECT);
         copyElement = new JMenuItem(a); 
         initMenuItem(copyElement, a.getActionName());
@@ -176,7 +182,7 @@ class PopupMenu
         IconManager im = IconManager.getInstance();
         managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         managementMenu.add(newElement);
-        //managementMenu.add(existingElement);
+        //managementMenu.add(cutElement);
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);
         managementMenu.add(deleteElement);

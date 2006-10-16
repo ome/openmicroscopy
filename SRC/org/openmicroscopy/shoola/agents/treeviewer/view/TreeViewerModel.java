@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
+import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
@@ -51,6 +54,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -120,8 +125,75 @@ class TreeViewerModel
      */
     private Finder                  finder;
     
+    /** The collection of nodes to copy. */
+    private TreeImageDisplay[]      nodesToCopy;
+    
+    /** 
+     * Either {@link TreeViewer#COPY_AND_PASTE} or 
+     * {@link TreeViewer#CUT_AND_PASTE}. 
+     */
+    private int                     copyIndex;
+    
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
+    
+    /**
+     * Builds the map linking the nodes to copy and the parents.
+     * 
+     * @param parents The parents of the node to copy.
+     * @return See above.
+     */
+    private Map buildCopyMap(TreeImageDisplay[] parents)
+    {
+        Object uo = nodesToCopy[0].getUserObject();
+        Object uoParent = parents[0].getUserObject();
+        if (!(uo instanceof DataObject)) return null;
+        if (!(uoParent instanceof DataObject)) return null;
+        DataObject obj = (DataObject) uo;
+        DataObject objParent = (DataObject) uoParent;
+
+        if (((objParent instanceof ProjectData) &&
+             (obj instanceof DatasetData)) ||  
+             ((objParent instanceof CategoryGroupData) &&
+             (obj instanceof CategoryData)) || 
+             ((objParent instanceof CategoryData) && 
+                     (obj instanceof ImageData)) || 
+             ((objParent instanceof DatasetData) && (obj instanceof ImageData)))
+        {
+            Map map;
+            Set children;
+            map = new HashMap(parents.length);
+            for (int i = 0; i < parents.length; i++) {
+                children = new HashSet(nodesToCopy.length);
+                for (int j = 0; j < nodesToCopy.length; j++) {
+                    children.add(nodesToCopy[j].getUserObject());
+                }
+                map.put(parents[i].getUserObject(), children);
+            }
+            return map;
+        } 
+        return null;
+    }
+    
+    private Map buildCutMap(TreeImageDisplay[] nodes)
+    {
+        TreeImageDisplay parent, child;
+        Map map = new HashMap();
+        Object po;
+        List children;
+        for (int i = 0; i < nodes.length; i++) {
+            child = nodes[i];
+            parent = child.getParentDisplay();
+            po = parent.getUserObject();
+            children = (List) map.get(po);
+            if (children == null) {
+                children = new ArrayList();   
+                map.put(po, children);
+            }
+            children.add(nodes[i].getUserObject());   
+        }
+        return map;
+    }
     
     /** Creates the browsers controlled by this model. */
     private void createBrowsers()
@@ -404,6 +476,52 @@ class TreeViewerModel
            currentLoader.load();
        }
        state = TreeViewer.READY;
+   }
+
+   /**
+    * Sets the collection of nodes to copy. 
+    * 
+    * @param nodes  The nodes to copy.
+    * @param index  The action index.
+    */
+   void setNodesToCopy(TreeImageDisplay[] nodes, int index)
+   {
+       copyIndex = index;
+       nodesToCopy  = nodes;
+   }
+   
+   /**
+    * Returns the nodes to copy.
+    * 
+    * @return See above.
+    */
+   TreeImageDisplay[] getNodesToCopy() { return nodesToCopy; }
+   
+   /**
+    * Copies and pastes the nodes. Returns <code>true</code> if we can perform
+    * the operation according to the selected nodes, <code>false</code>
+    * otherwise.
+    * 
+    * @param parents The parents of the nodes to copy.
+    * @return See above
+    */
+   boolean paste(TreeImageDisplay[] parents)
+   {
+       Map map = buildCopyMap(parents);
+       if (map == null) return false;
+       if (copyIndex == TreeViewer.COPY_AND_PASTE)
+           currentLoader = new DataObjectUpdater(component, map, 
+                       DataObjectUpdater.COPY_AND_PASTE);
+       else if (copyIndex == TreeViewer.CUT_AND_PASTE) {
+           Map toRemove = buildCutMap(nodesToCopy);
+           currentLoader = new DataObjectUpdater(component, map, toRemove,
+                   DataObjectUpdater.CUT_AND_PASTE);
+       }
+       
+       currentLoader.load();
+       state = TreeViewer.SAVE;
+       nodesToCopy = null;
+       return true;
    }
 
 }

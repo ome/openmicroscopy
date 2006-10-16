@@ -73,7 +73,9 @@ public class CopyCmd
     public void execute()
     {
         Browser browser = model.getSelectedBrowser();
-        if (browser != null) return;
-        
+        if (browser == null) return;
+        model.setNodesToCopy(browser.getSelectedDisplays(), 
+                            TreeViewer.COPY_AND_PASTE);
     }
+    
 }

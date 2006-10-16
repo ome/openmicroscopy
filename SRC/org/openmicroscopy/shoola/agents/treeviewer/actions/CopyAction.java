@@ -38,10 +38,15 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.CategoryData;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * Action to copy the selected element, a {@link CopyCmd} is executed.
@@ -62,7 +67,26 @@ public class CopyAction
     private static final String NAME = "Copy";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Copy the selected element.";
+    private static final String DESCRIPTION = "Copy the selected elements.";
+    
+    /** 
+     * Sets the action enabled depending on the state of the {@link Browser}.
+     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     */
+    protected void onBrowserStateChange(Browser browser)
+    {
+        if (browser == null) return;
+        switch (browser.getState()) {
+            case Browser.LOADING_DATA:
+            case Browser.LOADING_LEAVES:
+            case Browser.COUNTING_ITEMS:  
+                setEnabled(false);
+                break;
+            default:
+                onDisplayChange(browser.getLastSelectedDisplay());
+                break;
+        }
+    }
     
     /**
      * Sets the action enabled depending on the selected type.
@@ -74,8 +98,11 @@ public class CopyAction
             setEnabled(false);
             return;
         }
-        //Object ho = selectedDisplay.getUserObject();
-        //setEnabled(!(ho instanceof String)); // false if root.
+        Object ho = selectedDisplay.getUserObject(); 
+        if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
+             (ho instanceof CategoryData))
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        else setEnabled(false);
     }
     
     /**
@@ -101,6 +128,7 @@ public class CopyAction
     public void actionPerformed(ActionEvent e)
     {
         CopyCmd cmd = new CopyCmd(model);
+        System.out.println("Copy in action");
         cmd.execute();
     }
     

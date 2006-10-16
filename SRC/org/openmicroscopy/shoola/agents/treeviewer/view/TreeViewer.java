@@ -145,6 +145,12 @@ public interface TreeViewer
     /** Identifies the <code>Manager</code> menu. */
     public static final int         CLASSIFIER_MENU = 1;
     
+    /** Identifies the <code>Copy and Paste</code> action. */
+    public static final int         COPY_AND_PASTE = 400;
+    
+    /** Identifies the <code>Cut and Paste</code> action. */
+    public static final int         CUT_AND_PASTE = 401;
+    
     /** Bounds property to indicate that the data retrieval is cancelled. */
     public static final String      CANCEL_LOADING_PROPERTY = "cancelLoading";
     
@@ -485,5 +491,9 @@ public interface TreeViewer
      *          <code>false</code> otherwise.
      */
     public void onComponentStateChange(boolean b);
+
+    public void setNodesToCopy(TreeImageDisplay[] nodes, int index);
+    
+    public void paste(TreeImageDisplay[] parents);
     
 }
