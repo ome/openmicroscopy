@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -71,6 +73,15 @@ class TabbedPaneUI
 	extends JPanel
 	implements ChangeListener
 {
+	
+	/** Used by card layout to select colour wheel panel. */
+	static final String COLOURWHEELPANE = "Colour Wheel Pane"; 	
+	
+	/** Used by card layout to select RGB Slider panel. */
+	static final String RGBSLIDERPANE = "RGB Slider Pane"; 	
+	
+	/** Used by card layout to select swatch panel. */
+	static final String SWATCHPANE = "Swatch Pane"; 	
 	
 	/**
 	 * Toolbar contains the buttons to select the HSVWheelUI, RGB Selector
@@ -128,6 +139,15 @@ class TabbedPaneUI
 	
 	/** Containing the Swatch UI. */
 	private ColourSwatchUI 	swatchPane;
+	
+	/** Layout manager for the colourwheel, slider and swatch panels. */
+	private CardLayout 		tabPaneLayout;
+	
+	/** 
+	 * Container for the layout manager above. Containers colourwheel, slider 
+	 * and swatch panels.
+	 */
+	private JPanel			tabPanel;
 	
 	/**
 	 * Paintpot pane will be displayed at the top of the window, above selected
@@ -278,63 +298,25 @@ class TabbedPaneUI
                 
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-        container.add(toolbar , BorderLayout.WEST);
+        container.add(toolbar);
         container.add(Box.createHorizontalBox());
         container.add(userActionbar, BorderLayout.EAST);
-        this.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 40;
-		gbc.weighty = 0;
-		gbc.anchor = GridBagConstraints.NORTH;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0, 5, 0, 5);
-		
-        this.add(container, gbc);
-        gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 100;
-		gbc.weighty = 100;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(5, 5, 0, 5);
-		
-        this.add(paintPotPane, gbc);
-        
-        gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weightx = 500;
-		gbc.weighty = 500;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0, 0, 0, 0);
-        
-		this.add(colourWheelPane, gbc);
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weightx = 100;
-		gbc.weighty = 300;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0, 0, 0, 0);
-	       
-        this.add(RGBSliderPane, gbc);
-        
-        gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weightx = 100;
-		gbc.weighty = 1700;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0, 0, 0, 0);
-	       
-        this.add(swatchPane, gbc);
-        RGBSliderPane.setVisible(false);
-        swatchPane.setVisible(false);
-        colourWheelButton.setSelected(true);
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(container);
+        paintPotPane.setPreferredSize(new Dimension(260,20));
+        add(Box.createVerticalStrut(5));
+        add(paintPotPane);
+        add(Box.createVerticalStrut(5));
+        tabPanel = new JPanel();
+        tabPaneLayout = new CardLayout();
+        tabPanel.setLayout(tabPaneLayout);
+        tabPanel.add(colourWheelPane,COLOURWHEELPANE);
+        tabPanel.add(RGBSliderPane,RGBSLIDERPANE);
+        tabPanel.add(swatchPane,SWATCHPANE);
+        add(tabPanel);
         colourWheelPane.setActive(true);
-        this.doLayout();
+        RGBSliderPane.setActive(false); 
+        
     }
     
     /** Clear all buttons. */
@@ -350,12 +332,10 @@ class TabbedPaneUI
     private void pickWheelPane()
     {   
         colourWheelButton.setSelected(true);
-        colourWheelPane.setVisible(true);
         colourWheelPane.setActive(true);
 
-        RGBSliderPane.setVisible(false);
+        tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
         RGBSliderPane.setActive(false);
-        swatchPane.setVisible(false);
         colourWheelPane.findPuck();
         colourWheelPane.refresh();
         colourWheelPane.repaint();
@@ -364,25 +344,20 @@ class TabbedPaneUI
     /** Sets swatch as picked and makes it visible. */
     private void pickSwatchPane()
     {   
+        tabPaneLayout.show(tabPanel,SWATCHPANE);
         colourSwatchButton.setSelected(true);
-        colourWheelPane.setVisible(false);
-        RGBSliderPane.setVisible(false);
         RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
-        swatchPane.setVisible(true);
         this.doLayout();
     }
     
     /** Sets RGBSlider as picked and makes it visible. */
     private void pickRGBSliderPane()
     {
+        tabPaneLayout.show(tabPanel,RGBSLIDERPANE);
         RGBSlidersButton.setSelected(true);
-        RGBSliderPane.setVisible(true);
-
         RGBSliderPane.setActive(true);
-        colourWheelPane.setVisible(false);
         colourWheelPane.setActive(false);
-        swatchPane.setVisible(false);
         
         this.doLayout();
         RGBSliderPane.refresh();
