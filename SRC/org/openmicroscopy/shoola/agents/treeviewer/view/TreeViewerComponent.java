@@ -456,13 +456,12 @@ class TreeViewerComponent
                         "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
                         "state");
         }
-        
-        removeEditor(); //remove the currently selected editor.
-        //int editor = model.getEditorType();
-        if (model.getEditorType() == TreeViewer.PROPERTIES_EDITOR) {
+        int editor = model.getEditorType();
+        if (editor != TreeViewer.CREATE_EDITOR) {
+            removeEditor();
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
-        }
+        } else removeEditor();
     }
 
     /**
@@ -534,7 +533,6 @@ class TreeViewerComponent
         onSelectedDisplay();
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
     }
     
     /**
