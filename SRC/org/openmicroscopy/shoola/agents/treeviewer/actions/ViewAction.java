@@ -68,7 +68,7 @@ public class ViewAction
     private static final String BROWSE = "Browse";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "View the selected image or" +
+    private static final String DESCRIPTION = "View the selected image or " +
             "browse the selected project, dataset, categoryGroup or category";
     
     /**
