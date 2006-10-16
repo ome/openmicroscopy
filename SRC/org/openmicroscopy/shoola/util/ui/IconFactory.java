@@ -29,12 +29,12 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
-import java.net.URL;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 //Java imports
+import java.net.URL;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
@@ -61,7 +61,7 @@ class IconFactory
      * Points to the directory specified by the <i>location</i> tag.
      * The path is relative to the application classpath.
      */
-    private String  location = "graphx/";
+    private String  location = "graphx";
     
     /**
      * Returns the pathname of the specified file.
@@ -115,4 +115,5 @@ class IconFactory
 		} catch (Exception e) {} 
 		return icon;
 	}
+    
 }
