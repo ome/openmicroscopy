@@ -130,7 +130,10 @@ public class TwoKnobsSlider
     public static final int            KNOB_HEIGHT = 16;
 
     /** The default width of the slider. */
-    private static final int            DEFAULT_WIDTH = 300;
+    private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
+
+    /** The default width of the slider. */
+    private static final int            PREFERRED_VERTICAL_WIDTH = 21;
 
     /** Indicates that the right knob is pushed when moving the left knob. */
     private static final int            RIGHT_KNOB_PUSHED = 3;
@@ -187,12 +190,13 @@ public class TwoKnobsSlider
         if (model.isPaintLabels() || model.isPaintEndLabels())
             h += TwoKnobsSliderUI.EXTRA+fontHeight+2*TwoKnobsSliderUI.BUFFER;
         if( model.getOrientation() == VERTICAL )
-        	preferredSize_ = new Dimension(width_, h);
-        else
         {
         	width_ = calculateVerticalWidth();
-        	preferredSize_ = new Dimension(width_,h);
+        	System.err.println("Width : " + width_);
+            preferredSize_ = new Dimension(PREFERRED_VERTICAL);
         }
+        else
+        	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL_WIDTH,h);
     }
     
     /**
@@ -220,7 +224,6 @@ public class TwoKnobsSlider
         pushKnobControl = INITIAL;
         knobWidth = KNOB_WIDTH;
         knobHeight = KNOB_HEIGHT;
-        width_ = DEFAULT_WIDTH;
         calculatePreferredSize();
     }
     
@@ -685,8 +688,8 @@ public class TwoKnobsSlider
         Dimension d;
         if (getOrientation() == VERTICAL ) {
             d = new Dimension(getPreferredVerticalSize());
-            d.width = insetCache.left + insetCache.right;
-            d.width += preferredSize_.width;
+      //      d.width = insetCache.left + insetCache.right;
+      //      d.width = PREFERRED_VERTICAL_WIDTH;
         } else {
             d = new Dimension(getPreferredHorizontalSize());
             d.height = insetCache.top + insetCache.bottom;

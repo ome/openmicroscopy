@@ -444,7 +444,11 @@ class TwoKnobsSliderUI
         int x = fontWidth/2;
         if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
             x += w;
-            trackRect.setBounds(x, EXTRA, size.width-2*x, h);
+            if( model.isPaintEndLabels() )
+            	trackRect.setBounds(x, EXTRA, size.width-2*x, h);
+            else
+            	trackRect.setBounds(w/2, EXTRA, size.width-w, h);
+            	
             if (model.isPaintTicks())
                 tickRect = new Rectangle(trackRect.x,
                                         trackRect.y+trackRect.height,
@@ -455,7 +459,10 @@ class TwoKnobsSliderUI
                               fontMetrics.getHeight()+2*BUFFER);
         } else {
             int y = fontMetrics.getHeight()/2+h;
-            trackRect.setBounds(x+w-EXTRA, y, w+2*EXTRA, size.height-2*y);
+            if( model.isPaintEndLabels())
+            	trackRect.setBounds(x+w-EXTRA, y, w+2*EXTRA, size.height-2*y);
+            else
+            	trackRect.setBounds(x+w-EXTRA, h/2, w+2*EXTRA, size.height-h-h/2);
             if (model.isPaintTicks()) 
                 tickRect = new Rectangle(trackRect.x+trackRect.width,
                                         trackRect.y-h, trackRect.width,

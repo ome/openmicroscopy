@@ -303,7 +303,7 @@ class TabbedPaneUI
         container.add(userActionbar, BorderLayout.EAST);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
-        paintPotPane.setPreferredSize(new Dimension(260,20));
+        paintPotPane.setPreferredSize(new Dimension(260,24));
         add(Box.createVerticalStrut(5));
         add(paintPotPane);
         add(Box.createVerticalStrut(5));
