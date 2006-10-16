@@ -162,28 +162,14 @@ public class NullOmeroPojoService
      * @see OmeroDataService#classify(Set, Set)
      */
     public void classify(Set images, Set categories)
-            throws DSOutOfServiceException, DSAccessException
-    {
-    }
+            throws DSOutOfServiceException, DSAccessException {}
 
     /**
      * No-op implementation
      * @see OmeroDataService#declassify(Set, Set)
      */
     public void declassify(Set images, Set categories)
-            throws DSOutOfServiceException, DSAccessException
-    {
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#removeDataObject(DataObject, DataObject)
-     */
-    public DataObject removeDataObject(DataObject child, DataObject parent)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
+            throws DSOutOfServiceException, DSAccessException {}
 
     /**
      * No-op implementation
@@ -229,18 +215,28 @@ public class NullOmeroPojoService
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroDataService#addExistingObjects(DataObject, Set)
+     */
     public void addExistingObjects(DataObject parent, Set children)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        // TODO Auto-generated method stub
-        
-    }
+            throws DSOutOfServiceException, DSAccessException {}
 
+    /**
+     * No-op implementation
+     * @see OmeroDataService#removeDataObjects(List, DataObject)
+     */
     public List removeDataObjects(List children, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
     {
-        // TODO Auto-generated method stub
         return null;
     }
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#cutAndPaste(Map, Map)
+     */
+    public void cutAndPaste(Map toPaste, Map toCut)
+            throws DSOutOfServiceException, DSAccessException {}
 
 }

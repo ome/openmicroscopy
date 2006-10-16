@@ -29,18 +29,18 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-import java.awt.image.BufferedImage;
+
 
 
 //Java imports
-import omeis.providers.re.data.PlaneDef;
+import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
 import pojos.PixelsData;
 
 
@@ -63,44 +63,61 @@ public class NullRenderingService
     implements OmeroImageService
 {
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#loadRenderingControl(long)
+     */
     public RenderingControl loadRenderingControl(long pixelsID)
             throws DSOutOfServiceException, DSAccessException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#renderImage(long, PlaneDef)
+     */
     public BufferedImage renderImage(long pixelsID, PlaneDef pd)
             throws RenderingServiceException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#renderImage(long)
+     */
     public BufferedImage renderImage(long pixelsID)
             throws RenderingServiceException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#shutDown(long)
+     */
     public void shutDown(long pixelsID)
     {
-        // TODO Auto-generated method stub
-        
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnail(PixelsData, int, int)
+     */
     public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
             throws RenderingServiceException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnail(long, int, int)
+     */
     public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
             throws RenderingServiceException
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
