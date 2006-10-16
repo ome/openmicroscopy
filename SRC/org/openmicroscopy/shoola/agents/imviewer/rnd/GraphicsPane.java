@@ -157,21 +157,23 @@ class GraphicsPane
         p.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.VERTICAL;
-        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 8;
         p.add(codomainSlider,gbc);
         gbc.gridx = 1;
         gbc.weightx = 60;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(0, 0, 0, 50);
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(0, 0, 0, 0);
         p.add(uiDelegate, gbc);
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        p.add(domainSlider, gbc);
         add(p);
-        p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(domainSlider);
-        p.add(buildFieldsControls());
-        add(p);
+        
+        add(buildFieldsControls());
     }
     
     /**
