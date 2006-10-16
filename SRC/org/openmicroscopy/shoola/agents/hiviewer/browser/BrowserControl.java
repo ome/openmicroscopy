@@ -234,6 +234,7 @@ class BrowserControl
                 cmd.execute();
             }   
         }
+        
         popupTrigger = false; 
     }
 
@@ -247,7 +248,9 @@ class BrowserControl
     {
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
+       
         view.setTitle(model.currentPathString(d));
+            
         if (!model.isRollOver()) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
