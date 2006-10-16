@@ -178,11 +178,17 @@ class OmeroDataServiceImpl
                                     Class rootLevel, long rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
-        PojoOptions po = new PojoOptions();
-        setRootOptions(po, rootLevel, rootLevelID);
-        po.countsFor(new Long(getUserDetails().getId()));
-        return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
-                        po.map());
+        try {
+            PojoOptions po = new PojoOptions();
+            setRootOptions(po, rootLevel, rootLevelID);
+            po.countsFor(new Long(getUserDetails().getId()));
+            return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
+                            po.map());
+        } catch (Exception e) {
+            e.printStackTrace();
+           throw new DSAccessException(e.getMessage());
+        }
+        
     }
 
     /** 
