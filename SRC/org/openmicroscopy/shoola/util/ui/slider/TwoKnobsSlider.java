@@ -129,10 +129,10 @@ public class TwoKnobsSlider
     /** The default height of the knob. */
     public static final int            KNOB_HEIGHT = 16;
 
-    /** The default width of the slider. */
+    /** The default width of the horizontal slider. */
     private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
 
-    /** The default width of the slider. */
+    /** The default width of the vertical slider. */
     private static final int            PREFERRED_VERTICAL_WIDTH = 21;
 
     /** Indicates that the right knob is pushed when moving the left knob. */
@@ -688,8 +688,6 @@ public class TwoKnobsSlider
         Dimension d;
         if (getOrientation() == VERTICAL ) {
             d = new Dimension(getPreferredVerticalSize());
-      //      d.width = insetCache.left + insetCache.right;
-      //      d.width = PREFERRED_VERTICAL_WIDTH;
         } else {
             d = new Dimension(getPreferredHorizontalSize());
             d.height = insetCache.top + insetCache.bottom;
