@@ -212,11 +212,14 @@ public class IconManager
     /** The <code>Progress</code> icon. */
     public static int           PROGRESS = 50;
     
+    /** The <code>Declassify</code> icon. */
+    public static int           DECLASSIFY = 51;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 50;
+    private static int          MAX_ID = 51;
     
     
     /** Paths of the icon files. */
@@ -276,6 +279,7 @@ public class IconManager
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
         relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
+        relPaths[DECLASSIFY] = "declassify16.png";
     }
     
     /** The sole instance. */

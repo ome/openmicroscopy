@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.clsf;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Set;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -56,6 +58,12 @@ class ClassifierControl
     implements ChangeListener, PropertyChangeListener
 {
  
+    /** Message displayed when loading the classification. */
+    private static final String LOADING = "Retrieve the classifications";
+    
+    /** Message displayed when loading the classification. */
+    private static final String SAVING = "Save classification";
+    
     /** 
      * Reference to the {@link Classifier} component, which, in this context,
      * is regarded as the Model.
@@ -102,6 +110,15 @@ class ClassifierControl
         if (b == true) model.close();
     }
 
+    /**
+     * Classified the specified set of images.
+     * @param paths
+     */
+    void classifyImages(Set paths) 
+    {
+        model.classifyImages(paths);
+    }
+    
     /** 
      * Reacts to state changes in the {@link Classifier}.
      * @see ChangeListener#stateChanged(ChangeEvent)
@@ -110,13 +127,13 @@ class ClassifierControl
     {
         switch (model.getState()) {
             case Classifier.SAVING_CLASSIFICATION:   
-                //TreeViewerFactory.getLoadingWindow().setTitle(
-                //        TreeViewer.SAVING_TITLE);
+                view.notify(true, SAVING, false);
+                break;
             case Classifier.LOADING_CLASSIFICATION:
-                //UIUtilities.centerAndShow(TreeViewerFactory.getLoadingWindow());
+                view.notify(true, LOADING, false);
                 break;
             case Classifier.READY:
-                //TreeViewerFactory.getLoadingWindow().setVisible(false);
+                view.notify(false, "", true);
                 break;
         }
     }

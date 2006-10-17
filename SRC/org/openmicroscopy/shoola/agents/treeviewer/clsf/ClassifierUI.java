@@ -53,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -163,11 +164,8 @@ class ClassifierUI
             object = ((TreeCheckNode) i.next()).getUserObject(); 
             if (object instanceof CategoryData) paths.add(object); 
         } 
-        int m = model.getMode();
-        if (m == Classifier.CLASSIFY_MODE) 
-            model.fireClassificationSaving(paths);
-        else if (m == Classifier.DECLASSIFY_MODE)
-            model.fireDeclassificationSaving(paths);
+        controller.classifyImages(paths);
+        
     }
     
     /** Initializes the GUI components. */
@@ -178,6 +176,7 @@ class ClassifierUI
         titlePanel = new TitlePanel(getPanelTitle(), getPanelText(), 
                 getPanelNote(), im.getIcon(IconManager.CATEGORY_BIG));
         tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
+        tree.setRootVisible(false);
         if (model.getMode() == Classifier.CLASSIFY_MODE)
             tree.setSingleSelectionInParent(true);
         //Add Listeners
@@ -295,7 +294,9 @@ class ClassifierUI
         while (i.hasNext())
             root.addChildDisplay((TreeCheckNode) i.next()) ;
         buildTreeNode(root, sorter.sort(paths));
+        tree.expandPath(new TreePath(root.getPath()));
         dtm.reload();
+        
         return new JScrollPane(tree);
     }
     
@@ -408,6 +409,21 @@ class ClassifierUI
         add(getClassificationComponent(), BorderLayout.CENTER);
         validate();
         repaint();
+    }
+
+    /**
+     * Notifies the user that a data loading/saving is happening.
+     * 
+     * @param b         Pass <code>true</code> to display the cancel button 
+     *                  used to cancel any ongoing data loading/saving,
+     *                  <code>false</code> otherwise.
+     * @param text      The message displayed.
+     * @param hide      Pass <code>true</code> to hide the progress bar,
+     *                  <code>false</code> otherwise.
+     */
+    void notify(boolean b, String text, boolean hide)
+    {
+        model.getParentModel().setStatus(b, text, hide);
     }
     
 }

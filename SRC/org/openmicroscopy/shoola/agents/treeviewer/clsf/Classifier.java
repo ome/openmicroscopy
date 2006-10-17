@@ -157,6 +157,8 @@ public interface Classifier
      * @throws IllegalStateException If the current state is
      *                               {@link #DISCARDED}.
      */
-    void close();   
+    void close();
+
+    void classifyImages(Set paths);   
 
 }

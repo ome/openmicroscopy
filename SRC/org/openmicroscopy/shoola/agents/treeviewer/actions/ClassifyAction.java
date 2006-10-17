@@ -33,11 +33,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -59,12 +61,28 @@ public class ClassifyAction
     extends TreeViewerAction
 {
 
+    /** Identifies the classify action. */
+    public static final int     CLASSIFY = ClassifyCmd.CLASSIFY;
+    
+    /** Identifies the declassify action. */
+    public static final int     DECLASSIFY = ClassifyCmd.DECLASSIFY;
+    
     /** The name of the action. */
-    private static final String NAME = "Classify";
+    private static final String NAME_CLASSIFY = "Classify";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Classify the currently " +
+    private static final String DESCRIPTION_CLASSIFY = "Classify the " +
                                             "selected image.";
+    
+    /** The name of the action. */
+    private static final String NAME_DECLASSIFY = "Declassify";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION_DECLASSIFY = "Declassify the " +
+                                            "selected image.";
+    
+    /** One of the constants defined by this class. */
+    private final int index;
     
     /**
      * Sets the action enabled depending on the selected type.
@@ -76,6 +94,14 @@ public class ClassifyAction
             setEnabled(false);
             return;
         }
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+            if (browser.getBrowserType() == Browser.CATEGORY_EXPLORER && 
+                index == CLASSIFY) {
+                setEnabled(false);
+                return;
+            }    
+        }
         setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
     }
     
@@ -83,16 +109,33 @@ public class ClassifyAction
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param index One of the constants defined by this class.
      */
-    public ClassifyAction(TreeViewer model)
+    public ClassifyAction(TreeViewer model, int index)
     {
         super(model);
-        name = NAME;
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLASSIFY));
+        String d = "";
+        Icon icon = null;
+        switch (index) {
+            case CLASSIFY:
+                name = NAME_CLASSIFY;
+                d = DESCRIPTION_CLASSIFY;
+                icon = im.getIcon(IconManager.CLASSIFY);
+                this.index = index;
+                break;
+            case DECLASSIFY:
+                name = NAME_DECLASSIFY;
+                d = DESCRIPTION_DECLASSIFY;
+                icon = im.getIcon(IconManager.DECLASSIFY);
+                this.index = index;
+                break;
+            default:
+                throw new IllegalArgumentException("Index not supported.");
+        }
+        putValue(Action.NAME, name);
+        putValue(Action.SHORT_DESCRIPTION, UIUtilities.formatToolTipText(d));
+        putValue(Action.SMALL_ICON, icon);
     }
     
     /**
@@ -101,7 +144,7 @@ public class ClassifyAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        ClassifyCmd cmd = new ClassifyCmd(model, ClassifyCmd.CLASSIFY);
+        ClassifyCmd cmd = new ClassifyCmd(model, index);
         cmd.execute();
     }
 

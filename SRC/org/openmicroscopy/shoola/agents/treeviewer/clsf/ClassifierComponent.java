@@ -38,9 +38,11 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ImageData;
 
@@ -69,7 +71,10 @@ class ClassifierComponent
     extends AbstractComponent
     implements Classifier
 {
-
+    
+    /** The title of the notified window. */
+    private static final String TITLE = "Classification";
+    
     /** The Model sub-component. */
     private ClassifierModel     model;
     
@@ -118,15 +123,12 @@ class ClassifierComponent
         switch (model.getState()) {
             case NEW:
                 model.fireClassificationLoading();
-                model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE,
-                                                false);
                 fireStateChange();
                 break;
             case DISCARDED:
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
         }  
-        
     }
     
     /**
@@ -175,9 +177,11 @@ class ClassifierComponent
         if (model.getState() != LOADING_CLASSIFICATION)
             throw new IllegalStateException("This method should only be " +
                     "invoked in the LOADING_CLASSIFICATION state.");
-        if (paths == null)
-            throw new IllegalArgumentException("No paths to set.");
-
+        if (paths == null || paths.size() == 0) {
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo(TITLE, "No classifications paths");
+            return;
+        }
         long userID = model.getUserID();
         long groupID = model.getParentModel().getRootGroupID();
         Set nodes = TreeViewerTranslator.transformDataObjectsCheckNode(paths,
@@ -211,7 +215,8 @@ class ClassifierComponent
                     "supported.");
         model.saveClassification(images, categories, mode);
         fireStateChange();
-        model.getParentModel().setStatus(false, "", true);
+        firePropertyChange(CLOSE_CLASSIFIER_PROPERTY, Boolean.class, 
+                                Boolean.TRUE);
     }
 
     /**
@@ -249,6 +254,28 @@ class ClassifierComponent
                     "This method cannot be invoked in the DISCARDED state.");
         firePropertyChange(CLOSE_CLASSIFIER_PROPERTY, Boolean.FALSE, 
                             Boolean.TRUE);
+    }
+
+    /**
+     * Implemented as specified by the {@link Classifier} interface.
+     * @see Classifier#classifyImages(Set)
+     */
+    public void classifyImages(Set paths)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+        if (paths == null || paths.size() == 0) {
+            UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo(TITLE, "No images to classify.");
+            return;
+        }
+        int m = model.getMode();
+        if (m == Classifier.CLASSIFY_MODE) 
+            model.fireClassificationSaving(paths);
+        else if (m == Classifier.DECLASSIFY_MODE)
+            model.fireDeclassificationSaving(paths);
+        fireStateChange();
     }
     
 }

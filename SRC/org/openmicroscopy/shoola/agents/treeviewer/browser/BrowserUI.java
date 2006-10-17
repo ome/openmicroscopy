@@ -359,6 +359,7 @@ class BrowserUI
         TreeImageDisplay copy = d.copy();
         dtm.insertNodeInto(copy, r, r.getChildCount());
         buildTreeNode(copy, sorter.sort(copy.getChildrenDisplay()), dtm);
+        reloadRoot = true;
         dtm.reload(r);
         if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
         scrollPane.getViewport().removeAll();
@@ -433,7 +434,9 @@ class BrowserUI
             
             buildTreeNode(root, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
+            System.out.println(reloadRoot+" "+reload);
             if (!reload) reload = reloadRoot;
+            
             reloadRoot = true;
         } else buildEmptyNode(root);
         if (reload) dtm.reload(root);
@@ -480,6 +483,7 @@ class BrowserUI
             buildTreeNode(parent, sorter.sort(nodes), dtm);
         } else buildEmptyNode(parent);
         dtm.reload(parent);
+        reloadRoot = true;
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -657,6 +661,7 @@ class BrowserUI
                             new TreePath(parent.getPath()));
             }
         }
+        //if (reloadRoot) dtm.reload(getTreeRoot());
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -740,6 +745,7 @@ class BrowserUI
             TreeImageDisplay copy = d.copy();
             dtm.insertNodeInto(copy, r, r.getChildCount());
             buildTreeNode(copy, copies, dtm);
+            reloadRoot = true;
             dtm.reload(r);
             if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
             scrollPane.getViewport().removeAll();

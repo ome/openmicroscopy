@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CutAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
@@ -213,8 +212,10 @@ class TreeViewerControl
                 new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
         actionsMap.put(USER_ROOT_LEVEL, new RootLevelAction(model));
         actionsMap.put(FIND,  new FinderAction(model));
-        actionsMap.put(CLASSIFY,  new ClassifyAction(model));
-        actionsMap.put(DECLASSIFY,  new DeclassifyAction(model));
+        actionsMap.put(CLASSIFY, new ClassifyAction(model,
+                                ClassifyAction.CLASSIFY));
+        actionsMap.put(DECLASSIFY, new ClassifyAction(model, 
+                                    ClassifyAction.DECLASSIFY));
         actionsMap.put(ANNOTATE,  new AnnotateAction(model));
         actionsMap.put(CLEAR,  new ClearAction(model));
         actionsMap.put(EXIT,  new ExitApplicationAction(model));

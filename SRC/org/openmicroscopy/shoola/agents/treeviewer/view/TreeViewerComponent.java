@@ -528,8 +528,13 @@ class TreeViewerComponent
         model.setState(READY);
         fireStateChange();
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        Browser browser = model.getSelectedBrowser();
-        browser.refreshTree();
+        Map browsers = model.getBrowsers();
+        Browser browser;
+        Iterator i = browsers.keySet().iterator();
+        while (i.hasNext()) {
+            browser = (Browser) browsers.get(i.next());
+            browser.refreshTree();
+        }
         onSelectedDisplay();
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -587,7 +592,8 @@ class TreeViewerComponent
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         while (b.hasNext()) {
             browser = (Browser) browsers.get(b.next());
-            browser.refreshClassification(images, categories, mode);
+            browser.refreshTree();
+            //browser.refreshClassification(images, categories, mode);
         }
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
