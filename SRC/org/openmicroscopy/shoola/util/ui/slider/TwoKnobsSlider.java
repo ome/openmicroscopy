@@ -132,9 +132,6 @@ public class TwoKnobsSlider
     /** The default width of the horizontal slider. */
     private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
 
-    /** The default width of the vertical slider. */
-    private static final int            PREFERRED_VERTICAL_WIDTH = 21;
-
     /** Indicates that the right knob is pushed when moving the left knob. */
     private static final int            RIGHT_KNOB_PUSHED = 3;
     
