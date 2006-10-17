@@ -121,12 +121,15 @@ class GraphicsPaneUI
 		
 		double codomainMin = model.getCodomainStart();
 		double codomainMax = model.getCodomainEnd();
+		double domainGlobalMin = model.getGlobalMin();
 		double domainGlobalMax = model.getGlobalMax();
 		double domainMin = model.getWindowStart();
 		double domainMax = model.getWindowEnd();
 
-		double domainMinScreenX = (domainMin/domainGlobalMax)*width;
-		double domainMaxScreenX = (domainMax/domainGlobalMax)*width;
+		double domainMinScreenX = ((domainMin-domainGlobalMin)/
+							(domainGlobalMax-domainGlobalMin))*width;
+		double domainMaxScreenX = ((domainMax-domainGlobalMin)/
+							(domainGlobalMax-domainGlobalMin))*width;
 		double codomainMinScreenY = ((255-codomainMin)/255.0f)*height;
 		double codomainMaxScreenY = ((255-codomainMax)/255.0f)*height;
 		double domainRangeScreen = domainMaxScreenX-domainMinScreenX;
