@@ -503,14 +503,10 @@ class OmeroDataServiceImpl
                     links.add(link);
             }   
         }
-        IObject[] objects = new IObject[links.size()];
-        i = links.iterator();
-        int index = 0;
-        while (i.hasNext()) {
-            objects[index] = (IObject) i.next();
-            index++;
+        if (links != null) {
+            gateway.deleteObjects((IObject[]) 
+                    links.toArray(new IObject[links.size()]));
         }
-        gateway.deleteObjects(objects);
     }
 
     /**
