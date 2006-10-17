@@ -31,15 +31,12 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Properties;
+import java.util.prefs.Preferences;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -128,22 +125,16 @@ public class LoginServiceImpl
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
             
-            //Write property.
-            Properties defaultProp = new Properties();
-            try {
-                FileInputStream in = new FileInputStream(
-                                            LookupNames.OMERO_PROPERTIES);
-                defaultProp.load(in);
-                in.close(); 
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-            String s = defaultProp.getProperty(LookupNames.OMERO_SERVER);
+            Preferences userPrefs = 
+                    Preferences.userNodeForPackage(LoginConfig.class);
+            String servers = null;
+            servers = userPrefs.get(LoginConfig.OMERO_SERVER, servers);
             String listOfServers = null;
-            if (s == null) {
+            if (servers == null) {
                 listOfServers = uc.getHostName();
             } else {
-                String[] l = s.split(LookupNames.SERVER_NAME_SEPARATOR, 0);
+                String[] l = 
+                        servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
                 if (l == null || l.length == 0) {
                     listOfServers = uc.getHostName();
                 } else {
@@ -162,16 +153,8 @@ public class LoginServiceImpl
                         listOfServers += ","+uc.getHostName();
                 }
             }
-            Properties prop = new Properties();
-            if (listOfServers != null)
-                prop.setProperty(LookupNames.OMERO_SERVER, listOfServers);
-            try {
-                FileOutputStream out = new FileOutputStream(
-                                        LookupNames.OMERO_PROPERTIES);
-                prop.store(out, "");
-                out.close();
-            } catch (Exception e) {
-                // TODO: handle exception
+            if (listOfServers != null) {
+                userPrefs.put(LoginConfig.OMERO_SERVER, listOfServers);
             }
             return true;
         } catch (DSOutOfServiceException dsose) {  //Log failure.
