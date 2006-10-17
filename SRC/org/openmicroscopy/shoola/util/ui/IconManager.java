@@ -33,9 +33,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.xml.registry.infomodel.RegistryEntry;
-
-import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 
 //Third-party libraries
