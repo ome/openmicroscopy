@@ -394,6 +394,8 @@ class ColouredButtonUI
         g.drawLine(0, 0, (int) buttonRect.getWidth(), 0);
         g.drawLine(1, 1, 1, (int) buttonRect.getHeight()-1);
         g.drawLine(1, 1, (int) buttonRect.getWidth()-1, 1);
+        g.drawLine(2, 2, 2, (int) buttonRect.getHeight()-2);
+        g.drawLine(2, 2, (int) buttonRect.getWidth()-2, 2);
         borderColour = gradientStartRGB;
         col = new HSV(borderColour);
         col.setSaturation(col.getSaturation()*0.8f);
@@ -410,9 +412,13 @@ class ColouredButtonUI
         g.drawLine(0, (int) buttonRect.getHeight()-1,
             (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
         g.drawLine((int) buttonRect.getWidth()-2, 2,
-            (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-2);
+                (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-2);
         g.drawLine(1, (int) buttonRect.getHeight()-2,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-2);
+                (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-2);
+        g.drawLine((int) buttonRect.getWidth()-3, 3,
+                    (int) buttonRect.getWidth()-3, (int) buttonRect.getHeight()-3);
+        g.drawLine(1, (int) buttonRect.getHeight()-3,
+                    (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-3);
     }
     
     /**
