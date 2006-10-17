@@ -37,7 +37,7 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.login.LoginConfig;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 /** 
@@ -95,7 +95,7 @@ class SplashScreenManager
     {
         view.server.setEditable(
                 (view.server.getSelectedItem().equals(
-                        LookupNames.DEFAULT_SERVER)));
+                        LoginConfig.DEFAULT_SERVER)));
     }
     
 	/**

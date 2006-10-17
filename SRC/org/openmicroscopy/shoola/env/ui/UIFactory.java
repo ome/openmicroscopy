@@ -31,14 +31,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.util.Properties;
+import java.util.prefs.Preferences;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.login.LoginConfig;
 
 /** 
  * Factory for the various windows and widgets used within the container.
@@ -99,31 +98,23 @@ public class UIFactory
     public static String[] getServersAsArray()
     {
         String[] listOfServers = null;
-        Properties defaultProp = new Properties();
-        try {
-            FileInputStream in = new FileInputStream(
-                                        LookupNames.OMERO_PROPERTIES);
-            defaultProp.load(in);
-            in.close(); 
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-        String s = defaultProp.getProperty(LookupNames.OMERO_SERVER);
-        if (s == null || s.length() == 0) {
+        Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
+        String servers = prefs.get(LoginConfig.OMERO_SERVER, null);
+        if (servers == null || servers.length() == 0) {
             listOfServers = new String[1];
-            listOfServers[0] = LookupNames.DEFAULT_SERVER;
+            listOfServers[0] = LoginConfig.DEFAULT_SERVER;
         } else {
-            String[] l = s.split(LookupNames.SERVER_NAME_SEPARATOR, 0);
+            String[] l = servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
             if (l == null) {
                 listOfServers = new String[1];
-                listOfServers[0] = LookupNames.DEFAULT_SERVER;
+                listOfServers[0] = LoginConfig.DEFAULT_SERVER;
             } else {
                 listOfServers = new String[l.length+1];
                 int index;
                 for (index = 0; index < l.length; index++)
                     listOfServers[index] = l[index].trim();
                 index = l.length;
-                listOfServers[index] = LookupNames.DEFAULT_SERVER;
+                listOfServers[index] = LoginConfig.DEFAULT_SERVER;
             }
         }   
         return listOfServers;
