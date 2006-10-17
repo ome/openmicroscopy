@@ -198,8 +198,7 @@ public class ZoomAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         this.zoomingIndex = zoomingIndex;
-        putValue(Action.NAME, 
-                UIUtilities.formatToolTipText(names[zoomingIndex]));
+        putValue(Action.NAME, names[zoomingIndex]);
         setName(names[zoomingIndex]);
     }
     
