@@ -76,7 +76,7 @@ public class LoginConfig
     public static final String  DEFAULT_SERVER = "new server";
     
     /** The property name for the host to connect to <i>OMERO</i>. */
-    public static final String  OMERO_SERVER = "server";
+    public static final String  OMERO_SERVER = "omeroServer";
     
     /** 
      * The address to use for connecting to <i>OMERO</i>.
