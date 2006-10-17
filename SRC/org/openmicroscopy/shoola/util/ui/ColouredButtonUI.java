@@ -503,7 +503,7 @@ class ColouredButtonUI
     /**
      * Sets the index of the derived font used to paint the text.
      * 
-     * @param index The font index. 
+     * @param fontIndex The font index. 
      */
     void setDeriveFont(int fontIndex) { this.fontIndex = fontIndex; }
     
