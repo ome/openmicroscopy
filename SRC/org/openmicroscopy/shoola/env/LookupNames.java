@@ -54,18 +54,6 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
     
-    /** Name of the properties stored on the user's machine. */
-    public static final String OMERO_PROPERTIES = "omeroProperties";
-    
-    /** Separator used when storing various servers. */
-    public static final String SERVER_NAME_SEPARATOR = ",";
-    
-    /** Default . */    
-    public static final String DEFAULT_SERVER = "new server";
-    
-    /** The property name for the host to connect to <i>OMERO</i>. */
-    public static final String OMERO_SERVER = "omero.server";
-    
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
