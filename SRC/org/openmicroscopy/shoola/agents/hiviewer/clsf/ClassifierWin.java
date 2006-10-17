@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -100,6 +101,12 @@ abstract class ClassifierWin
     final static String             CLOSED_PROPERTY = "closed";
     
     private static final Dimension  WIN_DIMENSION = new Dimension(500, 500);
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** Horizontal space between the cells in the grid. */
     static final int                H_SPACE = 5;
@@ -245,8 +252,10 @@ abstract class ClassifierWin
     {
         JToolBar bar = new JToolBar();
         bar.setRollover(true);
+        bar.setBorder(null);
         bar.setFloatable(false);
         bar.add(finishButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         return bar;
     }
