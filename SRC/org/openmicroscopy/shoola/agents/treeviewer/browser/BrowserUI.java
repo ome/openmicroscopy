@@ -215,7 +215,6 @@ class BrowserUI
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
-        //TreeImageSet root = new TreeImageSet(getBrowserTitle());
         TreeImageSet root = new TreeImageSet("");
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
@@ -352,9 +351,6 @@ class BrowserUI
         DefaultTreeModel dtm = (DefaultTreeModel) goIntoTree.getModel();
         DefaultMutableTreeNode r = (DefaultMutableTreeNode) dtm.getRoot();
         TreeImageDisplay d = model.getLastSelectedDisplay();
-        //if (!previous) //
-        //    path = goIntoTree.getLastSelectedPathComponent();
-        //if (path == null) return;
         r.removeAllChildren();
         TreeImageDisplay copy = d.copy();
         dtm.insertNodeInto(copy, r, r.getChildCount());
@@ -434,9 +430,7 @@ class BrowserUI
             
             buildTreeNode(root, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
-            System.out.println(reloadRoot+" "+reload);
             if (!reload) reload = reloadRoot;
-            
             reloadRoot = true;
         } else buildEmptyNode(root);
         if (reload) dtm.reload(root);
