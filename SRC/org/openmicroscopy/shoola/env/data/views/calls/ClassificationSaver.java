@@ -31,6 +31,9 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -40,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -104,7 +108,16 @@ public class ClassificationSaver
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                os.declassify(images, categories);
+                List l = new ArrayList(images.size());
+                Iterator i = images.iterator();
+                while (i.hasNext()) {
+                    l.add(i.next());
+                }
+                i = categories.iterator();
+                while (i.hasNext()) { 
+                    os.removeDataObjects(l, (DataObject) i.next());
+                }
+                //os.declassify(images, categories);
                 result = categories;
             }
         };
