@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -354,9 +353,9 @@ class OmeroDataServiceImpl
     
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#removeDataObjects(List, DataObject)
+     * @see OmeroDataService#removeDataObjects(Set, DataObject)
      */
-    public List removeDataObjects(List children, DataObject parent)
+    public Set removeDataObjects(Set children, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
     {
         if (children == null) 
@@ -653,6 +652,150 @@ class OmeroDataServiceImpl
         } 
     }
 
+    private void paste(DataObject parent, Set children)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        if (children == null) return;
+        Map op = (new PojoOptions()).map();
+        Iterator k = children.iterator();
+        int index = 0;
+        IObject[] io = new IObject[children.size()];
+        while (k.hasNext()) {
+            io[index] = ((DataObject) k.next()).asIObject();
+            index++;
+        }
+        
+        IObject[] r = gateway.updateObjects(io, op);
+        List objects = new ArrayList();
+        if (parent instanceof ProjectData) {
+            Project mParent = parent.asProject();
+            ProjectDatasetLink l;
+            for (int i = 0; i < r.length; i++) {
+                l = new ProjectDatasetLink();
+                l.link(mParent, (Dataset) r[i]);  
+                objects.add(l);
+            }
+        } else if (parent instanceof CategoryGroupData) {
+            CategoryGroup mParent = parent.asCategoryGroup();
+            CategoryGroupCategoryLink l;
+            for (int i = 0; i < r.length; i++) {
+                l = new CategoryGroupCategoryLink();
+                l.link(mParent, (Category) r[i]);  
+                objects.add(l);
+            }
+        } else if (parent instanceof DatasetData) {
+            Dataset mParent = parent.asDataset();
+            DatasetImageLink l;
+            System.out.println("l: "+r.length+"\n");
+            for (int i = 0; i < r.length; i++) {
+                l = new DatasetImageLink();
+                l.link(mParent, (Image) r[i]);  
+                System.out.println("l: "+l+"\n");
+                objects.add(l);
+            }
+        } else if (parent instanceof CategoryData) {
+            Category mParent = parent.asCategory();
+            CategoryImageLink l;
+            for (int i = 0; i < r.length; i++) {
+                l = new CategoryImageLink();
+                l.link(mParent, (Image) r[i]);  
+                objects.add(l);
+            }
+        }
+        index = 0;
+        io = new IObject[objects.size()];
+        k = objects.iterator();
+        while (k.hasNext()) {
+            io[index] = (IObject) k.next();
+            index++;
+        }
+        gateway.createObjects(io, op);
+    }
+    
+    private void cut(DataObject parent, Set children)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        System.out.println(((DatasetData) parent).getName());
+        if (children == null) return;
+        Map op = (new PojoOptions()).map();
+        Iterator k = children.iterator();
+        int index = 0;
+        IObject[] io = new IObject[children.size()];
+        while (k.hasNext()) {
+            io[index] = ((DataObject) k.next()).asIObject();
+            index++;
+        }
+        IObject[] r = gateway.updateObjects(io, op);
+        List objects = new ArrayList();
+        IObject mParent = parent.asIObject();
+        List links;
+        Iterator j;
+        if (parent instanceof ProjectData) {
+            ProjectDatasetLink l = null;
+            for (int i = 0; i < r.length; i++) {
+                links = ((Dataset) r[i]).collectProjectLinks(null);
+                j = links.iterator();
+                while (j.hasNext()) {
+                    l = (ProjectDatasetLink) j.next();
+                    if (l.getParent().getId().longValue() 
+                        == mParent.getId().longValue()) break;  
+                    
+                }
+                objects.add(l);
+            }
+        } else if (parent instanceof CategoryGroupData) {
+            CategoryGroupCategoryLink l = null;
+            for (int i = 0; i < r.length; i++) {
+                links = ((Category) r[i]).collectCategoryGroupLinks(null);
+                j = links.iterator();
+                while (j.hasNext()) {
+                    l = (CategoryGroupCategoryLink) j.next();
+                    if (l.getParent().getId().longValue() 
+                        == mParent.getId().longValue()) break;  
+                    
+                }
+                objects.add(l);
+            }
+        } else if (parent instanceof DatasetData) {
+            DatasetImageLink l = null;
+            for (int i = 0; i < r.length; i++) {
+                links = ((Image) r[i]).collectDatasetLinks(null);
+
+                j = links.iterator();
+                System.out.println("size: "+links.size());
+                while (j.hasNext()) {
+                    l = (DatasetImageLink) j.next();
+                    if (l.getParent().getId().longValue() 
+                        == mParent.getId().longValue()) break;  
+                    
+                }
+                objects.add(l);
+            }
+        } else if (parent instanceof CategoryData) {
+            CategoryImageLink l = null;
+            for (int i = 0; i < r.length; i++) {
+                links = ((Image) r[i]).collectCategoryLinks(null);
+                j = links.iterator();
+                while (j.hasNext()) {
+                    l = (CategoryImageLink) j.next();
+                    if (l.getParent().getId().longValue() 
+                        == mParent.getId().longValue()) break;  
+                    
+                }
+                objects.add(l);
+            }
+        }
+        index = 0;
+        io = new IObject[objects.size()];
+        k = objects.iterator();
+        while (k.hasNext()) {
+            io[index] = (IObject) k.next();
+            index++;
+        }
+        //gateway.updateObjects(io, op);
+        gateway.deleteObjects(io);
+    }
+    
     /**
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#cutAndPaste(Map, Map)
@@ -660,20 +803,77 @@ class OmeroDataServiceImpl
     public void cutAndPaste(Map toPaste, Map toCut)
             throws DSOutOfServiceException, DSAccessException
     {
-        Iterator i = toCut.keySet().iterator();
-        Object node;
-        while (i.hasNext()) {
-            node = i.next();
-            if (node instanceof DataObject) 
-                removeDataObjects((List) toCut.get(node), (DataObject) node);
+        /*
+        try {
+
+        if ((toPaste == null || toCut == null) || 
+            (toPaste.size() == 0 || toCut.size() == 0)) {
+            throw new IllegalArgumentException("No data to cut and Paste.");
         }
-        i = toPaste.keySet().iterator();
+        
+        Iterator i = toPaste.keySet().iterator();
+        DataObject parent;
         while (i.hasNext()) {
-            node = i.next();
-            if (node instanceof DataObject) 
-                addExistingObjects((DataObject) node, (Set) toPaste.get(node));
-            
+            parent = (DataObject) i.next();
+            paste(parent, (Set) toPaste.get(parent));
         }
+        
+        i = toCut.keySet().iterator();
+        while (i.hasNext()) {
+            parent = (DataObject) i.next();
+            //removeDataObjects((Set) toCut.get(parent), parent);
+            cut(parent, (Set) toCut.get(parent));
+        }
+        
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
+        
+        
+        Iterator i = toPaste.keySet().iterator();
+        DataObject parent = null;
+        IObject[] children;
+        ImageData img = null;
+        while (i.hasNext()) {
+            System.out.println("to paste 0");
+            parent = (DataObject) i.next();
+            Set imgs = (Set) toPaste.get(parent);
+            Iterator j = imgs.iterator();
+            while (j.hasNext()) {
+                img = (ImageData) j.next(); 
+            }
+        }
+        Image ioObject = null;
+        Dataset mParent = parent.asDataset();
+        DatasetImageLink l = new DatasetImageLink();
+        ioObject = (Image) gateway.updateObject(img.asIObject(), (new PojoOptions()).map());
+        l.link(mParent, ioObject);
+        gateway.createObject(l, (new PojoOptions()).map());
+        i = toCut.keySet().iterator();
+        while (i.hasNext()) {
+            System.out.println("to remove 0");
+            parent = (DataObject) i.next();
+            Set imgs = (Set) toCut.get(parent);
+            Iterator k = imgs.iterator();
+            while (k.hasNext()) {
+                img = (ImageData) k.next();
+                
+            }
+            ioObject = (Image) gateway.updateObject(img.asIObject(), (new PojoOptions()).map());
+        }
+        mParent = parent.asDataset();
+        List links = ioObject.collectDatasetLinks(null);
+        i = links.iterator();
+        DatasetImageLink link = null;
+        while (i.hasNext()) {
+            System.out.println("to remove");
+            link = (DatasetImageLink) i.next();
+            if (link.getParent().getId() == mParent.getId()) break;  
+        }
+        gateway.deleteObject(link,  (new PojoOptions()).map());
+       
     }
     
 }

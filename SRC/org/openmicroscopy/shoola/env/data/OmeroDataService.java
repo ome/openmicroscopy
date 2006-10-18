@@ -30,11 +30,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-
-
-
 //Java imports
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -368,7 +364,7 @@ public interface OmeroDataService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public List removeDataObjects(List children, DataObject parent)
+    public Set removeDataObjects(Set children, DataObject parent)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -433,7 +429,7 @@ public interface OmeroDataService
      * 
      * @param parent    The <code>DataObject</code> to update. Either a 
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
-     * @param children  The items to add.
+     * @param children  The collection of objects to add.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
