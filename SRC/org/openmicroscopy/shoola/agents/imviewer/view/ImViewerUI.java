@@ -44,6 +44,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 
@@ -211,6 +212,11 @@ class ImViewerUI
         item.setText(action.getName());
         menu.add(item);
         menu.add(createColorModelMenu());
+        menu.add(new JSeparator());
+        action = controller.getAction(ImViewerControl.SAVE);
+        item = new JMenuItem(action);
+        item.setText(action.getName());
+        menu.add(item);
         return menu;
     }
     
