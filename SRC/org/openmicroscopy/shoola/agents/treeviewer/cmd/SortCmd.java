@@ -33,12 +33,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
@@ -107,8 +109,13 @@ public class SortCmd
                                       (((TreeImageDisplay) o1).getUserObject());
                         ImageData i2 = (ImageData) 
                                     (((TreeImageDisplay) o2).getUserObject());
-                        
-                        int r = i1.getInserted().compareTo(i2.getInserted());
+                        Timestamp t1 = i1.getInserted();
+                        Timestamp t2 = i2.getInserted();
+                        if (t1 == null)
+                            t1 = TreeViewerTranslator.getDefaultTimestamp();
+                        if (t2 == null)
+                            t2 = TreeViewerTranslator.getDefaultTimestamp();
+                        int r = t1.compareTo(t2);
                         int v = 0;
                         if (r < 0) v = -1;
                         else if (r > 0) v = 1;
