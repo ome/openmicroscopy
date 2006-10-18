@@ -76,17 +76,6 @@ public class TreeViewerTranslator
 {
     
     /**
-     * Creates a default timestamp.
-     * 
-     * @return See above.
-     */
-    private static Timestamp getDefaultTimestamp()
-    {
-        Date today = new Date();
-        return new Timestamp(today.getTime());
-    }
-    
-    /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      * 
      * @param node The specified node. Mustn't be <code>null</code>.
@@ -647,6 +636,16 @@ public class TreeViewerTranslator
         return permissions.isWorldWrite();
         */
         return permissions.isGroupWrite();
+    }
+    
+    /**
+     * Creates a default timestamp.
+     * 
+     * @return See above.
+     */
+    public static Timestamp getDefaultTimestamp()
+    {
+        return new Timestamp(new Date().getTime());
     }
     
 }
