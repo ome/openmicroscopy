@@ -70,6 +70,26 @@ public class DeleteAction
     /** Name of the action. */
     private static final String NAME = "Remove";
     
+    /** Name of the action if the selected items are Datasets. */
+    private static final String NAME_PROJECT = "Remove from current project";
+    
+    /** Name of the action if the selected items are Datasets. */
+    private static final String NAME_CATEGORYGROUP = 
+            "Remove from current categoryGroup";
+    
+    /** 
+     * Name of the action if the selected items are images and 
+     * the parent is a dataset.
+     */
+    private static final String NAME_DATASET = "Remove from current dataset";
+    
+    /** 
+     * Name of the action if the selected items are images and
+     * the parent is a dataset. 
+     */
+    private static final String NAME_CATEGORY = "Remove from current category";
+    
+    
     /** Description of the action. */
     private static final String DESCRIPTION = "Remove the selected element " +
             "from the current container.";
@@ -100,9 +120,11 @@ public class DeleteAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
         if (selectedDisplay == null) {
+            name = NAME;
             setEnabled(false);
             return;
         }
+        
         /*
         if (model.getSelectedBrowser() != null) {
             if (model.getSelectedBrowser().getSelectedDisplays().length > 1) {
@@ -111,12 +133,33 @@ public class DeleteAction
             }
         }
          */
+        Browser browser = model.getSelectedBrowser();
+        if (browser == null) {
+            name = NAME;
+            setEnabled(false);
+            return;
+        } 
+        if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
+            name = NAME;
+            setEnabled(false);
+            return;
+        }
         Object ho = selectedDisplay.getUserObject(); 
-        if ((ho instanceof ProjectData) || (ho instanceof DatasetData) ||
-            (ho instanceof ImageData) || (ho instanceof CategoryData) ||
-            (ho instanceof CategoryGroupData))
+        if ((ho instanceof ProjectData) || (ho instanceof CategoryGroupData)) {
+            name = NAME;
             setEnabled(model.isObjectWritable((DataObject) ho));
-        else setEnabled(false);
+        } else if (ho instanceof DatasetData) {
+            name = NAME_PROJECT;
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        } else if (ho instanceof CategoryData) {
+            name = NAME_CATEGORYGROUP;
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        } else if (ho instanceof ImageData) {
+            Object p = selectedDisplay.getParentDisplay().getUserObject();
+            if (p instanceof DatasetData) name = NAME_DATASET;
+            else name = NAME_CATEGORY;
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        } else setEnabled(false);
     }
     
     /**
@@ -128,7 +171,7 @@ public class DeleteAction
     {
         super(model);
         name = NAME;
-        putValue(Action.NAME, NAME);
+        putValue(Action.NAME, name);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
