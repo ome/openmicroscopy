@@ -152,12 +152,17 @@ public class IconManager
     /** The <code>Histogram</code> icon. */
     public static int 			TEMPORARY_HISTOGRAM = 28;
 
+    /** The <code>Color Picker</code> icon. */
+    public static int           COLOR_PICKER = 29;
+
+    /** The <code>Info</code> icon. */
+    public static int           INFO = 30;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 28;
+    private static int          MAX_ID = 30;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -193,6 +198,8 @@ public class IconManager
         relPaths[PLUS] = "nuvola_edit_add16.png";
         relPaths[MINUS] = "nuvola_edit_remove16.png";
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
+        relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
+        relPaths[INFO] = "nuvola_messagebox_info16.png";
     }
     
     /** The sole instance. */
