@@ -145,7 +145,8 @@ public class ModelMapper
             DatasetImageLink link = null;
             while (i.hasNext()) {
                 link = (DatasetImageLink) i.next();
-                if (link.getParent().getId() == parent.getId()) break;  
+                if (link.getParent().getId().longValue() == 
+                    parent.getId().longValue()) break;  
             }
             return link;
         } else if (parent instanceof Category) {
@@ -154,7 +155,8 @@ public class ModelMapper
             CategoryImageLink link = null;
             while (i.hasNext()) {
                 link = (CategoryImageLink) i.next();
-                if (link.getParent().getId() == parent.getId())
+                if (link.getParent().getId().longValue() == 
+                    parent.getId().longValue()) break;  
                     break;
             }
             return link;
