@@ -46,6 +46,7 @@ import javax.swing.JDialog;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
@@ -259,6 +261,7 @@ class TreeViewerComponent
         Editor editor = EditorFactory.getEditor(this, object, editorType);
         editor.addPropertyChangeListener(controller);
         editor.activate();
+        model.setEditor(editor);
         if (editorType == CREATE_EDITOR) 
             onComponentStateChange(false);
         view.addComponent(editor.getUI());
@@ -287,6 +290,19 @@ class TreeViewerComponent
             //case SAVE: 
                 throw new IllegalStateException("This method cannot be " +
                         "invoked in the DISCARDED, SAVE state.");
+        }
+        Editor editor = model.getEditor();
+        if (editor != null) {
+            if (editor.hasDataToSave()) {
+                IconManager icons = IconManager.getInstance();
+                EditorSaverDialog d = new EditorSaverDialog(view, 
+                                icons.getIcon(IconManager.QUESTION));
+                d.addPropertyChangeListener(
+                        EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
+                        controller);
+                d.setVisible(true);
+                return;
+            }
         }
         model.setEditorType(NO_EDITOR);
         view.removeAllFromWorkingPane();
@@ -825,6 +841,23 @@ class TreeViewerComponent
             un.notifyInfo("Paste action", "The nodes to copy cannot " +
             "be added to the selected nodes."); 
         } else fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#saveInEditor(boolean)
+     */
+    public void saveInEditor(boolean b)
+    {
+        if (b) {
+            model.getEditor().saveData();
+            model.setEditor(null);
+            onSelectedDisplay();
+        } else {
+            model.setEditor(null);
+            removeEditor();
+        }
+        
     }
     
 }

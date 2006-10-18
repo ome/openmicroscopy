@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.env.LookupNames;
 
@@ -134,6 +134,9 @@ class TreeViewerModel
      */
     private int                     copyIndex;
     
+    /** The currently displayed editor, <code>null</code> if no editor. */
+    private Editor                  editor;
+    
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
     
@@ -180,14 +183,14 @@ class TreeViewerModel
         TreeImageDisplay parent, child;
         Map map = new HashMap();
         Object po;
-        List children;
+        Set children;
         for (int i = 0; i < nodes.length; i++) {
             child = nodes[i];
             parent = child.getParentDisplay();
             po = parent.getUserObject();
-            children = (List) map.get(po);
+            children = (Set) map.get(po);
             if (children == null) {
-                children = new ArrayList();   
+                children = new HashSet();   
                 map.put(po, children);
             }
             children.add(nodes[i].getUserObject());   
@@ -334,7 +337,7 @@ class TreeViewerModel
        if (!((object instanceof ProjectData) || 
                (object instanceof CategoryGroupData)))//root.
            data = ((DataObject) po);
-       List l = new ArrayList(1);
+       Set l = new HashSet(1);
        l.add(object);
        currentLoader = new DataObjectRemover(component, l, data);
        currentLoader.load();
@@ -355,21 +358,21 @@ class TreeViewerModel
        Iterator i = nodes.iterator();
        TreeImageDisplay n, parent;
        Map map = null;
-       List toRemove = null;  
-       List l;
+       Set toRemove = null;  
+       Set l;
        while (i.hasNext()) {
            n = (TreeImageDisplay) i.next();
            parent = n.getParentDisplay();
            object = (DataObject) n.getUserObject();
            if ((object instanceof ProjectData) || 
                    (object instanceof CategoryGroupData)) {
-               if (toRemove == null) toRemove = new ArrayList();
+               if (toRemove == null) toRemove = new HashSet();
                toRemove.add(object);
            } else {
                po = (DataObject) parent.getUserObject();
                if (map == null) map = new HashMap();
-               l = (List) map.get(po);
-               if (l == null) l = new ArrayList();
+               l = (Set) map.get(po);
+               if (l == null) l = new HashSet();
                l.add(object);
                map.put(po, l);
            }
@@ -398,10 +401,29 @@ class TreeViewerModel
     * Sets the type of editor. One of the following constants 
     * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
     * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
+    * Sets the current editor to <code>null</code>.
     * 
     * @param editorType The type of the editor.
     */
-   void setEditorType(int editorType) { this.editorType = editorType; }
+   void setEditorType(int editorType)
+   { 
+       this.editorType = editorType; 
+       editor = null;
+   }
+   
+   /**
+    * Sets the current editor.
+    * 
+    * @param editor The value to set.
+    */
+   void setEditor(Editor editor) { this.editor = editor; }
+   
+   /**
+    * Returns the current editor, <code>null</code> if no editor.
+    * 
+    * @return See above.
+    */
+   Editor getEditor() { return editor; }
    
    /**
     * Returns the type of editor.

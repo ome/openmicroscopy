@@ -492,8 +492,28 @@ public interface TreeViewer
      */
     public void onComponentStateChange(boolean b);
 
+    /**
+     * Sets the nodes to copy or cut depending on the passed index.
+     * 
+     * @param nodes The nodes to copy or paste.
+     * @param index One of the following constants:
+     *              {@link #CUT_AND_PASTE} or {@link #COPY_AND_PASTE}.
+     */
     public void setNodesToCopy(TreeImageDisplay[] nodes, int index);
     
+    /**
+     * Pastes the nodes to copy into the specified parents.
+     * 
+     * @param parents The parents of the nodes to copy.
+     * @see #setNodesToCopy(TreeImageDisplay[], int)
+     */
     public void paste(TreeImageDisplay[] parents);
     
+    /**
+     * Sets the data displayed in the editor
+     * 
+     * @param b
+     */
+    public void saveInEditor(boolean b);
+       
 }
