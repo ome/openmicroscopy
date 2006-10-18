@@ -72,7 +72,10 @@ public class ChannelButton
     public static final String  CHANNEL_COLOR_PROPERTY = "channelColor";
     
     /** The OME index of the channel. */
-    private final int   index;
+    private final int               index;
+    
+    /** The pop up menu associated to this component. */
+    private ChannelButtonPopupMenu  popupMenu;
     
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
@@ -84,25 +87,45 @@ public class ChannelButton
         map.put(new Integer(index), value);
         firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
     }
-    
+  
     /**
-     * Fires property depending on the keys pressed.
-     * If Ctrl+left click, we bring the color picker.
-     * If Ctrl+right click, we bring the info button.
-     * otherwise the select the channel.
+     * Selects the channel or displays the pop up menu.
      * 
      * @param e The mouse event to handle.
      */
     private void onClick(MouseEvent e)
     {
-        //Ctrl+ click to bring color picker
-        //Shift+ click to bring up info
-        if (e.isShiftDown()) {
-            firePropertyChange(INFO_PROPERTY, null, new Integer(index));
-        } else if (e.isControlDown()) 
-            firePropertyChange(CHANNEL_COLOR_PROPERTY, null, 
-                    new Integer(index));
-        else setChannelSelected();
+        onReleased(e);
+        if (!e.isPopupTrigger()) setChannelSelected();
+    }
+    
+    /** 
+     * Handles the mouse released event because Popup menus are triggered 
+     * differently on different systems.
+     * 
+     * @param e The The mouse event to handle.
+     */
+    private void onReleased(MouseEvent e)
+    {
+        if (e.isPopupTrigger()) {
+            if (popupMenu == null) 
+                popupMenu = new ChannelButtonPopupMenu(this);
+            popupMenu.show(this, e.getX(), e.getY());
+            
+        } 
+    }
+    
+    /** Fires a property change to bring up on screen the info dialog. */
+    void showInfo()
+    {
+        firePropertyChange(INFO_PROPERTY, null, new Integer(index));
+        
+    }
+    
+    /** Fires a property change to bring up on screen the color picker. */
+    void showColorPicker()
+    {
+        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, new Integer(index));
     }
     
     /**
@@ -127,6 +150,7 @@ public class ChannelButton
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
+            public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
     }
     
@@ -150,5 +174,7 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
+
+
     
 }
