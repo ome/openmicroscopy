@@ -505,7 +505,8 @@ class TreeViewerComponent
             default:
                 throw new IllegalArgumentException("Save operation not " +
                         "supported.");
-        }    
+        }  
+        model.setEditor(null);
         //int editor = model.getEditorType();
         //removeEditor(); //remove the currently selected editor.
         if (operation == REMOVE_OBJECT) {
@@ -551,6 +552,7 @@ class TreeViewerComponent
             browser = (Browser) browsers.get(i.next());
             browser.refreshTree();
         }
+        model.setEditor(null);
         onSelectedDisplay();
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
