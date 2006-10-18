@@ -181,7 +181,7 @@ public interface DataManagerView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle removeDataObjects(List userObjects, DataObject parent, 
+    public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
             						AgentEventListener observer);
     
     /**
@@ -394,11 +394,18 @@ public interface DataManagerView
                                     AgentEventListener observer);
     
     /**
+     * Cuts and Pastes.
      * 
-     * @param toPaste
-     * @param toCut
-     * @param observer
-     * @return
+     * @param toPaste   Map of objects to paste into
+     *                  where the key is the <code>DataObject</code> to paste 
+     *                  into and the value is a set of <code>DataObject</code>
+     *                  to copy.
+     * @param toCut     Map of objects to cut from
+     *                  where the key is the <code>DataObject</code> to cut  
+     *                  from and the value is a set of <code>DataObject</code>
+     *                  to remove.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
      */
     public CallHandle cutAndPaste(Map toPaste, Map toCut, 
                                     AgentEventListener observer);

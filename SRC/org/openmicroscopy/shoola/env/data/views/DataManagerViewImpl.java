@@ -139,10 +139,10 @@ class DataManagerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#removeDataObjects(List, DataObject, 
+     * @see DataManagerView#removeDataObjects(Set, DataObject, 
      * 										AgentEventListener)
      */
-    public CallHandle removeDataObjects(List userObjects, DataObject parent, 
+    public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
             						AgentEventListener observer)
     {
         BatchCallTree cmd = new DataObjectSaver(userObjects, parent, 
