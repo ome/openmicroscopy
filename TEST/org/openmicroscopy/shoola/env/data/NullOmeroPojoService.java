@@ -32,11 +32,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-
 
 //Third-party libraries
 
@@ -224,19 +221,19 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#removeDataObjects(List, DataObject)
-     */
-    public List removeDataObjects(List children, DataObject parent)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroDataService#cutAndPaste(Map, Map)
      */
     public void cutAndPaste(Map toPaste, Map toCut)
             throws DSOutOfServiceException, DSAccessException {}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#removeDataObjects(Set, DataObject)
+     */
+    public Set removeDataObjects(Set children, DataObject parent)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        return null;
+    }
 
 }
