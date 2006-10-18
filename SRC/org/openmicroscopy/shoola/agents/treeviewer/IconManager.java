@@ -215,11 +215,17 @@ public class IconManager
     /** The <code>Declassify</code> icon. */
     public static int           DECLASSIFY = 51;
     
+    /** The <code>Declassify</code> icon. */
+    public static int           CUT = 52;
+    
+    /** The <code>Question</code> icon. */
+    public static int           QUESTION = 53;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 51;
+    private static int          MAX_ID = 53;
     
     
     /** Paths of the icon files. */
@@ -280,6 +286,8 @@ public class IconManager
         relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[DECLASSIFY] = "declassify16.png";
+        relPaths[CUT] = "nuvola_editcut16.png";
+        relPaths[QUESTION] = "nuvola_filetypes32.png";
     }
     
     /** The sole instance. */
