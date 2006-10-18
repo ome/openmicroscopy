@@ -31,16 +31,15 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -122,7 +121,7 @@ public class DataObjectSaver
      * @param parent    The parent of the <code>DataObject</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall remove(final List objects, final DataObject parent)
+    private BatchCall remove(final Set objects, final DataObject parent)
     {
         return new BatchCall("Remove Data objects.") {
             public void doCall() throws Exception
@@ -147,11 +146,11 @@ public class DataObjectSaver
                 OmeroDataService os = context.getDataService();
                 Iterator i = objects.keySet().iterator();
                 DataObject p;
-                List nodes;
+                Set nodes;
                 Map results = new HashMap(objects.size());
                 while (i.hasNext()) {
                     p = (DataObject) i.next();
-                    nodes = os.removeDataObjects((List) objects.get(p), p);
+                    nodes = os.removeDataObjects((Set) objects.get((p)), p);
                     results.put(p, nodes);
                 }
                 result = results;
@@ -202,7 +201,7 @@ public class DataObjectSaver
                 saveCall = update(userObject);
                 break;
             case REMOVE:
-                List l = new ArrayList(1);
+                Set l = new HashSet(1);
                 l.add(userObject);
                 saveCall = remove(l, parent);   
                 break;
@@ -214,14 +213,14 @@ public class DataObjectSaver
     /**
      * Creates a new instance.
      * 
-     * @param userObjects   The {@link DataObject} to remove.
+     * @param userObjects   The {@link DataObject}s to remove.
      *                      Mustn't be <code>null</code>.
      * @param parent        The parent of the <code>DataObject</code>. 
      *                      The value is <code>null</code> if there 
      *                      is no parent.
      * @param index         One of the following constants: {@link #REMOVE}.
      */
-    public  DataObjectSaver(List userObjects, DataObject parent, int index)
+    public  DataObjectSaver(Set userObjects, DataObject parent, int index)
     {
         if (userObjects == null)
             throw new IllegalArgumentException("No DataObject.");
