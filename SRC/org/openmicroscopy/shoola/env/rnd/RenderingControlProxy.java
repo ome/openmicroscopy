@@ -317,6 +317,9 @@ class RenderingControlProxy
         int k = 0;
         while (i.hasNext()) {
             metadata[k] = new ChannelMetadata(k, (Channel) i.next());
+            int emWave = metadata[k].getEmissionWavelength();
+            //Should happen server side.
+            setRGBA(k, ColorsFactory.getColor(k, emWave));
             k++;  
         }
         
