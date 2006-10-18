@@ -127,8 +127,7 @@ public interface Editor
      * on the specified operation.
      * 
      * @param object    The object to handle.
-     * @param operation The type of operation. One of the following constants:
-     *                  {@link #CREATE_OBJECT} or {@link #UPDATE_OBJECT}.
+     * @param operation The type of operation. 
      */
     void saveObject(DataObject object, int operation);
     
@@ -219,5 +218,19 @@ public interface Editor
      * @param annotations   The annotations to set.
      */
     public void setLeavesAnnotations(Map annotations);
+    
+    /**
+     * Returns <code>true</code> if the editor has some data to save 
+     * before closing, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean hasDataToSave();
+
+    /** 
+     * Saves the data before closing the editor. This method
+     * should only be invoked after asking a question to the user.
+     */
+    public void saveData();   
     
 }

@@ -330,26 +330,6 @@ class EditorUI
         add(p, BorderLayout.SOUTH);
     }
     
-    /**
-     * Handles the <code>finish</code> action depending on the type of editor.
-     */
-    private void finish()
-    {
-        String s = doBasic.getNameText();
-        if (s == null || s.length() == 0) {
-            doBasic.resetNameArea();
-            handleNameAreaRemove(0);
-            return;
-        }
-        switch (model.getEditorType()) {
-            case Editor.CREATE_EDITOR:
-                controller.createObject(fillDataObject());
-                break;
-            case Editor.PROPERTIES_EDITOR:
-                finishEdit();
-        }
-    }
-    
     /** Removes the annotation. */
     private void removeAnnotate()
     {
@@ -586,6 +566,43 @@ class EditorUI
         finishButton.setEnabled(b);
     }
     
+    /**
+     * Returns <code>true</code> if the editor has some data to save 
+     * before closing, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasDataToSave()
+    {
+        if (model.getEditorType() == Editor.CREATE_EDITOR) {
+            String s = doBasic.getNameText();
+            if (s == null || s.length() ==0) return false;
+            return true;
+        }
+        if (edit) return true;
+        if (doBasic.isAnnotationModified()) return true;
+        return false;
+    }
+    
+    /**
+     * Handles the <code>finish</code> action depending on the type of editor.
+     */
+    void finish()
+    {
+        String s = doBasic.getNameText();
+        if (s == null || s.length() == 0) {
+            doBasic.resetNameArea();
+            handleNameAreaRemove(0);
+            return;
+        }
+        switch (model.getEditorType()) {
+            case Editor.CREATE_EDITOR:
+                controller.createObject(fillDataObject());
+                break;
+            case Editor.PROPERTIES_EDITOR:
+                finishEdit();
+        }
+    }
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)

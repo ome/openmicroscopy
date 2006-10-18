@@ -327,6 +327,19 @@ class DOBasic
     }
     
     /** 
+     * Returns <code>true</code> if the user modified the current annotation
+     * or created an annotation.
+     * 
+     * @return See above.
+     */
+    boolean isAnnotationModified()
+    {
+        if (annotator == null) return false;
+        if (isAnnotationDeleted()) return true;
+        return model.isAnnotated();
+    }
+    
+    /** 
      * Returns the text of the annotation. 
      * 
      * @return See above. 

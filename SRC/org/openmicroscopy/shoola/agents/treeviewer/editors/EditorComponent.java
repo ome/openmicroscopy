@@ -387,5 +387,29 @@ class EditorComponent
         }
         model.getParentModel().setStatus(false, "", true);
     }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#hasDataToSave()
+     */
+    public boolean hasDataToSave()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                        "in the DISCARDED state.");
+        return view.hasDataToSave();
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#saveData()
+     */
+    public void saveData()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                        "in the DISCARDED state.");
+        view.finish();
+    }
     
 }
