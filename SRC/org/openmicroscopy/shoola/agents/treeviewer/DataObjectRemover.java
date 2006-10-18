@@ -31,8 +31,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -59,7 +59,7 @@ public class DataObjectRemover
 {
 
     /** The {@link DataObject}s to remove. */
-    private List            userObjects;
+    private Set            userObjects;
     
     /** The parent of the <code>DataObject to remove</code>. */
     private DataObject      parent;
@@ -81,7 +81,7 @@ public class DataObjectRemover
      * @param userObjects   The {@link DataObject}s to remove from the parent. 
      * @param parent        The parent of the {@link DataObject} to remove.
      */
-    public DataObjectRemover(TreeViewer viewer, List userObjects,
+    public DataObjectRemover(TreeViewer viewer, Set userObjects,
                             DataObject parent)
     {
         super(viewer);
