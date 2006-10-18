@@ -292,7 +292,7 @@ public class IconManager
         relPaths[HIGHLIGHT] = "eclipse_default_log_co16.png";
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
-        relPaths[PIN] = "pin14.png";
+        relPaths[PIN] = "nuvola_attach16.png";
     }
     
     /** The sole instance. */
