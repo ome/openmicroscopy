@@ -122,7 +122,7 @@ public class CutAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.COPY));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CUT));
     }
     
     /**
