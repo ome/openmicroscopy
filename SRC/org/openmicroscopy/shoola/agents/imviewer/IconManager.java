@@ -183,7 +183,7 @@ public class IconManager
         relPaths[PAUSE] = "nuvola_player_pause16.png";
         relPaths[STOP] = "nuvola_player_stop16.png";
         relPaths[HISTOGRAM_BIG] = "histogram16.png";
-        relPaths[SAVE_BIG] = "histogram16.png";
+        relPaths[SAVE_BIG] = "nuvola_filesaveas48.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[CANCEL] = "eclipse_delete_edit16.png";
         relPaths[VIEWER] = "viewer16.png";
