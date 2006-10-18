@@ -628,7 +628,7 @@ class BrowserComponent
 	                    " LOADING_LEAVES or DISCARDED state.");
         }
         TreeImageDisplay root = view.getTreeRoot();
-        //if (!root.isChildrenLoaded()) return;
+        if (!root.isChildrenLoaded()) return;
 	    if (!model.isSelected()) {
 	        view.clearTree();
 	        return;
