@@ -92,7 +92,7 @@ public class RefreshAction
     { 
         HiViewer newOne = HiViewerFactory.reinstantiate(model);
         model.discard();
-        newOne.activate();
+        newOne.activate(newOne.getUI().getBounds());
     }
     
 }
