@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -129,22 +130,25 @@ public class ViewCmd
             hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
         }
         if (hierarchyObject == null) return;
+        Rectangle bounds = null;
+        if (model != null)
+            bounds = model.getUI().getBounds();
         if (hierarchyObject instanceof DatasetData)
             HiViewerAgent.browse(Browse.DATASET, 
                     ((DatasetData) hierarchyObject).getId(), 
-                    model.getRootLevel(), model.getRootID());
+                    model.getRootLevel(), model.getRootID(), bounds);
         else if (hierarchyObject instanceof ProjectData)
             HiViewerAgent.browse(Browse.PROJECT, 
                     ((ProjectData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID());
+                    model.getRootLevel(), model.getRootID(), bounds);
         else if (hierarchyObject instanceof CategoryGroupData)
             HiViewerAgent.browse(Browse.CATEGORY_GROUP, 
                     ((CategoryGroupData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID());
+                    model.getRootLevel(), model.getRootID(), bounds);
         else if (hierarchyObject instanceof CategoryData)
             HiViewerAgent.browse(Browse.CATEGORY, 
                     ((CategoryData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID());
+                    model.getRootLevel(), model.getRootID(), bounds);
         else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             ImageData is = (ImageData) hierarchyObject;
@@ -156,11 +160,12 @@ public class ViewCmd
                     d = (ImageDisplay) i.next();
                     is = (ImageData) d.getHierarchyObject();
                     eventBus.post(new ViewImage(is.getId(), 
-                            is.getDefaultPixels().getId(), is.getName())); 
+                            is.getDefaultPixels().getId(), is.getName(), 
+                            bounds)); 
                 }
             } else {
                 eventBus.post(new ViewImage(is.getId(), 
-                        is.getDefaultPixels().getId(), is.getName())); 
+                        is.getDefaultPixels().getId(), is.getName(), bounds)); 
             }
         }
     }

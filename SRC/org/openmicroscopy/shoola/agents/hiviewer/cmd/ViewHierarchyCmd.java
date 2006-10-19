@@ -129,7 +129,7 @@ public class ViewHierarchyCmd
                 viewer = HiViewerFactory.getPDIViewer(images, 
                                 model.getRootLevel(), model.getRootID()); 
         }
-        if (viewer != null) viewer.activate();
+        if (viewer != null) viewer.activate(model.getUI().getBounds());
     }
 
 }
