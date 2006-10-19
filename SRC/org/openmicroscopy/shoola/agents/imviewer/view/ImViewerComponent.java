@@ -559,7 +559,7 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         JFrame f = model.getRenderer().getUI();
-        UIUtilities.setLocationAndShow(view, f);
+        UIUtilities.setLocationRelativeToAndShow(view, f);
     }
 
     /** 
