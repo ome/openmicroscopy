@@ -477,7 +477,7 @@ class ImViewerUI
      */
     void setColorModel(ViewerAction action)
     {
-        controlPane.setColorModel(action);
+        controlPane.setColorModel();
         AbstractButton b;
         Enumeration e;
         for (e = colorModelGroup.getElements(); e.hasMoreElements();) {
