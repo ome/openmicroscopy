@@ -136,18 +136,16 @@ public class UIUtilities
      * @param parent    The visible parent.
      * @param child     The child to display.
      */
-    public static void locateAndShow(Component parent, Component child)
+    public static void setLocationAndShow(Component parent, Component child)
     {
         int x = parent.getX()+parent.getWidth();
         int y = parent.getY();
         int childWidth = child.getWidth();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        
-        if (x+childWidth > screenSize.getWidth())
-            if (childWidth < parent.getX())
-                x = parent.getX()-childWidth;
-            else
-                x = (int) (screenSize.getWidth()-childWidth);
+        if (x+childWidth > screenSize.getWidth()) {
+            if (childWidth < parent.getX()) x = parent.getX()-childWidth;
+            else x = (int) (screenSize.getWidth()-childWidth);
+        } 
         child.setLocation(x, y);
         child.setVisible(true);
     }
