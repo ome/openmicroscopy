@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 
 //Java imports
+import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -59,22 +60,26 @@ public class ViewImage
 {
 
     /** The ID of the pixels set. */
-    private long    pixelsID;
+    private long        pixelsID;
     
     /** The ID of the image. */
-    private long    imageID;
+    private long        imageID;
     
     /** The name of the image. */
-    private String  name;
+    private String      name;
 
+    /** The bounds of the component posting the event. */
+    private Rectangle   requesterBounds;
+    
     /**
      * Creates a new instance.
      * 
      * @param imageID   The image ID.
      * @param pixelsID  The pixels set ID.
-     * @param name      The name of the image
+     * @param name      The name of the image.
+     * @param bounds    The bounds of the component posting the event.
      */
-    public ViewImage(long imageID, long pixelsID, String name)
+    public ViewImage(long imageID, long pixelsID, String name, Rectangle bounds)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -83,6 +88,7 @@ public class ViewImage
         this.pixelsID = pixelsID;
         this.imageID = imageID;
         this.name = name;
+        requesterBounds = bounds;
     }
     
     /**
@@ -92,7 +98,6 @@ public class ViewImage
      */
     public long getImageID() { return imageID; }
 
-    
     /**
      * Returns the name of the image.
      * 
@@ -100,12 +105,19 @@ public class ViewImage
      */
     public String getName() { return name; }
 
-    
     /**
      * Returns the pixels set ID.
      * 
      * @return See above. 
      */
     public long getPixelsID() { return pixelsID; }
+    
+    /**
+     * Returns the bounds of the component posting the event. 
+     * Returns <code>null</code> if not available.
+     * 
+     * @return See above.
+     */
+    public Rectangle getRequesterBounds() { return requesterBounds; }
     
 }
