@@ -61,7 +61,8 @@ import pojos.ExperimenterData;
  * is first created using the {@link HiViewerFactory} and specifying what kind
  * of hierarchy the viewer is for along with the root nodes to load.  After
  * creation the object is in the {@link #NEW} state and is waiting for the
- * {@link #activate() activate} method to be called.  Such a call triggers the
+ * {@link #activate(Rectangle) activate} method to be called. 
+ * Such a call triggers the
  * retrieval of all the <i>OME</i> objects of the specified hierarchy kind that
  * are rooted by the specified nodes.  The object is now in the 
  * {@link #LOADING_HIERARCHY} state.  After all the nodes have been retrieved,
