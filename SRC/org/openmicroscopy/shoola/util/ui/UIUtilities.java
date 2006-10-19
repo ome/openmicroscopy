@@ -150,6 +150,24 @@ public class UIUtilities
         child.setVisible(true);
     }
     
+    /**
+     * Sets the location of the passed component relative to the specified 
+     * bounds.
+     * 
+     * @param bounds    The bounds of the main component.
+     * @param child     The location of the child
+     */
+    public static void incrementRelativeToAndShow(Rectangle bounds, 
+                                                Component child)
+    {
+        if (bounds == null) {
+            UIUtilities.centerAndShow(child);
+            return;
+        }
+        child.setLocation(bounds.x+10, bounds.y+10);
+        child.setVisible(true);
+    }
+    
 	/**
      * Creates a modal JDialog containing the specified JComponent
      * for the specified parent.
