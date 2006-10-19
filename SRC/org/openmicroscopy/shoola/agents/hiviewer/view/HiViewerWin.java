@@ -128,7 +128,8 @@ class HiViewerWin
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
         Dimension d = clipBoardUI.getMinimumSize();
-        clipBoardUI.setPreferredSize(d);
+        Dimension dNew = new Dimension(d.width, d.height+40);
+        clipBoardUI.setPreferredSize(dNew);
         clipBoardUI.setSize(d);
         mainPane.setResizeWeight(1);
         return mainPane;
