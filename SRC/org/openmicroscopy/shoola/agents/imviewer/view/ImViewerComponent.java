@@ -33,15 +33,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.swing.Action;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -562,18 +558,8 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        model.getRenderer().moveToFront();
-        int x = view.getX()+view.getWidth();
-        int y = view.getY();
-        int rendererWidth = model.getRenderer().getWidth();
-    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	
-        if (x+rendererWidth > screenSize.getWidth())
-        	if (rendererWidth < view.getX())
-        		x = view.getX()-rendererWidth;
-        	else
-        		x = (int) (screenSize.getWidth()-rendererWidth);
-        model.getRenderer().setLocation(x, y);
+        JFrame f = model.getRenderer().getUI();
+        UIUtilities.setLocationAndShow(view, f);
     }
 
     /** 
@@ -852,5 +838,5 @@ class ImViewerComponent
         d.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(d);
     }
-
+    
 }

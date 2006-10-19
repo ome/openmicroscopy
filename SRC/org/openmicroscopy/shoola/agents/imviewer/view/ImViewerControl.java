@@ -534,13 +534,13 @@ class ImViewerControl
             ChannelMetadata data = model.getChannelMetadata(index);
             InfoDialog dialog = new InfoDialog(model.getUI(), data);
             dialog.addPropertyChangeListener(this);
-            UIUtilities.locateAndShow(view, dialog);
+            UIUtilities.setLocationAndShow(view, dialog);
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
             Color c = model.getChannelColor(colorPickerIndex);
             ColourPicker dialog = new ColourPicker(view, c);
             dialog.addPropertyChangeListener(this);
-            UIUtilities.locateAndShow(view, dialog);
+            UIUtilities.setLocationAndShow(view, dialog);
         } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
             Color c = (Color) pce.getNewValue();
             if (colorPickerIndex != -1) {
