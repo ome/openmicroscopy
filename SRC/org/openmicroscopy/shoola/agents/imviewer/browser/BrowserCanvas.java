@@ -69,9 +69,6 @@ class BrowserCanvas
     /** Color of the scale bar. */
     private static final Color          UNIT_BAR_COLOR = Color.GRAY;
     
-    /** Width of a character w.r.t. the font metrics. */
-    private int             charWidth;
-    
     /** Reference to the Model. */
     private BrowserModel    model;
     
@@ -137,7 +134,6 @@ class BrowserCanvas
         if (view == null) throw new NullPointerException("No view.");
         this.model = model;
         this.view = view;
-        charWidth = getFontMetrics(getFont()).charWidth('m');
         setDoubleBuffered(true);
     }
 
@@ -165,11 +161,11 @@ class BrowserCanvas
         v *= model.getUnitBarSize();
         String value;
         double c = v;
-        if (Math.ceil(v) == c) value = ""+(int) c;
-        else value = ""+c;
+        if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
+        else  value = ""+(int) c;
         int size = (int) model.getUnitBarSize();
         if (v > 0 && model.isUnitBar()) {
-            paintScaleBar(g2D, img.getWidth()-size-5, 
+            paintScaleBar(g2D, img.getWidth()-size-10, 
                         img.getHeight()-10, size, value);
         }
     }
