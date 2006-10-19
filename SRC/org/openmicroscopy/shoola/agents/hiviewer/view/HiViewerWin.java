@@ -37,11 +37,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -399,14 +399,22 @@ class HiViewerWin
         return buf.toString();
     }
     
-    /** Overrides the {@link #setOnScreen() setOnScreen} method. */
-    public void setOnScreen()
+    /**
+     * Sets the location of the window relative to the bounds of the components
+     * invoking the {@link HiViewer}.
+     * 
+     * @param bounds the bounds of the component invoking the {@link HiViewer}.
+     */
+    void setComponentBounds(Rectangle bounds)
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width= 8*(screenSize.width/10);
         int height = 8*(screenSize.height/10);
         setSize(width, height); 
-        UIUtilities.centerAndShow(this);
+        UIUtilities.incrementRelativeToAndShow(bounds, this);
     }
+    
+    /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    public void setOnScreen() { setComponentBounds(null); }
     
 }

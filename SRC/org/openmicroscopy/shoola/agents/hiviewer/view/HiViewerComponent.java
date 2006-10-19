@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 import javax.swing.JFrame;
@@ -132,14 +133,15 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#activate()
+     * @see HiViewer#activate(Rectangle)
      */
-    public void activate()
+    public void activate(Rectangle bounds)
     {
         switch (model.getState()) {
             case NEW:
                 model.fireHierarchyLoading();
-                view.setOnScreen();
+                view.setComponentBounds(bounds);
+                //view.setOnScreen();
                 fireStateChange();
                 break;
             case DISCARDED:

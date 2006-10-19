@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 import javax.swing.JFrame;
@@ -185,9 +186,10 @@ public interface HiViewer
      * If the state is not {@link #NEW}, then this method simply moves the
      * window to front.
      * 
+     * @param bounds    The bounds of the component activating the viewer.
      * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
      */
-    public void activate();
+    public void activate(Rectangle bounds);
     
     /**
      * Callback used by a data loader to set the root nodes of the retrieved 
