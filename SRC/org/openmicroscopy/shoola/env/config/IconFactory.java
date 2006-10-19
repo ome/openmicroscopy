@@ -82,7 +82,6 @@ public class IconFactory
 	 */
 	private String	location;
 	
-
 	/**
 	 * Creates a new instance.
 	 * 
@@ -111,23 +110,22 @@ public class IconFactory
 	 * 
 	 * @param name	The file name.  Must be a valid name within the location
 	 * 				specified in the configuration file.
-	 * @return	An {@link Icon} object created from the image file.  The return
-	 * 			value will be <code>null</code> if the file couldn't be found
-	 * 			or an image icon couldn't be created from that file.
+	 * @return	    An {@link Icon} object created from the image file. 
+     *              The return value will be <code>null</code> if the file 
+     *              couldn't be found or an image icon couldn't be created 
+     *              from that file.
 	 */
-	public Icon getIcon(String name)
-	{
-		return (Icon) getImageIcon(name);
-	}
+	public Icon getIcon(String name) { return getImageIcon(name); }
 	
 	/** 
 	 * Creates an {@link ImageIcon} from the specified file.
 	 * 
 	 * @param name	The file name.  Must be a valid name within the location
 	 * 				specified in the configuration file.
-	 * @return	An {@link ImageIcon} object created from the image file.  The 
-	 * 			return value will be <code>null</code> if the file couldn't be 
-	 * 			found or an image icon couldn't be created from that file.
+	 * @return	    An {@link ImageIcon} object created from the image file. The 
+	 * 			    return value will be <code>null</code> if the file couldn't 
+     *              be found or an image icon couldn't be created from 
+     *              that file.
 	 */
 	public ImageIcon getImageIcon(String name)
 	{
@@ -139,4 +137,5 @@ public class IconFactory
 		} catch (Exception e) {} 
 		return icon;
 	}
+    
 }
