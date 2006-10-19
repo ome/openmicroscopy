@@ -116,7 +116,7 @@ public class MovieAction
     {
         if (moviePlayer == null) 
             moviePlayer = new MoviePlayerDialog(model.getUI(), model);
-        UIUtilities.centerAndShow(moviePlayer);   
+        UIUtilities.setLocationRelativeToAndShow(model.getUI(), moviePlayer);  
     }
 
     /**

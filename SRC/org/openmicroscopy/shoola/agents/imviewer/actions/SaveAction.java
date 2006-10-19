@@ -89,7 +89,7 @@ public class SaveAction
     public void actionPerformed(ActionEvent e)
     {
         ImgSaver saver = new ImgSaver(model.getUI(), model);
-        UIUtilities.centerAndShow(saver);
+        UIUtilities.setLocationRelativeToAndShow(model.getUI(), saver);
     }
     
 }
