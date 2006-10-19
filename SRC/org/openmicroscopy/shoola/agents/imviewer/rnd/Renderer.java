@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-
+import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
@@ -187,6 +187,19 @@ public interface Renderer
     CodomainMapContext getCodomainMapContext(Class mapType);
 
     /**
+     * Set the colour of the channel button in the renderer.
+     * 
+     * @param changedChannel
+     */
+    void setChannelButtonColor(int changedChannel);
+    
+    /**
+     * Fired if the colour model has been changed from RGB -> Greyscale or 
+     * vise versa.
+     */
+    void setColorModelChanged();
+    
+    /**
      * Returns the current state.
      * 
      * @return See above
@@ -195,9 +208,6 @@ public interface Renderer
     
     /** Closes and disposes. */
     public void discard();
-    
-    /** Moves the window to front and de-iconifies it necessary. */
-    public void moveToFront();
 
     /**
      * Returns the lower bound of the pixels intensity interval for the
@@ -232,33 +242,11 @@ public interface Renderer
     /** Resets the default settings. */
     public void setDefaultSettings();
 
-	/**
-	 * Set the colour of the channel button in the renderer.
-	 * 
-	 * @param changedChannel
-	 */
-	void setChannelButtonColor(int changedChannel);
-	
     /**
-     * Fired if the colour model has been changed from RGB -> Greyscale or 
-     * vise versa.
-     */
-    void setColorModelChanged();
-    
-    /**
-     * Set the location of the rendererUI, used to make sure it is at the side
-     * of the imageviewer window.
+     * Returns the {@link RendererUI View}.
      * 
-     * @param x coordinate.
-     * @param y coordinate.
+     * @return See above.
      */
-    public void setLocation(int x, int y);
-    
-    /** 
-     * Returns the width of the renderer window, used in {@link #setLocation}.
-     * 
-     * @return See Above.
-     */
-    public int getWidth();
+    public JFrame getUI();
     
 }

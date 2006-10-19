@@ -31,13 +31,13 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -110,35 +110,6 @@ class RendererComponent
         model.discard();
         view.setVisible(false);
         view.dispose();
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#moveToFront()
-     */
-    public void moveToFront()
-    {
-        //if (model.getState() != DISCARDED) return;
-        view.deIconify();
-        UIUtilities.centerOnScreen(view);
-    }
-
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setLocation(int, int)
-     */
-    public void setLocation(int x, int y)
-    {
-    	view.setLocation(x, y);
-    }
-    
-    /** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#getWidth()
-     */
-    public int getWidth()
-    {
-    	return view.getWidth();
     }
     
     /** 
@@ -348,4 +319,13 @@ class RendererComponent
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#getUI()
+     */
+    public JFrame getUI()
+    {
+        return view;
+    }
+    
 }
