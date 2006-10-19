@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
@@ -64,10 +63,6 @@ class GraphicsPaneUI
     /** The color used to grey out the non selected area. */
     private final static Color       GREYCOLOUR = new Color(196, 196, 196, 128);
     
-    /** The color of the selected area. */
-    private final static Color       RANGECOLOUR =
-    									new Color(178, 178, 178, 255);
-    
     /** The color of the filled bacground area. */
     private final static Color       FILLCOLOUR = new Color(255,255,255,255);
 
@@ -89,10 +84,11 @@ class GraphicsPaneUI
 	/** 
      * Creates a new instance. 
      * 
-     * @param model Reference to the model.
+     * @param model Reference to the model. Mustn't be <code>null</code>.
      * */
 	GraphicsPaneUI(RendererModel model)
     {
+        if (model == null) throw new IllegalArgumentException("No model.");
 		this.model = model;
 		IconManager icons = IconManager.getInstance();
 		histogramImage = icons.getImageIcon(IconManager.TEMPORARY_HISTOGRAM);
@@ -116,7 +112,8 @@ class GraphicsPaneUI
         g.setStroke(STROKE2);
         g.drawRect(0, 0, (int) width-1, (int) height-1);
         
-		g.drawImage(histogramImage.getImage(), 0, 0, (int) width-1, 
+        if (histogramImage != null)
+            g.drawImage(histogramImage.getImage(), 0, 0, (int) width-1, 
                     (int) height-1, null);
 		
 		double codomainMin = model.getCodomainStart();
@@ -147,16 +144,15 @@ class GraphicsPaneUI
 		g.fillRect(0, (int) codomainMinScreenY, (int) width, (int) height);
 		
 		String family = model.getFamily();
-		double coeff = model.getCurveCoefficient();
+		double k = model.getCurveCoefficient();
 	
 		double a = 0;
 		if (family.equals(RendererModel.LINEAR)) 
 			a = codomainRangeScreen/domainRangeScreen;
 		else if (family.equals(RendererModel.POLYNOMIAL)) 
-			a = codomainRangeScreen/Math.pow(domainRangeScreen,	coeff);
+			a = codomainRangeScreen/Math.pow(domainRangeScreen,	k);
 		else if (family.equals(RendererModel.EXPONENTIAL)) 
-			a = codomainRangeScreen/Math.exp(Math.pow(domainRangeScreen,
-					coeff));
+			a = codomainRangeScreen/Math.exp(Math.pow(domainRangeScreen, k));
 		else if (family.equals(RendererModel.LOGARITHMIC)) {
             if (domainRangeScreen <= 1) domainRangeScreen = 1;
             a = codomainRangeScreen/Math.log(domainRangeScreen);
@@ -177,16 +173,14 @@ class GraphicsPaneUI
          		if (family.equals(RendererModel.LINEAR)) 
 					currentY = b-a*x;
 				else if (family.equals(RendererModel.EXPONENTIAL)) 
-
-					currentY = b-a*Math.exp(Math.pow(x,	coeff));
+					currentY = b-a*Math.exp(Math.pow(x,	k));
 				else if (family.equals(RendererModel.POLYNOMIAL)) 
-					currentY = b-a*Math.pow(x, coeff);
+					currentY = b-a*Math.pow(x, k);
 				else if (family.equals(RendererModel.LOGARITHMIC)) 
 					currentY = b-a*Math.log(x);
 				g.drawLine((int) oldX, (int) oldY, (int) currentX,
 						(int) currentY);
 		}
-		
 	}
 	
 }
