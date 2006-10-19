@@ -138,19 +138,19 @@ public class LoginServiceImpl
                 if (l == null || l.length == 0) {
                     listOfServers = uc.getHostName();
                 } else {
-                    boolean b = false;
                     int n = l.length-1;
                     String name = uc.getHostName();
                     String host;
+                    String list = null;
                     for (int index = 0; index < l.length; index++) {
                         host = l[index].trim();
-                        if (name.equals(host)) b = true;
-                        if (index == 0) listOfServers = host;
-                        else listOfServers += host;
-                        if (index != n) listOfServers += ",";
+                        if (!name.equals(host)) {
+                            if (index == 0) list = host;
+                            else list += host;
+                            if (index != n) list += ",";
+                        }
                     }
-                    if (!b)
-                        listOfServers += ","+uc.getHostName();
+                    listOfServers = uc.getHostName()+","+list;
                 }
             }
             if (listOfServers != null) {
