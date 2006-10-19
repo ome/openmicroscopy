@@ -37,7 +37,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -46,7 +45,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
@@ -231,8 +229,7 @@ class HSVColourWheelUI
     	gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1600.0;
         gbc.weighty = 600.0;
-        gbc.fill = gbc.BOTH;
-    	//setLayout(new FlowLayout());
+        gbc.fill = GridBagConstraints.BOTH;
         container.add(wheel, gbc);
         gbc.gridx = 1;
         gbc.weightx = 100;
@@ -243,19 +240,17 @@ class HSVColourWheelUI
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 0.0;  
         p.setLayout(new GridBagLayout());
-        c.fill = gbc.VERTICAL;
+        c.fill = GridBagConstraints.VERTICAL;
     	p.add(alphaSlider, c);
         c.gridx = 1;
         p.add(alphaTextbox, c);
-        gbc.fill = gbc.BOTH;
-    	//setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        gbc.fill = GridBagConstraints.BOTH;
         setLayout(new GridBagLayout());
-        gbc.gridx =0;
+        gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 100;
         gbc.weighty = 100;
         add(container,gbc);
-        //add(UIUtilities.buildComponentPanel(p));
         gbc.weighty = 15;
         gbc.gridy = 1;
         add(p,gbc);
