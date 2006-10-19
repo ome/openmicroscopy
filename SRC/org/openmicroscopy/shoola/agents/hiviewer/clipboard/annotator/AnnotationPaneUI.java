@@ -363,7 +363,11 @@ class AnnotationPaneUI
             list = (List) annotations.get(id);
             data = ((AnnotationData) list.get(0)).getOwner();
             if (userDetails.getId() == id.intValue()) userIndex = index;
-            owners[index] = data.getLastName();
+            String n = "Name not available"; //TODO: REMOVE ASAP
+            try {
+                n = data.getLastName();
+            } catch (Exception e) {}
+            owners[index] = n;
             ownersMap.put(new Integer(index), id);
             index++;
         }
