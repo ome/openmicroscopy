@@ -149,7 +149,10 @@ class SplashScreenManager
 	}
 
 	/**
-	 * Implemented as specified by {@link SplashScreen}.
+	 * Sets the total number of initialization tasks that have to be
+     * performed.
+     * 
+     * @param value The total number of tasks.
 	 * @see SplashScreen#setTotalTasks(int)
 	 */
 	void setTotalTasks(int value)
@@ -165,7 +168,11 @@ class SplashScreenManager
 	}
 	
 	/**
-	 * Implemented as specified by {@link SplashScreen}.
+	 * Updates the display to the current state of the initialization
+     * procedure.
+     * 
+     * @param task  The name of the initialization task that is about to
+     *              be executed.
 	 * @see SplashScreen#updateProgress(String)
 	 */
 	void updateProgress(String task)
