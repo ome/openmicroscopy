@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -141,6 +142,9 @@ class ImViewerModel
     /** The image icon. */
     private BufferedImage       imageIcon;
     
+    /** The bounds of the components resquesting the viewer. */
+    private Rectangle           requesterBounds;
+    
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
     {
@@ -185,12 +189,15 @@ class ImViewerModel
      * @param pixelsID  The id of the pixels set.
      * @param imageID   The id of the image.
      * @param name      The image's name.
+     * @param bounds    The bounds of the component invoking the 
+     *                  {@link ImViewer}.
      */
-    ImViewerModel(long pixelsID, long imageID, String name)
+    ImViewerModel(long pixelsID, long imageID, String name, Rectangle bounds)
     {
         this.pixelsID = pixelsID;
         this.imageID = imageID;
         imageName = name;
+        requesterBounds = bounds;
         state = ImViewer.NEW;
         sizeX = sizeY = -1;
     }
@@ -615,6 +622,19 @@ class ImViewerModel
      */
     boolean isUnitBar() { return browser.isUnitBar(); }
 
+    /**
+     * Returns an iconified version of the displayed image.
+     * 
+     * @return See above.
+     */
     BufferedImage getImageIcon() { return imageIcon; }
+    
+    /**
+     * Returns the bounds of the component invoking the {@link ImViewer},
+     * or <code>null</code> if not available.
+     * 
+     * @return See above.
+     */
+    Rectangle getRequesterBounds() { return requesterBounds; }
     
 }

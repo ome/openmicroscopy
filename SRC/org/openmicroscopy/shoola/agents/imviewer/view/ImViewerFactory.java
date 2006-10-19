@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -94,12 +95,15 @@ public class ImViewerFactory
      * @param pixelsID  The id of the pixels set.
      * @param imageID   The id of the image.
      * @param name      The name of the image.
+     * @param bounds    The bounds of the component invoking the 
+     *                  {@link ImViewer}.
      * @return See above.
      */
     public static ImViewer getImageViewer(long pixelsID, long imageID,
-                                        String name)
+                                            String name, Rectangle bounds)
     {
-        ImViewerModel model = new ImViewerModel(pixelsID, imageID, name);
+        ImViewerModel model = new ImViewerModel(pixelsID, imageID, name, 
+                                            bounds);
         return singleton.getViewer(model);
     }
 

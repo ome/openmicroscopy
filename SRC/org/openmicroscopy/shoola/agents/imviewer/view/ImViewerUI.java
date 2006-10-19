@@ -565,4 +565,14 @@ class ImViewerUI
         controlPane.setChannelColor(index, c);
     }
 
+    /** Overridden to the set the location of the {@link ImViewer}. */
+    public void setOnScreen()
+    {
+        pack();
+        if (model != null)
+            UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
+                                                this);
+        else UIUtilities.incrementRelativeToAndShow(null, this);
+    }
+    
 }
