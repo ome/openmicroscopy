@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -515,5 +516,12 @@ public interface TreeViewer
      * @param b
      */
     public void saveInEditor(boolean b);
+
+    /**
+     * Returns the {@link TreeViewer} view.
+     * 
+     * @return See above.
+     */
+    public JFrame getUI();
        
 }

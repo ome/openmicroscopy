@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -859,7 +860,18 @@ class TreeViewerComponent
             model.setEditor(null);
             removeEditor();
         }
-        
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getUI()
+     */
+    public JFrame getUI()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        return view;
     }
     
 }
