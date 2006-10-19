@@ -62,6 +62,7 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -239,7 +240,7 @@ class DOAnnotation
             data = ((AnnotationData) list.get(0));
             date = data.getLastModified();
             if (date == null)
-                date = new Timestamp((new java.util.Date()).getTime()); 
+                date = TreeViewerTranslator.getDefaultTimestamp();
             listModel.addElement(owners[i]+" ("+df.format(date)+")");   
         }
     }
@@ -331,7 +332,11 @@ class DOAnnotation
             if (list != null || list.size() > 0) {
                 data = ((AnnotationData) list.get(0)).getOwner();
                 if (userDetails.getId() == id.intValue()) userIndex = index;
-                owners[index] = data.getLastName();
+                String n = "Name not available"; //tmp fix
+                try {
+                    n = data.getLastName();
+                } catch (Exception e) {} 
+                owners[index] = n;
                 ownersMap.put(new Integer(index), id);
                 index++;
             } 
@@ -341,7 +346,7 @@ class DOAnnotation
         setComponentsEnabled(true);
         formatUsersList(owners);
         annotatedByList.clearSelection();
-        annotatedByList.setSelectedIndex(userIndex);
+        //annotatedByList.setSelectedIndex(userIndex);
         showSingleAnnotation();
     }
     
