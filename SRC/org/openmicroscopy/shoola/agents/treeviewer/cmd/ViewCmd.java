@@ -33,13 +33,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.awt.Rectangle;
+import java.util.HashSet;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.HashSet;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -134,6 +134,7 @@ public class ViewCmd
         Object ho = null;
         EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
         Class root = convertRootLevel(model.getRootLevel());
+        Rectangle bounds = model.getUI().getBounds();
         if (hierarchyObject != null) ho = hierarchyObject;
         else {
             TreeImageDisplay[] nodes = browser.getSelectedDisplays();
@@ -147,7 +148,7 @@ public class ViewCmd
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.IMAGES, root, 
-                            model.getRootGroupID()));   
+                            model.getRootGroupID(), bounds));   
                     return;
                 }
                 UserNotifier un = 
@@ -159,7 +160,7 @@ public class ViewCmd
                 if (display.getParentDisplay() == null &&
                     browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
                     bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
-                            root, model.getRootGroupID()));   
+                            root, model.getRootGroupID(), bounds));   
                     return;
                 }
                 ho = display.getUserObject(); 
@@ -169,19 +170,20 @@ public class ViewCmd
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
             bus.post(new ViewImage(data.getId(), 
-                    data.getDefaultPixels().getId() , data.getName()));
+                    data.getDefaultPixels().getId() , data.getName(), bounds));
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-                     root, model.getRootGroupID())); 
+                     root, model.getRootGroupID(), bounds)); 
         else if (ho instanceof ProjectData)
             bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-                    root, model.getRootGroupID())); 
+                    root, model.getRootGroupID(), bounds)); 
         else if (ho instanceof CategoryData)
             bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
-                    root, model.getRootGroupID())); 
+                    root, model.getRootGroupID(), bounds)); 
         else if (ho instanceof CategoryGroupData)
             bus.post(new Browse(((CategoryGroupData) ho).getId(),
-                          Browse.CATEGORY_GROUP, root, model.getRootGroupID())); 
+                          Browse.CATEGORY_GROUP, root, 
+                          model.getRootGroupID(), bounds)); 
     }
     
 }
