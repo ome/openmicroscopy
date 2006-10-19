@@ -42,15 +42,14 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
-import org.openmicroscopy.shoola.util.ui.IconManager;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 /** 
  * The UI delegate for the {@link TwoKnobsSlider}.
@@ -135,9 +134,7 @@ class TwoKnobsSliderUI
         fontColor = LINE_COLOR;
     }
 
-    /**
-     * load the thumb for the two knob slider.  
-     */
+    /** Loads the thumb for the two knob slider.  */
     private void createThumbImage()
     {
     	// Create the thumb image 
@@ -256,8 +253,8 @@ class TwoKnobsSliderUI
     /**
      * Paints the labels.
      * 
-     * @param g The graphics context.
-     * @param fontMetrics Information on how to render the font.
+     * @param g             The graphics context.
+     * @param fontMetrics   Information on how to render the font.
      */
     private void paintLabels(Graphics2D g, FontMetrics fontMetrics)
     {
@@ -284,9 +281,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the label for an horizontal slider.
      * 
-     * @param g The graphics context.
-     * @param fontMetrics Information on how to render the font.
-     * @param value The value to paint.
+     * @param g             The graphics context.
+     * @param fontMetrics   Information on how to render the font.
+     * @param value         The value to paint.
      */
     private void paintHorizontalLabel(Graphics2D g, FontMetrics fontMetrics, 
                                     int value)
@@ -301,9 +298,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the label for a vertical slider.
      * 
-     * @param g The graphics context.
-     * @param fontMetrics Information on how to render the font.
-     * @param value The value to paint.
+     * @param g             The graphics context.
+     * @param fontMetrics   Information on how to render the font.
+     * @param value         The value to paint.
      */
     private void paintVerticalLabel(Graphics2D g, FontMetrics fontMetrics,
                                 int value)
@@ -318,9 +315,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the minor tick for an horizontal slider.
      * 
-     * @param g The graphics context.
-     * @param bounds The bounds of the tick box.
-     * @param x The x-position.
+     * @param g         The graphics context.
+     * @param bounds    The bounds of the tick box.
+     * @param x         The x-position.
      */
     private void paintMinorTickForHorizSlider(Graphics2D g, Rectangle bounds,
                                                 int x)
@@ -331,9 +328,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the major tick for an horizontal slider.
      * 
-     * @param g The graphics context.
-     * @param bounds The bounds of the tick box.
-     * @param x The x-position.
+     * @param g         The graphics context.
+     * @param bounds    The bounds of the tick box.
+     * @param x         The x-position.
      */
     private void paintMajorTickForHorizSlider(Graphics2D g, Rectangle bounds,
                                                 int x)
@@ -344,9 +341,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the minor tick for an horizontal slider.
      * 
-     * @param g The graphics context.
-     * @param bounds The bounds of the tick box.
-     * @param y The y-position.
+     * @param g         The graphics context.
+     * @param bounds    The bounds of the tick box.
+     * @param y         The y-position.
      */
     private void paintMinorTickForVertSlider(Graphics2D g, Rectangle bounds,
                                              int y)
@@ -357,9 +354,9 @@ class TwoKnobsSliderUI
     /**
      * Paints the major tick for an vertical slider.
      * 
-     * @param g The graphics context.
-     * @param bounds The bounds of the tick box.
-     * @param y The y-position.
+     * @param g         The graphics context.
+     * @param bounds    The bounds of the tick box.
+     * @param y         The y-position.
      */
     private void paintMajorTickForVertSlider(Graphics2D g, Rectangle bounds,
                                             int y)
@@ -432,8 +429,8 @@ class TwoKnobsSliderUI
      * Determines the boundary of each rectangle composing the slider
      * according to the font metrics and the dimension of the component.
      * 
-     * @param fontMetrics The font metrics.
-     * @param size The dimension of the component.
+     * @param fontMetrics   The font metrics.
+     * @param size          The dimension of the component.
      */
     private void computeRectangles(FontMetrics fontMetrics, Dimension size)
     { 
@@ -462,7 +459,8 @@ class TwoKnobsSliderUI
             if( model.isPaintEndLabels())
             	trackRect.setBounds(x+w-EXTRA, y, w+2*EXTRA, size.height-2*y);
             else
-            	trackRect.setBounds(x+w-EXTRA, h/2, w+2*EXTRA, size.height-h-h/2);
+            	trackRect.setBounds(x+w-EXTRA, h/2, w+2*EXTRA, 
+                                    size.height-h-h/2);
             if (model.isPaintTicks()) 
                 tickRect = new Rectangle(trackRect.x+trackRect.width,
                                         trackRect.y-h, trackRect.width,
@@ -478,7 +476,7 @@ class TwoKnobsSliderUI
      * 
      * @param component The component that owns this uiDelegate. 
      *                  Mustn't be <code>null</code>.
-     * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param model     Reference to the model. Mustn't be <code>null</code>.
      */
     TwoKnobsSliderUI(TwoKnobsSlider component, TwoKnobsSliderModel model)
     {
@@ -629,8 +627,8 @@ class TwoKnobsSliderUI
     /**
      * Paints the slider.
      * 
-     * @param g2D The graphics context.
-     * @param size The dimension of the component.
+     * @param g2D   The graphics context.
+     * @param size  The dimension of the component.
      */
     void paintComponent(Graphics2D g2D, Dimension size)
     {

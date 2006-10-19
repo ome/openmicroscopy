@@ -124,10 +124,10 @@ public class TwoKnobsSlider
     protected static final Dimension    PREFERRED_HORIZONTAL =
                                                     new Dimension(200, 21);
     /** The default width of a knob. */
-    public static final int            KNOB_WIDTH = 16;
+    public static final int             KNOB_WIDTH = 16;
     
     /** The default height of the knob. */
-    public static final int            KNOB_HEIGHT = 16;
+    public static final int             KNOB_HEIGHT = 16;
 
     /** The default width of the horizontal slider. */
     private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
@@ -186,14 +186,11 @@ public class TwoKnobsSlider
         if (model.isPaintTicks()) h += knobHeight;
         if (model.isPaintLabels() || model.isPaintEndLabels())
             h += TwoKnobsSliderUI.EXTRA+fontHeight+2*TwoKnobsSliderUI.BUFFER;
-        if( model.getOrientation() == VERTICAL )
-        {
+        if (model.getOrientation() == VERTICAL) {
         	width_ = calculateVerticalWidth();
-        	System.err.println("Width : " + width_);
-            preferredSize_ = new Dimension(PREFERRED_VERTICAL);
-        }
-        else
-        	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL_WIDTH,h);
+            preferredSize_ = PREFERRED_VERTICAL;
+        } else
+        	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL_WIDTH, h);
     }
     
     /**
@@ -204,10 +201,8 @@ public class TwoKnobsSlider
     private int calculateVerticalWidth()
     {
     	int w = (KNOB_WIDTH+6)*2+6;
-    	if( model.isPaintTicks() )
-    		w += KNOB_WIDTH+6;
-    	if( model.isPaintLabels() || model.isPaintEndLabels() )
-    		w += 30;
+    	if (model.isPaintTicks()) w += KNOB_WIDTH+6;
+    	if (model.isPaintLabels() || model.isPaintEndLabels()) w += 30;
     	return w;
     }
     
@@ -305,7 +300,7 @@ public class TwoKnobsSlider
             if (left < xmin) left = xmin;
             else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
             else {
-                if (left > (right-knobWidth) && right < xmax ) {
+                if (left > (right-knobWidth) && right < xmax) {
                     //push right
                     pushKnobControl = RIGHT_KNOB_PUSHED;
                     right = left+knobWidth;  
@@ -374,8 +369,6 @@ public class TwoKnobsSlider
             }
             model.setStartValue(uiDelegate.yValueForPosition(down));
         }
-        //model.setEndValue(uiDelegate.yValueForPosition(up));
-        //model.setStartValue(uiDelegate.yValueForPosition(down));
         repaint();
     }
     
@@ -651,7 +644,6 @@ public class TwoKnobsSlider
      */
     public void setEnabled(boolean b)
     {
-        //if (model.isEnabled() == b) return;
         super.setEnabled(b);
         model.setEnabled(b);
     }
@@ -683,7 +675,7 @@ public class TwoKnobsSlider
     public Dimension getPreferredSize()
     { 
         Dimension d;
-        if (getOrientation() == VERTICAL ) {
+        if (getOrientation() == VERTICAL) {
             d = new Dimension(getPreferredVerticalSize());
         } else {
             d = new Dimension(getPreferredHorizontalSize());

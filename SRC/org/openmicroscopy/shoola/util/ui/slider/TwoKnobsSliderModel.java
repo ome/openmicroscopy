@@ -55,7 +55,6 @@ import java.util.Map;
 class TwoKnobsSliderModel
 {
 
-
     /** The default minimum value. */
     static final int    DEFAULT_MIN = 0;
     
@@ -63,68 +62,62 @@ class TwoKnobsSliderModel
     static final int    DEFAULT_MAX = 100;
     
     /** The maximum value. */
-    private int maximum;
+    private int         maximum;
     
     /** The minimum value. */
-    private int minimum;
+    private int         minimum;
     
     /** The value of the start knob, the default value is {@link #minimum}. */
-    private int startValue;
+    private int         startValue;
     
     /** The value of the end knob, the default value is {@link #maximum}. */
-    private int endValue;
+    private int         endValue;
     
-    /** <code>true</code> if knobs' motions are allowed. */
-    private boolean enabled;
+    /** Flag indicating if we can move the knobs. */
+    private boolean     enabled;
     
     /** Indicates if the labels are painted or not, */
-    private boolean paintLabels;
+    private boolean     paintLabels;
     
     /** Indicates if the ticks are painted or not. */
-    private boolean paintTicks;
+    private boolean     paintTicks;
     
     /** Indicates if the end labels are painted or not. */
-    private boolean paintEndLabels;
+    private boolean     paintEndLabels;
     
     /** The space between the major ticks. */
-    private int     majorTickSpacing;
+    private int         majorTickSpacing;
     
     /** The space between the minor ticks. */
-    private int     minorTickSpacing;
+    private int         minorTickSpacing;
     
     /** The ticks increment value. */
-    private int     increment;
+    private int         increment;
     
     /** The collection storing the labels. */
-    private Map     labels;
+    private Map         labels;
     
     /**
      * Identifies the orientation of the slider either 
      * {@link TwoKnobsSlider#HORIZONTAL} or {@link TwoKnobsSlider#VERTICAL}
      */
-    private int     orientation;
+    private int         orientation;
 
-    /**
-     * Creates labels for the minimum and maximum values.
-     */
+    /** Creates labels for the minimum and maximum values. */
     private void createEndLabels()
     {
         labels.put(new Integer(minimum), render(minimum));
         labels.put(new Integer(maximum), render(maximum));
     }
     
-    /**
-     * Creates the labels.
-     */
+    /** Creates the labels. */
     private void createLabels()
     {
         for (int i = minimum; i <= maximum; i += increment)
             labels.put(new Integer(i), render(i));
     }
     
-    /**
-     * Initializes the controls with the default values.
-     */
+    /** Initializes the controls with the default values. */
     private void installDefaults()
     {
         paintTicks = true;
@@ -370,11 +363,7 @@ class TwoKnobsSliderModel
      * @param value The value to format.
      * @return See above.
      */
-    String render(double value)
-    {
-        DecimalFormat myF = new DecimalFormat();
-        return myF.format(value);
-    }
+    String render(double value) { return (new DecimalFormat()).format(value); }
     
     /**
      * Returns the orientation of the slider.
