@@ -42,7 +42,6 @@ import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -136,7 +135,8 @@ public class UIUtilities
      * @param parent    The visible parent.
      * @param child     The child to display.
      */
-    public static void setLocationAndShow(Component parent, Component child)
+    public static void setLocationRelativeToAndShow(Component parent, 
+                                                Component child)
     {
         int x = parent.getX()+parent.getWidth();
         int y = parent.getY();
