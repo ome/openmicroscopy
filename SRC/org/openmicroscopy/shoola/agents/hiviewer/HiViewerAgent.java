@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.awt.Rectangle;
 
 //Third-party libraries
 
@@ -84,12 +85,12 @@ public class HiViewerAgent
         if (evt == null) return;
         if (evt.getEventIndex() != Browse.IMAGES)
             browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
-                evt.getRootLevel(), evt.getRootID());
+                evt.getRootLevel(), evt.getRootID(), evt.getRequesterBounds());
         else  {
             HiViewer viewer = null;
             viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
                 evt.getRootLevel(), evt.getRootID());
-            if (viewer != null) viewer.activate();
+            if (viewer != null) viewer.activate(evt.getRequesterBounds());
         }
     }
     
@@ -147,9 +148,10 @@ public class HiViewerAgent
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.
      * @param rootID        The Id of the root.
+     * @param bounds        The bounds of the component invoking this method.
      */
     public static void browse(int eventIndex, long id, Class rootLevel,
-                                long rootID)
+                                long rootID, Rectangle bounds)
     {
         HiViewer viewer = null;
         switch (eventIndex) {
@@ -169,7 +171,7 @@ public class HiViewerAgent
                 viewer = HiViewerFactory.getCategoryViewer(id, rootLevel, 
                                                             rootID);  
         }
-        if (viewer != null) viewer.activate();
+        if (viewer != null) viewer.activate(bounds);
     }
 
 }
