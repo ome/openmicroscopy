@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.events.hiviewer;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.Set;
 
 //Third-party libraries
@@ -74,26 +75,29 @@ public class Browse
     public static final int IMAGES = 4;
     
     /** ID of the top element in the hierarchy. */
-    private long    hierarchyObjectID;
+    private long        hierarchyObjectID;
     
     /** List of IDs object to browse. */
-    private Set    objectsIDs;
+    private Set         objectsIDs;
     
     /** 
      * Index of the top element in the hierarchy e.g.
      * if eventIndex = PROJECT, this means that we want to browse the selected
      * project.
      */
-    private int     eventIndex;
+    private int         eventIndex;
     
     /** 
      * The level of the root, either {@link ExperimenterData} or
      * {@link  GroupData}.
      */
-    private Class   rootLevel;
+    private Class       rootLevel;
     
     /** The Id of the root. */
-    private long    rootID;
+    private long        rootID;
+    
+    /** The bounds of the component posting the event. */
+    private Rectangle   requesterBounds;
     
     /**
      * Checks if the specified level is supported.
@@ -138,9 +142,10 @@ public class Browse
      * @param rootID            The id of the root level. The value is taken
      *                          into account if only if the root level is a 
      *                          group.
+     * @param bounds            The bounds of the component posting the event.
      */
     public Browse(long hierarchyObjectID, int index, Class rootLevel,
-                  long rootID)
+                  long rootID, Rectangle bounds)
     {
         checkEventIndex(index); 
         checkRootLevel(rootLevel);
@@ -148,6 +153,7 @@ public class Browse
         eventIndex = index;
         this.rootLevel = rootLevel;
         this.rootID = rootID;
+        requesterBounds = bounds;
     }
 
     /**
@@ -163,8 +169,10 @@ public class Browse
      * @param rootID    The id of the root level. The value is taken
      *                  into account if only if the root level is a 
      *                  group.
+     * @param bounds    The bounds of the component posting the event.                 
      */
-    public Browse(Set ids, int index, Class rootLevel, long rootID)
+    public Browse(Set ids, int index, Class rootLevel, long rootID, 
+                    Rectangle bounds)
     {
         if (index != IMAGES) 
             throw new IllegalArgumentException("This constructor should " +
@@ -173,6 +181,7 @@ public class Browse
         this.rootLevel = rootLevel;
         this.rootID = rootID;
         objectsIDs = ids;
+        requesterBounds = bounds;
     }
     
     /**
@@ -210,5 +219,12 @@ public class Browse
      */
     public Set getObjectIDs() { return objectsIDs; }
     
+    /**
+     * Returns the bounds of the component posting the event. 
+     * Returns <code>null</code> if not available.
+     * 
+     * @return See above.
+     */
+    public Rectangle getRequesterBounds() { return requesterBounds; }
     
 }
