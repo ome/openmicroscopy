@@ -33,21 +33,17 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -113,9 +109,6 @@ class ControlPane
     
     /** Slider to select the timepoint. */
     private JSlider         tSlider;
-
-    /** The group hosting the color button. */
-    private ButtonGroup     colorModelGroup;
     
     /** One  {@link ChannelButton} per channel. */
     private HashSet         channelButtons;
@@ -184,7 +177,6 @@ class ControlPane
         channelMovieButton = new JButton(
                 controller.getAction(ImViewerControl.CHANNEL_MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(channelMovieButton);
-        colorModelGroup = new ButtonGroup();
         colorModelButton = new JButton();
         UIUtilities.unifiedButtonLookAndFeel(colorModelButton);
         colorModelButton.addActionListener(new ActionListener() {
@@ -271,68 +263,12 @@ class ControlPane
         p.add(createSliderPane("T ", tSlider));
         return p;
     }
-    
-    /**
-     * Helper method to create a UI component hosting the {@link #ratingBox} and
-     * {@link #zoomingBox}.
-     * 
-     * @return See above.
-     */
-    private JPanel createBoxPanes()
-    {
-        JPanel p = new JPanel();
-        GridBagConstraints c = new GridBagConstraints();  
-        p.setLayout(new GridBagLayout());
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.NONE;
-        JLabel label = new JLabel("Zoom");
-        p.add(label, c);
-        c.gridx = 1;
-        p.add(UIUtilities.buildComponentPanel(zoomingBox), c);
-        c.gridx = 0;
-        c.gridy = 1;
-        label = new JLabel("Rate Image");
-        p.add(label, c);
-        c.gridx = 1;
-        p.add(UIUtilities.buildComponentPanel(ratingBox), c);
-        return p;
-    }
 
-    
-    /**
-     * Helper method to create the UI component hosting the color model
-     * selection.
+    /** 
+     * Builds the tool bar displayed on the left side of the image.
      * 
      * @return See above.
      */
-    private JPanel createColorModelPane()
-    {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        
-        ViewerAction action = 
-            controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
-        JRadioButton button = new JRadioButton();
-        String cm = model.getColorModel();
-        button.setSelected(cm.equals(ImViewer.GREY_SCALE_MODEL));
-        button.setAction(action);
-        colorModelGroup.add(button);
-        p.add(button);
-        action = controller.getAction(ImViewerControl.RGB_MODEL);
-        button = new JRadioButton();
-        button.setSelected(cm.equals(ImViewer.RGB_MODEL));
-        button.setAction(action);
-        colorModelGroup.add(button);
-        p.add(button);
-        action = controller.getAction(ImViewerControl.HSB_MODEL);
-        button = new JRadioButton();
-        button.setSelected(cm.equals(ImViewer.HSB_MODEL));
-        button.setAction(action);
-        colorModelGroup.add(button);
-        p.add(button);
-        return p;
-    }
-    
     private JToolBar buildToolBar()
     {
         JToolBar bar = new JToolBar(JToolBar.VERTICAL);
@@ -475,13 +411,8 @@ class ControlPane
         ratingBox.addActionListener(this);
     }
     
-    /**
-     * Updates UI components when a new color model is selected.
-     * 
-     * @param action    The selected action embedding the color model
-     *                  information.
-     */
-    void setColorModel(ViewerAction action)
+    /** Updates UI components when a new color model is selected. */
+    void setColorModel()
     {
         boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
         Iterator i = channelButtons.iterator();
