@@ -43,6 +43,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -51,6 +52,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -347,6 +350,20 @@ public class UIUtilities
         b.setMargin(new Insets(0, 2, 0, 3));
         b.setBorderPainted(false);
         b.setFocusPainted(false);
+    }
+
+    /**
+     * Sets the defaults for the specified area.
+     * 
+     * @param area The text area.
+     */
+    public static void setTextAreaDefault(JTextComponent area)
+    {
+        area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        area.setForeground(STEELBLUE);
+        area.setBackground(Color.WHITE);
+        area.setOpaque(true);
+        area.setEditable(true);
     }
     
 }
