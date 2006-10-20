@@ -76,23 +76,38 @@ public class IconManager
     /** ID of the <code>Thumb</code> icon for the slider. */
     public static final int THUMB = 6;
     
+    /** ID of the <code>ThumbDisabled</code> icon for the slider. */
+    public static final int THUMB_DISABLED = 7;
+
     /** ID of the <code>UpArrow</code> icon for the slider. */
-    public static final int UP_ARROW = 7;
+    public static final int UP_ARROW = 8;
     
     /** ID of the <code>DownArrow</code> icon for the slider. */
-    public static final int DOWN_ARROW = 8;
+    public static final int DOWN_ARROW = 9;
     
     /** ID of the <code>LeftArrow</code> icon for the slider. */
-    public static final int LEFT_ARROW = 9;
+    public static final int LEFT_ARROW = 10;
     
     /** ID of the <code>RightArrow</code> icon for the slider. */
-    public static final int RIGHT_ARROW = 10;
+    public static final int RIGHT_ARROW = 11;
     
+    /** ID of the <code>UpArrowDisabled</code> icon for the slider. */
+    public static final int UP_ARROW_DISABLED = 12;
+    
+    /** ID of the <code>DownArrowDisabled</code> icon for the slider. */
+    public static final int DOWN_ARROW_DISABLED = 13;
+
+    /** ID of the <code>LeftArrowDisabled</code> icon for the slider. */
+    public static final int LEFT_ARROW_DISABLED = 14;
+
+    /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
+    public static final int RIGHT_ARROW_DISABLED = 15;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 10;
+    private static int      MAX_ID = 15;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -104,10 +119,18 @@ public class IconManager
         relPaths[OK] = "nuvola_button_accept22.png";
         relPaths[UNDO] = "nuvola_undo22.png";
         relPaths[THUMB] = "sliderthumb.png";
+        relPaths[THUMB_DISABLED] = "sliderthumb_disabled.png";
         relPaths[UP_ARROW] = "nuvola_player_play12_up.png";
         relPaths[DOWN_ARROW] = "nuvola_player_play12_down.png";
         relPaths[LEFT_ARROW] = "nuvola_player_play12_left.png"; 
         relPaths[RIGHT_ARROW] = "nuvola_player_play12_right.png";
+        relPaths[UP_ARROW_DISABLED] = "nuvola_player_play12_up_disabled.png";
+        relPaths[DOWN_ARROW_DISABLED] = 
+        							"nuvola_player_play12_down_disabled.png";
+        relPaths[LEFT_ARROW_DISABLED] = 
+        							"nuvola_player_play12_left_disabled.png"; 
+        relPaths[RIGHT_ARROW_DISABLED] = 
+        							"nuvola_player_play12_right_disabled.png";
     }
     
     /** 
