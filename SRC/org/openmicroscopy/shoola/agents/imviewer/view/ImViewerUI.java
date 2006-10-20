@@ -35,6 +35,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
@@ -369,7 +371,6 @@ class ImViewerUI
         //tabbedPane =  new JTabbedPane();
         Browser browser = model.getBrowser();
         browser.setComponentsSize(model.getMaxX(), model.getMaxY());
-        
         //tabbedPane.addTab(browser.getTitle(), browser.getUI());
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
@@ -378,7 +379,6 @@ class ImViewerUI
         container.add(controlPane, BorderLayout.WEST);
         container.add(browser.getUI(), BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
-        pack();
     }
     
     /**
@@ -424,7 +424,7 @@ class ImViewerUI
         toolBar.buildComponent();
         controlPane.buildComponent();
         buildGUI();
-        pack();
+        //pack();
     }
     
     /**
@@ -571,11 +571,24 @@ class ImViewerUI
     /** Overridden to the set the location of the {@link ImViewer}. */
     public void setOnScreen()
     {
-        pack();
-        if (model != null)
+        if (model != null) {
+            Browser browser = model.getBrowser();
+            if (browser != null) {
+                Dimension size = browser.getUI().getPreferredSize();
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                int width = 9*(screen.width/10);
+                int height = 9*(screen.height/10);
+                System.out.println(size);
+                if (size.width > width || size.height > height) {
+                    setSize(width, height);
+                } else pack(); 
+            } else pack();
             UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
-                                                this);
-        else UIUtilities.incrementRelativeToAndShow(null, this);
+                    this);
+        } else {
+            pack();
+            UIUtilities.incrementRelativeToAndShow(null, this);
+        }
     }
     
 }
