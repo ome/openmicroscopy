@@ -90,17 +90,33 @@ public class OMESliderUI
     /** Image used for the thumb. */
     private  Image 				thumbImage;
         
+
+    /** Image used for the thumb when the component is disabled. */
+    private  Image 				disabledThumbImage;
+    
     /** Image used for the up arrow. */
     private  Image 				upArrowImage;
+    
+    /** Image used for the up arrow when the component is disabled. */
+    private  Image 				upArrowDisabledImage;
     
     /** Image used for the down arrow. */
     private  Image 				downArrowImage;
     
+    /** Image used for the down arrow when the component is disabled. */
+    private  Image 				downArrowDisabledImage;
+    
     /** Image used for the left arrow. */
     private  Image 				leftArrowImage;
     
+    /** Image used for the left arrow when the component is disabled. */
+    private  Image 				leftArrowDisabledImage;
+        
     /** Image used for the right arrow. */
     private  Image 				rightArrowImage;
+    
+    /** Image used for the right arrow when the component is disabled. */
+    private  Image 				rightArrowDisabledImage;
     
     /** Show arrow at the side of the slider track. */
     private  boolean			showArrows;
@@ -132,6 +148,16 @@ public class OMESliderUI
     	
 		ImageIcon img = icons.getImageIcon(IconManager.THUMB);
 		thumbImage = img.getImage();
+		img = icons.getImageIcon(IconManager.THUMB_DISABLED);
+		disabledThumbImage = img.getImage();
+		img = icons.getImageIcon(IconManager.UP_ARROW_DISABLED);
+		upArrowDisabledImage = img.getImage();
+		img = icons.getImageIcon(IconManager.DOWN_ARROW_DISABLED);
+		downArrowDisabledImage = img.getImage();
+		img = icons.getImageIcon(IconManager.LEFT_ARROW_DISABLED);
+		leftArrowDisabledImage = img.getImage();
+		img = icons.getImageIcon(IconManager.RIGHT_ARROW_DISABLED);
+		rightArrowDisabledImage = img.getImage();
 		img = icons.getImageIcon(IconManager.UP_ARROW);
 		upArrowImage = img.getImage();
 		img = icons.getImageIcon(IconManager.DOWN_ARROW);
@@ -257,10 +283,22 @@ public class OMESliderUI
 		g.setPaint(Color.black);
 		if(showArrows)
 		{
-			g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
+			if(slider.isEnabled())
+			{
+				g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
 					minArrowRect.width,	minArrowRect.height, null);
-			g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
+				g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
 					maxArrowRect.width,	maxArrowRect.height, null);
+			}
+			else
+			{
+				g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
+						minArrowRect.y, minArrowRect.width,	minArrowRect.height,
+						null);
+				g.drawImage(rightArrowDisabledImage, maxArrowRect.x,
+						maxArrowRect.y, maxArrowRect.width,	maxArrowRect.height, 
+						null);
+			}
 		}
 	}
 	
@@ -284,10 +322,22 @@ public class OMESliderUI
 		g.setPaint(Color.black);
 		if(showArrows)
 		{
-			g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
+			if(slider.isEnabled())
+			{
+				g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
 					minArrowRect.width,	minArrowRect.height, null);
-			g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
+				g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
 					maxArrowRect.width,	maxArrowRect.height, null);
+			}
+			else
+			{
+				g.drawImage(downArrowDisabledImage, minArrowRect.x, 
+						minArrowRect.y, minArrowRect.width,	minArrowRect.height,
+						null);
+				g.drawImage(upArrowDisabledImage, maxArrowRect.x,
+						maxArrowRect.y, maxArrowRect.width,	maxArrowRect.height, 
+						null);
+			}			
 		}
 	}
 	
@@ -299,8 +349,13 @@ public class OMESliderUI
 	public void paintThumb(Graphics og)
 	{
 		Graphics2D g = (Graphics2D) og;
-		g.drawImage(thumbImage, thumbRect.x, thumbRect.y, thumbRect.width, 
-			thumbRect.height, null);
+		if(slider.isEnabled())
+			g.drawImage(thumbImage, thumbRect.x, thumbRect.y, thumbRect.width, 
+					thumbRect.height, null);
+		else
+			g.drawImage(disabledThumbImage, thumbRect.x, thumbRect.y, 
+					thumbRect.width, thumbRect.height, null);
+			
 	}
 
 	/**
