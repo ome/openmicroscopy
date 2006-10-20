@@ -578,7 +578,6 @@ class ImViewerUI
                 Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
                 int width = 9*(screen.width/10);
                 int height = 9*(screen.height/10);
-                System.out.println(size);
                 if (size.width > width || size.height > height) {
                     setSize(width, height);
                 } else pack(); 
