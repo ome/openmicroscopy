@@ -363,26 +363,29 @@ class TreeViewerModel
        while (i.hasNext()) {
            n = (TreeImageDisplay) i.next();
            parent = n.getParentDisplay();
-           object = (DataObject) n.getUserObject();
-           if ((object instanceof ProjectData) || 
-                   (object instanceof CategoryGroupData)) {
-               if (toRemove == null) toRemove = new HashSet();
-               toRemove.add(object);
-           } else {
-               po = (DataObject) parent.getUserObject();
-               if (map == null) map = new HashMap();
-               l = (Set) map.get(po);
-               if (l == null) l = new HashSet();
-               l.add(object);
-               map.put(po, l);
+           if (n.getUserObject() instanceof DataObject) {
+               object = (DataObject) n.getUserObject();
+               if ((object instanceof ProjectData) || 
+                       (object instanceof CategoryGroupData)) {
+                   if (toRemove == null) toRemove = new HashSet();
+                   toRemove.add(object);
+               } else {
+                   po = (DataObject) parent.getUserObject();
+                   if (map == null) map = new HashMap();
+                   l = (Set) map.get(po);
+                   if (l == null) l = new HashSet();
+                   l.add(object);
+                   map.put(po, l);
+               }
            }
        }
        if (toRemove != null) {
            currentLoader = new DataObjectRemover(component, toRemove, null);
+           currentLoader.load();
        } else { 
            currentLoader = new DataObjectRemover(component, map);
+           currentLoader.load();
        }
-       currentLoader.load();
    }
    
    /**
