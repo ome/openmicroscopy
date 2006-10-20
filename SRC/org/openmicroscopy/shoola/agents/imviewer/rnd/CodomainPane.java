@@ -138,6 +138,12 @@ class CodomainPane
                 controller.getAction(RendererControl.PLANE_SLICING));
         contrastStretching = new JCheckBox(
                 controller.getAction(RendererControl.CONTRAST_STRETCHING));
+        setDefaultValues();
+    }
+    
+    /** Sets the default values. */
+    private void setDefaultValues()
+    {
         List cdMaps = model.getCodomainMaps();
         Iterator i = cdMaps.iterator();
         CodomainMapContext ctx;
@@ -194,20 +200,6 @@ class CodomainPane
         add(buildControlsPane());
     }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param model         Reference to the Model.
-     *                      Mustn't be <code>null</code>.
-     * @param controller    Reference to the Control.
-     *                      Mustn't be <code>null</code>.
-     */
-    CodomainPane(RendererModel model, RendererControl controller)
-    {
-        super(model, controller);
-        initComponents();
-        buildGUI();
-    }
     
     /** 
      * Returns the name of the component. 
@@ -240,6 +232,40 @@ class CodomainPane
      */
     protected int getPaneIndex() { return ControlPane.CODOMAIN_PANE_INDEX; }
 
+    /** Resets the default rendering settings. */
+    protected void resetDefaultRndSettings()
+    {
+        reverseIntensity.removeActionListener(
+                controller.getAction(RendererControl.REVERSE_INTENSITY));
+        planeSlicing.removeActionListener(
+                controller.getAction(RendererControl.PLANE_SLICING));
+        contrastStretching.removeActionListener(
+                controller.getAction(RendererControl.CONTRAST_STRETCHING));
+        setDefaultValues();
+        reverseIntensity.setAction(
+                controller.getAction(RendererControl.REVERSE_INTENSITY));
+        planeSlicing.setAction(
+                controller.getAction(RendererControl.PLANE_SLICING));
+        contrastStretching.setAction(
+                controller.getAction(RendererControl.CONTRAST_STRETCHING));
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model         Reference to the Model.
+     *                      Mustn't be <code>null</code>.
+     * @param controller    Reference to the Control.
+     *                      Mustn't be <code>null</code>.
+     */
+    CodomainPane(RendererModel model, RendererControl controller)
+    {
+        super(model, controller);
+        initComponents();
+        buildGUI();
+    }
+
+    
     /**
      * Updates the corresponding controls when a codomain transformation
      * is added.

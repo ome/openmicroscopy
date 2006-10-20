@@ -86,6 +86,22 @@ abstract class ControlPane
     protected RendererUI        view;
     
     /**
+     * Creates a new instance.
+     * 
+     * @param model         Reference to the Model.
+     *                      Mustn't be <code>null</code>.
+     * @param controller    Reference to the Control.
+     *                      Mustn't be <code>null</code>.
+     */
+    protected ControlPane(RendererModel model, RendererControl controller)
+    {
+        if (model == null) throw new NullPointerException("No model.");
+        if (controller == null) throw new NullPointerException("No control.");
+        this.model = model;
+        this.controller = controller;
+    }
+    
+    /**
      * Returns the name of the pane.
      * 
      * @return See above
@@ -114,20 +130,7 @@ abstract class ControlPane
      */
     protected abstract int getPaneIndex();
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param model         Reference to the Model.
-     *                      Mustn't be <code>null</code>.
-     * @param controller    Reference to the Control.
-     *                      Mustn't be <code>null</code>.
-     */
-    protected ControlPane(RendererModel model, RendererControl controller)
-    {
-        if (model == null) throw new NullPointerException("No model.");
-        if (controller == null) throw new NullPointerException("No control.");
-        this.model = model;
-        this.controller = controller;
-    }
+    /** Resets the default rendering settings. */
+    protected abstract void resetDefaultRndSettings();
     
 }

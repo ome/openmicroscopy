@@ -37,6 +37,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -262,12 +264,14 @@ class RendererUI
     }
 
     /** Resets the UI controls. */
-    void setDefaultSettings()
+    void resetDefaultRndSettings()
     {
-        setInputInterval();
-        setSelectedChannel(model.getSelectedChannel());
-        DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-        pane.setCodomainInterval();
+        Iterator i = controlPanes.keySet().iterator();
+        ControlPane pane;
+        while (i.hasNext()) {
+            pane = (ControlPane) controlPanes.get(i.next());
+            pane.resetDefaultRndSettings();
+        }
     }
 
 	/**

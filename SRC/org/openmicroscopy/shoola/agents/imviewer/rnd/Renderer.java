@@ -240,13 +240,17 @@ public interface Renderer
     public double getGlobalMax();
     
     /** Resets the default settings. */
-    public void setDefaultSettings();
+    public void resetDefaultRndSettings();
 
+    /** Saves the rendering settings. */
+    public void saveRndSettings();
+    
     /**
      * Returns the {@link RendererUI View}.
      * 
      * @return See above.
      */
     public JFrame getUI();
-    
+
+
 }

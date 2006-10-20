@@ -464,7 +464,11 @@ class RendererModel
     }
 
     /** Resets the default settings. */
-    void setDefaultSettings() { rndControl.resetDefaults(); }
+    void resetDefaultRndSettings()
+    { 
+        rndControl.resetDefaults(); 
+        parentModel.resetDefaults(); 
+    }
 
 	/**
 	 * Returns the currently selected color model.
@@ -472,5 +476,11 @@ class RendererModel
 	 * @return A string containing the colour model.
 	 */
 	String getColorModel() { return rndControl.getModel(); }
+
+    /** Saves the rendering settings. */
+    void saveRndSettings()
+    {
+        rndControl.saveCurrentSettings(); 
+    }
     
 }

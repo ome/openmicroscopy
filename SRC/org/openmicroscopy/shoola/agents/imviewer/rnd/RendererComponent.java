@@ -310,12 +310,12 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setDefaultSettings()
+     * @see Renderer#resetDefaultRndSettings()
      */
-    public void setDefaultSettings()
+    public void resetDefaultRndSettings()
     {
-        model.setDefaultSettings();
-        view.setDefaultSettings();
+        model.resetDefaultRndSettings();
+        view.resetDefaultRndSettings();
         firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
     }
 
@@ -326,6 +326,15 @@ class RendererComponent
     public JFrame getUI()
     {
         return view;
+    }
+
+    /** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#saveRndSettings()
+     */
+    public void saveRndSettings()
+    {
+        model.saveRndSettings();
     }
     
 }

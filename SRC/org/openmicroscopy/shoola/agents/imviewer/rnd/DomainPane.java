@@ -447,6 +447,21 @@ class DomainPane
      */
     protected int getPaneIndex() { return ControlPane.DOMAIN_PANE_INDEX; }
     
+    /** Resets the default rendering settings. */
+    protected void resetDefaultRndSettings()
+    {
+        setInputInterval();
+        setSelectedChannel(model.getSelectedChannel());
+        setCodomainInterval();
+        ChannelToggleButton btn;
+        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+        for (int i = 0; i < channelList.size(); i++) {
+            btn = ((ChannelToggleButton) channelList.get(i));
+            btn.setColor(model.getChannelColor(btn.getChannelIndex()));
+            btn.setGrayedOut(gs);
+        }     
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -484,7 +499,7 @@ class DomainPane
         noiseReduction.addActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setText(NoiseReductionAction.NAME);
-        for (int i=0; i < channelList.size(); i++) 
+        for (int i = 0; i < channelList.size(); i++) 
         	((ChannelToggleButton) channelList.get(i)).setSelected(i==c);
     }
     
@@ -497,16 +512,16 @@ class DomainPane
     /**
      * Set the colour of the channel button c.
      *  
-     * @param c The channel whos colour changed.
+     * @param c The channel whose colour changed.
      */
     void setChannelButtonColor(int c)
     {
-        ChannelToggleButton btn = (ChannelToggleButton)channelList.get(c);
+        ChannelToggleButton btn = (ChannelToggleButton) channelList.get(c);
         btn.setColor(model.getChannelColor(c));
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         if (gs)  btn.setGrayedOut(gs);
     }
-
+    
     /**
      * Fired if the colour model has been changed, toggles between RGB and 
      * Greyscale. 
