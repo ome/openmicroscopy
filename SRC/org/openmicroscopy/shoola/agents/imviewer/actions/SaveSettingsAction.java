@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 
@@ -74,9 +76,19 @@ public class SaveSettingsAction
     public SaveSettingsAction(Renderer model)
     {
         super(model);
+        //setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+    }
+    
+    /**
+     * Saves the current rendering settings.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        model.saveRndSettings();
     }
     
 }

@@ -65,7 +65,7 @@ public class ResetSettingsAction
     public static final String  NAME = "Revert";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Revert to Original Settings";
+    private static final String DESCRIPTION = "Reverts to Original Settings";
     
     /**
      * Creates a new instance.
@@ -76,10 +76,9 @@ public class ResetSettingsAction
     {
         super(model);
         putValue(Action.NAME, NAME);
-        //setEnabled(false);
+        //setEnabled(true);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-
     }
     
     /**
@@ -88,7 +87,7 @@ public class ResetSettingsAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.setDefaultSettings();
+        model.resetDefaultRndSettings();
     }
     
 }
