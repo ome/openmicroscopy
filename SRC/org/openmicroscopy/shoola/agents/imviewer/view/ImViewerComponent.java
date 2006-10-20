@@ -101,7 +101,8 @@ class ImViewerComponent
     private String getStatusText()
     {
         String text = "";
-        text += "Z="+model.getDefaultZ()+" T="+model.getDefaultT();
+        text += "Z="+model.getDefaultZ()+"/"+model.getMaxZ();
+        text += " T="+model.getDefaultT()+"/"+model.getMaxT();
         return text;
     }
     
