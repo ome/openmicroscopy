@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.slider.OMESlider;
 
 /** 
  * Presents variable controls.
@@ -107,10 +108,10 @@ class ControlPane
     private JComboBox       zoomingBox;
     
     /** Slider to select the z-section. */
-    private JSlider         zSlider;
+    private OMESlider         zSlider;
     
     /** Slider to select the timepoint. */
-    private JSlider         tSlider;
+    private OMESlider         tSlider;
     
     /** One  {@link ChannelButton} per channel. */
     private HashSet         channelButtons;
@@ -214,10 +215,10 @@ class ControlPane
         ratingBox =  new JComboBox(ratingActions);
         ratingBox.setEnabled(false);
 
-        zSlider = new JSlider(JSlider.VERTICAL, 0, 1, 0);
+        zSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
         zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
-        tSlider = new JSlider(JSlider.VERTICAL, 0, 1, 0);
+        tSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
         tSlider.setEnabled(false);
         tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
         //zSlider.addChangeListener(this);
