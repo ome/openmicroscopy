@@ -35,6 +35,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import javax.swing.Box;
@@ -75,7 +77,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ControlPane
     extends JPanel
-    implements ActionListener, ChangeListener
+    implements ActionListener, ChangeListener, MouseWheelListener
 {
 
     /** The description of the {@link #zSlider}. */
@@ -121,6 +123,52 @@ class ControlPane
     
     /** Helper reference. */
     private IconManager     icons;
+    
+    /**
+     * Handles the event when the wheel is moved over the {@link #zSlider}.
+     * 
+     * @param e The event to handle.
+     */
+    private void mouseWheelMovedZ(MouseWheelEvent e)
+    {
+        boolean up = true;
+        if (e.getWheelRotation() > 0) up = false;
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+            int v = model.getDefaultZ()-e.getWheelRotation();
+            if (up) {
+                if (v <= model.getMaxZ())
+                    controller.setSelectedXYPlane(v,  model.getDefaultT());
+            } else { //moving down
+                if (v >= 0)
+                    controller.setSelectedXYPlane(v,  model.getDefaultT());
+            }
+        } else {
+     
+        }
+    }
+    
+    /**
+     * Handles the event when the wheel is moved over the {@link #tSlider}.
+     * 
+     * @param e The event to handle.
+     */
+    private void mouseWheelMovedT(MouseWheelEvent e)
+    {
+        boolean up = true;
+        if (e.getWheelRotation() > 0) up = false;
+        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+            int v = model.getDefaultT()-e.getWheelRotation();
+            if (up) {
+                if (v <= model.getMaxT())
+                    controller.setSelectedXYPlane(model.getDefaultZ(), v);
+            } else { //moving down
+                if (v >= 0)
+                    controller.setSelectedXYPlane(model.getDefaultZ(), v);
+            }
+        } else {
+            
+        }
+    }
     
     /**
      * Returns the icon corresponding to the current color model.
@@ -229,6 +277,8 @@ class ControlPane
         tSlider.setValue(model.getDefaultT());
         zSlider.addChangeListener(this);
         tSlider.addChangeListener(this);
+        zSlider.addMouseWheelListener(this);
+        tSlider.addMouseWheelListener(this);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
     
@@ -419,9 +469,10 @@ class ControlPane
         ChannelButton button;
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
+            button.setSelected(
+                    model.isChannelActive(button.getChannelIndex()));
             button.setGrayedOut(gs);
         }
-        setChannelsSelection();
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
     
@@ -436,8 +487,7 @@ class ControlPane
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
             button.setSelected(
-                    model.isChannelActive(button.getChannelIndex())
-                                );
+                    model.isChannelActive(button.getChannelIndex()));
         }
     }
     
@@ -457,6 +507,25 @@ class ControlPane
                 button.setBackground(c);
             }
         }
+    }
+    
+    /** Resets the default. */
+    void resetDefaults()
+    {
+        boolean gs = (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL));
+        Iterator i = channelButtons.iterator();
+        ChannelButton button;
+        int index;
+        while (i.hasNext()) {
+            button = (ChannelButton) i.next();
+            index = button.getChannelIndex();
+            button.setSelected(model.isChannelActive(index));
+            button.setBackground(model.getChannelColor(index)); 
+            button.setGrayedOut(gs);
+        }
+        colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
+        setZSection(model.getDefaultZ());
+        setTimepoint(model.getDefaultT());
     }
     
     /** 
@@ -505,6 +574,21 @@ class ControlPane
         if (object instanceof JSlider) {
             controller.setSelectedXYPlane(zSlider.getValue(), 
                     tSlider.getValue());
+        }
+    }
+    
+    /**
+     * Reacts to wheels moved event related to the {@link #zSlider} and
+     * {@link #tSlider}.
+     * @see MouseWheelListener#mouseWheelMoved(MouseWheelEvent)
+     */
+    public void mouseWheelMoved(MouseWheelEvent e)
+    {
+        Object source = e.getSource();
+        if (source == zSlider && zSlider.isEnabled()) {
+            mouseWheelMovedZ(e);
+        } else if (source == tSlider && tSlider.isEnabled()) {
+            mouseWheelMovedT(e);
         }
     }
     

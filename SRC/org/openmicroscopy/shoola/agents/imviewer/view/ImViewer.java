@@ -405,5 +405,8 @@ public interface ImViewer
     
     /** Brings up on screen the unit bar selection widget. */
     public void showUnitBarSelection();
+
+    /** Resets the defaults settings. */
+    public void resetDefaults();
     
 }

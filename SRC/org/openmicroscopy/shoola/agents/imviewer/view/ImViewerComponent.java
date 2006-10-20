@@ -93,7 +93,6 @@ class ImViewerComponent
     /** The View sub-component. */
     private ImViewerUI       view;
     
-    
     /** 
      * Returns the description displayed in the status bar.
      * 
@@ -821,7 +820,9 @@ class ImViewerComponent
      */
     public void setUnitBarSize(double size)
     {
-//      TODO Check state
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
         model.getBrowser().setUnitBarSize(size);
     }
 
@@ -837,6 +838,19 @@ class ImViewerComponent
         UnitBarSizeDialog d = new UnitBarSizeDialog(view);
         d.addPropertyChangeListener(controller);
         UIUtilities.centerAndShow(d);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#resetDefaults()
+     */
+    public void resetDefaults()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
+        view.setStatus(getStatusText(), -1, true);
+        view.resetDefaults(); 
     }
     
 }

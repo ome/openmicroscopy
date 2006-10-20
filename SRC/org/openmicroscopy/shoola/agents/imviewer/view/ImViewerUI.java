@@ -565,6 +565,9 @@ class ImViewerUI
         controlPane.setChannelColor(index, c);
     }
 
+    /** Resets the defaults. */
+    void resetDefaults() { controlPane.resetDefaults(); }
+    
     /** Overridden to the set the location of the {@link ImViewer}. */
     public void setOnScreen()
     {
