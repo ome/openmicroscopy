@@ -73,14 +73,26 @@ public class IconManager
     /** ID of the <code>Undo</code> icon. */
     public static final int UNDO = 5;
     
-    /** ID of the <code>Undo</code> icon. */
+    /** ID of the <code>Thumb</code> icon for the slider. */
     public static final int THUMB = 6;
+    
+    /** ID of the <code>UpArrow</code> icon for the slider. */
+    public static final int UP_ARROW = 7;
+    
+    /** ID of the <code>DownArrow</code> icon for the slider. */
+    public static final int DOWN_ARROW = 8;
+    
+    /** ID of the <code>LeftArrow</code> icon for the slider. */
+    public static final int LEFT_ARROW = 9;
+    
+    /** ID of the <code>RightArrow</code> icon for the slider. */
+    public static final int RIGHT_ARROW = 10;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 6;
+    private static int      MAX_ID = 10;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -92,6 +104,10 @@ public class IconManager
         relPaths[OK] = "nuvola_button_accept22.png";
         relPaths[UNDO] = "nuvola_undo22.png";
         relPaths[THUMB] = "sliderthumb.png";
+        relPaths[UP_ARROW] = "nuvola_player_play12_up.png";
+        relPaths[DOWN_ARROW] = "nuvola_player_play12_down.png";
+        relPaths[LEFT_ARROW] = "nuvola_player_play12_left.png"; 
+        relPaths[RIGHT_ARROW] = "nuvola_player_play12_right.png";
     }
     
     /** 
