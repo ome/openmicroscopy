@@ -1,5 +1,5 @@
 /*
- * OMESlider.java
+ * org.openmicroscopy.shoola.util.ui.slider.OMESlider
  *
  *------------------------------------------------------------------------------
  *
@@ -37,12 +37,14 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 
 /** 
- * OMESlider is an extension of the JSlider, it has a moew Aqua look and feel, 
+ * OMESlider is an extension of the {@link JSlider}, 
+ * it has a more <code>Aqua look and feel</code>, 
  * plus the addition of arrow buttons at the ends of the track which can 
  * increment the slider by one.
- * 
+ * <p>
  * When the track is selected, the thumb will move to the point clicked, which
- * is different to the original 
+ * is different to the original.
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,12 +67,12 @@ public class OMESlider
 	private OMESliderUI	sliderUI;	
 	
 	/**
-	 * Constructor for OMESlider.
+	 * Creates a new instance.
 	 * 
-	 * @param orientation Orientation of slider.
-	 * @param min Minimum value for slider. 
-	 * @param max Maximum value for slider. 
-	 * @param value Value of slider. 
+	 * @param orientation  Orientation of slider.
+	 * @param min          Minimum value for slider. 
+	 * @param max          Maximum value for slider. 
+	 * @param value        Value of slider. 
 	 */
 	public OMESlider(int orientation, int min, int max, int value)
 	{
@@ -83,26 +85,23 @@ public class OMESlider
 		this.setValue(value);
 	}
 	
-	/**
-	 * OMESlider contructor. 
-	 */
+	/** Creates a default slider.  */
 	public OMESlider()
 	{
 		this(OMESlider.HORIZONTAL, 0, 1, 0);
 	}
 	
 	/**
-	 * Returns true if the  arrows on the track.
+	 * Returns <code>true</code> if the  arrows on the track, 
+     * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isShowArrows()
-	{
-		return showArrows;
-	}
+	public boolean isShowArrows() { return showArrows; }
 	
 	/**
-	 * Show or hide the arrows on the track.
+	 * Shows the arrows on the track if the passed value is <code>true</code>,
+     * hides otherwise.
 	 * 
 	 * @param isShow See above.
 	 */
@@ -111,4 +110,5 @@ public class OMESlider
 		showArrows = isShow;
 		sliderUI.setShowArrows(showArrows);
 	}
+    
 }

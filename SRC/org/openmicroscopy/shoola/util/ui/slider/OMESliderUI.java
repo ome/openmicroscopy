@@ -1,5 +1,5 @@
 /*
- * OMESliderUI.java
+ * org.openmicroscopy.shoola.util.ui.slider.OMESliderUI
  *
  *------------------------------------------------------------------------------
  *
@@ -38,15 +38,15 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-
 import javax.swing.ImageIcon;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
-//Third-party libraries
-//Application-internal dependencies
 /** 
  * 
  *
@@ -126,22 +126,8 @@ public class OMESliderUI
     
     /** Area in which the max arrow will reside. */
     private  Rectangle			maxArrowRect;
-    
-	/**
-	 * Constructor for the OMESliderUI
-	 * 
-	 * @param slider parent slider component.
-	 */
-	public OMESliderUI(OMESlider slider) 
-	{
-		super(slider);
-		showArrows = true;
-		loadThumbArrowImage();
-	}
 
-	/**
-	 * Load the thumb and arrow images. 
-	 */
+	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
 		IconManager icons = IconManager.getInstance();
@@ -166,19 +152,8 @@ public class OMESliderUI
 		leftArrowImage = img.getImage();
 		img = icons.getImageIcon(IconManager.RIGHT_ARROW);
 		rightArrowImage = img.getImage();
-	}
-	
-	 	
-	/**
-	 * Calculate the geometry of the slider, this calls the 
-	 * {@link BasicSliderUI#calculateGeometry} and adds extra calculations to 
-	 * calculate the ArrowRect if showArrows is <code>true</code>. 
-	 */
-	public void calculateGeometry()
-	{
-		super.calculateGeometry();
-		if(showArrows) calculateArrowRect();
-	}
+	}	
+
 
 	/**
 	 * This method calculates the size and positon of the arrows used displayed
@@ -186,7 +161,7 @@ public class OMESliderUI
 	 */
 	private void calculateArrowRect()
 	{
-		if(slider.getOrientation() == JSlider.HORIZONTAL)
+		if (slider.getOrientation() == JSlider.HORIZONTAL)
 		{
 			int offsetY = trackRect.height/2-ARROW_HEIGHT/2-1;
 			minArrowRect = new Rectangle(trackRect.x-(ARROW_WIDTH+THUMB_WIDTH/2+
@@ -208,22 +183,134 @@ public class OMESliderUI
 		}
 	}
 
+    /**
+     * Paints the vertical track, and arrows if selected, this method is called
+     * from the {@link #paintTrack(Graphics)} method. 
+     * 
+     * @param g Graphics context.
+     */
+    private void paintVerticalTrack(Graphics2D g)
+    {
+        Color gradientStart = TRACK_GRADIENT_START;
+        Color gradientEnd = TRACK_GRADIENT_END;
+        
+        Paint paint = new GradientPaint(trackRect.x+trackRect.width/2-2, 
+                trackRect.y, gradientStart, trackRect.x+trackRect.width/2+2,
+                trackRect.y, gradientEnd, false);
+        g.setPaint(paint);
+        g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
+                trackRect.height, 4, 4);
+        g.setPaint(Color.black);
+        if (showArrows)
+        {
+            if (slider.isEnabled())
+            {
+                g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
+                    minArrowRect.width, minArrowRect.height, null);
+                g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
+                    maxArrowRect.width, maxArrowRect.height, null);
+            }
+            else
+            {
+                g.drawImage(downArrowDisabledImage, minArrowRect.x, 
+                        minArrowRect.y, minArrowRect.width, minArrowRect.height,
+                        null);
+                g.drawImage(upArrowDisabledImage, maxArrowRect.x,
+                        maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
+                        null);
+            }           
+        }
+    }
+
+    /**
+     * Paints the Horizontal track, and arrows if selected, this method is 
+     * called from the {@link #paintTrack(Graphics)} method. 
+     * 
+     * @param g Graphics context.
+     */
+    private void paintHorizontalTrack(Graphics2D g)
+    {
+        Color gradientStart = TRACK_GRADIENT_START;
+        Color gradientEnd = TRACK_GRADIENT_END;
+        
+        Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
+              gradientStart, 0, trackRect.y+thumbRect.height/2+2, gradientEnd, 
+              false);
+        g.setPaint(paint);
+        g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
+                trackRect.width, 4, 4, 4);
+        g.setPaint(Color.black);
+        if (showArrows)
+        {
+            if (slider.isEnabled())
+            {
+                g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
+                    minArrowRect.width, minArrowRect.height, null);
+                g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
+                    maxArrowRect.width, maxArrowRect.height, null);
+            }
+            else
+            {
+                g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
+                        minArrowRect.y, minArrowRect.width, minArrowRect.height,
+                        null);
+                g.drawImage(rightArrowDisabledImage, maxArrowRect.x,
+                        maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
+                        null);
+            }
+        }
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param slider parent slider component.
+     */
+    OMESliderUI(OMESlider slider) 
+    {
+        super(slider);
+        showArrows = true;
+        loadThumbArrowImage();
+    }
+    
+    /**
+     * Show or hide the arrows on the track.
+     * 
+     * @param isShow See above.
+     */
+    void setShowArrows(boolean isShow)
+    {
+        showArrows = isShow;
+        this.calculateGeometry();
+    }
+    
 	/**
 	 * Extends the {@link #calculateTrackBuffer()} to allow the extra space 
 	 * required to display the arrows on the track. 
+     * @see BasicSliderUI#calculateTrackBuffer()
 	 */
 	protected void calculateTrackBuffer()
 	{
 		super.calculateTrackBuffer();
-		if(showArrows)
-			if(slider.getOrientation() == JSlider.HORIZONTAL)
+		if (showArrows)
+			if (slider.getOrientation() == JSlider.HORIZONTAL)
 				trackBuffer += ARROW_WIDTH+ARROW_SPACE;
 			else
 				trackBuffer += ARROW_HEIGHT+ARROW_SPACE; 
 	}
 	
+    /**
+     * Overriddent to get the size of the thumb.
+     * @see BasicSliderUI#getThumbSize()
+     */
+    protected Dimension getThumbSize() 
+    {
+        return new Dimension(THUMB_WIDTH, THUMB_HEIGHT);
+    }
+    
 	/**
-	 * Calculates the size of the thumb rect. 
+	 * Overridden to calculate the size of the thumb rect. 
+     * @see BasicSliderUI#calculateThumbSize()
 	 */
 	public void calculateThumbSize()
 	{
@@ -231,150 +318,62 @@ public class OMESliderUI
 	}
 
 	/**
-	 * Show or hide the arrows on the track.
-	 * 
-	 * @param isShow See above.
-	 */
-	public void setShowArrows(boolean isShow)
-	{
-		showArrows = isShow;
-		this.calculateGeometry();
-	}
-	
-	/**
-	 * Get the size of the thumb.
-	 * 
-	 * @return Dimension size of the thumb.
-	 */
-	protected Dimension getThumbSize() 
-	{
-		return new Dimension(THUMB_WIDTH, THUMB_HEIGHT);
-	}
-	
-	/**
 	 * Overridden this method will paint the gradient on the slider track
-	 * @see javax.swing.plaf.basic.BasicSliderUI#paintTrack(java.awt.Graphics)
+	 * @see BasicSliderUI#paintTrack(Graphics)
 	 */
 	public void paintTrack(Graphics og)
 	{
-		if(slider.getOrientation() == JSlider.HORIZONTAL)
+		if (slider.getOrientation() == JSlider.HORIZONTAL)
 			paintHorizontalTrack((Graphics2D) og);
 		else
 			paintVerticalTrack((Graphics2D) og);
 	}
-	
+
 	/**
-	 * Paint the Horizontal track, and arrows if selected, this method is called
-	 * from the {@link #paintTrack(Graphics)} method. 
-	 * 
-	 * @param g Graphics context.
-	 */
-	private void paintHorizontalTrack(Graphics2D g)
-	{
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
-		
-		Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
-			  gradientStart, 0, trackRect.y+thumbRect.height/2+2, gradientEnd, 
-			  false);
-		g.setPaint(paint);
-		g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
-				trackRect.width, 4, 4, 4);
-		g.setPaint(Color.black);
-		if(showArrows)
-		{
-			if(slider.isEnabled())
-			{
-				g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
-					minArrowRect.width,	minArrowRect.height, null);
-				g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
-					maxArrowRect.width,	maxArrowRect.height, null);
-			}
-			else
-			{
-				g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
-						minArrowRect.y, minArrowRect.width,	minArrowRect.height,
-						null);
-				g.drawImage(rightArrowDisabledImage, maxArrowRect.x,
-						maxArrowRect.y, maxArrowRect.width,	maxArrowRect.height, 
-						null);
-			}
-		}
-	}
-	
-	/**
-	 * Paint the vertical track, and arrows if selected, this method is called
-	 * from the {@link #paintTrack(Graphics)} method. 
-	 * 
-	 * @param g Graphics context.
-	 */
-	private void paintVerticalTrack(Graphics2D g)
-	{
-		Color gradientStart = TRACK_GRADIENT_START;
-		Color gradientEnd = TRACK_GRADIENT_END;
-		
-		Paint paint = new GradientPaint(trackRect.x+trackRect.width/2-2, 
-				trackRect.y, gradientStart, trackRect.x+trackRect.width/2+2,
-				trackRect.y, gradientEnd, false);
-		g.setPaint(paint);
-		g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
-				trackRect.height, 4, 4);
-		g.setPaint(Color.black);
-		if(showArrows)
-		{
-			if(slider.isEnabled())
-			{
-				g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
-					minArrowRect.width,	minArrowRect.height, null);
-				g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
-					maxArrowRect.width,	maxArrowRect.height, null);
-			}
-			else
-			{
-				g.drawImage(downArrowDisabledImage, minArrowRect.x, 
-						minArrowRect.y, minArrowRect.width,	minArrowRect.height,
-						null);
-				g.drawImage(upArrowDisabledImage, maxArrowRect.x,
-						maxArrowRect.y, maxArrowRect.width,	maxArrowRect.height, 
-						null);
-			}			
-		}
-	}
-	
-	/**
-	 * Paint thumb on slider. 
-	 * 
-	 * @param og Graphics context. 
+	 * Overridden to paint thumb on slider. 
+	 * @see BasicSliderUI#paintThumb(java.awt.Graphics)
 	 */
 	public void paintThumb(Graphics og)
 	{
 		Graphics2D g = (Graphics2D) og;
-		if(slider.isEnabled())
+		if (slider.isEnabled())
 			g.drawImage(thumbImage, thumbRect.x, thumbRect.y, thumbRect.width, 
 					thumbRect.height, null);
 		else
 			g.drawImage(disabledThumbImage, thumbRect.x, thumbRect.y, 
 					thumbRect.width, thumbRect.height, null);
-			
 	}
 
-	/**
-	 * Decrement the slider by one value. 
-	 */
-	public void decrementSlider() 
-	{
-        synchronized(slider)    
-        {
-            int Value = slider.getValue();
-            slider.setValue(Value -1);  
-        }       
+    /**
+     * Overridden to calculate the geometry of the slider, this calls the 
+     * {@link BasicSliderUI#calculateGeometry} and to add extra calculations to 
+     * calculate the <code>ArrowRect</code> if showArrows is <code>true</code>. 
+     * @see BasicSliderUI#calculateGeometry()
+     */
+    public void calculateGeometry()
+    {
+        super.calculateGeometry();
+        if(showArrows) calculateArrowRect();
     }
-	
+    
+    /**
+     * Assign the new overloaded trackListener to the slider. 
+     * 
+     * @param slider Parent slider.
+     * @return TrackListner New listener.
+     * @see BasicSliderUI#createTrackListener(JSlider)
+     */
+    protected TrackListener createTrackListener(JSlider slider) 
+    {
+        return new TrackListener2();
+    }
+    
 	/** 
 	 * Overridden TrackListener class, as we wish to extend the functionality
 	 * of the on track click events.  
 	 */
-	public class TrackListener2 extends TrackListener 
+	public class TrackListener2 
+        extends TrackListener 
 	{
 
 		/**
@@ -382,12 +381,72 @@ public class OMESliderUI
 		 */
 		protected boolean isDragging;
 		
+        /**
+         * This method will detect a click on the track or min/max arrows and 
+         * behave accordingly.
+         * If the user clicks in the track then the thumb is moved to that 
+         * position and the value updated. If the user clicks the arrows then
+         * the value is incremented or decremented by one depending on which 
+         * slider was clicked. 
+         * 
+         * @param event mouseEvent.
+         */
+        public void mouseClicked(MouseEvent event)
+        {   
+            // Check to see that the slider is enabled before proceeeding.
+            if (!slider.isEnabled())
+                return;
+
+            // Get mouse x, y positions.
+            currentMouseX = event.getX();
+            currentMouseY = event.getY();
+
+            if (showArrows)
+            {
+                if (minArrowRect.contains(currentMouseX, currentMouseY))
+                {
+                    int value = slider.getValue();
+                    if (value > slider.getMinimum())
+                    {
+                        slider.setValue(value-1);
+                        slider.repaint();
+                    }
+                    isDragging = false;
+                    return;     
+                }
+                if (maxArrowRect.contains(currentMouseX, currentMouseY))
+                {
+                    int value = slider.getValue();
+                    if (value < slider.getMaximum())
+                    {
+                        slider.setValue(value+1);
+                        slider.repaint();
+                    }
+                    isDragging = false;
+                    return;
+                }
+            }
+            int value; 
+                
+            // Depending on the slider orientation lets move the thumb to the 
+            // position clicked by the user. 
+            switch (slider.getOrientation()) 
+            {
+                case JSlider.HORIZONTAL:
+                    value = valueForXPosition(currentMouseX);
+                    slider.setValue(value);
+                break;
+                case JSlider.VERTICAL:
+                    value = valueForYPosition(currentMouseY);
+                    slider.setValue(value);
+                break;
+            }
+        }
+        
 		/**
 		 * Overloaded the mousePressed event in the TrackListener.
-		 * 
-		 * @param event MouseEvent passed into the method. 
+         * @see TrackListener#mousePressed(MouseEvent)
 		 */
-		
 		public void mousePressed(MouseEvent event) 
 		{
 			// Check to see that the slider is enabled before proceeeding. 
@@ -409,11 +468,11 @@ public class OMESliderUI
 				// Depending on orientation of the mouse. 
 				switch (slider.getOrientation()) 
 				{
-				case JSlider.HORIZONTAL:
-					offset = currentMouseX-thumbRect.x;
-					break;
-				case JSlider.VERTICAL:
-					offset = currentMouseY-thumbRect.y;
+    				case JSlider.HORIZONTAL:
+    					offset = currentMouseX-thumbRect.x;
+    					break;
+    				case JSlider.VERTICAL:
+    					offset = currentMouseY-thumbRect.y;
 				}
 				isDragging = true;
 				return;
@@ -425,74 +484,11 @@ public class OMESliderUI
 		}
 
 		/**
-		 * Overridden method of mouseClicked in TrackListener. This method will
-		 * detect a click on the track or min/max arrows and behave accordingly.
-		 * If the user clicks in the track then the thumb is moved to that 
-		 * position and the value updated. If the user clicks the arrows then
-		 * the value is incremented or decremented by one depending on which 
-		 * slider was clicked. 
-		 * 
-		 * @param event mouseEvent.
-		 */
-		public void mouseClicked(MouseEvent event)
-		{	
-			// Check to see that the slider is enabled before proceeeding.
-			if (!slider.isEnabled())
-				return;
-
-			// Get mouse x, y positions.
-			currentMouseX = event.getX();
-			currentMouseY = event.getY();
-
-			if(showArrows)
-			{
-				if(minArrowRect.contains(currentMouseX, currentMouseY))
-				{
-					int value = slider.getValue();
-					if(value > slider.getMinimum())
-					{
-						slider.setValue(value-1);
-						slider.repaint();
-					}
-					isDragging = false;
-					return;		
-				}
-				if(maxArrowRect.contains(currentMouseX, currentMouseY))
-				{
-					int value = slider.getValue();
-					if(value < slider.getMaximum())
-					{
-						slider.setValue(value+1);
-						slider.repaint();
-					}
-					isDragging = false;
-					return;
-				}
-			}
-			int value; 
-				
-			// Depending on the slider orientation lets move the thumb to the 
-			// position clicked by the user. 
-			switch (slider.getOrientation()) 
-			{
-				case JSlider.HORIZONTAL:
-					value = valueForXPosition(currentMouseX);
-					slider.setValue(value);
-				break;
-				case JSlider.VERTICAL:
-					value = valueForYPosition(currentMouseY);
-					slider.setValue(value);
-				break;
-			}
-		}
-		
-		/**
 		 * Overridden function of the slider track listener method mouseDragged
 		 * as this method relied on the private member of isDragged in sliderUI.
 		 * Has to override this as we could not set the isDragging variable in
 		 * the basicSliderUI. :-( *Why private??!*
-		 * 
-		 * @param event	MouseEvent.
+		 * @see TrackListener#mouseDragged(MouseEvent) 
 		 */
 		public void mouseDragged(MouseEvent event) 
 		{
@@ -559,17 +555,6 @@ public class OMESliderUI
 				break;
 			}
 		}
-	}
-
-	/**
-	 * Assign the new overloaded trackListener to the slider. 
-	 * 
-	 * @param slider Parent slider.
-	 * @return TrackListner New listener.
-	 */
-	protected TrackListener createTrackListener(JSlider slider) 
-	{
-		return new TrackListener2();
 	}
 	
 }
