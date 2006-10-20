@@ -82,4 +82,11 @@ public class ChannelToggleButton
         });
 	}
     
+    /**
+     * Returns the index of the channel.
+     * 
+     * @return See above.
+     */
+    public int getChannelIndex() { return index; }
+    
 }

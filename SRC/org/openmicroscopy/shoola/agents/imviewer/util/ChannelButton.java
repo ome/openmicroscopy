@@ -175,6 +175,4 @@ public class ChannelButton
      */
     public int getChannelIndex() { return index; }
 
-
-    
 }
