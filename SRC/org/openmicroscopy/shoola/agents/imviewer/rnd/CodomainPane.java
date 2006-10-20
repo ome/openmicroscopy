@@ -200,7 +200,6 @@ class CodomainPane
         add(buildControlsPane());
     }
     
-    
     /** 
      * Returns the name of the component. 
      * @see ControlPane#getPaneName()
