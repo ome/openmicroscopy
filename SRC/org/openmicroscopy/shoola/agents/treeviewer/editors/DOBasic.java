@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,13 +44,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -120,29 +117,16 @@ class DOBasic
     
     /** Reference to the Control. */
     private EditorControl       controller;
-    
-    /**
-     * Sets the defaults for the specified area.
-     * 
-     * @param area The text area.
-     */
-    private void setTextAreaDefault(JTextComponent area)
-    {
-        area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        area.setForeground(UIUtilities.STEELBLUE);
-        area.setBackground(Color.WHITE);
-        area.setOpaque(true);
-        area.setEditable(true);
-    }
+
     
     /** Initializes the components composing this display. */
     private void initComponents()
     {
         tabbedPane = new JTabbedPane();
         nameArea = new JTextField();
-        setTextAreaDefault(nameArea);
+        UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
-        setTextAreaDefault(descriptionArea);
+        UIUtilities.setTextAreaDefault(descriptionArea);
         if (model.getEditorType() == Editor.PROPERTIES_EDITOR) {
             nameArea.setText(model.getDataObjectName());
             descriptionArea.setText(model.getDataObjectDescription());
