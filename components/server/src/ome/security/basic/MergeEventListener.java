@@ -211,7 +211,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener
 		{
 			StringBuilder sb = new StringBuilder(objects.length*16);
 			for (Object obj : objects) {
-				sb.append(obj.toString());
+				sb.append( obj==null?"null":obj.toString());
 			}
 			log.debug(sb.toString());
 		}
