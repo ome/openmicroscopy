@@ -126,7 +126,7 @@ public class OMESliderUI
     
     /** Area in which the max arrow will reside. */
     private  Rectangle			maxArrowRect;
-
+    
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
@@ -318,6 +318,16 @@ public class OMESliderUI
 	}
 
 	/**
+	 * Overridden to calculate the size of the thumb rect. 
+     * @see BasicSliderUI#paintFocus(Graphics g)
+	 */
+	public void paintFocus(Graphics g)
+	{
+
+	}
+
+	
+	/**
 	 * Overridden this method will paint the gradient on the slider track
 	 * @see BasicSliderUI#paintTrack(Graphics)
 	 */
@@ -400,46 +410,51 @@ public class OMESliderUI
             // Get mouse x, y positions.
             currentMouseX = event.getX();
             currentMouseY = event.getY();
-
-            if (showArrows)
-            {
-                if (minArrowRect.contains(currentMouseX, currentMouseY))
-                {
-                    int value = slider.getValue();
-                    if (value > slider.getMinimum())
-                    {
-                        slider.setValue(value-1);
-                        slider.repaint();
-                    }
-                    isDragging = false;
-                    return;     
-                }
-                if (maxArrowRect.contains(currentMouseX, currentMouseY))
-                {
-                    int value = slider.getValue();
-                    if (value < slider.getMaximum())
-                    {
-                        slider.setValue(value+1);
-                        slider.repaint();
-                    }
-                    isDragging = false;
-                    return;
-                }
-            }
+    
             int value; 
+            scrollTimer.stop();
                 
+            if (showArrows)
+	        {
+				if (minArrowRect.contains(currentMouseX, currentMouseY))
+	            {
+					value = slider.getValue();
+	                if (value > slider.getMinimum())
+	                {
+	                	slider.setValue(value-1);
+	                    slider.repaint();
+	                }
+	                isDragging = false;
+	                return;     
+	            }
+	            if (maxArrowRect.contains(currentMouseX, currentMouseY))
+	            {
+	            	value = slider.getValue();
+	                if (value < slider.getMaximum())
+	                {
+	                	slider.setValue(value+1);
+	                    slider.repaint();
+	                }
+	                isDragging = false;
+	                return;
+	            }
+	        }
+            
+            if( trackRect.contains(currentMouseX, currentMouseY))
+            {
             // Depending on the slider orientation lets move the thumb to the 
             // position clicked by the user. 
-            switch (slider.getOrientation()) 
-            {
-                case JSlider.HORIZONTAL:
-                    value = valueForXPosition(currentMouseX);
-                    slider.setValue(value);
-                break;
-                case JSlider.VERTICAL:
-                    value = valueForYPosition(currentMouseY);
-                    slider.setValue(value);
-                break;
+            	switch (slider.getOrientation()) 
+            	{
+                	case JSlider.HORIZONTAL:
+                    	value = valueForXPosition(currentMouseX);
+                    	slider.setValue(value);
+                    break;
+                	case JSlider.VERTICAL:
+                    	value = valueForYPosition(currentMouseY);
+                    	slider.setValue(value);
+                    break;
+            	}
             }
         }
         
@@ -477,6 +492,38 @@ public class OMESliderUI
 				isDragging = true;
 				return;
 			}
+			
+			if (showArrows)
+	        {
+				if (minArrowRect.contains(currentMouseX, currentMouseY))
+	            {
+					int value = slider.getValue();
+	                if (value > slider.getMinimum())
+	                {
+	                	scrollTimer.stop();
+	                	scrollListener.setScrollByBlock(false);
+	                    scrollListener.setDirection(OMESliderUI.NEGATIVE_SCROLL);
+	                    scrollTimer.start();
+	                    slider.repaint();
+	                }
+	                isDragging = false;
+	                return;     
+	            }
+	            if (maxArrowRect.contains(currentMouseX, currentMouseY))
+	            {
+	            	int value = slider.getValue();
+	                if (value < slider.getMaximum())
+	                {
+	                	scrollTimer.stop();
+	                	scrollListener.setScrollByBlock(false);
+	                    scrollListener.setDirection(OMESliderUI.POSITIVE_SCROLL);
+	                    scrollTimer.start();
+	                    slider.repaint();
+	                }
+	                isDragging = false;
+	                return;
+	            }
+	        }
 			
 			// We have clicked outside of the thumb and onto the track. 
 			isDragging = false;
@@ -556,5 +603,4 @@ public class OMESliderUI
 			}
 		}
 	}
-	
 }
