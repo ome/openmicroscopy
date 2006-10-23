@@ -311,8 +311,7 @@ class TabbedPaneUI
         tabPanel.add(RGBSliderPane,RGBSLIDERPANE);
         tabPanel.add(swatchPane,SWATCHPANE);
         add(tabPanel);
-        colourWheelPane.setActive(true);
-        RGBSliderPane.setActive(false); 
+        pickSwatchPane();
         
     }
     

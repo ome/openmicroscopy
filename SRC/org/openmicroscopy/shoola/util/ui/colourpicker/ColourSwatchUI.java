@@ -99,14 +99,13 @@ public class ColourSwatchUI
 		colourlist = new JList(
 				new Object[] {	
 				
-						new Object[] {Color.black,"Black"},
-						new Object[] {Color.gray,"Gray"},
-						new Object[] {Color.white,"White"},
+						new Object[] {Color.blue,"Blue"},
+						new Object[] {Color.green,"Green"},
 						new Object[] {Color.red,"Red"},
+						new Object[] {Color.white,"White"},
+						new Object[] {Color.gray,"Gray"},
 						new Object[] {Color.orange,"Orange"},
 						new Object[] {Color.yellow,"Yellow"},
-						new Object[] {Color.green,"Green"},
-						new Object[] {Color.blue,"Blue"},
 						new Object[] {new Color(75, 0, 130),"Indigo"},
 						new Object[] {new Color(238,130,238),"Violet"},
 							
@@ -146,7 +145,6 @@ public class ColourSwatchUI
 		gbc.anchor = GridBagConstraints.NORTH;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(20,30,20,30);
-		
 		this.add(scrollpane, gbc);
 	}
 	
