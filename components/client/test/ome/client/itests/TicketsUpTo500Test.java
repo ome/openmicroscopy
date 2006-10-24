@@ -7,7 +7,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import junit.framework.TestCase;
 
@@ -17,14 +19,18 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
+import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
+import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
@@ -36,7 +42,7 @@ import pojos.ImageData;
 public class TicketsUpTo500Test extends TestCase
 {
 
-    ServiceFactory sf = new ServiceFactory();
+    ServiceFactory sf = new ServiceFactory("ome.client.test");
     IUpdate iUpdate   = sf.getUpdateService();
     IQuery iQuery     = sf.getQueryService();
     IAdmin iAdmin     = sf.getAdminService();
@@ -315,6 +321,60 @@ public class TicketsUpTo500Test extends TestCase
 		}
     }
     
+    @Test( groups = "ticket:435" )
+    public void testFindAnnotationsReturnsExperimenter() throws Exception 
+    {
+    	Login rootLogin = (Login) sf.getContext().getBean("rootLogin");
+    	ServiceFactory rootServices = new ServiceFactory(rootLogin);
+    	IAdmin rootAdmin = rootServices.getAdminService();
+    	
+    	ExperimenterGroup group = new ExperimenterGroup();
+    	Experimenter user1 = new Experimenter();
+    	Experimenter user2 = new Experimenter();
+    	
+    	String guid  = UUID.randomUUID().toString();
+    	String uuid1 = UUID.randomUUID().toString();
+    	String uuid2 = UUID.randomUUID().toString();
+    	group.setName(guid);
+    	user1.setOmeName(uuid1);
+    	user1.setFirstName("ticket:435");
+    	user1.setLastName("test");
+    	user2.setOmeName(uuid2);
+    	user2.setFirstName("ticket:435");
+    	user2.setLastName("test");
+    	
+    	Long gid = rootAdmin.createGroup(group);
+    	Long uid = rootAdmin.createUser(user1);
+    	user1 = new Experimenter( uid, false );
+    	uid = rootAdmin.createUser(user2);
+    	user2 = new Experimenter( uid, false );
+    	group = new ExperimenterGroup( gid, false );
+    	rootAdmin.addGroups(user1, group);
+    	rootAdmin.addGroups(user2, group);
+    	
+    	ServiceFactory sf1 = new ServiceFactory(new Login(uuid1,"blank"));
+    	ServiceFactory sf2 = new ServiceFactory(new Login(uuid2,"blank"));
+    	
+    	Image i = new Image();
+    	i.setName("ticket:435");
+    	ImageAnnotation ann = new ImageAnnotation();
+    	ann.setImage(i);
+    	ann.setContent("ticket:435");
+    	
+    	ann = sf1.getUpdateService().saveAndReturnObject(ann);
+    	i   = ann.getImage();
+    	
+    	PojoOptions po = new PojoOptions().noCounts().noLeaves();
+    	Map map = sf2.getPojosService().findAnnotations(Image.class, 
+    			Collections.singleton(i.getId()), null, po.map());
+    	Set<ImageAnnotation> anns = (Set<ImageAnnotation>) map.values().iterator().next();
+    	ann = anns.iterator().next();
+    	
+    	assertTrue( ann.getDetails().getOwner().isLoaded() );
+    	assertNotNull( ann.getDetails().getOwner().getFirstName() );
+    	assertNotNull( ann.getDetails().getOwner().getLastName() );
+
+    }
     // ~ Helpers
     // =========================================================================
     // TODO refactor to ObjectFactory
