@@ -252,13 +252,13 @@ class DomainPane
         	channelButton = new ChannelToggleButton(""+d.getEmissionWavelength()
         						,model.getChannelColor(j),j);
         	channelList.add(channelButton);
-        	p.add(Box.createRigidArea(VBOX));
-            if (model.getSelectedChannel() == j)
+        	if (model.getSelectedChannel() == j)
             	channelButton.setSelected(true);
 
            	channelButton.setGrayedOut(gs);
             channelButton.addPropertyChangeListener(controller);
             channelButton.setPreferredSize(new Dimension(30, 30));
+            channelButton.setMinimumSize(new Dimension(30, 30));
             p.add(channelButton);
             p.add(Box.createRigidArea(VBOX));
         }
