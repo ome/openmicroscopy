@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -90,7 +91,7 @@ class TabbedPaneUI
 	 * Actionbar contains the buttons to accept, cancel or revert to the 
 	 * original colour selection.
 	 */
-	private JToolBar 		userActionbar;
+	private JPanel 			userActionPanel;
 	
 	/** Button to choose HSVColourWheelPanel. */
 	private JToggleButton 	colourWheelButton;
@@ -229,22 +230,24 @@ class TabbedPaneUI
      */
     private void createActionbar()
     {
-        userActionbar = new JToolBar();
-        IconManager icons = IconManager.getInstance();
-        acceptButton = new JButton(icons.getIcon(IconManager.OK));
+    	
+        userActionPanel = new JPanel();
+        userActionPanel.setLayout(new FlowLayout());
+        //IconManager icons = IconManager.getInstance();
+        acceptButton = new JButton("Accept");
         acceptButton.setToolTipText("Accept Current Colour");
-        UIUtilities.unifiedButtonLookAndFeel(acceptButton);
-        acceptButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(acceptButton);
+        //acceptButton.setBorderPainted(true);
         acceptButtonAction = new AbstractAction("Accept Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.accept(); }
         };
         acceptButton.addActionListener(acceptButtonAction);
         
-        revertButton = new JButton(icons.getIcon(IconManager.UNDO));
+        revertButton = new JButton("Revert");
         revertButton.setToolTipText("Revert to Original Colour");
-        UIUtilities.unifiedButtonLookAndFeel(revertButton);
-        revertButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(revertButton);
+        //revertButton.setBorderPainted(true);
         revertButtonAction = new AbstractAction("Revert Button Action") 
         {
             public void actionPerformed(ActionEvent evt) 
@@ -254,10 +257,10 @@ class TabbedPaneUI
         };
         revertButton.addActionListener(revertButtonAction);
         
-        cancelButton = new JButton(icons.getIcon(IconManager.CANCEL));
+        cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel Selection and Close Colour Picker");
-        UIUtilities.unifiedButtonLookAndFeel(cancelButton);
-        cancelButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
+        //cancelButton.setBorderPainted(true);
         cancelButtonAction = new AbstractAction("Cancel Button Action") 
         {
             public void actionPerformed(ActionEvent evt) 
@@ -267,11 +270,9 @@ class TabbedPaneUI
         };
         cancelButton.addActionListener(cancelButtonAction);
         
-        userActionbar.setFloatable(false);
-        userActionbar.setRollover(true);
-        userActionbar.add(acceptButton);
-        userActionbar.add(revertButton);
-        userActionbar.add(cancelButton);
+        userActionPanel.add(acceptButton);
+        userActionPanel.add(revertButton);
+        userActionPanel.add(cancelButton);
     }
 
     /**
@@ -294,10 +295,15 @@ class TabbedPaneUI
         createPanels();
                 
         JPanel container = new JPanel();
-        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-        container.add(toolbar);
-        container.add(Box.createHorizontalBox());
-        container.add(userActionbar, BorderLayout.EAST);
+
+        
+        //container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+        //container.add(toolbar);
+        //container.add(Box.createHorizontalBox());
+        //container.add(userActionbar, BorderLayout.EAST);
+        container.setLayout(new BorderLayout());
+        container.add(toolbar, BorderLayout.WEST);
+        
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
         paintPotPane.setPreferredSize(new Dimension(260,24));
@@ -311,6 +317,7 @@ class TabbedPaneUI
         tabPanel.add(RGBSliderPane,RGBSLIDERPANE);
         tabPanel.add(swatchPane,SWATCHPANE);
         add(tabPanel);
+        add(userActionPanel);
         pickSwatchPane();
         
     }
