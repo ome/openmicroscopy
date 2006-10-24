@@ -505,7 +505,7 @@ class ControlPane
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
             if (index == button.getChannelIndex()) {
-                button.setBackground(c);
+                button.setColor(c);
             }
         }
     }
