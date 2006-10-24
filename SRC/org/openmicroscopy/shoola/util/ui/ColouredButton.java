@@ -32,7 +32,12 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+
+import javax.swing.AbstractButton;
+import javax.swing.ButtonModel;
+import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
 
 //Third-party libraries
@@ -53,12 +58,12 @@ import javax.swing.JButton;
  * @since OME2.2
  */
 public class ColouredButton
-    extends JButton
+    extends AbstractButton
 {
-    
+     
     /** The UI for this button. */
     private ColouredButtonUI uiDelegate;
-    
+	
     /**
      * Creates a new instance.
      * 
@@ -69,16 +74,17 @@ public class ColouredButton
      */
     public ColouredButton(String text, Color color)
     {
-        super(text);
-        if (color == null) 
+    	if (color == null) 
             throw new IllegalArgumentException("No color.");
-        setBackground(color);
+        setModel(new DefaultButtonModel());
+    	init(text,null);
         uiDelegate = new ColouredButtonUI(this, color);
-        //setUI(uiDelegate);
+        setUI(uiDelegate);
         setRolloverEnabled(false);
+        this.setBorder(null);
     }
     
-    /**
+     /**
      * Sets the button to be greyed out.
      *  
      * @param greyedOut Pass <code>true</code> to gray out the button,
@@ -86,8 +92,8 @@ public class ColouredButton
      */
     public void setGrayedOut(boolean greyedOut)
     {
-        if (uiDelegate == null) return;
-        uiDelegate.setGrayedOut(greyedOut);
+    	if (uiDelegate == null) return;
+       		uiDelegate.setGrayedOut(greyedOut);
         repaint();
     }
     
@@ -98,7 +104,11 @@ public class ColouredButton
      * 
      * @param c The color to set.
      */
-    public void setColor(Color c) { setBackground(c); }
+    public void setColor(Color c) 
+    { 
+    	if(uiDelegate!=null)
+    		uiDelegate.setColor(c); 
+    }
     
     /**
      * Sets the index of the derived font used to paint the text.
@@ -118,17 +128,19 @@ public class ColouredButton
      */
     public void setBackground(Color c)
     {
-        if (uiDelegate != null) uiDelegate.setColor(c);
-        super.setBackground(c);
+    	// Do nothing as it's overwritten by laf and breaks the coloured button.
+    }
+
+    /** Needed for the MacOS Layout Managers to work correctly. */
+    public Dimension getMinimumSize()
+    {
+    	return getPreferredSize();
     }
     
-    /**
-     * Overridden to paint the button.
-     * @see JButton#paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics g)
+    /** Needed for the MacOS Layout Managers to work correctly. */
+    public Dimension getMaximumSize()
     {
-        if (uiDelegate != null) uiDelegate.paint(g, this);
+    	return getPreferredSize();
     }
     
 }

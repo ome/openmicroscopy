@@ -71,7 +71,7 @@ class ColouredButtonUI
     private Color           colour;
 
     /** Reference to parent button. */
-    private JButton         button;
+    private ColouredButton  button;
     
     /** The button's size, used by paint to draw onto component. */
     private Rectangle       buttonRect;
@@ -215,6 +215,9 @@ class ColouredButtonUI
      */
     private void drawButtonFace(Graphics2D g)
     {
+    	g.setPaint(colour);
+    	g.fill(buttonRect);
+    	
         GradientPaint gp;
         gp = new GradientPaint((int) buttonRect.getX(),
                  (int) buttonRect.getY(), gradientStartRGB,
@@ -464,13 +467,13 @@ class ColouredButtonUI
      * @param b Reference to parent Button.
      * @param c Colour of the button.
      */
-    ColouredButtonUI(JButton b, Color c)
+    ColouredButtonUI(ColouredButton b, Color c)
     {
         if (b == null)
             throw new IllegalArgumentException("No button.");
         if (c == null) 
             throw new IllegalArgumentException("No color.");
-        colour = c;
+        this.setColor(c);
         button = b;
         greyedOut = false;
         fontIndex = Font.PLAIN;
