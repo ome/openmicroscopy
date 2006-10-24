@@ -108,6 +108,7 @@ public class ColouredButton
     { 
     	if(uiDelegate!=null)
     		uiDelegate.setColor(c); 
+    	repaint();
     }
     
     /**
