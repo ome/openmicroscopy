@@ -177,6 +177,8 @@ public class TwoKnobsSlider
     /** The height of the font. */
     private int                 fontHeight;
 
+    private boolean				updateConstantly;
+    
     /**
      * Computes the preferred size of this component.
      */
@@ -255,9 +257,11 @@ public class TwoKnobsSlider
         int oldEnd = getEndValue();
         if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
             handleMouseEventForHorizSlider((int) me.getPoint().getX());
-            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) 
+            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED)
+            {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
                                 getStartValue());
+            }
             else if (knobControl == RIGHT || 
                     pushKnobControl == RIGHT_KNOB_PUSHED) {
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, getEndValue());
@@ -265,12 +269,16 @@ public class TwoKnobsSlider
                 
         } else {
             handleMouseEventForVertSlider((int) me.getPoint().getY());
-            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) 
+            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED)
+            {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, getEndValue());
+            }
             else if (knobControl == RIGHT || 
                     pushKnobControl == RIGHT_KNOB_PUSHED)
+            {
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
                                     getStartValue());
+            }
         } 
     }
     
@@ -719,4 +727,9 @@ public class TwoKnobsSlider
         uiDelegate.paintComponent((Graphics2D) g, getSize());
     }
 
+    public void setUpdateConstantly(boolean option)
+    {
+    	updateConstantly = option;
+    }
+    
 }
