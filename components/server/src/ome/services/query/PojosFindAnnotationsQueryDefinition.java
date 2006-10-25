@@ -82,7 +82,7 @@ public class PojosFindAnnotationsQueryDefinition extends Query
         {
             Collection annotatorIds = (Collection) value("annotatorIds");
             if (annotatorIds != null && annotatorIds.size() > 0)
-                ann.add(Restrictions.in("details.id", annotatorIds ));
+                ann.add(Restrictions.in("details.owner.id", annotatorIds ));
         }
         setCriteria( ann );
     }
