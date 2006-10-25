@@ -167,13 +167,14 @@ class TabbedPaneUI
      */
     private void createToolbar()
     {
-        toolbar = new JToolBar();
-        IconManager icons = IconManager.getInstance();
+    	toolbar = new JToolBar();
+    	IconManager icons = IconManager.getInstance();
         colourWheelButton = new JToggleButton(
-                icons.getIcon(IconManager.COLOUR_WHEEL));
+        icons.getIcon(IconManager.COLOUR_WHEEL));
         UIUtilities.unifiedButtonLookAndFeel(colourWheelButton);
         colourWheelButton.setBorderPainted(true);
         colourWheelButton.setToolTipText("Show HSV Colour Wheel");
+        
         colourWheelAction = new AbstractAction("HSV Wheel Colour Button") {
             public void actionPerformed(ActionEvent evt) 
             {
@@ -181,9 +182,10 @@ class TabbedPaneUI
                 pickWheelPane();
             }
         };
+        
         colourWheelButton.addActionListener(colourWheelAction);
         RGBSlidersButton = new JToggleButton(
-                icons.getIcon(IconManager.COLOUR_SLIDER));
+        icons.getIcon(IconManager.COLOUR_SLIDER));
         UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
         RGBSlidersButton.setBorderPainted(true);
         RGBSlidersButton.setToolTipText("Show RGB Colour Sliders");
@@ -193,13 +195,13 @@ class TabbedPaneUI
         {
             public void actionPerformed(ActionEvent evt) 
             {
-                clearToggleButtons();
+            	clearToggleButtons();
                 pickRGBSliderPane();
             }
         };
         RGBSlidersButton.addActionListener(RGBSlidersAction);
         colourSwatchButton = new JToggleButton(
-                icons.getIcon(IconManager.COLOUR_SWATCH));
+        icons.getIcon(IconManager.COLOUR_SWATCH));
         colourSwatchButton.setToolTipText("Show Colour List");
         UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
         colourSwatchButton.setBorderPainted(true);
@@ -303,7 +305,7 @@ class TabbedPaneUI
         //container.add(userActionbar, BorderLayout.EAST);
         container.setLayout(new BorderLayout());
         container.add(toolbar, BorderLayout.WEST);
-        
+          
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(container);
         paintPotPane.setPreferredSize(new Dimension(260,24));
@@ -325,17 +327,17 @@ class TabbedPaneUI
     /** Clear all buttons. */
     private void clearToggleButtons()
     {
-        colourWheelButton.setSelected(false);
-        RGBSlidersButton.setSelected(false);
-        colourSwatchButton.setSelected(false);
+    //    colourWheelButton.setSelected(false);
+     //   RGBSlidersButton.setSelected(false);
+     //   colourSwatchButton.setSelected(false);
     }
     
     
     /** Sets Wheelbutton as picked and make it visible. */
     private void pickWheelPane()
     {   
-        colourWheelButton.setSelected(true);
-        colourWheelPane.setActive(true);
+      //  colourWheelButton.setSelected(true);
+       // colourWheelPane.setActive(true);
 
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
         RGBSliderPane.setActive(false);
@@ -348,7 +350,7 @@ class TabbedPaneUI
     private void pickSwatchPane()
     {   
         tabPaneLayout.show(tabPanel,SWATCHPANE);
-        colourSwatchButton.setSelected(true);
+     //   colourSwatchButton.setSelected(true);
         RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
         this.doLayout();
@@ -358,7 +360,7 @@ class TabbedPaneUI
     private void pickRGBSliderPane()
     {
         tabPaneLayout.show(tabPanel,RGBSLIDERPANE);
-        RGBSlidersButton.setSelected(true);
+     //   RGBSlidersButton.setSelected(true);
         RGBSliderPane.setActive(true);
         colourWheelPane.setActive(false);
         
