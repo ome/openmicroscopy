@@ -29,15 +29,13 @@
 
 package ome.api;
 
-import ome.conditions.ApiUsageException;
-import ome.model.meta.Event;
-import ome.system.EventContext;
-
 // Java imports
 
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.meta.Event;
+import ome.system.EventContext;
 
 /**
  * OMERO API Interface with stateful semantics. 
@@ -51,14 +49,10 @@ import ome.system.EventContext;
  */
 public interface StatefulServiceInterface extends ServiceInterface { 
     
-    /** signals the beginning of the service lifecycle. */ 
-    void create();
-    
     /** signals the end of the service lifecycle. Resources such as Sessions
-     * can be released. All further calls will throw an ApiUsageException.
-     * @throws ApiUsageException
+     * can be released. All further calls will throw an exception.
      */
-    void destroy() throws ApiUsageException;
+    void close();
 
 	/** Returns the current {@link EventContext} for this instance. This is
 	 * useful for later identifying changes made by this {@link Event}.

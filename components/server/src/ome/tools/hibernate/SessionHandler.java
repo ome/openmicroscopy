@@ -29,6 +29,7 @@
 package ome.tools.hibernate;
 
 // Java imports
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
@@ -108,6 +109,11 @@ class SessionStatus
 public class SessionHandler implements MethodInterceptor
 {
 
+	/** used by the SessionHandler to test for the end of the stateful service's
+	 * life. Using reflection so we get a bit more type safety.
+	 */
+	private final Method close;
+	
     private final static Log           log      = LogFactory
                                                         .getLog(SessionHandler.class);
 
@@ -135,6 +141,12 @@ public class SessionHandler implements MethodInterceptor
 
         this.dataSource = dataSource;
         this.factory = factory;
+        
+    	try {
+			close = StatefulServiceInterface.class.getMethod("close");
+		} catch (Exception e) {
+			throw new InternalException("Can't get StatefulServiceInterface.close method.");
+		}
     }
     
     /**
@@ -264,7 +276,7 @@ public class SessionHandler implements MethodInterceptor
 
     private boolean isCloseSession(MethodInvocation invocation)
     {
-        return "destroy".equals(invocation.getMethod().getName());
+        return close.getName().equals(invocation.getMethod().getName());
     }
 
     private Session acquireAndBindSession() throws HibernateException

@@ -402,7 +402,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     }
     
     protected void newStatefulDestroyInvocation() throws Exception    {
-        Method method = RenderingEngine.class.getMethod("destroy");
+        Method method = RenderingEngine.class.getMethod("close");
         newStatefulInvocation( method );
     }
 

@@ -43,6 +43,7 @@ import javax.ejb.Local;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
+import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -228,6 +229,13 @@ public class RenderingBean extends AbstractLevel2Service
         } finally {
             rwl.writeLock().unlock();
         }
+    }
+    
+    @Remove
+    @Transactional(readOnly=true)
+    public void close()
+    {
+    	// don't need to do anything.
     }
     
     /*
