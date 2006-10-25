@@ -235,11 +235,11 @@ class TabbedPaneUI
     	
         userActionPanel = new JPanel();
         userActionPanel.setLayout(new FlowLayout());
-        //IconManager icons = IconManager.getInstance();
+        
         acceptButton = new JButton("Accept");
         acceptButton.setToolTipText("Accept Current Colour");
-        //UIUtilities.unifiedButtonLookAndFeel(acceptButton);
-        //acceptButton.setBorderPainted(true);
+        UIUtilities.unifiedButtonLookAndFeel(acceptButton);
+        acceptButton.setBorderPainted(true);
         acceptButtonAction = new AbstractAction("Accept Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.accept(); }
@@ -248,8 +248,8 @@ class TabbedPaneUI
         
         revertButton = new JButton("Revert");
         revertButton.setToolTipText("Revert to Original Colour");
-        //UIUtilities.unifiedButtonLookAndFeel(revertButton);
-        //revertButton.setBorderPainted(true);
+        UIUtilities.unifiedButtonLookAndFeel(revertButton);
+        revertButton.setBorderPainted(true);
         revertButtonAction = new AbstractAction("Revert Button Action") 
         {
             public void actionPerformed(ActionEvent evt) 
@@ -261,8 +261,8 @@ class TabbedPaneUI
         
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel Selection and Close Colour Picker");
-        //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
-        //cancelButton.setBorderPainted(true);
+        UIUtilities.unifiedButtonLookAndFeel(cancelButton);
+        cancelButton.setBorderPainted(true);
         cancelButtonAction = new AbstractAction("Cancel Button Action") 
         {
             public void actionPerformed(ActionEvent evt) 
@@ -297,12 +297,7 @@ class TabbedPaneUI
         createPanels();
                 
         JPanel container = new JPanel();
-
         
-        //container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
-        //container.add(toolbar);
-        //container.add(Box.createHorizontalBox());
-        //container.add(userActionbar, BorderLayout.EAST);
         container.setLayout(new BorderLayout());
         container.add(toolbar, BorderLayout.WEST);
           
@@ -327,17 +322,17 @@ class TabbedPaneUI
     /** Clear all buttons. */
     private void clearToggleButtons()
     {
-    //    colourWheelButton.setSelected(false);
-     //   RGBSlidersButton.setSelected(false);
-     //   colourSwatchButton.setSelected(false);
+        colourWheelButton.setSelected(false);
+        RGBSlidersButton.setSelected(false);
+        colourSwatchButton.setSelected(false);
     }
     
     
     /** Sets Wheelbutton as picked and make it visible. */
     private void pickWheelPane()
     {   
-      //  colourWheelButton.setSelected(true);
-       // colourWheelPane.setActive(true);
+        colourWheelButton.setSelected(true);
+        colourWheelPane.setActive(true);
 
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
         RGBSliderPane.setActive(false);
@@ -350,7 +345,7 @@ class TabbedPaneUI
     private void pickSwatchPane()
     {   
         tabPaneLayout.show(tabPanel,SWATCHPANE);
-     //   colourSwatchButton.setSelected(true);
+        colourSwatchButton.setSelected(true);
         RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
         this.doLayout();
@@ -360,7 +355,7 @@ class TabbedPaneUI
     private void pickRGBSliderPane()
     {
         tabPaneLayout.show(tabPanel,RGBSLIDERPANE);
-     //   RGBSlidersButton.setSelected(true);
+        RGBSlidersButton.setSelected(true);
         RGBSliderPane.setActive(true);
         colourWheelPane.setActive(false);
         
