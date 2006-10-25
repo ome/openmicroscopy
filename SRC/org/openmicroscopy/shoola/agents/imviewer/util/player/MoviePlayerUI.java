@@ -153,7 +153,7 @@ class MoviePlayerUI
         selections[LOOP_CMD] = "Loop";
         selections[BACKWARD_CMD] = "Backward";
         selections[FORWARD_CMD] = "Forward";
-        selections[PINGPONG_CMD] = "Round trip";  
+        selections[PINGPONG_CMD] = "Back and Forth";  
     }
     
     /**
