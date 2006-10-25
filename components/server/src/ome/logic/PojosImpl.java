@@ -227,10 +227,10 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
 
     @RolesAllowed("user") 
     @Transactional(readOnly=true)
-	public Map findAnnotations(
-            Class rootNodeType, 
-            Set rootNodeIds, 
-            Set annotatorIds, Map options) {
+	public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
+            Class<T> rootNodeType, 
+            Set<Long> rootNodeIds, 
+            Set<Long> annotatorIds, Map options) {
 		
         if (rootNodeIds.size()==0)
             return new HashMap();

@@ -254,7 +254,7 @@ public interface IPojos extends ServiceInterface {
 	 * @return A map whose key is rootNodeId and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 */
-	public <T extends IObject> Map findAnnotations(
+	public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
             @NotNull Class<T> rootNodeType, 
             @NotNull @Validate(Long.class) Set<Long> rootNodeIds, 
             @Validate(Long.class) Set<Long> annotatorIds, 
