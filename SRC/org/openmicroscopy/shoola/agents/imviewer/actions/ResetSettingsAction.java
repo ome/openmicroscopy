@@ -76,7 +76,7 @@ public class ResetSettingsAction
     {
         super(model);
         putValue(Action.NAME, NAME);
-        //setEnabled(true);
+        setEnabled(true);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
