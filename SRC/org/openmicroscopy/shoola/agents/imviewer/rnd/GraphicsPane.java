@@ -41,7 +41,10 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -108,6 +111,8 @@ class GraphicsPane
     /** Reference to the Control.*/
     protected RendererControl   controller;
 
+    /** Preview option for render settings */
+    private JCheckBox			preview;
 
     
     /** Initializes the components. */
@@ -147,6 +152,7 @@ class GraphicsPane
         endField.addFocusListener(this);
         maxLabel = new JLabel(""+max);
         minLabel = new JLabel(""+min);
+        preview = new JCheckBox("Preview");
     }
     
     /** Builds and lays out the GUI. */
@@ -171,6 +177,9 @@ class GraphicsPane
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         p.add(domainSlider, gbc);
+        gbc.gridy = 2;
+        gbc.gridx = 1;
+        p.add(preview,gbc);
         add(p);
         
         add(buildFieldsControls());
@@ -355,28 +364,44 @@ class GraphicsPane
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        String name = evt.getPropertyName();
-        Object source = evt.getSource();
-        if (name.equals(TwoKnobsSlider.KNOB_RELEASED_PROPERTY)) {
-            if (source.equals(domainSlider)) {
-                controller.setInputInterval(domainSlider.getStartValue(), 
-                        domainSlider.getEndValue(), true);
-                onCurveChange();
-            } else if (source.equals(codomainSlider)) {
-                int s = codomainSlider.getStartValue();
-                int e = codomainSlider.getEndValue();
-                controller.setCodomainInterval(s, e, true);
-                onCurveChange();
-            }
-        }
-    }
+    public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		Object source = evt.getSource();
+		if (!preview.isSelected()) {
+			if (name.equals(TwoKnobsSlider.KNOB_RELEASED_PROPERTY)) {
+				if (source.equals(domainSlider)) {
+					controller.setInputInterval(domainSlider.getStartValue(),
+							domainSlider.getEndValue(), true);
+					onCurveChange();
+				} else if (source.equals(codomainSlider)) {
+					int s = codomainSlider.getStartValue();
+					int e = codomainSlider.getEndValue();
+					controller.setCodomainInterval(s, e, true);
+					onCurveChange();
+				}
+			}
+		} else {
+			if (name.equals(TwoKnobsSlider.LEFT_MOVED_PROPERTY)
+					|| name.equals(TwoKnobsSlider.RIGHT_MOVED_PROPERTY)) {
+				if (source.equals(domainSlider)) {
+					controller.setInputInterval(domainSlider.getStartValue(),
+							domainSlider.getEndValue(), true);
+					onCurveChange();
+				} else if (source.equals(codomainSlider)) {
+					int s = codomainSlider.getStartValue();
+					int e = codomainSlider.getEndValue();
+					controller.setCodomainInterval(s, e, true);
+					onCurveChange();
+				}
+			}
+		}
+	}
 
     /**
-     * Sets the pixels intensity window when the start or end value is modified.
-     * @see ActionListener#actionPerformed(ActionEvent)
-     */
+	 * Sets the pixels intensity window when the start or end value is modified.
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
     public void actionPerformed(ActionEvent e)
     {
         int index = -1;
