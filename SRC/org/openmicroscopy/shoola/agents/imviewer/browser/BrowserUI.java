@@ -32,10 +32,12 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 //Third-party libraries
 
@@ -159,6 +161,19 @@ class BrowserUI
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
         setComponentsSize(img.getWidth(), img.getHeight());
+        JViewport currentView = this.getViewport();
+        int h = img.getHeight();
+        int w = img.getWidth();
+        int viewportW = currentView.getWidth();
+        int viewportH = currentView.getHeight();
+        int x = w/2-viewportW/2;
+        if( x<0 )
+        	x = 0;
+        int y = h/2-viewportH/2;
+        if( y<0 )
+        	y = 0;
+        
+        currentView.setViewPosition(new Point(x, y));
         browserCanvas.repaint();
     }
     
