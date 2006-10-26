@@ -78,7 +78,7 @@ class CurrentDetails
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
     private ThreadLocal<BasicEventContext> data = 
-    	new ThreadLocal<BasicEventContext>(){
+    	new InheritableThreadLocal<BasicEventContext>(){
     	@Override
     	protected BasicEventContext initialValue() { return new BasicEventContext(); };
     };

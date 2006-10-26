@@ -134,23 +134,43 @@ class GreyScaleStrategy
                             QuantumStrategy qs)
         throws QuantizationException
     {
-    	System.err.println("Render wave.");
         CodomainChain cc = renderer.getCodomainChain();
         int x1, x2, discreteValue, pixelIndex;
-        byte value;
-        float alpha =  color.getAlpha().floatValue()/255;
-        byte[] red = dataBuf.getRedBand(), green = dataBuf.getGreenBand(),
-               blue = dataBuf.getBlueBand();
-        for (x2 = 0; x2 < sizeX2; ++x2) {
-            for (x1 = 0; x1 < sizeX1; ++x1) {
-                pixelIndex = sizeX1*x2+x1;
-                discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-                discreteValue = cc.transform(discreteValue);
-                value = (byte) (discreteValue*alpha);
-                red[pixelIndex] = value;
-                green[pixelIndex] = value;
-                blue[pixelIndex] = value;
-            } 
+        
+        // Perform optimised pixel settings for integer arrays
+        if (dataBuf instanceof RGBIntBuffer)
+        {
+        	int alpha = color.getAlpha();
+        	int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
+	        for (x2 = 0; x2 < sizeX2; ++x2) {
+	        	int index = sizeX1 * x2;
+	            for (x1 = 0; x1 < sizeX1; ++x1) {
+	                discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+	                discreteValue = cc.transform(discreteValue);
+	                buf[index + x1] =
+	                	alpha << 24 | discreteValue << 16
+	                    | discreteValue << 8 | discreteValue;
+	            }
+            }
+        }
+        else  // We have just a plain RGBBuffer
+        {
+        	byte value;
+        	float alpha = color.getAlpha().floatValue() / 255;
+        	byte[] r = dataBuf.getRedBand();
+        	byte[] g = dataBuf.getBlueBand();
+        	byte[] b = dataBuf.getGreenBand();
+	        for (x2 = 0; x2 < sizeX2; ++x2) {
+	            for (x1 = 0; x1 < sizeX1; ++x1) {
+	                pixelIndex = sizeX1*x2+x1;
+	                discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+	                discreteValue = cc.transform(discreteValue);
+	                value = (byte) (discreteValue*alpha);
+	                r[pixelIndex] = value;
+	                g[pixelIndex] = value;
+	                b[pixelIndex] = value;
+	            }
+            }
         }
     }
     
@@ -158,24 +178,61 @@ class GreyScaleStrategy
      * Implemented as specified by the superclass.
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
-	RGBBuffer render(Renderer ctx, PlaneDef planeDef)
-		throws IOException, QuantizationException
-	{
+    RGBBuffer render(Renderer ctx, PlaneDef planeDef)
+    	throws IOException, QuantizationException
+    {
 		//Set the context and retrieve objects we're gonna use.
 		renderer = ctx;
-		QuantumManager qManager = renderer.getQuantumManager();
-		PixelBuffer pixels = renderer.getPixels();
-        Pixels metadata = renderer.getMetadata();
-		ChannelBinding[] cBindings = renderer.getChannelBindings();
-        RenderingStats performanceStats = renderer.getStats();
-		
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
 		//Initialize sizeX1 and sizeX2 according to the plane definition and
 		//create the RGB buffer.
 		initAxesSize(planeDef, metadata);
         performanceStats.startMalloc();
         log.info("Creating RGBBuffer of size " + sizeX1 + "x" + sizeX2);
-        RGBBuffer renderedDataBuf = new RGBBuffer(sizeX1, sizeX2);
+        RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
         performanceStats.endMalloc();
+        
+        render(buf, planeDef);
+    	return buf;
+    }
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+    RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
+		throws IOException, QuantizationException
+	{
+		//Set the context and retrieve objects we're gonna use.
+		renderer = ctx;
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer.
+		initAxesSize(planeDef, metadata);
+        log.info("Creating RGBBuffer of size " + sizeX1 + "x" + sizeX2);
+        RGBIntBuffer buf = new RGBIntBuffer(sizeX1, sizeX2);
+        performanceStats.endMalloc();
+    	
+    	render(buf, planeDef);
+		return buf;
+	}
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+	private void render(RGBBuffer buf, PlaneDef planeDef)
+		throws IOException, QuantizationException
+	{
+		QuantumManager qManager = renderer.getQuantumManager();
+		PixelBuffer pixels = renderer.getPixels();
+        Pixels metadata = renderer.getMetadata();
+		ChannelBinding[] cBindings = renderer.getChannelBindings();
+        RenderingStats performanceStats = renderer.getStats();
         
 		//Process the first active wavelength. 
         Plane2D wData;
@@ -188,7 +245,7 @@ class GreyScaleStrategy
                 
 				try {  //Transform it into an RGB image.
                     performanceStats.startRendering();
-                    renderWave(renderedDataBuf, wData, cBindings[i].getColor(),
+                    renderWave(buf, wData, cBindings[i].getColor(),
                                qManager.getStrategyFor(i));
                     performanceStats.endRendering();
 				} catch (QuantizationException e) {
@@ -198,9 +255,6 @@ class GreyScaleStrategy
 				break;
 			}
 		}
-
-		//Done.
-        return renderedDataBuf;
 	}
     
     /**

@@ -281,14 +281,26 @@ public class RenderingBean extends AbstractLevel2Service
     {
         rwl.writeLock().lock();
         
-        try {
-            this.rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
-            this.renderer = null;
+        try
+        {
+            rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+            renderer = null;
             
-            if ( rendDefObj == null )
-                throw new ValidationException(
-                        "RenderingDef for Pixels="+pixelsId+" not found.");
-        } finally {
+            if (rendDefObj == null)
+            {
+            	// We've been initialized on a pixels set that has no rendering
+            	// definition for the given user. In order to keep the proper
+            	// bean state, we initialize the local instance variable and
+            	// write out new rendering settings into the database.
+            	rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
+            	Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv);
+            	pixMetaSrv.saveRndSettings(rendDefObj);
+            	iUpdate.flush();
+            	rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+            }
+        }
+        finally
+        {
             rwl.writeLock().unlock();
         }
         
@@ -306,8 +318,8 @@ public class RenderingBean extends AbstractLevel2Service
     {
         rwl.writeLock().lock();
 
-        try {
-
+        try
+        {
             errorIfNullPixels();
 
             /*
@@ -315,9 +327,10 @@ public class RenderingBean extends AbstractLevel2Service
              * better caching, etc.
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-            
             renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
-        } finally {
+        }
+        finally
+        {
             rwl.writeLock().unlock();
         }
     } 
@@ -384,6 +397,34 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
     
+    /** 
+     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * @see RenderingEngine#render(PlaneDef)
+     */
+    @RolesAllowed("user") 
+    public int[] renderAsPackedInt(PlaneDef pd)
+            throws ResourceError, ValidationException
+    {
+        rwl.readLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.renderAsPackedInt(pd);
+        } catch (IOException e) {
+            ResourceError re = new ResourceError(
+                    "IO error while rendering:\n"+e.getMessage());
+            re.initCause(e);
+            throw re;
+        } catch (QuantizationException e) {
+            InternalException ie = new InternalException(
+                    "QuantizationException while rendering:\n"+e.getMessage());
+            ie.initCause(e);
+            throw ie;
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
     // ~ Settings
 	// =========================================================================
     
@@ -402,6 +443,7 @@ public class RenderingBean extends AbstractLevel2Service
         } finally {
             rwl.writeLock().unlock();
         }
+        iUpdate.flush();
     }
 
     /** 

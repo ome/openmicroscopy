@@ -131,23 +131,19 @@ class RGBStrategy
     }
         
     /** 
-     * Extracts a color band from the <code>dataBuf</code> depending on
-     * the <code>rgba</code> settings. 
+     * Extracts a color band  depending on the <code>rgba</code> settings. 
      * 
      * @param dataBuf   Buffer to hold the output image's data.
      * @param color     The color settings of a given wavelength.      
-     * @return Returns the byte array corresponding to the color band selected
-     *         in <code>color</code>.
+     * @return Returns the color band selected in <code>color</code>.
      */
-    private byte[] getColorBand(RGBBuffer dataBuf, Color color)
+    private int getColorBand(Color color)
     {
-        byte[] band = dataBuf.getRedBand();
         if (color.getGreen().intValue() == 255)
-            band = dataBuf.getGreenBand();
+        	return RGBBuffer.G_BAND;
         else if (color.getBlue().intValue() == 255)
-            band = dataBuf.getBlueBand();
-        //Else it must have been red.
-        return band;
+        	return RGBBuffer.B_BAND;
+        return RGBBuffer.R_BAND;
     }
     
     /**
@@ -182,11 +178,13 @@ class RGBStrategy
                 performanceStats.endIO(w);
                 
                 //Create a rendering task for this wavelength.
+                /*
                 tasks.add(new RenderRGBWaveTask(
-                         getColorBand(renderedDataBuf, cBindings[w].getColor()), 
+                         renderedDataBuf, getColorBand(cBindings[w].getColor()),
                          wData, qManager.getStrategyFor(w), cc, 
                          cBindings[w].getColor().getAlpha().intValue(),
                          sizeX1, sizeX2));
+                         */
             }
         }
         
@@ -196,31 +194,74 @@ class RGBStrategy
     }
     
     /**
-     * Implemented as specified by superclass.
+     * Implemented as specified by the superclass.
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
     RGBBuffer render(Renderer ctx, PlaneDef planeDef)
+    	throws IOException, QuantizationException
+    {
+		//Set the context and retrieve objects we're gonna use.
+		renderer = ctx;
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer.
+		initAxesSize(planeDef, metadata);
+        performanceStats.startMalloc();
+        RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
+        performanceStats.endMalloc();
+        
+        render(buf, planeDef);
+    	return buf;
+    }
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+    RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
 		throws IOException, QuantizationException
 	{
-		//Set the rendering context for the current invocation.
+		//Set the context and retrieve objects we're gonna use.
 		renderer = ctx;
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer.
+		initAxesSize(planeDef, metadata);
+        performanceStats.startMalloc();
+        RGBIntBuffer buf = new RGBIntBuffer(sizeX1, sizeX2);
+        performanceStats.endMalloc();
+    	
+    	render(buf, planeDef);
+		return buf;
+	}
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+	private void render(RGBBuffer buf, PlaneDef planeDef)
+		throws IOException, QuantizationException
+	{
         RenderingStats performanceStats = renderer.getStats();
 				
 		//Initialize sizeX1 and sizeX2 according to the plane definition and
 		//create the RGB buffer.
 		initAxesSize(planeDef, renderer.getMetadata());
         performanceStats.startMalloc();
-        RGBBuffer renderedDataBuf = new RGBBuffer(sizeX1, sizeX2);
         performanceStats.endMalloc();
         
         //Process each active wavelength.  If their number N > 1, then 
         //process N-1 async and one in the current thread.  If N = 1, 
         //just use the current thread.
-        RenderRGBWaveTask[] tasks = makeRndTasks(planeDef, renderedDataBuf);
+        RenderRGBWaveTask[] tasks = makeRndTasks(planeDef, buf);
         performanceStats.startRendering();
         int n = tasks.length;
         Future[] rndTskFutures = new Future[n];  //[0] unused.
-        ExecutorService processor = Executors.newCachedThreadPool();//FIXME fast enough?
+        ExecutorService processor = Executors.newCachedThreadPool();
         while (0 < --n)
             rndTskFutures[n] = processor.submit(tasks[n]);
         if (n == 0)
@@ -239,9 +280,6 @@ class RGBStrategy
             }
         }
         performanceStats.endRendering();
-		
-		//Done.
-		return renderedDataBuf;
 	}
     
     /**

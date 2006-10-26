@@ -32,6 +32,7 @@ package omeis.providers.re;
 
 //Java imports
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,6 +52,7 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
+import ome.model.stats.StatsInfo;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -179,10 +181,10 @@ public class Renderer
         	throw new NullPointerException("Expecting not null rndDef");
         else if (buffer == null)
         	throw new NullPointerException("Expecting not null buffer");
-                
+        
         //Create and configure the quantum strategies.
         QuantumDef qd = rndDef.getQuantization();
-        quantumManager = new QuantumManager(metadata);
+        quantumManager = new QuantumManager(metadata, iPixels);
         ChannelBinding[] cBindings= getChannelBindings();
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
@@ -193,8 +195,7 @@ public class Renderer
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), 
                                           qd.getCdEnd().intValue(),
                                           rndDef.getSpatialDomainEnhancement());
-        
-        
+
         //Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
     }
@@ -289,6 +290,38 @@ public class Renderer
         //TODO: is this the right place to log??? We want to have as little
         //impact on performance as possible.
         return img;
+	}
+    
+	/**
+	 * Renders the data selected by <code>pd</code> according to the current
+	 * rendering settings.
+	 * The passed argument selects a plane orthogonal to one of the <i>X</i>, 
+	 * <i>Y</i>, or <i>Z</i> axes.  How many wavelengths are rendered and
+	 * what color model is used depends on the current rendering settings.
+	 * 
+	 * @param pd Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+	 *           or <i>Z</i> axes.
+	 * @return An <i>RGB</i> image ready to be displayed on screen.
+	 * @throws IOException If an error occured while trying to pull out
+	 * 					   data from the pixels data repository.
+     * @throws QuantizationException If an error occurred while quantizing the
+     *                               pixels raw data.
+     * @throws NullPointerException If <code>pd</code> is <code>null</code>.
+	 */
+    public int[] renderAsPackedInt(PlaneDef pd)
+		throws IOException, QuantizationException
+	{
+		if (pd == null)
+			throw new NullPointerException("No plane definition.");
+        stats = new RenderingStats(this, pd);
+        log.info("Using: '" + renderingStrategy.getClass().getName()
+                + "' rendering strategy.");
+        RGBIntBuffer img = renderingStrategy.renderAsPackedInt(this, pd);
+        stats.stop();
+        log.info(stats.getStats());
+        //TODO: is this the right place to log??? We want to have as little
+        //impact on performance as possible.
+        return img.getDataBuffer();
 	}
 
     /**
@@ -562,46 +595,126 @@ public class Renderer
         c.setAlpha(Integer.valueOf(alpha));
     }
     
+    /**
+     * Resets the channel bindings for the current active pixels set.
+     * 
+     * @param def the rendering definition to link to.
+     * @param pixels the pixels set to reset the bindings based upon.
+     * @param iPixels an OMERO pixels service.
+     */
+    private static void resetChannelBindings(RenderingDef def, Pixels pixels,
+                                             IPixels iPixels)
+    {
+
+        // The actual channel bindings we are returning
+        List<ChannelBinding> channelBindings = def.getWaveRendering();
+
+        List<Channel> channels = pixels.getChannels();
+        int i = 0;
+        for (Channel channel : channels)
+        {
+            StatsInfo stats = channel.getStatsInfo();
+            Family family =
+            	QuantumFactory.getFamily(iPixels, QuantumFactory.LINEAR);
+
+            ChannelBinding channelBinding = channelBindings.get(i);
+            channelBinding.setFamily(family);
+            channelBinding.setCoefficient(new Double(1));
+            // FIXME: Lost of precision, downcast from Double to Float
+            channelBinding.setInputStart(new Float(stats.getGlobalMin()));
+            channelBinding.setInputEnd(new Float(stats.getGlobalMax()));
+            
+            // If we have more than one channel set each of the first three
+            // active, otherwise only activate the first.
+            if (i < 3)
+            	channelBinding.setActive(true);
+            
+            channelBinding.setColor(ColorsFactory.getColor(i, channel));
+        	channelBinding.setNoiseReduction(false);
+            i++;
+        }
+    }
+
     /** Resets the rendering engine defaults. */
     public void resetDefaults()
     {
-        // Reset the bit resolution.
-        setQuantumStrategy(QuantumFactory.DEPTH_8BIT); // NB: Java locks are
-        setCodomainInterval(0, QuantumFactory.DEPTH_8BIT); // re-entrant.
+    	// Reset our default rendering definition parameters.
+    	resetDefaults(rndDef, getMetadata(), iPixels);
+    	
+    	// Keep up with rendering engine model state.
+    	setModel(rndDef.getModel());
 
-        // Set the each channel's window to the channel's [min, max].
-        // Make active only the first channel.
-        ChannelBinding[] cb = getChannelBindings();
-        boolean active = false;
-        RenderingModel model =
-        	PlaneFactory.getRenderingModel(iPixels, MODEL_GREYSCALE);
-        
-        List channels = getMetadata().getChannels();
-        int w = 0;
-        for (Iterator i = channels.iterator(); i.hasNext();)
-        {
-        	// The channel we're operating on
-        	Channel channel = (Channel) i.next();
-            if (channel.getPixels().getAcquisitionContext().
-            	getPhotometricInterpretation().getValue() == PHOTOMETRIC_RGB)
-            {
-                active = true;
-                model = PlaneFactory.getRenderingModel(iPixels, MODEL_RGB);
-            }
-            cb[w].setActive(Boolean.valueOf(active));
-            double start = channel.getStatsInfo().getGlobalMin().doubleValue();
-            double end   = channel.getStatsInfo().getGlobalMax().doubleValue();
-            setChannelWindow(w, start, end);
-            Color c = ColorsFactory.getColor(w, channel);
-            setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-            w++;
-        }
-        cb[0].setActive(Boolean.valueOf(active));
-        // Remove all the codomainMapCtx except the identity.
-        getCodomainChain().remove();
-
-        // Fall back to the default strategy.
-        setModel(model);
+        // Remove all the codomainMapCtx except the identity. (Also keeping up
+    	// with rendering engine state)
+        if (getCodomainChain() != null)
+        	getCodomainChain().remove();
+    	
+    	// Save the rendering definition to the database.
+        iPixels.saveRndSettings(rndDef);
     }
     
+    /**
+     * Resets a rendering definition to its predefined defaults. 
+     * @param def the rendering definition to reset.
+     * @param pixels the pixels set to reset the definition based upon.
+     * @param iPixels the OMERO pixels service.
+     */
+    public static void resetDefaults(RenderingDef def, Pixels pixels,
+                                     IPixels iPixels)
+    {
+        // The default rendering definition settings
+        def.setDefaultZ(pixels.getSizeZ() / 2);
+        def.setDefaultT(0);
+        
+        // Set the rendering model to RGB if there is more than one channel,
+        // otherwise set it to greyscale.
+        if (pixels.getChannels().size() > 1)
+        {
+        	def.setModel(
+        			PlaneFactory.getRenderingModel(iPixels, MODEL_HSB));
+        }
+        else
+        {
+        	def.setModel(
+        			PlaneFactory.getRenderingModel(iPixels, MODEL_GREYSCALE));
+        }
+
+        // Quantization settings
+        QuantumDef quantumDef = def.getQuantization();
+        quantumDef.setCdStart(0);
+        quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
+        quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
+        def.setQuantization(quantumDef);
+
+        // Reset the channel bindings
+        resetChannelBindings(def, pixels, iPixels);
+    }
+    
+    /** 
+     * Creates a new rendering definition object along with its sub-objects.
+     * 
+     * @param p the Pixels set to link to the rendering definition.
+     * @return a new, blank rendering definition and sub-objects.
+     */
+    public static RenderingDef createNewRenderingDef(Pixels p)
+    {
+    	RenderingDef r = new RenderingDef();
+    	r.setQuantization(new QuantumDef());
+    	r.setWaveRendering(createNewChannelBindings(p));
+    	r.setPixels(p);
+    	return r;
+    }
+
+    /**
+     * Creates new channel bindings for each channel in the pixels set.
+     * @param p the pixels set to create channel bindings based upon.
+     * @return a new set of blank channel bindings.
+     */
+    private static List<ChannelBinding> createNewChannelBindings(Pixels p)
+    {
+    	ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
+    	for (int i = 0; i < p.getSizeC(); i++)
+    		cbs.add(new ChannelBinding());
+    	return cbs;
+    }
 }

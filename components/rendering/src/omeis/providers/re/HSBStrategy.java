@@ -32,9 +32,11 @@ package omeis.providers.re;
 //Java imports
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;//j.m
-import java.util.concurrent.Executors;//j.m
-import java.util.concurrent.Future;//j.m
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 //Third-party libraries
 
@@ -46,6 +48,7 @@ import java.util.concurrent.Future;//j.m
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
+import ome.model.display.Color;
 
 //j.mimport omeis.env.Env;
 import omeis.providers.re.codomain.CodomainChain;
@@ -53,6 +56,7 @@ import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
+import omeis.providers.re.quantum.QuantumStrategy;
 
 /** 
  * Transforms a plane within a given pixels set into an <i>RGB</i> image.
@@ -100,6 +104,11 @@ class HSBStrategy
     /** The rendering context. */
     private Renderer    renderer;
     
+    /**
+     * The maximum number of tasks (regions to split the image up into) that
+     * we will be using.
+     */
+    private static final int maxTasks = 2;
     
     /** 
      * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
@@ -132,61 +141,180 @@ class HSBStrategy
     }
     
     /**
-     * Creates a rendering task for each active wavelength.
-     * 
-     * @param planeDef The plane to render.
-     * @return An array containing the tasks.
+     * Retrieves the maximum number of reasonable tasks to schedule based on
+     * image size and <i>maxTasks</i>.
+     * @return the number of tasks to schedule.
      */
-    private RenderHSBWaveTask[] makeRndTasks(PlaneDef planeDef)
+    private int numTasks()
     {
-        ArrayList tasks = new ArrayList();
-        
-        //Get all objects we need to create the tasks. 
-        Plane2D wData;
-        ChannelBinding[] cBindings = 
-                renderer.getChannelBindings();
-        CodomainChain cc = renderer.getCodomainChain();
-        Pixels metadata = renderer.getMetadata();
-        PixelBuffer pixels = renderer.getPixels();
-        QuantumManager qManager = renderer.getQuantumManager();
-        RenderingStats performanceStats = renderer.getStats();
-        RGBBuffer channelBuf;
-        
-        //Create a task for each active wavelength.
-        for (int w = 0; w < cBindings.length; w++) {
-            if (cBindings[w].getActive().booleanValue()) {
-                //Allocate the RGB buffer for this wavelength.
-                performanceStats.startMalloc();
-                channelBuf = new RGBBuffer(sizeX1, sizeX2);
-                performanceStats.endMalloc();
-                
-                //Get the raw data.
-                performanceStats.startIO(w);
-                wData = PlaneFactory.createPlane(planeDef, w, metadata, pixels);
-                performanceStats.endIO(w);
-                
-                //Create a rendering task for this wavelength.
-                tasks.add(new RenderHSBWaveTask(channelBuf, wData, 
-                                                qManager.getStrategyFor(w), 
-                                                cc, cBindings[w].getColor(), 
-                                                sizeX1, sizeX2));
-            }
-        }
-        
-        //Turn the list into an array an return it.
-        RenderHSBWaveTask[] t = new RenderHSBWaveTask[tasks.size()];
-        return (RenderHSBWaveTask[]) tasks.toArray(t);
+    	for (int i = maxTasks; i > 0; i--)
+    	{
+    		if ((sizeX2 % i) == 0)
+    			return i;
+    	}
+    	return 1;
+    }
+    
+    
+    /**
+     * Retrieves the wavelength data for all the active channels.
+     * @return the wavelength data.
+     */
+    private List<Plane2D> getWavelengthData(PlaneDef pDef)
+    {
+    	ChannelBinding[] channelBindings = renderer.getChannelBindings();
+    	Pixels metadata = renderer.getMetadata();
+    	PixelBuffer pixels = renderer.getPixels();
+    	RenderingStats performanceStats = renderer.getStats();
+    	ArrayList<Plane2D> wData = new ArrayList<Plane2D>();
+    	
+    	for (int w = 0; w < channelBindings.length; w++)
+    	{
+    		if (channelBindings[w].getActive())
+    		{
+        		performanceStats.startIO(w);
+    			wData.add(PlaneFactory.createPlane(pDef, w, metadata, pixels));
+        		performanceStats.endIO(w);
+    		}
+    	}
+    	return wData;
     }
     
     /**
-     * Implemented as specified by superclass.
+     * Retrieves the color for each active channels.
+     * @return the active channel color data.
+     */
+    private List<Color> getColors()
+    {
+    	ChannelBinding[] channelBindings = renderer.getChannelBindings();
+     	ArrayList<Color> colors = new ArrayList<Color>();
+    	
+    	for (int w = 0; w < channelBindings.length; w++)
+    	{
+    		if (channelBindings[w].getActive())
+    		{
+    			colors.add(channelBindings[w].getColor());
+    		}
+    	}
+     	return colors;
+    }
+    
+    /**
+     * Retrieves the quantum strategy for each active channels
+     * @return the active channel color data.
+     */
+    private List<QuantumStrategy> getStrategies()
+    {
+    	ChannelBinding[] channelBindings = renderer.getChannelBindings();
+    	QuantumManager qManager = renderer.getQuantumManager();
+     	ArrayList<QuantumStrategy> strats = new ArrayList<QuantumStrategy>();
+    	
+    	for (int w = 0; w < channelBindings.length; w++)
+    	{
+    		if (channelBindings[w].getActive())
+    		{
+    			strats.add(qManager.getStrategyFor(w));
+    		}
+    	}
+     	return strats;
+    }
+    
+    /**
+     * Creates a set of rendering tasks for the image based on the calling
+     * buffer type.
+     * 
+     * @param planeDef The plane to render.
+     * @param buf The buffer to render into.
+     * @return An array containing the tasks.
+     */
+    private RenderingTask[] makeRenderingTasks(PlaneDef def, RGBBuffer buf)
+    {
+    	ArrayList<RenderHSBRegionTask> tasks =
+    		new ArrayList<RenderHSBRegionTask>();
+
+    	//Get all objects we need to create the tasks. 
+    	CodomainChain cc = renderer.getCodomainChain();
+    	RenderingStats performanceStats = renderer.getStats();
+    	List<Plane2D> wData = getWavelengthData(def);
+    	List<Color> colors = getColors();
+    	List<QuantumStrategy> strategies = getStrategies();
+
+    	//Create a number of rendering tasks.
+    	int taskCount = numTasks();
+    	int delta = sizeX2 / taskCount;
+    	for (int i = 0; i < taskCount; i++)
+    	{
+    		//Allocate the RGB buffer for this wavelength.
+    		performanceStats.startMalloc();
+    		performanceStats.endMalloc();
+
+    		int x1Start = 0;
+    		int x1End = sizeX1;
+    		int x2Start = i * delta;
+    		int x2End = (i + 1) * delta;
+    		tasks.add(
+    			new RenderHSBRegionTask(buf, wData, strategies, cc, colors,
+    		                            x1Start, x1End, x2Start, x2End));
+    	}
+
+    	//Turn the list into an array an return it.
+    	RenderingTask[] tArray = new RenderingTask[tasks.size()];
+    	return tasks.toArray(tArray);
+    }
+
+    /**
+     * Implemented as specified by the superclass.
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
     RGBBuffer render(Renderer ctx, PlaneDef planeDef)
-        throws IOException, QuantizationException
+    	throws IOException, QuantizationException
     {
-        //Set the rendering context for the current invocation.
-        renderer = ctx;
+		//Set the context and retrieve objects we're gonna use.
+		renderer = ctx;
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer.
+		initAxesSize(planeDef, metadata);
+        performanceStats.startMalloc();
+        RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
+        performanceStats.endMalloc();
+        
+        render(buf, planeDef);
+    	return buf;
+    }
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+    RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
+		throws IOException, QuantizationException
+	{
+		//Set the context and retrieve objects we're gonna use.
+		renderer = ctx;
+    	RenderingStats performanceStats = renderer.getStats();
+    	Pixels metadata = renderer.getMetadata();
+    	
+		//Initialize sizeX1 and sizeX2 according to the plane definition and
+		//create the RGB buffer.
+		initAxesSize(planeDef, metadata);
+        performanceStats.startMalloc();
+        RGBIntBuffer buf = new RGBIntBuffer(sizeX1, sizeX2);
+        performanceStats.endMalloc();
+    	
+    	render(buf, planeDef);
+		return buf;
+	}
+    
+    /**
+     * Implemented as specified by the superclass.
+     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     */
+	private void render(RGBBuffer buf, PlaneDef planeDef)
+		throws IOException, QuantizationException
+	{
         RenderingStats performanceStats = renderer.getStats();
         
         //Initialize sizeX1 and sizeX2 according to the plane.
@@ -195,57 +323,30 @@ class HSBStrategy
         //Process each active wavelength.  If their number N > 1, then 
         //process N-1 async and one in the current thread.  If N = 1, 
         //just use the current thread.
-        RenderHSBWaveTask[] tasks = makeRndTasks(planeDef);
+        RenderingTask[] tasks = makeRenderingTasks(planeDef, buf);
         performanceStats.startRendering();
         int n = tasks.length;
         Future[] rndTskFutures = new Future[n];  //[0] unused.
-        //CmdProcessor processor = Env.getProcessor();
-        ExecutorService processor = Executors.newCachedThreadPool();//j.m
+        ExecutorService processor = Executors.newCachedThreadPool();
         
         while (0 < --n)
-            rndTskFutures[n] = processor.submit(tasks[n]); //j.m exec(tasks[n]);
-        RGBBuffer rndDataBuf = null;
-        byte[] red = null, green = null, blue = null;
-        if (n == 0) {
-            rndDataBuf = (RGBBuffer) tasks[0].call(); 
-            red = rndDataBuf.getRedBand();
-            green = rndDataBuf.getGreenBand();
-            blue = rndDataBuf.getBlueBand();
-        }
+            rndTskFutures[n] = processor.submit(tasks[n]);
+        
+        //Call the task in the current thread.
+        if (n == 0)
+				tasks[0].call();
     
         //Wait for all forked tasks (if any) to complete.
-        //When a task completes, assemble its RGB buffer into rndDataBuf.
-        RGBBuffer taskBuffer;
-        int x1, x2, pix;
-        byte[] r, g, b;
         for (n = 1; n < rndTskFutures.length; ++n) {
             try {
-                taskBuffer = (RGBBuffer) rndTskFutures[n].get();//j.m getResult();
-                r = taskBuffer.getRedBand();
-                g = taskBuffer.getGreenBand();
-                b = taskBuffer.getBlueBand();
-                for (x2 = 0; x2 < sizeX2; ++x2) {
-                    for (x1 = 0; x1 < sizeX1; ++x1) {
-                        pix = sizeX1*x2+x1;
-                        red[pix] = (byte) (red[pix]+r[pix]);
-                        green[pix] = (byte) (green[pix]+g[pix]);
-                        blue[pix] = (byte) (blue[pix]+b[pix]);
-                    } 
-                } 
+                rndTskFutures[n].get();
             } catch (Exception e) {
                 if (e instanceof QuantizationException)
                     throw (QuantizationException) e;
-                throw (RuntimeException) e;  
-                //B/c call() only throws QuantizationException, it must be RE.
+                throw new RuntimeException(e);
             }
         }
         performanceStats.endRendering();
-        
-        if (rndDataBuf == null)  //No active channel, return a black image. 
-            return new RGBBuffer(sizeX1, sizeX2);
-        
-        //Done.
-        return rndDataBuf;
     }
     
     /**

@@ -34,6 +34,7 @@ package omeis.providers.re.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -132,11 +133,9 @@ public class QuantumFactory
      * @param value The enumeration value.
      * @return A family enumeration object.
      */
-    public static Family getFamily(String value)
+    public static Family getFamily(IPixels iPixels, String value)
     {
-        OmeroContext ctx = OmeroContext.getManagedServerContext();
-        IQuery iQuery = (IQuery) ctx.getBean("internal:ome.api.IQuery");
-    	return (Family) iQuery.findByString(Family.class, "value", value);
+    	return (Family) iPixels.getEnumeration(Family.class, value);
     }
 
 	/**
@@ -185,9 +184,11 @@ public class QuantumFactory
      * @return A {@link QuantumStrategy} object suitable for the
      *          given pixels type.
      */
-    private static QuantumStrategy getQuantization(QuantumDef qd, PixelsType type)
+    private static QuantumStrategy getQuantization(QuantumDef qd,
+                                                   PixelsType type,
+                                                   IPixels iPixels)
     {
-        return new Quantization_8_16_bit(qd, type);
+        return new Quantization_8_16_bit(qd, type, iPixels);
     }
     
     /**
@@ -199,11 +200,12 @@ public class QuantumFactory
      *              properly specified.
      * @return  A {@link QuantumStrategy} suitable for the specified context. 
      */
-	public static QuantumStrategy getStrategy(QuantumDef qd, PixelsType type)
+	public static QuantumStrategy getStrategy(QuantumDef qd, PixelsType type,
+	                                          IPixels iPixels)
 	{
         verifyDef(qd, type);
         QuantumStrategy strg = null;
-        strg = getQuantization(qd,type);
+        strg = getQuantization(qd,type, iPixels);
         if (strg == null)
             throw new IllegalArgumentException("Unsupported strategy");
         return strg;

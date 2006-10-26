@@ -30,10 +30,16 @@
 package ome.logic;
 
 //Java imports
+import java.awt.Point;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
 import java.awt.image.Raster;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -74,9 +80,12 @@ import ome.parameters.Parameters;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
- * Provides methods for directly querying object graphs.
+ * Provides methods for directly querying object graphs. The service is entirely
+ * read/write transactionally because of the requirements of rendering engine
+ * lazy object creation where rendering settings are missing.
  * 
  * @author  Chris Allan &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
@@ -88,7 +97,7 @@ import omeis.providers.re.data.PlaneDef;
  * 
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly=false)
 @Stateless
 @Remote(IThumb.class)
 @RemoteBinding (jndiBinding="omero/remote/ome.api.IThumb")
@@ -155,34 +164,46 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/**
 	 * Creates a buffered image from a rendering engine RGB buffer without data
 	 * copying.
-	 * @param buf the rendering engine RGB buffer.
+	 * @param buf the rendering engine packed integer buffer.
 	 * @param sizeX the X-width of the image rendered.
 	 * @param sizeY the Y-width of the image rendered.
 	 * @return a buffered image wrapping <i>buf</i> with the X-Y dimensions
 	 * provided.
 	 */
-	private BufferedImage createBufferedImage(RGBBuffer buf,
-	                                          int sizeX, int sizeY)
+	private BufferedImage createBufferedImage(int[] buf, int sizeX, int sizeY)
 	{
-		RGBByteBuffer j2DBuf = new RGBByteBuffer(buf, sizeX, sizeY);
-		BandedSampleModel csm =
-			new BandedSampleModel(DataBuffer.TYPE_BYTE, sizeX, sizeY, 3);
+		// First wrap the packed integer array with a Java2D buffer
+		DataBuffer j2DBuf = new DataBufferInt(buf, sizeX * sizeY, 0);
+		
+		// Create a sample model which supplies the bit masks for each colour
+		// component.
+        SinglePixelPackedSampleModel sampleModel =
+            new SinglePixelPackedSampleModel(
+            		DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,
+                    new int[] {
+				      	0x00ff0000,	// Red
+				      	0x0000ff00,	// Green
+				      	0x000000ff,	// Blue
+				      	//0xff000000  // Alpha
+					});
+
+        // Now create a compatible raster which wraps the Java2D buffer and is
+        // told how to get to the pixel data by the sample model.
+        WritableRaster raster = 
+        	new IntegerInterleavedRaster(sampleModel, j2DBuf, new Point(0, 0));
+        
+        // Finally create a screen accessible colour model and wrap the raster
+        // in a buffered image.
+        ColorModel colorModel = new DirectColorModel(24,
+                0x00ff0000,	// Red
+                0x0000ff00,	// Green
+                0x000000ff	// Blue
+                //0xff000000  // Alpha
+                );
 		BufferedImage image =
-			new BufferedImage(sizeX, sizeY, BufferedImage.TYPE_INT_RGB);
-		image.setData(Raster.createWritableRaster(csm, j2DBuf, null));
+			new BufferedImage(colorModel, raster, false, null);
+		
 		return image;
-		
-		/*
-		Unfortunately, the following creates "CUSTOM" buffered images which
-		with some VM's cannot be used in the ImagingLib. Nasty.
-		
-		ColorModel cm = new ComponentColorModel(
-				ColorSpace.getInstance(ColorSpace.CS_sRGB), 
-				null, false, false, Transparency.OPAQUE, 
-				DataBuffer.TYPE_BYTE);
-		WritableRaster r = Raster.createWritableRaster(csm, j2DBuf, null);
-		return new BufferedImage(cm, r, false, null);
-		*/
 	}
 	
     /**
@@ -309,7 +330,7 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 		initializeRenderingEngine(pixels);
 		PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
 		pd.setZ(re.getDefaultZ());
-		RGBBuffer buf = re.render(pd);
+		int[] buf = re.renderAsPackedInt(pd);
 		BufferedImage image = createBufferedImage(buf, origSizeX, origSizeY);
 		
 		// Finally, scale our image using scaling factors (percentage).
@@ -388,7 +409,6 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/* (non-Javadoc)
 	 * @see ome.api.IThumb#getThumbnailDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
 	 */
-	@Transactional( readOnly = true )
 	public byte[] getThumbnailDirect(Pixels pixels, RenderingDef def,
 	                                 Integer sizeX, Integer sizeY)
 	{
@@ -416,7 +436,6 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/* (non-Javadoc)
 	 * @see ome.api.IThumb#thumbnailExists(ome.model.core.Pixels, java.lang.Integer, java.lang.Integer)
 	 */
-	@Transactional( readOnly = false )
 	public boolean thumbnailExists(Pixels pixels, Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
@@ -431,6 +450,4 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 			return false;
 		return true;
 	}
-
 }
-				

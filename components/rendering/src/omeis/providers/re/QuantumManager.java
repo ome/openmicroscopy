@@ -37,6 +37,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -71,15 +72,18 @@ class QuantumManager
 	 * file.
 	 */
 	private QuantumStrategy[] wavesStg;
-    
+	
+    /** Omero Pixels service */
+    private IPixels iPixels;
     
     /**
      * Creates a new instance.
      * 
      * @param metadata The pixels metadata.
      */
-	QuantumManager(Pixels metadata)
+	QuantumManager(Pixels metadata, IPixels iPixels)
 	{
+		this.iPixels = iPixels;
 		this.metadata = metadata;
 		wavesStg = new QuantumStrategy[metadata.getSizeC().intValue()];
 	}
@@ -104,7 +108,7 @@ class QuantumManager
         Channel channel;
 		for (Iterator i = channels.iterator(); i.hasNext();) {
 			channel = (Channel) i.next();
-			stg = QuantumFactory.getStrategy(qd,type);
+			stg = QuantumFactory.getStrategy(qd,type, iPixels);
 			gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
 			gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
 			stg.setExtent(gMin, gMax);

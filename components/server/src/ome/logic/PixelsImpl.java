@@ -125,8 +125,14 @@ class PixelsImpl extends AbstractLevel2Service
         	.getCurrentUserId();
         
         return (RenderingDef) iQuery.findByQuery(
-                " select rdef from RenderingDef rdef where " +
-                " rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",
+                "select rdef from RenderingDef as rdef " +
+                "left outer join fetch rdef.quantization " +
+                "left outer join fetch rdef.model " +
+                "left outer join fetch rdef.waveRendering as cb " +
+                "left outer join fetch cb.color " +
+                "left outer join fetch cb.family " +
+                "left outer join fetch rdef.spatialDomainEnhancement where " +
+                "rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",
                 new Parameters().addLong("pixid",pixId).addLong("ownerid",userId));
 	}
 

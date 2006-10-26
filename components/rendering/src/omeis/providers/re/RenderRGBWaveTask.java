@@ -31,12 +31,11 @@ package omeis.providers.re;
 
 
 //Java imports
-import java.util.concurrent.Callable; //j.m
+import java.util.concurrent.Callable;
 
 //Third-party libraries
 
 //Application-internal dependencies
-//j.m import ome.util.concur.tasks.Invocation; 
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.quantum.QuantizationException;
@@ -59,7 +58,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @since OME2.2
  */
 class RenderRGBWaveTask
-    implements Callable //j.m Invocation
+    implements RenderingTask
 {
 
     /** Buffer to hold the output image's data. */

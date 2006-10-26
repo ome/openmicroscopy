@@ -98,6 +98,22 @@ public interface RenderingEngine
         throws ValidationException;
     
     /**
+     * Renders the data selected by <code>pd</code> according to the current
+     * rendering settings.
+     * The passed argument selects a plane orthogonal to one of the <i>X</i>, 
+     * <i>Y</i>, or <i>Z</i> axes.  How many wavelengths are rendered and
+     * what color model is used depends on the current rendering settings.
+     * 
+     * @param pd Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
+     *           or <i>Z</i> axes.
+     * @return An <i>RGB</i> image ready to be displayed on screen.
+     * @throws ValidationException If <code>pd</code> is <code>null</code>.
+     * @see render()
+     */
+    public int[] renderAsPackedInt(PlaneDef pd) 
+        throws ValidationException;
+    
+    /**
      * Loads the <code>Pixels</code> set this Rendering Engine is for.
      * 
      * @param pixelsId  The pixels set ID.

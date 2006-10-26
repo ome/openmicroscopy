@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
 import ome.util.math.Approximation;
@@ -236,9 +237,9 @@ public class Quantization_8_16_bit
      * @param qd    Quantum definition object, contained mapping data.
      * @param type  The pixel type;
      */
-    public Quantization_8_16_bit(QuantumDef qd, PixelsType type)
+    public Quantization_8_16_bit(QuantumDef qd, PixelsType type, IPixels iPixels)
     { 
-        super(qd, type); 
+        super(qd, type, iPixels); 
     }
     
 	/**

@@ -35,6 +35,7 @@ package omeis.providers.re.quantum;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
@@ -192,11 +193,11 @@ public abstract class QuantumStrategy
      * @param qd    The {@link QuantumDef} this strategy is for.
      * @param pt
      */
-	protected QuantumStrategy(QuantumDef qd, PixelsType pt)
+	protected QuantumStrategy(QuantumDef qd, PixelsType pt, IPixels iPixels)
 	{
 		windowStart = globalMin = 0.0;
 		windowEnd = globalMax = 1.0;
-        family = QuantumFactory.getFamily(QuantumFactory.LINEAR);
+        family = QuantumFactory.getFamily(iPixels, QuantumFactory.LINEAR);
         curveCoefficient = 1.0;
 		if (qd == null)    
 			throw new NullPointerException("No quantum definition");
