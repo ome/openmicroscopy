@@ -41,7 +41,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
@@ -433,25 +432,20 @@ class ColouredButtonUI
         // If the button is selected draw selected button face.  
         // Check to see if it's greyed out, if not draw border else
         // draw mask and draw the grey mask selected border. 
-        if (button.isSelected()) 
-        {
+        if (button.isSelected()) {
             drawSelectedButtonFace(g);
             if (!greyedOut) drawSelectedBorder(g);
-            else 
-            {
+            else  {
                 drawGreyMask(g);
                 drawGreySelectedBorder(g);
             }
-        } 
-        else 
-        {
+        } else {
             // If the button is not selected draw unselected button face.  
             // Check to see if it's greyed out, if not draw border else
             // draw mask and draw the grey mask unselected border.
             drawButtonFace(g);
             if (!greyedOut) drawBorder(g);
-            else 
-            {
+            else {
                 drawGreyMask(g);
                 drawGreyBorder(g);
             }

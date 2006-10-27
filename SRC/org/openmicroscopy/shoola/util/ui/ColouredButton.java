@@ -33,12 +33,8 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-
 import javax.swing.AbstractButton;
-import javax.swing.ButtonModel;
 import javax.swing.DefaultButtonModel;
-import javax.swing.JButton;
 
 //Third-party libraries
 
@@ -132,16 +128,18 @@ public class ColouredButton
     	// Do nothing as it's overwritten by laf and breaks the coloured button.
     }
 
-    /** Needed for the MacOS Layout Managers to work correctly. */
-    public Dimension getMinimumSize()
-    {
-    	return getPreferredSize();
-    }
+    /** 
+     * Overridden.
+     * Needed for the MacOS Layout Managers to work correctly.
+     * @see  javax.swing.JComponent#getMinimumSize()
+     */
+    public Dimension getMinimumSize() { return getPreferredSize(); }
     
-    /** Needed for the MacOS Layout Managers to work correctly. */
-    public Dimension getMaximumSize()
-    {
-    	return getPreferredSize();
-    }
+    /** 
+     * Overridden.
+     * Needed for the MacOS Layout Managers to work correctly.
+     * @see  javax.swing.JComponent#getMaximumSize()
+     */
+    public Dimension getMaximumSize() { return getPreferredSize(); }
     
 }
