@@ -88,7 +88,7 @@ public class ClassifPathsLoader
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
         handle = hiBrwView.loadClassificationPaths(ids,
-                		HierarchyBrowsingView.CLASSIFICATION_ME, this);
+                		HierarchyBrowsingView.CLASSIFICATION_NME, this);
     }
     
     /** 
