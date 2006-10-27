@@ -123,7 +123,7 @@ public class ClassifierPathsLoader
                 break;
             case Classifier.CLASSIFY_MODE:
                 handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.CLASSIFICATION_ME, this);
+                        DataManagerView.CLASSIFICATION_NME, this);
         } 
     }
 
