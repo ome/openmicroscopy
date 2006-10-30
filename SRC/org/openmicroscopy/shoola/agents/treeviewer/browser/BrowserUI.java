@@ -431,10 +431,10 @@ class BrowserUI
             buildTreeNode(root, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
             if (!reload) reload = reloadRoot;
-            reloadRoot = true;
         } else buildEmptyNode(root);
         if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
+        reloadRoot = true;
     }
     
     /**
@@ -456,6 +456,7 @@ class BrowserUI
         } else buildEmptyNode(parent);
         dtm.reload(parent);
         if (!model.isMainTree()) loadGoIntoTree();
+        reloadRoot = true;
     }
     
     /**
@@ -563,6 +564,7 @@ class BrowserUI
             loadGoIntoTree();
             selectGoIntoTreeFoundNode(node);
         }
+        reloadRoot = true;
     }
     
     /** Removes all the nodes from the tree, excepted the root node. */
@@ -576,6 +578,7 @@ class BrowserUI
         dtm.reload();
         collapsePath(root);
         if (!model.isMainTree()) loadGoIntoTree();
+        reloadRoot = true;
     }
     
     /**
@@ -746,6 +749,7 @@ class BrowserUI
             scrollPane.getViewport().add(goIntoTree);
             repaint();
         }
+        reloadRoot = true;
     }
     
     /** Loads the children of the root node. */
