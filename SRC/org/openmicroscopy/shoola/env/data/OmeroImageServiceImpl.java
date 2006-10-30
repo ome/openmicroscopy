@@ -136,18 +136,28 @@ class OmeroImageServiceImpl
             throws RenderingServiceException
     {
         try {
-            RenderingControl proxy = 
-                RenderingServicesFactory.getRenderingControl(context, 
-                                                        new Long(pixelsID));
-            if (proxy == null) 
-                throw new RuntimeException("No rendering service " +
-                        "initialized for the specified pixels set.");
-            return proxy.render(pDef);
+            return RenderingServicesFactory.render(context, new Long(pixelsID), 
+                                                    pDef);
         } catch (Exception e) {
             throw new RenderingServiceException("RenderImage", e);
         }
     }
 
+    /** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#renderImageCopy(long, PlaneDef)
+     */
+    public BufferedImage renderImageCopy(long pixelsID, PlaneDef pDef)
+            throws RenderingServiceException
+    {
+        try {
+            return RenderingServicesFactory.renderCopy(context, 
+                                            new Long(pixelsID), pDef);
+        } catch (Exception e) {
+            throw new RenderingServiceException("RenderImage Copy", e);
+        }
+    }
+    
     /** 
      * Implemented as specified by {@link OmeroImageService}. 
      * @see OmeroImageService#renderImage(long)

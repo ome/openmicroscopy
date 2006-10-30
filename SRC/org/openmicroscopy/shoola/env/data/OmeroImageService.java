@@ -86,6 +86,18 @@ public interface OmeroImageService
         throws RenderingServiceException;    
     
     /**
+     * Renders the specified 2D-plane. We create a new image and not 
+     * the image retrieved from the cache.
+     * 
+     * @param pixelsID  The ID of the pixels set.
+     * @param pd        The plane to render.
+     * @return          The buffered image representing the plane.
+     * @throws RenderingServiceException If the server cannot render the image.
+     */
+    public BufferedImage renderImageCopy(long pixelsID, PlaneDef pd)
+        throws RenderingServiceException;    
+    
+    /**
      * Renders the specified 2D-plane. In that case, the plane is set 
      * to the default z-section and default timepoint.
      * 
