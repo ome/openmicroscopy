@@ -230,7 +230,6 @@ class DomainPane
 		controller.resizeRenderUI();
 		isAdvancedSettingsShowing = !isAdvancedSettingsShowing;
 	}
-	
     
     /**
      * Creates the channel buttons on the left hand side of the histogram.
@@ -250,7 +249,7 @@ class DomainPane
         	d = data[j];
         
         	channelButton = new ChannelToggleButton(""+d.getEmissionWavelength()
-        						,model.getChannelColor(j),j);
+        						, model.getChannelColor(j), j);
         	channelList.add(channelButton);
         	if (model.getSelectedChannel() == j)
             	channelButton.setSelected(true);
@@ -263,7 +262,7 @@ class DomainPane
             p.add(Box.createRigidArea(VBOX));
         }
         return UIUtilities.buildComponentPanel(p);     
-   }
+    }
     
     /**
      * Create a panel showing the channel buttons and histogram.
