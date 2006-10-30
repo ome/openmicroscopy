@@ -85,9 +85,15 @@ class ControlPane
     private static final String Z_SLIDER_DESCRIPTION = "Use the slider to " +
                             "select a z-section.";
 
-    /** The description of the {@link #zSlider}. */
+    /** The description of the {@link #tSlider}. */
     private static final String T_SLIDER_DESCRIPTION = "Use the slider to " +
                             "select a timepoint.";
+
+    /** The tipString of the {@link #zSlider}. */
+    private static final String Z_SLIDER_TIPSTRING = "Z : ";
+
+    /** The tipString of the {@link #tSlider}. */
+    private static final String T_SLIDER_TIPSTRING = "T : ";
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
@@ -218,9 +224,11 @@ class ControlPane
         zSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
         zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
+        zSlider.setTipString(Z_SLIDER_TIPSTRING);
         tSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
         tSlider.setEnabled(false);
         tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
+        tSlider.setTipString(T_SLIDER_TIPSTRING);
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
