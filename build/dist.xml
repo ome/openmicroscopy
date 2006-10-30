@@ -54,13 +54,13 @@
   <property name="dist.dir" location="${build.dir}/dist"/>
   <property name="dist.jar.file" value="shoola.jar"/>
   <property name="dist.bundle.name" value="omero-shoola"/> 
-  <property name="dist.bundle.version" value="3-M3"/>
+  <property name="dist.bundle.version" value="3-M3_30-10-06"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
   </fileset> 
   <property name="dist.installfile" 
-            location="${base.launch.dir}/INSTALL.java_client"/> 
+            location="${base.launch.dir}/INSTALL.txt"/> 
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/> 
   <property name="dist.osx.icon" 
