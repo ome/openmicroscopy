@@ -66,7 +66,10 @@ public class OMESlider
 	/** Slider UI for new laf. */
 	private OMESliderUI	sliderUI;	
 	
+	/** This is set to <code>true</code> if the slider has tooltipString. */
 	private boolean hasTip;
+	
+	/** Tooltip string which is shown when slider is dragged, changed value. */
 	private String 	tipString;
 	
 	/**
@@ -114,6 +117,12 @@ public class OMESlider
 		sliderUI.setShowArrows(showArrows);
 	}
 	
+	/**
+	 * Set the string for the tooltip which is displayed when slider changes
+	 * value. 
+	 * 
+	 * @param tip prefix data for the string to display.
+	 */
 	public void setTipString(String tip)
 	{
 		tipString = tip;
@@ -121,6 +130,12 @@ public class OMESlider
 		sliderUI.hasTipString(true);
 	}
 	
+	/**
+	 * Return <code>true</code> if the slider has tooltips which appear when it
+	 * changes value.
+	 *  
+	 * @return see above.
+	 */
 	public String getTipString()
 	{
 		return tipString;
