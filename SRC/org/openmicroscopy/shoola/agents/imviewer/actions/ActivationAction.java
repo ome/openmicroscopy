@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 //Third-party libraries
 
@@ -76,8 +77,12 @@ public class ActivationAction
         putValue(Action.NAME, model.getViewTitle());
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER));
+        ImageIcon icon = model.getImageIcon();
+        if (icon == null) {
+            IconManager im = IconManager.getInstance();
+            icon = im.getImageIcon(IconManager.VIEWER);
+        }
+        putValue(Action.SMALL_ICON, icon);
     }
 
     /** 
