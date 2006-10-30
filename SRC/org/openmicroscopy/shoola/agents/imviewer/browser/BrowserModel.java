@@ -222,7 +222,9 @@ class BrowserModel
      */
     void setUnitBarSize(double size)
     {
-        unit = size/getPixelsSizeX();
+        if (getPixelsSizeX() > 0)
+            unit = size/getPixelsSizeX();
+        else unit = size;
     }
     
     /**
@@ -251,6 +253,7 @@ class BrowserModel
         if (v < 0) return null;
         if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
         else  value = ""+(int) c;
+        if (value.equals("0")) return null;
         return value;
     }
     
