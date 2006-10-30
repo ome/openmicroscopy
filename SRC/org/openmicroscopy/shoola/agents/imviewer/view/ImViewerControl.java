@@ -232,7 +232,7 @@ class ImViewerControl
     
     /** Index of the channel invoking the color picker. */
     private int         colorPickerIndex;
-
+    
     /** Helper method to create all the UI actions. */
     private void createActions()
     {
@@ -567,5 +567,5 @@ class ImViewerControl
      * @param s The value to set.
      */
     void setHistoryState(int s) { historyState = s; }
-
+    
 }

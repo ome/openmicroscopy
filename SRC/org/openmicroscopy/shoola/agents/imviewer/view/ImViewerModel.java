@@ -136,17 +136,22 @@ class ImViewerModel
     /** The height of the thumbnail if the window is iconified. */
     private int                 sizeY;
     
-    private double              factor;
-    
     /** The image icon. */
     private BufferedImage       imageIcon;
     
     /** The bounds of the components resquesting the viewer. */
     private Rectangle           requesterBounds;
     
-    /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
-    private void computeSizes()
+    /** 
+     * Computes the values of the {@link #sizeX} and {@link #sizeY} fields
+     * and the magnification factor used to determine the size of the image
+     * icon.
+     * 
+     * @return  See above.
+     */
+    private double computeSizes()
     {
+        double factor = 0;
         if (sizeX == -1 && sizeY == -1) {
             sizeX = THUMB_MAX_WIDTH;
             sizeY = THUMB_MAX_HEIGHT;
@@ -158,6 +163,7 @@ class ImViewerModel
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         }
+        return factor;
     }
     
     /** 
@@ -450,7 +456,7 @@ class ImViewerModel
     {
         browser.setRenderedImage(image);
         //update image icon
-        computeSizes();
+        double factor = computeSizes();
         imageIcon = magnifyImage(factor, image);
         state = ImViewer.READY; 
     }

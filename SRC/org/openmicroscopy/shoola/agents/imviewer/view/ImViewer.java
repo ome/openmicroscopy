@@ -35,7 +35,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -424,5 +424,12 @@ public interface ImViewer
      * @return See above.
      */
     public double getUnitBarSize();
+    
+    /**
+     * Returns a icon version of the viewed image.
+     * 
+     * @return See above.
+     */
+    public ImageIcon getImageIcon();
     
 }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -876,6 +877,15 @@ class ImViewerComponent
             throw new IllegalStateException("The method cannot be invoked in " +
                     "the DISCARDED state.");
         return model.getBrowser().getUnitBarSize();
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getImageIcon()
+     */
+    public ImageIcon getImageIcon()
+    {
+        return new ImageIcon(model.getImageIcon());
     }
     
 }
