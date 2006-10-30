@@ -31,10 +31,18 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
 
@@ -50,6 +58,7 @@ import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+
 
 /** 
  * UI-side implementation of the {@link RenderingControl} interface.
@@ -109,6 +118,37 @@ class RenderingControlProxy
     {
         if (sizeCache <= 0) sizeCache = 0;
         return sizeCache*1024*1024;
+    }
+    
+    /**
+     * Creates a new {@link BufferedImage} from the specified array of 
+     * packed integers.
+     * 
+     * @param sizeX The size along the X-axis. 
+     * @param sizeY The size along the Y-axis.
+     * @param buf   The array of packed integers.
+     * @return See above.
+     */
+    private BufferedImage createImage(int sizeX, int sizeY, int[] buf)
+    {
+        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY, 0); 
+        SinglePixelPackedSampleModel sampleModel =
+            new SinglePixelPackedSampleModel(
+                      DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,                                                                                                      
+                      new int[] {
+                          0x00ff0000,    // Red
+                          0x0000ff00,    // Green
+                          0x000000ff//,    // Blue
+                      });
+        WritableRaster raster = 
+            new IntegerInterleavedRaster(sampleModel, j2DBuf, new Point(0, 0));
+      
+        ColorModel colorModel = new DirectColorModel(32,
+                                        0x00ff0000,    // Red
+                                        0x0000ff00,    // Green
+                                        0x000000ff//,    // Blue
+                                       );
+        return new BufferedImage(colorModel, raster, false, null);
     }
     
     //tmp method
@@ -263,6 +303,7 @@ class RenderingControlProxy
         }
     }
     
+    /** Initializes the cached values to speed up process. */
     private void initialize()
     {
         rndDef.setDefaultZ(servant.getDefaultZ());
@@ -319,11 +360,10 @@ class RenderingControlProxy
             metadata[k] = new ChannelMetadata(k, (Channel) i.next());
             int emWave = metadata[k].getEmissionWavelength();
             //Should happen server side.
-            setRGBA(k, ColorsFactory.getColor(k, emWave));
+            //setRGBA(k, ColorsFactory.getColor(k, emWave));
             k++;  
         }
-        
-        setModel(HSB);
+        //if (getPixelsDimensionsC() > 1) setModel(HSB);
     }
 
     /** 
@@ -335,7 +375,89 @@ class RenderingControlProxy
     {
         if (xyCache != null) xyCache.resetCacheSize(size);
     }
+
+
+    /**
+     * Renders the specified {@link PlaneDef plane}.
+     * 
+     * @param pDef The plane to render
+     * @return The rendered image.
+     */
+    BufferedImage renderCopy(PlaneDef pDef)
+    {
+        if (pDef == null) 
+            throw new IllegalArgumentException("Plane def cannot be null.");
+        RGBBuffer buf = servant.render(pDef);
+        BufferedImage img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+                                BufferedImage.TYPE_INT_RGB);
+        paintImage(img, buf);
+        return img;
+    }
     
+    /**
+     * Renders the specified {@link PlaneDef plane}.
+     * 
+     * @param pDef The plane to render
+     * @return The rendered image.
+     */
+    BufferedImage render(PlaneDef pDef)
+    {
+        if (pDef == null) 
+            throw new IllegalArgumentException("Plane def cannot be null.");
+        //See if the requested image is in cache.
+        
+        BufferedImage img = getFromCache(pDef);
+        if (img != null) return img;
+        int sizeX1, sizeX2;
+        switch (pDef.getSlice()) {
+            case PlaneDef.XZ:
+                sizeX1 = pixs.getSizeX().intValue();
+                sizeX2 = pixs.getSizeZ().intValue();
+                break;
+            case PlaneDef.ZY:
+                sizeX1 = pixs.getSizeZ().intValue();
+                sizeX2 = pixs.getSizeY().intValue();
+                break;
+            case PlaneDef.XY:
+            default:
+                sizeX1 = pixs.getSizeX().intValue();
+                sizeX2 = pixs.getSizeY().intValue();
+                break;
+        }
+
+        int[] buf = servant.renderAsPackedInt(pDef);
+        img = createImage(sizeX1, sizeX2, buf);
+        if (xyImage == null) {
+            xyImage = new BufferedImage(sizeX1, sizeX2, 
+                                BufferedImage.TYPE_INT_RGB);
+        }
+        cache(pDef, img);
+        return img;
+       /*
+        RGBBuffer buf = getBufferFromCache(pDef);
+        
+        if (buf == null) {
+            buf = servant.render(pDef);   //TO BE modified.
+            cacheBuffer(pDef, buf);
+        }
+        if (xyImage == null) {
+            xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
+                            BufferedImage.TYPE_INT_RGB);
+        }
+        
+        //See if we can/need work out the XY image size.
+        if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
+            xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
+            buf.getBlueBand().length;
+        
+        paintImage(xyImage, buf);
+        
+        return xyImage;
+       */
+    }
+    
+    /** Shuts down the service. */
+    void shutDown() { servant.close(); }
     
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -603,58 +725,6 @@ class RenderingControlProxy
         servant.resetDefaults();
         initialize();
     }
-
-    /** 
-     * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#renderCopy(PlaneDef)
-     */
-    public BufferedImage renderCopy(PlaneDef pDef)
-    {
-        if (pDef == null) 
-            throw new IllegalArgumentException("Plane def cannot be null.");
-        RGBBuffer buf = servant.render(pDef);
-        BufferedImage img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
-                                BufferedImage.TYPE_INT_RGB);
-        paintImage(img, buf);
-        return img;
-    }
-    
-    /** 
-     * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#render(PlaneDef)
-     */
-    public BufferedImage render(PlaneDef pDef)
-    {
-        if (pDef == null) 
-            throw new IllegalArgumentException("Plane def cannot be null.");
-        //See if the requested image is in cache.
-        //BufferedImage img = null;//getFromCache(pDef);
-        RGBBuffer buf = getBufferFromCache(pDef);
-        if (buf == null) {
-            buf = servant.render(pDef);   //TO BE modified.
-            cacheBuffer(pDef, buf);
-        }
-        
-        if (xyImage == null) {
-        	xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
-                            BufferedImage.TYPE_INT_RGB);
-        }
-        
-        //See if we can/need work out the XY image size.
-        if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
-        	xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
-            buf.getBlueBand().length;
-        
-        paintImage(xyImage, buf);
-        
-        return xyImage;
-    }
-    
-    /** 
-     * Implemented as specified by {@link RenderingControl}. 
-     * @see RenderingControl#render(PlaneDef)
-     */
-    public void shutDown() { servant.destroy(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 

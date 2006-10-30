@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 
@@ -39,7 +38,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
-import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
 
@@ -407,22 +405,6 @@ public interface RenderingControl
      * The default values aren't values previously saved.
      */
     public void resetDefaults();
-   
-    /**
-     * Renders the specified {@link PlaneDef plane}.
-     * 
-     * @param pDef
-     * @return The rendered image.
-     */
-    public BufferedImage render(PlaneDef pDef);
-	
-    /**
-     * Renders the specified {@link PlaneDef plane}.
-     * 
-     * @param pDef
-     * @return The rendered image.
-     */
-    public BufferedImage renderCopy(PlaneDef pDef);
     
     /**
      * Returns the <code>ChannelMetadata</code> object specified
@@ -439,8 +421,5 @@ public interface RenderingControl
      * @return See above.
      */
     public ChannelMetadata[] getChannelData();
-    
-    /** Shuts down the service. */
-    public void shutDown();
-    
+
 }

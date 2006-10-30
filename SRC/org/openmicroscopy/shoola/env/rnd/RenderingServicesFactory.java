@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -39,6 +40,8 @@ import java.util.Iterator;
 //Application-internal dependencies
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
+import omeis.providers.re.data.PlaneDef;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -149,7 +152,8 @@ public class RenderingServicesFactory
             throw new IllegalArgumentException("Not allow to access method.");
         Iterator i = singleton.rndSvcProxies.keySet().iterator();
         while (i.hasNext())
-          ((RenderingControl) singleton.rndSvcProxies.get(i.next())).shutDown();
+          ((RenderingControlProxy) 
+                  singleton.rndSvcProxies.get(i.next())).shutDown();
 
         singleton.rndSvcProxies.clear();
     }
@@ -170,6 +174,52 @@ public class RenderingServicesFactory
         if (!(context.equals(registry)))
             throw new IllegalArgumentException("Not allow to access method.");
         return (RenderingControl) singleton.rndSvcProxies.get(pixelsID);
+    }
+    
+    /**
+     * Renders the specified {@link PlaneDef 2D-plane}.
+     * 
+     * @param context   Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * @param pixelsID  The id of the pixels set.
+     * @param pDef      The plane to render.
+     * @return See above.
+     */
+    public static BufferedImage render(Registry context, Long pixelsID, 
+                                        PlaneDef pDef)
+    {
+        if (!(context.equals(registry)))
+            throw new IllegalArgumentException("Not allow to access method.");
+        RenderingControlProxy proxy = 
+            (RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
+        if (proxy == null) 
+            throw new RuntimeException("No rendering service " +
+                    "initialized for the specified pixels set.");
+        return proxy.render(pDef);
+    }
+    
+    /**
+     * Renders the specified {@link PlaneDef 2D-plane}.
+     * 
+     * @param context   Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * @param pixelsID  The id of the pixels set.
+     * @param pDef      The plane to render.
+     * @return See above.
+     */
+    public static BufferedImage renderCopy(Registry context, Long pixelsID, 
+                                        PlaneDef pDef)
+    {
+        if (!(context.equals(registry)))
+            throw new IllegalArgumentException("Not allow to access method.");
+        RenderingControlProxy proxy = 
+            (RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
+        if (proxy == null) 
+            throw new RuntimeException("No rendering service " +
+                    "initialized for the specified pixels set.");
+        return proxy.renderCopy(pDef);
     }
     
     /** Keep track of all the rendering service already initialized. */
@@ -213,5 +263,6 @@ public class RenderingServicesFactory
         singleton.rndSvcProxies.put(id, rnd);
         return rnd;
     }
+
     
 }
