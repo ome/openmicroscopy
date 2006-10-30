@@ -853,5 +853,29 @@ class ImViewerComponent
         view.setStatus(getStatusText(), -1, true);
         view.resetDefaults(); 
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getUnitBarValue(double)
+     */
+    public String getUnitBarValue(double factor)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
+        return model.getBrowser().getUnitBarValue(factor);
+    }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getUnitBarSize()
+     */
+    public double getUnitBarSize()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
+        return model.getBrowser().getUnitBarSize();
+    }
     
 }
