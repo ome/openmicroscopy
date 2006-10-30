@@ -410,8 +410,9 @@ class ImViewerModel
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
+        OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
-            return rndControl.renderCopy(pDef);
+            return os.renderImageCopy(pixelsID, pDef);
         } catch (Exception e) {
             // TODO: handle exception
         }
