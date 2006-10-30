@@ -222,8 +222,7 @@ class BrowserModel
      */
     void setUnitBarSize(double size)
     {
-        if (getPixelsSizeX() > 0)
-            unit = size/getPixelsSizeX();
+        if (getPixelsSizeX() > 0) unit = size/getPixelsSizeX();
         else unit = size;
     }
     
