@@ -97,9 +97,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#shutDown(long)
      */
-    public void shutDown(long pixelsID)
-    {
-    }
+    public void shutDown(long pixelsID) {}
 
     /**
      * No-op implementation
@@ -116,6 +114,16 @@ public class NullRenderingService
      * @see OmeroImageService#getThumbnail(long, int, int)
      */
     public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
+            throws RenderingServiceException
+    {
+        return null;
+    }
+
+    /**
+     * No-op implementation
+     * @see OmeroImageService#renderImageCopy(long, PlaneDef)
+     */
+    public BufferedImage renderImageCopy(long pixelsID, PlaneDef pd)
             throws RenderingServiceException
     {
         return null;
