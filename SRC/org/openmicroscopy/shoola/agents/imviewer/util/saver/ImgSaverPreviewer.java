@@ -44,7 +44,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -88,9 +87,6 @@ class ImgSaverPreviewer
     
     /** Button to save the image. */
     private JButton                 saveButton;
-    
-    /** Box to paint the unit bar on the image to save. */
-    private JCheckBox               unitBox;
     
     /** The canvas on which the images are painted. */
     private ImgSaverPreviewerCanvas canvas;
@@ -238,5 +234,29 @@ class ImgSaverPreviewer
      * @return See above.
      */
     List getImageComponents() { return model.getImageComponents(); }
+
+    /**
+     * Returns <code>true</code> if the unit bar is painted on top of 
+     * the displayed image, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isUnitBar() { return model.isUnitBar(); }
+
+    /**
+     * Returns the value (with two decimals) of the unit bar or 
+     * <code>null</code> if the actual value is <i>negative</i>.
+     * 
+     * @param d    The magnification factor. 
+     * @return See above.
+     */
+    String getUnitBarValue(double d) { return model.getUnitBarValue(d); }
+    
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getUnitBarSize() { return model.getUnitBarSize(); }
     
 }

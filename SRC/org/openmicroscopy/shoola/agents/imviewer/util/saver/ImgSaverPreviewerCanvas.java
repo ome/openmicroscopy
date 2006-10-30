@@ -35,13 +35,15 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 //Java imports
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import javax.swing.JPanel;
+
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * Component hosting the images.
@@ -49,9 +51,9 @@ import javax.swing.JPanel;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -61,7 +63,7 @@ import javax.swing.JPanel;
 class ImgSaverPreviewerCanvas
     extends JPanel
 {
-
+    
     /** Reference to the parent. */
     private ImgSaverPreviewer   model;
     
@@ -70,19 +72,32 @@ class ImgSaverPreviewerCanvas
      * 
      * @param g2D   The graphics context.
      * @param w     The location of the first image.
+     * @param b     Pass <code>true</code> to paint the unit bar,
+     *              <code>false</code> otherwise.
+     * @param v     The value to paint.
+     * @param size  The size of the unit bar.
      * @return  The location of the main image.
      */
-    private int paintComponents(Graphics2D g2D, int w)
+    private int paintComponents(Graphics2D g2D, int w, boolean b, String v, int
+                                size)
     {
         Iterator i = model.getImageComponents().iterator();
         BufferedImage img;
+        int width;
         while (i.hasNext()) {
             img = (BufferedImage) i.next();
             g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
-            w += (img.getWidth()+ImgSaverPreviewer.SPACE);
+            width = img.getWidth();
+            if (b && v != null) {
+                ImagePaintingFactory.paintScaleBar(g2D, 
+                        w+img.getWidth()-size-10, 
+                        ImgSaverPreviewer.SPACE+img.getHeight()-10, size, v);
+            }
+            w += (width+ImgSaverPreviewer.SPACE);
         }
         return w;
     }
+
     
     /**
      * Creates a new instance.
@@ -97,25 +112,26 @@ class ImgSaverPreviewerCanvas
     }
     
     /**
-     * Overriden to paint the main image and its components if any.
+     * Overridden to paint the main image and its components if any.
      * @see JPanel#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
-        g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         BufferedImage img = model.getImage();
-        if (img != null) {
-            int w = ImgSaverPreviewer.SPACE;
-            if (model.getImageComponents() != null) w = paintComponents(g2D, w);
-            g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
-        }
+        if (img == null) return;
+        boolean unitBar = model.isUnitBar();
+        String value = model.getUnitBarValue(1.0); 
+        int size = (int) model.getUnitBarSize();
+        int w = ImgSaverPreviewer.SPACE;
+        if (model.getImageComponents() != null) 
+            w = paintComponents(g2D, w, unitBar, value, size);
+        g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
+        if (unitBar && value != null)
+            ImagePaintingFactory.paintScaleBar(g2D, w+img.getWidth()-size-10, 
+                ImgSaverPreviewer.SPACE+img.getHeight()-10, size, value);
     }
     
 }

@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -50,6 +49,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -77,11 +77,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ImgSaver
     extends JDialog
 {
-
+    
     /** The window's title. */
     static final String TITLE = "Save Image";
     
-    static final String PREVIEW_TITLE = "Preview image to save.";
+    /** The title of the preview window. */
+    static final String PREVIEW_TITLE =  "Preview image to save.";
     
     /** Reference to the model. */
     private ImViewer        model;
@@ -175,7 +176,7 @@ public class ImgSaver
         uiDelegate = new ImgSaverUI(this);
         pack();
     }
-    
+ 
     /**
      * Sets the name of the file to save.
      * 
@@ -231,8 +232,25 @@ public class ImgSaver
     void saveImage()
     {
         //Builds the image to display.
-        if (imageComponents == null) writeImage(mainImage, name);
-        else {
+        boolean unitBar = model.isUnitBar();
+        String v = model.getUnitBarValue(1.0); 
+        int s = (int) model.getUnitBarSize();
+        if (imageComponents == null) {
+            int width = mainImage.getWidth();
+            int h = mainImage.getHeight();
+
+            BufferedImage newImage = new BufferedImage(width, h, 
+                    BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2 = (Graphics2D) newImage.getGraphics();
+            g2.setColor(Color.WHITE);
+            ImagePaintingFactory.setGraphicRenderingSettings(g2);
+            //Paint the original image.
+            g2.drawImage(mainImage, null, 0, 0); 
+            
+            if (unitBar && v != null)
+                ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
+            writeImage(newImage, name);
+        } else {
             int width = mainImage.getWidth();
             int h = mainImage.getHeight();
             int n = imageComponents.size();
@@ -242,20 +260,22 @@ public class ImgSaver
                     BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = (Graphics2D) newImage.getGraphics();
             g2.setColor(Color.WHITE);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY);
+            ImagePaintingFactory.setGraphicRenderingSettings(g2);
             //Paint the original image.
             Iterator i = imageComponents.iterator();
             int x = 0;
             while (i.hasNext()) {
                 g2.drawImage((BufferedImage) i.next(), null, x, 0); 
+                if (unitBar && v != null)
+                    ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, 
+                            v);
                 x += width;
                 g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
                 x += ImgSaverPreviewer.SPACE;
             }
             g2.drawImage(mainImage, null, x, 0); 
+            if (unitBar && v != null)
+                ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
             writeImage(newImage, name);
         }
     }
@@ -275,5 +295,29 @@ public class ImgSaver
      * @return See above.
      */
     List getImageComponents() { return imageComponents; }
+
+    /**
+     * Returns <code>true</code> if the unit bar is painted on top of 
+     * the displayed image, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isUnitBar() { return model.isUnitBar(); }
+
+    /**
+     * Returns the value (with two decimals) of the unit bar or 
+     * <code>null</code> if the actual value is <i>negative</i>.
+     * 
+     * @param d    The magnification factor. 
+     * @return See above.
+     */
+    String getUnitBarValue(double d) { return model.getUnitBarValue(d); }
+
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getUnitBarSize() { return model.getUnitBarSize(); }
     
 }
