@@ -236,6 +236,24 @@ class BrowserModel
         return unit; 
     }
     
+    /**
+     * Returns the unit bar value.
+     * 
+     * @param factor The magnification factor.
+     * @return See above.
+     */
+    String getUnitBarValue(double factor)
+    {
+        double v = getPixelsSizeX()/factor;
+        v *= getUnitBarSize();
+        String value;
+        double c = v;
+        if (v < 0) return null;
+        if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
+        else  value = ""+(int) c;
+        return value;
+    }
+    
     Magnifier getMagnifier() { return magnifier; }
     
     BufferedImage getSubLensImage(Point p)

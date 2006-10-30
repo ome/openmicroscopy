@@ -31,18 +31,16 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
  * UI component where the renderered image is painted.
@@ -62,111 +60,42 @@ import javax.swing.JPanel;
 class BrowserCanvas
     extends JPanel
 {
-    
-    /** Stroke of the scale bar. */
-    private static final BasicStroke    UNIT_BAR_STROKE = new BasicStroke(2.0f);
-    
-    /** Color of the scale bar. */
-    private static final Color          UNIT_BAR_COLOR = Color.GRAY;
-    
+
     /** Reference to the Model. */
     private BrowserModel    model;
     
-    /** Reference to the component hosting the canvas. */
-    private BrowserUI       view;
-    
-    /**
-     * Paints the XY-frame.
-     * 
-     * @param g2D The graphics context.
-     */
-    /*
-    private void paintXYFrame(Graphics2D g2D)
-    {
-        g2D.setColor(AXIS_COLOR);
-        FontMetrics fontMetrics = g2D.getFontMetrics();
-        int hFont = fontMetrics.getHeight()/4;
-        int x1 = ORIGIN_FRAME;
-        int y1 = ORIGIN_FRAME;
-        g2D.drawLine(x1, y1, x1+LENGTH, y1);
-        g2D.drawLine(x1+LENGTH-ARROW, y1-ARROW, x1+LENGTH, y1);
-        g2D.drawLine(x1+LENGTH-ARROW, y1+ARROW, x1+LENGTH, y1);
-        //y-axis
-        g2D.drawLine(x1, y1, x1, y1+LENGTH);
-        g2D.drawLine(x1-ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);
-        g2D.drawLine(x1+ARROW, y1+LENGTH-ARROW, x1, y1+LENGTH);   
-        //name
-        g2D.drawString("o", x1-hFont, y1-hFont);
-        g2D.drawString("x", x1+LENGTH/2, y1-hFont);
-        g2D.drawString("y", x1-2*hFont, y1+LENGTH-hFont); 
-    }
-    */
-    
-    /**
-     * Paints the scale bar.
-     * 
-     * @param g2D   The graphics context.
-     * @param x     The x-coordinate of the bar.
-     * @param y     The y-coordinate of the bar.
-     * @param l     The length of the bar.
-     * @param s     The text displayed on of the bar.
-     */
-    private void paintScaleBar(Graphics2D g2D, int x, int y, int l, 
-                                String s)
-    {
-        FontMetrics fontMetrics = g2D.getFontMetrics();
-        int hFont = fontMetrics.getHeight()/3;
-        g2D.setColor(UNIT_BAR_COLOR);
-        g2D.drawString(s, x+(l-fontMetrics.stringWidth(s))/2+1, y-hFont);
-        g2D.setStroke(UNIT_BAR_STROKE);
-        g2D.drawLine(x, y, x+l, y);
-    }
     
     /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
-     * @param view  Reference to the View. Mustn't be <code>null</code>.
      */
-    BrowserCanvas(BrowserModel model, BrowserUI view)
+    BrowserCanvas(BrowserModel model)
     {
         if (model == null) throw new NullPointerException("No model.");
-        if (view == null) throw new NullPointerException("No view.");
         this.model = model;
-        this.view = view;
         setDoubleBuffered(true);
     }
 
     /**
-     * Overriden to paint the image.
+     * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        Graphics2D g2D = (Graphics2D) g;
-        
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                            RenderingHints.VALUE_ANTIALIAS_ON);
-        g2D.setRenderingHint(RenderingHints.KEY_RENDERING,
-                            RenderingHints.VALUE_RENDER_QUALITY);
-        g2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         BufferedImage img = model.getDisplayedImage();
         if (img == null) return;
-        //paintXYFrame(g2D);
-
-        g2D.drawImage(img, null, 0, 0);  
-        double v = model.getPixelsSizeX()/model.getZoomFactor();
-        v *= model.getUnitBarSize();
-        String value;
-        double c = v;
-        if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
-        else  value = ""+(int) c;
-        int size = (int) model.getUnitBarSize();
-        if (v > 0 && model.isUnitBar()) {
-            paintScaleBar(g2D, img.getWidth()-size-10, 
-                        img.getHeight()-10, size, value);
+        Graphics2D g2D = (Graphics2D) g;
+        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
+        g2D.drawImage(img, null, 0, 0); 
+        if (model.isUnitBar()) {
+            String value = model.getUnitBarValue(model.getZoomFactor()); 
+            if (value != null) {
+                int size = (int) model.getUnitBarSize();
+                ImagePaintingFactory.paintScaleBar(g2D, img.getWidth()-size-10, 
+                            img.getHeight()-10, size, value);
+            }
         }
     }
     

@@ -81,7 +81,7 @@ class BrowserUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        browserCanvas = new BrowserCanvas(model, this);
+        browserCanvas = new BrowserCanvas(model);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
     }

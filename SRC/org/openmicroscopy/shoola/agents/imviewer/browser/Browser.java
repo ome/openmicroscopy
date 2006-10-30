@@ -152,5 +152,21 @@ public interface Browser
      * @return See above.
      */
     public boolean isUnitBar();
+
+    /**
+     * Returns the value (with two decimals) of the unit bar or 
+     * <code>null</code> if the actual value is <i>negative</i>.
+     * 
+     * @param factor    The magnification factor. 
+     * @return See above.
+     */
+    public String getUnitBarValue(double factor);
+
+    /**
+     * Returns the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    public double getUnitBarSize();
     
 }

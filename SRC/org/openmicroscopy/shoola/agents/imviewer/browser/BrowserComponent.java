@@ -222,8 +222,25 @@ class BrowserComponent
      */
     public boolean isUnitBar()
     {
-        // TODO Auto-generated method stub
         return model.isUnitBar();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getUnitBarValue(double)
+     */
+    public String getUnitBarValue(double factor)
+    {
+        return model.getUnitBarValue(factor);
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getUnitBarSize()
+     */
+    public double getUnitBarSize()
+    {
+        return model.getUnitBarSize();
     }
 
 }
