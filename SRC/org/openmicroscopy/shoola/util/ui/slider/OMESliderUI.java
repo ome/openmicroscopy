@@ -36,6 +36,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
@@ -46,6 +47,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.TipDialog;
 
 /** 
  * 
@@ -87,6 +89,10 @@ public class OMESliderUI
     private static final Color 	TRACK_GRADIENT_END = 
     									new Color(176, 176, 176, 255);
     
+    /** Offset to the left of the mouse used for placing tooltip. */
+    private static final int 	TOOLTIP_OFFSET = 15;
+    
+    
     /** Image used for the thumb. */
     private  Image 				thumbImage;
         
@@ -126,6 +132,9 @@ public class OMESliderUI
     
     /** Area in which the max arrow will reside. */
     private  Rectangle			maxArrowRect;
+    
+    /** Dialog used to display tooltip containing the position of the slider. */
+    private  TipDialog			tipDialog;
     
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
@@ -271,6 +280,15 @@ public class OMESliderUI
         super(slider);
         showArrows = true;
         loadThumbArrowImage();
+        if(slider.hasTipString())
+        	tipDialog = new TipDialog(slider.getTipString());
+        else
+        	tipDialog = null;
+    }
+    
+    void hasTipString(boolean hasTip)
+    {
+      	tipDialog = new TipDialog(((OMESlider)slider).getTipString());
     }
     
     /**
@@ -390,6 +408,24 @@ public class OMESliderUI
 		 * This variable is set to <code>true</code> if user dragging thumb.
 		 */
 		protected boolean isDragging;
+		
+		/**
+		 * Overridden method from {@see BasicSliderUI#trackListener} which will
+		 * determine when a drag event ends. This method will also determine 
+		 * when the tooltip Dialog should stop showing. 
+		 * 
+		 * @param event the mouse event detected.
+		 */
+		public void mouseReleased(MouseEvent event)
+		{
+			super.mouseReleased(event);
+			if(((OMESlider)slider).hasTipString() && tipDialog != null)
+			{
+				if(tipDialog.isVisible())
+					tipDialog.setVisible(false);
+			}
+				
+		}
 		
         /**
          * This method will detect a click on the track or min/max arrows and 
@@ -601,6 +637,20 @@ public class OMESliderUI
 					slider.setValue(valueForXPosition(thumbMiddle));
 				break;
 			}
+
+			if( ((OMESlider)slider).hasTipString() && tipDialog != null)
+			{
+			
+				Point location = slider.getLocationOnScreen();
+				location.x += currentMouseX+TOOLTIP_OFFSET;
+				location.y += currentMouseY;
+					
+				tipDialog.setTipString(
+						((OMESlider)slider).getTipString()+slider.getValue());
+				tipDialog.setLocation(location);
+				tipDialog.setVisible(true);
+			}
+			
 		}
 	}
 }

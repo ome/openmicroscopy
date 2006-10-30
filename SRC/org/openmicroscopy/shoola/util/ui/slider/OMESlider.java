@@ -66,6 +66,9 @@ public class OMESlider
 	/** Slider UI for new laf. */
 	private OMESliderUI	sliderUI;	
 	
+	private boolean hasTip;
+	private String 	tipString;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -109,6 +112,23 @@ public class OMESlider
 	{
 		showArrows = isShow;
 		sliderUI.setShowArrows(showArrows);
+	}
+	
+	public void setTipString(String tip)
+	{
+		tipString = tip;
+		hasTip = true;
+		sliderUI.hasTipString(true);
+	}
+	
+	public String getTipString()
+	{
+		return tipString;
+	}
+	
+	public boolean hasTipString()
+	{
+		return hasTip;
 	}
     
 }
