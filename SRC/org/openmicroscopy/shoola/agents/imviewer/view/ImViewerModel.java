@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
@@ -136,22 +137,18 @@ class ImViewerModel
     /** The height of the thumbnail if the window is iconified. */
     private int                 sizeY;
     
+    /** The magnification factor for the thumbnail. */
+    private double              factor;
+    
     /** The image icon. */
     private BufferedImage       imageIcon;
     
     /** The bounds of the components resquesting the viewer. */
     private Rectangle           requesterBounds;
     
-    /** 
-     * Computes the values of the {@link #sizeX} and {@link #sizeY} fields
-     * and the magnification factor used to determine the size of the image
-     * icon.
-     * 
-     * @return  See above.
-     */
-    private double computeSizes()
+    /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
+    private void computeSizes()
     {
-        double factor = 0;
         if (sizeX == -1 && sizeY == -1) {
             sizeX = THUMB_MAX_WIDTH;
             sizeY = THUMB_MAX_HEIGHT;
@@ -163,7 +160,6 @@ class ImViewerModel
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         }
-        return factor;
     }
     
     /** 
@@ -288,7 +284,6 @@ class ImViewerModel
      */
     int getMaxZ() { return rndControl.getPixelsDimensionsZ()-1; }
 
-
     /**
      * Returns the maximum number of timepoints.
      * 
@@ -393,10 +388,11 @@ class ImViewerModel
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         state = ImViewer.LOADING_IMAGE;
+        OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
-            component.setImage(rndControl.render(pDef));
+            component.setImage(os.renderImage(pixelsID, pDef));
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
         
         //currentLoader = new ImageLoader(component, pixelsID, pDef);
@@ -456,7 +452,7 @@ class ImViewerModel
     {
         browser.setRenderedImage(image);
         //update image icon
-        double factor = computeSizes();
+        computeSizes();
         imageIcon = magnifyImage(factor, image);
         state = ImViewer.READY; 
     }
