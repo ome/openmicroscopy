@@ -31,8 +31,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
-
+import java.awt.FontMetrics;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -57,42 +56,43 @@ import javax.swing.JLabel;
 public class TipDialog 
 	extends JDialog
 {
-	/** The string to be displayed in the dialog. */
-	String tipString;
 	
+    /** The color of the tooltip. */
+    private static final Color TIP_COLOR = new Color(249, 255, 151);
+    
 	/** Label displaying the tipString in the dialog. */
-	JLabel label;
+	private JLabel label;
 	
 	/**
-	 * Contructor of the tipDialog. 
+	 * Creates a new instance. 
 	 * 
-	 * @param tip
+	 * @param tip The string to be displayed in the dialog.
 	 */
 	public TipDialog(String tip)
 	{
-		tipString = tip;
 		this.setAlwaysOnTop(true);
 		this.setUndecorated(true);
-		label = new JLabel();
-		label.setBackground(new Color(249, 255, 151));
+		label = new JLabel(tip);
+		label.setBackground(TIP_COLOR);
 		label.setOpaque(true);
 		label.setBorder(BorderFactory.createLineBorder(Color.black));
 		this.setLayout(new BorderLayout());
-		this.add(label,BorderLayout.CENTER);
-		this.setSize(40,13);
+		getContentPane().add(label, BorderLayout.CENTER);
 	}
 	
 	/**
 	 * Overrriden, from {@link JDialog#paintComponents(Graphics)}
 	 * Draw all the components in the dialog. 
 	 */
+    /*
 	public void paint(Graphics g)
 	{
-		super.paintComponents(g);
+		//super.paintComponents(g);
 	}
-	
+	*/  
+    
 	/**
-	 * Set the string to be displayed in the dialog.
+	 * Sets the string to be displayed in the dialog.
 	 * 
 	 * @param tip see above.
 	 */
@@ -100,8 +100,11 @@ public class TipDialog
 	{
 		label.setText(tip);
 		invalidate();
+        FontMetrics fm = getFontMetrics(label.getFont());
+        setSize(fm.stringWidth(tip)+4, fm.getHeight()+4);
 		repaint();
 	}
+    
 }
 
 
