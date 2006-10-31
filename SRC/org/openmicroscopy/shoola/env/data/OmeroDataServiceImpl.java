@@ -50,10 +50,12 @@ import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import pojos.AnnotationData;
@@ -652,6 +654,7 @@ class OmeroDataServiceImpl
         } 
     }
 
+    //TEST
     private void paste(DataObject parent, Set children)
         throws DSOutOfServiceException, DSAccessException
     {
@@ -848,7 +851,8 @@ class OmeroDataServiceImpl
         Image ioObject = null;
         Dataset mParent = parent.asDataset();
         DatasetImageLink l = new DatasetImageLink();
-        ioObject = (Image) gateway.updateObject(img.asIObject(), (new PojoOptions()).map());
+        ioObject = (Image) gateway.updateObject(img.asIObject(), 
+                (new PojoOptions()).map());
         l.link(mParent, ioObject);
         gateway.createObject(l, (new PojoOptions()).map());
         i = toCut.keySet().iterator();
@@ -861,7 +865,8 @@ class OmeroDataServiceImpl
                 img = (ImageData) k.next();
                 
             }
-            ioObject = (Image) gateway.updateObject(img.asIObject(), (new PojoOptions()).map());
+            ioObject = (Image) gateway.updateObject(img.asIObject(), 
+                    (new PojoOptions()).map());
         }
         mParent = parent.asDataset();
         List links = ioObject.collectDatasetLinks(null);
@@ -874,6 +879,24 @@ class OmeroDataServiceImpl
         }
         gateway.deleteObject(link,  (new PojoOptions()).map());
        
+    }
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getChannelsMetadata(long)
+     */
+    public List getChannelsMetadata(long pixelsID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        List l = gateway.getChannelsData(pixelsID);
+        Iterator i = l.iterator();
+        List metadata = new ArrayList(l.size());
+        int index = 0;
+        while (i.hasNext()) {
+            metadata.add(new ChannelMetadata(index, (Channel) i.next()));
+            index++;
+        }
+        return metadata;
     }
     
 }

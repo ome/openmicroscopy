@@ -43,10 +43,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IThumb;
@@ -59,6 +57,7 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
@@ -303,8 +302,7 @@ class OMEROGateway
      * @return See above.
      */
     private IThumb getIThumbService() { return entry.getThumbnailService(); }
-    
-    
+
     /**
      * Returns the {@link RenderingEngine Rendering service}.
      * 
@@ -318,18 +316,16 @@ class OMEROGateway
     /**
      * Creates a new instance.
      * 
-     * @param hostName The name of the server.
-     * @param port The value of the port.
+     * @param port      The value of the port.
      * @param dsFactory A reference to the factory. Used whenever a broken link
      *                  is detected to get the Login Service and try 
      *                  reestabishing a valid link to <i>OMEDS</i>.
      *                  Mustn't be <code>null</code>.
      */
-    OMEROGateway(String hostName, int port, DataServicesFactory dsFactory)
+    OMEROGateway(int port, DataServicesFactory dsFactory)
     {
         if (dsFactory == null) 
             throw new IllegalArgumentException("No Data service factory.");
-        //server = new Server(hostName, port);
         this.dsFactory = dsFactory;
         this.port = port;
     }
@@ -350,6 +346,7 @@ class OMEROGateway
      * 
      * @param userName  The user name to be used for login.
      * @param password  The password to be used for login.
+     * @param hostName  The name of the server.
      * @return The user's details.
      * @throws DSOutOfServiceException If the connection can't be established
      *                                  or the credentials are invalid.
@@ -802,6 +799,36 @@ class OMEROGateway
     }
     
     /**
+     * Retrieves the channel information related to the given pixels set.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @return A list of <code>Channel</code> Objects.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    List getChannelsData(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IQuery service = getIQueryService();
+            Pixels pixs = (Pixels) service.findByQuery(
+                    "select p from Pixels as p " +
+                    "left outer join fetch p.pixelsType as pt " +
+                    "left outer join fetch p.channels as c " +
+                    "left outer join fetch p.pixelsDimensions " +
+                    "left outer join fetch c.logicalChannel as lc " +
+                    "left outer join fetch c.statsInfo where p.id = :id",
+                    new Parameters().addId(new Long(pixelsID)));
+            return pixs.getChannels();
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the channelsData for "+
+                                "the pixels set.");
+        }
+        return null;
+     }
+    
+    /**
      * Retrieves the thumbnail for the passed set of pixels.
      * 
      * @param pixels    The set of pixels the thumbnail is for.
@@ -819,6 +846,7 @@ class OMEROGateway
             return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
                                     new Integer(sizeY));
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RenderingServiceException("Cannot get thumbnail", e);
         }
     }

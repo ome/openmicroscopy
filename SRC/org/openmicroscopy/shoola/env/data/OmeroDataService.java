@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -447,6 +448,18 @@ public interface OmeroDataService
      * retrieve data from OMEDS service. 
      */
     public void cutAndPaste(Map toPaste, Map toCut)
+        throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Retrieves the channel metadata for the specified pixels sets.
+     * 
+     * @param pixelsID  The id of pixels set.
+     * @return A list of metadata.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List getChannelsMetadata(long pixelsID)
         throws DSOutOfServiceException, DSAccessException;
     
 }

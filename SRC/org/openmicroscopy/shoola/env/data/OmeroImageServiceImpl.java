@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.List;
+
 import javax.imageio.ImageIO;
 
 //Third-party libraries
@@ -122,8 +124,9 @@ class OmeroImageServiceImpl
         if (proxy == null) {
             RenderingEngine re = gateway.createRenderingEngine(pixelsID);
             PixelsDimensions pixDims = gateway.getPixelsDimensions(pixelsID);
+            List l = context.getDataService().getChannelsMetadata(pixelsID);
             proxy = RenderingServicesFactory.createRenderingControl(context, re,
-                                                    pixDims);
+                                                    pixDims, l);
         }
         return proxy;
     }
