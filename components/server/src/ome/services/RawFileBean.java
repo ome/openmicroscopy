@@ -54,7 +54,6 @@ import ome.annotations.NotNull;
 import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.RawFileStore;
-import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
@@ -79,10 +78,10 @@ import omeis.providers.re.RenderingEngine;
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=false)
 @Stateful
-@Remote(RawPixelsStore.class)
-@RemoteBinding(jndiBinding="omero/remote/ome.api.RawPixelsStore")
+@Remote(RawFileStore.class)
+@RemoteBinding(jndiBinding="omero/remote/ome.api.RawFileStore")
 @Local(RenderingEngine.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.RawPixelsStore")
+@LocalBinding (jndiBinding="omero/local/ome.api.RawFileStore")
 @SecurityDomain("OmeroSecurity")
 public class RawFileBean extends AbstractBean 
 	implements RawFileStore, Serializable
