@@ -125,10 +125,10 @@ public class OneKnobSlider
 	}
 	
 	/**
-	 * Set the string for the tooltip which is displayed when slider changes
+	 * Sets the string for the tooltip which is displayed when slider changes
 	 * value, as well as the label shown at the end of the text. 
 	 * 
-	 * @param tip prefix data for the string to display.
+	 * @param label prefix data for the string to display.
 	 */
 	public void setEndLabel(String label)
 	{
@@ -138,29 +138,26 @@ public class OneKnobSlider
 	}
 	
 	/**
-	 * Return the text used in the end Label.
+	 * Returns the text used in the end Label.
 	 *  
 	 * @return see above.
 	 */
-	public String getEndLabel()
-	{
-		return endLabel;
-	}
+	public String getEndLabel() { return endLabel; }
 	
 	/**
-	 * Has the component an endLabel. 
+	 * Returns <code>true</code> if the component has an <code>endLabel</code>,
+     * <code>false</code> otherwise.
 	 * 
-	 * @return true if component has a tipString. 
+	 * @return See above. 
 	 */
-	public boolean hasEndLabel()
-	{
-		return hasLabel;
-	}
+	public boolean hasEndLabel() { return hasLabel; }
 	
     /**
-     * Show the end label if set to <code>true</code>.
+     * Shows the end label if set to <code>true</code>, hides it 
+     * <code>otherwise</code>.
      *  
-     * @param show see above.
+     * @param show  Pass <code>true</code> to show the label, 
+     *              <code>false</code> otherwise.
      */
 	public void setShowEndLabel(boolean show)
 	{
@@ -169,9 +166,11 @@ public class OneKnobSlider
 	}
 	
     /**
-     * Show the tip label if set to <code>true</code>.
+     * Shows the tip label if set to <code>true</code>, hides it 
+     * <code>otherwise</code>.
      *  
-     * @param show see above.
+     * @param show Pass <code>true</code> to show the tip label, 
+     *              <code>false</code> otherwise.
      */
 	public void setShowTipLabel(boolean show)
 	{
@@ -180,22 +179,19 @@ public class OneKnobSlider
 	}
 	
 	/**
-	 * Returns <code>true</code> if the tip label will be displayed. 
+	 * Returns <code>true</code> if the tip label will be displayed,
+     * <code>false</code> otherwise.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
-	public boolean showTipLabel()
-	{
-		return showTipLabel;
-	}
+	public boolean showTipLabel() { return showTipLabel; }
 	
 	/**
-	 * Returns <code>true</code> if the end label will be displayed. 
+	 * Returns <code>true</code> if the end label will be displayed,
+     * <code>false</code> otherwise.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
-	public boolean showEndLabel()
-	{
-		return showEndLabel;
-	}
+	public boolean showEndLabel() { return showEndLabel; }
+    
 }
