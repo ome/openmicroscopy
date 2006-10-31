@@ -296,7 +296,7 @@ public class FindPane
     }
     
     /**
-     * Overriden to update the UI components when a new node is selected in the
+     * Overridden to update the UI components when a new node is selected in the
      * <code>Browser</code>.
      * @see ClipBoardPane#onDisplayChange(ImageDisplay)
      */
@@ -314,13 +314,13 @@ public class FindPane
     }
     
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
     public String getPaneName() { return "Find"; }
 
     /**
-     * Overriden to return the icon related to this UI component.
+     * Overridden to return the icon related to this UI component.
      * @see ClipBoardPane#getPaneIcon()
      */
     public Icon getPaneIcon()
@@ -329,13 +329,13 @@ public class FindPane
     }
     
     /**
-     * Overriden to return the index of this UI component.
+     * Overridden to return the index of this UI component.
      * @see ClipBoardPane#getPaneIndex()
      */
     public int getPaneIndex() { return ClipBoard.FIND_PANE; }
 
     /**
-     * Overriden to return the description of this UI component.
+     * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Find"; }
