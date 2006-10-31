@@ -28,21 +28,21 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+//Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 
+import javax.swing.BorderFactory;
 import javax.swing.JDialog;
-
-//Java imports
+import javax.swing.JLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Tip dialog is a simple dialog used to display tool tips. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,32 +57,48 @@ import javax.swing.JDialog;
 public class TipDialog 
 	extends JDialog
 {
+	/** The string to be displayed in the dialog. */
 	String tipString;
 	
+	/** Label displaying the tipString in the dialog. */
+	JLabel label;
+	
+	/**
+	 * Contructor of the tipDialog. 
+	 * 
+	 * @param tip
+	 */
 	public TipDialog(String tip)
 	{
 		tipString = tip;
 		this.setAlwaysOnTop(true);
 		this.setUndecorated(true);
+		label = new JLabel();
+		label.setBackground(new Color(249, 255, 151));
+		label.setOpaque(true);
+		label.setBorder(BorderFactory.createLineBorder(Color.black));
+		this.setLayout(new BorderLayout());
+		this.add(label,BorderLayout.CENTER);
+		this.setSize(40,13);
 	}
 	
+	/**
+	 * Overrriden, from {@link JDialog#paintComponents(Graphics)}
+	 * Draw all the components in the dialog. 
+	 */
 	public void paint(Graphics g)
 	{
-	    Font fnt = this.getFont();
-        FontMetrics fm = g.getFontMetrics();
-        
-        // Using the font metrics, centre the text in the button face.
-        this.setSize(fm.stringWidth(tipString), 
-        		fm.getHeight());
-        g.setColor(Color.white);
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-        g.setColor(Color.black);
-  		g.drawString(tipString, 0, this.getHeight()-fm.getDescent());
+		super.paintComponents(g);
 	}
 	
+	/**
+	 * Set the string to be displayed in the dialog.
+	 * 
+	 * @param tip see above.
+	 */
 	public void setTipString(String tip)
 	{
-		tipString = tip;
+		label.setText(tip);
 		invalidate();
 		repaint();
 	}
