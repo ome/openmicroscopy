@@ -40,6 +40,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
@@ -79,7 +80,10 @@ public class OneKnobSliderUI
 	private static final int 	ARROW_WIDTH = 12;
 	
 	/** Spacing between the arrow and the end of the slider track. */
-	private static final int 	ARROW_SPACE = 1;
+	private static final int 	ARROW_SPACE = 3;
+	
+	/** Spacing between the arrow and the end label. */
+	private static final int 	TEXT_SPACE = 2;
 	
 	/** The starting color of the gradient used in the track. */
     private static final Color 	TRACK_GRADIENT_START = 
@@ -220,15 +224,44 @@ public class OneKnobSliderUI
 		{
 			int offsetY = trackRect.height/2-labelHeight/2-1;
 			endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
-					labelWidth), offsetY, labelWidth, labelHeight);
+					TEXT_SPACE+labelWidth), offsetY, labelWidth, labelHeight);
 		}
 		else
 		{
 			int offsetX = trackRect.width/2-labelWidth/2+1;
 			endLabelRect = new Rectangle(offsetX, trackRect.y-
-					(minArrowRect.height+labelHeight),labelWidth, labelHeight);
+					(minArrowRect.height+labelHeight+TEXT_SPACE),
+					labelWidth, labelHeight);
 		}
 	}
+	
+	 public void paint( Graphics g, JComponent c )   
+	 {
+		 recalculateIfInsetsChanged();
+		 recalculateIfOrientationChanged();
+		 Rectangle clip = g.getClipBounds();
+
+		 if (!clip.intersects(trackRect) && slider.getPaintTrack())
+			 calculateGeometry();
+
+		 if (slider.getPaintTrack() && (clip.intersects(trackRect) || 
+				 clip.intersects(minArrowRect) || clip.intersects(maxArrowRect)
+				 || clip.intersects(endLabelRect))) 
+			paintTrack(g);
+		 
+		 if (slider.getPaintTicks() && clip.intersects(tickRect)) 
+			 paintTicks(g);
+		 
+		 if (slider.getPaintLabels() && clip.intersects(labelRect)) 
+	            paintLabels(g);
+		 
+		if (slider.hasFocus() && clip.intersects(focusRect)) 
+		    paintFocus(g);      
+		
+		if (clip.intersects(thumbRect)) 
+		    paintThumb(g);
+	 }
+	
 	
     /**
      * Paints the vertical track, and arrows if selected, this method is called
@@ -390,9 +423,9 @@ public class OneKnobSliderUI
 				trackBuffer += ARROW_HEIGHT+ARROW_SPACE; 
 		if	(showEndLabel)
 			if (slider.getOrientation() == JSlider.HORIZONTAL)
-				trackBuffer += labelWidth;
+				trackBuffer += labelWidth+TEXT_SPACE;
 			else
-				trackBuffer += labelHeight;
+				trackBuffer += labelHeight+TEXT_SPACE;
 	}
 	
     /**
