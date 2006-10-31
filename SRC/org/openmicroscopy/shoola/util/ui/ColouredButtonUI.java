@@ -116,8 +116,8 @@ class ColouredButtonUI
         
         // Set a gradient mask of V=.5 to V = 0.3; this has an alpha
         // value to show the colours of the button underlying the mask.
-        Color gradientStart = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-        Color gradientEnd = new Color(0.3f, 0.3f, 0.3f, 1.0f);
+        Color gradientStart = new Color(0.8f, 0.8f, 0.8f, 1.0f);
+        Color gradientEnd = new Color(0.5f, 0.5f, 0.5f, 1.0f);
                 
         // Draw the gradient mask.
         gp = new GradientPaint((int) buttonRect.getX(),
@@ -359,7 +359,7 @@ class ColouredButtonUI
         
         // Set the colour of the bottom, right bevels to be a darker colour
         // than the grey mask of the gradient at that same corner.
-        g.setPaint(borderColour);
+        g.setPaint(borderColour.darker());
         
        // Draw the bevel, it is drawn as four line from: bottomleft to 
        // bottom right, and bottomright to top left. 
