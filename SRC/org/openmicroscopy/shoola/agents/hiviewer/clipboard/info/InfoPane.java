@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.info;
 //Java imports
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Icon;
 
@@ -43,6 +45,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import pojos.ImageData;
 
 /** 
@@ -51,7 +54,7 @@ import pojos.ImageData;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ *  <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -84,9 +87,37 @@ public class InfoPane
         // add uiDelegate which is the FindPaneUI. 
         add(uiDelegate, c);
     }
+
+    /**
+     * Sets the channels metadata.
+     * 
+     * @param l The value to set.
+     */
+    public void setChannelsMetadata(List l)
+    {
+        Object ho = model.getHierarchyObject();
+        if (ho instanceof ImageData && l != null) {
+            ImageData data = (ImageData) ho;
+            Map details = 
+                InfoPaneUtil.transformPixelsData(data.getDefaultPixels());
+            String s = "";
+            
+            Iterator k = l.iterator();
+            int j = 0;
+            while (k.hasNext()) {
+                s += 
+                   ((ChannelMetadata) k.next()).getEmissionWavelength();
+                if (j != l.size()-1) s +=", ";
+                j++;
+            }
+            details.put(InfoPaneUtil.WAVELENGTHS, s);
+            uiDelegate.displayDetails(details, data.getName());
+        }
+    }
+    
     
     /**
-     * Overriden to update the UI components when a new node is selected in the
+     * Overridden to update the UI components when a new node is selected in the
      * <code>Browser</code>.
      * @see ClipBoardPane#onDisplayChange(ImageDisplay)
      */
@@ -104,6 +135,7 @@ public class InfoPane
         }
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
+            model.retrieveChannelsMetadata(data.getDefaultPixels().getId());
             Map details = 
                 InfoPaneUtil.transformPixelsData(data.getDefaultPixels());
             uiDelegate.displayDetails(details, data.getName());
@@ -111,13 +143,13 @@ public class InfoPane
     }
     
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
     public String getPaneName() { return "Info"; }
 
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneIcon()
      */
     public Icon getPaneIcon()
@@ -126,13 +158,13 @@ public class InfoPane
     }
 
     /**
-     * Overriden to return the index of this UI component.
+     * Overridden to return the index of this UI component.
      * @see ClipBoardPane#getPaneIndex()
      */
     public int getPaneIndex() { return ClipBoard.INFO_PANE; }
     
     /**
-     * Overriden to return the description of this UI component.
+     * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Image's information."; }

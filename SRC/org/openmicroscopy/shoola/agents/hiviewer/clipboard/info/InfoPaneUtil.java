@@ -29,18 +29,16 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard.info;
 
+
+//Java imports
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import pojos.PixelsData;
-
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.PixelsData;
 
 /** 
  * Helper class to transform a <code>DataObject</code> into a visualization
@@ -58,6 +56,10 @@ import pojos.PixelsData;
  */
 class InfoPaneUtil
 {
+    
+    /** Identifies the <code>Wavelengths</code> field. */
+    static final String         WAVELENGTHS = "Emissions wavelengths";
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
     
@@ -98,14 +100,13 @@ class InfoPaneUtil
      */
     static Map transformPixelsData(PixelsData data)
     {
-        LinkedHashMap details = new LinkedHashMap(8);
+        LinkedHashMap details = new LinkedHashMap(9);
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
             
             details.put(SECTIONS, "");
             details.put(TIMEPOINTS, "");
-            //details.put("Emission wavelength", "");
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
@@ -116,17 +117,19 @@ class InfoPaneUtil
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
-            //details.put("Emission wavelength", "");
             try {
                 details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
                 details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
                 details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
                 details.put(PIXEL_TYPE, ""+data.getPixelType()); 
             } catch (Exception e) {
+                details.put(PIXEL_SIZE_X, "");
+                details.put(PIXEL_SIZE_Y, "");
+                details.put(PIXEL_SIZE_Z, "");
                 details.put(PIXEL_TYPE, ""); 
             }
-             
         }
+        details.put(WAVELENGTHS, "");  
         return details;
     }
     

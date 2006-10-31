@@ -78,6 +78,12 @@ class InfoPaneUI
     /** Reference to the Model. */
     private InfoPane    model;
     
+    /** 
+     * The panel hosting the image information if the edited object is an
+     * image.
+     */
+    private JPanel      contentPanel;
+    
     /** The label presenting the edition context. */
     private JLabel      titleLabel;
     
@@ -166,18 +172,17 @@ class InfoPaneUI
      */
     void displayDetails(Map details, String name)
     {
-        JPanel p;
         removeAll();
         if (details == null || details.size() == 0) {
             titleLabel.setText(DEFAULT_MSG);
-            p = new JPanel();
+            contentPanel = new JPanel();
         } else {
-            p = buildContentPanel(details);
+            contentPanel = buildContentPanel(details);
             titleLabel.setText(EDIT_MSG+name);
-            setMaximumSize(p.getPreferredSize());
+            setMaximumSize(contentPanel.getPreferredSize());
         }
         add(titlePanel, BorderLayout.NORTH);
-        add(p, BorderLayout.CENTER);
+        add(contentPanel, BorderLayout.CENTER);
     }
     
 }
