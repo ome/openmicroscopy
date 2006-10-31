@@ -102,8 +102,7 @@ public class DataServicesFactory
 	{
 		registry = c.getRegistry();
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
-        omeroGateway = new OMEROGateway(omeroInfo.getHostName(), 
-                                        omeroInfo.getPort(), this);
+        omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
         ops = new OmeroDataServiceImpl(omeroGateway, registry);
         rds = new OmeroImageServiceImpl(omeroGateway, registry);
