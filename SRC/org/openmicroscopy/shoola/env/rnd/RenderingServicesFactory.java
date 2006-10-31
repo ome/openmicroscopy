@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -109,15 +110,17 @@ public class RenderingServicesFactory
      *                  container's registry.
      * @param re        The {@link RenderingEngine rendering service}.        
      * @param pixDims   The dimension of the pixels set.
+     * @param metadata  The channel metadata.
      * @return See above.
      * @throws IllegalArgumentException If an Agent try to access the method.
      */
     public static RenderingControl createRenderingControl(Registry context, 
-                                RenderingEngine re, PixelsDimensions pixDims)
+                                RenderingEngine re, PixelsDimensions pixDims,
+                                List metadata)
     {
         if (!(context.equals(registry)))
             throw new IllegalArgumentException("Not allow to access method.");
-        return singleton.makeNew(re, pixDims);
+        return singleton.makeNew(re, pixDims, metadata);
     }
     
     /**
@@ -239,10 +242,11 @@ public class RenderingServicesFactory
      * 
      * @param re        The rendering control.
      * @param pixDims   The dimensions of the pixels array.
+     * @param metadata  The channel metadata.
      * @return See above.
      */
     private RenderingControl makeNew(RenderingEngine re,
-                                    PixelsDimensions pixDims)
+                                    PixelsDimensions pixDims, List metadata)
     {
         if (singleton == null) throw new NullPointerException();
         Long id = re.getPixels().getId();
@@ -251,7 +255,7 @@ public class RenderingServicesFactory
         int l = singleton.rndSvcProxies.size();
         int size = cacheSize;
         if (l != 0) size = cacheSize/l;
-        rnd = new RenderingControlProxy(re, pixDims, size);
+        rnd = new RenderingControlProxy(re, pixDims, metadata, size);
         //reset the size of the caches.
         Iterator i = singleton.rndSvcProxies.keySet().iterator();
         RenderingControlProxy proxy;

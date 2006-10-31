@@ -335,10 +335,11 @@ class RenderingControlProxy
      *                  Mustn't be <code>null</code>.
      * @param pixDims   The dimensions in microns of the pixels set.
      *                  Mustn't be <code>null</code>.
+     * @param m         The channel metadata.                
      * @param sizeCache The size of the cache.
      */
     RenderingControlProxy(RenderingEngine servant, PixelsDimensions pixDims,
-                            int sizeCache)
+                          List m, int sizeCache)
     {
         if (servant == null)
             throw new NullPointerException("No rendering engine.");
@@ -352,18 +353,13 @@ class RenderingControlProxy
         models = servant.getAvailableModels();
         rndDef = new RndProxyDef();
         initialize();
-        List l = pixs.getChannels();
-        metadata = new ChannelMetadata[l.size()];
-        Iterator i = l.iterator();
+        metadata = new ChannelMetadata[m.size()];
+        Iterator i = m.iterator();
         int k = 0;
         while (i.hasNext()) {
-            metadata[k] = new ChannelMetadata(k, (Channel) i.next());
-            int emWave = metadata[k].getEmissionWavelength();
-            //Should happen server side.
-            //setRGBA(k, ColorsFactory.getColor(k, emWave));
+            metadata[k] = (ChannelMetadata) i.next();
             k++;  
         }
-        //if (getPixelsDimensionsC() > 1) setModel(HSB);
     }
 
     /** 
