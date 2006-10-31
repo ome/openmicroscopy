@@ -44,7 +44,7 @@
       service-omeis.providers.re.RenderingEngine.xml
     -->
     <property name="queryService" ref="internal:ome.api.IQuery"/>
-    <property name="ioService"     ref="/OME/OMEIS/Files"/>
+    <property name="originalFilesService" ref="/OME/OMEIS/Files"/>
   </bean>
 
   <bean id="managed:ome.api.RawFileStore" parent="managedStatefulService">
