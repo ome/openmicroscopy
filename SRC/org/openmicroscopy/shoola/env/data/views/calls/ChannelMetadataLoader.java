@@ -77,7 +77,7 @@ public class ChannelMetadataLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = new Object();//os.getChannelMetadata(pixelsID);
+                results = os.getChannelsMetadata(pixelsID);
             }
         };
     }
