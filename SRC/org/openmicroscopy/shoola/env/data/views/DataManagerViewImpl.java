@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
@@ -331,6 +332,17 @@ class DataManagerViewImpl
                                     AgentEventListener observer)
     {
         BatchCallTree cmd = new ExistingObjectsSaver(toPaste, toCut);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadChannelsData(long, AgentEventListener)
+     */
+    public CallHandle loadChannelsData(long pixelsID, 
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ChannelMetadataLoader(pixelsID);
         return cmd.exec(observer);
     }
     

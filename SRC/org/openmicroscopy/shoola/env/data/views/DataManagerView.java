@@ -410,4 +410,14 @@ public interface DataManagerView
     public CallHandle cutAndPaste(Map toPaste, Map toCut, 
                                     AgentEventListener observer);
     
+    /**
+     * Loads the emission wavelengths for the given set of pixels.
+     * 
+     * @param pixelsID  The id of the pixels set.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadChannelsData(long pixelsID, 
+                                        AgentEventListener observer);
+    
 }
