@@ -160,6 +160,11 @@
       STATEFUL SERVICES
   -->
 
+  <bean id="managed:ome.api.RawFileStore" parent="statefulJndi">
+    <property name="jndiName" value="omero/remote/ome.api.RawFileStore"/>
+    <property name="proxyInterface" value="ome.api.RawFileStore"/>
+  </bean>
+  
   <bean id="managed:ome.api.RawPixelsStore" parent="statefulJndi">
     <property name="jndiName" value="omero/remote/ome.api.RawPixelsStore"/>
     <property name="proxyInterface" value="ome.api.RawPixelsStore"/>

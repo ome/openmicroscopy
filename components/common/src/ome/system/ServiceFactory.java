@@ -44,6 +44,7 @@ import ome.api.IQuery;
 import ome.api.IThumb;
 import ome.api.ITypes;
 import ome.api.IUpdate;
+import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.model.internal.Permissions;
@@ -225,6 +226,13 @@ public class ServiceFactory {
      */
     public RawPixelsStore createRawPixelsStore(){
         return getServiceByClass(RawPixelsStore.class);
+    }
+    
+    /** create a new {@link RawFileStore} proxy. This proxy will have to be
+     * initialized using {@link RawFileStore#setFileId(long)}
+     */
+    public RawFileStore createRawFileStore(){
+        return getServiceByClass(RawFileStore.class);
     }
     
     /** create a new {@link RenderingEngine} proxy. This proxy will have to be 

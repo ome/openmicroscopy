@@ -29,51 +29,122 @@
 package ome.io.nio;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import ome.model.core.OriginalFile;
 
 
-/**
- * @author callan
+/** 
+ * Raw file buffer which provides I/O operations within the OMERO file
+ * repository. 
  *
+ * @author  Chris Allan &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: 1.2 $ $Date: 2005/06/08 15:21:59 $)
+ * </small>
+ * @since OMERO3.0
  */
 public class FileBuffer extends AbstractBuffer
 {
-    private RandomAccessFile delegate;
+    /** The original file object that this file buffer maps to. */
     private OriginalFile file;
     
-    FileBuffer (String path, OriginalFile file, String mode)
-        throws FileNotFoundException
+    /** The file's I/O channel. */
+    FileChannel channel;
+    
+    /**
+     * Default constructor.
+     * 
+     * @param path path to the root of the <code>File</code> repository.
+     * @param file the original file this buffer maps to.
+     * @throws FileNotFoundException
+     */
+    FileBuffer (String path, OriginalFile file)
     {
         super(path);
-        this.file = file;
+        if (file == null)
+            throw new NullPointerException(
+                    "Expecting a not-null file element.");
         
-        delegate = new RandomAccessFile(path, mode);
+        this.file = file;
     }
     
-    //
-    // Explicit delegation methods
-    //
-    
-    public FileChannel getChannel()
+    /**
+     * Retrieve the NIO channel that corresponds to this file.
+     * @return the file channel.
+     */
+    private FileChannel getFileChannel()
+    throws FileNotFoundException
     {
-        return delegate.getChannel();
+    	if (channel == null)
+    	{
+    		RandomAccessFile file = new RandomAccessFile(getPath(), "rw");
+    		channel = file.getChannel();
+    	}
+
+    	return channel;
     }
     
-    //
-    // Delegate methods to ease work with original file
-    //
+    /**
+     * Delegates to {@link java.nio.FileChannel}
+     * 
+     * @see java.nio.FileChannel#read(java.nio.ByteBuffer)
+     */
+    public int read(ByteBuffer dst) throws IOException
+    {
+    	return getFileChannel().read(dst);
+    }
     
+    /**
+     * Delegates to {@link java.nio.FileChannel}
+     * 
+     * @see java.nio.FileChannel#read(java.nio.ByteBuffer, long)
+     */
+    public int read(ByteBuffer dst, long position) throws IOException
+    {
+    	return getFileChannel().read(dst, position);
+    }
+    
+    /**
+     * Delegates to {@link java.nio.FileChannel}
+     * 
+     * @see java.nio.FileChannel#write(java.nio.ByteBuffer, long)
+     */
+    public int write(ByteBuffer src, long position) throws IOException
+    {
+    	return getFileChannel().write(src, position);
+    }
+    
+    /**
+     * Delegates to {@link java.nio.FileChannel}
+     * 
+     * @see java.nio.FileChannel#write(java.nio.ByteBuffer)
+     */
+    public int write(ByteBuffer src) throws IOException
+    {
+    	return getFileChannel().write(src);
+    }
+    
+    /**
+     * Retrieve the file's identifier.
+     * @return the file's id.
+     */
     long getId()
     {
         return file.getId();
     }
     
+    /**
+     * Retrieve the file's name.
+     * @return the file's name.
+     */
     String getName()
     {
         return file.getName();
     }
-    
 }

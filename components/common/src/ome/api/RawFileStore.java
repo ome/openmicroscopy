@@ -1,9 +1,9 @@
 /*
- * ome.io.nio.OriginalFilesService
+ * ome.services.RawFileStore
  *
  *------------------------------------------------------------------------------
  *
- *  Copyright (C) 2005 Open Microscopy Environment
+ *  Copyright (C) 2004 Open Microscopy Environment
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
@@ -26,15 +26,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package ome.io.nio;
 
-import java.io.FileNotFoundException;
+package ome.api;
 
-import ome.model.core.OriginalFile;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
+import javax.annotation.security.RolesAllowed;
+
+import ome.annotations.NotNull;
+import ome.conditions.ResourceError;
 
 /** 
- * Raw file service which provides access to <code>FileBuffers</code>. 
+ * Raw file gateway which provides access to the OMERO file repository.  
  *
  * @author  Chris Allan &nbsp;&nbsp;&nbsp;&nbsp;
  *              <a href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
@@ -44,16 +48,25 @@ import ome.model.core.OriginalFile;
  * </small>
  * @since OMERO3.0
  */
-public class OriginalFilesService extends AbstractFileSystemService
+public interface RawFileStore extends StatefulServiceInterface
 {
-
-    public OriginalFilesService(String path)
-    {
-        super(path);
-    }
+    /**
+     * This method manages the state of the service.
+     * @param fileId an {@link ome.model.core.OriginalFile} id.
+     */
+    public void setFileId(long fileId);
     
-    public FileBuffer getFileBuffer(OriginalFile file)
-    {
-        return new FileBuffer(getFilesPath(file.getId()), file);
-    }
+    /**
+	 * Delegates to {@link ome.io.nio.FileBuffer}
+	 * 
+	 * @see ome.io.nio.FileBuffer#read(java.nio.ByteBuffer, long)
+	 */
+    public byte[] read(long position, int length);
+
+	/**
+     * Delegates to {@link ome.io.nio.FileBuffer}
+     * 
+     * @see ome.io.nio.FileBuffer#write(java.nio.ByteBuffer, long)
+     */
+	public void write(byte[] buf, long position);
 }

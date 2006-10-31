@@ -188,9 +188,6 @@ public class Renderer
         ChannelBinding[] cBindings= getChannelBindings();
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
         
-        //Compute the location stats.
-        computeLocationStats(getDefaultPlaneDef());
-        
         //Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), 
                                           qd.getCdEnd().intValue(),
@@ -243,9 +240,24 @@ public class Renderer
      */
     public PlaneDef getDefaultPlaneDef()
     {
-        PlaneDef pd = new PlaneDef(PlaneDef.XY,
-                                    rndDef.getDefaultT().intValue());
-        pd.setZ(rndDef.getDefaultZ().intValue());
+        PlaneDef pd = new PlaneDef(PlaneDef.XY, rndDef.getDefaultT());
+        pd.setZ(rndDef.getDefaultZ());
+        return pd;
+    }
+    
+    /**
+     * Creates the default plane definition to use for generation of the very
+     * first image displayed by <i>2D</i> viewers based upon a rendering
+     * definition.
+     * 
+     * @param renderingDef the rendering definition to base the plane definition
+     * upon.
+     * @return The default <i>XY</i>-plane for the <i>renderingDef</i>.
+     */
+    public static PlaneDef getDefaultPlaneDef(RenderingDef renderingDef)
+    {
+        PlaneDef pd = new PlaneDef(PlaneDef.XY, renderingDef.getDefaultT());
+        pd.setZ(renderingDef.getDefaultZ());
         return pd;
     }
     
@@ -439,42 +451,40 @@ public class Renderer
      */
     public RenderingStats getStats() { return stats; }
 
-    /*
-     * 
-     * TEMPORARILY COPIED HERE FROM PixelsMetadataImpl
-     * 
-     */
-    
     /**
      * Implemented as specified by the {@link PixelsMetadata} interface.
      * @see PixelsMetadata#computeLocationStats(PlaneDef)
      */
-    public void computeLocationStats(PlaneDef pd)
+    private static void computeLocationStats(Pixels pixels,
+                                             List<ChannelBinding> cbs,
+                                             PlaneDef planeDef, PixelBuffer buf)
     {
-        if (pd == null)
+        if (planeDef == null)
         	throw new NullPointerException("No plane definition.");
-        ChannelBinding[] cb = getChannelBindings();
         StatsFactory sf = new StatsFactory();
+        
         int w = 0;
-        for (Iterator i = getMetadata().getChannels().iterator(); i.hasNext(); )
+        List<Channel> channels = pixels.getChannels();
+        for (Channel channel : channels)
         {
         	// FIXME: This is where we need to have the ChannelBinding -->
         	// Channel linkage. Without it, we have to assume that the order in
         	// which the channel bindings was created matches up with the order
         	// of the channels linked to the pixels set.
-        	Channel channel = (Channel) i.next();
-        	double gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
-        	double gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
+        	ChannelBinding cb = cbs.get(w);
+        	double gMin = channel.getStatsInfo().getGlobalMin();
+        	double gMax = channel.getStatsInfo().getGlobalMax();
             //Test
-        	sf.computeLocationStats(metadata, buffer, pd, w);
+        	sf.computeLocationStats(pixels, buf, planeDef, w);
         	//cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
-            cb[w].setNoiseReduction(Boolean.TRUE);
-        	float start = cb[w].getInputStart().floatValue();
-        	float end = cb[w].getInputEnd().floatValue();
+            cb.setNoiseReduction(Boolean.TRUE);
+        	float start = cb.getInputStart();
+        	float end = cb.getInputEnd();
         	//TODO: find a better way.
         	if (gMax == end && gMin == start)
-        		cb[w].setInputStart(new Float(sf.getInputStart()));
-        	cb[w].setInputEnd(new Float(sf.getInputEnd()));
+        		cb.setInputStart(new Float(sf.getInputStart()));
+        	cb.setInputEnd(new Float(sf.getInputEnd()));
+        	w++;
         }
     }
     
@@ -601,45 +611,50 @@ public class Renderer
      * @param def the rendering definition to link to.
      * @param pixels the pixels set to reset the bindings based upon.
      * @param iPixels an OMERO pixels service.
+     * @param buffer a pixel buffer which maps to the <i>planeDef</i>.
      */
     private static void resetChannelBindings(RenderingDef def, Pixels pixels,
-                                             IPixels iPixels)
+                                             IPixels iPixels, PixelBuffer buffer)
     {
-
         // The actual channel bindings we are returning
         List<ChannelBinding> channelBindings = def.getWaveRendering();
+        
+        // Default plane definition for our rendering definition
+        PlaneDef planeDef = getDefaultPlaneDef(def);
 
         List<Channel> channels = pixels.getChannels();
         int i = 0;
         for (Channel channel : channels)
         {
-            StatsInfo stats = channel.getStatsInfo();
             Family family =
             	QuantumFactory.getFamily(iPixels, QuantumFactory.LINEAR);
 
             ChannelBinding channelBinding = channelBindings.get(i);
             channelBinding.setFamily(family);
             channelBinding.setCoefficient(new Double(1));
-            // FIXME: Lost of precision, downcast from Double to Float
-            channelBinding.setInputStart(new Float(stats.getGlobalMin()));
-            channelBinding.setInputEnd(new Float(stats.getGlobalMax()));
             
             // If we have more than one channel set each of the first three
             // active, otherwise only activate the first.
             if (i < 3)
             	channelBinding.setActive(true);
+            else
+            	channelBinding.setActive(false);
             
             channelBinding.setColor(ColorsFactory.getColor(i, channel));
         	channelBinding.setNoiseReduction(false);
             i++;
         }
+        
+        // Set the input start and input end for each channel binding based upon
+        // the computation of the pixels set's location statistics.
+        computeLocationStats(pixels, channelBindings, planeDef, buffer);
     }
 
     /** Resets the rendering engine defaults. */
     public void resetDefaults()
     {
     	// Reset our default rendering definition parameters.
-    	resetDefaults(rndDef, getMetadata(), iPixels);
+    	resetDefaults(rndDef, getMetadata(), iPixels, buffer);
     	
     	// Keep up with rendering engine model state.
     	setModel(rndDef.getModel());
@@ -658,9 +673,10 @@ public class Renderer
      * @param def the rendering definition to reset.
      * @param pixels the pixels set to reset the definition based upon.
      * @param iPixels the OMERO pixels service.
+     * @param buffer a pixel buffer which maps to the <i>planeDef</i>.
      */
     public static void resetDefaults(RenderingDef def, Pixels pixels,
-                                     IPixels iPixels)
+                                     IPixels iPixels, PixelBuffer buffer)
     {
         // The default rendering definition settings
         def.setDefaultZ(pixels.getSizeZ() / 2);
@@ -687,7 +703,7 @@ public class Renderer
         def.setQuantization(quantumDef);
 
         // Reset the channel bindings
-        resetChannelBindings(def, pixels, iPixels);
+        resetChannelBindings(def, pixels, iPixels, buffer);
     }
     
     /** 

@@ -292,8 +292,9 @@ public class RenderingBean extends AbstractLevel2Service
             	// definition for the given user. In order to keep the proper
             	// bean state, we initialize the local instance variable and
             	// write out new rendering settings into the database.
+            	PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             	rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
-            	Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv);
+            	Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv, buffer);
             	pixMetaSrv.saveRndSettings(rendDefObj);
             	iUpdate.flush();
             	rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);

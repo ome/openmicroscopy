@@ -164,7 +164,8 @@ public class ColorsFactory
      */
     private static Color getColor(Channel channel)
     {
-    	int emWave = channel.getLogicalChannel().getEmissionWave().intValue();
+    	Integer emWave = channel.getLogicalChannel().getEmissionWave();
+    	if (emWave == null) return null;
         if (rangeBlue(emWave)) return BLUE_COLOR;
         if (rangeGreen(emWave)) return GREEN_COLOR;
         if (rangeRed(emWave)) return RED_COLOR;
