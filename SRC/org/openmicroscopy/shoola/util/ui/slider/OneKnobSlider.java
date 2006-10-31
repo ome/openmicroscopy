@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.slider.OMESlider
+ * org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider
  *
  *------------------------------------------------------------------------------
  *
@@ -37,7 +37,7 @@ import javax.swing.JSlider;
 //Application-internal dependencies
 
 /** 
- * OMESlider is an extension of the {@link JSlider}, 
+ * OneKnobSlider is an extension of the {@link JSlider}, 
  * it has a more <code>Aqua look and feel</code>, 
  * plus the addition of arrow buttons at the ends of the track which can 
  * increment the slider by one.
@@ -56,7 +56,7 @@ import javax.swing.JSlider;
  * </small>
  * @since OME2.2
  */
-public class OMESlider
+public class OneKnobSlider
 	extends JSlider
 {
 
@@ -64,13 +64,19 @@ public class OMESlider
 	private boolean		showArrows;
 	
 	/** Slider UI for new laf. */
-	private OMESliderUI	sliderUI;	
+	private OneKnobSliderUI	sliderUI;	
 	
 	/** This is set to <code>true</code> if the slider has tooltipString. */
-	private boolean hasTip;
+	private boolean 	hasLabel;
 	
 	/** Tooltip string which is shown when slider is dragged, changed value. */
-	private String 	tipString;
+	private String 		endLabel;
+	
+	/** This value is set to true if the tip label will be displayed. */
+	private	boolean		showTipLabel;
+	
+	/** This value is set to true if the end label will be displayed. */
+	private boolean 	showEndLabel;
 	
 	/**
 	 * Creates a new instance.
@@ -80,21 +86,22 @@ public class OMESlider
 	 * @param max          Maximum value for slider. 
 	 * @param value        Value of slider. 
 	 */
-	public OMESlider(int orientation, int min, int max, int value)
+	public OneKnobSlider(int orientation, int min, int max, int value)
 	{
 		super();
-		sliderUI = new OMESliderUI(this);
+		sliderUI = new OneKnobSliderUI(this);
 		this.setUI(sliderUI);
 		this.setOrientation(orientation);
 		this.setMinimum(min);
 		this.setMaximum(max);
 		this.setValue(value);
+		this.hasLabel = false;
 	}
 	
 	/** Creates a default slider.  */
-	public OMESlider()
+	public OneKnobSlider()
 	{
-		this(OMESlider.HORIZONTAL, 0, 1, 0);
+		this(OneKnobSlider.HORIZONTAL, 0, 1, 0);
 	}
 	
 	/**
@@ -119,31 +126,76 @@ public class OMESlider
 	
 	/**
 	 * Set the string for the tooltip which is displayed when slider changes
-	 * value. 
+	 * value, as well as the label shown at the end of the text. 
 	 * 
 	 * @param tip prefix data for the string to display.
 	 */
-	public void setTipString(String tip)
+	public void setEndLabel(String label)
 	{
-		tipString = tip;
-		hasTip = true;
-		sliderUI.hasTipString(true);
+		endLabel = label;
+		hasLabel = true;
+		sliderUI.setEndLabel(label);
 	}
 	
 	/**
-	 * Return <code>true</code> if the slider has tooltips which appear when it
-	 * changes value.
+	 * Return the text used in the end Label.
 	 *  
 	 * @return see above.
 	 */
-	public String getTipString()
+	public String getEndLabel()
 	{
-		return tipString;
+		return endLabel;
 	}
 	
-	public boolean hasTipString()
+	/**
+	 * Has the component an endLabel. 
+	 * 
+	 * @return true if component has a tipString. 
+	 */
+	public boolean hasEndLabel()
 	{
-		return hasTip;
+		return hasLabel;
 	}
-    
+	
+    /**
+     * Show the end label if set to <code>true</code>.
+     *  
+     * @param show see above.
+     */
+	public void setShowEndLabel(boolean show)
+	{
+		showEndLabel = show;
+		sliderUI.setShowEndLabel(show);
+	}
+	
+    /**
+     * Show the tip label if set to <code>true</code>.
+     *  
+     * @param show see above.
+     */
+	public void setShowTipLabel(boolean show)
+	{
+		showTipLabel = show;
+		sliderUI.setShowTipLabel(show);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the tip label will be displayed. 
+	 * 
+	 * @return see above.
+	 */
+	public boolean showTipLabel()
+	{
+		return showTipLabel;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the end label will be displayed. 
+	 * 
+	 * @return see above.
+	 */
+	public boolean showEndLabel()
+	{
+		return showEndLabel;
+	}
 }

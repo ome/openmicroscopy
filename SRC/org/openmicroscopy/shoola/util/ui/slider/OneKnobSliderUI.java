@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.slider.OMESliderUI
+ * org.openmicroscopy.shoola.util.ui.slider.OneKnobSliderUI
  *
  *------------------------------------------------------------------------------
  *
@@ -62,7 +62,7 @@ import org.openmicroscopy.shoola.util.ui.TipDialog;
  * </small>
  * @since OME2.2
  */
-public class OMESliderUI
+public class OneKnobSliderUI
 	extends BasicSliderUI
 {
 	
@@ -90,7 +90,7 @@ public class OMESliderUI
     									new Color(176, 176, 176, 255);
     
     /** Offset to the left of the mouse used for placing tooltip. */
-    private static final int 	TOOLTIP_OFFSET = 15;
+    private static final int 	TOOLTIP_OFFSET = 25;
     
     
     /** Image used for the thumb. */
@@ -135,6 +135,24 @@ public class OMESliderUI
     
     /** Dialog used to display tooltip containing the position of the slider. */
     private  TipDialog			tipDialog;
+    
+    /** The end label displayed at top, or left of slider. */
+    private  String				endLabel;
+    
+    /** Show the end label if set. */
+    private  boolean			showEndLabel;
+    
+    /** Show the tip label ovet the thumb when slider moved. */
+    private boolean 			showTipLabel;
+    
+    /** The rect holding the location of the end label. */
+    private Rectangle			endLabelRect;
+    
+    /** The height of the end label. */
+    private int					labelHeight;
+    
+    /** The width of the end label. */
+    private	int 				labelWidth;
     
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
@@ -192,6 +210,26 @@ public class OMESliderUI
 		}
 	}
 
+	/**
+	 * This method calculates the size and positon of the endlabel displayed
+	 * in the trackRect.  
+	 */
+	private void calculateEndLabelRect()
+	{
+		if (slider.getOrientation() == JSlider.HORIZONTAL)
+		{
+			int offsetY = trackRect.height/2-labelHeight/2-1;
+			endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
+					labelWidth), offsetY, labelWidth, labelHeight);
+		}
+		else
+		{
+			int offsetX = trackRect.width/2-labelWidth/2+1;
+			endLabelRect = new Rectangle(offsetX, trackRect.y-
+					(minArrowRect.height+labelHeight),labelWidth, labelHeight);
+		}
+	}
+	
     /**
      * Paints the vertical track, and arrows if selected, this method is called
      * from the {@link #paintTrack(Graphics)} method. 
@@ -228,6 +266,10 @@ public class OMESliderUI
                         maxArrowRect.y, maxArrowRect.width, maxArrowRect.height, 
                         null);
             }           
+        }
+        if(showEndLabel && endLabel != null)
+        {
+        	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
         }
     }
 
@@ -268,6 +310,10 @@ public class OMESliderUI
                         null);
             }
         }
+        if(showEndLabel && endLabel != null)
+        {
+        	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
+        }
     }
 
     /**
@@ -275,20 +321,47 @@ public class OMESliderUI
      * 
      * @param slider parent slider component.
      */
-    OMESliderUI(OMESlider slider) 
+    OneKnobSliderUI(OneKnobSlider slider) 
     {
         super(slider);
         showArrows = true;
-        loadThumbArrowImage();
-        if(slider.hasTipString())
-        	tipDialog = new TipDialog(slider.getTipString());
-        else
-        	tipDialog = null;
+        loadThumbArrowImage();    
+        showTipLabel = false;
+        showEndLabel = false;
     }
     
-    void hasTipString(boolean hasTip)
+    /** 
+     * Sets the end label. 
+     * 
+     * @param endLabel
+     */
+    void setEndLabel(String endLabel)
     {
-      	tipDialog = new TipDialog(((OMESlider)slider).getTipString());
+      	this.endLabel = endLabel;
+      	labelWidth = 6;
+      	labelHeight = 12;
+    }
+    
+    /**
+     * Will show the end tip label which hovers over the thumb if set.
+     *  
+     * @param show see above.
+     */
+    void setShowTipLabel(boolean show)
+    {
+    	showTipLabel = show;
+    	if(showTipLabel)
+    		tipDialog = new TipDialog(endLabel);
+    }
+    
+    /**
+     * Show the end label if set.
+     * 
+     * @param show see above.
+     */
+    void setShowEndLabel(boolean show)
+    {
+    	showEndLabel = show;
     }
     
     /**
@@ -315,6 +388,11 @@ public class OMESliderUI
 				trackBuffer += ARROW_WIDTH+ARROW_SPACE;
 			else
 				trackBuffer += ARROW_HEIGHT+ARROW_SPACE; 
+		if	(showEndLabel)
+			if (slider.getOrientation() == JSlider.HORIZONTAL)
+				trackBuffer += labelWidth;
+			else
+				trackBuffer += labelHeight;
 	}
 	
     /**
@@ -382,6 +460,7 @@ public class OMESliderUI
     {
         super.calculateGeometry();
         if(showArrows) calculateArrowRect();
+        if(showEndLabel) calculateEndLabelRect();
     }
     
     /**
@@ -419,7 +498,7 @@ public class OMESliderUI
 		public void mouseReleased(MouseEvent event)
 		{
 			super.mouseReleased(event);
-			if(((OMESlider)slider).hasTipString() && tipDialog != null)
+			if( showTipLabel && tipDialog != null)
 			{
 				if(tipDialog.isVisible())
 					tipDialog.setVisible(false);
@@ -538,7 +617,7 @@ public class OMESliderUI
 	                {
 	                	scrollTimer.stop();
 	                	scrollListener.setScrollByBlock(false);
-	                    scrollListener.setDirection(OMESliderUI.NEGATIVE_SCROLL);
+	                    scrollListener.setDirection(OneKnobSliderUI.NEGATIVE_SCROLL);
 	                    scrollTimer.start();
 	                    slider.repaint();
 	                }
@@ -552,7 +631,7 @@ public class OMESliderUI
 	                {
 	                	scrollTimer.stop();
 	                	scrollListener.setScrollByBlock(false);
-	                    scrollListener.setDirection(OMESliderUI.POSITIVE_SCROLL);
+	                    scrollListener.setDirection(OneKnobSliderUI.POSITIVE_SCROLL);
 	                    scrollTimer.start();
 	                    slider.repaint();
 	                }
@@ -638,15 +717,15 @@ public class OMESliderUI
 				break;
 			}
 
-			if( ((OMESlider)slider).hasTipString() && tipDialog != null)
+			if( showTipLabel && tipDialog != null && endLabel != null)
 			{
 			
 				Point location = slider.getLocationOnScreen();
-				location.x += currentMouseX+TOOLTIP_OFFSET;
-				location.y += currentMouseY;
+				location.x += thumbRect.x+TOOLTIP_OFFSET;
+				location.y += thumbRect.y;
 					
 				tipDialog.setTipString(
-						((OMESlider)slider).getTipString()+slider.getValue());
+						endLabel+" : " + slider.getValue());
 				tipDialog.setLocation(location);
 				tipDialog.setVisible(true);
 			}
