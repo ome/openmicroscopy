@@ -280,9 +280,6 @@ class TreeViewerControl
         this.model = model;
         actionsMap = new HashMap();
         groupLevelActionsMap = new HashMap();
-        //createActions();
-        //createGroupLevelActions();
-        //model.addChangeListener(this);
     }
     
     /**
@@ -300,6 +297,12 @@ class TreeViewerControl
         attachListeners();
     }
     
+    /**
+     * Returns the {@link ChangeListener} attached to the tabbed pane,
+     * or creates one if none initialized.
+     * 
+     * @return See above.
+     */
     ChangeListener getTabbedListener()
     {
         if (tabsListener ==  null) {
@@ -331,6 +334,7 @@ class TreeViewerControl
         }
         return tabsListener;
     }
+    
     /**
      * Adds listeners to UI components.
      *
