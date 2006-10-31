@@ -224,13 +224,13 @@ public class EditorPane
     }
     
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
     public String getPaneName() { return "Editor"; }
 
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneIcon()
      */
     public Icon getPaneIcon()
@@ -239,13 +239,13 @@ public class EditorPane
     }
 
     /**
-     * Overriden to return the index of this UI component.
+     * Overridden to return the index of this UI component.
      * @see ClipBoardPane#getPaneIndex()
      */
     public int getPaneIndex() { return ClipBoard.EDITOR_PANE; }
     
     /**
-     * Overriden to return the description of this UI component.
+     * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Data object editor."; }
