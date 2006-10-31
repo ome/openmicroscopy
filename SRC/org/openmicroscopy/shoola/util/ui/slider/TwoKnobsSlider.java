@@ -171,13 +171,8 @@ public class TwoKnobsSlider
     /** The preferred size of this component. */
     private Dimension           preferredSize_;
     
-    /** The width of this component. */
-    private int                 width_;
-    
     /** The height of the font. */
     private int                 fontHeight;
-
-    private boolean				updateConstantly;
     
     /**
      * Computes the preferred size of this component.
@@ -188,24 +183,10 @@ public class TwoKnobsSlider
         if (model.isPaintTicks()) h += knobHeight;
         if (model.isPaintLabels() || model.isPaintEndLabels())
             h += TwoKnobsSliderUI.EXTRA+fontHeight+2*TwoKnobsSliderUI.BUFFER;
-        if (model.getOrientation() == VERTICAL) {
-        	width_ = calculateVerticalWidth();
+        if (model.getOrientation() == VERTICAL)
             preferredSize_ = PREFERRED_VERTICAL;
-        } else
+        else
         	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL_WIDTH, h);
-    }
-    
-    /**
-     * Calculates the vertical width of the slider. 
-     * 
-     * @return See above.
-     */
-    private int calculateVerticalWidth()
-    {
-    	int w = (KNOB_WIDTH+6)*2+6;
-    	if (model.isPaintTicks()) w += KNOB_WIDTH+6;
-    	if (model.isPaintLabels() || model.isPaintEndLabels()) w += 30;
-    	return w;
     }
     
     /** Sets the default values. */
@@ -712,7 +693,6 @@ public class TwoKnobsSlider
     public void setBounds(int x, int y, int width, int height)
     {
         super.setBounds(x, y, width, height);
-        width_ = width;
         calculatePreferredSize();
         repaint();
     }
@@ -725,11 +705,6 @@ public class TwoKnobsSlider
     {
         super.paintComponent(g);
         uiDelegate.paintComponent((Graphics2D) g, getSize());
-    }
-
-    public void setUpdateConstantly(boolean option)
-    {
-    	updateConstantly = option;
     }
     
 }
