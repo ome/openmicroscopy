@@ -159,6 +159,11 @@ public interface Classifier
      */
     void close();
 
+    /** 
+     * Classifies the images.
+     * 
+     * @param paths The container where to add the images.
+     */
     void classifyImages(Set paths);   
 
 }
