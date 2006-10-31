@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -233,6 +234,17 @@ public class NullOmeroPojoService
     public Set removeDataObjects(Set children, DataObject parent)
             throws DSOutOfServiceException, DSAccessException
     {
+        return null;
+    }
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getChannelsMetadata(long)
+     */
+    public List getChannelsMetadata(long pixelsID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        // TODO Auto-generated method stub
         return null;
     }
 
