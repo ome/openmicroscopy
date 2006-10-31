@@ -336,6 +336,7 @@ class TabbedPaneUI
 
         tabPaneLayout.show(tabPanel,COLOURWHEELPANE);
         RGBSliderPane.setActive(false);
+        swatchPane.setActive(false);
         colourWheelPane.findPuck();
         colourWheelPane.refresh();
         colourWheelPane.repaint();
@@ -346,9 +347,11 @@ class TabbedPaneUI
     {   
         tabPaneLayout.show(tabPanel,SWATCHPANE);
         colourSwatchButton.setSelected(true);
+        swatchPane.setActive(true);
         RGBSliderPane.setActive(false);
         colourWheelPane.setActive(false);
         this.doLayout();
+        swatchPane.refresh();
     }
     
     /** Sets RGBSlider as picked and makes it visible. */
@@ -358,7 +361,8 @@ class TabbedPaneUI
         RGBSlidersButton.setSelected(true);
         RGBSliderPane.setActive(true);
         colourWheelPane.setActive(false);
-        
+        swatchPane.setActive(false);
+
         this.doLayout();
         RGBSliderPane.refresh();
     }
@@ -402,6 +406,9 @@ class TabbedPaneUI
 		if (colourWheelPane != null)
 			if( colourWheelPane.isVisible())
 				colourWheelPane.refresh();
+		if (swatchPane != null)
+			if( swatchPane.isVisible())
+				swatchPane.refresh();
 	}
 
 }

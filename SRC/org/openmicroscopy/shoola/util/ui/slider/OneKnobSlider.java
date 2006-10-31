@@ -96,6 +96,7 @@ public class OneKnobSlider
 		this.setMaximum(max);
 		this.setValue(value);
 		this.hasLabel = false;
+		this.setSnapToTicks(false);
 	}
 	
 	/** Creates a default slider.  */
