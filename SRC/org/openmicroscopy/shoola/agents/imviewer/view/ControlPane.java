@@ -59,7 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.slider.OMESlider;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * Presents variable controls.
@@ -90,10 +90,10 @@ class ControlPane
                             "select a timepoint.";
 
     /** The tipString of the {@link #zSlider}. */
-    private static final String Z_SLIDER_TIPSTRING = "Z : ";
+    private static final String Z_SLIDER_TIPSTRING = "Z";
 
     /** The tipString of the {@link #tSlider}. */
-    private static final String T_SLIDER_TIPSTRING = "T : ";
+    private static final String T_SLIDER_TIPSTRING = "T";
     
     /** Dimension of the box between the channel buttons. */
     private static final Dimension VBOX = new Dimension(1, 10);
@@ -114,10 +114,10 @@ class ControlPane
     private JComboBox       zoomingBox;
     
     /** Slider to select the z-section. */
-    private OMESlider         zSlider;
+    private OneKnobSlider         zSlider;
     
     /** Slider to select the timepoint. */
-    private OMESlider         tSlider;
+    private OneKnobSlider         tSlider;
     
     /** One  {@link ChannelButton} per channel. */
     private HashSet         channelButtons;
@@ -221,14 +221,10 @@ class ControlPane
         ratingBox =  new JComboBox(ratingActions);
         ratingBox.setEnabled(false);
 
-        zSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
+        zSlider = new OneKnobSlider(JSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
-        zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
-        zSlider.setTipString(Z_SLIDER_TIPSTRING);
-        tSlider = new OMESlider(JSlider.VERTICAL, 0, 1, 0);
+        tSlider = new OneKnobSlider(JSlider.VERTICAL, 0, 1, 0);
         tSlider.setEnabled(false);
-        tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
-        tSlider.setTipString(T_SLIDER_TIPSTRING);
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
@@ -288,6 +284,14 @@ class ControlPane
         tSlider.addChangeListener(this);
         zSlider.addMouseWheelListener(this);
         tSlider.addMouseWheelListener(this);
+        zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
+        zSlider.setEndLabel(Z_SLIDER_TIPSTRING);
+        zSlider.setShowEndLabel(true);
+        zSlider.setShowTipLabel(true);
+        tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
+        tSlider.setEndLabel(T_SLIDER_TIPSTRING);
+        tSlider.setShowEndLabel(true);
+        tSlider.setShowTipLabel(true);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
     }
     
@@ -302,9 +306,6 @@ class ControlPane
     {
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
-        JLabel label = new JLabel(txt);
-        label.setLabelFor(slider);
-        pane.add(label);
         pane.add(slider);
         return pane;
     }
