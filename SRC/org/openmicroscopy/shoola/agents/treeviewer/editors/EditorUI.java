@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -41,6 +42,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -57,6 +60,7 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -160,11 +164,14 @@ class EditorUI
     /** Indicates that a warning message is displayed if <code>true</code>. */
     private boolean         warning;
     
-    /**
-     * <code>true</code> if the name or description is modified.
-     * <code>false</code> otherwise;
-     */
+    /** Flag indicating if the name or description is modified. */
     private boolean			edit;
+    
+    /** 
+     * The tabbed pane hosting the various components if we are in the 
+     * <code>Editor</code> mode.
+     */
+    private JTabbedPane     tabs;
     
     /**
      * The component hosting the name and the description of the 
@@ -274,7 +281,7 @@ class EditorUI
         int w = label.getWidth();
         label = new JLabel(EMPTY_MSG);
         int h = label.getFontMetrics(label.getFont()).getHeight();
-        w += EMPTY_MSG.length()*getFontMetrics(getFont()).charWidth('m');
+        w += getFontMetrics(getFont()).stringWidth(EMPTY_MSG);
         emptyMessagePanel.add(label);
         Insets i = emptyMessagePanel.getInsets();
         h += i.top+i.bottom+2;
@@ -293,21 +300,27 @@ class EditorUI
                 return doBasic;
             case Editor.PROPERTIES_EDITOR:
                 IconManager im = IconManager.getInstance();
-                JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+                tabs = new JTabbedPane(JTabbedPane.TOP, 
                                                    JTabbedPane.WRAP_TAB_LAYOUT);
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
                             im.getIcon(IconManager.PROPERTIES), doBasic);
                 ExperimenterData exp = model.getExperimenterData();
                 Map details = EditorUtil.transformExperimenterData(exp);
-                tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER),
-                            new DOInfo(this, model, details, true));
+                DOInfo info = new DOInfo(this, model, details, true, 
+                                    DOInfo.OWNER_TYPE);
+                
+                tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), info);
                 DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
                     details = EditorUtil.transformPixelsData(
                             ((ImageData) hierarchyObject).getDefaultPixels());
-                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE),
-                               new DOInfo(this, model, details, false));
+                    info = new DOInfo(this, model, details, false, 
+                            DOInfo.INFO_TYPE);
+                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), info
+                                );
+                    //Add a tab listeners to the info
+                    tabs.addChangeListener(controller);
                 }
                 return tabs;
         }
@@ -562,6 +575,10 @@ class EditorUI
      */
     void onStateChanged(boolean b)
     {
+        if (model.getHierarchyObject() instanceof ImageData && tabs != null) {
+            if (b) tabs.addChangeListener(controller);
+            else tabs.removeChangeListener(controller);
+        }
         model.getParentModel().onComponentStateChange(b);
         finishButton.setEnabled(b);
     }
@@ -603,6 +620,37 @@ class EditorUI
                 finishEdit();
         }
     }
+    
+    /** Sets the emission wavelengths values. */
+    void setChannelsData()
+    {
+        if (tabs != null) {
+            Component c;
+            for (int i = 0; i < tabs.getComponentCount(); i++) {
+                c = tabs.getComponentAt(i);
+                Object ho = model.getHierarchyObject();
+                if (c instanceof DOInfo && ho instanceof ImageData) {
+                    ImageData img = (ImageData) ho;
+                    Map details = 
+                        EditorUtil.transformPixelsData(img.getDefaultPixels());
+                    List waves = model.getChannelsData();
+                    if (waves == null) return;
+                    String s = "";
+                    Iterator k = waves.iterator();
+                    int j = 0;
+                    while (k.hasNext()) {
+                        s += 
+                           ((ChannelMetadata) k.next()).getEmissionWavelength();
+                        if (j != waves.size()-1) s +=", ";
+                        j++;
+                    }
+                    details.put(EditorUtil.WAVELENGTHS, s);
+                    ((DOInfo) c).setChannelsData(details);
+                } 
+            }
+        }
+    }
+    
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
@@ -610,7 +658,6 @@ class EditorUI
     public void setSize(int width, int height)
     {
         super.setSize(width, height);
-        //super.setPreferredSize(new Dimension(width, height));
         Dimension d  = new Dimension(width, TITLE_HEIGHT);
         titlePanel.setSize(d);
         titlePanel.setPreferredSize(d);
@@ -623,5 +670,5 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
-    
+
 }

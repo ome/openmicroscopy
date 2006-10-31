@@ -62,6 +62,9 @@ class EditorUtil
     /** Text displayed before the list of existing groups. */
     static final String         GROUPS = "Belongs to the following groups: ";
     
+    /** Identifies the <code>Wavelengths</code> field. */
+    static final String         WAVELENGTHS = "Emissions wavelengths";
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
     
@@ -85,10 +88,7 @@ class EditorUtil
     
     /** Identifies the <code>Timepoints</code> field. */
     private static final String TIMEPOINTS = "Number of timepoints";
-    
-    /** Identifies the <code>Timepoints</code> field. */
-    //private static final String WAVELENGTHS = "Emissions wavelengths";
-    
+
     /** Identifies the <code>PixelType</code> field. */
     private static final String PIXEL_TYPE = "Pixel Type";
 
@@ -141,7 +141,7 @@ class EditorUtil
      */
     static Map transformPixelsData(PixelsData data)
     {
-        LinkedHashMap details = new LinkedHashMap(8);
+        LinkedHashMap details = new LinkedHashMap(9);
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
@@ -169,6 +169,7 @@ class EditorUtil
                 details.put(PIXEL_TYPE, ""); 
             }
         }
+        details.put(WAVELENGTHS, "");  
         return details;
     }
     

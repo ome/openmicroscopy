@@ -31,9 +31,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -200,7 +203,16 @@ public class EditorControl
      */
     public void stateChanged(ChangeEvent e)
     {
-        view.onStateChanged(model.getState() == Editor.READY);
+        if (e.getSource() instanceof JTabbedPane) {
+            Component c = ((JTabbedPane) e.getSource()).getSelectedComponent();
+            if (c instanceof DOInfo) {
+                DOInfo info = (DOInfo) c;
+                if (info.getInfoType() == DOInfo.INFO_TYPE)
+                    model.retrieveChannelsData();
+            }
+        } else {
+            view.onStateChanged(model.getState() == Editor.READY);
+        }
     }
 
     /**

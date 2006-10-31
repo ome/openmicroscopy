@@ -49,6 +49,7 @@ import javax.swing.JDialog;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
@@ -117,6 +118,9 @@ class EditorModel
     
     /** Flag to indicate if the object is annotated. */
     private boolean             annotated;
+    
+    /** The emissions wavelengths for the edited image. */
+    private List               emissionWaves;
     
     /** Reference to the component that embeds this model. */
     protected Editor            component;
@@ -658,5 +662,37 @@ class EditorModel
     {
         return hierarchyObject.getPermissions();
     }
+
+    /** 
+     * Starts the asynchronous retrieval of the emission wavelengths 
+     * for the set of pixels.
+     */
+    void retrieveChannelsData()
+    {
+        state = Editor.LOADING_CHANNEL_DATA;
+        ImageData img = (ImageData) hierarchyObject;
+        long pixelsID = img.getDefaultPixels().getId();
+        currentLoader = new ChannelDataLoader(component, pixelsID);
+        currentLoader.load();
+    }
+
+    /**
+     * Sets the emissions wavelengths.
+     * 
+     * @param emissionWaves The value to set.
+     */
+    void setChannelsData(List emissionWaves)
+    {
+        this.emissionWaves = emissionWaves; 
+        state = Editor.READY;
+    }
+
+    /**
+     * Returns the emission wavelengths or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    List getChannelsData() { return emissionWaves; }
     
 }
+ 

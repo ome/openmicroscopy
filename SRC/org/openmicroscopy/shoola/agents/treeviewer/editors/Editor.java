@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -74,11 +75,14 @@ public interface Editor
     /** Flag to denote the <i>Loading Classification</i> state. */
     public static final int         LOADING_CLASSIFICATION = 4;
     
+    /** Flag to denote the <i>Loading CHANNEL DATA</i> state. */
+    public static final int         LOADING_CHANNEL_DATA = 5;
+
     /** Flag to denote the <i>Save Edition</i> state. */
-    public static final int         SAVE_EDITION = 5;
+    public static final int         SAVE_EDITION = 6;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 6;
+    public static final int         READY = 7;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_EDITOR = TreeViewer.CREATE_EDITOR;
@@ -146,6 +150,9 @@ public interface Editor
 
     /** Reloads the classifications. */
     void reloadClassifications();
+    
+    /** Retrieves the emission wavelengths for the set of pixels. */
+    void retrieveChannelsData();   
     
     /**
      * Queries the current state.
@@ -231,6 +238,13 @@ public interface Editor
      * Saves the data before closing the editor. This method
      * should only be invoked after asking a question to the user.
      */
-    public void saveData();   
+    public void saveData();
+
+    /**
+     * Sets the values of the emission wavelengths.
+     * 
+     * @param emissionWaves The emission wavelengths.
+     */
+    public void setChannelsData(List emissionWaves);
     
 }

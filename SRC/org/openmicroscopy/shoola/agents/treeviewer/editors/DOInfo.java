@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -71,6 +70,14 @@ class DOInfo
     extends JPanel
 {
 
+    /** Indicate that this component displays <code>Owner</code> details. */
+    static final int               OWNER_TYPE = 0;
+        
+    /** 
+     * Indicate that this component displays <code>Image Info</code> details. 
+     */
+    static final int               INFO_TYPE = 1;
+    
     /** Text displaying before the owner's permissions. */
     private static final String    OWNER = "Owner: ";
     
@@ -85,24 +92,35 @@ class DOInfo
     
     /** Text describing the <code>Write</code> permission. */
     private static final String     WRITE = "Write";
-    
-    /** The text displayed before the group's details. */
-    private static final String		GROUP_TEXT = "Group's information: ";
-    
-    /**
-     * A reduced size for the invisible components used to separate widgets
-     * vertically.
-     */
-    private static final Dimension  SMALL_V_SPACER_SIZE = new Dimension(1, 6);
-    
-    /** The panel hosting the group's details. */
-    private JPanel          groupPanel;
+
+    /** The panel hosting the content's details. */
+    private JPanel          contentPanel;
     
     /** Reference to the Model. */
     private EditorModel     model;
     
     /** Reference to the Model. */
     private EditorUI        view;
+    
+    /** One of the constants defined by this class. */
+    private int             infoType;
+    
+    /**
+     * Controls if the specifed type is supported.
+     * 
+     * @param t The value to check.
+     */
+    private void checkType(int t)
+    {
+        switch (t) {
+            case OWNER_TYPE:
+            case INFO_TYPE:   
+                infoType = t;
+                return;
+            default:
+                throw new IllegalArgumentException("Type not supported");
+        }
+    }
     
     /**
      * Builds the panel hosting the information
@@ -143,32 +161,7 @@ class DOInfo
             c.weightx = 1.0;
             content.add(area, c);  
         }
-        /*
-        if (groups != null) {
-           ++c.gridy;
-           c.gridx = 0;
-           JPanel bar = new JPanel();
-           bar.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
-           i = groups.iterator();
-           JComponent component;
-           while (i.hasNext()) {
-               component = new GroupComponent((GroupData) i.next(), this);
-               bar.add(component);
-           }	
-           label = UIUtilities.setTextFont(EditorUtil.GROUPS);
-           c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-           c.fill = GridBagConstraints.NONE;      //reset to default
-           c.weightx = 0.0;  
-           content.add(label, c);
-           label.setLabelFor(bar);
-           c.gridx = 1;
-           c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-           c.fill = GridBagConstraints.HORIZONTAL;
-           c.weightx = 1.0;
-           content.add(bar, c); 
-       }
-       */
-       return content;
+        return content;
     }
     
     /**
@@ -320,10 +313,7 @@ class DOInfo
      */
     private void buildGUI(Map details, boolean permission)
     {
-        groupPanel = new JPanel();
-        groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
-        groupPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-        JPanel contentPanel = buildContentPanel(details);
+        contentPanel = buildContentPanel(details);
         setLayout(new BorderLayout());
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
@@ -338,7 +328,6 @@ class DOInfo
             p.add(Box.createVerticalGlue());
             add(p);
         }
-        //add(groupPanel, BorderLayout.CENTER);
     }
     
     /**
@@ -350,8 +339,10 @@ class DOInfo
      * @param details       The visualization map. Mustn't be <code>null</code>.                
      * @param permission    Pass <code>true</code> to display the permission,
      *                      <code>false</code> otherwise.
+     * @param type          The component's type.
      */
-    DOInfo(EditorUI view, EditorModel model, Map details, boolean permission)
+    DOInfo(EditorUI view, EditorModel model, Map details, boolean permission, 
+           int type)
     {
         if (view == null)
             throw new IllegalArgumentException("No model.");
@@ -362,63 +353,32 @@ class DOInfo
                     " null");
         this.view = view;
         this.model = model;
+        checkType(type);
         buildGUI(details, permission);
     }
 
     /**
-     * Shows the specified group's details.
+     * Returns the type of component.
      * 
-     * @param details The details to display.
+     * @return See above.
      */
-    void showGroupDetails(Map details)
+    int getInfoType() { return infoType; }
+    
+    /**
+     * Sets the image metadata.
+     * 
+     * @param details See above.
+     */
+    void setChannelsData(Map details)
     {
-        groupPanel.removeAll();
-        groupPanel.add(UIUtilities.buildComponentPanel(new JLabel(GROUP_TEXT)));
-        groupPanel.add(new JSeparator());
-        groupPanel.add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
-        JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        Iterator i = details.keySet().iterator();
-        JLabel label;
-        JTextField area;
-        String key, value;
-        while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
-            key = (String) i.next();
-            value = (String) details.get(key);
-            label = UIUtilities.setTextFont(key);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            area = new JTextField(value);
-            area.setEditable(false);
-            label.setLabelFor(area);
-            c.gridx = 1;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
-        }
-        JPanel p = new JPanel();
-        p.setLayout(new BorderLayout());
-        p.add(content, BorderLayout.NORTH);
-        groupPanel.add(p);
-        validate();
-        repaint();
-    }
-
-    /** Hides the details of the group. */
-    void hideGroupDetails()
-    {
-        groupPanel.removeAll();
-        validate();
+        if (details == null) 
+            throw new IllegalArgumentException("Visualization map cannot be" +
+                    " null");
+        if (infoType != INFO_TYPE) return;
+        remove(contentPanel);
+        contentPanel = buildContentPanel(details);
+        
+        add(contentPanel, BorderLayout.NORTH);
         repaint();
     }
     

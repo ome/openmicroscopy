@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -410,6 +411,32 @@ class EditorComponent
             throw new IllegalStateException("This method cannot be invoked " +
                         "in the DISCARDED state.");
         view.finish();
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#saveData()
+     */
+    public void retrieveChannelsData()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                        "in the DISCARDED state.");
+        if (model.getChannelsData() != null) return;
+        model.retrieveChannelsData();
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setChannelsData(List)
+     */
+    public void setChannelsData(List emissionWaves)
+    {
+        if (model.getState() != LOADING_CHANNEL_DATA) return;
+        model.setChannelsData(emissionWaves);
+        fireStateChange();
+        view.setChannelsData();
     }
     
 }
