@@ -79,17 +79,6 @@ public class TipDialog
 		this.setLayout(new BorderLayout());
 		getContentPane().add(label, BorderLayout.CENTER);
 	}
-	
-	/**
-	 * Overrriden, from {@link JDialog#paintComponents(Graphics)}
-	 * Draw all the components in the dialog. 
-	 */
-    /*
-	public void paint(Graphics g)
-	{
-		//super.paintComponents(g);
-	}
-	*/  
     
 	/**
 	 * Sets the string to be displayed in the dialog.
