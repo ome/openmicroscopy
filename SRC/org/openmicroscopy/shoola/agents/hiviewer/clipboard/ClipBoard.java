@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
 import java.awt.Point;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -80,6 +81,12 @@ public interface ClipBoard
     
     /** Identifies the index of the <code>Information</code> pane. */
     public static final int     INFO_PANE = 3;
+    
+    /** Identifies the <i>Loading channels metadata</i> state. */
+    public static final int     READY = 198;
+    
+    /** Identifies the <i>Loading channels metadata</i> state. */
+    public static final int     LOADING_CHANNELS_METADATA = 199;
     
     /** Identifies the <i>Loading annotations</i> state. */
     public static final int     LOADING_ANNOTATIONS = 200;
@@ -262,6 +269,20 @@ public interface ClipBoard
      * @param object The Data object to edit.
      */
     public void showProperties(DataObject object);
+
+    /**
+     * Retrieves the channels metadata
+     *
+     * @param pixelsID The id of the default pixels set.
+     */
+    public void retrieveChannelsMetadata(long pixelsID);
+
+    /**
+     * Sets the channels metadata.
+     * 
+     * @param list The value to set.
+     */
+    public void setChannelsMetadata(List list);
     
 }
 

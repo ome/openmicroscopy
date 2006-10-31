@@ -45,6 +45,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
@@ -419,5 +420,17 @@ class ClipBoardModel
      * @return See above.
      */
     long getGroupID() { return parentModel.getRootID(); }
+
+    /**
+     * Starts the asynchronous retrieval of the channel metadata.
+     * 
+     * @param pixelsID The id of the pixels set.
+     */
+    void fireChannelsMetadataLoading(long pixelsID)
+    {
+        currentLoader = new ChannelMetadataLoader(component, pixelsID);
+        currentLoader.load();
+        state = ClipBoard.LOADING_CHANNELS_METADATA;
+    }
     
 }

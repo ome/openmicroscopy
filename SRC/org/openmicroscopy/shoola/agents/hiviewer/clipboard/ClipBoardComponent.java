@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Point;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -212,8 +213,8 @@ class ClipBoardComponent
         view.setSelectedPane(index);
         if (node == null)
             view.onDisplayChange(
-                    model.getParentModel().getBrowser().getLastSelectedDisplay());
-        if (index != ANNOTATION_PANE) discardAnnotation();
+             model.getParentModel().getBrowser().getLastSelectedDisplay());
+        //if (index != ANNOTATION_PANE) discardAnnotation();
     }
 
     /**
@@ -370,6 +371,28 @@ class ClipBoardComponent
         EditorPane pane = ((EditorPane) model.getClipboardPane(
                                 ClipBoard.EDITOR_PANE));
         pane.edit(object);
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#retrieveChannelsMetadata(long)
+     */
+    public void retrieveChannelsMetadata(long pixelsID)
+    {
+        model.fireChannelsMetadataLoading(pixelsID);
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#setChannelsMetadata(List)
+     */
+    public void setChannelsMetadata(List list)
+    {
+        if (model.getState() != LOADING_CHANNELS_METADATA) return;
+        model.setState(READY);
+        view.setChannelMetadata(list);
+        fireStateChange();
     }
 
 }

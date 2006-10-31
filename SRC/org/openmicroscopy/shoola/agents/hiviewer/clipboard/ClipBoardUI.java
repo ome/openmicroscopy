@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.Point;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -47,6 +48,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 
 /** 
  * The {@link ClipBoard}'s view.
@@ -156,7 +158,6 @@ class ClipBoardUI
                         controller.setSelectedPane(ClipBoard.EDITOR_PANE);
                         break;
                 };
-                
             }
         });
         //listener
@@ -223,6 +224,17 @@ class ClipBoardUI
     void showMenu(JComponent invoker, Point p, ImageDisplay node)
     {
         popupMenu.showMenuFor(invoker, p.x, p.y, node);
+    }
+
+    /**
+     * Sets the channels metadata.
+     * 
+     * @param l The value to set.
+     */
+    void setChannelMetadata(List l)
+    {
+        InfoPane pane = (InfoPane) model.getClipboardPane(ClipBoard.INFO_PANE);
+        pane.setChannelsMetadata(l);
     }
     
 }
