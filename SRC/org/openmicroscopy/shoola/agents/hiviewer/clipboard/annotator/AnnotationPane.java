@@ -142,20 +142,17 @@ public class AnnotationPane
         uiDelegate.setComponentsEnabled(false);
     }
     
-    /**
-     * Displays the annotation linked to the currently selected item.
-     *
-     */
+    /** Displays the annotation linked to the currently selected item. */
     public void showAnnotations() { uiDelegate.showAnnotations(); }
     
     /**
-     * Overriden to return the name of this UI component.
+     * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
     public String getPaneName() { return "Annotation"; }
 
     /**
-     * Overriden to return the icon related to this UI component.
+     * Overridden to return the icon related to this UI component.
      * @see ClipBoardPane#getPaneIcon()
      */
     public Icon getPaneIcon()
@@ -164,19 +161,19 @@ public class AnnotationPane
     }
 
     /**
-     * Overriden to return the index of this UI component.
+     * Overridden to return the index of this UI component.
      * @see ClipBoardPane#getPaneIndex()
      */
     public int getPaneIndex() { return ClipBoard.ANNOTATION_PANE; }
     
     /**
-     * Overriden to return the description of this UI component.
+     * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
     public String getPaneDescription() { return "Annotate the selected item."; }
     
     /**
-     * Overriden to return the icon related to this UI component.
+     * Overridden to return the icon related to this UI component.
      * @see ClipBoardPane#onDisplayChange(ImageDisplay)
      */
     public void onDisplayChange(ImageDisplay selectedDisplay)
