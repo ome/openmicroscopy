@@ -68,5 +68,5 @@ public interface RawFileStore extends StatefulServiceInterface
      * 
      * @see ome.io.nio.FileBuffer#write(java.nio.ByteBuffer, long)
      */
-	public void write(byte[] buf, long position);
+	public void write(byte[] buf, long position, int length);
 }

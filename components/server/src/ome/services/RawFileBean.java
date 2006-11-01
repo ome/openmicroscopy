@@ -214,9 +214,10 @@ public class RawFileBean extends AbstractBean
     }
     
 	@RolesAllowed("user")
-	public void write(byte[] buf, long position)
+	public void write(byte[] buf, long position, int length)
 	{
 		ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
+		nioBuffer.limit(length);
 		
 		try
 		{
