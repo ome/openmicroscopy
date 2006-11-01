@@ -3,12 +3,13 @@
   ===============================================================	
  _					
 |
-+ Configuration
++ Configuration targets (files availble under /etc)
 |
-| 	/etc		contains ...
-|
+|       setup           run the config target
+| 
 + Deploy targets
 |
+|	setup-db        load database schema to db
 | 	update		copy new properties to *.ear
 | 	deploy          copy *.ear to ${jboss.home}
 |  					

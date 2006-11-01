@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- TODO add properties goal to update pref.properties -->
 <project name="common" default="install" basedir=".">
-    
-	<import file="classpath.xml"/>
+
+	<property name="classpath.file" value="classpath.xml"/>
+	<import file="${classpath.file}"/>
 	
 	<!-- Lifecycle Overrides -->
 	<target name="prepare" depends="lifecycle.prepare,load-hibernate"/>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="dsl" default="install" basedir=".">
-    
-	<import file="classpath.xml"/>
+
+	<property name="classpath.file" value="classpath.xml"/>
+	<import file="${classpath.file}"/>
 	
 </project>

@@ -40,30 +40,17 @@
 
 -->
 
-	<!-- TODO: need to get /etc working -->
-        <property name="omero.repo.local" value="lib/repository"/>
-	<property file="etc/omero.properties"/>
-	<property file="etc/hibernate.properties"/>
+	<!-- This overrides the classpath.file properties of all the components. -->
+        <property name="ant.resources"     value="${basedir}/components/antlib/resources/"/>
+	<property name="classpath.file" value="${ant.resources}/dist-classpath.xml"/>
+	<import file="${classpath.file}"/> <!-- imports global.xml -->
 
-	<import file="components/antlib/resources/global.xml"/>
-
-	<path id="generated.compile.classpath">
-		<pathelement path="${omero.home}/etc"/>
-		<fileset dir="${omero.home}">
-			<include name="client/*.jar"/>
-			<include name="lib/repository/groovy/**/*.jar"/>
-			<include name="lib/repository/omero/postgresql/**/*.jar"/>
-		</fileset>
-	</path>
-
-	<path id="generated.test.classpath">
-		<path refid="generated.compile.classpath"/>
-	</path>
-
-	<path id="omero.classpath">
-		<path refid="generated.compile.classpath"/>
-	</path>
-
+	<target name="classpath-define">
+		<path id="omero.classpath">
+			<path refid="generated.compile.classpath"/>
+		</path>
+	</target>
+	
 	<target name="usage"
 		description="Usage information">
 		<concat>

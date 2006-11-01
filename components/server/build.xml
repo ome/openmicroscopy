@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="services" default="install" basedir=".">
-    
-	<import file="classpath.xml"/>
+
+	<property name="classpath.file" value="classpath.xml"/>
+	<import file="${classpath.file}"/>
 
         <target name="reload-db" depends="prepare,load-groovy">
                 <groovy>

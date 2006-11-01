@@ -8,7 +8,8 @@
 
 	<property name="artifact.packaging" value="ear"/>
 
-	<import file="classpath.xml"/>
+	<property name="classpath.file" value="classpath.xml"/>
+	<import file="${classpath.file}"/>
 
 	<property name="product.name"     value="Omero Server"/>
 	<property name="product.version"  value="3.0" />
