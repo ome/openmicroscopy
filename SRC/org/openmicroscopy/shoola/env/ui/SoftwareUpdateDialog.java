@@ -86,9 +86,9 @@ class SoftwareUpdateDialog
     /** The text displayed before the release date. */
     private static final String     RELEASE_NAME = "Release Date ";
     
-    
-    public static String            REVISION_DATE = "$Date: $";
-    public static String            RELEASE_DATE = "$Date: $";
+    //tmp
+    public static String            REVISION_DATE = "2006-10-30";
+    public static String            RELEASE_DATE = "2006-10-30";
     
     /** The close button. */
     private JButton closeButton;
@@ -120,12 +120,12 @@ class SoftwareUpdateDialog
     
     private String getVersion()
     {
-        String version = "$Rev:$";
+        String version = "test";//"$Rev:$";
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
         String s = CLIENT_VERSION;
-        s += "(revision "+m.group()+")";
+        //s += "(revision "+m.group()+")";
         return s;
     }
     
