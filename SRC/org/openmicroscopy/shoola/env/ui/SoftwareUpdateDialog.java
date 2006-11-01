@@ -124,7 +124,7 @@ class SoftwareUpdateDialog
     private String getVersion()
     {
         String version = "$Rev$";
-        String date = "$Date";
+        String date = "$Date: $";
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
