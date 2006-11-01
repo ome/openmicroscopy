@@ -103,6 +103,18 @@ class EditorUI
      */
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
+    /** The text indicating where the new <code>Dataset</code> will be added. */
+    private static final String     PROJECT_PARENT_MSG = " in project: ";
+    
+    /** The text indicating where the new <code>Image</code> will be added. */
+    private static final String     DATASET_PARENT_MSG = " in dataset: ";
+    
+    /** The text indicating where the new <code>Category</code> will be added. */
+    private static final String     CATEGORY_GROUP_PARENT_MSG = 
+                                            " in category group: ";
+    
+    /** The text indicating where the new <code>Image</code> will be added. */
+    private static final String     CATEGORY_PARENT_MSG = " in category : ";
     
     /** The text corresponding to the creation of a <code>Project</code>. */
     private static final String     PROJECT_MSG = "Project";
@@ -161,6 +173,12 @@ class EditorUI
     /** The message identifying the <code>Dataobject</code> to create. */
     private String          message;
     
+    /**
+     * The message identifying in which container the new object will be 
+     * added.
+     */ 
+    private String          messageParent;
+    
     /** Indicates that a warning message is displayed if <code>true</code>. */
     private boolean         warning;
     
@@ -213,16 +231,29 @@ class EditorUI
     private void getMessage()
     {
         Class nodeType = model.getHierarchyObject().getClass();
-        if (nodeType.equals(ProjectData.class))
+        if (nodeType.equals(ProjectData.class)) {
+            messageParent = null;
             message = PROJECT_MSG;
-        else if (nodeType.equals(DatasetData.class))
+        } else if (nodeType.equals(DatasetData.class)) {
+            messageParent = PROJECT_PARENT_MSG;
             message = DATASET_MSG;
-        else if (nodeType.equals(CategoryData.class)) 
+        } else if (nodeType.equals(CategoryData.class)) {
+            messageParent = CATEGORY_GROUP_PARENT_MSG;
             message = CATEGORY_MSG;
-        else if (nodeType.equals(CategoryGroupData.class)) 
+        } else if (nodeType.equals(CategoryGroupData.class)) {
+            messageParent = null;
             message = CATEGORY_GROUP_MSG;
-        else if (nodeType.equals(ImageData.class))
+        } else if (nodeType.equals(ImageData.class)) {
+            Class parentType = model.getParentClass();
+            messageParent = null;
+            if (parentType != null) {
+                if (parentType.equals(DatasetData.class))
+                    messageParent = DATASET_PARENT_MSG;
+                else if (parentType.equals(CategoryData.class))
+                    messageParent = CATEGORY_PARENT_MSG;
+            }
             message = IMAGE_MSG;
+        }   
     }
     
     /**
@@ -234,8 +265,12 @@ class EditorUI
         IconManager im = IconManager.getInstance();
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:
-                titlePanel = new TitlePanel(message, 
-                        "Create a new "+ message.toLowerCase()+".", 
+                String subTitle = "Create a new "+ message.toLowerCase();
+                if (messageParent != null) {
+                    subTitle += messageParent+model.getParentName()+"."; 
+                }
+                
+                titlePanel = new TitlePanel(message, subTitle, 
                         im.getIcon(IconManager.CREATE_BIG));
                 break;
             case Editor.PROPERTIES_EDITOR:

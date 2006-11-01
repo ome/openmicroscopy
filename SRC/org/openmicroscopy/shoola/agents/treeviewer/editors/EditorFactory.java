@@ -39,6 +39,7 @@ import java.beans.PropertyChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.DataObject;
 
@@ -69,14 +70,19 @@ public class EditorFactory
      * @param editorType        The type of editor. 
      *                          One of the following constants:
      *                          {@link Editor#CREATE_EDITOR}, 
-     *                          {@link Editor#PROPERTIES_EDITOR}.                  
+     *                          {@link Editor#PROPERTIES_EDITOR}.   
+     * @param parent            The parent of the object to create.
+     *                          The value is taken into
+     *                          account if the editor type is 
+     *                          {@link Editor#CREATE_EDITOR}.             
      * @return A {@link Editor}
      */
     public static Editor getEditor(TreeViewer model,
                                     DataObject hierarchyObject,
-                                    int editorType)
+                                    int editorType, TreeImageDisplay parent)
     { 
-        return singleton.getDOEditor(model, hierarchyObject, editorType);
+        return singleton.getDOEditor(model, hierarchyObject, editorType, 
+                                    parent);
     }
 
     /** The tracked component. */
@@ -97,15 +103,19 @@ public class EditorFactory
      * @param editorType        The type of editor. 
      *                          One of the following constants:
      *                          {@link Editor#CREATE_EDITOR}, 
-     *                          {@link Editor#PROPERTIES_EDITOR}.                            
+     *                          {@link Editor#PROPERTIES_EDITOR}.
+     * @param parent            The parent of the object to create.
+     *                          The value is taken into
+     *                          account if the editor type is 
+     *                          {@link Editor#CREATE_EDITOR}.                                                     
      * @return A {@link Editor}
      */
     private Editor getDOEditor(TreeViewer model, DataObject ho,
-                                int editorType)
+                                int editorType, TreeImageDisplay parent)
     { 
         model.addPropertyChangeListener(this);
         if (editor != null) return editor;
-        EditorModel m = new EditorModel(model, editorType, ho);
+        EditorModel m = new EditorModel(model, editorType, ho, parent);
         EditorComponent component = new EditorComponent(m);
         m.initialize(component);
         component.initialize();

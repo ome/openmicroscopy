@@ -100,6 +100,13 @@ class EditorModel
      */
     private int                 editorType;
     
+    /** 
+     * The parent of the object to create.
+     * The value is taken into account only if the
+     * the editor type is {@link Editor#CREATE_EDITOR}
+     */
+    private TreeImageDisplay    parent;
+    
     /** Back pointer to the {@link TreeViewer}.*/
     private TreeViewer          parentModel;
     
@@ -161,9 +168,13 @@ class EditorModel
      * @param editorType        The type of editor this model is for.
      * @param hierarchyObject   The {@link DataObject} to edit.
      *                          Mustn't be <code>null</code>.
+     * @param parent            The parent of the object to create.
+     *                          The value is taken into
+     *                          account if the editor type is 
+     *                          {@link Editor#CREATE_EDITOR}.                          
      */
     protected EditorModel(TreeViewer parentModel, int editorType,
-                          DataObject hierarchyObject)
+                          DataObject hierarchyObject, TreeImageDisplay parent)
     {
         if (parentModel == null) 
             throw new NullPointerException("No parent model.");
@@ -176,6 +187,8 @@ class EditorModel
         this.editorType = editorType;
         this.parentModel = parentModel;
         this.hierarchyObject = hierarchyObject;
+        if (editorType == Editor.CREATE_EDITOR) this.parent = parent;
+        else this.parent = null;
         annotated = false;
     }
     
@@ -186,6 +199,31 @@ class EditorModel
      * @param component The embedding component.
      */
     void initialize(Editor component) { this.component = component; }
+    
+    /**
+     * Returns the name of the parent if the {@link #editorType}
+     * is {@link Editor#CREATE_EDITOR}, <code>null</code> otherwise.
+     * 
+     * @return See above.
+     */
+    String getParentName()
+    { 
+        if (parent == null) return null;
+        return parent.getNodeName();
+    }
+    
+    /**
+     * Return the type of <code>DataObject</code> hosted by the treeNode,
+     * or <code>null</code> if the parent is <code>null</code>.
+     * 
+     * @return See above.
+     */
+    Class getParentClass()
+    { 
+        if (parent == null) return null;
+        if (parent.getUserObject() == null) return null;
+        return parent.getUserObject().getClass();
+    }
     
     /**
      * Returns the {@link TreeViewer} parent model. This method should
