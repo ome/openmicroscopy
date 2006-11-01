@@ -86,13 +86,16 @@ class ImViewerComponent
     private static final String RENDERING_MSG = "Render image";
     
     /** The Model sub-component. */
-    private ImViewerModel    model;
+    private ImViewerModel       model;
     
     /** The Control sub-component. */
-    private ImViewerControl  controller;
+    private ImViewerControl     controller;
     
     /** The View sub-component. */
-    private ImViewerUI       view;
+    private ImViewerUI          view;
+    
+    /** List of active channels before switching between color mode. */
+    private List                historyActiveChannels;
     
     /** 
      * Returns the description displayed in the status bar.
@@ -233,9 +236,9 @@ class ImViewerComponent
             value = (ViewerAction) map.get(key);
         }
         List channels = model.getActiveChannels();
-        
         switch (key.intValue()) {
             case ColorModelAction.GREY_SCALE_MODEL:
+                historyActiveChannels = model.getActiveChannels();
                 model.setColorModel(GREY_SCALE_MODEL);
                 if (channels != null && channels.size() > 1) {
                     i = channels.iterator();
@@ -247,33 +250,28 @@ class ImViewerComponent
                         j++;
                     }
                 } else if (channels == null || channels.size() == 0) {
-                    //no channel.
+                    //no channel so one will be active.
                     setChannelActive(0, true);
                 }
                 break;
             case ColorModelAction.RGB_MODEL:
-                /*
-                model.setColorModel(RGB_MODEL);
-                if (channels != null && channels.size() > 1) {
-                    i = channels.iterator();
-                    int index;
-                    int j = 0;
-                    while (i.hasNext()) {
-                        index = ((Integer) i.next()).intValue();
-                        setChannelActive(index, j < MAX_CHANNELS_RGB);
-                        j++;
-                    }
-                } else if (channels == null || channels.size() == 0) {
-                    //no channel.
-                    setChannelActive(0, true);
-                }
-                break;
-                */
             case ColorModelAction.HSB_MODEL:
                 model.setColorModel(HSB_MODEL);
-                if (channels == null || channels.size() == 0) {
-                    //no channel.
-                    setChannelActive(0, true);
+                if (historyActiveChannels != null && 
+                        historyActiveChannels.size() != 0) {
+                    i = historyActiveChannels.iterator();
+                    while (i.hasNext()) 
+                        setChannelActive(((Integer) i.next()).intValue(), true);
+                } else {
+                    if (channels == null || channels.size() == 0) {
+                        //no channel so one will be active.
+                        setChannelActive(0, true);
+                    } else {
+                        i = channels.iterator();
+                        while (i.hasNext()) 
+                            setChannelActive(((Integer) i.next()).intValue(), 
+                                                true);
+                    }
                 }
                 break;
             default:
@@ -802,7 +800,6 @@ class ImViewerComponent
      */
     public int getHistoryState()
     {
-        // TODO Auto-generated method stub
         return controller.getHistoryState();
     }
 
@@ -857,14 +854,14 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#getUnitBarValue(double)
+     * @see ImViewer#getUnitBarValue()
      */
-    public String getUnitBarValue(double factor)
+    public String getUnitBarValue()
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException("The method cannot be invoked in " +
                     "the DISCARDED state.");
-        return model.getBrowser().getUnitBarValue(factor);
+        return model.getBrowser().getUnitBarValue();
     }
 
     /** 

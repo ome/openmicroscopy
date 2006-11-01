@@ -413,10 +413,9 @@ public interface ImViewer
      * Returns the value (with two decimals) of the unit bar or 
      * <code>null</code> if the actual value is <i>negative</i>.
      * 
-     * @param factor    The magnification factor. 
      * @return See above.
      */
-    public String getUnitBarValue(double factor);
+    public String getUnitBarValue();
 
     /**
      * Returns the size of the unit bar.
