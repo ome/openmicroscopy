@@ -41,9 +41,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -66,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $LastChangedRevision: $ $Date: $)
  * </small>
  * @since OME2.2
  */
@@ -120,7 +118,7 @@ class SoftwareUpdateDialog
     
     private String getVersion()
     {
-        String version = "test";//"$Rev:$";
+        String version = "test";//"$Rev$";
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
