@@ -35,11 +35,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -47,7 +44,7 @@ import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ *  Displays the editor to create a new <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -120,8 +117,7 @@ public class CreateCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
-        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ShowProperties(userObject, ShowProperties.CREATE));
+        model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
     }
     
 }
