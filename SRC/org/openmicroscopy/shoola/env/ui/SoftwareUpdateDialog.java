@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $LastChangedRevision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
  * </small>
  * @since OME2.2
  */
@@ -118,12 +118,12 @@ class SoftwareUpdateDialog
     
     private String getVersion()
     {
-        String version = "test";//"$Rev$";
+        String version = "$Rev$";
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
         String s = CLIENT_VERSION;
-        //s += "(revision "+m.group()+")";
+        s += "(revision "+m.group()+")";
         return s;
     }
     
