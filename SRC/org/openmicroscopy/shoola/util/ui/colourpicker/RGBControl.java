@@ -38,7 +38,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * Control the RGB component.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,6 +53,7 @@ import javax.swing.event.ChangeListener;
 
 class RGBControl 
 {
+    
 	/**
 	 * RGB Model, this holds the current value of the R, G, B and alpha 
 	 * channels.
@@ -172,11 +173,11 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the model colour to h,s,v, a fire change event to 
+	 * Sets the model colour to h, s, v, a and fires change event to 
 	 * notify listeners. 
 	 * 
 	 * @param h hue. 
-	 * @param s saturation. public 
+	 * @param s saturation. 
 	 * @param v value. 
 	 * @param a alpha. 
 	 */	
@@ -187,7 +188,7 @@ class RGBControl
 	}
 
 	/**
-	 * Sets the model colour to r,g,b, and a floats (0..1)
+	 * Sets the model colour to r, g, b and a floats (0..1)
 	 * 
 	 * @param r red.
 	 * @param g green.
@@ -279,7 +280,7 @@ class RGBControl
         ChangeListener e;
 		for (int i = 0 ; i < listeners.size(); i++)
 		{
-			e = (ChangeListener)listeners.get(i);
+			e = (ChangeListener) listeners.get(i);
 			e.stateChanged(new ColourChangedEvent(this));
 		}
 	}

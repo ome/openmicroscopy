@@ -37,7 +37,7 @@ import java.awt.Color;
 //Application-internal dependencies
 
 /** 
- * 
+ * The model of the RGB slider.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -284,8 +284,7 @@ class RGBModel
 	}
 	
 	/**
-	 * Sets the colour of the model based on the hsv values h, s, v and alpha 
-     * (a).
+	 * Sets the colour of the model based on the hsv values h, s, v and alpha a.
 	 * 
 	 * @param h hue.
 	 * @param s saturation.
@@ -338,7 +337,7 @@ class RGBModel
 		
 		h = 0;
 		
-		if (red==max) h = (green-blue)/delta;		
+		if (red == max) h = (green-blue)/delta;		
 		else if (green == max) h = 2.0f + (blue-red)/delta;	
 		else if (blue == max) h = 4.0f+(red-green)/delta;
 		
@@ -402,7 +401,7 @@ class RGBModel
     	float rgb [] = new float[3];
     	float r,g,b;
     	
-    	if( s == 0 ) 
+    	if (s == 0) 
     	{
     		r = g = b = v;
     		rgb[0] = r;

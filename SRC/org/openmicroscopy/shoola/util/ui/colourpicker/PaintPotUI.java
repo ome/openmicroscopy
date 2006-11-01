@@ -74,14 +74,13 @@ class PaintPotUI
 	/** Height of paint pot. */
 	private int 					h;
     
-	/** Border of paintpot.
-	 */
+	/** Border of paintpot. */
 	private Rectangle2D				strokeRect;
     
 	/** Area covered by paintpot. */
 	private Rectangle2D				whiteRect;
     
-	/** Toppoly represents the colour picked without Alpha. */
+	/** Represents the colour picked without Alpha. */
 	private Polygon					topPoly;
     
 	/** Bottom represents the colour picked with alpha channel added. */
@@ -99,6 +98,66 @@ class PaintPotUI
 	/** Y coordinates of the polygons to represent the colour pots. */
 	private int[]					bottomYPoints; 
 	
+    
+    /**
+     * Creates the UI elements of the paint pot, the two colour parts of the 
+     * white rect, the top half representing the colour without the alpha 
+     * component and the bottom half with the alpha.
+     */
+    private void createUI()
+    {
+        w = this.getWidth();
+        h = this.getHeight();
+        topXPoints = new int[3];
+        topYPoints = new int[3];
+        bottomXPoints = new int[3];
+        bottomYPoints = new int[3];
+        strokeRect =    new Rectangle2D.Double(0, 0, w-1, h-1);
+        whiteRect =     new Rectangle2D.Double(1, 1, w-2, h-2);
+        
+        topXPoints[0] = (int) whiteRect.getX();
+        topXPoints[1] = (int) (whiteRect.getX()+whiteRect.getWidth());
+        topXPoints[2] = (int) (whiteRect.getX());
+        topYPoints[0] = (int) whiteRect.getY();
+        topYPoints[1] = (int) (whiteRect.getY());
+        topYPoints[2] = (int) (whiteRect.getY()+whiteRect.getHeight());
+        topPoly = new Polygon(topXPoints, topYPoints,3);
+        bottomXPoints[0] = (int) strokeRect.getX();
+        bottomXPoints[1] = (int) (strokeRect.getX()+strokeRect.getWidth());
+        bottomXPoints[2] = (int) (strokeRect.getX()+strokeRect.getWidth());
+        bottomYPoints[0] = (int) (strokeRect.getY()+strokeRect.getHeight());
+        bottomYPoints[1] = (int) (strokeRect.getY());
+        bottomYPoints[2] = (int) (strokeRect.getY()+strokeRect.getHeight());
+        bottomPoly = new Polygon(bottomXPoints, bottomYPoints,3);   
+    }
+    
+    /**
+     * Renders is called from {@link #paintComponent(Graphics)} to render all 
+     * the graphic elements of the component. 
+     * 
+     * @param og The graphic context.
+     */
+    private void render(Graphics og)
+    {
+        Graphics2D g = (Graphics2D)og;
+        createUI();
+        stack.push(g);
+        Color c = new Color(control.getRed(), control.getGreen(), 
+                            control.getBlue());
+        g.setColor(c);
+          g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                  RenderingHints.VALUE_ANTIALIAS_ON);
+        g.fill(topPoly);
+        g.setColor(control.getColour());
+        g.fill(bottomPoly);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                  RenderingHints.VALUE_ANTIALIAS_OFF);          
+        g.setColor(Color.black);
+        g.draw(strokeRect);
+        
+        stack.pop(g);
+    }
+    
 	/**
 	 * Creates the UI and attach the component to the control.
 	 * 
@@ -113,68 +172,7 @@ class PaintPotUI
 		createUI();
 		control.addListener(this);
 	}
-	
-	/**
-	 * Creates the UI elements of the paint pot, the two colour parts of the 
-	 * white rect, the top half representing the colour without the alpha 
-	 * component and the bottom half with the alpha.
-	 */
-	void createUI()
-	{
-		w = this.getWidth();
-		h = this.getHeight();
-		topXPoints = new int[3];
-		topYPoints = new int[3];
-		bottomXPoints = new int[3];
-		bottomYPoints = new int[3];
-		strokeRect = 	new Rectangle2D.Double(0, 0, w-1, h-1);
-		whiteRect = 	new Rectangle2D.Double(1, 1, w-2, h-2);
-		
-		topXPoints[0] = (int) whiteRect.getX();
-		topXPoints[1] = (int) (whiteRect.getX()+whiteRect.getWidth());
-		topXPoints[2] = (int) (whiteRect.getX());
-		topYPoints[0] = (int) whiteRect.getY();
-		topYPoints[1] = (int) (whiteRect.getY());
-		topYPoints[2] = (int) (whiteRect.getY()+whiteRect.getHeight());
-		topPoly = new Polygon(topXPoints, topYPoints,3);
-		bottomXPoints[0] = (int) strokeRect.getX();
-		bottomXPoints[1] = (int) (strokeRect.getX()+strokeRect.getWidth());
-		bottomXPoints[2] = (int) (strokeRect.getX()+strokeRect.getWidth());
-		bottomYPoints[0] = (int) (strokeRect.getY()+strokeRect.getHeight());
-		bottomYPoints[1] = (int) (strokeRect.getY());
-		bottomYPoints[2] = (int) (strokeRect.getY()+strokeRect.getHeight());
-		bottomPoly = new Polygon(bottomXPoints, bottomYPoints,3);	
-	}
-	
-	/**
-	 * Renders is called from {@link #paintComponent(Graphics)} to render all 
-     * the graphic elements of the component. 
-	 * 
-	 * @param og The graphic context.
-	 */
-	void render(Graphics og)
-	{
-		Graphics2D g = (Graphics2D)og;
-		createUI();
-		stack.push(g);
-		
-			Color c = new Color(control.getRed(), control.getGreen(), 
-					control.getBlue());
-			g.setColor(c);
-			  g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-	                  RenderingHints.VALUE_ANTIALIAS_ON);
-			g.fill(topPoly);
-			g.setColor(control.getColour());
-			g.fill(bottomPoly);
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-	                  RenderingHints.VALUE_ANTIALIAS_OFF);			
-			g.setColor(Color.black);
-			g.draw(strokeRect);
-		
-		stack.pop(g);
-		
-	}
-	
+
 	/** 
 	 * Calls and invalidate and repaint after colour changes in
 	 * colour model.
