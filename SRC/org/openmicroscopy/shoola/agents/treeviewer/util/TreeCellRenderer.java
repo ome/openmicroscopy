@@ -150,7 +150,7 @@ public class TreeCellRenderer
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();
         setForeground(c);
-        
+        if (!sel) setBorderSelectionColor(getBackground());
         return this;
     }
   
