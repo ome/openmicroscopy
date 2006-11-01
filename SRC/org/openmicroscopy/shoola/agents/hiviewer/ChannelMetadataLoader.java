@@ -105,4 +105,15 @@ public class ChannelMetadataLoader
         clipBoard.setChannelsMetadata((List) result);
     }
     
+    /**
+     * Overridden so that we don't notify the user that the channel metadata
+     * retrieval has been cancelled.
+     * @see CBDataLoader#handleCancellation() 
+     */
+    public void handleCancellation() 
+    {
+        String info = "The data retrieval has been cancelled.";
+        registry.getLogger().info(this, info);
+    }
+    
 }

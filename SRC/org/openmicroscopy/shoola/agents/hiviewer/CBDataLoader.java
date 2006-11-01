@@ -66,12 +66,12 @@ import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 public abstract class CBDataLoader
     extends DSCallAdapter
 {
-    
-    /** Convenience reference to the agent's registry. */
-    private Registry                registry;
-    
+
     /** The {@link ClipBoard} this data loader is for. */
     protected ClipBoard             clipBoard;
+    
+    /** Convenience reference to the agent's registry. */
+    protected final Registry        registry;
     
     /** Convenience reference. */
     protected HierarchyBrowsingView hiBrwView;
