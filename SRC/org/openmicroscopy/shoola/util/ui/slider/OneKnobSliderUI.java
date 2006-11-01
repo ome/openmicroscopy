@@ -38,10 +38,22 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.BoundedRangeModel;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 //Third-party libraries
@@ -49,6 +61,8 @@ import javax.swing.plaf.basic.BasicSliderUI;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TipDialog;
+
+import sun.swing.DefaultLookup;
 
 /** 
  * 
@@ -157,7 +171,12 @@ public class OneKnobSliderUI
     
     /** The width of the end label. */
     private	int 				labelWidth;
-    
+
+    /**
+	 * This variable is set to <code>true</code> if user dragging thumb.
+	 */
+	protected boolean isDragging;
+
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()
 	{
@@ -513,11 +532,6 @@ public class OneKnobSliderUI
 	{
 
 		/**
-		 * This variable is set to <code>true</code> if user dragging thumb.
-		 */
-		protected boolean isDragging;
-		
-		/**
 		 * Overridden to determine when a drag event ends. 
          * This method will also determine when the tooltip Dialog should 
          * stop showing. 
@@ -526,10 +540,11 @@ public class OneKnobSliderUI
 		public void mouseReleased(MouseEvent event)
 		{
 			super.mouseReleased(event);
-			if (showTipLabel && tipDialog != null)
+            if (showTipLabel && tipDialog != null)
 			{
 				if (tipDialog.isVisible()) tipDialog.setVisible(false);
 			}	
+            slider.repaint();
 		}
 		
         /**
@@ -619,19 +634,8 @@ public class OneKnobSliderUI
 
 			// Check to see if the thumb was clicked. 
 			if (thumbRect.contains(currentMouseX, currentMouseY)) 
-			{
-				// Depending on orientation of the mouse. 
-				switch (slider.getOrientation()) {
-    				case JSlider.HORIZONTAL:
-    					offset = currentMouseX-thumbRect.x;
-    					break;
-    				case JSlider.VERTICAL:
-    					offset = currentMouseY-thumbRect.y;
-				}
-				isDragging = true;
-				return;
-			}
-			
+				super.mousePressed(event);
+
 			if (showArrows)
 	        {
 				if (minArrowRect.contains(currentMouseX, currentMouseY))
@@ -665,8 +669,6 @@ public class OneKnobSliderUI
 	            }
 	        }
 			
-			// We have clicked outside of the thumb and onto the track. 
-			isDragging = false;
 			slider.repaint();
 		}
 
@@ -679,64 +681,7 @@ public class OneKnobSliderUI
 		 */
 		public void mouseDragged(MouseEvent event) 
 		{
-			// Return if slider disabled or we're not dragging slider.
-			if (!slider.isEnabled() || !isDragging)
-				return;
-
-			currentMouseX = event.getX();
-			currentMouseY = event.getY();
-
-			slider.setValueIsAdjusting(true);
-
-			int thumbMiddle;
-			int thumbPosition;
-			switch (slider.getOrientation()) {
-				case JSlider.VERTICAL:
-					thumbMiddle = thumbRect.height/2;
-					thumbPosition = event.getY()-offset;
-					
-					int trackTop = trackRect.y;
-					int trackBottom = trackRect.y+(trackRect.height-1);
-					int MaxYValue = yPositionForValue(slider.getMaximum()
-							-slider.getExtent());
-
-					if (drawInverted()) trackBottom = MaxYValue;
-					else trackTop = MaxYValue;
-	
-					thumbPosition = Math.max(thumbPosition, 
-							trackTop-thumbMiddle);
-					thumbPosition = Math.min(thumbPosition, 
-							trackBottom-thumbMiddle);
-
-					setThumbLocation(thumbRect.x, thumbPosition);
-
-					thumbMiddle = thumbPosition+thumbMiddle;
-					slider.setValue(valueForYPosition(thumbMiddle));
-					break;
-				case JSlider.HORIZONTAL:
-					thumbMiddle = thumbRect.width/2;
-					thumbPosition = event.getX()-offset;
-					
-					int trackLeft = trackRect.x;
-					int trackRight = trackRect.x+(trackRect.width-1);
-					int MaxXValue = xPositionForValue(slider.getMaximum()
-							- slider.getExtent());
-
-					if (drawInverted()) trackLeft = MaxXValue;
-					else trackRight = MaxXValue;
-					
-					thumbPosition = Math.max(thumbPosition, 
-							trackLeft-thumbMiddle);
-					thumbPosition = Math.min(thumbPosition, 
-							trackRight-thumbMiddle);
-
-					setThumbLocation(thumbPosition, thumbRect.y);
-
-					thumbMiddle = thumbPosition+thumbMiddle;
-					slider.setValue(valueForXPosition(thumbMiddle));
-					break;
-			}
-
+			super.mouseDragged(event);
 			if (showTipLabel && tipDialog != null && endLabel != null)
 			{
 			
@@ -752,5 +697,5 @@ public class OneKnobSliderUI
 			
 		}
 	}
-    
+	
 }
