@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Rev: $ $LastChangedDate: $)
+ * (<b>Internal version:</b> $Rev$ $LastChangedDate$)
  * </small>
  * @since OME2.2
  */
@@ -83,10 +83,6 @@ class SoftwareUpdateDialog
     
     /** The text displayed before the release date. */
     private static final String     RELEASE_NAME = "Release Date ";
-    
-    //tmp
-    public static String            REVISION_DATE = "2006-10-30";
-    public static String            RELEASE_DATE = "2006-10-30";
     
     /** The close button. */
     private JButton closeButton;
@@ -124,14 +120,25 @@ class SoftwareUpdateDialog
     private String getVersion()
     {
         String version = "$Rev$";
-        String date = "$Date: $";
-        System.out.println("$Date: "+"$LastChangedDate$");
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
         String s = CLIENT_VERSION;
         s += "(revision "+m.group()+")";
         return s;
+    }
+    
+    /**
+     * Returns the last time the software has been updated.
+     * 
+     * @return See above.
+     */
+    private String getLastChangedDate()
+    {
+        String d = "$LastChangedDate$";
+        int begin = d.indexOf(" ") + 1;
+        int end = d.lastIndexOf(" ");
+        return d.substring(begin, end);
     }
     
     /**
@@ -168,7 +175,7 @@ class SoftwareUpdateDialog
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         content.add(name, c);
-        value = new JLabel(REVISION_DATE);
+        value = new JLabel(getLastChangedDate());
         name.setLabelFor(value);
         c.gridx = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
@@ -182,7 +189,7 @@ class SoftwareUpdateDialog
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         content.add(name, c);
-        value = new JLabel(RELEASE_DATE);
+        value = new JLabel(getLastChangedDate());
         name.setLabelFor(value);
         c.gridx = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
