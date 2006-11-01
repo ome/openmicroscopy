@@ -93,7 +93,7 @@ public class ThumbnailLoader
         handle = dmView.loadThumbnail(image, THUMB_MAX_WIDTH,
                                         THUMB_MAX_HEIGHT, this);
     }
-
+    
     /** 
      * Cancels the data loading. 
      * @see DataTreeViewerLoader#cancel()
@@ -129,6 +129,17 @@ public class ThumbnailLoader
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure", 
                                                s, exc);
+    }
+    
+    /**
+     * Overridden so that we don't notify the user that the thumbnail
+     * retrieval has been cancelled.
+     * @see DataTreeViewerLoader#handleCancellation() 
+     */
+    public void handleCancellation() 
+    {
+        String info = "The data retrieval has been cancelled.";
+        registry.getLogger().info(this, info);
     }
     
 }

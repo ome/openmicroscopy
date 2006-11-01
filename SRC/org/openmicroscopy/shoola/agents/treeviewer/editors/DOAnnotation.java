@@ -269,7 +269,7 @@ class DOAnnotation
         deleteBox.setEnabled(b);
         annotationArea.setEditable(b);
         if (b) {
-            annotationArea.requestFocus();
+            //annotationArea.requestFocus();
             annotationArea.selectAll();
         }
     }

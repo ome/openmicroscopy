@@ -383,8 +383,7 @@ class DOBasic
         if (classifier == null) return;
         classifier.showClassifications();
     }
-    
-    //void resetNameAre
+
     /** 
      * Adds a listener to the {@link #tabbedPane} as soon as the thumbnail
      * is ready.

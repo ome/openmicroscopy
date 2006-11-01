@@ -102,4 +102,15 @@ public class ChannelDataLoader
         viewer.setChannelsData((List) result);
     }
     
+    /**
+     * Overridden so that we don't notify the user that the channel metadata
+     * retrieval has been cancelled.
+     * @see DataTreeViewerLoader#handleCancellation() 
+     */
+    public void handleCancellation() 
+    {
+        String info = "The data retrieval has been cancelled.";
+        registry.getLogger().info(this, info);
+    }
+    
 }

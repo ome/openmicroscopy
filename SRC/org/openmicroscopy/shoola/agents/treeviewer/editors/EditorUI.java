@@ -579,7 +579,7 @@ class EditorUI
             if (b) tabs.addChangeListener(controller);
             else tabs.removeChangeListener(controller);
         }
-        model.getParentModel().onComponentStateChange(b);
+        //model.getParentModel().onComponentStateChange(b);
         finishButton.setEnabled(b);
     }
     

@@ -263,8 +263,7 @@ class TreeViewerComponent
         editor.addPropertyChangeListener(controller);
         editor.activate();
         model.setEditor(editor);
-        if (editorType == CREATE_EDITOR) 
-            onComponentStateChange(false);
+        if (editorType == CREATE_EDITOR) onComponentStateChange(false);
         view.addComponent(editor.getUI());
     }
 

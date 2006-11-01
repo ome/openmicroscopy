@@ -37,17 +37,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.DataObject;
 
 /** 
- * Posts an event to bring up the display the properties of the 
- * <code>DataObject</code>.
+ * Displays the properties of the <code>DataObject</code> if not
+ * <code>null</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,12 +78,11 @@ public class PropertiesCmd
         Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
+        
         if (display == null) return;
         Object ho = display.getUserObject();
-        if (ho instanceof DataObject) {
-            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
-        }
+        if (ho instanceof DataObject)
+            model.showProperties((DataObject) ho, TreeViewer.PROPERTIES_EDITOR);
     }
     
 }

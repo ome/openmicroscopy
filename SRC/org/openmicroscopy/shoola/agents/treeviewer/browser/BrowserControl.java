@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Action;
+import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreePath;
@@ -210,8 +211,8 @@ class BrowserControl
     void onClick()
     {
         Object pathComponent;
-        //TreePath[] paths = view.getTreeDisplay().getSelectionPaths();
-        TreePath[] paths = view.getSelectedTree().getSelectionPaths();
+        JTree tree = view.getSelectedTree();
+        TreePath[] paths = tree.getSelectionPaths();
         if (paths == null) return;
         int n = paths.length;
         if (n == 0) return;
@@ -230,6 +231,8 @@ class BrowserControl
                 if (no.getUserObject().getClass().equals(
                         node.getUserObject().getClass())) {
                     l.add(no);
+                } else {
+                    tree.removeSelectionPath(paths[i]);
                 }
             }
         }

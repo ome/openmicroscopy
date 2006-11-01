@@ -52,6 +52,8 @@ import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -197,7 +199,7 @@ class BrowserUI
             model.setClickPoint(p);
             if (me.getClickCount() == 1) {
                 if (me.isPopupTrigger()) controller.showPopupMenu();
-                if (!released) controller.onClick();
+                //if (!released) controller.onClick();
             } else if (me.getClickCount() == 2 && released) {
                 model.viewDataObject();
             }
@@ -223,12 +225,19 @@ class BrowserUI
         treeDisplay.collapsePath(new TreePath(root.getPath()));
         treeDisplay.setRootVisible(false);
         //Add Listeners
+        //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e, false); }
-            public void mouseReleased(MouseEvent e) { onClick(e, true); }
+           public void mousePressed(MouseEvent e) { onClick(e, false); }
+           public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
         treeDisplay.addTreeExpansionListener(listener);
-                
+        treeDisplay.addTreeSelectionListener(new TreeSelectionListener() {
+        
+            public void valueChanged(TreeSelectionEvent e)
+            {
+                controller.onClick();
+            }
+        });
         //Initialize the goIntoTree
         goIntoTree = new JTree();      
         goIntoTree.setVisible(true);
@@ -247,7 +256,13 @@ class BrowserUI
             public void mousePressed(MouseEvent e) { onClick(e, false); }
             public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
-        goIntoTree.addTreeExpansionListener(listener);
+        goIntoTree.addTreeSelectionListener(new TreeSelectionListener() {
+            
+            public void valueChanged(TreeSelectionEvent e)
+            {
+                controller.onClick();
+            }
+        });
     }
 
     /**
@@ -339,7 +354,7 @@ class BrowserUI
         goIntoTree.setSelectionPath(path);
         TreeCellRenderer renderer = (TreeCellRenderer) 
                     goIntoTree.getCellRenderer();
-        goIntoTree.requestFocus();
+        //goIntoTree.requestFocus();
         renderer.getTreeCellRendererComponent(goIntoTree, node, 
                             goIntoTree.isPathSelected(path),
                                     false, true, 0, false);
@@ -556,7 +571,7 @@ class BrowserUI
         treeDisplay.setSelectionPath(path);
         TreeCellRenderer renderer = (TreeCellRenderer) 
         			treeDisplay.getCellRenderer();
-        treeDisplay.requestFocus();
+        //treeDisplay.requestFocus();
         renderer.getTreeCellRendererComponent(treeDisplay, node, 
                 					treeDisplay.isPathSelected(path),
                 					false, true, 0, false);
