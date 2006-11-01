@@ -104,17 +104,17 @@ class EditorUI
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** The text indicating where the new <code>Dataset</code> will be added. */
-    private static final String     PROJECT_PARENT_MSG = " in project: ";
+    private static final String     PROJECT_PARENT_MSG = " to project: ";
     
     /** The text indicating where the new <code>Image</code> will be added. */
-    private static final String     DATASET_PARENT_MSG = " in dataset: ";
+    private static final String     DATASET_PARENT_MSG = " to dataset: ";
     
     /** The text indicating where the new <code>Category</code> will be added. */
     private static final String     CATEGORY_GROUP_PARENT_MSG = 
-                                            " in category group: ";
+                                            " to category group: ";
     
     /** The text indicating where the new <code>Image</code> will be added. */
-    private static final String     CATEGORY_PARENT_MSG = " in category : ";
+    private static final String     CATEGORY_PARENT_MSG = " to category : ";
     
     /** The text corresponding to the creation of a <code>Project</code>. */
     private static final String     PROJECT_MSG = "Project";
@@ -265,7 +265,7 @@ class EditorUI
         IconManager im = IconManager.getInstance();
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:
-                String subTitle = "Create a new "+ message.toLowerCase();
+                String subTitle = "Add a new "+ message.toLowerCase();
                 if (messageParent != null) {
                     subTitle += messageParent+model.getParentName()+"."; 
                 }
