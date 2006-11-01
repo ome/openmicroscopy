@@ -249,9 +249,12 @@ class TreeViewerComponent
                     "This method cannot be invoked in the DISCARDED or SAVE " +
                     "state.");
         }
+        TreeImageDisplay parent = null;
         switch (editorType) {
             case PROPERTIES_EDITOR:
+                break;
             case CREATE_EDITOR:  
+                parent =  model.getSelectedBrowser().getLastSelectedDisplay();
                 break;
             default:
                 throw new IllegalArgumentException("This method only " +
@@ -259,7 +262,8 @@ class TreeViewerComponent
         }
         removeEditor();
         model.setEditorType(editorType);
-        Editor editor = EditorFactory.getEditor(this, object, editorType);
+        Editor editor = EditorFactory.getEditor(this, object, editorType, 
+                                                parent);
         editor.addPropertyChangeListener(controller);
         editor.activate();
         model.setEditor(editor);
