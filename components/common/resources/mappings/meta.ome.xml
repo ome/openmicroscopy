@@ -68,6 +68,7 @@
 		<entry name="Internal"/>
 		<entry name="Shoola"/>
 		<entry name="User"/>
+		<entry name="Task"/>
 		<entry name="Test"/>
 	</enum>
 

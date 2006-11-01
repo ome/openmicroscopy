@@ -386,105 +386,72 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		
 		// RW_RW_RW / RW_RW_RW / RW_RW_RW
 		permsA = permsB = permsC = RW_RW_RW;
-		manyToMany(u,true,true,true);
-		manyToMany(o,true,true,true);
-		manyToMany(w,true,true,true);
-		manyToMany(p,true,true,true);
-		manyToMany(r,true,true,true);
+		manyToMany();
 		
 		// RW_RW_RW / RW_RW_xx / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_RW_xx;
 		permsC = RW_RW_RW;
-		manyToMany(u,true,true,true);
-		manyToMany(o,true,true,true);
-		manyToMany(w,true,false,true);
-		manyToMany(p,true,true,true);
-		manyToMany(r,true,true,true);
+		manyToMany();
 		
 		// RW_RW_RW / RW_xx_xx / RW_RW_RW
 		permsA = RW_RW_RW;
 		permsB = RW_xx_xx;
 		permsC = RW_RW_RW;
-		manyToMany(u,true,true,true);
-		manyToMany(o,true,false,true);
-		manyToMany(w,true,false,true);
-		manyToMany(p,true,true,true);
-		manyToMany(r,true,true,true);
+		manyToMany();
 		
 	}
 
+	// TODO add to abstract class.
+	public void test_U_Projects_O_Datasets_O_Link() throws Exception {
+		ownsfA = u;
+		ownerA = user;
+		groupA = user_other_group;
+		
+		ownsfB = ownsfC = o;
+		ownerB = ownerC = other;
+		groupB = groupC = user_other_group;
+		
+		// RW_RW_RW / RW_RW_RW / RW_RW_RW
+		permsA = permsB = permsC = RW_RW_RW;
+		manyToMany();
+		
+		// RW_RW_RW / RW_RW_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_RW_xx;
+		permsC = RW_RW_RW;
+		manyToMany();
+		
+		// RW_RW_RW / RW_xx_xx / RW_RW_RW
+		permsA = RW_RW_RW;
+		permsB = RW_xx_xx;
+		permsC = RW_RW_RW;
+		manyToMany();
+		
+	}
+	
 	/** performs various write operations on linked projects and datasets.
 	 */
-	protected void manyToMany(ServiceFactory sf, 
-			boolean prj_ok, 
-			boolean ds_ok,
-			boolean link_ok)
+	protected void manyToMany()
 	{
 		
 		createProject(ownsfA, permsA, groupA);
-		createDataset(ownsfB, permsB, groupB);
-		createPDLink(ownsfC, permsC, groupC); 
-
 		verifyDetails(prj, ownerA, groupA, permsA);
+
+		createDataset(ownsfB, permsB, groupB);
 		verifyDetails(ds,  ownerB,groupB,permsB);
+
+		createPDLink(ownsfC, permsC, groupC); 
 		verifyDetails(link,ownerC,groupC,permsC);
 		
-		ProjectDatasetLink testC = null;
-		Dataset testB = null;
-		Project test = null;
-		String MSG = makeModifiedMessage();
-		
-		ds.setName(MSG);
-		try {
-			testB = sf.getUpdateService().saveAndReturnObject(ds);
-			if (!ds_ok) fail("secvio!");
-			assertTrue( MSG.equals( testB.getName() ));
-		} catch (SecurityViolation sv) {
-			if (ds_ok) throw sv;
-		}
-		
-		prj.setName(MSG);
-		
-		try {
-			test = sf.getUpdateService().saveAndReturnObject(prj);
-			if (!prj_ok) fail("secvio!");
-			assertTrue( MSG.equals( test.getName() ));
-		} catch (SecurityViolation sv) {
-			if (prj_ok) throw sv;
-		}
-		
-		// try to change the link to point to something different. 
-		// should be immutable!!!
-		
-//		try 
-//		{
-//			sf.getUpdateService().deleteObject(link);
-//			if (!link_ok) fail("secvio!");
-//		} catch (SecurityViolation sv) { 
-//			if (link_ok) throw sv;
-//		} finally {
-//			prj.clearDatasetLinks(); // done for later recursive delete.
-//			ds.clearProjectLinks();  // ditto;
-//		}
-//		
-//		
-//		try 
-//		{
-//			deleteRecurisvely(sf, ds);
-//			if (!ds_ok) fail("secvio!");
-//		} catch (SecurityViolation sv) { 
-//			if (ds_ok) throw sv;
-//		} 
-//		
-//		try 
-//		{
-//			deleteRecurisvely( sf, prj );
-//			if (!prj_ok) fail("secvio!");
-//		} catch (SecurityViolation sv) { 
-//			if (prj_ok) throw sv;
-//		}
-		
+		verifyLockStatus(prj,will_lock);
+		verifyLockStatus(ds,will_lock);
+
+		r.getUpdateService().deleteObject(link);
+		boolean[] unlocked = r.getAdminService().unlock(prj,ds);
+		assertTrue(unlocked[0]);
+		assertTrue(unlocked[1]);
+				
 	}
 	
 	// ~ Special: "tag" (e.g. Image/Pixels)
@@ -570,6 +537,18 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		} catch (SecurityViolation sv){
 			// ok.
 		}
+	}
+	
+	@Test
+	public void testDeletingSingleLockedObject() throws Exception {
+		Permissions perms = new Permissions().set( Flag.LOCKED );
+		
+		prj = new Project();
+		prj.setName("deletinglocked");
+		prj.getDetails().setPermissions( perms );
+		prj = u.getUpdateService().saveAndReturnObject(prj);
+		assertTrue( prj.getDetails().getPermissions().isSet( Flag.LOCKED ));
+		u.getUpdateService().deleteObject(prj);
 	}
 	
 	// ~ Copy of server-side locking test. See: 

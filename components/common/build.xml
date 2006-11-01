@@ -16,6 +16,7 @@
 	<target name="dsl-init">
 		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
 		<is-done name="dsl" srcdir="${resrc.dir}" includes="${dsl.pat}"/>
+		<!-- TODO: use dependset -->
 	</target>
 	
 	<target name="dsl" depends="dsl-init" unless="dsl.not.required">

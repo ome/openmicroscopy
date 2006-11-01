@@ -61,6 +61,7 @@
 	<property name="render.comp" 	value="${components.dir}/rendering"/>
 	<property name="app.comp" 	value="${components.dir}/app"/>
 	<property name="client.comp"    value="${components.dir}/client"/>
+	<property name="import.comp"    value="${components.dir}/bioformats-omero"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

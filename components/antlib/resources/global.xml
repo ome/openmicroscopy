@@ -160,11 +160,11 @@ ${msg.global.old.files}
 
 	<target name="classpath-define" depends="classpath-check,classpath-maven,classpath-ant">
 		<path id="omero.classpath">
-			<path refid="omero.compile.classpath"/>
-			<path refid="omero.test.classpath"/>
 			<pathelement location="${classes.dir}/" />
 			<pathelement location="${resrc.dir}/" />
 			<pathelement location="${resrc.dest}/"/>
+			<path refid="omero.compile.classpath"/>
+			<path refid="omero.test.classpath"/>
 		</path>
 		<pathconvert property="omero.path" refid="omero.classpath"/>
 		<pathconvert property="compile.path" refid="omero.compile.classpath"/>

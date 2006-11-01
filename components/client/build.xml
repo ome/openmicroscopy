@@ -14,46 +14,66 @@
 		</jar>
 	</target>
 	
-	
         <target name="addgroup" depends="prepare,load-groovy">
-               <groovy>
-			if (properties["omero.rootpass"]==null) ant.fail("No root password defined. See etc/local.properties");
-                        g = new ome.model.meta.ExperimenterGroup()
-			println "Please enter group name:"
-			g.name = System.in.readLine()
-			println "Please enter group description: (optional)"
-			g.description = System.in.readLine()
-			println "Please enter group owner's id:"
-			id = System.in.readLine()
-			g.details.owner = new ome.model.meta.Experimenter( Long.valueOf(id), false )
-                        l  = new ome.system.Login("root",properties["omero.rootpass"])
-                        sf = new ome.system.ServiceFactory(l)
-                        sf.getAdminService().createGroup(g)
-                </groovy>
+			<fail unless="omero.rootpass">No root password defined. See etc/local.properties</fail>
+		  	<input message="Please enter group name:" addproperty="newgroup.name"/>
+			<input message="Please enter group description: (optional)" addproperty="newgroup.description"/>
+			<input message="Please enter name of the group owner: (optional)" addproperty="newgroup.owner"
+				defaultvalue="root"/>
+			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
+				<arg value="task=admin.AddGroupTask"/>
+				<!-- login properties -->
+				<arg value="user=root"/>
+				<arg value="pass=${omero.rootpass}"/>
+				<arg value="type=Task"/>
+				<arg value="group=system"/>
+				<!-- task properties -->
+				<arg value="name=${newgroup.name}"/>
+				<arg value="description=${newgroup.description}"/>
+				<arg value="leader=${newgroup.owner}"/>
+			</java>
         </target>
 
-        <target name="adduser" depends="prepare,load-groovy">
-               <groovy>
-			if (properties["omero.rootpass"]==null) ant.fail("No root password defined. See etc/local.properties");
-			user = System.getProperty("user.name")
-                        e = new ome.model.meta.Experimenter()
-			println "Please enter login name: [${user}]"
-			e.omeName = System.in.readLine()
-			if (e.omeName == null || e.omeName.length() == 0) e.omeName=user
-			println "Please enter user's first name:"
-			e.firstName = System.in.readLine()
-			println "Please enter user's last name:"
-			e.lastName = System.in.readLine()
-			println "Please enter user's middle name: (optional)"
-			e.middleName = System.in.readLine()
-			println "Please enter user's email: (optional)"
-			e.email = System.in.readLine()
-			println "Please enter user's institution: (optional)"
-			e.institution = System.in.readLine()
-                        l  = new ome.system.Login("root",properties["omero.rootpass"])
-                        sf = new ome.system.ServiceFactory(l)
-                        sf.getAdminService().createUser(e)
-                </groovy>
+        <target name="adduser" depends="prepare">
+<!-- 
+
+Not functional: See https://trac.openmicroscopy.org.uk/omero/ticket/464  	
+
+	    	<path id="task.classpath">
+          		<path refid="omero.classpath"/>
+        	</path>
+    		<taskdef name="taskadapter"
+             	classname="ome.util.tasks.AntAdapter"
+             	classpathref="task.classpath"
+	    	/>
+    		<taskadapter task="admin.AddUserTask" 
+				user="root" pass="${omero.rootpass}"
+				group="system" type="Task">
+			</taskadapter>
+-->
+			<fail unless="omero.rootpass">No root password defined. See etc/local.properties</fail>
+		  	<input message="Please enter login name: [${user.name}]" addproperty="newuser.omename"
+				defaultvalue="${user.name}"/>
+	  		<input message="Please enter user's first name:" addproperty="newuser.firstname"/>
+			<input message="Please enter user's middle name: (optional)" addproperty="newuser.middlename"/>
+			<input message="Please enter user's last name:" addproperty="newuser.lastname"/>
+			<input message="Please enter user's email: (optional)" addproperty="newuser.email"/>
+			<input message="Please enter user's institution: (optional)" addproperty="newuser.institution"/>
+			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
+				<arg value="task=admin.AddUserTask"/>
+				<!-- login properties -->
+				<arg value="user=root"/>
+				<arg value="pass=${omero.rootpass}"/>
+				<arg value="type=Task"/>
+				<arg value="group=system"/>
+				<!-- task properties -->
+				<arg value="omename=${newuser.omename}"/>
+				<arg value="firstname=${newuser.firstname}"/>
+				<arg value="middlename=${newuser.middlename}"/>
+				<arg value="lastname=${newuser.lastename}"/>
+				<arg value="email=${newuser.email}"/>
+				<arg value="institute=${newuser.institue}"/>
+			</java>
         </target>
 
 </project>
