@@ -31,12 +31,31 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Basic modal dialog displaying the last version of the software.
@@ -55,21 +74,140 @@ class SoftwareUpdateDialog
     extends JDialog
 {
 
+    /** The text displayed before the version and revision values. */
+    private static final String     CLIENT_NAME = "Client";
+    
     /** The client's version. */
-    private static final String     VERSION = "3.0_M3 ";
+    private static final String     CLIENT_VERSION = "3.0_M3 ";
+   
+    /** The text displayed before the revision date. */
+    private static final String     REVISION_NAME = "Revision Date ";
     
-    /** The server's version. For developers' purpose only. */
-    private static final String     OMERO_VERSION = " server: OMERO M3";
+    /** The text displayed before the release date. */
+    private static final String     RELEASE_NAME = "Release Date ";
     
-    public static String            revisionDate = "$LastChangedDate$";
     
-    public static String            releaseDate = "$Date$";
+    public static String            REVISION_DATE = "$Date: $";
+    public static String            RELEASE_DATE = "$Date: $";
     
-    private String getPrintableKeyword(String keyword)
+    /** The close button. */
+    private JButton closeButton;
+    
+    /** Closes and disposes. */
+    private void close()
     {
-        int begin = keyword.indexOf(" ") + 1;
-        int end = keyword.lastIndexOf(" ");
-        return keyword.substring(begin, end);
+        setVisible(false);
+        dispose();
+    }
+    
+    /** Initializes the components composing the display. */
+    private void initComponents()
+    {
+        closeButton = new JButton("Close");
+        closeButton.addActionListener(new ActionListener() {
+        
+            public void actionPerformed(ActionEvent e)
+            {
+                close();
+            }
+        
+        });
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) { close(); }
+        });
+    }
+    
+    private String getVersion()
+    {
+        String version = "$Rev:$";
+        Pattern p = Pattern.compile("\\d{1,9}");
+        Matcher m = p.matcher(version);
+        m.find();
+        String s = CLIENT_VERSION;
+        s += "(revision "+m.group()+")";
+        return s;
+    }
+    
+    /**
+     * Builds the panel hosting the various values.
+     * 
+     * @return See above.
+     */
+    private JPanel buildContentPanel()
+    {
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        JLabel name = UIUtilities.setTextFont(CLIENT_NAME);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(name, c);
+        
+        JLabel value = new JLabel(getVersion());
+        name.setLabelFor(value);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(value, c);  
+        c.gridx = 0;
+        c.gridy = 1;
+        name = UIUtilities.setTextFont(REVISION_NAME);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(name, c);
+        value = new JLabel(REVISION_DATE);
+        name.setLabelFor(value);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(value, c); 
+        c.gridx = 0;
+        c.gridy = 2;
+        name = UIUtilities.setTextFont(RELEASE_NAME);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(name, c);
+        value = new JLabel(RELEASE_DATE);
+        name.setLabelFor(value);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(value, c); 
+        return content;
+    }
+    
+    /**
+     * Builds the tool bar hosting the {@link #closeButton}.
+     * 
+     * @return See above;
+     */
+    private JPanel buildToolBar()
+    {
+        JPanel bar = new JPanel();
+        bar.setBorder(null);;
+        bar.add(closeButton);
+        return bar;
+    }
+    
+    /** Builds and lays out the UI. */
+    private void buildGUI()
+    {
+        getContentPane().add(buildContentPanel(), BorderLayout.CENTER);
+        JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
+        p.setBorder(BorderFactory.createEtchedBorder());
+        p.setOpaque(true);
+        getContentPane().add(p, BorderLayout.SOUTH);
     }
     
     /**
@@ -80,8 +218,11 @@ class SoftwareUpdateDialog
     SoftwareUpdateDialog(JFrame owner)
     {
         super(owner);
-        System.out.println(getPrintableKeyword(revisionDate));
-        setSize(300, 300);
+        setModal(true);
+        setResizable(false);
+        initComponents();
+        buildGUI();
+        pack();
     }
     
 }
