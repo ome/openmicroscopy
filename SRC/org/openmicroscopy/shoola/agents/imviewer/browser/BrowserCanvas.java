@@ -90,9 +90,9 @@ class BrowserCanvas
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         g2D.drawImage(img, null, 0, 0); 
         if (model.isUnitBar()) {
-            String value = model.getUnitBarValue(model.getZoomFactor()); 
+            String value = model.getUnitBarValue(); 
             if (value != null) {
-                int size = (int) model.getUnitBarSize();
+                int size = (int) (model.getUnitBarSize());
                 ImagePaintingFactory.paintScaleBar(g2D, img.getWidth()-size-10, 
                             img.getHeight()-10, size, value);
             }

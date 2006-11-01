@@ -93,8 +93,8 @@ class BrowserModel
      */
     private boolean         unitBar;
     
-    /** The value by which to increase or decrease the size of the unit bar. */
-    private double          unit;
+    /** The value of the unit bar in microns. */
+    private double          unitInMicrons;
     
     /** 
      * Creates a new instance.
@@ -109,7 +109,7 @@ class BrowserModel
         this.parent = parent;
         this.title = title;
         unitBar = true;
-        unit = -1;
+        unitInMicrons = 5; // 5 microns.
     }
     
     /**
@@ -152,7 +152,10 @@ class BrowserModel
      * 
      * @param factor See above.
      */
-    void setZoomFactor(double factor) { zoomFactor = factor; }
+    void setZoomFactor(double factor)
+    { 
+        zoomFactor = factor; 
+    }
 
     /**
      * Returns the zoom factor.
@@ -222,8 +225,11 @@ class BrowserModel
      */
     void setUnitBarSize(double size)
     {
+        unitInMicrons = size;
+        /*
         if (getPixelsSizeX() > 0) unit = size/getPixelsSizeX();
         else unit = size;
+        */
     }
     
     /**
@@ -233,20 +239,23 @@ class BrowserModel
      */
     double getUnitBarSize()
     { 
-        if (unit == -1) setUnitBarSize(5);
-        return unit; 
+        double v = unitInMicrons;
+        if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
+        v /= zoomFactor;
+        return v;
+       //if (unit == -1) setUnitBarSize(5);
+        //return unit; 
     }
     
     /**
      * Returns the unit bar value.
      * 
-     * @param factor The magnification factor.
      * @return See above.
      */
-    String getUnitBarValue(double factor)
+    String getUnitBarValue()
     {
-        double v = getPixelsSizeX()/factor;
-        v *= getUnitBarSize();
+        //double v = getPixelsSizeX();///factor;
+        double v = unitInMicrons;
         String value;
         double c = v;
         if (v < 0) return null;

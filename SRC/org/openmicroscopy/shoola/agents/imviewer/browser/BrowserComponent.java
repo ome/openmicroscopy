@@ -227,11 +227,11 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getUnitBarValue(double)
+     * @see Browser#getUnitBarValue()
      */
-    public String getUnitBarValue(double factor)
+    public String getUnitBarValue()
     {
-        return model.getUnitBarValue(factor);
+        return model.getUnitBarValue();
     }
 
     /** 
