@@ -90,16 +90,16 @@ public class RawFileBean extends AbstractBean
     private Long id; 
     
     /** The original file this service is currently working on. */
-    private OriginalFile file;
+    private transient OriginalFile file;
     
     /** The file buffer for the service's original file. */
-    private FileBuffer buffer;
+    private transient FileBuffer buffer;
     
     /** OMERO query service. */
-    private IQuery iQuery;
+    private transient IQuery iQuery;
     
     /** ROMIO I/O service for files. */
-    private OriginalFilesService ioService;
+    private transient OriginalFilesService ioService;
     
 	/* (non-Javadoc)
 	 * @see ome.logic.AbstractBean#getServiceInterface()
