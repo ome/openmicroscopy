@@ -60,38 +60,42 @@ import org.openmicroscopy.shoola.util.ui.colour.HSV;
  * @since OME2.2
  */
 
-public class ColourSliderUI 
+class ColourSliderUI 
     extends BasicSliderUI
 {
 	/**
 	 * Static variable used to determine which colourspace the user wishes to 
 	 * use for the  slider. 
 	 */
-	final static int		HSV_COLOURSPACE = 1;
+	private final static int		HSV_COLOURSPACE = 1;
 
 	/**
 	 * Static variable used to determine which colourspace the user wishes to 
 	 * use for the  slider.
 	 */ 
-	final static int		RGB_COLOURSPACE = 0;	
+	private final static int		RGB_COLOURSPACE = 0;	
 	
 	/**
 	 * Static variable used to determine which channel the user wishes to 
 	 * use for the  gradient of the HSV slider. 
 	 */
-	final static int		HSV_CHANNEL_HUE = 0;
+	private final static int		HSV_CHANNEL_HUE = 0;
 	
 	/**
 	 * Static variable used to determine which channel the user wishes to 
 	 * use for the  gradient of the HSV slider. 
 	 */
-	final static int		HSV_CHANNEL_SATURATION = 1;
+	private final static int		HSV_CHANNEL_SATURATION = 1;
 	
 	/**
 	 * Static variable used to determine which channel the user wishes to 
 	 * use for the  gradient of the HSV slider. 
 	 */
-	final static int		HSV_CHANNEL_VALUE = 2;
+	private final static int		HSV_CHANNEL_VALUE = 2;
+	
+	/** Static variable holdng the colour of the track border. */
+	private final static Color		TRACK_BORDER_COLOUR = 
+									new Color(128, 128, 128, 255);
 	
 	/**
 	 * The Colourspace of the gradient used to fill track either 
@@ -133,12 +137,6 @@ public class ColourSliderUI
 	 */
 	private Rectangle 		smallTrackFilled;
 	
-	/** The user can replace the default JSlider thumb with their own. */
-	private ImageIcon		thumbImageRight;
-	
-	/** The user can replace the default JSlider thumb with their own. */
-	private ImageIcon		thumbImageDown;
-
 	/** 
      * Creates the sliderUI delegate based on the JSlider component. The 
 	 * Colour range is specifed in the s, and e parameters. 
@@ -153,9 +151,7 @@ public class ColourSliderUI
 		setColourSpace(RGB_COLOURSPACE);
 		RGBStart = s;
 		RGBEnd = e;
-		trackBorderColour = new Color(128, 128, 128, 255);
-		thumbImageRight = new ImageIcon("graphx/thumb.png","Thumb Icon");
-		thumbImageDown = new ImageIcon("graphx/thumbhorizontal.png","Thumb Icon");
+		trackBorderColour = TRACK_BORDER_COLOUR;
 	}
 	
 	/** 
@@ -173,9 +169,7 @@ public class ColourSliderUI
 		HSVStart = s;
 		HSVEnd = e;
 		channel = HSV_CHANNEL_VALUE;
-		trackBorderColour = new Color(128, 128, 128, 255);
-		thumbImageRight = new ImageIcon("graphx/thumb.png","Thumb Icon");
-		thumbImageDown = new ImageIcon("graphx/thumbhorizontal.png","Thumb Icon");
+		trackBorderColour = TRACK_BORDER_COLOUR;
 	}
 	
 	/**

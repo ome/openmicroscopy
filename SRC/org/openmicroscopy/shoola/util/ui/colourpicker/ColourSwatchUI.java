@@ -129,6 +129,10 @@ public class ColourSwatchUI
 	 */
 	void setActive(boolean act) { active = act; }
 	
+	/**
+	 * Creates the Alpha slider, and changes listener, attaching the change
+	 * listener to the slider. 
+	 */
 	void createAlphaSlider()
 	{
 		Color s1,s;

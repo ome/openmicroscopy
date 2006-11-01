@@ -38,7 +38,7 @@ import javax.swing.event.MouseInputListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * MouseListener to detect mouse events in the HSV Colour wheel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
