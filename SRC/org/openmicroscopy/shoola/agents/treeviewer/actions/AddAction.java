@@ -58,7 +58,7 @@ import pojos.ProjectData;
  * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Rev$ $LastChangedDate$)
  * </small>
  * @since OME2.2
  */
