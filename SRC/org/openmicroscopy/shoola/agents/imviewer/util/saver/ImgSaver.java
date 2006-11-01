@@ -233,7 +233,7 @@ public class ImgSaver
     {
         //Builds the image to display.
         boolean unitBar = model.isUnitBar();
-        String v = model.getUnitBarValue(1.0); 
+        String v = model.getUnitBarValue(); 
         int s = (int) model.getUnitBarSize();
         if (imageComponents == null) {
             int width = mainImage.getWidth();
@@ -308,10 +308,9 @@ public class ImgSaver
      * Returns the value (with two decimals) of the unit bar or 
      * <code>null</code> if the actual value is <i>negative</i>.
      * 
-     * @param d    The magnification factor. 
      * @return See above.
      */
-    String getUnitBarValue(double d) { return model.getUnitBarValue(d); }
+    String getUnitBarValue() { return model.getUnitBarValue(); }
 
     /**
      * Returns the size of the unit bar.

@@ -123,7 +123,7 @@ class ImgSaverPreviewerCanvas
         BufferedImage img = model.getImage();
         if (img == null) return;
         boolean unitBar = model.isUnitBar();
-        String value = model.getUnitBarValue(1.0); 
+        String value = model.getUnitBarValue(); 
         int size = (int) model.getUnitBarSize();
         int w = ImgSaverPreviewer.SPACE;
         if (model.getImageComponents() != null) 

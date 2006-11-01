@@ -247,10 +247,9 @@ class ImgSaverPreviewer
      * Returns the value (with two decimals) of the unit bar or 
      * <code>null</code> if the actual value is <i>negative</i>.
      * 
-     * @param d    The magnification factor. 
      * @return See above.
      */
-    String getUnitBarValue(double d) { return model.getUnitBarValue(d); }
+    String getUnitBarValue() { return model.getUnitBarValue(); }
     
     /**
      * Returns the size of the unit bar.
