@@ -38,22 +38,11 @@ import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
-import javax.swing.BoundedRangeModel;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 //Third-party libraries
@@ -62,7 +51,6 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TipDialog;
 
-import sun.swing.DefaultLookup;
 
 /** 
  * 
@@ -253,35 +241,7 @@ public class OneKnobSliderUI
 					labelWidth, labelHeight);
 		}
 	}
-	
-	 public void paint( Graphics g, JComponent c )   
-	 {
-		 recalculateIfInsetsChanged();
-		 recalculateIfOrientationChanged();
-		 Rectangle clip = g.getClipBounds();
 
-		 if (!clip.intersects(trackRect) && slider.getPaintTrack())
-			 calculateGeometry();
-
-		 if (slider.getPaintTrack() && (clip.intersects(trackRect) || 
-				 clip.intersects(minArrowRect) || clip.intersects(maxArrowRect)
-				 || clip.intersects(endLabelRect))) 
-			paintTrack(g);
-		 
-		 if (slider.getPaintTicks() && clip.intersects(tickRect)) 
-			 paintTicks(g);
-		 
-		 if (slider.getPaintLabels() && clip.intersects(labelRect)) 
-	            paintLabels(g);
-		 
-		if (slider.hasFocus() && clip.intersects(focusRect)) 
-		    paintFocus(g);      
-		
-		if (clip.intersects(thumbRect)) 
-		    paintThumb(g);
-	 }
-	
-	
     /**
      * Paints the vertical track, and arrows if selected, this method is called
      * from the {@link #paintTrack(Graphics)} method. 
@@ -512,6 +472,37 @@ public class OneKnobSliderUI
     }
     
     /**
+     * Overridden to avoid flicking.
+     * @see BasicSliderUI#paint(Graphics, JComponent)
+     */
+    public void paint(Graphics g, JComponent c)   
+    {
+        recalculateIfInsetsChanged();
+        recalculateIfOrientationChanged();
+        Rectangle clip = g.getClipBounds();
+
+        if (!clip.intersects(trackRect) && slider.getPaintTrack())
+            calculateGeometry();
+
+        if (slider.getPaintTrack() && (clip.intersects(trackRect) || 
+                 clip.intersects(minArrowRect) || clip.intersects(maxArrowRect)
+                 || clip.intersects(endLabelRect))) 
+            paintTrack(g);
+         
+        if (slider.getPaintTicks() && clip.intersects(tickRect)) 
+             paintTicks(g);
+         
+        if (slider.getPaintLabels() && clip.intersects(labelRect)) 
+                paintLabels(g);
+         
+       if (slider.hasFocus() && clip.intersects(focusRect)) 
+            paintFocus(g);      
+        
+       if (clip.intersects(thumbRect)) 
+            paintThumb(g);
+     }
+     
+    /**
      * Assign the new overloaded trackListener to the slider. 
      * 
      * @param slider Parent slider.
@@ -694,7 +685,6 @@ public class OneKnobSliderUI
 				tipDialog.setLocation(location);
 				tipDialog.setVisible(true);
 			}
-			
 		}
 	}
 	
