@@ -40,6 +40,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JCheckBoxMenuItem;
@@ -50,6 +52,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 
@@ -127,6 +131,21 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
+        BasicSplitPaneUI splitPaneUI = (BasicSplitPaneUI) mainPane.getUI();
+        
+        BasicSplitPaneDivider divider = splitPaneUI.getDivider();
+        divider.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e)
+            {
+                if (e.getClickCount() == 2) {
+                    JComponent cb = model.getClipBoard().getUI();
+                    Dimension d = cb.getMinimumSize();
+                    cb.setPreferredSize(d);
+                    cb.setSize(d);
+                }
+                
+            }
+        });
         //Dimension d = clipBoardUI.getMinimumSize();
         //Dimension dNew = new Dimension(d.width, d.height+40);
         //clipBoardUI.setPreferredSize(dNew);
