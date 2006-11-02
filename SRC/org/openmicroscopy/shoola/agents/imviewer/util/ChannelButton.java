@@ -96,7 +96,7 @@ public class ChannelButton
     private void onClick(MouseEvent e)
     {
         onReleased(e);
-        if (!e.isPopupTrigger()) setChannelSelected();
+        if (!e.isMetaDown()) setChannelSelected();
     }
     
     /** 
@@ -111,41 +111,24 @@ public class ChannelButton
             if (popupMenu == null) 
                 popupMenu = new ChannelButtonPopupMenu(this);
             popupMenu.show(this, e.getX(), e.getY());
-            
         } 
-    }
-    
-    /** Fires a property change to bring up on screen the info dialog. */
-    void showInfo()
-    {
-        firePropertyChange(INFO_PROPERTY, null, new Integer(index));
-        
-    }
-    
-    /** Fires a property change to bring up on screen the color picker. */
-    void showColorPicker()
-    {
-        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, new Integer(index));
     }
     
     /**
      * Creates a new instance.
      * 
      * @param text      The text of the button. The text should correspond to
-     *                  the emission wavelength.
+     *                  the emission wavelength, fluor used or the index.
      * @param color     The background color of the button. Corresponds to the
      *                  color associated to the channel.
      * @param index     The channel index.
-     * @param selected  Passed <code>true</code> to select the channel (i.e.
+     * @param selected  Pass <code>true</code> to select the channel (i.e.
      *                  the channel is rendered), <code>false</code> otherwise
      *                  (i.e. the channel is not rendered.)
      */
-    public ChannelButton(String text, Color color, int index, 
-                        boolean selected)
+    public ChannelButton(String text, Color color, int index, boolean selected)
     {
         super(text, color);
-        if (color == null) 
-            throw new IllegalArgumentException("No color.");
         this.index = index;
         setSelected(selected);
         addMouseListener(new MouseAdapter() {
@@ -158,7 +141,7 @@ public class ChannelButton
      * Creates a deselected button. 
      * 
      * @param text      The text of the button. The text should correspond to
-     *                  the emission wavelength.
+     *                  the emission wavelength, fluor used or the index.
      * @param color     The background color of the button. Corresponds to the
      *                  color associated to the channel.
      * @param index     The channel index.
@@ -167,7 +150,19 @@ public class ChannelButton
     {
         this(text, color, index, false);
     }
-
+    
+    /** Fires a property change to bring up on screen the info dialog. */
+    void showInfo()
+    {
+        firePropertyChange(INFO_PROPERTY, null, new Integer(index));
+    }
+    
+    /** Fires a property change to bring up on screen the color picker. */
+    void showColorPicker()
+    {
+        firePropertyChange(CHANNEL_COLOR_PROPERTY, null, new Integer(index));
+    }
+    
     /**
      * Returns the index of the channel.
      * 
