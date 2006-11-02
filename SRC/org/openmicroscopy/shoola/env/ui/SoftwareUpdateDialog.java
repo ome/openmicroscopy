@@ -100,10 +100,7 @@ class SoftwareUpdateDialog
         closeButton = new JButton("Close");
         closeButton.addActionListener(new ActionListener() {
         
-            public void actionPerformed(ActionEvent e)
-            {
-                close();
-            }
+            public void actionPerformed(ActionEvent e) { close(); }
         
         });
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -136,9 +133,10 @@ class SoftwareUpdateDialog
     private String getLastChangedDate()
     {
         String d = "$LastChangedDate$";
-        int begin = d.indexOf(" ") + 1;
-        int end = d.lastIndexOf(" ");
-        return d.substring(begin, end);
+        Pattern p = Pattern.compile("([0-9-]+)");
+        Matcher m = p.matcher(d);
+        m.find();
+        return m.group();
     }
     
     /**
