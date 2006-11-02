@@ -62,12 +62,12 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Modal dialog displaying the channel information. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -79,16 +79,16 @@ public class InfoDialog
 {
 
     /** Bound property indicating that an update of the channel information. */ 
-    public static final String UPDATE_PROPERTY = "update";
+    public static final String      UPDATE_PROPERTY = "update";
     
     /** The default title of the window. */
-    private static final String TITLE = "Channel Info";
+    private static final String     TITLE = "Channel Info";
     
     /** Brief description of the dialog purpose. */
-    private static final String TEXT = "Edit the selected channel";
+    private static final String     TEXT = "Edit the selected channel";
     
     /** The horizontal space between the buttons. */
-    private static final Dimension H_BOX = new Dimension(10, 0);
+    private static final Dimension  H_BOX = new Dimension(10, 0);
     
     /** Button to save the changes. */
     private JButton         finishButton;
@@ -205,9 +205,16 @@ public class InfoDialog
                 BorderLayout.SOUTH);
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner     The owner of the frame.
+     * @param metadata  The metadata to display.
+     */
     public InfoDialog(JFrame owner, ChannelMetadata metadata)
     {
         super(owner);
+        if (metadata == null) throw new IllegalArgumentException("No metadata");
         this.metadata = metadata;
         setDialogProperties();
         initComponents();

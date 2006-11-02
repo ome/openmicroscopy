@@ -39,12 +39,13 @@ import java.awt.event.MouseEvent;
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
 
 /** 
- * 
+ * Customized button to select the channel whose rendering settings are
+ * currently displayed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
@@ -66,7 +67,7 @@ public class ChannelToggleButton
      * Creates a new instance.
      * 
 	 * @param text      The text to display.
-	 * @param color     The button's color.
+	 * @param color     The button's color. Mustn't be <code>null</code>.
      * @param i         The channel's index.
 	 */
 	public ChannelToggleButton(String text, Color color, int i)
