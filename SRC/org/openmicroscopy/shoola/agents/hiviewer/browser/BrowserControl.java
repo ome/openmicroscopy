@@ -249,7 +249,8 @@ class BrowserControl
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
        
-        view.setTitle(model.currentPathString(d));
+        if (!(d instanceof RootDisplay))
+            view.setTitle(model.currentPathString(d));
             
         if (!model.isRollOver()) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
@@ -258,11 +259,14 @@ class BrowserControl
     }
 
     /**
-     * Required by the {@link MouseListener} I/F but no-op implementation
-     * in our case.
+     * Displays the name of the selected node if any when the mouse exited.
      * @see MouseListener#mouseExited(MouseEvent)
      */
-    public void mouseExited(MouseEvent me) {}
+    public void mouseExited(MouseEvent me)
+    {
+        ImageDisplay d = model.getLastSelectedDisplay();
+        if (d != null) view.setTitle(model.currentPathString(d));
+    }
 
     /**
      * Required by the {@link MouseListener} I/F but no-op implementation
