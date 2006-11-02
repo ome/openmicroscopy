@@ -49,6 +49,8 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -195,6 +197,19 @@ class TreeViewUI
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onClick(e); }
         });
+        tree.addTreeSelectionListener(new TreeSelectionListener() {
+            
+            public void valueChanged(TreeSelectionEvent e)
+            {
+                DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
+                tree.getLastSelectedPathComponent();
+                model.setSelectedDisplay((ImageDisplay) n.getUserObject());
+    
+                tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
+                        tree.isPathSelected(new TreePath(n.getPath())),
+                        false, true, 0, false); 
+            }
+        });
         return root;
     }
     
@@ -208,13 +223,13 @@ class TreeViewUI
         int row = tree.getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
             //tree.setSelectionRow(row);
-            DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
-                        tree.getLastSelectedPathComponent();
-            model.setSelectedDisplay((ImageDisplay) n.getUserObject());
+            //DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
+            //            tree.getLastSelectedPathComponent();
+           // model.setSelectedDisplay((ImageDisplay) n.getUserObject());
             if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
-            tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
-                	tree.isPathSelected(new TreePath(n.getPath())),
-                	false, true, 0, false); 
+           // tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
+            //    	tree.isPathSelected(new TreePath(n.getPath())),
+            //    	false, true, 0, false); 
         }
     }
     
