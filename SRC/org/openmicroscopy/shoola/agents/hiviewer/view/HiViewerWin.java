@@ -138,10 +138,13 @@ class HiViewerWin
             public void mousePressed(MouseEvent e)
             {
                 if (e.getClickCount() == 2) {
+                    Container container = getContentPane();
                     JComponent cb = model.getClipBoard().getUI();
                     Dimension d = cb.getMinimumSize();
                     cb.setPreferredSize(d);
                     cb.setSize(d);
+                    container.validate();
+                    container.repaint();
                 }
                 
             }
