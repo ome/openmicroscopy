@@ -127,10 +127,10 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        Dimension d = clipBoardUI.getMinimumSize();
-        Dimension dNew = new Dimension(d.width, d.height+40);
-        clipBoardUI.setPreferredSize(dNew);
-        clipBoardUI.setSize(d);
+        //Dimension d = clipBoardUI.getMinimumSize();
+        //Dimension dNew = new Dimension(d.width, d.height+40);
+        //clipBoardUI.setPreferredSize(dNew);
+        //clipBoardUI.setSize(d);
         mainPane.setResizeWeight(1);
         return mainPane;
     }
