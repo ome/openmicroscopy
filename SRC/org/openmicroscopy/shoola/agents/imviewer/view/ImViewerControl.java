@@ -53,6 +53,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 
@@ -532,9 +534,15 @@ class ImViewerControl
         } else if (ChannelButton.INFO_PROPERTY.equals(propName)) {
             int index = ((Integer) pce.getNewValue()).intValue();
             ChannelMetadata data = model.getChannelMetadata(index);
-            InfoDialog dialog = new InfoDialog(model.getUI(), data);
-            dialog.addPropertyChangeListener(this);
-            UIUtilities.setLocationRelativeToAndShow(view, dialog);
+            if (data != null) {
+                InfoDialog dialog = new InfoDialog(model.getUI(), data);
+                dialog.addPropertyChangeListener(this);
+                UIUtilities.setLocationRelativeToAndShow(view, dialog);
+            } else {
+                UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+                un.notifyInfo("Channel info", "No metadata for the " +
+                        "selected channel.");
+            }
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
             Color c = model.getChannelColor(colorPickerIndex);
