@@ -73,7 +73,7 @@ public class ColouredButton
     	if (color == null) 
             throw new IllegalArgumentException("No color.");
         setModel(new DefaultButtonModel());
-    	init(text,null);
+    	init(text, null);
         uiDelegate = new ColouredButtonUI(this, color);
         setUI(uiDelegate);
         setRolloverEnabled(false);
