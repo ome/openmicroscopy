@@ -134,6 +134,16 @@ class TaskBarManager
 						"Sorry, this functionality is not yet available.");
 	}
 	
+    /** 
+     * Basic information about the software. Temporary solution.
+     *
+     */
+    private void softWareUpdates()
+    {
+        SoftwareUpdateDialog d = new SoftwareUpdateDialog(view);
+        UIUtilities.centerAndShow(d);
+    }
+    
 	/**
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
 	 * whose functionality hasn't been implemented yet.
@@ -146,7 +156,10 @@ class TaskBarManager
 		view.getButton(TaskBarView.WELCOME_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
-		view.getButton(TaskBarView.UPDATES_MI).addActionListener(noOp);
+		view.getButton(TaskBarView.UPDATES_MI).addActionListener(
+                new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { softWareUpdates(); }
+        });
 		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_BTN).addActionListener(noOp);
 	}
