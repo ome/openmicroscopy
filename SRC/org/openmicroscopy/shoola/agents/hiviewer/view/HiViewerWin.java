@@ -138,22 +138,16 @@ class HiViewerWin
             public void mousePressed(MouseEvent e)
             {
                 if (e.getClickCount() == 2) {
-                	/*
-                    Container container = getContentPane();
                     JComponent cb = model.getClipBoard().getUI();
-                    Dimension d = new Dimension(20, cb.getMinimumSize().height);
+                    mainPane.setRightComponent(cb);
+                    Dimension min = cb.getMinimumSize();
+                    Dimension d = new Dimension(min.width, min.height+20);
                     cb.setPreferredSize(d);
                     cb.setSize(d);
-                    cb.repaint();
-                    */
                 }
                 
             }
         });
-        //Dimension d = clipBoardUI.getMinimumSize();
-        //Dimension dNew = new Dimension(d.width, d.height+40);
-        //clipBoardUI.setPreferredSize(dNew);
-        //clipBoardUI.setSize(d);
         mainPane.setResizeWeight(1);
         return mainPane;
     }
