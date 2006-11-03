@@ -245,8 +245,8 @@ class TreeViewerWin
     {
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
-        //menu.add(new JMenuItem(
-        //        controller.getAction(TreeViewerControl.CUT_OBJECT)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.CUT_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.COPY_OBJECT)));
         menu.add(new JMenuItem(

@@ -188,7 +188,7 @@ class PopupMenu
         IconManager im = IconManager.getInstance();
         managementMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         managementMenu.add(newElement);
-        //managementMenu.add(cutElement);
+        managementMenu.add(cutElement);
         managementMenu.add(copyElement);
         managementMenu.add(pasteElement);
         managementMenu.add(deleteElement);
