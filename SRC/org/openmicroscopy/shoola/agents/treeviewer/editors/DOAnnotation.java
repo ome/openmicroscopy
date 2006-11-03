@@ -346,7 +346,7 @@ class DOAnnotation
         setComponentsEnabled(true);
         formatUsersList(owners);
         annotatedByList.clearSelection();
-        //annotatedByList.setSelectedIndex(userIndex);
+        annotatedByList.setSelectedIndex(userIndex);
         showSingleAnnotation();
     }
     

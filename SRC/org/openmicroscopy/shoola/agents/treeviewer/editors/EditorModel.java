@@ -346,6 +346,13 @@ class EditorModel
         return null;
     }
     
+    long getDataObjectID()
+    {
+        if (hierarchyObject == null) return -1;
+        if (hierarchyObject instanceof DataObject) 
+            return ((DataObject) hierarchyObject).getId();
+        return -1;
+    }
     /** 
      * Returns the description of the currenlty edited <code>DataObject</code>.
      * 

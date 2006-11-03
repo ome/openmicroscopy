@@ -215,8 +215,21 @@ class DOBasic
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(3, 3, 3, 3);
-        JLabel label = UIUtilities.setTextFont("Name");
-        
+        JLabel label = UIUtilities.setTextFont("ID");
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(label, c);
+        JLabel idArea  = new JLabel(""+model.getDataObjectID());
+        label.setLabelFor(idArea);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(idArea, c);
+        label = UIUtilities.setTextFont("Name");
+        c.gridx = 0;
+        c.gridy = 1;
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -230,7 +243,7 @@ class DOBasic
         content.add(pane, c);
         label = UIUtilities.setTextFont("Description");
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
