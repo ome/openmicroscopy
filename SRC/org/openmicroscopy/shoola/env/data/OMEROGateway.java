@@ -890,7 +890,7 @@ class OMEROGateway
             Class klass = parent.getClass();
             if (klass.equals(Category.class)) table = "CategoryImageLink";
             else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
-            else if (klass.equals(Project.class)) table = "ProjectImageLink";
+            else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
             else if (klass.equals(CategoryGroup.class)) 
                 table = "CategoryGroupLink";
             if (table == null) return null;
