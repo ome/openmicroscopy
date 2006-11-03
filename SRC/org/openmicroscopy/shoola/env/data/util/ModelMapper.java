@@ -40,6 +40,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
@@ -137,10 +138,12 @@ public class ModelMapper
      * @param parent    The child's parent.
      * @return See above
      */
-    public static IObject unlinkChildFromParent(Image child, IObject parent)
+    public static IObject unlinkChildFromParent(IObject child, IObject parent)
     {
         if (parent instanceof Dataset) {
-            List links = child.collectDatasetLinks(null);
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            List links = ((Image) child).collectDatasetLinks(null);
             Iterator i = links.iterator();
             DatasetImageLink link = null;
             while (i.hasNext()) {
@@ -150,27 +153,116 @@ public class ModelMapper
             }
             return link;
         } else if (parent instanceof Category) {
-            List links = child.collectCategoryLinks(null);
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            List links = ((Image) child).collectCategoryLinks(null);
             Iterator i = links.iterator();
             CategoryImageLink link = null;
             while (i.hasNext()) {
                 link = (CategoryImageLink) i.next();
                 if (link.getParent().getId().longValue() == 
                     parent.getId().longValue()) break;  
-                    break;
+            }
+            return link;
+        } else if (parent instanceof Project) {
+            if (!(child instanceof Dataset))
+                throw new IllegalArgumentException("Child not valid.");
+            List links = ((Project) parent).collectDatasetLinks(null);
+            Iterator i = links.iterator();
+            ProjectDatasetLink link = null;
+            long childID = child.getId().longValue();
+            while (i.hasNext()) {
+                link = (ProjectDatasetLink) i.next();
+                if (link.getChild().getId().longValue() == childID) {
+                    return link;  
+                }
+            }
+            //return link;
+        } else if (parent instanceof CategoryGroup) {
+            if (!(child instanceof Category))
+                throw new IllegalArgumentException("Child not valid.");
+            List links = ((CategoryGroup) parent).collectCategoryLinks(null);
+            Iterator i = links.iterator();
+            CategoryGroupCategoryLink link = null;
+            while (i.hasNext()) {
+                link = (CategoryGroupCategoryLink) i.next();
+                if (link.getParent().getId().longValue() == 
+                    parent.getId().longValue()) break;  
             }
             return link;
         } throw new IllegalArgumentException("Parent not supported.");
     }
+
+    /**
+     * Links the  {@link IObject child} to its {@link IObject parent}.
+     * 
+     * @param child     The child. 
+     * @param parent    The parent.
+     * @return The link.
+     */
+    public static ILink linkParentToChild(IObject child, IObject parent)
+    {
+        if (parent == null) return null;
+        if (child == null) throw new IllegalArgumentException("Child cannot" +
+                                "be null.");
+        if (parent instanceof Project) {
+            if (!(child instanceof Dataset))
+                throw new IllegalArgumentException("Child not valid.");
+            Project unloadedProject = new Project(parent.getId(), false);
+            Dataset unloadedDataset = new Dataset(child.getId(), false);
+            ProjectDatasetLink l = new ProjectDatasetLink();
+            l.link(unloadedProject, unloadedDataset);
+            return l;
+        } else if (parent instanceof CategoryGroup) {
+            if (!(child instanceof Category))
+                throw new IllegalArgumentException("Child not valid.");
+            CategoryGroup unloadedGroup = new CategoryGroup(parent.getId(), 
+                                                            false);
+            Category unloadedCategory = new Category(child.getId(), false);
+            
+            CategoryGroupCategoryLink l = new CategoryGroupCategoryLink();
+            l.link(unloadedGroup, unloadedCategory);
+            return l;
+        } else if (parent instanceof Dataset) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            Dataset unloadedDataset = new Dataset(parent.getId(), false);
+            Image unloadedImage = new Image(child.getId(), false);
+            
+            DatasetImageLink l = new DatasetImageLink();
+            l.link(unloadedDataset, unloadedImage);
+            return l;
+        } else if (parent instanceof Dataset) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            Dataset unloadedDataset = new Dataset(parent.getId(), false);
+            Image unloadedImage = new Image(child.getId(), false);
+            
+            DatasetImageLink l = new DatasetImageLink();
+            l.link(unloadedDataset, unloadedImage);
+            return l;
+        } else if (parent instanceof Category) {
+            if (!(child instanceof Image))
+                throw new IllegalArgumentException("Child not valid.");
+            Category unloadedCategory = new Category(parent.getId(), false);
+            Image unloadedImage = new Image(child.getId(), false);
+            
+            CategoryImageLink l = new CategoryImageLink();
+            l.link(unloadedCategory, unloadedImage);
+            return l;
+        }
+        return null;
+    }
     
     /**
      * Links the newly created {@link IObject child} to its
-     * {@link IObject parent}.
+     * {@link IObject parent}. This method should only be invoked to add a 
+     * newly created child.
      * 
-     * @param child The newly created child. 
-     * @param parent The parent of the newly created child.
+     * @param child     The newly created child. 
+     * @param parent    The parent of the newly created child.
      */
-    public static void linkParentToChild(IObject child, IObject parent)
+    public static void linkParentToNewChild(IObject child, IObject parent)
     {
         if (parent == null) return;
         if (child == null) throw new IllegalArgumentException("Child cannot" +
