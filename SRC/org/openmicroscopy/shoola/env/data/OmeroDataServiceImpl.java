@@ -43,13 +43,8 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.util.builders.PojoOptions;
@@ -305,8 +300,8 @@ class OmeroDataServiceImpl
                 !(annotatedObject instanceof DatasetData))
             throw new IllegalArgumentException("This method only supports " +
                     "ImageData and DatasetData objects.");
-        Map options = (new PojoOptions()).map();
-        gateway.deleteObject(data.asIObject(), options);
+        
+        gateway.deleteObject(data.asIObject());
         return updateDataObject(annotatedObject);
     }
 
@@ -327,8 +322,9 @@ class OmeroDataServiceImpl
             throw new IllegalArgumentException("This method only supports " +
                     "ImageData and DatasetData objects.");
         Map options = (new PojoOptions()).map();
-        IObject updated = gateway.updateObject(annotatedObject.asIObject(),
-                                                options);
+        IObject object = annotatedObject.asIObject();
+        ModelMapper.unloadCollections(object);
+        IObject updated = gateway.updateObject(object, options);
         IObject toUpdate = data.asIObject();
         ModelMapper.setAnnotatedObject(updated, toUpdate);
         gateway.updateObject(toUpdate, options);
@@ -347,9 +343,11 @@ class OmeroDataServiceImpl
         IObject obj = ModelMapper.createIObject(child, parent);
         if (obj == null) 
             throw new NullPointerException("Cannot convert object.");
-        IObject created = gateway.createObject(obj, (new PojoOptions()).map());
-        if (parent != null)
-            ModelMapper.linkParentToChild(created, parent.asIObject());
+        Map options = (new PojoOptions()).map();
+        IObject created = gateway.createObject(obj, options);
+        if (parent != null) {
+            ModelMapper.linkParentToNewChild(created, parent.asIObject());
+        }  
         return  PojoMapper.asDataObject(created);
     }
     
@@ -374,35 +372,30 @@ class OmeroDataServiceImpl
             }
             gateway.deleteObjects(ioObjects);
         } else {
-            DataObject child;
             IObject p = parent.asIObject();
-            Image img;
+            IObject ioChild;
             IObject link;
             List links = null;
             List toUpdate = new ArrayList();
             while (i.hasNext()) {
-                child = (DataObject) i.next();
-                if (child instanceof ImageData) {
-                    img = child.asImage();
-                    link = ModelMapper.unlinkChildFromParent(img, p);
-                    if (links == null) links = new ArrayList();
-                    if (link != null) links.add(link);
-                    if (!(toUpdate.contains(p))) toUpdate.add(p);
-                } else {
-                    toUpdate.add(ModelMapper.removeIObject(child.asIObject(), 
-                                                        p));
-                }
+                ioChild = ((DataObject) i.next()).asIObject();
+                link = ModelMapper.unlinkChildFromParent(ioChild, p);
+                if (links == null) links = new ArrayList();
+                if (link != null) links.add(link);
+                if (!(toUpdate.contains(p))) toUpdate.add(p);
             }
             if (links != null) {
                 gateway.deleteObjects((IObject[]) 
                         links.toArray(new IObject[links.size()]));
             }
+            /*
             IObject[] results = gateway.updateObjects(
                                 (IObject[]) toUpdate.toArray(
                                         new IObject[toUpdate.size()]),
                                     (new PojoOptions()).map());
-            for (int j = 0; j < results.length; j++)
-                PojoMapper.asDataObject(results[j]);
+                                    */
+            //for (int j = 0; j < results.length; j++)
+            //    PojoMapper.asDataObject(results[j]);
         }
 
         return children;
@@ -418,7 +411,7 @@ class OmeroDataServiceImpl
         if (object == null) 
             throw new DSAccessException("No object to update.");  
         IObject ob = object.asIObject();
-        ModelMapper.unloadCollections(ob);;
+        ModelMapper.unloadCollections(ob);
         IObject updated = gateway.updateObject(ob,
                                         (new PojoOptions()).map());
         return PojoMapper.asDataObject(updated);
@@ -447,15 +440,14 @@ class OmeroDataServiceImpl
         Iterator category = categories.iterator();
         Iterator image;
         List objects = new ArrayList();
-        Category mParent;
-        CategoryImageLink l;
+        IObject ioParent, ioChild;
+        
         while (category.hasNext()) {
-            mParent = ((DataObject) category.next()).asCategory();
+            ioParent = ((DataObject) category.next()).asIObject();
             image = images.iterator();
             while (image.hasNext()) {
-                l = new CategoryImageLink();
-                l.link(mParent, ((DataObject) image.next()).asImage());
-                objects.add(l);
+                ioChild = ((DataObject) image.next()).asIObject();
+                objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
             }   
         }
         if (objects.size() != 0) {
@@ -498,10 +490,9 @@ class OmeroDataServiceImpl
             mParent = ((DataObject) category.next()).asIObject();
             i = images.iterator();
             while (i.hasNext()) {
-                link = ModelMapper.unlinkChildFromParent(
-                        ((DataObject) i.next()).asImage(), mParent);
-                if (link != null)
-                    links.add(link);
+                link = gateway.findLink(Category.class, mParent, 
+                        ((DataObject) i.next()).asImage());
+                if (link != null) links.add(link);
             }   
         }
         if (links != null) {
@@ -606,41 +597,16 @@ class OmeroDataServiceImpl
                 throw new IllegalArgumentException(
                         "items can only be images.");
             }
-            Set cat = new HashSet(1);
-            cat.add(parent);
-            classify(children, cat);
-            return ;
         } else
             throw new IllegalArgumentException("parent object not supported");
         
         List objects = new ArrayList();
-        if (parent instanceof ProjectData) {
-            Project mParent = parent.asProject();
-            ProjectDatasetLink l;
-            Iterator child = children.iterator();
-            while (child.hasNext()) {
-                l = new ProjectDatasetLink();
-                l.link(mParent, ((DataObject) child.next()).asDataset());  
-                objects.add(l);
-            }
-        } else if (parent instanceof DatasetData) {
-            Dataset mParent = parent.asDataset();
-            DatasetImageLink l;
-            Iterator child = children.iterator();
-            while (child.hasNext()) {
-                l = new DatasetImageLink();
-                l.link(mParent, ((DataObject) child.next()).asImage());  
-                objects.add(l);
-            }
-        } else if (parent instanceof CategoryGroupData) {
-            CategoryGroup mParent = parent.asCategoryGroup();
-            CategoryGroupCategoryLink l;
-            Iterator child = children.iterator();
-            while (child.hasNext()) {
-                l = new CategoryGroupCategoryLink();
-                l.link(mParent, ((DataObject) child.next()).asCategory());  
-                objects.add(l);
-            }
+        IObject ioParent = parent.asIObject();
+        IObject ioChild;
+        Iterator child = children.iterator();
+        while (child.hasNext()) {
+            ioChild = ((DataObject) child.next()).asIObject();
+            objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
         }
         if (objects.size() != 0) {
             Iterator i = objects.iterator();
@@ -652,151 +618,6 @@ class OmeroDataServiceImpl
             }
             gateway.createObjects(array, (new PojoOptions()).map());
         } 
-    }
-
-    //TEST
-    private void paste(DataObject parent, Set children)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        if (children == null) return;
-        Map op = (new PojoOptions()).map();
-        Iterator k = children.iterator();
-        int index = 0;
-        IObject[] io = new IObject[children.size()];
-        while (k.hasNext()) {
-            io[index] = ((DataObject) k.next()).asIObject();
-            index++;
-        }
-        
-        IObject[] r = gateway.updateObjects(io, op);
-        List objects = new ArrayList();
-        if (parent instanceof ProjectData) {
-            Project mParent = parent.asProject();
-            ProjectDatasetLink l;
-            for (int i = 0; i < r.length; i++) {
-                l = new ProjectDatasetLink();
-                l.link(mParent, (Dataset) r[i]);  
-                objects.add(l);
-            }
-        } else if (parent instanceof CategoryGroupData) {
-            CategoryGroup mParent = parent.asCategoryGroup();
-            CategoryGroupCategoryLink l;
-            for (int i = 0; i < r.length; i++) {
-                l = new CategoryGroupCategoryLink();
-                l.link(mParent, (Category) r[i]);  
-                objects.add(l);
-            }
-        } else if (parent instanceof DatasetData) {
-            Dataset mParent = parent.asDataset();
-            DatasetImageLink l;
-            System.out.println("l: "+r.length+"\n");
-            for (int i = 0; i < r.length; i++) {
-                l = new DatasetImageLink();
-                l.link(mParent, (Image) r[i]);  
-                System.out.println("l: "+l+"\n");
-                objects.add(l);
-            }
-        } else if (parent instanceof CategoryData) {
-            Category mParent = parent.asCategory();
-            CategoryImageLink l;
-            for (int i = 0; i < r.length; i++) {
-                l = new CategoryImageLink();
-                l.link(mParent, (Image) r[i]);  
-                objects.add(l);
-            }
-        }
-        index = 0;
-        io = new IObject[objects.size()];
-        k = objects.iterator();
-        while (k.hasNext()) {
-            io[index] = (IObject) k.next();
-            index++;
-        }
-        gateway.createObjects(io, op);
-    }
-    
-    private void cut(DataObject parent, Set children)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        System.out.println(((DatasetData) parent).getName());
-        if (children == null) return;
-        Map op = (new PojoOptions()).map();
-        Iterator k = children.iterator();
-        int index = 0;
-        IObject[] io = new IObject[children.size()];
-        while (k.hasNext()) {
-            io[index] = ((DataObject) k.next()).asIObject();
-            index++;
-        }
-        IObject[] r = gateway.updateObjects(io, op);
-        List objects = new ArrayList();
-        IObject mParent = parent.asIObject();
-        List links;
-        Iterator j;
-        if (parent instanceof ProjectData) {
-            ProjectDatasetLink l = null;
-            for (int i = 0; i < r.length; i++) {
-                links = ((Dataset) r[i]).collectProjectLinks(null);
-                j = links.iterator();
-                while (j.hasNext()) {
-                    l = (ProjectDatasetLink) j.next();
-                    if (l.getParent().getId().longValue() 
-                        == mParent.getId().longValue()) break;  
-                    
-                }
-                objects.add(l);
-            }
-        } else if (parent instanceof CategoryGroupData) {
-            CategoryGroupCategoryLink l = null;
-            for (int i = 0; i < r.length; i++) {
-                links = ((Category) r[i]).collectCategoryGroupLinks(null);
-                j = links.iterator();
-                while (j.hasNext()) {
-                    l = (CategoryGroupCategoryLink) j.next();
-                    if (l.getParent().getId().longValue() 
-                        == mParent.getId().longValue()) break;  
-                    
-                }
-                objects.add(l);
-            }
-        } else if (parent instanceof DatasetData) {
-            DatasetImageLink l = null;
-            for (int i = 0; i < r.length; i++) {
-                links = ((Image) r[i]).collectDatasetLinks(null);
-
-                j = links.iterator();
-                System.out.println("size: "+links.size());
-                while (j.hasNext()) {
-                    l = (DatasetImageLink) j.next();
-                    if (l.getParent().getId().longValue() 
-                        == mParent.getId().longValue()) break;  
-                    
-                }
-                objects.add(l);
-            }
-        } else if (parent instanceof CategoryData) {
-            CategoryImageLink l = null;
-            for (int i = 0; i < r.length; i++) {
-                links = ((Image) r[i]).collectCategoryLinks(null);
-                j = links.iterator();
-                while (j.hasNext()) {
-                    l = (CategoryImageLink) j.next();
-                    if (l.getParent().getId().longValue() 
-                        == mParent.getId().longValue()) break;  
-                    
-                }
-                objects.add(l);
-            }
-        }
-        index = 0;
-        io = new IObject[objects.size()];
-        k = objects.iterator();
-        while (k.hasNext()) {
-            io[index] = (IObject) k.next();
-            index++;
-        }
-        //gateway.updateObjects(io, op);
-        gateway.deleteObjects(io);
     }
     
     /**
@@ -877,8 +698,7 @@ class OmeroDataServiceImpl
             link = (DatasetImageLink) i.next();
             if (link.getParent().getId() == mParent.getId()) break;  
         }
-        gateway.deleteObject(link,  (new PojoOptions()).map());
-       
+        gateway.deleteObject(link);
     }
 
     /**

@@ -44,7 +44,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IThumb;
@@ -654,8 +653,8 @@ class OMEROGateway
     {
         try {
             IPojos service = getIPojosService();
-            
-            return service.createDataObjects(objects, options);
+            IObject[] results = service.createDataObjects(objects, options);
+            return results;
         } catch (Exception e) {
             handleException(e, "Cannot update the object.");
         }
@@ -666,16 +665,14 @@ class OMEROGateway
      * Deletes the specified object.
      * 
      * @param object    The object to delete.
-     * @param options   Options to create the data.  
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    void deleteObject(IObject object, Map options)
+    void deleteObject(IObject object)
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            //IPojos service = getIPojosService();
             IUpdate service = getIUpdateService();
             service.deleteObject(object);
         } catch (Exception e) {
@@ -846,7 +843,6 @@ class OMEROGateway
             return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
                                     new Integer(sizeY));
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RenderingServiceException("Cannot get thumbnail", e);
         }
     }
@@ -874,6 +870,27 @@ class OMEROGateway
         } catch (Exception e) {
             throw new RenderingServiceException("Cannot get thumbnail", e);
         }
+    }
+    
+    IObject findLink(Class klass, IObject parent, IObject child)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            String table = null;
+            if (klass.equals(Category.class)) table = "CategoryImageLink";
+            if (table == null) return null;
+            String sql = "select link from "+table+" as link where " +
+                    "link.parent.id = :parentID and link.child.id = :childID";
+            IQuery service = getIQueryService();
+            Parameters param = new Parameters();
+            param.addLong("parentID", parent.getId());
+            param.addLong("childID", child.getId());
+           return service.findByQuery(sql, param);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the requested link for "+
+            "parent ID: "+parent.getId()+" and child ID: "+child.getId());
+        }
+        return null;
     }
     
 }
