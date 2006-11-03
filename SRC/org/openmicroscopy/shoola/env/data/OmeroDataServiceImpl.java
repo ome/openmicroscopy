@@ -126,6 +126,31 @@ class OmeroDataServiceImpl
     }
     
     /**
+     * Unlinks the collection of children from the specified parent.
+     * 
+     * @param parent    The parent of the children.
+     * @param children  The children to unlink
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    private void cut(DataObject parent, Set children)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        IObject mParent = parent.asIObject();
+        Iterator i = children.iterator();
+        List ids = new ArrayList(children.size());
+        while (i.hasNext()) {  
+            ids.add(new Long(((DataObject) i.next()).getId())); 
+        }
+        List links = gateway.findLinks(mParent, ids);
+        if (links != null) {
+            gateway.deleteObjects((IObject[]) 
+                    links.toArray(new IObject[links.size()]));
+        } 
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param gateway   Reference to the OMERO entry point.
@@ -477,23 +502,8 @@ class OmeroDataServiceImpl
                     "The categories set only contains CategoryData elements.");
         }
         Iterator category = categories.iterator();
-        List links = new ArrayList();
-        Iterator i;
-        IObject mParent;
-        IObject link;
-        while (category.hasNext()) {
-            mParent = ((DataObject) category.next()).asIObject();
-            i = images.iterator();
-            while (i.hasNext()) {
-                link = gateway.findLink(mParent, 
-                        ((DataObject) i.next()).asImage());
-                if (link != null) links.add(link);
-            }   
-        }
-        if (links != null) {
-            gateway.deleteObjects((IObject[]) 
-                    links.toArray(new IObject[links.size()]));
-        }
+        while (category.hasNext())
+            cut((DataObject) category.next(), images);
     }
 
     /**
@@ -611,26 +621,6 @@ class OmeroDataServiceImpl
                 index++;
             }
             gateway.createObjects(array, (new PojoOptions()).map());
-        } 
-    }
-    
-    
-    private void cut(DataObject parent, Set children)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        IObject link;
-        
-        IObject mParent = parent.asIObject();
-        Iterator i = children.iterator();
-        List links = new ArrayList();
-        while (i.hasNext()) {   
-            link = gateway.findLink(mParent, 
-                        ((DataObject) i.next()).asIObject());
-            if (link != null) links.add(link);
-        }
-        if (links != null) {
-            gateway.deleteObjects((IObject[]) 
-                    links.toArray(new IObject[links.size()]));
         } 
     }
     

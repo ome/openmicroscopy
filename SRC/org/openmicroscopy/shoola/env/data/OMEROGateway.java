@@ -908,4 +908,42 @@ class OMEROGateway
         return null;
     }
     
+    /**
+     * Finds the links if any between the specified parent and children.
+     * 
+     * @param parent    The parent.
+     * @param children  Collection of children as children ids.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    List findLinks(IObject parent, List children)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            String table = null;
+            Class klass = parent.getClass();
+            if (klass.equals(Category.class)) table = "CategoryImageLink";
+            else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
+            else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
+            else if (klass.equals(CategoryGroup.class)) 
+                table = "CategoryGroupLink";
+            if (table == null) return null;
+            String sql = "select link from "+table+" as link where " +
+                    "link.parent.id = :parentID and link.child.id in " +
+                    "(:childIDs)";
+            IQuery service = getIQueryService();
+            Parameters param = new Parameters();
+            param.addLong("parentID", parent.getId());
+            param.addList("childIDs", children);
+            return service.findAllByQuery(sql, param);
+        } catch (Exception e) {
+            handleException(e, "Cannot retrieve the requested link for "+
+            "parent ID: "+parent.getId());
+        }
+        return null;
+    }
+    
+    
 }
