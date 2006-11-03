@@ -441,10 +441,9 @@ class TreeViewerComponent
     public void setThumbnail(BufferedImage thumbnail)
     {
         if (model.getState() == LOADING_THUMBNAIL) {
-            if (thumbnail == null)
-                throw new IllegalArgumentException("No thumbnail.");
             model.setState(READY);
-            firePropertyChange(THUMBNAIL_LOADED_PROPERTY, null, thumbnail);
+            if (thumbnail != null) 
+                firePropertyChange(THUMBNAIL_LOADED_PROPERTY, null, thumbnail);
             fireStateChange();
         }
     }
