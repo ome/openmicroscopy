@@ -129,6 +129,7 @@ public class ThumbnailLoader
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure", 
                                                s, exc);
+        viewer.setThumbnail(null);
     }
     
     /**
