@@ -193,11 +193,24 @@ class BrowserUI
     private void onClick(MouseEvent me, boolean released)
     {
         Point p = me.getPoint();
-        int row = treeDisplay.getRowForLocation(p.x, p.y);
+        JTree tree = getSelectedTree();
+        int row = tree.getRowForLocation(p.x, p.y);
         if (row != -1) {
-            //treeDisplay.setSelectionRow(row);
-            model.setClickPoint(p);
             if (me.getClickCount() == 1) {
+                int[] rows = tree.getSelectionRows();
+                boolean mask = me.isShiftDown();
+                if (!mask) mask = me.isControlDown();
+                if (rows != null) {
+                    if (mask) {
+                        int[] newRows = new int[rows.length+1];
+                        for (int i = 0; i < rows.length; i++) {
+                            newRows[i] = rows[i];
+                        }
+                        newRows[rows.length] = row;
+                        tree.setSelectionRows(newRows);
+                    } else tree.setSelectionRow(row);
+                } else tree.setSelectionRow(row);
+                model.setClickPoint(p);
                 if (me.isPopupTrigger()) controller.showPopupMenu();
                 //if (!released) controller.onClick();
             } else if (me.getClickCount() == 2 && released) {

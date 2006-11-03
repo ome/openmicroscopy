@@ -630,8 +630,8 @@ class BrowserComponent
         TreeImageDisplay root = view.getTreeRoot();
         if (!root.isChildrenLoaded()) return;
 	    if (!model.isSelected()) {
-	        view.clearTree();
-	        return;
+	        //view.clearTree();
+	        //return;
 	    }
         if (model.getBrowserType() == IMAGES_EXPLORER) {
             root.removeAllChildrenDisplay();
