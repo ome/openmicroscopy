@@ -177,8 +177,8 @@ class ClassifierUI
                 getPanelNote(), im.getIcon(IconManager.CATEGORY_BIG));
         tree = new TreeCheck("", im.getIcon(IconManager.ROOT)); 
         tree.setRootVisible(false);
-        if (model.getMode() == Classifier.CLASSIFY_MODE)
-            tree.setSingleSelectionInParent(true);
+        //if (model.getMode() == Classifier.CLASSIFY_MODE)
+         //   tree.setSingleSelectionInParent(true);
         //Add Listeners
         tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
