@@ -42,11 +42,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
-import ome.model.containers.Category;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
 import ome.model.core.Channel;
-import ome.model.core.Image;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -184,7 +180,6 @@ class OmeroDataServiceImpl
             e.printStackTrace();
            throw new DSAccessException(e.getMessage());
         }
-        
     }
 
     /** 
@@ -490,7 +485,7 @@ class OmeroDataServiceImpl
             mParent = ((DataObject) category.next()).asIObject();
             i = images.iterator();
             while (i.hasNext()) {
-                link = gateway.findLink(Category.class, mParent, 
+                link = gateway.findLink(mParent, 
                         ((DataObject) i.next()).asImage());
                 if (link != null) links.add(link);
             }   
@@ -559,7 +554,6 @@ class OmeroDataServiceImpl
         }
         all.removeAll(toRemove);
         return all;
-        
     }
 
     /**
@@ -620,6 +614,26 @@ class OmeroDataServiceImpl
         } 
     }
     
+    
+    private void cut(DataObject parent, Set children)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        IObject link;
+        
+        IObject mParent = parent.asIObject();
+        Iterator i = children.iterator();
+        List links = new ArrayList();
+        while (i.hasNext()) {   
+            link = gateway.findLink(mParent, 
+                        ((DataObject) i.next()).asIObject());
+            if (link != null) links.add(link);
+        }
+        if (links != null) {
+            gateway.deleteObjects((IObject[]) 
+                    links.toArray(new IObject[links.size()]));
+        } 
+    }
+    
     /**
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#cutAndPaste(Map, Map)
@@ -627,78 +641,24 @@ class OmeroDataServiceImpl
     public void cutAndPaste(Map toPaste, Map toCut)
             throws DSOutOfServiceException, DSAccessException
     {
-        /*
-        try {
-
         if ((toPaste == null || toCut == null) || 
             (toPaste.size() == 0 || toCut.size() == 0)) {
             throw new IllegalArgumentException("No data to cut and Paste.");
         }
-        
-        Iterator i = toPaste.keySet().iterator();
+        Iterator i;
         DataObject parent;
-        while (i.hasNext()) {
-            parent = (DataObject) i.next();
-            paste(parent, (Set) toPaste.get(parent));
-        }
-        
         i = toCut.keySet().iterator();
         while (i.hasNext()) {
             parent = (DataObject) i.next();
-            //removeDataObjects((Set) toCut.get(parent), parent);
             cut(parent, (Set) toCut.get(parent));
         }
         
+        i = toPaste.keySet().iterator();
         
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
-        
-        
-        Iterator i = toPaste.keySet().iterator();
-        DataObject parent = null;
-        IObject[] children;
-        ImageData img = null;
         while (i.hasNext()) {
-            System.out.println("to paste 0");
             parent = (DataObject) i.next();
-            Set imgs = (Set) toPaste.get(parent);
-            Iterator j = imgs.iterator();
-            while (j.hasNext()) {
-                img = (ImageData) j.next(); 
-            }
+            addExistingObjects(parent, (Set) toPaste.get(parent));
         }
-        Image ioObject = null;
-        Dataset mParent = parent.asDataset();
-        DatasetImageLink l = new DatasetImageLink();
-        ioObject = (Image) gateway.updateObject(img.asIObject(), 
-                (new PojoOptions()).map());
-        l.link(mParent, ioObject);
-        gateway.createObject(l, (new PojoOptions()).map());
-        i = toCut.keySet().iterator();
-        while (i.hasNext()) {
-            System.out.println("to remove 0");
-            parent = (DataObject) i.next();
-            Set imgs = (Set) toCut.get(parent);
-            Iterator k = imgs.iterator();
-            while (k.hasNext()) {
-                img = (ImageData) k.next();
-                
-            }
-            ioObject = (Image) gateway.updateObject(img.asIObject(), 
-                    (new PojoOptions()).map());
-        }
-        mParent = parent.asDataset();
-        List links = ioObject.collectDatasetLinks(null);
-        i = links.iterator();
-        DatasetImageLink link = null;
-        while (i.hasNext()) {
-            System.out.println("to remove");
-            link = (DatasetImageLink) i.next();
-            if (link.getParent().getId() == mParent.getId()) break;  
-        }
-        gateway.deleteObject(link);
     }
 
     /**

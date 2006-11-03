@@ -872,12 +872,27 @@ class OMEROGateway
         }
     }
     
-    IObject findLink(Class klass, IObject parent, IObject child)
+    /**
+     * Finds the link if any between the specified parent and child.
+     * 
+     * @param parent    The parent.
+     * @param child     The child.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject findLink(IObject parent, IObject child)
         throws DSOutOfServiceException, DSAccessException
     {
         try {
             String table = null;
+            Class klass = parent.getClass();
             if (klass.equals(Category.class)) table = "CategoryImageLink";
+            else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
+            else if (klass.equals(Project.class)) table = "ProjectImageLink";
+            else if (klass.equals(CategoryGroup.class)) 
+                table = "CategoryGroupLink";
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id = :childID";
