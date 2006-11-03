@@ -96,6 +96,7 @@ import sun.awt.image.IntegerInterleavedRaster;
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=false)
+@Stateless
 @Remote(IThumb.class)
 @RemoteBinding (jndiBinding="omero/remote/ome.api.IThumb")
 @Local(IThumb.class)
