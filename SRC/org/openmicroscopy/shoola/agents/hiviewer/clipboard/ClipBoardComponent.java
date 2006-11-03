@@ -139,10 +139,10 @@ class ClipBoardComponent
      */
     public void setAnnotations(Map map)
     {
-        if (model.getState() != ClipBoard.LOADING_ANNOTATIONS)
-            throw new IllegalStateException(
-                    "This method can only be invoked in the " +
-                    "LOADING_ANNOTATIONS state.");
+        if (model.getState() != ClipBoard.LOADING_ANNOTATIONS) return;
+           // throw new IllegalStateException(
+           //         "This method can only be invoked in the " +
+           //         "LOADING_ANNOTATIONS state.");
         model.setAnnotations(map);
         view.showAnnotations();
         fireStateChange();
@@ -341,7 +341,6 @@ class ClipBoardComponent
      */
     public boolean isObjectWritable(DataObject ho)
     {
-        // TODO Auto-generated method stub
         return model.getParentModel().isObjectWritable(ho);
     }
 
