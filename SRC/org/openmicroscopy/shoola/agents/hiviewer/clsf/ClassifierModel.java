@@ -37,7 +37,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.ClassifLoader;
-
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -94,6 +95,9 @@ abstract class ClassifierModel
     /** The id of the user's group when loading the window. */
     private long                groupID;
     
+    /** The root Level type. */
+    private Class               rootLevel;
+    
     /**
      * Creates a new object and sets its state to {@link Classifier#NEW}.
      * The {@link #initialize(Classifier) initialize} method should be
@@ -103,8 +107,10 @@ abstract class ClassifierModel
      *                  Mustn't be <code>null</code> or of size <code>0</code>.
      * @param userID    The id of the current user.
      * @param groupID   The id of the user's group when loading the window.
+     * @param rootLevel The level of the hierarchy when loading the window.
      */
-    protected ClassifierModel(ImageData[] images, long userID, long groupID) 
+    protected ClassifierModel(ImageData[] images, long userID, long groupID, 
+                            Class rootLevel) 
     { 
         if (images == null)
             throw new IllegalArgumentException("No image.");
@@ -113,6 +119,7 @@ abstract class ClassifierModel
         this.images = images;
         this.userID = userID;
         this.groupID = groupID;
+        this.rootLevel = rootLevel;
         state = Classifier.NEW; 
     }
     
@@ -152,6 +159,25 @@ abstract class ClassifierModel
      */
     long getGroupID() { return groupID; }
     
+    /**
+     * Returns the IDof the root depending on the root level.
+     * 
+     * @return See above.
+     */
+    long getRootID()
+    {
+        if (rootLevel.equals(ExperimenterData.class)) return userID;  
+        else if (rootLevel.equals(GroupData.class)) return groupID;
+        throw new IllegalArgumentException("Level not supported");
+    }
+    
+    /**
+     * The level of the hierarchy root. 
+     * 
+     * @return See above.
+     */
+    Class getRootLevel() { return rootLevel; }
+
     /**
      * Starts the asynchronous retrieval of the metadata needed by this
      * model and sets the state to {@link Classifier#LOADING_METADATA}. 

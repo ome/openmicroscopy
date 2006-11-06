@@ -162,7 +162,8 @@ class ThumbWinPopupMenu
                         (ImageData) currentWin.getDataObject(), 
                         Classifier.CLASSIFICATION_MODE, 
                         currentWin.getParentFrame(), currentWin.getUserID(),
-                        currentWin.getModel().getRootID());
+                        currentWin.getModel().getRootID(), 
+                        currentWin.getModel().getRootLevel());
                 cmd.execute();
             }
         });
@@ -173,7 +174,8 @@ class ThumbWinPopupMenu
                         (ImageData) currentWin.getDataObject(), 
                         Classifier.DECLASSIFICATION_MODE,
                         currentWin.getParentFrame(), currentWin.getUserID(),
-                        currentWin.getModel().getRootID());
+                        currentWin.getModel().getRootID(),
+                        currentWin.getModel().getRootLevel());
                 cmd.execute();
             }
         });

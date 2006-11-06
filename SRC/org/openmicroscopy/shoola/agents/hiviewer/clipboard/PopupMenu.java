@@ -149,7 +149,8 @@ class PopupMenu
                                             Classifier.CLASSIFICATION_MODE, 
                                             model.getParentModel().getUI(),
                                             model.getUserID(),
-                                            model.getGroupID());
+                                            model.getGroupID(),
+                                         model.getParentModel().getRootLevel());
                     cmd.execute();
                 }
             }
@@ -164,7 +165,8 @@ class PopupMenu
                                             Classifier.DECLASSIFICATION_MODE, 
                                             model.getParentModel().getUI(),
                                             model.getUserID(),
-                                            model.getGroupID());
+                                            model.getGroupID(),
+                                         model.getParentModel().getRootLevel());
                     cmd.execute();
                 }
             }

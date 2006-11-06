@@ -464,7 +464,8 @@ class HiViewerControl
             ClassifyCmd cmd = new ClassifyCmd(
                     (ImageData) n.getHierarchyObject(), 
                     Classifier.DECLASSIFICATION_MODE, view, 
-                    model.getUserDetails().getId(), model.getRootID());
+                    model.getUserDetails().getId(), model.getRootID(),
+                    model.getRootLevel());
             cmd.execute();
         } else if (Browser.ROLL_OVER_PROPERTY.equals(propName)) {
             if (model.isRollOver()) {

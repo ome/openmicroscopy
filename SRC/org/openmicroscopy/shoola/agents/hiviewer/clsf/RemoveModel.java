@@ -77,7 +77,8 @@ class RemoveModel
      */
     protected ClassifLoader createClassifLoader()
     {
-        return new DeclassifPathsLoader(component);
+        return new DeclassifPathsLoader(component, getRootLevel(), 
+                                            getRootID());
     }
 
     /**
@@ -100,10 +101,11 @@ class RemoveModel
      *                  Mustn't be <code>null</code> or of size <code>0</code>.
      * @param userID    The id of the current user.
      * @param groupID   The id of the user's group when loading the window.
+     * @param rootLevel The level of the root when loading the window.
      */
-    RemoveModel(ImageData[] images, long userID, long groupID)
+    RemoveModel(ImageData[] images, long userID, long groupID, Class rootLevel)
     { 
-        super(images, userID, groupID);
+        super(images, userID, groupID, rootLevel);
     }
 
 }

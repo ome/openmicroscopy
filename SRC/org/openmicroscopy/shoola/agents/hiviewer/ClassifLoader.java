@@ -76,6 +76,29 @@ public abstract class ClassifLoader
     /** Convenience reference. */
     protected HierarchyBrowsingView hiBrwView;
     
+    protected Class                 rootLevel;
+    
+    protected long                  rootID;
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param classifier    The {@link Classifier} this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param rootLevel     The level of the hiearchy when loading data.
+     * @param rootID        The id of the hiearchy root. 
+     */
+    public ClassifLoader(Classifier classifier, Class rootLevel, long rootID)
+    {
+        if (classifier == null) 
+            throw new NullPointerException("No classifier.");
+        this.classifier = classifier;
+        this.rootLevel = rootLevel;
+        this.rootID = rootID;
+        registry = HiViewerAgent.getRegistry();
+        hiBrwView = (HierarchyBrowsingView) registry.
+                    getDataServicesView(HierarchyBrowsingView.class);
+    }
     
     /**
      * Creates a new instance.

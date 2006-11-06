@@ -110,7 +110,10 @@ public class ClassificationSaver
      * @param images        The image to classify or declassify.
      *                      Mustn't be <code>null</code>.
      * @param categories    The categories to add to or remove from.
-     *                      Mustn't be <code>null</code>.
+     *                      M)
+    { 
+        super(classifier); 
+    }ustn't be <code>null</code>.
      */
     public ClassificationSaver(Classifier classifier, int m, ImageData[] images,
                                 Set categories)

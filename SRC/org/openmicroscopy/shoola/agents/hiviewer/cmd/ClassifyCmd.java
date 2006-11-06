@@ -113,6 +113,9 @@ public class ClassifyCmd
     
     /** The id of the user's group used for data retrieval. */
     private long                groupID;
+    
+    /** The rootLevel. */
+    private Class               rootLevel;
         
     /**
      * Creates a new command to classify/declassify the specified Image.
@@ -125,10 +128,11 @@ public class ClassifyCmd
      * @param owner     The window from which this command was invoked.
      *                  Mustn't be <code>null</code>.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group used for data retrieval.              
+     * @param groupID   The id of the user's group used for data retrieval.  
+     * @param rootLevel The level of the root for data retrieval.                
      */
     public ClassifyCmd(ImageData[] images, int mode, JFrame owner, long userID, 
-                       long groupID)
+                       long groupID, Class rootLevel)
     {
         if (owner == null) throw new NullPointerException("No owner.");
         this.images = images;
@@ -136,8 +140,9 @@ public class ClassifyCmd
         this.owner = owner;
         this.userID = userID;
         this.groupID = groupID;
+        this.rootLevel = rootLevel;
     }
-     
+   
     /**
      * Creates a new command to classify/declassify the specified Image.
      * 
@@ -149,10 +154,11 @@ public class ClassifyCmd
      * @param owner     The window from which this command was invoked.
      *                  Mustn't be <code>null</code>.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group used for data retrieval.                
+     * @param groupID   The id of the user's group used for data retrieval.  
+     * @param rootLevel The level of the root for data retrieval.                  
      */
     public ClassifyCmd(ImageData image, int mode, JFrame owner, long userID, 
-                        long groupID)
+                        long groupID, Class rootLevel)
     {
         if (owner == null) throw new NullPointerException("No owner.");
         if (image != null) {
@@ -163,6 +169,7 @@ public class ClassifyCmd
         this.owner = owner;
         this.userID = userID;
         this.groupID = groupID;
+        this.rootLevel = rootLevel;
     }
     /**
      * Creates a new command to classify/declassify the Image in the browser's
@@ -178,7 +185,8 @@ public class ClassifyCmd
     public ClassifyCmd(HiViewer model, int mode) 
     { 
         this(getImages(model), mode, model.getUI(), 
-                model.getUserDetails().getId(), model.getRootID()); 
+                model.getUserDetails().getId(), model.getRootID(), 
+                model.getRootLevel()); 
     }
     
     /** 
@@ -190,7 +198,7 @@ public class ClassifyCmd
     {
         if (images == null) return;
         Classifier classifier = ClassifierFactory.createComponent(mode, images, 
-                                            owner, userID, groupID);
+                                            owner, userID, groupID, rootLevel);
         classifier.activate();
     }
 

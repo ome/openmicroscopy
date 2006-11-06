@@ -72,10 +72,16 @@ public class ClassifPathsLoader
     /**
      * Creates a new instance.
      * 
-     * @param classifier The {@link Classifier} this data loader is for.
-     *                   Mustn't be <code>null</code>.
+     * @param classifier    The {@link Classifier} this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param rootLevel     The level of the hiearchy when loading data.
+     * @param rootID        The id of the hiearchy root.                    
      */
-    public ClassifPathsLoader(Classifier classifier) { super(classifier); }
+    public ClassifPathsLoader(Classifier classifier, Class rootLevel, 
+                            long rootID)
+    { 
+        super(classifier, rootLevel, rootID); 
+    }
     
     /** 
      * Retrieves all the metadata needed by the {@link #classifier}. 
@@ -88,7 +94,8 @@ public class ClassifPathsLoader
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
         handle = hiBrwView.loadClassificationPaths(ids,
-                		HierarchyBrowsingView.CLASSIFICATION_NME, this);
+                		HierarchyBrowsingView.CLASSIFICATION_NME, rootLevel,
+                        rootID, this);
     }
     
     /** 

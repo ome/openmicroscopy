@@ -40,7 +40,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ImageData;
 
 /** 
@@ -73,10 +72,16 @@ public class DeclassifPathsLoader
     /**
      * Creates a new instance.
      * 
-     * @param classifier The {@link Classifier} this data loader is for.
-     *                   Mustn't be <code>null</code>.
+     * @param classifier    The {@link Classifier} this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param rootLevel     The level of the hiearchy when loading data.
+     * @param rootID        The id of the hiearchy root.                     
      */
-    public DeclassifPathsLoader(Classifier classifier) { super(classifier); }
+    public DeclassifPathsLoader(Classifier classifier, Class rootLevel, 
+                            long rootID)
+    { 
+        super(classifier, rootLevel, rootID); 
+    }
     
     /**
      * Retrieves all the metadata needed by the {@link #classifier}.
@@ -89,7 +94,8 @@ public class DeclassifPathsLoader
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
         handle = hiBrwView.loadClassificationPaths(ids,
-                             OmeroDataService.DECLASSIFICATION, this);
+                             OmeroDataService.DECLASSIFICATION, 
+                             rootLevel, rootID, this);
     }
     
     /** 

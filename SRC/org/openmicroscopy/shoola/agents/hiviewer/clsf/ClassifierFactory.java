@@ -64,13 +64,15 @@ public class ClassifierFactory
      * @param owner     The window from which the component is invoked.
      *                  Mustn't be <code>null</code>.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group when loading the window.                 
+     * @param groupID   The id of the user's group when loading the window. 
+     * @param rootLevel The level of the root when loading the window.               
      * @return A {@link Classifier} to classify the given Image.
      */
     public static Classifier createClassifComponent(ImageData[] images,
-                              JFrame owner, long userID, long groupID)
+                              JFrame owner, long userID, long groupID, Class 
+                              rootLevel)
     {
-        AddModel model = new AddModel(images, userID, groupID);
+        AddModel model = new AddModel(images, userID, groupID, rootLevel);
         ClassifierComponent comp = new ClassifierComponent(model);
         comp.initialize(owner);
         return comp;
@@ -84,13 +86,15 @@ public class ClassifierFactory
      * @param owner     The window from which the component is invoked.
      *                  Mustn't be <code>null</code>.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group when loading the window.                     
+     * @param groupID   The id of the user's group when loading the window.  
+     * @param rootLevel The level of the root when loading the window.                      
      * @return A {@link Classifier} to declassify the given Image.
      */
     public static Classifier createDeclassifComponent(ImageData[] images,
-                                      JFrame owner, long userID, long groupID)
+                                      JFrame owner, long userID, long groupID,
+                                      Class rootLevel)
     {
-        RemoveModel model = new RemoveModel(images, userID, groupID);
+        RemoveModel model = new RemoveModel(images, userID, groupID, rootLevel);
         ClassifierComponent comp = new ClassifierComponent(model);
         comp.initialize(owner);
         return comp;
@@ -106,19 +110,23 @@ public class ClassifierFactory
      * @param owner     The window from which the component is invoked.
      *                  Mustn't be <code>null</code>.
      * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group when loading the window.                  
+     * @param groupID   The id of the user's group when loading the window.   
+     * @param rootLevel The level of the root when loading the window.                   
      * @return          A {@link Classifier} to classify or declassify the given 
      *                  images, depending on the value of the <code>mode</code>
      *                  constant.
      */
     public static Classifier createComponent(int mode, ImageData[] images,
-                                JFrame owner, long userID, long groupID)
+                                JFrame owner, long userID, long groupID, 
+                                Class rootLevel)
     {
         switch (mode) {
             case Classifier.CLASSIFICATION_MODE:
-                return createClassifComponent(images, owner, userID, groupID);
+                return createClassifComponent(images, owner, userID, groupID, 
+                                                rootLevel);
             case Classifier.DECLASSIFICATION_MODE:
-                return createDeclassifComponent(images, owner, userID, groupID);
+                return createDeclassifComponent(images, owner, userID, groupID, 
+                                                rootLevel);
             default:
                 throw new IllegalArgumentException(
                         "Unsupported classification mode: "+mode+".");
