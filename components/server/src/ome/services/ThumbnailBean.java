@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.logic;
+package ome.services;
 
 //Java imports
 import java.awt.Point;
@@ -42,10 +42,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
+import javax.ejb.Remove;
+import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -66,16 +74,23 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
 //Application-internal dependencies
+import ome.api.IQuery;
 import ome.api.IScale;
-import ome.api.IThumb;
+import ome.api.RawFileStore;
+import ome.api.ThumbnailStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.ThumbnailService;
+import ome.logic.AbstractLevel2Service;
+import ome.logic.SimpleLifecycle;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
+import ome.system.EventContext;
+import ome.system.SimpleEventContext;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import sun.awt.image.IntegerInterleavedRaster;
@@ -96,26 +111,35 @@ import sun.awt.image.IntegerInterleavedRaster;
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly=false)
-@Stateless
-@Remote(IThumb.class)
-@RemoteBinding (jndiBinding="omero/remote/ome.api.IThumb")
-@Local(IThumb.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.IThumb")
+@Stateful
+@Remote(ThumbnailStore.class)
+@RemoteBinding (jndiBinding="omero/remote/ome.api.ThumbnailStore")
+@Local(ThumbnailStore.class)
+@LocalBinding (jndiBinding="omero/local/ome.api.ThumbnailStore")
 @SecurityDomain("OmeroSecurity")
-@Interceptors({SimpleLifecycle.class})
-public class ThumbImpl extends AbstractLevel2Service implements IThumb
+public class ThumbnailBean extends AbstractLevel2Service
+	implements ThumbnailStore, Serializable
 {
 	/** The logger for this class. */
-	private static Log log = LogFactory.getLog(ThumbImpl.class);
+	private transient static Log log = LogFactory.getLog(ThumbnailBean.class);
 	
 	/** The rendering engine that this service uses for thumbnail creation. */
-	private RenderingEngine re;
+	private transient RenderingEngine re;
 	
 	/** The scaling service that will be used to scale buffered images. */
-	private IScale iScale;
+	private transient IScale iScale;
 	
 	/** The ROMIO thumbnail service. */
-	private ThumbnailService ioService;
+	private transient ThumbnailService ioService;
+
+	/** The pixels instance that the service is currently working on. */
+	private Pixels pixels;
+	
+	/** The id of the pixels instance. */
+	private Long pixelsId;
+	
+	/** The id of the rendering definition instance. */
+	private Long renderingDefId;
 	
 	/** The default X-width for a thumbnail. */
 	public static final int DEFAULT_X_WIDTH = 48;
@@ -129,12 +153,107 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	/** The default MIME type. */
 	public static final String DEFAULT_MIME_TYPE = "image/jpeg";
 	
+	/* (non-Javadoc)
+	 * @see ome.logic.AbstractBean#getServiceInterface()
+	 */
+	@Override
+	protected Class<? extends ServiceInterface> getServiceInterface()
+	{
+		return ThumbnailStore.class;
+	}
+	
+    /* (non-Javadoc)
+     * @see ome.logic.AbstractBean#create()
+     */
+    @PostConstruct
+    @PostActivate
+    public void create()
+    {  
+        super.create();
+        if (pixelsId != null)
+        {
+            long reset = pixelsId.longValue();
+            pixelsId = null;
+            setPixelsId(reset);
+        }
+        
+        if (renderingDefId != null)
+        {
+            long reset = renderingDefId.longValue();
+            renderingDefId = null;
+            setPixelsId(reset);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see ome.logic.AbstractBean#destroy()
+     */
+    @PrePassivate
+    @PreDestroy
+    public void destroy()
+    {
+        super.destroy();
+        // id is the only thing passivated.
+        re = null;
+        iScale = null;
+        ioService = null;
+        pixels = null;
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.api.StatefulServiceInterface#close()
+     */
+    @Remove
+    @Transactional(readOnly=true)
+    public void close()
+    {
+    	// don't need to do anything.
+    }
+
+	/* (non-Javadoc)
+	 * @see ome.api.StatefulServiceInterface#getCurrentEventContext()
+	 */
+	public EventContext getCurrentEventContext()
+	{
+		return new SimpleEventContext(getSecuritySystem().getEventContext());
+	}
+	
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#setPixelsId(long)
+     */
+    @RolesAllowed("user")
+    public void setPixelsId(long id)
+    {
+        if (pixelsId == null || pixelsId.longValue() != id)
+        {
+            pixelsId = new Long(id);
+            pixels = iQuery.get(Pixels.class, pixelsId);
+            
+            if (pixels == null)
+            	throw new ApiUsageException(
+            			"Unable to locate pixels set with ID: " + id);
+            
+            re.lookupPixels(id);
+            re.lookupRenderingDef(id);
+            re.load();
+		}
+    }
+    
+    @RolesAllowed("user")
+    public void setRenderingDefId(Long id)
+    {
+        // FIXME: This currently is useless as the rendering engine does
+        // not accept arbitrary rendering definitions.
+    	return;
+    }
+	
 	/**
 	 * Rendering Engine Bean injector.
 	 * @param re a <code>RenderingEngine</code>.
 	 */
 	public void setRenderingEngine(RenderingEngine re)
 	{
+		throwIfAlreadySet(this.re, re);
 		this.re = re;
 	}
 	
@@ -144,6 +263,7 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	 */
 	public void setScaleService(IScale iScale)
 	{
+		throwIfAlreadySet(this.iScale, iScale);
 		this.iScale = iScale;
 	}
 	
@@ -153,13 +273,8 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	 */
 	public void setIoService(ThumbnailService ioService)
 	{
+		throwIfAlreadySet(this.ioService, ioService);
 		this.ioService = ioService;
-	}
-	
-	@Override
-	protected final Class<? extends ServiceInterface> getServiceInterface()
-	{
-		return IThumb.class;
 	}
 	
 	/**
@@ -247,18 +362,17 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     }
     
     /**
-     * Retrieves metadata for a thumbnail given its pixels set and X-Y
+     * Retrieves metadata for a thumbnail of the active pixels set and X-Y
      * dimensions.
-     * @param p the pixels set the thumbnail is of.
      * @param sizeX the X-width of the thumbnail.
      * @param sizeY the Y-width of the thumbnail.
      * @return the thumbnail metadata. <code>null</code> if the object does not
      * exist.
      */
-    private Thumbnail getThumbnailMetadata(Pixels p, int sizeX, int sizeY)
+    private Thumbnail getThumbnailMetadata(int sizeX, int sizeY)
     {
     	Parameters param = new Parameters();
-    	param.addId(p.getId());
+    	param.addId(pixelsId);
     	param.addInteger("x", sizeX);
     	param.addInteger("y", sizeY);
     	
@@ -269,32 +383,31 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     }
     
     /**
-     * Retrieves metadata for all thumbnails associated with a given pixels
+     * Retrieves metadata for all thumbnails associated with the active pixels
      * set.
-     * @param p the pixels set the thumbnail is of.
      * @return the thumbnail metadata. <code>null</code> if the object does not
      * exist.
      */
-    private List<Thumbnail> getThumbnailMetadata(Pixels p)
+    private List<Thumbnail> getThumbnailMetadata()
     {
     	List<Thumbnail> thumbs = iQuery.findAllByQuery(
     				"select t from Thumbnail as t where t.pixels.id = :id",
-    				new Parameters().addId(p.getId()));
+    				new Parameters().addId(pixelsId));
     	return thumbs;
     }
     
     /**
-     * Creates metadata for a thumbnail given its pixels set and X-Y dimensions.
-     * @param p the pixels set the thumbnail is of.
+     * Creates metadata for a thumbnail if the active pixels set and X-Y
+     * dimensions.
      * @param sizeX the X-width of the thumbnail.
      * @param sizeY the Y-width of the thumbnail.
      * @return the thumbnail metadata as created.
      * @see getThumbnailMetadata()
      */
-    private Thumbnail createThumbnailMetadata(Pixels p, int sizeX, int sizeY)
+    private Thumbnail createThumbnailMetadata(int sizeX, int sizeY)
     {
     	Thumbnail thumb = new Thumbnail();
-		thumb.setPixels(p);
+		thumb.setPixels(pixels);
 		thumb.setMimeType(DEFAULT_MIME_TYPE);
 		thumb.setSizeX(sizeX);
 		thumb.setSizeY(sizeY);
@@ -302,23 +415,12 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     }
     
     /**
-     * Initializes the rendering engine.
-     * @param pixels the pixels set to load.
-     */
-    private void initializeRenderingEngine(Pixels pixels)
-    {
-		re.lookupPixels(pixels.getId());
-		re.lookupRenderingDef(pixels.getId());
-		re.load();
-    }
-    
-    /**
-     * Checks that sizeX and sizeY are not out of range for a given pixels set.
-     * @param pixels the pixels set.
+     * Checks that sizeX and sizeY are not out of range for the active pixels
+     * set.
      * @param sizeX the X-width for the requested thumbnail.
      * @param sizeY the Y-width for the requested thumbnail.
      */
-    private void sanityCheckThumbnailSizes(Pixels pixels, int sizeX, int sizeY)
+    private void sanityCheckThumbnailSizes(int sizeX, int sizeY)
     {
 		// Sanity checks
 		if (sizeX > pixels.getSizeX())
@@ -332,22 +434,19 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
     }
     
     /**
-     * Creates a scaled buffered image from a give pixels set.
-     * @param pixels the pixels set.
+     * Creates a scaled buffered image from the active pixels set.
      * @param def the rendering settings to use for buffered image creation.
      * @param sizeX the X-width of the requested, scaled image.
      * @param sizeY the Y-width of the requested, scaled image.
      * @return a scaled buffered image.
      */
-    private BufferedImage createScaledImage(Pixels pixels, RenderingDef def,
-                                            Integer sizeX, Integer sizeY)
+    private BufferedImage createScaledImage(Integer sizeX, Integer sizeY)
     {
 		// Original sizes and thumbnail metadata
 		int origSizeX = pixels.getSizeX();
 		int origSizeY = pixels.getSizeY();
 		
 		// Retrieve our rendered data and translate to a buffered image
-		initializeRenderingEngine(pixels);
 		PlaneDef pd = new PlaneDef(PlaneDef.XY, re.getDefaultT());
 		pd.setZ(re.getDefaultZ());
 		int[] buf = re.renderAsPackedInt(pd);
@@ -361,24 +460,37 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 		return iScale.scaleBufferedImage(image, xScale, yScale);
     }
     
+    protected void errorIfInvalidState()
+    {
+        errorIfNullPixels();
+    }
+        
+    protected void errorIfNullPixels()
+    {
+        if (pixelsId == null)
+            throw new ApiUsageException(
+                    "Thumbnail service not ready: Pixels object not set.");
+    }
+    
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#createThumbnail(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#createThumbnail(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
 	 */
-	public void createThumbnail(Pixels pixels, RenderingDef def,
-	                            Integer sizeX, Integer sizeY)
+    @RolesAllowed("user")
+	public void createThumbnail(Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (sizeX == null)
 			sizeX = DEFAULT_X_WIDTH;
 		if (sizeY == null)
 			sizeY = DEFAULT_Y_WIDTH;
-		sanityCheckThumbnailSizes(pixels, sizeX, sizeY);
+		sanityCheckThumbnailSizes(sizeX, sizeY);
 
-		Thumbnail metadata = getThumbnailMetadata(pixels, sizeX, sizeY);
+		Thumbnail metadata = getThumbnailMetadata(sizeX, sizeY);
 		if (metadata == null)
-			metadata = createThumbnailMetadata(pixels, sizeX, sizeY);
+			metadata = createThumbnailMetadata(sizeX, sizeY);
 		
-		BufferedImage image = createScaledImage(pixels, def, sizeX, sizeY);
+		BufferedImage image = createScaledImage(sizeX, sizeY);
 		try
 		{
 			compressThumbnailToDisk(metadata, image);
@@ -391,40 +503,42 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#createThumbnails(ome.model.core.Pixels, ome.model.display.RenderingDef)
+	 * @see ome.api.ThumbnailStore#createThumbnails(ome.model.core.Pixels, ome.model.display.RenderingDef)
 	 */
-	public void createThumbnails(Pixels pixels, RenderingDef def)
+    @RolesAllowed("user")
+	public void createThumbnails()
 	{
-		List<Thumbnail> thumbnails = getThumbnailMetadata(pixels);
+		List<Thumbnail> thumbnails = getThumbnailMetadata();
 		
 		for (Thumbnail t : thumbnails)
-			createThumbnail(pixels, def, t.getSizeX(), t.getSizeY());
+			createThumbnail(t.getSizeX(), t.getSizeY());
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#getThumbnail(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
 	 */
-	public byte[] getThumbnail(Pixels pixels, RenderingDef def,
-	                           Integer sizeX, Integer sizeY)
+    @RolesAllowed("user")
+	public byte[] getThumbnail(Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (sizeX == null)
 			sizeX = DEFAULT_X_WIDTH;
 		if (sizeY == null)
 			sizeY = DEFAULT_Y_WIDTH;
-		sanityCheckThumbnailSizes(pixels, sizeX, sizeY);
+		sanityCheckThumbnailSizes(sizeX, sizeY);
 		
 		try
 		{		
-			Thumbnail metadata = getThumbnailMetadata(pixels, sizeX, sizeY);
+			Thumbnail metadata = getThumbnailMetadata(sizeX, sizeY);
 			if (metadata == null)
 			{
 				// First create a scaled buffered image
 				BufferedImage image =
-					createScaledImage(pixels, def, sizeX, sizeY);
+					createScaledImage(sizeX, sizeY);
 				
 				// Now write it to the disk cache and return what we've written
-				metadata = createThumbnailMetadata(pixels, sizeX, sizeY);
+				metadata = createThumbnailMetadata(sizeX, sizeY);
 				compressThumbnailToDisk(metadata, image);
 				return ioService.getThumbnail(metadata);
 			}
@@ -438,44 +552,46 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#getThumbnailByLongestSide(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer)
 	 */
-	public byte[] getThumbnailByLongestSide(Pixels pixels, RenderingDef def,
-	                                        Integer size)
+    @RolesAllowed("user")
+	public byte[] getThumbnailByLongestSide(Integer size)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (size == null)
 			size = DEFAULT_X_WIDTH;
-		sanityCheckThumbnailSizes(pixels, size, size);
+		sanityCheckThumbnailSizes(size, size);
 		
 		int sizeX = pixels.getSizeX();
 		int sizeY = pixels.getSizeY();
 		if (sizeX > sizeY)
 		{
 			float ratio = (float) size / sizeX;
-			return getThumbnail(pixels, def, size, (int) (sizeY * ratio));
+			return getThumbnail(size, (int) (sizeY * ratio));
 		}
 		else
 		{
 			float ratio = (float) size / sizeY;
-			return getThumbnail(pixels, def, (int) (sizeX * ratio), size);
+			return getThumbnail((int) (sizeX * ratio), size);
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#getThumbnailDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#getThumbnailDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer, java.lang.Integer)
 	 */
-	public byte[] getThumbnailDirect(Pixels pixels, RenderingDef def,
-	                                 Integer sizeX, Integer sizeY)
+    @RolesAllowed("user")
+	public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (sizeX == null)
 			sizeX = DEFAULT_X_WIDTH;
 		if (sizeY == null)
 			sizeY = DEFAULT_Y_WIDTH;
-		sanityCheckThumbnailSizes(pixels, sizeX, sizeY);
+		sanityCheckThumbnailSizes(sizeX, sizeY);
 		
-		BufferedImage image = createScaledImage(pixels, def, sizeX, sizeY);
+		BufferedImage image = createScaledImage(sizeX, sizeY);
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		try
 		{
@@ -490,44 +606,46 @@ public class ThumbImpl extends AbstractLevel2Service implements IThumb
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#getThumbnailByLongestSideDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(ome.model.core.Pixels, ome.model.display.RenderingDef, java.lang.Integer)
 	 */
-	public byte[] getThumbnailByLongestSideDirect(Pixels pixels,
-	                                              RenderingDef def,
-	                                              Integer size)
+    @RolesAllowed("user")
+	public byte[] getThumbnailByLongestSideDirect(Integer size)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (size == null)
 			size = DEFAULT_X_WIDTH;
-		sanityCheckThumbnailSizes(pixels, size, size);
+		sanityCheckThumbnailSizes(size, size);
 		
 		int sizeX = pixels.getSizeX();
 		int sizeY = pixels.getSizeY();
 		if (sizeX > sizeY)
 		{
 			float ratio = (float) size / sizeX;
-			return getThumbnailDirect(pixels, def, size, (int) (sizeY * ratio));
+			return getThumbnailDirect(size, (int) (sizeY * ratio));
 		}
 		else
 		{
 			float ratio = (float) size / sizeY;
-			return getThumbnailDirect(pixels, def, (int) (sizeX * ratio), size);
+			return getThumbnailDirect((int) (sizeX * ratio), size);
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see ome.api.IThumb#thumbnailExists(ome.model.core.Pixels, java.lang.Integer, java.lang.Integer)
+	 * @see ome.api.ThumbnailStore#thumbnailExists(ome.model.core.Pixels, java.lang.Integer, java.lang.Integer)
 	 */
-	public boolean thumbnailExists(Pixels pixels, Integer sizeX, Integer sizeY)
+    @RolesAllowed("user")
+	public boolean thumbnailExists(Integer sizeX, Integer sizeY)
 	{
 		// Set defaults and sanity check thumbnail sizes
+		errorIfInvalidState();
 		if (sizeX == null)
 			sizeX = DEFAULT_X_WIDTH;
 		if (sizeY == null)
 			sizeY = DEFAULT_Y_WIDTH;
-		sanityCheckThumbnailSizes(pixels, sizeX, sizeY);
+		sanityCheckThumbnailSizes(sizeX, sizeY);
 		
-		Thumbnail thumb = getThumbnailMetadata(pixels, sizeX, sizeY);
+		Thumbnail thumb = getThumbnailMetadata(sizeX, sizeY);
 		if (thumb == null)
 			return false;
 		return true;

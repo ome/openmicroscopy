@@ -80,7 +80,7 @@ import omeis.providers.re.RenderingEngine;
 @Stateful
 @Remote(RawFileStore.class)
 @RemoteBinding(jndiBinding="omero/remote/ome.api.RawFileStore")
-@Local(RenderingEngine.class)
+@Local(RawFileStore.class)
 @LocalBinding (jndiBinding="omero/local/ome.api.RawFileStore")
 @SecurityDomain("OmeroSecurity")
 public class RawFileBean extends AbstractBean 
