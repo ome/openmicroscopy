@@ -223,9 +223,10 @@ class OmeroDataServiceImpl
 
     /** 
      * Implemented as specified by {@link OmeroDataService}. 
-     * @see OmeroDataService#findCGCPaths(Set, int)
+     * @see OmeroDataService#findCGCPaths(Set, int, Class, long)
      */
-    public Set findCGCPaths(Set imgIDs, int algorithm)
+    public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel,
+                            long rootLevelID)
         throws DSOutOfServiceException, DSAccessException
     {
         if (!checkAlgorithm(algorithm)) 

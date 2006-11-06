@@ -241,13 +241,14 @@ class DataManagerViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see DataManagerView#loadClassificationPaths(Set, int, 
+     * @see DataManagerView#loadClassificationPaths(Set, int, Class, long,
      *                                              AgentEventListener)
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-                                            AgentEventListener observer)
+                Class rootLevel, long rootLevelID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm);
+        BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
+                                        rootLevel, rootLevelID);
         return cmd.exec(observer);
     }
 

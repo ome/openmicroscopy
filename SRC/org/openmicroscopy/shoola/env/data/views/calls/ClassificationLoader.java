@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
+import pojos.CategoryGroupData;
+
 /** 
  * Command to find the Category Group/Category paths that end or don't end with
  * a specified Image.
@@ -96,20 +98,31 @@ public class ClassificationLoader
      * Creates a {@link BatchCall} to load all Category Group/Category paths
      * that don't end with the specified Image.
      * 
-     * @param imageIDs The set of image ids.
-     * @param algorithm  One of the following constants:
-     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param imageIDs      The set of image ids.
+     * @param algorithm     One of the following constants:
+     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.                  
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm)
+    private BatchCall loadCGCPaths(final Set imageIDs, final int algorithm, 
+            final Class rootLevel, final long rootLevelID)
     {
         return new BatchCall("Loading CGC paths. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                rootNodes = os.findCGCPaths(imageIDs, algorithm);
+                if (algorithm == HierarchyBrowsingView.CLASSIFICATION_ME)
+                    rootNodes = os.loadContainerHierarchy(
+                            CategoryGroupData.class, null, false,
+                            rootLevel, rootLevelID);
+                else 
+                    rootNodes = os.findCGCPaths(imageIDs, algorithm, rootLevel, 
+                                            rootLevelID);
             }
         };
     }
@@ -132,14 +145,19 @@ public class ClassificationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imageID   The id of the Image to classify or declassifiy depending
-     *                  on the algorithm.
-     * @param algorithm  One of the following constants:
-     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param imageID       The id of the Image to classify or declassifiy
+     *                      depending on the algorithm.
+     * @param algorithm     One of the following constants:
+     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.                    
      */
-    public ClassificationLoader(long imageID, int algorithm)
+    public ClassificationLoader(long imageID, int algorithm, Class rootLevel, 
+                                long rootLevelID)
     {
         if (imageID < 0) 
             throw new IllegalArgumentException("image ID not valid ");
@@ -147,7 +165,7 @@ public class ClassificationLoader
             throw new IllegalArgumentException("Algorithm not supported.");
         Set set = new HashSet(1);
         set.add(new Long(imageID));
-        loadCall  = loadCGCPaths(set, algorithm);
+        loadCall  = loadCGCPaths(set, algorithm, rootLevel, rootLevelID);
     }
     
     /**
@@ -156,13 +174,18 @@ public class ClassificationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imageIDs   The collection of image's ids.
-     * @param algorithm  One of the following constants:
-     *                  {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                  {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param imageIDs      The collection of image's ids.
+     * @param algorithm     One of the following constants:
+     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
+     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.                
      */
-    public ClassificationLoader(Set imageIDs, int algorithm)
+    public ClassificationLoader(Set imageIDs, int algorithm, Class rootLevel, 
+                                long rootLevelID)
     {
         if (imageIDs == null || imageIDs.size() == 0) 
             throw new IllegalArgumentException("The collection of ids" +
@@ -174,7 +197,7 @@ public class ClassificationLoader
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException("imageIDs only contains Long.");
         }  
-        loadCall  = loadCGCPaths(imageIDs, algorithm);
+        loadCall  = loadCGCPaths(imageIDs, algorithm, rootLevel, rootLevelID);
     }
     
 }

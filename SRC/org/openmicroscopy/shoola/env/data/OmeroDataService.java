@@ -216,19 +216,24 @@ public interface OmeroDataService
      * find CGC paths to which an Image <B>MAY</b> be attached.
      * </p>
      * 
-     * @param imgIDs    Set of ids of the images that sit at the bottom of the
-     *                  CGC trees. Mustn't be <code>null</code>.
-     * @param algorithm The search algorithm for finding paths. One of the 
-     *                  following constants: {@link #DECLASSIFICATION},
-     *                  {@link #CLASSIFICATION_ME},
-     *                  {@link #CLASSIFICATION_NME}.
+     * @param imgIDs        Set of ids of the images that sit at the bottom of 
+     *                      the CGC trees. Mustn't be <code>null</code>.
+     * @param algorithm     The search algorithm for finding paths. One of the 
+     *                      following constants: {@link #DECLASSIFICATION},
+     *                      {@link #CLASSIFICATION_ME},
+     *                      {@link #CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the roo                  
      * @return A <code>Set</code> of hierarchy trees with all root nodes 
      * that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set findCGCPaths(Set imgIDs, int algorithm)
+    public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel, 
+                            long rootLevelID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**

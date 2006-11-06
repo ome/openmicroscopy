@@ -297,7 +297,7 @@ public interface DataManagerView
      * whose id is <code>imageID</code>, and then all the Category Group nodes
      * that contain those Categories.  If <code>false</code>, then it does the
      * opposite: it loads all the Categories the given Image doesn't belong in,
-     * and then all the Category Groups that contain those Categories.
+     * and then all the Cat                  egory Groups that contain those Categories.
      * This method returns all the matching Category Groups (as <code>
      * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
      * result object of the <code>DSCallOutcomeEvent</code>.
@@ -316,19 +316,24 @@ public interface DataManagerView
      * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
      * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
      * c2</code>.  If you specify <code>false</code> for <code>classified</code>
-     * (and again the id of Image <code>i1</code>), then you will get <code>
+     * (and again the id o                  f Image <code>i1</code>), then you will get <code>
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageIDs      The id of the images.
+     * @param imageIDs                        The id of the images.
      * @param algorithm     One of the following constants:
      *                      {@link OmeroDataService#DECLASSIFICATION},
      *                      {@link OmeroDataService#CLASSIFICATION_ME},
      *                      {@link OmeroDataService#CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-                                              AgentEventListener observer);
+    public CallHandle loadClassificationPaths(Set imageIDs, int algorithm, 
+                            Class rootLevel, long rootLevelID, 
+                            AgentEventListener observer);
     
     /**
      * Adds the images to the specified categories.

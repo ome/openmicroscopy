@@ -232,16 +232,20 @@ public interface HierarchyBrowsingView
      * (and again the id of Image <code>i1</code>), then you will get <code>
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageIDs  The id of the images.
-     * @param algorithm  One of the following constants:
-     *                  {@link OmeroDataService#DECLASSIFICATION},
-     *                  {@link OmeroDataService#CLASSIFICATION_ME},
-     *                  {@link OmeroDataService#CLASSIFICATION_NME}.
+     * @param imageIDs      The id of the images.
+     * @param algorithm     One of the following constants:
+     *                      {@link OmeroDataService#DECLASSIFICATION},
+     *                      {@link OmeroDataService#CLASSIFICATION_ME},
+     *                      {@link OmeroDataService#CLASSIFICATION_NME}.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.                 
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-                                              AgentEventListener observer);
+            Class rootLevel, long rootLevelID, AgentEventListener observer);
     
     /**
      * Adds the images to the specified categories.
