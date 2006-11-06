@@ -105,7 +105,7 @@ public class HierarchyLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    /**
+    /**EditorLoader
      * Returns the class corresponding to the specified type.
      * Returns <code>null</code> if the type is not supported,
      * otherwise the corresponding class.

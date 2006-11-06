@@ -43,7 +43,15 @@ import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
 
 /** 
- * 
+ * Parent of all classes that load data asynchronously for a {@link Classifier}.
+ * All these classes invoke methods of the {@link DataManagerView},
+ * which this class makes available through a <code>protected</code> field.
+ * Also, this class extends {@link DSCallAdapter} so that subclasses
+ * automatically become observers to an asynchronous call.  This class provides
+ * default implementations of some of the callbacks to notify the 
+ * {@link Classifier} of the progress and the user in the case of errors. 
+ * Subclasses should at least implement the <code>handleResult</code> method 
+ * to feed the {@link Classifier} back with the results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

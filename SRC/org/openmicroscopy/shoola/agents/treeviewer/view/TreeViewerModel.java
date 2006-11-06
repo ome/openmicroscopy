@@ -178,6 +178,12 @@ class TreeViewerModel
         return null;
     }
     
+    /**
+     * Builds the map linking the nodes to cut and the parents.
+     * 
+     * @param nodes The parents of the node to cut.
+     * @return See above.
+     */
     private Map buildCutMap(TreeImageDisplay[] nodes)
     {
         TreeImageDisplay parent, child;

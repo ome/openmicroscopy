@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-import pojos.CategoryGroupData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -101,9 +100,10 @@ public class ClassifierPathsLoader
     
     /**
      * Converts the UI rootLevel into its corresponding class.
+     * 
      * @return See above.
      */
-    protected Class convertRootLevel()
+    private Class convertRootLevel()
     {
         switch (rootLevel) {
             case TreeViewer.USER_ROOT: return ExperimenterData.class;
@@ -118,7 +118,7 @@ public class ClassifierPathsLoader
      *     
      * @return See above.
      */
-    protected long getRootID()
+    private long getRootID()
     {
         switch (rootLevel) {
             case TreeViewer.USER_ROOT:
@@ -172,14 +172,13 @@ public class ClassifierPathsLoader
         switch (mode) {
             case Classifier.DECLASSIFY_MODE:
                 handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.DECLASSIFICATION, this);
+                        DataManagerView.DECLASSIFICATION, 
+                        convertRootLevel(), getRootID(), this);
                 break;
             case Classifier.CLASSIFY_MODE:
-                handle = dmView.loadContainerHierarchy(CategoryGroupData.class, 
-                                    null, false,
-                                    convertRootLevel(), getRootID(), this);
-               // handle = dmView.loadClassificationPaths(imageIDs,
-                //        DataManagerView.CLASSIFICATION_NME, this);
+               handle = dmView.loadClassificationPaths(imageIDs,
+                        DataManagerView.CLASSIFICATION_NME, convertRootLevel(), 
+                        getRootID(), this);
         } 
     }
 

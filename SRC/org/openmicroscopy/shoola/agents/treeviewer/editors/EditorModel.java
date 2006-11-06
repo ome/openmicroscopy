@@ -346,13 +346,18 @@ class EditorModel
         return null;
     }
     
+    /**
+     * Returns the ID of the edited <code>DataObject</code> or <code>-1</code>
+     * if it's a <code>DataObject</code> to create.
+     * 
+     * @return See above.
+     */
     long getDataObjectID()
     {
         if (hierarchyObject == null) return -1;
-        if (hierarchyObject instanceof DataObject) 
-            return ((DataObject) hierarchyObject).getId();
-        return -1;
+        return hierarchyObject.getId();
     }
+    
     /** 
      * Returns the description of the currenlty edited <code>DataObject</code>.
      * 
@@ -559,7 +564,8 @@ class EditorModel
         long imageID = ((ImageData) hierarchyObject).getId();
         Set ids = new HashSet(1);
         ids.add(new Long(imageID));
-        currentLoader = new ClassificationPathsLoader(component, ids);
+        currentLoader = new ClassificationPathsLoader(component, ids,
+                parentModel.getRootLevel(), parentModel.getRootGroupID());
         currentLoader.load();
     }
 
