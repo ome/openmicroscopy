@@ -326,12 +326,9 @@ class TreeViewerComponent
     public void showFinder(boolean b)
     {
         switch (model.getState()) {
-            case READY:
-            case NEW:  
-                break;
-            default:
-                throw new IllegalStateException("This method should only be " +
-                "invoked in the READY or NEW state.");
+            case DISCARDED:
+                throw new IllegalStateException("This method should cannot " +
+                "be invoked in the DISCARDED state.");
         }
         if (model.getSelectedBrowser() == null) return;
         Finder finder = model.getFinder();
@@ -363,6 +360,7 @@ class TreeViewerComponent
         switch (model.getState()) {
             case READY:
             case NEW:  
+            case LOADING_THUMBNAIL:
                 break;
             default:
                 throw new IllegalStateException("This method should only be " +
@@ -385,6 +383,7 @@ class TreeViewerComponent
         switch (model.getState()) {
             case READY:
             case NEW:  
+            case LOADING_THUMBNAIL:
                 break;
             default:
                 throw new IllegalStateException("This method should only be " +
@@ -401,18 +400,18 @@ class TreeViewerComponent
     public void showClassifier(ImageData[] images, int mode)
     {
         switch (model.getState()) {
-            case READY:
-            case NEW:  
-                break;
-            default:
-                throw new IllegalStateException("This method should only be " +
-                "invoked in the READY or NEW state.");
+            //case READY:
+            case DISCARDED:
+                throw new IllegalStateException("This method should cannot " +
+                "be invoked in the DISCARDED state.");
         }
+        
         if (images == null) 
             throw new IllegalArgumentException("Object cannot be null.");
         if (images.length == 0)
             throw new IllegalArgumentException("No images to classify or " +
                     "declassify.");
+        model.cancel(); // cancel annotation loader or thumbnail loader
         removeEditor();
         model.setEditorType(CLASSIFIER_EDITOR);
         Classifier classifier = ClassifierFactory.getClassifier(this, mode, 
@@ -753,7 +752,9 @@ class TreeViewerComponent
      */
     public void navigate()
     {
-        int state = model.getState();
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         Browser b = model.getSelectedBrowser();
         if (b != null) b.navigate(false);
     }
@@ -764,7 +765,9 @@ class TreeViewerComponent
      */
     public void showMenu(int menuID, Component c, Point p)
     {
-        //TODO: check state
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         switch (menuID) {
             case MANAGER_MENU:
             case CLASSIFIER_MENU:  
@@ -809,7 +812,9 @@ class TreeViewerComponent
      */
     public void setNodesToCopy(TreeImageDisplay[] nodes, int index)
     {
-        //Add controls.
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         if (nodes == null || nodes.length == 0) {
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Copy action", "You first need to select " +
@@ -834,6 +839,9 @@ class TreeViewerComponent
      */
     public void paste(TreeImageDisplay[] parents)
     {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         if (parents == null || parents.length == 0) {
             un.notifyInfo("Paste action", "You first need to select " +
@@ -854,6 +862,9 @@ class TreeViewerComponent
      */
     public void saveInEditor(boolean b)
     {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         if (b) {
             model.getEditor().saveData();
             model.setEditor(null);
