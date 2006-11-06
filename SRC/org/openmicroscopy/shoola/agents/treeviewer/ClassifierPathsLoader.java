@@ -37,8 +37,13 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import pojos.CategoryGroupData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Loads the CategoryGroup/Category paths containing the specified image
@@ -66,6 +71,15 @@ public class ClassifierPathsLoader
     /** The type of classifier. */
     private int         mode;
     
+    /** 
+     * The level of the root node. One of the following constants.
+     * {@link TreeViewer#USER_ROOT} or {@link TreeViewer#GROUP_ROOT}.
+     */
+    private int         rootLevel;
+    
+    /** The id of the root node. */
+    private long        rootNodeID;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -86,16 +100,53 @@ public class ClassifierPathsLoader
     }
     
     /**
+     * Converts the UI rootLevel into its corresponding class.
+     * @return See above.
+     */
+    protected Class convertRootLevel()
+    {
+        switch (rootLevel) {
+            case TreeViewer.USER_ROOT: return ExperimenterData.class;
+            case TreeViewer.GROUP_ROOT: return GroupData.class;
+            default:
+                throw new IllegalArgumentException("Level not supported");
+        }
+    }
+    
+    /**
+     * Determines the rootID depending on the rootLevel.
+     *     
+     * @return See above.
+     */
+    protected long getRootID()
+    {
+        switch (rootLevel) {
+            case TreeViewer.USER_ROOT:
+                ExperimenterData exp = (ExperimenterData) 
+                registry.lookup(LookupNames.CURRENT_USER_DETAILS);
+                return exp.getId();  
+            case TreeViewer.GROUP_ROOT:
+                return rootNodeID;
+            default:
+                throw new IllegalArgumentException("Level not supported");
+        }
+    }
+    
+    /**
      * Creates a new instance. 
      * 
-     * @param viewer    The TreeViewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param imageIDs  The id of the images. 
-     * @param mode      The type of classifier. One of the following constants:
-     *                  {@link Classifier#DECLASSIFY_MODE} or 
-     *                  {@link Classifier#CLASSIFY_MODE}.
+     * @param viewer        The TreeViewer this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param imageIDs      The id of the images. 
+     * @param mode          The type of classifier. One of the following 
+     *                      constants:
+     *                      {@link Classifier#DECLASSIFY_MODE} or 
+     *                      {@link Classifier#CLASSIFY_MODE}.
+     * @param rootLevel     The level of the root.
+     * @param rootNodeID    The id of the root.    
      */
-    public ClassifierPathsLoader(Classifier viewer, Set imageIDs, int mode)
+    public ClassifierPathsLoader(Classifier viewer, Set imageIDs, int mode,
+                                int rootLevel, long rootNodeID)
     {
         super(viewer);
         if (imageIDs == null) 
@@ -103,6 +154,8 @@ public class ClassifierPathsLoader
         if (imageIDs.size() == 0) 
             throw new IllegalArgumentException("No images.");
         checkMode(mode);
+        this.rootLevel = rootLevel;
+        this.rootNodeID = rootNodeID;
         this.imageIDs = imageIDs;
         this.mode = mode;
     }
@@ -122,8 +175,11 @@ public class ClassifierPathsLoader
                         DataManagerView.DECLASSIFICATION, this);
                 break;
             case Classifier.CLASSIFY_MODE:
-                handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.CLASSIFICATION_NME, this);
+                handle = dmView.loadContainerHierarchy(CategoryGroupData.class, 
+                                    null, false,
+                                    convertRootLevel(), getRootID(), this);
+               // handle = dmView.loadClassificationPaths(imageIDs,
+                //        DataManagerView.CLASSIFICATION_NME, this);
         } 
     }
 
