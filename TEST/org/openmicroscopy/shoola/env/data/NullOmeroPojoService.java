@@ -62,9 +62,10 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#findCGCPaths(Set, int)
+     * @see OmeroDataService#findCGCPaths(Set, int, Class, long)
      */
-    public Set findCGCPaths(Set imgIDs, int algorithm) 
+    public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel,
+                            long levelID) 
     	throws DSOutOfServiceException, DSAccessException 
     {
         return null;
