@@ -215,21 +215,27 @@ class DOBasic
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(3, 3, 3, 3);
-        JLabel label = UIUtilities.setTextFont("ID");
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        JLabel idArea  = new JLabel(""+model.getDataObjectID());
-        label.setLabelFor(idArea);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(idArea, c);
+        JLabel label;
+        int y = 0;
+        if (model.getEditorType() != Editor.CREATE_EDITOR) {
+            label = UIUtilities.setTextFont("ID");
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;  
+            content.add(label, c);
+            JLabel idArea  = new JLabel(""+model.getDataObjectID());
+            label.setLabelFor(idArea);
+            c.gridx = 1;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            content.add(idArea, c);
+            y++;
+        }
+        
         label = UIUtilities.setTextFont("Name");
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = y;
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
@@ -241,9 +247,10 @@ class DOBasic
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
         content.add(pane, c);
+        y++;
         label = UIUtilities.setTextFont("Description");
         c.gridx = 0;
-        c.gridy = 2;
+        c.gridy = y;
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
