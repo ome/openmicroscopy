@@ -188,7 +188,8 @@ class ClassifierModel
         Set ids = new HashSet(images.length);
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
-        currentLoader = new ClassifierPathsLoader(component, ids, mode);
+        currentLoader = new ClassifierPathsLoader(component, ids, mode, 
+                    parentModel.getRootLevel(), parentModel.getRootGroupID());
         currentLoader.load();
     }
     
