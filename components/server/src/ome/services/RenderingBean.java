@@ -331,7 +331,8 @@ public class RenderingBean extends AbstractLevel2Service
             renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
             try
             {
-    			buffer.close();
+            	if (buffer != null)
+            		buffer.close();
     		}
             catch (IOException e)
             {

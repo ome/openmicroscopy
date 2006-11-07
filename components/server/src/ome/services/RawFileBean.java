@@ -159,7 +159,8 @@ public class RawFileBean extends AbstractBean
         file = null;
         try
         {
-			buffer.close();
+        	if (buffer != null)
+        		buffer.close();
 		}
         catch (IOException e)
         {
@@ -199,7 +200,8 @@ public class RawFileBean extends AbstractBean
             file = null;
             try
             {
-    			buffer.close();
+            	if (buffer != null)
+            		buffer.close();
     		}
             catch (IOException e)
             {
