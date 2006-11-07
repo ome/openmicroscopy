@@ -116,7 +116,7 @@ public class ClassificationLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                if (algorithm == HierarchyBrowsingView.CLASSIFICATION_ME)
+                if (algorithm == HierarchyBrowsingView.CLASSIFICATION_NME)
                     rootNodes = os.loadContainerHierarchy(
                             CategoryGroupData.class, null, false,
                             rootLevel, rootLevelID);
