@@ -51,7 +51,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -139,12 +138,10 @@ public class InfoDialog
      *  
      * @return See above.
      */
-    private JToolBar buildToolBar()
+    private JPanel buildToolBar()
     {
-        JToolBar toolBar = new JToolBar();
+        JPanel toolBar = new JPanel();
         toolBar.setBorder(BorderFactory.createEtchedBorder());
-        toolBar.setFloatable(true);
-        toolBar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
         toolBar.add(finishButton);
         toolBar.add(Box.createRigidArea(H_BOX));
         toolBar.add(cancelButton);
