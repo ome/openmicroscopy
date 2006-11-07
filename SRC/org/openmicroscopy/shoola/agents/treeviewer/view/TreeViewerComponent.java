@@ -304,7 +304,7 @@ class TreeViewerComponent
                 d.addPropertyChangeListener(
                         EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
                         controller);
-                d.setVisible(true);
+                UIUtilities.centerAndShow(d);
                 return;
             }
         }
