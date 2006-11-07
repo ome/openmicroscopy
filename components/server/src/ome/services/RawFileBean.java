@@ -157,6 +157,15 @@ public class RawFileBean extends AbstractBean
         // id is the only thing passivated.
         ioService = null;
         file = null;
+        try
+        {
+			buffer.close();
+		}
+        catch (IOException e)
+        {
+			e.printStackTrace();
+			throw new ResourceError(e.getMessage());
+		}
         buffer = null;
     }
     
@@ -188,6 +197,15 @@ public class RawFileBean extends AbstractBean
         {
             id = new Long(fileId);
             file = null;
+            try
+            {
+    			buffer.close();
+    		}
+            catch (IOException e)
+            {
+    			e.printStackTrace();
+    			throw new ResourceError(e.getMessage());
+    		}
             buffer = null;
 
             file = iQuery.get(OriginalFile.class, id);

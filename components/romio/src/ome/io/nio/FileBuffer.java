@@ -75,6 +75,15 @@ public class FileBuffer extends AbstractBuffer
     }
     
     /**
+     * Closes the buffer, cleaning up file state.
+     * @throws IOException if an I/O error occurs.
+     */
+    public void close() throws IOException
+    {
+    	channel.close();
+    }
+    
+    /**
      * Retrieve the NIO channel that corresponds to this file.
      * @return the file channel.
      */

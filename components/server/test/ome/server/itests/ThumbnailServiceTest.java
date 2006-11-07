@@ -41,7 +41,7 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import ome.api.IPixels;
 import ome.api.IQuery;
-import ome.api.IThumb;
+import ome.api.ThumbnailStore;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -64,7 +64,7 @@ public class ThumbnailServiceTest
 
     private static Log log = LogFactory.getLog(ThumbnailServiceTest.class);
 
-    private IThumb tb;
+    private ThumbnailStore tb;
 
     private IQuery qs;
     
@@ -88,7 +88,7 @@ public class ThumbnailServiceTest
     protected void onSetUp() throws Exception {
         super.onSetUp();
         //ome.security.Utils.setUserAuth();
-       tb = factory.getThumbnailService();
+       tb = factory.createThumbnailService();
        qs = factory.getQueryService();
     }
 
@@ -108,7 +108,9 @@ public class ThumbnailServiceTest
 			Pixels p = qs.get(Pixels.class, 
 					def.getPixels().getId());
 			
-			tb.getThumbnailDirect(p, def, 8, 8);
+			tb.setPixelsId(p.getId());
+			tb.setRenderingDefId(def.getId());
+			tb.getThumbnailDirect(8, 8);
 		}		
 	}
     

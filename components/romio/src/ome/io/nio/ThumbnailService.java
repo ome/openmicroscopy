@@ -57,6 +57,7 @@ public class ThumbnailService extends AbstractFileSystemService
     	
     	FileOutputStream stream = new FileOutputStream(path);
     	stream.write(buf);
+    	stream.close();
     }
     
     public long getThumbnailLength(Thumbnail thumbnail)
@@ -77,6 +78,7 @@ public class ThumbnailService extends AbstractFileSystemService
     	String path = getThumbnailPath(thumbnail.getId());
     	FileInputStream stream = new FileInputStream(path);
     	stream.read(buf, 0, buf.length);
+    	stream.close();
     	return buf;
     }
     

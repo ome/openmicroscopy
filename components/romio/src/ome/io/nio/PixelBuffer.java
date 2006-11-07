@@ -107,6 +107,15 @@ public class PixelBuffer extends AbstractBuffer
         return channel;
     }
     
+    /**
+     * Closes the buffer, cleaning up file state.
+     * @throws IOException if an I/O error occurs.
+     */
+    public void close() throws IOException
+    {
+    	channel.close();
+    }
+    
     public Integer getPlaneSize()
     {
         if (planeSize == null)

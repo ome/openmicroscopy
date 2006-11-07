@@ -359,6 +359,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     {
     	FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
     	compressThumbnailToStream(image, stream);
+    	stream.close();
     }
     
     /**
