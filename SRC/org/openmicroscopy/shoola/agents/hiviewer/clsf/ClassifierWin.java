@@ -55,7 +55,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.tree.DefaultTreeModel;
 
 //Third-party libraries
@@ -69,7 +68,6 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-
 import pojos.CategoryData;
 
 /** 
@@ -248,12 +246,10 @@ abstract class ClassifierWin
      * 
      * @return See above;
      */
-    private JToolBar buildToolBar()
+    private JPanel buildToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setRollover(true);
+        JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setFloatable(false);
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);

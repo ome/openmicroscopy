@@ -110,7 +110,6 @@ class AddWin
     AddWin(Set availablePaths, JFrame owner)
     {
         super(availablePaths, owner);
-        tree.setSingleSelectionInParent(true);
         buildGUI();
     }
     
