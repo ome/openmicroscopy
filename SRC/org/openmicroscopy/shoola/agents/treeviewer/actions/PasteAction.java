@@ -38,9 +38,12 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Action to paste a previously copied element, a {@link PasteCmd} is executed.
@@ -77,9 +80,25 @@ public class PasteAction
                 setEnabled(false);
                 break;
             default:
-                setEnabled(true);
+                onDisplayChange(browser.getLastSelectedDisplay());
                 break;
         }
+    }
+    
+    /**
+     * Sets the action enabled depending on the selected type.
+     * @see TreeViewerAction#onDisplayChange(TreeImageDisplay)
+     */
+    protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+    {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
+        Object ho = selectedDisplay.getUserObject(); 
+        if (!(ho instanceof ImageData))
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        else setEnabled(false);
     }
     
     /**
