@@ -113,7 +113,8 @@ public class PixelBuffer extends AbstractBuffer
      */
     public void close() throws IOException
     {
-    	channel.close();
+    	if (channel != null)
+    		channel.close();
     }
     
     public Integer getPlaneSize()
