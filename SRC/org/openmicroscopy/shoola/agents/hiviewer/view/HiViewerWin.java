@@ -60,6 +60,7 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -138,14 +139,10 @@ class HiViewerWin
             public void mousePressed(MouseEvent e)
             {
                 if (e.getClickCount() == 2) {
-                    JComponent cb = model.getClipBoard().getUI();
-                    mainPane.setRightComponent(cb);
-                    Dimension min = cb.getMinimumSize();
-                    Dimension d = new Dimension(min.width, min.height+20);
-                    cb.setPreferredSize(d);
-                    cb.setSize(d);
+                    ClipBoard cb = model.getClipBoard();
+                    mainPane.setRightComponent(cb.getUI());
+                    cb.minimize(!cb.isMinimized());
                 }
-                
             }
         });
         mainPane.setResizeWeight(1);
