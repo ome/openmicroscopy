@@ -195,6 +195,7 @@ class BrowserUI
         Point p = me.getPoint();
         JTree tree = getSelectedTree();
         int row = tree.getRowForLocation(p.x, p.y);
+        
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 int[] rows = tree.getSelectionRows();
@@ -535,8 +536,10 @@ class BrowserUI
      */
     TreeImageDisplay getTreeRoot()
     {
+        if (treeDisplay == null) return null;
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-        return(TreeImageDisplay) dtm.getRoot();
+        if (dtm == null) return null;
+        return (TreeImageDisplay) dtm.getRoot();
     }
     
     /**
@@ -820,6 +823,16 @@ class BrowserUI
     {
         treeDisplay.setEnabled(b);
         goIntoTree.setEnabled(b);
+    }
+
+    /** Resets the UI so that we have no node selected in trees. */
+    void setNullSelectedNode()
+    {
+        
+        if (getTreeRoot() != null) {
+            treeDisplay.setSelectionRow(-1);
+            goIntoTree.setSelectionRow(-1);
+        }
     }
     
 }

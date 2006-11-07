@@ -381,6 +381,7 @@ class BrowserComponent
         if (display != null && display.getUserObject() instanceof String) 
             display = null;
         model.setSelectedDisplay(display);
+        if (display == null) view.setNullSelectedNode();
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
     }
 
