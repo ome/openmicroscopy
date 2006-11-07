@@ -94,31 +94,6 @@ public class ColorsFactory
      */
     private static final int    RED_MAX = 700;
     
-    /** The RGBA-array corresponding to the <code>RED</code> color. */
-    private static final Color  RED_COLOR = new Color();
-    
-    /** The RGBA-array corresponding to the <code>GREEN</code> color. */
-    private static final Color  GREEN_COLOR = new Color();
-    
-    /** The RGBA-array corresponding to the <code>BLUE</code> color. */
-    private static final Color  BLUE_COLOR = new Color();
-    
-    /** Initializes the RGB-arrays. */
-    static {
-        RED_COLOR.setRed(255);
-        RED_COLOR.setGreen(0);
-        RED_COLOR.setBlue(0);
-        RED_COLOR.setAlpha(DEFAULT_ALPHA);
-        GREEN_COLOR.setRed(0);
-        GREEN_COLOR.setGreen(255);
-        GREEN_COLOR.setBlue(0);
-        GREEN_COLOR.setAlpha(DEFAULT_ALPHA);
-        BLUE_COLOR.setRed(0);
-        BLUE_COLOR.setGreen(0);
-        BLUE_COLOR.setBlue(255);
-        BLUE_COLOR.setAlpha(DEFAULT_ALPHA);
-    }
-    
     /**
      * Returns <code>true</code> if the emission wavelength is in 
      * the blue color band, <code>false</code> otherwise.
@@ -166,9 +141,9 @@ public class ColorsFactory
     {
     	Integer emWave = channel.getLogicalChannel().getEmissionWave();
     	if (emWave == null) return null;
-        if (rangeBlue(emWave)) return BLUE_COLOR;
-        if (rangeGreen(emWave)) return GREEN_COLOR;
-        if (rangeRed(emWave)) return RED_COLOR;
+        if (rangeBlue(emWave)) return newBlueColor();
+        if (rangeGreen(emWave)) return newGreenColor();
+        if (rangeRed(emWave)) return newRedColor();
         return null;
     }
     
@@ -185,10 +160,51 @@ public class ColorsFactory
         Color c = ColorsFactory.getColor(channel);
         if (c != null) return c;
         switch (index) {
-        	case  0: return BLUE_COLOR;
-        	case  1: return GREEN_COLOR;
-        	default: return RED_COLOR;
+        	case  0: return newBlueColor();
+        	case  1: return newGreenColor();
+        	default: return newRedColor();
         }
     }
     
+    /**
+     * Creates a new <i>Red</i> Color object.
+     * @return a color object.
+     */
+    public static Color newRedColor()
+    {
+    	Color c = new Color();
+    	c.setRed(255);
+    	c.setGreen(0);
+    	c.setBlue(0);
+    	c.setAlpha(DEFAULT_ALPHA);
+    	return c;
+    }
+
+    /**
+     * Creates a new <i>Green</i> Color object.
+     * @return a color object.
+     */
+    public static Color newGreenColor()
+    {
+    	Color c = new Color();
+    	c.setRed(0);
+    	c.setGreen(255);
+    	c.setBlue(0);
+    	c.setAlpha(DEFAULT_ALPHA);
+    	return c;
+    }
+
+    /**
+     * Creates a new <i>Blue</i> Color object.
+     * @return a color object.
+     */
+    public static Color newBlueColor()
+    {
+    	Color c = new Color();
+    	c.setRed(0);
+    	c.setGreen(0);
+    	c.setBlue(255);
+    	c.setAlpha(DEFAULT_ALPHA);
+    	return c;
+    }
 }

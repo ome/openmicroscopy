@@ -472,10 +472,8 @@ public class Renderer
         	// which the channel bindings was created matches up with the order
         	// of the channels linked to the pixels set.
         	ChannelBinding cb = cbs.get(w);
-            //Test
         	sf.computeLocationStats(pixels, buf, planeDef, w);
-        	//cb[w].setNoiseReduction(new Boolean(sf.isNoiseReduction()));
-            cb.setNoiseReduction(Boolean.TRUE);
+            cb.setNoiseReduction(sf.isNoiseReduction());
        		cb.setInputStart(new Float(sf.getInputStart()));
         	cb.setInputEnd(new Float(sf.getInputEnd()));
         	w++;
