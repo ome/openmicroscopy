@@ -284,5 +284,22 @@ public interface ClipBoard
      */
     public void setChannelsMetadata(List list);
     
+    /** 
+     * Minimizes the clipBoard if the passed value is <code>true</code>,
+     * expands the clipBoard otherwise.
+     * 
+     * @param m Pass <code>true</code> to minimize, <code>false</code> 
+     *          otherwise.
+     */
+    public void minimize(boolean m);
+    
+    /**
+     * Returns <code>true</code> if the clipBoard is minimized
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isMinimized();
+    
 }
 

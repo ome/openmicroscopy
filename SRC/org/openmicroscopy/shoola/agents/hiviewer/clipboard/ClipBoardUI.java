@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
@@ -94,6 +95,9 @@ class ClipBoardUI
     
     /** The popup menu. */
     private PopupMenu           popupMenu;
+    
+    /** The dimension of the ClipBoard before resizing. */
+    private Dimension           historyDim;
     
     /** Initializes the UI components. */
     private void initComponents()
@@ -235,6 +239,22 @@ class ClipBoardUI
     {
         InfoPane pane = (InfoPane) model.getClipboardPane(ClipBoard.INFO_PANE);
         pane.setChannelsMetadata(l);
+    }
+    
+    /** Minimizes or expands depending on the value. */
+    void minimize()
+    {
+        if (model.isMinimized()) {
+            historyDim = getSize();
+            Dimension min = getMinimumSize();
+            Dimension d = new Dimension(min.width, min.height+20);
+            setPreferredSize(d);
+            setSize(d);
+        } else {
+            if (historyDim == null) historyDim = getMinimumSize();
+            setPreferredSize(historyDim);
+            setSize(historyDim);
+        }
     }
     
 }
