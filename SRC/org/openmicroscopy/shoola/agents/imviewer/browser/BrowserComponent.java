@@ -243,4 +243,5 @@ class BrowserComponent
         return model.getUnitBarSize();
     }
 
+    
 }
