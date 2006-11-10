@@ -366,4 +366,22 @@ public class UIUtilities
         area.setEditable(true);
     }
     
+    /**
+     * format a double to 2 decimal places and return as a string. 
+     * 
+     * @param val number to be formatted. 
+     * @return formatted string. 
+     */
+    public static String twoDecimalPlaces(double val)
+    {
+    	double v = val;
+    	String value;
+    	double c = v;
+    	if (v < 0) return null;
+    	if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
+    	else  value = ""+(int) c;
+    	if (value.equals("0")) return null;
+    	return value; 
+	}
+    
 }
