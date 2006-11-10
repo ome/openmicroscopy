@@ -131,14 +131,20 @@ public interface ImViewer
      * 
      * @param b see above.
      */
-    void setLensVisible(boolean b);
+    public void setLensVisible(boolean b);
     
     /**
      * Is the lens visible. 
      * 
      * @return see above.
      */
-    boolean isLensVisible();
+    public boolean isLensVisible();
+    
+    /**
+     * Get the zoomedImage from the lens component. 
+     * @return img zoomed image in the lens component.
+     */
+    public BufferedImage getZoomedLensImage();
     
     /**
      * Iconified if the specified value is <code>true</code>, deiconified

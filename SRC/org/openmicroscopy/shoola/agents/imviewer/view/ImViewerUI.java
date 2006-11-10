@@ -116,6 +116,9 @@ class ImViewerUI
     /** The loading window. */
     private LoadingWindow   loadingWindow;
     
+    /** First time the lens has been shown then variable <code>true</code>. */
+    private boolean firstTimeLensShown = true;
+    
     /** 
      * Creates the menu bar.
      * 
@@ -634,6 +637,18 @@ class ImViewerUI
     		if(model.getMaxX() < lens.getLensUI().getWidth() || 
     			model.getMaxY() < lens.getLensUI().getHeight() )
     				return;
+    		if(firstTimeLensShown)
+    		{
+    			firstTimeLensShown = false;
+    			int lensX = model.getMaxX()/2-lens.getLensUI().getWidth()/2;
+    			int lensY = model.getMaxY()/2-lens.getLensUI().getHeight()/2;
+    			if(lensX+lens.getLensUI().getWidth() > model.getMaxX())
+    				lensX = model.getMaxX()-lens.getLensUI().getWidth();
+    			if(lensY+lens.getLensUI().getHeight() > model.getMaxY())
+    				lensY = model.getMaxY()-lens.getLensUI().getHeight();
+    			lens.setLensLocation(lensX, lensY);
+    		}
+    		lens.setXYPixelMicron(model.getPixelsSizeX(), model.getPixelsSizeY());
     		lens.setPlaneImage(model.getDisplayedImage());
     		lens.setVisible(b);
     		model.getBrowser().addComponent(lens.getLensUI());
@@ -645,4 +660,14 @@ class ImViewerUI
     	}
 		this.repaint();
     }
+    
+    /**
+     * Get the zoomedImage from the lens component. 
+     * @return img zoomed image in the lens component.
+     */
+    public BufferedImage getZoomedLensImage()
+    {
+    	return lens.getZoomedImage();
+    }
+    
 }

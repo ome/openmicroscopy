@@ -615,6 +615,13 @@ class ImViewerModel
     float getPixelsSizeX() { return rndControl.getPixelsSizeX(); }
 
     /**
+     * The size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeY() { return rndControl.getPixelsSizeY(); }
+
+    /**
      * Returns <code>true</code> if the unit bar is painted on top of 
      * the displayed image, <code>false</code> otherwise.
      * 

@@ -32,8 +32,11 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -217,6 +221,9 @@ class ImViewerControl
     /** Identifies the <code>customized size of the unit bar</code> action. */
     static final Integer     UNIT_BAR_CUSTOM = new Integer(34);
     
+    /** Delay before updating lens after new image loads. */
+    static final int		 LENS_UPDATE_DELAY = 200;
+    
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
@@ -234,6 +241,9 @@ class ImViewerControl
     
     /** Index of the channel invoking the color picker. */
     private int         colorPickerIndex;
+    
+    /** Timer used to delay update of lens when new image loads. */
+    private Timer 		timer;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -429,8 +439,38 @@ class ImViewerControl
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
         attachWindowListeners();
+        createTimer();
+        
     }
 
+    /** 
+     * Timer used to delay update of lens when new image loads. This means that
+     * the timer will only update the lens after a small period of time. 
+     */
+    private void createTimer()
+    {    
+    	timer = new Timer(LENS_UPDATE_DELAY, new ActionListener() 
+    	{
+    		public void actionPerformed(ActionEvent e) 
+    		{
+    			if( view.isLensVisible() )
+    				updateLensImage();
+	    	}
+    	});
+    	timer.stop();
+    }
+
+    /** 
+     * Called from the timer, update the image in the lens and stop the timer.
+     */
+    private void updateLensImage()
+    {
+    	if(view.isLensVisible())
+    		view. setLensPlaneImage(model.getImage());
+    	timer.stop();
+    }
+    
+    
     /**
      * Returns the action corresponding to the specified id.
      * 
@@ -464,6 +504,8 @@ class ImViewerControl
                 window.dispose();
                 view.setVisible(false);
                 view.dispose();
+                if(view.isLensVisible())
+                	view.setLensVisible(false);
                 historyState = state;
                 break;
             case ImViewer.LOADING_RENDERING_CONTROL:
@@ -485,8 +527,8 @@ class ImViewerControl
                     view.onStateChange(true);
                     historyState = state;
                 }
-                if( view.isLensVisible() )
-                	view.setLensPlaneImage(model.getImage());
+                timer.stop();
+                timer.start();
                 break;
             case ImViewer.CHANNEL_MOVIE:
                 historyState = ImViewer.CHANNEL_MOVIE;
@@ -495,6 +537,7 @@ class ImViewerControl
         }
         //historyState = state;
     }
+    
     
     /**
      * Reacts to property changes in the {@link ImViewer}.

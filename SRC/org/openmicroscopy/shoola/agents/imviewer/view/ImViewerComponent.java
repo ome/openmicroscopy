@@ -905,5 +905,14 @@ class ImViewerComponent
     {
     	view.setLensVisible(b);
     }
+   
+    /**
+     * Get the zoomedImage from the lens component. 
+     * @return img zoomed image in the lens component.
+     */
+    public BufferedImage getZoomedLensImage()
+    {
+    	return view.getZoomedLensImage();
+    }
     
 }
