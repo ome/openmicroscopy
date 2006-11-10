@@ -487,6 +487,12 @@ class TaskBarView
 
     /**
      * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#getWindowsMenu()
+     */
+    public JMenu getWindowsMenu() { return menus[WINDOW_MENU]; }
+
+    /**
+     * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#iconify()
      */
     //public void iconify() { setExtendedState(Frame.ICONIFIED); }

@@ -199,5 +199,12 @@ public interface TaskBar
      * @return See above.
      */
     public JMenuBar getTaskBarMenu();
+    
+    /**
+     * Returns the <code>Windows</code> menu.
+     * 
+     * @return See above.
+     */
+    public JMenu getWindowsMenu();
 
 }
