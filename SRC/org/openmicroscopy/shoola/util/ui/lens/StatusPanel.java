@@ -1,5 +1,5 @@
 /*
- * lens.StatusPanel 
+ * org.openmicroscopy.shoola.util.ui.lens.StatusPanel 
  *
  *------------------------------------------------------------------------------
  *
@@ -36,6 +36,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -57,6 +59,7 @@ import javax.swing.JPanel;
 public class StatusPanel
 	extends JPanel
 {
+	
 	/** Text for lens X position. */
 	final static String		LENS_X = "X : ";
 	
@@ -81,6 +84,14 @@ public class StatusPanel
 	/** Label showing zoomFactor of the lens. */
 	private JLabel			lensZoom;
 	
+	/** Number of pixels per micron in x axis. */
+	private float 	micronInXAxis = 1;
+
+	/** Number of pixels per micron in y axis. */
+	private float 	micronInYAxis = 1;
+	
+	private boolean displayInPixels = true;
+	
 	/**
 	 * Constructor of the status panel which will show the x, y position of
 	 * the lens, it's width and height and the zoomFactor of the lens. 
@@ -103,6 +114,16 @@ public class StatusPanel
 		
 	}
 	
+	/**
+	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * 
+	 * @param b see above.
+	 */
+	void setDisplayInPixels(boolean b)
+	{
+		displayInPixels = b;
+	}
+	
 	/** set the XY values of the lens position text 
 	 * 
 	 * @param x See above.
@@ -110,7 +131,13 @@ public class StatusPanel
 	 */
 	void setLensXY(int x, int y)
 	{
-		lensPosition.setText(LENS_X + x + " " + LENS_X + y);
+		if(displayInPixels)
+			lensPosition.setText(LENS_X + x + " " + LENS_Y + y);
+		else
+			lensPosition.setText(LENS_X + 
+					UIUtilities.twoDecimalPlaces(x/micronInXAxis) + " " 
+					+ LENS_Y + UIUtilities.twoDecimalPlaces(y/micronInYAxis));
+			
 	}
 
 	/** set the W, H values of the lens Width, Height text. 
@@ -120,7 +147,13 @@ public class StatusPanel
 	 */
 	void setLensWidthHeight(int w, int h)
 	{
-		lensSize.setText(LENS_W + w + " " + LENS_H + h);
+		if(displayInPixels)
+			lensSize.setText(LENS_W + w + " " + LENS_H + h);
+		else
+			lensSize.setText(
+					LENS_W +UIUtilities.twoDecimalPlaces(w/micronInXAxis) 
+					+ " " + LENS_H + 
+					UIUtilities.twoDecimalPlaces(h/micronInYAxis));
 	}
 	
 	/** Set the zoomFactor of the lens.
@@ -131,6 +164,16 @@ public class StatusPanel
 	{
 		lensZoom.setText(LENS_MAGNIFICATION + zoomFactor);
 	}
+	
+	/**
+	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * @param x mapping in x axis.
+	 * @param y mapping in y axis.
+	 */
+	public void setXYPixelMicron(float x, float y)
+	{
+		micronInXAxis = x;
+		micronInYAxis = y;
+	}
+	
 }
-
-

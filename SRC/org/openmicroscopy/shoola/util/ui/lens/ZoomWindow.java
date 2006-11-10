@@ -1,5 +1,5 @@
 /*
- * ZoomWindow.java
+ * org.openmicroscopy.shoola.util.ui.lens.ZoomWindow.java
  *
  *------------------------------------------------------------------------------
  *
@@ -80,7 +80,30 @@ public class ZoomWindow
 	{
 		this.lensController = lensController;
 	}
-	
+
+	/**
+	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * 
+	 * @param b see above.
+	 */
+	void setDisplayInPixels(boolean b)
+	{
+		zoomWindowUI.setDisplayInPixels(b);
+	}
+
+	/**
+	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * @param x mapping in x axis.
+	 * @param y mapping in y axis.
+	 */
+	public void setXYPixelMicron(float x, float y)
+	{
+		zoomWindowUI.setXYPixelMicron(x, y);
+	}
+
+	/**
+	 * Repaint the zoomwindowUI after and update. 
+	 */
 	void repaint()
 	{
 		zoomWindowUI.repaint();
@@ -167,4 +190,5 @@ public class ZoomWindow
 	{
 		return zoomWindowUI.isVisible();
 	}
+	
 }

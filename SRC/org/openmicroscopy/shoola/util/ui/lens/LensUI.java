@@ -1,5 +1,5 @@
 /*
- * LensUI.java
+ * org.openmicroscopy.shoola.util.ui.lens.LensUI.java
  *
  *------------------------------------------------------------------------------
  *
@@ -60,10 +60,10 @@ import javax.swing.JPopupMenu;
  * </small>
  * @since OME2.2
  */
-
 public class LensUI 
 	extends JPanel
 {
+	
 	/** Pick size of the border, this is a border running <code>BORDER_PICK_SIZE
 	 * </code> units around the edge of the lens. 
 	 */
@@ -513,4 +513,5 @@ public class LensUI
           }
 		  return resizeDir;
 	}
+	
 }

@@ -1,5 +1,5 @@
 /*
- * lensComponent.java
+ * org.openmicroscopy.shoola.util.ui.lens.lensComponent.java
  *
  *------------------------------------------------------------------------------
  *
@@ -47,7 +47,6 @@ import java.awt.image.BufferedImage;
  * </small>
  * @since OME2.2
  */
-
 public class LensComponent 
 {
 
@@ -116,6 +115,29 @@ public class LensComponent
 		lens.addController(lensController);
 		zoomWindow.addController(lensController);
 	}
+
+	/**
+	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * 
+	 * @param b see above.
+	 */
+	void setDisplayInPixels(boolean b)
+	{
+		zoomWindow.setDisplayInPixels(b);
+		zoomWindow.setLensXY(lens.getX(), lens.getY());
+		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());
+	}
+
+	/**
+	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * @param x mapping in x axis.
+	 * @param y mapping in y axis.
+	 */
+	public void setXYPixelMicron(float  x, float y)
+	{
+		zoomWindow.setXYPixelMicron(x, y);
+	}
+	
 	/**
 	 * Set the plane image of the lens to a new Image. 
 	 * 

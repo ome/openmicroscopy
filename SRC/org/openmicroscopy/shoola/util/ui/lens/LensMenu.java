@@ -1,5 +1,5 @@
 /*
- * lens.LensMenu 
+ * org.openmicroscopy.shoola.util.ui.lens.LensMenu 
  *
  *------------------------------------------------------------------------------
  *
@@ -70,25 +70,19 @@ public class LensMenu
 	 * Text for the lens options -- parent of the resizing methods for the 
 	 * lens. 
 	 * */
-	final static String LENS_OPTIONS = "Lens Options";
+	final static String LENS_OPTIONS = "Lens";
 	
 	/** 
 	 * Text for the zoom options -- parent of the changing of magnification 
 	 * methods for the lens. 
 	 */
-	final static String ZOOM_OPTIONS = "Zoom Options";
+	final static String ZOOM_OPTIONS = "Zoom";
 	
 	/** 
 	 * Text for the option to display units -- parent of the micron/pixel 
 	 * options. 
 	 */
-	final static String DISPLAY_UNITS = "Display Units";
-	
-	/** Text for the option to display units in microns. */
-	final static String	MICRON_OPTION = "Display Measurements in Microns";
-	
-	/** Text for the option to display units in pixels. */
-	final static String	PIXEL_OPTION = "Display Measurements in Pixels";
+	final static String DISPLAY_UNITS = "Units";
 	
 	/** Parent component of the lens and zoomWindowUI. */
 	private LensComponent		lensComponent;
@@ -228,8 +222,10 @@ public class LensMenu
 		zoomOptions.add(setZoomx5);
 		zoomOptions.add(setZoomx10);
 		
-		setDisplayMicrons = new JRadioButtonMenuItem(MICRON_OPTION);
-		setDisplayPixels = new JRadioButtonMenuItem(PIXEL_OPTION);
+		setDisplayMicrons = new JRadioButtonMenuItem(new DisplayAction
+				(lensComponent, DisplayAction.MICRON_OPTION));
+		setDisplayPixels = new JRadioButtonMenuItem(new DisplayAction
+				(lensComponent, DisplayAction.PIXEL_OPTION));
 		displayOptions.add(setDisplayMicrons);
 		displayOptions.add(setDisplayPixels);
 		ButtonGroup displayUnits = new ButtonGroup();
@@ -305,9 +301,11 @@ public class LensMenu
 		zoomOptions.add(setZoomx4);
 		zoomOptions.add(setZoomx5);
 		zoomOptions.add(setZoomx10);
-		
-		setDisplayMicrons = new JRadioButtonMenuItem(MICRON_OPTION);
-		setDisplayPixels = new JRadioButtonMenuItem(PIXEL_OPTION);
+
+		setDisplayMicrons = new JRadioButtonMenuItem(new DisplayAction
+				(lensComponent, DisplayAction.MICRON_OPTION));
+		setDisplayPixels = new JRadioButtonMenuItem(new DisplayAction
+				(lensComponent, DisplayAction.PIXEL_OPTION));
 		displayOptions.add(setDisplayMicrons);
 		displayOptions.add(setDisplayPixels);
 		ButtonGroup displayUnits = new ButtonGroup();

@@ -1,5 +1,5 @@
 /*
- * lens.LensAction 
+ * org.openmicroscopy.shoola.util.ui.lens.LensAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -54,7 +54,8 @@ import javax.swing.Action;
  */
 public class LensAction 
 		extends AbstractAction
-	{
+{
+	
 		/** Default size of lens. (20x20). */
 		final static int		LENSDEFAULTSIZE = 0;
 		
@@ -153,6 +154,7 @@ public class LensAction
 	                throw new IllegalArgumentException("Index not supported.");
 	        }
 	    }
+	    
 }
 
 

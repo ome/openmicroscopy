@@ -1,5 +1,5 @@
 /*
- * Lens.LensMouseListener
+ * org.openmicroscopy.shoola.util.ui.lens.LensMouseListener
  *
  *------------------------------------------------------------------------------
  *
@@ -138,6 +138,7 @@ class LensMouseListener
 	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 */
 	public void mouseEntered(MouseEvent incomingEvent) {	}
+	
 }
 
 

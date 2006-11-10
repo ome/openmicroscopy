@@ -1,5 +1,5 @@
 /*
- * LensModel.java
+ * org.openmicroscopy.shoola.util.ui.lens.LensModel.java
  *
  *------------------------------------------------------------------------------
  *
@@ -32,11 +32,16 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
+import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
 //Third-party libraries
+
 //Application-internal dependencies
+
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
  * verison of the image to be displayed in the zoomPanel. 
@@ -51,15 +56,20 @@ import java.awt.image.WritableRaster;
  * </small>
  * @since OME2.2
  */
-
 public class LensModel 
 {
+	
 		/** Minimum zoom allowed. */
 		final static int		MINIMUM_ZOOM	= 1;
 
 		/** Maximum zoom allowed. */
 		final static int		MAXIMUM_ZOOM	= 10;
 		
+		/** The default size of the pre-allocated buffer used to store the 
+		 * zoomed image. 
+		 */
+		final static int		DEFAULT_SIZE	= 562500;
+			
 		/** x co-ordinate of the lens. */
 		private int		x;
 
@@ -82,6 +92,15 @@ public class LensModel
 		/** plane image. */
 		private BufferedImage planeImage;
 		
+		/** pre-allocated buffer storing image data */
+		private DataBuffer zoomedDataBuffer = 
+										new DataBufferInt(DEFAULT_SIZE, 1);
+		
+		/** Size of the zoomedDatabuffer, used to see if a new Buffer 
+		 * will exceed the size of the current buffer. 
+		 */
+		private int zoomedDataBufferSize = DEFAULT_SIZE;
+		
 		/**
 		 * Constructor of the lens Model.
 		 * 
@@ -103,6 +122,11 @@ public class LensModel
 			planeImage = img;
 		}
 		
+		/**
+		 * Get the width of the plane Image.
+		 * 
+		 * @return see above.
+		 */
 		int	getImageWidth()
 		{
 			if(planeImage != null )
@@ -111,6 +135,11 @@ public class LensModel
 				return 0;
 		}
 
+		/**
+		 * Get the height of the plane Image.
+		 * 
+		 * @return height see above.
+		 */
 		int	getImageHeight()
 		{
 			if(planeImage != null )
@@ -129,13 +158,13 @@ public class LensModel
 			if( planeImage == null )
 				return null;
 			ColorModel cm = planeImage.getColorModel();
-			Raster r = planeImage.getData().createChild(x, y, width, height, 0, 
-																	0, null);
+			
+			Raster r = planeImage.getData().createChild((int) (x), 
+					(int) (y), (int) (width), 
+					(int) (height), 0, 0, null);
 			BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
 																		null);
-	    	BufferedImage scaledImg = scaleBufferedImage(img, zoomFactor, 
-	    															zoomFactor);
-	    	return scaledImg;
+			return scaleBufferedImage(img, zoomFactor, zoomFactor); 
 		}
 		
 		/**
@@ -249,6 +278,26 @@ public class LensModel
 		}
 		
 		/**
+		 * Return a writable raster to the {@link #scaleBufferedImage} method.
+		 * This method will allocate a new databuffer only if the new raster is
+		 * larger than the pre-allocated one. 
+		 * 
+		 * @param w width of new image
+		 * @param h height of new image
+		 * 
+		 * @return see above.
+		 */
+		private WritableRaster getZoomedRaster(int w, int h)
+		{
+			if( zoomedDataBufferSize < height*zoomFactor*width*zoomFactor )
+				zoomedDataBuffer = 
+					new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
+			ColorModel colourModel = planeImage.getColorModel();
+			SampleModel sm = colourModel.createCompatibleSampleModel(w, h);
+	        return Raster.createWritableRaster(sm, zoomedDataBuffer, null);			
+	 	}
+		
+		/**
 		* Scales the image to the new size xScale, yScale.
 		* 
 	    * @see ome.api.IScale#scaleBufferedImage(java.awt.image.BufferedImage, 
@@ -263,20 +312,18 @@ public class LensModel
 	    private BufferedImage scaleBufferedImage(BufferedImage image,
 	                                            float xScale, float yScale)
 	    {
-	    	int thumbHeight = (int) (image.getHeight() * yScale);
+	     	int thumbHeight = (int) (image.getHeight() * yScale);
 	    	int thumbWidth  = (int) (image.getWidth() * xScale);
 	    	
 	    	// Create the required compatible (thumbnail) buffered image to  
 	    	// avoid potential errors from Java's ImagingLib.
 	    	ColorModel cm = image.getColorModel();
-	    	WritableRaster r =
-	    		cm.createCompatibleWritableRaster(thumbWidth, thumbHeight);
+	    	WritableRaster r = getZoomedRaster(thumbWidth, thumbHeight);
 	    	BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
-	    	
+	 
 	    	// Do the actual scaling and return the result
 	        Graphics2D graphics2D = thumbImage.createGraphics();
-	        //graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-	        //  RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	   
 	        graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
 	        return thumbImage;
 	    }

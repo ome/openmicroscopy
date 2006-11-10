@@ -1,6 +1,6 @@
 
 /*
- * ZoomWindowUI.java
+ * org.openmicroscopy.shoola.util.ui.lens.ZoomWindowUI.java
  *
  *------------------------------------------------------------------------------
  *
@@ -128,7 +128,29 @@ public class ZoomWindowUI
 	        
 	    currentView.setViewPosition(new Point(x, y));
 	}
+	
+	/**
+	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * 
+	 * @param b see above.
+	 */
+	void setDisplayInPixels(boolean b)
+	{
+		statusPanel.setDisplayInPixels(b);
+		statusPanel.repaint();
+	}
 
+	/**
+	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * @param x mapping in x axis.
+	 * @param y mapping in y axis.
+	 */
+	public void setXYPixelMicron(float x, float y)
+	{
+		statusPanel.setXYPixelMicron(x, y);
+		statusPanel.repaint();
+	}
+	
 	/** Set the XY values of the lens position text.
 	 * 
 	 * @param x See above.
@@ -167,6 +189,5 @@ public class ZoomWindowUI
 	{
 		zoomPanel.setZoomImage(zoomImage);
 	}
-	
 	
 }

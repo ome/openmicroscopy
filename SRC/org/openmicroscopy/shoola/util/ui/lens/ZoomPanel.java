@@ -1,5 +1,5 @@
 /*
- * lens.ZoomPanel 
+ * org.openmicroscopy.shoola.util.ui.lens.ZoomPanel 
  *
  *------------------------------------------------------------------------------
  *
@@ -56,6 +56,7 @@ import javax.swing.JPanel;
 public class ZoomPanel
 	extends JPanel
 {
+	
 	/** Colour used to clear the background of the panel. */
 	final static Color		CLEAR_COLOUR = new Color(0, 0, 0, 255);
 	
@@ -101,6 +102,7 @@ public class ZoomPanel
 		invalidate();
 		repaint();
 	}
+	
 }
 
 

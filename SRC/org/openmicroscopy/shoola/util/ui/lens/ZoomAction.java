@@ -1,5 +1,5 @@
 /*
- * lens.ZoomAction 
+ * org.openmicroscopy.shoola.util.ui.lens.ZoomAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -55,6 +55,7 @@ import javax.swing.Action;
 public class ZoomAction 
 	extends AbstractAction
 {
+	
 	/** Constant for zoom action to reset the magnification of the lens to x2.*/
 	final static int		ZOOMDEFAULT = 0;
 	
@@ -161,6 +162,5 @@ public class ZoomAction
                 throw new IllegalArgumentException("Index not supported.");
         }
     }
+    
 }
-
-

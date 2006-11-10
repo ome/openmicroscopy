@@ -1,5 +1,5 @@
 /*
- * LensController.java
+ * org.openmicroscopy.shoola.util.ui.lens.LensController.java
  *
  *------------------------------------------------------------------------------
  *
@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.Cursor;
 
 //Third-party libraries
+
 //Application-internal dependencies
+
 /** 
  * The LensController is the main controlling class which manipulates the lens, 
  * Zoomwindow and allows the user to change the size and magnification of the
@@ -48,7 +50,6 @@ import java.awt.Cursor;
  * </small>
  * @since OME2.2
  */
-
 public class LensController 
 {
 	
@@ -607,4 +608,5 @@ public class LensController
         } 
         return s;
 	}
+	
 }
