@@ -69,7 +69,6 @@ public class LensAction
 
     //Tmp
     protected void onStateChange(ChangeEvent e) {
-        setEnabled(false);
     }
     
     /**
@@ -80,7 +79,7 @@ public class LensAction
     public LensAction(ImViewer model)
     {
         super(model, NAME);
-        setEnabled(false);
+        setEnabled(true);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
@@ -93,6 +92,7 @@ public class LensAction
      */
     public void actionPerformed(ActionEvent e)
     {
+    	model.setLensVisible(!model.isLensVisible());
     }
     
 }
