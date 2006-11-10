@@ -594,7 +594,11 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-    
+    /**
+     * Set the image in the lens to the plane image shown on the screen.
+     * 
+     * @param img see above.
+     */
     public void setLensPlaneImage(BufferedImage img)
     {
     	lens.setPlaneImage(img);
@@ -615,7 +619,7 @@ class ImViewerUI
     /**
      * Set the lens's visiblilty.
      * 
-     * @param see above.
+     * @param b see above.
      */
     public void setLensVisible(boolean b)
     {
