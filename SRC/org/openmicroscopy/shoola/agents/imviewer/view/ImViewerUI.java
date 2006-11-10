@@ -52,8 +52,10 @@ import javax.swing.JSeparator;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -127,6 +129,8 @@ class ImViewerUI
         menuBar.add(createZoomMenu());
         createRatingMenu();
         //menuBar.add(createRatingMenu());
+        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        menuBar.add(tb.getWindowsMenu());
         menuBar.add(createHelpMenu());
         return menuBar;
     }
