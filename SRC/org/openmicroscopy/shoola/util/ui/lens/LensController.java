@@ -125,6 +125,13 @@ public class LensController
 	 */
 	void setLensSize(int w, int h)
 	{
+		System.err.println("Set Size");
+		if(lens.getX()+w > lensModel.getImageWidth() )
+			w = lensModel.getImageWidth()-lens.getX();
+		
+		if(lens.getY()+h > lensModel.getImageHeight() )
+			h = lensModel.getImageHeight()-lens.getY();
+
 		lens.setSize(w, h);
 		lensModel.setWidth(w);
 		lensModel.setHeight(h);
@@ -436,12 +443,34 @@ public class LensController
 		}
 		if(lensDrag)
 		{
-			startX = startX+(x-offsetX);
-			startY = startY+(y-offsetY);
-			if(startX < 0 )
+			boolean moveX = true;
+			boolean moveY = true;
+			if(startX+(x-offsetX) < 0 )
+			{
+				moveX = false;
 				startX = 0;
-			if(startY < 0 )
+			}
+			if(startX+(x-offsetX)+lens.getWidth() > lensModel.getImageWidth())
+			{
+				moveX = false;
+				startX = lensModel.getImageWidth()-lens.getWidth();
+			}
+				
+			if(startY+(y-offsetY) < 0 )
+			{
+				moveY = false;
 				startY = 0;
+			}
+			if(startY+(y-offsetY)+lens.getHeight() > lensModel.getImageHeight())
+			{
+				moveY = false;
+				startY = lensModel.getImageHeight()-lens.getHeight();
+			}
+			
+			if(moveX)
+				startX = startX+(x-offsetX);
+			if(moveY)
+				startY = startY+(y-offsetY);
 			setLensLocation(startX, startY);
 		}
 	}
@@ -463,10 +492,13 @@ public class LensController
 		int newY = lens.getY()+dy;
 		int newWidth = lens.getWidth()+dw;
 		int newHeight = lens.getHeight()+dh;
+	
 		if( newX > 0 && newY > 0 && newWidth >= LensUI.MINIMUM_WIDTH 
 				&& newWidth <= LensUI.MAXIMUM_WIDTH	
 				&& newHeight >= LensUI.MINIMUM_HEIGHT 
-				&& newHeight <= LensUI.MAXIMUM_HEIGHT)
+				&& newHeight <= LensUI.MAXIMUM_HEIGHT &&
+				newHeight+newY <= lensModel.getImageHeight() &&
+				newWidth+newX <= lensModel.getImageWidth() )
 			return true;
 		else
 			return false;

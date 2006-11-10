@@ -80,11 +80,13 @@ public class ZoomPanel
 			g.setColor(CLEAR_COLOUR);
 			g.fillRect(0,0,this.getWidth(), this.getHeight());
 			
-			int x = (w/2)-zoomImage.getWidth()/2;
-			int y = (h/2)-zoomImage.getHeight()/2;
-			
-			g.drawImage(zoomImage, x, y, zoomImage.getWidth(), 
+			if(zoomImage != null)
+			{
+				int x = (w/2)-zoomImage.getWidth()/2;
+				int y = (h/2)-zoomImage.getHeight()/2;
+				g.drawImage(zoomImage, x, y, zoomImage.getWidth(), 
 												zoomImage.getHeight(), null);
+			}
 		}
 	}
 

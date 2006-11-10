@@ -93,13 +93,41 @@ public class LensModel
 			this.planeImage = planeImage;
 		}
 
-	    /**
+		/** 
+		 * Set the plane image to a new image.
+		 *  
+		 * @param img new PlaneImage.
+		 */
+		void setPlaneImage(BufferedImage img)
+		{
+			planeImage = img;
+		}
+		
+		int	getImageWidth()
+		{
+			if(planeImage != null )
+				return planeImage.getWidth();
+			else
+				return 0;
+		}
+
+		int	getImageHeight()
+		{
+			if(planeImage != null )
+				return planeImage.getHeight();
+			else
+				return 0;
+		}
+		
+		/**
 	     * Returns the zoomedImage from the model. 
 	     * 
 	     * @return zoomedImage. 
 	     */
 		BufferedImage getZoomedImage()
 		{
+			if( planeImage == null )
+				return null;
 			ColorModel cm = planeImage.getColorModel();
 			Raster r = planeImage.getData().createChild(x, y, width, height, 0, 
 																	0, null);

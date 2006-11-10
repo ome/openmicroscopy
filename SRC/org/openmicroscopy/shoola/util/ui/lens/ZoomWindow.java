@@ -69,7 +69,6 @@ public class ZoomWindow
 	{
 		this.lensComponent = lensComponent;
 		zoomWindowUI = new ZoomWindowUI(lensComponent);
-		zoomWindowUI.setVisible(true);
 	}
 	
 	/**
@@ -81,7 +80,21 @@ public class ZoomWindow
 	{
 		this.lensController = lensController;
 	}
-		
+	
+	void repaint()
+	{
+		zoomWindowUI.repaint();
+	}
+	
+	/**
+	 * Set the visiblity of the zoomWindowUI.
+	 * 
+	 * @param makeVisible see above.
+	 */
+	void setVisible(boolean makeVisible)
+	{
+		zoomWindowUI.setVisible(makeVisible);
+	}
 	/**
 	 * Set the zoomImage to be the bufferedImage.
 	 * 
@@ -143,5 +156,15 @@ public class ZoomWindow
 	ZoomWindowUI getUI()
 	{
 		return zoomWindowUI;
+	}
+	
+	/**
+	 * Is the zoomWindowUI visible.
+	 *  
+	 * @return see above.
+	 */
+	boolean isVisible()
+	{
+		return zoomWindowUI.isVisible();
 	}
 }

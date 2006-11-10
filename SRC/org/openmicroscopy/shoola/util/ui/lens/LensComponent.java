@@ -99,6 +99,47 @@ public class LensComponent
 	}
 	
 	/**
+	 * Create the lenscomponent which is the container for the lens 
+	 * infrastructure.
+	 * 
+	 * @param planeImage Image being displayed by the viewer.
+	 */
+	public LensComponent()
+	{
+		this.planeImage = null;
+		lensModel = new LensModel(null);
+		zoomWindow = new ZoomWindow(this);
+		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_HEIGHT);
+		lensController = new LensController(lensModel , lens, zoomWindow);
+		lensModel.setWidth(LENS_DEFAULT_WIDTH);
+		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
+		lens.addController(lensController);
+		zoomWindow.addController(lensController);
+	}
+	/**
+	 * Set the plane image of the lens to a new Image. 
+	 * 
+	 * @param img new Image.
+	 */
+	public void setPlaneImage(BufferedImage img)
+	{
+		lensModel.setPlaneImage(img);
+		zoomWindow.setZoomImage(lensModel.getZoomedImage());
+		zoomWindow.repaint();
+	}
+	
+	/**
+	 * Set the visiblity of the lens, and ZoomWindowUI.
+	 * 
+	 * @param makeVisible see above.
+	 * 
+	 */
+	public void setVisible(boolean makeVisible)
+	{
+			lens.setVisible(makeVisible);
+			zoomWindow.setVisible(makeVisible);
+	}
+	/**
 	 * Set the zoomfactor for the lens. 
 	 * 
 	 * @param zoomFactor
@@ -181,6 +222,16 @@ public class LensComponent
 	public LensUI getLensUI()
 	{
 		return lens;
+	}
+	
+	/**
+	 * Are the lens and zoomWindow visible.
+	 * 
+	 * @return see above.
+	 */
+	public boolean isVisible()
+	{
+		return (lens.isVisible() && zoomWindow.isVisible());
 	}
 	
 }
