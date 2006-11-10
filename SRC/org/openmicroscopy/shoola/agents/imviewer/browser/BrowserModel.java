@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The Model component in the <code>Browser</code> MVC triad.
@@ -255,14 +256,7 @@ class BrowserModel
     String getUnitBarValue()
     {
         //double v = getPixelsSizeX();///factor;
-        double v = unitInMicrons;
-        String value;
-        double c = v;
-        if (v < 0) return null;
-        if ((c-Math.floor(c)) > 0) value = ""+Math.round(c*100)/100f; 
-        else  value = ""+(int) c;
-        if (value.equals("0")) return null;
-        return value;
+    	return UIUtilities.twoDecimalPlaces(unitInMicrons);
     }
     
     Magnifier getMagnifier() { return magnifier; }
