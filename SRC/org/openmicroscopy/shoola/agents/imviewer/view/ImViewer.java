@@ -127,6 +127,20 @@ public interface ImViewer
     												"colorModelChanged";
     
     /**
+     * Set the visiblity of the lens. 
+     * 
+     * @param b see above.
+     */
+    void setLensVisible(boolean b);
+    
+    /**
+     * Is the lens visible. 
+     * 
+     * @return see above.
+     */
+    boolean isLensVisible();
+    
+    /**
      * Iconified if the specified value is <code>true</code>, deiconified
      * otherwise.
      * 

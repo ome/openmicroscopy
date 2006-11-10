@@ -885,4 +885,25 @@ class ImViewerComponent
         return new ImageIcon(model.getImageIcon());
     }
     
+    /** 
+     * Is the lens visible in the window.
+     *  
+     * @return see above.
+     */
+    public boolean isLensVisible()
+    {
+		return view.isLensVisible();
+    }
+    
+    /**
+     * If the parameter is true show the lens; this will only happen if the lens
+     * is smaller than the image.
+     *  
+     * @param b see above.
+     */
+    public void setLensVisible(boolean b)
+    {
+    	view.setLensVisible(b);
+    }
+    
 }

@@ -38,6 +38,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * The {@link ImViewer} view.
@@ -77,6 +79,8 @@ class ImViewerUI
     extends TopWindow
 {
 
+	private LensComponent	lens;
+	
     /** Default background color. */
     public static final Color   BACKGROUND = new Color(250, 253, 255);
     
@@ -412,6 +416,7 @@ class ImViewerUI
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
         statusBar = new StatusBar();
+        lens = new LensComponent();
     }
     
     /** 
@@ -590,4 +595,46 @@ class ImViewerUI
         }
     }
     
+    public void setLensPlaneImage(BufferedImage img)
+    {
+    	lens.setPlaneImage(img);
+    }
+    
+    /**
+     * Return <code>true</code> if the lens is visible.
+     * 
+     * @return see above.
+     */
+    public boolean  isLensVisible()
+    {
+    	if(lens != null)
+    		return lens.isVisible();
+    	return false;
+    }
+    
+    /**
+     * Set the lens's visiblilty.
+     * 
+     * @param see above.
+     */
+    public void setLensVisible(boolean b)
+    {
+    	if(lens==null)
+    		return;
+    	if( b==true)
+    	{
+    		if(model.getMaxX() < lens.getLensUI().getWidth() || 
+    			model.getMaxY() < lens.getLensUI().getHeight() )
+    				return;
+    		lens.setPlaneImage(model.getDisplayedImage());
+    		lens.setVisible(b);
+    		model.getBrowser().addComponent(lens.getLensUI());
+    	}
+    	else
+    	{
+    		model.getBrowser().removeComponent(lens.getLensUI());
+    		lens.setVisible(b);
+    	}
+		this.repaint();
+    }
 }

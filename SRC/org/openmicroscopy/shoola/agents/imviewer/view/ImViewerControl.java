@@ -485,6 +485,8 @@ class ImViewerControl
                     view.onStateChange(true);
                     historyState = state;
                 }
+                if( view.isLensVisible() )
+                	view.setLensPlaneImage(model.getImage());
                 break;
             case ImViewer.CHANNEL_MOVIE:
                 historyState = ImViewer.CHANNEL_MOVIE;
