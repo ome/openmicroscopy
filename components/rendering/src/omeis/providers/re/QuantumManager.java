@@ -87,7 +87,25 @@ class QuantumManager
 		this.metadata = metadata;
 		wavesStg = new QuantumStrategy[metadata.getSizeC().intValue()];
 	}
-    
+	
+    /**
+     * Creates and configures an appropriate strategy for each wavelength.
+     * The previous window interval settings of each wavelength are retained
+     * by the new strategy.
+     * 
+     * @param qd	   The quantum definition which dictates what strategy to
+     *                 use.
+     * @param type     The pixels' type.
+     * @param waves    Rendering settings associated to each wavelength
+     *                 (channel). 	
+     */
+	void initStrategies(QuantumDef qd, PixelsType type,
+	                    List<ChannelBinding> waves)
+	{
+		ChannelBinding[] cb = waves.toArray(new ChannelBinding[waves.size()]);
+		initStrategies(qd, type, cb);
+	}
+	
     /**
      * Creates and configures an appropriate strategy for each wavelength.
      * The previous window interval settings of each wavelength are retained

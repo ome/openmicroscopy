@@ -650,6 +650,11 @@ public class Renderer
     	
     	// Keep up with rendering engine model state.
     	setModel(rndDef.getModel());
+    	
+    	// Keep up with the quantum manager state (Basically reset it).
+    	getQuantumManager().initStrategies(rndDef.getQuantization(),
+    	                                   metadata.getPixelsType(),
+    	                                   rndDef.getWaveRendering());
 
         // Remove all the codomainMapCtx except the identity. (Also keeping up
     	// with rendering engine state)
