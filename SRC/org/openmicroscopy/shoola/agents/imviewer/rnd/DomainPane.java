@@ -211,6 +211,16 @@ class DomainPane
 		});
     }
     
+    /** Resets the value of the bit resolution. */
+    private void resetBitResolution()
+    {
+        int v = model.getBitResolution();
+        bitDepthSlider.removeChangeListener(this);
+        bitDepthSlider.setValue(convertBitResolution(v));
+        bitDepthSlider.addChangeListener(this);
+        bitDepthLabel.setText(""+v);
+    }
+    
 	/**
 	 * Handles mouse clicks on the {@link #advancedOptionsButton}.
 	 * The {@link #advancedPanel} is shown/hidden depending on the current 
@@ -452,6 +462,7 @@ class DomainPane
         setInputInterval();
         setSelectedChannel(model.getSelectedChannel());
         setCodomainInterval();
+        resetBitResolution();
         ChannelToggleButton btn;
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         for (int i = 0; i < channelList.size(); i++) {
