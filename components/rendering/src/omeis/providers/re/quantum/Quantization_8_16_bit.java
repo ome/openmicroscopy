@@ -120,7 +120,6 @@ public class Quantization_8_16_bit
 		min = (int) getGlobalMin();
 		max = (int) getGlobalMax();
 		LUT = new byte[max-min+1];  
-        System.out.println("min: "+min+" max: "+max);
 	}
 
     /**

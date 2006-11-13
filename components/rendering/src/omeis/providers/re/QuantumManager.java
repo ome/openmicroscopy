@@ -134,12 +134,8 @@ class QuantumManager
                     waves[w].getFamily(), 
                     waves[w].getCoefficient().doubleValue(), 
                     waves[w].getNoiseReduction().booleanValue());
-			if (wavesStg[w] == null)
-				stg.setWindow(waves[w].getInputStart().intValue(), 
-                              waves[w].getInputEnd().intValue()); 
-			else 
-				stg.setWindow(wavesStg[w].getWindowStart(), 
-				              wavesStg[w].getWindowEnd());
+			stg.setWindow(waves[w].getInputStart(), 
+                          waves[w].getInputEnd()); 
 	
 			wavesStg[w] = stg;
 			w++;
