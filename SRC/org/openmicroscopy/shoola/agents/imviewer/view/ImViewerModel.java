@@ -394,9 +394,10 @@ class ImViewerModel
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        //currentLoader = new ImageLoader(component, pixelsID, pDef);
-        //currentLoader.load();
+        /*
+        currentLoader = new ImageLoader(component, pixelsID, pDef);
+        currentLoader.load();
+        */
         
     }
     
@@ -412,7 +413,7 @@ class ImViewerModel
         state = ImViewer.LOADING_IMAGE;
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
-            return os.renderImageCopy(pixelsID, pDef);
+            return os.renderImage(pixelsID, pDef);
         } catch (Exception e) {
             // TODO: handle exception
         }
