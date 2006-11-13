@@ -529,7 +529,7 @@ class ControlPane
             button = (ChannelButton) i.next();
             index = button.getChannelIndex();
             button.setSelected(model.isChannelActive(index));
-            button.setBackground(model.getChannelColor(index)); 
+            button.setColor(model.getChannelColor(index)); 
             button.setGrayedOut(gs);
         }
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
