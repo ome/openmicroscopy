@@ -102,7 +102,7 @@ public class ColouredButton
      */
     public void setColor(Color c) 
     { 
-    	if(uiDelegate!=null)
+    	if (uiDelegate != null)
     		uiDelegate.setColor(c); 
     	repaint();
     }
@@ -118,15 +118,11 @@ public class ColouredButton
     }
     
     /**
-     * Overridden. Sets the Background colour of the button, this will 
-     * be used as the base colour to generate the gradient fill of the 
-     * buttons. 
+     * Overridden. Does nothing as it's overwritten by laf and breaks the 
+     * coloured button.
      * @see javax.swing.JComponent#setBackground(Color)
      */
-    public void setBackground(Color c)
-    {
-    	// Do nothing as it's overwritten by laf and breaks the coloured button.
-    }
+    public void setBackground(Color c) {}
 
     /** 
      * Overridden.
