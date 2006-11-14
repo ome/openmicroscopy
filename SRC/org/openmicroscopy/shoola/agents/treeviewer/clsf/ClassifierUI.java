@@ -105,7 +105,7 @@ class ClassifierUI
     
     /** Message displayed if the image is unclassified. */
     private static final String     ADD_UNCLASSIFIED_TEXT = "The image " +
-            "cannot be classified because there is no category available. ";
+            "cannot be classified. Please first create a category.";
     
     /** Text displayed in the title panel. */
     private static final String     REMOVE_PANEL_TITLE = "Remove From Category";
