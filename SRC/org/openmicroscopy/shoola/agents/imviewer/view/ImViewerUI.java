@@ -81,6 +81,7 @@ class ImViewerUI
     extends TopWindow
 {
 
+	/** Lens component which will control all behaviour of the lens. */
 	private LensComponent	lens;
 	
     /** Default background color. */
@@ -646,18 +647,18 @@ class ImViewerUI
     				lensX = model.getMaxX()-lens.getLensUI().getWidth();
     			if(lensY+lens.getLensUI().getHeight() > model.getMaxY())
     				lensY = model.getMaxY()-lens.getLensUI().getHeight();
-    			lens.setLensLocation(lensX, lensY);
-    		}
-    		lens.setXYPixelMicron(model.getPixelsSizeX(), model.getPixelsSizeY());
-    		lens.setPlaneImage(model.getDisplayedImage());
+    			lens.setImageZoomFactor((float)model.getZoomFactor());
+    	    	lens.setLensLocation(lensX, lensY);
+    			lens.setXYPixelMicron(model.getPixelsSizeX(), model.getPixelsSizeY());
+    	    	model.getBrowser().addComponent(lens.getLensUI());
+    	   	}
+
+    		lens.setImageZoomFactor((float)model.getZoomFactor());
+    		lens.setPlaneImage(model.getRenderedImage());
     		lens.setVisible(b);
-    		model.getBrowser().addComponent(lens.getLensUI());
     	}
     	else
-    	{
-    		model.getBrowser().removeComponent(lens.getLensUI());
     		lens.setVisible(b);
-    	}
 		this.repaint();
     }
     
@@ -668,6 +669,11 @@ class ImViewerUI
     public BufferedImage getZoomedLensImage()
     {
     	return lens.getZoomedImage();
+    }
+    
+    public void setImageZoomFactor(float factor)
+    {
+    	lens.setImageZoomFactor(factor);
     }
     
 }
