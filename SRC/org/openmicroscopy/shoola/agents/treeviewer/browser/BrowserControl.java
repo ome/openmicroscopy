@@ -241,6 +241,7 @@ class BrowserControl
                 TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Node selection", "You can only select " +
                     "node of the same type e.g. images.");
+            model.setSelectedDisplay(null);
             return;
         }
         //Pass TreeImageDisplay array
