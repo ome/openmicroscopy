@@ -128,7 +128,6 @@ public class CopyAction
     public void actionPerformed(ActionEvent e)
     {
         CopyCmd cmd = new CopyCmd(model);
-        System.out.println("Copy in action");
         cmd.execute();
     }
     
