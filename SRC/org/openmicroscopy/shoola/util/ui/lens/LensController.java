@@ -560,7 +560,6 @@ public class LensController
 					(int)(newY/lensModel.getImageZoomFactor()));
 			lensModel.setWidth((int)(newWidth/lensModel.getImageZoomFactor()));
 			lensModel.setHeight((int)(newHeight/lensModel.getImageZoomFactor()));
-			zoomWindow.setZoomImage(lensModel.getZoomedImage());
 			zoomWindow.setLensXY(lensModel.getX(), lensModel.getY());
 			zoomWindow.setLensWidthHeight(lensModel.getWidth(), 
 					lensModel.getHeight());
@@ -580,6 +579,7 @@ public class LensController
 		zoomWindow.setZoomUISize((float)width*zoomFactor, 
 													(float)height*zoomFactor);
 		zoomWindow.setLensZoomFactor(zoomFactor);
+		zoomWindow.setZoomImage(lensModel.getZoomedImage());
 	}
 	
 	/**
