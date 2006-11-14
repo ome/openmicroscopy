@@ -466,7 +466,7 @@ class ImViewerControl
     private void updateLensImage()
     {
     	if(view.isLensVisible())
-    		view. setLensPlaneImage(model.getImage());
+    		view.setLensPlaneImage(model.getRenderedImage());
     	timer.stop();
     }
     

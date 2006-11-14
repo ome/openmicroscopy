@@ -201,6 +201,8 @@ class ImViewerComponent
                         "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
                         ZoomAction.MAX_ZOOM_FACTOR);
         model.setZoomFactor(factor);
+        if(view.isLensVisible())
+        	view.setImageZoomFactor((float)factor);
     }
 
     /** 
@@ -712,6 +714,23 @@ class ImViewerComponent
         return model.getDisplayedImage();
     }
 
+    /**
+     * Implemented as specified by the {@link ImViewer} interface
+     * @see ImViewer#getRenderedImage()
+     * 
+     */
+    public BufferedImage getRenderedImage()
+    {
+        switch (model.getState()) {
+            case NEW:
+            case LOADING_RENDERING_CONTROL:
+            case DISCARDED:
+                throw new IllegalStateException(
+                "This method can't be invoked in the DISCARDED, NEW or" +
+                "LOADING_RENDERING_CONTROL state.");
+        }
+        return model.getRenderedImage();
+    } 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getPixelsSizeX()

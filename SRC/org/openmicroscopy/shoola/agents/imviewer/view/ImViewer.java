@@ -348,6 +348,13 @@ public interface ImViewer
     public BufferedImage getImage();
     
     /**
+     * Returns the rendered image.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getRenderedImage();
+    
+    /**
      * Returns the default timepoint.
      * 
      * @return See above.
