@@ -320,7 +320,7 @@ class EditorUI
         emptyMessagePanel.add(label);
         Insets i = emptyMessagePanel.getInsets();
         h += i.top+i.bottom+2;
-        emptyMessagePanel.setBounds(0, r.height-h, w, h);
+        emptyMessagePanel.setBounds(0, r.height-h, 3*w/2, h);
     }
     
     /**

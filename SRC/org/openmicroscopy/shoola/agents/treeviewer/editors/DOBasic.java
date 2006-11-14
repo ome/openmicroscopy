@@ -37,6 +37,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -118,7 +120,6 @@ class DOBasic
     /** Reference to the Control. */
     private EditorControl       controller;
 
-    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -197,13 +198,29 @@ class DOBasic
             
         };
         nameArea.getDocument().addDocumentListener(nameAreaListener);
+        nameArea.addKeyListener(new KeyAdapter() {
+
+            /** Finds the phrase. */
+            public void keyPressed(KeyEvent e)
+            {
+                if ((e.getKeyCode() == KeyEvent.VK_ENTER)) {
+                    Object source = e.getSource();
+                    if (source instanceof JTextField) {
+                        JTextField field = (JTextField) source;
+                        if (field.getText() != null && 
+                                field.getText().length() > 0)
+                            view.finish();
+                    }
+                }
+            }
+        });
     }   
     
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
      * is annotable and if we are in the {@link Editor#PROPERTIES_EDITOR} mode,
-     * twe display the annotation pane. 
+     * we display the annotation pane. 
      * 
      * @return See above.
      */
@@ -307,7 +324,7 @@ class DOBasic
     }   
 
     /**
-     * Returns <code>true</code> if the data object can be annotated.
+     * Returns <code>true</code> if the data object can be annotated,
      * <code>false</code> otherwise.
      * 
      * @return See above.
@@ -331,8 +348,8 @@ class DOBasic
     }
     
     /** 
-     * Returns <code>true</code> if the user modified the current annotation
-     * or created an annotation.
+     * Returns <code>true</code> if the user modifies the current annotation
+     * or creates an annotation.
      * 
      * @return See above.
      */
@@ -373,8 +390,6 @@ class DOBasic
      * {@link DocumentListener} attached to the {@link #nameArea}.
      * This method is invoked when the user tries to save a object which 
      * name is only made of spaces.
-     * 
-     *
      */
     void resetNameArea()
     {
