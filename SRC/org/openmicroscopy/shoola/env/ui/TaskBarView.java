@@ -31,8 +31,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -156,7 +161,7 @@ class TaskBarView
 
 	/** Cached reference to the {@link IconManager} singleton.*/
 	private IconManager        iconManager;
-	
+    
 	/**
 	 * Helper method to create all menu items for the various menus within
 	 * the menu bar.
@@ -485,11 +490,11 @@ class TaskBarView
         }
     }
 
-    /**
-     * Implemented as specifed by {@link TaskBar}.
-     * @see TaskBar#getWindowsMenu()
-     */
-    public JMenu getWindowsMenu() { return menus[WINDOW_MENU]; }
+    public JMenu getWindowsMenu()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     /**
      * Implemented as specifed by {@link TaskBar}.
