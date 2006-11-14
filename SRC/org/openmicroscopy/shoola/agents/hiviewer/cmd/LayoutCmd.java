@@ -36,9 +36,14 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Cursor;
+
+import javax.swing.JFrame;
+
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
@@ -76,7 +81,8 @@ public class LayoutCmd
     {
         switch (index) {
             case LayoutFactory.SQUARY_LAYOUT:
-            case LayoutFactory.TREE_LAYOUT:    
+            case LayoutFactory.TREE_LAYOUT:  
+            case LayoutFactory.FLAT_LAYOUT:    
                 return true;
         }
         return false;
@@ -101,21 +107,29 @@ public class LayoutCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
+        JFrame view = model.getUI();
         if (browser.getSelectedLayout() == layoutIndex) return; 
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         switch (layoutIndex) {
             case LayoutFactory.SQUARY_LAYOUT:
+                browser.setSelectedLayout(layoutIndex);
+                browser.resetChildDisplay();
                 browser.accept(LayoutFactory.createLayout(
                         LayoutFactory.SQUARY_LAYOUT),
                         ImageDisplayVisitor.IMAGE_SET_ONLY);
                 //browser.setTreeDisplay(null);
-                browser.setSelectedLayout(LayoutFactory.SQUARY_LAYOUT);
+                
                 break;
-            case LayoutFactory.TREE_LAYOUT:
-                browser.accept(LayoutFactory.createLayout(
-                        		LayoutFactory.TREE_LAYOUT),
-                        ImageDisplayVisitor.IMAGE_SET_ONLY);
-                browser.setSelectedLayout(LayoutFactory.TREE_LAYOUT);
+            case LayoutFactory.FLAT_LAYOUT:
+                browser.setSelectedLayout(layoutIndex);
+                browser.resetChildDisplay();
+                Layout l = LayoutFactory.createLayout(layoutIndex);
+                browser.accept(l);
+                browser.setSelectedLayout(LayoutFactory.FLAT_LAYOUT);
+                l.doLayout();
         }
+        view.setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
 }
