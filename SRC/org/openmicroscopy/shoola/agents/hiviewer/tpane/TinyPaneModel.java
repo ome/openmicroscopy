@@ -98,9 +98,6 @@ class TinyPaneModel
     /** Replaces the {@link #desktopPane} when we're in single-view mode. */
     private JLayeredPane    singleViewDesktop;
     
-    /** Replaces the current desktop when we modify the display. */
-    private JLayeredPane    changeDisplayDesktop;
-    
     /** 
      * The bounds of the currently displayed child view relative to the
      * {@link #desktopPane} in which it was originally contained, if we're
@@ -255,32 +252,6 @@ class TinyPaneModel
     }
     
     /**
-     * Replaces the original display by the specified one.
-     * 
-     * @param c The new display.
-     * @param uiDelegate The frame's View.  We need it here to decorate the
-     *                   desktops. Mustn't be <code>null</code>.
-     */
-    void setChangeDisplay(JComponent c, TinyPaneUI uiDelegate)
-    {
-        if (uiDelegate == null) 
-            throw new NullPointerException("No UI delegate.");
-        Rectangle r = contentPane.getBounds();
-        contentPane.removeAll();
-        changeDisplayDesktop = new JLayeredPane();
-        contentPane.removeAll();
-        contentPane.add(
-                uiDelegate.decorateDesktopPane(changeDisplayDesktop),
-                BorderLayout.CENTER);
-        c.setSize(r.getSize());
-        changeDisplayDesktop.setLayout(new BorderLayout());
-        changeDisplayDesktop.add(c, BorderLayout.CENTER);
-        changeDisplayDesktop.setSize(r.getSize());
-        contentPane.validate();
-        contentPane.repaint();
-    }
-    
-    /**
      * Restores the original view.
      * 
      * @param uiDelegate The frame's View.  We need it here to decorate the
@@ -288,7 +259,7 @@ class TinyPaneModel
      */
     void restoreDisplay(TinyPaneUI uiDelegate)
     {
-        if (changeDisplayDesktop == null) return;
+        //if (changeDisplayDesktop == null) return;
         contentPane.removeAll();
         if (singleViewMode) {
             if (singleViewDesktop != null)
@@ -302,7 +273,7 @@ class TinyPaneModel
         contentPane.validate();
         contentPane.repaint();
     }
-    
+
     /**
      * Tells if we're in single or multi-view mode. 
      * 
@@ -608,5 +579,7 @@ class TinyPaneModel
      * @param decoration The collection to set.
      */
     void setDecoration(Set decoration) { this.decoration = decoration; }
+
+
     
 }

@@ -533,9 +533,7 @@ public class TinyPane
      * @return See above.
      */
     public Icon getFrameIcon() { return model.getFrameIcon(); }
-    
-    
-    
+     
     /**
      * Passes <code>true</code> to listen to the border.
      * <code>false</code> otherwise.
@@ -587,17 +585,6 @@ public class TinyPane
     {
         if (getParent() != null && getParent() instanceof JLayeredPane) 
             ((JLayeredPane) getParent()).moveToBack(this);
-    }
-    
-    /**
-     * Replaces the original display by the specified one.
-     * 
-     * @param c The new display.
-     */
-    public void setChangeDisplay(JComponent c)
-    {
-       if (c == null) return;
-       model.setChangeDisplay(c, uiDelegate);
     }
     
     /** Restores the original display. */
