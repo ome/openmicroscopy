@@ -30,8 +30,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -54,13 +52,15 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
  */
 public class LayoutFactory
 {
-
+    
     /** Identifies the <i>Squary</i> layout.*/
     public static final int     SQUARY_LAYOUT = 1;
     
     /** Identifies the <i>Tree</i> layout.*/
     public static final int     TREE_LAYOUT = 2;
     
+    /** Identifies the <i>Flat</i> layout.*/
+    public static final int     FLAT_LAYOUT = 3;
     
     /**
      * Creates the specified layout.
@@ -77,6 +77,8 @@ public class LayoutFactory
                 return new SquaryLayout();
             case TREE_LAYOUT:
                 return new TreeLayout();
+            case FLAT_LAYOUT:
+                return new FlatLayout();
             default:
                 throw new IllegalArgumentException("Unsupported layout type: "+
                                                     +type+".");
@@ -90,8 +92,15 @@ public class LayoutFactory
      */
     public static Layout getDefaultLayout()
     { 
-        return createLayout(SQUARY_LAYOUT); 
+        return createLayout(getDefaultLayoutIndex()); 
     }
+    
+    /**
+     * Returns the default layout index.
+     * 
+     * @return See above.
+     */
+    public static int getDefaultLayoutIndex() { return SQUARY_LAYOUT; }
     
     /**
      * Returns the description corresponding to the layout specified by the
@@ -103,10 +112,9 @@ public class LayoutFactory
     public static String getLayoutDescription(int type)
     {
         switch (type) {
-            case SQUARY_LAYOUT:
-                return SquaryLayout.DESCRIPTION;
-            case TREE_LAYOUT:
-                return TreeLayout.DESCRIPTION;
+            case SQUARY_LAYOUT: return SquaryLayout.DESCRIPTION;
+            case TREE_LAYOUT: return TreeLayout.DESCRIPTION;
+            case FLAT_LAYOUT: return FlatLayout.DESCRIPTION;
             default:
                 return "";
         }

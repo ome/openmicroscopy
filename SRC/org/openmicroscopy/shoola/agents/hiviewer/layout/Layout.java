@@ -73,4 +73,7 @@ public interface Layout
      */
     public int getIndex();
     
+    /** Lays out the nodes. */
+    public void doLayout();
+    
 }

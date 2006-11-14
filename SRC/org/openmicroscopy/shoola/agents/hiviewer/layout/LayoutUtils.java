@@ -121,6 +121,23 @@ public class LayoutUtils
     }
     
     /**
+     * 
+     * @param images
+     * @return See above,
+     */
+    public static Dimension maxChildDim(List images)
+    {
+        Dimension maxDim = new Dimension(0, 0);
+        Iterator children = images.iterator();
+        ImageDisplay child;
+        while (children.hasNext()) {
+            child = (ImageDisplay) children.next();
+            maxDim = max(maxDim, child.getPreferredSize());
+        }
+        return maxDim;  //[0, 0] if no children.
+    }
+    
+    /**
      * Sorts the children of the specified <code>node</code> by their 
      * preferred width.
      * This method queries the preferred size of each child node in order to
@@ -157,6 +174,39 @@ public class LayoutUtils
     }
     
     /**
+     * Lays out the specified images in a square grid.
+     * 
+     * @param root          The root node.
+     * @param imageNodes    The collection of images to lay out.
+     */
+    public static void doSquareGridLayout(ImageDisplay root, List imageNodes)
+    {
+        Iterator children = imageNodes.iterator();
+        ImageDisplay child;
+        Dimension maxDim = maxChildDim(imageNodes);
+        int n = imageNodes.size();
+        n = (int) Math.floor(Math.sqrt(n))+1;
+        Dimension d;
+        try {
+            for (int i = 0; i < n; ++i) {
+                for (int j = 0; j < n; ++j) {
+                    if (!children.hasNext()) //Done, less than n^2 children.
+                        return;  //Go to finally.
+                    child = (ImageDisplay) children.next();
+                    d = child.getPreferredSize();
+                    child.setBounds(j*maxDim.width, i*maxDim.height, d.width, 
+                                    d.height);
+                }
+            }    
+        } finally {
+            Rectangle bounds = root.getContentsBounds();
+            d = bounds.getSize();
+            root.getInternalDesktop().setSize(d);
+            root.getInternalDesktop().setPreferredSize(d);
+        }
+    }
+    
+    /**
      * Lays out all child nodes in the specified parent <code>node</code>
      * in a square grid. 
      * The size of each cell in the grid will be that of the largest child
@@ -180,7 +230,7 @@ public class LayoutUtils
             node.setVisible(true);
             return;
         }
-        n = (int) Math.floor(Math.sqrt(n)) + 1;  //See note.
+        n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
         
         //Finally do layout.
         Dimension d;

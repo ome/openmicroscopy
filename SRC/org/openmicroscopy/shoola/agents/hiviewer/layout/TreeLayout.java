@@ -195,12 +195,6 @@ class TreeLayout
     }
 
     /**
-     * No-op implementation, as we only layout container displays.
-     * @see ImageDisplayVisitor#visit(ImageNode)
-     */
-    public void visit(ImageNode node) {}
-
-    /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#getDescription()
      */
@@ -211,5 +205,17 @@ class TreeLayout
      * @see Layout#getIndex()
      */
     public int getIndex() { return LayoutFactory.TREE_LAYOUT; }
+   
+    /**
+     * No-op implementation, as we only layout container displays.
+     * @see ImageDisplayVisitor#visit(ImageNode)
+     */
+    public void visit(ImageNode node) {}
+    
+    /**
+     * No-op implementation in our case.
+     * @see Layout#doLayout()
+     */
+    public void doLayout() {}
     
 }

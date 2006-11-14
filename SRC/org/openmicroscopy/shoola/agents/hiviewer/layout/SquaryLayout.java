@@ -39,7 +39,6 @@ import java.awt.Toolkit;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.env.ui.ViewerSorter;
@@ -147,8 +146,7 @@ class SquaryLayout
 
     /**
      * Lays out the current container display.
-     * 
-     * @see ImageDisplayVisitor#visit(ImageSet)
+     * @see Layout#visit(ImageSet)
      */
     public void visit(ImageSet node)
     {
@@ -159,16 +157,11 @@ class SquaryLayout
             LayoutUtils.noChildLayout(node);
             return;
         }
+        
         if (node.containsImages()) LayoutUtils.doSquareGridLayout(node, sorter);
         else visitContainerNode(node);
     }
-
-    /**
-     * No-op implementation, as we only layout container displays.
-     * @see ImageDisplayVisitor#visit(ImageNode)
-     */
-    public void visit(ImageNode node) {}
-
+    
     /**
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#getDescription()
@@ -180,5 +173,17 @@ class SquaryLayout
      * @see Layout#getIndex()
      */
     public int getIndex() { return LayoutFactory.SQUARY_LAYOUT; }
+    
+    /**
+     * No-op implementation, as we only layout container displays.
+     * @see Layout#visit(ImageNode)
+     */
+    public void visit(ImageNode node) {}
+    
+    /**
+     * No-op implementation in our case.
+     * @see Layout#doLayout()
+     */
+    public void doLayout() {}
 
 }
