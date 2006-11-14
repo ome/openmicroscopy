@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -252,6 +253,31 @@ class HierarchyBrowsingViewImpl
     {
         BatchCallTree cmd = new ChannelMetadataLoader(pixelsID);
         return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#removeDataObjects(Set, DataObject, 
+     *                                      AgentEventListener)
+     */
+    public CallHandle removeDataObjects(Set userObjects, DataObject parent, 
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(userObjects, parent, 
+                                            DataObjectSaver.REMOVE);
+        return cmd.exec(observer);  
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#removeDataObjects(Map, AgentEventListener)
+     */
+    public CallHandle removeDataObjects(Map objects,
+                                    AgentEventListener observer)
+    {
+        BatchCallTree cmd = new DataObjectSaver(objects, 
+                                           DataObjectSaver.REMOVE);
+        return cmd.exec(observer);                            
     }
     
 }
