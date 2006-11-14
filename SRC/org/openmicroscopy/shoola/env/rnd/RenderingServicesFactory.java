@@ -202,29 +202,6 @@ public class RenderingServicesFactory
         return proxy.render(pDef);
     }
     
-    /**
-     * Renders the specified {@link PlaneDef 2D-plane}.
-     * 
-     * @param context   Reference to the registry. To ensure that agents cannot
-     *                  call the method. It must be a reference to the
-     *                  container's registry.
-     * @param pixelsID  The id of the pixels set.
-     * @param pDef      The plane to render.
-     * @return See above.
-     */
-    public static BufferedImage renderCopy(Registry context, Long pixelsID, 
-                                        PlaneDef pDef)
-    {
-        if (!(context.equals(registry)))
-            throw new IllegalArgumentException("Not allow to access method.");
-        RenderingControlProxy proxy = 
-            (RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
-        if (proxy == null) 
-            throw new RuntimeException("No rendering service " +
-                    "initialized for the specified pixels set.");
-        return proxy.renderCopy(pDef);
-    }
-    
     /** Keep track of all the rendering service already initialized. */
     private HashMap                 rndSvcProxies;
     

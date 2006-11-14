@@ -47,14 +47,12 @@ import sun.awt.image.IntegerInterleavedRaster;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
-import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -105,8 +103,6 @@ class RenderingControlProxy
     
     private ChannelMetadata[]       metadata;
     
-    private BufferedImage           xyImage;
-    
     private RndProxyDef             rndDef;
     
     /**
@@ -150,38 +146,7 @@ class RenderingControlProxy
                                        );
         return new BufferedImage(colorModel, raster, false, null);
     }
-    
-    //tmp method
-    private RGBBuffer getBufferFromCache(PlaneDef pd)
-    {
-        RGBBuffer buffer = null;
-        if (pd.getSlice() == PlaneDef.XY) {  //We only cache XY images.
-            
-            if (xyCache != null) {
-                buffer = xyCache.extractBuffer(pd);
-            } else {
-                //Okay, let's see if we can activate the xyCache. In order to 
-                //do that, the dimensions of the pixels array and the xyImgSize
-                //have to be available. 
-                //This happens if at least one XY plane has been rendered.  
-                //Note that doing remote calls upfront to eagerly instantiate 
-                //the xyCache is in most cases a total waste: the client is 
-                //likely to call getPixelsDims() before an image is ever 
-                //rendered and until an XY plane is not requested it's pointless
-                //to have a cache.
-                if (xyImgSize != 0) {
-                    int cacheSize = getCacheSize();
-                    NavigationHistory nh = new NavigationHistory(
-                                                  cacheSize/xyImgSize, 
-                                                  getPixelsDimensionsZ(), 
-                                                  getPixelsDimensionsT());
-                    xyCache = new XYCache(cacheSize, xyImgSize, nh);
-                }
-            }
-        }
-        return buffer;
-    }
-    
+
     /**
      * Retrieves from the cache the buffered image representing the specified
      * plane definition. Note that only the images corresponding to an XY-plane
@@ -218,15 +183,6 @@ class RenderingControlProxy
             }
         }
         return img;
-    }
-    
-    //tmp method
-    private void cacheBuffer(PlaneDef pd, RGBBuffer buffer)
-    {
-        if (pd.getSlice() == PlaneDef.XY) {
-            //We only cache XY images.
-            if (xyCache != null) xyCache.addBuffer(pd, buffer);
-        }
     }
     
     /**
@@ -272,38 +228,7 @@ class RenderingControlProxy
         }
     }
     
-    private int makeRGB(int r, int g, int b)
-    {
-        return r << 16 | g << 8 | b;
-    }
-    
-    
-    /**
-     * Paints the {@link RGBBuffer} on the specified image.
-     * 
-     * @param img   The image to paint onto.
-     * @param buf   The buffer.
-     */
-    private void paintImage(BufferedImage img, RGBBuffer buf)
-    {
-        int sizeX1 = buf.getSizeX1();
-        int sizeX2 = buf.getSizeX2();
-        
-        byte[] r = buf.getRedBand();
-        byte[] g = buf.getGreenBand();
-        byte[] b = buf.getBlueBand();
-        
-        int i = 0;
-        for (int y = 0 ; y < sizeX2; y++) {
-            for (int x = 0 ; x < sizeX1 ; x++) {
-                img.setRGB(x, y, makeRGB(r[i] & 0xFF, g[i] & 0xFF,
-                                                b[i] & 0xFF));
-                i++;
-            }
-        }
-    }
-    
-    /** Initializes the cached values to speed up process. */
+    /** Initializes the cached rendering settings to speed up process. */
     private void initialize()
     {
         rndDef.setDefaultZ(servant.getDefaultZ());
@@ -316,7 +241,11 @@ class RenderingControlProxy
         
         ChannelBindingsProxy cb;
         for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-            cb = new ChannelBindingsProxy();
+            cb = rndDef.getChannel(i);
+            if (cb == null) {
+                cb = new ChannelBindingsProxy();
+                rndDef.setChannel(i, cb);
+            }
             cb.setActive(servant.isActive(i));
             cb.setInterval(servant.getChannelWindowStart(i), 
                             servant.getChannelWindowEnd(i));
@@ -324,7 +253,6 @@ class RenderingControlProxy
                     servant.getChannelCurveCoefficient(i), 
                     servant.getChannelNoiseReduction(i));
             cb.setRGBA(servant.getRGBA(i));
-            rndDef.setChannel(i, cb);
         }
     }
     
@@ -371,24 +299,6 @@ class RenderingControlProxy
     {
         if (xyCache != null) xyCache.resetCacheSize(size);
     }
-
-
-    /**
-     * Renders the specified {@link PlaneDef plane}.
-     * 
-     * @param pDef The plane to render
-     * @return The rendered image.
-     */
-    BufferedImage renderCopy(PlaneDef pDef)
-    {
-        if (pDef == null) 
-            throw new IllegalArgumentException("Plane def cannot be null.");
-        RGBBuffer buf = servant.render(pDef);
-        BufferedImage img = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
-                                BufferedImage.TYPE_INT_RGB);
-        paintImage(img, buf);
-        return img;
-    }
     
     /**
      * Renders the specified {@link PlaneDef plane}.
@@ -396,7 +306,7 @@ class RenderingControlProxy
      * @param pDef The plane to render
      * @return The rendered image.
      */
-    BufferedImage render(PlaneDef pDef)
+    synchronized BufferedImage render(PlaneDef pDef)
     {
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
@@ -423,33 +333,8 @@ class RenderingControlProxy
 
         int[] buf = servant.renderAsPackedInt(pDef);
         img = createImage(sizeX1, sizeX2, buf);
-        if (xyImage == null) {
-            xyImage = new BufferedImage(sizeX1, sizeX2, 
-                                BufferedImage.TYPE_INT_RGB);
-        }
         cache(pDef, img);
         return img;
-       /*
-        RGBBuffer buf = getBufferFromCache(pDef);
-        
-        if (buf == null) {
-            buf = servant.render(pDef);   //TO BE modified.
-            cacheBuffer(pDef, buf);
-        }
-        if (xyImage == null) {
-            xyImage = new BufferedImage(buf.getSizeX1(), buf.getSizeX2(), 
-                            BufferedImage.TYPE_INT_RGB);
-        }
-        
-        //See if we can/need work out the XY image size.
-        if (xyImgSize == 0 && pDef.getSlice() == PlaneDef.XY)
-            xyImgSize = buf.getRedBand().length+buf.getGreenBand().length+
-            buf.getBlueBand().length;
-        
-        paintImage(xyImage, buf);
-        
-        return xyImage;
-       */
     }
     
     /** Shuts down the service. */
