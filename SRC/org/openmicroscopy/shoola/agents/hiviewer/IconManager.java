@@ -227,11 +227,20 @@ public class IconManager
     /** The <code>Pin</code> icon. */
     public static int           PIN = 54;
     
+    /** The <code>DELETE</code> icon. */
+    public static int           DELETE = 55;
+    
+    /** The <code>Tree View</code> icon. */
+    public static int           TREE_VIEW = 56;
+    
+    /** The <code>Tree View</code> icon. */
+    public static int           CLIPBOARD_VIEW = 57;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 54;
+    private static int          MAX_ID = 57;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -293,6 +302,9 @@ public class IconManager
         relPaths[WARNING] = "eclipse_showwarn_tsk16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[PIN] = "nuvola_attach16.png";
+        relPaths[DELETE] =  "eclipse_delete_edit16.png";
+        relPaths[TREE_VIEW] =  "nuvola_view_tree16.png";
+        relPaths[CLIPBOARD_VIEW] =  "nuvola_editpaste16.png";
     }
     
     /** The sole instance. */
