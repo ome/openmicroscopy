@@ -106,6 +106,13 @@ public interface Browser
     public void setZoomFactor(double factor);
     
     /**
+     * Gets the zoom factor.
+     * 
+     * @return The zoom factor to get.
+     */
+    public double getZoomFactor();
+    
+    /**
      * Returns the name of the Browser.
      * 
      * @return See above.

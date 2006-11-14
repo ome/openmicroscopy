@@ -172,6 +172,14 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getZoomFactor()
+     */
+    public double getZoomFactor()
+    {
+        return model.getZoomFactor();	
+    }
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getTitle()
      */
     public String getTitle() { return model.getTitle(); }
