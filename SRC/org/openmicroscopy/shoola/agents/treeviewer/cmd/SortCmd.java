@@ -109,8 +109,17 @@ public class SortCmd
                                       (((TreeImageDisplay) o1).getUserObject());
                         ImageData i2 = (ImageData) 
                                     (((TreeImageDisplay) o2).getUserObject());
-                        Timestamp t1 = i1.getInserted();
-                        Timestamp t2 = i2.getInserted();
+                        Timestamp t1, t2;
+                        try {
+                            t1 = i1.getInserted();
+                        } catch (Exception e) { 
+                            t1 = null;
+                        }
+                        try {
+                            t2 = i2.getInserted();
+                        } catch (Exception e) {
+                            t2 = null;
+                        }
                         if (t1 == null)
                             t1 = TreeViewerTranslator.getDefaultTimestamp();
                         if (t2 == null)
