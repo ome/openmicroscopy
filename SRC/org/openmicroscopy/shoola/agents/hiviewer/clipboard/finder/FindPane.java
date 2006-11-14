@@ -37,6 +37,8 @@ import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -107,6 +109,8 @@ public class FindPane
     /** The popup menu displaying the level of the find action. */
     private FindPopupMenu           popupMenu;
     
+    /** The previously searched value. */
+    private List                    history;
     
     /** The currently selected node in the tree. */
     private DefaultMutableTreeNode  selectedNode;
@@ -119,7 +123,7 @@ public class FindPane
     public FindPane(ClipBoard model)
     {
         super(model);
-        
+        history = new ArrayList();
         findData = new FindData();
         uiDelegate = new FindPaneUI(this);
         popupMenu = new FindPopupMenu(this);
@@ -238,6 +242,7 @@ public class FindPane
             if (caseSensitive) p = RegExFactory.createPattern(findText);
             else p = RegExFactory.createCaseInsensitivePattern(findText);
             model.find(p, findData);
+            history.add(findText);
         } catch (PatternSyntaxException pse) {
             UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Find", "The phrase contains non valid characters.");
@@ -282,6 +287,16 @@ public class FindPane
         if (selectedNode != null)
             oldObject = (ImageDisplay) selectedNode.getUserObject();
         firePropertyChange(SELECTED_PROPERTY, oldObject, newObject);
+    }
+    
+    /**
+     * Returns the values already searched for.
+     * 
+     * @return See above.
+     */
+    String[] getHistory() 
+    { 
+        return (String[]) history.toArray(new String[history.size()]);
     }
     
     /**

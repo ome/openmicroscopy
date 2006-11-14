@@ -39,8 +39,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -62,6 +67,8 @@ import javax.swing.text.Document;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI delegate for the {@link FindPane}.
@@ -80,6 +87,7 @@ import javax.swing.text.Document;
  */
 class FindPaneUI
     extends JPanel
+    implements MouseListener, PropertyChangeListener
 {
     
     /** The message displayed when the phrase isn't found. */
@@ -212,6 +220,7 @@ class FindPaneUI
         FilterMenuAction action = new FilterMenuAction(model);
         JButton button = new JButton(action);
         button.addMouseListener(action);
+        UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
@@ -228,6 +237,7 @@ class FindPaneUI
         controlsBar.setRollover(true);
         controlsBar.setFloatable(false);
         JButton button = new JButton(new ClearAction(model));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
@@ -363,5 +373,56 @@ class FindPaneUI
         treeHolderPanel.add(new JScrollPane(p), BorderLayout.CENTER);
         treeHolderPanel.revalidate();
     }
+
+    /**
+     * Reacts to property fired by the {@link HistoryDialog}.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent) 
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        findArea.setText((String) evt.getNewValue());
+    }
+    
+    /**
+     * Displays the previously searched values.
+     * @see MouseListener#mousePressed(MouseEvent)
+     */
+    public void mousePressed(MouseEvent e)
+    {
+        if (findArea.getDocument().getLength() == 0) {
+            String[] h = model.getHistory();
+            if (h.length != 0) {
+                Rectangle r = findArea.getBounds();
+                HistoryDialog d = new HistoryDialog(h, r.width);
+                d.show(findArea, 0, r.height);
+                d.addPropertyChangeListener(HistoryDialog.SELECTION_PROPERTY, 
+                                            this);
+            }   
+        }
+    }
+    
+    /**
+     * Required by the {@link MouseListener} I/F but no-op in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */
+    public void mouseClicked(MouseEvent e) {}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-op in our case.
+     * @see MouseListener#mouseReleased(MouseEvent)
+     */
+    public void mouseReleased(MouseEvent e) {}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-op in our case.
+     * @see MouseListener#mouseEntered(MouseEvent)
+     */
+    public void mouseEntered(MouseEvent e) {}
+
+    /**
+     * Required by the {@link MouseListener} I/F but no-op in our case.
+     * @see MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
+    public void mouseExited(MouseEvent e) {}
     
 }
