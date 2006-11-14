@@ -111,11 +111,11 @@ public class LensController
 	 */
 	void setLensLocation(int x, int y)
 	{
-		lens.setLocation(x,y);
 		lensModel.setLensLocation(x,y);
+		lens.setLocation(lensModel.getScaledX(),lensModel.getScaledY());
 		zoomWindow.setZoomImage(lensModel.getZoomedImage());
-		zoomWindow.setLensXY(x, y);
-		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());
+		zoomWindow.setLensXY(lensModel.getX(), lensModel.getY());
+		zoomWindow.setLensWidthHeight(lensModel.getWidth(), lensModel.getHeight());
 	}
 	
 	/**
@@ -126,18 +126,28 @@ public class LensController
 	 */
 	void setLensSize(int w, int h)
 	{
-		System.err.println("Set Size");
-		if(lens.getX()+w > lensModel.getImageWidth() )
-			w = lensModel.getImageWidth()-lens.getX();
+		int scaledW, scaledH;
 		
-		if(lens.getY()+h > lensModel.getImageHeight() )
-			h = lensModel.getImageHeight()-lens.getY();
-
-		lens.setSize(w, h);
+		scaledW = (int)(w*lensModel.getImageZoomFactor());
+		scaledH = (int)(h*lensModel.getImageZoomFactor());
+		if(lens.getX()+scaledW > lensModel.getImageScaledWidth() )
+		{
+			scaledW = lensModel.getImageScaledWidth()-lens.getX();
+			w = (int)(scaledW/lensModel.getImageZoomFactor());
+		}
+		
+		if(lens.getY()+scaledH > lensModel.getImageScaledHeight() )
+		{
+			scaledH = lensModel.getImageScaledHeight()-lens.getY();
+			h = (int)(scaledH/lensModel.getImageZoomFactor());
+		}
+		
 		lensModel.setWidth(w);
 		lensModel.setHeight(h);
+		lens.setSize(scaledW, scaledH);
 		zoomWindow.setZoomImage(lensModel.getZoomedImage());
-		zoomWindow.setLensWidthHeight(w, h);
+		zoomWindow.setLensWidthHeight(lensModel.getWidth(), 
+				lensModel.getHeight());
 		setZoomUISize();
 	}
 	
@@ -451,10 +461,10 @@ public class LensController
 				moveX = false;
 				startX = 0;
 			}
-			if(startX+(x-offsetX)+lens.getWidth() > lensModel.getImageWidth())
+			if((startX+(x-offsetX))/lensModel.getImageZoomFactor()+lensModel.getWidth() > lensModel.getImageWidth())
 			{
 				moveX = false;
-				startX = lensModel.getImageWidth()-lens.getWidth();
+				startX = lensModel.getImageScaledWidth()-lensModel.getScaledWidth();
 			}
 				
 			if(startY+(y-offsetY) < 0 )
@@ -462,17 +472,18 @@ public class LensController
 				moveY = false;
 				startY = 0;
 			}
-			if(startY+(y-offsetY)+lens.getHeight() > lensModel.getImageHeight())
+			if(startY+(y-offsetY)+lens.getHeight() > lensModel.getImageScaledHeight())
 			{
 				moveY = false;
-				startY = lensModel.getImageHeight()-lens.getHeight();
+				startY = lensModel.getImageScaledHeight()-lensModel.getScaledHeight();
 			}
 			
 			if(moveX)
 				startX = startX+(x-offsetX);
 			if(moveY)
 				startY = startY+(y-offsetY);
-			setLensLocation(startX, startY);
+			setLensLocation((int)(startX/lensModel.getImageZoomFactor()),
+					(int)(startY/lensModel.getImageZoomFactor()));
 		}
 	}
 	
@@ -491,15 +502,15 @@ public class LensController
 	{
 		int newX = lens.getX()+dx;
 		int newY = lens.getY()+dy;
-		int newWidth = lens.getWidth()+dw;
-		int newHeight = lens.getHeight()+dh;
+		int newWidth = (int)((lens.getWidth()+dw)/lensModel.getImageZoomFactor());
+		int newHeight = (int)((lens.getHeight()+dh)/lensModel.getImageZoomFactor());
 	
 		if( newX > 0 && newY > 0 && newWidth >= LensUI.MINIMUM_WIDTH 
 				&& newWidth <= LensUI.MAXIMUM_WIDTH	
 				&& newHeight >= LensUI.MINIMUM_HEIGHT 
 				&& newHeight <= LensUI.MAXIMUM_HEIGHT &&
-				newHeight+newY <= lensModel.getImageHeight() &&
-				newWidth+newX <= lensModel.getImageWidth() )
+				newHeight+newY <= lensModel.getImageScaledHeight() &&
+				newWidth+newX <= lensModel.getImageScaledWidth() )
 			return true;
 		else
 			return false;
@@ -543,14 +554,16 @@ public class LensController
 		{
 			newWidth = lens.getWidth()+dw;
 			newHeight = lens.getHeight()+dh;			
-				
+			
 			lens.setBounds(newX, newY, newWidth, newHeight);
-			lensModel.setLensLocation(newX, newY);
-			lensModel.setWidth(newWidth);
-			lensModel.setHeight(newHeight);
+			lensModel.setLensLocation((int) (newX/lensModel.getImageZoomFactor()),
+					(int)(newY/lensModel.getImageZoomFactor()));
+			lensModel.setWidth((int)(newWidth/lensModel.getImageZoomFactor()));
+			lensModel.setHeight((int)(newHeight/lensModel.getImageZoomFactor()));
 			zoomWindow.setZoomImage(lensModel.getZoomedImage());
-			zoomWindow.setLensXY(newX, newY);
-			zoomWindow.setLensWidthHeight(newWidth, newHeight);
+			zoomWindow.setLensXY(lensModel.getX(), lensModel.getY());
+			zoomWindow.setLensWidthHeight(lensModel.getWidth(), 
+					lensModel.getHeight());
 			setZoomUISize();
 		}
 	}
@@ -562,8 +575,8 @@ public class LensController
 	private void setZoomUISize()
 	{
 		float zoomFactor = lensModel.getZoomFactor();
-		int width = lens.getWidth();
-		int height = lens.getHeight();
+		int width = lensModel.getWidth();
+		int height = lensModel.getHeight();
 		zoomWindow.setZoomUISize((float)width*zoomFactor, 
 													(float)height*zoomFactor);
 		zoomWindow.setLensZoomFactor(zoomFactor);

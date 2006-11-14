@@ -67,7 +67,7 @@ public class LensUI
 	/** Pick size of the border, this is a border running <code>BORDER_PICK_SIZE
 	 * </code> units around the edge of the lens. 
 	 */
-	private final static int 	BORDER_PICK_SIZE = 8;
+	private int 				borderPickSize = 8;	
 	
 	/** Constants defining the border being picked. Where
 	 *  +-----+=====+-----+
@@ -178,6 +178,9 @@ public class LensUI
 	
 	/** lens popupMenu. */
 	private JPopupMenu			menu;
+
+	/** The amount of zooming in the original image. */
+	private float imageZoomFactor;
 	
 	/** 
 	 * Constructor for the lens control. Will set initial width and height of
@@ -264,11 +267,7 @@ public class LensUI
 	public void setBounds(int x, int y, int w, int h) 
 	{
 		super.setBounds(x, y, w, h);
-		if (Math.min(w, h) < CROSSHAIR_SNAP)
-			crosshairLength = SNAPPED_CROSSHAIR;
-		else
-			crosshairLength = UNSNAPPED_CROSSHAIR;
-		crosshairTick = crosshairLength/2-1;
+		setPickParam(w, h);
 	}
 	
 	/**
@@ -278,12 +277,8 @@ public class LensUI
 	 */
 	public void setSize(int w, int h)
 	{
-		super.setSize(w,h);
-		if (Math.min(w, h) < CROSSHAIR_SNAP)
-			crosshairLength = 6;
-		else
-			crosshairLength = 8;
-		crosshairTick = crosshairLength/2-1;
+		super.setSize(w, h);
+		setPickParam(w, h);
 	}
 	
 	/**
@@ -294,11 +289,7 @@ public class LensUI
 	public void setSize(Dimension d)
 	{
 		super.setSize(d);
-		if (Math.min(d.width, d.height) < CROSSHAIR_SNAP)
-			crosshairLength = 6;
-		else
-			crosshairLength = 8;
-		crosshairTick = crosshairLength/2-1;
+		setPickParam(d.width, d.height);
 	}
 
 	/**
@@ -311,11 +302,7 @@ public class LensUI
 	void setPreferredSize(int w, int h)
 	{
 		super.setPreferredSize(new Dimension(w, h));
-		if (Math.min(w, h) < CROSSHAIR_SNAP)
-			crosshairLength = 6;
-		else
-			crosshairLength = 8;
-		crosshairTick = crosshairLength/2-1;
+		setPickParam(w, h);
 	}
 	
 	/**
@@ -337,10 +324,25 @@ public class LensUI
 	 */
 	boolean lensPicked(int x, int y)
 	{
-		Rectangle rect = new Rectangle(BORDER_PICK_SIZE, BORDER_PICK_SIZE, 
-				this.getWidth()-BORDER_PICK_SIZE*2, 
-				this.getHeight()-BORDER_PICK_SIZE*2);
+		Rectangle rect = new Rectangle(borderPickSize, borderPickSize, 
+				this.getWidth()-borderPickSize*2, 
+				this.getHeight()-borderPickSize*2);
 		return rect.contains(x, y);
+	}
+
+	/**
+	 * Set the image zoom factor. The image in the viewer has been zoomed by
+	 * this number.
+	 * 
+	 * @param imageZoomFactor the amount of zooming that has occurred on the 
+	 * image. 
+	 */
+	public void setImageZoomFactor(float imageZoomFactor)
+	{
+		this.imageZoomFactor = imageZoomFactor;
+		this.setSize(lensComponent.getLensScaledSize());
+		this.setLocation(lensComponent.getLensScaledLocation().x, 
+				lensComponent.getLensScaledLocation().y);
 	}
 	
 	/**
@@ -361,9 +363,9 @@ public class LensUI
 	 */
 	boolean lensBorderPicked(int x, int y)
 	{
-		Rectangle rect = new Rectangle(BORDER_PICK_SIZE, BORDER_PICK_SIZE, 
-				this.getWidth()-BORDER_PICK_SIZE*2, 
-				this.getHeight()-BORDER_PICK_SIZE*2);
+		Rectangle rect = new Rectangle(borderPickSize, borderPickSize, 
+				this.getWidth()-borderPickSize*2, 
+				this.getHeight()-borderPickSize*2);
 		Rectangle rectBorder = new Rectangle(0, 0, 
 				this.getWidth(), this.getHeight());
 		return (!rect.contains(x, y) && rectBorder.contains(x, y)); 
@@ -489,29 +491,44 @@ public class LensUI
 		int resizeDir=-1;
 		int resizeCornerSize = 0;
 		
-		  if (x <= BORDER_PICK_SIZE) {
-              if (y < resizeCornerSize + BORDER_PICK_SIZE) 
+		  if (x <= borderPickSize) {
+              if (y < resizeCornerSize + borderPickSize) 
             	  resizeDir = NORTH_WEST;
-              else if (y > this.getHeight()-resizeCornerSize-BORDER_PICK_SIZE)
+              else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
                   resizeDir = SOUTH_WEST;
               else resizeDir = WEST;
-          } else if (x >= this.getWidth()-BORDER_PICK_SIZE) {
-              if (y < resizeCornerSize+BORDER_PICK_SIZE) resizeDir = NORTH_EAST;
-              else if (y > this.getHeight()-resizeCornerSize-BORDER_PICK_SIZE)
+          } else if (x >= this.getWidth()-borderPickSize) {
+              if (y < resizeCornerSize+borderPickSize) resizeDir = NORTH_EAST;
+              else if (y > this.getHeight()-resizeCornerSize-borderPickSize)
                   resizeDir = SOUTH_EAST;
               else resizeDir = EAST;
-          } else if (y <= BORDER_PICK_SIZE) {
-              if (x < resizeCornerSize+BORDER_PICK_SIZE) resizeDir = NORTH_WEST;
-              else if (x > this.getWidth()-resizeCornerSize-BORDER_PICK_SIZE)
+          } else if (y <= borderPickSize) {
+              if (x < resizeCornerSize+borderPickSize) resizeDir = NORTH_WEST;
+              else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
                   resizeDir = NORTH_EAST;
               else resizeDir = NORTH;
-          } else if (y >= this.getHeight()-BORDER_PICK_SIZE) {
-              if (x < resizeCornerSize+BORDER_PICK_SIZE) resizeDir = SOUTH_WEST;
-              else if (x > this.getWidth()-resizeCornerSize-BORDER_PICK_SIZE)
+          } else if (y >= this.getHeight()-borderPickSize) {
+              if (x < resizeCornerSize+borderPickSize) resizeDir = SOUTH_WEST;
+              else if (x > this.getWidth()-resizeCornerSize-borderPickSize)
                   resizeDir = SOUTH_EAST;
               else resizeDir = SOUTH;	
           }
 		  return resizeDir;
+	}
+	
+	private void setPickParam(int w, int h)
+	{
+		if (Math.min(w, h) < CROSSHAIR_SNAP)
+		{
+			crosshairLength = 6;
+			borderPickSize = 4;
+		}
+		else
+		{
+			crosshairLength = 8;
+			borderPickSize = 8;
+		}
+		crosshairTick = crosshairLength/2-1;
 	}
 	
 }

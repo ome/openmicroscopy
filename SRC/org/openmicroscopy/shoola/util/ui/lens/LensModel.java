@@ -29,7 +29,9 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -89,6 +91,9 @@ public class LensModel
 		 */
 		private float  zoomFactor;
 		
+		/** The amount of zooming in the original image. */
+		private float imageZoomFactor;
+		
 		/** plane image. */
 		private BufferedImage planeImage;
 		
@@ -130,7 +135,20 @@ public class LensModel
 		int	getImageWidth()
 		{
 			if(planeImage != null )
-				return planeImage.getWidth();
+				return (int)(planeImage.getWidth());
+			else
+				return 0;
+		}
+		
+		/**
+		 * Get the width of the plane Image.
+		 * 
+		 * @return see above.
+		 */
+		int	getImageScaledWidth()
+		{
+			if(planeImage != null )
+				return (int)(planeImage.getWidth()*imageZoomFactor);
 			else
 				return 0;
 		}
@@ -140,13 +158,26 @@ public class LensModel
 		 * 
 		 * @return height see above.
 		 */
-		int	getImageHeight()
+		int	getImageScaledHeight()
 		{
 			if(planeImage != null )
-				return planeImage.getHeight();
+				return (int)(planeImage.getHeight()*imageZoomFactor);
 			else
 				return 0;
 		}
+		/**
+		 * Get the height of the plane Image.
+		 * 
+		 * @return height see above.
+		 */
+		int	getImageHeight()
+		{
+			if(planeImage != null )
+				return (int)(planeImage.getHeight());
+			else
+				return 0;
+		}
+		
 		
 		/**
 	     * Returns the zoomedImage from the model. 
@@ -158,10 +189,9 @@ public class LensModel
 			if( planeImage == null )
 				return null;
 			ColorModel cm = planeImage.getColorModel();
-			
-			Raster r = planeImage.getData().createChild((int) (x), 
-					(int) (y), (int) (width), 
-					(int) (height), 0, 0, null);
+			Raster r = planeImage.getData().createChild((int) (getX()), 
+					(int) (getY()), (int) (getWidth()), 
+					(int) (getHeight()), 0, 0, null);
 			BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
 																		null);
 			return scaleBufferedImage(img, zoomFactor, zoomFactor); 
@@ -174,7 +204,7 @@ public class LensModel
 		 */
 		int getHeight() 
 		{
-			return height;
+			return (int)(height);
 		}
 		
 		/**
@@ -184,9 +214,29 @@ public class LensModel
 		 */
 		int getWidth() 
 		{
-			return width;
+			return (int)(width);
+		}	/**
+		 * Get the height of the lens. 
+		 * 
+		 * @return the height
+		 */
+		
+		int getScaledHeight() 
+		{
+			return (int)Math.ceil(height*imageZoomFactor);
+		}
+		
+		/**
+		 * Get the width of the lens. 
+		 * 
+		 * @return the width
+		 */
+		int getScaledWidth() 
+		{
+			return (int)Math.ceil(width*imageZoomFactor);
 		}
 
+		
 		/**
 		 * Get the x coordinate of the lens.
 		 * 
@@ -205,6 +255,28 @@ public class LensModel
 		int getY() 
 		{
 			return y;
+		}
+		/**
+		 * Get the x coordinate of the lens.
+		 * 
+		 * @return the x
+		 */
+
+		int getScaledX() 
+		{
+			int val = (int)(x*imageZoomFactor);
+			return val;
+		}
+
+		/**
+		 * Get the y coordinate of the lens.
+
+		 * @return the y
+		 */
+		int getScaledY() 
+		{
+			int val = (int)(y*imageZoomFactor);
+			return val;
 		}
 
 		/**
@@ -277,6 +349,31 @@ public class LensModel
 			this.zoomFactor = zoomFactor;
 		}
 		
+
+		/**
+		 * Set the image zoom factor. The image in the viewer has been zoomed by
+		 * this number.
+		 * 
+		 * @param imageZoomFactor the amount of zooming that has occurred on the 
+		 * image. 
+		 */
+		public void setImageZoomFactor(float imageZoomFactor)
+		{
+			this.imageZoomFactor = imageZoomFactor;
+		}
+
+		/**
+		 * get the image zoom factor. The image in the viewer has been zoomed by
+		 * this number.
+		 * 
+		 * @return see above.
+		 */
+		public float getImageZoomFactor()
+		{
+			return imageZoomFactor;
+		}
+		
+		
 		/**
 		 * Return a writable raster to the {@link #scaleBufferedImage} method.
 		 * This method will allocate a new databuffer only if the new raster is
@@ -328,4 +425,36 @@ public class LensModel
 	        return thumbImage;
 	    }
 		
+	    /**
+	     * Returns the scaled size of the lens, scaled by the imageZoomFactor.
+	     * 
+	     * @return scaled lens size.
+	     */
+	    public Dimension getLensScaledSize()
+	    {
+	    	return new Dimension(getScaledWidth(), getScaledHeight());
+	    }
+	    
+	    /**
+	     * Returns the scaled location of the lens, scaled by the 
+	     * imageZoomFactor.
+	     * 
+	     * @return scaled lens location.
+	     */
+	    public Point getLensScaledLocation()
+	    {
+	    	return new Point(getScaledX(), getScaledY());
+	    }
+	    
+	    /**
+	     * Returns the location of the lens.
+	     * 
+	     * @return scaled lens location.
+	     */
+	    public Point getLensLocation()
+	    {
+	    	return new Point(getX(), getY());
+	    }
+	    
+	    
 }

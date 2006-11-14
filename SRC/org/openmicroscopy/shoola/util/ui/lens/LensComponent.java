@@ -29,7 +29,11 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
 //Application-internal dependencies
@@ -47,9 +51,13 @@ import java.awt.image.BufferedImage;
  * </small>
  * @since OME2.2
  */
-public class LensComponent 
+public class LensComponent
+	extends AbstractComponent
 {
 
+	/** Event fired when the zoomwindow is closed. */
+	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = 
+													"zoomWindowClosed";
 	/** Default width of a lens */
 	final static int		LENS_DEFAULT_WIDTH	= 50;
 	
@@ -77,7 +85,6 @@ public class LensComponent
 	/** Holds the properties of the lens, x,y, width height. */
 	private LensModel		lensModel;
 	
-	
 	/**
 	 * Create the lenscomponent which is the container for the lens 
 	 * infrastructure.
@@ -93,6 +100,7 @@ public class LensComponent
 		lensController = new LensController(lensModel , lens, zoomWindow);
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
 		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
+		lensModel.setImageZoomFactor(1.0f);
 		lens.addController(lensController);
 		zoomWindow.addController(lensController);
 	}
@@ -112,10 +120,22 @@ public class LensComponent
 		lensController = new LensController(lensModel , lens, zoomWindow);
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
 		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
+		lensModel.setImageZoomFactor(1.0f);
 		lens.addController(lensController);
 		zoomWindow.addController(lensController);
 	}
-
+	
+	/**
+	 * Fires an event to anyh parent sying th
+	 *
+	 */
+	public void zoomWindowClosed()
+	{
+		zoomWindow.setVisible(false);
+		lens.setVisible(false);
+		//this.firePropertyChange(ZOOM_WINDOW_CLOSED_PROPERTY, true, false)
+	}
+	
 	/**
 	 * Display in pixels if <code>true</code> or in microns otherwise.
 	 * 
@@ -125,7 +145,7 @@ public class LensComponent
 	{
 		zoomWindow.setDisplayInPixels(b);
 		zoomWindow.setLensXY(lens.getX(), lens.getY());
-		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());
+		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());	
 	}
 
 	/**
@@ -161,6 +181,20 @@ public class LensComponent
 			lens.setVisible(makeVisible);
 			zoomWindow.setVisible(makeVisible);
 	}
+	
+	/**
+	 * Set the image zoom factor. The image in the viewer has been zoomed by
+	 * this number.
+	 * 
+	 * @param imageZoomFactor the amount of zooming that has occurred on the 
+	 * image. 
+	 */
+	public void setImageZoomFactor(float imageZoomFactor)
+	{
+		lensModel.setImageZoomFactor(imageZoomFactor);
+		lens.setImageZoomFactor(imageZoomFactor);
+	}
+	
 	/**
 	 * Set the zoomfactor for the lens. 
 	 * 
@@ -194,6 +228,7 @@ public class LensComponent
          case LensAction.LENSDEFAULTSIZE:
         	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
         			 LensComponent.LENS_DEFAULT_HEIGHT);
+        	 break;
          case LensAction.LENS40x40:
         	 lensController.setLensSize(40, 40);
         	 break;
@@ -254,6 +289,26 @@ public class LensComponent
 	public boolean isVisible()
 	{
 		return (lens.isVisible() && zoomWindow.isVisible());
+	}
+
+	public void setLensLocation(Point loc)
+	{
+		setLensLocation(loc.x, loc.y);
+	}
+	
+	public Dimension getLensScaledSize()
+	{
+		return lensModel.getLensScaledSize();
+	}
+	
+	public Point getLensScaledLocation()
+	{
+		return lensModel.getLensScaledLocation();
+	}
+	
+	public Point getLensLocation()
+	{
+		return lensModel.getLensLocation();
 	}
 	
 }

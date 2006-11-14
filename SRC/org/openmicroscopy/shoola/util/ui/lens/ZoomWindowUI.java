@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
@@ -90,8 +92,17 @@ public class ZoomWindowUI
 	{
 		this.lensComponent = lensComponent;
 		setTitle("Zoom Window");
-		setSize(300,200);
+		setSize(300,300);
 		setLocation(900,200);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener( new WindowAdapter() 
+		{
+			public void windowClosing( WindowEvent e )
+			{
+				close();
+			}
+		});
+		
 		zoomPanel = new ZoomPanel();
 		scrollPanel = new JScrollPane(zoomPanel);
 		statusPanel = new StatusPanel();
@@ -101,6 +112,11 @@ public class ZoomWindowUI
 		lensMenu =  LensMenu.getMenu(lensComponent);
 		menu = lensMenu.getMenubar();
 		this.setJMenuBar(menu);
+	}
+	
+	private void close()
+	{
+		lensComponent.zoomWindowClosed();
 	}
 	
 	/** 
