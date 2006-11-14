@@ -446,6 +446,13 @@ class ImViewerModel
     void setZoomFactor(double factor) { browser.setZoomFactor(factor); }
 
     /**
+     * Gets the zoom factor.
+     * 
+     * @return The factor to set.
+     */
+    double getZoomFactor() { return browser.getZoomFactor(); }
+
+    /**
      * Sets the retrieved image.
      * 
      * @param image The image to set.
