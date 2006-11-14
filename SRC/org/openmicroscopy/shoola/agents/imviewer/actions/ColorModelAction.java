@@ -151,7 +151,7 @@ public class ColorModelAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         this.modelIndex = modelIndex;
-        putValue(Action.NAME, UIUtilities.formatToolTipText(names[modelIndex]));
+        putValue(Action.NAME, names[modelIndex]);
         putValue(Action.SMALL_ICON, getColorModelIcon(modelIndex));
         setName(names[modelIndex]);
     }
