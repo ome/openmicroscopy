@@ -516,6 +516,13 @@ public class LensUI
 		  return resizeDir;
 	}
 	
+	/**
+	 * Set the pick border area when the lens resizes and also change the size
+	 * of the crosshairs. 
+	 * 
+	 * @param w Width of lens. 
+	 * @param h Height of lens. 
+	 */
 	private void setPickParam(int w, int h)
 	{
 		if (Math.min(w, h) < CROSSHAIR_SNAP)
