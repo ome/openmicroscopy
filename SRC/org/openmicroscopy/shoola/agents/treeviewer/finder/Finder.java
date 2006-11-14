@@ -272,6 +272,7 @@ public class Finder
             Set set = visitor.getFoundNodes();
             pc.getSelectedBrowser().setFoundInBrowser(set);
             found = true;
+            model.addToHistory(findText);
             firePropertyChange(RETRIEVED_PROPERTY, new Integer(-1), 
                     			new Integer(set.size()));
         } catch (PatternSyntaxException pse) {

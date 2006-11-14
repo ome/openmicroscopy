@@ -35,6 +35,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.finder;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
@@ -86,6 +89,9 @@ class FinderModel
      */
     private boolean 	caseSensitive;
     
+    /** Collection of pattern searched. */
+    private List        history;
+    
     /** Back pointer to the parent's model. */
     private TreeViewer	parentComponent;
     
@@ -99,6 +105,7 @@ class FinderModel
         this.parentComponent = parentComponent;
         nameSelected = true;
         display = false;
+        history = new ArrayList();
     }
     
     /** 
@@ -202,10 +209,27 @@ class FinderModel
     boolean isCaseSensitive() { return caseSensitive; }
     
     /**
+     * Adds the searched text to the history.
+     * 
+     * @param text The text to add.
+     */
+    void addToHistory(String text) { history.add(text); }
+    
+    /**
      * Returns the back pointer to the {@link TreeViewer}.
      * 
      * @return See above.
      */
     TreeViewer getParentComponent() { return parentComponent; }
+    
+    /**
+     * Returns the values already searched for.
+     * 
+     * @return See above.
+     */
+    String[] getHistory() 
+    { 
+        return (String[]) history.toArray(new String[history.size()]);
+    }
     
 }

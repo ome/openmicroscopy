@@ -37,8 +37,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -59,6 +62,7 @@ import javax.swing.text.Document;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 
 /** 
  * The UI delegate of the {@link Finder}.
@@ -187,6 +191,21 @@ class FinderUI
             public void changedUpdate(DocumentEvent de) {}
             
         });
+        findArea.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e)
+            {
+                if (findArea.getDocument().getLength() == 0) {
+                    String[] h = model.getHistory();
+                    if (h.length != 0) {
+                        Rectangle r = findArea.getBounds();
+                        HistoryDialog d = new HistoryDialog(h, r.width);
+                        d.show(findArea, 0, r.height);
+                        d.addPropertyChangeListener(
+                                HistoryDialog.SELECTION_PROPERTY, controller);
+                    }   
+                }
+            }
+        });
     }
     
     /** Helper method to create the menu bar. */
@@ -300,6 +319,16 @@ class FinderUI
         }
         validate();
         repaint();
+    }
+    
+    /**
+     * Sets the text to find.
+     * 
+     * @param text The text to find.
+     */
+    void setTextToFind(String text)
+    {
+        findArea.setText(text);
     }
     
 }

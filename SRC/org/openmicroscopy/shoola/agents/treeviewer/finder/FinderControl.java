@@ -41,6 +41,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 
 /** 
  * The {@link Finder}'s Controller.
@@ -141,6 +142,8 @@ class FinderControl
             model.setDisplay(((Boolean) pce.getNewValue()).booleanValue());
         else if (name.equals(Finder.RETRIEVED_PROPERTY)) 
             view.setMessage(((Integer) pce.getNewValue()).intValue());
+        else if (name.equals(HistoryDialog.SELECTION_PROPERTY))
+            view.setTextToFind((String) pce.getNewValue());
     }
     
 }
