@@ -49,6 +49,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
@@ -173,10 +174,16 @@ class TreeViewerControl
     static final Integer    CLASSIFIER = new Integer(21);
     
     /** 
-     * Identifies the <code>Refresh tree action</code> in the 
+     * Identifies the <code>Cut action</code> in the 
      * Edit menu.
      */
     static final Integer    CUT_OBJECT = new Integer(22);
+    
+    /** 
+     * Identifies the <code>Activation action</code> in the 
+     * Edit menu.
+     */
+    static final Integer    ACTIVATION = new Integer(23);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
@@ -227,6 +234,7 @@ class TreeViewerControl
         actionsMap.put(CLASSIFIER, new ClassifierAction(model));
         actionsMap.put(MANAGER, new ManagerAction(model));
         actionsMap.put(CUT_OBJECT, new CutAction(model));
+        actionsMap.put(ACTIVATION, new ActivationAction(model));
     }
     
     /** Helper method to create the actions for the group level hierarchy. */

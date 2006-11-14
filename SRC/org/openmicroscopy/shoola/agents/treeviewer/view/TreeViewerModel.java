@@ -376,6 +376,7 @@ class TreeViewerModel
                    if (toRemove == null) toRemove = new HashSet();
                    toRemove.add(object);
                } else {
+                   
                    po = (DataObject) parent.getUserObject();
                    if (map == null) map = new HashMap();
                    l = (Set) map.get(po);
@@ -385,6 +386,7 @@ class TreeViewerModel
                }
            }
        }
+
        if (toRemove != null) {
            currentLoader = new DataObjectRemover(component, toRemove, null);
            currentLoader.load();

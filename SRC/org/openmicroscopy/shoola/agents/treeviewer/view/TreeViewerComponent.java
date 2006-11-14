@@ -106,6 +106,8 @@ class TreeViewerComponent
     /** The View sub-component. */
     private TreeViewerWin       view;
     
+    private EditorDialog        editorDialog;
+    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -267,8 +269,12 @@ class TreeViewerComponent
         editor.addPropertyChangeListener(controller);
         editor.activate();
         model.setEditor(editor);
-        if (editorType == CREATE_EDITOR) onComponentStateChange(false);
-        view.addComponent(editor.getUI());
+        if (editorType == CREATE_EDITOR) {
+            editorDialog = new EditorDialog(view);
+            editorDialog.addComponent(editor.getUI());
+            UIUtilities.centerAndShow(editorDialog);
+            onComponentStateChange(false);
+        } else view.addComponent(editor.getUI());
     }
 
     /**
@@ -308,6 +314,7 @@ class TreeViewerComponent
                 return;
             }
         }
+        if (editorDialog != null) editorDialog.close();
         model.setEditorType(NO_EDITOR);
         view.removeAllFromWorkingPane();
         firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
@@ -357,6 +364,7 @@ class TreeViewerComponent
      */
     public void removeObject(TreeImageDisplay node)
     {
+        /*
         switch (model.getState()) {
             case READY:
             case NEW:  
@@ -366,6 +374,7 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method should only be " +
                 "invoked in the READY or NEW state.");
         }
+        */
         if (node == null)
             throw new IllegalArgumentException("No node to remove.");
         if (!(node.getUserObject() instanceof DataObject))
@@ -380,6 +389,7 @@ class TreeViewerComponent
      */
     public void removeObjects(List nodes)
     {
+        /*
         switch (model.getState()) {
             case READY:
             case NEW:  
@@ -389,6 +399,7 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method should only be " +
                 "invoked in the READY or NEW state.");
         }
+        */
         model.fireDataObjectsDeletion(nodes);
         fireStateChange();
     }
