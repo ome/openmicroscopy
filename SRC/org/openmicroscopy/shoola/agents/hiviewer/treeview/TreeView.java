@@ -249,5 +249,5 @@ public class TreeView
         TreeViewImageSet root = (TreeViewImageSet) model.getRoot();
         root.accept(visitor, algo);
     }
-
+    
 }

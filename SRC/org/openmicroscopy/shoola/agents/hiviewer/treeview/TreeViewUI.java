@@ -96,6 +96,7 @@ class TreeViewUI
     
     /** The number of visible images displayed in the tree. */
     private int				numberImages;
+
     
     /** Reference to the Model this component is for. */
     private TreeView		model;
