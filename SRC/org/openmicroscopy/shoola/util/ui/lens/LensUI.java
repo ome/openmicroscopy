@@ -537,5 +537,16 @@ public class LensUI
 		}
 		crosshairTick = crosshairLength/2-1;
 	}
+
+	/**
+	 * Set the colour of the lens border.
+	 *  
+	 * @param c Colour of the lens border.
+	 */
+	void setLensColour(Color c)
+	{
+		if(c != null)
+			this.lensBorderColour = c;
+	}
 	
 }

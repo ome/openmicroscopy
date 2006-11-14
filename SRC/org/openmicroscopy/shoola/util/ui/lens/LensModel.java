@@ -29,6 +29,7 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -58,9 +59,16 @@ import java.awt.image.WritableRaster;
  * </small>
  * @since OME2.2
  */
-public class LensModel 
+class LensModel 
 {
+
+		/** Dark lens colour, when the background of the image is light. */
+		static final Color 		LENS_DARK_COLOUR = new Color(96, 96, 96, 255);
 	
+		/** Light lens colour, when the background of the image is Dark. */
+		static final Color 		LENS_LIGHT_COLOUR = 
+												new Color(196, 196, 196, 255);
+
 		/** Minimum zoom allowed. */
 		final static int		MINIMUM_ZOOM	= 1;
 
@@ -357,7 +365,7 @@ public class LensModel
 		 * @param imageZoomFactor the amount of zooming that has occurred on the 
 		 * image. 
 		 */
-		public void setImageZoomFactor(float imageZoomFactor)
+		void setImageZoomFactor(float imageZoomFactor)
 		{
 			this.imageZoomFactor = imageZoomFactor;
 		}
@@ -368,7 +376,7 @@ public class LensModel
 		 * 
 		 * @return see above.
 		 */
-		public float getImageZoomFactor()
+		float getImageZoomFactor()
 		{
 			return imageZoomFactor;
 		}
@@ -430,7 +438,7 @@ public class LensModel
 	     * 
 	     * @return scaled lens size.
 	     */
-	    public Dimension getLensScaledSize()
+	    Dimension getLensScaledSize()
 	    {
 	    	return new Dimension(getScaledWidth(), getScaledHeight());
 	    }
@@ -441,7 +449,7 @@ public class LensModel
 	     * 
 	     * @return scaled lens location.
 	     */
-	    public Point getLensScaledLocation()
+	    Point getLensScaledLocation()
 	    {
 	    	return new Point(getScaledX(), getScaledY());
 	    }
@@ -451,10 +459,42 @@ public class LensModel
 	     * 
 	     * @return scaled lens location.
 	     */
-	    public Point getLensLocation()
+	    Point getLensLocation()
 	    {
 	    	return new Point(getX(), getY());
 	    }
+	    	    
+	    /** 
+	     * Depending on the sampled colour of the image; if the image is 
+	     * predominantly dark return a light lens else return a dark lens 
+	     * colour. 
+	     * 
+	     * @return see above.
+	     */
+	    Color getLensPreferredColour()
+	    {
+	    	if(planeImage != null)
+	    	{
+	    		long r  = 0,g  = 0,b = 0;
+	    		long cnt = 0, total = 0;
+	    		for(int i = 0 ; i < planeImage.getWidth() ; i+=10)
+	    			for(int j = 0 ; j < planeImage.getHeight() ; j+= 10)
+	    			{
+	    				cnt++;
+	    				Color c = new Color(planeImage.getRGB(i, j));
+	    				r = c.getRed(); 
+	    				g = c.getGreen(); 
+	    				b = c.getBlue();
+	    				total += (r+g+b)/3;
+	    			}
 	    
+	    		if( (total)/(cnt) > 128 )
+	    			return LENS_DARK_COLOUR;
+	    		else
+	    			return LENS_LIGHT_COLOUR;
+	    	}
+	    	else
+	    		return null;
+	    }
 	    
 }

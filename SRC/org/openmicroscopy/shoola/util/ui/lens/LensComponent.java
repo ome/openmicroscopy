@@ -33,6 +33,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JFrame;
+
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
@@ -79,8 +81,6 @@ public class LensComponent
 	/** Shows the current zoomed image specified by the lens. */
 	private ZoomWindow  	zoomWindow;
 	
-	/** The image on the canvas */
-	private BufferedImage 	planeImage;
 	
 	/** Holds the properties of the lens, x,y, width height. */
 	private LensModel		lensModel;
@@ -91,17 +91,17 @@ public class LensComponent
 	 * 
 	 * @param planeImage Image being displayed by the viewer.
 	 */
-	public LensComponent(BufferedImage planeImage)
+	public LensComponent(JFrame parent, BufferedImage planeImage)
 	{
-		this.planeImage = planeImage;
 		lensModel = new LensModel(planeImage);
-		zoomWindow = new ZoomWindow(this);
+		zoomWindow = new ZoomWindow(parent, this);
 		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_HEIGHT);
 		lensController = new LensController(lensModel , lens, zoomWindow);
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
 		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
 		lensModel.setImageZoomFactor(1.0f);
 		lens.addController(lensController);
+		lens.setLensColour(lensModel.getLensPreferredColour());
 		zoomWindow.addController(lensController);
 	}
 	
@@ -109,20 +109,11 @@ public class LensComponent
 	 * Create the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
-	 * @param planeImage Image being displayed by the viewer.
+	 * @param parent parent JFrame of ZoomWindowUI. 
 	 */
-	public LensComponent()
+	public LensComponent(JFrame parent)
 	{
-		this.planeImage = null;
-		lensModel = new LensModel(null);
-		zoomWindow = new ZoomWindow(this);
-		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_HEIGHT);
-		lensController = new LensController(lensModel , lens, zoomWindow);
-		lensModel.setWidth(LENS_DEFAULT_WIDTH);
-		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
-		lensModel.setImageZoomFactor(1.0f);
-		lens.addController(lensController);
-		zoomWindow.addController(lensController);
+		this(parent, null);
 	}
 	
 	/**
@@ -133,7 +124,6 @@ public class LensComponent
 	{
 		zoomWindow.setVisible(false);
 		lens.setVisible(false);
-		//this.firePropertyChange(ZOOM_WINDOW_CLOSED_PROPERTY, true, false)
 	}
 	
 	/**
@@ -332,5 +322,24 @@ public class LensComponent
 	{
 		return lensModel.getLensLocation();
 	}
+
+	/**
+	 * Set the location of the zoomWindowUI. 
+	 * 
+	 * @param x x co-ordinate of the window location.
+	 * @param y y co-ordinate of the window location.
+	 */
+	public void setZoomWindowLocation(int x, int y)
+	{
+		zoomWindow.setLocation(x, y);
+	}
 	
+	/**
+	 * Set the colour of the lens to better contrast with the 
+	 * background of the image.
+	 */
+	public void setLensPreferredColour()
+	{
+		lens.setLensColour(lensModel.getLensPreferredColour());
+	}
 }

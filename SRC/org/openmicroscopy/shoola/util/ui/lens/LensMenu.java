@@ -54,7 +54,7 @@ import javax.swing.JRadioButtonMenuItem;
  * </small>
  * @since OME3.0
  */
-public class LensMenu 
+class LensMenu 
 {
 
 	/** Reference to the LensMenu object -- this is a singleton. */
@@ -113,7 +113,7 @@ public class LensMenu
 	 * 
 	 * @return reference to the singleton object. 
 	 */
-	public static LensMenu getMenu(LensComponent lensComponent)
+	static LensMenu getMenu(LensComponent lensComponent)
 	{
 	    if (ref == null)
 	        ref = new LensMenu(lensComponent);		

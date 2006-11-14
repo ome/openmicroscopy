@@ -56,7 +56,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class StatusPanel
+class StatusPanel
 	extends JPanel
 {
 	
@@ -90,6 +90,7 @@ public class StatusPanel
 	/** Number of pixels per micron in y axis. */
 	private float 	micronInYAxis = 1;
 	
+	/** Display the units: width, height and x,y in pixels. */
 	private boolean displayInPixels = true;
 	
 	/**

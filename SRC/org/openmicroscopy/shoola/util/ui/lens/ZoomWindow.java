@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.util.ui.lens;
 //Java imports
 import java.awt.image.BufferedImage;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 //Application-internal dependencies
 /** 
@@ -47,8 +49,9 @@ import java.awt.image.BufferedImage;
  * </small>
  * @since OME2.2
  */
-public class ZoomWindow
+class ZoomWindow
 {
+	
 	/** The UI which displays the zoomed image. */
 	private ZoomWindowUI 	zoomWindowUI;
 	
@@ -62,13 +65,26 @@ public class ZoomWindow
 	 * Constructor of the zoomWindow. This creates an instance of the 
 	 * ZoomWindowUI(JDialog).
 	 * 
+	 * @param parent JFrame parent window.  
 	 * @param lensComponent The parent component of the ZoomWindow.
 	 *
+	 */
+	ZoomWindow(JFrame parent, LensComponent lensComponent)
+	{
+		this.lensComponent = lensComponent;
+		zoomWindowUI = new ZoomWindowUI(parent, lensComponent);
+	}
+	
+	/**
+	 * Constructor of the zoomWindow. This creates an instance of the 
+	 * ZoomWindowUI(JDialog).
+	 * 
+	 * @param lensComponent The parent component of the ZoomWindow.
 	 */
 	ZoomWindow(LensComponent lensComponent)
 	{
 		this.lensComponent = lensComponent;
-		zoomWindowUI = new ZoomWindowUI(lensComponent);
+		zoomWindowUI = new ZoomWindowUI(null, lensComponent);
 	}
 	
 	/**
@@ -189,6 +205,18 @@ public class ZoomWindow
 	boolean isVisible()
 	{
 		return zoomWindowUI.isVisible();
+	}
+	
+
+	/**
+	 * Set the location of the zoomWindowUI. 
+	 * 
+	 * @param x x co-ordinate of the window location.
+	 * @param y y co-ordinate of the window location.
+	 */
+	public void setLocation(int x, int y)
+	{
+		zoomWindowUI.setLocation(x, y);
 	}
 	
 }

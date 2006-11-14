@@ -52,9 +52,10 @@ import javax.swing.Action;
  * </small>
  * @since OME3.0
  */
-public class DisplayAction 		
+class DisplayAction 		
 	extends AbstractAction
 {
+	
 	/** Display units in microns. */
 	final static int		MICRON_OPTION = 0;
 	

@@ -37,6 +37,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JScrollPane;
@@ -61,8 +62,8 @@ import javax.swing.JViewport;
  * </small>
  * @since OME2.2
  */
-public class ZoomWindowUI 
-	extends	JFrame 
+class ZoomWindowUI 
+	extends	JDialog 
 {
 
 	/** Panel holding the zoomed Image */
@@ -85,11 +86,21 @@ public class ZoomWindowUI
 	/** Lens options popup menu. */
 	private LensMenu			lensMenu;
 	
+	/**
+	 * Close the window and post message to  
+	 *
+	 */
+	private void close()
+	{
+		lensComponent.zoomWindowClosed();
+	}
+	
 	/** Constructor of the ZoomWindowUI 
 	 * @param lensComponent the parent component of the control.
 	 */
-	ZoomWindowUI(LensComponent lensComponent)
+	ZoomWindowUI(JFrame parent, LensComponent lensComponent)
 	{
+		super(parent);
 		this.lensComponent = lensComponent;
 		setTitle("Zoom Window");
 		setSize(300,300);
@@ -114,10 +125,6 @@ public class ZoomWindowUI
 		this.setJMenuBar(menu);
 	}
 	
-	private void close()
-	{
-		lensComponent.zoomWindowClosed();
-	}
 	
 	/** 
 	 * Sets the size of the zoomedImage panel, called after the zoomfactor
@@ -161,7 +168,7 @@ public class ZoomWindowUI
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	public void setXYPixelMicron(float x, float y)
+	void setXYPixelMicron(float x, float y)
 	{
 		statusPanel.setXYPixelMicron(x, y);
 		statusPanel.repaint();

@@ -50,7 +50,7 @@ import java.awt.Cursor;
  * </small>
  * @since OME2.2
  */
-public class LensController 
+class LensController 
 {
 	
 	/** Reference to the Lens Model.  */
@@ -565,6 +565,7 @@ public class LensController
 					lensModel.getHeight());
 			setZoomUISize();
 		}
+		
 	}
 	
 	/**

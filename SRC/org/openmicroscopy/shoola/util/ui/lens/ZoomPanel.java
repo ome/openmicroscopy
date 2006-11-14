@@ -53,7 +53,7 @@ import javax.swing.JPanel;
  * </small>
  * @since OME3.0
  */
-public class ZoomPanel
+class ZoomPanel
 	extends JPanel
 {
 	

@@ -52,7 +52,7 @@ import javax.swing.Action;
  * </small>
  * @since OME3.0
  */
-public class ZoomAction 
+class ZoomAction 
 	extends AbstractAction
 {
 	
