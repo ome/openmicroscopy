@@ -95,7 +95,7 @@ class ThumbWin
     {
         if (me.isPopupTrigger()) {
             popupPoint = me.getPoint();
-            ThumbWinPopupMenu.showMenuFor(this, model);
+            ThumbWinPopupMenu.showMenuFor(this);
         }
     }
     

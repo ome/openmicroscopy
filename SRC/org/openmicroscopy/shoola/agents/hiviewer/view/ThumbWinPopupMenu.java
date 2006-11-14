@@ -84,12 +84,10 @@ class ThumbWinPopupMenu
      * Pops up a menu for the specified thumbnail floating window.
      * 
      * @param win   The window. Mustn't be <code>null</code>.
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public static void showMenuFor(ThumbWin win, HiViewer model)
+    public static void showMenuFor(ThumbWin win)
     {
         if (win == null) throw new NullPointerException("No window.");
-        if (model == null) throw new NullPointerException("No Model.");
         singleton.currentWin = win;
         singleton.showMenu();
     }
@@ -99,9 +97,6 @@ class ThumbWinPopupMenu
     
     /** The window that is currently requesting the menu. */
     private ThumbWin    currentWin;
-    
-    /** Reference to the model. */
-    private HiViewer    model;
     
     /**
      * Helper method to create the Classify submenu.
@@ -143,7 +138,8 @@ class ThumbWinPopupMenu
         properties.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                new PropertiesCmd(model, currentWin.getDataObject()).execute();
+                new PropertiesCmd(currentWin.getModel(), 
+                        currentWin.getDataObject()).execute();
             }
         });
 

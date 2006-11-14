@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JFrame;
 
@@ -288,6 +289,14 @@ public interface HiViewer
      */
     public void showTreeView(boolean b);
     
+    /** 
+     * Shows or hides the clipBoard.
+     * 
+     * @param b Passed <code>true</code> to show the clipBoard,
+     *          <code>false</code> otherwise.
+     */
+    public void showClipBoard(boolean b);
+    
     /**
      * The component hosting a tree representation of the data 
      * displayed in the {@link Browser}. Returns <code>null</code>
@@ -390,5 +399,12 @@ public interface HiViewer
      * @return See above.
      */
     public boolean isRollOver();
+
+    /**
+     * Removes the collection of {@link ImageDisplay} objects.
+     * 
+     * @param toRemove The items to remove.
+     */
+    public void removeObjects(List toRemove);
     
 }

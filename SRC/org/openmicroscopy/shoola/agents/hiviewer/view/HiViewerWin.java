@@ -40,27 +40,27 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.Set;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -105,6 +105,9 @@ class HiViewerWin
     /** The popup menu. */
     private PopupMenu           popupMenu;
     
+    /** The tool bar. */
+    private HiViewerToolBar     toolBar;
+    
     /** 
      * The main pane hosting the <code>Browser</code> and 
      * the <code>ClipBoard</code>
@@ -132,6 +135,7 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
+        /*
         BasicSplitPaneUI splitPaneUI = (BasicSplitPaneUI) mainPane.getUI();
         
         BasicSplitPaneDivider divider = splitPaneUI.getDivider();
@@ -145,6 +149,7 @@ class HiViewerWin
                 }
             }
         });
+        */
         mainPane.setResizeWeight(1);
         return mainPane;
     }
@@ -156,8 +161,7 @@ class HiViewerWin
         p.setBackground(BACKGROUND);
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
-        container.add(p, BorderLayout.CENTER);
-        container.add(statusBar, BorderLayout.SOUTH);
+        addToContainer(p);
     }
     
     /** 
@@ -189,6 +193,31 @@ class HiViewerWin
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLASSIFY)));
         menu.add(new JMenuItem(controller.getAction(
                                 HiViewerControl.DECLASSIFY)));
+        return menu;
+    }
+    
+    /**
+     * Helper method to create the Layout submenu.
+     * 
+     * @return The Layout submenu.
+     */
+    private JMenu createLayoutMenu()
+    {
+        IconManager im = IconManager.getInstance();
+        JMenu menu = new JMenu("Layout");
+        menu.setIcon(im.getIcon(IconManager.TRANSPARENT));
+        int index = LayoutFactory.getDefaultLayoutIndex();
+        ButtonGroup group = new ButtonGroup();
+        JRadioButtonMenuItem item = new JRadioButtonMenuItem();
+        item.setSelected(index == LayoutFactory.SQUARY_LAYOUT);
+        item.setAction(controller.getAction(HiViewerControl.SQUARY));
+        group.add(item);
+        menu.add(item);
+        item = new JRadioButtonMenuItem();
+        item.setSelected(index == LayoutFactory.FLAT_LAYOUT);
+        item.setAction(controller.getAction(HiViewerControl.FLAT_LAYOUT));
+        group.add(item);
+        menu.add(item);
         return menu;
     }
     
@@ -226,6 +255,7 @@ class HiViewerWin
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createClassifySubMenu());
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REMOVE)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                     controller.getAction(HiViewerControl.PROPERTIES)));
@@ -245,11 +275,17 @@ class HiViewerWin
         //menu.add(new JMenuItem(
         //                    controller.getAction(HiViewerControl.VIEW_CGCI)));
         //menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
+        //menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         item.setSelected(false);
+        item.setText(TreeViewAction.NAME);
         item.setAction(controller.getAction(HiViewerControl.TREE_VIEW));
-        menu.add(item);
+        //menu.add(item);
+        item = new JCheckBoxMenuItem();
+        item.setSelected(true);
+        item.setAction(controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
+        item.setText(ClipBoardViewAction.NAME);
+        //menu.add(item);
         item = new JCheckBoxMenuItem();
         item.setSelected(model.isTitleBarVisible());
         item.setAction(controller.getAction(HiViewerControl.SHOW_TITLEBAR));
@@ -262,6 +298,8 @@ class HiViewerWin
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(createLayoutMenu());
         return menu;
     }
     
@@ -274,6 +312,19 @@ class HiViewerWin
     {
         JMenu file = new JMenu("Help");
         return file;
+    }
+    
+    /**
+     * Adds the specified component to the container.
+     * 
+     * @param body The component to add.
+     */
+    private void addToContainer(JComponent body)
+    {
+        Container container = getContentPane();
+        container.add(toolBar, BorderLayout.NORTH);
+        container.add(body, BorderLayout.CENTER);
+        container.add(statusBar, BorderLayout.SOUTH);
     }
     
     /**
@@ -300,6 +351,7 @@ class HiViewerWin
         this.controller = controller;
         this.model = model;
         popupMenu = new PopupMenu(controller);
+        toolBar = new HiViewerToolBar(controller);
         setJMenuBar(createMenuBar());
         buildUI();
     }
@@ -315,9 +367,7 @@ class HiViewerWin
     {
         Container container = getContentPane();
         container.removeAll();
-        container.add(createSplitPane(browserView, clipBoardView),
-                        BorderLayout.CENTER);
-        container.add(statusBar, BorderLayout.SOUTH); 
+        addToContainer(createSplitPane(browserView, clipBoardView));
     }
     
     /**
@@ -368,24 +418,55 @@ class HiViewerWin
      * Shows or hides the component depending on the stated of the frame.
      * 
      * @param b Passed <code>true</code> to show the component, 
+     *          <code>false</code> otherwise.
+     */
+    void showClipBoard(boolean b)
+    {
+        JComponent cb = model.getClipBoard().getUI();
+        if (cb == null) return;
+        if (b) mainPane.setRightComponent(cb);
+        else mainPane.remove(cb);
+    }
+    
+    /**
+     * Shows or hides the component depending on the stated of the frame.
+     * 
+     * @param b Passed <code>true</code> to show the component, 
      * 			<code>false</code> otherwise.
      */
     void showTreeView(boolean b)
     {
         Container container = getContentPane();
         if (b) {
-            JSplitPane pane = new JSplitPane();
-            pane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-            pane.setOneTouchExpandable(true);
-            pane.setContinuousLayout(true);
-            pane.setLeftComponent(model.getTreeView());
-            pane.setRightComponent(mainPane);
+            JSplitPane treeViewPane = new JSplitPane();
+            treeViewPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+            treeViewPane.setOneTouchExpandable(true);
+            treeViewPane.setContinuousLayout(true);
+            treeViewPane.setLeftComponent(model.getTreeView());
+            treeViewPane.setRightComponent(mainPane);
+            /*
+            
+            BasicSplitPaneUI splitPaneUI = 
+                    (BasicSplitPaneUI) treeViewPane.getUI();
+            
+            BasicSplitPaneDivider divider = splitPaneUI.getDivider();
+            divider.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e)
+                {
+                    if (e.getClickCount() == 2) {
+                        TreeView tv = model.getTreeView();
+                        treeViewPane.setLeftComponent(tv);
+                        tv.minimize(!tv.isMinimized());
+                    }container.validate();
+        container.repaint();
+                }
+            });
+            */
             container.remove(mainPane);
-            container.add(pane, BorderLayout.CENTER);
+            container.add(treeViewPane, BorderLayout.CENTER);
         } else {
             container.removeAll();
-            container.add(mainPane, BorderLayout.CENTER);
-            container.add(statusBar, BorderLayout.SOUTH); 
+            addToContainer(mainPane);
         }
         container.validate();
         container.repaint();

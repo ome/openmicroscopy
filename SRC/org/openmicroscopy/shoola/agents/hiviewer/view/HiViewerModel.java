@@ -32,12 +32,18 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.hiviewer.DataObjectSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
@@ -45,6 +51,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
@@ -54,8 +61,11 @@ import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.LookupNames;
+
+import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ProjectData;
 
 /** 
  * The Model component in the <code>HiViewer</code> MVC triad.
@@ -298,6 +308,50 @@ abstract class HiViewerModel
     }
     
     /**
+     * Starts the asynchronous removal of the specified objects.
+     * 
+     * @param nodes Collection of objects to remove.
+     */
+    void fireDataObjectsRemoval(List nodes)
+    {
+        state = HiViewer.SAVING_DATA_OBJECT;
+        DataObject object, po;
+        Iterator i = nodes.iterator();
+        ImageDisplay node, parent;
+        Object ho;
+        Set toRemove = null;  
+        Map map = null;
+        Set l;
+        while (i.hasNext()) {
+            node = (ImageDisplay) i.next();
+            parent = node.getParentDisplay();
+            ho = node.getHierarchyObject();
+            if (ho instanceof DataObject) {
+                object  = (DataObject) ho;
+                if ((object instanceof ProjectData) || 
+                        (object instanceof CategoryGroupData)) {
+                    if (toRemove == null) toRemove = new HashSet();
+                    toRemove.add(object);
+                } else {
+                    po = (DataObject) parent.getHierarchyObject();
+                    if (map == null) map = new HashMap();
+                    l = (Set) map.get(po);
+                    if (l == null) l = new HashSet();
+                    l.add(object);
+                    map.put(po, l);
+                }
+            }
+        }
+        if (toRemove != null) {
+            currentLoader = new DataObjectRemover(component, toRemove, null);
+            currentLoader.load();
+        } else {
+            currentLoader = new DataObjectRemover(component, map);
+            currentLoader.load();
+        }
+    }
+    
+    /**
      * Sets the specified thumbnail for all image nodes in the display that
      * map to the same image hierarchy object.
      * When every image object has a thumbnail, this method sets the state
@@ -406,5 +460,7 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+
     
 }

@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JFrame;
 
@@ -40,12 +41,14 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -320,6 +323,24 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#showClipBoard(boolean)
+     */
+    public void showClipBoard(boolean b)
+    {
+        int state = model.getState();
+        if (state != LOADING_THUMBNAILS && state != READY)
+            throw new IllegalStateException(
+                   "This method can only be invoked in the LOADING_THUMBNAILS "+
+                        "or READY state.");
+        ClipBoard cb = model.getClipBoard();
+        if (cb == null) return;
+        if (cb.isDisplay() == b) return;
+        cb.setDisplay(b);
+        view.showClipBoard(b);
+    }
+    
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getTreeView()
      */
     public TreeView getTreeView()
@@ -474,6 +495,9 @@ class HiViewerComponent
      */
     public void setRollOver(boolean b)
     {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         model.setRollOver(b);
     }
 
@@ -483,8 +507,27 @@ class HiViewerComponent
      */
     public boolean isRollOver()
     {
-        // TODO Auto-generated method stub
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
         return model.isRollOver();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#removeObjects(List)
+     */
+    public void removeObjects(List toRemove)
+    {
+        //TODO: Check state
+        if (toRemove == null || toRemove.size() == 0) {
+            UserNotifier un = 
+                HiViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Node remoal", "No nodes to remove.");
+            return;
+        }
+        model.fireDataObjectsRemoval(toRemove);
+        fireStateChange();
     }
     
 }

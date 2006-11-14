@@ -74,7 +74,7 @@ class PopupMenu
     /** Button to bring up the widget to classify an image. */
     private JMenuItem   classify;
     
-    /** Button to bring up the widget to de classify an image. */
+    /** Button to bring up the widget to declassify an image. */
     private JMenuItem   declassify;
     
     /** Button to browse a container or bring up the Viewer for an image. */
@@ -89,6 +89,8 @@ class PopupMenu
     /** Button to resize all leaf nodes in a container. */
     private JMenuItem   zoomFit;
     
+    /** Button to remove items from a container. */
+    private JMenuItem   remove;
     
     /**
      * Creates the menu items with the given actions.
@@ -109,6 +111,7 @@ class PopupMenu
         zoomIn = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN));
         zoomOut = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
         zoomFit = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
+        remove = new JMenuItem(controller.getAction(HiViewerControl.REMOVE));
     }
 
     /**
@@ -135,6 +138,7 @@ class PopupMenu
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(createClassifySubMenu());
         add(annotate);
+        add(remove);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
         add(new JSeparator(JSeparator.HORIZONTAL));

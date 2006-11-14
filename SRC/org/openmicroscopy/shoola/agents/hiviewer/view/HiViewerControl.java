@@ -62,13 +62,16 @@ import javax.swing.event.MenuListener;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.FlatLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.RemoveAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
@@ -175,10 +178,18 @@ class HiViewerControl
     
     /** Identifies the <code>Find</code> action in the Edit menu. */
     static final Integer     FIND = new Integer(21);
-    
-    
+
     /** Identifies the <code>Roll over</code> action in the View menu. */
     static final Integer     ROLL_OVER = new Integer(22);
+    
+    /** Identifies the <code>Remove</code> action in the Edit menu. */
+    static final Integer     REMOVE = new Integer(23);
+    
+    /** Identifies the <code>ClipBoard</code> action in the View menu. */
+    static final Integer     CLIPBOARD_VIEW = new Integer(24);
+    
+    /** Identifies the <code>ClipBoard</code> action in the View menu. */
+    static final Integer     FLAT_LAYOUT = new Integer(25);
     
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -220,6 +231,9 @@ class HiViewerControl
         actionsMap.put(FIND, new FindAction(model));
         actionsMap.put(EXIT_APPLICATION, new ExitApplicationAction());
         actionsMap.put(ROLL_OVER, new RollOverAction(model));
+        actionsMap.put(REMOVE, new RemoveAction(model));
+        actionsMap.put(CLIPBOARD_VIEW, new ClipBoardViewAction(model));
+        actionsMap.put(FLAT_LAYOUT, new FlatLayoutAction(model));
     }
   
     /** Creates the windowsMenuItems. */
@@ -300,6 +314,7 @@ class HiViewerControl
     {
         Browser browser = model.getBrowser();
         browser.addPropertyChangeListener(this);
+        model.getClipBoard().setDisplay(true);
         view.setViews(browser.getUI(), model.getClipBoard().getUI());
         view.setViewTitle();
     }
