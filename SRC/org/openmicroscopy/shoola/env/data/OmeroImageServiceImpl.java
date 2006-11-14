@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingServicesFactory;
-import pojos.PixelsData;
 
 
 /** 
@@ -144,21 +143,6 @@ class OmeroImageServiceImpl
             throw new RenderingServiceException("RenderImage", e);
         }
     }
-
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#renderImageCopy(long, PlaneDef)
-     */
-    public BufferedImage renderImageCopy(long pixelsID, PlaneDef pDef)
-            throws RenderingServiceException
-    {
-        try {
-            return RenderingServicesFactory.renderCopy(context, 
-                                            new Long(pixelsID), pDef);
-        } catch (Exception e) {
-            throw new RenderingServiceException("RenderImage Copy", e);
-        }
-    }
     
     /** 
      * Implemented as specified by {@link OmeroImageService}. 
@@ -177,25 +161,6 @@ class OmeroImageServiceImpl
     public void shutDown(long pixelsID)
     {
         RenderingServicesFactory.shutDownRenderingControl(context, pixelsID);
-    }
-    
-    /** 
-     * Implemented as specified by {@link OmeroImageService}. 
-     * @see OmeroImageService#getThumbnail(PixelsData, int, int)
-     */
-    public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
-        throws RenderingServiceException
-    {
-        try {
-            LogMessage msg = new LogMessage();
-            msg.println("Get thumbnail direct, PixelsID: "+pix.getId());
-            Logger logger = context.getLogger();
-            logger.debug(this, msg);
-            byte[] v = gateway.getThumbnail(pix.asPixels(), sizeX, sizeY);
-            return createImage(v);
-        } catch (Exception e) {
-            throw new RenderingServiceException("Get Thumbnail", e);
-        }
     }
     
     /** 

@@ -48,6 +48,7 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IThumb;
 import ome.api.IUpdate;
+import ome.api.ThumbnailStore;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -91,6 +92,9 @@ class OMEROGateway
      * <i>OMERO</i> services.
      */
     private ServiceFactory          entry;
+    
+    /** The thumbnail service. */
+    private ThumbnailStore          thumbnailService;
     
     /**
      * Tells whether we're currently connected and logged into <i>OMEDS</i>.
@@ -300,7 +304,12 @@ class OMEROGateway
      *  
      * @return See above.
      */
-    private IThumb getIThumbService() { return entry.getThumbnailService(); }
+    private ThumbnailStore getThumbService()
+    { 
+        //if (thumbnailService == null) 
+            thumbnailService = entry.createThumbnailService();
+        return thumbnailService; 
+    }
 
     /**
      * Returns the {@link RenderingEngine Rendering service}.
@@ -371,6 +380,7 @@ class OMEROGateway
     {
         //TODO
         connected = false;
+        if (thumbnailService != null) thumbnailService.close();
     }
     
     /**
@@ -828,28 +838,6 @@ class OMEROGateway
     /**
      * Retrieves the thumbnail for the passed set of pixels.
      * 
-     * @param pixels    The set of pixels the thumbnail is for.
-     * @param sizeX     The size of the thumbnail along the X-axis.
-     * @param sizeY     The size of the thumbnail along the Y-axis.
-     * @return See above.
-     * @throws RenderingServiceException If an error occured while trying to 
-     *              retrieve data from the service. 
-     */
-    byte[] getThumbnail(Pixels pixels, int sizeX, int sizeY)
-        throws RenderingServiceException
-    {
-        try {
-            IThumb service = getIThumbService();
-            return service.getThumbnailDirect(pixels, null, new Integer(sizeX), 
-                                    new Integer(sizeY));
-        } catch (Exception e) {
-            throw new RenderingServiceException("Cannot get thumbnail", e);
-        }
-    }
-    
-    /**
-     * Retrieves the thumbnail for the passed set of pixels.
-     * 
      * @param pixelsID  The id of the pixels set the thumbnail is for.
      * @param sizeX     The size of the thumbnail along the X-axis.
      * @param sizeY     The size of the thumbnail along the Y-axis.
@@ -857,16 +845,14 @@ class OMEROGateway
      * @throws RenderingServiceException If an error occured while trying to 
      *              retrieve data from the service. 
      */
-    byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
+    synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
         throws RenderingServiceException
     {
         try {
-            IQuery service = getIQueryService();
-            Pixels pixels = (Pixels) service.get(Pixels.class, pixelsID);
-            IThumb serv = getIThumbService();
-            
-            return serv.getThumbnailDirect(pixels, null, new Integer(sizeX), 
-                                    new Integer(sizeY));
+            ThumbnailStore service = getThumbService();
+            service.setPixelsId(pixelsID);
+            return service.getThumbnailDirect(new Integer(sizeX), 
+                                                new Integer(sizeY));
         } catch (Exception e) {
             throw new RenderingServiceException("Cannot get thumbnail", e);
         }
@@ -928,7 +914,7 @@ class OMEROGateway
             else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
             else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
             else if (klass.equals(CategoryGroup.class)) 
-                table = "CategoryGroupLink";
+                table = "CategoryGroupCategoryLink";
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id in " +

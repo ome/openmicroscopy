@@ -382,7 +382,7 @@ class OmeroDataServiceImpl
         if (children == null) 
             throw new IllegalArgumentException("The children cannot be null.");
         if (children.size() == 0) 
-            throw new IllegalArgumentException("The children cannot be null.");
+            throw new IllegalArgumentException("No children to remove.");
         Iterator i = children.iterator();
         if (parent == null) {
             int index = 0;
@@ -393,6 +393,8 @@ class OmeroDataServiceImpl
             }
             gateway.deleteObjects(ioObjects);
         } else {
+            cut(parent, children);
+            /*
             IObject p = parent.asIObject();
             IObject ioChild;
             IObject link;
@@ -409,14 +411,7 @@ class OmeroDataServiceImpl
                 gateway.deleteObjects((IObject[]) 
                         links.toArray(new IObject[links.size()]));
             }
-            /*
-            IObject[] results = gateway.updateObjects(
-                                (IObject[]) toUpdate.toArray(
-                                        new IObject[toUpdate.size()]),
-                                    (new PojoOptions()).map());
-                                    */
-            //for (int j = 0; j < results.length; j++)
-            //    PojoMapper.asDataObject(results[j]);
+            */
         }
 
         return children;

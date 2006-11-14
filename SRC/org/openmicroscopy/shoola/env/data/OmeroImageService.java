@@ -38,19 +38,16 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
-import pojos.PixelsData;
-
 /** 
- * 
+ * List of methods to view images or thumbnails.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -86,18 +83,6 @@ public interface OmeroImageService
         throws RenderingServiceException;    
     
     /**
-     * Renders the specified 2D-plane. We create a new image and not 
-     * the image retrieved from the cache.
-     * 
-     * @param pixelsID  The ID of the pixels set.
-     * @param pd        The plane to render.
-     * @return          The buffered image representing the plane.
-     * @throws RenderingServiceException If the server cannot render the image.
-     */
-    public BufferedImage renderImageCopy(long pixelsID, PlaneDef pd)
-        throws RenderingServiceException;    
-    
-    /**
      * Renders the specified 2D-plane. In that case, the plane is set 
      * to the default z-section and default timepoint.
      * 
@@ -115,20 +100,6 @@ public interface OmeroImageService
      * @param pixelsID  The ID of the pixels set.
      */
     public void shutDown(long pixelsID);
-    
-    /**
-     * Returns a thumbnail of the currently selected 2D-plane for the
-     * passed pixels set.
-     * 
-     * @param pix   The pixels data object hosting the pixels set.
-     * @param sizeX The width of the thumbnail.
-     * @param sizeY The height of the thumnail.
-     * @return See above.
-     * @throws RenderingServiceException    If the server cannot retrieve the 
-     *                                      thumbnail.
-     */
-    public BufferedImage getThumbnail(PixelsData pix, int sizeX, int sizeY)
-        throws RenderingServiceException;
     
     /**
      * Returns a thumbnail of the currently selected 2D-plane for the
