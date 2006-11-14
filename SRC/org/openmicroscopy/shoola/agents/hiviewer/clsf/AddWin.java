@@ -71,7 +71,7 @@ class AddWin
     
     /** Message displayed if the image is unclassified. */
     private static final String     UNCLASSIFIED_TEXT = "The image cannot be " +
-            "classified because there is no category available.";
+            "classified. Please first create a category.";
     
     /**
      * Overriden to return the title associated to this component.
