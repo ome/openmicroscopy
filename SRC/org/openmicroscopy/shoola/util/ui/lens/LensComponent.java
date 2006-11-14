@@ -38,7 +38,9 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
+
 //Application-internal dependencies
+
 /** 
  * The Lens Component is the main component of the lens accessable from outside
  * of the lens Package. 
@@ -89,6 +91,7 @@ public class LensComponent
 	 * Create the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
+     * @param parent    parent JFrame of ZoomWindowUI. 
 	 * @param planeImage Image being displayed by the viewer.
 	 */
 	public LensComponent(JFrame parent, BufferedImage planeImage)
@@ -182,13 +185,13 @@ public class LensComponent
 	public void setImageZoomFactor(float imageZoomFactor)
 	{
 		lensModel.setImageZoomFactor(imageZoomFactor);
-		lens.setImageZoomFactor(imageZoomFactor);
+		lens.setImageZoomFactor();
 	}
 	
 	/**
 	 * Set the zoomfactor for the lens. 
 	 * 
-	 * @param zoomFactor
+	 * @param zoomFactor The magnification factor
 	 */
 	public void setZoomFactor(float zoomFactor)
 	{

@@ -56,38 +56,35 @@ class ZoomAction
 	extends AbstractAction
 {
 	
-	/** Constant for zoom action to reset the magnification of the lens to x2.*/
-	final static int		ZOOMDEFAULT = 0;
-	
 	/** Constant for zoom action to set the magnification of the lens to x1.*/
-	final static int		ZOOMx1 = 1;
+	final static int		ZOOMx1 = 0;
 	
 	/** Constant for zoom action to set the magnification of the lens to x2.*/
-	final static int		ZOOMx2 = 2;
+	final static int		ZOOMx2 = 1;
 	
 	/** Constant for zoom action to set the magnification of the lens to x3.*/
-	final static int		ZOOMx3 = 3;
+	final static int		ZOOMx3 = 2;
 	
 	/** Constant for zoom action to set the magnification of the lens to x4.*/
-	final static int		ZOOMx4 = 4;
+	final static int		ZOOMx4 = 3;
 	
 	/** Constant for zoom action to set the magnification of the lens to x5.*/
-	final static int		ZOOMx5 = 5;
+	final static int		ZOOMx5 = 4;
 	
 	/** Constant for zoom action to set the magnification of the lens to x6.*/
-	final static int		ZOOMx6 = 6;
+	final static int		ZOOMx6 = 5;
 	
 	/** Constant for zoom action to set the magnification of the lens to x7.*/
-	final static int		ZOOMx7 = 7;
+	final static int		ZOOMx7 = 6;
 	
 	/** Constant for zoom action to set the magnification of the lens to x8.*/
-	final static int		ZOOMx8 = 8;
+	final static int		ZOOMx8 = 7;
 	
 	/** Constant for zoom action to set the magnification of the lens to x9.*/
-	final static int		ZOOMx9 = 9;
+	final static int		ZOOMx9 = 8;
 	
 	/** Constant for zoom action to set the magnification of the lens to x10.*/
-	final static int		ZOOMx10 = 10;
+	final static int		ZOOMx10 = 9;
 	
 	/** Parent component of the lens object. */
 	private LensComponent	lens;
@@ -99,8 +96,7 @@ class ZoomAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[11];
-	        names[ZOOMDEFAULT] = "Set Zoom to Default magnification";
+	        names = new String[10];
 	        names[ZOOMx1] = "Set Magnification x1";
 	        names[ZOOMx2] = "Set Magnification x2";
 	        names[ZOOMx3] = "Set Magnification x3";
@@ -113,6 +109,31 @@ class ZoomAction
 	        names[ZOOMx10] = "Set Magnification x10";
 	}
 
+    
+     /** 
+    * Controls if the specified index is valid.
+    * 
+    * @param i The index to check.
+    */
+   private void checkIndex(int i)
+   {
+       switch (i) {
+           case ZOOMx1:
+           case ZOOMx2:
+           case ZOOMx3:
+           case ZOOMx4:
+           case ZOOMx5:
+           case ZOOMx6:
+           case ZOOMx7:
+           case ZOOMx8:
+           case ZOOMx9:
+           case ZOOMx10:
+            return;
+           default:
+               throw new IllegalArgumentException("Index not supported.");
+       }
+   }
+   
 	/**
 	 * Zoom action changes the magnification of the lens based on the parameter 
 	 * zoomIndex. 
@@ -128,39 +149,11 @@ class ZoomAction
 	    putValue(Action.NAME, names[index]);
 	}
 	
-	/** (non-Javadoc)
+	/**
+     * Sets the magnification factor.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
-		if( index == 0 )
-			lens.setZoomFactor(LensComponent.DEFAULT_ZOOM);
-		else
-			lens.setZoomFactor(index);
-	}
-	
-	 /** 
-     * Controls if the specified index is valid.
-     * 
-     * @param i The index to check.
-     */
-    private void checkIndex(int i)
-    {
-        switch (i) {
-            case ZOOMDEFAULT:
-            case ZOOMx1:
-            case ZOOMx2:
-            case ZOOMx3:
-            case ZOOMx4:
-            case ZOOMx5:
-            case ZOOMx6:
-            case ZOOMx7:
-            case ZOOMx8:
-            case ZOOMx9:
-            case ZOOMx10:
-            	return;
-            default:
-                throw new IllegalArgumentException("Index not supported.");
-        }
-    }
+	public void actionPerformed(ActionEvent e) { lens.setZoomFactor(index+1); }
+
     
 }

@@ -178,10 +178,7 @@ public class LensUI
 	
 	/** lens popupMenu. */
 	private JPopupMenu			menu;
-
-	/** The amount of zooming in the original image. */
-	private float imageZoomFactor;
-	
+    
 	/** 
 	 * Constructor for the lens control. Will set initial width and height of
 	 * the LensUI. 
@@ -333,13 +330,9 @@ public class LensUI
 	/**
 	 * Set the image zoom factor. The image in the viewer has been zoomed by
 	 * this number.
-	 * 
-	 * @param imageZoomFactor the amount of zooming that has occurred on the 
-	 * image. 
 	 */
-	public void setImageZoomFactor(float imageZoomFactor)
+	void setImageZoomFactor()
 	{
-		this.imageZoomFactor = imageZoomFactor;
 		this.setSize(lensComponent.getLensScaledSize());
 		this.setLocation(lensComponent.getLensScaledLocation().x, 
 				lensComponent.getLensScaledLocation().y);

@@ -104,7 +104,6 @@ class LensMenu
 		createPopupMenu();
 		createMenubarMenu();
 	}
-	
 
 	/**
 	 * Return the menu instance to the user, create the class if needed. 
@@ -125,7 +124,8 @@ class LensMenu
 	 * @return nothing we hope. 
 	 * @throws CloneNotSupportedException 
 	 */
-	public Object clone()	throws CloneNotSupportedException
+	public Object clone()
+        throws CloneNotSupportedException
 	{
 	    throw new CloneNotSupportedException(); 
 	}
@@ -137,7 +137,7 @@ class LensMenu
 	 */
 	JPopupMenu getPopupMenu()
 	{
-		return popupMenu;
+		return ref.popupMenu;
 	}
 	
 	/**
@@ -147,7 +147,7 @@ class LensMenu
 	 */
 	JMenuBar getMenubar()
 	{
-		return menubar;
+		return ref.menubar;
 	}
 	
 	/** 
@@ -167,7 +167,6 @@ class LensMenu
 		JMenuItem				setLens80x80;
 		JMenuItem				setLens100x100;
 		JMenuItem				setLens150x150;
-		JMenuItem				setZoomDefault;
 		JMenuItem				setZoomx3;
 		JMenuItem				setZoomx4;
 		JMenuItem				setZoomx5;
@@ -198,8 +197,6 @@ class LensMenu
 												LensAction.LENS100x100));
 		setLens150x150 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS150x150));
-		setZoomDefault = new JMenuItem(new ZoomAction(lensComponent, 
-												ZoomAction.ZOOMDEFAULT));
 		setZoomx3 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx3));
 		setZoomx4 = new JMenuItem(new ZoomAction(lensComponent, 
@@ -215,8 +212,7 @@ class LensMenu
 		lensOptions.add(setLens80x80);
 		lensOptions.add(setLens100x100);
 		lensOptions.add(setLens150x150);
-		
-		zoomOptions.add(setZoomDefault);
+
 		zoomOptions.add(setZoomx3);
 		zoomOptions.add(setZoomx4);
 		zoomOptions.add(setZoomx5);
@@ -250,7 +246,6 @@ class LensMenu
 		JMenuItem				setLens80x80;
 		JMenuItem				setLens100x100;
 		JMenuItem				setLens150x150;
-		JMenuItem				setZoomDefault;
 		JMenuItem				setZoomx3;
 		JMenuItem				setZoomx4;
 		JMenuItem				setZoomx5;
@@ -278,8 +273,6 @@ class LensMenu
 												LensAction.LENS100x100));
 		setLens150x150 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS150x150));
-		setZoomDefault = new JMenuItem(new ZoomAction(lensComponent, 
-												ZoomAction.ZOOMDEFAULT));
 		setZoomx3 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx3));
 		setZoomx4 = new JMenuItem(new ZoomAction(lensComponent, 
@@ -296,7 +289,6 @@ class LensMenu
 		lensOptions.add(setLens100x100);
 		lensOptions.add(setLens150x150);
 		
-		zoomOptions.add(setZoomDefault);
 		zoomOptions.add(setZoomx3);
 		zoomOptions.add(setZoomx4);
 		zoomOptions.add(setZoomx5);
