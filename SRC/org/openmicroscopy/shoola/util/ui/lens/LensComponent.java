@@ -291,21 +291,43 @@ public class LensComponent
 		return (lens.isVisible() && zoomWindow.isVisible());
 	}
 
+	/**
+	 * Set the location of the lens to point.
+	 * 
+	 * @param loc see above.
+	 */
 	public void setLensLocation(Point loc)
 	{
 		setLensLocation(loc.x, loc.y);
 	}
 	
+	/** 
+	 * Get the scaled image size, takes into account the zoom factor of the 
+	 * image viewer. 
+	 * 
+	 * @return size of lens, scaled by image zoom factor. 
+	 */
 	public Dimension getLensScaledSize()
 	{
 		return lensModel.getLensScaledSize();
 	}
 	
+	/** 
+	 * Get the scaled image location, takes into account the zoom factor of the 
+	 * image viewer. 
+	 * 
+	 * @return location of lens, scaled by image zoom factor. 
+	 */
 	public Point getLensScaledLocation()
 	{
 		return lensModel.getLensScaledLocation();
 	}
 	
+	/** 
+	 * Get the image location
+	 * 
+	 * @return location of lens. 
+	 */
 	public Point getLensLocation()
 	{
 		return lensModel.getLensLocation();
