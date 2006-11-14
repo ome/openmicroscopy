@@ -419,7 +419,6 @@ class ImViewerUI
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
         statusBar = new StatusBar();
-        lens = new LensComponent();
     }
     
     /** 
@@ -605,7 +604,8 @@ class ImViewerUI
      */
     void setLensVisible(boolean b)
     {
-        if (lens==null) return;
+        if (lens==null) 
+        	lens = new LensComponent(this);
         if (b==true)
         {
             if (model.getMaxX() < lens.getLensUI().getWidth() || 
@@ -625,10 +625,13 @@ class ImViewerUI
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
+                lens.setZoomWindowLocation(this.getX()+this.getWidth(), 
+                												this.getY());
             }
 
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getRenderedImage());
+            lens.setLensPreferredColour();
             lens.setVisible(b);
         } else
             lens.setVisible(b);
