@@ -71,8 +71,11 @@ public class LensComponent
 	/** Default magnification of lens. */
 	final static float		DEFAULT_ZOOM = 2.0f;
 	
-	/** Refeence to the lens object which will render onto the image canvas */
+	/** Reference to the lens object which will render onto the image canvas */
 	private LensUI			lens;
+	
+	/** Menu objcet which hold the popup and menu items. */
+	private	LensMenu 		menu;
 	
 	/** 
 	 * Reference to the lensController which will modifiy the position and 
@@ -106,6 +109,9 @@ public class LensComponent
 		lens.addController(lensController);
 		lens.setLensColour(lensModel.getLensPreferredColour());
 		zoomWindow.addController(lensController);
+		menu = new LensMenu(this);
+		lens.setPopupMenu(menu.getPopupMenu());
+		zoomWindow.setMenu(menu.getMenubar());
 	}
 	
 	/**

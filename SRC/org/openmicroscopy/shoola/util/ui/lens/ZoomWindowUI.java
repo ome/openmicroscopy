@@ -120,7 +120,7 @@ class ZoomWindowUI
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
 		this.add(statusPanel, BorderLayout.SOUTH);
-		lensMenu =  LensMenu.getMenu(lensComponent);
+		lensMenu =  new LensMenu(lensComponent);
 		menu = lensMenu.getMenubar();
 		this.setJMenuBar(menu);
 	}

@@ -98,36 +98,11 @@ class LensMenu
 	 * 
 	 * @param lensComponent
 	 */
-	private LensMenu(LensComponent lensComponent)
+	LensMenu(LensComponent lensComponent)
 	{
 		this.lensComponent = lensComponent;
 		createPopupMenu();
 		createMenubarMenu();
-	}
-
-	/**
-	 * Return the menu instance to the user, create the class if needed. 
-	 * 
-	 * @param lensComponent
-	 * 
-	 * @return reference to the singleton object. 
-	 */
-	static LensMenu getMenu(LensComponent lensComponent)
-	{
-	    if (ref == null)
-	        ref = new LensMenu(lensComponent);		
-	    return ref;
-	}
-
-	/**
-	 * Overwrite the clone method so we cannot break the singleton class. 
-	 * @return nothing we hope. 
-	 * @throws CloneNotSupportedException 
-	 */
-	public Object clone()
-        throws CloneNotSupportedException
-	{
-	    throw new CloneNotSupportedException(); 
 	}
 	
 	/**
@@ -137,7 +112,7 @@ class LensMenu
 	 */
 	JPopupMenu getPopupMenu()
 	{
-		return ref.popupMenu;
+		return popupMenu;
 	}
 	
 	/**
@@ -147,7 +122,7 @@ class LensMenu
 	 */
 	JMenuBar getMenubar()
 	{
-		return ref.menubar;
+		return menubar;
 	}
 	
 	/** 
@@ -161,16 +136,18 @@ class LensMenu
 		JMenu					zoomOptions;
 		JMenuItem 				topOption;
 		JMenu					displayOptions;
-		JMenuItem				setLensDefaultSize;
 		JMenuItem				setLens40x40;
+		JMenuItem				setLens50x50;
 		JMenuItem				setLens60x60;
 		JMenuItem				setLens80x80;
 		JMenuItem				setLens100x100;
 		JMenuItem				setLens150x150;
+		JMenuItem				setZoomx2;
 		JMenuItem				setZoomx3;
 		JMenuItem				setZoomx4;
 		JMenuItem				setZoomx5;
 		JMenuItem				setZoomx10;
+		
 		JRadioButtonMenuItem	setDisplayMicrons;
 		JRadioButtonMenuItem	setDisplayPixels;
 			
@@ -184,11 +161,11 @@ class LensMenu
 		popupMenu.add(lensOptions);
 		popupMenu.add(zoomOptions);
 		popupMenu.add(displayOptions);
-		
-		setLensDefaultSize = new JMenuItem(new LensAction(lensComponent, 
-												LensAction.LENSDEFAULTSIZE));
+
 		setLens40x40  = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS40x40));
+		setLens50x50  = new JMenuItem(new LensAction(lensComponent, 
+												LensAction.LENS50x50));
 		setLens60x60 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS60x60));
 		setLens80x80 = new JMenuItem(new LensAction(lensComponent, 
@@ -197,22 +174,24 @@ class LensMenu
 												LensAction.LENS100x100));
 		setLens150x150 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS150x150));
+		setZoomx2 = new JMenuItem(new ZoomAction(lensComponent, 
+				ZoomAction.ZOOMx2));
 		setZoomx3 = new JMenuItem(new ZoomAction(lensComponent, 
-												ZoomAction.ZOOMx3));
+				ZoomAction.ZOOMx3));
 		setZoomx4 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx4));
 		setZoomx5 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx5));
 		setZoomx10 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx10));
-		
-		lensOptions.add(setLensDefaultSize);
 		lensOptions.add(setLens40x40);
+		lensOptions.add(setLens50x50);
 		lensOptions.add(setLens60x60);
 		lensOptions.add(setLens80x80);
 		lensOptions.add(setLens100x100);
 		lensOptions.add(setLens150x150);
-
+		
+		zoomOptions.add(setZoomx2);
 		zoomOptions.add(setZoomx3);
 		zoomOptions.add(setZoomx4);
 		zoomOptions.add(setZoomx5);
@@ -240,12 +219,13 @@ class LensMenu
 		JMenu					lensOptions;
 		JMenu					zoomOptions;
 		JMenu					displayOptions;
-		JMenuItem				setLensDefaultSize;
 		JMenuItem				setLens40x40;
+		JMenuItem				setLens50x50;
 		JMenuItem				setLens60x60;
 		JMenuItem				setLens80x80;
 		JMenuItem				setLens100x100;
 		JMenuItem				setLens150x150;
+		JMenuItem				setZoomx2;
 		JMenuItem				setZoomx3;
 		JMenuItem				setZoomx4;
 		JMenuItem				setZoomx5;
@@ -261,10 +241,10 @@ class LensMenu
 		menubar.add(zoomOptions);
 		menubar.add(displayOptions);
 		
-		setLensDefaultSize = new JMenuItem(new LensAction(lensComponent, 
-												LensAction.LENSDEFAULTSIZE));
 		setLens40x40  = new JMenuItem(new LensAction(lensComponent, 
-												LensAction.LENS40x40));
+											LensAction.LENS40x40));
+		setLens50x50  = new JMenuItem(new LensAction(lensComponent, 
+											LensAction.LENS50x50));
 		setLens60x60 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS60x60));
 		setLens80x80 = new JMenuItem(new LensAction(lensComponent, 
@@ -273,6 +253,8 @@ class LensMenu
 												LensAction.LENS100x100));
 		setLens150x150 = new JMenuItem(new LensAction(lensComponent, 
 												LensAction.LENS150x150));
+		setZoomx2 = new JMenuItem(new ZoomAction(lensComponent, 
+												ZoomAction.ZOOMx2));
 		setZoomx3 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx3));
 		setZoomx4 = new JMenuItem(new ZoomAction(lensComponent, 
@@ -282,13 +264,14 @@ class LensMenu
 		setZoomx10 = new JMenuItem(new ZoomAction(lensComponent, 
 												ZoomAction.ZOOMx10));
 		
-		lensOptions.add(setLensDefaultSize);
 		lensOptions.add(setLens40x40);
+		lensOptions.add(setLens50x50);
 		lensOptions.add(setLens60x60);
 		lensOptions.add(setLens80x80);
 		lensOptions.add(setLens100x100);
 		lensOptions.add(setLens150x150);
 		
+		zoomOptions.add(setZoomx2);
 		zoomOptions.add(setZoomx3);
 		zoomOptions.add(setZoomx4);
 		zoomOptions.add(setZoomx5);

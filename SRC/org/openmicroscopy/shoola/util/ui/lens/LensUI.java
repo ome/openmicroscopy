@@ -197,10 +197,17 @@ public class LensUI
 		addMouseListener(mouseListener);
 		addMouseMotionListener(mouseListener);
 		addMouseWheelListener(mouseListener);
-		lensMenu =  LensMenu.getMenu(lensComponent);
-		menu = lensMenu.getPopupMenu();
 	}
-	
+
+	/**
+	 * Set the popup menu of the lens to menu.
+	 * 
+	 * @param menu popupmenu.
+	 */
+	void setPopupMenu(JPopupMenu menu)
+	{
+		this.menu = menu;
+	}
 	
 	/**
 	 * Overridden,

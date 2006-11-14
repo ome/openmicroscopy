@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 
 //Third-party libraries
 //Application-internal dependencies
@@ -107,6 +108,16 @@ class ZoomWindow
 		zoomWindowUI.setDisplayInPixels(b);
 	}
 
+	/** 
+	 * Add menu to the zoomWindowUI. 
+	 * 
+	 * @param menu menubar.
+	 */
+	void setMenu(JMenuBar menu)
+	{
+		zoomWindowUI.setJMenuBar(menu);
+	}
+	
 	/**
 	 * Set the mapping from pixel size to microns along the x and y axis. 
 	 * @param x mapping in x axis.
