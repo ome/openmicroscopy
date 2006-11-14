@@ -90,6 +90,8 @@ public class ThumbnailLoader
     /** The id of the pixels set this loader is for. */
     private long            pixelsID;
     
+    private Object[]        thumbs;
+    
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
@@ -105,15 +107,17 @@ public class ThumbnailLoader
         OmeroImageService rds = context.getImageService();
         BufferedImage thumbPix = null;
         try {
-            thumbPix = rds.getThumbnail(pxd, sizeX, sizeY);
+            thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);
             
         } catch (Exception e) {
+            e.printStackTrace();
             context.getLogger().error(this, 
                     "Cannot retrieve thumbnail: "+e.getMessage());
         }
         if (thumbPix == null) 
             thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
+        //thumbs[index] = new ThumbnailData(images[index].getId(), thumbPix);
     }
     
     /**
@@ -129,7 +133,7 @@ public class ThumbnailLoader
                 OmeroImageService rds = context.getImageService();
                 BufferedImage thumbPix = null;
                 try {
-                    thumbPix = rds.getThumbnail(pixelsID, maxWidth, maxHeight);
+                    thumbPix = null;//rds.getThumbnail(pixelsID, maxWidth, maxHeight);
                     
                 } catch (Exception e) {
                     context.getLogger().error(this, 
@@ -154,6 +158,7 @@ public class ThumbnailLoader
             add(makeBatchCall());
         } else {
             String description;
+            thumbs = new Object[images.length];
             for (int i = 0;  i < images.length; ++i) {
                 description = "Loading thumbnail: "+images[i].getName();
                 final int index = i;
@@ -164,6 +169,20 @@ public class ThumbnailLoader
                         }
                 });
             }
+            //tmp solution
+            /*
+            for (int i = 0;  i < images.length; ++i) {
+                description = "Loading thumbnail: "+images[i].getName();
+                final int index = i;
+                add(new BatchCall(description) {
+                    public void doCall()
+                        { 
+                            currentThumbnail = thumbs[index];
+                          //loadThumbail(index); 
+                        }
+                });
+            }
+            */
         }
     }
 
