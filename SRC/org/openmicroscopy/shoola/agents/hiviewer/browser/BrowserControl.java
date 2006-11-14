@@ -266,6 +266,7 @@ class BrowserControl
     {
         ImageDisplay d = model.getLastSelectedDisplay();
         if (d != null) view.setTitle(model.currentPathString(d));
+        else view.setTitle("");
     }
 
     /**

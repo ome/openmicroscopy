@@ -43,7 +43,6 @@ import java.util.regex.Pattern;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -115,7 +114,7 @@ public abstract class ImageDisplay
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
-    private ImageDisplay    parentDisplay;
+    protected ImageDisplay  parentDisplay;
     
     /** 
      * The set of nodes that have been added to this node.

@@ -188,6 +188,7 @@ public interface Browser
     /**
      * Returns all the {@link ImageDisplay} objects that are children
      * of the {@link RootDisplay} node.
+     * 
      * @return A set of {@link ImageDisplay} objects.
      */
     public Set getRootNodes();
@@ -283,4 +284,10 @@ public interface Browser
      */
     public boolean isRollOver();
 
+    /**
+     * Adds the nodes to the <code>Desktop</code> of the root node according
+     * to the currently selected layout.
+     */
+    public void resetChildDisplay();
+    
 }

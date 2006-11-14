@@ -31,8 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
 
 //Third-party libraries
 
@@ -62,9 +60,6 @@ class RootDisplay
     extends ImageSet
 {
     
-    /** A tree view of the hierarchy. */
-    private JTree   treeDisplay;
-    
     /**
      * A placeholder to simulate an hierarchy object.
      * This is required because every {@link ImageDisplay} must have one,
@@ -82,24 +77,5 @@ class RootDisplay
         setTitleBarType(STATIC_BAR);
         setListenToBorder(false);
     }
-    
-    /**
-     * Sets the tree representing the hierarchy.
-     * 
-     * @param tree The tree hosting the hierarchy.
-     */
-    void setTreeView(JTree tree)
-    {
-        if (tree != null) setChangeDisplay(new JScrollPane(tree));
-        else restoreDisplay();
-        treeDisplay = tree;
-    }
-    
-    /**
-     * Returns the tree displayed.
-     * 
-     * @return See above.
-     */
-    JTree getSelectedTreeComponent() { return treeDisplay; }
     
 }

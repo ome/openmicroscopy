@@ -72,7 +72,7 @@ public class ImageSet
      * we can't tell if this node is meant to contain {@link ImageNode}s
      * or other <code>ImageSet</code>s. 
      */
-    private Boolean     containsImages;
+    protected Boolean     containsImages;
     
     /**
      * Implemented as specified by superclass.

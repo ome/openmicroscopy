@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -86,7 +87,7 @@ class BrowserModel
     
     /** The index of the selected layout. */
     private int             selectedLayout;
-    
+
     /**
      * Tells if more than one {@link ImageNode}s are selected.
      * Doesn't really make sense to select other type of data objects.
@@ -101,6 +102,27 @@ class BrowserModel
     
     /** The node on which the mouse was located before exited. */
     private ImageDisplay    rollOverNode;
+    
+    /**
+     * Adds the children of the passed node to its internal desktop.
+     * This method should be invoked when user switches between layout.
+     * 
+     * @param node The node to handle.
+     */
+    private void addToDesktop(ImageDisplay node)
+    {
+        if (node instanceof ImageNode) return;
+        JComponent desktop = node.getInternalDesktop();
+        Set children = node.getChildrenDisplay();
+        if (children == null) return;
+        Iterator i = children.iterator();
+        ImageDisplay child;
+        while (i.hasNext()) {
+            child = (ImageDisplay) i.next();
+            if (!node.containsImages()) addToDesktop(child);
+            else desktop.add(child);
+        }
+    }
     
     /**
      * Creates a new instance.
@@ -304,7 +326,6 @@ class BrowserModel
      */
     public void accept(ImageDisplayVisitor visitor, int algoType) 
     {
-        
         rootDisplay.accept(visitor, algoType);
     }
     
@@ -323,7 +344,8 @@ class BrowserModel
         int oldIndex = selectedLayout;
         switch (index) {
             case LayoutFactory.SQUARY_LAYOUT:
-            //case LayoutFactory.TREE_LAYOUT:    
+            case LayoutFactory.TREE_LAYOUT: 
+            case LayoutFactory.FLAT_LAYOUT:  
                 selectedLayout = index;
                 break;
             default:
@@ -368,5 +390,35 @@ class BrowserModel
      * @see Browser#isRollOver()
      */
     public boolean isRollOver() { return rollOver; }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#resetChildDisplay()
+     */
+    public void resetChildDisplay()
+    {
+        rootDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Set rootChildren = rootDisplay.getChildrenDisplay();
+        JComponent desktop = rootDisplay.getInternalDesktop();
+        desktop.removeAll();
+        Iterator i;
+        if (selectedLayout == LayoutFactory.SQUARY_LAYOUT) {
+            i = rootChildren.iterator();
+            ImageDisplay child;
+            while (i.hasNext()) {
+                child = (ImageDisplay) i.next();
+                desktop.add(child);
+                addToDesktop(child);
+            }
+        } else if (selectedLayout == LayoutFactory.FLAT_LAYOUT) {
+            i = getImageNodes().iterator();
+            while (i.hasNext()) 
+                desktop.add((ImageDisplay) i.next());    
+        }
+        rootDisplay.setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+
     
 }
