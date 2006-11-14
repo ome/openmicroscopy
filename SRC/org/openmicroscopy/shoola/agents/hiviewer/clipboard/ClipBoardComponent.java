@@ -393,26 +393,25 @@ class ClipBoardComponent
         view.setChannelMetadata(list);
         fireStateChange();
     }
-//  TODO Auto-generated method stub
+
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#minimize(boolean)
+     * @see ClipBoard#setDisplay(boolean)
      */
-    public void minimize(boolean m)
+    public void setDisplay(boolean b)
     {
-        if (model.isMinimized() == m) return;
-        model.setMinized(m);
-        view.minimize();
+        model.setDisplay(b);
+        
     }
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#isMinimized()
+     * @see ClipBoard#isDisplay()
      */
-    public boolean isMinimized()
+    public boolean isDisplay()
     {
-        //TODO: Check state
-        return model.isMinimized();
+        // TODO Auto-generated method stub
+        return model.isDisplay();
     }
 
 }

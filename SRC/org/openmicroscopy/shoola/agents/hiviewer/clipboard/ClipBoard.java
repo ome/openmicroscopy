@@ -284,22 +284,20 @@ public interface ClipBoard
      */
     public void setChannelsMetadata(List list);
     
-    /** 
-     * Minimizes the clipBoard if the passed value is <code>true</code>,
-     * expands the clipBoard otherwise.
+    /**
+     * Sets to <code>true</code> to show the component,
+     * <code>false</code> to hide.
      * 
-     * @param m Pass <code>true</code> to minimize, <code>false</code> 
-     *          otherwise.
+     * @param b The value to set.
      */
-    public void minimize(boolean m);
+    public void setDisplay(boolean b);
     
     /**
-     * Returns <code>true</code> if the clipBoard is minimized
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the component is visible, <code>false</code>
+     * otherwise.
      * 
      * @return See above.
      */
-    public boolean isMinimized();
-    
+    public boolean isDisplay();
 }
 

@@ -108,8 +108,8 @@ class ClipBoardModel
     /** The map holding the {@link ClipBoardPane}s. */
     private HashMap                 cbPanes;
     
-    /** Flag indicating if the clipBoard is minimized or expanded. */
-    private boolean                 minimized;
+    /** Flag indicating if the clipBoard is shown or hidden. */
+    private boolean                 display;
     
     /** Reference to the component that embeds this model. */
     protected ClipBoardComponent    component;
@@ -122,7 +122,6 @@ class ClipBoardModel
         cbPanes = new HashMap();
         sorter = new ViewerSorter();
         sorter.setAscending(false);
-        minimized = false;
     }
     
     /** Initializes the components composing the clipBoard. */
@@ -436,21 +435,21 @@ class ClipBoardModel
         currentLoader.load();
         state = ClipBoard.LOADING_CHANNELS_METADATA;
     }
+
+    /**
+     * Sets to <code>true</code> to show the component,
+     * <code>false</code> to hide.
+     * 
+     * @param b The value to set.
+     */
+    void setDisplay(boolean b) { display = b; }
     
     /**
-     * Returns <code>true</code> if the clipBoard is minimized
-     * <code>false</code> otherwise.
+     * Returns <code>true</code> if the component is visible, <code>false</code>
+     * otherwise.
      * 
      * @return See above.
      */
-    boolean isMinimized() { return minimized; }
-    
-    /**
-     * Sets to <code>true</code> if the clipBoard is minimized, 
-     * <code>false</code> otherwise.
-     * 
-     * @param minimized The value to set.
-     */
-    void setMinized(boolean minimized) { this.minimized = minimized; }
-    
+    boolean isDisplay() { return display; }
+
 }
