@@ -52,10 +52,8 @@ import javax.swing.JSeparator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -132,9 +130,6 @@ class ImViewerUI
         menuBar.add(createViewMenu());
         menuBar.add(createZoomMenu());
         createRatingMenu();
-        //menuBar.add(createRatingMenu());
-        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-        menuBar.add(tb.getWindowsMenu());
         menuBar.add(createHelpMenu());
         return menuBar;
     }
@@ -581,6 +576,79 @@ class ImViewerUI
     /** Resets the defaults. */
     void resetDefaults() { controlPane.resetDefaults(); }
     
+    /**
+     * Sets the image in the lens to the plane image shown on the screen.
+     * 
+     * @param img see above.
+     */
+    void setLensPlaneImage(BufferedImage img)
+    {
+        lens.setPlaneImage(img);
+    }
+    
+    /**
+     * Returns <code>true</code> if the lens is visible, <code>false</code>
+     * otherwise.
+     * 
+     * @return see above.
+     */
+    boolean isLensVisible()
+    {
+        if (lens != null) return lens.isVisible();
+        return false;
+    }
+    
+    /**
+     * Sets the lens's visiblilty.
+     * 
+     * @param b See above.
+     */
+    void setLensVisible(boolean b)
+    {
+        if (lens==null) return;
+        if (b==true)
+        {
+            if (model.getMaxX() < lens.getLensUI().getWidth() || 
+                model.getMaxY() < lens.getLensUI().getHeight())
+                    return;
+            if (firstTimeLensShown)
+            {
+                firstTimeLensShown = false;
+                int lensX = model.getMaxX()/2-lens.getLensUI().getWidth()/2;
+                int lensY = model.getMaxY()/2-lens.getLensUI().getHeight()/2;
+                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
+                    lensX = model.getMaxX()-lens.getLensUI().getWidth();
+                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
+                    lensY = model.getMaxY()-lens.getLensUI().getHeight();
+                lens.setImageZoomFactor((float)model.getZoomFactor());
+                lens.setLensLocation(lensX, lensY);
+                lens.setXYPixelMicron(model.getPixelsSizeX(), 
+                                    model.getPixelsSizeY());
+                model.getBrowser().addComponent(lens.getLensUI());
+            }
+
+            lens.setImageZoomFactor((float) model.getZoomFactor());
+            lens.setPlaneImage(model.getRenderedImage());
+            lens.setVisible(b);
+        } else
+            lens.setVisible(b);
+        this.repaint();
+    }
+    
+    /**
+     * Gets the <code>zoomedImage</code> from the lens component. 
+     * 
+     * @return See above.
+     */
+    BufferedImage getZoomedLensImage() { return lens.getZoomedImage(); }
+    
+    /**
+     * Sets the lens magnification factor.
+     * 
+     * @param factor The value to set.
+     */
+    void setImageZoomFactor(float factor) { lens.setImageZoomFactor(factor); }
+    
     /** Overridden to the set the location of the {@link ImViewer}. */
     public void setOnScreen()
     {
@@ -602,78 +670,6 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-    /**
-     * Set the image in the lens to the plane image shown on the screen.
-     * 
-     * @param img see above.
-     */
-    public void setLensPlaneImage(BufferedImage img)
-    {
-    	lens.setPlaneImage(img);
-    }
-    
-    /**
-     * Return <code>true</code> if the lens is visible.
-     * 
-     * @return see above.
-     */
-    public boolean  isLensVisible()
-    {
-    	if(lens != null)
-    		return lens.isVisible();
-    	return false;
-    }
-    
-    /**
-     * Set the lens's visiblilty.
-     * 
-     * @param b see above.
-     */
-    public void setLensVisible(boolean b)
-    {
-    	if(lens==null)
-    		return;
-    	if( b==true)
-    	{
-    		if(model.getMaxX() < lens.getLensUI().getWidth() || 
-    			model.getMaxY() < lens.getLensUI().getHeight() )
-    				return;
-    		if(firstTimeLensShown)
-    		{
-    			firstTimeLensShown = false;
-    			int lensX = model.getMaxX()/2-lens.getLensUI().getWidth()/2;
-    			int lensY = model.getMaxY()/2-lens.getLensUI().getHeight()/2;
-    			if(lensX+lens.getLensUI().getWidth() > model.getMaxX())
-    				lensX = model.getMaxX()-lens.getLensUI().getWidth();
-    			if(lensY+lens.getLensUI().getHeight() > model.getMaxY())
-    				lensY = model.getMaxY()-lens.getLensUI().getHeight();
-    			lens.setImageZoomFactor((float)model.getZoomFactor());
-    	    	lens.setLensLocation(lensX, lensY);
-    			lens.setXYPixelMicron(model.getPixelsSizeX(), model.getPixelsSizeY());
-    	    	model.getBrowser().addComponent(lens.getLensUI());
-    	   	}
 
-    		lens.setImageZoomFactor((float)model.getZoomFactor());
-    		lens.setPlaneImage(model.getRenderedImage());
-    		lens.setVisible(b);
-    	}
-    	else
-    		lens.setVisible(b);
-		this.repaint();
-    }
-    
-    /**
-     * Get the zoomedImage from the lens component. 
-     * @return img zoomed image in the lens component.
-     */
-    public BufferedImage getZoomedLensImage()
-    {
-    	return lens.getZoomedImage();
-    }
-    
-    public void setImageZoomFactor(float factor)
-    {
-    	lens.setImageZoomFactor(factor);
-    }
     
 }
