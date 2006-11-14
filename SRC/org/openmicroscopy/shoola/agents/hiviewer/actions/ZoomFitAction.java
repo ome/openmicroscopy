@@ -78,13 +78,17 @@ public class ZoomFitAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
+        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay.getParentDisplay() == null) setEnabled(true);
         else {
             if ((model.getBrowser().getSelectedLayout() == 
                 LayoutFactory.TREE_LAYOUT)) setEnabled(false);
-            else 
+            else {
+                
                 setEnabled(!(selectedDisplay.getHierarchyObject()
-                    instanceof ImageData));
+                        instanceof ImageData));
+            }
+                
         }
     }
     

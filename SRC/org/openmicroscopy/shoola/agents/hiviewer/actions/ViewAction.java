@@ -79,6 +79,7 @@ public class ViewAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) setEnabled(false);
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();

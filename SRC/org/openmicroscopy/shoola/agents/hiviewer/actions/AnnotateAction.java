@@ -80,6 +80,7 @@ public class AnnotateAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) setEnabled(false);
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Set nodes = model.getBrowser().getSelectedDisplays();

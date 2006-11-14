@@ -58,7 +58,7 @@ public class TreeViewAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Show Tree Pane";
+    public static final String NAME = "Show Tree Pane";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Display a representation of " +
@@ -78,11 +78,10 @@ public class TreeViewAction
     public TreeViewAction(HiViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
-        //IconManager im = IconManager.getInstance();
-        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.TREE_LAYOUT));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.TREE_VIEW));
     }
     
     /** 

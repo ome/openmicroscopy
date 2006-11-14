@@ -126,8 +126,8 @@ public abstract class HiViewerAction
                         == 0)) {
             model.getBrowser().addPropertyChangeListener(
                     Browser.SELECTED_DISPLAY_PROPERTY, this);
-            model.getBrowser().addPropertyChangeListener(
-                    Browser.LAYOUT_PROPERTY, this);
+            //model.getBrowser().addPropertyChangeListener(
+            //        Browser.LAYOUT_PROPERTY, this);
             onStateChange();
         }
     }

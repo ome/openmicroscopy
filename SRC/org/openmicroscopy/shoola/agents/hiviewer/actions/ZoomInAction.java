@@ -78,6 +78,7 @@ public class ZoomInAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) setEnabled(false);
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             if ((model.getBrowser().getSelectedLayout() == 

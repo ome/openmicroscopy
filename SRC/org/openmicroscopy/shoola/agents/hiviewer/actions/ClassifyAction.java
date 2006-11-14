@@ -76,6 +76,7 @@ public class ClassifyAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) setEnabled(false);
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else
             setEnabled(selectedDisplay.getHierarchyObject() 
