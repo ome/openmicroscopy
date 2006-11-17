@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -243,6 +244,42 @@ class GraphicsPane
     }
     
     /** 
+     * Checks the validity of the startField. This method will be called when
+     * the startField changes value; user enters data. 
+     * 
+     * @return true if startField is in a valid range. 
+     */
+    private boolean startFieldValid()
+    {
+        boolean valid = false;
+        double val = 0;
+        double e = model.getWindowEnd();
+        try {
+            val = Double.parseDouble(startField.getText());
+            if (model.getGlobalMin() <= val && val < e) valid = true;
+        } catch(NumberFormatException nfe) {}
+        return valid;
+    }
+    
+    /** 
+     * Checks the validity of the endField. This method will be called when
+     * the endField changes value; user enters data. 
+     * 
+     * @return true if endField is in a valid range. 
+     */
+    private boolean endFieldValid()
+    {
+    	 boolean valid = false;
+         double val = 0;
+         double s = model.getWindowStart();
+         try {
+             val = Double.parseDouble(endField.getText());
+             if (s < val && val <= model.getGlobalMax()) valid = true;
+         } catch(NumberFormatException nfe) {}
+         return valid;
+    }
+    
+    /** 
      * Handles the action event fired by the start text field when the user 
      * enters some text. 
      * If that text doesn't evaluate to a value, then we simply 
@@ -250,22 +287,23 @@ class GraphicsPane
      */
     private void startSelectionHandler()
     {
-        boolean valid = false;
-        int val = 0;
-        double e = model.getWindowEnd();
-        try {
-            val = Integer.parseInt(startField.getText());
-            if (model.getGlobalMin() <= val && val < e) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (valid) {
-            controller.setInputInterval(val, e, true);
-            onCurveChange();
-        } else {
-            startField.selectAll();
+    	double e = model.getWindowEnd();
+    	double val = Double.parseDouble(startField.getText());
+        if(val == model.getWindowStart())
+        	return;
+             
+    	if(startFieldValid())
+    	{
+    		controller.setInputInterval(val, e, true);
+    		onCurveChange();
+    	}
+    	else
+    	{
+    		startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
                     "["+val+","+e+"]");
-        }
+    	}
     }
     
     /** 
@@ -276,22 +314,22 @@ class GraphicsPane
      */
     private void endSelectionHandler()
     {
-        boolean valid = false;
-        int val = 0;
-        double s = model.getWindowStart();
-        try {
-            val = Integer.parseInt(endField.getText());
-            if (s < val && val <= model.getGlobalMax()) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (valid) {
-            controller.setInputInterval(s, val, true);
-            onCurveChange();
-        } else {
-            endField.selectAll();
+    	double s = model.getWindowStart();
+    	double val = Double.parseDouble(endField.getText());
+        if(val == model.getWindowEnd())
+        	return;
+    	if(startFieldValid())
+    	{
+    		controller.setInputInterval(s, val, true);
+    		onCurveChange();
+    	}
+    	else
+    	{
+    		startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+s+","+val+"]");
-        }
+                    "["+val+","+s+"]");
+    	}
     }
     
     /**
@@ -310,7 +348,7 @@ class GraphicsPane
         this.model = model;
         this.controller = controller;
         initComponents();
-        buildGUI();
+         buildGUI();
     }
 
     /** Updates the controls when a new channel is selected. */
@@ -426,10 +464,27 @@ class GraphicsPane
      */
     public void focusLost(FocusEvent fe)
     {
-        String sVal = startField.getText(), s = ""+model.getWindowStart();
-        String eVal = endField.getText(), e = ""+model.getWindowEnd();
-        if (sVal == null || !sVal.equals(s)) startField.setText(s);
-        if (eVal == null || !eVal.equals(e)) endField.setText(e);
+      if( fe.getSource() == startField)
+    		if( startFieldValid())
+    			startSelectionHandler();
+    		else
+    		{      
+    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			un.notifyInfo("Invalid pixels intensity interval", 
+                    "["+startField.getText()+","+model.getWindowEnd()+"]");
+    			startField.setText(model.getWindowStart()+"");
+    		}
+    	if( fe.getSource() == endField)
+    		if( endFieldValid())
+    			endSelectionHandler();
+    		else
+    		{
+    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			un.notifyInfo("Invalid pixels intensity interval", 
+                "["+model.getWindowStart()+","+endField.getText()+"]");
+    			endField.setText(model.getWindowEnd()+"");
+    		}
+    	
     }
     
     /** 
