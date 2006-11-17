@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -289,10 +288,9 @@ class GraphicsPane
     {
     	double e = model.getWindowEnd();
     	double val = Double.parseDouble(startField.getText());
-        if(val == model.getWindowStart())
-        	return;
+        if (val == model.getWindowStart()) return;
              
-    	if(startFieldValid())
+    	if (startFieldValid())
     	{
     		controller.setInputInterval(val, e, true);
     		onCurveChange();
@@ -316,9 +314,8 @@ class GraphicsPane
     {
     	double s = model.getWindowStart();
     	double val = Double.parseDouble(endField.getText());
-        if(val == model.getWindowEnd())
-        	return;
-    	if(startFieldValid())
+        if (val == model.getWindowEnd()) return;
+    	if (startFieldValid())
     	{
     		controller.setInputInterval(s, val, true);
     		onCurveChange();
@@ -348,7 +345,7 @@ class GraphicsPane
         this.model = model;
         this.controller = controller;
         initComponents();
-         buildGUI();
+        buildGUI();
     }
 
     /** Updates the controls when a new channel is selected. */
@@ -400,7 +397,8 @@ class GraphicsPane
      * Reacts to property changes fired by the {@link TwoKnobsSlider}s.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent evt)
+    {
 		String name = evt.getPropertyName();
 		Object source = evt.getSource();
 		if (!preview.isSelected()) {
@@ -464,9 +462,8 @@ class GraphicsPane
      */
     public void focusLost(FocusEvent fe)
     {
-      if( fe.getSource() == startField)
-    		if( startFieldValid())
-    			startSelectionHandler();
+      if (fe.getSource() == startField)
+    		if (startFieldValid()) startSelectionHandler();
     		else
     		{      
     			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
@@ -474,9 +471,8 @@ class GraphicsPane
                     "["+startField.getText()+","+model.getWindowEnd()+"]");
     			startField.setText(model.getWindowStart()+"");
     		}
-    	if( fe.getSource() == endField)
-    		if( endFieldValid())
-    			endSelectionHandler();
+    	if (fe.getSource() == endField)
+    		if (endFieldValid()) endSelectionHandler();
     		else
     		{
     			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
