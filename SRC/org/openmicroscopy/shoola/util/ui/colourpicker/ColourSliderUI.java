@@ -34,7 +34,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import javax.swing.ImageIcon;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
