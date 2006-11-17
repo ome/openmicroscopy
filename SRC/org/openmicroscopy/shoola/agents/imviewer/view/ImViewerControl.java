@@ -145,80 +145,83 @@ class ImViewerControl
     /** Identifies the <code>Zooming 300%</code> action in the menu. */
     static final Integer     ZOOM_300 = new Integer(15);
     
+    /** Identifies the <code>Zooming Fit to Window</code> action in the menu. */
+    static final Integer     ZOOM_FIT_TO_WINDOW = new Integer(16);
+    
     /** Identifies the <code>Lens</code> action in the menu. */
-    static final Integer     LENS = new Integer(16);
+    static final Integer     LENS = new Integer(17);
     
     /** Identifies the <code>Grey Scale</code> action in the menu. */
-    static final Integer     GREY_SCALE_MODEL = new Integer(17);
+    static final Integer     GREY_SCALE_MODEL = new Integer(18);
     
     /** Identifies the <code>RGB</code> action in the menu. */
-    static final Integer     RGB_MODEL = new Integer(18);
+    static final Integer     RGB_MODEL = new Integer(19);
     
     /** Identifies the <code>HSB</code> action in the menu. */
-    static final Integer     HSB_MODEL = new Integer(19);
+    static final Integer     HSB_MODEL = new Integer(20);
     
     /** 
      * Identifies the <code>First</code> level of the rating action in the 
      * menu. 
      */
-    static final Integer     RATING_ONE = new Integer(20);
+    static final Integer     RATING_ONE = new Integer(21);
     
     /** 
      * Identifies the <code>Second</code> level of the rating action in the 
      * menu. 
      */
-    static final Integer     RATING_TWO = new Integer(21);
+    static final Integer     RATING_TWO = new Integer(22);
     
     /** 
      * Identifies the <code>Third</code> level of the rating action in the 
      * menu. 
      */
-    static final Integer     RATING_THREE = new Integer(22);
+    static final Integer     RATING_THREE = new Integer(23);
     
     /** 
      * Identifies the <code>Fourth</code> level of the rating action in the 
      * menu. 
      */
-    static final Integer     RATING_FOUR = new Integer(23);
+    static final Integer     RATING_FOUR = new Integer(24);
     
     /** 
      * Identifies the <code>Fifth</code> level of the rating action in the 
      * menu. 
      */
-    static final Integer     RATING_FIVE = new Integer(24);
+    static final Integer     RATING_FIVE = new Integer(25);
     
     /** 
      * Identifies the <code>Channel movie</code> action in the 
      * menu. 
      */
-    static final Integer     CHANNEL_MOVIE = new Integer(25);
+    static final Integer     CHANNEL_MOVIE = new Integer(26);
     
     /** Identifies the <code>UnitBar</code> action in the menu. */
-    static final Integer     UNIT_BAR = new Integer(26);
+    static final Integer     UNIT_BAR = new Integer(27);
     
     /** Identifies the <code>Size one of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_ONE = new Integer(27);
+    static final Integer     UNIT_BAR_ONE = new Integer(28);
     
     /** Identifies the <code>Size two of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_TWO = new Integer(28);
+    static final Integer     UNIT_BAR_TWO = new Integer(29);
     
     /** Identifies the <code>Size five of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_FIVE = new Integer(29);
+    static final Integer     UNIT_BAR_FIVE = new Integer(30);
     
     /** Identifies the <code>Size ten of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_TEN = new Integer(30);
+    static final Integer     UNIT_BAR_TEN = new Integer(31);
     
     /** Identifies the <code>Size twenty of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_TWENTY = new Integer(31);
+    static final Integer     UNIT_BAR_TWENTY = new Integer(32);
     
     /** Identifies the <code>Size fifty of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_FIFTY = new Integer(32);
+    static final Integer     UNIT_BAR_FIFTY = new Integer(33);
     
     /** Identifies the <code>Size hundred of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_HUNDRED = new Integer(33);
+    static final Integer     UNIT_BAR_HUNDRED = new Integer(34);
     
     /** Identifies the <code>customized size of the unit bar</code> action. */
-    static final Integer     UNIT_BAR_CUSTOM = new Integer(34);
+    static final Integer     UNIT_BAR_CUSTOM = new Integer(35);
     
     /** Delay before updating lens after new image loads. */
     static final int		 LENS_UPDATE_DELAY = 200;
@@ -286,6 +289,9 @@ class ImViewerControl
         action = new ZoomAction(model, ZoomAction.ZOOM_300);
         action.addPropertyChangeListener(this);
         actionsMap.put(ZOOM_300, action);
+        action = new ZoomAction(model, ZoomAction.ZOOM_FIT_TO_WINDOW);
+        action.addPropertyChangeListener(this);
+        actionsMap.put(ZOOM_FIT_TO_WINDOW, action);
         actionsMap.put(LENS, new LensAction(model));
         action = new ColorModelAction(model, ColorModelAction.GREY_SCALE_MODEL);
         actionsMap.put(GREY_SCALE_MODEL, action);
