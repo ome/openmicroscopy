@@ -34,12 +34,14 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -62,7 +64,7 @@ public class ResetSettingsAction
 {
 
     /** The name of the action. */
-    public static final String  NAME = "Revert";
+    public static final String  NAME = "Undo All";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Reverts to Original Settings";
@@ -87,7 +89,10 @@ public class ResetSettingsAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.resetDefaultRndSettings();
+    	MessageBox msg = new MessageBox(model.getUI(), "Undo Render Settings", 
+    			"Undo all render settings?");
+    	if(msg.showMsgBox() == MessageBox.YES_OPTION)
+    		model.resetDefaultRndSettings();
     }
     
 }
