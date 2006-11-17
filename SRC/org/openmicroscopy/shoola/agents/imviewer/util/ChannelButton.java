@@ -107,22 +107,15 @@ public class ChannelButton
      */
     private void onClick(MouseEvent e)
     {
-    	if( e.getButton() == 1 && !e.isMetaDown() )
-    	{
-    		if ( e.getClickCount() == 1 )
-    		{
-    			timer.start();
-    		}
+    	if (e.getButton() == 1 && !e.isMetaDown()) {
+    		if (e.getClickCount() == 1) timer.start();
     		else if (e.getClickCount() == 2)
     		{
     			timer.stop();
     			doubleClick();
     		}
     	}
-        else if ((e.getButton() == 2 || e.isMetaDown()))
-        {
-        	onReleased(e);
-        }
+        else if ((e.getButton() == 2 || e.isMetaDown())) onReleased(e);
     }
    
     /**
@@ -210,11 +203,14 @@ public class ChannelButton
      */
     public int getChannelIndex() { return index; }
     
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	/**
+     * Handles double-click performed on the channel button.
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+    {
 		singleClick();
 		timer.stop();
 	}
+    
 }
