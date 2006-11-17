@@ -108,9 +108,12 @@ public class ZoomAction
     
     /** Identifies the <code>3.00</code> zooming factor. */
     public static final int     ZOOM_300 = 11;
+    
+    /** Identifies the <code>3.00</code> zooming factor. */
+    public static final int     ZOOM_FIT_TO_WINDOW = 12;
      
     /** The number of supported ids. */
-    private static final int    MAX = 11;
+    private static final int    MAX = 12;
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Zoom in or out.";
@@ -136,6 +139,7 @@ public class ZoomAction
         names[ZOOM_250] = "250%";
         names[ZOOM_275] = "275%";
         names[ZOOM_300] = "300%";
+        names[ZOOM_FIT_TO_WINDOW] = "Fit to Window";
         factors = new double[MAX+1];
         factors[ZOOM_25] = 0.25;
         factors[ZOOM_50] = 0.5;
@@ -149,6 +153,7 @@ public class ZoomAction
         factors[ZOOM_250] = 2.5;
         factors[ZOOM_275] = 2.75;
         factors[ZOOM_300] = 3;
+        factors[ZOOM_FIT_TO_WINDOW] = -1;
     }
     
     /** 
@@ -177,7 +182,8 @@ public class ZoomAction
             case ZOOM_250:
             case ZOOM_275:
             case ZOOM_300:
-                return;
+            case ZOOM_FIT_TO_WINDOW:
+                    return;
             default:
                 throw new IllegalArgumentException("Zoom index not supported.");
         }
