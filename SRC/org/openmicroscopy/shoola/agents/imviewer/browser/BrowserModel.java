@@ -155,7 +155,7 @@ class BrowserModel
      */
     void setZoomFactor(double factor)
     { 
-        zoomFactor = factor; 
+    	zoomFactor = factor;
     }
 
     /**
