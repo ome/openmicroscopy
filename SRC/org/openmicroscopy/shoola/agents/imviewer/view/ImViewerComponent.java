@@ -195,12 +195,19 @@ class ImViewerComponent
      */
     public void setZoomFactor(double factor)
     {
+    	if(factor != -1)
+    	{
         if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
                 factor < ZoomAction.MIN_ZOOM_FACTOR)
                 throw new IllegalArgumentException("The zoom factor is value " +
                         "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
                         ZoomAction.MAX_ZOOM_FACTOR);
         model.setZoomFactor(factor);
+    	}
+    	else
+    	{
+    		model.setZoomFactor(factor);
+    	}
         if(view.isLensVisible())
         	view.setImageZoomFactor((float)factor);
     }
