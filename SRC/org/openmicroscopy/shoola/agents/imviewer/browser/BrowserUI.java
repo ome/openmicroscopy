@@ -193,4 +193,15 @@ class BrowserUI
         browserCanvas.setSize(d);
     }
     
+    /** 
+     * Return the current size of the viewport. 
+     * 
+     * @return see above. 
+     */
+    Dimension getCurrentViewport()
+    {
+    	JViewport currentView = this.getViewport();
+        return currentView.getSize();
+    }
+    
 }
