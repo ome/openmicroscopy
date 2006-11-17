@@ -376,7 +376,7 @@ class DomainPane
         p = new JPanel();
         p.setLayout(new BoxLayout(p,BoxLayout.X_AXIS));
         p.add(buildPane());
-        p.add(Box.createHorizontalStrut(300));
+        p.add(Box.createHorizontalStrut(200));
         advancedPanel.add(p);
         if (isAdvancedSettingsShowing) add(advancedPanel);
     }
