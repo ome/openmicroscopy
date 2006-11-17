@@ -143,14 +143,6 @@ class BrowserUI
     {
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
-        //first time so we set the size of the canvas and layeredPane.
-        /*
-        if (img == null) {
-            img = model.getDisplayedImage();
-            setComponentsSize(img.getWidth()+2*TOP_LEFT_IMAGE,
-                                img.getHeight()+2*TOP_LEFT_IMAGE);
-        }
-        */
         browserCanvas.repaint();
     }
     
@@ -167,11 +159,9 @@ class BrowserUI
         int viewportW = currentView.getWidth();
         int viewportH = currentView.getHeight();
         int x = w/2-viewportW/2;
-        if( x<0 )
-        	x = 0;
+        if (x < 0) x = 0;
         int y = h/2-viewportH/2;
-        if( y<0 )
-        	y = 0;
+        if (y < 0) y = 0;
         
         currentView.setViewPosition(new Point(x, y));
         browserCanvas.repaint();
