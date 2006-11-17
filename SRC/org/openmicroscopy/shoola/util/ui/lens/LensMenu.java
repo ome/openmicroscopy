@@ -56,9 +56,6 @@ import javax.swing.JRadioButtonMenuItem;
  */
 class LensMenu 
 {
-
-	/** Reference to the LensMenu object -- this is a singleton. */
-	private static LensMenu ref;
 	
 	/** Text for the popup Menu -- not shown. */
 	final static String POPUP_MENU_DESCRIPTION = "Magnifying Lens Options"; 
@@ -106,29 +103,22 @@ class LensMenu
 	}
 	
 	/**
-	 * Get the popup version of the menu. 
+	 * Gets the popup version of the menu. 
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
-	JPopupMenu getPopupMenu()
-	{
-		return popupMenu;
-	}
+	JPopupMenu getPopupMenu() { return popupMenu; }
 	
 	/**
-	 * Get the menubar version of the menu. 
+	 * Gets the menubar version of the menu. 
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
-	JMenuBar getMenubar()
-	{
-		return menubar;
-	}
+	JMenuBar getMenubar() { return menubar; }
 	
 	/** 
-	 * Create the popmenu for the lens, allow the user to change settings:
+	 * Creates the popmenu for the lens, allow the user to change settings:
 	 * zoom factor, lens size and display units.
-	 *
 	 */
 	private void createPopupMenu()
 	{
@@ -210,9 +200,8 @@ class LensMenu
 	}
 	
 	/** 
-	 * Create the popmenu for the lens, allow the user to change settings:
+	 * Creates the popmenu for the lens, allow the user to change settings:
 	 * zoom factor, lens size and display units.
-	 *
 	 */
 	private void createMenubarMenu()
 	{
