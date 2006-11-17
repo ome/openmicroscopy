@@ -321,6 +321,10 @@ class ImViewerUI
         item = new JCheckBoxMenuItem(action);
         menu.add(item);
         zoomingGroup.add(item);
+        action = controller.getAction(ImViewerControl.ZOOM_FIT_TO_WINDOW);
+        item = new JCheckBoxMenuItem(action);
+        menu.add(item);
+        zoomingGroup.add(item);
         return menu;
     }
     
