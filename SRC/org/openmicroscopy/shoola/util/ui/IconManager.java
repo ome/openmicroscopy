@@ -103,11 +103,14 @@ public class IconManager
     /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
     public static final int RIGHT_ARROW_DISABLED = 15;
 
+    /** ID of the <code>QuestionIcon</code> icon for the slider. */
+    public static final int QUESTION_ICON = 16;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 15;
+    private static int      MAX_ID = 16;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -131,6 +134,8 @@ public class IconManager
         							"nuvola_player_play12_left_disabled.png"; 
         relPaths[RIGHT_ARROW_DISABLED] = 
         							"nuvola_player_play12_right_disabled.png";
+        relPaths[QUESTION_ICON] = 
+									"nuvola_filetypes48.png";
     }
     
     /** 
