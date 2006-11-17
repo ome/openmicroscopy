@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -77,12 +76,28 @@ class DisplayAction
 	        names[PIXEL_OPTION] = "Pixels";
 	}
 
+    /** 
+     * Controls if the specified index is valid.
+     * 
+     * @param i The index to check.
+     */
+    private void checkIndex(int i)
+    {
+        switch (i) {
+            case MICRON_OPTION:
+            case PIXEL_OPTION:
+                return;
+            default:
+                throw new IllegalArgumentException("Index not supported.");
+        }
+    }
+    
 	/**
 	 * Lens action changes the size of the lens based on the parameter 
 	 * lensIndex. 
 	 * 
-	 * @param lens parent component.
-	 * @param lensIndex Action.
+	 * @param lens         The parent component.
+	 * @param displayIndex The index of the action.
 	 */
 	DisplayAction(LensComponent lens, int displayIndex)
 	{
@@ -92,30 +107,13 @@ class DisplayAction
         putValue(Action.NAME, names[index]);
 	}
 	
-	/** (non-Javadoc)
+	/** 
+     * Displays the unit.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
-		if(index == PIXEL_OPTION)
-			lens.setDisplayInPixels(true);
-		else
-			lens.setDisplayInPixels(false);
-	}
-	
-	/** 
-    * Controls if the specified index is valid.
-    * 
-    * @param i The index to check.
-    */
-    private void checkIndex(int i)
+	public void actionPerformed(ActionEvent e)
     {
-        switch (i) {
-            case MICRON_OPTION:
-            case PIXEL_OPTION:
-            	return;
-            default:
-                throw new IllegalArgumentException("Index not supported.");
-        }
+		lens.setDisplayInPixels(index == PIXEL_OPTION);
     }
     
 }

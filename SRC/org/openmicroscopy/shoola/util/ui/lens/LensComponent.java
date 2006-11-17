@@ -32,14 +32,13 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JFrame;
 
-import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
  * The Lens Component is the main component of the lens accessable from outside
@@ -60,8 +59,8 @@ public class LensComponent
 {
 
 	/** Event fired when the zoomwindow is closed. */
-	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = 
-													"zoomWindowClosed";
+	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
+    
 	/** Default width of a lens */
 	final static int		LENS_DEFAULT_WIDTH	= 50;
 	
@@ -149,6 +148,7 @@ public class LensComponent
 
 	/**
 	 * Set the mapping from pixel size to microns along the x and y axis. 
+     * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
@@ -158,7 +158,7 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the plane image of the lens to a new Image. 
+	 * Sets the plane image of the lens to a new Image. 
 	 * 
 	 * @param img new Image.
 	 */
@@ -170,23 +170,23 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the visiblity of the lens, and ZoomWindowUI.
+	 * Sets the visiblity of the lens, and ZoomWindowUI.
 	 * 
-	 * @param makeVisible see above.
+	 * @param makeVisible The value to set.
 	 * 
 	 */
 	public void setVisible(boolean makeVisible)
 	{
-			lens.setVisible(makeVisible);
-			zoomWindow.setVisible(makeVisible);
+	    lens.setVisible(makeVisible);
+		zoomWindow.setVisible(makeVisible);
 	}
 	
 	/**
-	 * Set the image zoom factor. The image in the viewer has been zoomed by
+	 * Sets the image zoom factor. The image in the viewer has been zoomed by
 	 * this number.
 	 * 
-	 * @param imageZoomFactor the amount of zooming that has occurred on the 
-	 * image. 
+	 * @param imageZoomFactor The amount of zooming that has occurred on the 
+	 *                        image. 
 	 */
 	public void setImageZoomFactor(float imageZoomFactor)
 	{
@@ -195,9 +195,9 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the zoomfactor for the lens. 
+	 * Sets the zoomfactor for the lens. 
 	 * 
-	 * @param zoomFactor The magnification factor
+	 * @param zoomFactor The magnification factor.
 	 */
 	public void setZoomFactor(float zoomFactor)
 	{
@@ -205,10 +205,10 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the location of the lens on the canvas.
+	 * Sets the location of the lens on the canvas.
 	 * 
-	 * @param x see above.
-	 * @param y see above. 
+	 * @param x The x-coordinate.
+	 * @param y The y-coordinate. 
 	 */
 	public void setLensLocation(int x, int y)
 	{
@@ -216,74 +216,69 @@ public class LensComponent
 	}
 
 	/**
-	 * Set the lens Size to a value described in LensAction. 
+	 * Sets the lens Size to a value described in LensAction. 
 	 * 
-	 * @param lensSize from lensAction. 
+	 * @param lensSize The size of the lens. 
 	 */
 	public void setLensSize(int lensSize) 
 	{
 	     switch (lensSize) 
 	     {
-         case LensAction.LENSDEFAULTSIZE:
-        	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
-        			 LensComponent.LENS_DEFAULT_HEIGHT);
-        	 break;
-         case LensAction.LENS40x40:
-        	 lensController.setLensSize(40, 40);
-        	 break;
-         case LensAction.LENS50x50:
-        	 lensController.setLensSize(50, 50);
-        	 break;
-         case LensAction.LENS60x60:
-        	 lensController.setLensSize(60, 60);
-        	 break;
-         case LensAction.LENS70x70:
-        	 lensController.setLensSize(70, 70);
-        	 break;
-         case LensAction.LENS80x80:
-        	 lensController.setLensSize(80, 80);
-        	 break;
-         case LensAction.LENS90x90:
-        	 lensController.setLensSize(90, 90);
-        	 break;
-         case LensAction.LENS100x100:
-        	 lensController.setLensSize(100, 100);
-        	 break;
-         case LensAction.LENS120x120:
-        	 lensController.setLensSize(120, 120);
-        	 break;
-         case LensAction.LENS150x150:
-        	 lensController.setLensSize(150, 150);
-        	 break;
-         default:
-             throw new IllegalArgumentException("Index not supported.");
+             case LensAction.LENSDEFAULTSIZE:
+            	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
+            			 LensComponent.LENS_DEFAULT_HEIGHT);
+            	 break;
+             case LensAction.LENS40x40:
+            	 lensController.setLensSize(40, 40);
+            	 break;
+             case LensAction.LENS50x50:
+            	 lensController.setLensSize(50, 50);
+            	 break;
+             case LensAction.LENS60x60:
+            	 lensController.setLensSize(60, 60);
+            	 break;
+             case LensAction.LENS70x70:
+            	 lensController.setLensSize(70, 70);
+            	 break;
+             case LensAction.LENS80x80:
+            	 lensController.setLensSize(80, 80);
+            	 break;
+             case LensAction.LENS90x90:
+            	 lensController.setLensSize(90, 90);
+            	 break;
+             case LensAction.LENS100x100:
+            	 lensController.setLensSize(100, 100);
+            	 break;
+             case LensAction.LENS120x120:
+            	 lensController.setLensSize(120, 120);
+            	 break;
+             case LensAction.LENS150x150:
+            	 lensController.setLensSize(150, 150);
+            	 break;
+             default:
+                 throw new IllegalArgumentException("Index not supported.");
 	     }
 	}
 	
 	/**
-	 * Return the zoomed image.
+	 * Returns the zoomed image.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
-	public BufferedImage getZoomedImage()
-	{
-		return lensModel.getZoomedImage();
-	}
+	public BufferedImage getZoomedImage() { return lensModel.getZoomedImage(); }
 	
 	/**
-	 * Get the lens UI. 
+	 * Returns the lens UI. 
 	 * 
-	 * @return the lensUI. (a JPanel);
+	 * @return the lensUI. (a JPanel).
 	 */
-	public LensUI getLensUI()
-	{
-		return lens;
-	}
+	public LensUI getLensUI() { return lens; }
 	
 	/**
-	 * Are the lens and zoomWindow visible.
+	 * Returns <code>true</code> if the lens and zoomWindow are visible,
+     * <code>false</code> otherwise.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	public boolean isVisible()
 	{
@@ -291,9 +286,9 @@ public class LensComponent
 	}
 
 	/**
-	 * Set the location of the lens to point.
+	 * Sets the location of the lens to point.
 	 * 
-	 * @param loc see above.
+	 * @param loc The value to set.
 	 */
 	public void setLensLocation(Point loc)
 	{
@@ -301,7 +296,7 @@ public class LensComponent
 	}
 	
 	/** 
-	 * Get the scaled image size, takes into account the zoom factor of the 
+	 * Returns the scaled image size, takes into account the zoom factor of the 
 	 * image viewer. 
 	 * 
 	 * @return size of lens, scaled by image zoom factor. 
@@ -312,7 +307,7 @@ public class LensComponent
 	}
 	
 	/** 
-	 * Get the scaled image location, takes into account the zoom factor of the 
+	 * Gets the scaled image location, takes into account the zoom factor of the 
 	 * image viewer. 
 	 * 
 	 * @return location of lens, scaled by image zoom factor. 
@@ -323,9 +318,9 @@ public class LensComponent
 	}
 	
 	/** 
-	 * Get the image location
+	 * Gets the image location.
 	 * 
-	 * @return location of lens. 
+	 * @return The location of lens. 
 	 */
 	public Point getLensLocation()
 	{
@@ -333,7 +328,7 @@ public class LensComponent
 	}
 
 	/**
-	 * Set the location of the zoomWindowUI. 
+	 * Sets the location of the zoomWindowUI. 
 	 * 
 	 * @param x x co-ordinate of the window location.
 	 * @param y y co-ordinate of the window location.
@@ -344,11 +339,12 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the colour of the lens to better contrast with the 
+	 * Sets the colour of the lens to better contrast with the 
 	 * background of the image.
 	 */
 	public void setLensPreferredColour()
 	{
 		lens.setLensColour(lensModel.getLensPreferredColour());
 	}
+    
 }
