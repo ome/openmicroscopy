@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -110,11 +109,11 @@ class ZoomAction
 	}
 
     
-     /** 
-    * Controls if the specified index is valid.
-    * 
-    * @param i The index to check.
-    */
+	/** 
+     * Controls if the specified index is valid.
+     * 
+     * @param i The index to check.
+     */
    private void checkIndex(int i)
    {
        switch (i) {
@@ -138,8 +137,8 @@ class ZoomAction
 	 * Zoom action changes the magnification of the lens based on the parameter 
 	 * zoomIndex. 
 	 * 
-	 * @param lens parent component.
-	 * @param zoomIndex Action.
+	 * @param lens      The parent component.
+	 * @param zoomIndex The index of the action.
 	 */
 	ZoomAction(LensComponent lens, int zoomIndex)
 	{
@@ -155,5 +154,4 @@ class ZoomAction
 	 */
 	public void actionPerformed(ActionEvent e) { lens.setZoomFactor(index+1); }
 
-    
 }

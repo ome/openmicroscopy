@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.util.ui.lens;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -64,35 +63,10 @@ class ZoomPanel
 	private BufferedImage 	zoomImage;
 	
 	/** Constructor for the zoom Panel. */
-	ZoomPanel() {	}
+	ZoomPanel() {}
 	
 	/**
-	 * Overridden, Draws the zoomed image and the current position of the lens
-	 * on the canvas.
-	 * @see java.awt.Container#paint(java.awt.Graphics)
-	 */
-	public void paint(Graphics g)
-	{
-		int w = this.getWidth();
-		int h = this.getHeight();
-
-		if( zoomImage != null )
-		{
-			g.setColor(CLEAR_COLOUR);
-			g.fillRect(0,0,this.getWidth(), this.getHeight());
-			
-			if(zoomImage != null)
-			{
-				int x = (w/2)-zoomImage.getWidth()/2;
-				int y = (h/2)-zoomImage.getHeight()/2;
-				g.drawImage(zoomImage, x, y, zoomImage.getWidth(), 
-												zoomImage.getHeight(), null);
-			}
-		}
-	}
-
-	/**
-	 * Set the image shown on the zoomWindow.
+	 * Sets the image shown on the zoomWindow.
 	 * 
 	 * @param img See above.
 	 */
@@ -103,6 +77,31 @@ class ZoomPanel
 		repaint();
 	}
 	
+    /**
+     * Overridden to draw the zoomed image and the current position of the lens
+     * on the canvas.
+     * @see java.awt.Component#paint(java.awt.Graphics)
+     */
+    public void paint(Graphics g)
+    {
+        int w = this.getWidth();
+        int h = this.getHeight();
+
+        if (zoomImage != null)
+        {
+            g.setColor(CLEAR_COLOUR);
+            g.fillRect(0,0,this.getWidth(), this.getHeight());
+            
+            if (zoomImage != null)
+            {
+                int x = (w/2)-zoomImage.getWidth()/2;
+                int y = (h/2)-zoomImage.getHeight()/2;
+                g.drawImage(zoomImage, x, y, zoomImage.getWidth(), 
+                                                zoomImage.getHeight(), null);
+            }
+        }
+    }
+
 }
 
 

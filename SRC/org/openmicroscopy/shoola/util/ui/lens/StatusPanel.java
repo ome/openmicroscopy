@@ -30,17 +30,17 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.Dimension;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * StatusPanel shows the current X,Y coordinates of the lens, it's width and
@@ -96,7 +96,6 @@ class StatusPanel
 	/**
 	 * Constructor of the status panel which will show the x, y position of
 	 * the lens, it's width and height and the zoomFactor of the lens. 
-	 *
 	 */
 	StatusPanel()
 	{

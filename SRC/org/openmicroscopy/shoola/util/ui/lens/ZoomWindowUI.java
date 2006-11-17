@@ -36,7 +36,6 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -67,18 +66,18 @@ class ZoomWindowUI
 {
 
 	/** Panel holding the zoomed Image */
-	private ZoomPanel		zoomPanel;
+	private ZoomPanel          zoomPanel;
 	
 	/** ScrollPane which will contain the zoomPanel which in turn holds the 
 	 * zoomed image.
 	 */
-	private JScrollPane		scrollPanel;
+	private JScrollPane        scrollPanel;
 	
 	/** The statusPanel shows the position, size and zoomFactor of the lens. */
-	private StatusPanel		statusPanel;
+	private StatusPanel        statusPanel;
 	
 	/** Parent component of the lens and zoomWindowUI. */
-	private LensComponent		lensComponent;
+	private LensComponent      lensComponent;
 	
 	/** Lens menu bar. */
 	private JMenuBar			menu;
@@ -86,17 +85,17 @@ class ZoomWindowUI
 	/** Lens options popup menu. */
 	private LensMenu			lensMenu;
 	
-	/**
-	 * Close the window and post message to  
-	 *
-	 */
+	/** Close the window and post message to. */
 	private void close()
 	{
 		lensComponent.zoomWindowClosed();
 	}
 	
-	/** Constructor of the ZoomWindowUI 
-	 * @param lensComponent the parent component of the control.
+	/** 
+     * Constructor of the ZoomWindowUI 
+     * 
+     * @param parent        The parent of the dialog.
+	 * @param lensComponent The parent component of the control.
 	 */
 	ZoomWindowUI(JFrame parent, LensComponent lensComponent)
 	{
@@ -126,13 +125,12 @@ class ZoomWindowUI
 		this.setJMenuBar(menu);
 	}
 	
-	
 	/** 
 	 * Sets the size of the zoomedImage panel, called after the zoomfactor
 	 * or lens has chaned. 
 	 * 
-	 * @param w new width
-	 * @param h new height
+	 * @param w new width.
+	 * @param h new height.
 	 */
 	void setZoomedImageSize(int w, int h)
 	{
@@ -144,17 +142,15 @@ class ZoomWindowUI
         int viewportW = currentView.getWidth();
 	    int viewportH = currentView.getHeight();
 	    int x = w/2-viewportW/2;
-	    if( x<0 )
-	       	x = 0;
+	    if (x<0) x = 0;
 	    int y = h/2-viewportH/2;
-	    if( y<0 )
-	       	y = 0;
+	    if (y<0) y = 0;
 	        
 	    currentView.setViewPosition(new Point(x, y));
 	}
 	
 	/**
-	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * Displays in pixels if <code>true</code> or in microns otherwise.
 	 * 
 	 * @param b see above.
 	 */
@@ -165,7 +161,8 @@ class ZoomWindowUI
 	}
 
 	/**
-	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * Sets the mapping from pixel size to microns along the x and y axis.
+     *  
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
@@ -175,17 +172,16 @@ class ZoomWindowUI
 		statusPanel.repaint();
 	}
 	
-	/** Set the XY values of the lens position text.
+	/** 
+     * Sets the XY values of the lens position text.
 	 * 
 	 * @param x See above.
 	 * @param y See above.
 	 */
-	void setLensXY(int x,int y)
-	{
-		statusPanel.setLensXY(x, y);
-	}
+	void setLensXY(int x,int y) { statusPanel.setLensXY(x, y); }
 	
-	/** Set the W, H values of the lens width, Height text.
+	/** 
+     * Sets the W, H values of the lens width, Height text.
 	 * 
 	 * @param w See above.
 	 * @param h See above.
@@ -195,7 +191,8 @@ class ZoomWindowUI
 		statusPanel.setLensWidthHeight(w, h);
 	}
 		
-	/** Set the zoomFactor of the lens.
+	/** 
+     * Sets the zoomFactor of the lens.
 	 * 
 	 * @param zoomFactor See above.
 	 */
@@ -205,7 +202,7 @@ class ZoomWindowUI
 	}
 	
 	/**
-	 * Set the image shown on the zoomWindow.
+	 * Sets the image shown on the zoomWindow.
 	 * 
 	 * @param zoomImage See above.
 	 */

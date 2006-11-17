@@ -34,8 +34,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-
 import javax.swing.event.MouseInputListener;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -76,68 +76,76 @@ class LensMouseListener
 	}
 
 	/** 
-	 * Overridden calls the views {@link LensUI#mouseDown} event
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	 * Calls the views {@link LensUI#mouseDown(int, int)} event
+	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
 	public void mousePressed(MouseEvent incomingEvent) 
 	{
-		if( incomingEvent.getButton() == MouseEvent.BUTTON3 || 
+		if (incomingEvent.getButton() == MouseEvent.BUTTON3 || 
 				incomingEvent.isControlDown())
 			changeview.showMenu(incomingEvent.getX(), incomingEvent.getY());
 		else
 			changeview.mouseDown(incomingEvent.getX(), incomingEvent.getY());
 	}
 
-	/** (non-Javadoc)
-	 * @see
-	 * java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	/** 
+     * Calls the views {@link LensUI#mouseUp(int, int)} event.
+	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent incomingEvent) 
 	{
 		changeview.mouseUp(incomingEvent.getX(), incomingEvent.getY());
 	}
 
-	/** (non-Javadoc)
-	 * Overridden calls the views {@link LensUI#mouseDown} event.
+	/** 
+	 * Calls the views {@link LensUI#mouseDrag(int, int, boolean)} 
+     * event.
 	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
-	public void mouseDragged(MouseEvent incomingEvent) {
+	public void mouseDragged(MouseEvent incomingEvent)
+    {
 			changeview.mouseDrag(incomingEvent.getX(), incomingEvent.getY(), 
 					incomingEvent.isShiftDown());
 	}
 
-	/** (non-Javadoc)
-	 * @see 
-	 * java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+	/** 
+     * Calls the views {@link LensUI#mouseMoved(int, int)} event.
+	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent incomingEvent) {
 		changeview.mouseMoved(incomingEvent.getX(), incomingEvent.getY());
 	}
 
-	/** (non-Javadoc)
-	 * @see java.awt.event.MouseWheelListener#mouseWheelMoved
-	 * (java.awt.event.MouseWheelEvent)
+	/** 
+     * Calls the views {@link LensUI#mouseWheelMoved(int)} event.
+	 * @see MouseWheelListener#mouseWheelMoved(MouseWheelEvent)
 	 */
-	public void mouseWheelMoved(MouseWheelEvent e) {
+	public void mouseWheelMoved(MouseWheelEvent e)
+    {
 		changeview.mouseWheelMoved(e.getWheelRotation());
-		
 	}
 	
-	/** (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	/** 
+     * Required by the {@link MouseListener} I/F but no-op implementation 
+     * in our case.
+	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
-	public void mouseClicked(MouseEvent incomingEvent) {	}
+	public void mouseClicked(MouseEvent incomingEvent) {}
 
 
-	/** (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	/** 
+     * Required by the {@link MouseListener} I/F but no-op implementation 
+     * in our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
-	public void mouseExited(MouseEvent arg0) {	}
+	public void mouseExited(MouseEvent incomingEvent) {}
 
-	/** (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	/** 
+     * Required by the {@link MouseListener} I/F but no-op implementation 
+     * in our case.
+	 * @see MouseListener#mouseEntered(MouseEvent)
 	 */
-	public void mouseEntered(MouseEvent incomingEvent) {	}
+	public void mouseEntered(MouseEvent incomingEvent) {}
 	
 }
 

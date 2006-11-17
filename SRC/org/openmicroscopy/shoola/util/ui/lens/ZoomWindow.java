@@ -35,7 +35,9 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 
 //Third-party libraries
+
 //Application-internal dependencies
+
 /** 
  *	ZoomWindow is the component of the zoomWindowUI showing the zoomed verison
  *	of the lens.  
@@ -89,7 +91,7 @@ class ZoomWindow
 	}
 	
 	/**
-	 * Add controller to the zoomWindow.
+	 * Adds controller to the zoomWindow.
 	 * 
 	 * @param lensController
 	 */
@@ -99,7 +101,7 @@ class ZoomWindow
 	}
 
 	/**
-	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * Displays in pixels if <code>true</code> or in microns otherwise.
 	 * 
 	 * @param b see above.
 	 */
@@ -109,35 +111,28 @@ class ZoomWindow
 	}
 
 	/** 
-	 * Add menu to the zoomWindowUI. 
+	 * Adds menu to the zoomWindowUI. 
 	 * 
 	 * @param menu menubar.
 	 */
-	void setMenu(JMenuBar menu)
-	{
-		zoomWindowUI.setJMenuBar(menu);
-	}
+	void setMenu(JMenuBar menu) { zoomWindowUI.setJMenuBar(menu); }
 	
 	/**
-	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * Sets the mapping from pixel size to microns along the x and y axis. 
+     * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	public void setXYPixelMicron(float x, float y)
+	void setXYPixelMicron(float x, float y)
 	{
 		zoomWindowUI.setXYPixelMicron(x, y);
 	}
 
-	/**
-	 * Repaint the zoomwindowUI after and update. 
-	 */
-	void repaint()
-	{
-		zoomWindowUI.repaint();
-	}
+	/** Repaints the zoomwindowUI after and update.  */
+	void repaint() { zoomWindowUI.repaint(); }
 	
 	/**
-	 * Set the visiblity of the zoomWindowUI.
+	 * Sets the visiblity of the zoomWindowUI.
 	 * 
 	 * @param makeVisible see above.
 	 */
@@ -145,8 +140,9 @@ class ZoomWindow
 	{
 		zoomWindowUI.setVisible(makeVisible);
 	}
+    
 	/**
-	 * Set the zoomImage to be the bufferedImage.
+	 * Sets the zoomImage to be the bufferedImage.
 	 * 
 	 * @param zoomImage See above.
 	 */
@@ -156,7 +152,7 @@ class ZoomWindow
 	}
 	
 	/**
-	 * Set the X,Y co-ordinates of the lens on the ZoomWindowUI.
+	 * Sets the X,Y co-ordinates of the lens on the ZoomWindowUI.
 	 * 
 	 * @param x See above.
 	 * @param y See above.
@@ -167,7 +163,7 @@ class ZoomWindow
 	}
 	
 	/**
-	 * Set the w,h size of the lens on the ZoomWindowUI.
+	 * Sets the w,h size of the lens on the ZoomWindowUI.
 	 * 
 	 * @param w See above.
 	 * @param h See above.
@@ -177,7 +173,8 @@ class ZoomWindow
 		zoomWindowUI.setLensWidthHeight(w, h);
 	}
 
-	/** Set the zoomFactor of the lens.
+	/** 
+     * Sets the zoomFactor of the lens.
 	 * 
 	 * @param zoomFactor See above.
 	 */
@@ -186,9 +183,8 @@ class ZoomWindow
 		zoomWindowUI.setLensZoomFactor(zoomFactor);
 	}
 
-	
 	/**
-	 * Set the size of the zoomWindowUI to scale with the zoomfactor. 
+	 * Sets the size of the zoomWindowUI to scale with the zoomfactor. 
 	 * 
 	 * @param w width of zoomed image.
 	 * @param h height of the zoomed image. 
@@ -199,35 +195,27 @@ class ZoomWindow
 	} 
 	
 	/**
-	 * Return the UI of the zoomWindow. 
+	 * Returns the UI of the zoomWindow. 
 	 * 
 	 * @return zoomWindowUI.
 	 */
-	ZoomWindowUI getUI()
-	{
-		return zoomWindowUI;
-	}
+	ZoomWindowUI getUI() { return zoomWindowUI; }
 	
 	/**
-	 * Is the zoomWindowUI visible.
+	 * Returns <code>true</code> if the zoomWindowUI is visible,
+     * <code>false</code> otherwise.
 	 *  
-	 * @return see above.
+	 * @return See above.
 	 */
-	boolean isVisible()
-	{
-		return zoomWindowUI.isVisible();
+	boolean isVisible() { return zoomWindowUI.isVisible();
 	}
-	
 
 	/**
-	 * Set the location of the zoomWindowUI. 
+	 * Sets the location of the zoomWindowUI. 
 	 * 
 	 * @param x x co-ordinate of the window location.
 	 * @param y y co-ordinate of the window location.
 	 */
-	public void setLocation(int x, int y)
-	{
-		zoomWindowUI.setLocation(x, y);
-	}
+	void setLocation(int x, int y) { zoomWindowUI.setLocation(x, y); }
 	
 }
