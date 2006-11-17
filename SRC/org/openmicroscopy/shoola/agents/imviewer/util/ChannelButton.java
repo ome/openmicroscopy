@@ -32,12 +32,12 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
-import java.util.TimerTask;
-import java.util.Timer;
-
+import javax.swing.Timer;
 
 //Third-party libraries
 
@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.ColouredButton;
  * @since OME2.2
  */
 public class ChannelButton
-    extends ColouredButton
+    extends ColouredButton implements ActionListener
 {
     
     /** Bound property indicating to bring up the info dialog. */
@@ -83,15 +83,11 @@ public class ChannelButton
     /** The number of milliseconds we'll wait till we know we've got a single
      * click event. 
      */
-    private static final long DOUBLE_CLICK_THRESHOLD = 200; // ms
+    private static final int DOUBLE_CLICK_THRESHOLD = 200; // ms
    
     /** Timer scheduling the double click task. */
     private Timer timer;
    
-    /** Task which will be executed when the double click threshold has expired,
-     * this will then run the single click method.
-     */
-    private TimerTask task;
     
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
@@ -111,17 +107,15 @@ public class ChannelButton
      */
     private void onClick(MouseEvent e)
     {
-    	
     	if( e.getButton() == 1 && !e.isMetaDown() )
     	{
     		if ( e.getClickCount() == 1 )
     		{
-    			timer.schedule(task, DOUBLE_CLICK_THRESHOLD);
+    			timer.start();
     		}
     		else if (e.getClickCount() == 2)
     		{
-    			task.cancel();
-    			task = new ClickTask();
+    			timer.stop();
     			doubleClick();
     		}
     	}
@@ -129,7 +123,6 @@ public class ChannelButton
         {
         	onReleased(e);
         }
-        
     }
    
     /**
@@ -180,8 +173,8 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
-        task = new ClickTask();
-        timer = new java.util.Timer();
+        timer = new Timer(DOUBLE_CLICK_THRESHOLD, this);
+        timer.setCoalesce(true);
     }
     
     /**
@@ -217,15 +210,11 @@ public class ChannelButton
      */
     public int getChannelIndex() { return index; }
     
-    /**
-     * ClickTask will determine if we have a double or single click event. 
-     */
-    class ClickTask extends java.util.TimerTask
-    {
-        public void run()
-        {
-            singleClick();
-            task = new ClickTask();
-        }
-    }
+	/* (non-Javadoc)
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) {
+		singleClick();
+		timer.stop();
+	}
 }
