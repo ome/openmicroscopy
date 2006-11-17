@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 //Application-internal dependencies
+import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -254,6 +255,16 @@ class GreyScaleStrategy
 				}
 				break;
 			}
+		}
+    	// Make sure that the pixel buffer is cleansed properly.
+    	try
+    	{
+			pixels.close();
+		}
+    	catch (IOException e)
+    	{
+			e.printStackTrace();
+			throw new ResourceError(e.getMessage());
 		}
 	}
     

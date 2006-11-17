@@ -329,16 +329,6 @@ public class RenderingBean extends AbstractLevel2Service
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
-            try
-            {
-            	if (buffer != null)
-            		buffer.close();
-    		}
-            catch (IOException e)
-            {
-    			e.printStackTrace();
-    			throw new ResourceError(e.getMessage());
-    		}
         }
         finally
         {

@@ -45,6 +45,7 @@ import java.util.concurrent.Future;
 //j.mimport ome.util.concur.tasks.CmdProcessor;
 //j.mimport ome.util.concur.tasks.Future;
 
+import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
@@ -177,6 +178,17 @@ class HSBStrategy
         		performanceStats.endIO(w);
     		}
     	}
+    	
+    	// Make sure that the pixel buffer is cleansed properly.
+    	try
+    	{
+			pixels.close();
+		}
+    	catch (IOException e)
+    	{
+			e.printStackTrace();
+			throw new ResourceError(e.getMessage());
+		}
     	return wData;
     }
     
@@ -346,6 +358,11 @@ class HSBStrategy
                 throw new RuntimeException(e);
             }
         }
+        
+        //Shutdown the task processor
+        processor.shutdown();
+        
+        //End the performance metrics for this rendering event.
         performanceStats.endRendering();
     }
     
