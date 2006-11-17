@@ -297,11 +297,10 @@ class ControlPane
     /**
      * Helper method to create a panel hosting the passed slider.
      * 
-     * @param txt       The label related to the passed slider.
      * @param slider    The slider to host.
      * @return See above.
      */
-    private JPanel createSliderPane(String txt, JSlider slider)
+    private JPanel createSliderPane(JSlider slider)
     {
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
@@ -318,8 +317,8 @@ class ControlPane
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(createSliderPane("Z ", zSlider));
-        p.add(createSliderPane("T ", tSlider));
+        p.add(createSliderPane(zSlider));
+        p.add(createSliderPane(tSlider));
         return p;
     }
 
