@@ -34,8 +34,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
-
 
 //Third-party libraries
 
@@ -91,7 +89,7 @@ public class ResetSettingsAction
     {
     	MessageBox msg = new MessageBox(model.getUI(), "Undo Render Settings", 
     			"Undo all render settings?");
-    	if(msg.showMsgBox() == MessageBox.YES_OPTION)
+    	if (msg.showMsgBox() == MessageBox.YES_OPTION)
     		model.resetDefaultRndSettings();
     }
     
