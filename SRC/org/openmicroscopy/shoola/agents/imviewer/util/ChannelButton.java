@@ -35,6 +35,9 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import java.util.TimerTask;
+import java.util.Timer;
+
 
 //Third-party libraries
 
@@ -77,6 +80,19 @@ public class ChannelButton
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
     
+    /** The number of milliseconds we'll wait till we know we've got a single
+     * click event. 
+     */
+    private static final long DOUBLE_CLICK_THRESHOLD = 200; // ms
+   
+    /** Timer scheduling the double click task. */
+    private Timer timer;
+   
+    /** Task which will be executed when the double click threshold has expired,
+     * this will then run the single click method.
+     */
+    private TimerTask task;
+    
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
@@ -95,10 +111,39 @@ public class ChannelButton
      */
     private void onClick(MouseEvent e)
     {
-        onReleased(e);
-        if (!e.isMetaDown()) setChannelSelected();
+    	
+    	if( e.getButton() == 1 && !e.isMetaDown() )
+    	{
+    		if ( e.getClickCount() == 1 )
+    		{
+    			timer.schedule(task, DOUBLE_CLICK_THRESHOLD);
+    		}
+    		else if (e.getClickCount() == 2)
+    		{
+    			task.cancel();
+    			task = new ClickTask();
+    			doubleClick();
+    		}
+    	}
+        else if ((e.getButton() == 2 || e.isMetaDown()))
+        {
+        	onReleased(e);
+        }
+        
     }
+   
+    /**
+     * Executed by the timer when the double click threshold has expried and
+     * we know we have a single click.
+     */
+    private void singleClick()   {	setChannelSelected();	}
     
+    /**
+     * Executed in the onClick method when the second click event has been 
+     * received before the double click threshold time has expired. 
+     */
+    private void doubleClick()   {  showColorPicker();      }
+       
     /** 
      * Handles the mouse released event because Popup menus are triggered 
      * differently on different systems.
@@ -107,7 +152,7 @@ public class ChannelButton
      */
     private void onReleased(MouseEvent e)
     {
-        if (e.isPopupTrigger()) {
+    	if (e.isPopupTrigger()) {
             if (popupMenu == null) 
                 popupMenu = new ChannelButtonPopupMenu(this);
             popupMenu.show(this, e.getX(), e.getY());
@@ -135,6 +180,8 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
+        task = new ClickTask();
+        timer = new java.util.Timer();
     }
     
     /**
@@ -169,5 +216,16 @@ public class ChannelButton
      * @return See above.
      */
     public int getChannelIndex() { return index; }
-
+    
+    /**
+     * ClickTask will determine if we have a double or single click event. 
+     */
+    class ClickTask extends java.util.TimerTask
+    {
+        public void run()
+        {
+            singleClick();
+            task = new ClickTask();
+        }
+    }
 }
