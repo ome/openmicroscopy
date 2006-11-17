@@ -38,7 +38,6 @@ import java.beans.PropertyChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
 
 /** 
  * The Browser's Controller.
@@ -56,7 +55,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
  * @since OME2.2
  */
 class BrowserControl
-    implements PropertyChangeListener
 {
 
     /** Reference to the Model. */
@@ -64,32 +62,6 @@ class BrowserControl
     
     /** The View controlled by this Controller.*/
     private BrowserUI       view;
-    
-    /**
-     * Creates and adds the magnifier to the UI.
-     * 
-     * @param b Pass <code>true</code> to add the component, <code>false</code>
-     *          to remove.
-     */
-    private void createMagnifier(boolean b)
-    {
-        Magnifier magnifier;
-        if (b) {   //create if not created 
-            magnifier = model.getMagnifier();
-            if (magnifier == null) {
-                magnifier = new Magnifier();
-                model.setMagnifier(magnifier);
-                magnifier.addPropertyChangeListener(
-                        Magnifier.MAGNIFIER_PROPERTY, this);
-            }
-        } else { // close magnifier
-            magnifier = model.getMagnifier();
-            if (magnifier != null) {
-                view.removeComponentFromLayer(magnifier);
-                model.setMagnifier(null);
-            }
-        }
-    }
     
     /**
      * Creates a new instance.
@@ -112,20 +84,6 @@ class BrowserControl
         if (view == null) throw new NullPointerException("no view");
         this.model = model;
         this.view = view;
-    }
-
-    /**
-     * 
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent pce)
-    {
-        String propName = pce.getPropertyName();
-        if (Magnifier.MAGNIFIER_PROPERTY.equals(propName)) {
-             createMagnifier(((Boolean) pce.getNewValue()).booleanValue());
-             
-        }
-        
     }
     
 }

@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.Magnifier;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -63,9 +62,6 @@ class BrowserModel
 
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
-    
-    /** Reference to the magnifier displayed on top of the image. */
-    private Magnifier       magnifier;
     
     /** The original image. */
     private BufferedImage   renderedImage;
@@ -258,17 +254,11 @@ class BrowserModel
         //double v = getPixelsSizeX();///factor;
     	return UIUtilities.twoDecimalPlaces(unitInMicrons);
     }
-    
-    Magnifier getMagnifier() { return magnifier; }
-    
+
     BufferedImage getSubLensImage(Point p)
     {
         return lensImage;
     }
 
-    void setMagnifier(Magnifier magnifier)
-    {
-        this.magnifier = magnifier;
-    }
     
 }
