@@ -77,7 +77,14 @@ public class DetailedNotificationDialog
 	
 	/** Used as text of the {@link #detailsButton}. */
 	private static final String		HIDE_DETAILS = "<< Details";
-	
+
+    /** Used as text of the {@link #sendButton}. */
+    private static final String     SEND = "Send";
+    
+    /** Used as tooltip of the {@link #sendButton}. */
+    private static final String     SEND_DESCRIPTION = "Send the error to "+
+                                        "the development team.";
+                                    
 	/** 
 	 * The preferred size of the scroll pane containing the explanation of
 	 * the notification message.
@@ -90,6 +97,9 @@ public class DetailedNotificationDialog
 	 */
 	private static final Dimension	SMALL_V_SPACER_SIZE = new Dimension(1, 6);
 	
+    /** Button to send a notification to the OME team. */
+    private JButton         sendButton;
+    
 	/** Shows/hides the explanation message. */
 	private JButton			detailsButton;
 	
@@ -103,6 +113,8 @@ public class DetailedNotificationDialog
 	private void createComponents()
 	{
 		detailsButton = new JButton(SHOW_DETAILS);
+        sendButton = new JButton(SEND);
+        sendButton.setToolTipText(SEND_DESCRIPTION);
 		explanationPanel = new JPanel();
 	}
 	
@@ -139,13 +151,18 @@ public class DetailedNotificationDialog
 	
 	/**
 	 * Binds the {@link #handleClick() handleClick} action to the event
-	 * generated when the {@link #detailsButton} is pressed.
+	 * generated when the {@link #detailsButton} is pressed and binds 
+     * the {@link #handleClick() handleClick} action to the event
+     * generated when the {@link #sendButton} is pressed
 	 */
 	private void attachListeners()
 	{
 		detailsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { handleClick(); }
 		});
+        sendButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { handleSend(); }
+        });
 	}
 	
 	/**
@@ -167,6 +184,15 @@ public class DetailedNotificationDialog
 		isExplanationShowing = !isExplanationShowing;
 		pack();
 	}
+    
+    /**
+     * Handles mouse clicks on the {@link #sendButton}.
+     * A message is then sent to the development team.
+     */
+    private void handleSend()
+    {
+        
+    }
 	
 	/**
 	 * Hooks up the {@link #detailsButton} and the {@link #explanationPanel} to
@@ -177,6 +203,7 @@ public class DetailedNotificationDialog
 	private void buildGUI(String explanation)
 	{
 		buttonPanel.add(detailsButton);
+        buttonPanel.add(sendButton);
 		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		buildExplanationPanel(explanation);
 	}
@@ -200,11 +227,11 @@ public class DetailedNotificationDialog
 	 * You have to call {@link #setVisible(boolean)} to actually display it
      * on screen.
 	 * 
-	 * @param owner	The parent window.
-	 * @param title	The title to display on the title bar.
-	 * @param message	The notification message.
-	 * @param messageIcon	An optional icon to display by the message.
-	 * @param explanation	A detailed explanation of the notification message.
+	 * @param owner        The parent window.
+	 * @param title        The title to display on the title bar.
+	 * @param message      The notification message.
+	 * @param messageIcon  An optional icon to display by the message.
+	 * @param explanation  A detailed explanation of the notification message.
 	 */
 	public DetailedNotificationDialog(JFrame owner, String title,
 										String message, Icon messageIcon,

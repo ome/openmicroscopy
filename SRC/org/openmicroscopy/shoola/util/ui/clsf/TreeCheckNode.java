@@ -33,9 +33,11 @@ package org.openmicroscopy.shoola.util.ui.clsf;
 //Java imports
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
+
 
 //Third-party libraries
 
@@ -192,6 +194,18 @@ public class TreeCheckNode
             child.parentDisplay.childrenDisplay.remove(child);
             child.parentDisplay = null;
         }
+    }
+    
+    /** Removes all <code>children</code> nodes from the children set. */
+    public void removeAllChildrenDisplay()
+    {
+        Iterator i = childrenDisplay.iterator();
+        Set toRemove = new HashSet(childrenDisplay.size());
+        while (i.hasNext())
+            toRemove.add(i.next());
+        i = toRemove.iterator();
+        while (i.hasNext())
+            removeChildDisplay((TreeCheckNode) i.next());
     }
     
     /**
