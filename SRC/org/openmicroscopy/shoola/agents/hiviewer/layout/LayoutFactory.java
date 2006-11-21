@@ -29,6 +29,8 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
 
 //Java imports
 
@@ -56,29 +58,27 @@ public class LayoutFactory
     /** Identifies the <i>Squary</i> layout.*/
     public static final int     SQUARY_LAYOUT = 1;
     
-    /** Identifies the <i>Tree</i> layout.*/
-    public static final int     TREE_LAYOUT = 2;
-    
     /** Identifies the <i>Flat</i> layout.*/
-    public static final int     FLAT_LAYOUT = 3;
+    public static final int     FLAT_LAYOUT = 2;
     
     /**
      * Creates the specified layout.
      * 
-     * @param type One of the constants defined by this class.
-     * @return A layout object for the given layout <code>type</code>.
+     * @param type      One of the constants defined by this class.
+     * @param sorter    Class used to sort the nodes by date or alphabetically. 
+     * @return          A layout object for the given layout <code>type</code>.
      * @throws IllegalArgumentException If <code>type</code> is not one of
      *          the constants defined by this class.
      */
-    public static Layout createLayout(int type)
+    public static Layout createLayout(int type, ViewerSorter sorter)
     {
+        if (sorter == null)
+            throw new IllegalArgumentException("Invalid argument.");
         switch (type) {
             case SQUARY_LAYOUT:
-                return new SquaryLayout();
-            case TREE_LAYOUT:
-                return new TreeLayout();
+                return new SquaryLayout(sorter);
             case FLAT_LAYOUT:
-                return new FlatLayout();
+                return new FlatLayout(sorter);
             default:
                 throw new IllegalArgumentException("Unsupported layout type: "+
                                                     +type+".");
@@ -88,11 +88,12 @@ public class LayoutFactory
     /**
      * Returns the default layout.
      * 
+     * @param sorter Class used to sort the nodes by date or alphabetically. 
      * @return See above.
      */
-    public static Layout getDefaultLayout()
+    public static Layout getDefaultLayout(ViewerSorter sorter)
     { 
-        return createLayout(getDefaultLayoutIndex()); 
+        return createLayout(getDefaultLayoutIndex(), sorter); 
     }
     
     /**
@@ -113,7 +114,6 @@ public class LayoutFactory
     {
         switch (type) {
             case SQUARY_LAYOUT: return SquaryLayout.DESCRIPTION;
-            case TREE_LAYOUT: return TreeLayout.DESCRIPTION;
             case FLAT_LAYOUT: return FlatLayout.DESCRIPTION;
             default:
                 return "";

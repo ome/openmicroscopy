@@ -40,11 +40,12 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
 import pojos.DataObject;
 
 /** 
- * 
+ * Recursively lays out all nodes regardless of the container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -85,11 +86,13 @@ class FlatLayout
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
+     * 
+     * @param sorter A {@link ViewerSorter sorter} to order nodes.
      */
-    FlatLayout()
+    FlatLayout(ViewerSorter sorter)
     {
         images =  new ArrayList();
-        sorter = new ViewerSorter();
+        this.sorter = sorter;
     }
     
     /**

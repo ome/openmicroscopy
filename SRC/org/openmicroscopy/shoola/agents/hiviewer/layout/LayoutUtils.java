@@ -44,7 +44,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
  * A collection of <code>static</code> methods to support common computations 

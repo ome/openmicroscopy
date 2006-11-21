@@ -41,7 +41,7 @@ import java.awt.Toolkit;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
  * Recursively lays out all nodes in a container display in a square grid.
@@ -137,11 +137,13 @@ class SquaryLayout
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
+     * 
+     * @param sorter A {@link ViewerSorter sorter} to order nodes.
      */
-    SquaryLayout()
+    SquaryLayout(ViewerSorter sorter)
     {
         setBrowserSize();
-        sorter = new ViewerSorter();
+        this.sorter = sorter;
     }
 
     /**
