@@ -96,7 +96,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  * @since OME2.2
  */
 class ImViewerControl
-    implements ChangeListener, PropertyChangeListener, ComponentListener
+    implements ChangeListener, ComponentListener, PropertyChangeListener
 {
 
     /** Identifies the <code>Close</code> action in the menu. */
@@ -628,34 +628,36 @@ class ImViewerControl
      */
     void setHistoryState(int s) { historyState = s; }
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
-	 */
-	public void componentHidden(ComponentEvent e) {	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
-	 */
-	public void componentMoved(ComponentEvent e) {	}
-
 	/**
-	 * Capture the resize event of the {@link ImViewerUI}, if the user has 
+	 * Captures the resize event of the {@link ImViewerUI}, if the user has 
 	 * selected the zoom to fit to the window then resize the image to fit to
 	 * the new size of the image. 
-	 * 
 	 * @see ComponentListener#componentResized(ComponentEvent)
 	 */
 	public void componentResized(ComponentEvent e) 
 	{ 
-		if( model.zoomFitToWindow() )
-		{
-			model.setZoomFactor(-1);
-		}
+		if (model.zoomFitToWindow()) { model.setZoomFactor(-1); }
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
+	/**
+     * Required by the {@link ComponentListener} I/F but no-op implemenation 
+     * in our case.
+	 * @see ComponentListener#componentShown(ComponentEvent)
 	 */
-	public void componentShown(ComponentEvent e) {	}
+	public void componentShown(ComponentEvent e) {}
+    
+    /**
+     * Required by the {@link ComponentListener} I/F but no-op implemenation 
+     * in our case.
+     * @see ComponentListener#componentHidden(ComponentEvent)
+     */
+    public void componentHidden(ComponentEvent e) {}
+
+    /**
+     * Required by the {@link ComponentListener} I/F but no-op implemenation 
+     * in our case.
+     * @see ComponentListener#componentMoved(ComponentEvent)
+     */
+    public void componentMoved(ComponentEvent e) {}
     
 }
