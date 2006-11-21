@@ -100,26 +100,20 @@ class BrowserCanvas
             String value = model.getUnitBarValue(); 
             if (value != null) {
                 int size = (int) (model.getUnitBarSize());
-                int width, height;
-                width = img.getWidth();
-                height = img.getHeight();
                 
-                Rectangle imgRect = new Rectangle(0, 0, width, height);
+                Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
+                		img.getHeight());
                 Rectangle viewRect = view.getViewport().getBounds();
                 JViewport port = view.getViewport();
                 int x = (int) port.getViewPosition().getX();
                 int y = (int) port.getViewPosition().getY();
+                int width = Math.min(x+viewRect.width, img.getWidth());
+                int height = Math.min(y+viewRect.height, img.getHeight());
                 if (imgRect.contains(viewRect)) {
                     width = x+port.getWidth();
                     height = y+port.getHeight();
-                } else {
-                	width = img.getWidth();
-                	height = img.getHeight();
-                	if (x+viewRect.width < imgRect.width) 
-                		width = x+viewRect.width;
-                	if (y+viewRect.height < imgRect.height)
-                		height = y+viewRect.height;         	
                 }
+                
                 ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
                 										height-10, size, value);
             }
