@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ZoomCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -81,13 +80,8 @@ public class ZoomOutAction
     {
         if (selectedDisplay == null) setEnabled(false);
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
-        else {
-            if ((model.getBrowser().getSelectedLayout() == 
-                LayoutFactory.TREE_LAYOUT)) setEnabled(false);
-            else 
-                setEnabled(!(selectedDisplay.getHierarchyObject()
-                    instanceof ImageData));
-        }
+        else setEnabled(!(selectedDisplay.getHierarchyObject()
+                instanceof ImageData));
     }
 
     /**
