@@ -35,7 +35,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.treeview;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
@@ -99,7 +98,7 @@ public class TreeView
     
     /** The selected node in the tree. */
     private TreeViewNode			selectedNode;
-    
+
     /** 
      * Controls if the specified algorithm is supported.
      * 
@@ -129,16 +128,12 @@ public class TreeView
     /**
      * Creates a new instance. 
      * 
-     * @param rootNode  The root node of the tree. Mustn't be <code>null</code>
-     *                  and must be an instance of {@link ImageDisplay}.
+     * @param rootNode  The root node of the tree. Mustn't be <code>null</code>.
      */
-    public TreeView(JComponent rootNode)
+    public TreeView(ImageDisplay rootNode)
     {
         if (rootNode == null) throw new IllegalArgumentException("No root");
-        if (!(rootNode instanceof ImageDisplay))
-            throw new IllegalArgumentException("Root must be an instance of " +
-            		"ImageDisplay");
-        uiDelegate = new TreeViewUI(this, (ImageDisplay) rootNode);
+        uiDelegate = new TreeViewUI(this, rootNode);
         buildGUI();
     }
         
@@ -248,6 +243,18 @@ public class TreeView
             	(DefaultTreeModel) uiDelegate.getTree().getModel();
         TreeViewImageSet root = (TreeViewImageSet) model.getRoot();
         root.accept(visitor, algo);
+    }
+    
+    
+    /**
+     * Sorts the nodes by name or date depending on the specified index.
+     * 
+     * @param index     The index indicating to sort the nodes by name or date.
+     * @param rootNode  The root node of the tree. Mustn't be <code>null</code>.
+     */
+    public void sortNodes(int index, ImageDisplay rootNode)
+    {
+        uiDelegate.sortNodes(index, rootNode);
     }
     
 }

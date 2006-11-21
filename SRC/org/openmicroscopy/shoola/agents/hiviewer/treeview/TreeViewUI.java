@@ -59,10 +59,11 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 
 /** 
@@ -160,6 +161,8 @@ class TreeViewUI
         TreeViewNode dtn = null;
         ImageDisplay imageDisplay;
         Set children;
+        parent.removeAllChildrenNode();
+        parent.removeAllChildren();
         while (i.hasNext()) {
             imageDisplay = (ImageDisplay) i.next();
             if (imageDisplay instanceof ImageNode) {
@@ -204,6 +207,7 @@ class TreeViewUI
             {
                 DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
                 tree.getLastSelectedPathComponent();
+                if (n == null) return;
                 model.setSelectedDisplay((ImageDisplay) n.getUserObject());
     
                 tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
@@ -290,6 +294,22 @@ class TreeViewUI
             renderer.getTreeCellRendererComponent(tree, newNode, 
                     	tree.isPathSelected(path), false, true, 0, false);
         }   
+    }
+
+    /**
+     * Sorts the nodes by date or name depending on the index.
+     * 
+     * @param index
+     * @param rootNode
+     */
+    void sortNodes(int index, ImageDisplay rootNode)
+    {
+        sorter.setByDate(SortByAction.BY_DATE == index);
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        TreeViewImageSet root = (TreeViewImageSet) dtm.getRoot();
+        root.removeAllChildren();
+        buildTreeNode(root, sorter.sort(rootNode.getChildrenDisplay()));
+        dtm.reload();
     }
     
 }
