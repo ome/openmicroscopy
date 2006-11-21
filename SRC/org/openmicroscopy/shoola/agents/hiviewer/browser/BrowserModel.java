@@ -344,7 +344,6 @@ class BrowserModel
         int oldIndex = selectedLayout;
         switch (index) {
             case LayoutFactory.SQUARY_LAYOUT:
-            case LayoutFactory.TREE_LAYOUT: 
             case LayoutFactory.FLAT_LAYOUT:  
                 selectedLayout = index;
                 break;
