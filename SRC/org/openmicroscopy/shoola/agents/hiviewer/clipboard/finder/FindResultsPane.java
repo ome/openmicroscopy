@@ -52,10 +52,10 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
- * 
+ * Displays the results found.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
