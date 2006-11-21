@@ -447,6 +447,7 @@ class OMEROGateway
             return PojoMapper.asDataObjects(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Exception e) {
+            e.printStackTrace();
             handleException(e, "Cannot find hierarchy for "+rootNodeType+".");
         }
         return new HashSet();

@@ -202,7 +202,6 @@ class OmeroDataServiceImpl
             return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
                             po.map());
         } catch (Exception e) {
-            e.printStackTrace();
            throw new DSAccessException(e.getMessage());
         }
     }
@@ -606,7 +605,9 @@ class OmeroDataServiceImpl
         Iterator child = children.iterator();
         while (child.hasNext()) {
             ioChild = ((DataObject) child.next()).asIObject();
-            objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
+            //First make sure that the child is not linked to the parent.
+            if (gateway.findLink(ioParent, ioChild) == null)
+                objects.add(ModelMapper.linkParentToChild(ioChild, ioParent));
         }
         if (objects.size() != 0) {
             Iterator i = objects.iterator();
