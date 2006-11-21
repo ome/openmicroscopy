@@ -106,7 +106,7 @@ class SplashScreenView
 	
     /** Absolute positioning and size of the password text field. */
     private static final Rectangle  SERVER_BOUNDS = 
-                                            new Rectangle(149, 276, 230, 20);
+                                            new Rectangle(149, 276, 230, 25);
     
 	/** Absolute positioning and size of the login button. */
 	private static final Rectangle	LOGIN_BOUNDS = 
@@ -173,45 +173,31 @@ class SplashScreenView
     /** Box displaying the user preferred server on the current machine. */
     JComboBox           server;
     
-	/** Creates the splash screen UI. */
-	SplashScreenView() 
-	{
-		super("Open Microscopy Environment");
-		initProgressDisplay();
-        initBox();
-		initFields();
-		initButtons();
-		buildGUI();
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
-		setUndecorated(true);
-	}
-	
-	/**
-	 * Initializes the widgets for displaying feedback on the initialization
-	 * state.
-	 */
-	private void initProgressDisplay()
-	{
-		currentTask = new JLabel();
-		currentTask.setFont(FONT);
-		currentTask.setForeground(TASK_FONT_COLOR);
-		progressBar = new JProgressBar();
-		progressBar.setFont(TASK_FONT);
-		progressBar.setStringPainted(true);
-	}
-	
-	/** Creates and initializes the login fields and the version label. */
-	private void initFields()
-	{
-		user = new JTextField();
-		user.setFont(FONT);
-		user.setForeground(FONT_COLOR);
-		user.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		pass = new JPasswordField();
-		pass.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		pass.setFont(FONT);
-		pass.setForeground(FONT_COLOR);
+    /**
+     * Initializes the widgets for displaying feedback on the initialization
+     * state.
+     */
+    private void initProgressDisplay()
+    {
+        currentTask = new JLabel();
+        currentTask.setFont(FONT);
+        currentTask.setForeground(TASK_FONT_COLOR);
+        progressBar = new JProgressBar();
+        progressBar.setFont(TASK_FONT);
+        progressBar.setStringPainted(true);
+    }
+    
+    /** Creates and initializes the login fields and the version label. */
+    private void initFields()
+    {
+        user = new JTextField();
+        user.setFont(FONT);
+        user.setForeground(FONT_COLOR);
+        user.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        pass = new JPasswordField();
+        pass.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        pass.setFont(FONT);
+        pass.setForeground(FONT_COLOR);
         versionLabel = new JLabel();
         versionLabel.setDoubleBuffered(false);
         String version = "$Rev$";
@@ -221,7 +207,7 @@ class SplashScreenView
         versionLabel.setText(VERSION+"(rev "+m.group()+")"+OMERO_VERSION);
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
-	}
+    }
     
     /** 
      * Creates and initializes the box displaying the list of available
@@ -250,57 +236,71 @@ class SplashScreenView
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
     
-	/** Creates and initializes the login button and the cancel button. */
-	private void initButtons()
-	{
-		login = new JButton(IconManager.getLoginButton());
+    /** Creates and initializes the login button and the cancel button. */
+    private void initButtons()
+    {
+        login = new JButton(IconManager.getLoginButton());
         setButtonDefault(login, IconManager.getLoginButtonOver());
         cancel = new JButton(IconManager.getCancelButton());
         setButtonDefault(cancel, IconManager.getCancelButtonOver());
-	}
+    }
     
-	/** 
-	 * Lays out the widgets and positions the window at the centre of
-	 * the screen.
-	*/
-	private void buildGUI()
-	{
-		setIconImage(IconManager.getOMEImageIcon());  //Frame icon.
-		
-		//Position window at center of screen and size it to splash image.
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds((screenSize.width-WIN_W)/2, (screenSize.height-WIN_H)/2,
-					WIN_W, WIN_H);
-		
-		//Get the splash screen image.
-		JLabel splash = new JLabel(IconManager.getSplashScreen());
-		
-		//Layer components.
-		JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
-		layers.add(splash, new Integer(0));
-		layers.add(currentTask, new Integer(1));
-		layers.add(progressBar, new Integer(1));
-		layers.add(user, new Integer(1));
-		layers.add(pass, new Integer(1));
+    /** 
+     * Lays out the widgets and positions the window at the centre of
+     * the screen.
+    */
+    private void buildGUI()
+    {
+        setIconImage(IconManager.getOMEImageIcon());  //Frame icon.
+        
+        //Position window at center of screen and size it to splash image.
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds((screenSize.width-WIN_W)/2, (screenSize.height-WIN_H)/2,
+                    WIN_W, WIN_H);
+        
+        //Get the splash screen image.
+        JLabel splash = new JLabel(IconManager.getSplashScreen());
+        
+        //Layer components.
+        JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
+        layers.add(splash, new Integer(0));
+        layers.add(currentTask, new Integer(1));
+        layers.add(progressBar, new Integer(1));
+        layers.add(user, new Integer(1));
+        layers.add(pass, new Integer(1));
         layers.add(cancel, new Integer(1));
-		layers.add(login, new Integer(1));
-		layers.add(versionLabel, new Integer(1));
+        layers.add(login, new Integer(1));
+        layers.add(versionLabel, new Integer(1));
         layers.add(server, new Integer(1));
-		//Add components to content pane.
-		getContentPane().setLayout(null);  //Absolute layout.
-		getContentPane().add(layers);
-		
-		//Do layout.
-		layers.setBounds(0, 0, WIN_W, WIN_H);
-		splash.setBounds(0, 0, WIN_W, WIN_H);
-		currentTask.setBounds(TASK_BOUNDS);
-		progressBar.setBounds(PROGRESS_BOUNDS);
-		user.setBounds(USER_BOUNDS);
-		pass.setBounds(PASS_BOUNDS);
+        //Add components to content pane.
+        getContentPane().setLayout(null);  //Absolute layout.
+        getContentPane().add(layers);
+        
+        //Do layout.
+        layers.setBounds(0, 0, WIN_W, WIN_H);
+        splash.setBounds(0, 0, WIN_W, WIN_H);
+        currentTask.setBounds(TASK_BOUNDS);
+        progressBar.setBounds(PROGRESS_BOUNDS);
+        user.setBounds(USER_BOUNDS);
+        pass.setBounds(PASS_BOUNDS);
         server.setBounds(SERVER_BOUNDS);
         cancel.setBounds(CANCEL_BOUNDS);
-		login.setBounds(LOGIN_BOUNDS);
+        login.setBounds(LOGIN_BOUNDS);
         versionLabel.setBounds(VERSION_BOUNDS);
+    }
+    
+	/** Creates the splash screen UI. */
+	SplashScreenView() 
+	{
+		super("Open Microscopy Environment");
+		initProgressDisplay();
+        initBox();
+		initFields();
+		initButtons();
+		buildGUI();
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		setUndecorated(true);
 	}
 
 }
