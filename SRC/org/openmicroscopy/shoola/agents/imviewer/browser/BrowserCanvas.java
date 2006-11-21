@@ -101,17 +101,18 @@ class BrowserCanvas
             if (value != null) {
                 int size = (int) (model.getUnitBarSize());
                 
+                // Position scalebar in the bottom left of the viewport or
+                // the image which ever is viewable. 
                 Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
                 		img.getHeight());
                 Rectangle viewRect = view.getViewport().getBounds();
-                JViewport port = view.getViewport();
-                int x = (int) port.getViewPosition().getX();
-                int y = (int) port.getViewPosition().getY();
+                int x = (int) view.getViewport().getViewPosition().getX();
+                int y = (int) view.getViewport().getViewPosition().getY();
                 int width = Math.min(x+viewRect.width, img.getWidth());
                 int height = Math.min(y+viewRect.height, img.getHeight());
                 if (imgRect.contains(viewRect)) {
-                    width = x+port.getWidth();
-                    height = y+port.getHeight();
+                    width = x+viewRect.width;
+                    height = y+viewRect.height;
                 }
                 
                 ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
