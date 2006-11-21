@@ -107,7 +107,6 @@ public abstract class ImageDisplay
     extends TinyPane
 {
     
-    
     /** Bound property indicating an annotation visualization. */
     public final static String     ANNOTATE_NODE_PROPERTY = "annotateNode";
     

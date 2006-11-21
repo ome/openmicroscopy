@@ -123,7 +123,7 @@ public class ImageNode
     }
     
     /**
-     * Adds an <code>AnnoatedButton</code> and/or <code>ClassifiedButton</code>
+     * Adds an <code>AnnotatedButton</code> and/or <code>ClassifiedButton</code>
      * depending on the hosted <code>DataObject</code> status.
      */
     public void setNodeDecoration()
@@ -132,7 +132,7 @@ public class ImageNode
             HashSet nodes = new HashSet();
             if (isAnnotated()) nodes.add(new AnnotatedButton(this));
             if (isClassified()) nodes.add(new ClassifiedButton(this));
-            if (nodes.size() > 0) setDecoration(nodes);
+            setDecoration(nodes);
         }
     }
     
