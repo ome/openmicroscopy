@@ -344,11 +344,11 @@ public interface ClipBoard
     public void declassifyImage(ImageData image, Set paths);
 
     /**
-     * Saves the result of a declassification.
+     * Updates the display when the declassification is finished.
      * 
-     * @param set The value to update.
+     * @param set Collection of <code>ImageNode</code> to update.
      */
-    public void saveClassification(Set set);
+    public void onClassificationChange(List set);
     
 }
 

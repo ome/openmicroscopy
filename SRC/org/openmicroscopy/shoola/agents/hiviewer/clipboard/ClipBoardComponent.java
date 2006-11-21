@@ -36,18 +36,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImageDecorationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
@@ -467,12 +469,19 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#saveClassification(Set)
+     * @see ClipBoard#onClassificationChange(List)
      */
-    public void saveClassification(Set set)
+    public void onClassificationChange(List imageNodeIDs)
     {
         if (model.getState() != ClipBoard.DECLASSIFICATION) return;
-        
+        Browser browser = model.getParentModel().getBrowser();
+        ImageDisplay d = browser.getLastSelectedDisplay();
+        view.onDisplayChange(d);
+        /*
+        if (imageNodeIDs != null)
+            browser.accept(new ImageDecorationVisitor(imageNodeIDs), 
+                ImageDisplayVisitor.IMAGE_NODE_ONLY);
+                */
     }
 
 }
