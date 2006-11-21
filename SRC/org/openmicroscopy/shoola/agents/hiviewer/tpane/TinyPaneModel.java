@@ -579,7 +579,5 @@ class TinyPaneModel
      * @param decoration The collection to set.
      */
     void setDecoration(Set decoration) { this.decoration = decoration; }
-
-
     
 }

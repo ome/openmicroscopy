@@ -513,8 +513,7 @@ public class TinyPane
      * @return See above.
      */
     public boolean isResizable() { return model.isResizable(); }
-    
-    
+
     /**
      * Sets the icon of this frame.
      * 
