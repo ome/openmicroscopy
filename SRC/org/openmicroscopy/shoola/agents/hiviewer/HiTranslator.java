@@ -48,7 +48,6 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
