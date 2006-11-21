@@ -33,12 +33,9 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 

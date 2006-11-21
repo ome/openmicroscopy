@@ -32,8 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+
 
 //Third-party libraries
 

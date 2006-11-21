@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+import javax.swing.JViewport;
 
 
 //Third-party libraries
@@ -67,12 +68,12 @@ class BrowserCanvas
     
     /** Reference to the View. */
     private BrowserUI    view;
-    
-    
+
     /**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param view  Reference to the View. Mustn't be <code>null</code>.
      */
     BrowserCanvas(BrowserModel model, BrowserUI view)
     {
@@ -103,21 +104,16 @@ class BrowserCanvas
                 width = img.getWidth();
                 height = img.getHeight();
                 
-                Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
-                		img.getHeight());
+                Rectangle imgRect = new Rectangle(0, 0, width, height);
                 Rectangle viewRect = view.getViewport().getBounds();
-                if(imgRect.contains(viewRect))
-                {
-                width = (int)view.getViewport().getViewPosition().getX()+
-                view.getViewport().getWidth();
-                height = (int)view.getViewport().getViewPosition().getY()+
-                view.getViewport().getHeight();
-                }
-                else
-                {
-                	if(viewRect.width < imgRect.width)
-                		width = viewRect.width;
-                	if(viewRect.height < imgRect.height)
+                if (imgRect.contains(viewRect)) {
+                    JViewport port = view.getViewport();
+                    width = (int) port.getViewPosition().getX()+port.getWidth();
+                    height = (int) port.getViewPosition().getY()+
+                            port.getHeight();
+                } else {
+                	if (viewRect.width < imgRect.width) width = viewRect.width;
+                	if (viewRect.height < imgRect.height)
                 		height = viewRect.height;
                 }
                 ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
