@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Insets;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -82,15 +81,11 @@ class HiViewerToolBar
         bar.setBorder(null);
         JToggleButton b = new JToggleButton(
                 controller.getAction(HiViewerControl.TREE_VIEW));
-        b.setMargin(new Insets(0, 2, 0, 3));
-       // b.setBorderPainted(true);
         bar.add(b);
         
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
-        b.setMargin(new Insets(0, 2, 0, 3));
         b.setSelected(true);
-        //b.setBorderPainted(true);
         bar.add(b);
         return bar;
     }
