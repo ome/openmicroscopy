@@ -42,7 +42,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -68,8 +67,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 
 /** 
@@ -160,14 +157,14 @@ class BrowserUI
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
         group.add(b);
-        UIUtilities.unifiedButtonLookAndFeel(b);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
         b.setBorderPainted(true);
         b.setSelected(true);
         b.setAction(controller.getAction(BrowserControl.SORT));
         
         menuBar.add(b);
         b = new JToggleButton(controller.getAction(BrowserControl.SORT_DATE));
-        UIUtilities.unifiedButtonLookAndFeel(b);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
         b.setBorderPainted(true);
         group.add(b);
         //b.setBorderPainted(false);
