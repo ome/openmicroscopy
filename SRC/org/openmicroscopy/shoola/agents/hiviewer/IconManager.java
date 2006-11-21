@@ -233,14 +233,20 @@ public class IconManager
     /** The <code>Tree View</code> icon. */
     public static int           TREE_VIEW = 56;
     
-    /** The <code>Tree View</code> icon. */
+    /** The <code>ClipBoard View</code> icon. */
     public static int           CLIPBOARD_VIEW = 57;
     
+    /** The <code>Sort by Name</code> icon. */
+    public static int           SORT_BY_NAME = 58;
+    
+    /** The <code>Sort by Name</code> icon. */
+    public static int           SORT_BY_DATE = 59;
+
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 57;
+    private static int          MAX_ID = 59;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -305,6 +311,8 @@ public class IconManager
         relPaths[DELETE] =  "eclipse_delete_edit16.png";
         relPaths[TREE_VIEW] =  "nuvola_view_tree16.png";
         relPaths[CLIPBOARD_VIEW] =  "nuvola_editpaste16.png";
+        relPaths[SORT_BY_NAME] =  "eclipse_alphab_sort_co16.png";
+        relPaths[SORT_BY_DATE] =  "eclipse_trace_persp16.png";
     }
     
     /** The sole instance. */
