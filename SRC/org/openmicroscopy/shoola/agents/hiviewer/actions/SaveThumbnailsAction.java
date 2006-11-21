@@ -78,7 +78,10 @@ public class SaveThumbnailsAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();

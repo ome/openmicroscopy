@@ -101,6 +101,10 @@ public class RemoveAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Set nodes = model.getBrowser().getSelectedDisplays();
@@ -145,7 +149,6 @@ public class RemoveAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DELETE));
-        
     }
     
     /**

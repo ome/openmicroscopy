@@ -77,7 +77,10 @@ public class PropertiesAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         Set nodes = model.getBrowser().getSelectedDisplays();
         if (nodes.size() > 1) setEnabled(false);
         else setEnabled(!(selectedDisplay.getParentDisplay() == null));

@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * Shows the tree view of the data displayed in the <code>Browser</code>.
+ * Shows/hides the tree view of the data displayed in the <code>Browser</code>.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

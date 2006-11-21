@@ -65,7 +65,6 @@ public class ExitAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Close the window.";
     
-    
     /**
      * Creates a new instance.
      * 

@@ -77,6 +77,10 @@ public class DeclassifyAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay.getParentDisplay() == null) 
             setEnabled(false);
         else

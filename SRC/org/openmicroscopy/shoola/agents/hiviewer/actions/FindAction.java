@@ -29,11 +29,12 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
-import java.awt.event.ActionEvent;
+
 
 
 
 //Java imports
+import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
 //Third-party libraries
@@ -47,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
 /** 
- * Brings up the find pane in front.
+ * Brings up the find pane to the front.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,7 +75,10 @@ public class FindAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();

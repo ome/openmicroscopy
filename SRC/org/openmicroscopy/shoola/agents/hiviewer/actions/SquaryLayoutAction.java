@@ -39,14 +39,13 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Uses the squaryLayout algorithm to layout the thumbnails.
+ * Uses the <code>squaryLayout</code> algorithm to layout the thumbnails.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,16 +71,8 @@ public class SquaryLayoutAction
      */
     protected void onStateChange()
     {
-        setEnabled(model.getState() == HiViewer.READY);
-    }
-    
-    /**
-     * Sets the action enabled depending on the currently selected display
-     * @see HiViewerAction#onDisplayChange(ImageDisplay)
-     */
-    protected void onDisplayChange(ImageDisplay selectedDisplay)
-    {
-        //setEnabled(selectedDisplay != null);
+        //setEnabled(model.getState() == HiViewer.READY);
+        setEnabled(true);
     }
     
     /**

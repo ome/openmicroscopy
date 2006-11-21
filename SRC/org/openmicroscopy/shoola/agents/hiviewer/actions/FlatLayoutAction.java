@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Uses the <code>FlatLayout</code> algorithm to layout the thumbnails.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,7 +71,8 @@ public class FlatLayoutAction
      */
     protected void onStateChange()
     {
-        setEnabled(model.getState() == HiViewer.READY);
+        //setEnabled(model.getState() == HiViewer.READY);
+        setEnabled(true);
     }
     
     /**
@@ -89,8 +90,6 @@ public class FlatLayoutAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.makeParagraph(null, description,
                         UIUtilities.TABLE_WIDTH));
-        //IconManager im = IconManager.getInstance();
-        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.SQUARY_LAYOUT));
     }
     
     /** 

@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ZoomCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -73,12 +74,30 @@ public class ZoomOutAction
                                 "within the selected container.";
      
     /**
+     * Enables the action when the layout is <code>Flat</code>.
+     * @see HiViewerAction#onStateChange()
+     */
+    protected void onStateChange()
+    {
+        int layout = model.getBrowser().getSelectedLayout();
+        setEnabled(layout == LayoutFactory.FLAT_LAYOUT);
+    }
+    
+    /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) setEnabled(false);
+        int layout = model.getBrowser().getSelectedLayout();
+        if (layout == LayoutFactory.FLAT_LAYOUT) {
+            setEnabled(true);
+            return;
+        }
+        if (selectedDisplay == null) {
+            setEnabled(false);
+            return;
+        }
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else setEnabled(!(selectedDisplay.getHierarchyObject()
                 instanceof ImageData));
