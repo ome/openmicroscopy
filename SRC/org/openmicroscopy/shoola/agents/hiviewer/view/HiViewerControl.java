@@ -37,7 +37,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -76,8 +75,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ShowTitleBarAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SquaryLayoutAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewCGCIAction;
@@ -128,68 +127,71 @@ class HiViewerControl
     /** Identifies the <code>Clear action</code> in the Edit menu. */
     static final Integer     CLEAR = new Integer(4);
     
-    /** Identifies the Squary Layout action in the Layout menu. */
+    /** Identifies the <code>Squary Layout</code> action in the Layout menu. */
     static final Integer     SQUARY = new Integer(5);
     
-    /** Identifies the Tree Layout action in the Layout menu. */
-    static final Integer     TREE = new Integer(6);
-    
     /** Identifies the <code>Show Title Bar</code> action in the View menu. */
-    static final Integer     SHOW_TITLEBAR = new Integer(7);
+    static final Integer     SHOW_TITLEBAR = new Integer(6);
     
     /** Identifies the Save Layout action in the Layout menu. */
-    static final Integer     SAVE = new Integer(8);
+    static final Integer     SAVE = new Integer(7);
     
     /** Identifies the <code>Properties</code> action in the Edit menu. */
-    static final Integer     PROPERTIES = new Integer(9);
+    static final Integer     PROPERTIES = new Integer(8);
     
     /** Identifies the <code>Annotate</code> action in the Edit menu. */
-    static final Integer     ANNOTATE = new Integer(10);
+    static final Integer     ANNOTATE = new Integer(9);
     
     /** Identifies the <code>Classify</code> action in the Edit menu. */
-    static final Integer     CLASSIFY = new Integer(11);
+    static final Integer     CLASSIFY = new Integer(10);
     
     /** Identifies the <code>Declassify</code> action in the Edit menu. */
-    static final Integer     DECLASSIFY = new Integer(12);
+    static final Integer     DECLASSIFY = new Integer(11);
     
     /** Identifies the <code>View</code> action in the Edit menu. */
-    static final Integer     VIEW = new Integer(13);
+    static final Integer     VIEW = new Integer(12);
     
     /** Identifies the <code>Zoom In</code> action in the View menu. */
-    static final Integer     ZOOM_IN = new Integer(14);
+    static final Integer     ZOOM_IN = new Integer(13);
     
     /** Identifies the <code>Zoom Out</code> action in the View menu. */
-    static final Integer     ZOOM_OUT = new Integer(15);
+    static final Integer     ZOOM_OUT = new Integer(14);
     
     /** Identifies the <code>Zoom Fit</code> action in the View menu. */
-    static final Integer     ZOOM_FIT = new Integer(16);
+    static final Integer     ZOOM_FIT = new Integer(15);
     
     /** Identifies the <code>Refresh</code> action in the File menu. */
-    static final Integer     REFRESH = new Integer(17);
+    static final Integer     REFRESH = new Integer(16);
     
     /** Identifies the <code>Save thumbnails</code> action in the File menu. */
-    static final Integer     SAVE_THUMB = new Integer(18);
+    static final Integer     SAVE_THUMB = new Integer(17);
       
     /** Identifies the <code>ree view</code>T action in the View menu. */
-    static final Integer     TREE_VIEW = new Integer(19);
+    static final Integer     TREE_VIEW = new Integer(18);
     
     /** Identifies the <code>Exit Application</code> action in the File menu. */
-    static final Integer     EXIT_APPLICATION = new Integer(20);
+    static final Integer     EXIT_APPLICATION = new Integer(19);
     
     /** Identifies the <code>Find</code> action in the Edit menu. */
-    static final Integer     FIND = new Integer(21);
+    static final Integer     FIND = new Integer(20);
 
     /** Identifies the <code>Roll over</code> action in the View menu. */
-    static final Integer     ROLL_OVER = new Integer(22);
+    static final Integer     ROLL_OVER = new Integer(21);
     
     /** Identifies the <code>Remove</code> action in the Edit menu. */
-    static final Integer     REMOVE = new Integer(23);
+    static final Integer     REMOVE = new Integer(22);
     
     /** Identifies the <code>ClipBoard</code> action in the View menu. */
-    static final Integer     CLIPBOARD_VIEW = new Integer(24);
+    static final Integer     CLIPBOARD_VIEW = new Integer(23);
     
-    /** Identifies the <code>ClipBoard</code> action in the View menu. */
-    static final Integer     FLAT_LAYOUT = new Integer(25);
+    /** Identifies the <code>Flat layout</code> action in the Layout menu. */
+    static final Integer     FLAT_LAYOUT = new Integer(24);
+    
+    /** Identifies the <code>Sort by Name</code> action. */
+    static final Integer     SORT_BY_NAME = new Integer(25);
+    
+    /** Identifies the <code>Sort by Date</code> action. */
+    static final Integer     SORT_BY_DATE = new Integer(26);
     
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -214,7 +216,6 @@ class HiViewerControl
         actionsMap.put(VIEW_PDI, new ViewPDIAction(model));
         actionsMap.put(REFRESH, new RefreshAction(model));
         actionsMap.put(SQUARY, new SquaryLayoutAction(model));
-        actionsMap.put(TREE, new TreeLayoutAction(model));
         actionsMap.put(SHOW_TITLEBAR, new ShowTitleBarAction(model));
         actionsMap.put(SAVE, new SaveLayoutAction(model));
         actionsMap.put(PROPERTIES, new PropertiesAction(model));
@@ -234,33 +235,44 @@ class HiViewerControl
         actionsMap.put(REMOVE, new RemoveAction(model));
         actionsMap.put(CLIPBOARD_VIEW, new ClipBoardViewAction(model));
         actionsMap.put(FLAT_LAYOUT, new FlatLayoutAction(model));
+        actionsMap.put(SORT_BY_DATE, new SortByAction(model, 
+                                        SortByAction.BY_DATE));
+        actionsMap.put(SORT_BY_NAME, new SortByAction(model, 
+                                        SortByAction.BY_NAME));
     }
   
-    /** Creates the windowsMenuItems. */
-    private void createWindowsMenuItems()
+    /** 
+     * Creates the windowsMenuItems. 
+     * 
+     * @param menu The menu to handle.
+     */
+    private void createWindowsMenuItems(JMenu menu)
     {
         Set viewers = HiViewerFactory.getViewers();
         Iterator i = viewers.iterator();
-        JMenu menu = HiViewerFactory.getWindowsMenu();
         menu.removeAll();
-        HiViewer viewer;
-        while (i.hasNext()) {
-            viewer = (HiViewer) i.next();
-            //if (!(viewer == model))
-                menu.add(new JMenuItem(new ActivationAction(viewer)));
-        }
+        while (i.hasNext())
+            menu.add(new JMenuItem(new ActivationAction((HiViewer) i.next())));
+        
     }
     
     /** 
      * Attaches a window listener to the view to discard the model when 
      * the user closes the window. Attaches a menu listener to the window menu.
+     * 
+     * @param menu The menu to attach the listener to.
      */
-    private void attachListeners()
+    private void attachListeners(JMenu menu)
     {
-        JMenu menu = HiViewerFactory.getWindowsMenu();
         menu.addMenuListener(new MenuListener() {
 
-            public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
+            /** Adds menu items when selected. */
+            public void menuSelected(MenuEvent e)
+            { 
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source); 
+            }
             
             /** 
              * Required by I/F but not actually needed in our case, 
@@ -281,10 +293,12 @@ class HiViewerControl
         //Listen to keyboard selection
         menu.addMenuKeyListener(new MenuKeyListener() {
 
-            
+            /** Adds menu items when selected. */
             public void menuKeyReleased(MenuKeyEvent e)
             {
-                createWindowsMenuItems();
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source); 
             }
             
             /** 
@@ -348,8 +362,8 @@ class HiViewerControl
     /**
      * Creates a new instance.
      * The {@link #initialize(HiViewerWin) initialize} method 
-     * should be called straigh 
-     * after to link this Controller to the other MVC components.
+     * should be called straight after to link this Controller to the other
+     * MVC components.
      * 
      * @param model  Reference to the {@link HiViewer} component, which, in 
      *               this context, is regarded as the Model.
@@ -373,17 +387,10 @@ class HiViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
         historyState = -1;
-        model.addChangeListener(this);   
-        attachListeners();
+        model.addChangeListener(this);  
+        attachListeners(HiViewerFactory.getWindowsMenu());
     }
-    
-    /**
-     * Returns a read-only map with HiViewer actions.
-     * 
-     * @return See above.
-     */
-    Map getActionMap() { return Collections.unmodifiableMap(actionsMap) ;}  
-    
+
     /**
      * Returns the action corresponding to the specified id.
      * 

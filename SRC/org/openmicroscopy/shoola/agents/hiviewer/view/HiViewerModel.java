@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.LookupNames;
 
 import pojos.CategoryGroupData;
@@ -124,12 +125,19 @@ abstract class HiViewerModel
     /** Maps an image id to the list of thumbnail providers for that image. */
     private ThumbnailsManager   thumbsManager;
     
+    /** Used to sort the nodes by date or alphabetically. */
+    private ViewerSorter        sorter;
+    
     /** Reference to the component that embeds this model. */
     protected HiViewer          component;
     
     
     /** Creates a new object and sets its state to {@link HiViewer#NEW}. */
-    protected HiViewerModel() { state = HiViewer.NEW; }
+    protected HiViewerModel()
+    { 
+        sorter = new ViewerSorter();
+        state = HiViewer.NEW; 
+    }
     
     /**
      * Called by the <code>HiViewer</code> after creation to allow this
@@ -231,10 +239,9 @@ abstract class HiViewerModel
         browser = BrowserFactory.createBrowser(visTrees);
         
         //Do initial layout and set the icons.
-        Layout layout = LayoutFactory.getDefaultLayout();
+        Layout layout = LayoutFactory.getDefaultLayout(sorter);
         browser.setSelectedLayout(layout.getIndex());
-        browser.accept(LayoutFactory.getDefaultLayout(),
-                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+        browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
         browser.accept(new IconsVisitor(), ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
     
@@ -275,7 +282,8 @@ abstract class HiViewerModel
     /** Creates a new {@link TreeView}. */
     void createTreeView()
     {
-        if (treeView == null) treeView = new TreeView(browser.getUI());
+        if (treeView == null) 
+            treeView = new TreeView((ImageDisplay) browser.getUI());
     }
     
     /**
@@ -424,6 +432,13 @@ abstract class HiViewerModel
     }
     
     /**
+     * Returns the {@link ViewerSorter}.
+     * 
+     * @return See above.
+     */
+    ViewerSorter getSorter() { return sorter; }
+    
+    /**
      * Indicates what kind of hierarchy this model is for.
      * 
      * @return One of the hierarchy flags defined by the {@link HiViewer} 
@@ -460,6 +475,8 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+
 
 
     

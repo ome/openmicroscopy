@@ -35,6 +35,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -93,6 +94,35 @@ class HiViewerToolBar
         return bar;
     }
     
+    /** 
+     * Builds the toolbar hosting the <code>View</code> controls.
+     * 
+     * @return See above.
+     */
+    private JToolBar buildManagementBar()
+    {
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        ButtonGroup group = new ButtonGroup();
+        JToggleButton b = new JToggleButton();
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setBorderPainted(true);
+        b.setSelected(true);
+        group.add(b);
+        
+        b.setAction(controller.getAction(HiViewerControl.SORT_BY_NAME));
+        bar.add(b);
+        b = new JToggleButton(
+                controller.getAction(HiViewerControl.SORT_BY_DATE));
+        group.add(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setBorderPainted(true);
+        bar.add(b);
+        return bar;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -100,6 +130,7 @@ class HiViewerToolBar
         bars.setBorder(null);
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(buildViewBar());
+        bars.add(buildManagementBar());
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);

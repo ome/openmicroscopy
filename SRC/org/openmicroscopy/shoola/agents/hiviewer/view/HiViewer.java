@@ -407,4 +407,18 @@ public interface HiViewer
      */
     public void removeObjects(List toRemove);
     
+    /**
+     * Sets the layout of the browser.
+     * 
+     * @param layoutIndex The layout's index.
+     */ 
+    public void setLayout(int layoutIndex);
+
+    /**
+     * Sorts the nodes by names or by date depending on the index.
+     * 
+     * @param index 
+     */
+    public void sortBy(int index);
+    
 }

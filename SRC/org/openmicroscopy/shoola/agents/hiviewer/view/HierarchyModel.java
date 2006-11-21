@@ -81,16 +81,15 @@ class HierarchyModel
      * Checks if the type passed is valid.
      * 
      * @param v The type to check.
-     * @return  <code>true</code> if the type is valid,
-     *          <code>false</code> otherwise.
      */
-    private boolean checkType(int v)
+    private void checkType(int v)
     {
         switch (v) {
             case HiViewer.PDI_HIERARCHY:
             case HiViewer.CGCI_HIERARCHY:    
-                return true;
-            default: return false;
+                return;
+            default: 
+                throw new IllegalArgumentException("Hierarchy not supported");
         }
     }
     
@@ -107,8 +106,7 @@ class HierarchyModel
     {
         super();
         if (images == null) throw new NullPointerException("No images.");
-        if (!checkType(type))
-            throw new IllegalArgumentException("Hierarchy not supported");
+        checkType(type);
         this.images = images; 
         this.type = type;
     }

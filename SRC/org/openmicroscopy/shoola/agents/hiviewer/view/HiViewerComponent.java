@@ -31,6 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -42,11 +43,14 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -528,6 +532,63 @@ class HiViewerComponent
         }
         model.fireDataObjectsRemoval(toRemove);
         fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setLayout(int)
+     */
+    public void setLayout(int layoutIndex)
+    {
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Browser browser = getBrowser();
+        switch (layoutIndex) {
+            case LayoutFactory.SQUARY_LAYOUT:
+                browser.setSelectedLayout(layoutIndex);
+                browser.resetChildDisplay();
+                browser.accept(LayoutFactory.createLayout(
+                        LayoutFactory.SQUARY_LAYOUT, model.getSorter()),
+                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+                break;
+            case LayoutFactory.FLAT_LAYOUT:
+                browser.setSelectedLayout(layoutIndex);
+                browser.resetChildDisplay();
+                Layout l = LayoutFactory.createLayout(layoutIndex, 
+                                                        model.getSorter());
+                browser.accept(l);
+                browser.setSelectedLayout(LayoutFactory.FLAT_LAYOUT);
+                l.doLayout();
+        }
+        view.setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#sortBy(int)
+     */
+    public void sortBy(int index)
+    {
+        model.getSorter().setByDate(SortByAction.BY_DATE == index);
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Browser browser = getBrowser();
+        switch (browser.getSelectedLayout()) {
+            case LayoutFactory.SQUARY_LAYOUT:
+                browser.accept(LayoutFactory.createLayout(
+                        LayoutFactory.SQUARY_LAYOUT, model.getSorter()),
+                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+                break;
+            case LayoutFactory.FLAT_LAYOUT:
+                browser.resetChildDisplay();
+                Layout l = LayoutFactory.createLayout(LayoutFactory.FLAT_LAYOUT, 
+                                                        model.getSorter());
+                browser.accept(l);
+                l.doLayout();
+        }
+        model.getTreeView().sortNodes(index, 
+                        (ImageDisplay) model.getBrowser().getUI());
+        view.setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
 }

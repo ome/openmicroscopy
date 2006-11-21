@@ -40,6 +40,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.ButtonGroup;
@@ -52,15 +54,19 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -120,6 +126,15 @@ class HiViewerWin
     /** The Model. */
     private HiViewerModel       model;
     
+    /** The help menu. */
+    private JMenu               helpMenu;
+    
+    /** 
+     * The location of the divider before removing the 
+     * <code>ClipBoard</code>. 
+     */
+    private int                 lastMove;
+    
     /**
      * Sets the <code>Browser</code>'s UI and <code>ClipBoard</code>'s UI into
      * a horizontal splitPane.
@@ -135,21 +150,6 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        /*
-        BasicSplitPaneUI splitPaneUI = (BasicSplitPaneUI) mainPane.getUI();
-        
-        BasicSplitPaneDivider divider = splitPaneUI.getDivider();
-        divider.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e)
-            {
-                if (e.getClickCount() == 2) {
-                    ClipBoard cb = model.getClipBoard();
-                    mainPane.setRightComponent(cb.getUI());
-                    cb.minimize(!cb.isMinimized());
-                }
-            }
-        });
-        */
         mainPane.setResizeWeight(1);
         return mainPane;
     }
@@ -164,6 +164,7 @@ class HiViewerWin
         addToContainer(p);
     }
     
+ 
     /** 
      * Creates the menu bar.
      * 
@@ -175,9 +176,27 @@ class HiViewerWin
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
         menuBar.add(createViewMenu());
+        
+        menuBar.add(createWindowMenu());
+        
+        helpMenu = createHelpMenu();
         menuBar.add(createHelpMenu());
         return menuBar;
     }
+    
+    /**
+     * Helper method to create the window menu.
+     * 
+     * @return See above.
+     */
+    private JMenu createWindowMenu()
+    {
+        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+        JMenu menu = tb.getWindowsMenu();
+
+        return tb.getWindowsMenu();
+    }
+    
     
     /**
      * Helper method to create the Classify submenu.
@@ -272,10 +291,9 @@ class HiViewerWin
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         //menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW_PDI)));
-        //menu.add(new JMenuItem(
-        //                    controller.getAction(HiViewerControl.VIEW_CGCI)));
+        menu.add(new JMenuItem(
+                            controller.getAction(HiViewerControl.VIEW_CGCI)));
         //menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        //menu.add(new JMenuItem(controller.getAction(HiViewerControl.SQUARY)));
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         item.setSelected(false);
         item.setText(TreeViewAction.NAME);
@@ -413,6 +431,7 @@ class HiViewerWin
         title += getViewTitle();
         setTitle(title);
     }
+
     
     /**
      * Shows or hides the component depending on the stated of the frame.
@@ -424,8 +443,14 @@ class HiViewerWin
     {
         JComponent cb = model.getClipBoard().getUI();
         if (cb == null) return;
-        if (b) mainPane.setRightComponent(cb);
-        else mainPane.remove(cb);
+        BasicSplitPaneUI splitPaneUI = (BasicSplitPaneUI) mainPane.getUI();
+        if (b) {
+            mainPane.setRightComponent(cb);
+            splitPaneUI.setLastDragLocation(lastMove);
+        } else {
+            lastMove = splitPaneUI.getLastDragLocation();
+            mainPane.remove(cb);
+        }
     }
     
     /**
@@ -493,6 +518,14 @@ class HiViewerWin
         }
         buf.insert(0, title);
         return buf.toString();
+    }
+    
+    void resetWindowsMenu()
+    {
+        JMenuBar menuBar = getJMenuBar();
+        menuBar.remove(helpMenu);
+        
+        menuBar.add(helpMenu);
     }
     
     /**

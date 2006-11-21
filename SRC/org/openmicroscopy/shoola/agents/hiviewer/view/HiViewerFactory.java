@@ -42,7 +42,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -252,7 +252,7 @@ public class HiViewerFactory
     {
         viewers = new HashSet();
         windowsMenu = new JMenu("HiViewers");
-        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
         tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
     }
     
