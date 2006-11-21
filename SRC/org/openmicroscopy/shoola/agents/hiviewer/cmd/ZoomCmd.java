@@ -38,13 +38,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * Magnifies the selected {@link ImageDisplay} object.
+ * Magnifies the selected {@link ImageDisplay}s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -144,14 +143,16 @@ public class ZoomCmd
     {
         ZoomVisitor visitor = new ZoomVisitor(model);
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
-        if (selectedDisplay.getParentDisplay() == null) return;
-        selectedDisplay.accept(visitor);
-        if (selectedDisplay instanceof ImageSet) {
-            //Layout layout = LayoutFactory.createLayout(
-            //        			LayoutFactory.SQUARY_LAYOUT);
-            //layout.visit((ImageSet) selectedDisplay);
-        } 
+        int layout = browser.getSelectedLayout();
+        if (layout == LayoutFactory.FLAT_LAYOUT) {
+            browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+        } else {
+            ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
+            if (selectedDisplay == null) return;
+            if (selectedDisplay.getParentDisplay() == null) return;
+            selectedDisplay.accept(visitor);
+        }
+        model.layoutZoomedNodes();
     }
 
 }
