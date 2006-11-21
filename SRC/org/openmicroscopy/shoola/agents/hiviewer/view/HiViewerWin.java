@@ -123,9 +123,6 @@ class HiViewerWin
     /** The Model. */
     private HiViewerModel       model;
     
-    /** The help menu. */
-    private JMenu               helpMenu;
-    
     /** 
      * The location of the divider before removing the 
      * <code>ClipBoard</code>. 
@@ -160,8 +157,7 @@ class HiViewerWin
         container.setLayout(new BorderLayout(0, 0));
         addToContainer(p);
     }
-    
- 
+
     /** 
      * Creates the menu bar.
      * 
@@ -175,7 +171,6 @@ class HiViewerWin
         menuBar.add(createViewMenu());
         TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
         menuBar.add(tb.getWindowsMenu());
-        helpMenu = createHelpMenu();
         menuBar.add(createHelpMenu());
         return menuBar;
     }
@@ -501,15 +496,7 @@ class HiViewerWin
         buf.insert(0, title);
         return buf.toString();
     }
-    
-    void resetWindowsMenu()
-    {
-        JMenuBar menuBar = getJMenuBar();
-        menuBar.remove(helpMenu);
-        
-        menuBar.add(helpMenu);
-    }
-    
+
     /**
      * Sets the location of the window relative to the bounds of the components
      * invoking the {@link HiViewer}.
