@@ -66,9 +66,13 @@ public class SquaryLayoutAction
     /** The name of the action. */
     private static final String NAME = "Hierarchical";
 
+    /**
+     * Allows to modify the layout when the thumbnails are loaded.
+     * @see HiViewerAction#onStateChange()
+     */
     protected void onStateChange()
     {
-        //setEnabled(model.getState() == HiViewer.READY);
+        setEnabled(model.getState() == HiViewer.READY);
     }
     
     /**
