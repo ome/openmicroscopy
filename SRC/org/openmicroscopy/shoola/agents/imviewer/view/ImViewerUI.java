@@ -36,7 +36,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
@@ -423,6 +426,7 @@ class ImViewerUI
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
         statusBar = new StatusBar();
+        this.addComponentListener(controller);
     }
     
     /** 
@@ -678,5 +682,5 @@ class ImViewerUI
         }
     }
 
-    
+	
 }

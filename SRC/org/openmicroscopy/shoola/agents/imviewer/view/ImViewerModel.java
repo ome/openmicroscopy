@@ -146,6 +146,9 @@ class ImViewerModel
     /** The bounds of the components resquesting the viewer. */
     private Rectangle           requesterBounds;
     
+    /** Fit the image to the size of window, on resize. */
+    private boolean				zoomFitToWindow; 
+    
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
     {
@@ -201,6 +204,7 @@ class ImViewerModel
         requesterBounds = bounds;
         state = ImViewer.NEW;
         sizeX = sizeY = -1;
+        zoomFitToWindow = false; 
     }
     
     /**
@@ -443,7 +447,10 @@ class ImViewerModel
      * 
      * @param factor The factor to set.
      */
-    void setZoomFactor(double factor) { browser.setZoomFactor(factor); }
+    void setZoomFactor(double factor) 
+    {
+    	browser.setZoomFactor(factor); 
+    }
 
     /**
      * Gets the zoom factor.
@@ -452,6 +459,22 @@ class ImViewerModel
      */
     double getZoomFactor() { return browser.getZoomFactor(); }
 
+    /**
+     * This method determines if the browser image should be resized to fit 
+     * the window size if the window is resized. 
+     * 
+     * @param option see above.
+     */
+    void setZoomFitToWindow(boolean option) { zoomFitToWindow = option; }
+
+    /**
+    * This method determines if the browser image should be resized to fit 
+    * the window size if the window is resized.
+    *  
+    * @return <code>true</code> if image should resize on window resize. 
+    */ 
+    boolean getZoomFitToWindow() { return zoomFitToWindow; }
+    
     /**
      * Sets the retrieved image.
      * 

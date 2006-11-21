@@ -34,6 +34,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -94,7 +96,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  * @since OME2.2
  */
 class ImViewerControl
-    implements ChangeListener, PropertyChangeListener
+    implements ChangeListener, PropertyChangeListener, ComponentListener
 {
 
     /** Identifies the <code>Close</code> action in the menu. */
@@ -625,5 +627,35 @@ class ImViewerControl
      * @param s The value to set.
      */
     void setHistoryState(int s) { historyState = s; }
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
+	 */
+	public void componentHidden(ComponentEvent e) {	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
+	 */
+	public void componentMoved(ComponentEvent e) {	}
+
+	/**
+	 * Capture the resize event of the {@link ImViewerUI}, if the user has 
+	 * selected the zoom to fit to the window then resize the image to fit to
+	 * the new size of the image. 
+	 * 
+	 * @see ComponentListener#componentResized(ComponentEvent)
+	 */
+	public void componentResized(ComponentEvent e) 
+	{ 
+		if( model.zoomFitToWindow() )
+		{
+			model.setZoomFactor(-1);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
+	 */
+	public void componentShown(ComponentEvent e) {	}
     
 }

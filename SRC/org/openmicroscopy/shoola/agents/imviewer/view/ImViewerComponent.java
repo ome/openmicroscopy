@@ -96,7 +96,7 @@ class ImViewerComponent
     
     /** List of active channels before switching between color mode. */
     private List                historyActiveChannels;
-    
+        
     /** 
      * Returns the description displayed in the status bar.
      * 
@@ -197,21 +197,32 @@ class ImViewerComponent
     {
     	if(factor != -1)
     	{
-        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
+    		if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
                 factor < ZoomAction.MIN_ZOOM_FACTOR)
                 throw new IllegalArgumentException("The zoom factor is value " +
                         "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
                         ZoomAction.MAX_ZOOM_FACTOR);
-        model.setZoomFactor(factor);
+    		model.setZoomFitToWindow(false);
+    		model.setZoomFactor(factor);
     	}
     	else
     	{
+    		model.setZoomFitToWindow(true);
     		model.setZoomFactor(factor);
     	}
         if(view.isLensVisible())
-        	view.setImageZoomFactor((float)factor);
+        	view.setImageZoomFactor((float)model.getZoomFactor());
     }
 
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#zoomFitToWindow()
+     */
+    public boolean zoomFitToWindow()
+    {
+    	return model.getZoomFitToWindow();
+    }
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#setRateImage(int)

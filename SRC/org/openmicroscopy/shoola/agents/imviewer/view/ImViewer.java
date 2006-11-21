@@ -195,6 +195,14 @@ public interface ImViewer
     public void setZoomFactor(double factor);
     
     /**
+     * If the user has set the zoomFactor to ZOOM_FIT_TO_WINDOW, then return 
+     * <code>true</code>.
+     *  
+     * @return see above.
+     */
+    public boolean zoomFitToWindow();
+    
+    /**
      * Sets the image rate.
      * 
      * @param level The value to set.
