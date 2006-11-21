@@ -62,8 +62,8 @@ import javax.swing.tree.DefaultTreeModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
@@ -142,7 +142,8 @@ abstract class ClassifierWin
         Set nodes = tree.getSelectedNodes();
         if (nodes == null || nodes.size() == 0) {
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "No category selected.");
+            un.notifyInfo("Classification", "You first need to select" +
+                    "the categories to remove the image from.");
             return;
         }
         Set paths = new HashSet(nodes.size());
