@@ -31,21 +31,22 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
-
 import pojos.ImageData;
 
 /** 
- * 
+ * Declassifies the specified image. 
+ * This class calls one of the <code>declassify</code> methods in the
+ * <code>hierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,7 +94,7 @@ public class Declassifier
     
     /**
      * Declassifies the specified image. 
-     * @see DataLoader#load()
+     * @see CBDataLoader#load()
      */
     public void load()
     {
@@ -104,17 +105,19 @@ public class Declassifier
 
     /** 
      * Cancels the data loading. 
-     * @see DataLoader#cancel()
+     * @see CBDataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see DataLoader#handleResult(Object)
+     * @see CBDataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         ///if (classifier.getState() == Classifier.DISCARDED) return; 
-        clipBoard.saveClassification(((Set) result));
+        List ids = new ArrayList(1);
+        ids.add(new Long(image.getId()));
+        clipBoard.onClassificationChange(ids);
     }
 }
