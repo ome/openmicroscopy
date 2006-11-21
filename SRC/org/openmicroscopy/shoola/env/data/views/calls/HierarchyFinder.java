@@ -99,7 +99,7 @@ public class HierarchyFinder
      * Creates a {@link BatchCall} to search the P/D/I, CG/C/I hierarchy.
      * 
      * @param hierarchyRootNodeType The type of the root node.
-     * @param ids					A set of IDs of the top-most containers.
+     * @param ids				    Collections of image ids.
      * @param rootLevel             The level of the hierarchy either 
      *                              <code>GroupData</code> or 
      *                              <code>ExperimenterData</code>.
