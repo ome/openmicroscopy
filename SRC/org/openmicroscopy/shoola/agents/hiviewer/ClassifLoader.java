@@ -76,8 +76,10 @@ public abstract class ClassifLoader
     /** Convenience reference. */
     protected HierarchyBrowsingView hiBrwView;
     
+    /** The root level. */
     protected Class                 rootLevel;
     
+    /** The id of the root node. */
     protected long                  rootID;
     
     /**
