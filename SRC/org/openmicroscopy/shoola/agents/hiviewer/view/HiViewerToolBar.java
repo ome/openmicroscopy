@@ -44,7 +44,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * The tool bar of {@link HiViewerWin}.
@@ -82,14 +82,14 @@ class HiViewerToolBar
         bar.setBorder(null);
         JToggleButton b = new JToggleButton(
                 controller.getAction(HiViewerControl.TREE_VIEW));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
+       // b.setBorderPainted(true);
         bar.add(b);
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
-        UIUtilities.unifiedButtonLookAndFeel(b);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
         b.setSelected(true);
-        b.setBorderPainted(true);
+        //b.setBorderPainted(true);
         bar.add(b);
         return bar;
     }
@@ -107,8 +107,8 @@ class HiViewerToolBar
         bar.setBorder(null);
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
+        //b.setBorderPainted(true);
         b.setSelected(true);
         group.add(b);
         
@@ -117,8 +117,8 @@ class HiViewerToolBar
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.SORT_BY_DATE));
         group.add(b);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        b.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
+        //b.setBorderPainted(true);
         bar.add(b);
         return bar;
     }
