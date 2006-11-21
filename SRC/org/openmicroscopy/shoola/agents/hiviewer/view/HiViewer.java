@@ -421,4 +421,10 @@ public interface HiViewer
      */
     public void sortBy(int index);
     
+    /**
+     * Redoes the layout of the zoomed nodes according to the 
+     * currently selected layout.
+     */
+    public void layoutZoomedNodes();
+    
 }

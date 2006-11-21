@@ -88,11 +88,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.SelectedNodeVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
-import pojos.ImageData;
 
 /** 
  * The HiViewer's Controller.
@@ -482,13 +479,10 @@ class HiViewerControl
             model.getClipBoard().setSelectedPane(ClipBoard.ANNOTATION_PANE, n);  
             model.getBrowser().setSelectedDisplay(n);
         } else if (Browser.CLASSIFIED_NODE_PROPERTY.equals(propName)) {
-            ImageNode n = (ImageNode) pce.getNewValue();
-            ClassifyCmd cmd = new ClassifyCmd(
-                    (ImageData) n.getHierarchyObject(), 
-                    Classifier.DECLASSIFICATION_MODE, view, 
-                    model.getUserDetails().getId(), model.getRootID(),
-                    model.getRootLevel());
-            cmd.execute();
+            ImageDisplay n = (ImageDisplay) pce.getNewValue();
+            model.getClipBoard().setSelectedPane(ClipBoard.CLASSIFICATION_PANE,
+                                                    n);  
+            model.getBrowser().setSelectedDisplay(n);
         } else if (Browser.ROLL_OVER_PROPERTY.equals(propName)) {
             if (model.isRollOver()) {
                 ImageDisplay n = (ImageDisplay) pce.getNewValue();

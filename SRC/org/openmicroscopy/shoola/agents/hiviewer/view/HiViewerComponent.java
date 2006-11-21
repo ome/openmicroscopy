@@ -592,4 +592,29 @@ class HiViewerComponent
                 Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#layoutZoomedNodes()
+     */
+    public void layoutZoomedNodes()
+    {
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Browser browser = getBrowser();
+        switch (browser.getSelectedLayout()) {
+            case LayoutFactory.SQUARY_LAYOUT:
+                browser.accept(LayoutFactory.createLayout(
+                        LayoutFactory.SQUARY_LAYOUT, model.getSorter()),
+                        ImageDisplayVisitor.IMAGE_SET_ONLY);
+                break;
+            case LayoutFactory.FLAT_LAYOUT:
+                browser.resetChildDisplay();
+                Layout l = LayoutFactory.createLayout(LayoutFactory.FLAT_LAYOUT, 
+                                                        model.getSorter());
+                browser.accept(l);
+                l.doLayout();
+        }
+        view.setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
 }
