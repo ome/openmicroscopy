@@ -93,6 +93,9 @@ class AnnotationPaneUI
     extends JPanel
 {
 
+    /** The default annotation text. */
+    private static final String         DEFAULT_TEXT = "No annotation for ";
+    
     /** The default message. */
     private static final String         DEFAULT_MSG = "Object not annotatable.";
     
@@ -133,6 +136,12 @@ class AnnotationPaneUI
     
     /** The index of the current user.*/
     private int                 userIndex;
+    
+    /** 
+     * Flag indicating that the default text is displayed for the 
+     * current user.
+     */
+    private boolean             defaultText;
     
     /** A {@link DocumentListener} for the {@link #annotationArea}. */
     private DocumentListener    annotationAreaListener;
@@ -194,6 +203,14 @@ class AnnotationPaneUI
         };
         annotationArea.getDocument().addDocumentListener(
                             annotationAreaListener);
+        annotationArea.addMouseListener(new MouseAdapter() {
+            //Removes default message.
+            public void mouseClicked(MouseEvent e)
+            {
+                if (isAnnotable() && defaultText) annotationArea.setText("");
+            }
+        
+        });
         setComponentsEnabled(false);
         deleteBox.setSelected(false);
     }
@@ -301,8 +318,9 @@ class AnnotationPaneUI
         saveButton.setEnabled(true);
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
-            addAnnotationText("No annotations for "+details.getFirstName()+" "+
+            addAnnotationText(DEFAULT_TEXT+details.getFirstName()+" "+
                                 details.getLastName());
+            defaultText = true;
             setComponentsEnabled(true);
             deleteBox.setEnabled(false);
             return;
@@ -396,6 +414,18 @@ class AnnotationPaneUI
         addAnnotationText("");
         listModel.clear();
         repaint();
+    }
+    
+    /**
+     * Returns <code>true</code> if the data object is annotated,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isAnnotable()
+    { 
+        if (userIndex == -1) return true;//no annotation for current user
+        return (annotatedByList.getSelectedIndex() == userIndex); 
     }
     
     /**
