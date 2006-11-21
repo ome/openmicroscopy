@@ -108,23 +108,23 @@ public class CreateTopContainerAction
         nodeType = -1;
         if (browser == null) {
             setEnabled(false);
-            putValue(Action.NAME, NAME);  
+            name = NAME;
         } else {
             switch (browser.getBrowserType()) {
                 case Browser.PROJECT_EXPLORER:
                     setEnabled(true);
-                    putValue(Action.NAME, NAME_PROJECT); 
+                    name = NAME_PROJECT; 
                     nodeType = CreateCmd.PROJECT;
                     break;
                 case Browser.CATEGORY_EXPLORER:
                     setEnabled(true);
-                    putValue(Action.NAME, NAME_CATEGORY_GROUP); 
+                    name = NAME_CATEGORY_GROUP; 
                     nodeType = CreateCmd.CATEGORY_GROUP;
                     break;
                 case Browser.IMAGES_EXPLORER:
                     //setEnabled(true);
                     setEnabled(false);
-                    putValue(Action.NAME, NAME); 
+                    name = NAME;; 
             }
         }
     }

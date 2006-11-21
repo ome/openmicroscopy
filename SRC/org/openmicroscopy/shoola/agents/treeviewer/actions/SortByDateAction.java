@@ -65,10 +65,12 @@ public class SortByDateAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+        /*
         if (selectedDisplay == null) setEnabled(false);
         else if (selectedDisplay.containsImages()) {
             setEnabled(selectedDisplay.isChildrenLoaded());
         } else setEnabled(false);
+        */
     }
     
     /** 
@@ -79,9 +81,9 @@ public class SortByDateAction
     {
         int state = model.getState();
         if (state == Browser.READY) {
-            if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
+            //if (model.getBrowserType() == Browser.IMAGES_EXPLORER) 
                 setEnabled(true);
-            else onDisplayChange(model.getLastSelectedDisplay());
+           // else onDisplayChange(model.getLastSelectedDisplay());
         } else setEnabled(false);
     }
     
