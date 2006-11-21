@@ -86,7 +86,7 @@ class ClassificationPaneUI
     
     /** The text displayed when the image has been annotated. */
     private static final String     NO_CLASSIFICATION_TEXT = "The selected " +
-            "image has not been classified. ";
+            "item has not been classified. ";
     
     /** Reference to the Model. */
     private ClassificationPane  model;
@@ -163,7 +163,7 @@ class ClassificationPaneUI
             }
         
         });
-        declassifyButton.setVisible(false);
+        declassifyButton.setEnabled(false);
         titleLabel = new JLabel(NO_CLASSIFICATION_TEXT);
         noteLabel = new JLabel();
 
@@ -194,7 +194,7 @@ class ClassificationPaneUI
         titlePanel.add(titleLabel);
         titlePanel.add(noteLabel);
         p.add(UIUtilities.buildComponentPanel(titlePanel));
-        //p.add(UIUtilities.buildComponentPanel(declassifyButton));
+        p.add(UIUtilities.buildComponentPanel(declassifyButton));
         add(UIUtilities.buildComponentPanel(p), BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
@@ -220,12 +220,11 @@ class ClassificationPaneUI
      */
     void onSelectedDisplay(String title)
     { 
+        declassifyButton.setEnabled(false);
         if (title == null) {
-            declassifyButton.setVisible(false);
             titleLabel.setText(NO_CLASSIFICATION_TEXT);
             noteLabel.setText("");
         } else {
-            declassifyButton.setVisible(true);
             titleLabel.setText(PANEL_NOTE+title);
             noteLabel.setText(PANEL_SUBNOTE);
         }
@@ -244,6 +243,7 @@ class ClassificationPaneUI
      */
     void showClassifications(Set nodes)
     {
+        declassifyButton.setEnabled(nodes.size() != 0);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
         Iterator i = nodes.iterator();

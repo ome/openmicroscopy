@@ -202,7 +202,6 @@ public class ClassificationPane
             }
         } 
         uiDelegate.onSelectedDisplay(title);   
-        
     }
 
 }
