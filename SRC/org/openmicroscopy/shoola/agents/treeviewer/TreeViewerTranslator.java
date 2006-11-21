@@ -89,9 +89,7 @@ public class TreeViewerTranslator
             Timestamp time = null;
             try {
                 time = ((ImageData) node.getUserObject()).getInserted();
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+            } catch (Exception e) {}
             if (time == null) time = getDefaultTimestamp();
             title = DateFormat.getDateInstance().format(time);   
             toolTip = UIUtilities.formatToolTipText(title);
