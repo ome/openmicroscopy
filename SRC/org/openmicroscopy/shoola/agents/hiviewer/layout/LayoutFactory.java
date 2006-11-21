@@ -29,7 +29,6 @@
 
 package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 
 //Java imports
@@ -37,6 +36,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
  * A factory to create {@link Layout} objects.
