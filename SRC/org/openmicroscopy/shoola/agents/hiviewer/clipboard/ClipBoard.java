@@ -343,6 +343,11 @@ public interface ClipBoard
      */
     public void declassifyImage(ImageData image, Set paths);
 
+    /**
+     * Saves the result of a declassification.
+     * 
+     * @param set The value to update.
+     */
     public void saveClassification(Set set);
     
 }

@@ -465,6 +465,10 @@ class ClipBoardComponent
         fireStateChange();
     }
 
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#saveClassification(Set)
+     */
     public void saveClassification(Set set)
     {
         if (model.getState() != ClipBoard.DECLASSIFICATION) return;

@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
