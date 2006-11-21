@@ -152,6 +152,8 @@ public class TreeView
     void collapseNode(TreeViewNode node)
     {
         if (node == null) return;
+        TreeViewNode root = uiDelegate.getRoot();
+        if (root.equals(node)) return;
         uiDelegate.getTree().collapsePath(new TreePath(node.getPath()));
     }
     

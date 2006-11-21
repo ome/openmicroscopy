@@ -312,4 +312,15 @@ class TreeViewUI
         dtm.reload();
     }
     
+    /**
+     * Returns the root node of the tree.
+     * 
+     * @return See above.
+     */
+    TreeViewNode getRoot()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
+        return (TreeViewNode) dtm.getRoot();
+    }
+    
 }
