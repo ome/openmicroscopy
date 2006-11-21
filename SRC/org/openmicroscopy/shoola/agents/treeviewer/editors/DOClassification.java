@@ -49,6 +49,7 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 //Third-party libraries
@@ -58,12 +59,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 
 /** 
- * The component hosting the classification. 
+ * The component hosting the classifications. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,6 +85,10 @@ class DOClassification
     /** The text displayed in the note panel. */
     private static final String     PANEL_SUBNOTE = "Double click on the " +
             "name to browse the group or the category.";
+    
+    /** The text displayed when the image has been annotated. */
+    private static final String     NO_CLASSIFICATION_TEXT = "The selected " +
+            "image has not been classified. ";
     
     /** The root object. */
     private static final String     ROOT = "Classification";
@@ -155,6 +160,7 @@ class DOClassification
     {
         IconManager im = IconManager.getInstance();
         refreshButton = new JButton(im.getIcon(IconManager.REFRESH));
+        UIUtilities.unifiedButtonLookAndFeel(refreshButton);
         refreshButton.setEnabled(false);
         refreshButton.setToolTipText(
                         UIUtilities.formatToolTipText("Reload data.")); 
@@ -166,6 +172,7 @@ class DOClassification
             }
         });
         treeDisplay = new JTree();
+        treeDisplay.setRootVisible(false);
         treeDisplay.setCellRenderer(new TreeCellRenderer(false));
         treeDisplay.setShowsRootHandles(true);
         treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
@@ -173,6 +180,7 @@ class DOClassification
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         TreeImageSet root = new TreeImageSet(ROOT);
         treeDisplay.setModel(new DefaultTreeModel(root));
+        treeDisplay.expandPath(new TreePath(root.getPath()));
         //Add Listeners
         treeDisplay.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e); }
@@ -185,14 +193,14 @@ class DOClassification
      * 
      * @return See above.
      */
-    private JToolBar createToolBar()
+    private JPanel createToolBar()
     {
         JToolBar bar = new JToolBar();
         bar.setBorder(null);
         bar.setRollover(true);
         bar.setFloatable(false);
         bar.add(refreshButton);
-        return bar;
+        return UIUtilities.buildComponentPanel(bar);
     }
     
     /** Builds and lays out the GUI. */
@@ -206,6 +214,16 @@ class DOClassification
         p.add(createToolBar());
         add(UIUtilities.buildComponentPanel(p), BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+    }
+    
+    /** Builds and lays out the UI when the image is not classified. */
+    private void buildGUINoClassifications()
+    {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JPanel p = new JPanel();
+        p.add(new JLabel(NO_CLASSIFICATION_TEXT));
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        add(UIUtilities.buildComponentPanel(p), BorderLayout.NORTH);
     }
     
     /**
@@ -224,8 +242,12 @@ class DOClassification
         this.model = model;
         this.controller = controller;
         sorter = new ViewerSorter();
-        initComponents();
-        buildGUI();
+        if (!model.isClassified()) {
+            buildGUINoClassifications();
+        } else {
+            initComponents();
+            buildGUI();
+        }
     }
     
     /** Adds the classifications nodes to the tree. */

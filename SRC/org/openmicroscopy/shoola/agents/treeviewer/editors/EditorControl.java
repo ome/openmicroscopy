@@ -117,10 +117,7 @@ public class EditorControl
      * 
      * @param b Passed <code>true</code> to close the {@link Editor}. 
      */
-    void close(boolean b)
-    {
-        if (b) model.close();
-    }
+    void close(boolean b) { if (b) model.close(); }
 
     /**
      * Creates the specified <code>DataObject</code>.
@@ -204,12 +201,14 @@ public class EditorControl
     public void stateChanged(ChangeEvent e)
     {
         if (e.getSource() instanceof JTabbedPane) {
-            Component c = ((JTabbedPane) e.getSource()).getSelectedComponent();
+            JTabbedPane tab = (JTabbedPane) e.getSource();
+            Component c = tab.getSelectedComponent();
             if (c instanceof DOInfo) {
                 DOInfo info = (DOInfo) c;
                 if (info.getInfoType() == DOInfo.INFO_TYPE)
                     model.retrieveChannelsData();
             }
+            view.setEditorSelectedPane(tab.getSelectedIndex());
         } else {
             view.onStateChanged(model.getState() == Editor.READY);
         }

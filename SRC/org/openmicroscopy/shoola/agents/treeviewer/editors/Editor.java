@@ -218,15 +218,6 @@ public interface Editor
     public void setSaveResult(DataObject object, int operation);
     
     /**
-     * Sets the images' annotations. This method should be invoked 
-     * if the edited object contains images i.e. if the container is a
-     * <code>Dataset</code> or a <code>Category</code>.
-     * 
-     * @param annotations   The annotations to set.
-     */
-    public void setLeavesAnnotations(Map annotations);
-    
-    /**
      * Returns <code>true</code> if the editor has some data to save 
      * before closing, <code>false</code> otherwise.
      * 

@@ -379,6 +379,7 @@ class DOInfo
         contentPanel = buildContentPanel(details);
         
         add(contentPanel, BorderLayout.NORTH);
+        validate();
         repaint();
     }
     

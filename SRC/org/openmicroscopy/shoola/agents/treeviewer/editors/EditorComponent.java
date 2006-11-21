@@ -44,9 +44,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
-import pojos.CategoryData;
 import pojos.DataObject;
-import pojos.DatasetData;
 
 
 /** 
@@ -368,25 +366,6 @@ class EditorComponent
         model.fireClassificationLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#setLeavesAnnotations(Map)
-     */
-    public void setLeavesAnnotations(Map annotations)
-    {
-        if (model.getState() != LOADING_ANNOTATION)
-            throw new IllegalStateException("This method can only be invoked " +
-                    "in the LOADING_ANNOTATION state.");
-        if (annotations == null)
-            throw new IllegalArgumentException("No annotations.");
-        DataObject object = model.getHierarchyObject();
-        if ((object instanceof DatasetData) ||
-            (object instanceof CategoryData)) {
-            view.showLeavesAnnotations();
-        }
-        model.getParentModel().setStatus(false, "", true);
     }
 
     /**

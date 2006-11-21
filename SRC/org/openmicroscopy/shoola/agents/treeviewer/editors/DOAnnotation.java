@@ -87,6 +87,9 @@ class DOAnnotation
     private static final String         DELETE_ANNOTATION = "Delete " +
                                                         "the annotation";
     
+    /** The default annotation text. */
+    private static final String         DEFAULT_TEXT = "No annotation for ";
+    
     /** Area where to annotate the <code>DataObject</code>. */
     private JTextArea           annotationArea;
     
@@ -104,6 +107,12 @@ class DOAnnotation
     
     /** The index of the current user.*/
     private int                 userIndex;
+    
+    /** 
+     * Flag indicating that the default text is displayed for the 
+     * current user.
+     */
+    private boolean             defaultText;
     
     /** A {@link DocumentListener} for the {@link #annotationArea}. */
     private DocumentListener    annotationAreaListener;
@@ -160,8 +169,23 @@ class DOAnnotation
             public void changedUpdate(DocumentEvent de) {}
             
         };
-        annotationArea.getDocument().addDocumentListener(
+        annotationArea.addMouseListener(new MouseAdapter() {
+            //Removes default message.
+            public void mouseClicked(MouseEvent e)
+            {
+                if (isAnnotable() && defaultText) {
+                    
+                    annotationArea.getDocument().removeDocumentListener(
                             annotationAreaListener);
+                    annotationArea.setText("");
+                    annotationArea.getDocument().addDocumentListener(
+                            annotationAreaListener);
+                }
+            }
+        
+        });
+        annotationArea.getDocument().addDocumentListener(
+                annotationAreaListener);
         setComponentsEnabled(false);
         deleteBox.setSelected(false);
     }
@@ -281,8 +305,9 @@ class DOAnnotation
         view.handleAnnotationAreaInsert();
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
-            addAnnotationText("No annotations for "+details.getFirstName()+" "+
+            addAnnotationText(DEFAULT_TEXT+details.getFirstName()+" "+
                                 details.getLastName());
+            defaultText = true;
             setComponentsEnabled(true);
             deleteBox.setEnabled(false);
             return;

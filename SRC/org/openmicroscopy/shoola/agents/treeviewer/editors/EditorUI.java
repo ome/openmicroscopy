@@ -54,6 +54,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
@@ -357,6 +358,9 @@ class EditorUI
                     //Add a tab listeners to the info
                     tabs.addChangeListener(controller);
                 }
+                int index = model.getSelectedTabbedIndex();
+                if (index >= 0 && index < 3)
+                    tabs.setSelectedIndex(index);
                 return tabs;
         }
         return null;
@@ -371,7 +375,7 @@ class EditorUI
         add(titleLayer, BorderLayout.NORTH);
         JComponent c = buildCenterComponent();
         c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        add(c, BorderLayout.CENTER);
+        add(new JScrollPane(c), BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);
@@ -576,12 +580,6 @@ class EditorUI
         titlePanel.setIconComponent(label);
         doBasic.addListeners();
     }
-
-    /** Shows the images' annotations. */
-    void showLeavesAnnotations()
-    {
-        if (doBasic != null) doBasic.showLeavesAnnotations();
-    }
     
     /** Shows the retrieved annotations.  */
     void showAnnotations()
@@ -687,6 +685,17 @@ class EditorUI
     }
     
     /**
+     * Sets the index of the selected tabbed pane.
+     * 
+     * @param selectedIndex The index to set.
+     */
+    void setEditorSelectedPane(int selectedIndex)
+    {
+        if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
+            model.getParentModel().setEditorSelectedPane(selectedIndex);
+    }
+    
+    /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
      */
@@ -705,5 +714,7 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
+
+
 
 }

@@ -29,11 +29,10 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -43,6 +42,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -58,6 +58,8 @@ import javax.swing.event.DocumentListener;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ImageData;
 
 /** 
  * Component displaying the minimum information on the currently edited 
@@ -95,12 +97,6 @@ class DOBasic
      * object is not annotable.
      */
     private DOAnnotation        annotator;
-    
-    /** 
-     * The component hosting the images' annotation when the edited object
-     * is either a <code>Dataset</code> or <code>Category</code>.
-     */
-    private DOImagesAnnotation  leavesAnnotator;
     
     /** 
      * The component hosting the classification. <code>null</code> if the data 
@@ -159,15 +155,15 @@ class DOBasic
             if (model.isAnnotatable()) {
                 annotator = new DOAnnotation(view, model);
                 IconManager im = IconManager.getInstance();
-                //tabbedPane.ins
                 tabbedPane.addTab(ANNOTATION, 
                             im.getIcon(IconManager.ANNOTATION), annotator);
             }
-            if (model.isClassified()) {
+            if (model.getHierarchyObject() instanceof ImageData) {
                 classifier = new DOClassification(model, controller);
                 tabbedPane.addTab(CLASSIFICATION, 
                       IconManager.getInstance().getIcon(IconManager.CATEGORY),
                       classifier);
+                tabbedPane.setSelectedIndex(EditorFactory.getSubSelectedPane());
             }
         }
         nameAreaListener = new DocumentListener() {
@@ -257,7 +253,10 @@ class DOBasic
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
         content.add(label, c);
+        
         JScrollPane pane  = new JScrollPane(nameArea);
+        FontMetrics fm = getFontMetrics(getFont());
+        c.ipady = fm.getHeight();
         label.setLabelFor(pane);
         c.gridx = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
@@ -273,11 +272,12 @@ class DOBasic
         c.weightx = 0.0;  
         content.add(label, c);
         c.gridx = 1;
-        c.ipady = 60;      //make this component tall
+        c.ipady = fm.getHeight()*4;      //make this component tall
         c.gridheight = 2; //label north location
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
+        c.weighty = 0.0;
         pane  = new JScrollPane(descriptionArea);
         label.setLabelFor(pane);
         content.add(pane, c);
@@ -294,8 +294,16 @@ class DOBasic
         setLayout(new BorderLayout());
         setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
-        add(contentPanel, BorderLayout.NORTH);
-        add(tabbedPane, BorderLayout.CENTER);
+        if (model.isAnnotatable()) {
+            JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, 
+                    contentPanel, tabbedPane);
+            mainPane.setOneTouchExpandable(true);
+            mainPane.setContinuousLayout(true);
+            add(mainPane, BorderLayout.NORTH);
+        } else {
+            add(contentPanel, BorderLayout.NORTH);
+            add(tabbedPane, BorderLayout.CENTER);
+        }
     }
     
     /**
@@ -398,13 +406,6 @@ class DOBasic
         nameArea.getDocument().addDocumentListener(nameAreaListener);
     }
     
-    /** Displays the images annotations. */
-    void showLeavesAnnotations()
-    {
-        if (leavesAnnotator == null) return;
-        leavesAnnotator.showAnnotations();
-    }
-    
     /** Displays the annotations. */
     void showAnnotations()
     { 
@@ -437,9 +438,12 @@ class DOBasic
             {
                 JTabbedPane pane = (JTabbedPane) ce.getSource();
                 Component c = pane.getSelectedComponent();
+                EditorFactory.setSubSelectedPane(pane.getSelectedIndex());
                 if (c instanceof DOClassification) {
-                    if (!model.isClassificationLoaded())
-                        model.fireClassificationLoading();
+                    if (model.isClassified()) {
+                        if (!model.isClassificationLoaded())
+                            model.fireClassificationLoading();
+                    }
                 }
             };
         });

@@ -61,6 +61,53 @@ public class EditorFactory
     /** The sole instance. */
     private static final EditorFactory singleton = new EditorFactory();
 
+             
+    /**
+     * Sets the index of the selected pane in the editor 
+     * when the editor mode is <code>Edit</code>.
+     * 
+     * @param index The pane index.
+     */
+    public static void setEditorSelectedPane(int index)
+    { 
+        singleton.editorSelectedPane = index;
+    }
+    
+    /**
+     * Returns the index of the selected pane. The value is taken into account
+     * only the editor is in the <code>Edit</code> mode.
+     * 
+     * @return See above.
+     */
+    public static int getEditorSelectedPane()
+    { 
+        return singleton.editorSelectedPane;
+    }
+    
+    /**
+     * Returns the index of the sub-selected pane. 
+     * The value is taken into account
+     * only the editor is in the <code>Edit</code> mode
+     * and the data object is an <code>Image</code>.
+     * 
+     * @return See above.
+     */
+    public static int getSubSelectedPane()
+    { 
+        return singleton.subSelectedPane;
+    }
+    
+    /**
+     * Sets the index of the sub selected pane in the editor 
+     * when the editor mode is <code>Edit</code>.
+     * 
+     * @param index The pane index.
+     */
+    public static void setSubSelectedPane(int index)
+    { 
+        singleton.subSelectedPane = index;
+    }
+    
     /**
      * Returns the {@link Editor}.
      * 
@@ -86,7 +133,13 @@ public class EditorFactory
     }
 
     /** The tracked component. */
-    private Editor editor;
+    private Editor  editor;
+    
+    /** The selected tabbed pane. */
+    private int     editorSelectedPane;
+    
+    /** Either annotations or classifications. */
+    private int     subSelectedPane;
     
     /** Creates a new instance. */
     private EditorFactory()
@@ -114,6 +167,7 @@ public class EditorFactory
                                 int editorType, TreeImageDisplay parent)
     { 
         model.addPropertyChangeListener(this);
+       
         if (editor != null) return editor;
         EditorModel m = new EditorModel(model, editorType, ho, parent);
         EditorComponent component = new EditorComponent(m);

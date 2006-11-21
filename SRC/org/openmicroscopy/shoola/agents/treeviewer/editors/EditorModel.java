@@ -58,7 +58,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -745,5 +746,11 @@ class EditorModel
      */
     List getChannelsData() { return emissionWaves; }
     
+    /**
+     * Returns the index of the selected tabbed pane.
+     * 
+     * @return See above.
+     */
+    int getSelectedTabbedIndex() { return parentModel.getEditorSelectedPane(); }
 }
  
