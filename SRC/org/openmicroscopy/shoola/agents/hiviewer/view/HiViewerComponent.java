@@ -585,8 +585,9 @@ class HiViewerComponent
                 browser.accept(l);
                 l.doLayout();
         }
-        model.getTreeView().sortNodes(index, 
-                        (ImageDisplay) model.getBrowser().getUI());
+        TreeView tv = model.getTreeView();
+        if (tv != null) 
+            tv.sortNodes(index, (ImageDisplay) model.getBrowser().getUI());
         view.setCursor(
                 Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
