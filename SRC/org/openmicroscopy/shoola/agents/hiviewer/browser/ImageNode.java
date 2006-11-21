@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import javax.swing.JComponent;
 
@@ -103,7 +106,7 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
-        setTitle(getPartialName(title));
+        setTitle(getPartialName(title+" >"+getFormattedAcquisitionTime()));
         setNodeDecoration();
         setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
@@ -174,6 +177,33 @@ public class ImageNode
      * @return See above.
      */
     public Thumbnail getThumbnail() { return thumbnail; }
+    
+    /**
+     * Returns the time of acquisition or the actual time if information
+     * not available
+     * 
+     * @return See above
+     */
+    public Timestamp getAcquisitionTime()
+    {
+        Timestamp t = null;
+          try {
+              t = ((ImageData) getHierarchyObject()).getInserted();
+        } catch (Exception e) {}
+        if (t == null) t = new Timestamp(new Date().getTime());
+        return t;
+    }
+    
+    /**
+     * Returns the time of acquisition or the actual time if information
+     * not available
+     * 
+     * @return See above
+     */
+    public String getFormattedAcquisitionTime()
+    {
+        return DateFormat.getDateInstance().format(getAcquisitionTime()); 
+    }
     
     /** 
      * Overrides the #setSize(int, int) method, otherwise
