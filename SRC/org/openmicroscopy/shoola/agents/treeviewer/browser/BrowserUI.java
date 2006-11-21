@@ -42,10 +42,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
@@ -64,7 +67,9 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 
 /** 
@@ -148,16 +153,27 @@ class BrowserUI
         JButton button = new JButton(
                 controller.getAction(BrowserControl.BACKWARD_NAV));
         button.setBorderPainted(false);
-        menuBar.add(button);
+        //menuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.FORWARD_NAV));
-        menuBar.add(button);
-        menuBar.add(new JSeparator(SwingConstants.VERTICAL));
-        button = new JButton(controller.getAction(BrowserControl.SORT));
-        button.setBorderPainted(false);
-        menuBar.add(button);
-        button = new JButton(controller.getAction(BrowserControl.SORT_DATE));
-        button.setBorderPainted(false);
-        menuBar.add(button);
+        //menuBar.add(button);
+        //menuBar.add(new JSeparator(SwingConstants.VERTICAL));
+        ButtonGroup group = new ButtonGroup();
+        JToggleButton b = new JToggleButton();
+        group.add(b);
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setBorderPainted(true);
+        b.setSelected(true);
+        b.setAction(controller.getAction(BrowserControl.SORT));
+        
+        menuBar.add(b);
+        b = new JToggleButton(controller.getAction(BrowserControl.SORT_DATE));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setBorderPainted(true);
+        group.add(b);
+        //b.setBorderPainted(false);
+        
+        menuBar.add(b);
+        
         button = new JButton(controller.getAction(BrowserControl.FILTER_MENU));
         button.addMouseListener((FilterMenuAction) 
                             controller.getAction(BrowserControl.FILTER_MENU));
@@ -297,7 +313,7 @@ class BrowserUI
         Iterator i = nodes.iterator();
         TreeImageDisplay display;
         Set children;
-        
+        parent.removeAllChildren();
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
@@ -783,6 +799,31 @@ class BrowserUI
         reloadRoot = true;
     }
     
+    /**
+     * Sorts the nodes in the tree view.
+     * If node
+     * @param type
+     */
+    void sortNodes(int type)
+    {
+        sorter.setByDate(type == Browser.SORT_NODES_BY_DATE);
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+        TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
+        boolean reload = false;
+        Set children = root.getChildrenDisplay();
+        root.removeAllChildren();
+        dtm.reload(root);
+        if (children.size() != 0) {
+            buildTreeNode(root, sorter.sort(children), dtm);
+            if (!reload) reload = reloadRoot;
+        } else buildEmptyNode(root);
+        if (reload) dtm.reload(root);
+        if (!model.isMainTree()) loadGoIntoTree();
+        reloadRoot = true;
+        
+    }
+    
+    
     /** Loads the children of the root node. */
     void loadRoot()
     {
@@ -828,7 +869,6 @@ class BrowserUI
     /** Resets the UI so that we have no node selected in trees. */
     void setNullSelectedNode()
     {
-        
         if (getTreeRoot() != null) {
             treeDisplay.setSelectionRow(-1);
             goIntoTree.setSelectionRow(-1);

@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.SortCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -512,6 +511,7 @@ class BrowserComponent
                 throw new IllegalArgumentException("SortType not supported.");
         }
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+       /*
         SortCmd cmd;
         TreeImageDisplay node;
         if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
@@ -519,7 +519,10 @@ class BrowserComponent
         else node = getLastSelectedDisplay();
         cmd = new SortCmd(this, sortType, node);
         cmd.execute();
-        view.setSortedNodes(cmd.getSortedNodes(), node);
+        //view.setSortedNodes(cmd.getSortedNodes(), node);
+         */
+        view.sortNodes(sortType);
+        
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
