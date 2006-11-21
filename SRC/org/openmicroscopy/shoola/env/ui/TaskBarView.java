@@ -33,11 +33,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,6 +46,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
@@ -186,6 +185,56 @@ class TaskBarView
 												IconManager.getOMEIcon());
 	}
 	
+    /**
+     * Copies the items from the specified menu and creates a new menu.
+     * 
+     * @param original The menu to handle.
+     * @return See above.
+     */
+    private JMenu copyItemsFromMenu(JMenu original)
+    {
+        Component[] comps = original.getPopupMenu().getComponents();
+        JMenu menu = new JMenu();
+        menu.setText(original.getText());
+        menu.setToolTipText(original.getToolTipText());
+        ActionListener[] al = original.getActionListeners();
+        for (int j = 0; j < al.length; j++)
+            menu.addActionListener(al[j]);
+        MenuKeyListener[] mkl = original.getMenuKeyListeners();
+        for (int j = 0; j < mkl.length; j++)
+            menu.addMenuKeyListener(mkl[j]);
+        
+        MenuListener[] ml = original.getMenuListeners() ; 
+        for (int j = 0; j < ml.length; j++)
+            menu.addMenuListener(ml[j]);
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i] instanceof JMenu) {
+                menu.add(copyItemsFromMenu((JMenu) comps[i]));
+            } else if (comps[i] instanceof JMenuItem) {
+                menu.add(copyItem((JMenuItem) comps[i]));
+            }
+        }
+        return menu;
+    }
+    
+    /**
+     * Makes and returns a copy of the speficied item.
+     * 
+     * @param original The item to handle.
+     * @return See above.
+     */
+    private JMenuItem copyItem(JMenuItem original)
+    {
+        JMenuItem item = new JMenuItem(original.getAction());
+        item.setText(original.getText());
+        item.setToolTipText(original.getToolTipText());
+        ActionListener[] al = original.getActionListeners();
+        for (int j = 0; j < al.length; j++)
+            item.addActionListener(al[j]);
+        return item;
+
+    }
+    
 	/**
 	 * Helper method to create the file menu.
 	 * 
@@ -490,10 +539,23 @@ class TaskBarView
         }
     }
 
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#getWindowsMenu()
+     */
     public JMenu getWindowsMenu()
     {
-        // TODO Auto-generated method stub
-        return null;
+        JMenu menu = createWindowMenu();
+        Component[] comps = menus[WINDOW_MENU].getPopupMenu().getComponents();
+        for (int i = 0; i < comps.length; i++) {
+            if (comps[i] instanceof JMenu) {
+                menu.add(copyItemsFromMenu((JMenu) comps[i]));
+            } else if (comps[i] instanceof JMenuItem) {
+               
+                menu.add(copyItem((JMenuItem) comps[i]));
+            }
+        }
+        return menu;
     }
 
     /**

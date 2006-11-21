@@ -121,8 +121,7 @@ public interface TaskBar
 	 * in the {@link #WINDOW_MENU}.
 	 */
 	public static final int		QUICK_LAUNCH_TOOLBAR = 1; 
-	
-	
+    
 	/**
 	 * Adds <code>entry</code> to the specified menu.
 	 * 
