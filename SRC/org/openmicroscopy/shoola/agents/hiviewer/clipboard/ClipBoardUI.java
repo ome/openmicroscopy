@@ -47,6 +47,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 
@@ -77,12 +78,15 @@ class ClipBoardUI
     /** The position of the <code>Annotate</code>  pane. */
     private static final int    ANNOTATE_TAB = 1;
     
+    /** The position of the <code>Classification</code>  pane. */
+    private static final int    CLASSIFICATION_TAB = 2;
+    
     /** The position of the <code>Editor</code>  pane. */
-    private static final int    EDITOR_TAB = 2;
+    private static final int    EDITOR_TAB = 3;
     
     /** The position of the <code>Info</code>  pane. */
-    private static final int    INFO_TAB = 3;
-    
+    private static final int    INFO_TAB = 4;
+
     /** Reference to the Control. */
     private ClipBoardControl    controller;
     
@@ -110,6 +114,9 @@ class ClipBoardUI
         tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
                         pane, pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
+                        pane, pane.getPaneDescription());
+        pane = model.getClipboardPane(ClipBoard.CLASSIFICATION_PANE);
         tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
                         pane, pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
@@ -156,6 +163,10 @@ class ClipBoardUI
                         break;
                     case EDITOR_TAB:
                         controller.setSelectedPane(ClipBoard.EDITOR_PANE);
+                        break;
+                    case CLASSIFICATION_TAB:
+                        controller.setSelectedPane(
+                                ClipBoard.CLASSIFICATION_PANE);
                         break;
                 };
             }
@@ -233,8 +244,22 @@ class ClipBoardUI
      */
     void setChannelMetadata(List l)
     {
+        if (model.getPaneIndex() != ClipBoard.INFO_PANE) return;
         InfoPane pane = (InfoPane) model.getClipboardPane(ClipBoard.INFO_PANE);
         pane.setChannelsMetadata(l);
+    }
+
+    /**
+     * Displays the retrieved classifications.
+     * 
+     * @param paths The classifications to display.
+     */
+    void showClassifications(Set paths)
+    {
+        if (model.getPaneIndex() != ClipBoard.CLASSIFICATION_PANE) return;
+        ClassificationPane pane = (ClassificationPane) 
+                    model.getClipboardPane(ClipBoard.CLASSIFICATION_PANE);
+        pane.showClassifications(paths);
     }
     
 }

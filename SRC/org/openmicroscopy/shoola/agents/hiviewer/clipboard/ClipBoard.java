@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by clip board component.
@@ -76,11 +77,14 @@ public interface ClipBoard
     /** Identifies the index of the <code>Annotation</code> pane. */
     public static final int     ANNOTATION_PANE = 1;
     
-    /** Identifies the index of the <code>Information</code> pane. */
-    public static final int     EDITOR_PANE = 2;
+    /** Identifies the index of the <code>Classification</code> pane. */
+    public static final int     CLASSIFICATION_PANE = 2;
     
     /** Identifies the index of the <code>Information</code> pane. */
-    public static final int     INFO_PANE = 3;
+    public static final int     EDITOR_PANE = 3;
+    
+    /** Identifies the index of the <code>Information</code> pane. */
+    public static final int     INFO_PANE = 4;
     
     /** Identifies the <i>Loading channels metadata</i> state. */
     public static final int     READY = 198;
@@ -99,6 +103,15 @@ public interface ClipBoard
     
     /** Identifies the <i>Discarded annotations</i> state. */
     public static final int     DISCARDED_ANNOTATIONS = 203;
+    
+    /** Identifies the <i>Loading classifications</i> state. */
+    public static final int     LOADING_CLASSIFICATIONS = 204;
+    
+    /** Identifies the <i>Classification ready</i> state. */
+    public static final int     CLASSIFICATIONS_READY = 205;
+    
+    /** Identifies the <i>Declassification</i> state. */
+    public static final int     DECLASSIFICATION = 206;
     
     /** Indicates to retrieve the image annotations. */
     public static final int     IMAGE_ANNOTATIONS = 300;
@@ -299,5 +312,38 @@ public interface ClipBoard
      * @return See above.
      */
     public boolean isDisplay();
+    
+    /**
+     * Browses the specified <code>DataObject</code>.
+     * 
+     * @param object The object to browse.
+     */
+    public void browse(DataObject object);
+
+    /**
+     * Retrieves the CategoryGroup/Category nodes containing the
+     * specified image.
+     * 
+     * @param object The object to handle.
+     */
+    public void retrieveClassifications(ImageData object);
+
+    /**
+     * Sets the retieved classifications.
+     * 
+     * @param set Collections of CategoryGroup/Category nodes.
+     */
+    public void setClassifications(Set set);
+
+    /**
+     * Removes the image from the specified categories
+     * 
+     * @param image The image to declassify.
+     * @param paths Collection of categories to remove the image from.
+     */
+    public void declassifyImage(ImageData image, Set paths);
+
+    public void saveClassification(Set set);
+    
 }
 

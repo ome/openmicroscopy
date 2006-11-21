@@ -46,14 +46,18 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ChannelMetadataLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.ClassificationsLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
+import org.openmicroscopy.shoola.agents.hiviewer.Declassifier;
 import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.env.ui.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -92,6 +96,9 @@ class ClipBoardModel
     
     /** The index of the selected pane. */
     private int                     paneIndex;
+    
+    /** The classifications retrieved for an image. */
+    private Set                     classifications;
     
     /** Retrieved annotations for a specified image or dataset.*/
     private Map                     annotations;
@@ -134,6 +141,8 @@ class ClipBoardModel
                     new InfoPane(component));
         cbPanes.put(new Integer(ClipBoard.EDITOR_PANE), 
                 new EditorPane(component));
+        cbPanes.put(new Integer(ClipBoard.CLASSIFICATION_PANE), 
+                new ClassificationPane(component));
     }
     
     /** 
@@ -335,6 +344,20 @@ class ClipBoardModel
     }
     
     /**
+     * Starts the asynchronous retrieval of the classifications 
+     * and sets the state to {@link ClipBoard#LOADING_ANNOTATIONS}.
+     * 
+     * @param ho The <code>DataObject</code> to retrieve the classification for.
+     */
+    void fireClassificationsLoading(ImageData ho)
+    {
+        currentLoader = new ClassificationsLoader(component, ho.getId(), 
+                parentModel.getRootLevel(), parentModel.getRootID());  
+        currentLoader.load();
+        state = ClipBoard.LOADING_CLASSIFICATIONS;
+    }
+    
+    /**
      * Starts the asynchronous retrieval of the annotations 
      * and sets the state to {@link ClipBoard#LOADING_ANNOTATIONS}.
      * 
@@ -452,4 +475,28 @@ class ClipBoardModel
      */
     boolean isDisplay() { return display; }
 
+    /**
+     * Sets the retrieved classifications.
+     * 
+     * @param classifications The value to set.
+     */
+    void setClassifications(Set classifications)
+    {
+        this.classifications = classifications;
+        state = ClipBoard.CLASSIFICATIONS_READY;
+    }
+
+    /**
+     * Starts the asynchronous declassification of the image.
+     * 
+     * @param image The image to declassify.
+     * @param paths The categories containing the image.
+     */
+    void declassifyImage(ImageData image, Set paths)
+    {
+        currentLoader = new Declassifier(component, image, paths);
+        currentLoader.load();
+        state = ClipBoard.DECLASSIFICATION;
+    }
+    
 }

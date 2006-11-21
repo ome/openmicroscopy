@@ -159,12 +159,14 @@ class ClipBoardControl
                 case ClipBoard.EDIT_ANNOTATIONS:
                     model.getParentModel().setStatus(EDIT_MSG, -1);
                     break;
+                case ClipBoard.LOADING_CLASSIFICATIONS:
                 case ClipBoard.LOADING_ANNOTATIONS:
                 case ClipBoard.LOADING_CHANNELS_METADATA:
                     model.getParentModel().setStatus(LOADING_MSG, -1);
                     break;
                 case ClipBoard.READY:
                 case ClipBoard.ANNOTATIONS_READY:
+                case ClipBoard.CLASSIFICATIONS_READY:
                 case ClipBoard.DISCARDED_ANNOTATIONS:
                     model.getParentModel().setStatus("", -1);
                     break;

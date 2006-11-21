@@ -42,11 +42,13 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -204,6 +206,7 @@ class ClipBoardComponent
             case ANNOTATION_PANE:
             case INFO_PANE:
             case EDITOR_PANE:
+            case CLASSIFICATION_PANE:
                 break;
             default:
                 throw new IllegalArgumentException("Pane index not valid.");
@@ -412,6 +415,60 @@ class ClipBoardComponent
     {
         // TODO Auto-generated method stub
         return model.isDisplay();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#browse(DataObject)
+     */
+    public void browse(DataObject object)
+    {
+        if (object == null) return;
+        ViewCmd cmd = new ViewCmd(model.getParentModel(), object);
+        cmd.execute();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#retrieveClassifications(ImageData)
+     */
+    public void retrieveClassifications(ImageData object)
+    {
+        if (object == null) return;
+        model.fireClassificationsLoading(object);
+        fireStateChange();
+    }
+    
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#setClassifications(Set)
+     */
+    public void setClassifications(Set nodes)
+    {
+        if (model.getState() != ClipBoard.LOADING_CLASSIFICATIONS) return;
+        Set paths = HiTranslator.transformClassificationPaths(nodes, 
+                    model.getUserID(), model.getGroupID());
+        model.setClassifications(paths);
+        view.showClassifications(paths);
+        fireStateChange();
+    }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#declassifyImage(ImageData, Set)
+     */
+    public void declassifyImage(ImageData image, Set paths)
+    {
+        if (model.getState() != ClipBoard.CLASSIFICATIONS_READY) return;
+        if (image == null || paths == null) return;
+        model.declassifyImage(image, paths);
+        fireStateChange();
+    }
+
+    public void saveClassification(Set set)
+    {
+        if (model.getState() != ClipBoard.DECLASSIFICATION) return;
+        
     }
 
 }
