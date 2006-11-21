@@ -106,15 +106,19 @@ class BrowserCanvas
                 
                 Rectangle imgRect = new Rectangle(0, 0, width, height);
                 Rectangle viewRect = view.getViewport().getBounds();
+                JViewport port = view.getViewport();
+                int x = (int) port.getViewPosition().getX();
+                int y = (int) port.getViewPosition().getY();
                 if (imgRect.contains(viewRect)) {
-                    JViewport port = view.getViewport();
-                    width = (int) port.getViewPosition().getX()+port.getWidth();
-                    height = (int) port.getViewPosition().getY()+
-                            port.getHeight();
+                    width = x+port.getWidth();
+                    height = y+port.getHeight();
                 } else {
-                	if (viewRect.width < imgRect.width) width = viewRect.width;
-                	if (viewRect.height < imgRect.height)
-                		height = viewRect.height;
+                	width = img.getWidth();
+                	height = img.getHeight();
+                	if (x+viewRect.width < imgRect.width) 
+                		width = x+viewRect.width;
+                	if (y+viewRect.height < imgRect.height)
+                		height = y+viewRect.height;         	
                 }
                 ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
                 										height-10, size, value);
