@@ -556,5 +556,5 @@ class TreeViewerModel
        nodesToCopy = null;
        return true;
    }
-
+   
 }

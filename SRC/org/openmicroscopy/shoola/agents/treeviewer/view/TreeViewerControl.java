@@ -397,9 +397,10 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
-        } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY) ||
-                name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
+        } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY)) {
             model.removeEditor();
+            model.onComponentStateChange(true);
+        } else if (name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
             model.onComponentStateChange(true);
         } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
             Boolean b = (Boolean) pce.getNewValue();
@@ -418,6 +419,12 @@ class TreeViewerControl
         } else if (name.equals(TreeViewer.THUMBNAIL_LOADING_PROPERTY)) {
             model.retrieveThumbnail((ImageData) pce.getNewValue());
         } else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
+            Object oldValue = pce.getOldValue();
+            Object newValue = pce.getNewValue();
+            if (oldValue != null && newValue != null) {
+                if (!(oldValue.getClass().equals(newValue.getClass())))
+                    model.setEditorSelectedPane(0);
+            }
             model.onSelectedDisplay();
         } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
             Map browsers = model.getBrowsers();

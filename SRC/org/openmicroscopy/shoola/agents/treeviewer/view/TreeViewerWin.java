@@ -221,14 +221,17 @@ class TreeViewerWin
     {
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CREATE_TOP_CONTAINER)));
+        TreeViewerAction a = controller.getAction(
+                            TreeViewerControl.CREATE_TOP_CONTAINER);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
         menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        TreeViewerAction a = controller.getAction(TreeViewerControl.VIEW);
-        JMenuItem item = new JMenuItem(a);
+        a = controller.getAction(TreeViewerControl.VIEW);
+        item = new JMenuItem(a);
         item.setText(a.getActionName());
         menu.add(item);
         menu.add(new JMenuItem(

@@ -269,9 +269,11 @@ class TreeViewerComponent
         editor.addPropertyChangeListener(controller);
         editor.activate();
         model.setEditor(editor);
+
         if (editorType == CREATE_EDITOR) {
             editorDialog = new EditorDialog(view);
             editorDialog.addComponent(editor.getUI());
+            editorDialog.setSize(600, 350);
             UIUtilities.centerAndShow(editorDialog);
             onComponentStateChange(false);
         } else view.addComponent(editor.getUI());
@@ -617,6 +619,7 @@ class TreeViewerComponent
             mode != Classifier.DECLASSIFY_MODE)
             throw new IllegalArgumentException("Classification mode not " +
                     "supported.");
+        TreeImageDisplay d = getSelectedBrowser().getLastSelectedDisplay();
         Map browsers = model.getBrowsers();
         Iterator b = browsers.keySet().iterator();
         Browser browser;
@@ -626,10 +629,21 @@ class TreeViewerComponent
             browser.refreshTree();
             //browser.refreshClassification(images, categories, mode);
         }
+        getSelectedBrowser().setSelectedDisplay(d);
+        /*
+        if (d != null) {
+            getSelectedBrowser().setSelectedDisplay(d);
+            Object uo = d.getUserObject();
+            if (uo != null && uo instanceof DataObject) {
+                showProperties((DataObject) uo, PROPERTIES_EDITOR);
+            }    
+        }
+        */
+        
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    /**
+    /**            
      * Implemented as specified by the {@link HiViewer} interface.
      * @see TreeViewer#moveToBack()
      */
@@ -896,6 +910,33 @@ class TreeViewerComponent
             throw new IllegalStateException("This method cannot be invoked " +
                     "in the DISCARDED state.");
         return view;
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setEditorSelectedPane(int)
+     */
+    public void setEditorSelectedPane(int index)
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
+            EditorFactory.setEditorSelectedPane(index);
+    }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getEditorSelectedPane()
+     */
+    public int getEditorSelectedPane()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+        if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
+            return EditorFactory.getEditorSelectedPane();
+        return -1;
     }
     
 }

@@ -513,7 +513,8 @@ public interface TreeViewer
     /**
      * Sets the data displayed in the editor
      * 
-     * @param b
+     * @param b Pass <code>true</code> to save the data, <code>false</code> to
+     *          remove the editor.
      */
     public void saveInEditor(boolean b);
 
@@ -524,4 +525,19 @@ public interface TreeViewer
      */
     public JFrame getUI();
        
+    /**
+     * Sets the index of the selected pane when the editor is in the 
+     * <code>Edit</code> mode.
+     * 
+     * @param index The value to set.
+     */
+    public void setEditorSelectedPane(int index);
+    
+    /**
+     * Returns the index of the selected pane. The value is taken into account
+     * only the editor is in the <code>Edit</code> mode.
+     * 
+     * @return See above.
+     */
+    public int getEditorSelectedPane();
 }
