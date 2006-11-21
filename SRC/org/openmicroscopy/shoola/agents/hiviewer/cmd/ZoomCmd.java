@@ -148,9 +148,9 @@ public class ZoomCmd
         if (selectedDisplay.getParentDisplay() == null) return;
         selectedDisplay.accept(visitor);
         if (selectedDisplay instanceof ImageSet) {
-            Layout layout = LayoutFactory.createLayout(
-                    			LayoutFactory.SQUARY_LAYOUT);
-            layout.visit((ImageSet) selectedDisplay);
+            //Layout layout = LayoutFactory.createLayout(
+            //        			LayoutFactory.SQUARY_LAYOUT);
+            //layout.visit((ImageSet) selectedDisplay);
         } 
     }
 

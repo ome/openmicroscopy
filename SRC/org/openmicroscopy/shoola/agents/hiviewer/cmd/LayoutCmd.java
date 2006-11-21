@@ -36,14 +36,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Cursor;
-
-import javax.swing.JFrame;
-
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
@@ -75,17 +68,16 @@ public class LayoutCmd
      * Checks if the index of the layout is supported.
      * 
      * @param index The passed index.
-     * @return <code>true</code> if supported, <code>false</code> otherwise.
      */
-    private boolean checkIndex(int index)
+    private void checkIndex(int index)
     {
         switch (index) {
             case LayoutFactory.SQUARY_LAYOUT:
-            case LayoutFactory.TREE_LAYOUT:  
             case LayoutFactory.FLAT_LAYOUT:    
-                return true;
+                return;
+            default:
+                    throw new IllegalArgumentException("Index not supported.");
         }
-        return false;
     }
     
     /**
@@ -97,8 +89,7 @@ public class LayoutCmd
     public LayoutCmd(HiViewer model, int layoutIndex)
     {
         if (model == null) throw new IllegalArgumentException("No model");
-        if (!checkIndex(layoutIndex))
-            throw new IllegalArgumentException("Index not supported.");
+        checkIndex(layoutIndex);
         this.model = model;
         this.layoutIndex = layoutIndex;
     }
@@ -106,30 +97,8 @@ public class LayoutCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        Browser browser = model.getBrowser();
-        JFrame view = model.getUI();
-        if (browser.getSelectedLayout() == layoutIndex) return; 
-        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        switch (layoutIndex) {
-            case LayoutFactory.SQUARY_LAYOUT:
-                browser.setSelectedLayout(layoutIndex);
-                browser.resetChildDisplay();
-                browser.accept(LayoutFactory.createLayout(
-                        LayoutFactory.SQUARY_LAYOUT),
-                        ImageDisplayVisitor.IMAGE_SET_ONLY);
-                //browser.setTreeDisplay(null);
-                
-                break;
-            case LayoutFactory.FLAT_LAYOUT:
-                browser.setSelectedLayout(layoutIndex);
-                browser.resetChildDisplay();
-                Layout l = LayoutFactory.createLayout(layoutIndex);
-                browser.accept(l);
-                browser.setSelectedLayout(LayoutFactory.FLAT_LAYOUT);
-                l.doLayout();
-        }
-        view.setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        if (model.getBrowser().getSelectedLayout() == layoutIndex) return; 
+        model.setLayout(layoutIndex);
     }
 
 }
