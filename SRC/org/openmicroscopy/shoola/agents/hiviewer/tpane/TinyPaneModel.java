@@ -259,7 +259,6 @@ class TinyPaneModel
      */
     void restoreDisplay(TinyPaneUI uiDelegate)
     {
-        //if (changeDisplayDesktop == null) return;
         contentPane.removeAll();
         if (singleViewMode) {
             if (singleViewDesktop != null)
@@ -267,9 +266,8 @@ class TinyPaneModel
                     uiDelegate.decorateDesktopPane(singleViewDesktop),
                     BorderLayout.CENTER);
         } else 
-        contentPane.add(
-                uiDelegate.decorateDesktopPane(desktopPane),
-                BorderLayout.CENTER);
+            contentPane.add(uiDelegate.decorateDesktopPane(desktopPane),
+                    BorderLayout.CENTER);
         contentPane.validate();
         contentPane.repaint();
     }

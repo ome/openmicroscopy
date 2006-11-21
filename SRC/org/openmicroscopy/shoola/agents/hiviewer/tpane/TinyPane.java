@@ -137,7 +137,7 @@ public class TinyPane
     /** Bound property name indicating if the frame is resizable. */
     public final static String  RESIZABLE_PROPERTY = "resizable";  
     
-    /** Bound property name indicating if the frame is resizable. */
+    /** Bound property name indicating if the frame is decorated. */
     public final static String  DECORATION_PROPERTY = "decoration";  
     
     /** 
@@ -596,6 +596,7 @@ public class TinyPane
     public void setDecoration(Set decoration)
     {
         Set oldValue = model.getDecoration();
+        if (oldValue.size() == 0 && decoration.size() == 0) return;
         model.setDecoration(decoration);
         firePropertyChange(DECORATION_PROPERTY, oldValue, decoration);
     }
