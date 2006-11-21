@@ -40,8 +40,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.ButtonGroup;
@@ -54,7 +52,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
@@ -176,28 +173,13 @@ class HiViewerWin
         menuBar.add(createFileMenu());
         menuBar.add(createEditMenu());
         menuBar.add(createViewMenu());
-        
-        menuBar.add(createWindowMenu());
-        
+        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+        menuBar.add(tb.getWindowsMenu());
         helpMenu = createHelpMenu();
         menuBar.add(createHelpMenu());
         return menuBar;
     }
-    
-    /**
-     * Helper method to create the window menu.
-     * 
-     * @return See above.
-     */
-    private JMenu createWindowMenu()
-    {
-        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
-        JMenu menu = tb.getWindowsMenu();
 
-        return tb.getWindowsMenu();
-    }
-    
-    
     /**
      * Helper method to create the Classify submenu.
      * 
