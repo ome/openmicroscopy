@@ -33,6 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
@@ -61,8 +62,11 @@ class BrowserCanvas
     extends JPanel
 {
 
-    /** Reference to the Model. */
+	/** Reference to the Model. */
     private BrowserModel    model;
+    
+    /** Reference to the View. */
+    private BrowserUI    view;
     
     
     /**
@@ -70,10 +74,12 @@ class BrowserCanvas
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    BrowserCanvas(BrowserModel model)
+    BrowserCanvas(BrowserModel model, BrowserUI view)
     {
         if (model == null) throw new NullPointerException("No model.");
+        if (view == null) throw new NullPointerException("No view.");
         this.model = model;
+        this.view = view;
         setDoubleBuffered(true);
     }
 
@@ -93,8 +99,29 @@ class BrowserCanvas
             String value = model.getUnitBarValue(); 
             if (value != null) {
                 int size = (int) (model.getUnitBarSize());
-                ImagePaintingFactory.paintScaleBar(g2D, img.getWidth()-size-10, 
-                            img.getHeight()-10, size, value);
+                int width, height;
+                width = img.getWidth();
+                height = img.getHeight();
+                
+                Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
+                		img.getHeight());
+                Rectangle viewRect = view.getViewport().getBounds();
+                if(imgRect.contains(viewRect))
+                {
+                width = (int)view.getViewport().getViewPosition().getX()+
+                view.getViewport().getWidth();
+                height = (int)view.getViewport().getViewPosition().getY()+
+                view.getViewport().getHeight();
+                }
+                else
+                {
+                	if(viewRect.width < imgRect.width)
+                		width = viewRect.width;
+                	if(viewRect.height < imgRect.height)
+                		height = viewRect.height;
+                }
+                ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
+                										height-10, size, value);
             }
         }
     }

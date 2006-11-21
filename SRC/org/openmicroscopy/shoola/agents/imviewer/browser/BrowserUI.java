@@ -33,9 +33,12 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
@@ -81,7 +84,7 @@ class BrowserUI
     private void initComponents()
     {
         layeredPane = new JLayeredPane();
-        browserCanvas = new BrowserCanvas(model);
+        browserCanvas = new BrowserCanvas(model, this);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
     }
@@ -146,6 +149,8 @@ class BrowserUI
         browserCanvas.repaint();
     }
     
+
+    
     /** Displays the zoomed image. */
     void zoomImage()
     {
@@ -162,11 +167,12 @@ class BrowserUI
         if (x < 0) x = 0;
         int y = h/2-viewportH/2;
         if (y < 0) y = 0;
-        
+
         currentView.setViewPosition(new Point(x, y));
         browserCanvas.repaint();
     }
     
+      
     /**
      * Sets the size of the components b/c a layeredPane doesn't have a layout
      * manager.
