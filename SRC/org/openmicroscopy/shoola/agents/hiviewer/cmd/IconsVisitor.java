@@ -67,7 +67,6 @@ public class IconsVisitor
     
     /**
      * Sets a suitable icon for this node.
-     * 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
     public void visit(ImageSet node)
