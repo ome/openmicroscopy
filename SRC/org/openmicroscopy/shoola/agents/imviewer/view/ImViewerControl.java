@@ -345,7 +345,12 @@ class ImViewerControl
         JMenu menu = ImViewerFactory.getWindowsMenu();
         menu.addMenuListener(new MenuListener() {
 
-            public void menuSelected(MenuEvent e) { createWindowsMenuItems(); }
+            public void menuSelected(MenuEvent e)
+            { 
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source);
+            }
             
             /** 
              * Required by I/F but not actually needed in our case, 
@@ -368,7 +373,9 @@ class ImViewerControl
 
             public void menuKeyReleased(MenuKeyEvent e)
             {
-                createWindowsMenuItems();
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source);
             }
             
             /** 
@@ -403,18 +410,19 @@ class ImViewerControl
                 LoadingWindow.CLOSED_PROPERTY, this);
     }
 
-    /** Creates the windowsMenuItems. */
-    private void createWindowsMenuItems()
+    /** 
+     * Creates the windowsMenuItems. 
+     * 
+     * @param menu The menu to handle.
+     */
+    private void createWindowsMenuItems(JMenu menu)
     {
         Set viewers = ImViewerFactory.getViewers();
         Iterator i = viewers.iterator();
-        JMenu menu = ImViewerFactory.getWindowsMenu();
         menu.removeAll();
-        ImViewer viewer;
-        while (i.hasNext()) {
-            viewer = (ImViewer) i.next();
-            menu.add(new JMenuItem(new ActivationAction(viewer)));
-        }
+        while (i.hasNext()) 
+            menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
+
     }
     
     /**

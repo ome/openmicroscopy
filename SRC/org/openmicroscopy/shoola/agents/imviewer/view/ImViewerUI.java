@@ -36,10 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
@@ -55,8 +52,10 @@ import javax.swing.JSeparator;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -133,6 +132,8 @@ class ImViewerUI
         menuBar.add(createViewMenu());
         menuBar.add(createZoomMenu());
         createRatingMenu();
+        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        menuBar.add(tb.getWindowsMenu());
         menuBar.add(createHelpMenu());
         return menuBar;
     }
