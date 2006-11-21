@@ -33,13 +33,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-
 
 //Third-party libraries
 
@@ -82,12 +82,13 @@ class HiViewerToolBar
         bar.setBorder(null);
         JToggleButton b = new JToggleButton(
                 controller.getAction(HiViewerControl.TREE_VIEW));
-        //UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setMargin(new Insets(0, 2, 0, 3));
        // b.setBorderPainted(true);
         bar.add(b);
+        
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
-        //UIUtilities.unifiedButtonLookAndFeel(b);
+        b.setMargin(new Insets(0, 2, 0, 3));
         b.setSelected(true);
         //b.setBorderPainted(true);
         bar.add(b);
