@@ -342,7 +342,7 @@ class ImViewerControl
      */
     private void attachWindowListeners()
     {
-        JMenu menu = ImViewerFactory.getWindowsMenu();
+        JMenu menu = ImViewerFactory.getWindowMenu();
         menu.addMenuListener(new MenuListener() {
 
             public void menuSelected(MenuEvent e)
@@ -453,9 +453,11 @@ class ImViewerControl
         createActions();
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
-        attachWindowListeners();
+        if (!(ImViewerFactory.isWindowMenuAttachedToTaskBar())) {
+            attachWindowListeners();
+            ImViewerFactory.attachWindowMenuToTaskBar();
+        }
         createTimer();
-        
     }
 
     /** 
@@ -468,8 +470,7 @@ class ImViewerControl
     	{
     		public void actionPerformed(ActionEvent e) 
     		{
-    			if( view.isLensVisible() )
-    				updateLensImage();
+    			if (view.isLensVisible()) updateLensImage();
 	    	}
     	});
     	timer.stop();
@@ -480,7 +481,7 @@ class ImViewerControl
      */
     private void updateLensImage()
     {
-    	if(view.isLensVisible())
+    	if (view.isLensVisible())
     		view.setLensPlaneImage(model.getRenderedImage());
     	timer.stop();
     }
@@ -504,9 +505,23 @@ class ImViewerControl
      * @param t The selected timepoint.
      */
     void setSelectedXYPlane(int z, int t) { model.setSelectedXYPlane(z, t); }
+
+    /**
+     * Returns the previous state.
+     * 
+     * @return See above.
+     */
+    int getHistoryState() { return historyState; }
+
+    /**
+     * Sets the previous state.
+     * 
+     * @param s The value to set.
+     */
+    void setHistoryState(int s) { historyState = s; }
     
     /**
-     * 
+     * Reacts to state changes in the {@link ImViewer}.
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
@@ -519,7 +534,7 @@ class ImViewerControl
                 window.dispose();
                 view.setVisible(false);
                 view.dispose();
-                if(view.isLensVisible())
+                if (view.isLensVisible())
                 	view.setLensVisible(false);
                 historyState = state;
                 break;
@@ -552,8 +567,7 @@ class ImViewerControl
         }
         //historyState = state;
     }
-    
-    
+
     /**
      * Reacts to property changes in the {@link ImViewer}.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -622,20 +636,6 @@ class ImViewerControl
         }
     }
 
-    /**
-     * Returns the previous state.
-     * 
-     * @return See above.
-     */
-    int getHistoryState() { return historyState; }
-
-    /**
-     * Sets the previous state.
-     * 
-     * @param s The value to set.
-     */
-    void setHistoryState(int s) { historyState = s; }
-
 	/**
 	 * Captures the resize event of the {@link ImViewerUI}, if the user has 
 	 * selected the zoom to fit to the window then resize the image to fit to
@@ -644,7 +644,7 @@ class ImViewerControl
 	 */
 	public void componentResized(ComponentEvent e) 
 	{ 
-		if (model.zoomFitToWindow()) { model.setZoomFactor(-1); }
+		if (model.zoomFitToWindow()) model.setZoomFactor(-1); 
 	}
 
 	/**
