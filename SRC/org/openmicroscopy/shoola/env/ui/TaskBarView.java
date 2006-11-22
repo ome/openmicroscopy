@@ -35,6 +35,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -133,6 +137,9 @@ class TaskBarView
 	 */
 	private static final int	MAX_ID = 11;
 		
+    /** The title of the frame. */
+    private static final String TITLE = "Open Microscopy Environment";
+    
 	/**
 	 * All the button-like objects used by this view.
 	 * These are all the menu items within the various menus in the menu bar
@@ -160,6 +167,9 @@ class TaskBarView
 
 	/** Cached reference to the {@link IconManager} singleton.*/
 	private IconManager        iconManager;
+    
+    /** Collection of the copy of the window menu. */
+    private Set                 windowMenus;
     
 	/**
 	 * Helper method to create all menu items for the various menus within
@@ -405,13 +415,14 @@ class TaskBarView
 	 */
 	TaskBarView(IconManager im)
 	{
-		super("Open Microscopy Environment");
+		super(TITLE);
 		buttons = new AbstractButton[MAX_ID+1];
 		menus = new JMenu[3];
 		toolbars = new JToolBar[2];
 		toolbars[QUICK_LAUNCH_TOOLBAR] = createToolBar();
 		toolbars[TASKS_TOOLBAR] = createToolBar();
 		iconManager = im;
+        windowMenus = new HashSet();
 		buildGUI();
 	}
 	
@@ -439,6 +450,17 @@ class TaskBarView
 		if (entry == null)
 			throw new NullPointerException("No entry");
 		menus[menuID].add(entry);	
+        if (menuID == WINDOW_MENU) {
+            Iterator i = windowMenus.iterator();
+            JMenu menu;
+            while (i.hasNext()) {
+                menu = (JMenu) i.next();
+                if (entry instanceof JMenu)
+                    menu.add(copyItemsFromMenu((JMenu) entry));
+                else 
+                    menu.add(copyItem(entry));
+            }
+        }
 	}
 
 	/**
@@ -548,13 +570,12 @@ class TaskBarView
         JMenu menu = createWindowMenu();
         Component[] comps = menus[WINDOW_MENU].getPopupMenu().getComponents();
         for (int i = 0; i < comps.length; i++) {
-            if (comps[i] instanceof JMenu) {
+            if (comps[i] instanceof JMenu) 
                 menu.add(copyItemsFromMenu((JMenu) comps[i]));
-            } else if (comps[i] instanceof JMenuItem) {
-               
+            else if (comps[i] instanceof JMenuItem) 
                 menu.add(copyItem((JMenuItem) comps[i]));
-            }
         }
+        windowMenus.add(menu);
         return menu;
     }
 
