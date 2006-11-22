@@ -113,7 +113,8 @@ class BrowserCanvas
                     height = y+viewRect.height;
                 }
                 
-                ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
+                if(viewRect.width >= size)
+                	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
                 										height-10, size, value);
             }
         }

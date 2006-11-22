@@ -238,7 +238,7 @@ class BrowserModel
     { 
         double v = unitInMicrons;
         if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
-        v /= zoomFactor;
+        v *= zoomFactor;
         return v;
        //if (unit == -1) setUnitBarSize(5);
         //return unit; 
