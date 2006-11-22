@@ -81,11 +81,31 @@ public class HiViewerFactory
     static Set getViewers() { return singleton.viewers; }
     
     /** 
-     * Returns the <code>windows</code> menu. 
+     * Returns the <code>window</code> menu. 
      * 
      * @return See above.
      */
-    static JMenu getWindowsMenu() { return singleton.windowsMenu; }
+    static JMenu getWindowMenu() { return singleton.windowMenu; }
+    
+    /**
+     * Returns <code>true</code> is the {@link #windowMenu} is attached 
+     * to the <code>TaskBar</code>, <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    static boolean isWindowMenuAttachedToTaskBar()
+    {
+        return singleton.isAttached;
+    }
+    
+    /** Attaches the {@link #windowMenu} to the <code>TaskBar</code>. */
+    static void attachWindowMenuToTaskBar()
+    {
+        if (isWindowMenuAttachedToTaskBar()) return;
+        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+        tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+        singleton.isAttached = true;
+    }
     
     /**
      * Returns a viewer to display the images.
@@ -239,21 +259,24 @@ public class HiViewerFactory
         return singleton.copy(master);
     }
     
-    
     /** All the tracked components. */
     private Set     viewers;
-    
-    
+     
     /** The windows menu. */
-    private JMenu   windowsMenu;
+    private JMenu   windowMenu;
+    
+    /** 
+     * Indicates if the {@link #windowMenu} is attached to the 
+     * <code>TaskBar</code>.
+     */
+    private boolean isAttached;
     
     /** Creates a new instance. */
     private HiViewerFactory() 
     {
         viewers = new HashSet();
-        windowsMenu = new JMenu("HiViewers");
-        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
-        tb.addToMenu(TaskBar.WINDOW_MENU, windowsMenu);
+        isAttached = false;
+        windowMenu = new JMenu("HiViewers");
     }
     
     /**

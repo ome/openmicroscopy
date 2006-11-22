@@ -384,8 +384,11 @@ class HiViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
         historyState = -1;
-        model.addChangeListener(this);  
-        attachListeners(HiViewerFactory.getWindowsMenu());
+        model.addChangeListener(this); 
+        if (!HiViewerFactory.isWindowMenuAttachedToTaskBar()) {
+            attachListeners(HiViewerFactory.getWindowMenu());
+            HiViewerFactory.attachWindowMenuToTaskBar();
+        } 
     }
 
     /**

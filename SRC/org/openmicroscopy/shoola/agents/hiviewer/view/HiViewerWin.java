@@ -446,24 +446,6 @@ class HiViewerWin
             treeViewPane.setContinuousLayout(true);
             treeViewPane.setLeftComponent(model.getTreeView());
             treeViewPane.setRightComponent(mainPane);
-            /*
-            
-            BasicSplitPaneUI splitPaneUI = 
-                    (BasicSplitPaneUI) treeViewPane.getUI();
-            
-            BasicSplitPaneDivider divider = splitPaneUI.getDivider();
-            divider.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e)
-                {
-                    if (e.getClickCount() == 2) {
-                        TreeView tv = model.getTreeView();
-                        treeViewPane.setLeftComponent(tv);
-                        tv.minimize(!tv.isMinimized());
-                    }container.validate();
-        container.repaint();
-                }
-            });
-            */
             container.remove(mainPane);
             container.add(treeViewPane, BorderLayout.CENTER);
         } else {
