@@ -107,7 +107,7 @@ public class ChannelButton
      */
     private void onClick(MouseEvent e)
     {
-    	if (e.getButton() == 1 && !e.isMetaDown()) {
+    	if (e.getButton() == 1 && !(e.isControlDown() || e.isMetaDown()) ) {
     		if (e.getClickCount() == 1) timer.start();
     		else if (e.getClickCount() == 2)
     		{
@@ -115,7 +115,8 @@ public class ChannelButton
     			doubleClick();
     		}
     	}
-        else if ((e.getButton() == 2 || e.isMetaDown())) onReleased(e);
+        else if ((e.getButton() == 2 || (e.isControlDown() || e.isMetaDown()))) 
+        	onReleased(e);
     }
    
     /**
