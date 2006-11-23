@@ -41,6 +41,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ImageData;
+
 
 /** 
  * Retrieves the channels metadata for the given set of pixels.
@@ -61,8 +63,8 @@ public class ChannelMetadataLoader
     extends CBDataLoader
 {
     
-    /** The id of the pixels set.  */
-    private long            pixelsID;
+    /** The image to handle.  */
+    private ImageData		image;
 
     /** Handle to the async call so that we can cancel it. */
     private CallHandle      handle;
@@ -72,12 +74,13 @@ public class ChannelMetadataLoader
      * 
      * @param viewer    The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.                         
+     * @param image  	The image to handle.                         
      */                        
-    public ChannelMetadataLoader(ClipBoard viewer, long pixelsID)
+    public ChannelMetadataLoader(ClipBoard viewer, ImageData image)
     {
         super(viewer);
-        this.pixelsID = pixelsID;
+        if (image == null) throw new IllegalArgumentException("No image.");
+        this.image = image;
     }
     
     /**
@@ -86,7 +89,8 @@ public class ChannelMetadataLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadChannelsData(pixelsID, this);
+        handle = hiBrwView.loadChannelsData(image.getDefaultPixels().getId(), 
+        									this);
     }
     
     /** 
@@ -102,7 +106,7 @@ public class ChannelMetadataLoader
     public void handleResult(Object result) 
     {
         if (clipBoard.getState() == ClipBoard.DISCARDED_ANNOTATIONS) return;
-        clipBoard.setChannelsMetadata((List) result);
+        clipBoard.setChannelsMetadata((List) result, image);
     }
     
     /**
