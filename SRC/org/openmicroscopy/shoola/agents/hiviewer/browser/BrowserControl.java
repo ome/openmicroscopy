@@ -70,8 +70,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 class BrowserControl
-    implements MouseListener, ImageDisplayVisitor, 
-    PropertyChangeListener
+    implements MouseListener, ImageDisplayVisitor, PropertyChangeListener
 {
     
     //TODO: Implement scroll listener.  When the currently selected node is 
