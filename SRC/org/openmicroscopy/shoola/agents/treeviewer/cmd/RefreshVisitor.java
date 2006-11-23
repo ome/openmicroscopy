@@ -41,7 +41,10 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ProjectData;
 
 
 /** 
@@ -65,7 +68,11 @@ public class RefreshVisitor
      * Collection of expanded {@link TreeImageSet}s corresponding
      * to a container whose children are images.
      */
-    private List foundNodes;
+    private List 	foundNodes;
+    
+    
+    /** Contains the expanded top container nodes ID. */
+    private List     expandedTopNodes;
     
     /**
      * Creates a new instance.
@@ -77,6 +84,7 @@ public class RefreshVisitor
     {
         super(model);
         foundNodes = new ArrayList();
+        expandedTopNodes = new ArrayList();
     }
 
     /**
@@ -85,6 +93,13 @@ public class RefreshVisitor
      * @return See above.
      */
     public List getFoundNodes() { return foundNodes; }
+
+    /**
+     * Returns the list of expanded top nodes IDs.
+     * 
+     * @return See above.
+     */
+    public List getExpandedTopNodes() { return expandedTopNodes; }
     
     /**
      * Retrieves the expanded nodes. Only the nodes containing images
@@ -96,8 +111,16 @@ public class RefreshVisitor
         Object userObject = node.getUserObject();
         if ((userObject instanceof DatasetData) || 
                 (userObject instanceof CategoryData)) {
-            if (node.isChildrenLoaded()) foundNodes.add(userObject);
-        }
+        	if (node.isChildrenLoaded() && node.isExpanded() &&
+        			node.getParentDisplay().isExpanded()) 
+                foundNodes.add(userObject);
+        } else if ((userObject instanceof ProjectData) || 
+                    (userObject instanceof CategoryGroupData)){
+            if (node.isExpanded()) {
+                long id = ((DataObject) userObject).getId();
+                expandedTopNodes.add(new Long(id));
+            }
+        }     
     }
     
 }
