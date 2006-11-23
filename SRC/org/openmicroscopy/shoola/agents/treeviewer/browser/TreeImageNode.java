@@ -119,6 +119,7 @@ public class TreeImageNode
         TreeImageNode copy = new TreeImageNode(this.getUserObject());
         copy.setHighLight(this.getHighLight());
         copy.setToolTip(this.getToolTip());
+        copy.setExpanded(this.isExpanded());
         return copy;
     }
 

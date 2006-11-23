@@ -254,7 +254,7 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
                                                             groupID);
-        view.setViews(visNodes, true);
+        view.setViews(visNodes);
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -646,8 +646,8 @@ class BrowserComponent
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
             root.removeAllChildrenDisplay();
             model.setSelectedDisplay(root);
-            if (visitor.getFoundNodes().size() == 0) loadData();
-            else model.loadRefreshedData(visitor.getFoundNodes());
+            model.loadRefreshedData(visitor.getFoundNodes(), 
+                    visitor.getExpandedTopNodes());
         }
     }
     
@@ -668,7 +668,7 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         if (parent == null) { //root
             view.setViews(TreeViewerTranslator.transformHierarchy(nodes, userID,
-                                                            groupID), true);
+                                                            groupID));
         }  else view.setViews(TreeViewerTranslator.transformContainers(nodes, 
                                         userID, groupID), 
                             parentDisplay);
@@ -1079,17 +1079,17 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setRefreshedHierarchy(Map)
+     * @see Browser#setRefreshedHierarchy(Map, List)
      */
-    public void setRefreshedHierarchy(Map nodes)
+    public void setRefreshedHierarchy(Map nodes, List expandedTopNodes)
     {
         if (model.getState() != LOADING_DATA)
             throw new IllegalStateException("This method cannot be invoked "+
                 "in the LOADING_DATA state.");
         long userID = model.getUserID();
         long groupID = model.getRootGroupID();
-        view.setViews(TreeViewerTranslator.refreshHierarchy(nodes, userID,
-                groupID), false); 
+        view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
+                    expandedTopNodes, userID, groupID)); 
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange(); 

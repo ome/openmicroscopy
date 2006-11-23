@@ -198,6 +198,7 @@ public class TreeImageSet
         copy.setNumberItems(this.getNumberItems());
         copy.setHighLight(this.getHighLight());
         copy.setToolTip(this.getToolTip());
+        copy.setExpanded(this.isExpanded());
         Iterator i = this.getChildrenDisplay().iterator();
         while (i.hasNext()) {
             copy.addChildDisplay(((TreeImageDisplay) i.next()).copy());

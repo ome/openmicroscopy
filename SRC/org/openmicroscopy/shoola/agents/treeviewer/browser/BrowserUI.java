@@ -193,6 +193,7 @@ class BrowserUI
     {
         TreeImageDisplay node = (TreeImageDisplay) 
         							tee.getPath().getLastPathComponent();
+        node.setExpanded(expanded);
         controller.onNodeNavigation(node, expanded);
     }
     
@@ -299,7 +300,7 @@ class BrowserUI
      * @param nodes     The list of nodes to add.
      * @param tm        The  tree model.
      */
-    private void buildTreeNode(DefaultMutableTreeNode parent, 
+    private void buildTreeNode(TreeImageDisplay parent, 
                                 Collection nodes, DefaultTreeModel tm)
     {
         if (nodes.size() == 0) {
@@ -311,23 +312,42 @@ class BrowserUI
         TreeImageDisplay display;
         Set children;
         parent.removeAllChildren();
+        List expanded = new ArrayList();
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
             if (display instanceof TreeImageSet) {
                 children = display.getChildrenDisplay();
                 if (children.size() != 0) {
-                    buildTreeNode(display, sorter.sort(children), tm);
                     if (display.containsImages()) {
+                    	expanded.add(display);
+                    	display.setExpanded(true);
+                    	setExpandedParent(display, false);
+                    	buildTreeNode(display, sorter.sort(children), tm);
                         expandNode(display);
                         tm.reload(display);
-                    } 
+                    } else {
+                    	buildTreeNode(display, sorter.sort(children), tm);
+                    }
                 } else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         display, display.getChildCount());
                 }  
             } else reloadRoot = false;
         } 
+        if (parent.isExpanded()) {
+            expandNode(parent);
+            tm.reload(parent);
+        }
+    }
+    
+    private void setExpandedParent(TreeImageDisplay n, boolean b)
+    {
+    	TreeImageDisplay p = n.getParentDisplay();
+    	if (p != null) {
+    		p.setExpanded(b);
+    		setExpandedParent(p, b);
+    	}
     }
     
     /**
@@ -348,9 +368,10 @@ class BrowserUI
      * 
      * @param node The node to expand.
      */
-    private void expandNode(DefaultMutableTreeNode node)
+    private void expandNode(TreeImageDisplay node)
     {
         //First remove listener otherwise an event is fired.
+    	node.setExpanded(true);
         treeDisplay.removeTreeExpansionListener(listener);
         treeDisplay.expandPath(new TreePath(node.getPath()));
         treeDisplay.addTreeExpansionListener(listener);
@@ -456,14 +477,14 @@ class BrowserUI
      * Displays the specified nodes in the tree.
      * 
      * @param nodes     The collection of nodes to add.
-     * @param reload    Pass <code>true</code> to reload the tree.
      */
-    void setViews(Set nodes, boolean reload)
+    void setViews(Set nodes)
     {
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
         root.removeAllChildren();
         root.setChildrenLoaded(Boolean.TRUE);
+        root.setExpanded(true);
         dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
@@ -472,9 +493,9 @@ class BrowserUI
             
             buildTreeNode(root, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
-            if (!reload) reload = reloadRoot;
+            //if (!reload) reload = reloadRoot;
         } else buildEmptyNode(root);
-        if (reload) dtm.reload(root);
+        //if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
         reloadRoot = true;
     }
@@ -814,7 +835,7 @@ class BrowserUI
             buildTreeNode(root, sorter.sort(children), dtm);
             if (!reload) reload = reloadRoot;
         } else buildEmptyNode(root);
-        if (reload) dtm.reload(root);
+        //if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
         reloadRoot = true;
         

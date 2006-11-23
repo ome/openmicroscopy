@@ -35,6 +35,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
@@ -520,9 +521,10 @@ public interface Browser
     /**
      * Rebuilds the hierarchy tree.
      * 
-     * @param set The nodes to set.
+     * @param set               The nodes to set.
+     * @param expandedTopNodes  The list of expanded top nodes IDs.
      */
-    public void setRefreshedHierarchy(Map set);
+    public void setRefreshedHierarchy(Map set, List expandedTopNodes);
     
     /**
      * Returns <code>true</code> if the main tree is currently displayed

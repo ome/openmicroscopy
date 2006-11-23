@@ -601,9 +601,10 @@ class BrowserModel
     /** 
      * Loads the data to refresh the tree.
      * 
-     * @param nodes The Collection of expanded nodes.
+     * @param nodes             The Collection of expanded nodes.
+     * @param expandedTopNodes  The list of expanded top nodes IDs.
      */
-    void loadRefreshedData(List nodes)
+    void loadRefreshedData(List nodes, List expandedTopNodes)
     {
         Class klass = null;
         if (browserType == Browser.PROJECT_EXPLORER) klass = ProjectData.class;
@@ -611,8 +612,8 @@ class BrowserModel
             klass = CategoryGroupData.class;
         if (klass == null) return;
         state = Browser.LOADING_DATA;
-        currentLoader = new RefreshDataLoader(component, klass, nodes);
+        currentLoader = new RefreshDataLoader(component, klass, nodes, 
+                                            expandedTopNodes);
         currentLoader.load();   
     }
-    
 }

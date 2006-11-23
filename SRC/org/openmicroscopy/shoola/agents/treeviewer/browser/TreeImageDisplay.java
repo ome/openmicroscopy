@@ -145,6 +145,9 @@ public abstract class TreeImageDisplay
     /** The font style used for the node. */
     private int                 fontStyle;
     
+    /** Indicates if the nodes is expanded or not. */
+    private boolean             expanded;
+    
     /** The number of items. */
     protected int				numberItems;
     
@@ -207,6 +210,22 @@ public abstract class TreeImageDisplay
         numberItems = -1;
         fontStyle = FONT_PLAIN;
     }
+    
+    /**
+     * Sets to <code>true</code> if the node is expanded, 
+     * <code>false</code> otherwise.
+     * 
+     * @param expanded The value to set.
+     */
+    public void setExpanded(boolean expanded) { this.expanded = expanded; }
+    
+    /** 
+     * Returns <code>true</code> is the node is expanded, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above
+     */
+    public boolean isExpanded() { return expanded; }
     
     /**
      * Returns the parent node to this node in the visualization tree.
@@ -460,7 +479,7 @@ public abstract class TreeImageDisplay
     
     /** 
      * Overridden to return the name of the hierarchy object. 
-     * @see #toString()
+     * @see Object#toString()
      */
     public String toString()
     { 
@@ -485,7 +504,7 @@ public abstract class TreeImageDisplay
      * {@link #addChildDisplay(TreeImageDisplay) addChildDisplay} and
      * {@link #removeChildDisplay(TreeImageDisplay) removeChildDisplay} methods
      * will work fine.
-     * @see #equals(Object)
+     * @see Object#equals(Object)
      */
     public final boolean equals(Object x) { return (this == x); }
     
