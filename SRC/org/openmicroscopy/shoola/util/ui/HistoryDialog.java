@@ -59,7 +59,7 @@ import javax.swing.event.ListSelectionListener;
  * @since OME2.2
  */
 public class HistoryDialog
-    extends JPopupMenu
+    extends JPopupMenu    
 {
     
     /** Bound property indicating that an item is selected in the list. */
@@ -88,7 +88,7 @@ public class HistoryDialog
         add(list);
     }
     
-    /** Initializes the component. */
+    /** Initializes the components. */
     private void initComponents()
     {
         history = new JList(data);
