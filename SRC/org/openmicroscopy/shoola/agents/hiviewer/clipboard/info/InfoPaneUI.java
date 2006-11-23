@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -90,6 +91,9 @@ class InfoPaneUI
     /** The panel hosting the {@link #titleLabel} and a separator. */
     private JPanel      titlePanel;
     
+    /** The fields displaying the values. */
+    private Map			fields;
+    
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -98,6 +102,8 @@ class InfoPaneUI
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.add(titleLabel);
         titlePanel.add(new JSeparator());
+        contentPanel = buildContentPanel(
+        					InfoPaneUtil.transformPixelsData(null));
     }
     
     /**
@@ -119,6 +125,7 @@ class InfoPaneUI
         JLabel label;
         JTextField area;
         String key, value;
+        fields = new HashMap(details.size());
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -132,6 +139,7 @@ class InfoPaneUI
             area = new JTextField(value);
             area.setEditable(false);
             label.setLabelFor(area);
+            fields.put(key, area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
             c.fill = GridBagConstraints.HORIZONTAL;
@@ -141,13 +149,33 @@ class InfoPaneUI
         return content;
     }
     
+    /**
+     * Resets the values.
+     * 
+     * @param details The new value to display.
+     */
+    private void resetValues(Map details)
+    {
+    	Iterator i = fields.keySet().iterator();
+    	String key;
+    	String text = "";
+    	JTextField field;
+    	while (i.hasNext()) {
+			key = (String) i.next();
+			if (details != null)
+				text = (String) details.get(key);
+			field = ((JTextField) fields.get(key));
+			field.setText(text);
+		}
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(5, 5, 5, 5));
         add(titlePanel, BorderLayout.NORTH);
-        add(new JPanel(), BorderLayout.CENTER);
+        add(contentPanel, BorderLayout.CENTER);
     }
     
     /**
@@ -172,17 +200,18 @@ class InfoPaneUI
      */
     void displayDetails(Map details, String name)
     {
-        removeAll();
+        //removeAll();
+    	resetValues(details);
         if (details == null || details.size() == 0) {
             titleLabel.setText(DEFAULT_MSG);
-            contentPanel = new JPanel();
+            //contentPanel = new JPanel();
         } else {
-            contentPanel = buildContentPanel(details);
+            //contentPanel = buildContentPanel(details);
             titleLabel.setText(EDIT_MSG+name);
             setMaximumSize(contentPanel.getPreferredSize());
         }
-        add(titlePanel, BorderLayout.NORTH);
-        add(contentPanel, BorderLayout.CENTER);
+        validate();
+        repaint();
     }
     
 }

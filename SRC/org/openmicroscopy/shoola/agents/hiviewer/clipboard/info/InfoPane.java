@@ -91,13 +91,12 @@ public class InfoPane
     /**
      * Sets the channels metadata.
      * 
-     * @param l The value to set.
+     * @param l 	The value to set.
+     * @param data The image linked to metadata.
      */
-    public void setChannelsMetadata(List l)
+    public void setChannelsMetadata(List l, ImageData data)
     {
-        Object ho = model.getHierarchyObject();
-        if (ho instanceof ImageData && l != null) {
-            ImageData data = (ImageData) ho;
+        if (data != null && l != null) {
             Map details = 
                 InfoPaneUtil.transformPixelsData(data.getDefaultPixels());
             String s = "";
@@ -135,7 +134,7 @@ public class InfoPane
         }
         if (ho instanceof ImageData) {
             ImageData data = (ImageData) ho;
-            model.retrieveChannelsMetadata(data.getDefaultPixels().getId());
+            model.retrieveChannelsMetadata(data);
             Map details = 
                 InfoPaneUtil.transformPixelsData(data.getDefaultPixels());
             uiDelegate.displayDetails(details, data.getName());
