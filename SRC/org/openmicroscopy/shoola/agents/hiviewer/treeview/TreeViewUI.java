@@ -62,8 +62,11 @@ import javax.swing.tree.TreeSelectionModel;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
+import pojos.ImageData;
 
 
 /** 
@@ -198,8 +201,8 @@ class TreeViewUI
         tree.setRootVisible(false);
         tree.setModel(new DefaultTreeModel(root));
         tree.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) { onClick(e); }
-            public void mouseReleased(MouseEvent e) { onClick(e); }
+            public void mousePressed(MouseEvent e) { onClick(e, false); }
+            public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             
@@ -221,20 +224,35 @@ class TreeViewUI
     /**
      * Reacts to click events on a specified node.
      * 
-     * @param me The {@link MouseEvent} to handle.
+     * @param me 		The {@link MouseEvent} to handle.
+     * @param released  Pass <code>true</code> if the method is invoked when
+     *                  the mouse is released, <code>false</code> otherwise.
      */
-    private void onClick(MouseEvent me)
+    private void onClick(MouseEvent me, boolean released)
     {
         int row = tree.getRowForLocation(me.getX(), me.getY());
         if (row != -1) {
+        	int n = me.getClickCount();
             //tree.setSelectionRow(row);
             //DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
             //            tree.getLastSelectedPathComponent();
            // model.setSelectedDisplay((ImageDisplay) n.getUserObject());
-            if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+            
            // tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
             //    	tree.isPathSelected(new TreePath(n.getPath())),
             //    	false, true, 0, false); 
+            if (n == 1) {
+                if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+            } else if (n == 2 && released) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
+                                    tree.getLastSelectedPathComponent();
+                ImageDisplay d = (ImageDisplay) node.getUserObject();
+                if (d instanceof ImageNode) {
+                    ViewCmd cmd = new ViewCmd(
+                            (ImageData) d.getHierarchyObject());
+                    cmd.execute();
+                }
+            }
         }
     }
     
