@@ -59,7 +59,7 @@ class ColourChangedEvent
 	 * @param arg0 source of event.
 	 */
 	ColourChangedEvent(Object arg0)
-    {
+    {  
 		super(arg0);
 	}
 
