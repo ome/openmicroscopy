@@ -163,7 +163,7 @@ class BrowserControl
      * Listens to the property event fired by {@link Browser} and 
      * {@link ImageDisplay}.
      * Necessary for clarity.
-     * @see #propertyChange(PropertyChangeEvent)
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */ 
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -264,6 +264,7 @@ class BrowserControl
      */
     public void mouseExited(MouseEvent me)
     {
+    	if (model.isRollOver()) return;
         ImageDisplay d = model.getLastSelectedDisplay();
         if (d != null) view.setTitle(model.currentPathString(d));
         else view.setTitle("");

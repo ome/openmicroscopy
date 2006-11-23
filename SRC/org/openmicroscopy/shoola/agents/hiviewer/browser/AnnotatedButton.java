@@ -34,7 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
