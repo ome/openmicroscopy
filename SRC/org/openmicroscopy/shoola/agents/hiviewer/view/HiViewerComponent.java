@@ -172,6 +172,7 @@ class HiViewerComponent
         
         model.createBrowser(roots, flat);
         model.createClipBoard();
+        model.getClipBoard().addPropertyChangeListener(controller);
         model.fireThumbnailLoading();
         //b/c fireThumbnailLoading() sets the state to READY if there is no
         //image.

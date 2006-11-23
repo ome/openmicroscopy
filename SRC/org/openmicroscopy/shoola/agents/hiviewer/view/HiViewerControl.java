@@ -494,6 +494,11 @@ class HiViewerControl
                                                 model.getBrowser());
                 else ThumbWinManager.rollOverDisplay(null, model.getBrowser());
             }  
+        } else if (TreeView.REMOVE_ROLL_OVER_PROPERTY.equals(propName) ||
+        		ClipBoard.REMOVE_ROLL_OVER_PROPERTY.equals(propName)) {
+            if (model.isRollOver()) {
+            	ThumbWinManager.rollOverDisplay(null, model.getBrowser());
+            }  
         }
     }
 
