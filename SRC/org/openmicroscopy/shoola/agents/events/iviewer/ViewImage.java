@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME2.2
  */
-public class ViewImage
+public class ViewImage          
     extends RequestEvent
 {
 
