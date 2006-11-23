@@ -74,8 +74,12 @@ public class CreateTopContainerAction
      */
     private static final String NAME_CATEGORY_GROUP = "New Category Group...";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Add a new top container.";
+    /** Description of the action for a <code>Project</code> . */
+    private static final String DESCRIPTION_PROJECT = "Create a new Project.";
+    
+    /** Description of the action for a <code>CategoryGroup</code> . */
+    private static final String DESCRIPTION_CATEGORY_GROUP = 
+                                "Create a new Category Group.";
     
     /** The type of node to create. */
     private int nodeType;
@@ -115,11 +119,16 @@ public class CreateTopContainerAction
                     setEnabled(true);
                     name = NAME_PROJECT; 
                     nodeType = CreateCmd.PROJECT;
+                    putValue(Action.SHORT_DESCRIPTION, 
+                            UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
                     break;
                 case Browser.CATEGORY_EXPLORER:
                     setEnabled(true);
                     name = NAME_CATEGORY_GROUP; 
                     nodeType = CreateCmd.CATEGORY_GROUP;
+                    putValue(Action.SHORT_DESCRIPTION, 
+                            UIUtilities.formatToolTipText(
+                                    DESCRIPTION_CATEGORY_GROUP));
                     break;
                 case Browser.IMAGES_EXPLORER:
                     //setEnabled(true);
@@ -139,7 +148,7 @@ public class CreateTopContainerAction
         super(model);
         onBrowserSelection(model.getSelectedBrowser());
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+                UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ADD_CONTAINER));
     } 
