@@ -64,7 +64,7 @@ import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -315,17 +315,17 @@ class GraphicsPane
     	double s = model.getWindowStart();
     	double val = Double.parseDouble(endField.getText());
         if (val == model.getWindowEnd()) return;
-    	if (startFieldValid())
+    	if (endFieldValid())
     	{
     		controller.setInputInterval(s, val, true);
     		onCurveChange();
     	}
     	else
     	{
-    		startField.selectAll();
+    		endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+val+","+s+"]");
+                    "["+s+","+val+"]");
     	}
     }
     
@@ -466,21 +466,20 @@ class GraphicsPane
     		if (startFieldValid()) startSelectionHandler();
     		else
     		{      
-    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    			un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+startField.getText()+","+model.getWindowEnd()+"]");
+    			//UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			//un.notifyInfo("Invalid pixels intensity interval", 
+                //    "["+startField.getText()+","+model.getWindowEnd()+"]");
     			startField.setText(model.getWindowStart()+"");
     		}
     	if (fe.getSource() == endField)
     		if (endFieldValid()) endSelectionHandler();
     		else
     		{
-    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    			un.notifyInfo("Invalid pixels intensity interval", 
-                "["+model.getWindowStart()+","+endField.getText()+"]");
+    			//UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			//un.notifyInfo("Invalid pixels intensity interval", 
+               // "["+model.getWindowStart()+","+endField.getText()+"]");
     			endField.setText(model.getWindowEnd()+"");
     		}
-    	
     }
     
     /** 

@@ -50,6 +50,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -180,7 +181,8 @@ class DomainPane
         familyBox.setActionCommand(""+FAMILY);
         
         double k = model.getCurveCoefficient();
-        gammaSlider = new JSlider(JSlider.HORIZONTAL, MIN_GAMMA, MAX_GAMMA, 
+        gammaSlider = new JSlider(SwingConstants.HORIZONTAL, 
+        							MIN_GAMMA, MAX_GAMMA, 
                                     (int) (k*FACTOR));
         gammaSlider.setEnabled(!(family.equals(RendererModel.LINEAR) || 
                 family.equals(RendererModel.LOGARITHMIC)));
@@ -189,7 +191,7 @@ class DomainPane
         gammaLabel.setEnabled(false);
         gammaLabel.setEditable(false);
         int v = model.getBitResolution();
-        bitDepthSlider = new JSlider(JSlider.HORIZONTAL, MIN_BIT_DEPTH, 
+        bitDepthSlider = new JSlider(SwingConstants.HORIZONTAL, MIN_BIT_DEPTH, 
                                 MAX_BIT_DEPTH, convertBitResolution(v));
         bitDepthSlider.addChangeListener(this);
         bitDepthLabel = new JTextField(""+v);
