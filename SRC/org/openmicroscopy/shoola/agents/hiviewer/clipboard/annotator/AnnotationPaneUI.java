@@ -293,7 +293,7 @@ class AnnotationPaneUI
             date = data.getLastModified();
             if (date == null)
                 date = new Timestamp((new java.util.Date()).getTime()); 
-            listModel.addElement(owners[i]+" ("+df.format(date)+")");   
+            listModel.addElement(owners[i]+" ("+df.format(date)+")");  
         }
     }
     
@@ -390,11 +390,11 @@ class AnnotationPaneUI
             index++;
         }
         //No annotation for the current user, so allow creation.
-        if (userIndex != -1) annotatedByList.setSelectedIndex(userIndex);
+        
         setComponentsEnabled(true);
         formatUsersList(owners);
-        annotatedByList.clearSelection();
-        //annotatedByList.setSelectedIndex(userIndex);
+        //annotatedByList.clearSelection();
+        if (userIndex != -1) annotatedByList.setSelectedIndex(userIndex);
         showSingleAnnotation();
     }
     
