@@ -31,8 +31,11 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -40,6 +43,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.ProjectData;
 
 /** 
@@ -68,6 +72,9 @@ public class RefreshDataLoader
      */
     private List        expandedNodes;
     
+    /** Contains the expanded top container nodes ID. */
+    private List        expandedTopNodes;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -87,21 +94,22 @@ public class RefreshDataLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer        The viewer this data loader is for.
-     *                      Mustn't be <code>null</code>.
-     * @param rootNodeType  The root node either <code>Project</code> or 
-     *                      <code>CategoryGroup</code>
-     * @param expandedNodes The collection of expanded nodes containing images.
+     * @param viewer        	The viewer this data loader is for.
+     *                      	Mustn't be <code>null</code>.
+     * @param rootNodeType  	The root node either <code>Project</code> or 
+     *                      	<code>CategoryGroup</code>
+     * @param expandedNodes 	The collection of expanded nodes containing 
+     * 							images.
+     * @param expandedTopNodes  The list of expanded top nodes IDs.
      */
     public RefreshDataLoader(Browser viewer, Class rootNodeType,
-                            List expandedNodes)
+                            List expandedNodes, List expandedTopNodes)
     {
         super(viewer);
         checkClass(rootNodeType);
-        if (expandedNodes == null || expandedNodes.size() == 0)
-            throw new IllegalArgumentException("No expanded node.");
         this.rootNodeType = rootNodeType;
         this.expandedNodes = expandedNodes;
+        this.expandedTopNodes = expandedTopNodes;
     }
     
     /**
@@ -110,8 +118,13 @@ public class RefreshDataLoader
      */
     public void load()
     {
-        handle = dmView.refreshHierarchy(rootNodeType, expandedNodes, 
-                            convertRootLevel(), getRootID(), this);
+    	if (expandedNodes == null || expandedNodes.size() == 0) {
+            handle = dmView.loadContainerHierarchy(rootNodeType, null, false,
+                    convertRootLevel(), getRootID(), this);
+        } else {
+            handle = dmView.refreshHierarchy(rootNodeType, expandedNodes, 
+                    convertRootLevel(), getRootID(), this);
+        }
     }
 
     /**
@@ -127,7 +140,24 @@ public class RefreshDataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        viewer.setRefreshedHierarchy((Map) result);
+        Map map;
+        if (expandedNodes == null || expandedNodes.size() == 0) {
+            Set set = (Set) result;
+            Iterator j = set.iterator();
+            map = new HashMap();
+            DataObject parent;
+            Set children = null;
+            while (j.hasNext()) {
+                parent = (DataObject) j.next();
+                if (parent instanceof ProjectData) {
+                    children = ((ProjectData) parent).getDatasets();
+                } else if (parent instanceof CategoryGroupData) {
+                    children = ((CategoryGroupData) parent).getCategories();
+                }
+                map.put(parent, children);
+            }
+        } else map = (Map) result;
+        viewer.setRefreshedHierarchy(map, expandedTopNodes);
     }
     
 }

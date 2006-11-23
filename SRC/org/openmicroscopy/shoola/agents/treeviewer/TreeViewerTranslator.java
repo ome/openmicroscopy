@@ -37,6 +37,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -434,31 +435,39 @@ public class TreeViewerTranslator
      * Transforms the data objects into their corresponding 
      * visualization objects.
      * 
-     * @param nodes     The nodes to transform.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.    
+     * @param nodes                 The nodes to transform.
+     * @param expandedTopNodes     The list of expanded top nodes IDs.
+     * @param userID                The id of the current user.
+     * @param groupID               The id of the group the current user 
+     *                              selects when retrieving the data.    
      * @return A set of visualization objects.
      */
-    public static Set refreshHierarchy(Map nodes, long userID, long groupID)
+    public static Set refreshHierarchy(Map nodes, List expandedTopNodes, 
+                                        long userID, long groupID)
     {
         if (nodes == null)
             throw new IllegalArgumentException("No objects.");
         Set results = new HashSet(nodes.size());
         Iterator i = nodes.keySet().iterator();
         DataObject ho;
+        TreeImageDisplay display;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
-                    results.add(transformProject((ProjectData) ho, 
-                                            (Set) nodes.get(ho), 
-                                            userID, groupID));
+                    display = transformProject((ProjectData) ho, 
+                                                (Set) nodes.get(ho), 
+                                                userID, groupID);
+                    display.setExpanded(
+                            (expandedTopNodes.contains(new Long(ho.getId()))));
+                    results.add(display);
                 } else if (ho instanceof CategoryGroupData) {
-                    results.add(transformCategoryGroup(
-                            (CategoryGroupData) ho, 
-                            (Set) nodes.get(ho), 
-                            userID, groupID)); 
+                    display = transformCategoryGroup((CategoryGroupData) ho, 
+                                                    (Set) nodes.get(ho), 
+                                                    userID, groupID);
+                    display.setExpanded(
+                            (expandedTopNodes.contains(new Long(ho.getId()))));
+                    results.add(display); 
                 }
             }
         }
