@@ -54,6 +54,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPa
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 
+import pojos.ImageData;
+
 /** 
  * The {@link ClipBoard}'s view.
  * This component hosts the different panels implementing the
@@ -257,13 +259,15 @@ class ClipBoardUI
     /**
      * Sets the channels metadata.
      * 
-     * @param l The value to set.
+     * @param l 	The value to set.
+     * @param image The image linked to metadata.
+     * 
      */
-    void setChannelMetadata(List l)
+    void setChannelMetadata(List l, ImageData image)
     {
         if (model.getPaneIndex() != ClipBoard.INFO_PANE) return;
         InfoPane pane = (InfoPane) model.getClipboardPane(ClipBoard.INFO_PANE);
-        pane.setChannelsMetadata(l);
+        pane.setChannelsMetadata(l, image);
     }
 
     /**

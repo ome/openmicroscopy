@@ -296,16 +296,17 @@ public interface ClipBoard
     /**
      * Retrieves the channels metadata
      *
-     * @param pixelsID The id of the default pixels set.
+     * @param img The image to handle.
      */
-    public void retrieveChannelsMetadata(long pixelsID);
+    public void retrieveChannelsMetadata(ImageData img);
 
     /**
      * Sets the channels metadata.
      * 
-     * @param list The value to set.
+     * @param list 	The value to set.
+     * @param image The image related to metadata.
      */
-    public void setChannelsMetadata(List list);
+    public void setChannelsMetadata(List list, ImageData image);
     
     /**
      * Sets to <code>true</code> to show the component,

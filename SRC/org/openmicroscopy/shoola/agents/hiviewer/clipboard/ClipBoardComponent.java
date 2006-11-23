@@ -377,23 +377,23 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#retrieveChannelsMetadata(long)
+     * @see ClipBoard#retrieveChannelsMetadata(ImageData img)
      */
-    public void retrieveChannelsMetadata(long pixelsID)
+    public void retrieveChannelsMetadata(ImageData img)
     {
-        model.fireChannelsMetadataLoading(pixelsID);
+        model.fireChannelsMetadataLoading(img);
         fireStateChange();
     }
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setChannelsMetadata(List)
+     * @see ClipBoard#setChannelsMetadata(List, ImageData)
      */
-    public void setChannelsMetadata(List list)
+    public void setChannelsMetadata(List list, ImageData image)
     {
         if (model.getState() != LOADING_CHANNELS_METADATA) return;
         model.setState(READY);
-        view.setChannelMetadata(list);
+        view.setChannelMetadata(list, image);
         fireStateChange();
     }
 
@@ -491,5 +491,10 @@ class ClipBoardComponent
     	firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, 
     						Boolean.TRUE);
     }
+
+	public Object getMouseOverObject() {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
 }

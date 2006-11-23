@@ -449,11 +449,11 @@ class ClipBoardModel
     /**
      * Starts the asynchronous retrieval of the channel metadata.
      * 
-     * @param pixelsID The id of the pixels set.
+     * @param img The image to handle.
      */
-    void fireChannelsMetadataLoading(long pixelsID)
+    void fireChannelsMetadataLoading(ImageData img)
     {
-        currentLoader = new ChannelMetadataLoader(component, pixelsID);
+        currentLoader = new ChannelMetadataLoader(component, img);
         currentLoader.load();
         state = ClipBoard.LOADING_CHANNELS_METADATA;
     }

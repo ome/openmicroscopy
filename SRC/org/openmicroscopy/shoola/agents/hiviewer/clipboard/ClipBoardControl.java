@@ -135,6 +135,11 @@ class ClipBoardControl
         } else if (name.equals(FindPane.SELECTED_PROPERTY)) {
             model.getParentModel().scrollToNode(
                     (ImageDisplay) pce.getNewValue());
+        } else if (name.equals(Browser.MOUSE_OVER_PROPERTY)) {
+        	Object n = pce.getNewValue();
+        	if (n instanceof ImageDisplay)
+        		view.onDisplayChange((ImageDisplay) n);
+        	else view.onDisplayChange(null);
         }
     }
 
@@ -150,6 +155,8 @@ class ClipBoardControl
             if (parentModel.getState() == HiViewer.READY) {
                 parentModel.getBrowser().addPropertyChangeListener(
                         Browser.SELECTED_DISPLAY_PROPERTY, this);
+                parentModel.getBrowser().addPropertyChangeListener(
+                        Browser.MOUSE_OVER_PROPERTY, this);
                 view.initListeners();
             }  
         } else if (source instanceof ClipBoard) {
