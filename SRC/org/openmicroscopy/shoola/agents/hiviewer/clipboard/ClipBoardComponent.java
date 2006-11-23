@@ -44,12 +44,10 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.ImageDecorationVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
@@ -484,4 +482,14 @@ class ClipBoardComponent
                 */
     }
 
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#removeRollOver()
+     */
+    public void removeRollOver()
+    {
+    	firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, 
+    						Boolean.TRUE);
+    }
+    
 }

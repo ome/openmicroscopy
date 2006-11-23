@@ -71,6 +71,13 @@ public interface ClipBoard
     extends ObservableComponent
 {
     
+    /** 
+     * Bound property name indicating to remove the magnified node 
+     * from the display.
+     */
+    public static final String 	REMOVE_ROLL_OVER_PROPERTY = 
+    									"removeNodeRollOver";
+    
     /** Identifies the index of the <code>Find</code> panel. */
     public static final int     FIND_PANE = 0;
     
@@ -127,6 +134,9 @@ public interface ClipBoard
     
     /** Identifies to delete the currently edited annotation. */
     public static final int     DELETE_ANNOTATION = 102;
+    
+    /** Removes the magnified node from the display. */
+    void removeRollOver();
     
     /** Any ongoing data loading is cancelled. */
     public void discard();

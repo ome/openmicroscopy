@@ -174,4 +174,7 @@ class ClipBoardControl
         }
     }
 
+    /** Forwards call to the {@link ClipBoard}. */
+	void removeRollOver() { component.removeRollOver(); }
+
 }

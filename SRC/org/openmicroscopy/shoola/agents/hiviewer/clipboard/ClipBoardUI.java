@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -102,7 +105,8 @@ class ClipBoardUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        tabPane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+        tabPane = new JTabbedPane(SwingConstants.TOP,
+        						JTabbedPane.WRAP_TAB_LAYOUT);
         tabPane.setAlignmentX(LEFT_ALIGNMENT);
         popupMenu = new PopupMenu(model);
     }
@@ -148,6 +152,10 @@ class ClipBoardUI
     /** Adds listeners. */
     void initListeners()
     {
+    	addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { 
+            	controller.removeRollOver(); }
+        });
         tabPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
@@ -174,6 +182,15 @@ class ClipBoardUI
         //listener
         ClipBoardPane pane = model.getClipboardPane(ClipBoard.FIND_PANE);
         pane.addPropertyChangeListener(FindPane.SELECTED_PROPERTY, controller);
+        Map m = model.getClipBoardPanes();
+        Iterator i = m.keySet().iterator();
+        while (i.hasNext()) {
+			pane = (ClipBoardPane) m.get(i.next());;
+			pane.addMouseListener(new MouseAdapter() {
+	            public void mouseEntered(MouseEvent e) { 
+	            	controller.removeRollOver(); }
+	        });
+		}
     }
 
     /** Displays the retrieved annotations. */
