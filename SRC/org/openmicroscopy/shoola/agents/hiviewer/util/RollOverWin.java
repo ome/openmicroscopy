@@ -51,6 +51,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+
+import pojos.DataObject;
 
 
 /** 
@@ -142,6 +145,13 @@ public class RollOverWin
     
     /** Brings up the panel displaying the categories containing the image. */
     void classify() { node.fireClassification(); }
+    
+    /** Views the magnified thumbnail. */
+    void viewImage()
+    { 
+        ViewCmd cmd = new ViewCmd((DataObject) node.getHierarchyObject());
+        cmd.execute();
+    }
     
     /**
      * Returns the image to display.

@@ -125,6 +125,7 @@ class RollOverCanvas
                 if (pinRectangle.contains(p)) model.pinThumbnail();
                 else if (annotatedRectangle.contains(p)) model.annotate();
                 else if (classifiedRectangle.contains(p)) model.classify();
+                if (e.getClickCount() == 2) model.viewImage();
             }
         });
     }
@@ -166,7 +167,6 @@ class RollOverCanvas
                 classifiedRectangle.setBounds(x, y, width, height);
                 g2D.drawImage(classifiedIcon.getImage(), x, y, width, height, 
                                 null);
-                //x += annotatedIcon.getIconWidth()+2;
             }
         }  
     }
