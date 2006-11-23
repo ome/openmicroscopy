@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
  * @since OME2.2
  */
 class AnnotatedButton
-    extends JButton
+	extends JButton
 {
 
     /** Description of the button. */
@@ -67,7 +67,8 @@ class AnnotatedButton
     /** The node hosting this button. */
     private final ImageNode    parentNode;
     
-    /** Creates a new instance. 
+    /** 
+     * Creates a new instance. 
      * 
      * @param node    The node hosting this button. 
      */
