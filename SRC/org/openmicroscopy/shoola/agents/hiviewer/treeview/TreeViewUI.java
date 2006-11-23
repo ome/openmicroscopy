@@ -114,8 +114,6 @@ class TreeViewUI
         toolBar.add(new JSeparator(SwingConstants.VERTICAL));
         JButton button = new CollapseButton(model);
         toolBar.add(button);
-        button = new CloseButton(model);
-        //toolBar.add(button);
     }
     
     /** Helper method to create the {@link #menuBar}. */
@@ -203,6 +201,7 @@ class TreeViewUI
         tree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) { onClick(e, false); }
             public void mouseReleased(MouseEvent e) { onClick(e, true); }
+            public void mouseEntered(MouseEvent e) { model.removeRollOver(); }
         });
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             

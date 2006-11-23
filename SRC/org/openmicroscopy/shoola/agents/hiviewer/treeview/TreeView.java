@@ -34,6 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.treeview;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -87,6 +90,12 @@ public class TreeView
      */
     public static final String 	TREE_POPUP_POINT_PROPERTY = "treePopupPoint";
     
+    /** 
+     * Bound property name indicating to remove the magnified node 
+     * from the display.
+     */
+    public static final String 	REMOVE_ROLL_OVER_PROPERTY = "removeRollOver";
+    
     /** Indicates if the component is visible on screen. */
     private boolean 				display;
 
@@ -134,6 +143,9 @@ public class TreeView
     {
         if (rootNode == null) throw new IllegalArgumentException("No root");
         uiDelegate = new TreeViewUI(this, rootNode);
+        addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) { removeRollOver(); }
+        });
         buildGUI();
     }
         
@@ -193,6 +205,15 @@ public class TreeView
                 			uiDelegate.getTree());
     }
     
+    /** 
+     * Removes the thumbnail from the display when the magnification 
+     * is on.
+     */
+	void removeRollOver()
+	{
+		firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+	
     /**
      * Returns <code>true</code> if the component is visible, <code>false</code>
      * otherwise.
@@ -246,8 +267,7 @@ public class TreeView
         TreeViewImageSet root = (TreeViewImageSet) model.getRoot();
         root.accept(visitor, algo);
     }
-    
-    
+
     /**
      * Sorts the nodes by name or date depending on the specified index.
      * 
