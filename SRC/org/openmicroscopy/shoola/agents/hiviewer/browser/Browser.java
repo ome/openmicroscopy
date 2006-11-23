@@ -71,6 +71,12 @@ public interface Browser
      * Bound property name indicating an {@link ImageDisplay} object has been
      * selected in the visualization tree. 
      */
+    public static final String MOUSE_OVER_PROPERTY = "mouseOver";
+    
+    /** 
+     * Bound property name indicating an {@link ImageDisplay} object has been
+     * selected in the visualization tree. 
+     */
     public static final String SELECTED_DISPLAY_PROPERTY = "selectedDisplay";
     
     /** 

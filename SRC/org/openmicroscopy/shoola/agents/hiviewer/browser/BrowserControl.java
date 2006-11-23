@@ -250,7 +250,7 @@ class BrowserControl
        
         if (!(d instanceof RootDisplay))
             view.setTitle(model.currentPathString(d));
-            
+        model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);
         if (!model.isRollOver()) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
