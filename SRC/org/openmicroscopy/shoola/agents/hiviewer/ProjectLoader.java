@@ -39,7 +39,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ProjectData;
 
 /** 
@@ -63,23 +62,22 @@ public class ProjectLoader
 {
 
     /** The id of the root project. */
-    private long        projectID;
+    private Set        	projectsID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
-    
-    
+      
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param projectID The id of the root project.
+     * @param viewer    	The viewer this data loader is for.
+     *                  	Mustn't be <code>null</code>.
+     * @param projectsID 	The id of the root projects.
      */
-    public ProjectLoader(HiViewer viewer, long projectID)
+    public ProjectLoader(HiViewer viewer, Set projectsID)
     {
         super(viewer);
-        this.projectID = projectID;
+        this.projectsID = projectsID;
     }
     
     /**
@@ -88,7 +86,7 @@ public class ProjectLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(ProjectData.class, projectID,
+        handle = hiBrwView.loadHierarchy(ProjectData.class, projectsID,
                             viewer.getRootLevel(), getRootID(), this);
     }
     

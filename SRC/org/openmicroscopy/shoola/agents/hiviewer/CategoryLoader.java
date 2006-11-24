@@ -61,24 +61,23 @@ public class CategoryLoader
     extends DataLoader
 {
     
-    /** The id of the root Category. */
-    private long        categoryID;
+    /** The id of the root Categories. */
+    private Set        	categoiesID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
-    
-    
+
     /**
      * Creates a new instance.
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
-     * @param categoryID    The id of the root Category.
+     * @param categoiesID   The id of the root Categories.
      */
-    public CategoryLoader(HiViewer viewer, long categoryID)
+    public CategoryLoader(HiViewer viewer, Set categoiesID)
     {
         super(viewer);
-        this.categoryID = categoryID;
+        this.categoiesID = categoiesID;
     }
     
     /**
@@ -87,7 +86,7 @@ public class CategoryLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(CategoryData.class, categoryID,
+        handle = hiBrwView.loadHierarchy(CategoryData.class, categoiesID,
                                viewer.getRootLevel(), getRootID(), this);
     }
     

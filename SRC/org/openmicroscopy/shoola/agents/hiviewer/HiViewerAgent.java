@@ -83,15 +83,40 @@ public class HiViewerAgent
     private void handleBrowse(Browse evt)
     {
         if (evt == null) return;
-        if (evt.getEventIndex() != Browse.IMAGES)
-            browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
-                evt.getRootLevel(), evt.getRootID(), evt.getRequesterBounds());
-        else  {
-            HiViewer viewer = null;
-            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
-                evt.getRootLevel(), evt.getRootID());
-            if (viewer != null) viewer.activate(evt.getRequesterBounds());
-        }
+        HiViewer viewer = null;
+        switch (evt.getEventIndex()) {
+			case Browse.IMAGES:
+	            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
+	                evt.getRootLevel(), evt.getRootID());
+	            if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			case Browse.DATASETS:
+				viewer = HiViewerFactory.getDatasetsViewer(evt.getObjectIDs(), 
+		                evt.getRootLevel(), evt.getRootID());
+		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			case Browse.CATEGORIES:
+				viewer = HiViewerFactory.getCategoriesViewer(evt.getObjectIDs(), 
+		                evt.getRootLevel(), evt.getRootID());
+		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			case Browse.PROJECTS:
+				viewer = HiViewerFactory.getProjectsViewer(evt.getObjectIDs(), 
+		                evt.getRootLevel(), evt.getRootID());
+		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			case Browse.CATEGORY_GROUPS:
+				viewer = HiViewerFactory.getCategoryGroupsViewer(
+									evt.getObjectIDs(), 
+									evt.getRootLevel(), evt.getRootID());
+		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
+				break;
+			default:
+				browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
+						evt.getRootLevel(), evt.getRootID(), 
+						evt.getRequesterBounds());
+				break;
+		}
     }
     
     /** Creates a new instance. */

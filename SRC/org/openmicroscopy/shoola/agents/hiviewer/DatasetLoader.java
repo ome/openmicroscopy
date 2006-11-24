@@ -62,7 +62,7 @@ public class DatasetLoader
 {
     
     /** The id of the root dataset. */
-    private long        datasetID;
+    private Set        	datasetsID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -72,12 +72,12 @@ public class DatasetLoader
      * 
      * @param viewer    The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param datasetID The id of the root dataset.
+     * @param datasetsID The id of the root datasets.
      */
-    public DatasetLoader(HiViewer viewer, long datasetID)
+    public DatasetLoader(HiViewer viewer, Set datasetsID)
     {
         super(viewer);
-        this.datasetID = datasetID;
+        this.datasetsID = datasetsID;
     }
     
     /**
@@ -86,7 +86,7 @@ public class DatasetLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(DatasetData.class, datasetID, 
+        handle = hiBrwView.loadHierarchy(DatasetData.class, datasetsID, 
                               viewer.getRootLevel(), getRootID(), this);
     }
     
