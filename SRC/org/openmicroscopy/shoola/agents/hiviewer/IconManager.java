@@ -242,11 +242,13 @@ public class IconManager
     /** The <code>Sort by Name</code> icon. */
     public static int           SORT_BY_DATE = 59;
 
+    /** The <code>Lens</code> icon. */
+    public static int           LENS = 60;
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 59;
+    private static int          MAX_ID = 60;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -313,6 +315,7 @@ public class IconManager
         relPaths[CLIPBOARD_VIEW] =  "nuvola_editpaste16.png";
         relPaths[SORT_BY_NAME] =  "eclipse_alphab_sort_co16.png";
         relPaths[SORT_BY_DATE] =  "eclipse_trace_persp16.png";
+        relPaths[LENS] =  "nuvola_viewmag16.png";
     }
     
     /** The sole instance. */
