@@ -39,6 +39,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -122,9 +123,9 @@ class BrowserUI
     
     /** The component hosting the tree. */
     private JScrollPane             scrollPane;
-    
-    /** Flag to indicate if we reload the root node when we refresh the tree. */
-    private boolean                 reloadRoot = true;
+
+    /** Collections of nodes whose <code>enabled</code> flag has to be reset. */
+    private Set						nodesToReset;
     
     /** Builds and lays out the UI. */
     private void buildGUI()
@@ -312,7 +313,6 @@ class BrowserUI
         TreeImageDisplay display;
         Set children;
         parent.removeAllChildren();
-        List expanded = new ArrayList();
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
@@ -320,20 +320,24 @@ class BrowserUI
                 children = display.getChildrenDisplay();
                 if (children.size() != 0) {
                     if (display.containsImages()) {
-                    	expanded.add(display);
                     	display.setExpanded(true);
                     	setExpandedParent(display, false);
+                    	nodesToReset.add(display);
                     	buildTreeNode(display, sorter.sort(children), tm);
                         expandNode(display);
                         tm.reload(display);
                     } else {
+                    	if (display.isExpanded()) {
+                    		setExpandedParent(display, false);
+                        	nodesToReset.add(display);
+                    	}
                     	buildTreeNode(display, sorter.sort(children), tm);
                     }
                 } else {
                     tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
                         display, display.getChildCount());
                 }  
-            } else reloadRoot = false;
+            }
         } 
         if (parent.isExpanded()) {
             expandNode(parent);
@@ -341,6 +345,13 @@ class BrowserUI
         }
     }
     
+    /**
+     * Sets the value of the <code>expanded</code> flag for the parent of 
+     * the specified node.
+     * 
+     * @param n	The node to handle.
+     * @param b	The value to set.
+     */
     private void setExpandedParent(TreeImageDisplay n, boolean b)
     {
     	TreeImageDisplay p = n.getParentDisplay();
@@ -418,7 +429,6 @@ class BrowserUI
         TreeImageDisplay copy = d.copy();
         dtm.insertNodeInto(copy, r, r.getChildCount());
         buildTreeNode(copy, sorter.sort(copy.getChildrenDisplay()), dtm);
-        reloadRoot = true;
         dtm.reload(r);
         if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
         scrollPane.getViewport().removeAll();
@@ -434,6 +444,7 @@ class BrowserUI
     BrowserUI()
     {
         sorter = new ViewerSorter();
+        nodesToReset = new HashSet();
         listener = new TreeExpansionListener() {
             public void treeCollapsed(TreeExpansionEvent e) {
                 onNodeNavigation(e, false);
@@ -490,14 +501,14 @@ class BrowserUI
             Iterator i = nodes.iterator();
             while (i.hasNext())
                 root.addChildDisplay((TreeImageDisplay) i.next()) ;
-            
             buildTreeNode(root, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
-            //if (!reload) reload = reloadRoot;
         } else buildEmptyNode(root);
-        //if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
-        reloadRoot = true;
+        Iterator j = nodesToReset.iterator();
+        while (j.hasNext()) {
+			setExpandedParent((TreeImageDisplay) j.next(), true);
+		}
     }
     
     /**
@@ -519,7 +530,6 @@ class BrowserUI
         } else buildEmptyNode(parent);
         dtm.reload(parent);
         if (!model.isMainTree()) loadGoIntoTree();
-        reloadRoot = true;
     }
     
     /**
@@ -541,7 +551,6 @@ class BrowserUI
             buildTreeNode(parent, sorter.sort(nodes), dtm);
         } else buildEmptyNode(parent);
         dtm.reload(parent);
-        reloadRoot = true;
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -629,7 +638,6 @@ class BrowserUI
             loadGoIntoTree();
             selectGoIntoTreeFoundNode(node);
         }
-        reloadRoot = true;
     }
     
     /** Removes all the nodes from the tree, excepted the root node. */
@@ -643,7 +651,6 @@ class BrowserUI
         dtm.reload();
         collapsePath(root);
         if (!model.isMainTree()) loadGoIntoTree();
-        reloadRoot = true;
     }
     
     /**
@@ -723,7 +730,6 @@ class BrowserUI
                             new TreePath(parent.getPath()));
             }
         }
-        //if (reloadRoot) dtm.reload(getTreeRoot());
         if (!model.isMainTree()) loadGoIntoTree();
     }
     
@@ -807,38 +813,37 @@ class BrowserUI
             TreeImageDisplay copy = d.copy();
             dtm.insertNodeInto(copy, r, r.getChildCount());
             buildTreeNode(copy, copies, dtm);
-            reloadRoot = true;
             dtm.reload(r);
             if (copy.isChildrenLoaded()) expandGoIntoTreeNode(copy);
             scrollPane.getViewport().removeAll();
             scrollPane.getViewport().add(goIntoTree);
             repaint();
         }
-        reloadRoot = true;
     }
     
     /**
-     * Sorts the nodes in the tree view.
-     * If node
-     * @param type
+     * Sorts the nodes in the tree view  according to the specified index.
+     * 
+     * @param type 	One out of the following constants: 
+     * 				{@link  Browser#SORT_NODES_BY_DATE} or 
+     * 				{@link  Browser#SORT_NODES_BY_NAME}.
      */
     void sortNodes(int type)
     {
         sorter.setByDate(type == Browser.SORT_NODES_BY_DATE);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
-        boolean reload = false;
         Set children = root.getChildrenDisplay();
         root.removeAllChildren();
         dtm.reload(root);
         if (children.size() != 0) {
             buildTreeNode(root, sorter.sort(children), dtm);
-            if (!reload) reload = reloadRoot;
         } else buildEmptyNode(root);
-        //if (reload) dtm.reload(root);
         if (!model.isMainTree()) loadGoIntoTree();
-        reloadRoot = true;
-        
+        Iterator j = nodesToReset.iterator();
+        while (j.hasNext()) {
+			setExpandedParent((TreeImageDisplay) j.next(), true);
+		}
     }
     
     
