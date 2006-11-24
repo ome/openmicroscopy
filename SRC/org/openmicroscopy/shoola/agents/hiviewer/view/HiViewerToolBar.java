@@ -36,9 +36,12 @@ import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -68,8 +71,11 @@ class HiViewerToolBar
     /** Reference to the control. */
     private HiViewerControl controller;
     
+    /** Reference to the model. */
+    private HiViewerModel	model;
+    
     /** 
-     * Builds the toolbar hosting the <code>View</code> controls.
+     * Builds the toolbar hosting the various <code>View</code>s.
      * 
      * @return See above.
      */
@@ -116,8 +122,21 @@ class HiViewerToolBar
         //UIUtilities.unifiedButtonLookAndFeel(b);
         //b.setBorderPainted(true);
         bar.add(b);
+        bar.add(new JSeparator(SwingConstants.HORIZONTAL));
+        b = new JToggleButton(
+                controller.getAction(HiViewerControl.ROLL_OVER));
+        b.setSelected(model.isRollOver());
+        bar.add(b);
+        JButton button = 
+        	new JButton(controller.getAction(HiViewerControl.ZOOM_IN));
+        bar.add(button);
+        button = new JButton(controller.getAction(HiViewerControl.ZOOM_OUT));
+        bar.add(button);
+        button = new JButton(controller.getAction(HiViewerControl.ZOOM_FIT));
+        bar.add(button);
         return bar;
     }
+    
     
     /** Builds and lays out the GUI. */
     private void buildGUI()
@@ -141,12 +160,17 @@ class HiViewerToolBar
      * 
      * @param controller    Reference to the control. 
      *                      Mustn't be <code>null</code>.
+     * @param model    		Reference to the control. 
+     *                      Mustn't be <code>null</code>.                 
      */
-    HiViewerToolBar(HiViewerControl controller)
+    HiViewerToolBar(HiViewerControl controller, HiViewerModel model)
     {
         if (controller == null) 
             throw new NullPointerException("No controller.");
+        if (model == null) 
+            throw new NullPointerException("No model.");
         this.controller = controller;
+        this.model = model;
         buildGUI();
     }
     

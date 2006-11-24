@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
@@ -61,6 +62,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -228,10 +230,10 @@ class HiViewerWin
         menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.SAVE_THUMB)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.EXIT)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
         return menu;
     }
@@ -246,13 +248,13 @@ class HiViewerWin
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.FIND)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(createClassifySubMenu());
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.REMOVE)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                     controller.getAction(HiViewerControl.PROPERTIES)));
         return menu;
@@ -285,15 +287,22 @@ class HiViewerWin
         item.setSelected(model.isTitleBarVisible());
         item.setAction(controller.getAction(HiViewerControl.SHOW_TITLEBAR));
         menu.add(item);
-        item = new JCheckBoxMenuItem();
-        item.setSelected(model.isRollOver());
-        item.setAction(controller.getAction(HiViewerControl.ROLL_OVER));
-        menu.add(item);
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN)));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT)));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        //item = new JCheckBoxMenuItem();
+        //item.setSelected(model.isRollOver());
+        //item.setAction(controller.getAction(HiViewerControl.ROLL_OVER));
+        //menu.add(item);
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        JMenuItem mi = new JMenuItem(
+        			controller.getAction(HiViewerControl.ZOOM_IN));
+        menu.setText(ZoomInAction.NAME);
+        menu.add(mi);
+        mi = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
+        menu.setText(ZoomInAction.NAME);
+        menu.add(mi);
+        mi = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
+        menu.setText(ZoomInAction.NAME);
+        menu.add(mi);
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(createLayoutMenu());
         return menu;
     }
@@ -346,7 +355,7 @@ class HiViewerWin
         this.controller = controller;
         this.model = model;
         popupMenu = new PopupMenu(controller);
-        toolBar = new HiViewerToolBar(controller);
+        toolBar = new HiViewerToolBar(controller, model);
         setJMenuBar(createMenuBar());
         buildUI();
     }
