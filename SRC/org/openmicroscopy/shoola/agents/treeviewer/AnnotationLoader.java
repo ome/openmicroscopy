@@ -115,7 +115,7 @@ public class AnnotationLoader
 
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
@@ -126,7 +126,7 @@ public class AnnotationLoader
     /**
      * Overridden so that we don't notify the user that the annotation
      * retrieval has been cancelled.
-     * @see DataTreeViewerLoader#handleCancellation() 
+     * @see EditorLoader#handleCancellation() 
      */
     public void handleCancellation() 
     {
