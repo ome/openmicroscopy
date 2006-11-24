@@ -302,7 +302,6 @@ class DOAnnotation
     private void showSingleAnnotation()
     {
         int index = annotatedByList.getSelectedIndex();
-        System.out.println("index "+index);
         view.handleAnnotationAreaInsert();
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
@@ -371,8 +370,6 @@ class DOAnnotation
         setComponentsEnabled(true);
         formatUsersList(owners);
         if (userIndex != -1) annotatedByList.setSelectedIndex(userIndex);
-        //annotatedByList.clearSelection();
-        //annotatedByList.setSelectedIndex(userIndex);
         showSingleAnnotation();
     }
     
