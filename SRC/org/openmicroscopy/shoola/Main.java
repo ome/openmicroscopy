@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.env.Container;
  */
 public class Main 
 {
-	public static String SVN_TEST = "SVN_TEST";
 	/**
 	 * Main method.
 	 * 
