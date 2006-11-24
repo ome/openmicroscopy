@@ -601,14 +601,15 @@ class HiViewerComponent
     {
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = getBrowser();
+        ImageDisplay d = browser.getLastSelectedDisplay();
         switch (browser.getSelectedLayout()) {
             case LayoutFactory.SQUARY_LAYOUT:
-                browser.accept(LayoutFactory.createLayout(
+                d.accept(LayoutFactory.createLayout(
                         LayoutFactory.SQUARY_LAYOUT, model.getSorter()),
                         ImageDisplayVisitor.IMAGE_SET_ONLY);
                 break;
             case LayoutFactory.FLAT_LAYOUT:
-                browser.resetChildDisplay();
+            	browser.resetChildDisplay();
                 Layout l = LayoutFactory.createLayout(LayoutFactory.FLAT_LAYOUT, 
                                                         model.getSorter());
                 browser.accept(l);
