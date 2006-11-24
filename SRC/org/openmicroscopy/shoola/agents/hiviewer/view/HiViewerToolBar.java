@@ -43,6 +43,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -67,6 +69,9 @@ class HiViewerToolBar
 
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
+    
+    /** Size of the horizontal box. */
+    private static final Dimension HGLUE = new Dimension(5, 5);
     
     /** Reference to the control. */
     private HiViewerControl controller;
@@ -93,6 +98,7 @@ class HiViewerToolBar
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
         b.setSelected(true);
         bar.add(b);
+        bar.add(new JSeparator(SwingConstants.HORIZONTAL));
         return bar;
     }
     
@@ -123,16 +129,20 @@ class HiViewerToolBar
         //b.setBorderPainted(true);
         bar.add(b);
         bar.add(new JSeparator(SwingConstants.HORIZONTAL));
+        bar.add(Box.createRigidArea(HGLUE));
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.ROLL_OVER));
         b.setSelected(model.isRollOver());
         bar.add(b);
         JButton button = 
         	new JButton(controller.getAction(HiViewerControl.ZOOM_IN));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         button = new JButton(controller.getAction(HiViewerControl.ZOOM_OUT));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         button = new JButton(controller.getAction(HiViewerControl.ZOOM_FIT));
+        UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         return bar;
     }
