@@ -48,8 +48,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -150,10 +148,47 @@ public class ViewCmd
                     bus.post(new Browse(ids, Browse.IMAGES, root, 
                             model.getRootGroupID(), bounds));   
                     return;
+                } else if (n.getUserObject() instanceof DatasetData) {
+                    Set ids = new HashSet(nodes.length);
+                    DatasetData data;
+                    for (int i = 0; i < nodes.length; i++) {
+                        data = (DatasetData) nodes[i].getUserObject();
+                        ids.add(new Long(data.getId()));
+                    }
+                    bus.post(new Browse(ids, Browse.DATASETS, root, 
+                            model.getRootGroupID(), bounds));   
+                    return;
+                } else if (n.getUserObject() instanceof CategoryData) {
+                    Set ids = new HashSet(nodes.length);
+                    CategoryData data;
+                    for (int i = 0; i < nodes.length; i++) {
+                        data = (CategoryData) nodes[i].getUserObject();
+                        ids.add(new Long(data.getId()));
+                    }
+                    bus.post(new Browse(ids, Browse.CATEGORIES, root, 
+                            model.getRootGroupID(), bounds));   
+                    return;
+                } else if (n.getUserObject() instanceof ProjectData) {
+                    Set ids = new HashSet(nodes.length);
+                    ProjectData data;
+                    for (int i = 0; i < nodes.length; i++) {
+                        data = (ProjectData) nodes[i].getUserObject();
+                        ids.add(new Long(data.getId()));
+                    }
+                    bus.post(new Browse(ids, Browse.PROJECTS, root, 
+                            model.getRootGroupID(), bounds));   
+                    return;
+                } else if (n.getUserObject() instanceof CategoryGroupData) {
+                    Set ids = new HashSet(nodes.length);
+                    CategoryGroupData data;
+                    for (int i = 0; i < nodes.length; i++) {
+                        data = (CategoryGroupData) nodes[i].getUserObject();
+                        ids.add(new Long(data.getId()));
+                    }
+                    bus.post(new Browse(ids, Browse.CATEGORY_GROUPS, root, 
+                            model.getRootGroupID(), bounds));   
+                    return;
                 }
-                UserNotifier un = 
-                    TreeViewerAgent.getRegistry().getUserNotifier();  
-                un.notifyInfo("Browse", "Can only browse images.");
             } else {
                 TreeImageDisplay display = browser.getLastSelectedDisplay();
                 if (display == null) return;
