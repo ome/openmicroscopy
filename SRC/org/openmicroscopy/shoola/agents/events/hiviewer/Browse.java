@@ -74,6 +74,18 @@ public class Browse
     /** Event ID corresponding to a browse images event. */
     public static final int IMAGES = 4;
     
+    /** Event ID corresponding to a browse datasets event. */
+    public static final int DATASETS = 5;
+    
+    /** Event ID corresponding to a browse datasets event. */
+    public static final int CATEGORIES = 6;
+    
+    /** Event ID corresponding to a browse datasets event. */
+    public static final int PROJECTS = 7;
+    
+    /** Event ID corresponding to a browse datasets event. */
+    public static final int CATEGORY_GROUPS = 8;
+    
     /** ID of the top element in the hierarchy. */
     private long        hierarchyObjectID;
     
@@ -130,6 +142,25 @@ public class Browse
     }
     
     /**
+     * Controls if the specified index is supported.
+     * 
+     * @param index The index to control.
+     */
+    private void checkMultiNodesIndex(int index)
+    {
+        switch (index) {
+            case IMAGES:
+            case DATASETS:
+            case CATEGORIES:
+            case PROJECTS:
+            case CATEGORY_GROUPS:
+                return; 
+            default:
+                throw new IllegalArgumentException("Event index not valid.");
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param hierarchyObjectID The Id of the <code>Data Object</code> to 
@@ -174,9 +205,8 @@ public class Browse
     public Browse(Set ids, int index, Class rootLevel, long rootID, 
                     Rectangle bounds)
     {
-        if (index != IMAGES) 
-            throw new IllegalArgumentException("This constructor should " +
-                    "only be invoked to browse images.");
+    	checkMultiNodesIndex(index); 
+        checkRootLevel(rootLevel);
         eventIndex = index;
         this.rootLevel = rootLevel;
         this.rootID = rootID;
