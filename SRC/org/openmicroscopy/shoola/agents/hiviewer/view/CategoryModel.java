@@ -31,6 +31,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,8 +42,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.CategoryLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 
 /** 
- * A concrete Model for a CG/C/I hierarchy consisting of a single tree
- * rooted by a given Category.
+ * A concrete Model for a C/I hierarchy consisting of a single tree
+ * rooted by given Categories.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,11 +61,10 @@ class CategoryModel
 {
 
     /** 
-     * The id of the Category that is the root of the CG/C/I tree
+     * The id of the Categores that is the root of the CG/C/I tree
      * that this Model handles. 
      */
-    private long     categoryID;
-    
+    private Set     categoriesID;
     
     /**
      * Creates a new instance.
@@ -73,7 +75,20 @@ class CategoryModel
     CategoryModel(long categoryID) 
     {
         super();
-        this.categoryID = categoryID; 
+        categoriesID = new HashSet(1);
+        categoriesID.add(new Long(categoryID)); 
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param categoriesID The id of the Categories that is the root of the C/I
+     *                   	tree that this Model will handle. 
+     */
+    CategoryModel(Set categoriesID) 
+    {
+        super(); 
+        this.categoriesID = categoriesID;
     }
     
     /**
@@ -90,8 +105,19 @@ class CategoryModel
     {
         if (other == null || !(other instanceof CategoryModel)) return false;
         CategoryModel cm = (CategoryModel) other;
-        return (cm.getHierarchyType() == getHierarchyType()) 
-                && (cm.categoryID == categoryID);
+        if (cm.getHierarchyType() != getHierarchyType()) return false;
+        if (cm.categoriesID.size() != categoriesID.size()) return false;
+        Iterator i = cm.categoriesID.iterator(), j;
+        Long id;
+        int index = categoriesID.size();
+        while (i.hasNext()) {
+            id = (Long) i.next();
+            j = categoriesID.iterator();
+            while (j.hasNext()) {
+                if (id.longValue() == ((Long) j.next()).longValue()) index--;
+            }
+        }
+        return (index == 0);
     }
 
     /**
@@ -100,7 +126,7 @@ class CategoryModel
      */
     protected DataLoader createHierarchyLoader()
     {
-        return new CategoryLoader(component, categoryID);
+        return new CategoryLoader(component, categoriesID);
     }
 
     /**
@@ -109,7 +135,7 @@ class CategoryModel
      */
     protected HiViewerModel reinstantiate()
     {
-        HiViewerModel model = new CategoryModel(categoryID);
+        HiViewerModel model = new CategoryModel(categoriesID);
         model.setRootLevel(getRootLevel(), getRootID());
         return model;
     }

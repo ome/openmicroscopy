@@ -31,6 +31,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,8 +42,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DatasetLoader;
 
 /** 
- * A concrete Model for a P/D/I hierarchy consisting of a single tree
- * rooted by a given Dataset.
+ * A concrete Model for a D/I hierarchy consisting of a single tree
+ * rooted by given Datasets.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,11 +61,10 @@ class DatasetModel
 {
 
     /** 
-     * The id of the Dataset that is the root of the P/D/I tree that this 
+     * The id of the Datasets that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private long     datasetID;
-    
+    private Set 		datasetsID;
     
     /**
      * Creates a new instance.
@@ -73,7 +75,20 @@ class DatasetModel
     DatasetModel(long datasetID) 
     {
         super();
-        this.datasetID = datasetID; 
+        datasetsID = new HashSet(1);
+        datasetsID.add(new Long(datasetID)); 
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param datasetsID The id of the Datasets that is the root of the P/D/I
+     *                   tree that this Model will handle. 
+     */
+    DatasetModel(Set datasetsID)
+    {
+    	super();
+        this.datasetsID = datasetsID; 
     }
     
     /**
@@ -90,8 +105,19 @@ class DatasetModel
     {
         if (other == null || !(other instanceof DatasetModel)) return false;
         DatasetModel dm = (DatasetModel) other;
-        return (dm.getHierarchyType() == getHierarchyType()) 
-                && (dm.datasetID == datasetID);
+        if (dm.getHierarchyType() != getHierarchyType()) return false;
+        if (dm.datasetsID.size() != datasetsID.size()) return false;
+        Iterator i = dm.datasetsID.iterator(), j;
+        Long id;
+        int index = datasetsID.size();
+        while (i.hasNext()) {
+            id = (Long) i.next();
+            j = datasetsID.iterator();
+            while (j.hasNext()) {
+                if (id.longValue() == ((Long) j.next()).longValue()) index--;
+            }
+        }
+        return (index == 0);
     }
 
     /** 
@@ -100,7 +126,7 @@ class DatasetModel
      */
     protected DataLoader createHierarchyLoader()
     {
-        return new DatasetLoader(component, datasetID);
+        return new DatasetLoader(component, datasetsID);
     }
     
     /**
@@ -109,7 +135,7 @@ class DatasetModel
      */
     protected HiViewerModel reinstantiate()
     {
-        HiViewerModel model = new DatasetModel(datasetID);
+        HiViewerModel model = new DatasetModel(datasetsID);
         model.setRootLevel(getRootLevel(), getRootID());
         return model;
     }

@@ -35,6 +35,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.hiviewer.CategoryGroupLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 
@@ -58,12 +62,11 @@ class CategoryGroupModel
 {
 
     /** 
-     * The id of the Category Group that is the root of the CG/C/I tree
+     * The id of the Category Groups that is the root of the CG/C/I tree
      * that this Model handles. 
      */
-    private long     cgID;
-    
-    
+    private Set     ids;
+
     /**
      * Creates a new instance.
      * 
@@ -73,7 +76,20 @@ class CategoryGroupModel
     CategoryGroupModel(long cgID) 
     {
         super();
-        this.cgID = cgID; 
+        ids = new HashSet(1);
+        ids.add(new Long(cgID));
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param ids The id of the Category Groups that is the root of the CG/C/I
+     *             tree that this Model will handle. 
+     */
+    CategoryGroupModel(Set ids) 
+    {
+        super();
+        this.ids = ids; 
     }
     
     /**
@@ -94,8 +110,19 @@ class CategoryGroupModel
         if (other == null || !(other instanceof CategoryGroupModel))
             return false;
         CategoryGroupModel cgm = (CategoryGroupModel) other;
-        return (cgm.getHierarchyType() == getHierarchyType()) 
-                && (cgm.cgID == cgID);
+        if (cgm.getHierarchyType() != getHierarchyType()) return false;
+        if (cgm.ids.size() != ids.size()) return false;
+        Iterator i = cgm.ids.iterator(), j;
+        Long id;
+        int index = ids.size();
+        while (i.hasNext()) {
+            id = (Long) i.next();
+            j = ids.iterator();
+            while (j.hasNext()) {
+                if (id.longValue() == ((Long) j.next()).longValue()) index--;
+            }
+        }
+        return (index == 0);
     }
 
     /** 
@@ -104,7 +131,7 @@ class CategoryGroupModel
      */
     protected DataLoader createHierarchyLoader()
     {
-        return new CategoryGroupLoader(component, cgID);
+        return new CategoryGroupLoader(component, ids);
     }
 
     /**
@@ -113,7 +140,7 @@ class CategoryGroupModel
      */
     protected HiViewerModel reinstantiate()
     {
-        HiViewerModel model = new CategoryGroupModel(cgID);
+        HiViewerModel model = new CategoryGroupModel(ids);
         model.setRootLevel(getRootLevel(), getRootID());
         return model;
     }

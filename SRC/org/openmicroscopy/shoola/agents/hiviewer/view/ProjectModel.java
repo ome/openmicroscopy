@@ -35,6 +35,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ProjectLoader;
 
@@ -58,22 +62,34 @@ class ProjectModel
 {
 
     /** 
-     * The id of the Project that is the root of the P/D/I tree that this 
+     * The id of the Projects that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private long     projectID;
-    
+    private Set     projectsID;
     
     /**
      * Creates a new instance.
      * 
-     * @param projectID The id of the Project that is the root of the P/D/I
-     *                  tree that this Model will handle. 
+     * @param projectID 	The id of the Projects that is the root of the P/D/I
+     *                  	tree that this Model will handle. 
      */
     ProjectModel(long projectID) 
     {
         super();
-        this.projectID = projectID; 
+        projectsID = new HashSet(1);
+        projectsID.add(new Long(projectID)); 
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param projectsID 	The id of the Projects that is the root of the P/D/I
+     *                  	tree that this Model will handle. 
+     */
+    ProjectModel(Set projectsID) 
+    {
+        super();
+        this.projectsID = projectsID; 
     }
     
     /** 
@@ -90,8 +106,19 @@ class ProjectModel
     {
         if (other == null || !(other instanceof ProjectModel)) return false;
         ProjectModel pm = (ProjectModel) other;
-        return (pm.getHierarchyType() == getHierarchyType()) 
-                && (pm.projectID == projectID);
+        if (pm.getHierarchyType() != getHierarchyType()) return false;
+        if (pm.projectsID.size() != projectsID.size()) return false;
+        Iterator i = pm.projectsID.iterator(), j;
+        Long id;
+        int index = projectsID.size();
+        while (i.hasNext()) {
+            id = (Long) i.next();
+            j = projectsID.iterator();
+            while (j.hasNext()) {
+                if (id.longValue() == ((Long) j.next()).longValue()) index--;
+            }
+        }
+        return (index == 0);
     }
 
     /** 
@@ -100,7 +127,7 @@ class ProjectModel
      */
     protected DataLoader createHierarchyLoader()
     {
-        return new ProjectLoader(component, projectID);
+        return new ProjectLoader(component, projectsID);
     }
     
     /**
@@ -109,7 +136,7 @@ class ProjectModel
      */
     protected HiViewerModel reinstantiate()
     {
-        HiViewerModel model = new ProjectModel(projectID);
+        HiViewerModel model = new ProjectModel(projectsID);
         model.setRootLevel(getRootLevel(), getRootID());
         return model;
     }

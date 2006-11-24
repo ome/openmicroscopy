@@ -126,6 +126,78 @@ public class HiViewerFactory
     }
     
     /**
+     * Returns a viewer to display the datasets.
+     * 
+     * @param ids       The datasets' ids.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return A {@link HiViewer} component for the collection of images.
+     */
+    public static HiViewer getDatasetsViewer(Set ids, Class rootLevel,
+                                            long rootID)
+    {
+        HiViewerModel model = new DatasetModel(ids);
+        model.setRootLevel(rootLevel, rootID);
+        return singleton.getViewer(model);
+    }
+    
+    /**
+     * Returns a viewer to display the categories.
+     * 
+     * @param ids       The categories' ids.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return A {@link HiViewer} component for the collection of images.
+     */
+    public static HiViewer getCategoriesViewer(Set ids, Class rootLevel,
+                                            long rootID)
+    {
+        HiViewerModel model = new CategoryModel(ids);
+        model.setRootLevel(rootLevel, rootID);
+        return singleton.getViewer(model);
+    }
+    
+    /**
+     * Returns a viewer to display the projects.
+     * 
+     * @param ids       The projects' ids.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return A {@link HiViewer} component for the collection of images.
+     */
+    public static HiViewer getProjectsViewer(Set ids, Class rootLevel,
+                                            long rootID)
+    {
+        HiViewerModel model = new ProjectModel(ids);
+        model.setRootLevel(rootLevel, rootID);
+        return singleton.getViewer(model);
+    }
+    
+    /**
+     * Returns a viewer to display the category groups.
+     * 
+     * @param ids       The projects' ids.
+     * @param rootLevel The level of the hierarchy either 
+     *                  <code>GroupData</code> or 
+     *                  <code>ExperimenterData</code>.
+     * @param rootID    The Id of the root.
+     * @return A {@link HiViewer} component for the collection of images.
+     */
+    public static HiViewer getCategoryGroupsViewer(Set ids, Class rootLevel,
+                                            long rootID)
+    {
+        HiViewerModel model = new CategoryGroupModel(ids);
+        model.setRootLevel(rootLevel, rootID);
+        return singleton.getViewer(model);
+    }
+    
+    /**
      * Returns a viewer to display the Project/Dataset/Image hierarchy
      * rooted by the specified Project.
      * 
