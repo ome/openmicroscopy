@@ -51,7 +51,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Sorts the values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -304,14 +304,15 @@ public class ViewerSorter
         if (result != 0) return ascending ? result : -result;
         return result;
     }
-    
-    //This is a home-grown implementation which we have not had time
-    // to research - it may perform poorly in some circumstances. It
-    // requires twice the space of an in-place algorithm and makes
-    // NlogN assigments shuttling the values between the two
-    // arrays. The number of compares appears to vary between N-1 and
-    // NlogN depending on the initial order but the main reason for
-    // using it here is that, unlike qsort, it is stable.
+
+    /**
+     * Sorts the objects.
+     * 
+     * @param from
+     * @param to
+     * @param low
+     * @param high
+     */
     private void shuttlesort(Object[] from, Object[] to, int low, int high)
     {
         if (high-low < 2) return;
