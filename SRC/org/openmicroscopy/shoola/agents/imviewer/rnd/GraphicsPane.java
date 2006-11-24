@@ -462,24 +462,14 @@ class GraphicsPane
      */
     public void focusLost(FocusEvent fe)
     {
-      if (fe.getSource() == startField)
-    		if (startFieldValid()) startSelectionHandler();
-    		else
-    		{      
-    			//UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    			//un.notifyInfo("Invalid pixels intensity interval", 
-                //    "["+startField.getText()+","+model.getWindowEnd()+"]");
-    			startField.setText(model.getWindowStart()+"");
-    		}
-    	if (fe.getSource() == endField)
-    		if (endFieldValid()) endSelectionHandler();
-    		else
-    		{
-    			//UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    			//un.notifyInfo("Invalid pixels intensity interval", 
-               // "["+model.getWindowStart()+","+endField.getText()+"]");
-    			endField.setText(model.getWindowEnd()+"");
-    		}
+      if (fe.getSource() == startField) {
+    	  if (startFieldValid()) startSelectionHandler();
+  		  else startField.setText(model.getWindowStart()+"");
+      }
+      if (fe.getSource() == endField) {
+    	  if (endFieldValid()) endSelectionHandler();
+  		 else endField.setText(model.getWindowEnd()+"");
+      }	
     }
     
     /** 
