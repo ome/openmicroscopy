@@ -134,7 +134,7 @@ public class ViewCmd
         if (model != null)
             bounds = model.getUI().getBounds();
         if (hierarchyObject instanceof DatasetData)
-            HiViewerAgent.browse(Browse.DATASET, 
+        	HiViewerAgent.browse(Browse.DATASET, 
                     ((DatasetData) hierarchyObject).getId(), 
                     model.getRootLevel(), model.getRootID(), bounds);
         else if (hierarchyObject instanceof ProjectData)
