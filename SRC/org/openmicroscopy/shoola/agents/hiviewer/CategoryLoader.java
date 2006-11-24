@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryData;
 
 /** 
- * Loads a Category/Image hierarchy rooted by a given Category.
+ * Loads a Category/Image hierarchy rooted by given Categories.
  * This class calls the <code>loadHierarchy</code> method in the
  * <code>HierarchyBrowsingView</code>.
  *
@@ -62,7 +62,7 @@ public class CategoryLoader
 {
     
     /** The id of the root Categories. */
-    private Set        	categoiesID;
+    private Set        	categoriesID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -72,12 +72,12 @@ public class CategoryLoader
      * 
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
-     * @param categoiesID   The id of the root Categories.
+     * @param categoriesID  The id of the root Categories.
      */
-    public CategoryLoader(HiViewer viewer, Set categoiesID)
+    public CategoryLoader(HiViewer viewer, Set categoriesID)
     {
         super(viewer);
-        this.categoiesID = categoiesID;
+        this.categoriesID = categoriesID;
     }
     
     /**
@@ -86,7 +86,7 @@ public class CategoryLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadHierarchy(CategoryData.class, categoiesID,
+        handle = hiBrwView.loadHierarchy(CategoryData.class, categoriesID,
                                viewer.getRootLevel(), getRootID(), this);
     }
     
@@ -98,7 +98,7 @@ public class CategoryLoader
     
     /**
      * Notifies the viewer of progress. 
-     * @see #update(DSCallFeedbackEvent)
+     * @see DataLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 
     {
@@ -114,7 +114,7 @@ public class CategoryLoader
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

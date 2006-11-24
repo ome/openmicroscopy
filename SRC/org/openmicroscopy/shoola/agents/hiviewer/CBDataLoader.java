@@ -101,6 +101,7 @@ public abstract class CBDataLoader
     
     /**
      * Notifies the user that the data retrieval has been cancelled.
+     * @see DSCallAdapter#handleCancellation()
      */
     public void handleCancellation() 
     {
@@ -112,7 +113,7 @@ public abstract class CBDataLoader
     
     /**
      * Notifies the user that an error has occurred.
-     * @see #handleException(Throwable)
+     * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

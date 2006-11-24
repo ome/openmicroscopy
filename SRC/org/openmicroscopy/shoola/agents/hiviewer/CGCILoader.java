@@ -100,7 +100,7 @@ public class CGCILoader
     
     /**
      * Notifies the viewer of progress. 
-     * @see #update(DSCallFeedbackEvent)
+     * @see DataLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 
     {
@@ -116,7 +116,7 @@ public class CGCILoader
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
