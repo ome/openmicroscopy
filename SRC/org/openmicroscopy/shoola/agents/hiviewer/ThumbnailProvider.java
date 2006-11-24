@@ -77,15 +77,6 @@ public class ThumbnailProvider
     /** The maximum height of the thumbnail. */
     static final int            THUMB_MAX_HEIGHT = 96;
     
-    /** The default magnification factor. */
-    public static final double  SCALING_FACTOR = 0.5;
-    
-    /** The maximum magnification factor. */
-    public static final double  MAX_SCALING_FACTOR = 1;
-    
-    /** The minimum magnification factor. */
-    public static final double  MIN_SCALING_FACTOR = 0.25;
-    
     /** The thickness of the border added to the icon. */
     private static final int    BORDER = 1;
     
@@ -267,6 +258,16 @@ public class ThumbnailProvider
      * @return See above.
      */
     public BufferedImage getFullScaleThumb() { return fullScaleThumb; }
+    
+    /**
+     * Returns a magnified version of the original thumbnail.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getZoomedFullScaleThumb()
+    {
+    	return magnifyImage(1.5, fullScaleThumb);
+    }
     
     /**
      * Returns the icon associated to the thumbnail.
