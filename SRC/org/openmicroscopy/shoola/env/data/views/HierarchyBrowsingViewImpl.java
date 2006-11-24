@@ -77,15 +77,15 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadHierarchy(Class, long, Class, long, 
+     * @see HierarchyBrowsingView#loadHierarchy(Class, Set, Class, long, 
      *                                      AgentEventListener)
      */
-    public CallHandle loadHierarchy(Class rootNodeType, long nodeID, 
+    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID, 
                                     Class rootLevel, long rootID,
                                     AgentEventListener observer)
     {
-        BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodeID, rootLevel,
-                                                rootID);
+        BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodesID, 
+        										rootLevel, rootID);
         return cmd.exec(observer);
     }
     

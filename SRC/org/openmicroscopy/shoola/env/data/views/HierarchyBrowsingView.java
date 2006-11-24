@@ -98,7 +98,7 @@ public interface HierarchyBrowsingView
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      <code>ProjectData, DatasetData, 
      *                      CategoryGroupData, CategoryData</code>.
-     * @param nodeID        The id of the root node.
+     * @param nodesID        The id of the root nodes.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.
@@ -106,7 +106,7 @@ public interface HierarchyBrowsingView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadHierarchy(Class rootNodeType, long nodeID, 
+    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID, 
                                     Class rootLevel, long rootLevelID,
                                     AgentEventListener observer);
     
