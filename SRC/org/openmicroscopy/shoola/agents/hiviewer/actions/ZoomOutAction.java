@@ -67,7 +67,7 @@ public class ZoomOutAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Zoom out";
+    public static final String NAME = "Zoom out";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Zoom out all images " +
@@ -111,7 +111,7 @@ public class ZoomOutAction
     public ZoomOutAction(HiViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

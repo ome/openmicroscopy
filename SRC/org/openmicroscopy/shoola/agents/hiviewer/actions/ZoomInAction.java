@@ -66,7 +66,7 @@ public class ZoomInAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Zoom in";
+    public static final String NAME = "Zoom in";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Zoom in all images " +
@@ -100,7 +100,7 @@ public class ZoomInAction
     public ZoomInAction(HiViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

@@ -66,7 +66,7 @@ public class ZoomFitAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Normal Size";
+    public static final String NAME = "Normal Size";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Reset the size of all " +
@@ -101,7 +101,7 @@ public class ZoomFitAction
     public ZoomFitAction(HiViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();

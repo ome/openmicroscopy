@@ -38,6 +38,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -60,10 +61,10 @@ public class RollOverAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Magnification";
+    public static final String NAME = "Magnification";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Zoom the image.";
+    private static final String DESCRIPTION = "Magnify the image.";
     
     /**
      * Sets the action enabled depending when the browser is ready.
@@ -82,9 +83,11 @@ public class RollOverAction
     public RollOverAction(HiViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.LENS));
     }
     
     /**
