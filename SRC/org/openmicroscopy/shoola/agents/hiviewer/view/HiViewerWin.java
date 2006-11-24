@@ -53,7 +53,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 
@@ -148,7 +147,7 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        mainPane.setResizeWeight(1);
+        mainPane.setResizeWeight(1); //before we remove items.
         return mainPane;
     }
     
@@ -272,8 +271,8 @@ class HiViewerWin
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         //menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW_PDI)));
-        menu.add(new JMenuItem(
-                            controller.getAction(HiViewerControl.VIEW_CGCI)));
+        //menu.add(new JMenuItem(
+        //s                    controller.getAction(HiViewerControl.VIEW_CGCI)));
         //menu.add(new JSeparator(JSeparator.HORIZONTAL));
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         item.setSelected(false);
@@ -431,12 +430,12 @@ class HiViewerWin
     {
         JComponent cb = model.getClipBoard().getUI();
         if (cb == null) return;
-        BasicSplitPaneUI splitPaneUI = (BasicSplitPaneUI) mainPane.getUI();
         if (b) {
             mainPane.setRightComponent(cb);
-            splitPaneUI.setLastDragLocation(lastMove);
+            mainPane.setDividerLocation(lastMove);
+            mainPane.setResizeWeight(0);
         } else {
-            lastMove = splitPaneUI.getLastDragLocation();
+            lastMove = mainPane.getDividerLocation();
             mainPane.remove(cb);
         }
     }
