@@ -84,6 +84,7 @@ public class RollOverWin
     /** The canvas hosting the image. */
     private RollOverCanvas  canvas;
     
+    /** Reference to the {@link Browser}. */
     private Browser         browser;
     
     /** Sets the property of the dialog window. */ 
@@ -104,9 +105,7 @@ public class RollOverWin
     {
         if (canvas == null) return;
         Insets i = canvas.getInsets();
-        int width = w+i.right+i.left;
-        int height = h+i.top+i.bottom;
-        Dimension d = new Dimension(width, height);
+        Dimension d = new Dimension(w+i.right+i.left, h+i.top+i.bottom);
         canvas.setPreferredSize(d);
         canvas.setSize(d);
     }
@@ -180,6 +179,8 @@ public class RollOverWin
         canvas.initialize(annotatedIcon, classifiedIcon);
         Thumbnail prv = node.getThumbnail();
         BufferedImage full = prv.getFullScaleThumb();
+        if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
+        	full = prv.getZoomedFullScaleThumb();
         if (full != null)  {
             image = full;
             makeComponentsSize(image.getWidth(), image.getHeight());
