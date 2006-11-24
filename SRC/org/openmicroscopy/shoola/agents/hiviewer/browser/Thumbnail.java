@@ -55,6 +55,15 @@ import javax.swing.Icon;
 public interface Thumbnail
 {
     
+    /** The maximum magnification factor. */
+    public static final double  MAX_SCALING_FACTOR = 1;
+    
+    /** The default magnification factor. */
+    public static final double  SCALING_FACTOR = 0.5;
+    
+    /** The minimum magnification factor. */
+    public static final double  MIN_SCALING_FACTOR = 0.25;
+    
     /**
      * Returns the width, in pixels, of the thumbnail.
      * 
@@ -101,6 +110,13 @@ public interface Thumbnail
      * @return See above.
      */
     public BufferedImage getFullScaleThumb();
+    
+    /**
+     * Returns a magnified version of the original thumbnail.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getZoomedFullScaleThumb();
     
     /** 
      * Returns the icon representing the thumbnail.
