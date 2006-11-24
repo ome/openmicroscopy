@@ -62,7 +62,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomFitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -294,13 +296,13 @@ class HiViewerWin
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         JMenuItem mi = new JMenuItem(
         			controller.getAction(HiViewerControl.ZOOM_IN));
-        menu.setText(ZoomInAction.NAME);
+        mi.setText(ZoomInAction.NAME);
         menu.add(mi);
         mi = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
-        menu.setText(ZoomInAction.NAME);
+        mi.setText(ZoomOutAction.NAME);
         menu.add(mi);
         mi = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
-        menu.setText(ZoomInAction.NAME);
+        mi.setText(ZoomFitAction.NAME);
         menu.add(mi);
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(createLayoutMenu());
