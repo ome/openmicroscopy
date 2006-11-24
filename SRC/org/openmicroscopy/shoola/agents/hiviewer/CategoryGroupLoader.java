@@ -42,8 +42,8 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryGroupData;
 
 /** 
- * Loads a Category Group/Category/Image hierarchy rooted by a given Category 
- * Group.
+ * Loads a Category Group/Category/Image hierarchy rooted by given Category 
+ * Groups.
  * This class calls the <code>loadHierarchy</code> method in the
  * <code>HierarchyBrowsingView</code>.
  *
