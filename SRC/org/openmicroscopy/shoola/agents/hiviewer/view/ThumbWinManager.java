@@ -117,9 +117,10 @@ class ThumbWinManager
     }
     
     /** Maps image ids onto on-screen windows. */
-    private static Map  windows;
+    private static Map  		windows;
     
-    private static RollOverWin rollOverDialog;
+    /** The dialog displaying the magnified thumbnail. */
+    private static RollOverWin 	rollOverDialog;
     
     /** Creates a new instance. */
     private ThumbWinManager()
