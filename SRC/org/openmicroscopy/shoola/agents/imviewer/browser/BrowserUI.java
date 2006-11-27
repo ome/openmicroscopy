@@ -146,8 +146,6 @@ class BrowserUI
         browserCanvas.repaint();
     }
     
-
-    
     /** Displays the zoomed image. */
     void zoomImage()
     {
@@ -168,7 +166,6 @@ class BrowserUI
         currentView.setViewPosition(new Point(x, y));
         browserCanvas.repaint();
     }
-    
       
     /**
      * Sets the size of the components b/c a layeredPane doesn't have a layout
@@ -187,14 +184,10 @@ class BrowserUI
     }
     
     /** 
-     * Return the current size of the viewport. 
+     * Returns the current size of the viewport. 
      * 
      * @return see above. 
      */
-    Dimension getCurrentViewport()
-    {
-    	JViewport currentView = this.getViewport();
-        return currentView.getSize();
-    }
+    Dimension getCurrentViewport() { return getViewport().getSize(); }
     
 }

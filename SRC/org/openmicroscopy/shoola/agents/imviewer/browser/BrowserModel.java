@@ -220,14 +220,7 @@ class BrowserModel
      * 
      * @param size The size of the unit bar.
      */
-    void setUnitBarSize(double size)
-    {
-        unitInMicrons = size;
-        /*
-        if (getPixelsSizeX() > 0) unit = size/getPixelsSizeX();
-        else unit = size;
-        */
-    }
+    void setUnitBarSize(double size) { unitInMicrons = size; }
     
     /**
      * Returns the size of the unit bar.
@@ -240,8 +233,6 @@ class BrowserModel
         if (getPixelsSizeX() > 0) v = unitInMicrons/getPixelsSizeX();
         v *= zoomFactor;
         return v;
-       //if (unit == -1) setUnitBarSize(5);
-        //return unit; 
     }
     
     /**
@@ -251,14 +242,7 @@ class BrowserModel
      */
     String getUnitBarValue()
     {
-        //double v = getPixelsSizeX();///factor;
     	return UIUtilities.twoDecimalPlaces(unitInMicrons);
     }
-
-    BufferedImage getSubLensImage(Point p)
-    {
-        return lensImage;
-    }
-
     
 }
