@@ -280,24 +280,6 @@ class TreeViewerWin
     }
     
     /**
-     * Helper method to create the Classify submenu.
-     * 
-     * @return  The Classify submenu.
-     */
-    /*
-    private JMenu createClassifySubMenu()
-    {
-        IconManager im = IconManager.getInstance();
-        JMenu menu = new JMenu("Classify");
-        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CLASSIFY))); 
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.DECLASSIFY))); 
-        return menu;
-    }
-    */
-    /**
      * Helper method to create the Hierarchy root menu.
      * 
      * @return See above.
@@ -335,9 +317,6 @@ class TreeViewerWin
     {
         createTabbedPane();
         workingPane = new JScrollPane();
-        //JPanel p = new JPanel();
-        //p.setBackground(Color.RED);
-        //workingPane.add(p);
     }
 
     /** Builds and lays out the GUI. */
@@ -366,6 +345,8 @@ class TreeViewerWin
     TreeViewerWin()
     {
         super(TITLE);
+        IconManager icons = IconManager.getInstance();
+        setIconImage(icons.getImageIcon(IconManager.MANAGER_48).getImage());
     }
 
     /**
