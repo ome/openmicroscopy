@@ -85,11 +85,9 @@ public class FlatLayoutAction
         super(model);
         setEnabled(true);
         putValue(Action.NAME, NAME);
-        String description = 
-            LayoutFactory.getLayoutDescription(LayoutFactory.FLAT_LAYOUT);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.makeParagraph(null, description,
-                        UIUtilities.TABLE_WIDTH));
+        //String description = 
+        //    LayoutFactory.getLayoutDescription(LayoutFactory.FLAT_LAYOUT);
+        putValue(Action.SHORT_DESCRIPTION, "");
     }
     
     /** 

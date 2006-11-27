@@ -85,13 +85,9 @@ public class SquaryLayoutAction
         super(model);
         setEnabled(true);
         putValue(Action.NAME, NAME);
-        String description = 
-            LayoutFactory.getLayoutDescription(LayoutFactory.SQUARY_LAYOUT);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.makeParagraph(null, description,
-                        UIUtilities.TABLE_WIDTH));
-        //IconManager im = IconManager.getInstance();
-        //putValue(Action.SMALL_ICON, im.getIcon(IconManager.SQUARY_LAYOUT));
+        //String description = 
+        //    LayoutFactory.getLayoutDescription(LayoutFactory.SQUARY_LAYOUT);
+        putValue(Action.SHORT_DESCRIPTION, "");
     }
 
     /** 
