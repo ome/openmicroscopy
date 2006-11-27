@@ -127,11 +127,7 @@ public abstract class AbstractIconManager
 	 * 
 	 * @return See above.
 	 */
-	public static Icon getOMEIcon()
-	{
-		return OME_ICON;
-	}
-	
+	public static Icon getOMEIcon() { return OME_ICON; }
 	
 	/**
 	 * The factory retrieved from the configuration held by {@link #registry}.
