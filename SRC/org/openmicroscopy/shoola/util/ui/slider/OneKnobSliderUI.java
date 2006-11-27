@@ -39,7 +39,6 @@ import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
@@ -53,7 +52,7 @@ import org.openmicroscopy.shoola.util.ui.TipDialog;
 
 
 /** 
- * 
+ * The UI of the <code>OnknobSlider</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -192,7 +191,6 @@ public class OneKnobSliderUI
 		rightArrowImage = img.getImage();
 	}	
 
-
 	/**
 	 * This method calculates the size and positon of the arrows used displayed
 	 * in the trackRect.  
@@ -279,10 +277,8 @@ public class OneKnobSliderUI
                         null);
             }           
         }
-        if(showEndLabel && endLabel != null)
-        {
+        if (showEndLabel && endLabel != null)
         	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
-        }
     }
 
     /**
@@ -322,10 +318,8 @@ public class OneKnobSliderUI
                         null);
             }
         }
-        if(showEndLabel && endLabel != null)
-        {
+        if (showEndLabel && endLabel != null)
         	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
-        }
     }
 
     /**
@@ -367,17 +361,14 @@ public class OneKnobSliderUI
     }
     
     /**
-     * Show the end label if set.
+     * Shows the end label if set.
      * 
      * @param show see above.
      */
-    void setShowEndLabel(boolean show)
-    {
-    	showEndLabel = show;
-    }
+    void setShowEndLabel(boolean show) { showEndLabel = show; }
     
     /**
-     * Show or hide the arrows on the track.
+     * Shows or hides the arrows on the track.
      * 
      * @param isShow See above.
      */
@@ -408,7 +399,7 @@ public class OneKnobSliderUI
 	}
 	
     /**
-     * Overriddent to get the size of the thumb.
+     * Overridden to get the size of the thumb.
      * @see BasicSliderUI#getThumbSize()
      */
     protected Dimension getThumbSize() 
@@ -467,8 +458,8 @@ public class OneKnobSliderUI
     public void calculateGeometry()
     {
         super.calculateGeometry();
-        if(showArrows) calculateArrowRect();
-        if(showEndLabel) calculateEndLabelRect();
+        if (showArrows) calculateArrowRect();
+        if (showEndLabel) calculateEndLabelRect();
     }
     
     /**
