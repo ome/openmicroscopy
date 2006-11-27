@@ -130,6 +130,14 @@ class RollOverCanvas
         });
     }
     
+    /**
+     * Sets the icons.
+     * 
+     * @param annotatedIcon		The icon indicating that the object is 
+     * 							annotated.
+     * @param classifiedIcon	The icon indicating that the object is 
+     * 							classified.
+     */
     void initialize(ImageIcon annotatedIcon, ImageIcon classifiedIcon)
     {
         this.annotatedIcon = annotatedIcon;
@@ -152,7 +160,8 @@ class RollOverCanvas
             int width = pinIcon.getIconWidth();
             int height = pinIcon.getIconHeight();
             pinRectangle.setBounds(w-width-5, y, width, height);
-            g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, null);
+            g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, 
+            				null);
             if (annotatedIcon != null) {
                 width = annotatedIcon.getIconWidth();
                 height = annotatedIcon.getIconHeight();
