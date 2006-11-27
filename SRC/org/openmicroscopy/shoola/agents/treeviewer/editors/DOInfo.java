@@ -31,7 +31,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -148,7 +151,7 @@ class DOInfo
             value = (String) details.get(key);
             label = UIUtilities.setTextFont(key);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
+            //c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
             content.add(label, c);
             area = new JTextField(value);
@@ -174,7 +177,12 @@ class DOInfo
     private JPanel buildPermissions(final PermissionData permissions)
     {
         JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
+        double[][] tl = {{TableLayout.PREFERRED, 
+        				TableLayout.FILL}, //columns
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
+        					TableLayout.PREFERRED} }; //rows
+        content.setLayout(new TableLayout(tl));
+        //content.setLayout(new GridBagLayout());
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -211,16 +219,18 @@ class DOInfo
         });
         box.setEnabled(isOwner);
         p.add(box);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(p);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(UIUtilities.buildComponentPanel(p), c);  
+        //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        //c.fill = GridBagConstraints.NONE;      //reset to default
+        //c.weightx = 0.0;  
+        //content.add(label, c);
+        //label.setLabelFor(p);
+        content.add(label, "0, 0, l, c");
+        //c.gridx = 1;
+        //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        //c.fill = GridBagConstraints.HORIZONTAL;
+        //c.weightx = 1.0;
+        //content.add(UIUtilities.buildComponentPanel(p), c);  
+        content.add(p, "1, 0, l, t");  
         //Group
         label = UIUtilities.setTextFont(GROUP);
         p = new JPanel();
@@ -249,18 +259,19 @@ class DOInfo
         });
         box.setEnabled(isOwner);
         p.add(box);
-        c.gridy = 1;
-        c.gridx = 0;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(p);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(UIUtilities.buildComponentPanel(p), c);  
+        //c.gridy = 1;
+        //c.gridx = 0;
+        //c.fill = GridBagConstraints.NONE;      //reset to default
+        //c.weightx = 0.0;  
+        //content.add(label, c);
+        //label.setLabelFor(p);
+        content.add(label, "0, 1, l, c");
+        //c.gridx = 1;
+        //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        //c.fill = GridBagConstraints.HORIZONTAL;
+        //c.weightx = 1.0;
+        //content.add(UIUtilities.buildComponentPanel(p), c);  
+        content.add(p, "1,1, l, t"); 
         //OTHER
         label = UIUtilities.setTextFont(WORLD);
         p = new JPanel();
@@ -294,13 +305,15 @@ class DOInfo
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
         c.weightx = 0.0;  
-        content.add(label, c);
-        label.setLabelFor(p);
+        //content.add(label, c);
+        //label.setLabelFor(p);
+        content.add(label, "0, 2, l, c");
         c.gridx = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;     //end row
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(UIUtilities.buildComponentPanel(p), c);  
+        //content.add(UIUtilities.buildComponentPanel(p), c);  
+        content.add(p, "1, 2, l, t"); 
         return content;
     }
     
@@ -314,11 +327,12 @@ class DOInfo
     private void buildGUI(Map details, boolean permission)
     {
         contentPanel = buildContentPanel(details);
-        setLayout(new BorderLayout());
-        setMaximumSize(contentPanel.getPreferredSize());
         setBorder(new EtchedBorder());
-        add(contentPanel, BorderLayout.NORTH);
         if (model.getObjectPermissions() != null && permission) {
+        	double[][] tl = {{TableLayout.FILL}, //columns
+        					{TableLayout.PREFERRED, 
+        					TableLayout.PREFERRED} }; //rows
+        	setLayout(new TableLayout(tl));
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
             p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -326,7 +340,13 @@ class DOInfo
             p.add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
             p.add(buildPermissions(model.getObjectPermissions()));
             p.add(Box.createVerticalGlue());
-            add(p);
+            
+            add(contentPanel, "0, 0, f, t");
+            add(p, "0, 1, f, t");
+        } else {
+        	double[][] tl = {{TableLayout.FILL}, {TableLayout.PREFERRED} }; 
+        	setLayout(new TableLayout(tl));
+        	add(contentPanel, "0, 0, f, t");
         }
     }
     
