@@ -32,33 +32,29 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.FontMetrics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
+
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ImageData;
 
 /** 
@@ -119,7 +115,6 @@ class DOBasic
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-        tabbedPane = new JTabbedPane();
         nameArea = new JTextField();
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
@@ -153,6 +148,8 @@ class DOBasic
                 
             });
             if (model.isAnnotatable()) {
+            	if (tabbedPane == null)
+            		tabbedPane = new JTabbedPane();
                 annotator = new DOAnnotation(view, model);
                 IconManager im = IconManager.getInstance();
                 tabbedPane.addTab(ANNOTATION, 
@@ -223,64 +220,27 @@ class DOBasic
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
+        double[][] tl = {{TableLayout.PREFERRED, 
+			TableLayout.FILL}, //columns
+			{0, TableLayout.PREFERRED, 5, 0, 100} }; //rows
+        TableLayout layout = new TableLayout(tl);
+        content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        JLabel label;
-        int y = 0;
-        if (model.getEditorType() != Editor.CREATE_EDITOR) {
-            label = UIUtilities.setTextFont("ID");
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
-            JLabel idArea  = new JLabel(""+model.getDataObjectID());
-            label.setLabelFor(idArea);
-            c.gridx = 1;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(idArea, c);
-            y++;
+        JLabel l;
+        if (model.getEditorType() != Editor.CREATE_EDITOR) { 
+            layout.setRow(0, TableLayout.PREFERRED);
+            content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
+            l = new JLabel(""+model.getDataObjectID());
+            l.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
+            content.add(l, "1, 0, f, c");
+            
         }
-        
-        label = UIUtilities.setTextFont("Name");
-        c.gridx = 0;
-        c.gridy = y;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        
-        JScrollPane pane  = new JScrollPane(nameArea);
-        FontMetrics fm = getFontMetrics(getFont());
-        c.ipady = fm.getHeight();
-        label.setLabelFor(pane);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(pane, c);
-        y++;
-        label = UIUtilities.setTextFont("Description");
-        c.gridx = 0;
-        c.gridy = y;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        c.gridx = 1;
-        c.ipady = fm.getHeight()*4;      //make this component tall
-        c.gridheight = 2; //label north location
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.weighty = 0.0;
-        pane  = new JScrollPane(descriptionArea);
-        label.setLabelFor(pane);
-        content.add(pane, c);
+        content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
+        content.add(nameArea, "1, 1, f, c");
+        content.add(new JLabel(), "0, 2, 1, 2");
+        content.add(UIUtilities.setTextFont("Description"), "0, 3, f, t");
+        JScrollPane pane  = new JScrollPane(descriptionArea);
+        content.add(pane, "1, 3, 1, 4");
         return content;
     }
     
@@ -290,20 +250,10 @@ class DOBasic
      */
     private void buildGUI()
     {
-        JPanel contentPanel = buildContentPanel();
         setLayout(new BorderLayout());
-        setMaximumSize(contentPanel.getPreferredSize());
-        setBorder(new EtchedBorder());
-        if (model.isAnnotatable()) {
-            JSplitPane mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, 
-                    contentPanel, tabbedPane);
-            mainPane.setOneTouchExpandable(true);
-            mainPane.setContinuousLayout(true);
-            add(mainPane, BorderLayout.NORTH);
-        } else {
-            add(contentPanel, BorderLayout.NORTH);
+        add(buildContentPanel(), BorderLayout.NORTH);
+        if (model.isAnnotatable()) 
             add(tabbedPane, BorderLayout.CENTER);
-        }
     }
     
     /**
@@ -318,10 +268,8 @@ class DOBasic
      */
     DOBasic(EditorUI view, EditorModel model, EditorControl controller)
     {
-        if (view == null) 
-            throw new IllegalArgumentException("No View.");
-        if (model == null) 
-            throw new IllegalArgumentException("No Model.");
+        if (view == null) throw new IllegalArgumentException("No View.");
+        if (model == null)  throw new IllegalArgumentException("No Model.");
         if (controller == null) 
             throw new IllegalArgumentException("No Control.");
         this.view = view;

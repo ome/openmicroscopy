@@ -180,12 +180,7 @@ class DOInfo
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         					TableLayout.PREFERRED} }; //rows
         content.setLayout(new TableLayout(tl));
-        //content.setLayout(new GridBagLayout());
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
         //The owner is the only person allowed to modify the permissions.
         boolean isOwner = model.isObjectOwner();
         //Owner
@@ -217,18 +212,8 @@ class DOInfo
         });
         box.setEnabled(isOwner);
         p.add(box);
-        //c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        //c.fill = GridBagConstraints.NONE;      //reset to default
-        //c.weightx = 0.0;  
-        //content.add(label, c);
-        //label.setLabelFor(p);
         content.add(label, "0, 0, l, c");
-        //c.gridx = 1;
-        //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        //c.fill = GridBagConstraints.HORIZONTAL;
-        //c.weightx = 1.0;
-        //content.add(UIUtilities.buildComponentPanel(p), c);  
-        content.add(p, "1, 0, l, t");  
+        content.add(p, "1, 0, l, c");  
         //Group
         label = UIUtilities.setTextFont(GROUP);
         p = new JPanel();
@@ -257,19 +242,8 @@ class DOInfo
         });
         box.setEnabled(isOwner);
         p.add(box);
-        //c.gridy = 1;
-        //c.gridx = 0;
-        //c.fill = GridBagConstraints.NONE;      //reset to default
-        //c.weightx = 0.0;  
-        //content.add(label, c);
-        //label.setLabelFor(p);
         content.add(label, "0, 1, l, c");
-        //c.gridx = 1;
-        //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        //c.fill = GridBagConstraints.HORIZONTAL;
-        //c.weightx = 1.0;
-        //content.add(UIUtilities.buildComponentPanel(p), c);  
-        content.add(p, "1,1, l, t"); 
+        content.add(p, "1,1, l, c"); 
         //OTHER
         label = UIUtilities.setTextFont(WORLD);
         p = new JPanel();
@@ -298,20 +272,8 @@ class DOInfo
         });
         box.setEnabled(isOwner);
         p.add(box);
-        c.gridy = 2;
-        c.gridx = 0;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        //content.add(label, c);
-        //label.setLabelFor(p);
         content.add(label, "0, 2, l, c");
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        //content.add(UIUtilities.buildComponentPanel(p), c);  
-        content.add(p, "1, 2, l, t"); 
+        content.add(p, "1, 2, l, c"); 
         return content;
     }
     

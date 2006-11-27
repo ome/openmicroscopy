@@ -32,9 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Timestamp;
@@ -54,12 +51,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -200,22 +198,15 @@ class DOAnnotation
     {
         //Set panel layout and border
         JPanel p = new JPanel();
-        p.setBorder(new EtchedBorder());
-        p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        // griddy constraints
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.BOTH;
-        c.weighty = 1;
-        c.insets = new Insets(3, 3, 3, 3);
-        // add annotation area
-        c.weightx = 0.4;
-        p.add(new JScrollPane(annotationArea), c);
-        // add annotated by list
-        c.gridx = 1;
-        c.weightx = 0.2;
-        p.add(new JScrollPane(annotatedByList), c);
-               
+        double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
+        				{0, 150} }; //rows
+        TableLayout layout = new TableLayout(tl);
+        p.setLayout(layout);
+        p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
+        JPanel empty = new JPanel();
+        empty.setOpaque(true);
+        p.add(empty, "1, 0, f, t");
+        p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");       
         return p;
     }
 
@@ -236,7 +227,7 @@ class DOAnnotation
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(UIUtilities.buildComponentPanel(deleteBox));
         add(new JSeparator());
         add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
