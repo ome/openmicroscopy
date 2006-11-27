@@ -66,6 +66,7 @@ public class ChannelDataLoader
     private CallHandle  handle;
     
     /**
+     * Creates a new instance.
      * 
      * @param viewer    The Editor this data loader is for.
      *                  Mustn't be <code>null</code>.
