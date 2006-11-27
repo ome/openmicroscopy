@@ -226,12 +226,14 @@ public class UIUtilities
 	public static String formatToolTipText(String toolTipText) 
 	{
 		StringBuffer buf = new StringBuffer(90+toolTipText.length());
+		//buf.
 		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
 		//TODO: change into platform independent font
 		buf.append("<font face=Arial size=2>");  
 		buf.append(toolTipText);
 		buf.append("</font></body></html>");
-		return buf.toString();
+		return toolTipText;
+		//return buf.toString();
 	} 
 	
     /**
