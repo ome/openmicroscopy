@@ -31,10 +31,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,6 +50,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
