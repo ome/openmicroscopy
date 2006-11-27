@@ -368,7 +368,7 @@ public abstract class ImageDisplay
     
     /** 
      * Overridden to return the name of the hierarchy object. 
-     * @see #toString()
+     * @see Object#toString()
      */
     public String toString()
     {
@@ -391,7 +391,7 @@ public abstract class ImageDisplay
      * {@link #addChildDisplay(ImageDisplay) addChildDisplay} and
      * {@link #removeChildDisplay(ImageDisplay) removeChildDisplay} methods
      * will work fine.
-     * @see #equals(Object)
+     * @see Object#equals(Object)
      */
     public final boolean equals(Object x) { return (this == x); }
     
