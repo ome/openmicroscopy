@@ -374,6 +374,7 @@ class EditorUI
         setOpaque(true);
         add(titleLayer, BorderLayout.NORTH);
         JComponent c = buildCenterComponent();
+        c.setOpaque(true);
         c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         add(new JScrollPane(c), BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
