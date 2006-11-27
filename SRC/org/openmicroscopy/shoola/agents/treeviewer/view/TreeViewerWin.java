@@ -323,7 +323,7 @@ class TreeViewerWin
     private void buildGUI()
     {
         splitPane = new JSplitPane();
-        splitPane.setResizeWeight(1);
+        //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
@@ -345,8 +345,8 @@ class TreeViewerWin
     TreeViewerWin()
     {
         super(TITLE);
-        IconManager icons = IconManager.getInstance();
-        setIconImage(icons.getImageIcon(IconManager.MANAGER_48).getImage());
+        //IconManager icons = IconManager.getInstance();
+        //setIconImage(icons.getImageIcon(IconManager.MANAGER_48).getImage());
     }
 
     /**
