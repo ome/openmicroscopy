@@ -72,6 +72,7 @@ class ClassifierModel
     /** The images to classify or declassify. */
     private ImageData[]         images;
     
+    /** The current state of the component. */
     private int                 state;
     
     /**

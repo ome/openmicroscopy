@@ -106,6 +106,7 @@ class TreeViewerComponent
     /** The View sub-component. */
     private TreeViewerWin       view;
     
+    /** The dialog used to display the form when a new node is created. */
     private EditorDialog        editorDialog;
     
     /**

@@ -111,6 +111,7 @@ public class AddExistingObjectsDialog
     private static final String     NOTE = "Select the existing items to add " +
             "to the current node";
     
+    /** Message displayed when no node to be added. */
     private static final String     EMPTY_NOTE = "No existing objects.";
     
     /** Button to finish the operation. */

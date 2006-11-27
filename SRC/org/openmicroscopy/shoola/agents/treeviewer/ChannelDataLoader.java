@@ -94,7 +94,7 @@ public class ChannelDataLoader
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
@@ -105,7 +105,7 @@ public class ChannelDataLoader
     /**
      * Overridden so that we don't notify the user that the channel metadata
      * retrieval has been cancelled.
-     * @see DataTreeViewerLoader#handleCancellation() 
+     * @see EditorLoader#handleCancellation() 
      */
     public void handleCancellation() 
     {

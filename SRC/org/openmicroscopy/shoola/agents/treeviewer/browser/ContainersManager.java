@@ -71,6 +71,7 @@ public class ContainersManager
     /** Ids of the containers whose number of items has already been set. */
     private Set     processedIDs;
     
+    /** Keeps track the components. */
     private Map		providers;
     
     /** The tree hosting the display. */

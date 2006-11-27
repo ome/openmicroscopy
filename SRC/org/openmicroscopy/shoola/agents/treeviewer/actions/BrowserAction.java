@@ -98,7 +98,7 @@ public class BrowserAction
     
     /**
      * Reacts to property changes in the {@link Browser}.
-     * @see #propertyChange(PropertyChangeEvent)
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -112,7 +112,7 @@ public class BrowserAction
     
     /** 
      * Reacts to state changes in the {@link Browser}.
-     * @see #stateChanged(ChangeEvent)
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e) { onStateChange(); }
     
