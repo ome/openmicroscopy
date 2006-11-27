@@ -221,11 +221,14 @@ public class IconManager
     /** The <code>Question</code> icon. */
     public static int           QUESTION = 53;
     
+    /** The <code>Manager 48</code> icon. */
+    public static int           MANAGER_48 = 54;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 53;
+    private static int          MAX_ID = 54;
     
     
     /** Paths of the icon files. */
@@ -288,6 +291,7 @@ public class IconManager
         relPaths[DECLASSIFY] = "declassify16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[MANAGER_48] = "nuvola_file-manager48.png";
     }
     
     /** The sole instance. */
