@@ -146,6 +146,8 @@ class ThumbWinManager
         if (w == null) {
             Thumbnail prv = node.getThumbnail();
             BufferedImage full = prv.getFullScaleThumb();
+            if (prv.getScalingFactor() == Thumbnail.MAX_SCALING_FACTOR)
+            	full = prv.getZoomedFullScaleThumb();
             if (full != null) {
                 //NOTE: Right now we pre-fetch all images so full != null 
                 //unless they click on node at init time, when the thumbs
