@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.info;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -45,10 +44,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -172,10 +171,11 @@ class InfoPaneUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        setLayout(new BorderLayout());
-        setBorder(new EmptyBorder(5, 5, 5, 5));
-        add(titlePanel, BorderLayout.NORTH);
-        add(contentPanel, BorderLayout.CENTER);
+    	double[][] tl = {{TableLayout.FILL}, 
+    					{TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
+    	setLayout(new TableLayout(tl));
+    	add(titlePanel, "0, 0, f, t");
+    	add(contentPanel, "0, 1, f, t");
     }
     
     /**
@@ -200,15 +200,13 @@ class InfoPaneUI
      */
     void displayDetails(Map details, String name)
     {
-        //removeAll();
     	resetValues(details);
         if (details == null || details.size() == 0) {
             titleLabel.setText(DEFAULT_MSG);
-            //contentPanel = new JPanel();
+            contentPanel.setVisible(false);
         } else {
-            //contentPanel = buildContentPanel(details);
+        	contentPanel.setVisible(true);
             titleLabel.setText(EDIT_MSG+name);
-            setMaximumSize(contentPanel.getPreferredSize());
         }
         validate();
         repaint();

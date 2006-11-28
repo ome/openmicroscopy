@@ -200,8 +200,7 @@ class DOAnnotation
         JPanel p = new JPanel();
         double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
         				{0, 150} }; //rows
-        TableLayout layout = new TableLayout(tl);
-        p.setLayout(layout);
+        p.setLayout(new TableLayout(tl));
         p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
         JPanel empty = new JPanel();
         empty.setOpaque(true);

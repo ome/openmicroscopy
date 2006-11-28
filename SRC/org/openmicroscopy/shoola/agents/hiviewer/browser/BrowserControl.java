@@ -247,7 +247,15 @@ class BrowserControl
     {
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
-       
+        if (d instanceof RootDisplay) {
+        	ImageDisplay lastSelected = model.getLastSelectedDisplay();
+        	if (lastSelected != null) {
+        		view.setTitle(model.currentPathString(lastSelected));
+        	} else lastSelected = null;
+        	model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, 
+					lastSelected);
+        	return;
+        }
         if (!(d instanceof RootDisplay))
             view.setTitle(model.currentPathString(d));
         model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);

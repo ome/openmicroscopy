@@ -42,7 +42,6 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Uses the <code>squaryLayout</code> algorithm to layout the thumbnails.

@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 
@@ -43,7 +42,6 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Uses the <code>FlatLayout</code> algorithm to layout the thumbnails.

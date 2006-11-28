@@ -262,7 +262,10 @@ class DOBasic
         content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
         content.add(nameArea, "1, 1, f, c");
         content.add(new JLabel(), "0, 2, 1, 2");
-        content.add(UIUtilities.setTextFont("Description"), "0, 3, f, t");
+        l = UIUtilities.setTextFont("Description");
+        int h = l.getFontMetrics(l.getFont()).getHeight()+5;
+        layout.setRow(3, h);
+        content.add(l, "0, 3, l, c");
         JScrollPane pane  = new JScrollPane(descriptionArea);
         content.add(pane, "1, 3, 1, 4");
         return content;

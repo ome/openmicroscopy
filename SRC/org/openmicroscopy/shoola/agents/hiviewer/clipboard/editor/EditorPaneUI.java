@@ -35,7 +35,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -56,6 +55,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
@@ -263,9 +263,6 @@ class EditorPaneUI
                 descriptionAreaListener);
     }
     
-    
-    
-    
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}. If the <code>DataOject</code>
@@ -276,41 +273,21 @@ class EditorPaneUI
      */
     private JPanel buildContentPanel()
     {
-        JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
+    	JPanel content = new JPanel();
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+        				{TableLayout.PREFERRED, 5, 0, 100} }; //rows
+        TableLayout layout = new TableLayout(tl);
+        content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        JLabel label = UIUtilities.setTextFont("Name");
-        
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        JScrollPane pane  = new JScrollPane(nameArea);
-        label.setLabelFor(pane);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(pane, c);
-        label = UIUtilities.setTextFont("Description");
-        c.gridx = 0;
-        c.gridy = 1;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(label, c);
-        c.gridx = 1;
-        c.ipady = 60;      //make this component tall
-        c.gridheight = 2; //label north location
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        pane  = new JScrollPane(descriptionArea);
-        label.setLabelFor(pane);
-        content.add(pane, c);
+        content.add(UIUtilities.setTextFont("Name"), "0, 0, l, c");
+        content.add(nameArea, "1, 0, f, c");
+        content.add(new JLabel(), "0, 1, 1, 1");
+        JLabel l = UIUtilities.setTextFont("Description");
+        int h = l.getFontMetrics(l.getFont()).getHeight()+5;
+        layout.setRow(2, h);
+        content.add(l, "0, 2, l, c");
+        JScrollPane pane  = new JScrollPane(descriptionArea);
+        content.add(pane, "1, 2, 1, 3");
         return content;
     }
    
@@ -417,6 +394,8 @@ class EditorPaneUI
         descriptionArea.setText(description);
         descriptionArea.getDocument().addDocumentListener(
                         descriptionAreaListener);
+        bodyPanel.setVisible(!(name.equals("")));
+        
         titleLabel.setText(title);
     }
 

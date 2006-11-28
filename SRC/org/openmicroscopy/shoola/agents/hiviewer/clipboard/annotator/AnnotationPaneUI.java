@@ -34,9 +34,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -60,13 +57,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
+import layout.TableLayout;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
@@ -224,22 +222,15 @@ class AnnotationPaneUI
     private JPanel buildAnnotationPanel()
     {
         JPanel p = new JPanel();
-        p.setBorder(new EtchedBorder());
-        p.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        // griddy constraints
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.BOTH;
-        c.weighty = 1;
-        c.insets = new Insets(3, 3, 3, 3);
-        // add annotation area
-        c.weightx = 0.4;
-        p.add(new JScrollPane(annotationArea), c);
-        // add annotated by list
-        c.gridx = 1;
-        c.weightx = 0.2;
-        p.add(new JScrollPane(annotatedByList), c);   
-        return p;
+        double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
+				{0, 150} }; //rows
+		p.setLayout(new TableLayout(tl));
+		p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
+		JPanel empty = new JPanel();
+		empty.setOpaque(true);
+		p.add(empty, "1, 0, f, t");
+		p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");       
+		return p;
     }
     
     /**
@@ -269,7 +260,7 @@ class AnnotationPaneUI
         add(new JSeparator());
         add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
         add(buildAnnotationPanel());
-        add(Box.createVerticalGlue());
+        //add(Box.createVerticalGlue());
     }
     
     /**
