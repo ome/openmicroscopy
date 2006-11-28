@@ -40,6 +40,7 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -102,7 +103,10 @@ public class ViewAction
             }
             if ((ho instanceof ImageData)) name = VIEW;  
             else name = BROWSE;
-            setEnabled(true);
+            if (selectedDisplay instanceof TreeImageSet) {
+            	setEnabled(((TreeImageSet) selectedDisplay).getNumberItems() > 0);
+            } else
+            	setEnabled(true);
         }
     }
     
