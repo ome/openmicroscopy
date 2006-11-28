@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -49,6 +48,7 @@ import pojos.GroupData;
  * Loads the CategoryGroup/Category paths containing the specified image. 
  * This class calls the <code>loadClassificationPaths</code> method in the
  * <code>DataManagerView</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

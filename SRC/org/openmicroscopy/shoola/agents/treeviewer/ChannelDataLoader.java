@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * Retrieves the channels metadata for the given set of pixels.
  * This class calls the <code>loadChannelsData</code> method in the
  * <code>HierarchyBrowsingView</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
