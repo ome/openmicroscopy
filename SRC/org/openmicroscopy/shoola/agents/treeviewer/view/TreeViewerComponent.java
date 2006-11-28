@@ -925,19 +925,5 @@ class TreeViewerComponent
         if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
             EditorFactory.setEditorSelectedPane(index);
     }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#getEditorSelectedPane()
-     */
-    public int getEditorSelectedPane()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException("This method cannot be invoked " +
-                    "in the DISCARDED state.");
-        if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
-            return EditorFactory.getEditorSelectedPane();
-        return -1;
-    }
     
 }

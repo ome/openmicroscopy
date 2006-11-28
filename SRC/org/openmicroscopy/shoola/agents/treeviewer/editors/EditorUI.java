@@ -98,6 +98,24 @@ class EditorUI
     static final Dimension          SMALL_V_SPACER_SIZE = 
                                                 new Dimension(1, 6);
     
+    /** The UI index of the <code>Properties</code> tabbed pane. */
+    static final int				PROPERTIES_INDEX = 0;
+    
+    /** The UI index of the <code>Permissions</code> tabbed pane. */
+    static final int				PERMISSIONS_INDEX = 1;
+    
+    /** The UI index of the <code>Info</code> tabbed pane. */
+    static final int				INFO_INDEX = 2;
+    
+    /** The maximum number of UI indexes for the tabbed panes. */
+    static final int				MAX_INDEX = 3;
+    
+    /** The UI index of the <code>Annotation</code> tabbed pane. */
+    static final int				ANNOTATION_SUB_INDEX = 0;
+    
+    /** The UI index of the <code>Classification</code> tabbed pane. */
+    static final int				CLASSIFICATION_SUB_INDEX = 1;
+    
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -353,13 +371,13 @@ class EditorUI
                             ((ImageData) hierarchyObject).getDefaultPixels());
                     info = new DOInfo(this, model, details, false, 
                             DOInfo.INFO_TYPE);
-                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), info
-                                );
+                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
+                    			info);
                     //Add a tab listeners to the info
                     tabs.addChangeListener(controller);
                 }
                 int index = model.getSelectedTabbedIndex();
-                if (index >= 0 && index < 3)
+                if (index >= 0 && index < MAX_INDEX)
                     tabs.setSelectedIndex(index);
                 return tabs;
         }
@@ -579,7 +597,6 @@ class EditorUI
             }
         });
         titlePanel.setIconComponent(label);
-        doBasic.addListeners();
     }
     
     /** Shows the retrieved annotations.  */
@@ -693,7 +710,7 @@ class EditorUI
     void setEditorSelectedPane(int selectedIndex)
     {
         if (model.getEditorType() == Editor.PROPERTIES_EDITOR)
-            model.getParentModel().setEditorSelectedPane(selectedIndex);
+            model.setEditorSelectedPane(selectedIndex);
     }
     
     /**
@@ -715,7 +732,5 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
-
-
 
 }

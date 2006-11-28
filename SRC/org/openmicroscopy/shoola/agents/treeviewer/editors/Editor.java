@@ -149,7 +149,7 @@ public interface Editor
                                 int operation);
 
     /** Reloads the classifications. */
-    void reloadClassifications();
+    void loadClassifications();
     
     /** Retrieves the emission wavelengths for the set of pixels. */
     void retrieveChannelsData();   
@@ -237,5 +237,23 @@ public interface Editor
      * @param emissionWaves The emission wavelengths.
      */
     public void setChannelsData(List emissionWaves);
+    
+    /** Retrieves the annotations for the edited <code>DataObject</code>. */
+    public void retrieveAnnotations();
+    
+    /** 
+     * Returns the index of the selected sub pane.
+     * 
+     * @return See above.
+     */
+    public int getSelectedSubPane();
+    
+    /**
+     * Returns <code>true</code> if the classification is loaded, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isClassificationLoaded();
     
 }

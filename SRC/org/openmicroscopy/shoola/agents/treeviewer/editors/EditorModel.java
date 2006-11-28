@@ -751,6 +751,27 @@ class EditorModel
      * 
      * @return See above.
      */
-    int getSelectedTabbedIndex() { return parentModel.getEditorSelectedPane(); }
+    int getSelectedTabbedIndex()
+    { 
+    	return EditorFactory.getEditorSelectedPane();
+    }
+
+    /**
+     * Sets the index of the selected tabbed pane.
+     * 
+     * @param index The value to set.
+     */
+    void setEditorSelectedPane(int index)
+    {
+		EditorFactory.setEditorSelectedPane(index);
+	}
+
+    /** 
+     * Returns the index of the selected sub pane.
+     * 
+     * @return See above.
+     */
+	int getSelectedSubPane() { return EditorFactory.getSubSelectedPane(); }
+    
 }
  

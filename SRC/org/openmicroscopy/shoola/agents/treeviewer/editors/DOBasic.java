@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
@@ -147,19 +146,18 @@ class DOBasic
                 public void changedUpdate(DocumentEvent de) {}
                 
             });
+            IconManager im = IconManager.getInstance();
             if (model.isAnnotatable()) {
             	if (tabbedPane == null)
             		tabbedPane = new JTabbedPane();
                 annotator = new DOAnnotation(view, model);
-                IconManager im = IconManager.getInstance();
                 tabbedPane.addTab(ANNOTATION, 
                             im.getIcon(IconManager.ANNOTATION), annotator);
             }
             if (model.getHierarchyObject() instanceof ImageData) {
                 classifier = new DOClassification(model, controller);
                 tabbedPane.addTab(CLASSIFICATION, 
-                      IconManager.getInstance().getIcon(IconManager.CATEGORY),
-                      classifier);
+                			im.getIcon(IconManager.CATEGORY), classifier);
                 tabbedPane.setSelectedIndex(EditorFactory.getSubSelectedPane());
             }
         }
@@ -207,6 +205,33 @@ class DOBasic
                 }
             }
         });
+        if (tabbedPane == null) return;
+        tabbedPane.addChangeListener(new ChangeListener() {
+            
+            /**
+             * Retrieves the classification when the classification tabbed pane
+             * is selected for the first time.
+             * @see ChangeListener#stateChanged(ChangeEvent)
+             */
+            public void stateChanged(ChangeEvent ce)
+            {
+                JTabbedPane pane = (JTabbedPane) ce.getSource();
+                int index = pane.getSelectedIndex();
+                EditorFactory.setSubSelectedPane(index);
+                switch (index) {
+					case EditorUI.ANNOTATION_SUB_INDEX:
+						if (model.isAnnotatable()) 
+	                        controller.retrieveAnnotations();
+						break;
+					case EditorUI.CLASSIFICATION_SUB_INDEX:
+						if (model.isClassified()) {
+	                        if (!model.isClassificationLoaded())
+	                            controller.loadClassifications();
+	                    }
+						break;
+				}
+            };
+        });
     }   
     
     /**
@@ -220,9 +245,8 @@ class DOBasic
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, 
-			TableLayout.FILL}, //columns
-			{0, TableLayout.PREFERRED, 5, 0, 100} }; //rows
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+        				{0, TableLayout.PREFERRED, 5, 0, 100} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -255,7 +279,7 @@ class DOBasic
         if (model.isAnnotatable()) 
             add(tabbedPane, BorderLayout.CENTER);
     }
-    
+
     /**
      * Creates a new instance.
      * 
@@ -368,33 +392,6 @@ class DOBasic
         classifier.showClassifications();
     }
 
-    /** 
-     * Adds a listener to the {@link #tabbedPane} as soon as the thumbnail
-     * is ready.
-     */
-    void addListeners()
-    {
-        //Add listener to the tabbed pane,
-        tabbedPane.addChangeListener(new ChangeListener() {
-            
-            /**
-             * Retrieves the classification when the classification tabbed pane
-             * is selected for the first time.
-             * @see ChangeListener#stateChanged(ChangeEvent)
-             */
-            public void stateChanged(ChangeEvent ce)
-            {
-                JTabbedPane pane = (JTabbedPane) ce.getSource();
-                Component c = pane.getSelectedComponent();
-                EditorFactory.setSubSelectedPane(pane.getSelectedIndex());
-                if (c instanceof DOClassification) {
-                    if (model.isClassified()) {
-                        if (!model.isClassificationLoaded())
-                            model.fireClassificationLoading();
-                    }
-                }
-            };
-        });
-    }
+
     
 }

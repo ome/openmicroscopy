@@ -533,11 +533,4 @@ public interface TreeViewer
      */
     public void setEditorSelectedPane(int index);
     
-    /**
-     * Returns the index of the selected pane. The value is taken into account
-     * only the editor is in the <code>Edit</code> mode.
-     * 
-     * @return See above.
-     */
-    public int getEditorSelectedPane();
 }

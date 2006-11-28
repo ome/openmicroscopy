@@ -168,7 +168,7 @@ class DOClassification
             public void actionPerformed(ActionEvent e)
             {  
                 refreshButton.setEnabled(false);
-                controller.reloadClassifications();
+                controller.loadClassifications();
             }
         });
         treeDisplay = new JTree();

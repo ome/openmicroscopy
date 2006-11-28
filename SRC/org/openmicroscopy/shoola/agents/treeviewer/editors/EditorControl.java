@@ -192,7 +192,10 @@ public class EditorControl
     }
     
     /** Reloads the classifications. */
-    void reloadClassifications() { model.reloadClassifications(); }
+    void loadClassifications() { model.loadClassifications(); }
+    
+    /** Retrieves the annotations. */
+    void retrieveAnnotations() { model.retrieveAnnotations(); }
     
     /**
      * Reacts to state changes in the {@link Editor}.
@@ -203,12 +206,22 @@ public class EditorControl
         if (e.getSource() instanceof JTabbedPane) {
             JTabbedPane tab = (JTabbedPane) e.getSource();
             Component c = tab.getSelectedComponent();
+            int index = tab.getSelectedIndex();
             if (c instanceof DOInfo) {
                 DOInfo info = (DOInfo) c;
                 if (info.getInfoType() == DOInfo.INFO_TYPE)
                     model.retrieveChannelsData();
             }
-            view.setEditorSelectedPane(tab.getSelectedIndex());
+            view.setEditorSelectedPane(index);
+            if (index == EditorUI.PROPERTIES_INDEX) {
+            	int subIndex = model.getSelectedSubPane();
+            	if (subIndex == EditorUI.ANNOTATION_SUB_INDEX)
+            		retrieveAnnotations();
+            	else if (subIndex == EditorUI.CLASSIFICATION_SUB_INDEX) {
+            		if (!(model.isClassificationLoaded()))
+            			loadClassifications();
+            	}
+            }
         } else {
             view.onStateChanged(model.getState() == Editor.READY);
         }

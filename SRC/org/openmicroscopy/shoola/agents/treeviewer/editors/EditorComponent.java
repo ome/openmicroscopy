@@ -152,11 +152,16 @@ class EditorComponent
         switch (model.getState()) {
             case NEW:
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
-                    if (model.isAnnotatable()) {
-                        model.fireAnnotationsLoading();
-                        model.getParentModel().setStatus(true, 
-                                TreeViewer.LOADING_TITLE, false);
-                    } else model.setState(READY);
+                	int index = model.getSelectedTabbedIndex();
+                	if (index == EditorUI.PROPERTIES_INDEX) {
+                		int subIndex = model.getSelectedSubPane();
+                		if (model.isAnnotatable() && 
+                				subIndex == EditorUI.ANNOTATION_SUB_INDEX) {
+                			retrieveAnnotations();
+                		} else if (model.isClassified() && 
+                				subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
+                			loadClassifications();
+                	} else model.setState(READY);
                     fireStateChange();
                 }
                 break;
@@ -350,18 +355,16 @@ class EditorComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#reloadClassifications()
+     * @see Editor#loadClassifications()
      */
-    public void reloadClassifications()
+    public void loadClassifications()
     {
         switch (model.getState()) {
             case DISCARDED:
-            case LOADING_ANNOTATION:   
-            case LOADING_CLASSIFICATION:  
-                throw new IllegalStateException(
-                "This method cannot be invoked in the DISCARDED, " +
-                "LOADING_ANNOTATION or LOADING_CLASSIFICATION state.");
+            case LOADING_ANNOTATION: 
+            	//return;
         }
+        if (!(model.isClassified())) return;
         //model.setClassifications(null);
         model.fireClassificationLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
@@ -417,5 +420,41 @@ class EditorComponent
         fireStateChange();
         view.setChannelsData();
     }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#retrieveAnnotations()
+     */
+	public void retrieveAnnotations()
+	{
+		if (model.getEditorType() != PROPERTIES_EDITOR) return;
+		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
+        			EditorUI.PROPERTIES_INDEX) {
+			if (model.getAnnotations() == null) {
+				model.fireAnnotationsLoading();
+	            model.getParentModel().setStatus(true, 
+	                    TreeViewer.LOADING_TITLE, false);
+	            fireStateChange();
+			}
+        }  
+	}
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getSelectedSubPane()
+     */
+	public int getSelectedSubPane()
+	{
+		return model.getSelectedSubPane();
+	}
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#isClassificationLoaded()
+     */
+	public boolean isClassificationLoaded()
+	{
+		return model.isClassificationLoaded();
+	}
     
 }
