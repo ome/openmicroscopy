@@ -248,11 +248,17 @@ public class IconManager
     /** The <code>File Manager 48</code> icon. */
     public static int           VIEWER_48 = 61;
     
+    /** The <code>Pin small</code> icon. */
+    public static int           PIN_SMALL = 62;
+    
+    /** The <code>Pin small over</code> icon. */
+    public static int           PIN_SMALL_OVER = 63;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 61;
+    private static int          MAX_ID = 63;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -272,7 +278,7 @@ public class IconManager
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
         relPaths[EXIT] = "eclipse_close_view16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
-        relPaths[CLEAR] = "eclipse_clear_co16.png";
+        relPaths[CLEAR] = "nuvola_history_clear16.png";//"eclipse_clear_co16.png";
         relPaths[CLASSIFY] = "category16.png";
         relPaths[FILTER_W_ANNOTATION] = "eclipse_filter_ps16.png";
         relPaths[FILTER_W_TITLE] = "eclipse_filter_ps16.png";
@@ -321,6 +327,8 @@ public class IconManager
         relPaths[SORT_BY_DATE] =  "eclipse_trace_persp16.png";
         relPaths[LENS] =  "nuvola_viewmag16.png";
         relPaths[VIEWER_48] =  "nuvola_file-manager48.png";
+        relPaths[PIN_SMALL] =  "attach8.png";
+        relPaths[PIN_SMALL_OVER] = "attach8.png";
     }
     
     /** The sole instance. */
