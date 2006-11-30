@@ -41,7 +41,7 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
@@ -175,7 +175,7 @@ class TitleBar
      * @param titleBarType  The title bar type.
      * @param decoration    The decoration to add to the title bar.
      */
-    private void update(int titleBarType, Set decoration)
+    private void update(int titleBarType, List decoration)
     {
         Iterator i = decoration.iterator();
         detachAll();
@@ -190,7 +190,7 @@ class TitleBar
             case TinyPane.SMALL_BAR:
                 fixedHeight = 12;
                 sizeButton = new SizeButton(model);
-                add(sizeButton);
+                //add(sizeButton);
                 while (i.hasNext())
                     add((JComponent) i.next());
                 //title = new TinyPaneTitle(model);
@@ -286,7 +286,7 @@ class TitleBar
             update(((Integer) pce.getNewValue()).intValue(), 
                     model.getDecoration());
         else if (TinyPane.DECORATION_PROPERTY.equals(propName))
-            update(model.getTitleBarType(), (Set) pce.getNewValue());
+            update(model.getTitleBarType(), (List) pce.getNewValue());
     }
 
 }

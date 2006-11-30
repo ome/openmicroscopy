@@ -40,7 +40,7 @@ import javax.swing.JFrame;
 
 
 /** 
- * Builds a Panel displaying the CategoryGroup>Category in which the 
+ * Builds a UI component displaying the CategoryGroup>Category in which the 
  * selected image has been classified.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,41 +59,39 @@ class RemoveWin
 {
 
     /** Text displayed in the title panel. */
-    private static final String     PANEL_TITLE = "Remove From Category";
+    private static final String     PANEL_TITLE = "Decategorise";
     
     /** Text displayed in the text panel. */
     private static final String     PANEL_TEXT = "Select the categories to " +
-                                                "remove the image from.";
+                                                "remove the images from.";
     
     /** Text displayed in the note panel. */
-    private static final String     PANEL_NOTE = 
-                                         "The image is currently classified "+
-                                         "under the following categories.";
+    private static final String     PANEL_NOTE = "";
     
     /** Message displayed if the image is unclassified. */
     private static final String     UNCLASSIFIED_TEXT = "The selected image " +
-                                            "hasn't been classified";
+                                            "hasn't been categorised";
 
     /**
-     * Overriden to return the title associated to this component.
+     * Overridden to return the title associated to this component.
      * @see ClassifierWin#getPanelTitle()
      */
     protected String getPanelTitle() { return PANEL_TITLE; }
 
     /**
-     * Overriden to return the tetx associated to this component.
+     * Overridden to return the text associated to this component.
      * @see ClassifierWin#getPanelText()
      */
     protected String getPanelText() { return PANEL_TEXT; }
     
     /**
-     * Overriden to return the note associated to this component.
+     * Overridden to return the note associated to this component.
      * @see ClassifierWin#getPanelNote()
      */
     protected String getPanelNote() { return PANEL_NOTE; }
     
     /**
-     * Overriden to return the note associated to this component.
+     * Overridden to return the note associated to this component.
      * @see ClassifierWin#getUnclassifiedNote()
      */
     protected String getUnclassifiedNote() { return UNCLASSIFIED_TEXT; }

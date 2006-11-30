@@ -65,10 +65,10 @@ public class DeclassifyAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Remove from category";
+    private static final String NAME = "Decategorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Remove the selected image " +
+    private static final String DESCRIPTION = "Remove the selected images " +
                                                 "from a category.";
     
     /**

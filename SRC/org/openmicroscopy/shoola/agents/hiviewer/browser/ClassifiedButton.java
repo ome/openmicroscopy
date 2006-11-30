@@ -67,10 +67,11 @@ class ClassifiedButton
     
     /** Creates a new instance. 
      * 
-     * @param node    The node hosting this button. 
+     * @param node The node hosting this button.  Mustn't be <code>null</code>.
      */
     ClassifiedButton(ImageNode node)
     {
+    	if (node == null) throw new IllegalArgumentException("No node");
         parentNode = node;
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
         setMargin(new Insets(0, 0, 0, 0));//Just to make sure button sz=icon sz.

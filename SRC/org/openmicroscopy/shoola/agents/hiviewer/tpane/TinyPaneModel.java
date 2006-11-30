@@ -39,9 +39,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -145,8 +144,8 @@ class TinyPaneModel
     /** The frame's icon. */
     private Icon            frameIcon;
     
-    /** The set of buttons to add to the <code>TitleBar</code>.*/
-    private Set             decoration;
+    /** The oollection of buttons to add to the <code>TitleBar</code>.*/
+    private List             decoration;
     
     /**
      * Checks that <code>c</code> is one of the components that were added
@@ -248,7 +247,7 @@ class TinyPaneModel
         resizable = true;
         listenToBorder = true;
         note = "";
-        decoration = new HashSet();
+        decoration = new ArrayList();
     }
     
     /**
@@ -360,8 +359,6 @@ class TinyPaneModel
             Dimension d = child.getPreferredSize();
             child.setBounds(2, 2, d.width, d.height);
             //Do it this way otherwise the methods are called at init time.
-            //contentPane.validate();
-            //contentPane.repaint(); 
         }
     }
     
@@ -569,13 +566,13 @@ class TinyPaneModel
      * 
      * @return See above.
      */
-    Set getDecoration() { return decoration; }
+    List getDecoration() { return decoration; }
     
     /**
      * Sets the collection of buttons to add to the <code>TitleBar</code>.
      * 
      * @param decoration The collection to set.
      */
-    void setDecoration(Set decoration) { this.decoration = decoration; }
+    void setDecoration(List decoration) { this.decoration = decoration; }
     
 }

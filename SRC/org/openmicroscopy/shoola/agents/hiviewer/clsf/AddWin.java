@@ -39,7 +39,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 
 /** 
- * The <code>ADD</code> dialog widget.
+ * The  dialog uses to categorise images..
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,39 +57,33 @@ class AddWin
 {
     
     /** Text displayed in the title panel. */
-    private static final String     PANEL_TITLE = "Add To Category";
+    private static final String     PANEL_TITLE = "Categorise";
     
     /** Text displayed in the text panel. */
-    private static final String     PANEL_TEXT = "Select to classify.";
+    private static final String     PANEL_TEXT = "Select to the categories" +
+    		" to add the images to..";
     
     /** Text displayed in the note panel. */
-    private static final String     PANEL_NOTE = 
-                                         "The image can be classified "+
-                                         "under the following categories." +
-                                         "Note that only one category can " +
-                                         "be selected within a group.";
+    private static final String     PANEL_NOTE = "";
     
     /** Message displayed if the image is unclassified. */
     private static final String     UNCLASSIFIED_TEXT = "The image cannot be " +
-            "classified. Please first create a category.";
+            "categorised. Please first create a category.";
     
     /**
-     * Overriden to return the title associated to this component.
-     * 
+     * Overridden to return the title associated to this component.
      * @see ClassifierWin#getPanelTitle()
      */
     protected String getPanelTitle() { return PANEL_TITLE; }
 
     /**
-     * Overriden to return the tetx associated to this component.
-     * 
+     * Overridden to return the text associated to this component.
      * @see ClassifierWin#getPanelText()
      */
     protected String getPanelText() { return PANEL_TEXT; }
     
     /**
-     * Overriden to return the note associated to this component.
-     * 
+     * Overridden to return the note associated to this component.
      * @see ClassifierWin#getPanelNote()
      */
     protected String getPanelNote() { return PANEL_NOTE; }

@@ -140,6 +140,7 @@ class BrowserControl
         node.getTitleBar().addMouseListener(this);
         node.getCanvas().addMouseListener(this);
         node.addPropertyChangeListener(ImageNode.CLASSIFY_NODE_PROPERTY, this);
+        node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
         node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
                                     this);
     }
@@ -192,6 +193,9 @@ class BrowserControl
                         n.setHighlight(colors.getDeselectedHighLight(n));
                 }
             }
+        } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
+        	ImageNode node = (ImageNode) evt.getNewValue();
+        	model.setThumbSelected(true, node);
         }
     }
     

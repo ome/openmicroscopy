@@ -63,12 +63,10 @@ public class ClassifyAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Add to category";
+    private static final String NAME = "Categorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Classify the selected images " +
-                                                "in a category.";
-    
+    private static final String DESCRIPTION = "Categorise the selected images.";
     
     /**
      * Sets the action enabled depending on the currently selected display

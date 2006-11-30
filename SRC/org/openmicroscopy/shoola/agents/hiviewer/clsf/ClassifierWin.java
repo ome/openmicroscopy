@@ -56,6 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -142,7 +143,7 @@ abstract class ClassifierWin
         Set nodes = tree.getSelectedNodes();
         if (nodes == null || nodes.size() == 0) {
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "You first need to select" +
+            un.notifyInfo("Categorisation", "You first need to select" +
                     "the categories to remove the image from.");
             return;
         }
@@ -210,6 +211,7 @@ abstract class ClassifierWin
             display = (TreeCheckNode) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
             children = display.getChildrenDisplay();
+            tree.expandPath(new TreePath(display.getPath()));
             if (children.size() != 0)
                 buildTreeNode(display, sorter.sort(children));
         }  

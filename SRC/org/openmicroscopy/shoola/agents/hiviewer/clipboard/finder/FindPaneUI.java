@@ -48,6 +48,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Set;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -68,7 +69,6 @@ import javax.swing.text.Document;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI delegate for the {@link FindPane}.
@@ -89,6 +89,9 @@ class FindPaneUI
     extends JPanel
     implements MouseListener, PropertyChangeListener
 {
+	
+    /** The horizontal space. */
+    private static final Dimension H_SPACE_DIM = new Dimension(10, 5);
     
     /** The message displayed when the phrase isn't found. */
     private static final String     NO_PHRASE_MSG = "Phrase not found.";
@@ -220,7 +223,7 @@ class FindPaneUI
         FilterMenuAction action = new FilterMenuAction(model);
         JButton button = new JButton(action);
         button.addMouseListener(action);
-        UIUtilities.unifiedButtonLookAndFeel(button);
+        //UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
@@ -237,7 +240,7 @@ class FindPaneUI
         controlsBar.setRollover(true);
         controlsBar.setFloatable(false);
         JButton button = new JButton(new ClearAction(model));
-        UIUtilities.unifiedButtonLookAndFeel(button);
+        //UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
@@ -257,6 +260,8 @@ class FindPaneUI
         // case check box 
         JPanel selectPanel = new JPanel();
         selectPanel.add(createLeftMenuBar());
+        selectPanel.add(Box.createRigidArea(H_SPACE_DIM));
+        selectPanel.add(new JLabel("Find: "));
         selectPanel.add(findArea);
         selectPanel.add(createRightMenuBar());
         selectPanel.add(caseSensitive);

@@ -39,7 +39,7 @@ import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Set;
+import java.util.List;
 import javax.swing.DesktopManager;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -264,7 +264,7 @@ public class TinyPane
      * 
      * @return See above.
      */
-    Set getDecoration() { return model.getDecoration(); }
+    List getDecoration() { return model.getDecoration(); }
     
     /**
      * Fires a property change if the mouse pressed happens on the frame icon.
@@ -590,12 +590,13 @@ public class TinyPane
     public void restoreDisplay() { model.restoreDisplay(uiDelegate); }
     
     /**
-     * Sets the buttons to add to the <code>TitleBar</code>
-     * @param decoration
+     * Sets the buttons to add to the <code>TitleBar</code>.
+     * 
+     * @param decoration Collection of components to add.
      */
-    public void setDecoration(Set decoration)
+    public void setDecoration(List decoration)
     {
-        Set oldValue = model.getDecoration();
+        List oldValue = model.getDecoration();
         if (oldValue.size() == 0 && decoration.size() == 0) return;
         model.setDecoration(decoration);
         firePropertyChange(DECORATION_PROPERTY, oldValue, decoration);

@@ -34,8 +34,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 import java.awt.Dimension;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -67,6 +68,9 @@ public class ImageNode
     /** Bound property indicating a classification visualization. */
     public final static String     CLASSIFY_NODE_PROPERTY = "classifyNode";
 
+    /** Bound property indicating to pint the thumbnail. */
+    public final static String     PIN_THUMBNAIL_PROPERTY = "pinThumbnail";
+
     /** The thumbnail this node is going to display. */
     private Thumbnail       thumbnail;
     
@@ -88,6 +92,12 @@ public class ImageNode
      * @return See above.
      */
     JComponent getCanvas() { return canvas; }
+    
+    /** Pins the thumbnail on the board. */
+    void pinThumbnail()
+    {
+    	firePropertyChange(PIN_THUMBNAIL_PROPERTY, null, this);
+    }
     
     /**
      * Creates a new leaf node.
@@ -129,7 +139,8 @@ public class ImageNode
     public void setNodeDecoration()
     {
         if (hierarchyObject instanceof ImageData) { 
-            HashSet nodes = new HashSet();
+            List nodes = new ArrayList();
+            nodes.add(new PinButton(this));
             if (isAnnotated()) nodes.add(new AnnotatedButton(this));
             if (isClassified()) nodes.add(new ClassifiedButton(this));
             setDecoration(nodes);
