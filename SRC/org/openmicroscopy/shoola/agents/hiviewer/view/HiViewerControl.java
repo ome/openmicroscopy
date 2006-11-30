@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
-import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitApplicationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FlatLayoutAction;
@@ -166,9 +165,6 @@ class HiViewerControl
     /** Identifies the <code>ree view</code>T action in the View menu. */
     static final Integer     TREE_VIEW = new Integer(18);
     
-    /** Identifies the <code>Exit Application</code> action in the File menu. */
-    static final Integer     EXIT_APPLICATION = new Integer(19);
-    
     /** Identifies the <code>Find</code> action in the Edit menu. */
     static final Integer     FIND = new Integer(20);
 
@@ -227,7 +223,6 @@ class HiViewerControl
         actionsMap.put(SAVE_THUMB, new SaveThumbnailsAction(model));
         actionsMap.put(TREE_VIEW, new TreeViewAction(model));
         actionsMap.put(FIND, new FindAction(model));
-        actionsMap.put(EXIT_APPLICATION, new ExitApplicationAction());
         actionsMap.put(ROLL_OVER, new RollOverAction(model));
         actionsMap.put(REMOVE, new RemoveAction(model));
         actionsMap.put(CLIPBOARD_VIEW, new ClipBoardViewAction(model));

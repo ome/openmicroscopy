@@ -342,7 +342,7 @@ class HiViewerWin
     {
         super(DEFAULT_TITLE);
         IconManager iconMng = IconManager.getInstance();
-        statusBar = new StatusBar(iconMng.getIcon(IconManager.STATUS_INFO));
+        statusBar = new StatusBar(iconMng.getIcon(IconManager.INFO));
     }
 
     /**
