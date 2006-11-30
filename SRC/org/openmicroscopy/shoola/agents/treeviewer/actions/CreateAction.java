@@ -66,29 +66,39 @@ public class CreateAction
 {
     
     /** The default name of the action. */
-    private static final String NAME = "Add new...";
-    
-    /** The name of the action for the creation of a <code>Project</code>. */
-    //private static final String NAME_PROJECT = "Add new Project...";
+    private static final String NAME = "Create new...";
     
     /** The name of the action for the creation of a <code>Dataset</code>. */
-    private static final String NAME_DATASET = "Add new Dataset...";
-    
-    /** 
-     * The name of the action for the creation of a <code>CategoryGroup</code>.
-     */
-    //private static final String NAME_CATEGORY_GROUP = "Add new Category " +
-    //                                                    "Group...";
+    private static final String NAME_DATASET = "Create new Dataset...";
     
     /** The name of the action for the creation of a <code>Category</code>. */
-    private static final String NAME_CATEGORY = "Add new Category...";
+    private static final String NAME_CATEGORY = "Create new Category...";
     
     /** The name of the action for the creation of a <code>Image</code>. */
     private static final String NAME_IMAGE = "Import Image...";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Add a new element to the " +
-                                                "selected container.";
+    
+    /** 
+     * Description of the action if the selected node is a <code>Dataset</code>.
+     */
+    private static final String DESCRIPTION_DATASET = "Create a new dataset " +
+    		"and add it to the selected project.";
+    
+    /** 
+     * Description of the action if the selected node is a 
+     * <code>Category</code>.
+     */
+    private static final String DESCRIPTION_CATEGORY = "Create a new category" +
+    							" and add it to the selected category group.";
+    
+    /** 
+     * Description of the action if the selected node is a <code>Image</code>.
+     */
+    private static final String DESCRIPTION_IMAGE = "Import image into the " +
+    												"selected dataset.";
+    
+    /** Default Description of the action. */
+    private static final String DESCRIPTION = "Create a new element.";
     
     /** The type of node to create. */
     private int nodeType;
@@ -122,61 +132,45 @@ public class CreateAction
         if (selectedDisplay == null) {
             setEnabled(false);
             putValue(Action.NAME, NAME); 
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
             return;
         }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
-            
-            if (selectedDisplay.getParentDisplay() != null) {
                 setEnabled(false);
                 putValue(Action.NAME, NAME);  
-            } else {
-                /*
-                Browser browser = model.getSelectedBrowser();
-                if (browser != null) {
-                    switch (browser.getBrowserType()) {
-                        case Browser.PROJECT_EXPLORER:
-                            setEnabled(true);
-                            putValue(Action.NAME, NAME_PROJECT);  
-                            nodeType = CreateCmd.PROJECT;
-                            break;
-                        case Browser.CATEGORY_EXPLORER:
-                            setEnabled(true);
-                            putValue(Action.NAME, NAME_CATEGORY_GROUP); 
-                            nodeType = CreateCmd.CATEGORY_GROUP;
-                            break;
-                        case Browser.IMAGES_EXPLORER:
-                            //setEnabled(true);
-                            setEnabled(false);
-                            putValue(Action.NAME, NAME_IMAGE); 
-                    }
-                  } else {
-                    setEnabled(false);
-                    putValue(Action.NAME, NAME);  
-                  }
-                  */
-                setEnabled(false);
-                putValue(Action.NAME, NAME);  
-            } 
+                putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             putValue(Action.NAME, NAME_DATASET); 
             nodeType = CreateCmd.DATASET;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof CategoryGroupData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             putValue(Action.NAME, NAME_CATEGORY);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
             nodeType = CreateCmd.CATEGORY;
         } else if (ho instanceof CategoryData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             setEnabled(false); //TODO: remove when import
             putValue(Action.NAME, NAME_IMAGE);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             setEnabled(false);
             putValue(Action.NAME, NAME_IMAGE);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else {
             setEnabled(false);
             putValue(Action.NAME, NAME);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
         }
         name = (String) getValue(Action.NAME);
     }

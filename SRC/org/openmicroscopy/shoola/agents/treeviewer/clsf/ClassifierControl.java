@@ -35,13 +35,13 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Set;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
 
 /** 
  * The {@link Classifier}'s controller.
@@ -105,19 +105,14 @@ class ClassifierControl
      * 
      * @param b Passed <code>true</code> to close the {@link Classifier}. 
      */
-    void closeClassifier(boolean b)
-    {
-        if (b == true) model.close();
-    }
+    void closeClassifier(boolean b) { if (b == true) model.close(); }
 
     /**
      * Classified the specified set of images.
-     * @param paths
+     * 
+     * @param paths The selected paths.
      */
-    void classifyImages(Set paths) 
-    {
-        model.classifyImages(paths);
-    }
+    void classifyImages(Set paths) { model.classifyImages(paths); }
     
     /** 
      * Reacts to state changes in the {@link Classifier}.
@@ -140,12 +135,20 @@ class ClassifierControl
     
     /**
      * Reacts to the <code>THUMBNAIL_LOADED_PROPERTY</code> changes fired by the
-     * <code>TreeViewer</code>.
+     * <code>TreeViewer</code> and to <code>NODE_SELECTED_PROPERTY</code>
+     * changes fired by the {@link TreeCheck}.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent pce)
     {
-        model.setThumbnail((BufferedImage) pce.getNewValue());
+    	String name = pce.getPropertyName();
+    	if (TreeCheck.NODE_SELECTED_PROPERTY.equals(name)) {
+    		int i = ((Integer) pce.getNewValue()).intValue();
+    		view.handleButton(i>0);
+    	} else {
+    		model.setThumbnail((BufferedImage) pce.getNewValue());
+    	}
+        
     }
     
 }

@@ -51,7 +51,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -92,36 +91,39 @@ class ClassifierUI
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** Text displayed in the title panel. */
-    private static final String     ADD_PANEL_TITLE = "Add To Category";
+    private static final String     ADD_PANEL_TITLE = "Categorise";
     
     /** Text displayed in the text panel. */
-    private static final String     ADD_PANEL_TEXT = "Classify the following " +
-                                                    "image: "; 
+    private static final String     ADD_PANEL_TEXT = "Categorise the " +
+    										"following image: "; 
+    
+    /** The default note. */
+    private static final String     PANEL_NOTE = 
+    	"Expand list to select the categories to add the image to. "+
+    	"Double-click on the name to browse the CategoryGroup or the " +
+    	"Category.";
     
     /** Text displayed in the note panel. */
-    private static final String     ADD_PANEL_NOTE = "The image can be " +
-            "classified under the following categories. " +
-          "Double click on the name to browse the group or the category.";
+    private static final String     ADD_PANEL_NOTE = PANEL_NOTE;
     
     /** Message displayed if the image is unclassified. */
     private static final String     ADD_UNCLASSIFIED_TEXT = "The image " +
-            "cannot be classified. Please first create a category.";
+            "cannot be categorised. Please first create a category.";
     
     /** Text displayed in the title panel. */
     private static final String     REMOVE_PANEL_TITLE = "Remove From Category";
     
     /** Text displayed in the text panel. */
-    private static final String     REMOVE_PANEL_TEXT = "Declassify the " +
+    private static final String     REMOVE_PANEL_TEXT = "Decategorises the " +
                                                         "following image: ";
     
     /** Text displayed in the note panel. */
     private static final String     REMOVE_PANEL_NOTE = "The image is " +
-            "currently classified under the following categories. "+
-            "Double click on the name to browse the group or the category.";
+            "currently classified under the following categories. "+PANEL_NOTE;
     
     /** Message displayed if the image is unclassified. */
     private static final String     REMOVE_UNCLASSIFIED_TEXT = "The selected " +
-                                    "image hasn't been classified.";
+                                    "image hasn't been categorised.";
     
     
     /** Reference to the Model. */
@@ -154,7 +156,7 @@ class ClassifierUI
         Set nodes = tree.getSelectedNodes(); 
         if (nodes == null || nodes.size() == 0) { 
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "No category selected."); 
+            un.notifyInfo("Categorisation", "No category selected."); 
             return; 
         }
         Set paths = new HashSet(nodes.size()); 
@@ -165,7 +167,6 @@ class ClassifierUI
             if (object instanceof CategoryData) paths.add(object); 
         } 
         controller.classifyImages(paths);
-        
     }
     
     /** Initializes the GUI components. */
@@ -185,6 +186,7 @@ class ClassifierUI
             public void mouseReleased(MouseEvent e) { onClick(e); }
         });
         finishButton = new JButton("Save");
+        finishButton.setEnabled(false);
         finishButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { finish(); }
         });
@@ -195,10 +197,11 @@ class ClassifierUI
                 controller.closeClassifier(true);
             }
         });
+        tree.addPropertyChangeListener(TreeCheck.NODE_SELECTED_PROPERTY, 
+        								controller);
     }
     
     /** 
-     * Handles the mouse click event. 
      * Browses the selected <code>CategoryGroup</code> or <code>Category</code>.
      * 
      * @param me The mouse event.
@@ -224,12 +227,10 @@ class ClassifierUI
      * 
      * @return See above;
      */
-    private JToolBar buildToolBar()
+    private JPanel buildToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setRollover(true);
+    	JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setFloatable(false);
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
@@ -240,13 +241,13 @@ class ClassifierUI
     private void buildGUI()
     {
         setLayout(new BorderLayout(0, 0));
+        setOpaque(true);
         add(titlePanel, BorderLayout.NORTH);
         centerPanel = new JPanel();
         centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         add(centerPanel, BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
-        p.setOpaque(true);
         add(p, BorderLayout.SOUTH);
     }
     
@@ -265,6 +266,7 @@ class ClassifierUI
         while (i.hasNext()) {
             display = (TreeCheckNode) i.next();
             tm.insertNodeInto(display, parent, parent.getChildCount());
+            tree.expandPath(new TreePath(display.getPath()));
             children = display.getChildrenDisplay();
             if (children.size() != 0)
                 buildTreeNode(display, sorter.sort(children));
@@ -294,9 +296,8 @@ class ClassifierUI
         while (i.hasNext())
             root.addChildDisplay((TreeCheckNode) i.next()) ;
         buildTreeNode(root, sorter.sort(paths));
-        tree.expandPath(new TreePath(root.getPath()));
+        //tree.expandPath(new TreePath(root.getPath()));
         dtm.reload();
-        
         return new JScrollPane(tree);
     }
     
@@ -425,5 +426,13 @@ class ClassifierUI
     {
         model.getParentModel().setStatus(b, text, hide);
     }
+
+    /**
+     * Enables the {@link #finishButton} or not depending on specified value.
+     * 
+     * @param b Pass <code>true</code> to enable the button, 
+     * 			<code>false</code> otherwise.
+     */
+	void handleButton(boolean b) { finishButton.setEnabled(b); }
     
 }

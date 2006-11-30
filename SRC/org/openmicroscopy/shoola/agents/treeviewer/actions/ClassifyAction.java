@@ -68,17 +68,17 @@ public class ClassifyAction
     public static final int     DECLASSIFY = ClassifyCmd.DECLASSIFY;
     
     /** The name of the action. */
-    private static final String NAME_CLASSIFY = "Classify";
+    private static final String NAME_CLASSIFY = "Categorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION_CLASSIFY = "Classify the " +
+    private static final String DESCRIPTION_CLASSIFY = "Categorise the " +
                                             "selected image.";
     
     /** The name of the action. */
-    private static final String NAME_DECLASSIFY = "Declassify";
+    private static final String NAME_DECLASSIFY = "Decategorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION_DECLASSIFY = "Declassify the " +
+    private static final String DESCRIPTION_DECLASSIFY = "Decategorise the " +
                                             "selected image.";
     
     /** One of the constants defined by this class. */

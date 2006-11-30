@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
@@ -149,10 +148,7 @@ class BrowserModel
      * 
      * @param factor See above.
      */
-    void setZoomFactor(double factor)
-    { 
-    	zoomFactor = factor;
-    }
+    void setZoomFactor(double factor) { zoomFactor = factor; }
 
     /**
      * Returns the zoom factor.

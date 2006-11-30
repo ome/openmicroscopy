@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
@@ -273,6 +274,20 @@ class TreeViewerControl
     }
     
     /**
+     * Resets the selected node. 
+     * 
+     * @param d The node to reset.
+     */
+    private void resetSelectedDisplay(TreeImageDisplay d)
+    {
+    	Browser b = model.getSelectedBrowser();
+    	if (b != null) {
+    		b.setSelectedDisplay(null);
+    		b.setSelectedDisplay(d);
+    	}
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize(TreeViewerWin) initialize} method 
      * should be called straight 
@@ -378,7 +393,7 @@ class TreeViewerControl
     
     /** Forwards call to the {@link TreeViewer}. */
     void cancel() { model.cancel(); }
-    
+
     /**
      * Reacts to property changed. 
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -386,6 +401,7 @@ class TreeViewerControl
     public void propertyChange(PropertyChangeEvent pce)
     {
         String name = pce.getPropertyName();
+        if (name == null) return;
         if (name.equals(TreeViewer.CANCEL_LOADING_PROPERTY)) {
             Browser browser = model.getSelectedBrowser();
             if (browser != null) browser.cancel();
@@ -398,9 +414,18 @@ class TreeViewerControl
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
         } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY)) {
-            model.removeEditor();
+        	Browser b = model.getSelectedBrowser(); 
+        	TreeImageDisplay d = null;
+        	if (b != null) d = b.getLastSelectedDisplay();
+        	System.out.println("display:"+d);
+        	int editorType = model.getEditorType();
+        	model.removeEditor();
             model.onComponentStateChange(true);
+        	if (editorType == TreeViewer.CREATE_EDITOR) 
+        		resetSelectedDisplay(d);
         } else if (name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
+        	Browser b = model.getSelectedBrowser(); 
+        	if (b != null) resetSelectedDisplay(b.getLastSelectedDisplay());
             model.onComponentStateChange(true);
         } else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
             Boolean b = (Boolean) pce.getNewValue();

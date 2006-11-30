@@ -148,6 +148,7 @@ class DOAnnotation
              */
             public void insertUpdate(DocumentEvent de)
             {
+            	view.handleAnnotationAreaInsert();
                 model.setAnnotated(true);
             }
             
@@ -157,6 +158,7 @@ class DOAnnotation
              */
             public void removeUpdate(DocumentEvent de)
             {
+            	view.handleAnnotationAreaInsert();
                 model.setAnnotated(true);
             }
 
@@ -292,7 +294,7 @@ class DOAnnotation
     private void showSingleAnnotation()
     {
         int index = annotatedByList.getSelectedIndex();
-        view.handleAnnotationAreaInsert();
+        //view.handleAnnotationAreaInsert();
         if (index == -1) {
             ExperimenterData details = model.getUserDetails();
             addAnnotationText(DEFAULT_TEXT+details.getFirstName()+" "+

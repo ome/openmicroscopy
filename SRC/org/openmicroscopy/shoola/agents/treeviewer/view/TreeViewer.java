@@ -200,7 +200,7 @@ public interface TreeViewer
      * The title displayed in the {@link LoadingWindow} during the saving 
      * process.
      */
-    public static final String      LOADING_TITLE = "Loading Data";
+    public static final String      LOADING_TITLE = "Loading...";
     
     /** Identifies the <code>Create Object</code> operation. */
     public static final int         CREATE_OBJECT = 300;
@@ -532,5 +532,14 @@ public interface TreeViewer
      * @param index The value to set.
      */
     public void setEditorSelectedPane(int index);
+
+    /**
+     * Returns the type of the editor. One of the following constants 
+     * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
+     * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
+     * 
+     * @return See above.
+     */
+	int getEditorType();
     
 }

@@ -564,8 +564,13 @@ class EditorUI
      */
     void handleDescriptionAreaInsert()
     {
-        finishButton.setEnabled(true);
-        edit = true;
+    	if (doBasic.hasDataToSave()) {
+    		finishButton.setEnabled(true);
+            edit = true;
+    	} else {
+    		finishButton.setEnabled(false);
+            edit = false;
+    	}
     }
     
     /**
@@ -631,7 +636,7 @@ class EditorUI
             else tabs.removeChangeListener(controller);
         }
         //model.getParentModel().onComponentStateChange(b);
-        finishButton.setEnabled(b);
+        //finishButton.setEnabled(b);
     }
     
     /**
@@ -647,7 +652,7 @@ class EditorUI
             if (s == null || s.length() ==0) return false;
             return true;
         }
-        if (edit) return true;
+        if (edit && doBasic.hasDataToSave()) return true;
         if (doBasic.isAnnotationModified()) return true;
         return false;
     }

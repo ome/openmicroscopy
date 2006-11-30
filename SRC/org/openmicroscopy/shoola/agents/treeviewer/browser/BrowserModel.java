@@ -616,4 +616,5 @@ class BrowserModel
                                             expandedTopNodes);
         currentLoader.load();   
     }
+    
 }
