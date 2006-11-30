@@ -1,0 +1,162 @@
+<html>
+<head>
+  <title>Chainbuilder Chain Creation</title>
+</head>
+<body>
+<p>Chain creation is obviously the most important goal of the chainbuilder application. The first step in building a chain is pressing the chain canvas creation button in the module palette window. This will lead to the creation of a new window - the chain creation canvas. Initially, this window is almost blank, containing only the directions "Drag and drop chains and modules here. Connect them to build new chains." If desired, multiple chain canvases can operate concurrently.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <img src="images/chain-canvas-button.jpg" 
+    alt="Chain canvas button."></img>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-1"><b>Fig 4-1</b></a>: The button used to create a chain canvas.</td>
+  </tr>
+</table>
+
+<p> 
+Dragging and dropping of chains and modules onto the chain canvas is straightforward. Simply move the mouse over the desired chain/module in the appropriate palette, press and hold the mouse button, move the pointer over the empty canvas, and release the pointer at the desired spot. A copy of the dragged chain or module will appear at that point on the canvas. Note that modules cannot be dragged individually from the chain palette: chains must be dragged as a whole. To put a single module on the canvas, use the module palette.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-modules.jpg">
+    <img src="images/canvas-modules-small.jpg" 
+    alt="A chain canvas with three modules that have been dropped."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-2"><b>Fig 4-2</b></a>: A chain canvas with three modules that have been dropped.</td>
+  </tr>
+</table>
+
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-chains.jpg">
+    <img src="images/canvas-chains-small.jpg" 
+    alt="A chain canvas with a chain dropped from the chain palette."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-3"><b>Fig 4-3</b></a>: A chain canvas with a chain dropped from the chain palette.</td>
+  </tr>
+</table>
+
+<p> 
+Once the canvas is populated with one or more modules (as dropped individually, as part of a chain, or both), several interactions are possible.</p>
+<UL>
+	<LI>A module can be selected by clicking on it. Once selected, modules can be placed by clicking and dragging, or deleted by pressing the delete key. If a modules is deleted, all links that connect to it are also deleted.</LI>
+	<LI>Clicking on a modules zooms in to center the view around that 		module.</LI>
+	<LI>Left-clicking on the background zooms in, right-clicking zooms out.</LI>
+	<LI>Shift-clicking on the background centers the view to contain all of the contents of the canvas.</LI>
+	<LI>Mousing-over a module leads to highlights - in the chain canvas, chain palette, and module palette - of all modules that it might link to.</LI>
+</UL> 
+<p>
+To pan around the chain display, simply click-drag on the background
+of the chain creation window.</p>
+
+<p>
+Modules can be displayed in one of two ways, depending on the magnification level of the canvas. If the canvas is zoomed out, a basic view of the module is displayed, giving only its name and two connectors: one for inputs and one for outputs.  When the display is zoomed in to focus on a smaller area, the view of the module will eventually change to show all inputs and outputs separately. These displays are similar to the detail and overviews of modules found in the <a HREf="mods.html">module palette.</a></p>
+
+<p>
+Once two or more modules are displayed on the canvas, and the magnification is increased to make their parameters visible, links between modules can be created. Mousing over a parameter on a module will cause that parameter to be highlighted in purple, along with all of the parameters that it can be linked to. </p>
+
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-link-pre.jpg">
+    <img src="images/canvas-link-pre-small.jpg" 
+    alt="A chain canvas with highlighted parameters."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-4"><b>Fig 4-4</b></a>: Two modules on a chain canvas, with purple highlighting indicating parameters that might be connected via a link.</td>
+  </tr>
+</table>
+
+<p>
+To create a link,  simply click on the desired starting parameter (either on the green square next to the parameter, or on the parameter text itself), move the mouse, and click on the parameter that is the end point. Links can start at either input or output parameters.  If the mouse is pressed on a non-parameter location during the course of creating a link, a control point will be created, turning the link into a curve. To cancel a link in progress, double-click the mouse. </p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-link-post.jpg">
+    <img src="images/canvas-link-post-small.jpg" 
+    alt="A chain canvas with two modules and linked parameters."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-5"><b>Fig 4-5</b></a>: Two modules on a chain canvas, with a single link connecting two parameters.</td>
+  </tr>
+</table>
+
+<p>
+Once created, links can be selected by clicking on them. This will change their endpoints (and any interior control points for curves) to be highlighted in white. Selected links can be deleted by pressing the delete key. For links that are curves, internal control points can be dragged to change the shape of the curve.  Modules that have links can still be dragged as before: link endpoints will be updated as needed.</p>
+
+<p>
+The representation of links between modules can change when the magnification level changes. As mentioned above, modules are drawn as overviews when the display is zoomed out to show a higher-level overview. When this happens, all of the links between any two modules are replaced with one single overview link.  The individual parameter links can then be restored by zooming in to a detailed view. </p>
+
+<p>
+In some cases, there may be many possible links between two modules. This can clearly be seen if the mouse is moved over the central part of one of the modules. In this case, all parameters that might be linked to other modules are highlighted, with similar highlights in the other module.</p>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-mult-pre.jpg">
+    <img src="images/canvas-mult-pre-small.jpg" 
+    alt="Two modules on the chain canvas, before creation of multiple links."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-6"><b>Fig 4-6</b></a>: Two modules on a chain canvas, with multiple highlighted parameters on each implying the possibility of multiple links.</td>
+  </tr>
+</table>
+
+<p>When this happens, the chainbuilder provides a shortcut that can be
+  used to simplify the creation of multiple links. Simply double click
+  on the side of the module that corresponds to the parameters that
+  should be linked: left for inputs or right for outputs. This will
+  lead to the creation of multiple links, one for each linkable
+  parameter. Move the mouse to the appropriate side of the other node
+  click - either on the node or any of the parameters - and the links
+  will be created. As before, double-clicking on the canvas background
+  will cancel the links.</p> 
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <a href="images/canvas-mult.jpg">
+    <img src="images/canvas-mult-small.jpg" 
+    alt="Creation of multiple links between modules."></img></a>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="center"><a name="fig_4-7"><b>Fig 4-7</b></a>: The creation of multiple links between modules.</td>
+  </tr>
+</table>
+
+<p>
+Once the chain is complete, it can be saved to the database. To save a chain, press the floppy disk icon in the upper-left corner of the chain canvas. Enter a name and (optional) description, and press save. The chain will be added to the database, and to the chain palette.</p>
+
+</body>
+</html>

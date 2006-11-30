@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+ * Child build file to create the project documentation.
+ * This file is only meant to be used as an imported file within the Shoola
+ * master build file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<project name="docs" default="usage">
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Fail at import time if the external properties this child depends upon
+   * have not been defined. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <checkdef prop="build.dir" /> 
+  <checkdef prop="base.src.dir" />
+  <checkdef prop="base.docgen.index.file" />
+  <checkdef prop="base.userdocs.index.file" /> 
+  <checkdef prop="base.docgen.javadoc.cssfile" />
+  <checkdef prop="base.docgen.xdocs.dir" /> 
+  <checkdef prop="base.docgen.xdocs.cssfile" />  
+  <checkdef prop="base.docgen.xdocs.stylefile" />
+  <checkdef prop="base.docgen.xdocs.xsl.dir" />
+  <checkdef prop="base.docgen.xdocs.navig.dir" /> 
+  <!-- 
+    NOTE: The last dependency is app.run.classpath, which is a path ref.
+    This can only be checked after the path elements have been created,
+    which happens when the app-init target is invoked.  So we're forced
+    to defer this check until the compile target has been executed.
+  -->
+   
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Settings to create the docs:
+   *   + docs.dir: The documentation directory, where docs are output.
+   *   + docs.javadoc.dir: The directory under which the JavaDoc is output.
+   *   + docs.xml2ad.file: The XSLT file to transform one of our 'doc.xml'files
+   *        into an AurigaDoc XML file.
+   *   + docs.xml2fo.file: The XSLT file to transform an AurigaDoc XML file
+   *        into a PDF.
+   *   + docs.xml2mhtml.file: The XSLT file to transform an AurigaDoc XML file
+   *        into a multi-page HTML document.
+   *   + docs.xdocs.start.dir: The path, relative to ${base.docgen.xdocs.dir},
+   *        specifying the root of the tree containing the xdoc directories.
+   *   + docs.xdocs.src.dir: Absolute path to the root of the tree containing 
+   *        the xdoc directories.
+   *
+   * NOTE: You can override ${docs.xdocs.start.dir} (typically from the command
+   *       line) to have the xdocs target generate only a subset of all xml
+   *       docs.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <property name="docs.dir" location="${build.dir}/docs" />
+  <property name="docs.userdocs.dir" location="${build.dir}/docs/userdocs" />
+  <property name="docs.javadoc.dir" location="${docs.dir}/javadoc" /> 
+  <property name="docs.xml2ad.file" 
+              location="${base.docgen.xdocs.xsl.dir}/xml2ad.xsl" /> 
+  <property name="docs.xml2fo.file" 
+            location="${base.docgen.xdocs.xsl.dir}/xml2fo.xsl" /> 
+  <property name="docs.xml2mhtml.file" 
+            location="${base.docgen.xdocs.xsl.dir}/xml2mhtml.xsl" />
+  <property name="docs.xdocs.start.dir" value="docs" /> 
+  <property name="docs.xdocs.src.dir" 
+            location="${base.docgen.xdocs.dir}/${docs.xdocs.start.dir}" /> 
+
+
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Create ${docs.dir}. 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="docs-init" depends="init">
+    <mkdir dir="${docs.dir}" /> 
+    <copy todir="${docs.dir}" file="${base.docgen.index.file}" />
+    <copy todir="${docs.userdocs.dir}" file="${base.userdocs.index.file}" />
+  </target> 
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Generate the JavaDoc in ${docs.javadoc.dir}.
+   * The JavaDoc is customized with the ${base.docgen.javadoc.cssfile}.
+   *
+   * NOTE: We also verify that app.run.classpath has been defined.
+   * Because we turn this path ref into a string, we can only check for
+   * existence after all its path elements have been created (otherwise
+   * we get the empty string).  This happens in app-init; because compile
+   * depends on app-init, we defer this check until compile has been called.
+   *
+   *
+   * TODO: Currently we include all org.openmicroscopy.* classes.  This should
+   * be set to the set of all files within ${base.src.dir} matching the
+   * app.sources pattern.  (Otherwise we end up documenting files excluded 
+   * from compilation.)  Figure out how to do it!  (FileSet seem not to work.)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="javadocs" depends="docs-init,compile">
+    <checkdef ref="app.run.classpath" />
+    <javadoc sourcepath="${base.src.dir}"
+             packagenames="org.openmicroscopy.*" 
+             destdir="${docs.javadoc.dir}"
+             windowtitle="OME-Shoola JavaDoc"
+             use="yes"
+             author="yes"
+             version="yes"
+             private="yes"
+             stylesheetfile="${base.docgen.javadoc.cssfile}" 
+             verbose="yes">
+      <classpath refid="app.run.classpath" />
+      <bottom>
+        <![CDATA[<p><i>Copyright &#169; 2002-2005 Open Microscopy Environment.  
+        All Rights reserved.</i></p>]]>
+      </bottom>
+    </javadoc>
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Generates project documentation under ${docs.dir}.
+   * This target produces a PDF/HTML documentation set for every xdoc 
+   * directory found under ${docs.xdocs.src.dir}.  The whole directory
+   * tree is scanned to detect directories containing a 'doc.xml' file.
+   * Each of those directories is taken to be an xdoc directory, that is 
+   * one containing an XML/HTML set of files that haveto be transformed 
+   * into PDF and HTML.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="xdocs" depends="docs-init">
+    <xdoc srcdir="${docs.xdocs.src.dir}"
+          destdir="${docs.dir}"
+          auriga="${docs.xml2ad.file}" 
+          fo="${docs.xml2fo.file}" 
+          pdfstyle="${base.docgen.xdocs.stylefile}"
+          mhtml="${docs.xml2mhtml.file}" 
+          navdir="${base.docgen.xdocs.navig.dir}"
+          cssfile="${base.docgen.xdocs.cssfile}" />  
+  </target>
+    
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Outputs all project documentation under ${docs.dir}. 
+   * This target simply forwards to all other documentation targets and then
+   * copies ${base.docgen.index.file} under ${docs.dir}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
+  <target name="docs"
+          depends="javadocs,xdocs" 
+          description="Outputs all project documentation.">
+  </target>
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Remove all output generated by the targets within this file. 
+   * This target simply deletes the ${docs.dir}, relying on the fact that all
+   * other targets output under this dir.  As long as dir mapping props stick
+   * to this rule, new targets can be added without modifying this one.
+   * Should a target output dir need to be mapped to a dir outside of
+   * ${docs.dir}, then an explicit delete has to be added here.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="clean"
+          description="Remove all output generated by docs targets.">
+    <delete dir="${docs.dir}" />
+  </target> 
+  
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+   * Outputs a list of available targets.
+   * This is the list of all public targets exported by this file.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="usage"
+          description="List available documentation targets.">
+    <echo level="info">
+Documentation targets:
+---------------------- 
+  docs: Outputs all documentation under ${docs.dir}.
+  docs.clean: Remove ${docs.dir}. 
+    </echo> 
+  </target>  
+ 
+</project> 
