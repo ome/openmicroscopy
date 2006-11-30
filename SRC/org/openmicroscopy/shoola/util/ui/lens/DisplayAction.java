@@ -96,11 +96,14 @@ class DisplayAction
 	 * Lens action changes the size of the lens based on the parameter 
 	 * lensIndex. 
 	 * 
-	 * @param lens         The parent component.
-	 * @param displayIndex The index of the action.
+	 * @param lens          The parent component. Mustn't be <code>null</code>.
+	 * @param displayIndex  The index of the action. One of the constants
+	 * 						defined by this class.
 	 */
 	DisplayAction(LensComponent lens, int displayIndex)
 	{
+		if (lens == null)
+			throw new IllegalArgumentException("No parent.");
 		this.lens = lens;
 		checkIndex(displayIndex);
 		index = displayIndex;

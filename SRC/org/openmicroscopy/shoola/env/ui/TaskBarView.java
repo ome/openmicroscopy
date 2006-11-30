@@ -49,6 +49,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
@@ -221,7 +222,7 @@ class TaskBarView
             if (comps[i] instanceof JMenu) {
                 menu.add(copyItemsFromMenu((JMenu) comps[i]));
             } else if (comps[i] instanceof JMenuItem) {
-                menu.add(copyItem((JMenuItem) comps[i]));
+                //menu.add(copyItem((JMenuItem) comps[i]));
             }
         }
         return menu;
@@ -309,7 +310,7 @@ class TaskBarView
 		help.add(buttons[HELP_MI]);
 		help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
-		help.addSeparator();
+		help.add(new JSeparator());
 		help.add(buttons[ABOUT_MI]);
 		return help;
 	}

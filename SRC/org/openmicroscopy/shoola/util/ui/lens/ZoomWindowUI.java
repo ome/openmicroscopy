@@ -65,6 +65,12 @@ class ZoomWindowUI
 	extends	JDialog 
 {
 
+	/** The default size of the window. */
+	private static final Dimension	DEFAULT_SIZE = new Dimension(300, 300);
+	
+	/** The default location of the window. */
+	private static final Point		DEFAULT_LOC = new Point(900, 200);
+	
 	/** Panel holding the zoomed Image */
 	private ZoomPanel          zoomPanel;
 	
@@ -92,18 +98,21 @@ class ZoomWindowUI
 	}
 	
 	/** 
-     * Constructor of the ZoomWindowUI 
+     * Creates a new instance. 
      * 
      * @param parent        The parent of the dialog.
-	 * @param lensComponent The parent component of the control.
+	 * @param lensComponent The parent component of the control. 
+	 * 						Mustn't be <code>null</code>.
 	 */
 	ZoomWindowUI(JFrame parent, LensComponent lensComponent)
 	{
 		super(parent);
+		if (lensComponent == null)
+			throw new IllegalArgumentException("No parent.");
 		this.lensComponent = lensComponent;
 		setTitle("Zoom Window");
-		setSize(300,300);
-		setLocation(900,200);
+		setSize(DEFAULT_SIZE);
+		setLocation(DEFAULT_LOC);
 		setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener( new WindowAdapter() 
@@ -129,8 +138,8 @@ class ZoomWindowUI
 	 * Sets the size of the zoomedImage panel, called after the zoomfactor
 	 * or lens has chaned. 
 	 * 
-	 * @param w new width.
-	 * @param h new height.
+	 * @param w The new width.
+	 * @param h The new height.
 	 */
 	void setZoomedImageSize(int w, int h)
 	{

@@ -70,12 +70,32 @@ public class TreeCheck
     extends JTree
 {
 
+    /** Bounds property to indicate a node is selected or deselected. */
+    public static final String  NODE_SELECTED_PROPERTY = "nodeSelected";
+
     /** 
      * Flag to indicate that only one child can be selected in a given parent.
      * If <code>true</code> only one child can be selected at a time.
      * If <code>false</code> multiple children can be selected.
      */
     private boolean singleSelectionInParent;
+    
+    /** Fires a property change with the numbers of nodes selected. */
+    private void fireNodeSelection()
+    {
+        DefaultTreeModel dtm = (DefaultTreeModel) getModel();
+        TreeCheckNode root = (TreeCheckNode) dtm.getRoot();
+        Enumeration nodes = root.breadthFirstEnumeration();
+        TreeCheckNode node;
+        int index = 0;
+        //Determine the number of selected nodes.
+        while (nodes.hasMoreElements()) {
+            node = (TreeCheckNode) nodes.nextElement();
+            if (node.isSelected()) index++;
+        }
+        firePropertyChange(NODE_SELECTED_PROPERTY, new Integer(-1), 
+        					new Integer(index));
+    }
     
     /**
      * Selects the specified node and deselects the other siblings.
@@ -94,6 +114,7 @@ public class TreeCheck
             child = (TreeCheckNode) i.next();
             child.setSelected(child.equals(node));
         }
+        fireNodeSelection();
     }
     
     /**
@@ -122,7 +143,10 @@ public class TreeCheck
                 if (!(o instanceof TreeCheckNode)) return;
                 TreeCheckNode node = (TreeCheckNode) o;
                 if (singleSelectionInParent) handleSingleSelection(node);
-                else node.setSelected(!node.isSelected());
+                else {
+                	node.setSelected(!node.isSelected());
+                	fireNodeSelection();
+                }
                     
                 ((DefaultTreeModel) getModel()).nodeChanged(node);
                 if (row == 0) {
@@ -221,6 +245,7 @@ public class TreeCheck
             node = (TreeCheckNode) nodes.nextElement();
             node.setSelected(true);
         }
+        fireNodeSelection();
         repaint();
     }
     
@@ -235,11 +260,12 @@ public class TreeCheck
             node = (TreeCheckNode) nodes.nextElement();
             node.setSelected(false);
         }
+        fireNodeSelection();
         repaint();
     }
     
     /**
-     * Overriden to make sure that the root node is a {@link TreeCheckNode}.
+     * Overridden to make sure that the root node is a {@link TreeCheckNode}.
      * @see JTree#setModel(TreeModel)
      */
     public void setModel(TreeModel newModel) {}

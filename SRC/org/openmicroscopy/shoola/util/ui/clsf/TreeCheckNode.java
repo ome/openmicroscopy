@@ -86,6 +86,7 @@ public class TreeCheckNode
      * Creates a new instance.
      * 
      * @param hierarchyObject   The hierarchy object associated to this node.
+     * 							Mustn't be <code>null</code>.
      * @param nodeIcon          The icon associated to this node.
      */
     public TreeCheckNode(Object hierarchyObject, Icon nodeIcon)
@@ -97,6 +98,7 @@ public class TreeCheckNode
      * Creates a new instance.
      * 
      * @param hierarchyObject   The hierarchy object associated to this node.
+     * 							Mustn't be <code>null</code>.
      * @param nodeIcon          The icon associated to this node.
      * @param name              The name of the node.
      * @param leafNode          Passed <code>true</code> if the node is a leaf,
@@ -232,7 +234,7 @@ public class TreeCheckNode
     public void setSelected(boolean selected) { this.selected = selected; }
     
     /**
-     * Overriden to return the name of the node.
+     * Overridden to return the name of the node.
      * @see DefaultMutableTreeNode#toString()
      */
     public String toString()

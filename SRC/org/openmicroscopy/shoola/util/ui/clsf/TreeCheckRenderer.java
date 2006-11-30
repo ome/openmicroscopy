@@ -91,9 +91,11 @@ class TreeCheckRenderer
         this.leafOnly = leafOnly;
         restoredSize = null;
         setLayout(null);
+        setOpaque(true);
         label = new TreeCheckLabel();
         check = new JCheckBox();
         check.setBackground(UIManager.getColor("Tree.textBackground"));
+        setBackground(UIManager.getColor("Tree.textBackground"));
     }
     
     /** 

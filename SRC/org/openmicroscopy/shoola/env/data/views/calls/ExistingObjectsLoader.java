@@ -45,7 +45,7 @@ import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Command to retrieve existing <code>DataObject</code>s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

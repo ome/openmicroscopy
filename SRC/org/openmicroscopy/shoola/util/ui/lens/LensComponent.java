@@ -84,13 +84,12 @@ public class LensComponent
 	
 	/** Shows the current zoomed image specified by the lens. */
 	private ZoomWindow  	zoomWindow;
-	
-	
+		
 	/** Holds the properties of the lens, x,y, width height. */
 	private LensModel		lensModel;
 	
 	/**
-	 * Create the lenscomponent which is the container for the lens 
+	 * Creates the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
      * @param parent    parent JFrame of ZoomWindowUI. 
@@ -114,7 +113,7 @@ public class LensComponent
 	}
 	
 	/**
-	 * Create the lenscomponent which is the container for the lens 
+	 * Creates the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
 	 * @param parent parent JFrame of ZoomWindowUI. 
@@ -124,10 +123,7 @@ public class LensComponent
 		this(parent, null);
 	}
 	
-	/**
-	 * Fires an event to anyh parent sying th
-	 *
-	 */
+	/** Hides the lens and the control dialog. */
 	public void zoomWindowClosed()
 	{
 		zoomWindow.setVisible(false);
@@ -135,9 +131,9 @@ public class LensComponent
 	}
 	
 	/**
-	 * Display in pixels if <code>true</code> or in microns otherwise.
+	 * Displays in pixels if <code>true</code>, in microns otherwise.
 	 * 
-	 * @param b see above.
+	 * @param b See above.
 	 */
 	void setDisplayInPixels(boolean b)
 	{
@@ -147,7 +143,7 @@ public class LensComponent
 	}
 
 	/**
-	 * Set the mapping from pixel size to microns along the x and y axis. 
+	 * Sets the mapping from pixel size to microns along the x and y axis. 
      * 
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
@@ -222,8 +218,7 @@ public class LensComponent
 	 */
 	public void setLensSize(int lensSize) 
 	{
-	     switch (lensSize) 
-	     {
+	     switch (lensSize) {
              case LensAction.LENSDEFAULTSIZE:
             	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
             			 LensComponent.LENS_DEFAULT_HEIGHT);
@@ -290,10 +285,7 @@ public class LensComponent
 	 * 
 	 * @param loc The value to set.
 	 */
-	public void setLensLocation(Point loc)
-	{
-		setLensLocation(loc.x, loc.y);
-	}
+	public void setLensLocation(Point loc) { setLensLocation(loc.x, loc.y); }
 	
 	/** 
 	 * Returns the scaled image size, takes into account the zoom factor of the 
@@ -302,7 +294,7 @@ public class LensComponent
 	 * @return size of lens, scaled by image zoom factor. 
 	 */
 	public Dimension getLensScaledSize()
-	{
+	{ 
 		return lensModel.getLensScaledSize();
 	}
 	

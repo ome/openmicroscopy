@@ -63,7 +63,7 @@ public class TreeCheckModel
     }
 
     /**
-     * Overriden to make sure that the inserted nodes are instance of 
+     * Overridden to make sure that the inserted nodes are instance of 
      * <code>TreeCheckNode</code>.
      * @see DefaultTreeModel#insertNodeInto(MutableTreeNode, MutableTreeNode,
      *                                      int)

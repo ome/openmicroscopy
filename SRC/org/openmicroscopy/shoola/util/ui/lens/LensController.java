@@ -87,12 +87,20 @@ class LensController
 	 * Instatiate the lenscontroller with references to the model, zoomwindow 
 	 * and lens.
 	 * 
-	 * @param model Model of hje data.
-	 * @param lens Viewport on image canvas.
-	 * @param zoomWindow Zoomed version of the viewport on image canvas.
+	 * @param model			Model of the data. Mustn't be <code>null</code>.
+	 * @param lens 			Viewport on image canvas. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param zoomWindow 	Zoomed version of the viewport on image canvas.
+	 * 						Mustn't be <code>null</code>.
 	 */
 	LensController(LensModel model, LensUI lens, ZoomWindow zoomWindow)
 	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		if (lens == null)
+			throw new IllegalArgumentException("No view.");
+		if (zoomWindow == null)
+			throw new IllegalArgumentException("No window.");
 		lensModel = model;
 		this.lens = lens;
 		this.zoomWindow = zoomWindow;
@@ -104,7 +112,7 @@ class LensController
 	
 	
 	/**
-	 * Set the position of the lens to x,y  on the image.
+	 * Sets the position of the lens to x,y  on the image.
 	 * 
 	 * @param x See above.
 	 * @param y See above.
@@ -119,7 +127,7 @@ class LensController
 	}
 	
 	/**
-	 * Set the size of the lens to width, height  on the image.
+	 * Sets the size of the lens to width, height  on the image.
 	 * 
 	 * @param w See above.
 	 * @param h See above.
@@ -130,13 +138,13 @@ class LensController
 		
 		scaledW = (int)(w*lensModel.getImageZoomFactor());
 		scaledH = (int)(h*lensModel.getImageZoomFactor());
-		if(lens.getX()+scaledW > lensModel.getImageScaledWidth() )
+		if (lens.getX()+scaledW > lensModel.getImageScaledWidth())
 		{
 			scaledW = lensModel.getImageScaledWidth()-lens.getX();
 			w = (int)(scaledW/lensModel.getImageZoomFactor());
 		}
 		
-		if(lens.getY()+scaledH > lensModel.getImageScaledHeight() )
+		if (lens.getY()+scaledH > lensModel.getImageScaledHeight())
 		{
 			scaledH = lensModel.getImageScaledHeight()-lens.getY();
 			h = (int)(scaledH/lensModel.getImageZoomFactor());
@@ -152,9 +160,9 @@ class LensController
 	}
 	
 	/** 
-	 * Set the zoomfactor for the lens. 
+	 * Sets the zoomfactor for the lens. 
 	 * 
-	 * @param zoomFactor
+	 * @param zoomFactor The value to set.
 	 */
 	void setZoomFactor(float zoomFactor)
 	{
@@ -164,9 +172,10 @@ class LensController
 	}
 	
 	/**
-	 * Show or hide the crosshairs on the lens.
+	 * Shows or hides the crosshairs on the lens.
 	 * 
-	 * @param isVisible
+	 * @param isVisible Pass <code>true</code> to show, <code>false</code>
+	 * 					to hide.
 	 */
 	void setShowCrossHairs(boolean isVisible)
 	{
@@ -196,12 +205,12 @@ class LensController
 	 */
 	void lensMouseMoved(int x, int y)
 	{
-		if( lens.lensPicked(x, y))
+		if (lens.lensPicked(x, y))
 		{
 			Cursor s = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
 			lens.setCursor(s);
 		}	
-		else if( lens.lensBorderPicked(x, y))
+		else if (lens.lensBorderPicked(x, y))
 		{
 			resizeDir = lens.getPickDir(x, y);
 		    Cursor s = getCursorForDir(resizeDir);
@@ -217,7 +226,7 @@ class LensController
 	 */
 	void lensMouseDown(int x, int y)
 	{
-		if( lens.lensBorderPicked(x, y))
+		if (lens.lensBorderPicked(x, y))
 		{
 			borderDrag = true;
 			resizeDir = lens.getPickDir(x, y);
@@ -229,7 +238,7 @@ class LensController
 			offsetY = y;
 		
 		}
-		else if( lens.lensPicked(x, y))
+		else if (lens.lensPicked(x, y))
 		{
 			offsetX = x;
 			offsetY = y;
@@ -247,11 +256,11 @@ class LensController
 	void lensMouseWheelMoved(int tick)
 	{
 		float zoomFactor = lensModel.getZoomFactor();
-		zoomFactor -= 0.1f*(float)tick;
+		zoomFactor -= 0.1f*tick;
 		zoomFactor = Math.round(zoomFactor*10)/10.0f;
-		if( zoomFactor < LensModel.MINIMUM_ZOOM)
+		if (zoomFactor < LensModel.MINIMUM_ZOOM)
 			zoomFactor = LensModel.MINIMUM_ZOOM;
-		if( zoomFactor > LensModel.MAXIMUM_ZOOM)
+		if (zoomFactor > LensModel.MAXIMUM_ZOOM)
 			zoomFactor = LensModel.MAXIMUM_ZOOM;
 		setZoomFactor(zoomFactor);
 	}
@@ -267,7 +276,7 @@ class LensController
 	 */
 	void lensMouseDrag(int x, int y, boolean isShiftDown)
 	{
-		if(borderDrag)
+		if (borderDrag)
 		{
 			int deltaX = 0;
 			int deltaY = 0;
@@ -276,178 +285,178 @@ class LensController
 			
 			switch(resizeDir)
 			{
-			case	LensUI.NORTH:
-				if(y-offsetY < 0)
-				{
-					deltaY = (y-offsetY);
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-				else
-				{
-					deltaY = (y-offsetY);
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-			break;
-			case	LensUI.SOUTH:
-				if(y-offsetY > 0)
-				{
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-				else
-				{
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-			break;		
-			case	LensUI.EAST:
-				if(x-offsetX > 0)
-				{
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-				else
-				{
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-			break;		
-			case	LensUI.WEST:
-				if(x-offsetX > 0)
-				{
-					deltaX = (x-offsetX);
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-				}
-				else
-				{
-					deltaX = -Math.abs(x-offsetX);
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-				}
-			break;		
-			case	LensUI.NORTH_EAST:
-				if(y-offsetY < 0)
-				{
-					deltaY = (y-offsetY);
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-				else
-				{
-					deltaY = (y-offsetY);
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-				if(x-offsetX > 0)
-				{
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-				else
-				{
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-			break;
-			case	LensUI.NORTH_WEST:
-				if(y-offsetY < 0)
-				{
-					deltaY = (y-offsetY);
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-				else
-				{
-					deltaY = (y-offsetY);
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startY = startY+(y-offsetY);
-				}
-				if(x-offsetX > 0)
-				{
-					deltaX = (x-offsetX);
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-				}
-				else
-				{
-					deltaX = -Math.abs(x-offsetX);
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-				}
-			case LensUI.SOUTH_EAST:
-				if(y-offsetY > 0)
-				{
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-				else
-				{
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-				if(x-offsetX > 0)
-				{
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-				else
-				{
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetX = x;
-				}
-			break;
-			case LensUI.SOUTH_WEST:
-				if(y-offsetY > 0)
-				{
-					deltaH = Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-				else
-				{
-					deltaH = -Math.abs(y-offsetY);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						offsetY = y;
-				}
-				if(x-offsetX > 0)
-				{
-					deltaX = (x-offsetX);
-					deltaW = -Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-
-				}
-				else
-				{
-					deltaX = -Math.abs(x-offsetX);
-					deltaW = Math.abs(x-offsetX);
-					if(checkBounds(deltaX, deltaY, deltaW, deltaH))
-						startX = startX+(x-offsetX);
-				}
-			break;
+				case LensUI.NORTH:
+					if (y-offsetY < 0)
+					{
+						deltaY = (y-offsetY);
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+					else
+					{
+						deltaY = (y-offsetY);
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+				break;
+				case LensUI.SOUTH:
+					if (y-offsetY > 0)
+					{
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+					else
+					{
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+				break;		
+				case LensUI.EAST:
+					if (x-offsetX > 0)
+					{
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+					else
+					{
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+				break;		
+				case LensUI.WEST:
+					if (x-offsetX > 0)
+					{
+						deltaX = (x-offsetX);
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+					}
+					else
+					{
+						deltaX = -Math.abs(x-offsetX);
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+					}
+				break;		
+				case LensUI.NORTH_EAST:
+					if(y-offsetY < 0)
+					{
+						deltaY = (y-offsetY);
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+					else
+					{
+						deltaY = (y-offsetY);
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+					if(x-offsetX > 0)
+					{
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+					else
+					{
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+				break;
+				case LensUI.NORTH_WEST:
+					if(y-offsetY < 0)
+					{
+						deltaY = (y-offsetY);
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+					else
+					{
+						deltaY = (y-offsetY);
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startY = startY+(y-offsetY);
+					}
+					if(x-offsetX > 0)
+					{
+						deltaX = (x-offsetX);
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+					}
+					else
+					{
+						deltaX = -Math.abs(x-offsetX);
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+					}
+				case LensUI.SOUTH_EAST:
+					if(y-offsetY > 0)
+					{
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+					else
+					{
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+					if(x-offsetX > 0)
+					{
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+					else
+					{
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetX = x;
+					}
+				break;
+				case LensUI.SOUTH_WEST:
+					if(y-offsetY > 0)
+					{
+						deltaH = Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+					else
+					{
+						deltaH = -Math.abs(y-offsetY);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							offsetY = y;
+					}
+					if(x-offsetX > 0)
+					{
+						deltaX = (x-offsetX);
+						deltaW = -Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+	
+					}
+					else
+					{
+						deltaX = -Math.abs(x-offsetX);
+						deltaW = Math.abs(x-offsetX);
+						if(checkBounds(deltaX, deltaY, deltaW, deltaH))
+							startX = startX+(x-offsetX);
+					}
+				break;
 			}
 			setLensBounds(deltaX, deltaY, deltaW, deltaH, isShiftDown);
 				
@@ -569,7 +578,7 @@ class LensController
 	}
 	
 	/**
-	 * Set the new UI size of the zoom window based on the zoomfactor and
+	 * Sets the new UI size of the zoom window based on the zoomfactor and
 	 * lens size. 
 	 */
 	private void setZoomUISize()
@@ -577,18 +586,16 @@ class LensController
 		float zoomFactor = lensModel.getZoomFactor();
 		int width = lensModel.getWidth();
 		int height = lensModel.getHeight();
-		zoomWindow.setZoomUISize((float)width*zoomFactor, 
-													(float)height*zoomFactor);
+		zoomWindow.setZoomUISize(width*zoomFactor, height*zoomFactor);
 		zoomWindow.setLensZoomFactor(zoomFactor);
 		zoomWindow.setZoomImage(lensModel.getZoomedImage());
 	}
 	
 	/**
-	 * Return the correct cursor type for the border edge selected.
+	 * Returns the correct cursor type for the border edge selected.
 	 * 
 	 * @param resizeDir Direction of the border picked. 
-	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	private Cursor getCursorForDir(int resizeDir)
 	{

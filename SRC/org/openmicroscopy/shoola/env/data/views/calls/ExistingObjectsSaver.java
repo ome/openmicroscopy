@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +49,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Command to save existing <code>DataObject</code>s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -135,27 +134,7 @@ public class ExistingObjectsSaver
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                /*
-                Iterator i = toPaste.keySet().iterator();
-                Object p;
-                while (i.hasNext()) {
-                    p = i.next();
-                    if (p instanceof DataObject) {
-                        os.addExistingObjects((DataObject) p, (Set)
-                                toPaste.get(p));
-                    }
-                }
-                i = toRemove.keySet().iterator();
-                while (i.hasNext()) {
-                    p = i.next();
-                    if (p instanceof DataObject) {
-                        os.removeDataObjects((List) toRemove.get(p), 
-                                           (DataObject) p);
-                    }
-                }
-                */
                 os.cutAndPaste(toPaste, toRemove);
-
                 result = toPaste;
             }
         };
@@ -217,8 +196,8 @@ public class ExistingObjectsSaver
     /**
      * Creates a new instance.
      * 
-     * @param toPaste   The <code>DataObjects</code> to update. 
-     * @param toRemove  The <code>DataObjects</code> to cut. 
+     * @param toPaste   The <code>DataObject</code>s to update. 
+     * @param toRemove  The <code>DataObject</code>s to cut. 
      */
     public ExistingObjectsSaver(Map toPaste, Map toRemove)
     {

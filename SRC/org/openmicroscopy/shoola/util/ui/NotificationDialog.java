@@ -114,13 +114,10 @@ public class NotificationDialog
 	{
 		contentPanel = new JPanel();
         contentPanel.setOpaque(true);
-        contentPanel.setBackground(DEFAULT_COLOR);
 		messagePanel = new JPanel();
         messagePanel.setOpaque(true);
-        messagePanel.setBackground(DEFAULT_COLOR);
 		buttonPanel = new JPanel();
         buttonPanel.setOpaque(true);
-        buttonPanel.setBackground(DEFAULT_COLOR);
 		okButton = new JButton("OK");
 	}
 	

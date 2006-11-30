@@ -87,7 +87,7 @@ class TreeCheckLabel
     void setFocus(boolean hasFocus) { this.hasFocus = hasFocus; }
     
     /**
-     * Overriden to set the background color.
+     * Overridden to set the background color.
      * @see JLabel#setBackground(Color)
      */
     public void setBackground(Color color)
@@ -97,7 +97,7 @@ class TreeCheckLabel
     }
     
     /**
-     * Overriden to set the ideal size of the component.
+     * Overridden to set the ideal size of the component.
      * @see JLabel#getPreferredSize()
      */
     public Dimension getPreferredSize()
@@ -108,7 +108,7 @@ class TreeCheckLabel
     }
     
     /**
-     * Overriden to properly paint the icon and the text.
+     * Overridden to properly paint the icon and the text.
      * @see JLabel#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)

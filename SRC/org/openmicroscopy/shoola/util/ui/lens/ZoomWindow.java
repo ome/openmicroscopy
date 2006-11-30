@@ -79,13 +79,15 @@ class ZoomWindow
 	}
 	
 	/**
-	 * Constructor of the zoomWindow. This creates an instance of the 
-	 * ZoomWindowUI(JDialog).
+	 * Creates a  new  instance.
 	 * 
 	 * @param lensComponent The parent component of the ZoomWindow.
+	 * 						Mustn't be <code>null</code>.
 	 */
 	ZoomWindow(LensComponent lensComponent)
 	{
+		if (lensComponent == null)
+			throw new IllegalArgumentException("No parent.");
 		this.lensComponent = lensComponent;
 		zoomWindowUI = new ZoomWindowUI(null, lensComponent);
 	}
@@ -93,10 +95,13 @@ class ZoomWindow
 	/**
 	 * Adds controller to the zoomWindow.
 	 * 
-	 * @param lensController
+	 * @param lensController 	Reference to the control. 
+	 * 							Mustn't be <code>null</code>.
 	 */
 	void addController(LensController lensController)
 	{
+		if (lensController == null)
+			throw new IllegalArgumentException("No control.");
 		this.lensController = lensController;
 	}
 
@@ -123,7 +128,7 @@ class ZoomWindow
 	 * @param x mapping in x axis.
 	 * @param y mapping in y axis.
 	 */
-	void setXYPixelMicron(float x, float y)
+	void setXYPixelMicron(float x, float y) 
 	{
 		zoomWindowUI.setXYPixelMicron(x, y);
 	}
@@ -157,10 +162,7 @@ class ZoomWindow
 	 * @param x See above.
 	 * @param y See above.
 	 */
-	void setLensXY(int x, int y)
-	{
-		zoomWindowUI.setLensXY(x, y);
-	}
+	void setLensXY(int x, int y) { zoomWindowUI.setLensXY(x, y); }
 	
 	/**
 	 * Sets the w,h size of the lens on the ZoomWindowUI.
@@ -207,8 +209,7 @@ class ZoomWindow
 	 *  
 	 * @return See above.
 	 */
-	boolean isVisible() { return zoomWindowUI.isVisible();
-	}
+	boolean isVisible() { return zoomWindowUI.isVisible(); }
 
 	/**
 	 * Sets the location of the zoomWindowUI. 
