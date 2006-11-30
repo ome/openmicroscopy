@@ -41,6 +41,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -250,6 +251,35 @@ public class TinyDialogUI
         initialize(window);
         makeBorders();
         buildUI();
+    }
+    
+    /**
+     * Sets the image to paint if the canvas is an instance of 
+     * <code>ThumbnailCanvas</code>.
+     * 
+     * @param image The image to paint.
+     */
+    void setImage(BufferedImage image)
+    {
+    	if (canvas instanceof ThumbnailCanvas) {
+    		makeComponentsSize(image.getWidth(), image.getHeight()); 
+    		((ThumbnailCanvas) canvas).setImage(image);
+    		//window.getContentPane().removeAll();
+    		//buildUI();
+    		window.pack();
+    	}
+    }
+    
+    /**
+     * Adds a {@link MouseWheelListener} to the canvas if the canvas is 
+     * an instance of <code>ThumbnailCanvas</code>.
+     * 
+     * @param controller The listener to add.
+     */
+    void attachMouseWheelListener(MouseWheelListener controller)
+    {
+    	if (canvas instanceof ThumbnailCanvas) 
+    		canvas.addMouseWheelListener(controller);
     }
     
     /**

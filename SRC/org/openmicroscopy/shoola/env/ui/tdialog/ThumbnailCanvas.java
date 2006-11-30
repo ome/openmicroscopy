@@ -62,7 +62,7 @@ class ThumbnailCanvas
 {
 
     /** The {@link BufferedImage} to paint. */
-    private BufferedImage   image;
+    private BufferedImage   	image;
     
     /**
      * Creates a new instance. 
@@ -75,8 +75,15 @@ class ThumbnailCanvas
         this.image = image;
     }
     
+    /** 
+     * Sets the image to paint.
+     * 
+     * @param image The {@link BufferedImage} to paint. 
+     */
+    void setImage(BufferedImage image) { this.image = image; }
+	
     /**
-     * Overriden to paint the thumbnail.
+     * Overridden to paint the thumbnail.
      * @see JComponent#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
@@ -88,5 +95,6 @@ class ThumbnailCanvas
                             i.top+TinyDialogUI.INNER_PADDING);
         }  
     }
+
     
 }

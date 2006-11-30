@@ -36,12 +36,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * Handles input events directed to the {@link TinyDialog} components and also 
@@ -63,11 +68,15 @@ import java.beans.PropertyChangeListener;
  */
 class DialogControl
     implements 
-    PropertyChangeListener, ActionListener, MouseListener, MouseMotionListener
+    PropertyChangeListener, ActionListener, MouseListener, MouseMotionListener,
+    MouseWheelListener
 {
     
-    /** Action command ID. */
-    static final int        SIZE = 0, CLOSE = 1;
+    /** Action command ID to modify the size of the component. */
+    static final int        SIZE = 0;
+    
+    /** Action command ID to modify the close of the component. */
+    static final int		CLOSE = 1;
     
     /** The window this controller is for. */
     private TinyDialog       model;
@@ -77,13 +86,13 @@ class DialogControl
    
     /** The mouse events controller. */
     private ScreenControl   sControl;
-    
+
     /**
      * Creates a new instance to control a given {@link TinyDialog} and
      * notify its View.
      * 
-     * @param model The window. Mustn't be <code>null</code>.
-     * @param view The window's UI. Mustn't be <code>null</code>.
+     * @param model	The window. Mustn't be <code>null</code>.
+     * @param view 	The window's UI. Mustn't be <code>null</code>.
      */
     DialogControl(TinyDialog model, TinyDialogUI view)
     {
@@ -145,6 +154,27 @@ class DialogControl
         }        
     }
 
+    /** 
+     * Modifies the magnification factor depending on the number of "clicks"
+     * the mouse wheel was rotated.
+     * 
+     * @see MouseWheelListener#mouseWheelMoved(MouseWheelEvent)
+     */
+	public void mouseWheelMoved(MouseWheelEvent e)
+	{
+		float zoomFactor = model.getZoomFactor();
+		zoomFactor -= 0.1f*e.getWheelRotation();
+		zoomFactor = Math.round(zoomFactor*10)/10.0f;
+		if (zoomFactor < TinyDialog.MINIMUM_ZOOM)
+			zoomFactor = TinyDialog.MINIMUM_ZOOM;
+		if (zoomFactor > TinyDialog.MAXIMUM_ZOOM)
+			zoomFactor = TinyDialog.MAXIMUM_ZOOM;
+		model.setZoomFactor(zoomFactor);
+		BufferedImage img = Factory.magnifyImage(zoomFactor, 
+										model.getOriginalImage());
+		view.setImage(img);
+	}
+	
     /** 
      * Forward event to the <code>Screen control</code>. 
      * @see MouseListener#mousePressed(MouseEvent)

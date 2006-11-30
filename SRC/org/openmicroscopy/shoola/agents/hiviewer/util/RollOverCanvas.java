@@ -40,6 +40,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -99,6 +101,7 @@ class RollOverCanvas
     /** The location of the pin icon. */
     private Rectangle           classifiedRectangle;
 
+
     /**
      * Creates a new instance. 
      * 
@@ -128,6 +131,11 @@ class RollOverCanvas
                 if (e.getClickCount() == 2) model.viewImage();
             }
         });
+        addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				model.magnifyImage(e.getWheelRotation());
+			}
+		});
     }
     
     /**

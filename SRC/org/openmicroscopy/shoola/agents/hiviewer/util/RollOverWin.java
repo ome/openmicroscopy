@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import pojos.DataObject;
 
@@ -75,11 +76,20 @@ public class RollOverWin
     extends JDialog
 {
 
+    /** The minimum magnification value. */
+    final static int		MINIMUM_ZOOM = 1;
+    
+    /** The maximum magnification value. */
+    final static int		MAXIMUM_ZOOM = 2;
+    
     /** ImageNode displayed. */
-    public ImageNode        node;
+    private ImageNode        node;
     
     /** The image to display. */
     private BufferedImage   image;
+    
+    /** The image to display. */
+    private BufferedImage   originalImage;
     
     /** The canvas hosting the image. */
     private RollOverCanvas  canvas;
@@ -87,12 +97,16 @@ public class RollOverWin
     /** Reference to the {@link Browser}. */
     private Browser         browser;
     
+    /** The magnification factor. */
+    private float			zoomFactor;
+
     /** Sets the property of the dialog window. */ 
     private void setProperties()
     {
         setModal(false);
         setResizable(false);
         setUndecorated(true);
+        zoomFactor = MINIMUM_ZOOM;
     }
     
     /** 
@@ -136,6 +150,25 @@ public class RollOverWin
         buildUI();
     }
     
+    /**
+     * Magnifies the displayed image.
+     * 
+     * @param tick The number of "clicks" the mouse wheel was rotated.
+     */
+    void magnifyImage(int tick)
+    {
+		zoomFactor -= 0.1f*tick;
+		zoomFactor = Math.round(zoomFactor*10)/10.0f;
+		if (zoomFactor < RollOverWin.MINIMUM_ZOOM)
+			zoomFactor = RollOverWin.MINIMUM_ZOOM;
+		if (zoomFactor > RollOverWin.MAXIMUM_ZOOM)
+			zoomFactor = RollOverWin.MAXIMUM_ZOOM;
+		image = Factory.magnifyImage(zoomFactor, originalImage);
+		makeComponentsSize(image.getWidth(), image.getHeight());
+		pack();
+    }
+    
+
     /** Pins the thumbnail. */
     void pinThumbnail() { browser.setThumbSelected(true, node); }
     
@@ -183,6 +216,7 @@ public class RollOverWin
         	full = prv.getZoomedFullScaleThumb();
         if (full != null)  {
             image = full;
+            originalImage = full;
             makeComponentsSize(image.getWidth(), image.getHeight());
             canvas.repaint();
         }

@@ -88,6 +88,7 @@ public class Factory
     /** Border added to the text. */
     private static final int            BORDER = 2;
     
+    /** The default message for the default thumbnail. */
     private static final String         DEFAULT_TEXT = "No thumbnail";
     
     /** Sharpen filter. */
@@ -101,6 +102,28 @@ public class Factory
             0.1f, 0.1f, 0.1f,   
             0.1f, 0.2f, 0.1f,
             0.1f, 0.1f, 0.1f};
+
+    /** 
+     * Magnifies the specified image.
+     * 
+     * @param f the magnification factor.
+     * @param img The image to magnify.
+     * 
+     * @return The magnified image.
+     */
+    public static BufferedImage magnifyImage(double f, BufferedImage img)
+    {
+        if (img == null) return null;
+        int width = img.getWidth(), height = img.getHeight();
+        AffineTransform at = new AffineTransform();
+        at.scale(f, f);
+        BufferedImageOp biop = new AffineTransformOp(at, 
+            AffineTransformOp.TYPE_BILINEAR); 
+        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
+                        (int) (height*f), img.getType());
+        biop.filter(img, rescaleBuff);
+        return rescaleBuff;
+    }
     
     /**
      * Creates a default thumbnail image.

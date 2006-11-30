@@ -63,12 +63,30 @@ import javax.swing.SwingUtilities;
 class ScreenControl
 {
     
-    /** MousePressed location in absolute coordinate system .*/
-    private int             xAbs, yAbs;
+    /** 
+     * The x-coordinate of mouse in absolute coordinate system 
+     * when the mouse is pressed.
+     */
+    private int             xAbs;
     
-    /** MousePressed location in source view's coordinate system .*/
-    private int             xView, yView;
-
+    /** 
+     * The y-coordinate of mouse in absolute coordinate system 
+     * when the mouse is pressed.
+     */
+    private int 			yAbs;
+    
+    /** 
+     * The y-coordinate of mouse in source view's coordinate system 
+     * when the mouse is pressed.
+     */
+    private int             xView;
+    
+    /** 
+     * The y-coordinate of mouse in source view's coordinate system 
+     * when the mouse is pressed.
+     */
+    private int             yView;
+    
     /** Dragging control. */
     private boolean         dragging;
     

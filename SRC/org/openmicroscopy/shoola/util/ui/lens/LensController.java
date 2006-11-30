@@ -249,9 +249,9 @@ class LensController
 	}
 	
 	/**
-	 * MouseWheelMoved event
+	 * Magnifies the image.
 	 * 
-	 * @param tick
+	 * @param tick The number of "clicks" the mouse wheel was rotated.
 	 */
 	void lensMouseWheelMoved(int tick)
 	{

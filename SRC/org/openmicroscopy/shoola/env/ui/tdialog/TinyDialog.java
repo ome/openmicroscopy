@@ -73,6 +73,12 @@ public class TinyDialog
     /** Bound property name indicating if the window's title has changed. */
     public final static String TITLE_PROPERTY = "title";
     
+    /** The minimum magnification value. */
+    final static int		MINIMUM_ZOOM = 1;
+    
+    /** The maximum magnification value. */
+    final static int		MAXIMUM_ZOOM = 2;
+    
     /** The size of the frame before the last collapse request. */
     private Dimension       restoreSize;
     
@@ -91,6 +97,12 @@ public class TinyDialog
     /** Tells if the close button is displayed. */
     private boolean         closedButton;
     
+    /** The image to display. */
+    private BufferedImage	originalImage;
+    
+    /** The magnification factor. */
+    private float			zoomFactor;
+    
     /** The title displayed in this window's title bar. */
     protected String        title;
     
@@ -101,7 +113,29 @@ public class TinyDialog
         setResizable(false);
         setUndecorated(true);
         setRestoreSize(new Dimension(getWidth(), getHeight()));
+        zoomFactor = MINIMUM_ZOOM;
     }
+    
+    /** 
+     * Returns the original image to display.
+     * 
+     * @return Se above
+     */
+    BufferedImage getOriginalImage() { return originalImage; }
+    
+    /**
+     * Returns the magnification factor.
+     * 
+     * @return See above.
+     */
+    float getZoomFactor() { return zoomFactor; }
+    
+    /**
+     * Sets the magnification factor.
+     * 
+     * @param v The value to set.
+     */
+    void setZoomFactor(float v) { zoomFactor = v; }
     
     /**
      * Sets the size to used to restore the size of the component
@@ -152,10 +186,13 @@ public class TinyDialog
         if (owner == null) throw new NullPointerException("No owner.");
         if (image == null) throw new NullPointerException("No image.");
         this.title = title;
+        originalImage = image;
+        zoomFactor = MINIMUM_ZOOM;
         closedButton = true;
         //Create the View and the Controller.
         uiDelegate = new TinyDialogUI(this, image);
         controller = new DialogControl(this, uiDelegate);
+        uiDelegate.attachMouseWheelListener(controller);
     }
     
     /**
@@ -328,7 +365,5 @@ public class TinyDialog
     {
         super.setUndecorated(true);
     }
-
-
 
 }

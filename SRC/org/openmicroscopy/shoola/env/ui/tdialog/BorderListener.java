@@ -69,7 +69,6 @@ class BorderListener
     
     /** Reference to the model. */
     private TinyDialog  model;
-    
 
     /** 
      * Sets the bounds of the model.
@@ -93,7 +92,6 @@ class BorderListener
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
     }
-
     
     /**
      * Handles mouseDragged events. 
