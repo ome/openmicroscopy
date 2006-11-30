@@ -114,6 +114,7 @@ class DOBasic
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+    	tabbedPane = new JTabbedPane();
         nameArea = new JTextField();
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
@@ -147,9 +148,7 @@ class DOBasic
                 
             });
             IconManager im = IconManager.getInstance();
-            if (model.isAnnotatable()) {
-            	if (tabbedPane == null)
-            		tabbedPane = new JTabbedPane();
+            if (model.isAnnotatable()) {	
                 annotator = new DOAnnotation(view, model);
                 tabbedPane.addTab(ANNOTATION, 
                             im.getIcon(IconManager.ANNOTATION), annotator);
@@ -395,6 +394,25 @@ class DOBasic
         classifier.showClassifications();
     }
 
-
+    /**
+     * Checks if the name and/or description have been modified.
+     * Returns <code>true</code> if modified, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasDataToSave()
+    {
+    	// heck if the name and the description have been modified first.
+    	String s = getNameText();
+    	String name = model.getDataObjectName();
+    	if (!(name.equals(s))) return true;
+    	String d = getDescriptionText();
+    	String description = model.getDataObjectDescription();
+    	
+    	if (d == null) {
+    		return (description != null);
+    	}
+    	return (!(d.equals(description)));
+    }
     
 }
