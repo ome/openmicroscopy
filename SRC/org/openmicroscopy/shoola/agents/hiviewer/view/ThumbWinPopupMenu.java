@@ -34,9 +34,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -97,41 +95,25 @@ class ThumbWinPopupMenu
     
     /** The window that is currently requesting the menu. */
     private ThumbWin    currentWin;
-    
-    /**
-     * Helper method to create the Classify submenu.
-     * 
-     * @param classify The Classify item to add to the submenu.
-     * @param declassify The Declassify item to add to the submenu.
-     * @return  The Classify submenu.
-     */
-    private JMenu createClassifySubMenu(JMenuItem classify, 
-                JMenuItem declassify)
-    {
-        IconManager im = IconManager.getInstance();
-        JMenu menu = new JMenu("Classify");
-        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.setMnemonic(KeyEvent.VK_C);
-        menu.add(classify);
-        menu.add(declassify);
-        return menu;
-    }
-    
+
     /** Creates a new instance. */
     private ThumbWinPopupMenu()
     {
         IconManager im = IconManager.getInstance();
         JMenuItem properties = new JMenuItem("Properties", 
                                   im.getIcon(IconManager.PROPERTIES)),
-                  classify = new JMenuItem("Add to category"),
-                  declassify = new JMenuItem("Remove from category"),
+                  classify = new JMenuItem("Categorise", 
+                		  				im.getIcon(IconManager.CATEGORY)),
+                  declassify = new JMenuItem("Decategorise", 
+                		  im.getIcon(IconManager.DECATEGORISE)),
                   view = new JMenuItem("View", im.getIcon(IconManager.VIEWER)),
                   annotate = new JMenuItem("Annotate", 
                           im.getIcon(IconManager.ANNOTATE));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
         add(new JSeparator(JSeparator.HORIZONTAL));
-        add(createClassifySubMenu(classify, declassify));
+        add(classify);
+        add(declassify);
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
@@ -189,7 +171,6 @@ class ThumbWinPopupMenu
         Point p = currentWin.getPopupPoint();
         Point pNew = SwingUtilities.convertPoint(currentWin, p.x, p.y, null); 
         show(currentWin.getParent(), pNew.x, pNew.y);
-        //show(currentWin, p.x, p.y);
     }
     
 }
