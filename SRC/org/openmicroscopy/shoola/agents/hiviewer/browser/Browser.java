@@ -133,7 +133,7 @@ public interface Browser
      *                  is an {@link ImageNode} and its {@link Thumbnail} has
      *                  been selected. Pass <code>false</code> in any other
      *                  case.
-     * @param node      The selected node.                    
+     * @param node      The selected node.                
      * @throws IllegalArgumentException If you pass <code>true</code> but the
      *         currently selected display is <i>not</i> an {@link ImageNode}.
      */

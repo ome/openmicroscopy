@@ -87,12 +87,15 @@ public class ImagesLoader
                                         getRootID(), this);
     }
     
-    /** Cancels the data loading. */
+    /** 
+     * Cancels the data loading.
+     * @see DataLoader#cancel()
+     */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

@@ -208,7 +208,7 @@ class ClipBoardUI
      * 
      * @param foundNodes The results.
      */
-    void setSearchResults(Set foundNodes)
+    void setSearchResults(List foundNodes)
     {
         FindPane pane = (FindPane) model.getClipboardPane(ClipBoard.FIND_PANE);
         pane.setResults(foundNodes);

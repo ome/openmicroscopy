@@ -37,6 +37,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
@@ -99,6 +100,8 @@ public class DeclassifyAction
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager icons = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DECATEGORISE));
     }
 
     /**

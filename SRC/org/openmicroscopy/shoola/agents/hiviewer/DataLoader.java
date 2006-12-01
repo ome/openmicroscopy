@@ -78,7 +78,6 @@ public abstract class DataLoader
     /** Convenience reference for subclasses. */
     protected final HierarchyBrowsingView hiBrwView;
     
-    
     /**
      * Creates a new instance.
      * 
@@ -140,7 +139,7 @@ public abstract class DataLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
-     * @see #handleException(Throwable)
+     * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

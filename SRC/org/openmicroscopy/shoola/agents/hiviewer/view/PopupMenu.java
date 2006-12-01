@@ -31,9 +31,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 
 
 //Java imports
-import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -42,7 +40,6 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 
 /** 
  * Pop-up menu for nodes in the browser display.
@@ -80,15 +77,6 @@ class PopupMenu
     /** Button to browse a container or bring up the Viewer for an image. */
     private JMenuItem   view;
     
-    /** Button to zoom in all leaf nodes in a container. */
-    private JMenuItem   zoomIn;
-    
-    /** Button to zoom out all leaf nodes in a container. */
-    private JMenuItem   zoomOut;
-    
-    /** Button to resize all leaf nodes in a container. */
-    private JMenuItem   zoomFit;
-    
     /** Button to remove items from a container. */
     private JMenuItem   remove;
     
@@ -108,26 +96,7 @@ class PopupMenu
         declassify = new JMenuItem(
                 controller.getAction(HiViewerControl.DECLASSIFY));
         view = new JMenuItem(controller.getAction(HiViewerControl.VIEW));
-        zoomIn = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_IN));
-        zoomOut = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_OUT));
-        zoomFit = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
         remove = new JMenuItem(controller.getAction(HiViewerControl.REMOVE));
-    }
-
-    /**
-     * Helper method to create the Classify submenu.
-     * 
-     * @return  The Classify submenu.
-     */
-    private JMenu createClassifySubMenu()
-    {
-        IconManager im = IconManager.getInstance();
-        JMenu menu = new JMenu("Classify");
-        menu.setMnemonic(KeyEvent.VK_C);
-        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.add(classify);
-        menu.add(declassify);
-        return menu;
     }
     
     /** Builds and lays out the GUI. */
@@ -135,16 +104,13 @@ class PopupMenu
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
-        add(new JSeparator(JSeparator.HORIZONTAL));
-        add(createClassifySubMenu());
-        add(annotate);
         add(remove);
         add(new JSeparator(JSeparator.HORIZONTAL));
-        add(properties);
+        add(classify);
+        add(declassify);
+        add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
-        add(zoomIn);
-        add(zoomOut);
-        add(zoomFit);
+        add(properties);
     }
     
     /** 

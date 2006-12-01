@@ -426,5 +426,12 @@ public interface HiViewer
      * currently selected layout.
      */
     public void layoutZoomedNodes();
+
+    /**
+     * Displays the collection of found results.
+     * 
+     * @param foundNodes The nodes found.
+     */
+	public void setFoundResults(Set foundNodes);
     
 }

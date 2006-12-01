@@ -37,8 +37,6 @@ import java.util.regex.Pattern;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -96,19 +94,22 @@ public class FindRegExCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
-        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
-        if (selectedDisplay == null) return; 
+        //ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
+        //if (selectedDisplay == null) return; 
         FindRegExVisitor visitor = new FindRegExVisitor(model, pattern, 
                 findContext);
+        /*
         if (selectedDisplay.getParentDisplay() == null)
             browser.accept(visitor);
         else {
             if (selectedDisplay instanceof ImageSet)
                 selectedDisplay.accept(visitor);
         } 
+        */
+        browser.accept(visitor);
         TreeView tree = model.getTreeView();
         if (tree != null) tree.repaint();
-        model.getClipBoard().setFindResults(visitor.getFoundNodes());
+        model.setFoundResults(visitor.getFoundNodes());
     }
 
 }

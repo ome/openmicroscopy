@@ -66,8 +66,7 @@ public class PDILoader
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
-    
-    
+
     /**
      * Creates a new instance.
      * 
@@ -100,7 +99,7 @@ public class PDILoader
     
     /** 
      * Notifies the viewer of progress. 
-     * @see #update(DSCallFeedbackEvent)
+     * @see DataLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 
     {
@@ -116,7 +115,7 @@ public class PDILoader
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

@@ -46,7 +46,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Set;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -132,12 +133,23 @@ class FindPaneUI
     /** The panel hosting the tree displaying the result. */
     private JPanel              treeHolderPanel;
     
+    /** Finds the next occurence of the found phrase. */
+    private JButton				findNextButton;
+    
+    /** Finds the previous occurence of the found phrase. */
+    private JButton				findPreviousButton;
+    
+    /** The UI component displaying the found nodes. */
+    private FindResultsPane		resultsPane;
+    
     /** The owner of this UI delegate. */
     private FindPane            model;
     
     /** Initializes the UI components composing the display. */
     private void initComponents()
     {
+    	findNextButton = new JButton(new FindNextAction(model));
+    	findPreviousButton = new JButton(new FindPreviousAction(model));
         titleLabel = new JLabel(FIND_MSG+DEFAULT);
         treeHolderPanel = new JPanel();
         treeHolderPanel.setBorder(new TitledBorder(RESULTS_MSG));
@@ -220,6 +232,8 @@ class FindPaneUI
         controlsBar.setBorder(null);
         controlsBar.setRollover(true);
         controlsBar.setFloatable(false);
+        controlsBar.add(findNextButton);
+        controlsBar.add(findPreviousButton);
         FilterMenuAction action = new FilterMenuAction(model);
         JButton button = new JButton(action);
         button.addMouseListener(action);
@@ -339,6 +353,7 @@ class FindPaneUI
         this.model = model;
         initComponents();
         buildGUI();
+        onSelectedDisplay(true, IN_ALL_MSG);
     }
 
     /** Clears the results of a previous find action. */
@@ -370,15 +385,57 @@ class FindPaneUI
      * 
      * @param results The collection of nodes to display.
      */ 
-    void setFoundResults(Set results)
+    void setFoundResults(List results)
     {
-        FindResultsPane p = new FindResultsPane(model, results);
-        setMessage(p.getSizeResults());
+    	onFoundOccurences(results.size());
+    	resultsPane = new FindResultsPane(model, results);
+        setMessage(resultsPane.getSizeResults());
         treeHolderPanel.removeAll();
-        treeHolderPanel.add(new JScrollPane(p), BorderLayout.CENTER);
+        treeHolderPanel.add(new JScrollPane(resultsPane), BorderLayout.CENTER);
         treeHolderPanel.revalidate();
     }
 
+    /** Finds the next occurence. */
+	void findNext()
+	{
+		if (resultsPane != null) resultsPane.findNext();
+	}
+	
+	 /** Finds the next occurence. */
+	void findPrevious()
+	{
+		if (resultsPane != null) resultsPane.findPrevious();
+	}
+    
+    /** Reacts to text entered. */
+    void onTextSelected()
+    {
+    	boolean b = model.isTextEmpty();
+    	findPreviousButton.setEnabled(b);
+    	findNextButton.setEnabled(b);
+    }
+    
+    /** Reacts to level selection. */
+    void onLevelChanged()
+    {
+    	boolean b = true;
+    	if (!model.isNameSelected() && !model.isDescriptionSelected()) 
+    		b = false;
+    	findPreviousButton.setEnabled(b);
+    	findNextButton.setEnabled(b); 
+    }
+    
+    /**
+     * Reacts to the number of found occurences of the phrases.
+     * 
+     * @param n The number of found occurences.
+     */
+    void onFoundOccurences(int n)
+    {
+    	findPreviousButton.setEnabled(n !=0);
+    	findNextButton.setEnabled(n !=0); 
+    }
+    
     /**
      * Reacts to property fired by the {@link HistoryDialog}.
      * @see PropertyChangeListener#propertyChange(PropertyChangeEvent) 

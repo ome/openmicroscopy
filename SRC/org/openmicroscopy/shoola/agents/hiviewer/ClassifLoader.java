@@ -141,7 +141,7 @@ public abstract class ClassifLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #classifier}.
-     * @see #handleException(Throwable)
+     * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

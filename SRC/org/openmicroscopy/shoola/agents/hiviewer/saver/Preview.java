@@ -82,7 +82,11 @@ class Preview
     /** Dimension of the box put between buttons. */
     private static final Dimension  RIGID_HBOX = new Dimension(10, 0);
     
-    private static final String[]   gaps, bgColors;
+    /** The possible gap values. */
+    private static final String[]   gaps;
+    
+    /** The possible background colors. */
+    private static final String[]	bgColors;
     
     /** Identifies the <i>White</i> color for the background. */
     private static final int        WHITE = 0;

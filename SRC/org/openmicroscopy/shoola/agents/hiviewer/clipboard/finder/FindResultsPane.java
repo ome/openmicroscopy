@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -52,10 +51,9 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
- * Displays the results found.
+ * Displays the occurences found.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -89,6 +87,7 @@ class FindResultsPane
     /** Initializes the component. */
     private void initialize()
     {
+    	setRootVisible(false);
         putClientProperty("JTree.lineStyle", "Angled");
         setCellRenderer(new TreeCellRenderer(false, true));
         getSelectionModel().setSelectionMode(
@@ -180,7 +179,7 @@ class FindResultsPane
      * 
      * @param nodes The collection of nodes.
      */
-    private void buildTree(Set nodes)
+    private void buildTree(List nodes)
     {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(ROOT);
         DefaultTreeModel dtm = new DefaultTreeModel(root);
@@ -190,16 +189,15 @@ class FindResultsPane
         if (nodes.size() == 0) {
             DefaultMutableTreeNode childNode = 
                 new DefaultMutableTreeNode(EMPTY);
-            DefaultTreeModel tm= (DefaultTreeModel) getModel();
+            DefaultTreeModel tm = (DefaultTreeModel) getModel();
             tm.insertNodeInto(childNode, root, root.getChildCount());
         } else {
-            ViewerSorter sorter = new ViewerSorter(nodes);
-            List list = sorter.sort();
-            Iterator i = list.iterator();
+            Iterator i = nodes.iterator();
             while (i.hasNext())
                 buildTreeNode((ImageDisplay) i.next());
         }
         expandPath(new TreePath(root.getPath()));
+        dtm.reload();
     }
     
     /**
@@ -209,7 +207,7 @@ class FindResultsPane
      *              Mustn't be <code>null</code>.
      * @param nodes The set of nodes to display.
      */
-    FindResultsPane(FindPane model, Set nodes)
+    FindResultsPane(FindPane model, List nodes)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         if (nodes == null) 
@@ -226,4 +224,36 @@ class FindResultsPane
      * @return See above.
      */
     int getSizeResults() { return identityMap.size(); }
+
+    /** Finds the next occurence. */
+	void findNext()
+	{
+		int[] rows = getSelectionRows();
+		int index;
+		if (rows == null || rows.length == 0) index = 0;
+		else index = rows[0];
+        int n = getSizeResults()-1;
+        if (index < n) index++; //not last element
+        else if (index == n) index = 0;
+        setSelectionRow(index);
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
+        getLastSelectedPathComponent();
+        model.setSelectedNode(node);
+	}
+	
+	 /** Finds the previous occurence. */
+	void findPrevious()
+	{
+		int[] rows = getSelectionRows();
+		int index;
+		if (rows == null || rows.length == 0) index = 0;
+		else index = rows[0];
+        if (index > 0)  index--; //not last element
+        else if (index == 0)  index = getSizeResults()-1;;
+        setSelectionRow(index);
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
+        getLastSelectedPathComponent();
+        model.setSelectedNode(node);
+	}
+	
 }

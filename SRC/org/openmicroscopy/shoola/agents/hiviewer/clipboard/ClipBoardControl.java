@@ -133,8 +133,9 @@ class ClipBoardControl
                 model.getParentModel().getBrowser().getLastSelectedDisplay();
             view.onDisplayChange(node);
         } else if (name.equals(FindPane.SELECTED_PROPERTY)) {
-            model.getParentModel().scrollToNode(
-                    (ImageDisplay) pce.getNewValue());
+        	ImageDisplay node = (ImageDisplay) pce.getNewValue();
+        	model.getParentModel().getBrowser().setSelectedDisplay(node);
+            model.getParentModel().scrollToNode(node);
         } else if (name.equals(Browser.MOUSE_OVER_PROPERTY)) {
         	Object n = pce.getNewValue();
         	if (n instanceof ImageDisplay)

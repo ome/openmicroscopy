@@ -153,7 +153,7 @@ public interface ClipBoard
      * 
      * @param foundNodes The set of found nodes.
      */
-    public void setFindResults(Set foundNodes);
+    public void setFoundResults(List foundNodes);
     
     /**
      * Sets the annotations retrieved.

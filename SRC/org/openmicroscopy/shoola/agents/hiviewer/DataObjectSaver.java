@@ -97,7 +97,7 @@ public class DataObjectSaver
     
     /**
      * Feeds the result back to the viewer. 
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

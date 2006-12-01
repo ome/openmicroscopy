@@ -85,7 +85,7 @@ public class ClassifPathsLoader
     
     /** 
      * Retrieves all the metadata needed by the {@link #classifier}. 
-     * @see DataLoader#load()
+     * @see ClassifLoader#load()
      */
     public void load()
     {
@@ -100,13 +100,13 @@ public class ClassifPathsLoader
     
     /** 
      * Cancels the data loading. 
-     * @see DataLoader#cancel()
+     * @see ClassifLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see ClassifLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {

@@ -112,7 +112,6 @@ class EditorPaneUI
     /** A {@link DocumentListener} for the {@link #nameArea}. */
     private DocumentListener    descriptionAreaListener;
     
-    
     /** Indicates that a warning message is displayed if <code>true</code>. */
     private boolean         warning;
     
@@ -121,14 +120,14 @@ class EditorPaneUI
      * <code>false</code> otherwise;
      */
     private boolean         edit;
-    
-    
+      
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextField      nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea       descriptionArea;
     
+    /** The default font of the title. */
     private Font            titleLabelDefaultfont;
     
     /** The title message. */

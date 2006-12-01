@@ -560,8 +560,7 @@ class HiViewerComponent
                 browser.setSelectedLayout(LayoutFactory.FLAT_LAYOUT);
                 l.doLayout();
         }
-        view.setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
@@ -589,8 +588,7 @@ class HiViewerComponent
         TreeView tv = model.getTreeView();
         if (tv != null) 
             tv.sortNodes(index, (ImageDisplay) model.getBrowser().getUI());
-        view.setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
     /**
@@ -615,8 +613,19 @@ class HiViewerComponent
                 browser.accept(l);
                 l.doLayout();
         }
-        view.setCursor(
-                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#setFoundResults(Set)
+     */
+	public void setFoundResults(Set foundNodes)
+	{
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		List l = model.getSorter().sort(foundNodes);
+		model.getClipBoard().setFoundResults(l);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
     
 }

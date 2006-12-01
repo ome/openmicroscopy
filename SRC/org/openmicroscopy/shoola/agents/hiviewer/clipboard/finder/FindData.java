@@ -71,10 +71,10 @@ public class FindData
      */
     public boolean  annotationSelected;
     
-
     /** Creates a new instance. */
     public FindData()
     {
+    	//default value
         nameSelected = true;
         descriptionSelected = false;
         annotationSelected = false;

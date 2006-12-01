@@ -77,9 +77,7 @@ class PreviewCanvas
         setDoubleBuffered(true);
     }
     
-    /** 
-     * Paints the image.
-     */
+    /** Paints the image. */
     void paintImage()
     {
         BufferedImage image = view.getImage();
@@ -89,7 +87,10 @@ class PreviewCanvas
         setPreferredSize(d);
     }
     
-    /** Overrides the {@link #paintComponent(Graphics)} method. */
+    /** 
+     * Overridden to paint te previewed image
+     * @see javax.swing.JComponent#paintComponent(Graphics)
+     */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);

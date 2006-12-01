@@ -39,7 +39,6 @@ import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.Icon;
@@ -53,7 +52,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -85,10 +83,7 @@ public class FindPane
      * Bound property indicating that a node is selected in the tree of
      * results.
      */
-    public static final String  SELECTED_PROPERTY = "showMenu";
-    
-    /** Bound property indicating that some text has been entered. */
-    static final String         TEXT_ENTERED_PROPERTY = "textEntered";
+    public static final String  SELECTED_PROPERTY = "selected";
     
     /**
      * Flag to indicate if the pattern is case sensitive or not.
@@ -115,14 +110,19 @@ public class FindPane
     /** The currently selected node in the tree. */
     private DefaultMutableTreeNode  selectedNode;
     
+    /** Indicates if we already search for the phrase. */
+    private boolean					found;
+    
     /**
      * Creates a new instance.
      * 
-     * @param model The <code>ClipBoardModel</code> Model.
+     * @param model The <code>ClipBoardModel</code> Model. Mustn't be 
+     * 				<code>null</code>.
      */
     public FindPane(ClipBoard model)
     {
         super(model);
+        found = false;
         history = new ArrayList();
         findData = new FindData();
         uiDelegate = new FindPaneUI(this);
@@ -139,7 +139,6 @@ public class FindPane
         
         // add uiDelegate which is the FindPaneUI. 
         add(uiDelegate, c);
-
     }
     
     /**
@@ -149,7 +148,9 @@ public class FindPane
      */
     void setCaseSensitive(boolean b)
     {
-        if (b == caseSensitive) return;
+        //if (b == caseSensitive) return;
+        found = false;
+        uiDelegate.onLevelChanged();
         caseSensitive = b;
     }
     
@@ -161,7 +162,9 @@ public class FindPane
      */
     void setNameSelected(boolean b)
     {
-        if (b == findData.nameSelected) return;
+        //if (b == findData.nameSelected) return;
+        found = false;
+        uiDelegate.onLevelChanged();
         findData.nameSelected = b;
     }
     
@@ -189,7 +192,9 @@ public class FindPane
      */
     void setDescriptionSelected(boolean b)
     {
-        if (b == findData.descriptionSelected) return;
+        //if (b == findData.descriptionSelected) return;
+        found = false;
+        uiDelegate.onLevelChanged();
         findData.descriptionSelected = b;
     }
     
@@ -212,9 +217,9 @@ public class FindPane
      */
     void setTextUpdate(String text)
     {
-        String oldValue = findText;
         findText = text;
-        firePropertyChange(TEXT_ENTERED_PROPERTY, oldValue, text);
+        found = false;
+        uiDelegate.onTextSelected();
     }
     
     /**
@@ -242,6 +247,7 @@ public class FindPane
             if (caseSensitive) p = RegExFactory.createPattern(findText);
             else p = RegExFactory.createCaseInsensitivePattern(findText);
             model.find(p, findData);
+            found = true;
             history.add(findText);
         } catch (PatternSyntaxException pse) {
             UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
@@ -289,6 +295,20 @@ public class FindPane
         firePropertyChange(SELECTED_PROPERTY, oldObject, newObject);
     }
     
+    /** Finds the next occurences of the phrase. */
+    void findNext()
+    {
+    	if (!found) find();
+    	else uiDelegate.findNext();
+    }
+    
+    /** Finds the previous occurences of the phrase. */
+    void findPrevious()
+    {
+    	if (!found) find();
+    	else uiDelegate.findPrevious();
+    }
+    
     /**
      * Returns the values already searched for.
      * 
@@ -304,9 +324,12 @@ public class FindPane
      * 
      * @param foundNodes The set of nodes to display.
      */
-    public void setResults(Set foundNodes)
+    public void setResults(List foundNodes)
     {
-        if (foundNodes == null) return;
+        if (foundNodes == null) {
+        	uiDelegate.onFoundOccurences(0);
+        	return;
+        }
         uiDelegate.setFoundResults(foundNodes);
     }
     
@@ -318,6 +341,7 @@ public class FindPane
     public void onDisplayChange(ImageDisplay selectedDisplay)
     {
         if (model.getSelectedPaneIndex() != ClipBoard.FIND_PANE) return;
+        /*
         uiDelegate.clear();
         if (selectedDisplay == null || selectedDisplay instanceof ImageNode) {
            uiDelegate.onSelectedDisplay(false, null);
@@ -326,6 +350,7 @@ public class FindPane
                 uiDelegate.onSelectedDisplay(true, FindPaneUI.IN_ALL_MSG);
             else uiDelegate.onSelectedDisplay(true, selectedDisplay.getTitle());
         }
+        */
     }
     
     /**

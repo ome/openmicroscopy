@@ -164,9 +164,9 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setFindResults(Set)
+     * @see ClipBoard#setFoundResults(List)
      */
-    public void setFindResults(Set foundNodes)
+    public void setFoundResults(List foundNodes)
     {
         view.setSearchResults(foundNodes);
     }

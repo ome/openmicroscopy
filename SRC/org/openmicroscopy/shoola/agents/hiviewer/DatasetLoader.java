@@ -95,7 +95,7 @@ public class DatasetLoader
     
     /**
      * Notifies the viewer of progress. 
-     * @see #update(DSCallFeedbackEvent)
+     * @see DataLoader#update(DSCallFeedbackEvent)
      */
     public void update(DSCallFeedbackEvent fe) 
     {
@@ -111,7 +111,7 @@ public class DatasetLoader
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

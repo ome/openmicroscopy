@@ -254,11 +254,20 @@ public class IconManager
     /** The <code>Pin small over</code> icon. */
     public static int           PIN_SMALL_OVER = 63;
     
+    /** The <code>Decategorise</code> icon. */
+    public static int           DECATEGORISE = 64;
+    
+    /** The <code>Find Next</code> icon. */
+    public static int           FIND_NEXT = 65;
+    
+    /** The <code>Find Previous</code> icon. */
+    public static int           FIND_PREVIOUS = 66;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 63;
+    private static int          MAX_ID = 66;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -329,11 +338,14 @@ public class IconManager
         relPaths[VIEWER_48] =  "nuvola_file-manager48.png";
         relPaths[PIN_SMALL] =  "attach8.png";
         relPaths[PIN_SMALL_OVER] = "attach8.png";
+        relPaths[DECATEGORISE] = "declassify16.png";
+        relPaths[FIND_NEXT] = "eclipse_SelectNextBottomMappedObject16.png";
+        relPaths[FIND_PREVIOUS] = 
+            		"eclipse_SelectPreviousBottomMappedObject16.png";
     }
     
     /** The sole instance. */
     private static IconManager  singleton;
-    
     
     /**
      * Returns the <code>IconManager</code> object. 

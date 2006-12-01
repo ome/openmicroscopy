@@ -80,7 +80,7 @@ public class ImageAnnotationLoader
     
     /**
      * Retrieves all the annotations linked to the specified image.
-     * @see DataLoader#load()
+     * @see CBDataLoader#load()
      */
     public void load()
     {
@@ -89,13 +89,13 @@ public class ImageAnnotationLoader
 
     /** 
      * Cancels the data loading. 
-     * @see DataLoader#cancel()
+     * @see CBDataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see CBDataLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.ClearAction
+ * org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindNextAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -22,13 +22,11 @@
  *
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
-
 
 
 
@@ -43,46 +41,48 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Clears the results of a previous find action.
+ * Finds the next occurence of the phrase.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * after code by
- *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:banderson@computing.dundee.ac.uk">
- *              banderson@computing.dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-class ClearAction
-    extends FindPaneAction
+class FindNextAction
+	extends FindPaneAction
 {
+
+	/** The name of the action. */
+    private static final String NAME = "Find Next";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Clear results of a previous " +
-                                                "search.";
-    
-    /**
+    private static final String DESCRIPTION = "Finds the next occurence of " +
+	  											"the phrase.";
+	/**
      * Creates a new instance. 
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    ClearAction(FindPane model)
+	FindNextAction(FindPane model)
     {
         super(model);
+        setEnabled(false);
+        putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLEAR));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.FIND_NEXT));
     }
-    
+	
     /**
-     * Clears the resuls of a previous find action.
+     * Finds the next occurence of the phrase.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.clear(); }
-
+    public void actionPerformed(ActionEvent e) { model.findNext(); }
+	
 }
