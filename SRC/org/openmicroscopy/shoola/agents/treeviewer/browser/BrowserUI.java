@@ -846,7 +846,6 @@ class BrowserUI
 		}
     }
     
-    
     /** Loads the children of the root node. */
     void loadRoot()
     {

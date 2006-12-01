@@ -203,7 +203,7 @@ public class DetailedNotificationDialog
 	private void buildGUI(String explanation)
 	{
 		buttonPanel.add(detailsButton);
-        buttonPanel.add(sendButton);
+        //buttonPanel.add(sendButton);
 		buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		buildExplanationPanel(explanation);
 	}

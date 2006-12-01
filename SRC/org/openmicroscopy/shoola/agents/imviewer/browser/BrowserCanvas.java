@@ -84,7 +84,7 @@ class BrowserCanvas
 
     /**
      * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {
@@ -113,7 +113,7 @@ class BrowserCanvas
                     height = y+viewRect.height;
                 }
                 
-                if(viewRect.width >= size)
+                if (viewRect.width >= size)
                 	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
                 										height-10, size, value);
             }

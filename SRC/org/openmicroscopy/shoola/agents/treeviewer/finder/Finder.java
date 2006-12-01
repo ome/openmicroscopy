@@ -84,7 +84,7 @@ public class Finder
     /** The control. */
     private FinderControl	controller;
     
-    /** Indicates if they already search for the phrase. */
+    /** Indicates if we already search for the phrase. */
     private boolean         found;
     
     /** Builds and lays out the GUI. */

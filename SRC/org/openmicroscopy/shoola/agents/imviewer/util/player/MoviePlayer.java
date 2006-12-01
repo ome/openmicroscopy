@@ -472,6 +472,10 @@ class MoviePlayer
      */
     int getFrameNumberT() { return frameNumberT; }
     
+    /**
+     * Overriddent to play the movie.
+     * @see Player#onPlayerStateChange()
+     */
     protected void onPlayerStateChange()
     {
         switch (state) {

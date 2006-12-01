@@ -104,6 +104,11 @@ class ImgSaverUI
         savingTypes = new JComboBox(selections);
     }
     
+    /**
+     * Builds the UI component displaying the saving options.
+     * 
+     * @return See above.
+     */
     private JPanel buildSelectionPane()
     {
         JPanel p = new JPanel();

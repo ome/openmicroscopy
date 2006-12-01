@@ -117,6 +117,7 @@ class RendererModel
     /** Reference to the rendering control. */
     private RenderingControl    rndControl;
     
+    /** The current state of the component. */
     private int                 state;
     
     /** The index of the selected channel. */
@@ -172,11 +173,17 @@ class RendererModel
      */
     void initialize(Renderer component) { this.component = component; }
 
+    /** Discard component. */
     void discard() 
     {
         //state = Renderer.DISCARDED;
     }
     
+    /**
+     * Returns the state of the component.
+     * 
+     * @return See above.
+     */
     int getState() { return state; }
 
     /**

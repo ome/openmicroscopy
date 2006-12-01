@@ -813,19 +813,13 @@ class BrowserComponent
      */
     public void findPrevious()
     {
-        List l = model.getFoundNodes();
+    	List l = model.getFoundNodes();
         if (l == null || l.size() == 0) return;
         int index = model.getFoundNodeIndex();
         if (index > 0)  index--; //not last element
         else if (index == 0)  index = l.size()-1;
         model.setFoundNodeIndex(index);
-        TreeImageDisplay node = (TreeImageDisplay) l.get(index);
-        view.selectFoundNode(node);
-        Object ho = node.getUserObject();
-        if (ho instanceof DataObject) {
-            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
-        }
+        handleNodeDisplay((TreeImageDisplay) l.get(index));
     }
 
     /**
