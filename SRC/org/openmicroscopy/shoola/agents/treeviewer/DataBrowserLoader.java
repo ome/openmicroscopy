@@ -146,7 +146,7 @@ public abstract class DataBrowserLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
-     * @see #handleException(Throwable)
+     * @see DSCallAdapter#handleException(Throwable)
      */
     public void handleException(Throwable exc) 
     {

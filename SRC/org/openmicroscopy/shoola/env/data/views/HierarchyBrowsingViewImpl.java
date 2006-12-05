@@ -172,7 +172,7 @@ class HierarchyBrowsingViewImpl
     public CallHandle loadAnnotations(Class nodeType, long nodeID,
                                        AgentEventListener observer)
     {
-        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID);
+        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID, false);
         return cmd.exec(observer);
     }
 

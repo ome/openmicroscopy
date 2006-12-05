@@ -84,7 +84,9 @@ public class AnnotateAction
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             if (browser.getSelectedDisplays().length > 1) {
-                setEnabled(false);
+            	Object ho = selectedDisplay.getUserObject();
+                setEnabled((ho instanceof ImageData) || 
+                			(ho instanceof DatasetData));
                 return;
             }
         }
@@ -114,8 +116,16 @@ public class AnnotateAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       PropertiesCmd cmd = new PropertiesCmd(model);
-       cmd.execute();
+    	Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+        	TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+            if (nodes.length > 1) {
+                model.annotate(nodes);
+                return;
+            }
+        }
+        PropertiesCmd cmd = new PropertiesCmd(model);
+        cmd.execute();
     }
 
 }

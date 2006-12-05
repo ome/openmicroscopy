@@ -42,7 +42,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Command to retrieve the channels medatada.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,6 +60,7 @@ public class ChannelMetadataLoader
     extends BatchCallTree
 {
 
+	/** The result of the query. */
     private Object      results;
     
     /** Loads the specified tree. */

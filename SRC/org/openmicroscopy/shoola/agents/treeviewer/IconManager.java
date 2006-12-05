@@ -230,7 +230,6 @@ public class IconManager
      */
     private static int          MAX_ID = 54;
     
-    
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
     

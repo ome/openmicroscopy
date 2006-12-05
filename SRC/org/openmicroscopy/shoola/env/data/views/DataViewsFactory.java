@@ -113,6 +113,8 @@ public class DataViewsFactory
             dsv = new DataManagerViewImpl();
         else if (view.equals(ImViewerView.class))
             dsv = new ImViewerViewImpl();
+        else if (view.equals(AnnotatorView.class))
+        	dsv = new AnnotatorViewImpl();
         if (dsv == null) 
             throw new IllegalArgumentException("Unknown view type: "+view+".");
         return dsv;

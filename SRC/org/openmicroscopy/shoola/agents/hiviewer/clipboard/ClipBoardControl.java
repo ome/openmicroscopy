@@ -68,7 +68,7 @@ class ClipBoardControl
     private static final String EDIT_MSG = "Save the annotation.";
     
     /** Message displayed when the annotation is sent back to the server. */
-    private static final String LOADING_MSG = "Loading annotation.";
+    private static final String LOADING_MSG = "Loading...";
     
     /** The {@link ClipBoardUI} View. */
     private ClipBoardUI         view;

@@ -130,7 +130,7 @@ public abstract class DataTreeViewerLoader
     /**
      * Notifies the user that an error has occurred and discards the 
      * {@link #viewer}.
-     * @see #handleException(Throwable) 
+     * @see DSCallAdapter#handleException(Throwable) 
      */
     public void handleException(Throwable exc) 
     {
@@ -144,13 +144,13 @@ public abstract class DataTreeViewerLoader
     
     /**
      * Fires an asynchrnonous data loading. 
-     * @see #load()
+     * @see DSCallAdapter#load()
      */
     public abstract void load();
     
     /** 
      * Cancels any ongoing data loading.
-     * @see #cancel()
+     * @see DSCallAdapter#cancel()
      */
     public abstract void cancel(); 
     

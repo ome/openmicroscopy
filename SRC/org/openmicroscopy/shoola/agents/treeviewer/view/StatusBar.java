@@ -109,7 +109,7 @@ class StatusBar
         });
     }
     
-    /** Build and lay out the UI. */
+    /** Builds and lays out the UI. */
     private void buildUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));

@@ -31,13 +31,20 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataObjects;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -83,12 +90,29 @@ public class AnnotateCmd
     public void execute()
     {
         boolean b = false;
+        Browser browser = model.getBrowser();
         if (node == null) {
-            node = model.getBrowser().getLastSelectedDisplay();
+            node = browser.getLastSelectedDisplay();
             b = true;
         }     
         if (node == null) return;
         if (node.getHierarchyObject() == null) return;
+        if (b) {
+        	Set nodes = browser.getSelectedDisplays();
+        	if (nodes.size() > 1) {
+        		Object uo;
+        		Set toAnnotate = new HashSet();
+        		Iterator i = nodes.iterator();
+        		while (i.hasNext()) {
+					uo = ((ImageDisplay) i.next()).getHierarchyObject();
+					if (uo instanceof DataObject) toAnnotate.add(uo);	
+				}
+        		EventBus bus = HiViewerAgent.getRegistry().getEventBus();
+        		bus.post(new AnnotateDataObjects(toAnnotate));
+        		return;
+        	}  
+        }
+
         DataObject hierarchyObject = (DataObject) node.getHierarchyObject();
         if ((hierarchyObject instanceof DatasetData) ||
                 (hierarchyObject instanceof ImageData)) {

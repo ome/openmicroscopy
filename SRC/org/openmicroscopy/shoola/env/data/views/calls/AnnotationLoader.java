@@ -72,11 +72,14 @@ public class AnnotationLoader
     /**
      * Creates {@link BatchCall} if the type is supported.
      * 
-     * @param nodeType 	The type of the node. Can only be one out of:
-     *                 	{@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  	Collection of node's ids.
+     * @param nodeType 		The type of the node. Can only be one out of:
+     *                 		{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  		Collection of node's ids.
+     * @param forUser		Pass <code>true</code> to retrieve the annotations
+     * 						for the current user, <code>false</code>
+     * 						otherwise. 
      */
-    private void validate(Class nodeType, Set nodeIDs)
+    private void validate(Class nodeType, Set nodeIDs, boolean forUser)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
@@ -89,7 +92,7 @@ public class AnnotationLoader
         }  
         if (nodeType.equals(DatasetData.class) ||
             nodeType.equals(ImageData.class))
-            loadCall = makeAnnotationBatchCall(nodeType, nodeIDs);
+            loadCall = makeAnnotationBatchCall(nodeType, nodeIDs, forUser);
         else throw new IllegalArgumentException("DataObject not supported.");
     }
     
@@ -97,19 +100,23 @@ public class AnnotationLoader
      * Creates a {@link BatchCall} to retrieve the annotation, either 
      * dataset's Annotation or image's Annotation.
      * 
-     * @param nodeType 	The type of the node. Can only be one out of:
-     *                 	{@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  	Collection of node's ids.
+     * @param nodeType 		The type of the node. Can only be one out of:
+     *                 		{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  		Collection of node's ids.
+     * @param forUser		Pass <code>true</code> to retrieve the annotations
+     * 						for the current user, <code>false</code>
+     * 						otherwise.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeAnnotationBatchCall(final Class nodeType,
-                                  final Set nodeIDs)
+                                  final Set nodeIDs, final boolean forUser)
     {
         return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                annotations = os.findAnnotations(nodeType, nodeIDs, null);
+                annotations = os.findAnnotations(nodeType, nodeIDs, null, 
+                					forUser);
             }
         };
     }
@@ -134,15 +141,18 @@ public class AnnotationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param nodeType 	The type of the node. Can only be one out of:
-     *                 	{@link DatasetData}, {@link ImageData}.
-     * @param nodeID  	The id of the node.
+     * @param nodeType 		The type of the node. Can only be one out of:
+     *                 		{@link DatasetData}, {@link ImageData}.
+     * @param nodeID  		The id of the node.
+     * @param forUser		Pass <code>true</code> to retrieve the annotations
+     * 						for the current user, <code>false</code>
+     * 						otherwise.
      */
-    public AnnotationLoader(Class nodeType, long nodeID)
+    public AnnotationLoader(Class nodeType, long nodeID, boolean forUser)
     {
         HashSet set = new HashSet(1);
         set.add(new Long(nodeID));
-        validate(nodeType, set);
+        validate(nodeType, set, forUser);
     }
     
     /**
@@ -152,13 +162,16 @@ public class AnnotationLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param nodeType 	The type of the node. Can only be one out of:
-     *                 	{@link DatasetData}, {@link ImageData}.
-     * @param nodeIDs  	Collection of node's ids.
+     * @param nodeType 		The type of the node. Can only be one out of:
+     *                 		{@link DatasetData}, {@link ImageData}.
+     * @param nodeIDs  		Collection of node's ids.
+     * @param forUser		Pass <code>true</code> to retrieve the annotations
+     * 						for the current user, <code>false</code>
+     * 						otherwise. 
      */
-    public AnnotationLoader(Class nodeType, Set nodeIDs)
+    public AnnotationLoader(Class nodeType, Set nodeIDs, boolean forUser)
     {
-        validate(nodeType, nodeIDs);
+        validate(nodeType, nodeIDs, forUser);
     }
     
 }

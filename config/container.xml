@@ -147,6 +147,11 @@
         <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
         <config>treeviewer.xml</config>
     </agent>
+    <agent>
+        <name>Annotator Tool</name>
+        <class>org.openmicroscopy.shoola.agents.annotator.AnnotatorAgent</class>
+        <config>annotator.xml</config>
+      </agent>
     </structuredEntry>
   </agents>
   

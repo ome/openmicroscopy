@@ -33,8 +33,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.Set;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -86,13 +84,9 @@ public class AnnotateAction
         }
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
-            Set nodes = model.getBrowser().getSelectedDisplays();
-            if (nodes.size() > 1) setEnabled(false);
-            else {
-                Object ho = selectedDisplay.getHierarchyObject();
-                setEnabled(((ho instanceof ImageData) || 
-                            (ho instanceof DatasetData)));
-            }
+        	Object ho = selectedDisplay.getHierarchyObject();
+        	setEnabled(((ho instanceof ImageData) || 
+                (ho instanceof DatasetData)));
         }
     }
     

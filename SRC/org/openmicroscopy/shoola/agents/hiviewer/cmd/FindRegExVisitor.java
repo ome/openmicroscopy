@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.Colors;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
@@ -73,7 +75,7 @@ class FindRegExVisitor
 {
     
     /** The highlighted color. */
-    private Color       color = Color.RED;
+    private Color       color;
     
     /** Collection of found nodes. */
     private Set         foundNodes;
@@ -195,6 +197,7 @@ class FindRegExVisitor
     FindRegExVisitor(HiViewer viewer, Pattern pattern, FindData findContext)
     {
         super(viewer);
+        color = Colors.getInstance().getColor(Colors.REGEX_HIGHLIGHT);
         if (pattern == null)
             throw new IllegalArgumentException("No pattern.");
         if (findContext == null)

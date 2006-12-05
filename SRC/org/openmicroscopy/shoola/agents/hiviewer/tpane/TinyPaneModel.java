@@ -77,7 +77,14 @@ class TinyPaneModel
      * using the specified color. 
      */
     private Color           highlight;
-    
+   
+    /** 
+     * Tells if the frame has to be highlighted.
+     * If <code>null</code>, the frame's title bar will display the normal
+     * background.  If a color is specified, the title bar will be highlighted
+     * using the specified color. 
+     */
+    private Color           highlightHistory;
     
     /** Tells if the frame is expanded or collapsed. */
     private boolean         collapsed;
@@ -488,11 +495,22 @@ class TinyPaneModel
     Color getHighlight() { return highlight; }
     
     /**
+     * Returns the highlight color. 
+     * 
+     * @return See aoove.
+     */
+	Color getPreviousHighlight() { return highlightHistory; }
+	
+    /**
      * Sets the highlight color. 
      * 
      * @param highlight The color to set.
      */
-    void setHighlight(Color highlight) { this.highlight = highlight; }
+    void setHighlight(Color highlight)
+    { 
+    	highlightHistory = getHighlight();
+    	this.highlight = highlight; 
+    }
     
     /**
      * Returns the collapsed state.
@@ -574,5 +592,7 @@ class TinyPaneModel
      * @param decoration The collection to set.
      */
     void setDecoration(List decoration) { this.decoration = decoration; }
+
+
     
 }

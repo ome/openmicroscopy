@@ -36,6 +36,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataObjects;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -935,6 +937,33 @@ class TreeViewerComponent
             throw new IllegalStateException("This method cannot be invoked " +
                     "in the DISCARDED state.");
 		return model.getEditorType();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#annotate(TreeImageDisplay[])
+     */
+	public void annotate(TreeImageDisplay[] nodes)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		if (nodes == null)
+			throw new IllegalArgumentException("No dataObject to annotate");
+		if (nodes.length == 1) {
+			PropertiesCmd cmd = new PropertiesCmd(this);
+	        cmd.execute();
+	        return;
+		}
+		
+		Object uo;
+		Set toAnnotate = new HashSet();
+		for (int i = 0; i < nodes.length; i++) {
+			uo = nodes[i].getUserObject();
+			if (uo instanceof DataObject) toAnnotate.add(uo);
+		}
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new AnnotateDataObjects(toAnnotate));
 	}
     
 }

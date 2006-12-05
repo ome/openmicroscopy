@@ -65,7 +65,6 @@ public abstract class TreeViewerAction
     implements ChangeListener, PropertyChangeListener
 {
 
-    
     /** A reference to the Model. */
     protected TreeViewer    model;
     
@@ -105,7 +104,7 @@ public abstract class TreeViewerAction
     {
         super();
         setEnabled(false);
-        if (model == null) throw new IllegalArgumentException("no hiViewer");
+        if (model == null) throw new IllegalArgumentException("no TreeViewer");
         this.model = model;
         //Attaches listener property change listener to each browser.
        

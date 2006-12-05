@@ -121,7 +121,7 @@ public class ClassificationSaver
     /**
      * Creates a new instance.
      * 
-     * @param viewer        The TreeViewer this data loader is for.
+     * @param viewer        The Classifier this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param mode          The classification's mode.
      *                      One of the constants defined by this class.
@@ -147,7 +147,7 @@ public class ClassificationSaver
     
     /**
      * Classifies or declassfies the specified image depending on the mode. 
-     * @see DataTreeViewerLoader#load()
+     * @see ClassifierLoader#load()
      */
     public void load()
     {
@@ -165,13 +165,13 @@ public class ClassificationSaver
 
     /** 
      * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+     * @see ClassifierLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see ClassifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {

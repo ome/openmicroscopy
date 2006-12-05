@@ -105,7 +105,7 @@ public class IconManager
 
     /** ID of the <code>QuestionIcon</code> icon for the slider. */
     public static final int QUESTION_ICON = 16;
-
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
@@ -134,8 +134,7 @@ public class IconManager
         							"nuvola_player_play12_left_disabled.png"; 
         relPaths[RIGHT_ARROW_DISABLED] = 
         							"nuvola_player_play12_right_disabled.png";
-        relPaths[QUESTION_ICON] = 
-									"nuvola_filetypes48.png";
+        relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
     }
     
     /** 

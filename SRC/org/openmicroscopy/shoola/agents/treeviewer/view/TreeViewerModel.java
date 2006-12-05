@@ -104,8 +104,7 @@ class TreeViewerModel
      * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR}
      * or {@link TreeViewer#NO_EDITOR}.
      */
-    private int                 	editorType;
-    
+    private int                 	editorType; 
     
     /** 
      * The level of the hierarchy root. One of the following constants:

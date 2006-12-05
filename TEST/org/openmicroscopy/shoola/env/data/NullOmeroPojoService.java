@@ -119,7 +119,8 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#findAnnotations(Class, Set, Set)
      */
-    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs)
+    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
+    							boolean forUser)
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
@@ -245,8 +246,27 @@ public class NullOmeroPojoService
     public List getChannelsMetadata(long pixelsID)
             throws DSOutOfServiceException, DSAccessException
     {
-        // TODO Auto-generated method stub
         return null;
     }
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#createAnnotationFor(Set, AnnotationData)
+     */
+	public List createAnnotationFor(Set toAnnotate, AnnotationData data) 
+			throws DSOutOfServiceException, DSAccessException 
+    {
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#updateAnnotationFor(Map)
+     */
+	public List updateAnnotationFor(Map toUpdate) 
+		throws DSOutOfServiceException, DSAccessException
+    {
+		return null;
+	}
 
 }

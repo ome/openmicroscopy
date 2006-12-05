@@ -540,6 +540,13 @@ public interface TreeViewer
      * 
      * @return See above.
      */
-	int getEditorType();
+	public int getEditorType();
+
+	/**
+	 * Annotates the specified objects.
+	 * 
+	 * @param nodes The nodes to annotate.
+	 */
+	public void annotate(TreeImageDisplay[] nodes);
     
 }

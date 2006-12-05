@@ -286,12 +286,14 @@ public class FindPane
     void setSelectedNode(DefaultMutableTreeNode node)
     {
         if (node == null) return;
+        if (node.equals(selectedNode)) return;
         Object uo = node.getUserObject();
         if (uo instanceof String) return;
         ImageDisplay  newObject = (ImageDisplay) uo;
         ImageDisplay  oldObject = null;
         if (selectedNode != null)
             oldObject = (ImageDisplay) selectedNode.getUserObject();
+        selectedNode = node;
         firePropertyChange(SELECTED_PROPERTY, oldObject, newObject);
     }
     

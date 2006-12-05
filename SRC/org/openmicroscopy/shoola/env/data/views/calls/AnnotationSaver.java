@@ -32,6 +32,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -75,7 +79,69 @@ public class AnnotationSaver
     private BatchCall       saveCall;
 
     /** The result of the query. */
-    private DataObject      result;
+    private List      result;
+    
+    /**
+     * Creates a {@link BatchCall} to create and update the specified 
+     * annotation.
+     * 
+     * @param toUpdate  The annotated <code>DataObject</code>s.
+     * @param toCreate  The a<code>DataObject</code>s to annotate.
+     * @param data      The annotation.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall updateAndCreateAnnotation(final Map toUpdate, 
+    							final Set toCreate, final AnnotationData data)
+    {
+        return new BatchCall("Remove dataset annotation.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = new ArrayList();
+                result.add(os.updateAnnotationFor(toUpdate));
+                result.add(os.createAnnotationFor(toCreate, data));
+            }
+        };
+    }
+
+    /**
+     * Creates a {@link BatchCall} to update the specified annotation.
+     * 
+     * @param objects   The annotated <code>DataObject</code>s.
+     * @param data      The annotation to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall updateAnnotation(final Map objects)
+    {
+        return new BatchCall("Update image annotation.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.updateAnnotationFor(objects);
+            }     
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to create an annotation.
+     * 
+     * @param nodeType	The type of the node. One out of the following types:
+     *                  <code>DatasetData, ImageData</code>. 
+     * @param objects   The annotated <code>DataObject</code>s.
+     * @param data      The annotation to create.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall createAnnotation(final Set objects,
+                                       final AnnotationData data)
+    {
+        return new BatchCall("Create dataset annotation.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.createAnnotationFor(objects, data);
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to remove the specified annotation.
@@ -91,7 +157,8 @@ public class AnnotationSaver
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.removeAnnotationFrom(object, data);
+                result = new ArrayList(1);
+                result.add(os.removeAnnotationFrom(object, data));
             }
         };
     }
@@ -110,7 +177,8 @@ public class AnnotationSaver
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.updateAnnotationFor(object, data);
+                result = new ArrayList(1);
+                result.add(os.updateAnnotationFor(object, data));
             }     
         };
     }
@@ -129,7 +197,8 @@ public class AnnotationSaver
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.createAnnotationFor(object, data);
+                result = new ArrayList(1);
+                result.add(os.createAnnotationFor(object, data));
             }
         };
     }
@@ -179,6 +248,56 @@ public class AnnotationSaver
                 throw new IllegalArgumentException("Constructor should only" +
                         "be invoked to update or delete annotation.");
         }
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param toCreate	Collections of <code>DataObject</code>s to 
+     * 					annotate. Mustn't be <code>null</code>.
+     * @param data		The Annotation object. Mustn't be <code>null</code>.
+     */
+    public AnnotationSaver(Set toCreate, AnnotationData data)
+    {
+        if (data == null) throw new IllegalArgumentException("No annotation.");
+        if (toCreate == null || toCreate.size() == 0) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        saveCall = createAnnotation(toCreate, data);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param toUpdate	The annotated <code>DataObject</code>s.
+     * 					Mustn't be <code>null</code>.
+     * @param toCreate	The <code>DataObject</code>s to annotate.
+     * 					Mustn't be <code>null</code>.
+     * @param data		The Annotation object.Mustn't be <code>null</code>.
+     */
+    public AnnotationSaver(Map toUpdate)
+    {
+        if (toUpdate == null || toUpdate.size() == 0) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        saveCall = updateAnnotation(toUpdate);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param toUpdate	The annotated <code>DataObject</code>s.
+     * 					Mustn't be <code>null</code>.
+     * @param toCreate	The <code>DataObject</code>s to annotate.
+     * 					Mustn't be <code>null</code>.
+     * @param data		The Annotation object.Mustn't be <code>null</code>.
+     */
+    public AnnotationSaver(Map toUpdate, Set toCreate, AnnotationData data)
+    {
+        if (toUpdate == null || toUpdate.size() == 0) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        if (data == null) throw new IllegalArgumentException("No annotation.");
+        if (toCreate == null || toCreate.size() == 0) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        saveCall = updateAndCreateAnnotation(toUpdate, toCreate, data);
     }
     
 }

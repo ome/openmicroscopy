@@ -37,6 +37,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
@@ -175,7 +177,8 @@ public class AnnotationEditor
     public void handleResult(Object result) 
     {
         if (clipBoard.getState() == ClipBoard.DISCARDED_ANNOTATIONS) return;
-        clipBoard.setAnnotationEdition((DataObject) result);
+        DataObject object = (DataObject) ((List) result).get(0);
+        clipBoard.setAnnotationEdition(object);
     }
 
 }

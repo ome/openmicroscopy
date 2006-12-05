@@ -187,13 +187,17 @@ public interface OmeroDataService
      * @param annotatorIDs  The Ids of the users for whom annotations should be 
      *                      retrieved. If <code>null</code>, all annotations 
      *                      are returned.
+     * @param forUser		Pass <code>true</code> to retrieve the annotations
+     * 						for the current user, <code>false</code>
+     * 						otherwise.
      * @return A map whose key is rootNodeID and value the <code>Set</code> of
      *         all annotations for that node or <code>null</code>.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs)
+    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
+    							boolean forUser)
         throws DSOutOfServiceException, DSAccessException;
      
     /**
@@ -465,6 +469,36 @@ public interface OmeroDataService
      * retrieve data from OMEDS service. 
      */
     public List getChannelsMetadata(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Creates the specified annotation for the specified
+     * <code>DataObject</code>s. The updated <code>DataObject</code> are
+     * then returned.
+     * 
+     * @param toAnnotate	The objects to handle. Mustn't be <code>null</code>.
+     * @param data          The annotation to create. 
+     *                      Mustn't be <code>null</code>.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List createAnnotationFor(Set toAnnotate, AnnotationData data)
+        throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Updates the specified annotation. The updated <code>DataObject</code>s 
+     * are then returned.
+     * 
+     * @param toUpdate	The objects to handle. Mustn't be <code>null</code>.
+     *                          
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public List updateAnnotationFor(Map toUpdate)
         throws DSOutOfServiceException, DSAccessException;
     
 }

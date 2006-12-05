@@ -165,7 +165,7 @@ public class ClassifierPathsLoader
      * if the mode is {@link Classifier#DECLASSIFY_MODE} or 
      * retrieves the available paths if the mode is 
      * {@link Classifier#CLASSIFY_MODE}.
-     * @see DataTreeViewerLoader#load()
+     * @see ClassifierLoader#load()
      */
     public void load()
     {
@@ -184,17 +184,18 @@ public class ClassifierPathsLoader
 
     /** 
      * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+     * @see ClassifierLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /**
      * Feeds the result back to the viewer.
-     * @see #handleResult(Object)
+     * @see ClassifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == Classifier.DISCARDED) return; //Async cancel.
         viewer.setClassifications((Set) result);
     }
+    
 }

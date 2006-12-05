@@ -66,9 +66,16 @@ public class DataServicesFactory
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
 	
-	//NB: this can't be called outside of container b/c agents have no refs
-	//to the singleton container. So we can be sure this method is going to
-	//create services just once.
+	/**
+	 * Creates a new instance. This can't be called outside of container 
+	 * b/c agents have no refs to the singleton container.
+	 * So we can be sure this method is going to create services just once.
+	 * 
+	 * @param c Reference to the singleton container. Mustn't be 
+	 * 			<code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException 
+	 */
 	public static DataServicesFactory getInstance(Container c)
 		throws DSOutOfServiceException
 	{
@@ -78,7 +85,7 @@ public class DataServicesFactory
 		return singleton;
 	}
 	
-	//Container cfg.
+	/** A reference to the container's registry. */
 	private Registry               registry;
 	
 	/** Unified access point to the various OMERO services. */

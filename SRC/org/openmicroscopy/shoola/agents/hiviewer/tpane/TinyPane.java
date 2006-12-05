@@ -358,6 +358,14 @@ public class TinyPane
     public Color getHighlight() { return model.getHighlight(); }
     
     /**
+     * Returns a color to use for highlighting the frame's title bar or
+     * <code>null</code> if the frame is not to be highlighted.
+     * 
+     * @return See above.
+     */
+    public Color getPreviousHighlight() { return model.getPreviousHighlight(); }
+    
+    /**
      * Sets the highlight mode of this frame.
      * If a color is specified, then the title bar will be highlighted using
      * that color.  If you pass <code>null</code>, then the title bar will

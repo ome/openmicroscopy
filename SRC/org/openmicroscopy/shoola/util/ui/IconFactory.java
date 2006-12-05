@@ -105,7 +105,7 @@ class IconFactory
 	 * 			return value will be <code>null</code> if the file couldn't be 
 	 * 			found or an image icon couldn't be created from that file.
 	 */
-	public ImageIcon getImageIcon(String name)
+	ImageIcon getImageIcon(String name)
 	{
 		ImageIcon icon = null;
 		try {
