@@ -268,6 +268,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
 		return e;
 	}
+	
+	@RolesAllowed("user")
+	public List<Experimenter> lookupExperimenters()
+    {
+		return iQuery.findAll(Experimenter.class, null);
+    }
 
 	@RolesAllowed("user")
 	public ExperimenterGroup getGroup(Long id) {
@@ -292,6 +298,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
 		return g;
 	}
+	
+	@RolesAllowed("user")
+	public List<ExperimenterGroup> lookupGroups()
+    {
+		return iQuery.findAll(ExperimenterGroup.class, null);
+    }
 
 	@RolesAllowed("user")
 	public Experimenter[] containedExperimenters(Long groupId) {
@@ -352,6 +364,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 			ie.setStackTrace(e.getStackTrace());
 			throw ie;
 		}
+	}
+	
+	@RolesAllowed("system")
+    public void updateExperimenter(@NotNull Experimenter experimenter)
+    {
+    	iUpdate.saveObject(experimenter);
+    }
+    
+
+	@RolesAllowed("system")
+    public void updateGroup(@NotNull ExperimenterGroup group)
+	{
+		iUpdate.saveObject(group);
 	}
 
 	@RolesAllowed("system")

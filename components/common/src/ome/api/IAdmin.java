@@ -34,6 +34,8 @@ package ome.api;
 // Third-party libraries
 
 // Application-internal dependencies
+import java.util.List;
+
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.model.IObject;
@@ -81,6 +83,12 @@ public interface IAdmin extends ServiceInterface{
      * @throws ome.conditions.ApiUsageException if omeName does not exist.
      */
     Experimenter lookupExperimenter( @NotNull String omeName );
+    
+    /**
+     * Looks up all experimenters that are present.
+     * @return all Experimenters. Never null.
+     */
+    List<Experimenter> lookupExperimenters();
 
     /** fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.
@@ -97,6 +105,12 @@ public interface IAdmin extends ServiceInterface{
      * @throws ome.conditions.ApiUsageException if groupName does not exist.
      */
     ExperimenterGroup lookupGroup( @NotNull String groupName );
+    
+    /**
+     * Looks up all groups that are present.
+     * @return all Groups. Never null.
+     */
+    List<ExperimenterGroup> lookupGroups();
     
     /** fetch all {@link Experimenter users} contained in this group.
      * 
@@ -122,6 +136,21 @@ public interface IAdmin extends ServiceInterface{
      * 		an exception will be thrown. 
      */
     ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId );
+    
+    // ~ Updating users and groups
+    // =========================================================================
+    
+    /**
+     * Updates an experimenter.
+     * @param experimenter the Experimenter to update.
+     */
+    void updateExperimenter(@NotNull Experimenter experimenter);
+    
+    /**
+     * Updates a group.
+     * @param group the ExperimenterGroup to update.
+     */
+    void updateGroup(@NotNull ExperimenterGroup group);
     
     // ~ Creating users in groups
     // =========================================================================
