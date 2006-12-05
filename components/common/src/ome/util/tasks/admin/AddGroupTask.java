@@ -96,7 +96,7 @@ public class AddGroupTask extends SimpleTask
 		getLogger().info(String.format(
 				"Added group %s with id %d",g.getName(),gid));
 		final String leaderName = enumValue(leader);
-		if (leaderName!=null)
+		if (leaderName!=null && leaderName.trim().length() > 0)
 		{
 			Experimenter e = admin.lookupExperimenter(leaderName); // TODO need id only
 			admin.setGroupOwner(new ExperimenterGroup(gid,false), e);

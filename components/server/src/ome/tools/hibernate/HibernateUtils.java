@@ -166,16 +166,23 @@ public abstract class HibernateUtils
 			if ( t.isCollectionType() && null == currentState[i] )
 			{
 				Object previous = previousState[i];
-				if ( ! (previous instanceof Collection) ) // implies not null
+				if ( previous == null )
+				{
+					// ignore. If the system gave it to us, it can handle it.
+				}
+				else if ( ! (previous instanceof Collection) )
 				{
 					throw new InternalException(String.format(
 							"Invalid collection found for null " +
 							"field %s in previous state for %s",
 							propertyNames[i],entity));
 				}
-				log("Copying nulled collection ",propertyNames[i]);
-				Collection copy = copy(((PersistentCollection)previous));
-				persister.setPropertyValue(entity,i,copy,source.getEntityMode());
+				else 
+				{
+					log("Copying nulled collection ",propertyNames[i]);
+					Collection copy = copy(((PersistentCollection)previous));
+					persister.setPropertyValue(entity,i,copy,source.getEntityMode());
+				}
 			}
 		}
 	}

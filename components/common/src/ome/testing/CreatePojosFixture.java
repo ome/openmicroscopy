@@ -52,9 +52,7 @@ public class CreatePojosFixture
 		fixture.e.setOmeName(fixture.TESTER);
 		fixture.e.setFirstName("Mr.");
 		fixture.e.setLastName("Allen");
-		fixture.e = new Experimenter( rootAdmin.createUser(fixture.e), false );
-		rootAdmin.addGroups(fixture.e, fixture.g);
-		rootAdmin.setDefaultGroup(fixture.e, fixture.g);
+		fixture.e = new Experimenter( rootAdmin.createUser(fixture.e, G_NAME), false );
 		
 		Login testLogin = new Login(fixture.TESTER,"ome",G_NAME,"Test");
 		ServiceFactory factory = new ServiceFactory(testLogin);

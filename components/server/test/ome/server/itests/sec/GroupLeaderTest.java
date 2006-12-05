@@ -28,17 +28,19 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 	public void testGroupWithOwnerThroughIUpdate() throws Exception {
 
 		loginRoot();
+		
+		String gid = uuid();
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(gid);
+		g = new ExperimenterGroup(iAdmin.createGroup(g),false);
 
 		Experimenter e = new Experimenter();
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName("group leader");
 		e.setLastName("GroupLeaderTest");
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,gid));
 
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName(UUID.randomUUID().toString());
-		g.getDetails().setOwner(e);
-		g = iUpdate.saveAndReturnObject(g);
+		iAdmin.setGroupOwner(g, e);
 
 		List<ExperimenterGroup> groups = iQuery
 				.findAllByQuery(
@@ -55,16 +57,18 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
 
 		loginRoot();
 
+		String gid = uuid();
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(gid);
+		g = new ExperimenterGroup(iAdmin.createGroup(g),false);
+
 		Experimenter e = new Experimenter();
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName("group leader");
 		e.setLastName("GroupLeaderTest");
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,gid));
 
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName(UUID.randomUUID().toString());
-		g.getDetails().setOwner(e);
-		g = iAdmin.getGroup(iAdmin.createGroup(g));
+		iAdmin.setGroupOwner(g, e);
 
 		List<ExperimenterGroup> groups = iQuery
 				.findAllByQuery(

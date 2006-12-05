@@ -29,7 +29,9 @@
 package ome.tools.hibernate;
 
 // Java imports
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
@@ -124,6 +126,8 @@ public class SessionHandler implements MethodInterceptor
 
     private SessionFactory             factory;
 
+    private final static SessionHolder DUMMY = new EmptySessionHolder();
+    	
     final private static String CTOR_MSG = "Both arguments to the SessionHandler" +
             " constructor should be not null."; 
     
@@ -149,6 +153,21 @@ public class SessionHandler implements MethodInterceptor
 		}
     }
     
+    public void cleanThread()
+    {
+    	if (TransactionSynchronizationManager.hasResource(factory))
+    	{
+    		SessionHolder holder = (SessionHolder)
+    		TransactionSynchronizationManager.getResource(factory);
+    		if (holder == null) 
+    			throw new IllegalStateException("Can't be null.");
+    		else if (holder == DUMMY) 
+    			TransactionSynchronizationManager.unbindResource(factory);
+    		else
+    			throw new IllegalStateException("Thread corrupted.");
+    	}
+    }
+    
     /**
      * delegates to {@link HibernateInterceptor} or manages sessions internally,
      * based on the type of service.
@@ -171,26 +190,29 @@ public class SessionHandler implements MethodInterceptor
     private Object doStateful(MethodInvocation invocation) throws Throwable
     {
         Object result = null;
-
+        System.out.println(Thread.currentThread().getName()+"::"+invocation.getMethod().getName());
         SessionStatus status = null;
         try
         {
+        	// Need to open even if "closing" because the service may need
+        	// to perform cleanup in its close() method.
         	status = newOrRestoredSession(invocation);
         	status.session.setFlushMode( FlushMode.MANUAL );
             result = invocation.proceed();
             return result;
         }
-        catch (Throwable e)
-        {
-            e.printStackTrace();
-            throw e;
-        }
         finally
         {
+        	// TODO do we need to check for disconnected or closed session here?
+        	// The newOrRestoredSession method does not attempt to close the
+        	// session before throwing the dirty session exception. We must do 
+        	// it here.
             try {
                 if (isCloseSession(invocation))
                 {
-                    closeSession();
+                	status = sessions.remove(invocation.getThis());
+                    status.session.disconnect();
+                	status.session.close();
                 }
                 else
                 {
@@ -198,21 +220,23 @@ public class SessionHandler implements MethodInterceptor
                 	{
                 		// Guarantee that no one has changed the FlushMode
                 		status.session.setFlushMode( FlushMode.MANUAL );
-                		disconnectSession();
+                		status.session.disconnect();
+                		status.calls--;
                 	}
                 }
             } catch (Exception e) {
                 
-                debug("Error while closing/disconnecting session.");
+            	log.error("Error while closing/disconnecting session.", e);
                 
             } finally {
-                resetThreadSession();
 
-                // Everything successfully turned off. Decrement.
-                if (sessions.containsKey(invocation.getThis()))
-                {
-                    sessions.get(invocation.getThis()).calls--;
-                }
+            	try {
+            		resetThreadSession();
+            	} catch (Exception e){
+            		log.error("Could not cleanup thread session.",e);
+            		throw e;
+            	}
+            	
             }
 
         }
@@ -223,20 +247,23 @@ public class SessionHandler implements MethodInterceptor
     {
 
         SessionStatus status = sessions.get(invocation.getThis());
-    	Session previousSession = ! isSessionBoundToThread() ? null : 
-    		sessionBoundToThread();
+    	Session previousSession = nullOrSessionBoundToThread();
 
         // a session is currently running.
         // something has gone wrong (e.g. with cleanup) abort!
         if ( previousSession != null )
         {
         		String msg = "Dirty Hibernate Session "
-        			+ sessionBoundToThread() + " found in Thread "
+        			+ previousSession + " found in Thread "
         			+ Thread.currentThread();
 
-		        sessionBoundToThread().close();
-		        resetThreadSession();
-		        throw new InternalException(msg);
+        		// If it is closeSession, then this will be handled by 
+        		// the finally{} block of doStateful
+        		if (!isCloseSession(invocation))
+        		{
+        			previousSession.close();
+        		}
+        		throw new InternalException(msg);
         } 
     	
     	// we may or may not be in a session, but if we haven't yet bound 
@@ -261,10 +288,17 @@ public class SessionHandler implements MethodInterceptor
         // all is fine.
         else {
             debug("Binding and reconnecting session.");
+            // TODO doesn't make sense to check, because hibernate always
+            // says "yes" if it has a connectionProvider
+//            if (status.session.isConnected())
+//            {
+//            	throw new InternalException("Session already connected!");
+//            }
             bindSession(status.session);
-            reconnectSession(status.session);
+//            Connection connection = DataSourceUtils.getConnection(dataSource);
+//            status.session.reconnect(connection);
         }
-
+        
         // It's ready to be used. Increment.
         status.calls++;
         return status;
@@ -292,7 +326,12 @@ public class SessionHandler implements MethodInterceptor
         debug("Binding session to thread.");
         SessionHolder sessionHolder = new SessionHolder(session);
         sessionHolder.setTransaction(sessionHolder.getSession()
-                .beginTransaction());
+                .beginTransaction()); // FIXME TODO
+        // If we reach this point, it's ok to bind the new SessionHolder, 
+        // however the DUMMY EmptySessionHolder may be present so unbind
+        // just in case.
+        if (TransactionSynchronizationManager.hasResource(factory))
+        	TransactionSynchronizationManager.unbindResource(factory);
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
         if ( ! TransactionSynchronizationManager.isSynchronizationActive())
         	throw new InternalException( "Synchronization not active for " +
@@ -301,18 +340,22 @@ public class SessionHandler implements MethodInterceptor
     
     private Session nullOrSessionBoundToThread()
     {
-    	return isSessionBoundToThread() ? sessionBoundToThread() : null;
-    }
-    
-    private Session sessionBoundToThread()
-    {
-        return SessionFactoryUtils.getSession(factory, false);
+    	SessionHolder holder = null;
+    	if (TransactionSynchronizationManager.hasResource(factory))
+    	{
+    		holder = (SessionHolder) 
+    		TransactionSynchronizationManager.getResource(factory);
+    		// A bit tricky. Works in coordinate with resetThreadSession
+    		// since the DUMMY would be replaced anyway.
+    		if (holder != null && holder.isEmpty())
+    			holder = null;
+    	}
+    	return holder == null ? null : holder.getSession();
     }
 
     private boolean isSessionBoundToThread()
     {
-        return TransactionSynchronizationManager.hasResource(factory)
-                && sessionBoundToThread() != null;
+    	return nullOrSessionBoundToThread() != null;
     }
 
     private void resetThreadSession()
@@ -321,62 +364,54 @@ public class SessionHandler implements MethodInterceptor
         {
             debug("Session bound to thread. Reseting.");
             TransactionSynchronizationManager.unbindResource(factory);
+            TransactionSynchronizationManager.bindResource(factory, DUMMY);            	
         } else {
             debug("Session not bound to thread. No need to reset.");
         }
     }
 
-    private void reconnectSession(Session session) throws HibernateException
-    {
-        if (!session.isConnected())
-        {
-            debug("Session not connected. Connecting.");
-            Connection connection = DataSourceUtils.getConnection(dataSource);
-            session.reconnect(connection);
-        } else {
-            debug("Session already connected. Not reconnecting.");
-        }
-    }
-
-    private void disconnectSession() throws HibernateException
-    {
-    	Session session = nullOrSessionBoundToThread();
-        if ( session != null && session.isConnected())
-        {
-            debug("Session bound to thread. Disconnecting.");
-            session.disconnect();
-        } else {
-            debug("No session bound to thread. Can't disconnect.");
-        }
-    }
-    
-    private void closeSession() throws Exception
-    {
-    	Session session = nullOrSessionBoundToThread();
-        if (session != null)
-        {
-            debug("Session bound to thread. Closing.");
-            try
-            {
-                session.connection().commit();
-                session.close();
-            } 
-            
-            finally
-            {
-                resetThreadSession();
-            }
-
-        } else {
-            debug("No session bound to thread. Can't close.");
-        }
-
-    }
-    
     private void debug(String message)
     {
         if ( log.isDebugEnabled())
             log.debug(message);
     }
+    	
+}
 
+class EmptySessionHolder extends SessionHolder {
+	public EmptySessionHolder() {
+		super(
+				(Session) Proxy.newProxyInstance(
+			    		Session.class.getClassLoader(),
+			            new Class[] { Session.class },
+			            new InvocationHandler() {
+			    			public Object invoke(Object proxy, Method method, Object[] args)
+			    			throws Throwable { 
+			    				String name = method.getName();
+			    				if ( name.equals("toString") )
+								{
+			    					return "NULL SESSION PROXY";
+								}
+			    				
+			    				else if (name.equals("hashCode"))
+			    				{
+			    					return 0;
+			    				}
+			    				else if ( name.equals("equals") )
+			    				{
+			    					return args[0] == null ? false : proxy == args[0];
+			    				}
+			    				else 
+			    				{
+			    					throw new RuntimeException("No methods allowed");
+			    				}
+			    			}
+			    		}
+				)
+			);
+	}
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
 }

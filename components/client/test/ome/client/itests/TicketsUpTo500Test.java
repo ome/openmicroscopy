@@ -344,9 +344,9 @@ public class TicketsUpTo500Test extends TestCase
     	user2.setLastName("test");
     	
     	Long gid = rootAdmin.createGroup(group);
-    	Long uid = rootAdmin.createUser(user1);
+    	Long uid = rootAdmin.createUser(user1,guid);
     	user1 = new Experimenter( uid, false );
-    	uid = rootAdmin.createUser(user2);
+    	uid = rootAdmin.createUser(user2,guid);
     	user2 = new Experimenter( uid, false );
     	group = new ExperimenterGroup( gid, false );
     	rootAdmin.addGroups(user1, group);

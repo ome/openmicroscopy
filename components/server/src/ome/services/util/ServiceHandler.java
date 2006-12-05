@@ -59,6 +59,7 @@ import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
+import ome.tools.hibernate.SessionHandler;
 
 /** 
  *   
@@ -69,6 +70,12 @@ public class ServiceHandler implements MethodInterceptor {
 
     private boolean printXML = false;
 
+    private SessionHandler sessions;
+    
+    public void setSessionHandler(SessionHandler handler) {
+    	this.sessions = handler;
+    }
+    
     public void setPrintXML(boolean value){
         this.printXML = value;
     }
@@ -103,6 +110,7 @@ public class ServiceHandler implements MethodInterceptor {
         String finalOutput = "";
         
         try {
+        	sessions.cleanThread();
             o = arg0.proceed();
             finalOutput = "Rslt:\t"+o;
 

@@ -43,29 +43,23 @@ public class LockingTest extends AbstractManagedContextTest
 		uname = uuid();
 		gname = uuid();
 		
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName( gname );
+		g1 = new ExperimenterGroup( iAdmin.createGroup( g ));
+		
 		Experimenter e = new Experimenter();
 		e.setFirstName("ticket:337");
 		e.setLastName("user 1");
 		e.setOmeName(uname);
 		
-		e1 = new Experimenter( iAdmin.createUser( e ), false );
+		e1 = new Experimenter( iAdmin.createUser( e, gname ), false );
 		
 		e.setFirstName("ticket:337");
 		e.setLastName("user 2 -- in same group");
 		e.setOmeName(uuid());
 		
-		e2 = new Experimenter( iAdmin.createUser( e ), false );
-		
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName( gname );
-		
-		g1 = new ExperimenterGroup( iAdmin.createGroup( g ));
-		
-		iAdmin.addGroups( e1, g1 );
-		iAdmin.setDefaultGroup( e1, g1 );
-		iAdmin.addGroups( e2, g1 );
-		iAdmin.setDefaultGroup( e2, g1 ); 
-		
+		e2 = new Experimenter( iAdmin.createUser( e, gname ), false );
+				
 		g2 = new ExperimenterGroup( 1L, false );
 		
 		// we have to create the extra user and group, because otherwise

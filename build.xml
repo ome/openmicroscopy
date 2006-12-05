@@ -122,11 +122,14 @@
 			Copies example property files to the ${dist.dir}
 			for use by the user to configure the install.
 		-->
-		<copy todir="${dist.dir}/etc">
+		<copy todir="${dist.dir}/etc" overwrite="true">
 			<fileset dir="${omero.home}/etc">
 				<exclude name="local.properties"/>
 			</fileset>
 		</copy>
+		<concat destfile="${dist.dir}/etc/omero.properties" append="true">
+ 			<filelist dir="${app.comp}" files="product.properties"/>
+ 		</concat>
 
 		<!-- 
 			Copies ...

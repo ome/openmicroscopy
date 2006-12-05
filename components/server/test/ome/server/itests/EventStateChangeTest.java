@@ -39,13 +39,8 @@ public class EventStateChangeTest extends AbstractManagedContextTest
     public void test_experimenter_shouldnt_increment_on_update()
             throws Exception
     {
-    	Experimenter e = new Experimenter();
-    	e.setOmeName(UUID.randomUUID().toString());
-    	e.setFirstName("EventState");
-    	e.setLastName("ChangeTest");
-    	expId = iAdmin.createUser(e);
-    	loginUser(e.getOmeName());
-    	
+    
+    	Experimenter e = loginNewUser();    	
         e = getExperimenter(e.getOmeName());
         expVersion = e.getVersion();
 

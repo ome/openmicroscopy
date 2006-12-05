@@ -37,11 +37,14 @@ import java.util.Properties;
 //Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
 
+import static ome.util.tasks.admin.AddGroupTask.Keys.leader;
 import static ome.util.tasks.admin.AddUserTask.Keys.*;
 
 /** 
@@ -57,6 +60,7 @@ import static ome.util.tasks.admin.AddUserTask.Keys.*;
  * <li>middlename</li>
  * <li>institution</li>
  * <li>email</li>
+ * <li>group</li>
  * </ul>
  * 
  * Must be logged in as an administrator. 
@@ -76,7 +80,7 @@ public class AddUserTask extends SimpleTask
 	 * Enumeration of the string values which will be used directly by {@link AddUserTask}.
 	 */
 	public enum Keys {
-		omename, firstname, lastname, middlename, institution, email
+		omename, firstname, lastname, middlename, institution, email, group
 	}
 	
 	/** Delegates to super */
@@ -93,6 +97,8 @@ public class AddUserTask extends SimpleTask
 	@Override
 	public void doTask() {
 		super.doTask(); // logs
+		final IAdmin admin = getServiceFactory().getAdminService();
+		final String groupName = enumValue(group);
 		Experimenter e = new Experimenter();
 		e.setOmeName(enumValue(omename));
 		e.setFirstName(enumValue(firstname));
@@ -100,7 +106,7 @@ public class AddUserTask extends SimpleTask
 		e.setLastName(enumValue(lastname));
 		e.setInstitution(enumValue(institution));
 		e.setEmail(enumValue(email));
-		long uid = getServiceFactory().getAdminService().createUser(e);
+		long uid = admin.createUser(e,groupName);
 		getLogger().info(String.format(
 				"Added user %s with id %d",e.getOmeName(),uid));
 	}

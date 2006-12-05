@@ -6,13 +6,11 @@
 
 <project name="app" default="help" basedir=".">
 
-	<property name="artifact.packaging" value="ear"/>
+	<property name="artifact.packaging"  value="ear"/>
+	<property file="product.properties"/>
 
 	<property name="classpath.file" value="classpath.xml"/>
 	<import file="${classpath.file}"/>
-
-	<property name="product.name"     value="Omero Server"/>
-	<property name="product.version"  value="3.0" />
 
    <!--
    =======================================================================
@@ -35,7 +33,7 @@
       </delete>
       
       <!-- DataSource with replacement. -->
-      <copy file="${resrc.dir}/omero-ds.xml" todir="${target.dir}" />
+      <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" />
       <replace file="${target.dir}/omero-ds.xml">
          <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
          <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
@@ -53,8 +51,8 @@
          <fileset dir="${etc.dir}" includes="hibernate.properties"/>
          <fileset dir="${resrc.dir}" includes="ejb.properties"/>
          <fileset dir="${resrc.dir}" includes="jboss-service.xml"/>
-         <fileset dir="${target.dir}" includes="omero-ds.xml" />
          <fileset dir="${target.dir}/libs" includes="*.jar" />
+         <fileset dir="${target.dir}" includes="omero-ds.xml"/>
          <manifest>
             <attribute name="Product-Name"      value="${product.name}"/>
             <attribute name="Product-Version"   value="${product.version}"/>
@@ -68,8 +66,6 @@
             <attribute name="License"           value="GNU LGPL, version 2.1"/>
          </manifest>
       </jar>
-
-      <delete file="${target.dir}/omero-ds.xml" />
 
    </target>
 

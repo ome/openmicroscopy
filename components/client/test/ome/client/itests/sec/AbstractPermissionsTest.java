@@ -97,7 +97,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 
 	protected ExperimenterGroup 
 		system_group = new ExperimenterGroup(0L,false),
-		common_group = new ExperimenterGroup(1L,false),
+		common_group = new ExperimenterGroup(),
 		user_other_group = new ExperimenterGroup();
 	
 	protected Experimenter 
@@ -107,7 +107,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		other = new Experimenter(),
 		world = new Experimenter();
 
-	protected String gname;
+	protected String gname, cname;
 	
 	protected ServiceFactory u, o, w, p, r;
 
@@ -137,27 +137,34 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		
 		init();
 		
+		cname = UUID.randomUUID().toString();
 		gname = UUID.randomUUID().toString();
 
 		// shortcut for root service factory, created in super class
 		r = rootServices;
+
+		// create the common group
+		common_group.setName(cname);
+		common_group = new ExperimenterGroup(rootAdmin
+				.createGroup(common_group),false);
 		
-		// create the PI for a new group
+		// TODO -- this should be a task
+		// create the new group
+		user_other_group.setName(gname);
+		user_other_group = new ExperimenterGroup(rootAdmin
+				.createGroup(user_other_group), false);
+		
+		// create the PI for the new group
 		Login piLogin = new Login(UUID.randomUUID().toString(),"empty",gname,"Test");
 		p = new ServiceFactory(piLogin);
 		pi.setOmeName(piLogin.getName());
 		pi.setFirstName("read");
 		pi.setLastName("security -- leader of user_other_group");
-		pi = new Experimenter(rootAdmin.createUser(pi), false);
-				
-		// create the new group with the PI as leader
-		user_other_group.setName(gname);
-		user_other_group.getDetails().setOwner(pi);
-		user_other_group = new ExperimenterGroup(rootAdmin
-				.createGroup(user_other_group), false);
+		pi = new Experimenter(rootAdmin.createUser(pi,gname), false);
 
-		// also add the PI to that group
-		rootAdmin.addGroups(pi, user_other_group);
+		// make the PI the group leader.
+		rootAdmin.setGroupOwner(user_other_group, pi);
+		// ENDTODO
 		
 		// create a new user in that group
 		Login userLogin = new Login(UUID.randomUUID().toString(), "empty",gname,"Test");
@@ -165,7 +172,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		user.setOmeName(userLogin.getName());
 		user.setFirstName("read");
 		user.setLastName("security");
-		user = new Experimenter(rootAdmin.createUser(user), false);
+		user = new Experimenter(rootAdmin.createUser(user,gname), false);
 		rootAdmin.addGroups(user, user_other_group);
 
 		// create another user in that group
@@ -174,7 +181,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		other.setOmeName(otherLogin.getName());
 		other.setFirstName("read");
 		other.setLastName("security2");
-		other = new Experimenter(rootAdmin.createUser(other), false);
+		other = new Experimenter(rootAdmin.createUser(other,gname), false);
 		rootAdmin.addGroups(other, user_other_group);
 		
 		// create a third regular user not in that group
@@ -183,7 +190,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		world.setOmeName(worldLogin.getName());
 		world.setFirstName("read");
 		world.setLastName("Security -- not in their group");
-		world = new Experimenter(rootAdmin.createUser(world), false);
+		world = new Experimenter(rootAdmin.createUser(world,cname), false);
 		// not in same group
 
 	}

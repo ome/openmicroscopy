@@ -114,10 +114,12 @@ import ome.api.ServiceInterface;
 
 /* Source: EJB3 Specification
  * Purpose: Marks this service as stateless, which means that instances can be
- * 	created as needed and given to any client. Concurrent calls are permitted 
+ *  created as needed and given to any client. Concurrent calls are permitted 
  *  though they may be routed to different servers. The stateful counterpart 
- *  is simply @Stateful, but it imposes several restrictions on the class. All
- *  fields must be transient or serializable 
+ *  is simply @Stateful, but it imposes several restrictions on the class, e.g.
+ *  that all fields must be transient or serializable. On the other hand, all
+ *  fields for @Stateless instances must be thread-safe, with no state being
+ *  obviously thread-safetest. 
  *  @see https://trac.openmicroscopy.org.uk/omero/ticket/173
  */
 @Stateless

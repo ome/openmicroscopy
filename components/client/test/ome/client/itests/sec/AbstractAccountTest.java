@@ -69,19 +69,21 @@ public class AbstractAccountTest extends AbstractSecurityTest
 	}
     
 	protected Experimenter createNewUser(IAdmin iAdmin ) {
-		
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(GUID.asString());
+		iAdmin.createGroup(g);
 		Experimenter e = new Experimenter();
-    	e.setOmeName(new GUID().asString());
+    	e.setOmeName(GUID.asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:181");
-    	long id = iAdmin.createUser(e);
+    	long id = iAdmin.createUser(e,g.getName());
 		return iAdmin.getExperimenter(id);
 	}
     
 	protected Experimenter createNewSystemUser(IAdmin iAdmin ) {
 		
 		Experimenter e = new Experimenter();
-    	e.setOmeName(new GUID().asString());
+    	e.setOmeName(GUID.asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:181");
     	long id = iAdmin.createSystemUser(e);

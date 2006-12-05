@@ -48,13 +48,18 @@ public class EnumTest extends AbstractManagedContextTest {
 		setUp();
 		
 		loginRoot();
+
+		String gid = uuid();
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(gid);
+		iAdmin.createGroup(g);
 		
 		e = new Experimenter();
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName("enums");
 		e.setLastName("enums");
 		e = factory.getAdminService().getExperimenter(
-				factory.getAdminService().createUser(e));
+				factory.getAdminService().createUser(e,gid));
 	
 		tearDown();
     }

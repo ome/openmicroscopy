@@ -72,7 +72,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
 
-  <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+  <bean id="hibernateTemplate" class="ome.tools.spring.ManualFlushHibernateTemplate">
     <description>
     Scope: private
     </description>

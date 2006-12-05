@@ -22,6 +22,7 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
@@ -198,18 +199,22 @@ public class GetImagesQueryTest extends AbstractManagedContextTest
         
         // TODO submit bug. leaving out the e of "Experimenter e" throws a 
         // null pointer exception in org.hibernate.hql.ast.*
-        user = (Experimenter) iQuery.findByQuery(
-                "select e from Experimenter e " +
-                "where e.id != 0",
-                new Parameters( new Filter().unique().page(0,1)));
+        user = null ; 
+        		//(Experimenter) iQuery.findByQuery(
+                //"select e from Experimenter e " +
+                //"where e.id != 0",
+                //new Parameters( new Filter().unique().page(0,1)));
         
         if ( user == null )
         {
+        	ExperimenterGroup group = new ExperimenterGroup();
+        	group.setName(uuid());
+        	iAdmin.createGroup(group);
         	user = new Experimenter();
-        	user.setOmeName(UUID.randomUUID().toString());
+        	user.setOmeName(uuid());
         	user.setFirstName("Get");
         	user.setLastName("Images");
-        	user = iAdmin.getExperimenter(iAdmin.createUser(user));
+        	user = iAdmin.getExperimenter(iAdmin.createUser(user,group.getName()));
         }
 
         userPO = new PojoOptions().exp( user.getId() );

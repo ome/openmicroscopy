@@ -76,16 +76,15 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     private static Log log = LogFactory
             .getLog(SessionHandlerMockHibernateTest.class);
     
-    protected ServiceInterface stateless;
-    protected StatefulServiceInterface stateful;
-    protected SessionHandler handler;
-    protected Session session;
-    protected SessionFactory factory;
-    protected DataSource dataSource;
-    protected Transaction transaction;
-    protected Connection connection;
-    protected MethodInvocation invocation;
-    protected Mock mockSession, mockFactory,  
+    private ServiceInterface stateless;
+    private StatefulServiceInterface stateful;
+    private SessionHandler handler;
+    private Session session;
+    private SessionFactory factory;
+    private DataSource dataSource;
+    private Connection connection;
+    private MethodInvocation invocation;
+    private Mock mockSession, mockFactory,  
         mockInvocation, mockStateful, mockStateless, 
         mockDataSource, mockTransaction, mockConnection;
 
@@ -94,7 +93,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     {
         super.setUp();
         newDataSource();
-        // tx and conn are created in beginsTransaction()
+        newConnection();
         
         newSession();
         newSessionFactory();
@@ -142,11 +141,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         opensSession();
         setsFlushMode();
         beginsTransaction(1);
-        checksSessionIsOpen();
-        getsFactoryFromSession();
-        getsFlushMode();
         // invocation here
-        checksSessionIsConnected();
         disconnectsSession();
         handler.invoke( invocation );
         super.verify();
@@ -158,19 +153,24 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         newStatefulReadInvocation();
         opensSession();
         setsFlushMode();
+        //getsNewConnection();
         beginsTransaction(2);
         checksSessionIsOpen();
-        getsFactoryFromSession();
-        getsFlushMode();
         // invocation here
-        checksSessionIsConnected();
         disconnectsSession();
         handler.invoke( invocation );
-        
+
+        // assume someone clears thread
+        TransactionSynchronizationManager.unbindResource(factory);
+     
         // And a second call should just work.
         newStatefulReadInvocation();
-        // invocation here
-        checksSessionIsConnected();
+        // invocation here        
+        
+        //TODO DELETE
+        //checksSessionIsConnected(false);
+        //reconnectsSession();
+        
         disconnectsSession();
         handler.invoke( invocation );
         super.verify();
@@ -185,8 +185,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         newStatefulReadInvocation();
         checksSessionIsOpen();
         checksSessionIsConnected();
-        getsFactoryFromSession();
-        getsFlushMode();
         disconnectsSession();
         closesSession();
         handler.invoke( invocation );
@@ -202,8 +200,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         newStatefulReadInvocationThrows();
         checksSessionIsOpen();
         checksSessionIsConnected();
-        getsFactoryFromSession();
-        getsFlushMode();
         // here it throws
         disconnectsSession();
         closesSession();
@@ -217,15 +213,10 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     public void testStatefulInvocationWithSessionThenClosed() throws Throwable
     {
         newStatefulDestroyInvocation();
-        checksSessionIsOpen();
-        getsFactoryFromSession();
-        getsFlushMode();
-        setsFlushMode();
         opensSession();
-//        setsFlushMode(); TODO huh?
+        setsFlushMode();
         beginsTransaction(1);
-        getsSessionsConnection();
-        commitsConnection();
+        disconnectsSession();
         closesSession();
         handler.invoke( invocation );
         super.verify();
@@ -249,165 +240,149 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         setsFlushMode();
         beginsTransaction(2);
         checksSessionIsOpen();
-        getsFactoryFromSession();
-        getsFlushMode();
         // invocation here
         checksSessionIsConnected();
         disconnectsSession();
         closesSession();
         handler.invoke( invocation );
     }
+    
+    // TODO add dirty session on close
+    // TODO 
+    
     // ~ Once Expectations (creation events)
     // =========================================================================
     
-    protected void opensSession()
+    private void opensSession()
     {
         mockFactory.expects( once() ).method( "openSession" )
             .will( returnValue( session ));
     }
     
-    protected void beginsTransaction(int count)
+    private void beginsTransaction(int count)
     {
      
-        newConnection();
-        newTransaction();
         mockSession.expects( exactly(count) ).method("beginTransaction");
     }
 
     // ~ More-than-once Expectations (somewhat idempotent)
     // =========================================================================
     
-    protected void checksSessionIsOpen()
+    private void checksSessionIsOpen()
     {
         mockSession.expects( atLeastOnce() ).method( "isOpen" )
             .will( returnValue( true ));
     }
 
-    protected void checksSessionIsConnected()
+    private void checksSessionIsConnected(Boolean...connected)
     {
         mockSession.expects( atLeastOnce() ).method( "isConnected" )
-            .will( returnValue( true ));
+            .will( returnValue( connected.length>0 ? connected[0] : true ) );
     }
 
-    protected void getsSessionsConnection()
+    private void getsNewConnection()
+    {
+        mockDataSource.expects( atLeastOnce() ).method( "getConnection" )
+            .will( returnValue( connection ));
+    }
+    
+    private void getsSessionsConnection()
     {
         mockSession.expects( atLeastOnce() ).method( "connection" )
             .will( returnValue( connection ));
     }
-    
-    protected void getsFlushMode()
-    {
-        mockSession.expects( atLeastOnce() ).method( "getFlushMode" )
-            .will( returnValue( FlushMode.MANUAL ));
-    }
 
-    protected void setsFlushMode()
+    private void reconnectsSession()
+    {
+        mockSession.expects( atLeastOnce() ).method( "reconnect" );
+    }
+    
+    private void setsFlushMode()
     {
         // done by handler
         mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
         	.with( eq( FlushMode.MANUAL ));
     }
     
-    protected void getsFactoryFromSession()
-    {
-    	// done by SFUtils
-        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
-    	.with( eq( FlushMode.AUTO ));
-        mockSession.expects( atLeastOnce() ).method( "getSessionFactory" )
-        .will( returnValue( factory ));
-    }
-    
-    protected void disconnectsSession()
+    private void disconnectsSession()
     {
         mockSession.expects( atLeastOnce() ).method( "disconnect" );
     }
     
-    protected void closesSession()
+    private void closesSession()
     {
         mockSession.expects( atLeastOnce() ).method( "close" );
     }
     
-    protected void commitsConnection()
-    {
-        mockConnection.expects( atLeastOnce() ).method( "commit" );
-    }
-    
-    
-    
     // ~ Helpers
     // =========================================================================
 
-    protected void newDataSource(){
+    private void newDataSource(){
         mockDataSource = mock(DataSource.class);
         dataSource = (DataSource) mockDataSource.proxy();
     }
     
-    protected void newConnection(){
+    private void newConnection(){
         mockConnection = mock(Connection.class);
         connection = (Connection) mockConnection.proxy();
     }
-    
-    protected void newTransaction(){
-        mockTransaction = mock(Transaction.class);
-        mockTransaction.setDefaultStub( new DefaultResultStub() );
-        transaction = (Transaction)mockTransaction.proxy();
-    }
-    protected void newSession(){
+
+    private void newSession(){
         mockSession = mock(Session.class);
         session = (Session) mockSession.proxy();
     }
 
-    protected void newSessionFactory(){
+    private void newSessionFactory(){
         mockFactory = mock(SessionFactory.class);
         factory = (SessionFactory) mockFactory.proxy();
     }
 
-    protected void newStateful( )
+    private void newStateful( )
     {
         mockStateful = mock(StatefulServiceInterface.class);
         stateful = (StatefulServiceInterface) mockStateful.proxy();
     }
     
-    protected void newStateless( )
+    private void newStateless( )
     {
         mockStateless = mock(ServiceInterface.class);
         stateless = (ServiceInterface) mockStateless.proxy();
     }
     
-    protected void newStatelessInvocation(){
+    private void newStatelessInvocation(){
         mockInvocation = mock(MethodInvocation.class);
         invocation = (MethodInvocation) mockInvocation.proxy();
         mockInvocation.expects( once() ).method("getThis")
             .will( returnValue(stateless));
     }
     
-    protected void newStatefulReadInvocation() throws Exception    {
+    private void newStatefulReadInvocation() throws Exception    {
         Method method = RenderingEngine.class.getMethod("getDefaultZ");
         newStatefulInvocation( method );
     }
 
-    protected void newStatefulReadInvocationThrows() throws Exception    {
+    private void newStatefulReadInvocationThrows() throws Exception    {
         Method method = RenderingEngine.class.getMethod("getDefaultZ");
         newStatefulInvocation( method, throwException(new RuntimeException()) );
     }
 
-    protected void newStatefulWriteInvocation() throws Exception    {
+    private void newStatefulWriteInvocation() throws Exception    {
         Method method = RenderingEngine.class.getMethod("setDefaultZ");
         newStatefulInvocation( method );
     }
 
-    protected void newStatefulWriteInvocationThrows() throws Exception    {
+    private void newStatefulWriteInvocationThrows() throws Exception    {
         Method method = RenderingEngine.class.getMethod("setDefaultZ");
         newStatefulInvocation( method, throwException( new RuntimeException() ) );
     }
     
-    protected void newStatefulDestroyInvocation() throws Exception    {
+    private void newStatefulDestroyInvocation() throws Exception    {
         Method method = RenderingEngine.class.getMethod("close");
         newStatefulInvocation( method );
     }
 
     /** uses the first stub passed (if any) on the will(); clause. */
-    protected void newStatefulInvocation( Method method, Stub...stubs )
+    private void newStatefulInvocation( Method method, Stub...stubs )
     {
         mockInvocation = mock(MethodInvocation.class);
         invocation = (MethodInvocation) mockInvocation.proxy();
@@ -420,7 +395,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         if ( stubs != null && stubs.length > 0 ) amb.will(stubs[0]);
     }
     
-    protected void prepareThreadWithSession()
+    private void prepareThreadWithSession()
     {
         mockSession.expects( once() ).method( "beginTransaction" ).id("prep");
         SessionHolder sessionHolder = new SessionHolder(session);
@@ -429,7 +404,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
     }
 
-    
     private void reset(Mock...mocks)
     {
     	for (Mock mock : mocks) {
@@ -437,7 +411,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
 		}
     }
     
-    protected Stub printStackTrace()
+    private Stub printStackTrace()
     {
         return new StackTraceStub();
     }
@@ -454,7 +428,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         }
     }
 
-    protected InvokedRecorder exactly( int count )
+    private InvokedRecorder exactly( int count )
     {
         return new InvokedRecorder( count );
     }

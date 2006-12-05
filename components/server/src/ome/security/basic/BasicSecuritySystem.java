@@ -69,6 +69,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.ExternalInfo;
 import ome.model.meta.GroupExperimenterMap;
+import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
@@ -1032,7 +1033,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 		}
 	}
 
-	private Principal clearAndCheckPrincipal() {
+	private Principal clearAndCheckPrincipal() 
+	{
 		// clear even if this fails. (make SecuritySystem unusable)
 		clearEventContext();
 		
@@ -1053,6 +1055,36 @@ public class BasicSecuritySystem implements SecuritySystem {
 		if (p.getEventType() == null)
 			throw new InternalException(
 					"Principal.eventType is null in EventContext. Security system failure.");
+		
+		// ticket:404 -- preventing users from logging into "user" group
+		if ( roles.getUserGroupName().equals( p.getGroup() ))
+		{
+			List<ExperimenterGroup> groups = 
+			sf.getQueryService().findAllByQuery(
+					"select g from ExperimenterGroup g " +
+					"join g.groupExperimenterMap as m " +
+					"join m.child as u " +
+					"where g.name  != :userGroup and " +
+					"u.omeName = :userName and " +
+					"m.defaultGroupLink = true",
+					new Parameters()
+					.addString("userGroup",roles.getUserGroupName())
+					.addString("userName", p.getName()));
+			
+			if ( groups.size() != 1 )
+			{
+				throw new SecurityViolation(String.format(
+						"User %s attempted to login to user group \"%s\". When " +
+						"doing so, there must be EXACTLY one default group for " +
+						"that user and not %d", p.getName(), 
+						roles.getUserGroupName(), groups.size()));
+			}
+			
+			final Principal updated = new Principal(
+					p.getName(),groups.get(0).getName(),p.getEventType());
+			principalHolder.set( p );
+			return updated;
+		}
 		return p;
 	}
 	

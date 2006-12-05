@@ -41,8 +41,8 @@
 -->
 
 	<!-- This overrides the classpath.file properties of all the components. -->
-        <property name="ant.resources"     value="${basedir}/components/antlib/resources/"/>
-	<property name="classpath.file" value="${ant.resources}/dist-classpath.xml"/>
+        <property name="ant.resources"       value="${basedir}/components/antlib/resources/"/>
+	<property name="classpath.file"      value="${ant.resources}/dist-classpath.xml"/>
 	<import file="${classpath.file}"/> <!-- imports global.xml -->
 
 	<target name="classpath-define">
@@ -59,20 +59,37 @@
 	</target>
 
 	<target name="update">
+
+                <!-- copied from app/build.xml refactor -->
+      <tempfile property="temp.dir" prefix="omero"/>
+      <mkdir dir="${temp.dir}"/>
+      <copy file="${etc.dir}/omero-ds.xml" todir="${temp.dir}" />
+      <replace file="${temp.dir}/omero-ds.xml">
+         <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
+         <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
+         <replacefilter token="@@@JDBC.USERNAME@@@" value="${hibernate.connection.username}"/>
+         <replacefilter token="@@@JDBC.PASSWORD@@@" value="${hibernate.connection.password}"/>
+      </replace>
+
 		<jar update="true"
-		  destfile="${omero.home}/omero-app-${omero.version}.ear">
-			<fileset dir="${etc.dir}">
-				<include name="omero.properties"/>
-				<include name="hibernate.properties"/>
+		  destfile="${artifact.final.name}">
+			<fileset dir="${basedir}">
+				<include name="etc/local.properties"/>
+				<include name="etc/local.properties.example"/>
+				<include name="etc/omero.properties"/>
+				<include name="etc/hibernate.properties"/>
+			</fileset>
+			<fileset dir="${temp.dir}">
+				<include name="omero-ds.xml"/>
 			</fileset>
 		</jar>
+		<delete dir="${temp.dir}"/>
 	</target>
 
-	<target name="setup-db">
-		<sql_run>
-  			<transaction src="sql/ddl.sql"/>
-  			<transaction src="sql/data.sql"/>
-		</sql_run>
+	<target name="setup-db" depends="classpath-define">
+		<ant antfile="${server.comp}/build.xml" target="reload-db">
+		<property name="sql.dir" value="${basedir}/sql"/>
+		</ant>
 	</target>
 
 	<target name="earfiles">

@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import ome.api.IAdmin;
 import ome.api.IConfig;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
@@ -122,12 +123,15 @@ public class ConfigTest extends TestCase
 		rootConfig.setConfigValue("foo","bar");
 		
 		// Now let's create another user.
+		final IAdmin rootAdmin = rootSf.getAdminService();
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(UUID.randomUUID().toString());
+		rootAdmin.createGroup(g);
 		Experimenter e = new Experimenter();
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName("Config");
 		e.setLastName("Test");
-		IAdmin rootAdmin = rootSf.getAdminService();
-		rootAdmin.createUser(e); // Not an admin or system user
+		rootAdmin.createUser(e, g.getName()); // Not an admin or system user
 		rootAdmin.changeUserPassword(e.getOmeName(), "bar");
 		
 		// And use it to login

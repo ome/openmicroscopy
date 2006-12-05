@@ -49,6 +49,12 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
     @Configuration(beforeTestClass = true)
     public void createData() throws Exception{
     	setUp();
+
+    	String gname = uuid();
+    	ExperimenterGroup g = new ExperimenterGroup();
+		g.setName( gname );
+		iAdmin.createGroup(g);
+
 		for (int i = 0; i < 3; i++) {
 			String name = UUID.randomUUID().toString();
 			Experimenter e2 = new Experimenter();
@@ -57,7 +63,7 @@ public class SecurityFilterTest extends AbstractManagedContextTest {
 			e2.setLastName("filter too");
 			users.add( 
 					new Experimenter(
-							factory.getAdminService().createUser(e2),
+							factory.getAdminService().createUser(e2,gname),
 							false));
 			names.add( name );
 			

@@ -6,8 +6,9 @@
 
         <target name="reload-db" depends="prepare,load-groovy">
                 <groovy>
+		        import ome.security.PasswordUtil
                         rootpass=properties["omero.rootpass"]
-                        rootpass=new ome.logic.AdminImpl().preparePassword(rootpass)
+                        rootpass=PasswordUtil.preparePassword(rootpass)
                         properties["ROOTPASS"]=rootpass
                 </groovy>
 		<copy file="${sql.dir}/ddl.sql" todir="${target.dir}"/>

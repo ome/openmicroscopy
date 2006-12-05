@@ -39,12 +39,17 @@ public class SystemTypesTest extends AbstractManagedContextTest {
 		
 		loginRoot();
 		
+    	String gname = uuid();
+    	ExperimenterGroup g = new ExperimenterGroup();
+		g.setName( gname );
+		iAdmin.createGroup(g);
+
 		e = new Experimenter();
 		e.setOmeName(UUID.randomUUID().toString());
 		e.setFirstName(ticket156);
 		e.setLastName(ticket156);
 		e = factory.getAdminService().getExperimenter(
-				factory.getAdminService().createUser(e));
+				factory.getAdminService().createUser(e,gname));
 	
 		tearDown();
     }

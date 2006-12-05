@@ -87,8 +87,7 @@ public abstract class Task implements Runnable
 		if (serviceFactory == null) throw new IllegalArgumentException(
 				"ServiceFactory cannot be null.");
 		this.sf = serviceFactory;
-		this.props = properties == null ? new Properties() : 
-			System.getProperties();
+		this.props = properties == null ? System.getProperties() : properties;
 	}
 	
 	/** returns the {@link ServiceFactory} instance provided during construction.

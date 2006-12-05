@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -66,7 +67,7 @@ public abstract class SqlPropertiesParser
             throws BeansException {}
         public String doIt(String property) {
             try {
-                return parseStringValue(property,this.mergeProperties(),null);
+                return parseStringValue(property,this.mergeProperties(),new HashSet());
             } catch (Exception e) {
                 throw new RuntimeException("Error in evaluating embedded properties.",e);
             }

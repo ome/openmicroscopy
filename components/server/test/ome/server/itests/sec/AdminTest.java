@@ -21,6 +21,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Roles;
 import ome.util.IdBlock;
+import sun.misc.UUDecoder;
 
 public class AdminTest extends AbstractManagedContextTest
 {
@@ -31,25 +32,35 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	@ExpectedExceptions( ApiUsageException.class )
 	public void testUserAccountCreationWithNull() throws Exception {
-		iAdmin.createUser(null);
+		iAdmin.createUser(null,null);
 	}
 	
 	@Test
 	@ExpectedExceptions( ApiUsageException.class )
 	public void testUserAccountCreationWithEmpty() throws Exception {
 		Experimenter e = new Experimenter();
-		iAdmin.createUser(e);
+		iAdmin.createUser(e,null);
+	}
+
+	@Test
+	@ExpectedExceptions( ApiUsageException.class )
+	public void testUserAccountCreationWithUnknownGroup() throws Exception {
+		Experimenter e = new Experimenter();
+		iAdmin.createUser(e,uuid()); // uuid won't exist
 	}
 	
 	@Test
 	public void testUserAccountCreation() throws Exception {
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
 		Experimenter e = testExperimenter();
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,g.getName()));
 		assertNotNull(e.getEmail());
 		assertNotNull(e.getOmeName());
 		assertNotNull(e.getFirstName());
 		assertNotNull(e.getLastName());
-		assertTrue(e.sizeOfGroupExperimenterMap() == 1 );
+		int size = e.sizeOfGroupExperimenterMap();
+		assertTrue(String.format("%d not 2", size), size == 2 );
 	}
 	
 	// ~ IAdmin.createSystemUser
@@ -58,7 +69,7 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	@ExpectedExceptions( ApiUsageException.class )
 	public void testSysUserAccountCreationWithNull() throws Exception {
-		iAdmin.createUser(null);
+		iAdmin.createUser(null, null);
 	}
 	
 	@Test
@@ -109,6 +120,12 @@ public class AdminTest extends AbstractManagedContextTest
 		assertTrue(e.sizeOfGroupExperimenterMap() == 1);
 	}
 
+	private ExperimenterGroup testGroup() {
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(uuid());
+		return g;
+	}
+	
 	private Experimenter testExperimenter() {
 		Experimenter e = new Experimenter();
 		e.setEmail("blah");
@@ -123,8 +140,11 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test( groups = "ticket:293" )
 	public void testUserCanOnlySetDetailsOnOwnObject() throws Exception 
 	{
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
+		
 		Experimenter e1 = testExperimenter();
-		iAdmin.createUser( e1 );
+		iAdmin.createUser( e1, g.getName() );
 		
 		loginUser( e1.getOmeName() );
 		
@@ -133,7 +153,7 @@ public class AdminTest extends AbstractManagedContextTest
 		
 		// this user should not be able to change things
 		Experimenter e2 = testExperimenter();
-		iAdmin.createUser( e2 );
+		iAdmin.createUser( e2, g.getName() );
 
 		loginUser( e2.getOmeName() );
 		
@@ -164,8 +184,11 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	public void testUserCanOnlySetDetailsToOwnGroup() throws Exception 
 	{
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
+		
 		Experimenter e1 = testExperimenter();
-		e1.setId( iAdmin.createUser( e1 ) );
+		e1.setId( iAdmin.createUser( e1,g.getName() ) );
 		
 		ExperimenterGroup 
 			g1 = new ExperimenterGroup(),
@@ -200,8 +223,11 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test( groups = "ticket:343" )
 	public void testSetGroupOwner() throws Exception 
 	{
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
+		
 		Experimenter e1 = testExperimenter();
-		e1.setId( iAdmin.createUser( e1 ) );
+		e1.setId( iAdmin.createUser( e1, g.getName() ) );
 		
 		ExperimenterGroup g1 = new ExperimenterGroup();
 		g1.setName(uuid());
@@ -220,22 +246,15 @@ public class AdminTest extends AbstractManagedContextTest
 	// =========================================================================
 	@Test
 	public void testUserUsesChgrpThroughAdmin() throws Exception {
-		// create a new user for the test
-		Experimenter e = new Experimenter();
-		e.setFirstName("chgrp");
-		e.setLastName("test");
-		e.setOmeName(UUID.randomUUID().toString());
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
-	
-		// and a new group
+
+		Experimenter e = loginNewUser();
+
+		// a second group
+		loginRoot();
 		ExperimenterGroup g = new ExperimenterGroup();
 		g.setName(UUID.randomUUID().toString());
 		g = iAdmin.getGroup(iAdmin.createGroup(g));
-		
-		// and user to group
 		iAdmin.addGroups(e, g);
-		
-		// login
 		loginUser(e.getOmeName());
 		
 		// create a new image
@@ -264,29 +283,37 @@ public class AdminTest extends AbstractManagedContextTest
 	public void testSetDefaultGroup() throws Exception 
 	{
 		loginRoot();
+		
+		// test group
+		String gid = uuid();
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(gid);
+		g = iAdmin.getGroup( iAdmin.createGroup(g));
+	
 		// create a new user for the test
 		Experimenter e = new Experimenter();
 		e.setFirstName("user admin setters");
 		e.setLastName("test");
 		e.setOmeName(UUID.randomUUID().toString());
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
-	
-		// new test group
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName(UUID.randomUUID().toString());
-		g = iAdmin.getGroup( iAdmin.createGroup(g));
-		iAdmin.addGroups(e,g);
-		
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,gid));
+			
 		// check current default group
 		ExperimenterGroup def = iAdmin.getDefaultGroup(e.getId());
-		assertEquals(def.getId(),(Object)1L);
+		assertEquals(def.getId(),g.getId());
 		
+		// new test group
+		String gid2 = uuid();
+		ExperimenterGroup g2 = new ExperimenterGroup();
+		g2.setName(gid2);
+		g2 = iAdmin.getGroup( iAdmin.createGroup(g2));
+
 		// now change
-		iAdmin.setDefaultGroup(e, g);
+		iAdmin.addGroups(e, g2);
+		iAdmin.setDefaultGroup(e, g2);
 		
 		// test
 		def = iAdmin.getDefaultGroup(e.getId());
-		assertEquals(def.getId(),g.getId());
+		assertEquals(def.getId(),g2.getId());
 		
 	}
 	
@@ -295,15 +322,19 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	public void testPlusAndMinusGroups() throws Exception {
 		loginRoot();
+		
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
+		
 		// create a new user for the test
 		Experimenter e = new Experimenter();
 		e.setFirstName("user admin setters");
 		e.setLastName("test");
 		e.setOmeName(UUID.randomUUID().toString());
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,g.getName()));
 		
-		assertTrue(e.linkedExperimenterGroupList().size()==1);
-		assertTrue(((ExperimenterGroup)e.linkedExperimenterGroupList().get(0)).getId().equals(1L));
+		int size = e.sizeOfGroupExperimenterMap();
+		assertTrue(String.format("%d not 2",size),size==2);
 		
 		//	two new test groups
 		ExperimenterGroup g1 = new ExperimenterGroup();
@@ -317,11 +348,11 @@ public class AdminTest extends AbstractManagedContextTest
 
 		// test
 		e = iAdmin.lookupExperimenter(e.getOmeName());
-		assertTrue(e.linkedExperimenterGroupList().size() == 3);
+		assertTrue(e.linkedExperimenterGroupList().size() == 4);
 		
 		iAdmin.removeGroups(e, g1);
 		e = iAdmin.lookupExperimenter(e.getOmeName());
-		assertTrue(e.linkedExperimenterGroupList().size() == 2);
+		assertTrue(e.linkedExperimenterGroupList().size() == 3);
 	}
 	
 	// ~ IAdmin.contained*
@@ -329,12 +360,16 @@ public class AdminTest extends AbstractManagedContextTest
 	@Test
 	public void testContainedUsersAndGroups() throws Exception {
 		loginRoot();
+		
+		ExperimenterGroup g = testGroup();
+		iAdmin.createGroup(g);
+		
 		// create a new user for the test
 		Experimenter e = new Experimenter();
 		e.setFirstName("user admin setters");
 		e.setLastName("test");
 		e.setOmeName(UUID.randomUUID().toString());
-		e = iAdmin.getExperimenter(iAdmin.createUser(e));
+		e = iAdmin.getExperimenter(iAdmin.createUser(e,g.getName()));
 		
 		//	two new test groups
 		ExperimenterGroup g1 = new ExperimenterGroup();
@@ -353,7 +388,7 @@ public class AdminTest extends AbstractManagedContextTest
 		assertTrue(es[0].getId().equals(e.getId()));
 		
 		ExperimenterGroup[] gs = iAdmin.containedGroups(e.getId());
-		assertTrue(gs.length==3);
+		assertTrue(gs.length==4);
 		List<Long> ids = new ArrayList<Long>();
 		for (ExperimenterGroup group : gs) {
 			ids.add(group.getId());
@@ -428,12 +463,18 @@ public class AdminTest extends AbstractManagedContextTest
 	public void testUnallowedPasswordChange() throws Exception
 	{
 		loginRoot();
+		
+		// and a new group
+		ExperimenterGroup g = new ExperimenterGroup();
+		g.setName(UUID.randomUUID().toString());
+		iAdmin.createGroup(g);
+
 		// create a new user for the test
 		Experimenter e = new Experimenter();
 		e.setFirstName("user admin setters");
 		e.setLastName("test");
 		e.setOmeName(UUID.randomUUID().toString());
-		iAdmin.createUser(e);
+		iAdmin.createUser(e,g.getName());
 		
 		loginUser(e.getOmeName());
 		try {

@@ -22,6 +22,7 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -104,16 +105,24 @@ public class AbstractManagedContextTest
         login(roles.getRootName(),roles.getSystemGroupName(),"Test");
     }
 
-    protected void loginNewUser()
+    protected Experimenter loginNewUser()
     {
     	loginRoot();
+    	String guid = uuid();
+    	ExperimenterGroup group = new ExperimenterGroup();
+    	group.setName(guid);
+    	iAdmin.createGroup(group);
+    	
     	String uuid = uuid();
     	Experimenter e = new Experimenter();
     	e.setFirstName("New");
     	e.setLastName("User");
     	e.setOmeName(uuid);
-    	iAdmin.createUser(e);
+
+    	long uid = iAdmin.createUser(e,guid);
     	loginUser(uuid);
+    	
+    	return iQuery.get(Experimenter.class, uid);
     }
     
     protected void loginUser( String omeName )

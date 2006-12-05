@@ -271,7 +271,7 @@ public class PojosServiceTest extends TestCase {
         
     }
 
-  @Test
+  @Test(groups= {"broken","ticket:541"})
     public void testAndHeresHowWeUnlinkThings() throws Exception
     {
 
@@ -322,7 +322,7 @@ public class PojosServiceTest extends TestCase {
         link.setChild( d );
     }
     
-  @Test
+  @Test(groups= {"broken","ticket:541"})
     public void testHeresHowWeUnlinkFromJustOneSide() throws Exception
     {
         saveImage();

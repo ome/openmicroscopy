@@ -14,6 +14,7 @@ import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 
 @Test( 
@@ -27,6 +28,7 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest
 	private String world_name = "WORLD:"+UUID.randomUUID().toString();
 	private String pi_name    = "PI:"+UUID.randomUUID().toString();
 	private String pi_group   = "PIGRP:"+UUID.randomUUID().toString();
+	private String other_grp  = "OTHERGRP:"+UUID.randomUUID().toString();
 	
     protected Login asRoot, asUser, asOther, asWorld, asPI;
 
@@ -41,46 +43,43 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest
     {
         init();
 
-        // TODO USE ROLES HERE
-        toRoot = new Experimenter( 0L, false );        
-        toSystem = new ExperimenterGroup( 0L, false ); 
-        toUserGroup = new ExperimenterGroup( 1L, false ); 
+        Roles roles = new ServiceFactory().getAdminService().getSecurityRoles();
+        toRoot = new Experimenter( roles.getRootId(), false );        
+        toSystem = new ExperimenterGroup( roles.getSystemGroupId(), false ); 
+        toUserGroup = new ExperimenterGroup( roles.getUserGroupId(), false ); 
 
-        toUser = new Experimenter();
-        toUser.setFirstName("test");
-        toUser.setLastName("test");
-        toUser.setOmeName(user_name);
-        toUser = new Experimenter( rootAdmin.createUser( toUser ), false );
-        
-        toOther = new Experimenter();
-        toOther.setFirstName("test");
-        toOther.setLastName("test");
-        toOther.setOmeName(other_name);
-        toOther = new Experimenter( rootAdmin.createUser(toOther), false );
-
-        toWorld = new Experimenter();
-        toWorld.setFirstName("test");
-        toWorld.setLastName("test");
-        toWorld.setOmeName(world_name);
-        toWorld = new Experimenter( rootAdmin.createUser(toWorld), false );
-
-        toPI = new Experimenter();
-        toPI.setFirstName("test");
-        toPI.setLastName("test");
-        toPI.setOmeName(pi_name);
-        toPI = new Experimenter( rootAdmin.createUser(toPI), false );
-        
         toOtherGroup = new ExperimenterGroup();
-        toOtherGroup.setName(UUID.randomUUID().toString());
+        toOtherGroup.setName(other_grp);
         toOtherGroup = new ExperimenterGroup( rootAdmin.createGroup( toOtherGroup ), false );
 
         toPIGroup = new ExperimenterGroup();
         toPIGroup.setName(pi_group);
         toPIGroup = new ExperimenterGroup( rootAdmin.createGroup( toPIGroup ), false );
+        
+        toUser = new Experimenter();
+        toUser.setFirstName("test");
+        toUser.setLastName("test");
+        toUser.setOmeName(user_name);
+        toUser = new Experimenter( rootAdmin.createUser( toUser, pi_group ), false );
+        
+        toOther = new Experimenter();
+        toOther.setFirstName("test");
+        toOther.setLastName("test");
+        toOther.setOmeName(other_name);
+        toOther = new Experimenter( rootAdmin.createUser(toOther, pi_group), false );
 
-        rootAdmin.addGroups(toUser, toPIGroup);
-        rootAdmin.addGroups(toOther, toPIGroup);
-        rootAdmin.addGroups(toPI, toPIGroup);
+        toWorld = new Experimenter();
+        toWorld.setFirstName("test");
+        toWorld.setLastName("test");
+        toWorld.setOmeName(world_name);
+        toWorld = new Experimenter( rootAdmin.createUser(toWorld, other_grp), false );
+
+        toPI = new Experimenter();
+        toPI.setFirstName("test");
+        toPI.setLastName("test");
+        toPI.setOmeName(pi_name);
+        toPI = new Experimenter( rootAdmin.createUser(toPI, pi_group), false );
+        
         rootAdmin.setGroupOwner(toPIGroup, toPI);
         
         asRoot  = super.rootLogin;

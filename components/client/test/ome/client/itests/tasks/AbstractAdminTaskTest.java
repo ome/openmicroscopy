@@ -41,6 +41,7 @@ import ome.util.tasks.admin.AddUserTask;
 
 import junit.framework.TestCase;
 
+@Test( groups = { "client", "integration" } )
 public abstract class AbstractAdminTaskTest extends TestCase {
 
 	ServiceFactory sf, root;

@@ -406,7 +406,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
                     "left outer join fetch e.defaultGroupLink dgl " +
                     "left outer join fetch dgl.parent dg " +
                     "left outer join fetch e.groupExperimenterMap gs " +
-                    "left outer join fetch gs.child g " +
+                    "left outer join fetch gs.parent g " +
                     "where e.omeName in ( :name_list )",
                     params
             );

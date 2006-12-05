@@ -76,8 +76,9 @@
 	<bean 
 		       id="serviceHandler" 
 		    class="ome.services.util.ServiceHandler" 
-		lazy-init="true"
-	/>    
+		lazy-init="true">
+		<property name="sessionHandler" ref="sessionHandler"/>
+	</bean>    
 
 <!--
   Service Levels

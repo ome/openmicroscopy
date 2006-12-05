@@ -31,12 +31,15 @@ public class AccountCreationTest extends AbstractAccountTest
     
     @Test
     public void testSudoCreatesUserAccountThroughIAdmin() throws Exception {
+    	ExperimenterGroup g = new ExperimenterGroup();
+    	g.setName(GUID.asString());
+    	getSudoAdmin("ome").createGroup(g);
     	Experimenter e = new Experimenter();
-    	e.setOmeName(new GUID().asString());
+    	e.setOmeName(GUID.asString());
     	e.setFirstName("ticket:181");
     	e.setLastName("ticket:199");
     	e = getSudoAdmin("ome").getExperimenter(
-    			getSudoAdmin("ome").createUser(e));
+    			getSudoAdmin("ome").createUser(e,g.getName()));
     	assertCanLogin(e.getOmeName(),"");
     	assertCanLogin(e.getOmeName(),"ome");
     	assertCanLogin(e.getOmeName(),"bob");

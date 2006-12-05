@@ -32,6 +32,8 @@ package ome.server.utests;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 // Third-party libraries
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -51,6 +53,7 @@ import ome.model.IObject;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
 import ome.services.util.ServiceHandler;
+import ome.tools.hibernate.SessionHandler;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -71,7 +74,11 @@ public class IQueryMockSessionTest extends MockObjectTestCase
         super.setUp();
         impl = new QueryImpl();
         ProxyFactory pf = new ProxyFactory( impl );
-        pf.addAdvice( new ServiceHandler() );
+        ServiceHandler serviceHandler = new ServiceHandler();
+        serviceHandler.setSessionHandler(new SessionHandler(
+        		(DataSource)mock(DataSource.class).proxy(),
+        		(SessionFactory)mock(SessionFactory.class).proxy()));
+        pf.addAdvice( serviceHandler );
         iQuery = (IQuery) pf.getProxy();
         createMocks();
     }

@@ -29,6 +29,8 @@
 package ome.server.utests;
 
 //Java imports
+import org.hibernate.SessionFactory;
+import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;
 import org.testng.annotations.*;
 import java.util.Arrays;
@@ -36,6 +38,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.sql.DataSource;
 
 //Third-party libraries
 import junit.framework.TestCase;
@@ -50,6 +54,7 @@ import ome.model.core.Image;
 import ome.model.containers.Project;
 import ome.services.query.QueryFactory;
 import ome.services.util.ServiceHandler;
+import ome.tools.hibernate.SessionHandler;
 import ome.util.builders.PojoOptions;
 
 /**
@@ -61,7 +66,7 @@ import ome.util.builders.PojoOptions;
  * </small>
  * @since Omero 2.0
  */
-public class PojosConstraintsTest extends TestCase {
+public class PojosConstraintsTest extends MockObjectTestCase {
     protected PojosImpl impl;
     protected IPojos manager;
     
@@ -70,7 +75,11 @@ public class PojosConstraintsTest extends TestCase {
         super.setUp();
         impl = new PojosImpl();
         ProxyFactory factory = new ProxyFactory(impl);
-        factory.addAdvice(new ServiceHandler());
+        ServiceHandler serviceHandler = new ServiceHandler();
+        serviceHandler.setSessionHandler(new SessionHandler(
+        		(DataSource)mock(DataSource.class).proxy(),
+        		(SessionFactory)mock(SessionFactory.class).proxy()));
+        factory.addAdvice(serviceHandler);
         manager = (IPojos) factory.getProxy();
     }
     
