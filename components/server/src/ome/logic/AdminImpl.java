@@ -307,37 +307,24 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
 	@RolesAllowed("user")
 	public Experimenter[] containedExperimenters(Long groupId) {
-		ExperimenterGroup g = iQuery.execute(new GroupQ(new Parameters()
-				.addId(groupId)));
-
-		if (g == null) {
-			throw new ApiUsageException("No such group: " + groupId);
-		}
-
-		int count = g.sizeOfGroupExperimenterMap();
-		if (count < 1) {
-			return new Experimenter[] {};
-		}
-
-		return (Experimenter[]) g.linkedExperimenterList().toArray(
-				new Experimenter[count]);
+		List<Experimenter> experimenters = 
+			iQuery.findAllByQuery("select e from Experimenter as e left outer " +
+					"join e.groupExperimenterMap as map left outer join " +
+					"map.parent as g where g.id = :id",
+					new Parameters().addId(groupId));
+		return (Experimenter[]) experimenters.toArray(
+			new Experimenter[experimenters.size()]);
 	}
 
 	@RolesAllowed("user")
 	public ExperimenterGroup[] containedGroups(Long experimenterId) {
-		Experimenter e = iQuery.execute(new UserQ(new Parameters()
-				.addId(experimenterId)));
-		if (e == null) {
-			throw new ApiUsageException("No such user: " + experimenterId);
-		}
-
-		int count = e.sizeOfGroupExperimenterMap();
-		if (count < 1) {
-			return new ExperimenterGroup[] {};
-		}
-
-		return (ExperimenterGroup[]) e.linkedExperimenterGroupList().toArray(
-				new ExperimenterGroup[count]);
+		List<ExperimenterGroup> groups = 
+			iQuery.findAllByQuery("select g from ExperimenterGroup as g left " +
+					"outer join g.groupExperimenterMap as map left outer " +
+					"join map.child as e where e.id = :id",
+					new Parameters().addId(experimenterId));
+		return (ExperimenterGroup[]) groups.toArray(
+			new ExperimenterGroup[groups.size()]);
 	}
 
 	// ~ System-only interface methods

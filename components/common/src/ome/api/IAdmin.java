@@ -112,7 +112,9 @@ public interface IAdmin extends ServiceInterface{
      */
     List<ExperimenterGroup> lookupGroups();
     
-    /** fetch all {@link Experimenter users} contained in this group.
+    /** fetch all {@link Experimenter users} contained in this group. The
+     * returned users will have all fields filled in and all collections
+     * unloaded.
      * 
      * @param groupId id of the ExperimenterGroup
      * @return non-null array of all {@link Experimenter users} in this group.
@@ -120,7 +122,8 @@ public interface IAdmin extends ServiceInterface{
     Experimenter[] containedExperimenters( @NotNull Long groupId );
     
     /** fetch all {@link ExperimenterGroup groups} of which the given user
-     * is a member.
+     * is a member. The returned groups will have all fields filled in and all
+     * collections unloaded.
      * 
      * @param experimenterId id of the Experimenter. Not null.
      * @return non-null array of all {@link ExperimenterGroup groups} for
