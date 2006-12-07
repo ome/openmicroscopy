@@ -403,6 +403,7 @@ public class UseSecurityTest extends AbstractPermissionsTest
 	}
 
 	// TODO add to abstract class.
+	@Test( groups = "ticket:553" )
 	public void test_U_Projects_O_Datasets_O_Link() throws Exception {
 		ownsfA = u;
 		ownerA = user;
@@ -411,6 +412,8 @@ public class UseSecurityTest extends AbstractPermissionsTest
 		ownsfB = ownsfC = o;
 		ownerB = ownerC = other;
 		groupB = groupC = user_other_group;
+		
+		will_lock = true;
 		
 		// RW_RW_RW / RW_RW_RW / RW_RW_RW
 		permsA = permsB = permsC = RW_RW_RW;

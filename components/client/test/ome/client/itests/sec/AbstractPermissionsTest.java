@@ -161,6 +161,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		pi.setFirstName("read");
 		pi.setLastName("security -- leader of user_other_group");
 		pi = new Experimenter(rootAdmin.createUser(pi,gname), false);
+		rootAdmin.addGroups(pi, common_group);
 
 		// make the PI the group leader.
 		rootAdmin.setGroupOwner(user_other_group, pi);
@@ -173,7 +174,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		user.setFirstName("read");
 		user.setLastName("security");
 		user = new Experimenter(rootAdmin.createUser(user,gname), false);
-		rootAdmin.addGroups(user, user_other_group);
+		rootAdmin.addGroups(user, user_other_group, common_group);
 
 		// create another user in that group
 		Login otherLogin = new Login(UUID.randomUUID().toString(), "empty",gname,"Test");
@@ -182,7 +183,7 @@ public abstract class AbstractPermissionsTest extends AbstractSecurityTest {
 		other.setFirstName("read");
 		other.setLastName("security2");
 		other = new Experimenter(rootAdmin.createUser(other,gname), false);
-		rootAdmin.addGroups(other, user_other_group);
+		rootAdmin.addGroups(other, user_other_group, common_group);
 		
 		// create a third regular user not in that group
 		Login worldLogin = new Login(UUID.randomUUID().toString(), "empty" /* not gname!*/);
