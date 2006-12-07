@@ -209,7 +209,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	        {
     	            copy[i] = internalSave( value[i], filter );
     	        }
-    	        return value;
+    	        return copy;
     		}
     	});
     }
@@ -225,7 +225,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
     	        {
     	            copy[i] = internalSave( value[i], filter );
     	        }
-    	        return value;
+    	        return copy;
     		}
     	});
     }

@@ -143,6 +143,44 @@ public class TicketsUpTo1000Test extends TestCase
         assertTrue(s.size()>0);
     }
     
+    // ~ Ticket 546
+    // =========================================================================
+    
+    @Test( groups = "ticket:546")
+    public void test_createDataObjectsShouldLoadAnnotations() throws Exception
+    {
+    	Dataset d = makeDataset();
+    	DatasetAnnotation annotation = makeAnnotation(d);
+
+    	annotation = sf.getPojosService().createDataObject(annotation, null);
+    	assertNotNull(annotation.getDataset());
+    	assertTrue(annotation.getDataset().isLoaded());
+    	
+    	d = makeDataset();
+    	annotation = makeAnnotation(d);
+    	
+    	annotation = (DatasetAnnotation)
+    	sf.getPojosService().createDataObjects(
+    			new DatasetAnnotation[]{annotation}, null)[0];
+    	assertNotNull(annotation.getDataset());
+    	assertTrue(annotation.getDataset().isLoaded());
+    	
+    }
+
+	private DatasetAnnotation makeAnnotation(Dataset d) {
+		DatasetAnnotation annotation = new DatasetAnnotation();
+    	annotation.setContent("ticket:546");
+    	annotation.setDataset(d);
+		return annotation;
+	}
+
+	private Dataset makeDataset() {
+		Dataset d = new Dataset();
+    	d.setName("ticket:546");
+    	d = sf.getPojosService().createDataObject(d, null);
+		return d;
+	}
+    
     // ~ Helpers
 	// =========================================================================
 
