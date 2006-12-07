@@ -500,9 +500,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
     @Transactional(readOnly=false)
     public ILink[] link(ILink[] arg0, Map arg1)
     {
-        ILink[] retVal = (ILink[])iUpdate.saveAndReturnArray(arg0);
-        collectCounts( retVal, new PojoOptions(arg1) );
-        return retVal;
+        IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
+        // IUpdate returns an IObject array here. Can't be cast using (Link[])
+        ILink[] links = new ILink[retVal.length];
+        System.arraycopy(retVal, 0, links, 0, retVal.length);
+        collectCounts( links, new PojoOptions(arg1) );
+        return links;
 
     }
 
