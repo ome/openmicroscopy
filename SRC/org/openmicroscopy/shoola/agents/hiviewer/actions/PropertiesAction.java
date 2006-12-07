@@ -66,10 +66,10 @@ public class PropertiesAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Properties";
+    public static final String NAME = "Properties";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Show the object properties.";
+    public static final String DESCRIPTION = "Display the object properties.";
 
     /**
      * Sets the action enabled depending on the currently selected display

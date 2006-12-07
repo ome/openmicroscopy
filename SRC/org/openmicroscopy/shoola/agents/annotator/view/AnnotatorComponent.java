@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorComponent 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorComponent 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,9 +26,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 //Java imports
+import java.awt.Cursor;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ import pojos.AnnotationData;
 
 /** 
  * Implements the {@link Annotator} interface to provide the functionality
- * required of the tree viewer component.
+ * required of the annotator component.
  * This class is the component hub and embeds the component's MVC triad.
  * It manages the component's state machine and fires state change 
  * notifications as appropriate, but delegates actual functionality to the
@@ -141,6 +142,7 @@ class AnnotatorComponent
 					"invoked in the READY state.");
 		AnnotationData d = model.getAnnotationType();
 		d.setText(view.getAnnotationText());
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		model.fireAnnotationSaving(d);
 		fireStateChange();
 	}
@@ -180,9 +182,8 @@ class AnnotatorComponent
 		if (model.getState() != SAVING)
 			throw new IllegalStateException("This method can only be invoked "+
 					"in the SAVING state.");
-		//TODO: Notify agent.
-		//getClass().
-		discard();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		firePropertyChange(ANNOTATED_PROPERTY, null, results);
 	}
 
 }

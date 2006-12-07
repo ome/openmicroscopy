@@ -39,7 +39,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -66,10 +65,10 @@ public class DeclassifyAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Decategorise";
+    public static final String NAME = "Decategorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Remove the selected images " +
+    public static final String DESCRIPTION = "Remove the selected images " +
                                                 "from a category.";
     
     /**
@@ -82,11 +81,16 @@ public class DeclassifyAction
             setEnabled(false);
             return;
         }
-        if (selectedDisplay.getParentDisplay() == null) 
-            setEnabled(false);
-        else
-            setEnabled(selectedDisplay.getHierarchyObject()
-                        instanceof ImageData);
+        if (selectedDisplay.getParentDisplay() == null) {
+        	setEnabled(false);
+        	return;
+        }
+        if (!(selectedDisplay.getHierarchyObject() instanceof ImageData)) {
+        	setEnabled(false);
+        	return;
+        }
+        int n = model.getBrowser().getSelectedDisplays().size();
+        setEnabled(!(n > 1));
     }
     
     /**
@@ -111,7 +115,7 @@ public class DeclassifyAction
     public void actionPerformed(ActionEvent e)
     {
        ClassifyCmd cmd = new ClassifyCmd(model, 
-                                         Classifier.DECLASSIFICATION_MODE);
+    		   					ClassifyCmd.DECLASSIFICATION_MODE);
        cmd.execute();
     }
 

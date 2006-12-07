@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.AnnotatorView 
+ * org.openmicroscopy.shoola.env.data.views.DataHandlerView 
  *
  *------------------------------------------------------------------------------
  *
@@ -37,6 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 
@@ -53,10 +54,28 @@ import pojos.AnnotationData;
  * </small>
  * @since OME3.0
  */
-public interface AnnotatorView
+public interface DataHandlerView
 	extends DataServicesView
 {
 
+	/** Identifies the <code>Declassification</code> algorithm. */
+    public static final int DECLASSIFICATION = 
+    						ClassificationLoader.DECLASSIFICATION;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm with
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_ME = 
+    						ClassificationLoader.CLASSIFICATION_ME;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm without
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_NME = 
+    						ClassificationLoader.CLASSIFICATION_NME;
+    
     /**
      * Retrieves all the annotations made by the current user linked to the 
      * specified nodes.
@@ -108,5 +127,42 @@ public interface AnnotatorView
      */
     public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
     						AnnotationData data, AgentEventListener observer);
+    
+    /**
+     * Loads all Category Group/Category paths.
+     * 
+     * @param imageIDs      The id of the images.
+     * @param rootLevel     The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID   The Id of the root.   
+     * @param algorithm     One of the constants defined by this class.              
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadClassificationPaths(Set imageIDs, Class rootLevel, 
+    			long rootLevelID, int algorithm, AgentEventListener observer);
+    
+    /**
+     * Adds the images to the specified categories.
+     * 
+     * @param images        The images to classify.        
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle classify(Set images, Set categories, 
+                                AgentEventListener observer);
+    
+    /**
+     * Removes the images from the specified categories.
+     * 
+     * @param images        The images to classify.        
+     * @param categories    Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle declassify(Set images, Set categories, 
+                                AgentEventListener observer);
     
 }

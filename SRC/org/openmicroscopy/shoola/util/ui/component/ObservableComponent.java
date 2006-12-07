@@ -39,23 +39,22 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- * Defines the interface that a component, like the <code>HiViewer</code> and 
- * the <code>Browser</code>, usually implement to let other components observe
- * state changes of its properties.
+ * Defines the interface that a component usually implements
+ * to let other components observe state changes of its properties.
  * <p>This interface requires implementing classes to support both a <i>push</i> 
  * and <i>pull</i> model, based on the <i>JavaBeans</i> and <i>Swing</i> APIs.
  * In the <i>push</i> model, the publisher (that is the object implementing 
  * this interface) sends all changed data when it notifies the subscribers 
  * &#151; or observers, that is <i>listeners</i> in <i>JavaBeans</i> terms.
  * Implementing classes are required to support this model through <i>Java 
- * Beans bound properties</i>.  In the <i>pull</i> model, just a change 
+ * Beans bound properties</i>. In the <i>pull</i> model, just a change 
  * notification is sent off and subscribers subsequently query the publisher
- * about the state change.  Implementing classes are required to support this
+ * about the state change. Implementing classes are required to support this
  * model with <i>Swing</i> light-weight event notifications.</p>
  * <p>Implementing classes are required to avoid dispatching the same event to
  * the same observer more than once.  That is, even if an observer registers
  * twice for a given event type, it only gets notified once per each occurrence
- * of said event type.  This also implies that if an observer registers for
+ * of said event type. This also implies that if an observer registers for
  * all <i>bound</i> properties and for a specific one <code>P</code> at the
  * same time, then every time <code>P</code> changes the observer has to get
  * only <i>one</i> notification.</p>  
@@ -122,10 +121,10 @@ public interface ObservableComponent
      * The observer will be notified of every change to the specified
      * <i>bound property</i>.
      * 
-     * @param propertyName The name of the property.  This is usually defined
+     * @param propertyName	The name of the property. This is usually defined
      *                      in a <code>public static</code> field by the
      *                      implementing component.
-     * @param observer The observer to register.
+     * @param observer 		The observer to register.
      * @throws NullPointerException If <code>propertyName</code> or 
      *                              <code>observer</code> is 
      *                              <code>null</code>.
@@ -140,10 +139,10 @@ public interface ObservableComponent
      * Note that the observer will still receive notification of other property
      * changes if it has registered for other properties.
      * 
-     * @param propertyName The name of the property.  This is usually defined
+     * @param propertyName 	The name of the property. This is usually defined
      *                      in a <code>public static</code> field by the
      *                      implementing component.
-     * @param observer The observer to remove.
+     * @param observer 		The observer to remove.
      * @throws NullPointerException If <code>propertyName</code> or 
      *                              <code>observer</code> is 
      *                              <code>null</code>.

@@ -45,7 +45,6 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
@@ -136,24 +135,18 @@ class ThumbWinPopupMenu
         classify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                ClassifyCmd cmd = new ClassifyCmd(
+                ClassifyCmd cmd = new ClassifyCmd(currentWin.getModel(),
                         (ImageData) currentWin.getDataObject(), 
-                        Classifier.CLASSIFICATION_MODE, 
-                        currentWin.getParentFrame(), currentWin.getUserID(),
-                        currentWin.getModel().getRootID(), 
-                        currentWin.getModel().getRootLevel());
+                        ClassifyCmd.CLASSIFICATION_MODE);
                 cmd.execute();
             }
         });
         declassify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)
             {
-                ClassifyCmd cmd = new ClassifyCmd(
-                        (ImageData) currentWin.getDataObject(), 
-                        Classifier.DECLASSIFICATION_MODE,
-                        currentWin.getParentFrame(), currentWin.getUserID(),
-                        currentWin.getModel().getRootID(),
-                        currentWin.getModel().getRootLevel());
+                ClassifyCmd cmd = new ClassifyCmd(currentWin.getModel(),
+                        		(ImageData) currentWin.getDataObject(), 
+                        		ClassifyCmd.DECLASSIFICATION_MODE);
                 cmd.execute();
             }
         });

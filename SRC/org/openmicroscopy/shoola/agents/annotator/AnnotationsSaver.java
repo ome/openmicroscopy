@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.AnnotationsSaver 
+ * org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator;
+package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 
@@ -39,7 +39,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 
@@ -153,8 +153,8 @@ public class AnnotationsSaver
 	}
 	
 	/** 
-     * Cancels the data loading. 
-     * @see AnnotatorLoader#laod()
+     * Updates or creates annotations.
+     * @see AnnotatorLoader#load()
      */
 	public void load()
 	{

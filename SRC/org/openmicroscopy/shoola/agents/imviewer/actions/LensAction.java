@@ -33,7 +33,6 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -65,11 +64,7 @@ public class LensAction
     private static final String NAME = "Lens";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the lens.";
-
-    //Tmp
-    protected void onStateChange(ChangeEvent e) {
-    }
+    private static final String DESCRIPTION = "Shows or hides the lens.";
     
     /**
      * Creates a new instance.
@@ -87,7 +82,7 @@ public class LensAction
     }
     
     /** 
-     * TODO: command to execute the action.
+     * Shows or hides the lens.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

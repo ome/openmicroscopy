@@ -208,8 +208,7 @@ class BrowserControl
         ImageDisplay d = findParentDisplay(me.getSource());
         d.moveToFront();
         ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-        boolean b = (me.getModifiers() & InputEvent.SHIFT_MASK) == 
-                    InputEvent.SHIFT_MASK;
+        boolean b = me.isShiftDown();
         if (!(d.equals(previousDisplay))) {
             if (d instanceof ImageNode) {
                 if (!(previousDisplay instanceof ImageNode)) b = false;

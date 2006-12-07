@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.Annotator 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.Annotator 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
@@ -36,10 +36,23 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 
 /** 
+ * Defines the interface provided by the annotator component.
+ * The annotator provides a top-level window to host annotations 
+ * and let the user interact with it.
+ * <p>The typical life-cycle of an annotator is as follows.The object
+ * is first created using the {@link AnnotatorFactory}. After
+ * creation the object is in the {@link #NEW} state and is waiting for the
+ * {@link #activate() activate} method to be called.
  * 
+ * When the user quits the window, the {@link #discard() discard} method is
+ * invoked and the object transitions to the {@link #DISCARDED} state.
+ * At which point, all clients should de-reference the component to allow for
+ * garbage collection.
+ * 
+ * </p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,46 +65,15 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
  * @since OME3.0
  */
 public interface Annotator
-	extends ObservableComponent
+	extends DataHandler
 {
-	
-	 /** Flag to denote the <i>New</i> state. */
-    public static final int         NEW = 1;
-    
-    /** Flag to denote the <i>Discarded</i> state. */
-    public static final int         DISCARDED = 2;
-    
-    /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 3;
-    
-    /** Flag to denote the <i>LOADING</i> state. */
-    public static final int         LOADING = 4;
-    
-    /** Flag to denote the <i>Saving</i> state. */
-    public static final int         SAVING = 5;
-    
+
     /**
      * Queries the current state.
      * 
      * @return One of the state flags defined by this interface.
      */
     public int getState();
-    
-    /**
-     * Starts the initialization sequence when the current state is {@link #NEW} 
-     * and puts the window on screen.
-     * If the state is not {@link #NEW}, then this method simply moves the
-     * window to front.
-     * 
-     * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
-     */
-    public void activate();
-    
-    /**
-     * Transitions the viewer to the {@link #DISCARDED} state.
-     * Any ongoing data loading is cancelled.
-     */
-    public void discard();
 
 	/** Saves the annotations. */
 	public void finish();
@@ -100,7 +82,8 @@ public interface Annotator
 	public void cancel();
 	
 	/**
-	 * Sets the annotations retrieved for the annotated <code>DataObject</code>s
+	 * Sets the annotations retrieved for the annotated 
+	 * <code>DataObject</code>s.
 	 * 
 	 * @param annotations The value to set.
 	 */
@@ -109,8 +92,9 @@ public interface Annotator
 	/** 
 	 * Indicates that the annotation has been saved. 
 	 * 
-	 * @param results The updated <code>DataObject</code>s
+	 * @param results The updated <code>DataObject</code>s.
 	 */
 	public void saveAnnotations(List results);
+
 	
 }

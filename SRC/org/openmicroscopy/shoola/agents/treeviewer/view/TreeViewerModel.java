@@ -53,13 +53,16 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
+import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -135,6 +138,9 @@ class TreeViewerModel
     
     /** The currently displayed editor, <code>null</code> if no editor. */
     private Editor                  editor;
+    
+    /** Reference to the component handling data. */
+    private DataHandler				dataHandler;
     
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
@@ -554,6 +560,75 @@ class TreeViewerModel
        state = TreeViewer.SAVE;
        nodesToCopy = null;
        return true;
+   }
+
+   /**
+    * Creates the <code>DataHandler</code> to annotate the specified nodes.
+    * 
+    * @param nodes The nodes to annotate.
+    * @return See above.
+    */
+   DataHandler annotateDataObjects(TreeImageDisplay[] nodes)
+   {
+		Object uo;
+		Set toAnnotate = new HashSet();
+		for (int i = 0; i < nodes.length; i++) {
+			uo = nodes[i].getUserObject();
+			if (uo instanceof DataObject) toAnnotate.add(uo);
+		}
+		dataHandler = AnnotatorFactory.getAnnotator(toAnnotate, 
+									TreeViewerAgent.getRegistry());
+		return dataHandler;
+   }
+   
+   /**
+    * Creates the <code>DataHandler</code> to classify or declassify the 
+    * specified images depending on the passed mode.
+    * 
+    * @param nodes 	The images to classify or declassify.
+    * @param mode	The mode indicating if we classify or declassify the images.
+    * @return See above.
+    */
+   DataHandler classifyImageObjects(ImageData[] nodes, int mode)
+   {
+		Set images = new HashSet(nodes.length);
+		for (int i = 0; i < nodes.length; i++) 
+			images.add(nodes[i]);
+		
+		dataHandler = ClassifierFactory.getClassifier(images, getRootType(),
+									getRootGroupID(), mode,
+									TreeViewerAgent.getRegistry());
+		return dataHandler;
+   }
+   
+   /** Discards the <code>DataHandler</code>. */
+   void discardDataHandler()
+   {
+	   if (dataHandler != null) {
+		   dataHandler.discard();
+		   dataHandler = null;
+	   }
+   }
+   
+   /**
+    * Returns the <code>DataHandler</code> or null if not initialized.
+    * 
+    * @return See above.
+    */
+   DataHandler getDataHandler() { return dataHandler; }
+   
+   /**
+    * Returns the <code>class</code> corresponding to the 
+    * the {@link #rootLevel}.
+    * 
+    * @return See above.
+    */
+   Class getRootType()
+   {
+	   switch (getRootLevel()) {
+			case TreeViewer.USER_ROOT: return ExperimenterData.class;
+			default:return GroupData.class;
+		}
    }
    
 }

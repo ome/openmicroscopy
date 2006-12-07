@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -565,6 +566,16 @@ class TreeViewerWin
         }
     }
 
+    /**
+     * Returns the <code>DataHandler</code> or null if not initialized.
+     * 
+     * @return See above.
+     */
+    DataHandler getDataHandler() { return model.getDataHandler(); } 
+    
+    /** Discards the <code>DataHandler</code>. */
+    void discardDataHandler() { model.discardDataHandler(); }
+    
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

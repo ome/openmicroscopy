@@ -95,7 +95,6 @@ public class ViewerAction
     ViewerAction(ImViewer model, String name)
     {
         super();
-        //setEnabled(false);
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         this.name = name;
@@ -118,7 +117,7 @@ public class ViewerAction
     
     /** 
      * Reacts to state changes in the {@link ImViewer}.
-     * @see #stateChanged(ChangeEvent)
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
     {
@@ -135,7 +134,7 @@ public class ViewerAction
     public void actionPerformed(ActionEvent e) {}
     
     /**
-     * Overriden to return the name of the action.
+     * Overridden to return the name of the action.
      * @see java.lang.Object#toString()
      */
     public String toString() { return getName(); }

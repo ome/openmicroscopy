@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.AnnotatorLoader 
+ * org.openmicroscopy.shoola.agents.util.annotator.AnnotatorLoader 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator;
+package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 //Java imports
@@ -34,17 +34,17 @@ package org.openmicroscopy.shoola.agents.annotator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.views.AnnotatorView;
-
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- *  Parent of all classes that load data asynchronously for a {@link Annotator}.
- * All these classes invoke methods of the {@link AnnotatorView},
+ * Parent of all classes that load data asynchronously for a {@link Annotator}.
+ * All these classes invoke methods of the {@link DataHandlerView},
  * which this class makes available through a <code>protected</code> field.
  * Also, this class extends {@link DSCallAdapter} so that subclasses
  * automatically become observers to an asynchronous call. This class provides
@@ -74,7 +74,7 @@ public abstract class AnnotatorLoader
     protected final Registry            registry;
     
     /** Convenience reference for subclasses. */
-    protected final AnnotatorView		aView;
+    protected final DataHandlerView		aView;
 
 	/**
 	 * Controls if the annotation type is supported. Returns <code>true</code>
@@ -100,9 +100,9 @@ public abstract class AnnotatorLoader
     {
         if (viewer == null) throw new NullPointerException("No viewer.");
         this.viewer = viewer;
-        registry = AnnotatorAgent.getRegistry();
-        aView = (AnnotatorView) 
-        		registry.getDataServicesView(AnnotatorView.class);
+        registry = AnnotatorFactory.getRegistry();
+        aView = (DataHandlerView) 
+        		registry.getDataServicesView(DataHandlerView.class);
     }
     
     /** Notifies the {@link #viewer} that the data retrieval is finished. */

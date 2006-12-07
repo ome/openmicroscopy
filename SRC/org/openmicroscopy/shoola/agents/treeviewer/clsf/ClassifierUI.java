@@ -141,14 +141,14 @@ class ClassifierUI
     /** The UI component hosting the title. */
     private TitlePanel          titlePanel;
     
-    /** The panel hosting the classifications. */
-    private JPanel              centerPanel;
-    
     /** Component used to sort the nodes. */
     private ViewerSorter        sorter;
     
     /** The tree hosting the hierarchical structure. */
     private TreeCheck           tree;
+    
+    /** The panel hosting the classifications. */
+    private JPanel              centerPanel;
     
     /** Classifies or declassifies the image depending on the mode. */
     private void finish()

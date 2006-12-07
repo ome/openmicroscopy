@@ -511,9 +511,8 @@ class ControlPane
         ChannelButton button;
         while (i.hasNext()) {
             button = (ChannelButton) i.next();
-            if (index == button.getChannelIndex()) {
+            if (index == button.getChannelIndex()) 
                 button.setColor(c);
-            }
         }
     }
     
@@ -562,7 +561,6 @@ class ControlPane
     /**
      * Reacts to the selection of an item in the {@link #zoomingBox} or
      * {@link #ratingBox}.
-     * 
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
@@ -593,11 +591,9 @@ class ControlPane
     public void mouseWheelMoved(MouseWheelEvent e)
     {
         Object source = e.getSource();
-        if (source == zSlider && zSlider.isEnabled()) {
-            mouseWheelMovedZ(e);
-        } else if (source == tSlider && tSlider.isEnabled()) {
+        if (source == zSlider && zSlider.isEnabled()) mouseWheelMovedZ(e);
+        else if (source == tSlider && tSlider.isEnabled())
             mouseWheelMovedT(e);
-        }
     }
     
 }

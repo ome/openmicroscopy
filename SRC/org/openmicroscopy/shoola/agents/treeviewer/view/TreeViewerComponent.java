@@ -36,7 +36,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.annotator.AnnotateDataObjects;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -63,6 +61,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -426,6 +425,11 @@ class TreeViewerComponent
         if (images.length == 0)
             throw new IllegalArgumentException("No images to classify or " +
                     "declassify.");
+        DataHandler dh = model.classifyImageObjects(images, mode);
+        dh.addPropertyChangeListener(controller);
+        dh.activate();
+        
+        /*
         model.cancel(); // cancel annotation loader or thumbnail loader
         removeEditor();
         model.setEditorType(CLASSIFIER_EDITOR);
@@ -434,6 +438,7 @@ class TreeViewerComponent
         classifier.addPropertyChangeListener(controller);
         classifier.activate();
         view.addComponent(classifier.getUI());
+        */
     }
 
     /**
@@ -955,15 +960,9 @@ class TreeViewerComponent
 	        cmd.execute();
 	        return;
 		}
-		
-		Object uo;
-		Set toAnnotate = new HashSet();
-		for (int i = 0; i < nodes.length; i++) {
-			uo = nodes[i].getUserObject();
-			if (uo instanceof DataObject) toAnnotate.add(uo);
-		}
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new AnnotateDataObjects(toAnnotate));
+		DataHandler dh = model.annotateDataObjects(nodes);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
 	}
     
 }

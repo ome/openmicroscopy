@@ -86,11 +86,17 @@ class BorderListener
     /** Flag to control the dragging events. */
     private boolean                 dragging;
     
-    /** The mousePressed location in absolute coordinate system. */
-    private int                     xAbs, yAbs;
+    /** The mousePressed x-coordinate in absolute coordinate system. */
+    private int                     xAbs;
     
-    /** The mousePressed location in source view's coordinate system. */
-    private int                     xView, yView;
+    /** The mousePressed y-coordinate in absolute coordinate system. */
+    private int						yAbs;
+    
+    /** The mousePressed x-coordinate in source view's coordinate system. */
+    private int                     xView;
+    
+    /** The mousePressed y-coordinate in source view's coordinate system. */
+    private int                     yView;
     
     /** The starting rectangle. */
     private Rectangle               startingBounds;

@@ -48,10 +48,12 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -627,5 +629,42 @@ class HiViewerComponent
 		model.getClipBoard().setFoundResults(l);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-    
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#annotateDataObjects(Set)
+     */
+	public void annotateDataObjects(Set nodes)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		if (nodes == null)
+			throw new IllegalArgumentException("No dataObject to annotate");
+		if (nodes.size() == 1) {
+			AnnotateCmd cmd = new AnnotateCmd(this, null);
+	        cmd.execute();
+	        return;
+		}
+		DataHandler dh = model.annotateDataObjects(nodes);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#classifyImages(ImageData[], int)
+     */
+	public void classifyImages(ImageData[] images, int mode)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		if (images == null || images.length == 0)
+			throw new IllegalArgumentException("No image to classify.");
+		DataHandler dh = model.classifyImageObjects(images, mode);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+	}
+
 }

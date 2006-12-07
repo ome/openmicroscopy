@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.actions.AnnotatorAction 
+ * org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,13 +26,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.actions;
-
-import java.awt.event.ActionEvent;
-
+package org.openmicroscopy.shoola.agents.util.annotator.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,7 +38,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 
 /** 
  * Top class that each action should extend.
@@ -73,7 +71,7 @@ public class AnnotatorAction
 	{
 		super();
         setEnabled(false);
-        if (model == null) throw new IllegalArgumentException("no Annotator");
+        if (model == null) throw new IllegalArgumentException("No Annotator");
         this.model = model;
         model.addChangeListener(this);
 	}
@@ -97,6 +95,7 @@ public class AnnotatorAction
 				setEnabled(false);
 				break;
 			default:
+				setEnabled(true);
 				break;
 		}
 		

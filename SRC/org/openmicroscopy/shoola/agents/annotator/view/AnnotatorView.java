@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorView
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorView
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
@@ -44,12 +44,14 @@ import javax.swing.JSeparator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.IconManager;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The {@link Annotator}'s View. Embeds the <code>AnnotatorUI</code>
+ * to let users interact with annotations. Also provides statusBar
+ * and a working pane. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,14 +84,11 @@ class AnnotatorView
     
 	/** The Controller. */
     private AnnotatorControl	controller;
-
-    /** The Model. */
-    private AnnotatorModel 		model;
     
     /** The status bar. */
     private StatusBar			statusBar;
     
-    /** The main UI component displaying the annotations. */
+    /** The UI component displaying the annotations. */
     private AnnotatorUI			annotatorUI;
     
     /** 
@@ -155,8 +154,8 @@ class AnnotatorView
 	/**
      * Links this View to its Controller.
      * 
-     * @param model 		The Model.
-     * @param controller 	The Controller.
+     * @param model 		The Model. Mustn't be <code>null</code>.
+     * @param controller 	The Controller. Mustn't be <code>null</code>.
      */
 	void initialize(AnnotatorModel model, AnnotatorControl controller)
 	{
@@ -164,7 +163,6 @@ class AnnotatorView
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
-        this.model = model;
         statusBar = new StatusBar();
         annotatorUI = new AnnotatorUI(model, controller);
     	buildGUI();

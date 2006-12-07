@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.AnnotatorViewImpl 
+ * org.openmicroscopy.shoola.env.data.views.DataHandlerViewImpl 
  *
  *------------------------------------------------------------------------------
  *
@@ -38,11 +38,13 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 
 /** 
- * Implementation of the {@link AnnotatorView} implementation.
+ * Implementation of the {@link DataHandlerView} implementation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,13 +56,13 @@ import pojos.AnnotationData;
  * </small>
  * @since OME3.0
  */
-public class AnnotatorViewImpl 
-	implements AnnotatorView
+public class DataHandlerViewImpl 
+	implements DataHandlerView
 {
 
     /**
      * Implemented as specified by the view interface.
-     * @see AnnotatorView#createAnnotation(Set, AnnotationData, 
+     * @see DataHandlerView#createAnnotation(Set, AnnotationData, 
      * 										AgentEventListener)
      */
 	public CallHandle createAnnotation(Set annotatedObjects, 
@@ -72,7 +74,7 @@ public class AnnotatorViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see AnnotatorView#loadAnnotations(Class, Set, AgentEventListener)
+     * @see DataHandlerView#loadAnnotations(Class, Set, AgentEventListener)
      */
 	public CallHandle loadAnnotations(Class nodeType, Set nodeIDs, 
 							AgentEventListener observer) 
@@ -83,7 +85,7 @@ public class AnnotatorViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see AnnotatorView#updateAndCreateAnnotation(Map, Set, 
+     * @see DataHandlerView#updateAndCreateAnnotation(Map, Set, 
      * 									AnnotationData, AgentEventListener)
      */
 	public CallHandle updateAndCreateAnnotation(Map toUpdate, Set toCreate, 
@@ -95,7 +97,7 @@ public class AnnotatorViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see AnnotatorView#updateAnnotation(Map, AgentEventListener)
+     * @see DataHandlerView#updateAnnotation(Map, AgentEventListener)
      */
 	public CallHandle updateAnnotation(Map annotatedObjects, 
 										AgentEventListener observer)
@@ -104,4 +106,39 @@ public class AnnotatorViewImpl
 		return cmd.exec(observer);
 	}
 
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#loadClassificationPaths(Set, Class, long, int,
+     * 												AgentEventListener)
+     */
+	public CallHandle loadClassificationPaths(Set imageIDs, Class rootLevel, 
+			long rootLevelID, int algorithm, AgentEventListener observer)
+	{
+		 BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
+				 					rootLevel, rootLevelID);
+		 return cmd.exec(observer);
+	}
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#classify(Set, Set, AgentEventListener)
+     */
+    public CallHandle classify(Set images, Set categories, 
+                                AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ClassificationSaver(images, categories, true);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#declassify(Set, Set, AgentEventListener)
+     */
+    public CallHandle declassify(Set images, Set categories, 
+                                AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ClassificationSaver(images, categories, false);
+        return cmd.exec(observer);
+    }
+    
 }

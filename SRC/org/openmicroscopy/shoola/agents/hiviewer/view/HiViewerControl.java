@@ -89,6 +89,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.SelectedNodeVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 
 /** 
  * The HiViewer's Controller.
@@ -494,7 +495,12 @@ class HiViewerControl
             if (model.isRollOver()) {
             	ThumbWinManager.rollOverDisplay(null, model.getBrowser());
             }  
+        } else if (propName.equals(DataHandler.ANNOTATED_PROPERTY)) {
+        	if (view.getDataHandler() == null) return;
+        	//TODO: refresh
+        	view.discardDataHandler();
         }
+        	
     }
 
 }

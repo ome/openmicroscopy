@@ -68,6 +68,11 @@ class TinyPaneTitle
     /** Paints the title string on the title area. */
     private TitlePainter    titlePainter;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
     TinyPaneTitle(TinyPane model)
     {
         if (model == null) throw new NullPointerException("No model.");

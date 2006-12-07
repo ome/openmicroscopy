@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -490,6 +491,16 @@ class HiViewerWin
     }
 
     /**
+     * Returns the <code>DataHandler</code> or null if not initialized.
+     * 
+     * @return See above.
+     */
+    DataHandler getDataHandler() { return model.getDataHandler(); } 
+    
+    /** Discards the <code>DataHandler</code>. */
+    void discardDataHandler() { model.discardDataHandler(); }
+    
+    /**
      * Sets the location of the window relative to the bounds of the components
      * invoking the {@link HiViewer}.
      * 
@@ -506,5 +517,5 @@ class HiViewerWin
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen() { setComponentBounds(null); }
-    
+
 }

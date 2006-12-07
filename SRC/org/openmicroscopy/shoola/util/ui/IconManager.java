@@ -41,6 +41,10 @@ import javax.swing.ImageIcon;
 
 /** 
  * Provides the icons used by the util.ui package.
+ * <p>The icons are retrieved by first calling the 
+ * {@link #getInstance() getInstance} method and then the 
+ * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
+ * by the static constants within this class.</p>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -106,11 +110,23 @@ public class IconManager
     /** ID of the <code>QuestionIcon</code> icon for the slider. */
     public static final int QUESTION_ICON = 16;
     
+    /** ID of the <code>Annotation 48</code> icon. */
+    public static final int ANNOTATION_48 = 17;
+
+    /** ID of the <code>Info</code> icon. */
+    public static final int INFO = 18;
+    
+    /** ID of the <code>Progress</code> icon. */
+    public static final int PROGRESS = 19;
+    
+    /** ID of the <code>Classification 48</code> icon. */
+    public static final int CLASSIFICATION_48 = 20;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 16;
+    private static int      MAX_ID = 20;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -135,6 +151,10 @@ public class IconManager
         relPaths[RIGHT_ARROW_DISABLED] = 
         							"nuvola_player_play12_right_disabled.png";
         relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
+    	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
+    	relPaths[INFO] = "nuvola_messagebox_info16.png";
+    	relPaths[PROGRESS] = "eclipse_progress_none16";
+    	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";;
     }
     
     /** 

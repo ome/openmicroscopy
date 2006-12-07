@@ -64,15 +64,18 @@ public class ViewAction
 {
 
     /** The name of the action if the currently selected node is an Image. */
-    private static final String VIEW = "View";
-    
-    /** The name of the action if the currently selected node isn't an Image. */
-    private static final String BROWSE = "Browse";
+    public static final String VIEW = "View";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "View the selected image or" +
-            "browse the selected project, dataset, categoryGroup or category";
-
+    public static final String DESCRIPTION_VIEW = "View the selected image.";
+    
+    /** The name of the action if the currently selected node isn't an Image. */
+    public static final String BROWSE = "Browse";
+    
+    /** The description of the action. */
+    public static final String DESCRIPTION_BROWSE = "Browse the selected " +
+    		"project, dataset, categoryGroup or category";
+    
     /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)
@@ -86,8 +89,15 @@ public class ViewAction
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
-            if ((ho instanceof ImageData)) putValue(Action.NAME, VIEW);   
-            else putValue(Action.NAME, BROWSE);
+            if ((ho instanceof ImageData)) {
+            	putValue(Action.NAME, VIEW);  
+            	putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION_VIEW));
+            } else {
+            	putValue(Action.NAME, BROWSE);
+            	putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION_BROWSE));
+            }
             setEnabled(true);
         }
     }
@@ -102,7 +112,7 @@ public class ViewAction
         super(model);
         putValue(Action.NAME, VIEW);
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+                UIUtilities.formatToolTipText(DESCRIPTION_VIEW));
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.VIEWER)); 
     }

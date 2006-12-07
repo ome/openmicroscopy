@@ -37,7 +37,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -62,21 +62,21 @@ public interface HierarchyBrowsingView
 
     /** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
-                                OmeroDataService.DECLASSIFICATION;
+    						ClassificationLoader.DECLASSIFICATION;
     
     /**
      * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_ME = 
-                                OmeroDataService.CLASSIFICATION_ME;
+    						ClassificationLoader.CLASSIFICATION_ME;
     
     /**
      * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_NME = 
-                            OmeroDataService.CLASSIFICATION_NME;
+    						ClassificationLoader.CLASSIFICATION_NME;
     
     /**
      * Loads a data hierarchy rooted by a given node.
@@ -234,10 +234,7 @@ public interface HierarchyBrowsingView
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
      * @param imageIDs      The id of the images.
-     * @param algorithm     One of the following constants:
-     *                      {@link OmeroDataService#DECLASSIFICATION},
-     *                      {@link OmeroDataService#CLASSIFICATION_ME},
-     *                      {@link OmeroDataService#CLASSIFICATION_NME}.
+     * @param algorithm     One of the constants defined by this class.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.

@@ -38,7 +38,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -64,10 +63,10 @@ public class ClassifyAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Categorise";
+    public static final String NAME = "Categorise";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Categorise the selected images.";
+    public static final String DESCRIPTION = "Categorise the selected images.";
     
     /**
      * Sets the action enabled depending on the currently selected display
@@ -79,10 +78,11 @@ public class ClassifyAction
             setEnabled(false);
             return;
         }
-        if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
-        else
-            setEnabled(selectedDisplay.getHierarchyObject() 
-                        instanceof ImageData);
+        if (selectedDisplay.getParentDisplay() == null) {
+        	setEnabled(false);
+        	return;
+        }
+        setEnabled(selectedDisplay.getHierarchyObject() instanceof ImageData);
     }
     
     /**
@@ -106,7 +106,8 @@ public class ClassifyAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       ClassifyCmd cmd = new ClassifyCmd(model, Classifier.CLASSIFICATION_MODE);
+       ClassifyCmd cmd = new ClassifyCmd(model, 
+    		   					ClassifyCmd.CLASSIFICATION_MODE);
        cmd.execute();
     }
 

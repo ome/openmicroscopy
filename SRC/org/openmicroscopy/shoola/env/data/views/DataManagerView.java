@@ -38,7 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -62,24 +62,23 @@ public interface DataManagerView
     extends DataServicesView
 {
     
-
-    /** Identifies the <code>Declassification</code> algorithm. */
+	/** Identifies the <code>Declassification</code> algorithm. */
     public static final int DECLASSIFICATION = 
-                                OmeroDataService.DECLASSIFICATION;
+    						ClassificationLoader.DECLASSIFICATION;
     
     /**
      * Identifies the <code>Classification</code> algorithm with
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_ME = 
-                                OmeroDataService.CLASSIFICATION_ME;
+    						ClassificationLoader.CLASSIFICATION_ME;
     
     /**
      * Identifies the <code>Classification</code> algorithm without
      * mutually exclusive rule.
      */
     public static final int CLASSIFICATION_NME = 
-                            OmeroDataService.CLASSIFICATION_NME;
+    						ClassificationLoader.CLASSIFICATION_NME;
     
     /**
      * Reloads the hierarchy currently displayed.
@@ -316,14 +315,11 @@ public interface DataManagerView
      * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
      * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
      * c2</code>.  If you specify <code>false</code> for <code>classified</code>
-     * (and again the id o                  f Image <code>i1</code>), then you will get <code>
+     * (and again the id of Image <code>i1</code>), then you will get <code>
      * cg2</code> and it will be linked to <code>c3</code>.</p> 
      * 
-     * @param imageIDs                        The id of the images.
-     * @param algorithm     One of the following constants:
-     *                      {@link OmeroDataService#DECLASSIFICATION},
-     *                      {@link OmeroDataService#CLASSIFICATION_ME},
-     *                      {@link OmeroDataService#CLASSIFICATION_NME}.
+     * @param imageIDs      The id of the images.
+     * @param algorithm     One of the constants defined by this class.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.

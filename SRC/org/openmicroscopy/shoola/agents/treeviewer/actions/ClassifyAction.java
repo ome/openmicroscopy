@@ -94,6 +94,7 @@ public class ClassifyAction
             setEnabled(false);
             return;
         }
+        /*
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             if (browser.getBrowserType() == Browser.CATEGORY_EXPLORER && 
@@ -103,6 +104,18 @@ public class ClassifyAction
             }    
         }
         setEnabled(selectedDisplay.getUserObject() instanceof ImageData);
+        */
+        if (!(selectedDisplay.getUserObject() instanceof ImageData)) {
+        	setEnabled(false);
+        	return;
+        }
+        Browser browser = model.getSelectedBrowser();
+        if (browser != null) {
+        	int n = browser.getSelectedDisplays().length;
+        	if (n > 1) {
+        		 setEnabled(!(index == DECLASSIFY));
+        	} else setEnabled(true);
+        }
     }
     
     /**

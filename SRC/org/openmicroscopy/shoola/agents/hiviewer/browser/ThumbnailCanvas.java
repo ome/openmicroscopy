@@ -41,7 +41,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * Custom <code>JComponent</code> to paint an image on an {@link ImageNode}.
+ * Customizes <code>JPanel</code> to paint an image on an {@link ImageNode}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,7 +76,7 @@ class ThumbnailCanvas
     
     /** 
      * Overridden to paint the image. 
-     * @see #paintComponent(Graphics)
+     * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {

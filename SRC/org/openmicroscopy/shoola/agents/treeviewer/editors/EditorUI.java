@@ -573,13 +573,16 @@ class EditorUI
     	}
     }
     
-    /**
-     * Enables the {@link #finishButton} and sets the {@link #edit} flag
-     * to <code>true</code>.
+    /** Enables the {@link #finishButton}. 
+     * 
+     * @param b Pass <code>true</code> to enable the {@link #finishButton}
+     * 			<code>false</code> otherwise.
      */
-    void handleAnnotationAreaInsert()
+    void handleAnnotationAreaInsert(boolean b)
     {
-        finishButton.setEnabled(true);
+    	if (doBasic == null) return;
+    	if (doBasic.hasDataToSave()) finishButton.setEnabled(true);
+    	else finishButton.setEnabled(b);
     }
     
     /**

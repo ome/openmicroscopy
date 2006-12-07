@@ -309,13 +309,13 @@ public abstract class TreeViewNode
      * {@link #addChildNode(TreeViewNode) addChildDisplay} and
      * {@link #removeChildNode(TreeViewNode) removeChildDisplay} methods
      * will work fine.
-     * @see #equals(Object)
+     * @see java.lang.Object#equals(Object)
      */
     public final boolean equals(Object x) { return (this == x); }
     
     /** 
      * Overridden to return the name of the hierarchy object. 
-     * @see #toString()
+     * @see java.lang.Object#toString()
      */
     public String toString()
     { 
@@ -351,7 +351,5 @@ public abstract class TreeViewNode
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
-    
 
-    
 }

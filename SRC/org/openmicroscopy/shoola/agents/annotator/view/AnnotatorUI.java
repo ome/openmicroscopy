@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorUI 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorUI 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
@@ -62,7 +62,7 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.actions.FinishAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -70,7 +70,8 @@ import pojos.DataObject;
 
 
 /** 
- * 
+ * Displays the list of annotations if some of the <code>DataObject</code>s
+ * have already been annotated and a text area to enter the annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -219,8 +220,7 @@ class AnnotatorUI
         // add annotated by list
         c.gridx = 1;
         c.weightx = 0.2;
-        p.add(listComponent, c);
-               
+        p.add(listComponent, c);      
         return p;
     }
     

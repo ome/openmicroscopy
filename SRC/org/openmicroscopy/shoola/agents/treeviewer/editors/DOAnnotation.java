@@ -52,6 +52,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -128,6 +130,14 @@ class DOAnnotation
         annotationArea.setBackground(Color.WHITE);
         annotationArea.setBorder(new TitledBorder("Annotation"));
         deleteBox = new JCheckBox(DELETE_ANNOTATION);
+        deleteBox.addChangeListener(new ChangeListener() {
+		
+			public void stateChanged(ChangeEvent e) {
+				JCheckBox box = (JCheckBox) e.getSource();
+				view.handleAnnotationAreaInsert(box.isSelected());
+			}
+		
+		});
         listModel = new DefaultListModel();
         annotatedByList = new JList(listModel);
         annotatedByList.setBorder(new TitledBorder("Annotated by"));
@@ -148,7 +158,7 @@ class DOAnnotation
              */
             public void insertUpdate(DocumentEvent de)
             {
-            	view.handleAnnotationAreaInsert();
+            	view.handleAnnotationAreaInsert(true);
                 model.setAnnotated(true);
             }
             
@@ -158,7 +168,7 @@ class DOAnnotation
              */
             public void removeUpdate(DocumentEvent de)
             {
-            	view.handleAnnotationAreaInsert();
+            	view.handleAnnotationAreaInsert(true);
                 model.setAnnotated(true);
             }
 
@@ -284,10 +294,7 @@ class DOAnnotation
     {
         deleteBox.setEnabled(b);
         annotationArea.setEditable(b);
-        if (b) {
-            //annotationArea.requestFocus();
-            annotationArea.selectAll();
-        }
+        if (b) annotationArea.selectAll();
     }
     
     /** Shows a single annotation. */

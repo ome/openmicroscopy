@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.actions.FinishAction 
+ * org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.actions;
+package org.openmicroscopy.shoola.agents.util.annotator.actions;
 
 
 //Java imports
@@ -36,7 +36,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

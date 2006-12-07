@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorControl 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorControl 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
@@ -39,12 +39,12 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.actions.AnnotatorAction;
-import org.openmicroscopy.shoola.agents.annotator.actions.CloseAction;
-import org.openmicroscopy.shoola.agents.annotator.actions.FinishAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.CloseAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction;
 
 /** 
- * 
+ * The {@link Annotator}'s controller. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -166,6 +166,5 @@ class AnnotatorControl
 		}
 		
 	}
-
 	
 }

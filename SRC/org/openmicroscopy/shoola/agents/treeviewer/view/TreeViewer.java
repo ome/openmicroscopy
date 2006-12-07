@@ -189,7 +189,7 @@ public interface TreeViewer
     
     /** Bound property indicating to state of the components has changed. */
     public static final String      ON_COMPONENT_STATE_CHANGED_PROPERTY = 
-                                        "OnComponentStateChanged";
+                                        "onComponentStateChanged";
     /** 
      * The title displayed in the {@link LoadingWindow} during the saving 
      * process.

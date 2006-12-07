@@ -40,8 +40,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
-
 import pojos.CategoryGroupData;
 
 /** 
@@ -71,6 +69,24 @@ public class ClassificationLoader
     extends BatchCallTree
 {
     
+    /** Identifies the <code>Declassification</code> algorithm. */
+    public static final int DECLASSIFICATION = 
+                                OmeroDataService.DECLASSIFICATION;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm with
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_ME = 
+                                OmeroDataService.CLASSIFICATION_ME;
+    
+    /**
+     * Identifies the <code>Classification</code> algorithm without
+     * mutually exclusive rule.
+     */
+    public static final int CLASSIFICATION_NME = 
+                            	OmeroDataService.CLASSIFICATION_NME;
+    
     /** The root nodes of the found trees. */
     private Set         rootNodes;
     
@@ -86,9 +102,9 @@ public class ClassificationLoader
     private boolean checkAlgorithmIndex(int i)
     {
         switch (i) {
-            case HierarchyBrowsingView.DECLASSIFICATION:
-            case HierarchyBrowsingView.CLASSIFICATION_ME:
-            case HierarchyBrowsingView.CLASSIFICATION_NME:    
+            case DECLASSIFICATION:
+            case CLASSIFICATION_ME:
+            case CLASSIFICATION_NME:    
                 return true;
             default: return false;
         }
@@ -99,10 +115,10 @@ public class ClassificationLoader
      * that don't end with the specified Image.
      * 
      * @param imageIDs      The set of image ids.
-     * @param algorithm     One of the following constants:
-     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param algorithm     One out of the following constants:
+     *                      {@link #DECLASSIFICATION},
+     *                      {@link #CLASSIFICATION_ME},
+     *                      {@link #CLASSIFICATION_NME}.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.
@@ -116,7 +132,7 @@ public class ClassificationLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                if (algorithm == HierarchyBrowsingView.CLASSIFICATION_NME)
+                if (algorithm == CLASSIFICATION_NME)
                     rootNodes = os.loadContainerHierarchy(
                             CategoryGroupData.class, null, false,
                             rootLevel, rootLevelID);
@@ -147,10 +163,10 @@ public class ClassificationLoader
      * 
      * @param imageID       The id of the Image to classify or declassifiy
      *                      depending on the algorithm.
-     * @param algorithm     One of the following constants:
-     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     * @param algorithm     One out of the following constants:
+     *                      {@link #DECLASSIFICATION},
+     *                      {@link #CLASSIFICATION_ME},
+     *                      {@link #CLASSIFICATION_NME}.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.
@@ -176,9 +192,9 @@ public class ClassificationLoader
      * 
      * @param imageIDs      The collection of image's ids.
      * @param algorithm     One of the following constants:
-     *                      {@link HierarchyBrowsingView#DECLASSIFICATION},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_ME},
-     *                      {@link HierarchyBrowsingView#CLASSIFICATION_NME}.
+     *                      {@link #DECLASSIFICATION},
+     *                      {@link #CLASSIFICATION_ME},
+     *                      {@link #CLASSIFICATION_NME}.
      * @param rootLevel     The level of the hierarchy either 
      *                      <code>GroupData</code> or 
      *                      <code>ExperimenterData</code>.

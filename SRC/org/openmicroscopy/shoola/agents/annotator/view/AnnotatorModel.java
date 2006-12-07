@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorModel 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorModel 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
@@ -42,22 +42,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.openmicroscopy.shoola.agents.annotator.AnnotationsLoader;
-import org.openmicroscopy.shoola.agents.annotator.AnnotationsSaver;
-import org.openmicroscopy.shoola.agents.annotator.AnnotatorLoader;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsLoader;
+import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver;
+import org.openmicroscopy.shoola.agents.util.annotator.AnnotatorLoader;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * The Model component in the <code>Annotator</code> MVC triad.
+ * This class tracks the <code>Annotator</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. This class  provide  a suitable data loader. 
+ * The {@link AnnotatorComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -300,7 +305,6 @@ class AnnotatorModel
 			state = Annotator.LOADING;
 		}
 	}
-
 	
 	/** 
 	 * Saves asynchronously the annotation. 

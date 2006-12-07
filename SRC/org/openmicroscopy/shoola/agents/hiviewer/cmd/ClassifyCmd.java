@@ -34,20 +34,17 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-
+import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import pojos.ImageData;
 
 /** 
- * Command to classify/declassify a collection of images.
+ * Command to classify or declassify a collection of images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,37 +60,20 @@ import pojos.ImageData;
 public class ClassifyCmd
     implements ActionCmd
 {
-    
-    /**
-     * Utility method to get an {@link ImageData} from the 
-     * <code>model</code>.
-     * 
-     * @param model The Model from which to extract the Image.
-     * @return The {@link ImageData} hierarchy object in the browser's
-     *         current Image node or <code>null</code> if the browser's
-     *         current display is not an Image node. 
+ 
+
+    /** 
+     * Flag to denote that a {@link Classifier} was created to classify an
+     * Image.
      */
-    private static ImageData[] getImages(HiViewer model)
-    {
-        ImageData[] images = null;
-        if (model != null) {
-            Set nodes = model.getBrowser().getSelectedDisplays();
-            if (nodes != null) {
-                Iterator i = nodes.iterator();
-                Object x;
-                images = new ImageData[nodes.size()];
-                int index = 0;
-                while (i.hasNext()) {
-                    x = ((ImageDisplay) i.next()).getHierarchyObject();
-                    if (x instanceof ImageData) {
-                        images[index] = (ImageData) x;
-                        index++;
-                    }
-                }
-            }
-        }
-        return images;
-    }
+    public static final int     CLASSIFICATION_MODE = Classifier.CLASSIFY_MODE;
+    
+    /** 
+     * Flag to denote that a {@link Classifier} was created to declassify an
+     * Image.
+     */
+    public static final int     DECLASSIFICATION_MODE = 
+    									Classifier.DECLASSIFY_MODE;
     
     /** 
      * The classification mode.
@@ -105,72 +85,54 @@ public class ClassifyCmd
     /** The images to classify/declassify. */
     private ImageData[]         images;
     
-    /** The window from which this command was invoked. */
-    private JFrame              owner;
+    /** Reference to the model. */
+    private HiViewer			model;
     
-    /** The id of the current user. */
-    private long                userID;
-    
-    /** The id of the user's group used for data retrieval. */
-    private long                groupID;
-    
-    /** The rootLevel. */
-    private Class               rootLevel;
-        
     /**
-     * Creates a new command to classify/declassify the specified Image.
+     * Controls if the passed mode is supported.
      * 
-     * @param images    Represents the Image to classify/declassify.
-     *                  If <code>null</code>, no acion is taken.
-     * @param mode      The classification mode.  This is one of the constants 
-     *                  defined by the {@link Classifier} interface and tells 
-     *                  whether we're classifying or declassifying.
-     * @param owner     The window from which this command was invoked.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group used for data retrieval.  
-     * @param rootLevel The level of the root for data retrieval.                
+     * @param m The value to control.
      */
-    public ClassifyCmd(ImageData[] images, int mode, JFrame owner, long userID, 
-                       long groupID, Class rootLevel)
+    private void checkMode(int m)
     {
-        if (owner == null) throw new NullPointerException("No owner.");
-        this.images = images;
-        this.mode = mode;
-        this.owner = owner;
-        this.userID = userID;
-        this.groupID = groupID;
-        this.rootLevel = rootLevel;
+    	switch (m) {
+			case DECLASSIFICATION_MODE:
+			case CLASSIFICATION_MODE:
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Mode not supported.");
+		}
     }
-   
+    
     /**
-     * Creates a new command to classify/declassify the specified Image.
+     * Utility method to get an {@link ImageData} from the 
+     * <code>model</code>.
      * 
-     * @param image     Represents the Image to classify/declassify.
-     *                  If <code>null</code>, no acion is taken.
-     * @param mode      The classification mode.  This is one of the constants 
-     *                  defined by the {@link Classifier} interface and tells 
-     *                  whether we're classifying or declassifying.
-     * @param owner     The window from which this command was invoked.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the user's group used for data retrieval.  
-     * @param rootLevel The level of the root for data retrieval.                  
+     * @return 		The {@link ImageData} hierarchy object in the browser's
+     *         		current Image node or <code>null</code> if the browser's
+     *         		current display is not an Image node. 
      */
-    public ClassifyCmd(ImageData image, int mode, JFrame owner, long userID, 
-                        long groupID, Class rootLevel)
+    private ImageData[] getImages()
     {
-        if (owner == null) throw new NullPointerException("No owner.");
-        if (image != null) {
-            images = new ImageData[1];
-            images[0] = image;
+        ImageData[] images = null;
+	    Set nodes = model.getBrowser().getSelectedDisplays();
+        if (nodes != null) {
+            Iterator i = nodes.iterator();
+            Object x;
+            images = new ImageData[nodes.size()];
+            int index = 0;
+            while (i.hasNext()) {
+                x = ((ImageDisplay) i.next()).getHierarchyObject();
+                if (x instanceof ImageData) {
+                    images[index] = (ImageData) x;
+                    index++;
+                }
+            }
         }
-        this.mode = mode;
-        this.owner = owner;
-        this.userID = userID;
-        this.groupID = groupID;
-        this.rootLevel = rootLevel;
+        return images;
     }
+
     /**
      * Creates a new command to classify/declassify the Image in the browser's
      * currently selected node, if the node is an Image node.
@@ -184,22 +146,47 @@ public class ClassifyCmd
      */
     public ClassifyCmd(HiViewer model, int mode) 
     { 
-        this(getImages(model), mode, model.getUI(), 
-                model.getUserDetails().getId(), model.getRootID(), 
-                model.getRootLevel()); 
+    	if (model == null)
+    		throw new IllegalArgumentException("No model.");
+    	checkMode(mode);
+    	this.mode = mode;
+    	this.model = model;
+    	images = getImages();
+    }
+    
+    /**
+     * Creates a new command to classify/declassify the Image in the browser's
+     * currently selected node, if the node is an Image node.
+     * If the node is not an Image node, no action is taken.
+     * 
+     * @param model 	The Model which has a reference to the browser.
+     *              	Mustn't be <code>null</code>.
+     * @param image     The image to classify/declassify.
+     * 					Mustn't be <code>null</code>.            
+     * @param mode  	The classification mode. This is one of the constants 
+     *              	defined by the {@link Classifier} interface and tells 
+     *              	whether we're classifying or declassifying.
+     */
+    public ClassifyCmd(HiViewer model, ImageData image, int mode) 
+    { 
+    	if (model == null)
+    		throw new IllegalArgumentException("No model.");
+    	if (image == null)
+    		throw new IllegalArgumentException("No image to categorise.");
+    	checkMode(mode);
+    	this.mode = mode;
+    	this.model = model;
+    	images = new ImageData[1];
+    	images[0] = image;
     }
     
     /** 
-     * Classifies or declassifies the image passed.
-     * 
+     * Classifies or declassifies the images depending on the {@link #mode}.
      * @see ActionCmd#execute() 
      */
     public void execute()
     {
-        if (images == null) return;
-        Classifier classifier = ClassifierFactory.createComponent(mode, images, 
-                                            owner, userID, groupID, rootLevel);
-        classifier.activate();
+        model.classifyImages(images, mode);
     }
 
 }

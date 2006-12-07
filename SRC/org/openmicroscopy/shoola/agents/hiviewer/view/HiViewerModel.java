@@ -60,12 +60,15 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.IconsVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
+import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -128,9 +131,11 @@ abstract class HiViewerModel
     /** Used to sort the nodes by date or alphabetically. */
     private ViewerSorter        sorter;
     
+    /** Reference to the component handling data. */
+    private DataHandler			dataHandler;
+    
     /** Reference to the component that embeds this model. */
     protected HiViewer          component;
-    
     
     /** Creates a new object and sets its state to {@link HiViewer#NEW}. */
     protected HiViewerModel()
@@ -439,6 +444,60 @@ abstract class HiViewerModel
     ViewerSorter getSorter() { return sorter; }
     
     /**
+     * Creates the <code>DataHandler</code> to annotate the specified nodes.
+     * 
+     * @param nodes The nodes to annotate.
+     * @return See above.
+     */
+	DataHandler annotateDataObjects(Set nodes)
+	{
+		Object uo;
+		Set toAnnotate = new HashSet();
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) {
+			uo = ((ImageDisplay) i.next()).getHierarchyObject();
+			if (uo instanceof DataObject) toAnnotate.add(uo);	
+		}
+		dataHandler = AnnotatorFactory.getAnnotator(toAnnotate, 
+				HiViewerAgent.getRegistry());
+		return dataHandler;
+	}
+
+	/**
+	 * Creates the <code>DataHandler</code> to classify or declassify the 
+     * specified images depending on the passed mode.
+     * 
+	 * @param nodes The images to classify or declassify.
+	 * @param mode	The mode indicating if we classify or declassify the images.
+	 * @return See above.
+	 */
+	DataHandler classifyImageObjects(ImageData[] nodes, int mode)
+	{
+		Set images = new HashSet(nodes.length);
+		for (int i = 0; i < nodes.length; i++) 
+			images.add(nodes[i]);
+		dataHandler = ClassifierFactory.getClassifier(images, getRootLevel(),
+								getRootID(), mode, HiViewerAgent.getRegistry());
+		return dataHandler;
+	}
+	   
+	/** Discards the <code>DataHandler</code>. */
+	void discardDataHandler()
+	{
+		if (dataHandler != null) {
+			dataHandler.discard();
+			dataHandler = null;
+		}
+	}
+	   
+	/**
+	 * Returns the <code>DataHandler</code> or null if not initialized.
+	 * 
+	 * @return See above.
+	 */
+	DataHandler getDataHandler() { return dataHandler; }
+	
+    /**
      * Indicates what kind of hierarchy this model is for.
      * 
      * @return One of the hierarchy flags defined by the {@link HiViewer} 
@@ -476,8 +535,4 @@ abstract class HiViewerModel
      */
     protected abstract HiViewerModel reinstantiate();
 
-
-
-
-    
 }

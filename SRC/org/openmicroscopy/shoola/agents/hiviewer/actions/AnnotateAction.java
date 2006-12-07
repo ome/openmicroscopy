@@ -66,10 +66,10 @@ public class AnnotateAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "Annotate";
+    public static final String NAME = "Annotate";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Annotate the selected image " +
+    public static final String DESCRIPTION = "Annotate the selected image " +
                                                 "or dataset.";
     
     /**

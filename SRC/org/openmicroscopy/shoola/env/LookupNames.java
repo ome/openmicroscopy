@@ -50,7 +50,6 @@ package org.openmicroscopy.shoola.env;
  * </small>
  * @since OME2.2
  */
-
 public class LookupNames
 {
     

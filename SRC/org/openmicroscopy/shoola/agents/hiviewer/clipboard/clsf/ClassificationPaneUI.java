@@ -54,6 +54,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
@@ -154,7 +155,7 @@ class ClassificationPaneUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        declassifyButton = new JButton("Declassify");
+        declassifyButton = new JButton(DeclassifyAction.NAME);
         declassifyButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)

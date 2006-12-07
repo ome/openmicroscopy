@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.AnnotationsLoader 
+ * org.openmicroscopy.shoola.agents.util.annotator.AnnotationsLoader 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator;
+package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 
@@ -39,7 +39,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.annotator.view.Annotator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 

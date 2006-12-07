@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the hierarchy viewer component.
@@ -433,5 +434,22 @@ public interface HiViewer
      * @param foundNodes The nodes found.
      */
 	public void setFoundResults(Set foundNodes);
+
+	/**
+	 * Annotates the specified <code>DataObject</code>s. 
+	 * 
+	 * @param nodes The <code>DataObject</code>s to annotate. 
+	 * 				Mustn't be <code>null</code>.
+	 */
+	public void annotateDataObjects(Set nodes);
+
+	/**
+	 * Classifies or declassifies the specified <code>Image</code>s
+	 * depending on the specified mode.
+	 * 
+	 * @param images 	The <code>Image</code>s to classify or declassify. 
+	 * @param mode		The classification mode.
+	 */
+	public void classifyImages(ImageData[] images, int mode);
     
 }

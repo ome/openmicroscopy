@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.annotator.view.AnnotatorFactory 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,10 +26,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.annotator.view;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 //Java imports
 import java.util.Set;
+
+import org.openmicroscopy.shoola.env.config.Registry;
 
 //Third-party libraries
 
@@ -37,8 +39,6 @@ import java.util.Set;
 
 /** 
  * Factory to create {@link Annotator} component.
- * This class keeps track of the {@link Annotator} instance that has been 
- * created and is not yet in the {@link Annotator#DISCARDED} state.
  *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -56,20 +56,32 @@ public class AnnotatorFactory
 
     /** The sole instance. */
     private static final AnnotatorFactory  singleton = new AnnotatorFactory();
-    
+
     /**
      * Returns the {@link Annotator}.
      * 
-     * @param objects Collections of <code>DataObject</code>s to annotate.
+     * @param objects 	Collections of <code>DataObject</code>s to annotate.
+     * @param ctx 		A reference to the {@link Registry}.
      * @return See above.
      */
-    public static Annotator getAnnotator(Set objects)
+    public static Annotator getAnnotator(Set objects, Registry ctx)
     {
+    	if (registry == null) registry = ctx;
     	if (objects == null || objects.size() == 0) return null;
     	 return singleton.createAnnotator(objects);
     }
     
-    /** Creates a new instance. */
+    /**
+     * Helper method. 
+     * 
+     * @return A reference to the {@link Registry}.
+     */
+    public static Registry getRegistry() { return registry; }
+    
+    /** Reference to the registry. */
+    private static Registry         registry;
+    
+    /** Creates a new instance.*/
     private AnnotatorFactory() {}
     
     /**

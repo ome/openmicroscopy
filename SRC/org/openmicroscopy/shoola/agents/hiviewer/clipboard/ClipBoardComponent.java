@@ -491,10 +491,5 @@ class ClipBoardComponent
     	firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, 
     						Boolean.TRUE);
     }
-
-	public Object getMouseOverObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
     
 }

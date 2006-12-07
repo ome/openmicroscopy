@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import pojos.GroupData;
 import pojos.ImageData;
 
@@ -417,7 +418,6 @@ class TreeViewerControl
         	Browser b = model.getSelectedBrowser(); 
         	TreeImageDisplay d = null;
         	if (b != null) d = b.getLastSelectedDisplay();
-        	System.out.println("display:"+d);
         	int editorType = model.getEditorType();
         	model.removeEditor();
             model.onComponentStateChange(true);
@@ -462,6 +462,14 @@ class TreeViewerControl
         } else if (name.equals(EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY)) {
             boolean b = ((Boolean) pce.getNewValue()).booleanValue();
             model.saveInEditor(b);
+        } else if (name.equals(DataHandler.ANNOTATED_PROPERTY) ||
+        		name.equals(DataHandler.CLASSIFIED_PROPERTY)) {
+        	if (view.getDataHandler() == null) return;
+        	view.discardDataHandler();
+        	Map browsers = model.getBrowsers();
+            Iterator i = browsers.values().iterator();
+            while (i.hasNext())
+                ((Browser) i.next()).refreshTree();
         }
     }
 

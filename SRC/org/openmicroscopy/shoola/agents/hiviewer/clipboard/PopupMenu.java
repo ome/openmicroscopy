@@ -33,9 +33,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import javax.swing.JComponent;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
@@ -44,8 +42,12 @@ import javax.swing.JSeparator;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.PropertiesCmd;
@@ -75,18 +77,6 @@ import pojos.ProjectData;
 class PopupMenu
     extends JPopupMenu
 {
-
-    /** 
-     * The text of the <code>view</code> menu item when an ImageNode is
-     * selected.
-     */
-    private static final String  VIEW = "view";
-    
-    /** 
-     * The text of the <code>view</code> menu item when an ImageSet is
-     * selected.
-     */
-    private static final String  BROWSE = "browse";
     
     /** The <code>View</code> menu item. */
     private JMenuItem               view;
@@ -113,8 +103,9 @@ class PopupMenu
     private void initComponents()
     {
         IconManager im = IconManager.getInstance();
-        properties = new JMenuItem("Properties", 
+        properties = new JMenuItem(PropertiesAction.NAME, 
                 im.getIcon(IconManager.PROPERTIES));
+        properties.setToolTipText(PropertiesAction.DESCRIPTION);
         properties.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -126,7 +117,9 @@ class PopupMenu
                 }
             }
         });
-        annotate = new JMenuItem("Annotate", im.getIcon(IconManager.ANNOTATE));
+        annotate = new JMenuItem(AnnotateAction.NAME, 
+        						im.getIcon(IconManager.ANNOTATE));
+        annotate.setToolTipText(AnnotateAction.DESCRIPTION);
         annotate.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -139,39 +132,38 @@ class PopupMenu
                 }
             }
         });
-        classify = new JMenuItem("Add to category");
+        classify = new JMenuItem(ClassifyAction.NAME, 
+        						im.getIcon(IconManager.CATEGORY));
+        classify.setToolTipText(ClassifyAction.DESCRIPTION);
         classify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 DataObject object = getDataObject();
                 if (object instanceof ImageData) {
-                    ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
-                                            Classifier.CLASSIFICATION_MODE, 
-                                            model.getParentModel().getUI(),
-                                            model.getUserID(),
-                                            model.getGroupID(),
-                                         model.getParentModel().getRootLevel());
+                    ClassifyCmd cmd = new ClassifyCmd(model.getParentModel(), 
+                    						(ImageData) object, 
+                    						ClassifyCmd.CLASSIFICATION_MODE);
                     cmd.execute();
                 }
             }
         });
-        declassify = new JMenuItem("Remove from category");
+        declassify = new JMenuItem(DeclassifyAction.NAME, 
+				im.getIcon(IconManager.DECATEGORISE));
+        declassify.setToolTipText(DeclassifyAction.DESCRIPTION);
         declassify.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
                 DataObject object = getDataObject();
                 if (object instanceof ImageData) {
-                    ClassifyCmd cmd = new ClassifyCmd((ImageData) object, 
-                                            Classifier.DECLASSIFICATION_MODE, 
-                                            model.getParentModel().getUI(),
-                                            model.getUserID(),
-                                            model.getGroupID(),
-                                         model.getParentModel().getRootLevel());
+                    ClassifyCmd cmd = new ClassifyCmd(model.getParentModel(), 
+    												(ImageData) object, 
+    										ClassifyCmd.DECLASSIFICATION_MODE);
                     cmd.execute();
                 }
             }
         });
-        view = new JMenuItem(VIEW, im.getIcon(IconManager.VIEWER));
+        view = new JMenuItem(ViewAction.NAME, im.getIcon(IconManager.VIEWER));
+        view.setToolTipText(ViewAction.DESCRIPTION_VIEW);
         view.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -205,28 +197,13 @@ class PopupMenu
         return target;
     }
     
-    /**
-     * Helper method to create the Classify submenu.
-     * 
-     * @return  The Classify submenu.
-     */
-    private JMenu createClassifySubMenu()
-    {
-        IconManager im = IconManager.getInstance();
-        JMenu menu = new JMenu("Classify");
-        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.setMnemonic(KeyEvent.VK_C);
-        menu.add(classify);
-        menu.add(declassify);
-        return menu;
-    }
-    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         add(view);
         add(new JSeparator(JSeparator.HORIZONTAL));
-        add(createClassifySubMenu());
+        add(classify);
+        add(declassify);
         add(annotate);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
@@ -261,13 +238,16 @@ class PopupMenu
         selectedNode = node;
         DataObject object = getDataObject();
         if (object == null) return;
-        String txt = BROWSE;
+        String txt = ViewAction.BROWSE;
+        String toolTip = ViewAction.DESCRIPTION_BROWSE;
         boolean b = false;
         if (object instanceof ImageData) {
-            txt = VIEW;
+            txt = ViewAction.VIEW;
+            toolTip = ViewAction.DESCRIPTION_VIEW;
             b = true;
         }
         view.setText(txt);
+        view.setToolTipText(toolTip);
         classify.setEnabled(b);
         declassify.setEnabled(b);
         show(invoker, x, y);

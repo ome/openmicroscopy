@@ -418,6 +418,4 @@ class BrowserModel
                 Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
-
-    
 }
