@@ -411,16 +411,15 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// OWNER
 			// users *aren't* allowed to set the owner of an item.
 			if (source.getOwner() != null
-					&& !source.getOwner().getId().equals(
-							newDetails.getOwner().getId())) {
+					&& !newDetails.getOwner().getId().equals(
+							source.getOwner().getId())) {
 				// but this is root
 				if (currentUserIsAdmin()) {
 					newDetails.setOwner(source.getOwner());
 				} else {
 					throw new SecurityViolation(String.format(
-							"You are not authorized to set the ExperimenterID"
-									+ " for %s to %d", obj, source.getOwner()
-									.getId()));
+							"You are not authorized to set the Experimenter"
+									+ " for %s to %s", obj, source.getOwner()));
 				}
 
 			}
@@ -441,9 +440,8 @@ public class BasicSecuritySystem implements SecuritySystem {
 				// oops. boom!
 				else {
 					throw new SecurityViolation(String.format(
-							"You are not authorized to set the ExperimenterGroupID"
-									+ " for %s to %d", obj, source.getGroup()
-									.getId()));
+							"You are not authorized to set the ExperimenterGroup"
+									+ " for %s to %s", obj, source.getGroup()));
 				}
 			}
 
@@ -696,7 +694,14 @@ public class BasicSecuritySystem implements SecuritySystem {
 			// if we need to filter any permissions, do it here!
 
 			newDetails.setPermissions(currentP);
-			if (!currentP.identical(previousP)) 
+			Permissions tmpDetails = new Permissions(previousP);
+			// see https://trac.openmicroscopy.org.uk/omero/ticket/553
+			if (currentP.isSet(Flag.LOCKED)) {
+				tmpDetails.set(Flag.LOCKED); 
+			} else {
+				tmpDetails.unSet(Flag.LOCKED);
+			}
+			if (!currentP.identical(tmpDetails)) 
 			{
 				if ( ! isOwnerOrSupervisor(obj)) // TODO and privileged? if not, remove from below??
 					throw new SecurityViolation(String.format(
