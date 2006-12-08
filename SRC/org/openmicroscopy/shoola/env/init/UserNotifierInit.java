@@ -82,7 +82,7 @@ public final class UserNotifierInit
 		throws StartupException
 	{
 		Registry reg = container.getRegistry();
-		UserNotifier un = UIFactory.makeUserNotifier();
+		UserNotifier un = UIFactory.makeUserNotifier(container);
 		RegistryFactory.linkUserNotifier(un, reg);
 	}
 	

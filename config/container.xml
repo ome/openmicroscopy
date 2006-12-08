@@ -102,7 +102,13 @@
      	   Experimental, affects performance and responsiveness.
          Don't modify this unless you know what you're doing. -->
     <entry name="/services/RE/stackBlockSz" type="integer">4096</entry> 
-            
+          
+    <!-- Debugger configuration.
+         This entry specifies the name of the server and 
+         and e-mail address to submit comment.
+    -->
+<entry name="/services/DEBUGGER/hostname">http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php</entry>
+    <entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
   </services>
   
   

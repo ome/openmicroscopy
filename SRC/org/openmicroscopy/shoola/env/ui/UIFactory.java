@@ -61,11 +61,13 @@ public class UIFactory
 	 * Creates the splash screen that is used at initialization.
 	 * 
      * @param listener  A listener for {@link SplashScreenView#cancel} button.
+     * @param c			Reference to the singleton {@link Container}.
 	 * @return	        The splash screen.
 	 */
-	public static SplashScreen makeSplashScreen(ActionListener listener)
+	public static SplashScreen makeSplashScreen(ActionListener listener, 
+												Container c)
 	{
-		return new SplashScreenProxy(listener);
+		return new SplashScreenProxy(listener, c);
 	}
 	
 	/**
@@ -83,12 +85,23 @@ public class UIFactory
 	/**
 	 * Creates the {@link UserNotifier}.
 	 *
+	 * @param c	Reference to the singleton {@link Container}.
 	 * @return	The {@link UserNotifier}.
 	 */
-	public static UserNotifier makeUserNotifier()
+	public static UserNotifier makeUserNotifier(Container c)
 	{
-		return new UserNotifierImpl();
+		return new UserNotifierImpl(c);
 	}
+	
+	/**
+	 * Creates the {@link UserNotifier}.
+	 *
+	 * @return	The {@link UserNotifier}.
+	 */
+	//public static UserNotifier makeUserNotifier()
+	//{
+	//	return new UserNotifierImpl();
+	//}
 	
     /**
      * Returns an array of the available servers.

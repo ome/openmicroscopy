@@ -85,10 +85,10 @@ class RegistryImpl
    	private UserNotifier            un;
    	
     /** Reference to the container's rendering service. */
-    private OmeroImageService        rds;
+    private OmeroImageService		rds;
     
     /** Reference to the Omero service. */
-    private OmeroDataService            os;
+    private OmeroDataService		os;
 
     /** Just creates an empty map. */
     RegistryImpl()

@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.awt.Component;
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -69,11 +68,6 @@ public class NullUserNotifier
     public void notifyError(String title, String summary, String detail) {}
 
     /**
-     * @see UserNotifier#notifyError(String, String, java.awt.Component)
-     */
-    public void notifyError(String title, String summary, Component c) {}
-
-    /**
      * @see UserNotifier#notifyError(String, String)
      */
     public void notifyError(String title, String message) {}
@@ -89,11 +83,6 @@ public class NullUserNotifier
     public void notifyWarning(String title, String summary, String detail) {}
 
     /**
-     * @see UserNotifier#notifyWarning(String, String, java.awt.Component)
-     */
-    public void notifyWarning(String title, String summary, Component c) {}
-
-    /**
      * @see UserNotifier#notifyWarning(String, String)
      */
     public void notifyWarning(String title, String message) {}
@@ -104,8 +93,13 @@ public class NullUserNotifier
     public void notifyInfo(String title, String message) {}
 
     /**
-     * @see UserNotifier#notifyInfo(String, String, javax.swing.Icon)
+     * @see UserNotifier#notifyInfo(String, String, Icon)
      */
     public void notifyInfo(String title, String message, Icon icon) {}
+
+    /**
+     * @see UserNotifier#submitMessage(String)
+     */
+	public void submitMessage(String emailAddress) {}
 
 }

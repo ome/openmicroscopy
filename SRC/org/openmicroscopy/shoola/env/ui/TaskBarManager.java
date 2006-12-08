@@ -39,6 +39,7 @@ import java.awt.event.WindowEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
@@ -134,6 +135,14 @@ class TaskBarManager
 						"Sorry, this functionality is not yet available.");
 	}
 	
+	/** Brings up on screen a dialog to send comment. */
+	private void sendComment()
+	{
+		Registry reg = container.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		un.submitMessage("");
+	}
+	
     /** 
      * Basic information about the software. Temporary solution.
      *
@@ -148,7 +157,7 @@ class TaskBarManager
 	 * Attaches the {@link #notAvailable() not-available} action to all buttons
 	 * whose functionality hasn't been implemented yet.
 	 */
-	private void attachNoOpListeners()
+	private void attachMIListeners()
 	{
 		ActionListener noOp = new ActionListener() {		
 			public void actionPerformed(ActionEvent ae) { notAvailable(); }
@@ -162,6 +171,10 @@ class TaskBarManager
         });
 		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_BTN).addActionListener(noOp);
+		view.getButton(TaskBarView.COMMENT_MI).addActionListener(
+                new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { sendComment(); }
+        });
 	}
 	
 	/**
@@ -208,7 +221,7 @@ class TaskBarManager
 	{
 		attachOpenExitListeners();
 		attachConnectionListeners();
-		attachNoOpListeners();
+		attachMIListeners();
 		EventBus bus = container.getRegistry().getEventBus();
 		bus.register(this, ServiceActivationResponse.class);
         bus.register(this, ExitApplication.class);

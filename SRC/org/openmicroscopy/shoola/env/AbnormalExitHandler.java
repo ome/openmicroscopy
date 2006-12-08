@@ -140,7 +140,7 @@ class AbnormalExitHandler
 		
 		//Finally tell the user.  
 		//(Notification service may not be up yet, so we create a temp one.)
-		UserNotifier un = UIFactory.makeUserNotifier();
+		UserNotifier un = UIFactory.makeUserNotifier(c);
 		un.notifyError("Abnormal Termination", 
 					"An unforeseen error occurred, the application will exit.",
 					msg.toString());

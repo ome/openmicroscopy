@@ -91,7 +91,7 @@ public final class SplashScreenInit
 	void configure()
 	{
         initializer.register(this);
-		splashScreen = UIFactory.makeSplashScreen(this);
+		splashScreen = UIFactory.makeSplashScreen(this,container);
 		splashScreen.open();
 	}
 
@@ -132,7 +132,7 @@ public final class SplashScreenInit
 
 	/** 
 	 * Waits until user's credentials are available and then tries to log onto
-	 * <i>OMEDS</i>.
+	 * <i>OMERO</i>.
 	 * @see InitializationListener#onEnd()
 	 */
 	public void onEnd()
@@ -159,9 +159,10 @@ public final class SplashScreenInit
 
         //Exit if we couldn't manage to log in.
         if (!succeeded) {
-            UserNotifier un = UIFactory.makeUserNotifier();
-            un.notifyError("Login Failure", "A valid connection to OMEDS "+
-                    "couldn't be established.  The application will exit.");
+            UserNotifier un = UIFactory.makeUserNotifier(container);
+            un.notifyError("Login Failure", "A valid connection to the OMERO "+
+                    "server couldn't be established. " +
+                    "The application will exit.");
             container.exit();
         }
 

@@ -122,11 +122,17 @@ public class IconManager
     /** ID of the <code>Classification 48</code> icon. */
     public static final int CLASSIFICATION_48 = 20;
     
+    /** ID of the <code>Comment icon 64</code> icon. */
+    public static final int COMMENT_ICON_64 = 21;
+    
+    /** ID of the <code>Error icon 64</code> icon. */
+    public static final int ERROR_ICON_64 = 22;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 20;
+    private static int      MAX_ID = 23;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -154,7 +160,9 @@ public class IconManager
     	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
     	relPaths[INFO] = "nuvola_messagebox_info16.png";
     	relPaths[PROGRESS] = "eclipse_progress_none16";
-    	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";;
+    	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
+    	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
+    	relPaths[COMMENT_ICON_64] = "nuvola_knotes64.png";
     }
     
     /** 

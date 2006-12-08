@@ -30,14 +30,14 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.DetailedNotificationDialog;
+import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -60,6 +60,9 @@ public class UserNotifierImpl
     implements UserNotifier
 {
 	
+	/** Default title for the comment dialog. */
+    private static final String     DEFAULT_COMMENT_TITLE = "Comment";
+    
     /** Default title for the error dialog. */
     private static final String     DEFAULT_ERROR_TITLE = "Error";
  
@@ -77,6 +80,9 @@ public class UserNotifierImpl
      * can inherit it.
      */
     private static JFrame			SHARED_FRAME = null;
+	
+    /** Reference to the manager. */
+    private UserNotifierManager		manager;
     
     /**
      * Brings up a notification dialog.
@@ -102,6 +108,7 @@ public class UserNotifierImpl
      * @param icon      The icon to show by the message.
      * @param detail    The detailed message.
      */
+    /*
     private void showDetailedNotificationDialog(String title, String message, 
                                                 Icon icon, String detail)
     {
@@ -111,28 +118,48 @@ public class UserNotifierImpl
         dialog.pack();                                      
         UIUtilities.centerAndShow(dialog);
     }
+*/
     
     /**
-     * Brings up a detailed notification dialog.
+     * Brings up a messenger dialog.
+     * 
+     * @param email     The e-mail address of the current user.
+     * @param detail	The detailed error message.
+     */
+    private void showMessengerDialog(String email, String detail)
+    {
+    	MessengerDialog d;
+    	if (detail == null) 
+    		 d = new MessengerDialog(SHARED_FRAME, DEFAULT_COMMENT_TITLE, 
+    				 				email);   
+    	else 
+    		d = new MessengerDialog(SHARED_FRAME, DEFAULT_COMMENT_TITLE, email, 
+    								new Exception(detail)); 
+    	d.addPropertyChangeListener(manager);
+    	d.setModal(true);
+    	UIUtilities.centerAndShow(d);
+    }
+    
+    /**
+     * Brings up a messenger dialog.
      * 
      * @param title     The dialog title.
      * @param message   The dialog message.
-     * @param icon      The icon to show by the message.
-     * @param component  The details in a component
+     * @param detail	The detailed error message.
      */
-    private void showDetailedNotificationDialog(String title, String message, 
-                                                Icon icon, Component component)
+    private void showErrorDialog(String title, String summary, String detail)
     {
-        DetailedNotificationDialog dialog = new DetailedNotificationDialog(
-                                                SHARED_FRAME, title, message, 
-                                                icon, component);
-        dialog.pack();                                      
-        UIUtilities.centerAndShow(dialog);
+    	showMessengerDialog("", detail);
     }
     
-    /** Creates a new instance. */
-    UserNotifierImpl()
+    /** 
+     * Creates a new instance. 
+     * @param c	Reference to the singleton {@link Container}.
+     */
+    UserNotifierImpl(Container c)
     {
+    	manager = new UserNotifierManager(c);
+    	
     	if (SHARED_FRAME == null) {
 			SHARED_FRAME = new JFrame();
 			SHARED_FRAME.setIconImage(IconManager.getOMEImageIcon());
@@ -167,21 +194,10 @@ public class UserNotifierImpl
 	public void notifyError(String title, String summary, String detail)
 	{
 		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
-		showDetailedNotificationDialog(title, summary, 
-										IconManager.getDefaultErrorIcon(),
-										detail);
-	}
-	
-	/** 
-     * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#notifyError(String, String, Component)
-     */     
-	public void notifyError(String title, String summary, Component component)
-	{
-		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
-		showDetailedNotificationDialog(title, summary, 
-										IconManager.getDefaultErrorIcon(),
-										component);
+		showErrorDialog(title, summary, detail);
+		//showDetailedNotificationDialog(title, summary, 
+		//								IconManager.getDefaultErrorIcon(),
+		//								detail);
 	}
     
 	/**
@@ -204,25 +220,12 @@ public class UserNotifierImpl
 	{
 		if (title == null || title.length() == 0)
 			title = DEFAULT_WARNING_TITLE;
-		showDetailedNotificationDialog(title, summary, 
-										IconManager.getDefaultWarnIcon(),
-										detail);
+		showErrorDialog(title, summary, detail);
+		//showDetailedNotificationDialog(title, summary, 
+		//								IconManager.getDefaultWarnIcon(),
+		//								detail);
 	}
-    
-	/**
-     * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#notifyWarning(String, String, Component)
-     */ 
-	public void notifyWarning(String title, String summary, Component component) 
-	{
-		if (title == null || title.length() == 0)
-			title = DEFAULT_WARNING_TITLE;
-		showDetailedNotificationDialog(title, summary, 
-										IconManager.getDefaultWarnIcon(),
-										component);
-	}
-    
-	
+
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
      * @see UserNotifier#notifyWarning(String, String, Throwable)
@@ -256,5 +259,14 @@ public class UserNotifierImpl
         if (icon == null) icon = IconManager.getDefaultInfoIcon();
         showNotificationDialog(title, message, icon);
     }
+
+    /** 
+     * Implemented as specified by {@link UserNotifier}. 
+     * @see UserNotifier#submitMessage(String)
+     */ 
+	public void submitMessage(String emailAddress)
+	{
+		showMessengerDialog(emailAddress, null);
+	}
 	
 }

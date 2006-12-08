@@ -37,7 +37,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Application-internal dependencies
 
 /** 
- * 
+ * Reports an error occured while trying to render a plane.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

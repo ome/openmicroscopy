@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.login.LoginConfig;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
@@ -85,6 +86,9 @@ class SplashScreenManager
 	/** The current number of tasks that have been executed. */
 	private int					doneTasks;
 	
+	/** Reference to the singleton {@link Container}. */
+	private Container			container;
+	
     /** 
      * Handles the selection of a new item. Allows the user to enter
      * the name of a new server if the selected item is 
@@ -103,10 +107,12 @@ class SplashScreenManager
 	 * Creates a new instance of this manager, of its corresponding UI
 	 * ({@link SplashScreenView}), and links them as needed.
      * 
-     * @param listener A listener for {@link SplashScreenView#cancel} button.
+     * @param listener 	A listener for {@link SplashScreenView#cancel} button.
+     * @param c			Reference to the singleton {@link Container}.
 	 */
-	SplashScreenManager(ActionListener listener)
+	SplashScreenManager(ActionListener listener, Container c)
 	{
+		container = c;
 		view = new SplashScreenView();
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
@@ -245,7 +251,7 @@ class SplashScreenManager
                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             }
         } catch (IllegalArgumentException iae) {
-            UserNotifier un = UIFactory.makeUserNotifier();
+            UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", iae.getMessage());
         }
 	}

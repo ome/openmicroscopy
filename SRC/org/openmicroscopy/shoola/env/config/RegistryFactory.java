@@ -73,7 +73,7 @@ public class RegistryFactory
 	
 	/**
 	 * Creates a new {@link Registry} and fills it up with the entries
-	 * in the specified cofiguration file.
+	 * in the specified configuration file.
 	 * 
 	 * @param file	Path to a configuration file.
 	 * @return A new {@link Registry} built from the specified file.

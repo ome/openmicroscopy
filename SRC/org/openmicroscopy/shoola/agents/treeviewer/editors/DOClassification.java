@@ -55,7 +55,6 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -158,8 +157,7 @@ class DOClassification
     /** Initializes the UI components. */
     private void initComponents()
     {
-        IconManager im = IconManager.getInstance();
-        refreshButton = new JButton(im.getIcon(IconManager.REFRESH));
+        refreshButton = new JButton("Refresh");
         UIUtilities.unifiedButtonLookAndFeel(refreshButton);
         refreshButton.setEnabled(false);
         refreshButton.setToolTipText(
