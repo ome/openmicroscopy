@@ -132,11 +132,14 @@ class TaskBarView
 	/** Identifies the help button within the toolbar. */
 	static final int	HELP_BTN = 11;
 	
+	/** Identifies the comment menu item within the toolbar. */
+	static final int	COMMENT_MI = 12;
+	
 	/** 
 	 * The maximum id of the buttons and menu items identifiers.
 	 * Allows to size the {@link #buttons} array correctly.
 	 */
-	private static final int	MAX_ID = 11;
+	private static final int	MAX_ID = 12;
 		
     /** The title of the frame. */
     private static final String TITLE = "Open Microscopy Environment";
@@ -194,6 +197,8 @@ class TaskBarView
 								iconManager.getIcon(IconManager.SW_UPDATES));
 		buttons[ABOUT_MI] = new JMenuItem("About OME",
 												IconManager.getOMEIcon());
+		buttons[COMMENT_MI] = new JMenuItem("Send Comment",
+								iconManager.getIcon(IconManager.COMMENT));
 	}
 	
     /**
@@ -307,6 +312,7 @@ class TaskBarView
 		JMenu help = new JMenu("Help");
 		help.setMnemonic(KeyEvent.VK_H);
 		help.add(buttons[WELCOME_MI]);
+		help.add(buttons[COMMENT_MI]);
 		help.add(buttons[HELP_MI]);
 		help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
