@@ -44,7 +44,7 @@
       service-omeis.providers.re.RenderingEngine.xml
     -->
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
-    <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
+    <property name="pixelsData"     ref="/OMERO/Pixels"/>
   </bean>
 
   <bean id="managed:ome.api.RawPixelsStore" parent="managedStatefulService">

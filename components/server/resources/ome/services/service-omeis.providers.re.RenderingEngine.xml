@@ -40,7 +40,7 @@
      class="ome.services.RenderingBean">
 	<!-- following copied from parent="binary" -->
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
-    <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
+    <property name="pixelsData"     ref="/OMERO/Pixels"/>
   </bean>
 
   <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService">

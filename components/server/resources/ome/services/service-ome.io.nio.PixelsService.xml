@@ -35,7 +35,7 @@
 
 <beans>	
 
-  <bean name="/OME/OMEIS/Pixels" class="ome.io.nio.PixelsService" 
+  <bean name="/OMERO/Pixels" class="ome.io.nio.PixelsService" 
     parent="filesystem"/>
   
 </beans>

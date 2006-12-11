@@ -35,7 +35,7 @@
 
 <beans>	
 
-  <bean name="/OME/OMEIS/Thumbs"  class="ome.io.nio.ThumbnailService"
+  <bean name="/OMERO/Thumbs"  class="ome.io.nio.ThumbnailService"
     parent="filesystem"/>
 
 </beans>

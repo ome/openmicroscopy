@@ -38,7 +38,7 @@
   <bean singleton="false" parent="level2"
   		id="internal:ome.api.ThumbnailStore"
   	class="ome.services.ThumbnailBean">
-    <property name="ioService" ref="/OME/OMEIS/Thumbs"/>
+    <property name="ioService" ref="/OMERO/Thumbs"/>
     <property name="renderingEngine"
     	ref="internal:omeis.providers.re.RenderingEngine"/>
     <property name="scaleService" ref="internal:ome.api.IScale"/>

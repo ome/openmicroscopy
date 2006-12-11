@@ -35,7 +35,7 @@
 
 <beans>	
 
-  <bean name="/OME/OMEIS/Files"  class="ome.io.nio.OriginalFilesService"
+  <bean name="/OMERO/Files"  class="ome.io.nio.OriginalFilesService"
     parent="filesystem"/>
 
 </beans>

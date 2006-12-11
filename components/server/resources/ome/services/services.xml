@@ -111,11 +111,11 @@
 
   <bean name="binary" abstract="true">
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
-    <property name="pixelsData"     ref="/OME/OMEIS/Pixels"/>
+    <property name="pixelsData"     ref="/OMERO/Pixels"/>
   </bean>
 
   <bean name="filesystem"  abstract="true">
-    <constructor-arg value="/OME/OMEIS/"/>			
+    <constructor-arg value="${omero.data.dir}"/>			
   </bean>
   
 <!--

@@ -45,7 +45,7 @@ public class AbstractFileSystemService
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
     
-    public final static String ROOT_DEFAULT = File.separator + "OME" + File.separator + "OMEIS" + File.separator;
+    public final static String ROOT_DEFAULT = File.separator + "OMERO" + File.separator;
     
     public final static String PIXELS_PATH =  "Pixels" + File.separator;
     
