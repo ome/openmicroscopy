@@ -526,10 +526,9 @@ class TreeViewerWin
         Map browsers = model.getBrowsers();
         if (browsers != null) {
             Iterator i = browsers.keySet().iterator();
-            while (i.hasNext()) {
+            while (i.hasNext())
                 ((Browser) browsers.get(i.next())).onComponentStateChange(b);
-            }
-            
+
         }
         //if (browser != null) browser.onComponentStateChange(b);
         tabs.setEnabled(b);
@@ -545,7 +544,7 @@ class TreeViewerWin
     void setStatus(String text, boolean hide)
     {
         statusBar.setStatus(text);
-        statusBar.setProgress(hide, -1);
+        statusBar.setProgress(hide);
     }
     
     /**
@@ -556,14 +555,11 @@ class TreeViewerWin
      */
     void setStatusIcon(boolean b)
     {
-        IconManager icons = IconManager.getInstance();
-        if (b) {
+        if (b) 
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            statusBar.setStatusIcon(icons.getIcon(IconManager.CANCEL), b); 
-        } else {
+        else
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            statusBar.setStatusIcon(icons.getIcon(IconManager.TRANSPARENT), b); 
-        }
+        statusBar.setStatusIcon( b); 
     }
 
     /**

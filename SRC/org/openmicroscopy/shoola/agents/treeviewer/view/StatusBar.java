@@ -31,11 +31,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -67,7 +68,13 @@ class StatusBar
 {
 
     /** Bounds property indicating that data loading is cancelled. */
-    static final String         CANCEL_PROPERTY = "cancel";
+    static final String         	CANCEL_PROPERTY = "cancel";
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
     /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar        progressBar;
@@ -94,7 +101,8 @@ class StatusBar
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
-        statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
+        statusButton = new JButton(icons.getIcon(IconManager.CANCEL));
+        statusButton.setVisible(false);
         statusButton.setBorder(null);
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
         //statusButton.setOpaque(false);
@@ -116,6 +124,7 @@ class StatusBar
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(statusButton);
+        p.add(Box.createRigidArea(H_SPACER_SIZE));
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
         JPanel progress = new JPanel();
@@ -150,16 +159,15 @@ class StatusBar
     void setStatus(String s) { status.setText(s); }
     
     /** 
-     * Sets the status icon and sets the enabled value.
+     * Enables the button and shows/hides the {@link #statusButton} depending
+     * on the specified parameter.
      * 
-     * @param statusIcon   The icon displayed in the left corner.
-     * @param b            The value to set.
+     * @param b	The value to set.
      */
-    void setStatusIcon(Icon statusIcon, boolean b)
+    void setStatusIcon(boolean b)
     { 
-        statusButton.setIcon(statusIcon);
+        statusButton.setVisible(b);
         buttonEnabled = b;
-        //statusButton.setEnabled(b);
     }
     
     /**
@@ -167,20 +175,11 @@ class StatusBar
      * 
      * @param hide  Pass <code>true</code> to hide the progress bar, 
      *              <code>false</otherwise>
-     * @param perc  The value to set.
      */
-    void setProgress(boolean hide, int perc)
+    void setProgress(boolean hide)
     {
         progressBar.setVisible(!hide);
         progressLabel.setVisible(!hide);
-        /*
-        if (perc < 0) progressBar.setIndeterminate(true);
-        else {
-            progressBar.setStringPainted(true);
-            progressBar.setIndeterminate(false);
-            progressBar.setValue(perc);
-        }
-        */
     }
     
 }
