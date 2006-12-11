@@ -19,7 +19,6 @@
 	<classpathentry sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>
 	<classpathentry sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
-	<classpathentry kind="src" path="/omero-server-3.0-TRUNK"/>
 	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
