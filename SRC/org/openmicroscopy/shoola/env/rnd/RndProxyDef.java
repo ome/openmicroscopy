@@ -40,7 +40,7 @@ import java.util.Map;
 //Application-internal dependencies
 
 /** 
- * 
+ * Stores the rendering settings to speed-tup the process.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

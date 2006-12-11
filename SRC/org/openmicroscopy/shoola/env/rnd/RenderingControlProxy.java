@@ -101,8 +101,10 @@ class RenderingControlProxy
     /** The size of the cache. No caching if <= 0.*/
     private int                     sizeCache;
     
+    /** The channel metadata. */
     private ChannelMetadata[]       metadata;
     
+    /** locate copy of the rendering used to speed-up the UI painting. */
     private RndProxyDef             rndDef;
     
     /**
@@ -281,6 +283,12 @@ class RenderingControlProxy
         models = servant.getAvailableModels();
         rndDef = new RndProxyDef();
         initialize();
+        //TMP: invalidate noise reduction.
+        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+			setQuantizationMap(i, getChannelFamily(i), 
+							getChannelCurveCoefficient(i), false);
+		}
+        
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
         int k = 0;
@@ -365,7 +373,6 @@ class RenderingControlProxy
     public String getModel()
     { 
         return rndDef.getColorModel();
-        //return servant.getModel().getValue(); 
     }
 
     /** 
@@ -453,7 +460,6 @@ class RenderingControlProxy
     public String getChannelFamily(int w)
     { 
         return rndDef.getChannel(w).getFamily();
-        //return servant.getChannelFamily(w).getValue();
     }
 
     /** 

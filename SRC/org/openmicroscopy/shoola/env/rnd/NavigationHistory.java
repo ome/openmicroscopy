@@ -306,6 +306,11 @@ class NavigationHistory
  * ==============================================================
  */ 
     
+    /**
+     * Returns the history.
+     * 
+     * @return See above.
+     */
     List getHistory() { return history; }
     
 }

@@ -61,15 +61,13 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-
-
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
 
 /** 
- * 
+ * A dialog used to collect and send  comments or error messages.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -77,7 +75,8 @@ import layout.TableLayout;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * after code from 
  * @author Brian Loranger &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:brian.loranger@gmail.com">brian.loranger@gmail.com</a>
+ * <a href="mailto:brian.loranger@lifesci.dundee.ac.uk">
+ * brian.loranger@lifesci.dundee.ac.uk</a>
  * 
  * @version 3.0
  * <small>

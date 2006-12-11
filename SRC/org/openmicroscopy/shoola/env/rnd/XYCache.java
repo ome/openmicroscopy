@@ -41,24 +41,58 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import omeis.providers.re.RGBBuffer;
-import omeis.providers.re.data.PlaneDef;
-
-import org.openmicroscopy.shoola.util.math.geom2D.Line;
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.util.math.geom2D.Line;
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
+
 
 /** 
- * 
+ * Caches XY images, within a given pixels set, that have been rendered.
+ * <p>The number of entries in the cache at any given time is  
+ * {@link #MAX_ENTRIES} at most, being {@link #MAX_ENTRIES} the greatest integer
+ * such that <nobr>
+ * {@link #MAX_ENTRIES}*{@link #IMAGE_SIZE} &lt;= {@link #CACHE_SIZE}
+ * </nobr>.</p>
+ * <p>If {@link #MAX_ENTRIES} is reached and an entry has to be added, we 
+ * discard a previous entry to make room for the new one.  The removal policy
+ * is based on the current navigation direction maintained by the 
+ * {@link NavigationHistory} and is as follows.  Let <code>C</code> be the set
+ * of all entries in the cache and be <code>n</code> its cardinality.  It's a
+ * trivial observation that we can identify an element of <code>C</code> with
+ * a point in the <i>zOt</i> cartesian plane.  Now if a point <code>p</code> is
+ * to be added to <code>C</code> and <code>n=MAX_ENTRIES</code>, we consider
+ * the set <code>C'</code> of all elements of <code>C</code> ordered such that
+ * the first element is the farthest away from <code>p</code> and the last 
+ * element is the closest to <code>p</code>.  That is:</p>
+ * <p><code>
+ * C' = {c<sub>1</sub>, .. , c<sub>n</sub>} <br>
+ * d(c<sub>i</sub>, p) &gt;= d(c<sub>i+i</sub>, p) </code><br>
+ * <small>(d being the standard distance between two points in the cartesian 
+ * plane)</small>
+ * </p>
+ * <p>Then the removal algorithm is given by the following steps:</p>
+ * <ol>
+ *  <li>Get the line <code>D</code> representing the current navigation 
+ *  direction.</li>
+ *  <li>Look for the first element of <code>C'</code> that doesn't lie on
+ *  <code>D</code>.  If such an element exists, then remove it.  Otherwise
+ *  go on to the next step.</li>
+ *  <li>Look for the first element of <code>C'</code> that falls on the 
+ *  negative half of <code>D</code> &#151; this half contains the points 
+ *  "behind" the current move with respect to the orientation of the
+ *  movement.  If such an element exists, then remove it.  Otherwise go on
+ *  to the next step.</li>
+ *  <li>Remove <code>c<sub>1</sub></code>.</li>
+ * </ol>
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -220,29 +254,7 @@ public class XYCache
         cache.put(key, img);
     }
     
-    //tmp
-    void addBuffer(PlaneDef pd, RGBBuffer buffer)
-    {
-        if (max_entries == 0) return;  //Caching disabled.
-        
-        //Sanity checks.
-        if (pd == null)
-            throw new NullPointerException("No plane def.");
-        if (pd.getSlice() != PlaneDef.XY)
-            throw new IllegalArgumentException(
-                    "Can only accept XY planes: "+pd.getSlice()+".");
-        if (buffer == null)
-            throw new NullPointerException("No buffer.");
-        
-        //Will the next entry fit into the cache?
-        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
-        if (max_entries <= cache.size())  //Nope, make room for it.
-            ensureCapacity(key);
-        
-        //Once we're here we have enough room for the new element.
-        cache.put(key, buffer);
-    }
-    
+   
     /**
      * Extracts the image (if any) associated to <code>pd</code>.
      * 
@@ -260,18 +272,6 @@ public class XYCache
                     "Can only accept XY planes: "+pd.getSlice()+".");
         PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
         return (BufferedImage) cache.get(key);
-    }
-    
-    //tmp method
-    RGBBuffer extractBuffer(PlaneDef pd)
-    {
-        if (pd == null)
-            throw new NullPointerException("No plane def.");
-        if (pd.getSlice() != PlaneDef.XY)
-            throw new IllegalArgumentException(
-                    "Can only accept XY planes: "+pd.getSlice()+".");
-        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
-        return (RGBBuffer) cache.get(key);
     }
     
     /**
@@ -318,7 +318,18 @@ public class XYCache
  * ==============================================================
  */ 
     
+    /**
+     * Returns the cache.
+     * 
+     * @return See above.
+     */
     Map getCache() { return cache; }
+    
+    /**
+     * Returns the navigation history.
+     * 
+     * @return See above.
+     */
     NavigationHistory getNavigHistory() { return navigHistory; }
     
 }
