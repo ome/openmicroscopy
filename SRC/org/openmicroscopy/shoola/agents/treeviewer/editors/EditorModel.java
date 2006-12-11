@@ -128,7 +128,10 @@ class EditorModel
     private boolean             annotated;
     
     /** The emissions wavelengths for the edited image. */
-    private List               emissionWaves;
+    private List               	emissionWaves;
+    
+    /** Flag indicating if the thumbnail is loade or not */
+    private boolean				thumbnailLoaded;
     
     /** Reference to the component that embeds this model. */
     protected Editor            component;
@@ -191,6 +194,7 @@ class EditorModel
         if (editorType == Editor.CREATE_EDITOR) this.parent = parent;
         else this.parent = null;
         annotated = false;
+        thumbnailLoaded = false;
     }
     
     /**
@@ -772,6 +776,22 @@ class EditorModel
      * @return See above.
      */
 	int getSelectedSubPane() { return EditorFactory.getSubSelectedPane(); }
+	
+	/**
+	 * Sets to <code>true</code> if the thumbnail has been loaded successfully,
+	 * to <code>false</code> otherwise.
+	 * 
+	 * @param b The value to set.
+	 */
+	void setThumbnailLoaded(boolean b) { thumbnailLoaded = b; }
+	
+	/**
+	 * Returns <code>true</code> if the thumbnail is already loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isThumbnailLoaded() { return thumbnailLoaded; }
     
 }
  

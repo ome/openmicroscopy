@@ -646,7 +646,7 @@ class HiViewerComponent
 	        cmd.execute();
 	        return;
 		}
-		DataHandler dh = model.annotateDataObjects(nodes);
+		DataHandler dh = model.annotateDataObjects(view, nodes);
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
 	}
@@ -662,7 +662,7 @@ class HiViewerComponent
                     "in the DISCARDED state.");
 		if (images == null || images.length == 0)
 			throw new IllegalArgumentException("No image to classify.");
-		DataHandler dh = model.classifyImageObjects(images, mode);
+		DataHandler dh = model.classifyImageObjects(view, images, mode);
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
 	}

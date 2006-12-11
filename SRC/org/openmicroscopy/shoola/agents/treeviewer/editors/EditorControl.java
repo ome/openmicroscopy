@@ -32,10 +32,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Component;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,7 +57,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class EditorControl
-    implements ChangeListener, PropertyChangeListener
+    implements ChangeListener
 {
     
     /** 
@@ -207,36 +203,29 @@ public class EditorControl
             JTabbedPane tab = (JTabbedPane) e.getSource();
             Component c = tab.getSelectedComponent();
             int index = tab.getSelectedIndex();
+            
             if (c instanceof DOInfo) {
                 DOInfo info = (DOInfo) c;
-                if (info.getInfoType() == DOInfo.INFO_TYPE)
-                    model.retrieveChannelsData();
+                switch (info.getInfoType()) {
+					case DOInfo.INFO_TYPE:
+						model.retrieveChannelsData();
+						break;
+				} 
+                view.setEditorSelectedPane(index);
+            } else {
+            	view.setEditorSelectedPane(index);
+                 if (index == EditorUI.PROPERTIES_INDEX) {
+                 	int subIndex = model.getSelectedSubPane();
+                 	if (subIndex == EditorUI.ANNOTATION_SUB_INDEX) 
+                 		retrieveAnnotations();
+                 	else if (subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
+                 		loadClassifications();
+                 }
             }
-            view.setEditorSelectedPane(index);
-            if (index == EditorUI.PROPERTIES_INDEX) {
-            	int subIndex = model.getSelectedSubPane();
-            	if (subIndex == EditorUI.ANNOTATION_SUB_INDEX)
-            		retrieveAnnotations();
-            	else if (subIndex == EditorUI.CLASSIFICATION_SUB_INDEX) {
-            		if (!(model.isClassificationLoaded()))
-            			loadClassifications();
-            	}
-            }
+            
         } else {
-            view.onStateChanged(model.getState() == Editor.READY);
+        	view.onStateChanged(model.getState() == Editor.READY);
         }
     }
 
-    /**
-     * Reacts to the {@link TreeViewer#THUMBNAIL_LOADED_PROPERTY}
-     * property changes fired by the <code>TreeViewer</code>.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent pce)
-    {
-        String name = pce.getPropertyName();
-        if (name.equals(TreeViewer.THUMBNAIL_LOADED_PROPERTY))
-            model.setThumbnail((BufferedImage) pce.getNewValue());   
-    }
- 
 }

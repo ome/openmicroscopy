@@ -105,7 +105,10 @@ public class OptionsDialog
 	protected JPanel	  buttonPanel;
 	
 	/** Controls to ask a confirmation question */
-	private JButton	       noButton, yesButton;
+	private JButton	       noButton;
+	
+	/** Controls to ask a confirmation question */
+	private JButton	       yesButton;
 	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()

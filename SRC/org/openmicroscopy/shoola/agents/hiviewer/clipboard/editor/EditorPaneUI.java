@@ -31,10 +31,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -44,10 +43,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -90,6 +88,12 @@ class EditorPaneUI
      */
     private static final String     EMPTY_MSG = "The name cannot be empty.";
     
+    /** The title of the <code>Property</code> tabbed pane. */
+    private static final String		PROPERTY = "Properties";
+    
+    /** The title of the <code>Permissions</code> tabbed pane. */
+    private static final String		PERMISSIONS = "Permissions";
+    
     /** Reference to the Model. */
     private EditorPane          model;
 
@@ -100,11 +104,10 @@ class EditorPaneUI
     private JLabel              titleLabel;
     
     /** The panel hosting the text area. */
-    private JPanel              bodyPanel;
+    //private JPanel              bodyPanel;
     
     /** The panel hosting the text area. */
     private JPanel              permissionPanel;
-    
     
     /** A {@link DocumentListener} for the {@link #nameArea}. */
     private DocumentListener    nameAreaListener;
@@ -115,12 +118,12 @@ class EditorPaneUI
     /** Indicates that a warning message is displayed if <code>true</code>. */
     private boolean         warning;
     
-    /**
-     * <code>true</code> if the name or description is modified.
-     * <code>false</code> otherwise;
-     */
+    /** Flag indicating if the name/description fields are modified.*/
     private boolean         edit;
       
+    /** The UI component hosting the properties. */
+    private JTabbedPane 	tabs;
+    
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextField      nameArea;
      
@@ -282,27 +285,11 @@ class EditorPaneUI
         content.add(nameArea, "1, 0, f, c");
         content.add(new JLabel(), "0, 1, 1, 1");
         JLabel l = UIUtilities.setTextFont("Description");
-        int h = l.getFontMetrics(l.getFont()).getHeight()+5;
-        layout.setRow(2, h);
+        layout.setRow(2, l.getFontMetrics(l.getFont()).getHeight()+5);
         content.add(l, "0, 2, l, c");
         JScrollPane pane  = new JScrollPane(descriptionArea);
         content.add(pane, "1, 2, 1, 3");
         return content;
-    }
-   
-    /**
-     * Builds the tool bar hosting the {@link #finishButton}.
-     * 
-     * @return See above;
-     */
-    private JToolBar buildToolBar()
-    {
-        JToolBar bar = new JToolBar();
-        bar.setBorder(null);
-        bar.setRollover(true);
-        bar.setFloatable(false);
-        bar.add(finishButton);
-        return bar;
     }
     
     /**
@@ -313,7 +300,7 @@ class EditorPaneUI
     private JPanel builPermissionPanel()
     {
         permissionPanel = new JPanel(); 
-        permissionPanel.setLayout(new GridBagLayout());
+        permissionPanel.setLayout(new BorderLayout());
         return permissionPanel;
     }
     
@@ -321,16 +308,17 @@ class EditorPaneUI
     private void buildGUI()
     {
         setBorder(new EmptyBorder(5, 5, 5, 5));
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
         setOpaque(true);
-        add(UIUtilities.buildComponentPanel(titleLabel));
-        add(new JSeparator());
-        bodyPanel = buildContentPanel();
-        bodyPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        add(bodyPanel);
-        add(new JSeparator());
-        add(builPermissionPanel());
-        add(UIUtilities.buildComponentPanelRight(buildToolBar()));
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(titleLabel);
+        p.add(finishButton);
+        add(UIUtilities.buildComponentPanel(p),  BorderLayout.NORTH);
+        tabs = new JTabbedPane();
+        tabs.addTab(PROPERTY, null, buildContentPanel());
+        tabs.addTab(PERMISSIONS, null, builPermissionPanel());
+        add(tabs, BorderLayout.CENTER);
     }
     
     /**
@@ -393,9 +381,10 @@ class EditorPaneUI
         descriptionArea.setText(description);
         descriptionArea.getDocument().addDocumentListener(
                         descriptionAreaListener);
-        bodyPanel.setVisible(!(name.equals("")));
-        
+        tabs.setVisible(!(name.equals("")));
+        finishButton.setEnabled(!(name.equals("")));
         titleLabel.setText(title);
+        //repaint();
     }
 
     /**
@@ -409,14 +398,12 @@ class EditorPaneUI
        permissionPanel.removeAll();
        
        if (details != null) {
-           GridBagConstraints c = new GridBagConstraints();
-           c.anchor = GridBagConstraints.WEST;
-           c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-           c.fill = GridBagConstraints.HORIZONTAL;
-           c.weightx = 1.0;
            permissionPanel.add(
-                   new PermissionPane(this, model, details, permission), c);
+                   new PermissionPane(this, model, details, permission), 
+                   BorderLayout.NORTH);
        }
+       permissionPanel.validate();
+       permissionPanel.repaint();
     }
 
     /**

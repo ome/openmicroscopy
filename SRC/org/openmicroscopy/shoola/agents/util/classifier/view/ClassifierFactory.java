@@ -32,6 +32,8 @@ package org.openmicroscopy.shoola.agents.util.classifier.view;
 //Java imports
 import java.util.Set;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -59,6 +61,7 @@ public class ClassifierFactory
     /**
      * Returns the {@link Classifier}.
      * 
+     * @param parent	The owner of the dialog.
      * @param objects 	Collections of <code>Image</code>s to classify.
      * @param rootType	The type of the root node, either <code>Group</code>
      * 					or <code>Experimenter</code>.
@@ -69,10 +72,11 @@ public class ClassifierFactory
      * @param ctx 		A reference to the {@link Registry}.
      * @return See above.
      */
-    public static Classifier getClassifier(Set objects, Class rootType, 
-    									long rootID, int m, Registry ctx)
+    public static Classifier getClassifier(JFrame parent, 
+    			Set objects, Class rootType, long rootID, int m, Registry ctx)
     {
     	if (registry == null) registry = ctx;
+    	if (owner == null) owner = parent;
     	if (objects == null || objects.size() == 0) return null;
     	 return singleton.createClassifier(objects, rootType, rootID, m);
     }
@@ -84,8 +88,18 @@ public class ClassifierFactory
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+     * Helper method. 
+     * 
+     * @return A reference to the {@link JFrame owner}.
+     */
+    public static JFrame getOwner() { return owner; }
+    
     /** Reference to the registry. */
     private static Registry         registry;
+    
+    /** The owner of the dialog. */
+    private static JFrame			owner;
     
     /** Creates a new instance.*/
     private ClassifierFactory() {}

@@ -99,40 +99,40 @@ class AnnotatorUI
 	private static final String BODY = "Click on an item to view the " +
 					"annotation.";
 	
-  /**
-   * A reduced size for the invisible components used to separate widgets
-   * vertically.
-   */
-  private static final Dimension SMALL_V_SPACER_SIZE = new Dimension(1, 6);
+	/**
+	 * A reduced size for the invisible components used to separate widgets
+	 * vertically.
+	 */
+	private static final Dimension SMALL_V_SPACER_SIZE = new Dimension(1, 6);
   
-  /** The UI component hosting the list of annotations. */
-  private JScrollPane			listComponent;
+	/** The UI component hosting the list of annotations. */
+	private JScrollPane			listComponent;
   
-  /** The UI component displaying message. */
-  private JPanel				messageComponent;
+	/** The UI component displaying message. */
+	private JPanel				messageComponent;
   
 	/** Area where to annotate the <code>DataObject</code>. */
-  private JTextArea           annotationArea;
+	private JTextArea           annotationArea;
   
-  /** List of already annotated <code>DataObject</code>s. */
-  private JList               annotatedList;
+	/** List of already annotated <code>DataObject</code>s. */
+	private JList               annotatedList;
   
-  /** The list model used to display the annotated object. */
-  private DefaultListModel	listModel;
+	/** The list model used to display the annotated object. */
+	private DefaultListModel	listModel;
   
-  /** Map of annotated <code>DataObject</code>s. */
-  private Map					annotatedMap;
+	/** Map of annotated <code>DataObject</code>s. */
+	private Map					annotatedMap;
   
-  /** Reference to the <code>Model</code>. */
-  private AnnotatorModel 		model;
+	/** Reference to the <code>Model</code>. */
+	private AnnotatorModel 		model;
   
-  /** Reference to the <code>Control</code>. */
-  private AnnotatorControl	controller;
+	/** Reference to the <code>Control</code>. */
+	private AnnotatorControl	controller;
   
-  /**
-   * Enables the <code>Finish</code> action depending on the 
-   * length of the text entered.
-   */
+	/**
+	 * Enables the <code>Finish</code> action depending on the 
+	 * length of the text entered.
+	 */
 	private void handleAnnotationAreaInsert()
 	{
 		FinishAction action = (FinishAction) 
@@ -140,34 +140,34 @@ class AnnotatorUI
 		action.setEnabled(!(getAnnotationText().length() == 0));
 	}
 	
-  /** Initializes the UI components. */
-  private void initComponents()
-  {
-  	messageComponent = new JPanel();
-  	messageComponent.setLayout(new BoxLayout(messageComponent, 
+	/** Initializes the UI components. */
+	private void initComponents()
+	{
+		messageComponent = new JPanel();
+		messageComponent.setLayout(new BoxLayout(messageComponent, 
   								BoxLayout.Y_AXIS));
-  	messageComponent.add(new JLabel(MESSAGE));
+		messageComponent.add(new JLabel(MESSAGE));
 		messageComponent.add(new JLabel(BODY));
-  	messageComponent.setVisible(false);
-  	annotatedMap = new HashMap();
-  	annotationArea = new MultilineLabel();
-  	annotationArea.setBorder(new TitledBorder("Annotation"));
-  	annotationArea.setEditable(true);
-  	listModel = new DefaultListModel();
-  	annotatedList = new JList(listModel);
-  	listComponent = new JScrollPane(annotatedList);
-  	listComponent.setVisible(false);
-  	annotatedList.setBorder(new TitledBorder("Annotated items"));
-  	annotatedList.setSelectionMode(
+		messageComponent.setVisible(false);
+		annotatedMap = new HashMap();
+		annotationArea = new MultilineLabel();
+		annotationArea.setBorder(new TitledBorder("Annotation"));
+		annotationArea.setEditable(true);
+		listModel = new DefaultListModel();
+		annotatedList = new JList(listModel);
+		listComponent = new JScrollPane(annotatedList);
+		listComponent.setVisible(false);
+		annotatedList.setBorder(new TitledBorder("Annotated items"));
+		annotatedList.setSelectionMode(
               ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-  	annotatedList.addMouseListener(new MouseAdapter() {
-          public void mouseClicked(MouseEvent e) {
+		annotatedList.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
               if (e.getClickCount() == 1) {
                   showSingleAnnotation();
                }
-          }
-      });
-  	 annotationArea.getDocument().addDocumentListener(
+			}
+		});
+		annotationArea.getDocument().addDocumentListener(
   			 new DocumentListener() {
   		            
   		            /** 
@@ -195,112 +195,111 @@ class AnnotatorUI
   		            public void changedUpdate(DocumentEvent de) {}
   		            
   		        });
-  }
+	}
   
-  /**
-   * Builds a panel hosting the {@link #annotationArea} and the list of users
-   * who annotated the data object.
-   * 
-   * @return See above.
-   */
-  private JPanel buildAnnotationPanel()
-  {
-      JPanel p = new JPanel();
-      p.setBorder(new EtchedBorder());
-      p.setLayout(new GridBagLayout());
-      GridBagConstraints c = new GridBagConstraints();
-      // griddy constraints
-      c.anchor = GridBagConstraints.NORTHWEST;
-      c.fill = GridBagConstraints.BOTH;
-      c.weighty = 1;
-      c.insets = new Insets(3, 3, 3, 3);
-      // add annotation area
-      c.weightx = 0.4;
-      p.add(new JScrollPane(annotationArea), c);
-      // add annotated by list
-      c.gridx = 1;
-      c.weightx = 0.2;
-      p.add(listComponent, c);      
-      return p;
-  }
+	/**
+	 * Builds a panel hosting the {@link #annotationArea} and the list of users
+	 * who annotated the data object.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildAnnotationPanel()
+	{
+		JPanel p = new JPanel();
+		p.setBorder(new EtchedBorder());
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		// griddy constraints
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1;
+		c.insets = new Insets(3, 3, 3, 3);
+		// add annotation area
+		c.weightx = 0.4;
+		p.add(new JScrollPane(annotationArea), c);
+		// add annotated by list
+		c.gridx = 1;
+		c.weightx = 0.2;
+		p.add(listComponent, c);      
+	    return p;
+	}
   
-  /**
-   * Builds the UI component hosting the message.
-   * 
-   * @return See above.
-   */
-  private JPanel buildCommentsPanel()
-  {
-  	JPanel p = new JPanel();
-  	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-  	p.add(new JLabel(TITLE));
-  	p.add(messageComponent);
-  	return UIUtilities.buildComponentPanel(p);
-  }
+	/**
+	 * Builds the UI component hosting the message.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildCommentsPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(new JLabel(TITLE));
+		p.add(messageComponent);
+		return UIUtilities.buildComponentPanel(p);
+	}
   
-  /** Builds and lays out the GUI. */
-  private void buildGUI()
-  {
-  	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-  	add(buildCommentsPanel());
-  	add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
-      add(new JSeparator());
-      add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
-      add(buildAnnotationPanel());
-      add(Box.createVerticalGlue());
-  }
+	/** Builds and lays out the GUI. */
+	private void buildGUI()
+	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(buildCommentsPanel());
+		add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
+		add(new JSeparator());
+		add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
+		add(buildAnnotationPanel());
+		add(Box.createVerticalGlue());
+	}
   
-  /** Shows a single annotation. */
-  private void showSingleAnnotation()
-  {
-      int index = annotatedList.getSelectedIndex();
-      if (index == -1) return;
-      List list = getDataObjectAnnotation(index);
-      if (list.size() > 0) {
-          AnnotationData data = (AnnotationData) list.get(0);
-          annotationArea.setText(data.getText());
-      }
-  }
+	/** Shows a single annotation. */
+	private void showSingleAnnotation()
+	{
+		int index = annotatedList.getSelectedIndex();
+		if (index == -1) return;
+		List list = getDataObjectAnnotation(index);
+		if (list.size() > 0) {
+			AnnotationData data = (AnnotationData) list.get(0);
+			annotationArea.setText(data.getText());
+		}
+	}
   
-  /**
-   * Returns the list of annotations associated to the 
-   * <code>DataObject</code>.
-   * 
-   * @param index The index of the annotated  <code>DataObject</code>.
-   * @return See below.
-   */
-  private List getDataObjectAnnotation(int index)
-  { 
-      Map annotations = model.getAnnotations();
-      Long ownerID = (Long) annotatedMap.get(new Integer(index));
-      if (ownerID == null) return new ArrayList();    //empty list
-      return (List) annotations.get(ownerID);
-  }
+	/**
+	 * Returns the list of annotations associated to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @param index The index of the annotated  <code>DataObject</code>.
+	 * @return See below.
+	 */
+	private List getDataObjectAnnotation(int index)
+	{ 
+		Map annotations = model.getAnnotations();
+		Long ownerID = (Long) annotatedMap.get(new Integer(index));
+		if (ownerID == null) return new ArrayList();    //empty list
+		return (List) annotations.get(ownerID);
+	}
   
-  /**
-   * Displays the name of the data object and the time when annotated.
-   * 
-   * @param objects Array of annotated <code>DataObject</code>.
-   */
-  private void formatList(String[] objects)
-  {
-      // remove all users from list before adding new
-      listModel.removeAllElements();
+	/**
+   	* Displays the name of the data object and the time when annotated.
+   	* 
+   	* @param objects Array of annotated <code>DataObject</code>.
+   	*/
+	private void formatList(String[] objects)
+	{
+		// remove all users from list before adding new
+		listModel.removeAllElements();
       
-      // add each user to list
-      Timestamp date;
-      DateFormat df = DateFormat.getDateInstance();
-      AnnotationData data;
-      List list;
-      for (int i = 0; i < objects.length; i++) {
-          list =  getDataObjectAnnotation(i);
-          data = ((AnnotationData) list.get(0));
-          date = data.getLastModified();
-          if (date == null)
-              date = new Timestamp(new Date().getTime());;
-          listModel.addElement(objects[i]+" ("+df.format(date)+")");   
-      }
-  }
+		// add each user to list
+		Timestamp date;
+		DateFormat df = DateFormat.getDateInstance();
+		AnnotationData data;
+		List list;
+		for (int i = 0; i < objects.length; i++) {
+         	list =  getDataObjectAnnotation(i);
+         	data = ((AnnotationData) list.get(0));
+         	date = data.getLastModified();
+         	if (date == null) date = new Timestamp(new Date().getTime());;
+            listModel.addElement(objects[i]+" ("+df.format(date)+")");   
+		}
+	}
   
 	/**
 	 * Creates a new instance.

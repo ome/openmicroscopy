@@ -133,8 +133,6 @@ class EditorComponent
     {
         controller.initialize(view);
         view.initialize(controller, model);
-        model.getParentModel().addPropertyChangeListener(
-                TreeViewer.THUMBNAIL_LOADED_PROPERTY, controller);
     }
     
     /**
@@ -152,16 +150,23 @@ class EditorComponent
         switch (model.getState()) {
             case NEW:
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
-                	int index = model.getSelectedTabbedIndex();
-                	if (index == EditorUI.PROPERTIES_INDEX) {
-                		int subIndex = model.getSelectedSubPane();
-                		if (model.isAnnotatable() && 
-                				subIndex == EditorUI.ANNOTATION_SUB_INDEX) {
-                			retrieveAnnotations();
-                		} else if (model.isClassified() && 
-                				subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
-                			loadClassifications();
-                	} else model.setState(READY);
+                	switch (model.getSelectedTabbedIndex()) {
+						case EditorUI.PROPERTIES_INDEX:
+							int subIndex = model.getSelectedSubPane();
+	                		if (model.isAnnotatable() && 
+	                			subIndex == EditorUI.ANNOTATION_SUB_INDEX) {
+	                			retrieveAnnotations();
+	                		} else if (model.isClassified() && 
+	                			subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
+	                			loadClassifications();
+							break;
+						case EditorUI.PERMISSIONS_INDEX:
+							retrieveThumbnail();
+							break;
+						default:
+							model.setState(READY);
+					}
+                	
                     fireStateChange();
                 }
                 break;
@@ -193,9 +198,7 @@ class EditorComponent
             if (map != null) {
                 model.setAnnotations(map);
                 view.showAnnotations();
-                if (model.hasThumbnail())
-                    firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, 
-                                        null, model.getHierarchyObject());
+                retrieveThumbnail();
             }
             model.setState(READY);
             model.getParentModel().setStatus(false, "", true);
@@ -211,7 +214,8 @@ class EditorComponent
     {
         if (model.getState() != DISCARDED) {
             if (thumbnail == null)
-                throw new IllegalArgumentException("No thumbnail.");
+                return;//throw new IllegalArgumentException("No thumbnail.");
+            model.setThumbnailLoaded(true);
             view.setThumbnail(thumbnail);
             model.setState(READY);
             fireStateChange();
@@ -235,6 +239,7 @@ class EditorComponent
                                                         groupID);
         model.setClassifications(set);
         view.showClassifications();
+        retrieveThumbnail();
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
@@ -365,6 +370,7 @@ class EditorComponent
             	//return;
         }
         if (!(model.isClassified())) return;
+        if (model.isClassificationLoaded()) return;
         //model.setClassifications(null);
         model.fireClassificationLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
@@ -417,6 +423,7 @@ class EditorComponent
     {
         if (model.getState() != LOADING_CHANNEL_DATA) return;
         model.setChannelsData(emissionWaves);
+        retrieveThumbnail();
         fireStateChange();
         view.setChannelsData();
     }
@@ -447,14 +454,16 @@ class EditorComponent
 	{
 		return model.getSelectedSubPane();
 	}
-
+	
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#isClassificationLoaded()
+     * @see Editor#retrieveThumbnail()
      */
-	public boolean isClassificationLoaded()
-	{
-		return model.isClassificationLoaded();
-	}
+	public void retrieveThumbnail()
+    {
+    	if (model.hasThumbnail() && !model.isThumbnailLoaded())
+    		firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, 
+                    null, model.getHierarchyObject()); 
+    }  
     
 }

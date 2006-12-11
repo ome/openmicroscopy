@@ -53,7 +53,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.treeviewer.clsf.ClassifierFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
@@ -425,7 +424,7 @@ class TreeViewerComponent
         if (images.length == 0)
             throw new IllegalArgumentException("No images to classify or " +
                     "declassify.");
-        DataHandler dh = model.classifyImageObjects(images, mode);
+        DataHandler dh = model.classifyImageObjects(view, images, mode);
         dh.addPropertyChangeListener(controller);
         dh.activate();
         
@@ -462,7 +461,7 @@ class TreeViewerComponent
         if (model.getState() == LOADING_THUMBNAIL) {
             model.setState(READY);
             if (thumbnail != null) 
-                firePropertyChange(THUMBNAIL_LOADED_PROPERTY, null, thumbnail);
+            	model.getEditor().setThumbnail(thumbnail);
             fireStateChange();
         }
     }
@@ -960,7 +959,7 @@ class TreeViewerComponent
 	        cmd.execute();
 	        return;
 		}
-		DataHandler dh = model.annotateDataObjects(nodes);
+		DataHandler dh = model.annotateDataObjects(view, nodes);
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
 	}

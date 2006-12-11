@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -446,10 +448,11 @@ abstract class HiViewerModel
     /**
      * Creates the <code>DataHandler</code> to annotate the specified nodes.
      * 
+     * @param owner	The parent of the frame.
      * @param nodes The nodes to annotate.
      * @return See above.
      */
-	DataHandler annotateDataObjects(Set nodes)
+	DataHandler annotateDataObjects(JFrame owner, Set nodes)
 	{
 		Object uo;
 		Set toAnnotate = new HashSet();
@@ -458,8 +461,8 @@ abstract class HiViewerModel
 			uo = ((ImageDisplay) i.next()).getHierarchyObject();
 			if (uo instanceof DataObject) toAnnotate.add(uo);	
 		}
-		dataHandler = AnnotatorFactory.getAnnotator(toAnnotate, 
-				HiViewerAgent.getRegistry());
+		dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
+								HiViewerAgent.getRegistry());
 		return dataHandler;
 	}
 
@@ -467,17 +470,19 @@ abstract class HiViewerModel
 	 * Creates the <code>DataHandler</code> to classify or declassify the 
      * specified images depending on the passed mode.
      * 
+     * @param owner	The parent of the frame.
 	 * @param nodes The images to classify or declassify.
 	 * @param mode	The mode indicating if we classify or declassify the images.
 	 * @return See above.
 	 */
-	DataHandler classifyImageObjects(ImageData[] nodes, int mode)
+	DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
 	{
 		Set images = new HashSet(nodes.length);
 		for (int i = 0; i < nodes.length; i++) 
 			images.add(nodes[i]);
-		dataHandler = ClassifierFactory.getClassifier(images, getRootLevel(),
-								getRootID(), mode, HiViewerAgent.getRegistry());
+		dataHandler = ClassifierFactory.getClassifier(owner, images, 
+								getRootLevel(), getRootID(), mode, 
+								HiViewerAgent.getRegistry());
 		return dataHandler;
 	}
 	   

@@ -60,8 +60,7 @@ public class EditorFactory
     
     /** The sole instance. */
     private static final EditorFactory singleton = new EditorFactory();
-
-             
+     
     /**
      * Sets the index of the selected pane in the editor 
      * when the editor mode is <code>Edit</code>.

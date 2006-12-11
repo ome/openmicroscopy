@@ -214,7 +214,7 @@ class ClassifierView
     /** Creates a new instance. */
     ClassifierView()
     {
-    	super();
+    	super(ClassifierFactory.getOwner());
     	setProperties();
     }
     

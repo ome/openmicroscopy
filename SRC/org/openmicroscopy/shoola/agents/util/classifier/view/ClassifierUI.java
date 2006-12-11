@@ -50,11 +50,10 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheck;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-
 import pojos.CategoryData;
 
 /** 
- * 
+ * Component displaying the available CategoryGroup/Category paths.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -77,7 +76,6 @@ class ClassifierUI
     /** Message displayed if the image is unclassified. */
     private static final String     REMOVE_UNCLASSIFIED_TEXT = "The selected " +
                                     "image hasn't been categorised.";
-    
     
     /** Reference to the <code>Model</code>. */
     private ClassifierModel 		model;
@@ -175,7 +173,6 @@ class ClassifierUI
     void showClassifications()
     {
     	getViewport().add(getClassificationComponent());
-        //add(getClassificationComponent(), BorderLayout.CENTER);
     }
     
     /**

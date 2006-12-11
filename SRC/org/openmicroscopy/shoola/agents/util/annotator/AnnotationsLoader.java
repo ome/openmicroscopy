@@ -74,7 +74,7 @@ public class AnnotationsLoader
 	 * 
 	 * @param viewer		The Annotator this loader is for.
 	 * @param objects		Collection of <code>DataObject</code>s to 
-							retrieve the annotations for.
+	 *						retrieve the annotations for.
 	 * @param type			The type of annotation.
 	 */
 	public AnnotationsLoader(Annotator viewer, Set objects, Class type)

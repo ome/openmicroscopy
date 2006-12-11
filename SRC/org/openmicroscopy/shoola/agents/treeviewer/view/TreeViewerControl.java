@@ -448,7 +448,7 @@ class TreeViewerControl
             Object newValue = pce.getNewValue();
             if (oldValue != null && newValue != null) {
                 if (!(oldValue.getClass().equals(newValue.getClass())))
-                    model.setEditorSelectedPane(0);
+                    model.setEditorSelectedPane(Editor.PROPERTIES_INDEX);
             }
             model.onSelectedDisplay();
         } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {

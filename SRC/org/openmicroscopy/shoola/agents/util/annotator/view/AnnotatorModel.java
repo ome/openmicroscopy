@@ -77,8 +77,8 @@ import pojos.ImageData;
 class AnnotatorModel
 {
 
-  /** Holds one of the state flags defined by {@link Annotator}. */
-  private int				state;
+	/** Holds one of the state flags defined by {@link Annotator}. */
+	private int				state;
   
 	/** Collection of <code>DataObject</code>s to annotate. */
 	private Set 			toAnnotate;
@@ -95,103 +95,103 @@ class AnnotatorModel
 	/** The number of objects to handle. */
 	private int				maxObjects;
 	
-  /** 
-   * Will either be a data loader or
-   * <code>null</code> depending on the current state. 
-   */
+	/** 
+	 * Will either be a data loader or
+	 * <code>null</code> depending on the current state. 
+	 */
 	private AnnotatorLoader	currentLoader;
 	
-  /** Reference to the component that embeds this model. */
-  protected Annotator		component;
+	/** Reference to the component that embeds this model. */
+	protected Annotator		component;
   
-  /**
-   * Returns <code>true</code> if the <code>DataObject</code> has been 
-   * annotated by the current user, <code>false</code> otherwise.
-   * 
-   * @param data The <code>DataObject</code> to handle.
-   * @return See above.
-   */
-  private boolean isObjectAnnotated(DataObject data)
-  {
-  	Long n = null;
-  	if (data instanceof ImageData)  {
-  		type = ImageData.class;
-  		n = ((ImageData) data).getAnnotationCount();
-  	} else if (data instanceof DatasetData) {
-  		type = DatasetData.class;
-  		n = ((DatasetData) data).getAnnotationCount();
-  	}
-  	if (n == null) return false;
-  	return (n.longValue() != 0);
-  }
+	/**
+	 * Returns <code>true</code> if the <code>DataObject</code> has been 
+	 * annotated by the current user, <code>false</code> otherwise.
+	 * 
+	 * @param data The <code>DataObject</code> to handle.
+	 * @return See above.
+	 */
+	private boolean isObjectAnnotated(DataObject data)
+	{
+		Long n = null;
+		if (data instanceof ImageData)  {
+			type = ImageData.class;
+			n = ((ImageData) data).getAnnotationCount();
+		} else if (data instanceof DatasetData) {
+			type = DatasetData.class;
+			n = ((DatasetData) data).getAnnotationCount();
+		}
+		if (n == null) return false;
+		return (n.longValue() != 0);
+	}
   
-  /**
-   * Returns <code>true</code> if the <code>DataObject</code> can be
-   * annotated, <code>false</code> otherwise.
-   * 
-   * @param data The <code>DataObject</code> to handle. 
-   * @return See above.
-   */
-  private boolean isAnnotatable(DataObject data)
-  {
-  	if ((data instanceof ImageData)) {
-  		type = ImageData.class;
-  		return true;
-  	} else if (data instanceof DatasetData) {
-  		type = DatasetData.class;
-  		return true;
-  	}
-  	return false;
-  }
-  
-  /**
-   * Returns the partial name of the image's name
-   * 
-   * @param originalName The original name.
-   * @return See above.
-   */
-  private String getPartialName(String originalName)
-  {
-      if (Pattern.compile("/").matcher(originalName).find()) {
-          String[] l = originalName.split("/", 0);
-          int n = l.length;
-          if (n == 1) return l[0];
-          return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
-      } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
-          String[] l = originalName.split("\\\\", 0);
-          int n = l.length;
-          if (n == 1) return l[0];
-          return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
-      } 
-      return originalName;
-  }
+	/**
+	 * Returns <code>true</code> if the <code>DataObject</code> can be
+	 * annotated, <code>false</code> otherwise.
+	 * 
+	 * @param data The <code>DataObject</code> to handle. 
+	 * @return See above.
+	 */
+	private boolean isAnnotatable(DataObject data)
+	{
+		if ((data instanceof ImageData)) {
+			type = ImageData.class;
+			return true;
+		} else if (data instanceof DatasetData) {
+			type = DatasetData.class;
+			return true;
+		}
+		return false;
+	}
 
-  /** 
-   * Returns the last annotation.
-   * 
-   * @param list   Collection of {@link AnnotationData} linked to 
-   *               a <code>Dataset</code> or an <code>Image</code>.
-   * @return See above.
-   */
-  private AnnotationData getLastAnnotation(List list)
-  {
-      if (list == null || list.size() == 0) return null;
-      Comparator c = new Comparator() {
-          public int compare(Object o1, Object o2)
-          {
-              Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-                        t2 = ((AnnotationData) o2).getLastModified();
-              long n1 = t1.getTime();
-              long n2 = t2.getTime();
-              int v = 0;
-              if (n1 < n2) v = -1;
-              else if (n1 > n2) v = 1;
-              return v;
-          }
-      };
-      Collections.sort(list, c);
-      return (AnnotationData) list.get(list.size()-1);
-  }
+	/**
+	 * Returns the partial name of the image's name
+	 * 
+	 * @param originalName The original name.
+	 * @return See above.
+	 */
+	private String getPartialName(String originalName)
+	{
+		if (Pattern.compile("/").matcher(originalName).find()) {
+			String[] l = originalName.split("/", 0);
+			int n = l.length;
+			if (n == 1) return l[0];
+			return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
+		} else if (Pattern.compile("\\\\").matcher(originalName).find()) {
+			String[] l = originalName.split("\\\\", 0);
+			int n = l.length;
+			if (n == 1) return l[0];
+			return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
+		} 
+		return originalName;
+	}
+
+	/** 
+	 * Returns the last annotation.
+	 * 
+	 * @param list   Collection of {@link AnnotationData} linked to 
+	 *               a <code>Dataset</code> or an <code>Image</code>.
+	 * @return See above.
+	 */
+	private AnnotationData getLastAnnotation(List list)
+	{
+		if (list == null || list.size() == 0) return null;
+		Comparator c = new Comparator() {
+			public int compare(Object o1, Object o2)
+			{
+				Timestamp t1 = ((AnnotationData) o1).getLastModified(),
+				t2 = ((AnnotationData) o2).getLastModified();
+				long n1 = t1.getTime();
+				long n2 = t2.getTime();
+				int v = 0;
+				if (n1 < n2) v = -1;
+				else if (n1 > n2) v = 1;
+				return v;
+			}
+		};
+		Collections.sort(list, c);
+		return (AnnotationData) list.get(list.size()-1);
+	}
   
 	/**
 	 * Builds the map whose key is the annotated object and value
@@ -240,29 +240,29 @@ class AnnotatorModel
 	}
 	
 	/**
-   * Called by the <code>Annotator</code> after creation to allow this
-   * object to store a back reference to the embedding component.
-   * 
-   * @param component The embedding component.
-   */
+	 * Called by the <code>Annotator</code> after creation to allow this
+	 * object to store a back reference to the embedding component.
+	 * 
+	 * @param component The embedding component.
+	 */
 	void initialize(Annotator component) { this.component = component; }
 	
 	/**
-   * Returns the current state.
-   * 
-   * @return One of the flags defined by the {@link Annotator} interface.  
-   */
+	 * Returns the current state.
+	 * 
+	 * @return One of the flags defined by the {@link Annotator} interface.  
+	 */
 	int getState() { return state; }    
  
 	/**
-   * Sets the object in the {@link Annotator#DISCARDED} state.
-   * Any ongoing data loading will be cancelled.
-   */
+	 * Sets the object in the {@link Annotator#DISCARDED} state.
+	 * Any ongoing data loading will be cancelled.
+	 */
 	void discard()
 	{
 		cancel();
-      state = Annotator.DISCARDED;
-  }
+		state = Annotator.DISCARDED;
+	}
  
 	/**
 	 * Sets the object in the {@link Annotator#READY} state.
@@ -270,12 +270,12 @@ class AnnotatorModel
 	 */
 	void cancel()
 	{
-     if (currentLoader != null) {
-         currentLoader.cancel();
-         currentLoader = null;
-     }
-     state = Annotator.READY;
-  }
+		if (currentLoader != null) {
+			currentLoader.cancel();
+			currentLoader = null;
+		}
+		state = Annotator.READY;
+	}
 	
 	/**
 	 * Returns the name of the specified <code>DataObject</code>.
@@ -332,36 +332,36 @@ class AnnotatorModel
 	 */
 	void setAnnotations(Map map)
 	{
-      ViewerSorter sorter = new ViewerSorter();
-      sorter.setAscending(false);
-      HashMap sortedAnnotations = new HashMap();
-      Set set;
-      Long index;
-      Iterator i = map.keySet().iterator(), l;
-      Iterator j;
-      AnnotationData data;
-      HashMap m;
-      List timestamps, results, list;
-      while (i.hasNext()) {
-          index = (Long) i.next();
-          set = (Set) map.get(index);
-          j = set.iterator();
-          m = new HashMap(set.size());
-          timestamps = new ArrayList(set.size());
-          while (j.hasNext()) {
-              data = (AnnotationData) j.next();
-              m.put(data.getLastModified(), data);
-              timestamps.add(data.getLastModified()); 
-          }
-          results = sorter.sort(timestamps);
-          l = results.iterator();
-          list = new ArrayList(results.size());
-          while (l.hasNext())
-              list.add(m.get(l.next()));
-          sortedAnnotations.put(index, list);
-      }
-      
-      this.annotations = sortedAnnotations;
+		ViewerSorter sorter = new ViewerSorter();
+		sorter.setAscending(false);
+		HashMap sortedAnnotations = new HashMap();
+		Set set;
+		Long index;
+		Iterator i = map.keySet().iterator(), l;
+		Iterator j;
+		AnnotationData data;
+		HashMap m;
+		List timestamps, results, list;
+		while (i.hasNext()) {
+			index = (Long) i.next();
+			set = (Set) map.get(index);
+			j = set.iterator();
+			m = new HashMap(set.size());
+			timestamps = new ArrayList(set.size());
+			while (j.hasNext()) {
+				data = (AnnotationData) j.next();
+				m.put(data.getLastModified(), data);
+				timestamps.add(data.getLastModified()); 
+			}
+			results = sorter.sort(timestamps);
+			l = results.iterator();
+			list = new ArrayList(results.size());
+			while (l.hasNext())
+				list.add(m.get(l.next()));
+			sortedAnnotations.put(index, list);
+		}
+
+		this.annotations = sortedAnnotations;
 		state = Annotator.READY;
 	}
 	
@@ -383,7 +383,6 @@ class AnnotatorModel
 		if (type.equals(DatasetData.class))
 			return new AnnotationData(AnnotationData.DATASET_ANNOTATION); 
 		return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
-		
 	}
 	
 }

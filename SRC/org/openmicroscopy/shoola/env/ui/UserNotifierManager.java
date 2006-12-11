@@ -48,7 +48,8 @@ import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 
 /** 
- * 
+ * Acts a controller. Listens to property changes fired by the 
+ * <code>MessengerDialog</code>s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

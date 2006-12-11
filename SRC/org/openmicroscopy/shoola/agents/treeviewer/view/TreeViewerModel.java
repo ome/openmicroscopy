@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -565,10 +567,11 @@ class TreeViewerModel
    /**
     * Creates the <code>DataHandler</code> to annotate the specified nodes.
     * 
-    * @param nodes The nodes to annotate.
+    * @param owner	The parent of the frame.
+    * @param nodes 	The nodes to annotate.
     * @return See above.
     */
-   DataHandler annotateDataObjects(TreeImageDisplay[] nodes)
+   DataHandler annotateDataObjects(JFrame owner, TreeImageDisplay[] nodes)
    {
 		Object uo;
 		Set toAnnotate = new HashSet();
@@ -576,7 +579,7 @@ class TreeViewerModel
 			uo = nodes[i].getUserObject();
 			if (uo instanceof DataObject) toAnnotate.add(uo);
 		}
-		dataHandler = AnnotatorFactory.getAnnotator(toAnnotate, 
+		dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
 									TreeViewerAgent.getRegistry());
 		return dataHandler;
    }
@@ -585,18 +588,19 @@ class TreeViewerModel
     * Creates the <code>DataHandler</code> to classify or declassify the 
     * specified images depending on the passed mode.
     * 
+    * @param owner	The parent of the frame.
     * @param nodes 	The images to classify or declassify.
     * @param mode	The mode indicating if we classify or declassify the images.
     * @return See above.
     */
-   DataHandler classifyImageObjects(ImageData[] nodes, int mode)
+   DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
    {
 		Set images = new HashSet(nodes.length);
 		for (int i = 0; i < nodes.length; i++) 
 			images.add(nodes[i]);
 		
-		dataHandler = ClassifierFactory.getClassifier(images, getRootType(),
-									getRootGroupID(), mode,
+		dataHandler = ClassifierFactory.getClassifier(owner, images, 
+									getRootType(), getRootGroupID(), mode,
 									TreeViewerAgent.getRegistry());
 		return dataHandler;
    }

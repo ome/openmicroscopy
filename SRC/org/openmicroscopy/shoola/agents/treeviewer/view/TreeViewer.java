@@ -159,10 +159,6 @@ public interface TreeViewer
     public static final String      THUMBNAIL_LOADING_PROPERTY = 
                                                     "thumbnailLoading";
     
-    /** Bounds property to indicate that the thumbanil is loaded. */
-    public static final String      THUMBNAIL_LOADED_PROPERTY = 
-                                                    "thumbnailLoaded";
-    
     /** 
      * Bound properties indicating that {@link Browser} is selected or 
      * <code>null</code> if no there is no {@link Browser} currently selected.

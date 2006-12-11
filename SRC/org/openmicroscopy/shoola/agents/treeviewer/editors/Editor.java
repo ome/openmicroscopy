@@ -115,6 +115,10 @@ public interface Editor
      */
     public static final int         NO_ANNOTATION_OP = 103;
     
+	/** The index of the <code>Properties</code> pane. */
+	public static final int			PROPERTIES_INDEX = 
+											EditorUI.PROPERTIES_INDEX;
+    
     /** Bounds property to indicate to close the {@link Editor}. */
     public static final String      CLOSE_EDITOR_PROPERTY = "closeEditor";
     
@@ -248,12 +252,7 @@ public interface Editor
      */
     public int getSelectedSubPane();
     
-    /**
-     * Returns <code>true</code> if the classification is loaded, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    public boolean isClassificationLoaded();
+    /** Retrieves the thumbnail when the state is <code>READY</code>. */
+    public void retrieveThumbnail();
     
 }

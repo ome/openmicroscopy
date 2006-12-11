@@ -103,8 +103,6 @@ class ClassifierComponent
     void initialize()
     {
         controller.initialize(view);
-        model.getParentModel().addPropertyChangeListener(
-                    TreeViewer.THUMBNAIL_LOADED_PROPERTY, controller);
         view.initialize(controller, model);
     }
     

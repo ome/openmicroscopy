@@ -104,6 +104,7 @@ class ClipBoardControl
         this.view = view;
         this.model = model;
         component.addChangeListener(this);
+        view.initListeners();
         model.getParentModel().addChangeListener(this);
     }
     
@@ -158,7 +159,7 @@ class ClipBoardControl
                         Browser.SELECTED_DISPLAY_PROPERTY, this);
                 parentModel.getBrowser().addPropertyChangeListener(
                         Browser.MOUSE_OVER_PROPERTY, this);
-                view.initListeners();
+                //view.initListeners();
             }  
         } else if (source instanceof ClipBoard) {
             switch (model.getState()) {

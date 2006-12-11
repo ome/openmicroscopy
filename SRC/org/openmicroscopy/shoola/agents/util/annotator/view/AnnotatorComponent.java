@@ -83,7 +83,7 @@ class AnnotatorComponent
      * 
      * @param model The Model sub-component.
      */
-	AnnotatorComponent(AnnotatorModel model)
+    AnnotatorComponent(AnnotatorModel model)
 	{
 		if (model == null) throw new NullPointerException("No model."); 
         this.model = model;

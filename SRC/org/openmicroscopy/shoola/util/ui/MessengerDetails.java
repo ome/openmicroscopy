@@ -35,7 +35,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Application-internal dependencies
 
 /** 
- * 
+ * Helper class where details to send are stored.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,14 +50,24 @@ package org.openmicroscopy.shoola.util.ui;
 public class MessengerDetails
 {
 
+	/** The e-mail address of the user. */
 	private String email;
 	
+	/** The comment to send. */
 	private String comment;
 	
+	/** Extra information. Not yet implemented. */
 	private String extra;
 	
+	/** The error message. */
 	private String error;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param email		The e-mail address of the user.
+	 * @param comment	The comment to send.
+	 */
 	public MessengerDetails(String email, String comment)
 	{
 		this.email = email;
@@ -65,15 +75,46 @@ public class MessengerDetails
 		error = null;
 	}
 
+	/**
+	 * Returns the error message.
+	 * 
+	 * @return See above.
+	 */
 	public String getError() { return error; }
 
+	/**
+	 * Sets the error message.
+	 * 
+	 * @param error The value to set.
+	 */
 	public void setError(String error) { this.error = error; }
 
+	/**
+	 * Returns the comment to send.
+	 * 
+	 * @return See above.
+	 */
 	public String getComment() { return comment; }
 
+	/**
+	 * Returns the e-mail address.
+	 * 
+	 * @return See above.
+	 */
 	public String getEmail() { return email; }
 
+	/**
+	 * Returns the extra information.
+	 * 
+	 * @return See above.
+	 */
 	public String getExtra() { return extra; }
 	
+	/**
+	 * Sets the extra information.
+	 * 
+	 * @param extra The value to set.
+	 */
 	public void setExtra(String extra) { this.extra = extra; }
+
 }

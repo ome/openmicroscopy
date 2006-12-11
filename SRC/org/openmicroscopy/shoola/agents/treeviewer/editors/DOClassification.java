@@ -45,7 +45,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -158,7 +157,7 @@ class DOClassification
     private void initComponents()
     {
         refreshButton = new JButton("Refresh");
-        UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+        //UIUtilities.unifiedButtonLookAndFeel(refreshButton);
         refreshButton.setEnabled(false);
         refreshButton.setToolTipText(
                         UIUtilities.formatToolTipText("Reload data.")); 
@@ -193,10 +192,8 @@ class DOClassification
      */
     private JPanel createToolBar()
     {
-        JToolBar bar = new JToolBar();
+        JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setRollover(true);
-        bar.setFloatable(false);
         bar.add(refreshButton);
         return UIUtilities.buildComponentPanel(bar);
     }
@@ -205,10 +202,13 @@ class DOClassification
     private void buildGUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JPanel labels = new JPanel();
+        labels.setLayout(new BoxLayout(labels, BoxLayout.Y_AXIS));
+        labels.add(new JLabel(PANEL_NOTE));
+        labels.add(new JLabel(PANEL_SUBNOTE));
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(new JLabel(PANEL_NOTE));
-        p.add(new JLabel(PANEL_SUBNOTE));
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(UIUtilities.buildComponentPanel(labels));
         p.add(createToolBar());
         add(UIUtilities.buildComponentPanel(p), BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);

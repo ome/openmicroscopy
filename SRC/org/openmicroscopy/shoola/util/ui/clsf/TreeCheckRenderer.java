@@ -66,7 +66,10 @@ class TreeCheckRenderer
 {
 
     /** The size of the {@link #check} component if hidden. */
-    private static final Dimension NULL_SIZE = new Dimension(0, 0);
+    private static final Dimension 	NULL_SIZE = new Dimension(0, 0);
+    
+    /** The default height of the the {@link #check} button. */
+    private static final int		DEFAULT_HEIGHT = 16;
     
     /** Button to select the node in the tree. */
     protected JToggleButton     check;
@@ -120,7 +123,10 @@ class TreeCheckRenderer
             boolean hasFocus)
     {
         setEnabled(tree.isEnabled());
-        if (restoredSize == null) restoredSize = check.getPreferredSize();
+        if (restoredSize == null) {
+        	restoredSize = new Dimension(check.getPreferredSize().width, 
+        								DEFAULT_HEIGHT);
+        }
         TreeCheckNode node = (TreeCheckNode) value;
         check.setSelected(node.isSelected());
         label.setFont(tree.getFont());

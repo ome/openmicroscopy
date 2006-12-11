@@ -62,82 +62,82 @@ class AnnotatorControl
 {
 	
 	 /** Identifies the <code>Cancel action</code> in the Edit menu. */
-  static final Integer	CANCEL = new Integer(0);
+	static final Integer	CANCEL = new Integer(0);
   
-  /** Identifies the <code>Properties action</code> in the Edit menu. */
-  static final Integer	FINISH = new Integer(1);
+	/** Identifies the <code>Properties action</code> in the Edit menu. */
+	static final Integer	FINISH = new Integer(1);
   
-  /** The default loading message.  */
-  private static final String LOADING_MSG = "Loading...";
+	/** The default loading message.  */
+	private static final String LOADING_MSG = "Loading...";
   
-  /** The default saving message.  */
-  private static final String SAVING_MSG = "Saving data...";
+	/** The default saving message.  */
+	private static final String SAVING_MSG = "Saving data...";
   
 	/** 
-   * Reference to the {@link Annotator} component, which, in this context,
-   * is regarded as the Model.
-   */
-  private Annotator      	model;
+	 * Reference to the {@link Annotator} component, which, in this context,
+	 * is regarded as the Model.
+  	 */
+	private Annotator      	model;
   
-  /** Reference to the View. */
-  private AnnotatorView	view;
+	/** Reference to the View. */
+	private AnnotatorView	view;
   
-  /** Maps actions ids onto actual <code>Action</code> object. */
-  private Map             actionsMap;
+	/** Maps actions ids onto actual <code>Action</code> object. */
+	private Map             actionsMap;
   
-  /** Helper method to create all the UI actions. */
-  private void createActions()
-  {
-  	actionsMap.put(CANCEL, new CloseAction(model));
-  	actionsMap.put(FINISH, new FinishAction(model));
-  }
+	/** Helper method to create all the UI actions. */
+	private void createActions()
+	{
+		actionsMap.put(CANCEL, new CloseAction(model));
+		actionsMap.put(FINISH, new FinishAction(model));
+	}
   
-  /** 
-   * Attaches a window listener to the view to discard the model when 
-   * the user closes the window. 
-   */
-  private void attachListeners()
-  {
-  	model.addChangeListener(this);
-  	view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-  }
+	/** 
+	 * Attaches a window listener to the view to discard the model when 
+	 * the user closes the window. 
+	 */
+	private void attachListeners()
+	{
+		model.addChangeListener(this);
+		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+	}
   
 	/**
-   * Creates a new instance.
-   * The {@link #initialize(AnnotatorView) initialize} method 
-   * should be called straight 
-   * after to link this Controller to the other MVC components.
-   * 
-   * @param model  Reference to the {@link Annotator} component, which, in 
-   *               this context, is regarded as the Model.
-   *               Mustn't be <code>null</code>.
-   */
+	 * Creates a new instance.
+	 * The {@link #initialize(AnnotatorView) initialize} method 
+	 * should be called straight 
+	 * after to link this Controller to the other MVC components.
+	 * 
+	 * @param model  Reference to the {@link Annotator} component, which, in 
+	 *               this context, is regarded as the Model.
+	 *               Mustn't be <code>null</code>.
+	 */
 	AnnotatorControl(Annotator model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
-      this.model = model;
-      actionsMap = new HashMap();
+		this.model = model;
+		actionsMap = new HashMap();
 	}
 	
 	/**
-   * Links this Controller to its View.
-   * 
-   * @param view   Reference to the View. Mustn't be <code>null</code>.
-   */
-  void initialize(AnnotatorView view)
-  {
-      if (view == null) throw new NullPointerException("No view.");
-      this.view = view;
-      createActions();
-      attachListeners();
-  }
+	 * Links this Controller to its View.
+	 * 
+	 * @param view   Reference to the View. Mustn't be <code>null</code>.
+	 */
+	void initialize(AnnotatorView view)
+	{
+		if (view == null) throw new NullPointerException("No view.");
+		this.view = view;
+		createActions();
+		attachListeners();
+	}
 
-  /**
-   * Returns the action corresponding to the specified id.
-   * 
-   * @param id One of the flags defined by this class.
-   * @return The specified action.
-   */
+	/**
+	 * Returns the action corresponding to the specified id.
+	 * 
+	 * @param id One of the flags defined by this class.
+	 * @return The specified action.
+	 */
 	AnnotatorAction getAction(Integer id)
 	{
 		return (AnnotatorAction) actionsMap.get(id);

@@ -115,7 +115,6 @@ public class ThumbnailLoader
         if (thumbPix == null) 
             thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
-        //thumbs[index] = new ThumbnailData(images[index].getId(), thumbPix);
     }
     
     /**

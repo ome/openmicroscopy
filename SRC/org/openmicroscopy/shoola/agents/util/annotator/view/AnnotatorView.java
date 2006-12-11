@@ -73,98 +73,98 @@ class AnnotatorView
 	private static final String 	TITLE = "Annotate";
 	
 	/** The subtitle of the window. */
-  private static final String		NOTE = "Annotate the selected items";
+	private static final String		NOTE = "Annotate the selected items";
   
-  /** 
-   * The size of the invisible components used to separate buttons
-   * horizontally.
-   */
-  private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+	/** 
+	 * The size of the invisible components used to separate buttons
+	 * horizontally.
+	 */
+	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
 	/** The Controller. */
-  private AnnotatorControl	controller;
+	private AnnotatorControl	controller;
   
-  /** The status bar. */
-  private StatusBar			statusBar;
+	/** The status bar. */
+	private StatusBar			statusBar;
   
-  /** The UI component displaying the annotations. */
-  private AnnotatorUI			annotatorUI;
+	/** The UI component displaying the annotations. */
+	private AnnotatorUI			annotatorUI;
   
-  /** 
-   * Builds the UI component hosting the controls.
-   * 
-   * @return See above.
-   */
-  private JPanel buildToolBar()
-  {
-  	JPanel bar = new JPanel();
-  	bar.setBorder(null);
-  	JButton b = new JButton(controller.getAction(AnnotatorControl.FINISH));
-      bar.add(b);
-      bar.add(Box.createRigidArea(H_SPACER_SIZE));
-      b = new JButton(controller.getAction(AnnotatorControl.CANCEL));
-      bar.add(b);
-      return UIUtilities.buildComponentPanelRight(bar);
-  }
-  
-  /**
-   * Builds the UI component displaying the annotations.
-   * 
-   * @return See above.
-   */
-  private JPanel buildBody()
-  {
-  	JPanel p = new JPanel();
-  	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-  	p.add(annotatorUI);
-  	p.add(new JSeparator());
-  	p.add(buildToolBar());
-  	return p;
-  }
-  
-  /** Builds and lays out the UI. */
-  private void buildGUI()
-  {
-  	IconManager icons = IconManager.getInstance();
-  	TitlePanel tp = new TitlePanel(TITLE, NOTE, 
-  						icons.getIcon(IconManager.ANNOTATION_48));
-  	
-  	Container c = getContentPane();
-  	c.setLayout(new BorderLayout(0, 0));
-      c.add(tp, BorderLayout.NORTH);
-      c.add(buildBody(), BorderLayout.CENTER);
-      c.add(statusBar, BorderLayout.SOUTH);
-  }
-  
-  /** Sets the properties of the window. */
-  private void setProperties()
-  {
-  	setModal(true);
-  	setTitle(TITLE);
-  }
-  
-  /** Creates a new instance. */
-  AnnotatorView()
-  {
-  	super();
-  	setProperties();
-  }
+	/** 
+	 * Builds the UI component hosting the controls.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildToolBar()
+	{
+		JPanel bar = new JPanel();
+		bar.setBorder(null);
+		JButton b = new JButton(controller.getAction(AnnotatorControl.FINISH));
+		bar.add(b);
+		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		b = new JButton(controller.getAction(AnnotatorControl.CANCEL));
+		bar.add(b);
+		return UIUtilities.buildComponentPanelRight(bar);
+	}
   
 	/**
-   * Links this View to its Controller.
-   * 
-   * @param model 		The Model. Mustn't be <code>null</code>.
-   * @param controller 	The Controller. Mustn't be <code>null</code>.
-   */
+	 * Builds the UI component displaying the annotations.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildBody()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(annotatorUI);
+		p.add(new JSeparator());
+		p.add(buildToolBar());
+		return p;
+	}
+  
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+		IconManager icons = IconManager.getInstance();
+		TitlePanel tp = new TitlePanel(TITLE, NOTE, 
+  						icons.getIcon(IconManager.ANNOTATION_48));
+  	
+		Container c = getContentPane();
+		c.setLayout(new BorderLayout(0, 0));
+		c.add(tp, BorderLayout.NORTH);
+		c.add(buildBody(), BorderLayout.CENTER);
+		c.add(statusBar, BorderLayout.SOUTH);
+	}
+  
+	/** Sets the properties of the window. */
+	private void setProperties()
+	{
+		setModal(true);
+		setTitle(TITLE);
+	}
+  
+	/** Creates a new instance. */
+	AnnotatorView()
+	{
+		super(AnnotatorFactory.getOwner());
+		setProperties();
+	}
+  
+	/**
+	 * Links this View to its Controller.
+	 * 
+	 * @param model 		The Model. Mustn't be <code>null</code>.
+	 * @param controller 	The Controller. Mustn't be <code>null</code>.
+	 */
 	void initialize(AnnotatorModel model, AnnotatorControl controller)
 	{
 		if (model == null) throw new IllegalArgumentException("No model.");
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
-      statusBar = new StatusBar();
-      annotatorUI = new AnnotatorUI(model, controller);
-  	buildGUI();
+		statusBar = new StatusBar();
+		annotatorUI = new AnnotatorUI(model, controller);
+		buildGUI();
 	}
 	
 	/** Builds the list of already annotated <code>DataObject</code>s. */
@@ -175,7 +175,7 @@ class AnnotatorView
 	 * 
 	 * @param text 	The status message.
 	 * @param hide	Pass <code>true</code> to hide the progress bar, 
-   *              <code>false</otherwise>.
+	 *              <code>false</otherwise>.
 	 */
 	void setStatus(String text, boolean hide)
 	{
