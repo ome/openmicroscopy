@@ -450,7 +450,8 @@ public class UsersTabController
 	public void removeUser()
 	{
 		String selectedUser = view.getSelectedUser();
-
+		if(!view.confirmUserDeletion())
+			return;
 		try
 		{
 			if(!model.findUserByName(selectedUser))

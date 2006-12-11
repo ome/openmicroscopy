@@ -434,6 +434,22 @@ public class UsersTab
 		this.setLayout(new BorderLayout());
 		this.add(container);
 	}
+
+	/**
+	 * @return
+	 */
+	public boolean confirmUserDeletion() 
+	{
+		int answer = JOptionPane.showConfirmDialog(this, 
+		"Are you sure you wish to delete this user.\n" +
+		"This operation may not work as the server will not\n" +
+		"delete users who own data in the server.",
+		"Delete user?", JOptionPane.YES_NO_OPTION);
+		if(answer == JOptionPane.YES_OPTION)
+			return true;
+		else
+			return false;
+	}
 }
 
 
