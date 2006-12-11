@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.model;
+package src.adminTool.model;
 
 //Java imports
 

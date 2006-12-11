@@ -1,4 +1,3 @@
-package adminTool.main;
 /*
  * *.AdminMain 
  *
@@ -27,6 +26,8 @@ package adminTool.main;
  *
  *------------------------------------------------------------------------------
  */
+package src.adminTool.main;
+
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -38,7 +39,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
-import adminTool.ui.messenger.CommentMessenger;
+import src.adminTool.ui.messenger.CommentMessenger;
 
 
 //Third-party libraries

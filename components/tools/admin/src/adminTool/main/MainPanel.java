@@ -1,6 +1,3 @@
-package adminTool.main;
-
-
 /*
  * .MainPanel 
  *
@@ -29,6 +26,7 @@ package adminTool.main;
  *
  *------------------------------------------------------------------------------
  */
+package src.adminTool.main;
 
 //Java imports
 import java.awt.BorderLayout;
@@ -36,8 +34,8 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import adminTool.omero.LoginHandler;
-import adminTool.ui.StatusBar;
+import src.adminTool.omero.LoginHandler;
+import src.adminTool.ui.StatusBar;
 
 //Third-party libraries
 
@@ -76,7 +74,7 @@ public class MainPanel
 	
 	public void startLogin()
 	{
-		statusBar.setStatusIcon("graphx/server_trying16.png",
+		statusBar.setStatusIcon("resources/graphx/server_trying16.png",
 	        "Trying to connect.");
 	    loginHandler = new LoginHandler(this);
 		if(loggedIn)
@@ -89,7 +87,7 @@ public class MainPanel
 	void createStatusBar()
 	{
 		statusBar = new StatusBar();
-		statusBar.setStatusIcon("graphx/server_disconn16.png",
+		statusBar.setStatusIcon("resources/graphx/server_disconn16.png",
          "Not connected to Server. Please login for administration options.");
 
 	}
@@ -109,7 +107,7 @@ public class MainPanel
 		}
 		catch(Exception e)
 		{
-			statusBar.setStatusIcon("graphx/server_disconn16.png",
+			statusBar.setStatusIcon("resources/graphx/server_disconn16.png",
 	         "Not connected to Server. Cannot get iAdmin interface, " +
 	         "Is server running?");
 

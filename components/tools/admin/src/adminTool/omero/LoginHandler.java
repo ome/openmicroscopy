@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package adminTool.omero;
+package src.adminTool.omero;
 
 import java.awt.Point;
 import java.io.PrintWriter;
@@ -40,8 +40,8 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import adminTool.main.MainPanel;
-import adminTool.ui.LoginDialog;
+import src.adminTool.main.MainPanel;
+import src.adminTool.ui.LoginDialog;
 
 /**
  * ImageExporter is master file format exporter for all supported formats and
@@ -84,13 +84,13 @@ public class LoginHandler
         // Display the initial login dialog
         displayLoginDialog(view);
         
-        view.statusBar.setStatusIcon("graphx/server_trying16.png",
+        view.statusBar.setStatusIcon("resources/graphx/server_trying16.png",
         "Trying to connect.");
         try
         {
             if (!isValidLogin())
             {
-                view.statusBar.setStatusIcon("graphx/error_msg16.png",
+                view.statusBar.setStatusIcon("resources/graphx/error_msg16.png",
                         "Incorrect username/password. Server login failed, please try to "
                                 + "log in again.");
 
@@ -107,7 +107,7 @@ public class LoginHandler
             e.printStackTrace(pw);
             log.info(sw);
 
-            view.statusBar.setStatusIcon("graphx/error_msg16.png",
+            view.statusBar.setStatusIcon("resources/graphx/error_msg16.png",
                     "Server connection failure. Please try to login again.");
 
             JOptionPane
@@ -126,7 +126,7 @@ public class LoginHandler
 	    userPrefs.put("savedPortNo", port);
 
         view.loggedIn = true;
-        view.statusBar.setStatusIcon("graphx/server_connect16.png",
+        view.statusBar.setStatusIcon("resources/graphx/server_connect16.png",
                 "Server connected.");
 
     }

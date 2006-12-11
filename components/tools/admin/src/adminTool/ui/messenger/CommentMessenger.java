@@ -1,5 +1,3 @@
-package adminTool.ui.messenger;
-
 /*
  * ome.formats.importer.CommentMessenger
  *
@@ -28,6 +26,7 @@ package adminTool.ui.messenger;
  *
  *------------------------------------------------------------------------------
  */
+package src.adminTool.ui.messenger;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

@@ -26,7 +26,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.ui;
+package src.adminTool.ui;
+
+//Java imports
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -39,8 +41,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-
-//Java imports
 
 //Third-party libraries
 

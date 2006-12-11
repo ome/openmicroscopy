@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.ui;
+package src.adminTool.ui;
 
 //Java imports
 import java.awt.Color;
@@ -39,7 +39,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-import adminTool.model.Model;
+import src.adminTool.model.Model;
 
 //Third-party libraries
 

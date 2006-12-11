@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.ui;
+package src.adminTool.ui;
 
 //Java imports
 

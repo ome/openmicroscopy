@@ -26,21 +26,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.usersPanel;
+package src.adminTool.usersPanel;
 
 //Java imports
 import java.awt.Point;
 import java.util.ArrayList;
 
 import ome.model.meta.Experimenter;
-import adminTool.model.IAdminException;
-import adminTool.model.Model;
-import adminTool.model.PermissionsException;
-import adminTool.model.UnknownException;
-import adminTool.ui.ErrorDialog;
-import adminTool.ui.PasswordDialog;
-import adminTool.ui.UserListController;
-import adminTool.ui.messenger.DebugMessenger;
+import src.adminTool.model.IAdminException;
+import src.adminTool.model.Model;
+import src.adminTool.model.PermissionsException;
+import src.adminTool.model.UnknownException;
+import src.adminTool.ui.ErrorDialog;
+import src.adminTool.ui.PasswordDialog;
+import src.adminTool.ui.UserListController;
+import src.adminTool.ui.messenger.DebugMessenger;
 
 //Third-party libraries
 

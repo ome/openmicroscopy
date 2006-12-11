@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.main;
+package src.adminTool.main;
 
 
 //Java imports
@@ -37,15 +37,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import adminTool.groupPanel.GroupsTab;
-import adminTool.groupPanel.GroupsTabController;
-import adminTool.model.IAdminException;
-import adminTool.model.Model;
-import adminTool.model.PermissionsException;
-import adminTool.model.UnknownException;
-import adminTool.omero.OMEROMetadataStore;
-import adminTool.usersPanel.UsersTab;
-import adminTool.usersPanel.UsersTabController;
+import src.adminTool.groupPanel.GroupsTab;
+import src.adminTool.groupPanel.GroupsTabController;
+import src.adminTool.model.IAdminException;
+import src.adminTool.model.Model;
+import src.adminTool.model.PermissionsException;
+import src.adminTool.model.UnknownException;
+import src.adminTool.omero.OMEROMetadataStore;
+import src.adminTool.usersPanel.UsersTab;
+import src.adminTool.usersPanel.UsersTabController;
 
 //Third-party libraries
 

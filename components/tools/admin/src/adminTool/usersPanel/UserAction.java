@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.usersPanel;
+package src.adminTool.usersPanel;
 
 //Java imports
 import java.awt.event.ActionEvent;

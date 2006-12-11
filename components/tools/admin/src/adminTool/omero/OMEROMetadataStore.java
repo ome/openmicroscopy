@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package adminTool.omero;
+package src.adminTool.omero;
 
 import ome.api.IAdmin;
 import ome.api.IQuery;

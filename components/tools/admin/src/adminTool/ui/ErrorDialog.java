@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.ui;
+package src.adminTool.ui;
 
 //Java imports
 import java.awt.BorderLayout;
@@ -51,7 +51,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import adminTool.model.AdminToolException;
+import src.adminTool.model.AdminToolException;
 
 //Third-party libraries
 

@@ -1,4 +1,4 @@
-package adminTool.ui.messenger;
+package src.adminTool.ui.messenger;
 
 /*
  * ome.formats.importer.GuiCommonElements

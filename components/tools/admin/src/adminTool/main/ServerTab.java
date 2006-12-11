@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.main;
+package src.adminTool.main;
 
 //Java imports
 import javax.swing.JPanel;

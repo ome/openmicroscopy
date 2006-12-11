@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.groupPanel;
+package src.adminTool.groupPanel;
 
 //Java imports
 import java.awt.event.ActionEvent;

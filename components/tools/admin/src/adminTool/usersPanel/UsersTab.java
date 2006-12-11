@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.usersPanel;
+package src.adminTool.usersPanel;
 
 
 //Java imports
@@ -50,10 +50,10 @@ import ome.model.meta.Experimenter;
 
 import layout.TableLayout;
 
-import adminTool.model.Model;
-import adminTool.ui.GroupList;
-import adminTool.ui.UserGroupMembershipList;
-import adminTool.ui.UserList;
+import src.adminTool.model.Model;
+import src.adminTool.ui.GroupList;
+import src.adminTool.ui.UserGroupMembershipList;
+import src.adminTool.ui.UserList;
 
 //Third-party libraries
 
@@ -281,11 +281,11 @@ public class UsersTab
 	
 	void createActionButtons()
 	{
-		ImageIcon addUserIcon = new ImageIcon("graphx/addUser_kusers_nuvola48_mod3.png");
-		ImageIcon removeUserIcon = new ImageIcon("graphx/removeUser_kusers_nuvola48_mod3.png");
-		ImageIcon addGroupIcon = new ImageIcon("graphx/1rightarrow_nuvola32.png");
-		ImageIcon removeGroupIcon = new ImageIcon("graphx/1leftarrow_nuvola32.png");
-		ImageIcon defaultGroupIcon = new ImageIcon("graphx/kgpg_identity_nuvola32.png");
+		ImageIcon addUserIcon = new ImageIcon("resources/graphx/addUser_kusers_nuvola48_mod3.png");
+		ImageIcon removeUserIcon = new ImageIcon("resources/graphx/removeUser_kusers_nuvola48_mod3.png");
+		ImageIcon addGroupIcon = new ImageIcon("resources/graphx/1rightarrow_nuvola32.png");
+		ImageIcon removeGroupIcon = new ImageIcon("resources/graphx/1leftarrow_nuvola32.png");
+		ImageIcon defaultGroupIcon = new ImageIcon("resources/graphx/kgpg_identity_nuvola32.png");
 		saveBtn = new JButton("Save");
 		resetPasswordBtn = new JButton("Reset Password");
 		setSystemBtn = new JButton("Set System User");

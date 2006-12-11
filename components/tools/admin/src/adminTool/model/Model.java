@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.model;
+package src.adminTool.model;
 
 //Java imports
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.List;
 import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import adminTool.omero.OMEROMetadataStore;
+import src.adminTool.omero.OMEROMetadataStore;
 
 //Third-party libraries
 

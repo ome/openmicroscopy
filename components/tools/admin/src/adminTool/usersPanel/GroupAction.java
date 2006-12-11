@@ -26,12 +26,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.usersPanel;
+package src.adminTool.usersPanel;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 //Third-party libraries
 

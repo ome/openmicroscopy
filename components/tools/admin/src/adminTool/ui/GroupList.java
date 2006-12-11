@@ -27,7 +27,7 @@
  *------------------------------------------------------------------------------
  */
 
-package adminTool.ui;
+package src.adminTool.ui;
 
 //Java imports
 import java.awt.BorderLayout;
@@ -43,7 +43,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import adminTool.model.Model;
+import src.adminTool.model.Model;
 
 //Third-party libraries
 

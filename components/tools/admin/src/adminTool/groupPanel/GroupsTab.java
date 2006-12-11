@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.groupPanel;
+package src.adminTool.groupPanel;
 
 //Java imports
 
@@ -52,10 +52,10 @@ import ome.model.meta.ExperimenterGroup;
 
 import layout.TableLayout;
 
-import adminTool.model.Model;
-import adminTool.ui.GroupList;
-import adminTool.ui.GroupMembershipList;
-import adminTool.ui.UserList;
+import src.adminTool.model.Model;
+import src.adminTool.ui.GroupList;
+import src.adminTool.ui.GroupMembershipList;
+import src.adminTool.ui.UserList;
 
 //Third-party libraries
 
@@ -249,10 +249,10 @@ public class GroupsTab
 	void createActionButtons()
 	{
 		saveBtn = new JButton("Save");
-		ImageIcon addUserIcon = new ImageIcon("graphx/1rightarrow_nuvola32.png"); 
-		ImageIcon removeUserIcon = new ImageIcon("graphx/1leftarrow_nuvola32.png"); 
-		ImageIcon addGroupIcon = new ImageIcon("graphx/addUser_kusers_nuvola48_mod3.png"); 
-		ImageIcon removeGroupIcon = new ImageIcon("graphx/removeUser_kusers_nuvola48_mod3.png"); 
+		ImageIcon addUserIcon = new ImageIcon("resources/graphx/1rightarrow_nuvola32.png"); 
+		ImageIcon removeUserIcon = new ImageIcon("resources/graphx/1leftarrow_nuvola32.png"); 
+		ImageIcon addGroupIcon = new ImageIcon("resources/graphx/addUser_kusers_nuvola48_mod3.png"); 
+		ImageIcon removeGroupIcon = new ImageIcon("resources/graphx/removeUser_kusers_nuvola48_mod3.png"); 
 		addUserBtn = new JButton(addUserIcon);
 		removeUserBtn = new JButton(removeUserIcon);
 		addGroupBtn = new JButton(addGroupIcon);

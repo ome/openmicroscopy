@@ -26,8 +26,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package adminTool.ui;
+package src.adminTool.ui;
 
+
+//Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -41,10 +43,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import adminTool.model.Model;
-
-//Java imports
-
+import src.adminTool.model.Model;
 //Third-party libraries
 
 //Application-internal dependencies

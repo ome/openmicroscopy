@@ -1,4 +1,3 @@
-package adminTool.main;
 /*
  * *.AdminMain
  *
@@ -27,6 +26,7 @@ package adminTool.main;
  *
  *------------------------------------------------------------------------------
  */
+package src.adminTool.main;
 
 //Java imports
 
