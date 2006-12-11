@@ -350,7 +350,7 @@ public class GroupsTab
 		JPanel groupListButtonPanel = new JPanel();
 		groupListButtonPanel.setLayout(new BoxLayout(groupListButtonPanel, BoxLayout.Y_AXIS));
 		groupListButtonPanel.add(addGroupBtn);
-		groupListButtonPanel.add(removeGroupBtn);
+	//	groupListButtonPanel.add(removeGroupBtn);
 		
 		JPanel groupPanel = new JPanel();
 		groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.X_AXIS));
