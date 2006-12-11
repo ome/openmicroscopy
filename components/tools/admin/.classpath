@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry sourcepath="/OMERO_COMMON" kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-aop-jdk50-client/4.0.4.GA/jboss-aop-jdk50-client-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3/4.0.4.GA/jboss-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
+	<classpathentry sourcepath="/SANDBOX/jboss-4.0.x/security/src/main" kind="var" path="M2_REPO/omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/omejava/unknown/omejava-unknown.jar"/>
+	<classpathentry sourcepath="/HIBERNATE_SVN/src" kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
+	<classpathentry sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>
+	<classpathentry sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
+	<classpathentry kind="src" path="/omero-server-3.0-TRUNK"/>
+	<classpathentry kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-aspect-library-jdk50/4.0.4.GA/jboss-aspect-library-jdk50-4.0.4.GA.jar"/>
+	<classpathentry kind="output" path="out"/>
+</classpath>
