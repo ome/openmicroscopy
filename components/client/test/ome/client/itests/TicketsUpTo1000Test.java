@@ -143,6 +143,24 @@ public class TicketsUpTo1000Test extends TestCase
      
         assertTrue(s.size()>0);
     }
+
+    // ~ Ticket 541
+    // =========================================================================
+    
+    @Test( groups = "ticket:541")
+    public void test_updateMultipleThrowsOptimisticLock() throws Exception
+    {
+    	Image image = new Image();
+    	Dataset dataset = new Dataset();
+    	image.setName("ticket:541");
+    	dataset.setName("ticket:541");
+    	image.linkDataset(dataset);
+    	image = iUpdate.saveAndReturnObject(image);
+    	dataset = (Dataset) image.linkedDatasetList().get(0);
+    	image.unlinkDataset(dataset);
+    	iUpdate.saveArray(new IObject[]{image,dataset});
+    }
+
     
     // ~ Ticket 546
     // =========================================================================
@@ -182,7 +200,7 @@ public class TicketsUpTo1000Test extends TestCase
 		return d;
 	}
     
-    // ~ Ticket TODO
+    // ~ Ticket 555
     // =========================================================================
     
     @Test( groups = "ticket:555")
