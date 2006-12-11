@@ -96,9 +96,8 @@ class StatusBar
         status = new JLabel();
         statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
         statusButton.setBorder(null);
-        statusButton.setBorderPainted(false);
-        statusButton.setFocusPainted(false);
-        statusButton.setOpaque(false);
+        UIUtilities.unifiedButtonLookAndFeel(statusButton);
+        //statusButton.setOpaque(false);
         statusButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)

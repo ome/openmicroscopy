@@ -67,7 +67,7 @@ class AnnotatorView
 {
 
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(700, 600);
+	private static final Dimension DEFAULT_SIZE = new Dimension(700, 500);
 	
 	/** The title of the window. */
 	private static final String 	TITLE = "Annotate";

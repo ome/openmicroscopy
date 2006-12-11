@@ -95,7 +95,7 @@ class ClassifierView
                                                         "following image: ";
     
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(700, 600);
+	private static final Dimension DEFAULT_SIZE = new Dimension(700, 500);
     
     /** 
      * The size of the invisible components used to separate buttons

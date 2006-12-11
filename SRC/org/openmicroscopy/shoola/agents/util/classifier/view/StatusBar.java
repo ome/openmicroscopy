@@ -33,11 +33,9 @@ package org.openmicroscopy.shoola.agents.util.classifier.view;
 //Java imports
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-
 
 
 //Third-party libraries
@@ -69,12 +67,6 @@ class StatusBar
     /** Displays the status message. */
     private JLabel              status;
     
-    /** The label displaying the progress icon. */
-    private JLabel              progressLabel;
-    
-    /** Displays the status icon. */
-    private JButton             statusButton;
-    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -82,30 +74,20 @@ class StatusBar
     	progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         progressBar.setVisible(false);
-        status = new JLabel();
-        statusButton = new JButton(icons.getIcon(IconManager.INFO));
-        statusButton.setBorder(null);
-        statusButton.setBorderPainted(false);
-        statusButton.setFocusPainted(false);
-        statusButton.setOpaque(false);
+        status = new JLabel(icons.getIcon(IconManager.INFO));
     }
     
     /** Builds and lays out the UI. */
     private void buildUI()
     {
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+    	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder(BorderFactory.createEtchedBorder());
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(statusButton);
-        p.add(status);
-        add(UIUtilities.buildComponentPanel(p));
+        add(status);
         JPanel progress = new JPanel();
         progress.setLayout(new BoxLayout(progress, BoxLayout.X_AXIS));
         progress.add(progressBar);
         IconManager icons = IconManager.getInstance();
-        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
-        progress.add(progressLabel);
+        progress.add(new JLabel(icons.getIcon(IconManager.PROGRESS)));
         add(UIUtilities.buildComponentPanelRight(progress));
     }
     
