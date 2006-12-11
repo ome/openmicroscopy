@@ -51,6 +51,7 @@ public class TicketsUpTo1000Test extends TestCase
     IUpdate iUpdate   = sf.getUpdateService();
     IQuery iQuery     = sf.getQueryService();
     IAdmin iAdmin     = sf.getAdminService();
+    Login  rootLogin  = (Login) sf.getContext().getBean("rootLogin");
 
     // ~ Ticket 509
     // =========================================================================
@@ -180,6 +181,36 @@ public class TicketsUpTo1000Test extends TestCase
     	d = sf.getPojosService().createDataObject(d, null);
 		return d;
 	}
+    
+    // ~ Ticket TODO
+    // =========================================================================
+    
+    @Test( groups = "ticket:555")
+    public void test_iadminAllowsUpdatingUsers() throws Exception
+    {
+    	ServiceFactory root = new ServiceFactory(rootLogin);
+    	String newSysUser = updateNewUser(root);
+    	Login systemUser = new Login(newSysUser,"","system","Test");
+    	ServiceFactory sys = new ServiceFactory(systemUser);
+    	updateNewUser(sys);
+    }
+
+    protected String updateNewUser(ServiceFactory services)
+    {
+    	String name = UUID.randomUUID().toString(); 
+    	Experimenter e = new Experimenter();
+    	e.setOmeName(name);
+    	e.setFirstName("ticket:555");
+    	e.setLastName("ticket:555");
+    	long id = services.getAdminService().createSystemUser(e);
+    	Experimenter test = services.getAdminService().lookupExperimenter(name);
+    	String email = "ticket@555";
+    	test.setEmail(email);
+    	services.getAdminService().updateExperimenter(test);  	
+    	test = services.getAdminService().lookupExperimenter(name);
+    	assertEquals(email, test.getEmail());
+    	return name;
+    }
     
     // ~ Helpers
 	// =========================================================================
