@@ -241,7 +241,7 @@ public class UsersTabController
 		value = view.getUserName();
 		if(value.length() == 0)
 		{
-			errorMsg = new String("Cannot save user as username should not" +
+			errorMsg = new String("Cannot save user as username should not " +
 								  "be empty.");
 			return false;
 		}
@@ -260,14 +260,14 @@ public class UsersTabController
 		value = view.getFirstName();
 		if(value.length()==0)
 		{
-			errorMsg = new String("Cannot save user as first name should not" +
+			errorMsg = new String("Cannot save user as first name should not " +
 								  "be empty");
 			return false;
 		}
 		value = view.getLastName();
 		if(value.length() == 0)
 		{
-			errorMsg = new String("Cannot save user as last name should not" +
+			errorMsg = new String("Cannot save user as last name should not " +
 								  "be empty");
 			return false;
 		}
@@ -315,7 +315,7 @@ public class UsersTabController
 		{
 			if(selectedUser==null)
 			{
-				view.showErrorMessage("You must select a user before" +
+				view.showErrorMessage("You must select a user before " +
 									  "you add user to group.");
 				return;
 			}
@@ -330,7 +330,7 @@ public class UsersTabController
 			String groupSelected = view.getSelectedGroup();
 			if(groupSelected==null)
 			{
-				view.showErrorMessage("You must select a group" +
+				view.showErrorMessage("You must select a group " +
 									  "before adding user to group.");
 				return;
 			}
@@ -370,8 +370,8 @@ public class UsersTabController
 		{
 			if(selectedUser==null)
 			{
-				view.showErrorMessage("You must select a user before you remove " +
-				"user from group.");
+				view.showErrorMessage("You must select a user before you can remove " +
+				"a user from group.");
 				return;
 			}
 			// Check user exists. 
@@ -385,7 +385,7 @@ public class UsersTabController
 			String groupSelected = view.getSelectedUserGroup();
 			if(groupSelected==null)
 			{
-				view.showErrorMessage("You must select a group before removing " +
+				view.showErrorMessage("You must select a group before you can remove " +
 						"user from group.");
 				return;
 			}
@@ -398,7 +398,7 @@ public class UsersTabController
 		}
 		catch(Exception e)
 		{
-			handleException(e, "Admintool seems to be out of sync with database." +
+			handleException(e, "Admintool seems to be out of sync with database. " +
 					"Try restarting Admintool.");
 		}
 		try
