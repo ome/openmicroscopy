@@ -78,7 +78,7 @@ class DOClassification
 
     /** The text displayed in the note panel. */
     private static final String     PANEL_NOTE = "The image is currently " +
-            "classified under the following categories.";
+            "categorised in the following categories.";
     
     /** The text displayed in the note panel. */
     private static final String     PANEL_SUBNOTE = "Double click on the " +
@@ -86,10 +86,10 @@ class DOClassification
     
     /** The text displayed when the image has been annotated. */
     private static final String     NO_CLASSIFICATION_TEXT = "The selected " +
-            "image has not been classified. ";
+            "image has not been categorised. ";
     
     /** The root object. */
-    private static final String     ROOT = "Classification";
+    private static final String     ROOT = "";
     
     /** Reference to the Model. */
     private EditorModel         model;

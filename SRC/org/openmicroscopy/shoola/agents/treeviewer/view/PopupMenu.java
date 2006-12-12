@@ -157,24 +157,6 @@ class PopupMenu
         declassifyElement = new JMenuItem(a);
         initMenuItem(declassifyElement, a.getActionName());
     }
-      
-    /**
-     * Helper method to create the Classify submenu.
-     * 
-     * @return  The Classify submenu.
-     */
-    /*
-    private JMenu createClassifySubMenu()
-    {
-        IconManager im = IconManager.getInstance();
-        JMenu menu = new JMenu("Classify");
-        menu.setIcon(im.getIcon(IconManager.CLASSIFY));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CLASSIFY))); 
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.DECLASSIFY))); 
-        return menu;
-    }*/
     
     /**
      * Creates the sub-menu to manage the data.

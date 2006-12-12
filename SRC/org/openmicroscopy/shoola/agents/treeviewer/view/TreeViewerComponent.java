@@ -212,6 +212,7 @@ class TreeViewerComponent
             removeEditor();
             firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
         }
+        view.updateMenuItems();
     }
     
     /**

@@ -148,6 +148,9 @@ public abstract class TreeImageDisplay
     /** Indicates if the nodes is expanded or not. */
     private boolean             expanded;
     
+    /** Indicates to display a truncated name. */
+    private boolean				partialName;
+    
     /** The number of items. */
     protected int				numberItems;
     
@@ -208,8 +211,25 @@ public abstract class TreeImageDisplay
         setUserObject(hierarchyObject);
         childrenDisplay = new HashSet();
         numberItems = -1;
+        partialName = true;
         fontStyle = FONT_PLAIN;
     }
+    
+    /**
+     * Sets to <code>true</code> if the partial name of the node is shown, to
+     * <code>false</code> otherwise.
+     * 
+     * @param b The value to set.
+     */
+    void setPartialName(boolean b) { partialName = b; }
+    
+    /**
+     * Returns <code>true</code> if the partial name of the node is shown, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPartialName() { return partialName; }
     
     /**
      * Sets to <code>true</code> if the node is expanded, 
@@ -419,7 +439,10 @@ public abstract class TreeImageDisplay
     public String getNodeText()
     {
         String name = getNodeName();
-        if (getUserObject() instanceof ImageData) return getPartialName(name);
+        if (getUserObject() instanceof ImageData) {
+        	if (partialName) return getPartialName(name);
+        	return name;
+        }
         if (numberItems == -1) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
@@ -483,8 +506,8 @@ public abstract class TreeImageDisplay
      */
     public String toString()
     { 
-        if (getUserObject() instanceof ImageData) 
-            return getPartialName(getNodeName());
+        //if (getUserObject() instanceof ImageData) 
+          //  return getPartialName(getNodeName());
         return getNodeName(); 
     }
     

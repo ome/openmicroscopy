@@ -533,4 +533,8 @@ public interface Browser
      * @return See above.
      */
     public boolean isMainTree();
+
+    /** Shows the truncated name of the images or the full path. */
+	public void displaysImagesName();
+	
 }

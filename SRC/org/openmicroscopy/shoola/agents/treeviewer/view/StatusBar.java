@@ -101,8 +101,8 @@ class StatusBar
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
-        statusButton = new JButton(icons.getIcon(IconManager.CANCEL));
-        statusButton.setVisible(false);
+        statusButton = new JButton(icons.getIcon(IconManager.TRANSPARENT));
+        statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
         //statusButton.setOpaque(false);
@@ -159,10 +159,10 @@ class StatusBar
     void setStatus(String s) { status.setText(s); }
     
     /** 
-     * Enables the button and shows/hides the {@link #statusButton} depending
-     * on the specified parameter.
+     * Enables the button and shows/hides the {@link #statusButton}
+     * depending on the passed parameter.
      * 
-     * @param b	The value to set.
+     * @param b The value to set.
      */
     void setStatusIcon(boolean b)
     { 

@@ -113,7 +113,7 @@ class BrowserModel
     /** Indicates if it's the main which is visible. */
     private boolean             mainTree;
     
-    /** Flag to indicate if the browser is visible or not. */
+    /** Indicates if the browser is visible or not. */
     private boolean             displayed;
     
     /** The node we go into. */
@@ -616,5 +616,5 @@ class BrowserModel
                                             expandedTopNodes);
         currentLoader.load();   
     }
-    
+	
 }

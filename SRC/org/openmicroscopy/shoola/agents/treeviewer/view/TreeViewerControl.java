@@ -451,6 +451,7 @@ class TreeViewerControl
                     model.setEditorSelectedPane(Editor.PROPERTIES_INDEX);
             }
             model.onSelectedDisplay();
+            view.updateMenuItems();
         } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
             Map browsers = model.getBrowsers();
             Iterator i = browsers.values().iterator();

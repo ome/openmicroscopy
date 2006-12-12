@@ -223,12 +223,15 @@ public class IconManager
     
     /** The <code>Manager 48</code> icon. */
     public static int           MANAGER_48 = 54;
+        
+    /** The <code>Partial name</code> icon. */
+    public static int           PARTIAL_NAME = 55;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 54;
+    private static int          MAX_ID = 55;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -276,7 +279,7 @@ public class IconManager
         relPaths[ANNOTATED_CLASSIFIED_IMAGE] = 
                                     "annotated_classified_image16.png";
         relPaths[CLASSIFIED_IMAGE] = "classified_image16.png";
-        relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
+        relPaths[EXIT_APPLICATION] = "nuvola_exit16.png";
         relPaths[FILTER_BIG] = "nuvola_find48.png";
         relPaths[FORWARD_NAV] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
@@ -291,6 +294,7 @@ public class IconManager
         relPaths[CUT] = "nuvola_editcut16.png";
         relPaths[QUESTION] = "nuvola_filetypes32.png";
         relPaths[MANAGER_48] = "nuvola_file-manager48.png";
+        relPaths[PARTIAL_NAME] = "nuvola_kmessedwords16.png";
     }
     
     /** The sole instance. */

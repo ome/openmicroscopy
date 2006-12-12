@@ -107,21 +107,21 @@ public class IconManager
 	 * use for notification dialogs. 
 	 */
 	private static final String		DEFAULT_ERROR_ICON_PATH = 
-												"graphx/nuvola_cancel32.png";
+												"graphx/nuvola_no32.png";
 	
 	/** 
 	 * The pathname, relative to this class, of the default warning icon to
 	 * use for notification dialogs.
 	 */
 	private static final String		DEFAULT_WARN_ICON_PATH = 
-										"graphx/nuvola_important32.png";
+									"graphx/nuvola_messagebox_warning32.png";
 													
 	/** 
 	 * The pathname, relative to this class, of the default info icon to
 	 * use for notification dialogs.
 	 */													
 	private static final String		DEFAULT_INFO_ICON_PATH = 
-											"graphx/stock_dialog-info-32.png";
+										"graphx/nuvola_messagebox_info32.png";
 	
     /** 
      * The pathname, relative to this class, of the default close icon to
@@ -210,7 +210,7 @@ public class IconManager
 		relPaths[HELP] = "nuvola_help16.png";
 		relPaths[CONNECT_DS] = "nuvola_server16.png";
 		relPaths[DISCONNECT_DS] = "server_disconn16.png";
-		relPaths[EXIT] = "OpenOffice_stock_exit-16.png";
+		relPaths[EXIT] = "nuvola_exit16.png";
 		relPaths[LOGIN_INIT] = "nuvola_button_cancel16.png";
 		relPaths[LOGIN] = "nuvola_apply16.png";
 		relPaths[CONNECT_DS_BIG] = "nuvola_server48.png";

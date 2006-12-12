@@ -104,7 +104,7 @@ public class CreateTopContainerAction
     }
     
     /**
-     * Modifies the name of the action when a new browser os selected.
+     * Modifies the name of the action when a new browser is selected.
      * @see TreeViewerAction#onBrowserSelection(Browser)
      */
     protected void onBrowserSelection(Browser browser)

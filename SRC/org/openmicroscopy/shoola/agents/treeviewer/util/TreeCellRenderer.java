@@ -33,6 +33,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -151,6 +154,14 @@ public class TreeCellRenderer
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
+        if (node.getUserObject() instanceof ImageData) {
+        	int w = getIcon().getIconWidth();
+        	w += getIconTextGap();
+        	FontMetrics fm = getFontMetrics(getFont());
+        	w += fm.stringWidth(node.getNodeName());
+            setPreferredSize(new Dimension(w, fm.getHeight()));
+        }
+        
         return this;
     }
   

@@ -104,7 +104,8 @@ public class ViewAction
             if ((ho instanceof ImageData)) name = VIEW;  
             else name = BROWSE;
             if (selectedDisplay instanceof TreeImageSet) {
-            	setEnabled(((TreeImageSet) selectedDisplay).getNumberItems() > 0);
+            	setEnabled(
+            			((TreeImageSet) selectedDisplay).getNumberItems() > 0);
             } else
             	setEnabled(true);
         }

@@ -52,7 +52,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -115,6 +114,11 @@ public class FilterWindow
     /** The subtitle of the window. */
     private static final String     MESSAGE = "No items available.";
     
+    /** The subtitle of the window. */
+    private static final String     NOTE_MESSAGE = "Limit the images " +
+    								"retrieval by selecting items in the " +
+    								"following list of ";
+    
     /** The default size of the window. */
     private static final Dimension  WINDOW_SIZE = new Dimension(500, 500);
 
@@ -170,8 +174,8 @@ public class FilterWindow
     private String getContainerString()
     {
         switch (containerType) {
-            case DATASET: return DATASET_MSG;
-            case CATEGORY: return CATEGORY_MSG;
+            case DATASET: return NOTE_MESSAGE+DATASET_MSG;
+            case CATEGORY: return NOTE_MESSAGE+CATEGORY_MSG;
         }
         return "";
     }
@@ -220,12 +224,10 @@ public class FilterWindow
      * 
      * @return See above;
      */
-    private JToolBar buildRightToolBar()
+    private JPanel buildRightToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setRollover(true);
+    	JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setFloatable(false);
         bar.add(setButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
@@ -237,28 +239,14 @@ public class FilterWindow
      * 
      * @return See above;
      */
-    private JToolBar buildLeftToolBar()
+    private JPanel buildLeftToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setRollover(true);
+    	JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.setFloatable(false);
         bar.add(selectAll);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(clearAll);
         return bar;
-    }
-
-    /**
-     * Creates the message.
-     * 
-     * @return See above.
-     */
-    private String createMessage()
-    {
-        String msg = "Limit the images retrieval by selecting items in the " +
-                        "following list of "+getContainerString()+".";
-        return msg;
     }
     
     /**
@@ -311,7 +299,7 @@ public class FilterWindow
                 BorderFactory.createEmptyBorder(5, 5, 15, 10)));
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         IconManager im = IconManager.getInstance();
-        TitlePanel tp = new TitlePanel(TITLE, NOTE, createMessage(), 
+        TitlePanel tp = new TitlePanel(TITLE, NOTE, getContainerString(), 
                                     im.getIcon(IconManager.FILTER_BIG));
         //Set the layout and add components
         Container c = getContentPane();

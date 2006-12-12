@@ -144,7 +144,7 @@ class SplashScreenView
 	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
 		
     /** The client's version. */
-    private static final String     VERSION = "3.0_M3 ";
+    private static final String     VERSION = "3.0_M3_Beta1 ";
     
     /** The server's version. For developers' purpose only. */
     private static final String     OMERO_VERSION = " server: OMERO M3";
@@ -204,7 +204,8 @@ class SplashScreenView
         Pattern p = Pattern.compile("\\d{1,9}");
         Matcher m = p.matcher(version);
         m.find();
-        versionLabel.setText(VERSION+"(rev "+m.group()+")"+OMERO_VERSION);
+        //versionLabel.setText(VERSION+"(rev "+m.group()+")"+OMERO_VERSION);
+        versionLabel.setText(VERSION+OMERO_VERSION);
         versionLabel.setForeground(VERSION_FONT_COLOR);
         versionLabel.setFont(VERSION_FONT);
     }

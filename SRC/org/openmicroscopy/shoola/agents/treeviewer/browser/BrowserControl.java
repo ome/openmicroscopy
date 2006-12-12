@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NavigationAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
@@ -95,6 +96,9 @@ class BrowserControl
     /** Identifies the <code>Forward Nav</code> action.*/
     static final Integer    FORWARD_NAV = new Integer(7);
     
+    /** Identifies the <code>Partial Name</code> action.*/
+    static final Integer    PARTIAL_NAME = new Integer(8);
+    
     /** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -117,6 +121,7 @@ class BrowserControl
         actionsMap.put(FILTER_MENU, new FilterMenuAction(model));
         actionsMap.put(FORWARD_NAV, new NavigationAction(model, true));
         actionsMap.put(BACKWARD_NAV, new NavigationAction(model, false));
+        actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
     }
     
     /**

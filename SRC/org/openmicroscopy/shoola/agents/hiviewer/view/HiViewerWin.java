@@ -257,9 +257,9 @@ class HiViewerWin
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         //menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW_PDI)));
-        //menu.add(new JMenuItem(
-        //s                    controller.getAction(HiViewerControl.VIEW_CGCI)));
-        //menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JMenuItem(
+                            controller.getAction(HiViewerControl.VIEW_CGCI)));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         item.setSelected(false);
         item.setText(TreeViewAction.NAME);

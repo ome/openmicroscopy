@@ -70,29 +70,81 @@ public class DeleteAction
     /** Name of the action. */
     private static final String NAME = "Remove";
     
-    /** Name of the action if the selected items are Datasets. */
-    private static final String NAME_PROJECT = "Remove from current project";
-    
-    /** Name of the action if the selected items are Datasets. */
-    private static final String NAME_CATEGORYGROUP = 
-            "Remove from current categoryGroup";
+    /** Name of the action if the selected items are <code>Project</code>s. */
+    private static final String NAME_ROOT_P = "Remove projects";
     
     /** 
-     * Name of the action if the selected items are images and 
-     * the parent is a dataset.
+     * Name of the action if the selected items are 
+     * <code>CategoryGroup</code>s. 
+     */
+    private static final String NAME_ROOT_CG = "Remove categoryGroups";
+    
+    /** Name of the action if the selected items are <code>Dataset</code>s. */
+    private static final String NAME_PROJECT = "Remove from current project";
+    
+    /** Name of the action if the selected items are <code>Categorie</code>s.*/
+    private static final String NAME_CATEGORYGROUP = "Remove from current " +
+    												"categoryGroup";
+    
+    /** 
+     * Name of the action if the selected items are <code>Image</code>s and 
+     * the parent is a <code>Dataset</code>.
      */
     private static final String NAME_DATASET = "Remove from current dataset";
     
     /** 
-     * Name of the action if the selected items are images and
-     * the parent is a dataset. 
+     * Name of the action if the selected items are <code>Image</code>s and 
+     * the parent is a <code>Category</code>.
      */
     private static final String NAME_CATEGORY = "Remove from current category";
     
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Remove the selected element " +
-            "from the current container.";
+    /** 
+     * Description of the action if the selected item is <code>null</code>. 
+     */
+    private static final String DESCRIPTION = "Remove item.";
+    
+    /** 
+     * Description of the action if the selected items are 
+     * <code>Project</code>s. 
+     */
+    private static final String DESCRIPTION_ROOT_P = "Remove the selected " +
+    													"project.";
+    
+    /** 
+     * Description of the action if the selected items are 
+     * <code>CategoryGroup</code>s. 
+     */
+    private static final String DESCRIPTION_ROOT_CG = "Remove the selected " +
+    													"categoryGroup.";
+    
+    /** 
+     * Description of the action if the selected items are 
+     * <code>Dataset</code>s. 
+     */
+    private static final String DESCRIPTION_PROJECT = "Remove the selected " +
+    		"datasets from the project.";
+    
+    /** 
+     * Description of the action if the selected items are 
+     * <code>Categorie</code>s. 
+     */
+    private static final String DESCRIPTION_CATEGORYGROUP = "Remove the " +
+    		"selected categories from the categoryGroup.";
+    
+    /** 
+     * Description of the action if the selected items are <code>Image</code>s 
+     * and the parent is a <code>Dataset</code>.
+     */
+    private static final String DESCRIPTION_DATASET = "Remove the selected " +
+    		"images from the dataset.";
+    
+    /** 
+     * Description of the action if the selected items are <code>Image</code>s 
+     * and  the parent is a <code>Category</code>.
+     */
+    private static final String DESCRIPTION_CATEGORY = "Remove the selected " +
+    		"images from the category.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -121,43 +173,58 @@ public class DeleteAction
     {
         if (selectedDisplay == null) {
             name = NAME;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
             return;
         }
-        
-        /*
-        if (model.getSelectedBrowser() != null) {
-            if (model.getSelectedBrowser().getSelectedDisplays().length > 1) {
-                setEnabled(false);
-                return;
-            }
-        }
-         */
         Browser browser = model.getSelectedBrowser();
         if (browser == null) {
             name = NAME;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
             return;
         } 
         if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
             name = NAME;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
-        if ((ho instanceof ProjectData) || (ho instanceof CategoryGroupData)) {
-            name = NAME;
+        if (ho instanceof ProjectData) {
+        	name = NAME_ROOT_P;
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_ROOT_P));
+            setEnabled(model.isObjectWritable((DataObject) ho));
+        } else if (ho instanceof CategoryGroupData) {
+            name = NAME_ROOT_CG;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_ROOT_CG));
             setEnabled(model.isObjectWritable((DataObject) ho));
         } else if (ho instanceof DatasetData) {
             name = NAME_PROJECT;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
             setEnabled(model.isObjectWritable((DataObject) ho));
         } else if (ho instanceof CategoryData) {
             name = NAME_CATEGORYGROUP;
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_CATEGORYGROUP));
             setEnabled(model.isObjectWritable((DataObject) ho));
         } else if (ho instanceof ImageData) {
             Object p = selectedDisplay.getParentDisplay().getUserObject();
-            if (p instanceof DatasetData) name = NAME_DATASET;
-            else name = NAME_CATEGORY;
+            if (p instanceof DatasetData) {
+            	name = NAME_DATASET;
+            	putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+            } else {
+            	name = NAME_CATEGORY;
+            	putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
+            }
             setEnabled(model.isObjectWritable((DataObject) ho));
         } else setEnabled(false);
     }

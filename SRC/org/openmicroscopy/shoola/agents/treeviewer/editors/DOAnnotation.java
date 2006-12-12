@@ -159,6 +159,7 @@ class DOAnnotation
             public void insertUpdate(DocumentEvent de)
             {
             	view.handleAnnotationAreaInsert(true);
+            	defaultText = false;
                 model.setAnnotated(true);
             }
             
@@ -169,6 +170,7 @@ class DOAnnotation
             public void removeUpdate(DocumentEvent de)
             {
             	view.handleAnnotationAreaInsert(true);
+            	defaultText = false;
                 model.setAnnotated(true);
             }
 

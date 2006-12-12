@@ -511,18 +511,7 @@ class BrowserComponent
                 throw new IllegalArgumentException("SortType not supported.");
         }
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-       /*
-        SortCmd cmd;
-        TreeImageDisplay node;
-        if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
-            node = view.getTreeRoot();
-        else node = getLastSelectedDisplay();
-        cmd = new SortCmd(this, sortType, node);
-        cmd.execute();
-        //view.setSortedNodes(cmd.getSortedNodes(), node);
-         */
         view.sortNodes(sortType);
-        
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
@@ -930,19 +919,6 @@ class BrowserComponent
             visitor = new ClassificationVisitor(this, img, categories);
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
             nodes = visitor.getFoundNodes();
-            /*
-            d = TreeViewerTranslator.transformDataObject(img, userID, groupID);
-            if (editorType == CATEGORY_EXPLORER) {
-                if (m == Classifier.CLASSIFY_MODE) {
-                    last = getLastSelectedDisplay();
-                    if (last == null) 
-                        createNodes(nodes, d, null);
-                    else  createNodes(nodes, d, last.getParentDisplay());
-                }
-                else removeNodes(nodes);
-            } else if (editorType == PROJECT_EXPLORER || 
-                    editorType == IMAGES_EXPLORER)
-                    */
            view.updateNodes(nodes, img);
         }
     }
@@ -1054,10 +1030,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#isDisplayed()
      */
-    public boolean isDisplayed()
-    {
-        return model.isDisplayed();
-    }
+    public boolean isDisplayed() { return model.isDisplayed(); }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -1086,6 +1059,8 @@ class BrowserComponent
                     expandedTopNodes, userID, groupID)); 
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
+        PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
+		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         fireStateChange(); 
     }
 
@@ -1098,5 +1073,18 @@ class BrowserComponent
         // TODO Auto-generated method stub
         return model.isMainTree();
     }
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#displaysImagesName()
+     */
+	public void displaysImagesName() {
+		 if (model.getState() == DISCARDED)
+			 throw new IllegalStateException("This method cannot be invoked "+
+	                "in the DISCARDED state.");
+		 PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
+		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		 view.repaint();
+	}
     
 }

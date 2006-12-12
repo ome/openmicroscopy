@@ -39,7 +39,9 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ButtonGroup;
@@ -114,6 +116,12 @@ class TreeViewerWin
 
     /** The menu hosting the root levels. */
     private JMenu 				rootLevelMenu;
+    
+    /** 
+     * Collections of menu items to update when a node is selected
+     * or when a tabbed pane is selected.
+     */
+    private List				menuItems;
     
     /** The tool bar hosting the controls displaying by the popup menu. */
     private ToolBar             toolBar;
@@ -226,6 +234,7 @@ class TreeViewerWin
                             TreeViewerControl.CREATE_TOP_CONTAINER);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
+        menuItems.add(item);
         menu.add(item);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CREATE_OBJECT)));
@@ -234,6 +243,7 @@ class TreeViewerWin
         a = controller.getAction(TreeViewerControl.VIEW);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
+        menuItems.add(item);
         menu.add(item);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH_TREE)));
@@ -271,11 +281,13 @@ class TreeViewerWin
         TreeViewerAction a = controller.getAction(TreeViewerControl.ANNOTATE);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
+        menuItems.add(item);
         menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.PROPERTIES);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
+        menuItems.add(item);
         menu.add(item);
         return menu;
     }
@@ -346,8 +358,7 @@ class TreeViewerWin
     TreeViewerWin()
     {
         super(TITLE);
-        //IconManager icons = IconManager.getInstance();
-        //setIconImage(icons.getImageIcon(IconManager.MANAGER_48).getImage());
+        menuItems = new ArrayList();
     }
 
     /**
@@ -363,7 +374,6 @@ class TreeViewerWin
         statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
         toolBar = new ToolBar(controller);
-        //popupMenu = new PopupMenu(controller);
         loadingWin = new LoadingWindow(this);
         loadingWin.addPropertyChangeListener(controller);
         initComponents();
@@ -559,7 +569,7 @@ class TreeViewerWin
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         else
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        statusBar.setStatusIcon( b); 
+        statusBar.setStatusIcon(b); 
     }
 
     /**
@@ -571,6 +581,20 @@ class TreeViewerWin
     
     /** Discards the <code>DataHandler</code>. */
     void discardDataHandler() { model.discardDataHandler(); }
+    
+    /** 
+     * Updates the text of the menu items when a node is selected
+     * or when a tabbed pane is selected.
+     */
+    void updateMenuItems()
+    {
+    	Iterator i = menuItems.iterator();
+    	JMenuItem item;
+    	while (i.hasNext()) {
+    		item = (JMenuItem) i.next();
+			item.setText(((TreeViewerAction) item.getAction()).getActionName());
+		}
+    }
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

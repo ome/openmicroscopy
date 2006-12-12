@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction 
  *
  *------------------------------------------------------------------------------
  *
@@ -22,44 +22,46 @@
  *
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
-
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to sort the nodes by alphabetical order.
+ * Shows a truncated name of the images or the full path is selected.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class SortAction
-    extends BrowserAction
+public class ShowNameAction 
+	extends BrowserAction
 {
-    
+
     /** Description of the action. */
-    private static final String DESCRIPTION = "Sort by name";
+    private static final String DESCRIPTION = "Show the full name of " +
+    									"the image";
     
     /** 
      * Reacts to {@link Browser}'s state change.
@@ -75,22 +77,22 @@ public class SortAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public SortAction(Browser model)
+    public ShowNameAction(Browser model)
     {
-        super(model);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.SORT));  
+    	super(model);
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			UIUtilities.formatToolTipText(DESCRIPTION));
+    	IconManager im = IconManager.getInstance();
+    	putValue(Action.SMALL_ICON, im.getIcon(IconManager.PARTIAL_NAME));
     }
     
     /**
-     * Sorts the nodes of the currently selected <code>Browser</code> by name.
+     * Shows a truncated name or the full path depending on the selection.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
-        model.sortTreeNodes(Browser.SORT_NODES_BY_NAME);
+        model.displaysImagesName();
     }
     
 }

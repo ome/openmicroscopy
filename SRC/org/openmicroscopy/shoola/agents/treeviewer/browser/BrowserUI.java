@@ -127,6 +127,9 @@ class BrowserUI
     /** Collections of nodes whose <code>enabled</code> flag has to be reset. */
     private Set						nodesToReset;
     
+    /** Button indicating if the partial name is displayed or not. */
+    private JToggleButton			partialButton;
+    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -158,19 +161,21 @@ class BrowserUI
         ButtonGroup group = new ButtonGroup();
         JToggleButton b = new JToggleButton();
         group.add(b);
-        //UIUtilities.unifiedButtonLookAndFeel(b);
         b.setBorderPainted(true);
         b.setSelected(true);
         b.setAction(controller.getAction(BrowserControl.SORT));
         
         menuBar.add(b);
         b = new JToggleButton(controller.getAction(BrowserControl.SORT_DATE));
-        //UIUtilities.unifiedButtonLookAndFeel(b);
+        
         b.setBorderPainted(true);
         group.add(b);
-        //b.setBorderPainted(false);
-        
         menuBar.add(b);
+       
+        partialButton = new JToggleButton(
+        				controller.getAction(BrowserControl.PARTIAL_NAME));
+        partialButton.setBorderPainted(true);
+        menuBar.add(partialButton);
         
         button = new JButton(controller.getAction(BrowserControl.FILTER_MENU));
         button.addMouseListener((FilterMenuAction) 
@@ -896,5 +901,13 @@ class BrowserUI
             goIntoTree.setSelectionRow(-1);
         }
     }
+    
+    /** 
+     * Returns <code>true</code> if the partial name is displayed, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPartialName() { return !partialButton.isSelected(); }
     
 }
