@@ -9,6 +9,21 @@
 --------------------------------------------------------------------------------
 Last updated: 12/12/2006
 Version: M3 Beta 1
+Changes: 
+ - Gateway: Wrap server exceptions.
+ - SplashScreen: Update SplashScreen image.
+ - RenderingService: Handle exception.
+ - Viewer: Handle Exception if an error occured while rendering a new image.
+ - DataManager: Fixed the refresh method for the ImageExplorer.
+ - DataManager: Added option to display the full/partial name of images.
+ - HiViewer: Added option to display the full/partial name of images in 
+             treeView.
+ - HiViewer, Viewer: Fixed problem when attaching menu listeners.
+ - Agents enhancement: Modified tooltips.
+ 
+--------------------------------------------------------------------------------
+Last updated: 11/12/2006
+Version: M3 Beta 1
 Changes:
  - Agents: Refactored code to annotate and classify several objects at the same
     	   time.
@@ -16,7 +31,8 @@ Changes:
  - Agents: Modified location of saveButton for easy access.
  - Container: Sets the noise reduction to false by default. 
  - Container: Added service to connect via http.
- - TreeViewer: Fixed problem in editor to load thumbnail regardless of the 
+ - Service: Option to send error reports or comments to developers.
+ - DataManager: Fixed problem in editor to load thumbnail regardless of the 
  			   selected pane.
  - HiViewer: Fixed tabbed pane selection bug.
  - HiViewer: Option to magnify the zoomed thumbnail using the mouse wheel.
@@ -24,6 +40,7 @@ Changes:
  			 to the selected node. (cf. Usability Test 8, ID 8.5).
  - UI util: Fixed treeCheckNode layout problem. The problem seems to appear
  			on Windows.	
+ 			
 --------------------------------------------------------------------------------
 Last updated: 27/11/2006
 Version: M3
