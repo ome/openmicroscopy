@@ -338,7 +338,7 @@ public class FilterWindow
         Set nodes = tree.getSelectedNodes(); 
         if (nodes == null || nodes.size() == 0) { 
             UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Classification", "No category selected."); 
+            un.notifyInfo("Categorization", "No category selected."); 
             return; 
         }
         Set paths = new HashSet(nodes.size()); 
