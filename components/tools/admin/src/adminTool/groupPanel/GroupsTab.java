@@ -56,6 +56,7 @@ import src.adminTool.model.Model;
 import src.adminTool.ui.GroupList;
 import src.adminTool.ui.GroupMembershipList;
 import src.adminTool.ui.UserList;
+import src.adminTool.ui.messenger.MessageBox;
 
 //Third-party libraries
 
@@ -112,7 +113,8 @@ public class GroupsTab
 	
 	public void showErrorMessage(String errorMsg)
 	{
-		JOptionPane.showMessageDialog(this, errorMsg);
+		MessageBox msg = new MessageBox(this.getLocationOnScreen(), "Warning", 
+				errorMsg);
 		setToTop();
 	}
 	
