@@ -214,7 +214,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
     {
         newStatefulDestroyInvocation();
         opensSession();
-        setsFlushMode();
+        setsFlushMode(FlushMode.COMMIT);
         beginsTransaction(1);
         disconnectsSession();
         closesSession();
@@ -297,11 +297,21 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase
         mockSession.expects( atLeastOnce() ).method( "reconnect" );
     }
     
-    private void setsFlushMode()
+    private void setsFlushMode(FlushMode...modes)
     {
-        // done by handler
-        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
-        	.with( eq( FlushMode.MANUAL ));
+        // done by handler see ticket:557
+    	if (modes.length==0)
+    	{
+	        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
+	    		.with( eq( FlushMode.COMMIT ));
+	        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
+	        	.with( eq( FlushMode.MANUAL ));
+    	} else {
+    		for (FlushMode mode : modes) {
+    	        mockSession.expects( atLeastOnce() ).method( "setFlushMode" )
+    	        	.with( eq( mode ));
+			}
+    	}
     }
     
     private void disconnectsSession()

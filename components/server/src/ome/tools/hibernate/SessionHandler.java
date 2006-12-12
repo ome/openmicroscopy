@@ -197,7 +197,11 @@ public class SessionHandler implements MethodInterceptor
         	// Need to open even if "closing" because the service may need
         	// to perform cleanup in its close() method.
         	status = newOrRestoredSession(invocation);
-        	status.session.setFlushMode( FlushMode.MANUAL );
+        	status.session.setFlushMode( FlushMode.COMMIT );
+        	// changing MANUAL to COMMIT for ticket:557. the appserver
+        	// won't allow us to commit here anyway, and setting to COMMIT
+        	// prevents Spring from automatically re-writing the flushMode
+        	// as AUTO
             result = invocation.proceed();
             return result;
         }
