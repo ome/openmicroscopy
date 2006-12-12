@@ -415,7 +415,7 @@ public class MessengerDialog
         TableLayout layout = new TableLayout(tableSize);
         panel.setLayout(layout);       
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.add(debugArea, "0, 0");
+        panel.add(new JScrollPane(debugArea), "0, 0");
         panel.add(copyButton, "0, 1, c, b");
         return panel;
 	}
