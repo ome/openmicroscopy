@@ -581,33 +581,6 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#refresh()
-     */
-    public void refresh()
-    {
-        switch (model.getState()) {
-            case LOADING_DATA:
-            case LOADING_LEAVES:
-            case DISCARDED:
-                throw new IllegalStateException(
-                        "This method cannot be invoked in the LOADING_DATA, "+
-                        " LOADING_LEAVES or DISCARDED state.");
-        }
-        TreeImageDisplay display = model.getLastSelectedDisplay();
-        if (display == null) return;
-        if (!display.isChildrenLoaded() && display.numberItems != 0) return;
-        TreeImageDisplay root = view.getTreeRoot();
-        display.removeAllChildrenDisplay();
-        if (root.equals(display)) {
-            if (model.getBrowserType() == IMAGES_EXPLORER)
-                loadFilteredImagesForHierarchy();
-            else loadData();
-        } else model.refreshSelectedDisplay();
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#refreshTree()
      */
     public void refreshTree()
@@ -629,7 +602,9 @@ class BrowserComponent
         if (model.getBrowserType() == IMAGES_EXPLORER) {
             root.removeAllChildrenDisplay();
             model.setSelectedDisplay(root);
-            loadFilteredImagesForHierarchy();
+            Set nodes = model.getFilteredNodes();
+            if (nodes != null) loadFilteredImageData(nodes);
+            else loadFilteredImagesForHierarchy();
         } else {
             RefreshVisitor visitor = new RefreshVisitor(this);
             accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);

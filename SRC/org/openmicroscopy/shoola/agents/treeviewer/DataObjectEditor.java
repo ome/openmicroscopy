@@ -130,7 +130,7 @@ public class DataObjectEditor
      * @see EditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
-
+    
     /** 
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)

@@ -122,6 +122,12 @@ class BrowserModel
     /** Reference to the parent. */
     private TreeViewer          parent;
     
+    /** 
+     * Collection of <code>CategoryData</code> or <code>DatasetData</code>
+     * objects.
+     */
+    private Set					filteredNodes;
+    
     /** Reference to the component that embeds this model. */
     protected Browser           component; 
     
@@ -300,6 +306,15 @@ class BrowserModel
     }
     
     /**
+     * Returns the collection containing the objects containing the images
+     * to display. This method should only invoked when the 
+     * the browser's type equals to {@link Browser#IMAGES_EXPLORER}.
+     * 
+     * @return See above.
+     */
+    Set getFilteredNodes() { return filteredNodes; }
+    
+    /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link Browser#LOADING_DATA}. 
      * 
@@ -307,6 +322,7 @@ class BrowserModel
      */
     void fireFilteredImageDataLoading(Set nodes)
     {
+    	filteredNodes = nodes;
         Set ids = new HashSet(nodes.size());
         Iterator i = nodes.iterator();
         Class klass = null;
@@ -439,7 +455,11 @@ class BrowserModel
      * 
      * @param type The type of filter.
      */
-    void setFilterType(int type) { filterType = type; }
+    void setFilterType(int type)
+    { 
+    	filteredNodes = null;
+    	filterType = type; 
+    }
     
     /**
      * Returns the type of filter currently used.

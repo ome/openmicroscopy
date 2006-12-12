@@ -365,12 +365,6 @@ public interface Browser
     public void showFilterMenu(Component c, Point p);
     
     /** 
-     * Reloads the children of the currently selected node and rebuilds
-     * the display.
-     */
-    public void refresh();
-    
-    /** 
      * Reloads children of the currently selected node and rebuilds
      * the display if the <code>Browser</code> is currently selected, 
      * if not, all the chidren are removed and there is no data loading.

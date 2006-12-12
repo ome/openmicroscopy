@@ -104,9 +104,9 @@ public abstract class EditorLoader
     /** Notifies the user that the data retrieval has been cancelled. */
     public void handleCancellation() 
     {
-        String info = "The data retrieval has been cancelled.";
+        String info = "The data saving has been cancelled.";
         registry.getLogger().info(this, info);
-        registry.getUserNotifier().notifyInfo("Data Retrieval Cancellation", 
+        registry.getUserNotifier().notifyInfo("Data Saving Cancellation", 
                                               info);
     }
     
