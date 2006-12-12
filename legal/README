@@ -145,20 +145,20 @@
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
   
+  Project: The Jakarta Commons. The Commons is a Jakarta subproject focused on 
+  		all aspects of reusable Java components. 
+  		Specifically the Commons Logging and Http Client components are used.
+  Web Site: http://jakarta.apache.org/commons/
+  Artifacts: The commons-* files under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
   Project: The Eclipse project.  We're using a few of their icons.
   Web Site: http://www.eclipse.org/
   Artifacts: All the eclipse_* graphics files contained the Shoola CVS module.
   License: Common Public License (CPL) v1.0
   License File: cpl-v10.html
-  
-  Project: Ximian.  We're using a few of their icons that they designed for
-  		Open Office.
-  Web Site: http://www.novell.com/linux/ximian.html
-  Artifacts: All the openOffice_* graphics files contained the Shoola CVS 
-  		module.
-  License: Lesser General Public License (LGPL)
-  License File: lgpl.txt
-  
+
   Project: The Nuvola icon theme.  It provides most of the icons in Shoola.
   Web Site: http://www.icon-king.com/
   Artifacts: All the nuvola_* graphics files contained the Shoola CVS module.

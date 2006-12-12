@@ -62,7 +62,7 @@
   The compilation, testing, launch, and delivery of the application are
   automated by means of an Ant (http://ant.apache.org/) build file, located
   under the build directory.  In order to perform a build, all you need is
-  a JDK -- version 1.4 or later.  Move to the build directory and, from the 
+  a JDK -- version 1.5 or later.  Move to the build directory and, from the 
   command line, enter:
   
       java build
@@ -91,7 +91,7 @@
   Copyright
   ---------
   
-  Copyright (C) 2003-2005 Open Microscopy Environment
+  Copyright (C) 2003-2006 Open Microscopy Environment
       Massachusetts Institute of Technology,
       National Institutes of Health,
       University of Dundee
