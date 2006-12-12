@@ -179,89 +179,86 @@ public class IconManager
     /** ID of the <code>Close View</code> icon. */
     public static final int     CLOSE_VIEW = 38;
     
-    /** ID of the <code>Exit Application</code> icon. */
-    public static final int     EXIT_APPLICATION = 39;
-    
     /** ID of the <code>Transparent</code> icon. */
-    public static final int     TRANSPARENT = 40;
+    public static final int     TRANSPARENT = 39;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     FIND = 41;
+    public static final int     FIND = 40;
     
     /** ID of the <code>Annotated Dataset</code> icon. */
-    public static final int     ANNOTATED_DATASET = 42;
+    public static final int     ANNOTATED_DATASET = 41;
     
     /** ID of the <code>Annotated Image</code> icon. */
-    public static final int     ANNOTATED_IMAGE = 43;
+    public static final int     ANNOTATED_IMAGE = 42;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     CLASSIFIED_IMAGE = 44;
+    public static final int     CLASSIFIED_IMAGE = 43;
     
     /** ID of the <code>Find</code> icon. */
-    public static final int     ANNOTATED_CLASSIFIED_IMAGE = 45;
+    public static final int     ANNOTATED_CLASSIFIED_IMAGE = 44;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     ANNOTATED_SMALL = 46;
+    public static final int     ANNOTATED_SMALL = 45;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     ANNOTATED_SMALL_OVER = 47;
+    public static final int     ANNOTATED_SMALL_OVER = 46;
     
     /** ID of the small <code>Classified</code> icon. */
-    public static final int     CLASSIFIED_SMALL = 48;
+    public static final int     CLASSIFIED_SMALL = 47;
     
     /** ID of the small <code>Annotated</code> icon. */
-    public static final int     CLASSIFIED_SMALL_OVER = 49;
+    public static final int     CLASSIFIED_SMALL_OVER = 48;
     
     /** The <code>Filter Menu</code> icon. */
-    public static int           FILTER_MENU = 50;
+    public static int           FILTER_MENU = 49;
     
     /** The <code>Warning</code> icon. */
-    public static int           WARNING = 51;
+    public static int           WARNING = 50;
     
     /** The <code>Highlight</code> icon. */
-    public static int           HIGHLIGHT = 52;
+    public static int           HIGHLIGHT = 51;
     
     /** The <code>Info</code> icon. */
-    public static int           INFO = 53;
+    public static int           INFO = 52;
     
     /** The <code>Pin</code> icon. */
-    public static int           PIN = 54;
+    public static int           PIN = 53;
     
     /** The <code>DELETE</code> icon. */
-    public static int           DELETE = 55;
+    public static int           DELETE = 54;
     
     /** The <code>Tree View</code> icon. */
-    public static int           TREE_VIEW = 56;
+    public static int           TREE_VIEW = 55;
     
     /** The <code>ClipBoard View</code> icon. */
-    public static int           CLIPBOARD_VIEW = 57;
+    public static int           CLIPBOARD_VIEW = 56;
     
     /** The <code>Sort by Name</code> icon. */
-    public static int           SORT_BY_NAME = 58;
+    public static int           SORT_BY_NAME = 57;
     
     /** The <code>Sort by Name</code> icon. */
-    public static int           SORT_BY_DATE = 59;
+    public static int           SORT_BY_DATE = 58;
 
     /** The <code>Lens</code> icon. */
-    public static int           LENS = 60;
+    public static int           LENS = 59;
     
     /** The <code>File Manager 48</code> icon. */
-    public static int           VIEWER_48 = 61;
+    public static int           VIEWER_48 = 60;
     
     /** The <code>Pin small</code> icon. */
-    public static int           PIN_SMALL = 62;
+    public static int           PIN_SMALL = 61;
     
     /** The <code>Pin small over</code> icon. */
-    public static int           PIN_SMALL_OVER = 63;
+    public static int           PIN_SMALL_OVER = 62;
     
     /** The <code>Decategorise</code> icon. */
-    public static int           DECATEGORISE = 64;
+    public static int           DECATEGORISE = 63;
     
     /** The <code>Find Next</code> icon. */
-    public static int           FIND_NEXT = 65;
+    public static int           FIND_NEXT = 64;
     
     /** The <code>Find Previous</code> icon. */
-    public static int           FIND_PREVIOUS = 66;
+    public static int           FIND_PREVIOUS = 65;
     
     /** 
      * The maximum ID used for the icon IDs.
@@ -285,7 +282,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
-        relPaths[EXIT] = "eclipse_close_view16.png";
+        relPaths[EXIT] = "nuvola_fileclose16.png";
         relPaths[SAVE] = "nuvola_save_all16.png";
         relPaths[CLEAR] = "nuvola_history_clear16.png";//"eclipse_clear_co16.png";
         relPaths[CLASSIFY] = "category16.png";
@@ -312,7 +309,6 @@ public class IconManager
         relPaths[IMAGE_MEDIUM] = "nuvola_image26.png";
         relPaths[CLOSE_VIEW] = "eclipse_close_view16.png";
         relPaths[COLLAPSE] = "eclipse_collapseall16.png";
-        relPaths[EXIT_APPLICATION] = "OpenOffice_stock_exit-16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[FIND] = "eclipse_searchrecord16.png";
         relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";

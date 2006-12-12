@@ -79,7 +79,7 @@ class ClassificationPaneUI
 {
 
     /** The text displayed in the note panel. */
-    private static final String     PANEL_NOTE = "Classification for: ";
+    private static final String     PANEL_NOTE = "Categorisation for: ";
     
     /** The text displayed in the note panel. */
     private static final String     PANEL_SUBNOTE = "Double click on the " +
@@ -87,7 +87,7 @@ class ClassificationPaneUI
     
     /** The text displayed when the image has been annotated. */
     private static final String     NO_CLASSIFICATION_TEXT = "The selected " +
-            "item has not been classified. ";
+            "item has not been categorised. ";
     
     /** Reference to the Model. */
     private ClassificationPane  model;

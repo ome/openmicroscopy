@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -45,7 +44,6 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -278,6 +276,7 @@ class BrowserControl
         ImageDisplay d = model.getLastSelectedDisplay();
         if (d != null) view.setTitle(model.currentPathString(d));
         else view.setTitle("");
+        model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
     }
 
     /**

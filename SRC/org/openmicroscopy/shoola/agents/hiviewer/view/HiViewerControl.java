@@ -309,7 +309,6 @@ class HiViewerControl
             public void menuKeyTyped(MenuKeyEvent e) {}
             
         });
-        
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.discard(); }
@@ -381,10 +380,10 @@ class HiViewerControl
         this.view = view;
         historyState = -1;
         model.addChangeListener(this); 
-        if (!HiViewerFactory.isWindowMenuAttachedToTaskBar()) {
-            attachListeners(HiViewerFactory.getWindowMenu());
-            HiViewerFactory.attachWindowMenuToTaskBar();
-        } 
+        //if (!HiViewerFactory.isWindowMenuAttachedToTaskBar()) {
+        attachListeners(HiViewerFactory.getWindowMenu());
+        HiViewerFactory.attachWindowMenuToTaskBar();
+        //} 
     }
 
     /**

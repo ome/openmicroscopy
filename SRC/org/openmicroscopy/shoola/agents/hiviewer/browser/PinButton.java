@@ -75,14 +75,15 @@ class PinButton
     {
     	if (node == null) throw new IllegalArgumentException("No node");
         parentNode = node;
+        setContentAreaFilled(false);
         setBorder(BorderFactory.createEmptyBorder());  //No border around icon.
         setMargin(new Insets(0, 0, 0, 0));//Just to make sure button sz=icon sz.
         setOpaque(false);  //B/c button=icon.
         setFocusPainted(false);  //Don't paint focus box on top of icon.
-        setRolloverEnabled(true);
+        //setRolloverEnabled(true);
         IconManager im = IconManager.getInstance();
         setIcon(im.getIcon(IconManager.PIN_SMALL));
-        setRolloverIcon(im.getIcon(IconManager.PIN_SMALL_OVER));
+        //setRolloverIcon(im.getIcon(IconManager.PIN_SMALL_OVER));
         setToolTipText(DESCRIPTION);
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)

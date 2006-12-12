@@ -68,8 +68,8 @@ public class DeclassifyAction
     public static final String NAME = "Decategorise";
     
     /** The description of the action. */
-    public static final String DESCRIPTION = "Remove the selected images " +
-                                                "from a category.";
+    public static final String DESCRIPTION = "Decategorise the selected " +
+    											"images.";
     
     /**
      * Sets the action enabled depending on the currently selected display
