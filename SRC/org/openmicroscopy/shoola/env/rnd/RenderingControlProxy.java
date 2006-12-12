@@ -76,7 +76,11 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 class RenderingControlProxy
 	implements RenderingControl
 {
-    
+ 
+	/** Default error message. */
+	private static final String	ERROR = "An error occured while trying to " +
+										"set the ";
+	
     /** The dimensions in microns of a pixel. */
     private final PixelsDimensions  pixDims;
     
@@ -283,12 +287,6 @@ class RenderingControlProxy
         models = servant.getAvailableModels();
         rndDef = new RndProxyDef();
         initialize();
-        //TMP: invalidate noise reduction.
-        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-			setQuantizationMap(i, getChannelFamily(i), 
-							getChannelCurveCoefficient(i), false);
-		}
-        
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
         int k = 0;
@@ -353,17 +351,22 @@ class RenderingControlProxy
      * @see RenderingControl#setModel(String)
      */
     public void setModel(String value)
+    	throws RenderingServiceException
     { 
-        Iterator i = models.iterator();
-        RenderingModel model;
-        while (i.hasNext()) {
-            model= (RenderingModel) i.next();
-            if (model.getValue().equals(value)) {
-                servant.setModel(model); 
-                rndDef.setColorModel(value);
-                invalidateCache();
+    	try {
+    		Iterator i = models.iterator();
+            RenderingModel model;
+            while (i.hasNext()) {
+                model= (RenderingModel) i.next();
+                if (model.getValue().equals(value)) {
+                    servant.setModel(model); 
+                    rndDef.setColorModel(value);
+                    invalidateCache();
+                }
             }
-        }
+		} catch (Exception e) {
+			throw new RenderingServiceException(ERROR+"model", e);
+		}
      }
 
     /** 
@@ -392,9 +395,14 @@ class RenderingControlProxy
      * @see RenderingControl#setDefaultZ(int)
      */
     public void setDefaultZ(int z)
+    	throws RenderingServiceException
     { 
-        servant.setDefaultZ(z);
-        rndDef.setDefaultZ(z);
+    	try {
+    		servant.setDefaultZ(z);
+            rndDef.setDefaultZ(z);
+		} catch (Exception e) {
+			new RenderingServiceException(ERROR+"default Z", e);
+		}
     }
 
     /** 
@@ -402,9 +410,15 @@ class RenderingControlProxy
      * @see RenderingControl#setDefaultT(int)
      */
     public void setDefaultT(int t)
+    	throws RenderingServiceException
     { 
-        servant.setDefaultT(t);
-        rndDef.setDefaultT(t);
+    	try {
+    		servant.setDefaultT(t);
+            rndDef.setDefaultT(t);
+		} catch (Exception e) {
+			new RenderingServiceException(ERROR+"default T", e);
+		}
+        
     }
 
     /** 
@@ -412,6 +426,7 @@ class RenderingControlProxy
      * @see RenderingControl#setQuantumStrategy(int)
      */
     public void setQuantumStrategy(int bitResolution)
+    	throws RenderingServiceException
     {
         //TODO: need to convert value.
         checkBitResolution(bitResolution);
@@ -425,6 +440,7 @@ class RenderingControlProxy
      * @see RenderingControl#setCodomainInterval(int, int)
      */
     public void setCodomainInterval(int start, int end)
+    	throws RenderingServiceException
     {
         servant.setCodomainInterval(start, end);
         invalidateCache();
@@ -437,6 +453,7 @@ class RenderingControlProxy
      */
     public void setQuantizationMap(int w, String value, double coefficient,
                                     boolean noiseReduction)
+    	throws RenderingServiceException
     {
         List list = servant.getAvailableFamilies();
         Iterator i = list.iterator();
@@ -469,7 +486,6 @@ class RenderingControlProxy
     public boolean getChannelNoiseReduction(int w)
     {
         return rndDef.getChannel(w).isNoiseReduction();
-        //return servant.getChannelNoiseReduction(w);
     }
 
     /** 
@@ -479,7 +495,6 @@ class RenderingControlProxy
     public double getChannelCurveCoefficient(int w)
     {
         return rndDef.getChannel(w).getCurveCoefficient();
-        //return servant.getChannelCurveCoefficient(w);
     }
 
     /** 
@@ -487,6 +502,7 @@ class RenderingControlProxy
      * @see RenderingControl#setChannelWindow(int, double, double)
      */
     public void setChannelWindow(int w, double start, double end)
+    	throws RenderingServiceException
     {
         servant.setChannelWindow(w, start, end);
         rndDef.getChannel(w).setInterval(start, end);
@@ -500,7 +516,6 @@ class RenderingControlProxy
     public double getChannelWindowStart(int w)
     {
         return rndDef.getChannel(w).getInputStart();
-        //return servant.getChannelWindowStart(w);
     }
 
     /** 
@@ -510,7 +525,6 @@ class RenderingControlProxy
     public double getChannelWindowEnd(int w)
     {
         return rndDef.getChannel(w).getInputEnd();
-        //return servant.getChannelWindowEnd(w);
     }
 
     /** 
@@ -518,6 +532,7 @@ class RenderingControlProxy
      * @see RenderingControl#setRGBA(int, Color)
      */
     public void setRGBA(int w, Color c)
+    	throws RenderingServiceException
     {
         servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
         rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
@@ -531,7 +546,6 @@ class RenderingControlProxy
      */
     public Color getRGBA(int w)
     {
-        //int[] rgba = servant.getRGBA(w);
         int[] rgba = rndDef.getChannel(w).getRGBA();
         return new Color(rgba[0], rgba[1], rgba[2], rgba[3]);
     }
@@ -541,6 +555,7 @@ class RenderingControlProxy
      * @see RenderingControl#setActive(int, boolean)
      */
     public void setActive(int w, boolean active)
+    	throws RenderingServiceException
     { 
         servant.setActive(w, active);
         rndDef.getChannel(w).setActive(active);
@@ -554,7 +569,6 @@ class RenderingControlProxy
     public boolean isActive(int w)
     { 
         return rndDef.getChannel(w).isActive();
-        //return servant.isActive(w);
     }
 
     /** 
@@ -562,6 +576,7 @@ class RenderingControlProxy
      * @see RenderingControl#addCodomainMap(CodomainMapContext)
      */
     public void addCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException
     {
         //servant.addCodomainMap(mapCtx);
         invalidateCache();
@@ -572,6 +587,7 @@ class RenderingControlProxy
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
      */
     public void updateCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException
     {
         //servant.updateCodomainMap(mapCtx);
         invalidateCache();
@@ -582,6 +598,7 @@ class RenderingControlProxy
      * @see RenderingControl#removeCodomainMap(CodomainMapContext)
      */
     public void removeCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException
     {
         //servant.removeCodomainMap(mapCtx);
         invalidateCache();
@@ -601,13 +618,18 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#saveCurrentSettings()
      */
-    public void saveCurrentSettings() { servant.saveCurrentSettings(); }
+    public void saveCurrentSettings()
+    	throws RenderingServiceException
+    { 
+    	servant.saveCurrentSettings();
+    }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#resetDefaults()
      */
     public void resetDefaults()
+    	throws RenderingServiceException
     { 
         servant.resetDefaults();
         initialize();

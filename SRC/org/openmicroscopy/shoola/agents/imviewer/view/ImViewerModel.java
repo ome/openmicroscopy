@@ -58,6 +58,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * The Model component in the <code>ImViewer</code> MVC triad.
@@ -185,6 +187,19 @@ class ImViewerModel
                         (int) (height*f), img.getType());
         biop.filter(img, rescaleBuff);
         return rescaleBuff;
+    }
+    
+    /**
+     * Notifies the user than an error occured while trying to modify the 
+     * rendering settings and dispose of the viewer..
+     * 
+     * @param e The exception to handle.
+     */
+    private void handleException(RenderingServiceException e)
+    {
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    	un.notifyError(ImViewerAgent.ERROR, e.getMessage(), e.getCause());
+    	component.discard();
     }
     
     /**
@@ -395,14 +410,13 @@ class ImViewerModel
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
             component.setImage(os.renderImage(pixelsID, pDef));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RenderingServiceException e) {
+            handleException(e);
         }
         /*
         currentLoader = new ImageLoader(component, pixelsID, pDef);
         currentLoader.load();
         */
-        
     }
     
     /**
@@ -496,7 +510,11 @@ class ImViewerModel
      */
     void setColorModel(String colorModel)
     {
-        rndControl.setModel(colorModel);
+    	try {
+    		rndControl.setModel(colorModel);
+		} catch (RenderingServiceException e) {
+			handleException(e);
+		}
     }
 
     /**
@@ -507,8 +525,12 @@ class ImViewerModel
      */
     void setSelectedXYPlane(int z, int t)
     {
-        rndControl.setDefaultT(t);
-        rndControl.setDefaultZ(z);
+    	try {
+    		rndControl.setDefaultT(t);
+            rndControl.setDefaultZ(z);
+		} catch (RenderingServiceException e) {
+			handleException(e);
+		}
     }
 
     /**
@@ -519,7 +541,11 @@ class ImViewerModel
      */
     void setChannelColor(int index, Color c)
     {
-        rndControl.setRGBA(index, c);
+    	try {
+    		rndControl.setRGBA(index, c);
+		} catch (RenderingServiceException e) {
+			handleException(e);
+		}
     }
 
     /**
@@ -531,7 +557,11 @@ class ImViewerModel
      */
     void setChannelActive(int index, boolean b)
     {
-        rndControl.setActive(index, b);
+    	try {
+    		 rndControl.setActive(index, b);
+		} catch (RenderingServiceException e) {
+			handleException(e);
+		}
     }  
 
     /**

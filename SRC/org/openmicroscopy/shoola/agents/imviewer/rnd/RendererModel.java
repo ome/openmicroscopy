@@ -43,9 +43,13 @@ import ome.model.display.CodomainMapContext;
 import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
+
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 
 /** 
@@ -127,6 +131,19 @@ class RendererModel
     private boolean             visible;
     
     /**
+     * Notifies the user than an error occured while trying to modify the 
+     * rendering settings and dispose of the viewer..
+     * 
+     * @param e The exception to handle.
+     */
+    private void handleException(RenderingServiceException e)
+    {
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    	un.notifyError(ImViewerAgent.ERROR, e.getMessage(), e.getCause());
+    	parentModel.discard();
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param parentModel   Reference to the {@link ImViewer}.
@@ -193,8 +210,13 @@ class RendererModel
      */
     void setInputEnd(double end)
     {
-       rndControl.setChannelWindow(selectedChannelIndex, getWindowStart(), 
-                                   end);
+
+    	try {
+    		rndControl.setChannelWindow(selectedChannelIndex, getWindowStart(), 
+    				end);
+    	} catch (RenderingServiceException e) {
+    		handleException(e);
+    	}
     } 
 
     /**
@@ -206,7 +228,11 @@ class RendererModel
      */
     void setInputInterval(double s, double e)
     {
-        rndControl.setChannelWindow(selectedChannelIndex, s, e);
+    	try {
+    		rndControl.setChannelWindow(selectedChannelIndex, s, e);
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
     /**
@@ -231,7 +257,11 @@ class RendererModel
      */
     void setCodomainInterval(int s, int e)
     {
-        rndControl.setCodomainInterval(s, e);
+    	try {
+    		rndControl.setCodomainInterval(s, e);
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
     /**
@@ -241,7 +271,11 @@ class RendererModel
      */
     void setBitResolution(int v)
     {
-        rndControl.setQuantumStrategy(v);
+    	try {
+    		rndControl.setQuantumStrategy(v);
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
     /**
@@ -261,7 +295,11 @@ class RendererModel
     {
         boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
         double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+        try {
+        	rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
     /**
@@ -273,7 +311,11 @@ class RendererModel
     {
         boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
         String family = rndControl.getChannelFamily(selectedChannelIndex);
-        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+        try {
+        	 rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     } 
     
     /**
@@ -286,7 +328,11 @@ class RendererModel
     {
         String family = rndControl.getChannelFamily(selectedChannelIndex);
         double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+        try {
+        	rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
+        } catch (RenderingServiceException rse) {
+        	handleException(rse);
+        }
     }
 
     /**
@@ -296,7 +342,11 @@ class RendererModel
      */
     void updateCodomainMap(CodomainMapContext ctx)
     {
-        rndControl.updateCodomainMap(ctx);
+    	try {
+            rndControl.updateCodomainMap(ctx);
+        } catch (RenderingServiceException rse) {
+        	handleException(rse);
+        }
     }
 
     /**
@@ -342,8 +392,12 @@ class RendererModel
      */
     void removeCodomainMap(Class mapType)
     {
-        CodomainMapContext ctx = getCodomainMap(mapType);
-        if (ctx != null) rndControl.removeCodomainMap(ctx);
+    	try {
+    		 CodomainMapContext ctx = getCodomainMap(mapType);
+    	     if (ctx != null) rndControl.removeCodomainMap(ctx);
+        } catch (RenderingServiceException rse) {
+        	handleException(rse);
+        }
     }
 
     /**
@@ -354,15 +408,19 @@ class RendererModel
      */
     void addCodomainMap(Class mapType)
     {
-        if (mapType.equals(ReverseIntensityContext.class)) {
-            ReverseIntensityContext riCtx = new ReverseIntensityContext();
-            riCtx.setReverse(Boolean.TRUE);
-            rndControl.addCodomainMap(riCtx);
-        } else if (mapType.equals(PlaneSlicingContext.class)) {
-            
-        } else if (mapType.equals(ContrastStretchingContext.class)) {
-            
-        }
+    	try {
+    		if (mapType.equals(ReverseIntensityContext.class)) {
+    			ReverseIntensityContext riCtx = new ReverseIntensityContext();
+    										riCtx.setReverse(Boolean.TRUE);
+    			rndControl.addCodomainMap(riCtx);
+    		} else if (mapType.equals(PlaneSlicingContext.class)) {
+
+    		} else if (mapType.equals(ContrastStretchingContext.class)) {
+
+    		}
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
     /** 
@@ -396,7 +454,6 @@ class RendererModel
      */
     double getCurveCoefficient()
     {
-        
         return rndControl.getChannelCurveCoefficient(selectedChannelIndex);
     }
     
@@ -473,8 +530,12 @@ class RendererModel
     /** Resets the default settings. */
     void resetDefaultRndSettings()
     { 
-        rndControl.resetDefaults(); 
-        parentModel.resetDefaults(); 
+    	try {
+    		rndControl.resetDefaults(); 
+            parentModel.resetDefaults(); 
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
 
 	/**
@@ -487,7 +548,11 @@ class RendererModel
     /** Saves the rendering settings. */
     void saveRndSettings()
     {
-        rndControl.saveCurrentSettings(); 
+    	try {
+    		rndControl.saveCurrentSettings(); 
+    	} catch (RenderingServiceException rse) {
+    		handleException(rse);
+    	}
     }
     
 }

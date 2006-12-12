@@ -171,8 +171,11 @@ public interface RenderingControl
      * mapped onto a color space.
      * 
      * @param model Identifies the color space model.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void setModel(String model);
+    public void setModel(String model)
+    	throws RenderingServiceException;
     
     /**
      * Returns the color space model that dictated how transformed raw data
@@ -203,23 +206,32 @@ public interface RenderingControl
      * This index is used to define a default plane.
      *  
      * @param z The stack index.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void setDefaultZ(int z);
+    public void setDefaultZ(int z)
+    	throws RenderingServiceException;
     
     /**
      * Sets the default timepoint index.
      * This index is used to define a default plane.
      * 
      * @param t The timepoint index.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value. 
      */
-    public void setDefaultT(int t);
+    public void setDefaultT(int t)
+    	throws RenderingServiceException;
     
     /**
      * Sets the mapping strategy used during the mapping process.
      * 
      * @param bitResolution The depth, in bits, of the rendered image.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value. 
      */
-    public void setQuantumStrategy(int bitResolution);
+    public void setQuantumStrategy(int bitResolution)
+    	throws RenderingServiceException;
     
     /**
      * Sets the size of sub-interval of the device space.
@@ -227,8 +239,11 @@ public interface RenderingControl
      * 
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void setCodomainInterval(int start, int end);
+    public void setCodomainInterval(int start, int end)
+    	throws RenderingServiceException;
     
     /**
      * Returns the lower bound of the codomain.
@@ -261,9 +276,12 @@ public interface RenderingControl
      * @param noiseReduction    Pass <code>true</code> to select the 
      *                          mapping <code>NoiseReduction</code> algorithm,
      *                          <code>false</code> otherwise.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.                          
      */ 
     public void setQuantizationMap(int w, String family, double coefficient, 
-                                    boolean noiseReduction);
+                                    boolean noiseReduction)
+    	throws RenderingServiceException;
     
     /**
      * Returns the family used to map the specified channel onto the device
@@ -298,8 +316,11 @@ public interface RenderingControl
      * @param w     The index of the channel.
      * @param start The lower bound of the interval.
      * @param end   The upper bound of the interval.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void setChannelWindow(int w, double start, double end);
+    public void setChannelWindow(int w, double start, double end)
+    	throws RenderingServiceException;
     
     /**
      * Returns the lower bound of the pixel intensity interval.
@@ -323,9 +344,12 @@ public interface RenderingControl
      * Sets the color on which the specified channel is mapped onto.
      * 
      * @param w     The index of the channel.
-     * @param color The color selected.
+     * @param color The color to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value. 
      */
-    public void setRGBA(int w, Color color);
+    public void setRGBA(int w, Color color)
+    	throws RenderingServiceException;
     
     /**
      * Returns the color the channel is mapped onto.
@@ -340,10 +364,13 @@ public interface RenderingControl
      * channel, <code>false</code> otherwise.
      * 
      * @param w         The index of the channel.
-     * @param active    <code>true</code> if the channel is mapped, 
+     * @param active    Pass <code>true</code> to map the channel, 
      *                  <code>false</code> otherwise.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.                 
      */
-    public void setActive(int w, boolean active);
+    public void setActive(int w, boolean active)
+    	throws RenderingServiceException;
     
     /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
@@ -361,24 +388,33 @@ public interface RenderingControl
      * managing the codomain transformations is rebuilt. 
      * 
      * @param mapCtx The context to add.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void addCodomainMap(CodomainMapContext mapCtx);
+    public void addCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException;
     
     /**
      * Updates the specified <code>CodomainMapContext</code>.
      * The transformation associated should already be in the transformations.
      * 
      * @param mapCtx The context to update.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void updateCodomainMap(CodomainMapContext mapCtx);
+    public void updateCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException;
     
     /**
      * Removed the <code>CodomainMapContext</code> from the list of
      * transformations.
      * 
      * @param mapCtx    The context to remove.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void removeCodomainMap(CodomainMapContext mapCtx);
+    public void removeCodomainMap(CodomainMapContext mapCtx)
+    	throws RenderingServiceException;
     
     /**
      * Returns a read-only list of {@link CodomainMapContext}s using during
@@ -397,14 +433,24 @@ public interface RenderingControl
     public List getFamilies();
     
     
-    /** Saves the current rendering settings to the database. */
-    public void saveCurrentSettings();
+    /** 
+     * Saves the current rendering settings to the database.
+     *  
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     */
+    public void saveCurrentSettings()
+    	throws RenderingServiceException;
     
     /** 
      * Resets the original default values. 
      * The default values aren't values previously saved.
+     * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
      */
-    public void resetDefaults();
+    public void resetDefaults()
+    	throws RenderingServiceException;
     
     /**
      * Returns the <code>ChannelMetadata</code> object specified

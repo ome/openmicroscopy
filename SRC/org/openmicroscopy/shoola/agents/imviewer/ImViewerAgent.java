@@ -66,6 +66,10 @@ public class ImViewerAgent
     implements Agent, AgentEventListener
 {
 
+    /** The default error message. */
+    public static final String ERROR = " An error occured while modifying  " +
+    		"the rendering settings.";
+    
     /** Reference to the registry. */
     private static Registry         registry; 
     

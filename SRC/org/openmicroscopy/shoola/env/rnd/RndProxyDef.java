@@ -29,11 +29,12 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 
