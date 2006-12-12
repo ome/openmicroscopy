@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.PartialNameVisitor 
+ * org.openmicroscopy.shoola.agents.hiviewer.treeview.PartialNameVisitor 
  *
  *------------------------------------------------------------------------------
  *
@@ -26,7 +26,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.browser;
+package org.openmicroscopy.shoola.agents.hiviewer.treeview;
 
 //Java imports
 
@@ -49,7 +49,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
  * @since OME3.0
  */
 class PartialNameVisitor 
-	implements TreeImageDisplayVisitor
+	implements TreeViewNodeVisitor
 {
 
 	/** Indicates if the partial name is displayed. */
@@ -68,22 +68,19 @@ class PartialNameVisitor
 	
 	/**
 	 * Sets the value.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageNode)
+	 * @see TreeViewNodeVisitor#visit(TreeViewImageNode)
 	 */
-	public void visit(TreeImageNode node)
+	public void visit(TreeViewImageNode node)
 	{
 		if (node.isPartialName() == partialName) return;
 		node.setPartialName(partialName);
 	}
 
-	/** 
-	 * Required by the {@link TreeImageDisplayVisitor} I/F but no-op
+	/**
+	 * Required by the {@link TreeViewNodeVisitor} I/F but no-op
 	 * implementation in our case.
-	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
+	 * @see TreeViewNodeVisitor#visit(TreeViewImageSet)
 	 */
-	public void visit(TreeImageSet node) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void visit(TreeViewImageSet node) {}
 
 }

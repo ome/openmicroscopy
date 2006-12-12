@@ -260,11 +260,14 @@ public class IconManager
     /** The <code>Find Previous</code> icon. */
     public static int           FIND_PREVIOUS = 65;
     
+    /** The <code>Partial name</code> icon. */
+    public static int           PARTIAL_NAME = 66;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 66;
+    private static int          MAX_ID = 67;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -338,6 +341,7 @@ public class IconManager
         relPaths[FIND_NEXT] = "eclipse_SelectNextBottomMappedObject16.png";
         relPaths[FIND_PREVIOUS] = 
             		"eclipse_SelectPreviousBottomMappedObject16.png";
+        relPaths[PARTIAL_NAME] = "nuvola_kmessedwords16.png";
     }
     
     /** The sole instance. */

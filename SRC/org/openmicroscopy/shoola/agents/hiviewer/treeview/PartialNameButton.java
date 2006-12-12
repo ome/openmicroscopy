@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.treeview.CollapseButton
+ * org.openmicroscopy.shoola.agents.hiviewer.treeview.PartialNameButton 
  *
  *------------------------------------------------------------------------------
  *
@@ -22,18 +22,19 @@
  *
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.hiviewer.treeview;
+
+
 
 
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
+import javax.swing.JToggleButton;
 
 //Third-party libraries
 
@@ -42,27 +43,30 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * The collapse button in the <code>ToolBar</code>.
+ * The partial name button in the <code>ToolBar</code>.
  * This is a small MVC component that is aggregated into the bigger MVC set
  * of the {@link TreeView}. The MVC parts of this button are all collapsed
  * in this class.
- * 
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$Date: )
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-class CollapseButton
-	extends JButton
+class PartialNameButton 
+	extends JToggleButton
 	implements ActionListener
 {
 
 	/** Description of the button. */
-	private static final String DESCRIPTION = "Collapse All";
-	
+    private static final String DESCRIPTION = "Show the full name of " +
+    									"the image";
+
     /** The Model this button is working with. */
     private TreeView model;
     
@@ -72,25 +76,27 @@ class CollapseButton
      * @param model The Model this button is working with.
      *              Mustn't be <code>null</code>.
      */
-    CollapseButton(TreeView model)
+    PartialNameButton(TreeView model)
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         setRolloverEnabled(true);
         addActionListener(this);
         IconManager im = IconManager.getInstance();
-        setIcon(im.getIcon(IconManager.COLLAPSE));
+        setIcon(im.getIcon(IconManager.PARTIAL_NAME));
         setToolTipText(UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
     /**
-     * Collapses all the nodes of the tree displayed in the model.
+     * Displays the full or a truncated version of the <code>Image</code>'s
+     * name.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     { 
-        CollapseVisitor visitor = new CollapseVisitor(model); 
-        model.accept(visitor, TreeViewNodeVisitor.IMAGE_SET_ONLY);
+        PartialNameVisitor visitor = new PartialNameVisitor(!isSelected()); 
+        model.accept(visitor, TreeViewNodeVisitor.IMAGE_NODE_ONLY);
+        model.repaint();
     }
-
+    
 }

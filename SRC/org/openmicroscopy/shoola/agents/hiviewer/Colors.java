@@ -159,8 +159,7 @@ public class Colors
         if (c == null) return null;
         if (c.equals(getColor(TITLE_BAR_HIGHLIGHT))) {
         	Color pc = node.getPreviousHighlight();
-        	if (getColor(REGEX_HIGHLIGHT).equals(pc))
-        		c = pc;
+        	if (getColor(REGEX_HIGHLIGHT).equals(pc)) c = pc;
         	else c = null;
         }
         else if (c.equals(getColor(ANNOTATED_HIGHLIGHT))) 

@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -65,7 +64,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
 import pojos.ImageData;
 
 
@@ -109,11 +107,12 @@ class TreeViewUI
     private void createToolBar()
     {
         toolBar = new JToolBar();
+        toolBar.setBorder(null);
         toolBar.setRollover(true);
         toolBar.setFloatable(false);
+        toolBar.add(new PartialNameButton(model));
         toolBar.add(new JSeparator(SwingConstants.VERTICAL));
-        JButton button = new CollapseButton(model);
-        toolBar.add(button);
+        toolBar.add(new CollapseButton(model));
     }
     
     /** Helper method to create the {@link #menuBar}. */
@@ -316,8 +315,8 @@ class TreeViewUI
     /**
      * Sorts the nodes by date or name depending on the index.
      * 
-     * @param index
-     * @param rootNode
+     * @param index		The sorting index.
+     * @param rootNode	The node whose children will be sorted.
      */
     void sortNodes(int index, ImageDisplay rootNode)
     {

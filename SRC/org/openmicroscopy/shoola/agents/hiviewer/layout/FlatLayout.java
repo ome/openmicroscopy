@@ -41,7 +41,6 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
 import pojos.DataObject;
 
 /** 
@@ -67,9 +66,7 @@ class FlatLayout
     //will ask for a depth-first iterator.
     
     /** Textual description of this layout. */
-    static final String DESCRIPTION = "Layout the images " +
-            "in a square grid.";
-
+    static final String DESCRIPTION = "Layout the images in a square grid.";
 
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
@@ -111,10 +108,7 @@ class FlatLayout
      * Retrieves the images.
      * @see Layout#visit(ImageNode)
      */
-    public void visit(ImageNode node)
-    {
-        images.add(node);
-    }
+    public void visit(ImageNode node) { images.add(node); }
 
     /**
      * Retrieves the root node.

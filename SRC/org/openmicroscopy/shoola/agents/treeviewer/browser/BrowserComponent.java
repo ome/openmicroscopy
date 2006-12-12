@@ -685,6 +685,7 @@ class BrowserComponent
 	        case READY:
 	            model.setContainerCountValue(view.getTreeDisplay(), 
     										containerID, value);
+	            view.getTreeDisplay().repaint();
 	            break;
 	        default:
 	            throw new IllegalStateException(

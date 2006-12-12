@@ -97,7 +97,7 @@ public class ViewCGCIAction
     }
     
     /**
-     * Overrides the method to set the action enabled depending on the 
+     * Overridden to set the action enabled depending on the 
      * state of the {@link HiViewer}.
      * @see javax.swing.event.ChangeListener#stateChanged(ChangeEvent)
      */
@@ -106,6 +106,7 @@ public class ViewCGCIAction
         super.stateChanged(e);
         if (model.getState() == HiViewer.LOADING_THUMBNAILS) {
             switch (model.getHierarchyType()) {
+            	case HiViewer.IMAGES_HIERARCHY:
                 case HiViewer.PDI_HIERARCHY:
                 case HiViewer.PROJECT_HIERARCHY:
                 case HiViewer.DATASET_HIERARCHY:

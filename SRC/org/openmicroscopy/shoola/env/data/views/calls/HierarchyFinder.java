@@ -106,7 +106,7 @@ public class HierarchyFinder
      * @param rootLevelID           The Id of the root.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCHBatchCall(final Class hierarchyRootNodeType, 
+    private BatchCall makeBatchCall(final Class hierarchyRootNodeType, 
             						final Set ids, final Class rootLevel,
                                     final long rootLevelID)
     {
@@ -165,7 +165,7 @@ public class HierarchyFinder
             throw new IllegalArgumentException("Root level ID not valid.");
         if (hierarchyRootNodeType.equals(ProjectData.class) ||
             hierarchyRootNodeType.equals(CategoryGroupData.class))
-            findCall = makeCHBatchCall(hierarchyRootNodeType, ids, rootLevel,
+            findCall = makeBatchCall(hierarchyRootNodeType, ids, rootLevel,
                                         rootLevelID);
         else
             throw new IllegalArgumentException("Unsupported type: "+

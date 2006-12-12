@@ -33,6 +33,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.util;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -44,6 +46,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -157,7 +161,7 @@ public class TreeCellRenderer
     }
   
     /**
-     * Overriden to set the icon and the text.
+     * Overridden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
      * 								boolean, boolean, boolean, int, boolean)
      */
@@ -176,9 +180,15 @@ public class TreeCellRenderer
         
         Object usrObject = node.getUserObject();
         Color c = null;
+        int w = 0;
+        FontMetrics fm = getFontMetrics(getFont());
         if (usrObject instanceof ImageSet) {
             ImageSet set = (ImageSet) usrObject;
-            setText(set.toString());
+            
+            if (node instanceof TreeViewNode) {
+            	w += fm.stringWidth(((TreeViewNode) node).getNodeName());
+            	setText(((TreeViewNode) node).toString());
+            } else setText(set.toString());
             setValues(set.getHierarchyObject(), null);
             if (visibleColor) {
                 c = ((ImageSet) usrObject).getHighlight();
@@ -187,7 +197,12 @@ public class TreeCellRenderer
             }
         } else if (usrObject instanceof ImageNode) {
             ImageNode imgNode = (ImageNode) usrObject;
-            setText(imgNode.toString());
+            w += fm.stringWidth(imgNode.toString());
+            if (node instanceof TreeViewNode) {
+            	w += fm.stringWidth(((TreeViewNode) node).getNodeName());
+            	setText(((TreeViewNode) node).toString());
+            }	
+            else setText(imgNode.toString());
             if (thumbnail) setValues(imgNode.getHierarchyObject(),
                     					imgNode.getThumbnail().getIcon());
             else setValues(imgNode.getHierarchyObject(), null);
@@ -199,7 +214,11 @@ public class TreeCellRenderer
         } else {
             setText(node.toString());
             setValues(usrObject, null);
+            w += fm.stringWidth(node.toString());
         }
+        w += getIcon().getIconWidth();
+        w += getIconTextGap();
+        setPreferredSize(new Dimension(w, fm.getHeight()));
         return this;
     }
     

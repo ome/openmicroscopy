@@ -453,10 +453,10 @@ class ImViewerControl
         createActions();
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
-        if (!(ImViewerFactory.isWindowMenuAttachedToTaskBar())) {
-            attachWindowListeners();
-            ImViewerFactory.attachWindowMenuToTaskBar();
-        }
+        //if (!(ImViewerFactory.isWindowMenuAttachedToTaskBar())) {
+        attachWindowListeners();
+        ImViewerFactory.attachWindowMenuToTaskBar();
+        //}
         createTimer();
     }
 

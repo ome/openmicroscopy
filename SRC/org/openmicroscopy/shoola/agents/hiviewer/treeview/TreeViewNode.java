@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.CategoryData;
@@ -102,6 +104,9 @@ public abstract class TreeViewNode
 	extends DefaultMutableTreeNode
 {
 
+    /** Indicates to display a truncated name. */
+    private boolean			partialName;
+    
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -166,7 +171,24 @@ public abstract class TreeViewNode
             throw new NullPointerException("No hierarchy object.");
         setUserObject(userObject);
         childrenNode = new HashSet();
+        partialName = true;
     }
+    
+    /**
+     * Sets to <code>true</code> if the partial name of the node is shown, to
+     * <code>false</code> otherwise.
+     * 
+     * @param b The value to set.
+     */
+    void setPartialName(boolean b) { partialName = b; }
+    
+    /**
+     * Returns <code>true</code> if the partial name of the node is shown, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isPartialName() { return partialName; }
     
     /**
      * Returns the parent node to this node in the visualization tree.
@@ -305,6 +327,46 @@ public abstract class TreeViewNode
     }
     
     /**
+     * Returns the name of the <code>DataObject</code> hosted by this node.
+     * 
+     * @param b		Pass <code>true</code> to display the partial name of
+     * 				the image node, <code>false</code> otherwise.
+     * @param obj 	The object to check.
+     * @return See above.
+     */
+    private String nameToString(Object obj, boolean b)
+    {
+         if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
+         else if (obj instanceof DatasetData) 
+             return ((DatasetData) obj).getName();
+         else if (obj instanceof ImageData) {
+         	if (b) return getPartialName(((ImageData) obj).getName());
+         	return ((ImageData) obj).getName();
+         }   
+         else if (obj instanceof CategoryGroupData) 
+             return ((CategoryGroupData) obj).getName();
+         else if (obj instanceof CategoryData) 
+             return ((CategoryData) obj).getName();
+         else if (obj instanceof String) return (String) obj;
+         else if (obj instanceof ImageSet) 
+        	 return nameToString(((ImageSet) obj).getHierarchyObject(), b);
+         else if (obj instanceof ImageNode) 
+        	 return nameToString(((ImageNode) obj).getHierarchyObject(), b);
+         return "";
+    }
+    
+    /**
+     * Returns the name of the <code>DataObject</code> hosted by this node.
+     * 
+     * @param obj The object to check.
+     * @return See above.
+     */
+    public String getNodeName()
+    {
+    	return nameToString(getUserObject(), false);
+    }
+    
+    /**
      * Made final to ensure objects are compared by reference so that the
      * {@link #addChildNode(TreeViewNode) addChildDisplay} and
      * {@link #removeChildNode(TreeViewNode) removeChildDisplay} methods
@@ -319,18 +381,7 @@ public abstract class TreeViewNode
      */
     public String toString()
     { 
-        Object obj = getUserObject();
-        if (obj instanceof ProjectData) return ((ProjectData) obj).getName();
-        else if (obj instanceof DatasetData) 
-            return ((DatasetData) obj).getName();
-        else if (obj instanceof ImageData) 
-            return getPartialName(((ImageData) obj).getName());
-        else if (obj instanceof CategoryGroupData) 
-            return ((CategoryGroupData) obj).getName();
-        else if (obj instanceof CategoryData) 
-            return ((CategoryData) obj).getName();
-        else if (obj instanceof String) return (String) obj;
-        return "";
+    	return nameToString(getUserObject(), partialName); 
     }
     
     /**

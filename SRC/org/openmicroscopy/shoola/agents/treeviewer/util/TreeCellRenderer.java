@@ -128,7 +128,7 @@ public class TreeCellRenderer
     public TreeCellRenderer() { this(true); }
     
     /**
-     * Overriden to set the icon and the text.
+     * Overridden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
      * 								boolean, boolean, boolean, int, boolean)
      */
@@ -154,13 +154,11 @@ public class TreeCellRenderer
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
-        if (node.getUserObject() instanceof ImageData) {
-        	int w = getIcon().getIconWidth();
-        	w += getIconTextGap();
-        	FontMetrics fm = getFontMetrics(getFont());
-        	w += fm.stringWidth(node.getNodeName());
-            setPreferredSize(new Dimension(w, fm.getHeight()));
-        }
+        int w = getIcon().getIconWidth();
+        w += getIconTextGap();
+        FontMetrics fm = getFontMetrics(getFont());
+        w += fm.stringWidth(getText());
+        setPreferredSize(new Dimension(w, fm.getHeight()));
         
         return this;
     }
