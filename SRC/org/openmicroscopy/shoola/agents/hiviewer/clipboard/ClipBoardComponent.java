@@ -473,13 +473,9 @@ class ClipBoardComponent
     {
         if (model.getState() != ClipBoard.DECLASSIFICATION) return;
         Browser browser = model.getParentModel().getBrowser();
+        if (browser == null) return;
         ImageDisplay d = browser.getLastSelectedDisplay();
         view.onDisplayChange(d);
-        /*
-        if (imageNodeIDs != null)
-            browser.accept(new ImageDecorationVisitor(imageNodeIDs), 
-                ImageDisplayVisitor.IMAGE_NODE_ONLY);
-                */
     }
 
     /**

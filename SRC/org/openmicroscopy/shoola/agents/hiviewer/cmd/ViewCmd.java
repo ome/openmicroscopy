@@ -42,6 +42,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -125,9 +126,11 @@ public class ViewCmd
     public void execute()
     {
         if (model != null && hierarchyObject == null) {
-            ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getLastSelectedDisplay();
-            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        	Browser browser = model.getBrowser();
+        	if (browser != null) {
+        		ImageDisplay d = browser.getLastSelectedDisplay();
+        		hierarchyObject = (DataObject) d.getHierarchyObject();
+        	}
         }
         if (hierarchyObject == null) return;
         Rectangle bounds = null;

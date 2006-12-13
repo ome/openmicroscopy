@@ -89,6 +89,10 @@ public class DeclassifyAction
         	setEnabled(false);
         	return;
         }
+        if (model.getBrowser() == null) {
+        	setEnabled(false);
+        	return;
+        }
         int n = model.getBrowser().getSelectedDisplays().size();
         setEnabled(!(n > 1));
     }

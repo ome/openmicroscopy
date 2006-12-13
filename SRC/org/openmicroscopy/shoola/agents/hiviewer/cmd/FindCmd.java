@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -75,12 +76,18 @@ public class FindCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
+    	Browser browser = model.getBrowser();
+    	if (browser ==  null) return;
+        ImageDisplay node = browser.getLastSelectedDisplay();
         if (node == null) return;
         if (node.getHierarchyObject() == null) return;
         DataObject ho = (DataObject) node.getHierarchyObject();
-        if (!(ho instanceof ImageData)) 
-            model.getClipBoard().setSelectedPane(ClipBoard.FIND_PANE, null);
+        if (!(ho instanceof ImageData)) {
+        	ClipBoard cb = model.getClipBoard();
+        	if (cb == null) return;
+        	cb.setSelectedPane(ClipBoard.FIND_PANE, null);
+        }
+            
     }
     
 }

@@ -92,6 +92,7 @@ public class ClipBoardViewAction
      */
     public void actionPerformed(ActionEvent e)
     { 
+    	if (model.getClipBoard() == null) return;
         model.showClipBoard(!model.getClipBoard().isDisplay());
     }
     

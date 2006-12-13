@@ -94,19 +94,9 @@ public class FindRegExCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
-        //ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
-        //if (selectedDisplay == null) return; 
         FindRegExVisitor visitor = new FindRegExVisitor(model, pattern, 
                 findContext);
-        /*
-        if (selectedDisplay.getParentDisplay() == null)
-            browser.accept(visitor);
-        else {
-            if (selectedDisplay instanceof ImageSet)
-                selectedDisplay.accept(visitor);
-        } 
-        */
-        browser.accept(visitor);
+        if (browser != null) browser.accept(visitor);
         TreeView tree = model.getTreeView();
         if (tree != null) tree.repaint();
         model.setFoundResults(visitor.getFoundNodes());

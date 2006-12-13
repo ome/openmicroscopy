@@ -74,7 +74,7 @@ public class ClearCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
-        browser.accept(new ClearVisitor(model));
+        if (browser != null) browser.accept(new ClearVisitor(model));
         TreeView tree = model.getTreeView();
         if (tree != null) tree.repaint();
     }

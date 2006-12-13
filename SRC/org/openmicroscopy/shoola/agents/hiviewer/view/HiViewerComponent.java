@@ -224,15 +224,14 @@ class HiViewerComponent
      */
     public Browser getBrowser()
     {
-        int state = model.getState();
-        switch (state) {
-            case LOADING_THUMBNAILS:
-            case READY:
-                return model.getBrowser();
-            default:
+        switch (model.getState()) {
+            case NEW:
+            case DISCARDED:
                 throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+                   "This method cannot be invoked in the NEW "+
+                        "or DISCARDED state.");
+            default:
+            	return model.getBrowser();
         }
     }
 
@@ -266,15 +265,14 @@ class HiViewerComponent
      */
     public String getViewTitle()
     {
-        int state = model.getState();
-        switch (state) {
-            case LOADING_THUMBNAILS:
-            case READY:
-                return view.getViewTitle();
-            default:
-                throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+        switch (model.getState()) {
+	        case NEW:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	               "This method cannot be invoked in the NEW "+
+	                    "or DISCARDED state.");
+	        default:
+	        	return view.getViewTitle();
         }       
     }
 
@@ -284,15 +282,14 @@ class HiViewerComponent
      */
     public ClipBoard getClipBoard()
     {
-        int state = model.getState();
-        switch (state) {
-            case LOADING_THUMBNAILS:
-            case READY:
-                return model.getClipBoard();
-            default:
-                throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+        switch ( model.getState()) {
+	        case NEW:
+	        case DISCARDED:
+	        	throw new IllegalStateException(
+	        			"This method cannot be invoked in the NEW "+
+	        			"or DISCARDED state.");
+	        default:
+	        	return model.getClipBoard();
         }
     }
 
@@ -312,10 +309,10 @@ class HiViewerComponent
     public void showTreeView(boolean b)
     {
         int state = model.getState();
-        if (state != LOADING_THUMBNAILS && state != READY)
+        if (state == NEW && state == DISCARDED)
             throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+            		"This method cannot be invoked in the NEW "+
+        			"or DISCARDED state.");
         if (getBrowser() == null) return;
         TreeView treeView = model.getTreeView();
         if (treeView == null) {
@@ -335,10 +332,10 @@ class HiViewerComponent
     public void showClipBoard(boolean b)
     {
         int state = model.getState();
-        if (state != LOADING_THUMBNAILS && state != READY)
+        if (state == NEW && state == DISCARDED)
             throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+            		"This method cannot be invoked in the NEW "+
+        			"or DISCARDED state.");
         ClipBoard cb = model.getClipBoard();
         if (cb == null) return;
         if (cb.isDisplay() == b) return;
@@ -353,10 +350,10 @@ class HiViewerComponent
     public TreeView getTreeView()
     {
         int state = model.getState();
-        if (state != LOADING_THUMBNAILS && state != READY)
+        if (state == NEW && state == DISCARDED)
             throw new IllegalStateException(
-                   "This method can only be invoked in the LOADING_THUMBNAILS "+
-                        "or READY state.");
+            		"This method cannot be invoked in the NEW "+
+        			"or DISCARDED state.");
         TreeView treeView = model.getTreeView();
         if (treeView == null) {
             model.createTreeView();
@@ -601,6 +598,7 @@ class HiViewerComponent
     {
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         Browser browser = getBrowser();
+        if (browser == null) return;
         ImageDisplay d = browser.getLastSelectedDisplay();
         switch (browser.getSelectedLayout()) {
             case LayoutFactory.SQUARY_LAYOUT:
@@ -665,6 +663,17 @@ class HiViewerComponent
 		DataHandler dh = model.classifyImageObjects(view, images, mode);
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#onDataObjectSave()
+     */
+	public void onDataObjectSave()
+	{
+		if (model.getState() != SAVING_DATA_OBJECT) return;
+		model.onDataObjectSave();
+		fireStateChange();
 	}
 
 }

@@ -37,6 +37,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import pojos.DataObject;
@@ -94,9 +95,12 @@ public class PropertiesCmd
     public void execute()
     {
         if (model != null && hierarchyObject == null) {
-            ImageDisplay selectedDisplay = model.getBrowser().
-                                                    getLastSelectedDisplay();
-            hierarchyObject = (DataObject) selectedDisplay.getHierarchyObject();
+        	Browser browser = model.getBrowser();
+        	if (browser != null) {
+        		ImageDisplay d = browser.getLastSelectedDisplay();
+                hierarchyObject = (DataObject) d.getHierarchyObject();
+        	}
+            
         }
         if (hierarchyObject == null) return;
         //NEED to review that code.

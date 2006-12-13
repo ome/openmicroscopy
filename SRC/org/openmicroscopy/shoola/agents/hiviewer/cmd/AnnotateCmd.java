@@ -86,7 +86,8 @@ public class AnnotateCmd
     {
         boolean b = false;
         Browser browser = model.getBrowser();
-        if (node == null) {
+        
+        if (node == null && browser != null) {
             node = browser.getLastSelectedDisplay();
             b = true;
         }     
@@ -101,13 +102,14 @@ public class AnnotateCmd
         DataObject hierarchyObject = (DataObject) node.getHierarchyObject();
         if ((hierarchyObject instanceof DatasetData) ||
                 (hierarchyObject instanceof ImageData)) {
+        	ClipBoard cb = model.getClipBoard();
             if (b) {
-                model.getClipBoard().setSelectedPane(
-                        ClipBoard.ANNOTATION_PANE, null);
+            	if (cb != null)
+                	cb.setSelectedPane(ClipBoard.ANNOTATION_PANE, null);
             } else {
-                model.getClipBoard().setSelectedPane(
-                        ClipBoard.ANNOTATION_PANE, node);
-                model.getBrowser().setSelectedDisplay(node);
+            	if (cb != null) cb.setSelectedPane(ClipBoard.ANNOTATION_PANE, 
+            									node);
+                if (browser != null) browser.setSelectedDisplay(node);
             }
         } 
     }

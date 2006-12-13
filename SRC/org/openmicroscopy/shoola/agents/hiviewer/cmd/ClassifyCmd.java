@@ -116,6 +116,7 @@ public class ClassifyCmd
     private ImageData[] getImages()
     {
         ImageData[] images = null;
+        if (model.getBrowser() ==  null) return images;
 	    Set nodes = model.getBrowser().getSelectedDisplays();
         if (nodes != null) {
             Iterator i = nodes.iterator();

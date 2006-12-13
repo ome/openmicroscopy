@@ -79,6 +79,7 @@ public class SaveThumbnailsCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
+        if (browser == null) return;
         ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
         if (selectedDisplay.containsImages()) {
             SaveThumbnailsVisitor visitor = new SaveThumbnailsVisitor(model);

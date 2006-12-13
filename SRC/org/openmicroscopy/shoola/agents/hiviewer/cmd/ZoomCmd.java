@@ -143,6 +143,7 @@ public class ZoomCmd
     {
         ZoomVisitor visitor = new ZoomVisitor(model);
         Browser browser = model.getBrowser();
+        if (browser == null) return;
         int layout = browser.getSelectedLayout();
         if (layout == LayoutFactory.FLAT_LAYOUT) {
             browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);

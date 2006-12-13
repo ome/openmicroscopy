@@ -451,5 +451,8 @@ public interface HiViewer
 	 * @param mode		The classification mode.
 	 */
 	public void classifyImages(ImageData[] images, int mode);
+
+	/** Invokes after a <code>DataObject</code> has been saved. */
+	public void onDataObjectSave();
     
 }

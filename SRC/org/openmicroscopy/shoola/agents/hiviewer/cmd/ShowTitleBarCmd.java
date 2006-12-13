@@ -76,6 +76,7 @@ public class ShowTitleBarCmd
     public void execute()
     {
         Browser browser = model.getBrowser();
+        if (browser == null) return;
         ShowTitleBarVisitor visitor = new ShowTitleBarVisitor(model, 
                                     !browser.isTitleBarVisible());
         browser.accept(visitor);

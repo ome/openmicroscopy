@@ -228,9 +228,7 @@ class EditorComponent
      */
     public void setRetrievedClassification(Set paths)
     {
-        if (model.getState() != LOADING_CLASSIFICATION)
-            throw new IllegalStateException("This method should only be " +
-                    "invoked in the LOADING_CLASSIFICATION state.");
+        if (model.getState() != LOADING_CLASSIFICATION) return;
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
         long userID = model.getUserDetails().getId();
@@ -286,9 +284,7 @@ class EditorComponent
      */
     public void setSaveResult(DataObject object, int operation)
     {
-        if (model.getState() != SAVE_EDITION)
-            throw new IllegalStateException(
-                    "This method can be invoked in the SAVE_EDITION state.");
+        if (model.getState() != SAVE_EDITION) return;
         checkDataObjectOperation(operation);
         if (object == null)
             throw new IllegalArgumentException("No DataObject to save.");

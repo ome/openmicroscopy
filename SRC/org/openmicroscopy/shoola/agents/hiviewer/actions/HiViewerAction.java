@@ -105,7 +105,7 @@ public abstract class HiViewerAction
      * Reacts to property changes in the {@link Browser}.
      * Highlights the selected node, and update the status of the
      * action.
-     * @see #propertyChange(PropertyChangeEvent)
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
@@ -116,7 +116,7 @@ public abstract class HiViewerAction
 
     /** 
      * Listens to {@link Browser} change events. 
-     * @see #stateChanged(ChangeEvent)
+     * @see ChangeListener#stateChanged(ChangeEvent)
      */
     public void stateChanged(ChangeEvent e)
     {

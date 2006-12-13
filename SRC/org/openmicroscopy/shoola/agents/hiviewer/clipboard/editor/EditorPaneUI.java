@@ -116,25 +116,25 @@ class EditorPaneUI
     private DocumentListener    descriptionAreaListener;
     
     /** Indicates that a warning message is displayed if <code>true</code>. */
-    private boolean         warning;
+    private boolean         	warning;
     
     /** Flag indicating if the name/description fields are modified.*/
-    private boolean         edit;
+    private boolean         	edit;
       
     /** The UI component hosting the properties. */
-    private JTabbedPane 	tabs;
+    private JTabbedPane 		tabs;
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextField      nameArea;
+    private JTextField      	nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
-    private JTextArea       descriptionArea;
+    private JTextArea       	descriptionArea;
     
     /** The default font of the title. */
-    private Font            titleLabelDefaultfont;
+    private Font            	titleLabelDefaultfont;
     
     /** The title message. */
-    private String          message;
+    private String          	message;
     
     /**
      * Enables the {@link #finishButton} and removes the warning message

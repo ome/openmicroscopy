@@ -101,7 +101,7 @@ public class RemoveAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
+        if (selectedDisplay == null || model.getBrowser() == null) {
             setEnabled(false);
             return;
         }

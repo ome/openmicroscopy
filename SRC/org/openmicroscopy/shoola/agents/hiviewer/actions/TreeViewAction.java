@@ -90,6 +90,7 @@ public class TreeViewAction
      */
     public void actionPerformed(ActionEvent e)
     { 
+    	if (model.getTreeView() == null) return;
         model.showTreeView(!model.getTreeView().isDisplay());
     }
 

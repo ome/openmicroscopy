@@ -495,6 +495,11 @@ abstract class HiViewerModel
 		}
 	}
 	   
+	void onDataObjectSave()
+	{
+		state = HiViewer.READY;
+	}
+	
 	/**
 	 * Returns the <code>DataHandler</code> or null if not initialized.
 	 * 
@@ -539,5 +544,7 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+
 
 }
