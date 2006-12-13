@@ -442,7 +442,8 @@ class HiViewerComponent
         if (ho instanceof ImageData)
             browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
         else browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
-        model.getTreeView().repaint();
+        if (model.getTreeView() != null)
+        	model.getTreeView().repaint();
     }
 
     /**
