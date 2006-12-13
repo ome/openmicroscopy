@@ -440,6 +440,7 @@ class HiViewerWin
             treeViewPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
             treeViewPane.setOneTouchExpandable(true);
             treeViewPane.setContinuousLayout(true);
+            if (model.getTreeView() == null) model.createTreeView();
             treeViewPane.setLeftComponent(model.getTreeView());
             treeViewPane.setRightComponent(mainPane);
             container.remove(mainPane);
