@@ -112,6 +112,9 @@ ${msg.global.old.files}
 		<condition property="generate.skip">
 			<equals arg1="${multi.generate.skip}" arg2="true"/>
 		</condition>
+		<condition property="checks.skip">
+			<equals arg1="${multi.checks.skip}" arg2="true"/>
+		</condition>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =

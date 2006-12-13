@@ -84,6 +84,7 @@
 			<property name="multi.test.with.fail" value="${test.with.fail}"/>
 			<property name="multi.test.skip" value="${test.skip}"/>
 			<property name="multi.generate.skip" value="${generate.skip}"/>
+			<property name="multi.checks.skip" value="${checks.skip}"/>
 			<property name="classpath.file" value="${classpath.file}"/>
 			<targets/>
 		</ant>

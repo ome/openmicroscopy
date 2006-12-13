@@ -120,6 +120,7 @@
 
 		<!-- may be overriden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
+		<echo>${test.dir}</echo>
 		<suite>
 			<xmlfileset dir="${test.dir}">
 				<include name="unit.testng.xml"/>
@@ -213,6 +214,10 @@
 		<property name="config.skip" value="true"/>
 		<property name="test.skip" value="true"/>
 		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="nochecks">
+		<property name="checks.skip" value="true"/>
 	</target>
 
 	<target name="fail-on-error">

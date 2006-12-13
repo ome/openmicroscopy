@@ -226,11 +226,11 @@ database.name=${config_database.name}
 	<!-- 	===============================================
 		CHECK SYSTEM 
 	==================================================  -->
-	<target name="check-system" 
+	<target name="check-system"
 		depends="check-java5,check-appserver,check-database"
 		description="Verifies that system is ready to build"/>
 
-	<target name="check-java5">
+	<target name="check-java5" unless="checks.skip">
 		<fail message="Omero requires Java5">
 			<condition><not>
 			<equals arg1="${ant.java.version}" arg2="1.5"/>
@@ -238,7 +238,7 @@ database.name=${config_database.name}
 		</fail>
 	</target>
 
-	<target name="check-appserver">
+	<target name="check-appserver" unless="checks.skip">
 		<fail message="No application server found">
 			<condition><not>
 			<isset property="env.JBOSS_HOME"/>
@@ -246,7 +246,7 @@ database.name=${config_database.name}
 		</fail>
 	</target>
 	
-	<target name="check-database">
+	<target name="check-database"  unless="checks.skip">
                 <antRun component="common">
                         <target name="check-db"/>
                 </antRun>
