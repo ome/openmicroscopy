@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 
 import src.adminTool.omero.LoginHandler;
 import src.adminTool.ui.StatusBar;
+import src.adminTool.ui.messenger.DebugMessenger;
 
 //Third-party libraries
 
@@ -107,9 +108,8 @@ public class MainPanel
 		}
 		catch(Exception e)
 		{
-			statusBar.setStatusIcon("resources/graphx/server_disconn16.png",
-	         "Not connected to Server. Cannot get iAdmin interface, " +
-	         "Is server running?");
+			DebugMessenger debug = new DebugMessenger(null,"An Unexpected " +
+					"Error has Occurred", true, e);
 
 		}
 	}

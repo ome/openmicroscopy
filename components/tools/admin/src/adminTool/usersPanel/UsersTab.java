@@ -176,7 +176,6 @@ public class UsersTab
 	{
 		MessageBox msg = new MessageBox(this.getLocationOnScreen(), "Warning", 
 				errorMsg);
-		//JOptionPane.showMessageDialog(this, errorMsg);
 		setToTop();
 	}
 	

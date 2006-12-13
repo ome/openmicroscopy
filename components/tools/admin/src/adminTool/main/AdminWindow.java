@@ -83,6 +83,8 @@ public class AdminWindow
 		mainPanel	= new MainPanel(this);
 		this.setLayout(new BorderLayout());
 		this.add(mainPanel, BorderLayout.CENTER);
+		this.setVisible(true);
+		mainPanel.startLogin();
 	}
 	
 	public void createMenu()
