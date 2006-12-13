@@ -39,6 +39,7 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.LayoutCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
@@ -87,6 +88,10 @@ public class SquaryLayoutAction
         //String description = 
         //    LayoutFactory.getLayoutDescription(LayoutFactory.SQUARY_LAYOUT);
         putValue(Action.SHORT_DESCRIPTION, "");
+
+        IconManager icons = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, 
+        		icons.getIcon(IconManager.HIERARCHICAL_LAYOUT));
     }
 
     /** 

@@ -133,9 +133,10 @@ public class CreateTopContainerAction
                 case Browser.IMAGES_EXPLORER:
                     //setEnabled(true);
                     setEnabled(false);
-                    name = NAME;; 
+                    name = NAME;
             }
         }
+        description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
     /**

@@ -236,8 +236,11 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.CREATE_OBJECT)));
+        a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
+        item = new JMenuItem(a);
+        menu.add(item);
+        item.setText(a.getActionName());
+        menuItems.add(item);
         menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.VIEW);
@@ -278,6 +281,8 @@ class TreeViewerWin
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLASSIFY)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.DECLASSIFY)));
         TreeViewerAction a = controller.getAction(TreeViewerControl.ANNOTATE);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -590,9 +595,12 @@ class TreeViewerWin
     {
     	Iterator i = menuItems.iterator();
     	JMenuItem item;
+    	TreeViewerAction a;
     	while (i.hasNext()) {
     		item = (JMenuItem) i.next();
-			item.setText(((TreeViewerAction) item.getAction()).getActionName());
+    		a = (TreeViewerAction) item.getAction();
+			item.setText(a.getActionName());
+			item.setToolTipText(a.getActionDescription());
 		}
     }
     

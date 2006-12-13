@@ -99,6 +99,9 @@ class ToolBar
                 TreeViewerControl.CREATE_TOP_CONTAINER));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        b = new JButton(controller.getAction(TreeViewerControl.CREATE_OBJECT));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         return bar;
     }

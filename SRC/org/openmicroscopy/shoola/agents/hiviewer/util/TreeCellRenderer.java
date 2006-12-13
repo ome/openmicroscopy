@@ -81,7 +81,6 @@ public class TreeCellRenderer
      */
     private boolean				thumbnail;
     
-    
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
     
@@ -184,11 +183,13 @@ public class TreeCellRenderer
         FontMetrics fm = getFontMetrics(getFont());
         if (usrObject instanceof ImageSet) {
             ImageSet set = (ImageSet) usrObject;
-            
             if (node instanceof TreeViewNode) {
             	w += fm.stringWidth(((TreeViewNode) node).getNodeName());
             	setText(((TreeViewNode) node).toString());
-            } else setText(set.toString());
+            } else {
+            	setText(set.toString());
+            	w += fm.stringWidth(getText());
+            }
             setValues(set.getHierarchyObject(), null);
             if (visibleColor) {
                 c = ((ImageSet) usrObject).getHighlight();
@@ -201,8 +202,10 @@ public class TreeCellRenderer
             if (node instanceof TreeViewNode) {
             	w += fm.stringWidth(((TreeViewNode) node).getNodeName());
             	setText(((TreeViewNode) node).toString());
-            }	
-            else setText(imgNode.toString());
+            } else {
+            	setText(imgNode.toString());
+            	w += fm.stringWidth(getText());
+            }
             if (thumbnail) setValues(imgNode.getHierarchyObject(),
                     					imgNode.getThumbnail().getIcon());
             else setValues(imgNode.getHierarchyObject(), null);
@@ -214,9 +217,9 @@ public class TreeCellRenderer
         } else {
             setText(node.toString());
             setValues(usrObject, null);
-            w += fm.stringWidth(node.toString());
+            w += fm.stringWidth(getText());
         }
-        w += getIcon().getIconWidth();
+        if (getIcon() != null) w += getIcon().getIconWidth();
         w += getIconTextGap();
         setPreferredSize(new Dimension(w, fm.getHeight()));
         return this;

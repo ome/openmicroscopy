@@ -173,6 +173,7 @@ public class DeleteAction
     {
         if (selectedDisplay == null) {
             name = NAME;
+            description = DESCRIPTION;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
@@ -184,6 +185,7 @@ public class DeleteAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
+            description = DESCRIPTION;
             return;
         } 
         if (browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
@@ -191,6 +193,7 @@ public class DeleteAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             setEnabled(false);
+            description = DESCRIPTION;
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
@@ -226,7 +229,12 @@ public class DeleteAction
                         UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
             }
             setEnabled(model.isObjectWritable((DataObject) ho));
-        } else setEnabled(false);
+        } else {
+        	setEnabled(false);
+        	putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+        }
+        description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
     /**

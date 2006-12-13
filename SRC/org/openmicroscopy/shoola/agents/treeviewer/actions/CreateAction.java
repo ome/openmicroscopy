@@ -66,17 +66,16 @@ public class CreateAction
 {
     
     /** The default name of the action. */
-    private static final String NAME = "Create new...";
+    private static final String NAME = "New...";
     
     /** The name of the action for the creation of a <code>Dataset</code>. */
-    private static final String NAME_DATASET = "Create new Dataset...";
+    private static final String NAME_DATASET = "New Dataset...";
     
     /** The name of the action for the creation of a <code>Category</code>. */
-    private static final String NAME_CATEGORY = "Create new Category...";
+    private static final String NAME_CATEGORY = "New Category...";
     
     /** The name of the action for the creation of a <code>Image</code>. */
     private static final String NAME_IMAGE = "Import Image...";
-    
     
     /** 
      * Description of the action if the selected node is a <code>Dataset</code>.
@@ -131,7 +130,7 @@ public class CreateAction
     {
         if (selectedDisplay == null) {
             setEnabled(false);
-            putValue(Action.NAME, NAME); 
+            name = NAME;  
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             return;
@@ -139,40 +138,41 @@ public class CreateAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String) { // root
                 setEnabled(false);
-                putValue(Action.NAME, NAME);  
+                name = NAME;  
                 putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
-            putValue(Action.NAME, NAME_DATASET); 
+            name = NAME_DATASET; 
             nodeType = CreateCmd.DATASET;
+           
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof CategoryGroupData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
-            putValue(Action.NAME, NAME_CATEGORY);
+            name = NAME_CATEGORY;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
             nodeType = CreateCmd.CATEGORY;
         } else if (ho instanceof CategoryData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             setEnabled(false); //TODO: remove when import
-            putValue(Action.NAME, NAME_IMAGE);
+            name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable((DataObject) ho));
             setEnabled(false);
-            putValue(Action.NAME, NAME_IMAGE);
+            name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else {
             setEnabled(false);
-            putValue(Action.NAME, NAME);
+            name = NAME;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
         }
-        name = (String) getValue(Action.NAME);
+        description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     
     /**
@@ -183,10 +183,10 @@ public class CreateAction
     public CreateAction(TreeViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
-        name = (String) getValue(Action.NAME);
+        name = NAME;  
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        description = (String) getValue(Action.SHORT_DESCRIPTION);
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
     } 

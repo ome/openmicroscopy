@@ -248,6 +248,6 @@ public class EditorPane
      * Overridden to return the description of this UI component.
      * @see ClipBoardPane#getPaneDescription()
      */
-    public String getPaneDescription() { return "Data object editor."; }
+    public String getPaneDescription() { return "Edit the selected object."; }
 
 }

@@ -62,7 +62,7 @@ public class FinderAction
     private static final String NAME = "Find in tree";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Finds a phrase in the " +
+    private static final String DESCRIPTION = "Find a phrase in the " +
     		"currently selected tree."; 
     
     /** 

@@ -150,7 +150,6 @@ class HiViewerComponent
             case NEW:
                 model.fireHierarchyLoading();
                 view.setComponentBounds(bounds);
-                //view.setOnScreen();
                 fireStateChange();
                 break;
             case DISCARDED:
@@ -350,19 +349,34 @@ class HiViewerComponent
     public TreeView getTreeView()
     {
         int state = model.getState();
+        
         if (state == NEW && state == DISCARDED)
             throw new IllegalStateException(
             		"This method cannot be invoked in the NEW "+
         			"or DISCARDED state.");
-        TreeView treeView = model.getTreeView();
-        if (treeView == null) {
-            model.createTreeView();
-            treeView = model.getTreeView();
-            treeView.addPropertyChangeListener(controller);
-        }
-        return treeView;
+        return model.getTreeView();
     }
 
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#createTreeView()
+     */
+	public TreeView createTreeView()
+	{
+		int state = model.getState();
+		if (state == NEW && state == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the NEW "+
+			"or DISCARDED state.");
+		TreeView treeView = model.getTreeView();
+		if (treeView == null) {
+			model.createTreeView();
+			treeView = model.getTreeView();
+			treeView.addPropertyChangeListener(controller);
+		}
+		return treeView;
+	}
+	
     /**
      * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#getRootLevel()
@@ -674,6 +688,15 @@ class HiViewerComponent
 		if (model.getState() != SAVING_DATA_OBJECT) return;
 		model.onDataObjectSave();
 		fireStateChange();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#refresh()
+     */
+	public void refresh()
+	{
+		
 	}
 
 }

@@ -156,8 +156,11 @@ class FindResultsPane
             dtn = new DefaultMutableTreeNode(node);
             identityMap.put(node, dtn);
         }
-        ImageDisplay parent = node.getParentDisplay();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) tm.getRoot();
+        if (!(hasBeenAdded(dtn, root)))
+            tm.insertNodeInto(dtn, root, root.getChildCount());
+        /*
+        ImageDisplay parent = node.getParentDisplay();
         if (parent.getParentDisplay() == null) { //i.e. the parent is root
             if (!(hasBeenAdded(dtn, root)))
                 tm.insertNodeInto(dtn, root, root.getChildCount());
@@ -172,6 +175,7 @@ class FindResultsPane
                 tm.insertNodeInto(dtn, pdtn, pdtn.getChildCount());
             buildTreeNode(parent);
         }   
+        */
     }
     
     /**

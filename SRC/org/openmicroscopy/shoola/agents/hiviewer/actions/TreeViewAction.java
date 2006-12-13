@@ -38,12 +38,14 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
- * Shows/hides the tree view of the data displayed in the <code>Browser</code>.
+ * Shows or hides the tree view of the data displayed in the 
+ * <code>Browser</code>.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,8 +92,8 @@ public class TreeViewAction
      */
     public void actionPerformed(ActionEvent e)
     { 
-    	if (model.getTreeView() == null) return;
-        model.showTreeView(!model.getTreeView().isDisplay());
+    	TreeView treeView = model.createTreeView();
+        model.showTreeView(!treeView.isDisplay());
     }
 
 }

@@ -154,10 +154,13 @@ public class TreeCellRenderer
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
-        int w = getIcon().getIconWidth();
+        int w = 0;
+        if (getIcon() != null) w += getIcon().getIconWidth();
         w += getIconTextGap();
         FontMetrics fm = getFontMetrics(getFont());
-        w += fm.stringWidth(getText());
+        if (node.getUserObject() instanceof ImageData)
+        	w += fm.stringWidth(node.getNodeName());
+        else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()));
         
         return this;

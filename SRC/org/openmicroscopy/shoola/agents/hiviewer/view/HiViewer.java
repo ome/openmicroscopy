@@ -308,6 +308,13 @@ public interface HiViewer
     public TreeView getTreeView();
     
     /**
+     * Creates or recycles the existing <code>TreeView</code>.
+     * 
+     * @return See above.
+     */
+    public TreeView createTreeView();
+    
+    /**
      * Returns the level of the root, <code>GroupData</code> or 
      * <code>ExperimenterData</code>.
      * 
@@ -452,7 +459,13 @@ public interface HiViewer
 	 */
 	public void classifyImages(ImageData[] images, int mode);
 
-	/** Invokes after a <code>DataObject</code> has been saved. */
+	/** 
+	 * Notifies the component that the <code>DataObject</code>s have been 
+	 * saved.
+	 */
 	public void onDataObjectSave();
+	
+	/** Refreshes the display. */
+	public void refresh();
     
 }

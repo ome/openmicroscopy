@@ -180,6 +180,7 @@ class AnnotationPaneUI
              */
             public void insertUpdate(DocumentEvent de)
             {
+            	defaultText = false;
                 model.setAnnotated(true);
             }
             
@@ -189,6 +190,7 @@ class AnnotationPaneUI
              */
             public void removeUpdate(DocumentEvent de)
             {
+            	defaultText = false;
                 model.setAnnotated(true);
             }
 
@@ -205,7 +207,13 @@ class AnnotationPaneUI
             //Removes default message.
             public void mouseClicked(MouseEvent e)
             {
-                if (isAnnotable() && defaultText) annotationArea.setText("");
+                if (isAnnotable() && defaultText) {
+                	annotationArea.getDocument().removeDocumentListener(
+                            annotationAreaListener);
+                    annotationArea.setText("");
+                    annotationArea.getDocument().addDocumentListener(
+                            annotationAreaListener);
+                }
             }
         
         });

@@ -43,12 +43,11 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The tool bar of {@link HiViewerWin}.
@@ -93,7 +92,6 @@ class HiViewerToolBar
         JToggleButton b = new JToggleButton(
                 controller.getAction(HiViewerControl.TREE_VIEW));
         bar.add(b);
-        
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
         b.setSelected(true);

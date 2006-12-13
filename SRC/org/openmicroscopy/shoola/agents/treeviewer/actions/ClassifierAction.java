@@ -68,8 +68,8 @@ public class ClassifierAction
 {
 
     /** The description of the action. */
-    private static final String DESCRIPTION = "Classify or declassify the " +
-            "selected images. Press (Shift) to keep the menu on screen " +
+    private static final String DESCRIPTION = "Categorise or Decategorise the" +
+            " selected images.\n Press (Shift) to keep the menu on screen " +
             "when making selection.";
     
     /** The location of the mouse pressed. */

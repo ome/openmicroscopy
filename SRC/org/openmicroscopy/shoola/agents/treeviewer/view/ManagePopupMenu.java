@@ -41,6 +41,7 @@ import javax.swing.border.BevelBorder;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 
 /** 
  * Menu brought up on screen when the user clicks on the <code>Manage</code>
@@ -94,8 +95,10 @@ class ManagePopupMenu
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-        newElement = new JMenuItem(
-                controller.getAction(TreeViewerControl.CREATE_OBJECT));
+    	TreeViewerAction a = 
+    			controller.getAction(TreeViewerControl.CREATE_OBJECT);
+        newElement = new JMenuItem(a);
+        newElement.setText(a.getActionName());
         initMenuItem(newElement);
         copyElement = new JMenuItem(
                 controller.getAction(TreeViewerControl.COPY_OBJECT)); 

@@ -71,6 +71,9 @@ public abstract class TreeViewerAction
     /** The name of the action. */
     protected String        name;
     
+    /** The description of the action. */
+    protected String        description;
+      
     /**
      * Callback to notify of a change in the currently selected display
      * in the {@link Browser}. Subclasses override the method.
@@ -131,8 +134,20 @@ public abstract class TreeViewerAction
     public String getActionName()
     { 
         if (name == null || name.length() == 0)
-            return System.getProperty(Action.NAME); 
+            return (String) getValue(Action.NAME);  
         return name;
+    }
+    
+    /**
+     * Returns the name of the action.
+     * 
+     * @return See above.
+     */
+    public String getActionDescription()
+    { 
+        if (description == null || description.length() == 0)
+            return (String) getValue(Action.SHORT_DESCRIPTION); 
+        return description;
     }
     
     /** 

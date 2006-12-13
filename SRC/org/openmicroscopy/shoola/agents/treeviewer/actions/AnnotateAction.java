@@ -65,8 +65,46 @@ public class AnnotateAction
     /** The name of the action. */
     private static final String NAME = "Annotate";
     
+    /** 
+     * The description of the action if the <code>DataObject</code>
+     * is an <code>Image</code> 
+     */
+    private static final String DESCRIPTION_IMAGE = "Annotate the image.";
+    
+    /** 
+     * The description of the action if the <code>DataObject</code>
+     * is a <code>Dataset</code> 
+     */
+    private static final String DESCRIPTION_DATASET = "Annotate the dataset.";
+    
     /** The description of the action. */
-    private static final String DESCRIPTION = "Annotate the data object.";
+    private static final String DESCRIPTION = "Annotate the dataset.";
+    
+    /**
+     * Enables or not the action and sets the description depending on
+     * the type of the passed object.
+     * 
+     * @param ho The object to check.
+     */
+    private void setValuesFor(Object ho)
+    {
+    	if (ho instanceof ImageData) {
+    		setEnabled(true);
+    		putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+            description = DESCRIPTION_IMAGE;
+    	} else if (ho instanceof DatasetData) {
+    		setEnabled(true);
+    		putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+            description = DESCRIPTION_DATASET;
+    	} else {
+    		setEnabled(false);
+    		putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+            description = DESCRIPTION;
+    	}
+    }
     
     /**
      * Callback to notify of a change in the currently selected display
@@ -79,19 +117,20 @@ public class AnnotateAction
     {
         if (selectedDisplay == null) {
             setEnabled(false);
+            setEnabled(false);
+    		putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+            description = DESCRIPTION;
             return;
         }
         Browser browser = model.getSelectedBrowser();
         if (browser != null) {
             if (browser.getSelectedDisplays().length > 1) {
-            	Object ho = selectedDisplay.getUserObject();
-                setEnabled((ho instanceof ImageData) || 
-                			(ho instanceof DatasetData));
+            	setValuesFor(selectedDisplay.getUserObject());
                 return;
             }
         }
-        Object ho = selectedDisplay.getUserObject();
-        setEnabled((ho instanceof ImageData) || (ho instanceof DatasetData));
+        setValuesFor(selectedDisplay.getUserObject());
     }
     
     /**
@@ -103,9 +142,9 @@ public class AnnotateAction
     {
         super(model);
         name = NAME;
-        //putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
+        description = DESCRIPTION;
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATION));
     } 
