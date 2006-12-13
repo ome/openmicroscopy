@@ -319,4 +319,11 @@ public class ImgSaver
      */
     double getUnitBarSize() { return model.getUnitBarSize(); }
     
+    /**
+     * Returns the color of the unit bar.
+     * 
+     * @return See above.
+     */
+    Color getUnitBarColor() { return model.getUnitBarColor(); }
+    
 }

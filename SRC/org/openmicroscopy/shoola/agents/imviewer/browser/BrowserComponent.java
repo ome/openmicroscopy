@@ -30,7 +30,9 @@
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
@@ -38,7 +40,9 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 
@@ -233,8 +237,18 @@ class BrowserComponent
      */
     public void setUnitBarSize(double size)
     {
+    	double oldUnit = model.getUnitInMicrons();
         model.setUnitBarSize(size);
-        view.repaint();
+        
+        Rectangle viewRect = view.getViewport().getBounds();
+        if (viewRect.width >= model.getUnitBarSize()) {
+        	view.repaint();
+        	return;
+        }
+        UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+        un.notifyInfo("Scale bar size", "A scale bar of the selected size " +
+        		"cannot be displayed on the image. Please select a new size.");
+        model.setUnitBarSize(oldUnit);
     }
 
     /** 
@@ -264,5 +278,24 @@ class BrowserComponent
         return model.getUnitBarSize();
     }
 
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getUnitBarColor()
+     */
+    public Color getUnitBarColor()
+    {
+        return model.getUnitBarColor();
+    }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setUnitBarColor(Color)
+     */
+	public void setUnitBarColor(Color color)
+	{
+		if (model.getUnitBarColor().equals(color)) return;
+		model.setUnitBarColor(color);
+		view.repaint();
+	}
     
 }

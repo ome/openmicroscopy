@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
@@ -174,5 +175,19 @@ public interface Browser
      * @return See above.
      */
     public double getUnitBarSize();
+    
+    /**
+     * Returns the color of the unit bar.
+     * 
+     * @return See above.
+     */
+    public Color getUnitBarColor();
+
+    /**
+     * Sets the color of the unit bar.
+     * 
+     * @param color The value to set.
+     */
+	public void setUnitBarColor(Color color);
     
 }

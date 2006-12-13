@@ -57,7 +57,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class UnitBarSizeAction
     extends ViewerAction
 {
-
+    
     /** Identifies the scale bar of size <code>1</code>. */
     public static final int ONE = 0;
     
@@ -81,16 +81,17 @@ public class UnitBarSizeAction
     
     /** Identifies the scale bar of size customized. */
     public static final int CUSTOMIZED = 7;
-    
+   
     /** The number of supported ids. */
     private static final int    MAX = 7;
-    
+
+    /** The default index. */
+    private static final int DEFAULT_UNIT_INDEX = FIVE;
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Selects the size of " +
             "the Scale bar displayed on top of the image.";
-    
-    
+     
     /** 
      * Array of action names associated to the identifiers defined by this 
      * class.
@@ -104,15 +105,6 @@ public class UnitBarSizeAction
     private static int[]        values;
     
     static {
-        names = new String[MAX+1];
-        names[ONE] = "1";
-        names[TWO] = "2";
-        names[FIVE] = "5";
-        names[TEN] = "10";
-        names[TWENTY] = "20";
-        names[FIFTY] = "50";
-        names[HUNDRED] = "100";
-        names[CUSTOMIZED] = "Custom";
         values = new int[MAX+1];
         values[ONE] = 1;
         values[TWO] = 2;
@@ -121,8 +113,24 @@ public class UnitBarSizeAction
         values[TWENTY] = 20;
         values[FIFTY] = 50;
         values[HUNDRED] = 100;
+        names = new String[MAX+1];
+        names[ONE] = ""+values[ONE];
+        names[TWO] = ""+values[TWO];
+        names[FIVE] = ""+values[FIVE];
+        names[TEN] = ""+values[TEN];
+        names[TWENTY] = ""+values[TWENTY];
+        names[FIFTY] = ""+values[FIFTY];
+        names[HUNDRED] = ""+values[HUNDRED];
+        names[CUSTOMIZED] = "Custom";
     }
 
+    /**
+     * Returns the value associated to the default index.
+     * 
+     * @return See above.
+     */
+    public static int getDefaultValue() { return values[DEFAULT_UNIT_INDEX]; }
+    
     /** One of the constant defined by this class. */
     private int     index;
     
@@ -163,6 +171,14 @@ public class UnitBarSizeAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         putValue(Action.NAME, names[index]);
     }
+    
+    /**
+     * Returns <code>true</code> if the passed index is the default one,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isDefaultIndex() { return (index == DEFAULT_UNIT_INDEX); }
     
     /**
      * Sets the size of the unit bar.

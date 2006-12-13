@@ -71,7 +71,7 @@ class HSVWheelListener
 	}
 
 	/** 
-	 * Calls the views {@link HSVWheel#mouseDown} event
+	 * Calls the views {@link HSVWheel#mouseDown} event.
 	 * @see MouseInputListener#mousePressed(MouseEvent)
 	 */
 	public void mousePressed(MouseEvent evt) 

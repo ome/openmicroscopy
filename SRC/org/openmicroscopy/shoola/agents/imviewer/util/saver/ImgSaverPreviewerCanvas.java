@@ -91,7 +91,8 @@ class ImgSaverPreviewerCanvas
             if (b && v != null) {
                 ImagePaintingFactory.paintScaleBar(g2D, 
                         w+img.getWidth()-size-10, 
-                        ImgSaverPreviewer.SPACE+img.getHeight()-10, size, v);
+                        ImgSaverPreviewer.SPACE+img.getHeight()-10, size, v,
+                        model.getUnitBarColor());
             }
             w += (width+ImgSaverPreviewer.SPACE);
         }
@@ -131,7 +132,8 @@ class ImgSaverPreviewerCanvas
         g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
         if (unitBar && value != null)
             ImagePaintingFactory.paintScaleBar(g2D, w+img.getWidth()-size-10, 
-                ImgSaverPreviewer.SPACE+img.getHeight()-10, size, value);
+                ImgSaverPreviewer.SPACE+img.getHeight()-10, size, value,
+                model.getUnitBarColor());
     }
     
 }

@@ -37,9 +37,14 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -53,10 +58,13 @@ import javax.swing.JSeparator;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
@@ -81,11 +89,22 @@ class ImViewerUI
     extends TopWindow
 {
 
-	/** Lens component which will control all behaviour of the lens. */
-	private LensComponent	lens;
-	
-    /** Default background color. */
-    public static final Color   BACKGROUND = new Color(250, 253, 255);
+    /** The available colors for the unit bar. */
+    private static Map	colors;
+    
+    static {
+    	colors = new LinkedHashMap();
+    	colors.put(ImagePaintingFactory.UNIT_BAR_COLOR, 
+    				ImagePaintingFactory.UNIT_BAR_COLOR_NAME);
+    	colors.put(Color.ORANGE, "Orange");
+    	colors.put(Color.YELLOW, "Yellow");
+    	colors.put(Color.BLACK, "Black");
+    	colors.put(new Color(75, 0, 130), "Indigo");
+    	colors.put(new Color(238, 130, 238), "Violet");
+    	colors.put(Color.RED, "Red");
+    	colors.put(Color.GREEN, "Green");
+    	colors.put(Color.BLUE, "Blue");
+    }
     
     /** Reference to the Control. */
     private ImViewerControl controller;
@@ -96,9 +115,9 @@ class ImViewerUI
     /** The status bar. */
     private StatusBar       statusBar;
     
-    /** The pane hosting the display. */
-    //private JTabbedPane     tabbedPane;
-    
+	/** Lens component which will control all behaviour of the lens. */
+	private LensComponent	lens;
+	
     /** The tool bar. */
     private ToolBar         toolBar;
     
@@ -139,6 +158,39 @@ class ImViewerUI
     }
     
     /**
+     * Helper method to create the unit bar color sub-menu.
+     * 
+     * @return See above.
+     */
+    private JMenuItem createScaleBarColorSubMenu()
+    {
+    	JMenu menu = new JMenu("Scale bar color");
+    	ButtonGroup group = new ButtonGroup();
+    	Iterator i = colors.keySet().iterator();
+    	ColorCheckBoxMenuItem item;
+    	Color c;
+    	while (i.hasNext()) {
+			c = (Color) i.next();
+			item = new ColorCheckBoxMenuItem(c);
+			item.setText((String) colors.get(c)); 
+			item.setSelected(c.equals(ImagePaintingFactory.UNIT_BAR_COLOR));
+			group.add(item);
+	    	menu.add(item);
+	    	item.addActionListener(new ActionListener() {
+			
+				public void actionPerformed(ActionEvent e) {
+					ColorCheckBoxMenuItem source = 
+								(ColorCheckBoxMenuItem) e.getSource();
+					if (source.isSelected())
+						model.getBrowser().setUnitBarColor(source.getColor());
+				}
+			
+			});
+		}
+    	return menu;
+    }
+    
+    /**
      * Helper method to create the unit bar sub-menu.
      * 
      * @return See above.
@@ -147,29 +199,60 @@ class ImViewerUI
     {
         JMenu menu = new JMenu("Scale bar length " +
                 "(in "+UIUtilities.NANOMETER+")");
-        JMenuItem item = new JMenuItem(
-                controller.getAction(ImViewerControl.UNIT_BAR_ONE));
+        ButtonGroup group = new ButtonGroup();
+        UnitBarSizeAction a = (UnitBarSizeAction) 
+        		controller.getAction(ImViewerControl.UNIT_BAR_ONE);
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(a);
+        item.setSelected(a.isDefaultIndex());
+        group.add(item);
         menu.add(item);
-        item = new JMenuItem(
-                controller.getAction(ImViewerControl.UNIT_BAR_TWO));
+        a = (UnitBarSizeAction) 
+        	controller.getAction(ImViewerControl.UNIT_BAR_TWO);
+        item = new JCheckBoxMenuItem(a);
+        item.setSelected(a.isDefaultIndex());
+        group.add(item);
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_FIVE);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_FIVE));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_TEN);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_TEN));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_TWENTY);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_TWENTY));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_FIFTY);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_FIFTY));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_HUNDRED));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
-        item = new JMenuItem(
+        a = (UnitBarSizeAction) 
+    		controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM);
+        item = new JCheckBoxMenuItem(
                 controller.getAction(ImViewerControl.UNIT_BAR_CUSTOM));
+        group.add(item);
+        item.setSelected(a.isDefaultIndex());
         menu.add(item);
         return menu;
     }
@@ -188,6 +271,7 @@ class ImViewerUI
         item.setAction(controller.getAction(ImViewerControl.UNIT_BAR));
         menu.add(item);
         menu.add(createScaleBarLenghtSubMenu());
+        menu.add(createScaleBarColorSubMenu());
         return menu;
     }
     

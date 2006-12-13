@@ -31,12 +31,15 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -92,6 +95,9 @@ class BrowserModel
     /** The value of the unit bar in microns. */
     private double          unitInMicrons;
     
+    /** The default color of the unit bar. */
+    private Color			unitBarColor;
+    
     /** 
      * Creates a new instance.
      * 
@@ -105,7 +111,8 @@ class BrowserModel
         this.parent = parent;
         this.title = title;
         unitBar = true;
-        unitInMicrons = 5; // 5 microns.
+        unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
+        unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
     }
     
     /**
@@ -219,6 +226,13 @@ class BrowserModel
     void setUnitBarSize(double size) { unitInMicrons = size; }
     
     /**
+     * Returns the unit (in microns) used to determine the size of the unit bar.
+     * 
+     * @return See above.
+     */
+    double getUnitInMicrons() { return unitInMicrons; }
+    
+    /**
      * Returns the size of the unit bar.
      * 
      * @return See above.
@@ -240,5 +254,20 @@ class BrowserModel
     {
     	return UIUtilities.twoDecimalPlaces(unitInMicrons);
     }
+    
+    /**
+     * Returns the color of the unit bar.
+     * 
+     * @return See above.
+     */
+    Color getUnitBarColor() { return unitBarColor; }
+    
+    
+    /**
+     * Sets the color of the unit bar.
+     * 
+     * @param c  The color to set.
+     */
+    void setUnitBarColor(Color c) { unitBarColor = c; }
     
 }

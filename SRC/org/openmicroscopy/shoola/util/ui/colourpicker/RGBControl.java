@@ -77,7 +77,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the Red channel to the parameter (0..1) and fire change event to 
+	 * Sets the Red channel to the parameter [0..1] and fire change event to 
 	 * notify listeners. 
 	 * 
 	 * @param r The value to set.
@@ -89,7 +89,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the Blue channel to the parameter (0..1) and fire change event to 
+	 * Sets the Blue channel to the parameter [0..1] and fire change event to 
 	 * notify listeners. 
 	 * 
 	 * @param b The value to set.
@@ -101,7 +101,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the Green channel to the parameter (0..1) and fire change event to 
+	 * Sets the Green channel to the parameter [0..1] and fire change event to 
 	 * notify listeners. 
 	 * 
 	 * @param g The value to set.
@@ -113,7 +113,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the Alpha channel to the parameter (0..1) and fire change event to 
+	 * Sets the Alpha channel to the parameter [0..1] and fire change event to 
 	 * notify listeners. 
      * 
 	 * @param a The value to set.
@@ -125,7 +125,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the Hue component to the parameter (0..1) and fire change event to 
+	 * Sets the Hue component to the parameter [0..1] and fire change event to 
 	 * notify listeners. 
 	 * 
 	 * @param h The value to set.
@@ -137,7 +137,7 @@ class RGBControl
 	}
 
 	/**
-	 * Sets the Saturation component to the parameter (0..1) and fire change 
+	 * Sets the Saturation component to the parameter [0..1] and fire change 
 	 * event to  notify listeners. 
 	 * 
 	 * @param s The value to set.
@@ -149,7 +149,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the value component to the parameter (0..1) and fire change 
+	 * Sets the value component to the parameter [0..1] and fire change 
 	 * event to  notify listeners. 
 	 * 
 	 * @param v The value to set.
@@ -161,8 +161,7 @@ class RGBControl
 	}
 	
 	/**
-	 * Sets the model colour to c fire change event to 
-	 * notify listeners. 
+	 * Sets the model colour to c fire change event to notify listeners. 
 	 * 
 	 * @param c The value to set.
 	 */

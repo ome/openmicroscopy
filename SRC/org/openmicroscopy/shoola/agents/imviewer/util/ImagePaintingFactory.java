@@ -44,12 +44,12 @@ import java.awt.RenderingHints;
 //Application-internal dependencies
 
 /** 
- * 
+ * Collection of helper methods used to paint images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -59,12 +59,15 @@ import java.awt.RenderingHints;
 public class ImagePaintingFactory
 {
     
+	/** Color of the scale bar. */
+    public static final Color          	UNIT_BAR_COLOR = Color.GRAY;
+    
+	/** Name of the default color of the scale bar. */
+    public static final String			UNIT_BAR_COLOR_NAME = "Gray";
+    
     /** Stroke of the scale bar. */
     private static final BasicStroke    UNIT_BAR_STROKE = new BasicStroke(2.0f);
-    
-    /** Color of the scale bar. */
-    private static final Color          UNIT_BAR_COLOR = Color.GRAY;
-
+   
     /**
      * Paints the XY-frame.
      * 
@@ -119,9 +122,27 @@ public class ImagePaintingFactory
     public static void paintScaleBar(Graphics2D g2D, int x, int y, int l, 
                                 String s)
     {
+        paintScaleBar(g2D, x, y, l, s, UNIT_BAR_COLOR);
+    }
+    
+    /**
+     * Paints a scale bar.
+     * 
+     * @param g2D   The graphics context.
+     * @param x     The x-coordinate of the bar.
+     * @param y     The y-coordinate of the bar.
+     * @param l     The length of the bar.
+     * @param s     The text displayed on of the bar.
+     * @param c		The color of the scale bar. If <code>null</code> the default
+     * 				color is set.
+     */
+    public static void paintScaleBar(Graphics2D g2D, int x, int y, int l, 
+                                String s, Color c)
+    {
         FontMetrics fontMetrics = g2D.getFontMetrics();
         int hFont = fontMetrics.getHeight()/3;
-        g2D.setColor(UNIT_BAR_COLOR);
+        if (c == null) c = UNIT_BAR_COLOR;
+        g2D.setColor(c);
         g2D.drawString(s, x+(l-fontMetrics.stringWidth(s))/2+1, y-hFont);
         g2D.setStroke(UNIT_BAR_STROKE);
         g2D.drawLine(x, y, x+l, y);

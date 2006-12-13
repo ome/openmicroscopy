@@ -98,9 +98,9 @@ public class ColourSwatchUI
 	
 	  /** The JLabel representing the colour alpha channel. */
 	private JLabel						alphaLabel;
+	
 	/** Action listener for alpha TextBox.  */
 	private ActionListener				alphaTextboxActionListener;
-
 
 	/**
 	 * Boolean variable, true if the current component is active, this is 
@@ -109,13 +109,14 @@ public class ColourSwatchUI
 	 */
 	private boolean						active;
 	
-	
 	/**
 	 * Create the UI and attach the control c.
-	 * @param c - control
+	 * 
+	 * @param c  Reference to the control. Mustn't be <code>null</code>.
 	 */
 	ColourSwatchUI(RGBControl c)
 	{
+		if (c == null) throw new IllegalArgumentException("No control.");
 		control = c;
 		createUI();
 		active = false;
@@ -125,7 +126,8 @@ public class ColourSwatchUI
 	 * Sets the current component Active, called from parent control letting 
 	 * this component know it should listen to refresh events. 
 	 * 
-	 * @param act active or not.
+	 * @param act 	Pass <code>true</code> to set the component to active,
+	 * 				<code>false</code> otherwise..
 	 */
 	void setActive(boolean act) { active = act; }
 	
@@ -135,8 +137,8 @@ public class ColourSwatchUI
 	 */
 	void createAlphaSlider()
 	{
-		Color s1,s;
-		Color e1,e;
+		Color s1, s;
+		Color e1, e;
 	
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
@@ -187,20 +189,18 @@ public class ColourSwatchUI
 	{
 		colourlist = new JList(
 				new Object[] {	
-				
-						new Object[] {Color.blue,"Blue"},
-						new Object[] {Color.green,"Green"},
-						new Object[] {Color.red,"Red"},
-						new Object[] {Color.white,"White"},
-						new Object[] {Color.gray,"Gray"},
-						new Object[] {Color.orange,"Orange"},
-						new Object[] {Color.yellow,"Yellow"},
-						new Object[] {new Color(75, 0, 130),"Indigo"},
-						new Object[] {new Color(238,130,238),"Violet"},
+						new Object[] {Color.blue, "Blue"},
+						new Object[] {Color.green, "Green"},
+						new Object[] {Color.red, "Red"},
+						new Object[] {Color.white, "White"},
+						new Object[] {Color.gray, "Gray"},
+						new Object[] {Color.orange, "Orange"},
+						new Object[] {Color.yellow, "Yellow"},
+						new Object[] {new Color(75, 0, 130), "Indigo"},
+						new Object[] {new Color(238, 130, 238), "Violet"},
 							
 				});
 		colourlist.setCellRenderer(new ColourListRenderer());
-		
 	}
 	
 	/**
@@ -219,9 +219,9 @@ public class ColourSwatchUI
 				public void valueChanged(ListSelectionEvent e)
 				{
 					Object []Obj = (Object[]) 
-					colourlist.getModel().getElementAt(((JList)e.getSource()).
+					colourlist.getModel().getElementAt(((JList) e.getSource()).
 							getLeadSelectionIndex());
-					control.setColour((Color)Obj[0]);	
+					control.setColour((Color) Obj[0]);	
 		}
 
 		});
@@ -235,7 +235,7 @@ public class ColourSwatchUI
 		gbc.weighty = 580;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(10,10,10,10);
+		gbc.insets = new Insets(10, 10, 10, 10);
 		this.add(scrollpane, gbc);
 		gbc.gridx = 0;
 		gbc.gridy = 1;
@@ -243,30 +243,18 @@ public class ColourSwatchUI
 		gbc.weighty = 5;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
+		gbc.insets = new Insets(0, 5, 0, 5);
 		
 		this.add(alphaLabel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(alphaSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 2;
 		gbc.weightx = 20;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(alphaTextbox,gbc);
-	
 	}
 	
 	/** 
@@ -275,14 +263,12 @@ public class ColourSwatchUI
 	 */
 	void refresh() 
 	{
-		if (active)
-		{
-			removeListeners();
-			updateSliders();
-			updateTextboxes();
-			addListeners();
-			repaint();
-		}
+		if (!(active)) return;
+		removeListeners();
+		updateSliders();
+		updateTextboxes();
+		addListeners();
+		repaint();
 	}
 
 	/**
@@ -327,10 +313,7 @@ public class ColourSwatchUI
 	 * Updates the sliders of the UI, including changing the colour gradient
 	 * of the different slider tracks.
 	 */
-	void updateSliders()
-	{
-		updateAlphaSlider();
-	}
+	void updateSliders() { updateAlphaSlider(); }
 
 	/** Updates the textboxes of the UI.  */
 	void updateTextboxes()

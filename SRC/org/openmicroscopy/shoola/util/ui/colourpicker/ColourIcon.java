@@ -78,25 +78,25 @@ class ColourIcon
 		w = width;
 		h = height;
 	}
-	
-	/** 
-     * Overriden to return the set height of the icon.
-	 * @see javax.swing.Icon#getIconHeight()
-	 */
-	public int getIconHeight() { return h; }
-
-    /** 
-     * Overriden to return the set width of the icon.
-     * @see javax.swing.Icon#getIconWidth()
-     */
-	public int getIconWidth() { return w; }
 
 	/**
-	 * Sets the colour of the icon
+	 * Sets the colour of the icon.
 	 * 
 	 * @param c The colour to set.
 	 */
 	public void setColour(Color c) { colour = c; }
+	
+	/** 
+     * Overridden to return the set height of the icon.
+	 * @see Icon#getIconHeight()
+	 */
+	public int getIconHeight() { return h; }
+
+    /** 
+     * Overridden to return the set width of the icon.
+     * @see Icon#getIconWidth()
+     */
+	public int getIconWidth() { return w; }
 	
 	/**
      * Overridden to paint filled colour icon.

@@ -915,6 +915,18 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getUnitBarColor()
+     */
+    public Color getUnitBarColor()
+    {
+        if (model.getState() == DISCARDED)
+            throw new IllegalStateException("The method cannot be invoked in " +
+                    "the DISCARDED state.");
+        return model.getBrowser().getUnitBarColor();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getImageIcon()
      */
     public ImageIcon getImageIcon()

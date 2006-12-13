@@ -64,16 +64,16 @@ class RGBModel
     /** Original alpha Component of the model. */
 	private float		originalAlpha;
 	
-	/** Red component of the model, as float between 0..1 */
+	/** Red component of the model, as float between [0..1]. */
 	private float 		red; 
 	
-	/** Green component of the model, as float between 0..1  */
+	/** Green component of the model, as float between [0..1]. */
 	private float 		green; 
 	
-	/** Blue component of the model, as float between 0..1  */
+	/** Blue component of the model, as float between [0..1]. */
 	private float 		blue; 
 	
-	/** Alpha component of the model, as float between 0..1 */
+	/** Alpha component of the model, as float between [0..1]. */
 	private float 		alpha; 
 	
     /**
@@ -389,9 +389,9 @@ class RGBModel
 	 * Converts 3 float parameters (h, s, v) to 3 float 
 	 * RGB values which it returns.
 	 * 
-	 * @param h hue (0..1).
-	 * @param s saturation (0..1).
-	 * @param v value (0..1).
+	 * @param h hue, value in [0..1]..
+	 * @param s saturation, value in [0..1].
+	 * @param v value, value in [0..1].
 	 * @return array of floats representing RGB.
 	 */
 	float [] HSVtoRGB(float h, float s, float v)

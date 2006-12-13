@@ -99,7 +99,6 @@ class PaintPotUI
 	/** Y coordinates of the polygons to represent the colour pots. */
 	private int[]					bottomYPoints; 
 	
-    
     /**
      * Creates the UI elements of the paint pot, the two colour parts of the 
      * white rect, the top half representing the colour without the alpha 
@@ -113,8 +112,8 @@ class PaintPotUI
         topYPoints = new int[3];
         bottomXPoints = new int[3];
         bottomYPoints = new int[3];
-        strokeRect =    new Rectangle2D.Double(0, 0, w-1, h-1);
-        whiteRect =     new Rectangle2D.Double(1, 1, w-2, h-2);
+        strokeRect = new Rectangle2D.Double(0, 0, w-1, h-1);
+        whiteRect = new Rectangle2D.Double(1, 1, w-2, h-2);
         
         topXPoints[0] = (int) whiteRect.getX();
         topXPoints[1] = (int) (whiteRect.getX()+whiteRect.getWidth());
@@ -166,8 +165,7 @@ class PaintPotUI
 	 */
 	PaintPotUI(RGBControl c)
 	{
-        if (c == null)
-            throw new NullPointerException("No control.");
+        if (c == null) throw new NullPointerException("No control.");
 		control = c;
 		stack = new MatrixStack();
 		createUI();
@@ -186,8 +184,7 @@ class PaintPotUI
 	}
     
     /**
-     * Overridden, calls render after, super.paintComponent. Which renders the
-     * paint pot. 
+     * Overridden to render the paint pot. 
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)

@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -250,6 +251,13 @@ class ImgSaverPreviewer
      * @return See above.
      */
     String getUnitBarValue() { return model.getUnitBarValue(); }
+    
+    /**
+     * Returns the color of the unit bar.
+     * 
+     * @return See above.
+     */
+    Color getUnitBarColor() { return model.getUnitBarColor(); }
     
     /**
      * Returns the size of the unit bar.

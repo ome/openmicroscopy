@@ -200,8 +200,8 @@ class RGBSliderUI
 	 */ 
 	void createGreenSlider()
 	{
-		Color s1,s;
-		Color e1,e;
+		Color s1, s;
+		Color e1, e;
 	
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), 0, s1.getBlue(), 255);
@@ -219,7 +219,6 @@ class RGBSliderUI
 		}
 		};
 		greenSlider.addChangeListener(greenChangeListener);
-		
 	}
 
 	/**
@@ -228,8 +227,8 @@ class RGBSliderUI
 	 */
 	void createBlueSlider()
 	{
-		Color s1,s;
-		Color e1,e;
+		Color s1, s;
+		Color e1, e;
 			
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), s1.getGreen(), 0, 255);
@@ -255,8 +254,8 @@ class RGBSliderUI
 	 */
 	void createAlphaSlider()
 	{
-		Color s1,s;
-		Color e1,e;
+		Color s1, s;
+		Color e1, e;
 	
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
@@ -387,117 +386,59 @@ class RGBSliderUI
 		gbc.weighty = 5;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
+		gbc.insets = new Insets(0, 5, 0, 5);
 		
 		this.add(redLabel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(redSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		gbc.weightx = 20;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(redTextbox,gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(greenLabel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(greenSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 3;
 		gbc.weightx = 20;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(greenTextbox,gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 4;
 		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(blueLabel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 5;
-		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(blueSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 5;
 		gbc.weightx = 20;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(blueTextbox,gbc);
+		
 		gbc.gridx = 0;
 		gbc.gridy = 6;
 		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(alphaLabel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 7;
-		gbc.weightx = 80;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(alphaSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 7;
 		gbc.weightx = 20;
-		gbc.weighty = 5;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0,5,0,5);
-		
 		this.add(alphaTextbox,gbc);
 	
 	}
@@ -528,12 +469,12 @@ class RGBSliderUI
 	 */
 	void updateRedSlider()
 	{
-		Color s,s1,e;
+		Color s, s1, e;
 		redSlider.setValue((int) (control.getRed()*255));
 		s1 = control.getColour();
-		s = new Color(0,s1.getGreen(), s1.getBlue(), 255);
+		s = new Color(0, s1.getGreen(), s1.getBlue(), 255);
 		
-		e = new Color(255,s1.getGreen(), s1.getBlue(), 255);
+		e = new Color(255, s1.getGreen(), s1.getBlue(), 255);
 		redSlider.setRGBStart(s);
 		redSlider.setRGBEnd(e);
 	}
@@ -544,7 +485,7 @@ class RGBSliderUI
 	 */
 	void updateGreenSlider()
 	{
-		Color s,s1,e;
+		Color s, s1, e;
 		greenSlider.setValue((int) (control.getGreen()*255));
 		s1 = control.getColour();
 		s = new Color(s1.getRed(), 0, s1.getBlue(), 255);
@@ -613,14 +554,12 @@ class RGBSliderUI
 	 */
 	void refresh() 
 	{
-		if (active)
-		{
-			removeListeners();
-			updateSliders();
-			updateTextboxes();
-			addListeners();
-			repaint();
-		}
+		if (!(active)) return;
+		removeListeners();
+		updateSliders();
+		updateTextboxes();
+		addListeners();
+		repaint();
 	}
 
 	/**

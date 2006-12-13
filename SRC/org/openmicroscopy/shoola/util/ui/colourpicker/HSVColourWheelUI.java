@@ -259,35 +259,31 @@ class HSVColourWheelUI
 	/** Updates UI components based on chahnges to the model. */
 	void refresh() 
 	{
-		if (active)
-		{
-			removeListeners();
-			alphaSlider.setValue((int) (control.getAlpha()*255));
-			Color col = control.getColour();
-			Color start = new Color(col.getRed(), col.getGreen(), 
-					col.getBlue(), 0);
-			Color end = new Color(col.getRed(), col.getGreen(),
-					col.getBlue(), 255);
-			alphaSlider.setRGBStart(start);
-			alphaSlider.setRGBEnd(end);
-			alphaTextbox.setText((int) (control.getAlpha()*255)+"");
-			
-			wheel.findPuck();
-			wheel.refresh();
-			alphaTextbox.repaint();
-			
-			HSV startcol = new HSV(wheel.getHue(), wheel.getSaturation(), 1, 1);
-			HSV endcol = new HSV(wheel.getHue(), wheel.getSaturation(), 0, 1);
-			HSVSlider.setHSVStart(startcol);
-			HSVSlider.setHSVEnd(endcol);
-			HSVSlider.setValue((int) (control.getValue()*255));
-			
-			wheel.repaint();
-			HSVSlider.repaint();
-			alphaSlider.repaint();
-			addListeners();
-			repaint();
-		}
+		if (!(active)) return;
+		removeListeners();
+		alphaSlider.setValue((int) (control.getAlpha()*255));
+		Color col = control.getColour();
+		Color start = new Color(col.getRed(), col.getGreen(), col.getBlue(), 0);
+		Color end = new Color(col.getRed(), col.getGreen(), col.getBlue(), 255);
+		alphaSlider.setRGBStart(start);
+		alphaSlider.setRGBEnd(end);
+		alphaTextbox.setText((int) (control.getAlpha()*255)+"");
+		
+		wheel.findPuck();
+		wheel.refresh();
+		alphaTextbox.repaint();
+		
+		HSV startcol = new HSV(wheel.getHue(), wheel.getSaturation(), 1, 1);
+		HSV endcol = new HSV(wheel.getHue(), wheel.getSaturation(), 0, 1);
+		HSVSlider.setHSVStart(startcol);
+		HSVSlider.setHSVEnd(endcol);
+		HSVSlider.setValue((int) (control.getValue()*255));
+		
+		wheel.repaint();
+		HSVSlider.repaint();
+		alphaSlider.repaint();
+		addListeners();
+		repaint();
 	}
 	
 	/**

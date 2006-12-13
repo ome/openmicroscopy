@@ -82,6 +82,7 @@ class BrowserCanvas
         setDoubleBuffered(true);
     }
 
+    
     /**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -94,30 +95,31 @@ class BrowserCanvas
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         g2D.drawImage(img, null, 0, 0); 
-        if (model.isUnitBar()) {
-            String value = model.getUnitBarValue(); 
-            if (value != null) {
-                int size = (int) (model.getUnitBarSize());
-                
-                // Position scalebar in the bottom left of the viewport or
-                // the image which ever is viewable. 
-                Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
-                		img.getHeight());
-                Rectangle viewRect = view.getViewport().getBounds();
-                int x = (int) view.getViewport().getViewPosition().getX();
-                int y = (int) view.getViewport().getViewPosition().getY();
-                int width = Math.min(x+viewRect.width, img.getWidth());
-                int height = Math.min(y+viewRect.height, img.getHeight());
-                if (imgRect.contains(viewRect)) {
-                    width = x+viewRect.width;
-                    height = y+viewRect.height;
-                }
-                
-                if (viewRect.width >= size)
-                	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
-                										height-10, size, value);
-            }
+        if (!(model.isUnitBar())) return;
+        
+        String value = model.getUnitBarValue(); 
+        if (value == null) return;
+        
+        int size = (int) (model.getUnitBarSize());
+        
+        // Position scalebar in the bottom left of the viewport or
+        // the image which ever is viewable. 
+        Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
+        		img.getHeight());
+        Rectangle viewRect = view.getViewport().getBounds();
+        int x = (int) view.getViewport().getViewPosition().getX();
+        int y = (int) view.getViewport().getViewPosition().getY();
+        int width = Math.min(x+viewRect.width, img.getWidth());
+        int height = Math.min(y+viewRect.height, img.getHeight());
+        if (imgRect.contains(viewRect)) {
+            width = x+viewRect.width;
+            height = y+viewRect.height;
         }
+        
+        if (viewRect.width >= size)
+        	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
+        							height-10, size, value, 
+        							model.getUnitBarColor());
     }
     
 }

@@ -74,13 +74,13 @@ class TabbedPaneUI
 {
 	
 	/** Used by card layout to select colour wheel panel. */
-	static final String COLOURWHEELPANE = "Colour Wheel Pane"; 	
+	private static final String COLOURWHEELPANE = "Colour Wheel Pane"; 	
 	
 	/** Used by card layout to select RGB Slider panel. */
-	static final String RGBSLIDERPANE = "RGB Slider Pane"; 	
+	private static final String RGBSLIDERPANE = "RGB Slider Pane"; 	
 	
 	/** Used by card layout to select swatch panel. */
-	static final String SWATCHPANE = "Swatch Pane"; 	
+	private static final String SWATCHPANE = "Swatch Pane"; 	
 	
 	/**
 	 * Toolbar contains the buttons to select the HSVWheelUI, RGB Selector
@@ -233,7 +233,6 @@ class TabbedPaneUI
      */
     private void createActionbar()
     {
-    	
         userActionPanel = new JPanel();
         userActionPanel.setLayout(new FlowLayout());
         
@@ -253,10 +252,7 @@ class TabbedPaneUI
         revertButton.setBorderPainted(true);
         revertButtonAction = new AbstractAction("Revert Button Action") 
         {
-            public void actionPerformed(ActionEvent evt) 
-            {
-                revertAction();
-            }
+            public void actionPerformed(ActionEvent evt)  { revertAction(); }
         };
         revertButton.addActionListener(revertButtonAction);
         
@@ -266,10 +262,7 @@ class TabbedPaneUI
         cancelButton.setBorderPainted(true);
         cancelButtonAction = new AbstractAction("Cancel Button Action") 
         {
-            public void actionPerformed(ActionEvent evt) 
-            {
-                parent.cancel();
-            }
+            public void actionPerformed(ActionEvent evt) { parent.cancel(); }
         };
         cancelButton.addActionListener(cancelButtonAction);
         
@@ -317,7 +310,6 @@ class TabbedPaneUI
         add(tabPanel);
         add(userActionPanel);
         pickSwatchPane();
-        
     }
     
     /** Clear all buttons. */
@@ -327,7 +319,6 @@ class TabbedPaneUI
         RGBSlidersButton.setSelected(false);
         colourSwatchButton.setSelected(false);
     }
-    
     
     /** Sets Wheelbutton as picked and make it visible. */
     private void pickWheelPane()
@@ -390,10 +381,7 @@ class TabbedPaneUI
 	 * User has clicked revert button. Revert current colour to the original 
 	 * colour choice passed to Colourpicker.
 	 */
-	void revertAction()
-	{
-		control.revert();
-	}
+	void revertAction() { control.revert(); }
 
 	/** 
 	 * Listens to ChangeEvent. 
@@ -402,14 +390,11 @@ class TabbedPaneUI
 	public void stateChanged(ChangeEvent arg0) 
 	{
 		if (RGBSliderPane != null)
-			if( RGBSliderPane.isVisible())
-				RGBSliderPane.refresh();
+			if (RGBSliderPane.isVisible()) RGBSliderPane.refresh();
 		if (colourWheelPane != null)
-			if( colourWheelPane.isVisible())
-				colourWheelPane.refresh();
+			if (colourWheelPane.isVisible()) colourWheelPane.refresh();
 		if (swatchPane != null)
-			if( swatchPane.isVisible())
-				swatchPane.refresh();
+			if (swatchPane.isVisible()) swatchPane.refresh();
 	}
 
 }

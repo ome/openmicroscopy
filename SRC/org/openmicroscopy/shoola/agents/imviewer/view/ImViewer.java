@@ -460,7 +460,14 @@ public interface ImViewer
     public double getUnitBarSize();
     
     /**
-     * Returns a icon version of the viewed image.
+     * Returns the color of the unit bar.
+     * 
+     * @return See above.
+     */
+    public Color getUnitBarColor();
+    
+    /**
+     * Returns an iconified version of the viewed image.
      * 
      * @return See above.
      */

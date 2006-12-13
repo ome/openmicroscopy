@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 class HSVWheel 
 		extends JPanel
 {
+	
 	/**
 	 * The colour wheel is created as an bufferedImage which is created
 	 * in createColourWheel. 
@@ -108,10 +109,10 @@ class HSVWheel
 	/**
 	 * Maps from 4 ints to 4 byte colour.
 	 * 
-	 * @param a The alpha (0..255)
-	 * @param r The red   (0..255)
-	 * @param g The greed (0..255)
-	 * @param b The blue  (0..255) 
+	 * @param a The alpha component, value in [0..255].
+	 * @param r The red component, value in [0..255].
+	 * @param g The greed component, value in [0..255].
+	 * @param b The blue component, value in [0..255].
 	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
 	 */
 	private int makeARGB(int a, int r, int g, int b)
@@ -171,13 +172,13 @@ class HSVWheel
 					xd  = x/fsz;
 					yd  = y/fsz;
 					sd  = (s/fsz);
-					if( sd != 0 )
+					if (sd != 0)
 						angle = (float) Math.toDegrees(Math.acos(xd/sd));
 					else angle = 90;
 					
 					if (yd < 0) angle = 360-angle;
 					Hi = ((int) angle/60)%6;
-					switch(Hi) {
+					switch (Hi) {
     					case 0:
     						f = ((angle/60.0f)-Hi);
     						p = (value)*(1-sd);
@@ -241,16 +242,6 @@ class HSVWheel
 	{
 		lut = new int[(int) wheelwidth][(int) wheelwidth][3];
 		buildComponents();
-	}
-	
-	/**
-	 * Overridden, calls the super
-	 * @see javax.swing.JComponent#paintComponent(Graphics)
-	 */
-	public void paintComponent(Graphics g)
-	{
-		super.paintComponent(g);
-		render((Graphics2D) g);
 	}
 	
 	/**
@@ -346,15 +337,13 @@ class HSVWheel
 		g.drawImage(img, 0, 0, (int) wheelwidth, (int) wheelwidth, null);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                  RenderingHints.VALUE_ANTIALIAS_OFF);
-	
-		if (puck != null)
-		{
-			g.setStroke(new BasicStroke(1.0f));
-			g.setPaint(puckfillColour);
-			g.fillRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
-			g.setPaint(puckColour);
-			g.drawRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
-		}  
+		if (puck == null) return;
+		
+		g.setStroke(new BasicStroke(1.0f));
+		g.setPaint(puckfillColour);
+		g.fillRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
+		g.setPaint(puckColour);
+		g.drawRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);  
 	}
 
 	/**
@@ -405,8 +394,9 @@ class HSVWheel
 	 * Method called on mousedown, checks to see if either the colourwheel,
 	 * has been picked, if so set puck to the new x, y position and post 
 	 * statechanged event.  
-	 * @param x  mouse x position.
-	 * @param y  mouse x position.
+	 * 
+	 * @param x  The mouse x position.
+	 * @param y  The mouse x position.
 	 */
 	void mouseDown(int x, int y) { if (picked(x, y)) fireChangeEvent(); }
 	
@@ -415,8 +405,8 @@ class HSVWheel
 	 * has been picked, if so set puck to the new x, y position and post 
 	 * statechanged event. 
 	 * 
-	 * @param x  mouse x position.
-	 * @param y  mouse x position.
+	 * @param x  The mouse x position.
+	 * @param y  The mouse x position.
 	 */
 	void mouseDrag(int x, int y) { if (picked(x, y)) fireChangeEvent(); }
 	
@@ -466,7 +456,17 @@ class HSVWheel
         super.setBounds(r);
         changePanelSize();
     }
-    
+
+	/**
+	 * Overridden to render the color wheel.
+	 * @see javax.swing.JComponent#paintComponent(Graphics)
+	 */
+	public void paintComponent(Graphics g)
+	{
+		super.paintComponent(g);
+		render((Graphics2D) g);
+	}
+	
 }
 
 
