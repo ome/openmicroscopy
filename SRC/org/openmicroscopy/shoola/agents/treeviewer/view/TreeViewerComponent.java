@@ -491,15 +491,26 @@ class TreeViewerComponent
             case DISCARDED:
             case SAVE:  
                 throw new IllegalStateException("This method cannot be " +
-                        "invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-                        "state");
+                        "invoked in the DISCARDED, SAVE state.");
         }
         int editor = model.getEditorType();
         if (editor != TreeViewer.CREATE_EDITOR) {
             removeEditor();
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
-        } else removeEditor();
+        } else {
+        	Browser browser = model.getSelectedBrowser();
+        	if (browser != null) {
+        		TreeImageDisplay d = browser.getLastSelectedDisplay();
+        		if (d != null && (d.getUserObject() instanceof ImageData)) {
+        			int index = EditorFactory.getEditorSelectedPane();
+        			if (index == Editor.INFO_INDEX)
+        				EditorFactory.setEditorSelectedPane(
+        						Editor.PROPERTIES_INDEX);
+        		}
+        	}
+        	removeEditor();
+        }
     }
 
     /**

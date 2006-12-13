@@ -119,6 +119,9 @@ public interface Editor
 	public static final int			PROPERTIES_INDEX = 
 											EditorUI.PROPERTIES_INDEX;
     
+	/** The index of the <code>Info</code> pane. */
+	public static final int			INFO_INDEX = EditorUI.INFO_INDEX;
+	
     /** Bounds property to indicate to close the {@link Editor}. */
     public static final String      CLOSE_EDITOR_PROPERTY = "closeEditor";
     

@@ -494,7 +494,11 @@ abstract class HiViewerModel
 			dataHandler = null;
 		}
 	}
-	   
+	 
+	/** 
+	 * Sets the state to <code>READY</code> when the <code>DataObject</code>
+	 * is saved.
+	 */
 	void onDataObjectSave()
 	{
 		state = HiViewer.READY;
