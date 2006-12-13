@@ -31,12 +31,16 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ejb.EJBAccessException;
 
 
 //Third-party libraries
@@ -49,9 +53,13 @@ import ome.api.IQuery;
 import ome.api.IThumb;
 import ome.api.IUpdate;
 import ome.api.ThumbnailStore;
+import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -110,6 +118,7 @@ class OMEROGateway
     /** Server instance to log in. */
     private Server                  server;
     
+    /** The port to use in order to connect. */
     private int                     port;
     
     /**
@@ -119,51 +128,42 @@ class OMEROGateway
      * This method is not supposed to be used in this class' constructor or in
      * the login/logout methods.
      *  
-     * @param e     The exception.
-     * @param contextMessage    The context message.    
+     * @param e     	The exception.
+     * @param message	The context message.    
      * @throws DSOutOfServiceException  A connection problem.
      * @throws DSAccessException    A server-side error.
      */
-    private void handleException(Exception e, String contextMessage) 
+    private void handleException(Exception e, String message) 
         throws DSOutOfServiceException, DSAccessException
     {
-        //TODO: handle errors
-        e.printStackTrace(); 
-        throw new DSAccessException(contextMessage, e);
-        //if (e instanceof AuthenticationE)
-        //TODO
-        /*
-        if (e instanceof IllegalArgumentException) {
-            //TMP, thrown by PixelsFactory.
-            throw new DSAccessException(contextMessage, e);
-        } else {
-            //This should never be reached.  If so, there's a yet another
-            //bug in OME-JAVA.
-            logout();  //Will set connected=false.
-            throw new RuntimeException("Internal error.", e);
-        }
-        */
+    	if (e instanceof SecurityException) {
+    		String s = "Cannot access data for security reasons \n"; 
+    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
+    	} else if (e instanceof EJBAccessException) {
+    		String s = "Cannot access data for security reasons \n"; 
+    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
+    	} else if (e instanceof ApiUsageException) {
+    		String s = "Cannot access data, specified parameters not valid \n"; 
+    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
+    	} else if (e instanceof ValidationException) {
+    		String s = "Cannot access data, specified parameters not valid \n"; 
+    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
+    	} else 
+    		throw new DSOutOfServiceException(message+"\n\n"+printErrorText(e));
     }
     
     /**
-     * Utility method to print the contents of a list in a string.
+     * Utility method to print the error message
      * 
-     * @param l     The list.
+     * @param e The exception to handle.
      * @return  See above.
      */
-    private String printList(List l) 
+    private String printErrorText(Exception e) 
     {
-        StringBuffer buf = new StringBuffer();
-        if (l == null)  buf.append("<null> list");
-        else if (l.size() == 0)     buf.append("empty list");
-        else {
-            Iterator i = l.iterator();
-            while (i.hasNext()) {
-                buf.append(i.next());
-                buf.append(" ");
-            }
-        }
-        return buf.toString();
+    	StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
     
     /**
@@ -272,7 +272,7 @@ class OMEROGateway
             }
             return data;
         } catch (Exception e) {
-            e.printStackTrace(); 
+        	e.printStackTrace();
             throw new DSOutOfServiceException("Cannot retrieve user's " +
                     						"data", e);
         }
@@ -306,7 +306,7 @@ class OMEROGateway
      */
     private ThumbnailStore getThumbService()
     { 
-        //if (thumbnailService == null) 
+        if (thumbnailService == null) 
             thumbnailService = entry.createThumbnailService();
         return thumbnailService; 
     }
@@ -370,7 +370,6 @@ class OMEROGateway
         } catch (Exception e) {
             connected = false;
             String s = "Can't connect to OMERO. OMERO info not valid.";
-            e.printStackTrace();
             throw new DSOutOfServiceException(s, e);  
         } 
     }
@@ -447,7 +446,6 @@ class OMEROGateway
             return PojoMapper.asDataObjects(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
         } catch (Exception e) {
-            e.printStackTrace();
             handleException(e, "Cannot find hierarchy for "+rootNodeType+".");
         }
         return new HashSet();
@@ -831,7 +829,7 @@ class OMEROGateway
             return pixs.getChannels();
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the channelsData for "+
-                                "the pixels set.");
+                                "the pixels set "+pixelsID);
         }
         return null;
      }
