@@ -52,7 +52,8 @@ import src.adminTool.usersPanel.UsersTabController;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the main panel containing all the tabs, each with different
+ * administrative actions; user, group and later server tabs.  
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

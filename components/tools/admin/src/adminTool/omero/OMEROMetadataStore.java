@@ -88,6 +88,8 @@ public class OMEROMetadataStore
     {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
+        if(password==null)
+        	password = new String("");
         if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
         else maskedPswd = "<empty>";
         

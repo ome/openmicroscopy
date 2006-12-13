@@ -47,9 +47,7 @@ import src.adminTool.ui.messenger.CommentMessenger;
 //Application-internal dependencies
 
 /** 
- * This is the colourpicker which instatiates a dialog. Once the user hits 
- * cancel or accept the dialog will disappear. It contains 3 panels, HSV wheel
- * RGB Sliders and ColourSwatchs. 
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;

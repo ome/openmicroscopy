@@ -41,8 +41,8 @@ import src.adminTool.ui.messenger.DebugMessenger;
 //Third-party libraries
 
 //Application-internal dependencies
+
 /** 
- * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
