@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html>
-<head><title>ome.api</title>
+<head><title>ome.conditions.acl</title>
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -30,34 +30,23 @@
 </head>
 <body bgcolor="white">
 
-Contains the central verbs of the Omero System.
-    
-<p>
-  The API as outlined by this package will be made available to all 
-  programming languages supported by Omero. Other "local" apis are available
-  for server only programming.
-</p>
+Exceptions thrown due to access control violations. 
   
-<p>
-  The interfaces contained here are also specially marked in order to allow
-  special processing by the container. StatefulServiceInterface, for example,
-  allows for the triggering of container events on creation and destruction
-  of a non-singleton service.
-</p>
-
 <h2>Related Documentation</h2>
 
-For more information, please see:
+For a discussion of these exceptions, please see:
 <ul>
   <li>
-    <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+API">
-    http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+API</a>
+    <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Exception+Handling">
+    http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Exception+Handling</a>
+  </li>
+  <li>
+    <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Security+System">
+    http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Security+System</a>
   </li>
 </ul>
 
 <!-- Put @see and @since tags down here. -->
-	@see ome.api.local.LocalQuery
-  @see ome.api.local.LocalUpdate
-  
+@see ome.conditions.RootException
 </body>
 </html>

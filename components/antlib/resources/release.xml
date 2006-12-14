@@ -120,13 +120,17 @@
 		<tag name="DEV.TODO" scope="all" description="To do:"/>
 
 		<group title="Common Packages" 
-			packages="ome.util:ome.api:ome.conditions"/>
-		<group title="Server Packages" 
-			packages="ome.services:ome.logic:ome.tools:ome.security:ome.io:ome.rules:omeis:ome.annotations:ome.api.local"/>
+			packages="ome.util*:ome.api:ome.conditions*:ome.parameters*:ome.system*:ome.testing*"/>
 		<group title="Client Packages" 
-			packages="ome.client:ome.adapaters"/>
+			packages="ome.client*:ome.adapaters*:pojos*"/>
+		<group title="Server Packages" 
+			packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
 		<group title="Model"
-			packages="ome.model:pojos"/>
+			packages="ome.model*"/>
+		<group title="Rendering"
+			packages="omeis*"/>
+		<group title="Deprecated"
+			packages="ome.dynamic*:ome.rules*"/>
 
  		<link href="http://java.sun.com/j2se/1.5/docs/api/"/>
 		<link href="http://www.springframework.org/docs/api/"/>
