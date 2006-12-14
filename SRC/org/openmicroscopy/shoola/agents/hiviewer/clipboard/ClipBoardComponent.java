@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,8 +192,12 @@ class ClipBoardComponent
                     "in the EDIT_ANNOTATIONS state.");
         if (object == null) retrieveAnnotations(object);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        
+        List l = new ArrayList(1);
+        l.add(object);
+        model.getParentModel().onDataObjectSave(l);
         retrieveAnnotations(object);
-        model.getParentModel().setAnnotationEdition(object);
+        //model.getParentModel().setAnnotationEdition(object);
     }
 
     /**

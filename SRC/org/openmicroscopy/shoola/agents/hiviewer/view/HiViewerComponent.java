@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindAnnotatedVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.cmd.DataSaveVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
@@ -452,25 +452,6 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setAnnotationEdition(DataObject)
-     */
-    public void setAnnotationEdition(DataObject ho)
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED state.");
-        if (ho == null) throw new IllegalArgumentException("No DataObject.");
-        Browser browser = model.getBrowser();
-        FindAnnotatedVisitor visitor = new FindAnnotatedVisitor(this, ho);
-        if (ho instanceof ImageData)
-            browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-        else browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
-        if (model.getTreeView() != null)
-        	model.getTreeView().repaint();
-    }
-
-    /**
-     * Implemented as specified by the {@link HiViewer} interface.
      * @see HiViewer#scrollToNode(ImageDisplay)
      */
     public void scrollToNode(ImageDisplay node)
@@ -705,12 +686,32 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#onDataObjectSave()
+     * @see HiViewer#onDataObjectSave(List)
      */
-	public void onDataObjectSave()
+	public void onDataObjectSave(List nodes)
 	{
-		if (model.getState() != SAVING_DATA_OBJECT) return;
+		switch (model.getState()) {
+			case DISCARDED:
+			case NEW:
+			case LOADING_THUMBNAILS:
+				return;
+			default:
+				break;
+		}
+		if ( nodes == null) {
+			model.onDataObjectSave();
+			fireStateChange();
+			return;
+		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		DataSaveVisitor visitor = new DataSaveVisitor(this, nodes);
+		Browser browser = model.getBrowser();
+		browser.accept(visitor);
+		browser.getUI().repaint();
+		if (model.getTreeView() != null)
+        	model.getTreeView().repaint();
 		model.onDataObjectSave();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		fireStateChange();
 	}
 
@@ -720,8 +721,9 @@ class HiViewerComponent
      */
 	public void refresh()
 	{
-		 model.fireHierarchyLoading(true);
-         fireStateChange();
+		//TODO check state.
+		model.fireHierarchyLoading(true);
+		fireStateChange();
 	}
 
 }

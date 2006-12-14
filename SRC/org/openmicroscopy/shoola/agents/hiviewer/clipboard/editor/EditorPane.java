@@ -229,6 +229,7 @@ public class EditorPane
         	uiDelegate.resetName();
         	return;
         }
+        uiDelegate.save();
         model.saveObject(object);
     }
     

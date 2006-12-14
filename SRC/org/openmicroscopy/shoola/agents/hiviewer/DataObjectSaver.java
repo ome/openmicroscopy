@@ -31,6 +31,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -102,8 +104,13 @@ public class DataObjectSaver
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.onDataObjectSave();
-        //viewer.setHierarchyRoots((Set) result, false);
+        if (result instanceof DataObject) {
+        	List set = new ArrayList(1);
+        	set.add(result);
+        	viewer.onDataObjectSave(set);
+        } else if (result instanceof List) {
+        	viewer.onDataObjectSave((List) result);
+        }
     }
     
 }

@@ -39,6 +39,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Action;
@@ -499,9 +500,11 @@ class HiViewerControl
             }  
         } else if (propName.equals(DataHandler.ANNOTATED_PROPERTY)) {
         	if (view.getDataHandler() == null) return;
+        	model.onDataObjectSave((List) pce.getNewValue());
         	view.discardDataHandler();
         } else if (propName.equals(DataHandler.CLASSIFIED_PROPERTY)) {
         	if (view.getDataHandler() == null) return;
+        	model.onDataObjectSave((List) pce.getNewValue());
         	view.discardDataHandler();
         }   	
     }

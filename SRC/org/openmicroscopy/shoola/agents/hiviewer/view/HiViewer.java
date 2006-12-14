@@ -346,13 +346,6 @@ public interface HiViewer
      * @return See above.
      */
     public Object getHierarchyObject();
-       
-    /**
-     * Sets the result of the annotation edition.
-     * 
-     * @param object The annotated object. Mustn't be <code>null</code>.
-     */
-    public void setAnnotationEdition(DataObject object);
 
     /**
      * Brings up on screen the specified {@link ImageDisplay node} if not
@@ -465,8 +458,10 @@ public interface HiViewer
 	/** 
 	 * Notifies the component that the <code>DataObject</code>s have been 
 	 * saved.
+	 * 
+	 * @param nodes The nodes to refresh.
 	 */
-	public void onDataObjectSave();
+	public void onDataObjectSave(List nodes);
 	
 	/** Refreshes the display. */
 	public void refresh();

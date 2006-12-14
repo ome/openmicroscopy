@@ -62,8 +62,14 @@ public class IconsVisitor
     implements ImageDisplayVisitor
 {
 
+	/** Helper reference. */
+	private IconManager icons;
+	
     /** Creates a new instance. */
-    public IconsVisitor() {}
+    public IconsVisitor()
+    {
+    	icons = IconManager.getInstance();
+    }
     
     /**
      * Sets a suitable icon for this node.
@@ -71,21 +77,20 @@ public class IconsVisitor
      */
     public void visit(ImageSet node)
     {
-        IconManager icons = IconManager.getInstance();
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof ProjectData)
-            node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
-        else if (ho instanceof DatasetData) {
-            if (node.isAnnotated())
-                node.setFrameIcon(icons.getIcon(IconManager.ANNOTATED_DATASET));
-            else 
-                node.setFrameIcon(icons.getIcon(IconManager.DATASET));
-        } else if (ho instanceof CategoryGroupData)
-            node.setFrameIcon(icons.getIcon(IconManager.CATEGORY_GROUP));
-        else if (ho instanceof CategoryData)
-            node.setFrameIcon(icons.getIcon(IconManager.CATEGORY));
-        if (node.getParentDisplay() == null)  //Root node.
-            node.setFrameIcon(icons.getIcon(IconManager.ROOT));
+    	Object ho = node.getHierarchyObject();
+    	if (ho instanceof ProjectData)
+    		node.setFrameIcon(icons.getIcon(IconManager.PROJECT));
+    	else if (ho instanceof DatasetData) {
+    		if (node.isAnnotated())
+    			node.setFrameIcon(icons.getIcon(IconManager.ANNOTATED_DATASET));
+    		else 
+    			node.setFrameIcon(icons.getIcon(IconManager.DATASET));
+    	} else if (ho instanceof CategoryGroupData)
+    		node.setFrameIcon(icons.getIcon(IconManager.CATEGORY_GROUP));
+    	else if (ho instanceof CategoryData)
+    		node.setFrameIcon(icons.getIcon(IconManager.CATEGORY));
+    	if (node.getParentDisplay() == null)  //Root node.
+    	node.setFrameIcon(icons.getIcon(IconManager.ROOT));
     }
     
     /**

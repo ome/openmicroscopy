@@ -447,4 +447,7 @@ class EditorPaneUI
         nameArea.getDocument().addDocumentListener(nameAreaListener);
     }
     
+    /** Enables the button when saving the data. */
+    void save() { finishButton.setEnabled(false); }
+    
 }

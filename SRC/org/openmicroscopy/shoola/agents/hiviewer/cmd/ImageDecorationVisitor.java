@@ -83,11 +83,9 @@ public class ImageDecorationVisitor
     public void visit(ImageNode node)
     {
         long id = ((ImageData) node.getHierarchyObject()).getId();
-        System.out.println("id: "+nodeIDs.contains(new Long(id)));
         if (nodeIDs.contains(new Long(id))) {
             node.setNodeDecoration();
-        }
-            
+        }     
     }
 
     /**

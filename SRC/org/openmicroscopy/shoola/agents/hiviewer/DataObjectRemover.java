@@ -32,7 +32,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
-import java.awt.Rectangle;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +39,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -141,11 +139,15 @@ public class DataObjectRemover
      */
     public void handleResult(Object result)
     {
+    	/*
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
         Rectangle oldBounds = viewer.getUI().getBounds();
         HiViewer newOne = HiViewerFactory.reinstantiate(viewer);
         viewer.discard();
         newOne.activate(oldBounds);
+        */
+    	if (viewer.getState() == HiViewer.DISCARDED) return;
+    	viewer.refresh();
     }
     
 }
