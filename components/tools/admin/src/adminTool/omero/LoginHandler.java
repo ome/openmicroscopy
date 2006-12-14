@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import src.adminTool.main.MainPanel;
+import src.adminTool.ui.ImageFactory;
 import src.adminTool.ui.LoginDialog;
 
 /**
@@ -84,13 +85,13 @@ public class LoginHandler
         // Display the initial login dialog
         displayLoginDialog(view);
         
-        view.statusBar.setStatusIcon("resources/graphx/server_trying16.png",
+        view.statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECT_TRYING),
         "Trying to connect.");
         try
         {
             if (!isValidLogin())
             {
-                view.statusBar.setStatusIcon("resources/graphx/error_msg16.png",
+                view.statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECT_FAILED),
                         "Incorrect username/password. Server login failed, please try to "
                                 + "log in again.");
 
@@ -107,7 +108,7 @@ public class LoginHandler
             e.printStackTrace(pw);
             log.info(sw);
 
-            view.statusBar.setStatusIcon("resources/graphx/error_msg16.png",
+            view.statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECT_FAILED),
                     "Server connection failure. Please try to login again.");
 
             JOptionPane
@@ -126,7 +127,7 @@ public class LoginHandler
 	    userPrefs.put("savedPortNo", port);
 
         view.loggedIn = true;
-        view.statusBar.setStatusIcon("resources/graphx/server_connect16.png",
+        view.statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECTED),
                 "Server connected.");
 
     }

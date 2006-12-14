@@ -52,6 +52,7 @@ import layout.TableLayout;
 
 import src.adminTool.model.Model;
 import src.adminTool.ui.GroupList;
+import src.adminTool.ui.ImageFactory;
 import src.adminTool.ui.UserGroupMembershipList;
 import src.adminTool.ui.UserList;
 import src.adminTool.ui.messenger.MessageBox;
@@ -283,11 +284,11 @@ public class UsersTab
 	
 	void createActionButtons()
 	{
-		ImageIcon addUserIcon = new ImageIcon("resources/graphx/addUser_kusers_nuvola48_mod3.png");
-		ImageIcon removeUserIcon = new ImageIcon("resources/graphx/removeUser_kusers_nuvola48_mod3.png");
-		ImageIcon addGroupIcon = new ImageIcon("resources/graphx/1rightarrow_nuvola32.png");
-		ImageIcon removeGroupIcon = new ImageIcon("resources/graphx/1leftarrow_nuvola32.png");
-		ImageIcon defaultGroupIcon = new ImageIcon("resources/graphx/kgpg_identity_nuvola32.png");
+		ImageIcon addUserIcon = ImageFactory.get().image(ImageFactory.ADD_USER);
+		ImageIcon removeUserIcon = ImageFactory.get().image(ImageFactory.REMOVE_USER);
+		ImageIcon addGroupIcon = ImageFactory.get().image(ImageFactory.RIGHT_ARROW);
+		ImageIcon removeGroupIcon = ImageFactory.get().image(ImageFactory.LEFT_ARROW);
+		ImageIcon defaultGroupIcon = ImageFactory.get().image(ImageFactory.DEFAULT_GROUP);
 		saveBtn = new JButton("Save");
 		resetPasswordBtn = new JButton("Reset Password");
 		setSystemBtn = new JButton("Set System User");

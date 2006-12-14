@@ -55,6 +55,7 @@ import layout.TableLayout;
 import src.adminTool.model.Model;
 import src.adminTool.ui.GroupList;
 import src.adminTool.ui.GroupMembershipList;
+import src.adminTool.ui.ImageFactory;
 import src.adminTool.ui.UserList;
 import src.adminTool.ui.messenger.MessageBox;
 
@@ -251,10 +252,10 @@ public class GroupsTab
 	void createActionButtons()
 	{
 		saveBtn = new JButton("Save");
-		ImageIcon addUserIcon = new ImageIcon("resources/graphx/1rightarrow_nuvola32.png"); 
-		ImageIcon removeUserIcon = new ImageIcon("resources/graphx/1leftarrow_nuvola32.png"); 
-		ImageIcon addGroupIcon = new ImageIcon("resources/graphx/addUser_kusers_nuvola48_mod3.png"); 
-		ImageIcon removeGroupIcon = new ImageIcon("resources/graphx/removeUser_kusers_nuvola48_mod3.png"); 
+		ImageIcon addUserIcon = ImageFactory.get().image(ImageFactory.LEFT_ARROW); 
+		ImageIcon removeUserIcon = ImageFactory.get().image(ImageFactory.RIGHT_ARROW);
+		ImageIcon addGroupIcon = ImageFactory.get().image(ImageFactory.ADD_USER); 
+		ImageIcon removeGroupIcon = ImageFactory.get().image(ImageFactory.REMOVE_USER); 
 		addUserBtn = new JButton(addUserIcon);
 		removeUserBtn = new JButton(removeUserIcon);
 		addGroupBtn = new JButton(addGroupIcon);

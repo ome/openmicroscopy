@@ -35,6 +35,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import src.adminTool.omero.LoginHandler;
+import src.adminTool.ui.ImageFactory;
 import src.adminTool.ui.StatusBar;
 import src.adminTool.ui.messenger.DebugMessenger;
 
@@ -75,7 +76,7 @@ public class MainPanel
 	
 	public void startLogin()
 	{
-		statusBar.setStatusIcon("resources/graphx/server_trying16.png",
+		statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECT_TRYING),
 	        "Trying to connect.");
 	    loginHandler = new LoginHandler(this);
 		if(loggedIn)
@@ -88,7 +89,7 @@ public class MainPanel
 	void createStatusBar()
 	{
 		statusBar = new StatusBar();
-		statusBar.setStatusIcon("resources/graphx/server_disconn16.png",
+		statusBar.setStatusIcon(ImageFactory.get().image(ImageFactory.SERVER_CONNECT_FAILED),
          "Not connected to Server. Please login for administration options.");
 
 	}

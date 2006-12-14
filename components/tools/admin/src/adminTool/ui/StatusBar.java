@@ -42,6 +42,9 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.Border;
 
+import src.adminTool.main.AdminMain;
+import src.adminTool.main.MainPanel;
+
 
 // Third-party libraries
 
@@ -159,22 +162,9 @@ public class StatusBar extends JPanel
     }
 
     /** Returns an ImageIcon, or null if the path was invalid. */
-    public void setStatusIcon(String path, String description)
+    public void setStatusIcon(ImageIcon icon, String description)
     {
-        if (path != null)
-        {
-//            java.net.URL imgURL = MainWindow.class.getResource(path);
-            if (path != null)
-            {
-                status.setIcon(new ImageIcon(path, description));
-            } else
-            {
-                System.err.println("Couldn't find icon: " + path);
-            }
-        } else
-        {
-            status.setIcon(null);
-        }
+        status.setIcon(icon);
         status.setText(description);
     }
 }
