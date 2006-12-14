@@ -77,7 +77,7 @@ public class DeclassifyAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
+    	if (selectedDisplay == null) {
             setEnabled(false);
             return;
         }
@@ -85,16 +85,7 @@ public class DeclassifyAction
         	setEnabled(false);
         	return;
         }
-        if (!(selectedDisplay.getHierarchyObject() instanceof ImageData)) {
-        	setEnabled(false);
-        	return;
-        }
-        if (model.getBrowser() == null) {
-        	setEnabled(false);
-        	return;
-        }
-        int n = model.getBrowser().getSelectedDisplays().size();
-        setEnabled(!(n > 1));
+        setEnabled(selectedDisplay.getHierarchyObject() instanceof ImageData);
     }
     
     /**

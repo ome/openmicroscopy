@@ -37,6 +37,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -504,7 +505,14 @@ class HiViewerControl
         	view.discardDataHandler();
         } else if (propName.equals(DataHandler.CLASSIFIED_PROPERTY)) {
         	if (view.getDataHandler() == null) return;
-        	model.onDataObjectSave((List) pce.getNewValue());
+        	if (pce.getNewValue() != null) {
+        		Set set = (Set) pce.getNewValue();
+        		List l = new ArrayList(set.size());
+        		Iterator i = set.iterator();
+        		while (i.hasNext()) 
+					l.add( i.next());
+        		model.onDataObjectSave(l);
+        	}
         	view.discardDataHandler();
         }   	
     }
