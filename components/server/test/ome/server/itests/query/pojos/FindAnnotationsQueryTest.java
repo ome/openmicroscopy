@@ -28,6 +28,7 @@ import ome.services.query.QueryParameterDef;
 import ome.testing.CreatePojosFixture;
 import ome.util.builders.PojoOptions;
 
+@Test( groups = { "broken", "ticket:541" } )
 public class FindAnnotationsQueryTest extends AbstractManagedContextTest
 {
     PojosFindAnnotationsQueryDefinition q;

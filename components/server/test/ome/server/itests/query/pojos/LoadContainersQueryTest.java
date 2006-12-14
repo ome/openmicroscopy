@@ -22,7 +22,7 @@ import ome.testing.ObjectFactory;
 import ome.util.IdBlock;
 import ome.util.builders.PojoOptions;
 
-@Test
+@Test( groups = { "broken", "ticket:541" } )
 public class LoadContainersQueryTest extends AbstractManagedContextTest
 {
     PojosLoadHierarchyQueryDefinition q;
