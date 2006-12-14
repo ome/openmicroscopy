@@ -136,6 +136,9 @@ class EditorPaneUI
     /** The title message. */
     private String          	message;
     
+    /** The name to be displayed. */
+    private String				originalName;
+    
     /**
      * Enables the {@link #finishButton} and removes the warning message
      * when the name of the <code>DataObject</code> is valid.
@@ -209,6 +212,7 @@ class EditorPaneUI
         });
         
         nameArea = new JTextField();
+        
         setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         setTextAreaDefault(descriptionArea);
@@ -371,6 +375,7 @@ class EditorPaneUI
     void setAreas(String name, String description, String title, 
                 boolean isWritable)
     {
+    	originalName = name;
         nameArea.setEnabled(isWritable);
         nameArea.getDocument().removeDocumentListener(nameAreaListener);
         nameArea.setText(name);
@@ -433,5 +438,13 @@ class EditorPaneUI
      * @param edit The value to set.
      */
     void setEdit(boolean edit) { this.edit = edit; }
+    
+    /** Resets the original. */
+    void resetName()
+    {
+    	nameArea.getDocument().removeDocumentListener(nameAreaListener);
+        nameArea.setText(originalName);
+        nameArea.getDocument().addDocumentListener(nameAreaListener);
+    }
     
 }

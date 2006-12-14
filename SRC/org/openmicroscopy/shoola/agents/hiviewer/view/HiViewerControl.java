@@ -499,10 +499,11 @@ class HiViewerControl
             }  
         } else if (propName.equals(DataHandler.ANNOTATED_PROPERTY)) {
         	if (view.getDataHandler() == null) return;
-        	//TODO: refresh
         	view.discardDataHandler();
-        }
-        	
+        } else if (propName.equals(DataHandler.CLASSIFIED_PROPERTY)) {
+        	if (view.getDataHandler() == null) return;
+        	view.discardDataHandler();
+        }   	
     }
 
 }

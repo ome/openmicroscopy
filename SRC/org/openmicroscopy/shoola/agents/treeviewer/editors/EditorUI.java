@@ -61,7 +61,9 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -674,6 +676,13 @@ class EditorUI
             doBasic.resetNameArea();
             handleNameAreaRemove(0);
             return;
+        }
+        if (s.length() > 255) {
+        	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo("Editor", "The name is too long. Cannot be more " +
+        			"than 255 characters long.");
+        	doBasic.resetName();
+        	return;
         }
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:

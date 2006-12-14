@@ -394,6 +394,19 @@ class DOBasic
         classifier.showClassifications();
     }
 
+    /** 
+     * Resets the value of the {@link #nameArea} when a wrong value 
+     * has been entered.
+     */
+    void resetName()
+    {
+    	nameArea.getDocument().removeDocumentListener(nameAreaListener);
+    	if (model.getEditorType() == Editor.PROPERTIES_EDITOR) 
+            nameArea.setText(model.getDataObjectName());
+        else nameArea.setText("");
+    	nameArea.getDocument().addDocumentListener(nameAreaListener);
+    }
+    
     /**
      * Checks if the name and/or description have been modified.
      * Returns <code>true</code> if modified, <code>false</code> otherwise.

@@ -40,10 +40,12 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -220,6 +222,13 @@ public class EditorPane
         if (name == null || name.length() == 0) return;
         DataObject object = fillDataObject();
         if (object == null) return;
+        if (name.length() > 255) {
+        	UserNotifier un = HiViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo("Editor", "The name is too long. Cannot be more " +
+        			"than 255 characters long.");
+        	uiDelegate.resetName();
+        	return;
+        }
         model.saveObject(object);
     }
     

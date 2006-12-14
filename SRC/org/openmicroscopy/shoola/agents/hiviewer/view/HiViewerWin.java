@@ -422,8 +422,10 @@ class HiViewerWin
         if (cb == null) return;
         if (b) {
             mainPane.setRightComponent(cb);
-            mainPane.setDividerLocation(lastMove);
-            mainPane.setResizeWeight(0);
+            if (lastMove != -1) {
+	            mainPane.setDividerLocation(lastMove);
+	            mainPane.setResizeWeight(0);
+            }
         } else {
             lastMove = mainPane.getDividerLocation();
             mainPane.remove(cb);
