@@ -64,6 +64,12 @@ public class ProjectLoader
     /** The id of the root project. */
     private Set        	projectsID;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
       
@@ -73,11 +79,14 @@ public class ProjectLoader
      * @param viewer    	The viewer this data loader is for.
      *                  	Mustn't be <code>null</code>.
      * @param projectsID 	The id of the root projects.
+     * @param refresh		Pass <code>false</code> if we retrieve the data for
+     * 						the first time, <code>true</code> otherwise.
      */
-    public ProjectLoader(HiViewer viewer, Set projectsID)
+    public ProjectLoader(HiViewer viewer, Set projectsID, boolean refresh)
     {
         super(viewer);
         this.projectsID = projectsID;
+        this.refresh = refresh;
     }
     
     /**
@@ -119,7 +128,7 @@ public class ProjectLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result, false);
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }

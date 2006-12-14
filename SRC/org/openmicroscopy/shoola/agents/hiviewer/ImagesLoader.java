@@ -61,6 +61,12 @@ public class ImagesLoader
     /** Collection of images' id to retrieve. */
     private Set         imagesID;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -70,11 +76,14 @@ public class ImagesLoader
      * @param viewer    The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
      * @param imagesID  The collection of images' id.
+     * @param refresh	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.
      */
-    public ImagesLoader(HiViewer viewer, Set imagesID)
+    public ImagesLoader(HiViewer viewer, Set imagesID, boolean refresh)
     {
         super(viewer);
         this.imagesID = imagesID;
+        this.refresh = refresh;
     }
     
     /**
@@ -100,7 +109,7 @@ public class ImagesLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;
-        viewer.setHierarchyRoots((Set) result, true);
+        viewer.setHierarchyRoots((Set) result, true, refresh);
     }
     
 }

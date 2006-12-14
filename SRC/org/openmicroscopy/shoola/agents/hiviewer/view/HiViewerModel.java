@@ -215,12 +215,38 @@ abstract class HiViewerModel
     /**
      * Starts the asynchronous retrieval of the hierarchy objects needed
      * by this model and sets the state to {@link HiViewer#LOADING_HIERARCHY}. 
+     * 
+     * @param refresh 	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.
      */
-    void fireHierarchyLoading()
+    void fireHierarchyLoading(boolean refresh)
     {
         state = HiViewer.LOADING_HIERARCHY;
-        currentLoader = createHierarchyLoader();
+        currentLoader = createHierarchyLoader(refresh);
         currentLoader.load();
+    }
+    
+    /**
+     * Refreshes the {@link Browser} component.
+     * 
+     * @param roots The root nodes.
+     * @param flat  Pass <code>false</code> if it's a true hierarchy, 
+     *              <code>true</code> if it's a collection of images to browse.
+     */
+    void refreshBrowser(Set roots, boolean flat)
+    {
+    	Set visTrees; 
+    	//Check if the objects are readable.
+    	long userID = getUserDetails().getId();
+    	if (flat) visTrees = HiTranslator.transformImages(roots, userID, 
+    			groupID);
+    	else visTrees = HiTranslator.transformHierarchy(roots, userID, groupID);
+    	int layoutIndex = browser.getSelectedLayout();
+    	browser = BrowserFactory.createBrowser(visTrees);
+    	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
+        browser.setSelectedLayout(layout.getIndex());
+        browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+        browser.accept(new IconsVisitor(), ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
     
     /**
@@ -255,7 +281,6 @@ abstract class HiViewerModel
     /**
      * Creates a {@link ClipBoard} component to manage the browsed
      * hierarchy trees.
-     * 
      */
     void createClipBoard()
     {
@@ -534,9 +559,11 @@ abstract class HiViewerModel
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
      * 
+     * @param refresh	Pass <code>false</code> if we load data for the first 
+     * 					time, <code>true</code> otherwise.
      * @return A suitable data loader.
      */
-    protected abstract DataLoader createHierarchyLoader();
+    protected abstract DataLoader createHierarchyLoader(boolean refresh);
     
     /**
      * Creates a new Model from this one.
@@ -548,7 +575,5 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
-
-
 
 }

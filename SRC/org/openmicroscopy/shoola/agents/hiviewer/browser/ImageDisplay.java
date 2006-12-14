@@ -264,6 +264,18 @@ public abstract class ImageDisplay
         }
     }
     
+    /** Removes all <code>children</code> nodes from the children set. */
+    public void removeAllChildrenDisplay()
+    {
+    	Iterator i = childrenDisplay.iterator();
+        Set toRemove = new HashSet(childrenDisplay.size());
+        while (i.hasNext())
+            toRemove.add(i.next());
+        i = toRemove.iterator();
+        while (i.hasNext())
+            removeChildDisplay((ImageDisplay) i.next());
+    }
+    
     /**
      * Updates the hierarchy object.
      * 

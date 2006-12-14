@@ -35,8 +35,6 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;

@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
+import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
@@ -447,8 +448,18 @@ class TreeViewerControl
             Object oldValue = pce.getOldValue();
             Object newValue = pce.getNewValue();
             if (oldValue != null && newValue != null) {
-                //if (!(oldValue.getClass().equals(newValue.getClass())))
-                //    model.setEditorSelectedPane(Editor.PROPERTIES_INDEX);
+            	if (!(oldValue.getClass().equals(newValue.getClass()))) {
+            		if (oldValue instanceof TreeImageDisplay) {
+            			TreeImageDisplay d = (TreeImageDisplay) oldValue;
+            			if (d != null && 
+            					(d.getUserObject() instanceof ImageData)) {
+                			int index = EditorFactory.getEditorSelectedPane();
+                			if (index == Editor.INFO_INDEX)
+                				EditorFactory.setEditorSelectedPane(
+                						Editor.PROPERTIES_INDEX);
+                		}
+            		}
+            	}
             }
             model.onSelectedDisplay();
             view.updateMenuItems();

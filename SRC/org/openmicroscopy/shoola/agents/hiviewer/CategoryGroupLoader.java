@@ -65,20 +65,29 @@ public class CategoryGroupLoader
     /** The id of the root Category Groups. */
     private Set         ids;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param ids  	The id of the root Category Groups.
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param ids  		The id of the root Category Groups.
+     * @param refresh	Pass <code>false</code> if we retrieve the data for the
+     * 					first time, <code>true</code> otherwise.
      */
-    public CategoryGroupLoader(HiViewer viewer, Set ids)
+    public CategoryGroupLoader(HiViewer viewer, Set ids, boolean refresh)
     {
         super(viewer);
         this.ids = ids;
+        this.refresh = refresh;
     }
     
     /**
@@ -120,7 +129,7 @@ public class CategoryGroupLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result, false);
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }

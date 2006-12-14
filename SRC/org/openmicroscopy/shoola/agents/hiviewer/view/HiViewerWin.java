@@ -148,7 +148,11 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        mainPane.setResizeWeight(1); //before we remove items.
+        if (lastMove != -1)  {
+        	mainPane.setDividerLocation(lastMove);
+            mainPane.setResizeWeight(0);
+        } else
+        	mainPane.setResizeWeight(1); //before we remove items.
         return mainPane;
     }
     
@@ -329,6 +333,7 @@ class HiViewerWin
         super(DEFAULT_TITLE);
         IconManager iconMng = IconManager.getInstance();
         statusBar = new StatusBar(iconMng.getIcon(IconManager.INFO));
+        lastMove = -1;
     }
 
     /**
@@ -404,7 +409,6 @@ class HiViewerWin
         title += getViewTitle();
         setTitle(title);
     }
-
     
     /**
      * Shows or hides the component depending on the stated of the frame.

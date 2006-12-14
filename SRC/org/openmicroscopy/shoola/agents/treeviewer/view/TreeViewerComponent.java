@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -110,6 +109,10 @@ class TreeViewerComponent
     /** The dialog used to display the form when a new node is created. */
     private EditorDialog        editorDialog;
     
+    /** 
+     * The dialog used to ask a question to user when selecting a new node
+     * and some have been modified.
+     */
     private  EditorSaverDialog	saverDialog;
     
     /**
@@ -306,21 +309,6 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method cannot be " +
                         "invoked in the DISCARDED, SAVE state.");
         }
-        /*
-        Editor editor = model.getEditor();
-        if (editor != null) {
-            if (editor.hasDataToSave()) {
-                IconManager icons = IconManager.getInstance();
-                EditorSaverDialog d = new EditorSaverDialog(view, 
-                                icons.getIcon(IconManager.QUESTION));
-                d.addPropertyChangeListener(
-                        EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
-                        controller);
-                UIUtilities.centerAndShow(d);
-                return;
-            }
-        }
-        */
         if (editorDialog != null) editorDialog.close();
         model.setEditorType(NO_EDITOR);
         view.removeAllFromWorkingPane();
@@ -498,22 +486,10 @@ class TreeViewerComponent
                         "invoked in the DISCARDED, SAVE state.");
         }
         int editor = model.getEditorType();
+        removeEditor();
         if (editor != TreeViewer.CREATE_EDITOR) {
-            removeEditor();
             PropertiesCmd cmd = new PropertiesCmd(this);
             cmd.execute();
-        } else {
-        	Browser browser = model.getSelectedBrowser();
-        	if (browser != null) {
-        		TreeImageDisplay d = browser.getLastSelectedDisplay();
-        		if (d != null && (d.getUserObject() instanceof ImageData)) {
-        			int index = EditorFactory.getEditorSelectedPane();
-        			if (index == Editor.INFO_INDEX)
-        				EditorFactory.setEditorSelectedPane(
-        						Editor.PROPERTIES_INDEX);
-        		}
-        	}
-        	removeEditor();
         }
     }
 

@@ -64,21 +64,30 @@ public class PDILoader
     /** The ids for the images that are at the bottom of the tree. */
     private Set         images;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
 
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
-     * @param images Collection of ids for the images that 
-     *               are at the bottom of the tree. 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param images 	Collection of ids for the images that 
+     *               	are at the bottom of the tree. 
+     * @param refresh	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.
      */
-    public PDILoader(HiViewer viewer, Set images)
+    public PDILoader(HiViewer viewer, Set images, boolean refresh)
     {
         super(viewer);
         this.images = images;
+        this.refresh = refresh;
     }
     
     /**
@@ -120,7 +129,7 @@ public class PDILoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result, false);
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }

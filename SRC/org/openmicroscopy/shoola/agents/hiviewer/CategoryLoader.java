@@ -64,6 +64,12 @@ public class CategoryLoader
     /** The id of the root Categories. */
     private Set        	categoriesID;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
 
@@ -73,11 +79,14 @@ public class CategoryLoader
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param categoriesID  The id of the root Categories.
+     * @param refresh		Pass <code>false</code> if we retrieve the data for
+     * 						the first time, <code>true</code> otherwise.
      */
-    public CategoryLoader(HiViewer viewer, Set categoriesID)
+    public CategoryLoader(HiViewer viewer, Set categoriesID, boolean refresh)
     {
         super(viewer);
         this.categoriesID = categoriesID;
+        this.refresh = refresh;
     }
     
     /**
@@ -119,7 +128,7 @@ public class CategoryLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        viewer.setHierarchyRoots((Set) result, false);
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }

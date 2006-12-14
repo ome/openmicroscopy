@@ -123,11 +123,11 @@ class ProjectModel
 
     /** 
      * Implemented as specified by the superclass. 
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        return new ProjectLoader(component, projectsID);
+        return new ProjectLoader(component, projectsID, refresh);
     }
     
     /**

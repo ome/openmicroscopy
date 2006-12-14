@@ -59,10 +59,8 @@ class ImagesModel
     extends HiViewerModel
 {
 
-    /**
-     * A collection of images' id to browse.
-     */
-    private Set imagesID;
+    /** A collection of images' id to browse. */
+    private Set 		imagesID;
     
     /**
      * Creates a new instance.
@@ -106,11 +104,11 @@ class ImagesModel
 
     /** 
      * Implemented as specified by the superclass. 
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        return new ImagesLoader(component, imagesID);
+        return new ImagesLoader(component, imagesID, refresh);
     }
 
     /**

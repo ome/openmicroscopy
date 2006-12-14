@@ -122,11 +122,11 @@ class DatasetModel
 
     /** 
      * Implemented as specified by the superclass. 
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        return new DatasetLoader(component, datasetsID);
+        return new DatasetLoader(component, datasetsID, refresh);
     }
     
     /**

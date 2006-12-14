@@ -97,7 +97,6 @@ class HiViewerComponent
     /** The Controller sub-component. */
     private HiViewerControl controller;
     
-    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -148,7 +147,7 @@ class HiViewerComponent
     {
         switch (model.getState()) {
             case NEW:
-                model.fireHierarchyLoading();
+                model.fireHierarchyLoading(false);
                 view.setComponentBounds(bounds);
                 fireStateChange();
                 break;
@@ -162,24 +161,48 @@ class HiViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#setHierarchyRoots(Set, boolean)
+     * @see HiViewer#setHierarchyRoots(Set, boolean, boolean)
      */
-    public void setHierarchyRoots(Set roots, boolean flat)
+    public void setHierarchyRoots(Set roots, boolean flat, boolean refresh)
     {
         if (model.getState() != LOADING_HIERARCHY)
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_HIERARCHY "+
                     "state.");
-        
-        model.createBrowser(roots, flat);
-        model.createClipBoard();
-        model.getClipBoard().addPropertyChangeListener(controller);
-        model.fireThumbnailLoading();
-        //b/c fireThumbnailLoading() sets the state to READY if there is no
-        //image.
-        if (model.getBrowser().getImages().size() == 0) setStatus("Done", -1);
-        else setStatus(HiViewer.PAINTING_TEXT, -1);
-        fireStateChange();
+        if (!refresh) {
+        	model.createBrowser(roots, flat);
+            model.createClipBoard();
+            model.getClipBoard().addPropertyChangeListener(controller);
+            model.fireThumbnailLoading();
+            //b/c fireThumbnailLoading() sets the state to READY if there is no
+            //image.
+            if (model.getBrowser().getImages().size() == 0) 
+            	setStatus("Done", -1);
+            else setStatus(HiViewer.PAINTING_TEXT, -1);
+            fireStateChange();
+        } else {
+        	Browser browser = model.getBrowser();
+        	boolean isClipBoardDisplay = model.getClipBoard().isDisplay();
+        	if (browser == null)
+        		 throw new NullPointerException("The browser cannot be NULL.");
+        	view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        	model.refreshBrowser(roots, flat);
+        	model.createClipBoard();
+            model.getClipBoard().addPropertyChangeListener(controller);
+        	model.fireThumbnailLoading();
+            //b/c fireThumbnailLoading() sets the state to READY if there is no
+            //image.
+            if (model.getBrowser().getImages().size() == 0) 
+            	setStatus("Done", -1);
+            else setStatus(HiViewer.PAINTING_TEXT, -1);
+            fireStateChange();
+        	if (model.getTreeView() != null) {
+        		model.createTreeView();
+        		view.showTreeView(true);
+        	}
+        	view.showClipBoard(isClipBoardDisplay);
+        	view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
     /**
@@ -697,7 +720,8 @@ class HiViewerComponent
      */
 	public void refresh()
 	{
-		
+		 model.fireHierarchyLoading(true);
+         fireStateChange();
 	}
 
 }

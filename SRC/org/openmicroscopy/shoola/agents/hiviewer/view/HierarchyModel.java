@@ -147,9 +147,9 @@ class HierarchyModel
 
     /**
      * Implemented as specified by the superclass.
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
         Set ids = new HashSet(images.size());
         Iterator i = images.iterator();
@@ -158,9 +158,9 @@ class HierarchyModel
         
         switch (type) {
             case HiViewer.PDI_HIERARCHY: 
-                return new PDILoader(component, ids);
+                return new PDILoader(component, ids, refresh);
             case HiViewer.CGCI_HIERARCHY:
-                return new CGCILoader(component, ids);
+                return new CGCILoader(component, ids, refresh);
         }
         return null;
     }

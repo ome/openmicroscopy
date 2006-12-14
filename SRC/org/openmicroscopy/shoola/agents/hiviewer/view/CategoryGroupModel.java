@@ -127,11 +127,11 @@ class CategoryGroupModel
 
     /** 
      * Implemented as specified by the superclass. 
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        return new CategoryGroupLoader(component, ids);
+        return new CategoryGroupLoader(component, ids, refresh);
     }
 
     /**

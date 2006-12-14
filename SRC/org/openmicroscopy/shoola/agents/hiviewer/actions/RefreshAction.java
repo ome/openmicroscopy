@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
 
 //Java imports
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
@@ -40,7 +39,6 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -91,10 +89,13 @@ public class RefreshAction
      */
     public void actionPerformed(ActionEvent ae) 
     { 
+    	model.refresh();
+    	/*
         Rectangle oldBounds = model.getUI().getBounds();
         HiViewer newOne = HiViewerFactory.reinstantiate(model);
         model.discard();
         newOne.activate(oldBounds);
+        */
     }
     
 }

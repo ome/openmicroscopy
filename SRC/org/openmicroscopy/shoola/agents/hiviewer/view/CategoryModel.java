@@ -122,11 +122,11 @@ class CategoryModel
 
     /**
      * Implemented as specified by the superclass.
-     * @see HiViewerModel#createHierarchyLoader()
+     * @see HiViewerModel#createHierarchyLoader(boolean)
      */
-    protected DataLoader createHierarchyLoader()
+    protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        return new CategoryLoader(component, categoriesID);
+        return new CategoryLoader(component, categoriesID, refresh);
     }
 
     /**

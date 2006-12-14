@@ -64,20 +64,29 @@ public class DatasetLoader
     /** The id of the root dataset. */
     private Set        	datasetsID;
     
+    /** 
+     * Set to <code>false</code> if we retrieve the data for the first time,
+     * set to <code>true</code> otherwise.
+     */
+    private boolean		refresh;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer    The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-     * @param datasetsID The id of the root datasets.
+     * @param viewer    	The viewer this data loader is for.
+     *                  	Mustn't be <code>null</code>.
+     * @param datasetsID 	The id of the root datasets.
+     * @param refresh		Pass <code>false</code> if we retrieve the data for
+     * 						the first time, <code>true</code> otherwise.
      */
-    public DatasetLoader(HiViewer viewer, Set datasetsID)
+    public DatasetLoader(HiViewer viewer, Set datasetsID, boolean refresh)
     {
         super(viewer);
         this.datasetsID = datasetsID;
+        this.refresh = refresh;
     }
     
     /**
@@ -116,7 +125,7 @@ public class DatasetLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == HiViewer.DISCARDED) return;
-        viewer.setHierarchyRoots((Set) result, false);
+        viewer.setHierarchyRoots((Set) result, false, refresh);
     }
     
 }
