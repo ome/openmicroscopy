@@ -8,7 +8,7 @@
     <version>3.0-TRUNK</version>
   </parent>
   <name>BioFormats Extension for Omero</name>
-  <artifactId>client</artifactId>
+  <artifactId>bioformats-omero</artifactId>
   <packaging>pom</packaging>
   <dependencies>
     <dependency>
@@ -17,4 +17,4 @@
       <version>3.0-TRUNK</version>
     </dependency>
   </dependencies>
-/project>
+</project>
