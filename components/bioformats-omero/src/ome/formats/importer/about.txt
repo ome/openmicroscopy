@@ -1,0 +1,8 @@
+OMERO Import Client
+
+For further information about copyright 
+and version information, see the text 
+files accompanying this program.
+
+This program is covered by the
+LGPL license.
