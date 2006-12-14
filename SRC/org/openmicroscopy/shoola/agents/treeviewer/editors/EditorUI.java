@@ -684,6 +684,7 @@ class EditorUI
         	doBasic.resetName();
         	return;
         }
+        finishButton.setEnabled(false);
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:
                 controller.createObject(fillDataObject());
@@ -691,6 +692,7 @@ class EditorUI
             case Editor.PROPERTIES_EDITOR:
                 finishEdit();
         }
+        
     }
     
     /** Sets the emission wavelengths values. */
