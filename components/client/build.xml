@@ -69,9 +69,8 @@ Not functional: See https://trac.openmicroscopy.org.uk/omero/ticket/464
 			<fail unless="omero.rootpass">No root password defined. See etc/local.properties</fail>
 		  	<input message="Please enter login name: [${user.name}]" addproperty="newuser.omename"
 				defaultvalue="${user.name}"/>
-		  	<input message="Please enter user's default group:" addproperty="newuser.group"
-				defaultvalue=""/>
-			<fail-if-empty property="newuser.group"/>
+		  	<input message="Please enter user's default group: [default]" addproperty="newuser.group"
+				defaultvalue="default"/>
 			<input message="Please enter user's first name:" addproperty="newuser.firstname"
 				defaultvalue=""/>
 			<fail-if-empty property="newuser.firstname"/>
