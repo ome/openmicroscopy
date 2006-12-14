@@ -220,7 +220,8 @@ class BrowserUI
             if (me.getClickCount() == 1) {
                 int[] rows = tree.getSelectionRows();
                 boolean mask = me.isShiftDown();
-                if (!mask) mask = me.isControlDown();
+                if (!mask) 
+                	mask = me.isControlDown() || (me.getModifiers() == 20); //tmp solution
                 if (rows != null) {
                     if (mask) {
                         int[] newRows = new int[rows.length+1];

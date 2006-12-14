@@ -33,10 +33,8 @@ package org.openmicroscopy.shoola.env.data;
 //Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,8 +56,6 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -164,6 +160,23 @@ class OMEROGateway
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
+    }
+    
+    /**
+     * Determines the table name corresponding to the specified class.
+     * 
+     * @param klass The class to analyze.
+     * @return See above.
+     */
+    private String getTableForLink(Class klass)
+    {
+    	String table = null;
+        if (klass.equals(Category.class)) table = "CategoryImageLink";
+        else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
+        else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
+        else if (klass.equals(CategoryGroup.class)) 
+            table = "CategoryGroupCategoryLink";
+        return table;
     }
     
     /**
@@ -871,13 +884,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            String table = null;
-            Class klass = parent.getClass();
-            if (klass.equals(Category.class)) table = "CategoryImageLink";
-            else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
-            else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
-            else if (klass.equals(CategoryGroup.class)) 
-                table = "CategoryGroupCategoryLink";
+        	String table = getTableForLink(parent.getClass());
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id = :childID";
@@ -907,13 +914,7 @@ class OMEROGateway
         throws DSOutOfServiceException, DSAccessException
     {
         try {
-            String table = null;
-            Class klass = parent.getClass();
-            if (klass.equals(Category.class)) table = "CategoryImageLink";
-            else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
-            else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
-            else if (klass.equals(CategoryGroup.class)) 
-                table = "CategoryGroupCategoryLink";
+            String table = getTableForLink(parent.getClass());
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id in " +
@@ -930,4 +931,27 @@ class OMEROGateway
         return null;
     }
     
+    /**
+     * Retrieves an updated version of the specified object.
+     * 
+     * @param o	The object to retrieve.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    IObject findIObject(IObject o)
+    	throws DSOutOfServiceException, DSAccessException
+    {
+    	 try {
+             IQuery service = getIQueryService();
+             return service.find(o.getClass(), o.getId().longValue());
+         } catch (Exception e) {
+             handleException(e, "Cannot retrieve the requested object with "+
+             "object ID: "+o.getId());
+         }
+         return null;
+    }
+    
+
 }

@@ -474,4 +474,55 @@ public class ModelMapper
                 "DatasetAnnoation or ImageAnnotation.");
     }
     
+    /**
+     * Fills the new IObject with data from the old one.
+     * 
+     * @param oldObject	The old object.
+     * @param newObject	The object to fill.
+     */
+    public static void fillIObject(IObject oldObject, IObject newObject)
+    {
+    	if (oldObject == null || newObject == null)
+    		throw new IllegalArgumentException("Object cannot be NULL.");
+    	if (oldObject.getClass() != newObject.getClass())
+    		throw new IllegalArgumentException("Objects should be of the " +
+    				"same type.");
+    	if (oldObject instanceof Project) {
+    		Project n = (Project) newObject;
+    		Project o = (Project) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof Dataset) {
+    		Dataset n = (Dataset) newObject;
+    		Dataset o = (Dataset) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof Image) {
+    		Image n = (Image) newObject;
+    		Image o = (Image) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof CategoryGroup) {
+    		CategoryGroup n = (CategoryGroup) newObject;
+    		CategoryGroup o = (CategoryGroup) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof Category) {
+    		Category n = (Category) newObject;
+    		Category o = (Category) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof ImageAnnotation) {
+    		ImageAnnotation n = (ImageAnnotation) newObject;
+    		ImageAnnotation o = (ImageAnnotation) oldObject;
+    		n.setContent(o.getContent());
+    		n.setImage(o.getImage()); 
+    	} else if (oldObject instanceof DatasetAnnotation) {
+    		DatasetAnnotation n = (DatasetAnnotation) newObject;
+    		DatasetAnnotation o = (DatasetAnnotation) oldObject;
+    		n.setContent(o.getContent());
+    		n.setDataset(o.getDataset()); 
+    	}
+    }
+    
 }

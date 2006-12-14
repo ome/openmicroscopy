@@ -302,9 +302,12 @@ class OmeroDataServiceImpl
                 !(annotatedObject instanceof DatasetData))
             throw new IllegalArgumentException("This method only supports " +
                     "ImageData and DatasetData objects.");
+        //First make sure the annotated object is current.
+        IObject ho = gateway.findIObject(annotatedObject.asIObject());
+        if (ho == null) return null;
         IObject object = gateway.createObject(
-                ModelMapper.createAnnotation(annotatedObject.asIObject(), 
-                                            data), (new PojoOptions()).map());
+                				ModelMapper.createAnnotation(ho, data), 
+                				(new PojoOptions()).map());
         return PojoMapper.asDataObject(ModelMapper.getAnnotatedObject(object));
     }
 
@@ -324,8 +327,10 @@ class OmeroDataServiceImpl
                 !(annotatedObject instanceof DatasetData))
             throw new IllegalArgumentException("This method only supports " +
                     "ImageData and DatasetData objects.");
+        //First make sure the data object is current;
+        IObject ho = gateway.findIObject(data.asIObject());
+        if (ho != null) gateway.deleteObject(ho);
         
-        gateway.deleteObject(data.asIObject());
         return updateDataObject(annotatedObject);
     }
 
@@ -347,8 +352,12 @@ class OmeroDataServiceImpl
                     "ImageData and DatasetData objects.");
         Map options = (new PojoOptions()).map();
         IObject object = annotatedObject.asIObject();
-        ModelMapper.unloadCollections(object);
-        IObject updated = gateway.updateObject(object, options);
+        IObject ho = gateway.findIObject(object);
+        if (ho == null)  return null;
+        
+        ModelMapper.fillIObject(object, ho);
+        ModelMapper.unloadCollections(ho);
+        IObject updated = gateway.updateObject(ho, options);
         IObject toUpdate = data.asIObject();
         ModelMapper.setAnnotatedObject(updated, toUpdate);
         gateway.updateObject(toUpdate, options);
@@ -364,10 +373,13 @@ class OmeroDataServiceImpl
     {
         if (child == null) 
             throw new IllegalArgumentException("The child cannot be null.");
+        //Make sure parent is current
+        
         IObject obj = ModelMapper.createIObject(child, parent);
         if (obj == null) 
             throw new NullPointerException("Cannot convert object.");
         Map options = (new PojoOptions()).map();
+        
         IObject created = gateway.createObject(obj, options);
         if (parent != null) {
             ModelMapper.linkParentToNewChild(created, parent.asIObject());
@@ -390,15 +402,16 @@ class OmeroDataServiceImpl
         if (parent == null) {
             int index = 0;
             IObject[] ioObjects  = new IObject[children.size()];
+            IObject o;
             while (i.hasNext()) {
-                ioObjects[index] = ((DataObject) i.next()).asIObject();
+            	o = gateway.findIObject(((DataObject) i.next()).asIObject());
+                ioObjects[index] = o;
                 index++;
             }
             gateway.deleteObjects(ioObjects);
         } else {
             cut(parent, children);
         }
-
         return children;
     }
     
@@ -410,10 +423,13 @@ class OmeroDataServiceImpl
             throws DSOutOfServiceException, DSAccessException
     {
         if (object == null) 
-            throw new DSAccessException("No object to update.");  
-        IObject ob = object.asIObject();
-        ModelMapper.unloadCollections(ob);
-        IObject updated = gateway.updateObject(ob,
+            throw new DSAccessException("No object to update.");
+        IObject oldObject = object.asIObject();
+        IObject ho = gateway.findIObject(object.asIObject());
+        if (ho == null) return null;
+        ModelMapper.fillIObject(oldObject, ho);
+        ModelMapper.unloadCollections(ho);
+        IObject updated = gateway.updateObject(ho,
                                         (new PojoOptions()).map());
         return PojoMapper.asDataObject(updated);
     }
@@ -668,13 +684,17 @@ class OmeroDataServiceImpl
         IObject[] toCreate = new IObject[toAnnotate.size()];
         IObject[] objects = new IObject[toAnnotate.size()];
         int index = 0;
+        IObject ho;
         while (i.hasNext()) {
         	annotatedObject = (DataObject) i.next();
-        	toCreate[index] = 
-        		ModelMapper.createAnnotation(annotatedObject.asIObject(), d);
-        	objects[index] = gateway.createObject(toCreate[index], 
-        	        					(new PojoOptions()).map());
-        	index++;
+        	ho = gateway.findIObject(annotatedObject.asIObject());
+        	if (ho != null) {
+        		toCreate[index] = ModelMapper.createAnnotation(ho, d);
+            	objects[index] = gateway.createObject(toCreate[index], 
+            	        					(new PojoOptions()).map());
+            	index++;
+        	}
+        	
 		}
         //IObject[] objects = gateway.createObjects(toCreate, 
         //					(new PojoOptions()).map());
@@ -703,14 +723,16 @@ class OmeroDataServiceImpl
 		List results = new ArrayList(nodes.size());
 		while (i.hasNext()) {
 			annotatedObject = (DataObject) i.next();
-			object = annotatedObject.asIObject();
-			ModelMapper.unloadCollections(object);
-			updated = gateway.updateObject(object, options);
-			toUpdate = ((AnnotationData) 
-							nodes.get(annotatedObject)).asIObject();
-			ModelMapper.setAnnotatedObject(updated, toUpdate);
-			gateway.updateObject(toUpdate, options);
-			results.add(PojoMapper.asDataObject(updated));
+			object = gateway.findIObject(annotatedObject.asIObject());
+			if (object != null) {
+				ModelMapper.unloadCollections(object);
+				updated = gateway.updateObject(object, options);
+				toUpdate = ((AnnotationData) 
+								nodes.get(annotatedObject)).asIObject();
+				ModelMapper.setAnnotatedObject(updated, toUpdate);
+				gateway.updateObject(toUpdate, options);
+				results.add(PojoMapper.asDataObject(updated));
+			}
 		}
 		return results;
 	}
