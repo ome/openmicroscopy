@@ -877,7 +877,7 @@ class OMEROGateway
             else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
             else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
             else if (klass.equals(CategoryGroup.class)) 
-                table = "CategoryGroupLink";
+                table = "CategoryGroupCategoryLink";
             if (table == null) return null;
             String sql = "select link from "+table+" as link where " +
                     "link.parent.id = :parentID and link.child.id = :childID";
@@ -929,6 +929,5 @@ class OMEROGateway
         }
         return null;
     }
-    
     
 }
