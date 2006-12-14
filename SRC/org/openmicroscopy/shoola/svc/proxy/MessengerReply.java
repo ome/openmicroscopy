@@ -66,7 +66,7 @@ class MessengerReply
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param reply	The reply tp send to user.
+	 * @param reply	The reply to send to user.
 	 */
 	MessengerReply(String reply)
 	{
@@ -81,7 +81,7 @@ class MessengerReply
 		throws TransportException
 	{
 		checkStatusCode(response);
-		this.reply = REPLY;
+		this.reply += REPLY;
 	}
 
 }

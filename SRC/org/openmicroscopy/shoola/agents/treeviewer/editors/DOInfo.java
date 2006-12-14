@@ -182,7 +182,7 @@ class DOInfo
         content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         //The owner is the only person allowed to modify the permissions.
-        boolean isOwner = model.isObjectOwner();
+        //boolean isOwner = model.isObjectOwner();
         //Owner
         JLabel label = UIUtilities.setTextFont(OWNER);
         JPanel p = new JPanel();
@@ -196,7 +196,8 @@ class DOInfo
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isUserWrite());
@@ -210,7 +211,8 @@ class DOInfo
             }
         
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         content.add(label, "0, 0, l, c");
         content.add(p, "1, 0, l, c");  
@@ -227,7 +229,8 @@ class DOInfo
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isGroupWrite());
@@ -240,7 +243,8 @@ class DOInfo
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         content.add(label, "0, 1, l, c");
         content.add(p, "1,1, l, c"); 
@@ -257,7 +261,8 @@ class DOInfo
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isWorldWrite());
@@ -270,7 +275,8 @@ class DOInfo
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         content.add(label, "0, 2, l, c");
         content.add(p, "1, 2, l, c"); 

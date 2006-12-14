@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -108,6 +109,8 @@ class TreeViewerComponent
     
     /** The dialog used to display the form when a new node is created. */
     private EditorDialog        editorDialog;
+    
+    private  EditorSaverDialog	saverDialog;
     
     /**
      * Creates a new instance.
@@ -274,7 +277,6 @@ class TreeViewerComponent
         if (editorType == CREATE_EDITOR) {
             editorDialog = new EditorDialog(view);
             editorDialog.addComponent(editor.getUI());
-            editorDialog.setSize(600, 350);
             UIUtilities.centerAndShow(editorDialog);
             onComponentStateChange(false);
         } else view.addComponent(editor.getUI());
@@ -304,6 +306,7 @@ class TreeViewerComponent
                 throw new IllegalStateException("This method cannot be " +
                         "invoked in the DISCARDED, SAVE state.");
         }
+        /*
         Editor editor = model.getEditor();
         if (editor != null) {
             if (editor.hasDataToSave()) {
@@ -317,6 +320,7 @@ class TreeViewerComponent
                 return;
             }
         }
+        */
         if (editorDialog != null) editorDialog.close();
         model.setEditorType(NO_EDITOR);
         view.removeAllFromWorkingPane();
@@ -558,10 +562,11 @@ class TreeViewerComponent
                     browser.refreshEdition(data, operation);
             }
         }
-        //onComponentStateChange(true);
-       // if (editor == CREATE_EDITOR) {
-           onSelectedDisplay();
-       // }
+        onSelectedDisplay();
+        if (saverDialog != null) {
+        	saverDialog.close();
+        	saverDialog = null;
+        }
         setStatus(false, "", true);
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
@@ -706,7 +711,6 @@ class TreeViewerComponent
     {
         int oldLevel = model.getRootLevel();
         model.setHierarchyRoot(rootLevel, rootID);
-        System.out.println("state: "+model.getState());
         if (model.getState() == READY)
             firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
                                new Integer(rootLevel));
@@ -911,8 +915,12 @@ class TreeViewerComponent
         if (b) {
             model.getEditor().saveData();
             model.setEditor(null);
-            onSelectedDisplay();
+            //onSelectedDisplay();
         } else {
+        	if (saverDialog != null) {
+        		saverDialog.close();
+        		saverDialog = null;
+        	}
             model.setEditor(null);
             removeEditor();
         }
@@ -974,6 +982,35 @@ class TreeViewerComponent
 		DataHandler dh = model.annotateDataObjects(view, nodes);
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#hasDataToSave()
+     */
+	public boolean hasDataToSave()
+	{
+		Editor editor = model.getEditor();
+		if (editor == null) return false;
+		return editor.hasDataToSave();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#showPreSavingDialog()
+     */
+	public void showPreSavingDialog()
+	{
+		 Editor editor = model.getEditor();
+		 if (editor == null) return;
+		 if (!(editor.hasDataToSave())) return;
+		 IconManager icons = IconManager.getInstance();
+		 saverDialog  = new EditorSaverDialog(view, 
+				 icons.getIcon(IconManager.QUESTION));
+		 saverDialog.addPropertyChangeListener(
+				 EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
+				 controller);
+		 UIUtilities.centerAndShow(saverDialog);
 	}
     
 }

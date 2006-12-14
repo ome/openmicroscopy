@@ -153,6 +153,7 @@ class ClassifierComponent
             return; 
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		controller.getAction(ClassifierControl.FINISH).setEnabled(false);
 		model.fireClassificationsSaving(categories);
 		fireStateChange();
 	}

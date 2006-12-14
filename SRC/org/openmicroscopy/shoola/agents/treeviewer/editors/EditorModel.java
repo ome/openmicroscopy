@@ -657,6 +657,7 @@ class EditorModel
     /**
      * Notifies the parent model that the {@link DataObject object} has been 
      * saved. 
+     * 
      * @param object    The saved object.
      * @param operation The type of operation.
      */

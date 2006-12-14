@@ -91,13 +91,16 @@ class BrowserComponent
 {
 
     /** The Model sub-component. */
-    private BrowserModel    model;
+    private BrowserModel    	model;
     
     /** The View sub-component. */
-    private BrowserUI       view;
+    private BrowserUI       	view;
     
     /** The Controller sub-component. */
-    private BrowserControl  controller;
+    private BrowserControl  	controller;
+    
+    /** The node to select after saving data. */
+    private TreeImageDisplay	toSelectAfterSave;
     
     /**
      * Returns the frame hosting the {@link BrowserUI view}.
@@ -158,6 +161,28 @@ class BrowserComponent
             EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
             bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
         }
+    }
+    
+    /**
+     * Controls if the passed node has to be saved before selecting a new node.
+     * 
+     * @param node The node to check.
+     */
+    private void hasDataToSave(TreeImageDisplay node)
+    {
+        if (model.getParentModel().hasDataToSave()) {
+        	toSelectAfterSave = node;
+        	model.getParentModel().showPreSavingDialog();
+        	return;
+        }
+    }
+    
+    /** Selects the node after saving. */
+    private void setSelectedNode()
+    {
+    	if (toSelectAfterSave == null) return;
+    	setSelectedDisplay(toSelectAfterSave);
+    	toSelectAfterSave = null;
     }
     
     /**
@@ -259,7 +284,6 @@ class BrowserComponent
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
-
     
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -375,6 +399,7 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
+        hasDataToSave(display);
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         //if (oldDisplay != null && oldDisplay.equals(display)) return;
         if (display != null && display.getUserObject() instanceof String) 
@@ -853,6 +878,7 @@ class BrowserComponent
                     TreeViewerTranslator.transformDataObject(object, userID, 
                             groupID), parentDisplay);
         }     
+        setSelectedNode();
     }
     
     /**
@@ -961,6 +987,7 @@ class BrowserComponent
         if (nodes.length == 0) return;
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         TreeImageDisplay display = nodes[nodes.length-1];
+        hasDataToSave(display);
         if (oldDisplay != null && oldDisplay.equals(display)) return;
         model.setSelectedDisplays(nodes);
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
@@ -973,23 +1000,22 @@ class BrowserComponent
     public void navigate(boolean v)
     {
         TreeImageDisplay display = getLastSelectedDisplay();
-        if (display != null) { //shouldn't happen
-            if (display.containsImages()) {
-                controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(!v);
-            } else {
-                controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(v);
-            }
-            controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
-            long id = -1;
-            if (model.getGoIntoNode() != null)
-                id = model.getGoIntoNode().getUserObjectId();
-            if (v) {
-                model.setMainTree(v, null);
-                view.navigate();
-            } else if (!v && !(display.getUserObjectId() == id)) {
-                model.setMainTree(v, display);
-                view.navigate();
-            } 
+        if (display == null) return;
+        if (display.containsImages()) {
+            controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(!v);
+        } else {
+            controller.getAction(BrowserControl.FORWARD_NAV).setEnabled(v);
+        }
+        controller.getAction(BrowserControl.BACKWARD_NAV).setEnabled(!v);
+        long id = -1;
+        if (model.getGoIntoNode() != null)
+            id = model.getGoIntoNode().getUserObjectId();
+        if (v) {
+            model.setMainTree(v, null);
+            view.navigate();
+        } else if (!v && !(display.getUserObjectId() == id)) {
+            model.setMainTree(v, display);
+            view.navigate();
         } 
     }
 
@@ -1046,7 +1072,6 @@ class BrowserComponent
      */
     public boolean isMainTree()
     {
-        // TODO Auto-generated method stub
         return model.isMainTree();
     }
 
@@ -1054,7 +1079,8 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#displaysImagesName()
      */
-	public void displaysImagesName() {
+	public void displaysImagesName()
+	{
 		 if (model.getState() == DISCARDED)
 			 throw new IllegalStateException("This method cannot be invoked "+
 	                "in the DISCARDED state.");

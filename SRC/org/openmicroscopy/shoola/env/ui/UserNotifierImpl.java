@@ -144,7 +144,7 @@ public class UserNotifierImpl
      * Brings up a messenger dialog.
      * 
      * @param title     The dialog title.
-     * @param message   The dialog message.
+     * @param summary   The dialog message.
      * @param detail	The detailed error message.
      */
     private void showErrorDialog(String title, String summary, String detail)

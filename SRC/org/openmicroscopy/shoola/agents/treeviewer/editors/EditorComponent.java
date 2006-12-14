@@ -394,6 +394,7 @@ class EditorComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException("This method cannot be invoked " +
                         "in the DISCARDED state.");
+        
         view.finish();
     }
 

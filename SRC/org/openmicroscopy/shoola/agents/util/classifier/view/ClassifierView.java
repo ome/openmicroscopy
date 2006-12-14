@@ -72,6 +72,9 @@ class ClassifierView
 	extends JDialog
 {
 
+	/** The title of the window. */
+	private static final String 	TITLE = "Categorise";
+	
     /** Text displayed in the title panel. */
     private static final String     ADD_PANEL_TITLE = "Categorise";
     
@@ -209,6 +212,7 @@ class ClassifierView
     private void setProperties()
     {
     	setModal(true);
+    	setTitle(TITLE);
     }
     
     /** Creates a new instance. */

@@ -37,7 +37,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.AnnotationData;
 
 /** 
@@ -143,6 +142,7 @@ class AnnotatorComponent
 		AnnotationData d = model.getAnnotationType();
 		d.setText(view.getAnnotationText());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		controller.getAction(AnnotatorControl.FINISH).setEnabled(false);
 		model.fireAnnotationSaving(d);
 		fireStateChange();
 	}

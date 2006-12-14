@@ -203,7 +203,6 @@ public class EditorControl
             JTabbedPane tab = (JTabbedPane) e.getSource();
             Component c = tab.getSelectedComponent();
             int index = tab.getSelectedIndex();
-            
             if (c instanceof DOInfo) {
                 DOInfo info = (DOInfo) c;
                 switch (info.getInfoType()) {

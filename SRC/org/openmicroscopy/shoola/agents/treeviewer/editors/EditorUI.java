@@ -372,10 +372,10 @@ class EditorUI
                     info = new DOInfo(this, model, details, false, 
                             DOInfo.INFO_TYPE);
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
-                    			info);
-                    //Add a tab listeners to the info
-                    tabs.addChangeListener(controller);
+                    			info);  
                 }
+                //Add a tab listeners to the info
+                tabs.addChangeListener(controller);
                 int index = model.getSelectedTabbedIndex();
                 if (index >= 0 && index < MAX_INDEX)
                     tabs.setSelectedIndex(index);
@@ -618,7 +618,11 @@ class EditorUI
      * 
      * @param b The value to set.
      */
-    void setEdit(boolean b) { edit = b; }
+    void setEdit(boolean b)
+    { 
+    	edit = b; 
+    	finishButton.setEnabled(b);
+    }
     
     /** Displays the classifications. */ 
     void showClassifications()

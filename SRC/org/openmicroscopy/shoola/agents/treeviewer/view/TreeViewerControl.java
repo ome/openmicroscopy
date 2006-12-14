@@ -447,8 +447,8 @@ class TreeViewerControl
             Object oldValue = pce.getOldValue();
             Object newValue = pce.getNewValue();
             if (oldValue != null && newValue != null) {
-                if (!(oldValue.getClass().equals(newValue.getClass())))
-                    model.setEditorSelectedPane(Editor.PROPERTIES_INDEX);
+                //if (!(oldValue.getClass().equals(newValue.getClass())))
+                //    model.setEditorSelectedPane(Editor.PROPERTIES_INDEX);
             }
             model.onSelectedDisplay();
             view.updateMenuItems();

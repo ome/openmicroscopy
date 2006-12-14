@@ -544,5 +544,19 @@ public interface TreeViewer
 	 * @param nodes The nodes to annotate.
 	 */
 	public void annotate(TreeImageDisplay[] nodes);
+
+	/**
+	 * Returns <code>true</code> if some data has to be saved before 
+	 * selecting a new node, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDataToSave();
+	
+	/**
+	 * Brings up a dialog to save or not the data before switching to a 
+	 * another object.
+	 */
+	public void showPreSavingDialog();
     
 }

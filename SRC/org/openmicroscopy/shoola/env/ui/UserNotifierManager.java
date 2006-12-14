@@ -74,7 +74,11 @@ class UserNotifierManager
 								"error message tab, copying the error " +
 								"message to the clipboard, \n" +
 								"and sending it to ";
-								
+		
+	/** The reply to a messenger request. */
+	private static final String REPLY = "Comments have been successfully " +
+										"posted";
+	
     /** Reference to the container. */
 	private Container		container;
 	
@@ -102,7 +106,7 @@ class UserNotifierManager
 			else c.submitError(details.getEmail(), details.getComment(), 
 					details.getExtra(), error, reply);
 			
-			JOptionPane.showMessageDialog(source, reply);
+			JOptionPane.showMessageDialog(source, REPLY);
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(source, MESSAGE+teamAddress+".");

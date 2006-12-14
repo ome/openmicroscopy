@@ -106,8 +106,8 @@ public abstract class EditorLoader
     {
         String info = "The data saving has been cancelled.";
         registry.getLogger().info(this, info);
-       // registry.getUserNotifier().notifyInfo("Data Saving Cancellation", 
-       //                                       info);
+        registry.getUserNotifier().notifyInfo("Data Saving Cancellation", 
+                                               info);
     }
     
     /**

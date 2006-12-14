@@ -63,7 +63,7 @@ class EditorDialog
 {
 
     /** The default size of the dialog. */
-    private static final Dimension WIN_DIM = new Dimension(400, 300);
+    private static final Dimension WIN_DIM = new Dimension(600, 350);
     
     /**
      * Creates a new instance.
