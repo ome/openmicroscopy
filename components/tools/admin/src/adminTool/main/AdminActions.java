@@ -135,7 +135,6 @@ public class AdminActions
 		tabbedPane.add("Users", usersTab);
 		tabbedPane.add("Groups", groupsTab);
 		tabbedPane.addChangeListener(this);
-	//	tabbedPane.add("Server", serverTab);
 	}
 	
 	void buildUI()

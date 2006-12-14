@@ -467,6 +467,9 @@ public class Model
 			if(!userBelongsToGroup(currentUser, group))
 				iAdmin.addGroups(iAdmin.getExperimenter(currentUser), 
 						iAdmin.getGroup(group));
+			List<String> groups = getUserGroupMembership(currentUser);
+			if(groups.size()==1)
+				iAdmin.setDefaultGroup(getUser(currentUser), getGroup(group));
 		}
 		catch(Exception e)
 		{
