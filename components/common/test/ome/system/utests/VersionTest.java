@@ -18,7 +18,7 @@ public class VersionTest extends TestCase {
     }
 
     public void testGetRevision() throws Exception {
-        assertEquals((Integer) 100, (Integer) Version.getRevision(Blank.class));
+        assertEquals((Integer) 100, Version.getRevision(Blank.class));
     }
 
     public void testGetDate() throws Exception {

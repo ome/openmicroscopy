@@ -61,8 +61,9 @@ public class PojosCGCPathsQueryDefinition extends Query {
             h[h.length - 1].add(Restrictions.in("id", ids));
             Collection ids2 = cg2.list();
 
-            if (ids != null && ids2.size() > 0)
+            if (ids != null && ids2.size() > 0) {
                 cg.add(Restrictions.not(Restrictions.in("id", ids2)));
+            }
 
             setCriteria(cg);
 

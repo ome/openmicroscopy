@@ -61,11 +61,13 @@ public class QueryParameterDef {
      * main constructor. Provides all three fields, none of which can be null.
      */
     public QueryParameterDef(String name, Class type, boolean optional) {
-        if (name == null)
+        if (name == null) {
             throw new ApiUsageException("Name cannot be null.");
+        }
 
-        if (type == null)
+        if (type == null) {
             throw new ApiUsageException("Type cannot be null.");
+        }
 
         this.name = name;
         this.type = type;
@@ -95,27 +97,31 @@ public class QueryParameterDef {
 
             // If parameter.type is null, skip the rest.
         } else if (parameter.type == null) {
-            if (!this.optional)
+            if (!this.optional) {
                 throw new ApiUsageException(
                         "Non-optional parameter type cannot be null.");
+            }
 
             // If value is null, skip the rest
         } else if (parameter.value == null) {
-            if (!this.optional)
+            if (!this.optional) {
                 throw new ApiUsageException("Non-optional parameter "
                         + this.name + " may not be null.");
+            }
 
         } else {
             // Fields are non-null, check them.
-            if (!this.type.isAssignableFrom(parameter.type))
+            if (!this.type.isAssignableFrom(parameter.type)) {
                 throw new ApiUsageException(String.format(
                         " Type of parameter %s doesn't match: %s != %s", name,
                         this.type, parameter.type));
+            }
 
             if (!this.optional && Collection.class.isAssignableFrom(this.type)
-                    && ((Collection) parameter.value).size() < 1)
+                    && ((Collection) parameter.value).size() < 1) {
                 throw new ApiUsageException(
                         "Non-optional collections may not be empty.");
+            }
 
         }
 

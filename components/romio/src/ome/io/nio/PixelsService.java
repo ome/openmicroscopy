@@ -6,7 +6,6 @@
  */
 package ome.io.nio;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 

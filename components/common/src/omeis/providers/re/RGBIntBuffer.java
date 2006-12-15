@@ -75,8 +75,9 @@ public class RGBIntBuffer extends RGBBuffer {
      * @param value
      *            The pixel value to set.
      */
+    @Override
     public void setRedValue(int index, int value) {
-        dataBuf[index] = dataBuf[index] | (value << 16);
+        dataBuf[index] = dataBuf[index] | value << 16;
     }
 
     /**
@@ -87,8 +88,9 @@ public class RGBIntBuffer extends RGBBuffer {
      * @param value
      *            The pixel value to set.
      */
+    @Override
     public void setGreenValue(int index, int value) {
-        dataBuf[index] = dataBuf[index] | (value << 8);
+        dataBuf[index] = dataBuf[index] | value << 8;
     }
 
     /**
@@ -99,6 +101,7 @@ public class RGBIntBuffer extends RGBBuffer {
      * @param value
      *            The pixel value to set.
      */
+    @Override
     public void setBlueValue(int index, int value) {
         dataBuf[index] = dataBuf[index] | value;
     }
@@ -110,6 +113,7 @@ public class RGBIntBuffer extends RGBBuffer {
      *            The index in the band array.
      * @return The pixel value at the index.
      */
+    @Override
     public byte getRedValue(int index) {
         return (byte) ((dataBuf[index] & 0x00FF0000) >> 16);
     }
@@ -121,6 +125,7 @@ public class RGBIntBuffer extends RGBBuffer {
      *            The index in the band array.
      * @return The pixel value at the index.
      */
+    @Override
     public byte getGreenValue(int index) {
         return (byte) ((dataBuf[index] & 0x0000FF00) >> 8);
     }
@@ -132,6 +137,7 @@ public class RGBIntBuffer extends RGBBuffer {
      *            The index in the band array.
      * @return The pixel value at the index.
      */
+    @Override
     public byte getBlueValue(int index) {
         return (byte) (dataBuf[index] & 0x000000FF);
     }

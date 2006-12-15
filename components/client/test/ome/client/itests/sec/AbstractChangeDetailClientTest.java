@@ -4,9 +4,6 @@ import java.util.UUID;
 
 import org.testng.annotations.*;
 
-import junit.framework.TestCase;
-
-import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.conditions.ValidationException;
@@ -101,7 +98,7 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
         ServiceFactory services = new ServiceFactory(login);
         Image i = new Image();
         i.setName("test");
-        i = (Image) services.getUpdateService().saveAndReturnObject(i);
+        i = services.getUpdateService().saveAndReturnObject(i);
         // They need to actual belong to the right people
         assertEquals(rootAdmin.lookupExperimenter(login.getName()).getId(),
                 rootQuery.get(Image.class, i.getId()).getDetails().getOwner()
@@ -126,7 +123,7 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
 
         ServiceFactory factory = new ServiceFactory(login);
         IQuery iQuery = factory.getQueryService();
-        Image i = (Image) iQuery.get(Image.class, imageId);
+        Image i = iQuery.get(Image.class, imageId);
         i.getDetails().setOwner(owner);
         IUpdate iUpdate = factory.getUpdateService();
         iUpdate.saveObject(i);
@@ -150,7 +147,7 @@ public class AbstractChangeDetailClientTest extends AbstractSecurityTest {
 
         ServiceFactory factory = new ServiceFactory(login);
         IQuery iQuery = factory.getQueryService();
-        Image i = (Image) iQuery.get(Image.class, imageId);
+        Image i = iQuery.get(Image.class, imageId);
         i.getDetails().setGroup(group);
         IUpdate iUpdate = factory.getUpdateService();
         iUpdate.saveObject(i);

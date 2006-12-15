@@ -65,18 +65,20 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
 
     @Override
     public void onMerge(MergeEvent event) throws HibernateException {
-        if (secSys.isDisabled(MERGE_EVENT))
+        if (secSys.isDisabled(MERGE_EVENT)) {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
+        }
         super.onMerge(event);
     }
 
     @Override
     public void onMerge(MergeEvent event, Map copyCache)
             throws HibernateException {
-        if (secSys.isDisabled(MERGE_EVENT))
+        if (secSys.isDisabled(MERGE_EVENT)) {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
+        }
         super.onMerge(event, copyCache);
     }
 

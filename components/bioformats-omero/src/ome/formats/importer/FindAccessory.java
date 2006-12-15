@@ -40,6 +40,11 @@ import java.beans.*;
 public class FindAccessory extends JPanel implements Runnable,
         PropertyChangeListener, ActionListener, FindProgressCallback {
     /**
+     * 
+     */
+    private static final long serialVersionUID = -4605549092182837884L;
+
+    /**
      * Label for this accessory.
      */
     static public final String ACCESSORY_NAME = " Search ";
@@ -207,12 +212,14 @@ public class FindAccessory extends JPanel implements Runnable,
      */
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
-        if (command == null)
+        if (command == null) {
             return; // Can this happen? Probably not. Call me paranoid.
-        if (command.equals(JFileChooser.APPROVE_SELECTION))
+        }
+        if (command.equals(JFileChooser.APPROVE_SELECTION)) {
             quit();
-        else if (command.equals(JFileChooser.CANCEL_SELECTION))
+        } else if (command.equals(JFileChooser.CANCEL_SELECTION)) {
             quit();
+        }
     }
 
     /**
@@ -220,12 +227,15 @@ public class FindAccessory extends JPanel implements Runnable,
      * if there is no active search.
      */
     public void updateFindDirectory() {
-        if (isRunning())
+        if (isRunning()) {
             return;
-        if (chooser == null)
+        }
+        if (chooser == null) {
             return;
-        if (pathPanel == null)
+        }
+        if (pathPanel == null) {
             return;
+        }
         File f = chooser.getCurrentDirectory();
         pathPanel.setFindDirectory(f);
     }
@@ -239,12 +249,15 @@ public class FindAccessory extends JPanel implements Runnable,
      *            File to select in parent JFileChooser
      */
     public void goTo(File f) {
-        if (f == null)
+        if (f == null) {
             return;
-        if (!f.exists())
+        }
+        if (!f.exists()) {
             return;
-        if (chooser == null)
+        }
+        if (chooser == null) {
             return;
+        }
 
         // Make sure that files and directories can be displayed
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -266,8 +279,9 @@ public class FindAccessory extends JPanel implements Runnable,
         // Prior to Java 1.2.2 setSelectedFile() did not set the current
         // directory the folder containing the file to be selected.
         File parentFolder = f.getParentFile();
-        if (parentFolder != null)
+        if (parentFolder != null) {
             chooser.setCurrentDirectory(parentFolder);
+        }
 
         // Nullify the current selection, if any.
         // Why is this necessary?
@@ -293,15 +307,17 @@ public class FindAccessory extends JPanel implements Runnable,
      * below the base folder. The user may continue to browse with JFileChooser.
      */
     public synchronized void start() {
-        if (searchTabs != null)
+        if (searchTabs != null) {
             searchTabs.showFindResults();
+        }
         updateFindDirectory();
         killFind = false;
         if (searchThread == null) {
             searchThread = new Thread(this);
         }
-        if (searchThread != null)
+        if (searchThread != null) {
             searchThread.start();
+        }
     }
 
     /**
@@ -315,8 +331,9 @@ public class FindAccessory extends JPanel implements Runnable,
      * @return true if a search is currently running
      */
     public boolean isRunning() {
-        if (searchThread == null)
+        if (searchThread == null) {
             return false;
+        }
         return searchThread.isAlive();
     }
 
@@ -324,10 +341,12 @@ public class FindAccessory extends JPanel implements Runnable,
      * Find thread
      */
     public void run() {
-        if (searchThread == null)
+        if (searchThread == null) {
             return;
-        if (Thread.currentThread() != searchThread)
+        }
+        if (Thread.currentThread() != searchThread) {
             return;
+        }
         try {
             actionStart.setEnabled(false);
             actionStop.setEnabled(true);
@@ -359,20 +378,25 @@ public class FindAccessory extends JPanel implements Runnable,
      */
     protected void runFind(File base, FindFilter[] filters)
             throws InterruptedException {
-        if (base == null)
+        if (base == null) {
             return;
-        if (!base.exists())
+        }
+        if (!base.exists()) {
             return; // Not likely to happen
-        if (filters == null)
+        }
+        if (filters == null) {
             return;
+        }
 
-        if (killFind)
+        if (killFind) {
             return;
+        }
         File folder = null;
-        if (base.isDirectory())
+        if (base.isDirectory()) {
             folder = base;
-        else
+        } else {
             folder = base.getParentFile();
+        }
 
         File[] files = folder.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -382,13 +406,15 @@ public class FindAccessory extends JPanel implements Runnable,
                 searchTabs.addFoundFile(files[i]);
             }
             updateProgress();
-            if (killFind)
+            if (killFind) {
                 return;
+            }
             Thread.currentThread().sleep(0);
 
-            if (files[i].isDirectory())
+            if (files[i].isDirectory()) {
                 runFind(files[i], filters);
-            if ((maxMatches > 0) && (matches >= maxMatches)) {
+            }
+            if (maxMatches > 0 && matches >= maxMatches) {
                 return;// stopgap measure so that we don't overload
             }
         }
@@ -403,14 +429,17 @@ public class FindAccessory extends JPanel implements Runnable,
      * @return true if specified file matches each filter's selection criteria
      */
     protected boolean accept(File file, FindFilter[] filters) {
-        if (file == null)
+        if (file == null) {
             return false;
-        if (filters == null)
+        }
+        if (filters == null) {
             return false;
+        }
 
         for (int i = 0; i < filters.length; i++) {
-            if (!filters[i].accept(file, this))
+            if (!filters[i].accept(file, this)) {
                 return false;
+            }
         }
         return true;
     }
@@ -449,8 +478,9 @@ public class FindAccessory extends JPanel implements Runnable,
         total = matches = 0;
         updateProgress();
 
-        if (searchTabs != null)
+        if (searchTabs != null) {
             return searchTabs.newFind();
+        }
         return null;
     }
 
@@ -469,8 +499,9 @@ public class FindAccessory extends JPanel implements Runnable,
      *            parent JFileChooser
      */
     protected void register(JFileChooser c) {
-        if (c == null)
+        if (c == null) {
             return;
+        }
         c.addPropertyChangeListener(this);
         c.addActionListener(this);
     }
@@ -483,8 +514,9 @@ public class FindAccessory extends JPanel implements Runnable,
      *            parent JFileChooser
      */
     protected void unregister(JFileChooser c) {
-        if (c == null)
+        if (c == null) {
             return;
+        }
         c.removeActionListener(this);
         c.removePropertyChangeListener(this);
     }
@@ -502,18 +534,25 @@ public class FindAccessory extends JPanel implements Runnable,
      * Invoked by FindAction objects to start and stop searches.
      */
     public void action(String command) {
-        if (command == null)
+        if (command == null) {
             return;
-        if (command.equals(ACTION_START))
+        }
+        if (command.equals(ACTION_START)) {
             start();
-        else if (command.equals(ACTION_STOP))
+        } else if (command.equals(ACTION_STOP)) {
             stop();
+        }
     }
 
     /**
      * Convenience class for adding action objects to the control panel.
      */
     class FindAction extends AbstractAction {
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -6194238860032063976L;
 
         /**
          * Construct a search control action currently implements
@@ -543,6 +582,10 @@ public class FindAccessory extends JPanel implements Runnable,
      * Displays the full path of the search starting folder.
      */
     class FindFolder extends JPanel {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5271393661360903022L;
         protected JLabel searchDirectory = null;
 
         FindFolder() {
@@ -560,12 +603,14 @@ public class FindAccessory extends JPanel implements Runnable,
          * Display the full path of the specified folder.
          */
         public void setFindDirectory(File f) {
-            if (searchDirectory == null)
+            if (searchDirectory == null) {
                 return;
-            if (f != null)
+            }
+            if (f != null) {
                 searchDirectory.setText(f.getAbsolutePath());
-            else
+            } else {
                 searchDirectory.setText(null);
+            }
         }
 
     }
@@ -577,6 +622,11 @@ public class FindAccessory extends JPanel implements Runnable,
      * items encountered in the search.
      */
     class FindControls extends JPanel {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -1476862004436331309L;
+
         protected JLabel searchDirectory = null;
 
         protected JLabel progress = null;
@@ -618,8 +668,9 @@ public class FindAccessory extends JPanel implements Runnable,
          *            number of items investigated
          */
         public void showProgress(int matches, int total) {
-            if (progress == null)
+            if (progress == null) {
                 return;
+            }
             progress.setText(String.valueOf(matches) + "/"
                     + String.valueOf(total));
         }
@@ -636,6 +687,11 @@ public class FindAccessory extends JPanel implements Runnable,
      * the controlling search engine.
      */
     class FindTabs extends JTabbedPane {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -5904955336822241606L;
+
         protected String TAB_NAME = "Search";
 
         protected String TAB_DATE = "Date";
@@ -686,16 +742,18 @@ public class FindAccessory extends JPanel implements Runnable,
          *            file to add to results list
          */
         public void addFoundFile(File f) {
-            if (resultsPanel != null)
+            if (resultsPanel != null) {
                 resultsPanel.append(f);
+            }
         }
 
         /**
          * Bring the search results tab panel to the front.
          */
         public void showFindResults() {
-            if (resultsScroller != null)
+            if (resultsScroller != null) {
                 setSelectedComponent(resultsScroller);
+            }
         }
 
         /**
@@ -709,8 +767,9 @@ public class FindAccessory extends JPanel implements Runnable,
          */
         public FindFilter[] newFind() {
             // Clear the results display
-            if (resultsPanel != null)
+            if (resultsPanel != null) {
                 resultsPanel.clear();
+            }
 
             // Fix the width of the scrolling results panel so the layout
             // managers don't try to make it too wide for JFileChooser
@@ -724,14 +783,16 @@ public class FindAccessory extends JPanel implements Runnable,
                 try {
                     FindFilterFactory fac = (FindFilterFactory) getComponentAt(i);
                     FindFilter f = fac.createFindFilter();
-                    if (f != null)
+                    if (f != null) {
                         filters.addElement(f);
+                    }
                 } catch (Throwable e) {
                     // The FindResults pane does not implement FindFilterFactory
                 }
             }
-            if (filters.size() == 0)
+            if (filters.size() == 0) {
                 return null;
+            }
             FindFilter[] filterArray = new FindFilter[filters.size()];
             for (int i = 0; i < filterArray.length; i++) {
                 filterArray[i] = (FindFilter) filters.elementAt(i);
@@ -745,6 +806,11 @@ public class FindAccessory extends JPanel implements Runnable,
      * one that does not generate a FindFilter.
      */
     class FindResults extends JPanel {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -1617913687346975642L;
+
         protected DefaultListModel model = null;
 
         protected JList fileList = null;
@@ -767,6 +833,7 @@ public class FindAccessory extends JPanel implements Runnable,
 
             // Double click listener
             MouseListener mouseListener = new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
                         try {
@@ -788,8 +855,9 @@ public class FindAccessory extends JPanel implements Runnable,
          *            file found
          */
         public void append(File f) {
-            if (f == null)
+            if (f == null) {
                 return;
+            }
             model.addElement(f);
         }
 
@@ -810,6 +878,11 @@ public class FindAccessory extends JPanel implements Runnable,
         class FindResultsCellRenderer extends JLabel implements
                 ListCellRenderer {
 
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 8466904604201273903L;
+
             FindResultsCellRenderer() {
                 setOpaque(true);
             }
@@ -821,10 +894,11 @@ public class FindAccessory extends JPanel implements Runnable,
                     // This shouldn't happen since we won't be using this
                     // renderer in a combo box
                     int selected = list.getSelectedIndex();
-                    if (selected == -1)
+                    if (selected == -1) {
                         return this;
-                    else
+                    } else {
                         index = selected;
+                    }
                 }
 
                 setBorder(new EmptyBorder(1, 2, 1, 2));
@@ -896,6 +970,11 @@ interface FindFilterFactory {
  */
 
 class FindCombined extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3076340122034740931L;
+
     FindCombined() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         // Add search-by-name panel
@@ -914,6 +993,11 @@ class FindCombined extends JPanel {
  * date.
  */
 class FindByDate extends JPanel implements FindFilterFactory {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8750877582444983024L;
+
     public static String THE_BIG_BANG = "The Start of Time";
 
     public static String THE_BIG_CRUNCH = "The End of Time";
@@ -1013,8 +1097,9 @@ class FindByDate extends JPanel implements FindFilterFactory {
      * @return milliseconds since January 1, 1970
      */
     protected long startDateToTime(String s) {
-        if (s == null)
+        if (s == null) {
             return -1;
+        }
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
         Date d = formatter.parse(s, new ParsePosition(0));
         if (d == null) {
@@ -1031,8 +1116,9 @@ class FindByDate extends JPanel implements FindFilterFactory {
                 // close enough for computer work
             }
         }
-        if (d != null)
+        if (d != null) {
             return d.getTime();
+        }
         return -1;
     }
 
@@ -1043,8 +1129,9 @@ class FindByDate extends JPanel implements FindFilterFactory {
      * @return milliseconds since January 1, 1970
      */
     protected long endDateToTime(String s) {
-        if (s == null)
+        if (s == null) {
             return -1;
+        }
         SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
         long time = -1;
@@ -1053,26 +1140,29 @@ class FindByDate extends JPanel implements FindFilterFactory {
             if (s.equalsIgnoreCase(TODAY)) {
                 String today = dateFormatter.format(new Date());
                 d = dateFormatter.parse(today, new ParsePosition(0));
-                if (d != null)
-                    time = d.getTime() + (24L * 3600L * 1000L);
+                if (d != null) {
+                    time = d.getTime() + 24L * 3600L * 1000L;
+                }
             } else if (s.equalsIgnoreCase(YESTERDAY)) {
                 String yesterday = dateFormatter.format(new Date(new Date()
                         .getTime()
                         - 24 * 60 * 60 * 1000));
                 d = dateFormatter.parse(yesterday, new ParsePosition(0));
-                if (d != null)
-                    time = d.getTime() + (24L * 3600L * 1000L);
+                if (d != null) {
+                    time = d.getTime() + 24L * 3600L * 1000L;
+                }
             } else if (s.equalsIgnoreCase(NOW)) {
                 d = new Date();
-                if (d != null)
+                if (d != null) {
                     time = d.getTime();
+                }
             } else if (s.equalsIgnoreCase(THE_BIG_CRUNCH)) {
                 time = Long.MAX_VALUE;
             }
         } else {
             // Valid date. Now add 24 hours to make sure that the
             // date is inclusive
-            time = d.getTime() + (24L * 3600L * 1000L);
+            time = d.getTime() + 24L * 3600L * 1000L;
         }
 
         return time;
@@ -1092,18 +1182,21 @@ class FindByDate extends JPanel implements FindFilterFactory {
         }
 
         public boolean accept(File f, FindProgressCallback callback) {
-            if (f == null)
+            if (f == null) {
                 return false;
+            }
 
             long t = f.lastModified();
 
             if (startTime >= 0) {
-                if (t < startTime)
+                if (t < startTime) {
                     return false;
+                }
             }
             if (endTime >= 0) {
-                if (t > endTime)
+                if (t > endTime) {
                     return false;
+                }
             }
 
             return true;
@@ -1117,6 +1210,11 @@ class FindByDate extends JPanel implements FindFilterFactory {
  * name.
  */
 class FindByName extends JPanel implements FindFilterFactory {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6437080347721452532L;
+
     protected String NAME_CONTAINS = "contains";
 
     protected String NAME_IS = "is";
@@ -1193,63 +1291,74 @@ class FindByName extends JPanel implements FindFilterFactory {
         }
 
         public boolean accept(File f, FindProgressCallback callback) {
-            if (f == null)
+            if (f == null) {
                 return false;
+            }
 
-            if ((match == null) || (match.length() == 0))
+            if (match == null || match.length() == 0) {
                 return true;
-            if (howToMatch < 0)
+            }
+            if (howToMatch < 0) {
                 return true;
+            }
 
             String filename = f.getName();
 
             if (howToMatch == NAME_CONTAINS_INDEX) {
                 if (ignoreCase) {
-                    if (filename.toLowerCase().indexOf(match.toLowerCase()) >= 0)
+                    if (filename.toLowerCase().indexOf(match.toLowerCase()) >= 0) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 } else {
-                    if (filename.indexOf(match) >= 0)
+                    if (filename.indexOf(match) >= 0) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 }
             } else if (howToMatch == NAME_IS_INDEX) {
                 if (ignoreCase) {
-                    if (filename.equalsIgnoreCase(match))
+                    if (filename.equalsIgnoreCase(match)) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 } else {
-                    if (filename.equals(match))
+                    if (filename.equals(match)) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 }
             } else if (howToMatch == NAME_STARTS_WITH_INDEX) {
                 if (ignoreCase) {
-                    if (filename.toLowerCase().startsWith(match.toLowerCase()))
+                    if (filename.toLowerCase().startsWith(match.toLowerCase())) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 } else {
-                    if (filename.startsWith(match))
+                    if (filename.startsWith(match)) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 }
             } else if (howToMatch == NAME_ENDS_WITH_INDEX) {
                 if (ignoreCase) {
-                    if (filename.toLowerCase().endsWith(match.toLowerCase()))
+                    if (filename.toLowerCase().endsWith(match.toLowerCase())) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 } else {
-                    if (filename.endsWith(match))
+                    if (filename.endsWith(match)) {
                         return true;
-                    else
+                    } else {
                         return false;
+                    }
                 }
             }
 
@@ -1268,6 +1377,11 @@ class FindByName extends JPanel implements FindFilterFactory {
  * simplicity.
  */
 class FindByContent extends JPanel implements FindFilterFactory {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -780414481774027719L;
 
     /**
      * Find for the first occurrence of the text in this field.
@@ -1325,12 +1439,15 @@ class FindByContent extends JPanel implements FindFilterFactory {
         }
 
         public boolean accept(File f, FindProgressCallback callback) {
-            if (f == null)
+            if (f == null) {
                 return false;
-            if (f.isDirectory())
+            }
+            if (f.isDirectory()) {
                 return false;
-            if ((content == null) || (content.length() == 0))
+            }
+            if (content == null || content.length() == 0) {
                 return true;
+            }
 
             boolean result = false;
             BufferedInputStream in = null;
@@ -1338,10 +1455,11 @@ class FindByContent extends JPanel implements FindFilterFactory {
                 long fileLength = f.length();
                 in = new BufferedInputStream(new FileInputStream(f));
                 byte[] contentBytes = null;
-                if (ignoreCase)
+                if (ignoreCase) {
                     contentBytes = content.toLowerCase().getBytes();
-                else
+                } else {
                     contentBytes = content.getBytes();
+                }
                 LocatorStream locator = new LocatorStream(contentBytes);
                 long counter = 0;
                 int callbackCounter = 20; // Only call back every 20 bytes
@@ -1349,8 +1467,9 @@ class FindByContent extends JPanel implements FindFilterFactory {
                 while ((c = in.read()) != -1) {
                     counter++;
                     int matchChar = c;
-                    if (ignoreCase)
-                        matchChar = (int) Character.toLowerCase((char) c);
+                    if (ignoreCase) {
+                        matchChar = Character.toLowerCase((char) c);
+                    }
                     locator.write(matchChar);
 
                     // This search could be time consuming, especially since
@@ -1360,8 +1479,9 @@ class FindByContent extends JPanel implements FindFilterFactory {
                     if (callback != null) {
                         if (--callbackCounter <= 0) {
                             if (!callback.reportProgress(this, f, counter,
-                                    fileLength))
+                                    fileLength)) {
                                 return false;
+                            }
                             callbackCounter = 20;
                         }
                     }
@@ -1371,8 +1491,9 @@ class FindByContent extends JPanel implements FindFilterFactory {
             } catch (Throwable e) {
             } finally {
                 try {
-                    if (in != null)
+                    if (in != null) {
                         in.close();
+                    }
                 } catch (IOException e) {
                 }
                 return result;
@@ -1383,6 +1504,11 @@ class FindByContent extends JPanel implements FindFilterFactory {
          * Thrown when a LocatorStream object finds a byte array.
          */
         class LocatedException extends IOException {
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 1153116944181584580L;
+
             public LocatedException(String msg) {
                 super(msg);
             }
@@ -1407,11 +1533,14 @@ class FindByContent extends JPanel implements FindFilterFactory {
                 locate = b;
             }
 
+            @Override
             public void write(int b) throws IOException {
-                if (locate == null)
+                if (locate == null) {
                     throw new IOException("NULL locator array");
-                if (locate.length == 0)
+                }
+                if (locate.length == 0) {
                     throw new IOException("Empty locator array");
+                }
 
                 long foundAt = -1;
 
@@ -1444,6 +1573,11 @@ class FindByContent extends JPanel implements FindFilterFactory {
              * Thrown when the bytes written match the byte pattern.
              */
             class MatchMadeException extends IOException {
+                /**
+                 * 
+                 */
+                private static final long serialVersionUID = -5238117879998504297L;
+
                 public MatchMadeException(String msg) {
                     super(msg);
                 }
@@ -1473,20 +1607,26 @@ class FindByContent extends JPanel implements FindFilterFactory {
                     match = b;
                 }
 
+                @Override
                 public void write(int b) throws IOException {
-                    if (matchMade)
+                    if (matchMade) {
                         return;
-                    if (match == null)
+                    }
+                    if (match == null) {
                         throw new IOException("NULL match array");
+                    }
 
-                    if (match.length == 0)
+                    if (match.length == 0) {
                         throw new IOException("Empty match array");
+                    }
 
-                    if (pos >= match.length)
+                    if (pos >= match.length) {
                         throw new IOException("No match");
+                    }
 
-                    if (b != (byte) match[pos])
+                    if (b != match[pos]) {
                         throw new IOException("No match");
+                    }
 
                     pos++;
                     if (pos >= match.length) {

@@ -108,17 +108,23 @@ public class MethodSignature {
      */
     public MethodSignature(int visibility, Class returnType, String name,
             Class[] paramTypes) {
-        if (visibility < PUBLIC || PRIVATE < visibility)
+        if (visibility < PUBLIC || PRIVATE < visibility) {
             throw new IllegalArgumentException("Invalid visibility argument.");
-        if (returnType == null)
+        }
+        if (returnType == null) {
             throw new IllegalArgumentException("Invalid returnType argument.");
-        if (name == null || name.length() == 0)
+        }
+        if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("Invalid name argument.");
-        if (paramTypes == null)
+        }
+        if (paramTypes == null) {
             paramTypes = new Class[0];
-        for (int i = 0; i < paramTypes.length; ++i)
-            if (paramTypes[i] == null)
+        }
+        for (int i = 0; i < paramTypes.length; ++i) {
+            if (paramTypes[i] == null) {
                 throw new IllegalArgumentException("Null paramType: " + i);
+            }
+        }
         this.visibility = visibility;
         this.returnType = returnType;
         this.name = name;
@@ -169,7 +175,7 @@ public class MethodSignature {
      *         <code>void</code>, <code>false</code> otherwise.
      */
     public boolean isReturnTypeVoid() {
-        return (void.class == returnType);
+        return void.class == returnType;
     }
 
     /**
@@ -188,8 +194,9 @@ public class MethodSignature {
      *         otherwise.
      */
     public boolean isValidReturnValue(Object retVal) {
-        if (isReturnTypeVoid())
+        if (isReturnTypeVoid()) {
             return false;
+        }
         return matches(retVal, returnType);
     }
 
@@ -200,7 +207,7 @@ public class MethodSignature {
      *         <code>false</code> otherwise.
      */
     public boolean hasParameters() {
-        return (paramTypes.length != 0);
+        return paramTypes.length != 0;
     }
 
     /**
@@ -222,8 +229,9 @@ public class MethodSignature {
      *         method signature, <code>false</code> otherwise.
      */
     public boolean isValidArgument(Object arg, int argIndex) {
-        if (argIndex < 0 || paramTypes.length < argIndex)
+        if (argIndex < 0 || paramTypes.length < argIndex) {
             return false;
+        }
         return matches(arg, paramTypes[argIndex]);
     }
 
@@ -236,18 +244,20 @@ public class MethodSignature {
      *         <code>methodSignature</code> hold the same state,
      *         <code>false</code> otherwise.
      */
+    @Override
     public boolean equals(Object methodSignature) {
-        boolean b = (methodSignature != null && methodSignature.getClass() == MethodSignature.class);
+        boolean b = methodSignature != null && methodSignature.getClass() == MethodSignature.class;
         if (b) {
             MethodSignature ms = (MethodSignature) methodSignature;
-            b = (ms.visibility == visibility && ms.returnType == returnType
-                    && ms.name == name && ms.paramTypes.length == paramTypes.length);
+            b = ms.visibility == visibility && ms.returnType == returnType
+                    && ms.name == name && ms.paramTypes.length == paramTypes.length;
             if (b) {
-                for (int i = 0; i < paramTypes.length; ++i)
+                for (int i = 0; i < paramTypes.length; ++i) {
                     if (paramTypes[i] != ms.paramTypes[i]) {
                         b = false;
                         break;
                     }
+                }
             }
         }
         return b;
@@ -271,14 +281,16 @@ public class MethodSignature {
      */
     private boolean matches(Object value, Class type) {
         if (primitiveTypes.containsKey(type)) {
-            if (value == null)
+            if (value == null) {
                 return false;
+            }
             Class wrapperClass = (Class) primitiveTypes.get(type);
             return wrapperClass == value.getClass();
         }
         // Else:
-        if (value == null)
+        if (value == null) {
             return true;
+        }
         return type.isAssignableFrom(value.getClass());
     }
 

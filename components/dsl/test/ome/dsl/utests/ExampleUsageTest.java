@@ -3,7 +3,6 @@ package ome.dsl.utests;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,12 +23,14 @@ public class ExampleUsageTest extends TestCase {
 
     SaxReader sr;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         File f = ResourceUtils.getFile("classpath:type.xml");
         sr = new SaxReader(f);
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         sr = null;

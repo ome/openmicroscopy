@@ -14,7 +14,6 @@ import ome.api.IQuery;
 import ome.services.RenderingBean;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
-import ome.tools.spring.InternalServiceFactory;
 import omeis.providers.re.RenderingEngine;
 
 @Test(groups = "integration")
@@ -23,12 +22,18 @@ public class ContextTest extends TestCase {
     protected RE re;
 
     static class RE extends RenderingBean {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -6011918575014582969L;
         public boolean pdCalled = false, pmCalled = false;
 
+        @Override
         public void setPixelsData(ome.io.nio.PixelsService arg0) {
             pdCalled = true;
         };
 
+        @Override
         public void setPixelsMetadata(IPixels arg0) {
             pmCalled = true;
         }

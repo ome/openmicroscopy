@@ -10,7 +10,6 @@ package ome.server.dbtests;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 
 // Third-party libraries
@@ -20,7 +19,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 // Application-internal dependencies

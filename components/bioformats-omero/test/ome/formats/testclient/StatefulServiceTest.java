@@ -16,14 +16,11 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-import ome.api.RawPixelsStore;
-import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.util.TinyImportFixture;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.Family;
-import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
@@ -31,7 +28,6 @@ import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.codomain.ReverseIntensityContext;
 import omeis.providers.re.data.PlaneDef;
 
 import junit.framework.TestCase;

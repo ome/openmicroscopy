@@ -95,8 +95,9 @@ public class CommentMessenger extends JDialog implements ActionListener {
         Icon questionIcon = UIManager.getIcon("OptionPane.questionIcon");
 
         int iconSpace = 0;
-        if (questionIcon != null)
+        if (questionIcon != null) {
             iconSpace = questionIcon.getIconWidth() + 20;
+        }
 
         double commentTable[][] = {
                 { iconSpace, (160 - iconSpace), TableLayout.FILL }, // columns

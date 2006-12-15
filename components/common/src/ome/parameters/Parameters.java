@@ -120,8 +120,9 @@ public class Parameters implements Serializable {
      * @param old
      */
     public Parameters(Parameters old) {
-        if (old == null)
+        if (old == null) {
             return;
+        }
         addAll(old);
     }
 
@@ -139,8 +140,9 @@ public class Parameters implements Serializable {
      * Filter, a default will be instantiated.
      */
     public Filter getFilter() {
-        if (filter == null)
+        if (filter == null) {
             filter = new Filter();
+        }
         return filter;
     }
 
@@ -181,8 +183,9 @@ public class Parameters implements Serializable {
     }
 
     public Parameters add(QueryParameter parameter) {
-        if (parameter == null)
+        if (parameter == null) {
             throw new ApiUsageException("Parameter argument may not be null.");
+        }
 
         queryParameters.put(parameter.name, parameter);
         return this;
@@ -198,8 +201,9 @@ public class Parameters implements Serializable {
      * @return this
      */
     public Parameters addAll(Parameters old) {
-        if (old == null)
+        if (old == null) {
             throw new ApiUsageException("Parameters argument may not be null.");
+        }
 
         if (old.filter != null) {
             if (filter != null) {
@@ -225,9 +229,10 @@ public class Parameters implements Serializable {
      */
     public Parameters addAll(QueryParameter[] queryParameters) {
 
-        if (queryParameters == null)
+        if (queryParameters == null) {
             throw new ApiUsageException(
                     "Array of QueryParameters may not be null.");
+        }
 
         for (int i = 0; i < queryParameters.length; i++) {
             add(queryParameters[i]);

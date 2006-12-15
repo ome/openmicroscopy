@@ -80,12 +80,15 @@ public abstract class HibernateUtils {
      * @return the id or null.
      */
     public static Long nullSafeOwnerId(IObject iobject) {
-        if (iobject == null)
+        if (iobject == null) {
             return null;
-        if (iobject.getDetails() == null)
+        }
+        if (iobject.getDetails() == null) {
             return null;
-        if (iobject.getDetails().getOwner() == null)
+        }
+        if (iobject.getDetails().getOwner() == null) {
             return null;
+        }
         return iobject.getDetails().getOwner().getId();
     }
 
@@ -99,12 +102,15 @@ public abstract class HibernateUtils {
      * @return the id or null.
      */
     public static Long nullSafeGroupId(IObject iobject) {
-        if (iobject == null)
+        if (iobject == null) {
             return null;
-        if (iobject.getDetails() == null)
+        }
+        if (iobject.getDetails() == null) {
             return null;
-        if (iobject.getDetails().getGroup() == null)
+        }
+        if (iobject.getDetails().getGroup() == null) {
             return null;
+        }
         return iobject.getDetails().getGroup().getId();
     }
 
@@ -199,10 +205,12 @@ public abstract class HibernateUtils {
         int[] dirty = persister.findDirty(state, current, entity, session);
 
         if (dirty != null) {
-            if (dirty.length > 1)
+            if (dirty.length > 1) {
                 return false;
-            if (!DETAILS.equals(names[dirty[0]]))
+            }
+            if (!DETAILS.equals(names[dirty[0]])) {
                 return false;
+            }
             Details new_d = getDetails(current, names);
             Details old_d = getDetails(state, names);
 
@@ -247,8 +255,9 @@ public abstract class HibernateUtils {
 
             // both details are non-null, this is the easy case.
             else {
-                if (!onlyPermissionsChanged(new_d, old_d))
+                if (!onlyPermissionsChanged(new_d, old_d)) {
                     return false;
+                }
                 Permissions new_p = new Permissions(new_d.getPermissions());
                 Permissions old_p = new Permissions(old_d.getPermissions());
                 old_p.set(Flag.LOCKED);
@@ -273,8 +282,9 @@ public abstract class HibernateUtils {
                 && idEqual(new_d.getGroup(), old_d.getGroup())
                 && idEqual(new_d.getCreationEvent(), old_d.getCreationEvent())
                 && idEqual(new_d.getUpdateEvent(), old_d.getUpdateEvent())
-                && idEqual(new_d.getExternalInfo(), old_d.getExternalInfo()))
+                && idEqual(new_d.getExternalInfo(), old_d.getExternalInfo())) {
             return true;
+        }
         return false;
     }
 
@@ -291,24 +301,27 @@ public abstract class HibernateUtils {
         // arg1 is null
         if (arg1 == null) {
             // both are null, therefore equal
-            if (arg2 == null)
+            if (arg2 == null) {
                 return true;
+            }
 
             // just arg1 is null, can't be equal
             return false;
         }
 
         // just arg2 is null, also can't be equal
-        else if (arg2 == null)
+        else if (arg2 == null) {
             return false;
+        }
 
         // neither argument is null,
         // so let's move a level down,
         // but first test reference equality
         // as a performance op.
 
-        if (arg1 == arg2)
+        if (arg1 == arg2) {
             return true; // OP
+        }
 
         Long arg1_id = arg1.getId();
         Long arg2_id = arg2.getId();
@@ -318,20 +331,20 @@ public abstract class HibernateUtils {
 
             // both are null, and not identical (see OP above)
             // therefore different
-            if (arg2_id == null)
+            if (arg2_id == null) {
                 return false;
+            }
 
             // just arg2_id is null, can't be equal
             return false;
         }
 
         // just arg2_id null, and also can't be equal
-        else if (arg2_id == null)
+        else if (arg2_id == null) {
             return false;
-
-        // neither null, then we can just test the ids.
-        else
+        } else {
             return arg1_id.equals(arg2_id);
+        }
     }
 
     public static Details getDetails(Object[] state, String[] names) {
@@ -344,8 +357,9 @@ public abstract class HibernateUtils {
 
     public static int index(String str, String[] propertyNames) {
         for (int i = 0; i < propertyNames.length; i++) {
-            if (propertyNames[i].equals(str))
+            if (propertyNames[i].equals(str)) {
                 return i;
+            }
         }
         throw new InternalException("No \"" + str + "\" property found.");
     }
@@ -358,11 +372,10 @@ public abstract class HibernateUtils {
 
         else if (c instanceof List) {
             return new ArrayList((List) c);
-        }
-
-        else
+        } else {
             throw new InternalException("Unsupported collection type:"
                     + c.getClass().getName());
+        }
     }
 
     private static void log(Object... objects) {

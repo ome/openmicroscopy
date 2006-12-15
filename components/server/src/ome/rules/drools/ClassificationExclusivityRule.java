@@ -14,27 +14,15 @@
 
 package ome.rules.drools;
 
-// Java imports
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 // Third-party libraries
 import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
 import ome.model.containers.CategoryImageLink;
-import ome.model.core.Image;
-import ome.util.ContextFilter;
-import ome.util.Filterable;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.drools.spi.KnowledgeHelper;
 import org.drools.spring.metadata.annotation.java.Condition;
 import org.drools.spring.metadata.annotation.java.Consequence;
-import org.drools.spring.metadata.annotation.java.Data;
-import org.drools.spring.metadata.annotation.java.Fact;
 import org.drools.spring.metadata.annotation.java.Rule;
 
 // Application-internal dependencies

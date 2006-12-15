@@ -17,12 +17,10 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
 
-import static ome.util.tasks.admin.AddGroupTask.Keys.leader;
 import static ome.util.tasks.admin.AddUserTask.Keys.*;
 
 /**

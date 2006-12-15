@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ejb.EJBException;
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -449,8 +447,9 @@ public class PojosServiceTest extends TestCase {
             }
         }
 
-        if (targetPath == null)
+        if (targetPath == null) {
             fail("No valid category group found for classification test.");
+        }
 
         Set single = Collections.singleton(targetPath[Paths.I.intValue()]);
         Set me = iPojos.findCGCPaths(single, IPojos.CLASSIFICATION_ME, null);
@@ -462,8 +461,9 @@ public class PojosServiceTest extends TestCase {
                 for (Iterator it2 = group.linkedCategoryIterator(); it
                         .hasNext();) {
                     Category c = (Category) it2.next();
-                    if (c.getId().equals(targetPath[Paths.C.intValue()]))
+                    if (c.getId().equals(targetPath[Paths.C.intValue()])) {
                         fail("Own category should not be included.");
+                    }
                 }
             }
 
@@ -471,8 +471,9 @@ public class PojosServiceTest extends TestCase {
 
         for (Iterator it3 = nme.iterator(); it3.hasNext();) {
             CategoryGroup group = (CategoryGroup) it3.next();
-            if (group.getId().equals(targetPath[Paths.CG.intValue()]))
+            if (group.getId().equals(targetPath[Paths.CG.intValue()])) {
                 fail("Should not be in mutually-exclusive set.");
+            }
         }
 
     }
@@ -1049,20 +1050,24 @@ public class PojosServiceTest extends TestCase {
 
     private void assertFilterWorked(Set<? extends IObject> results,
             Integer min, Integer max, Experimenter e, ExperimenterGroup g) {
-        if (min != null)
+        if (min != null) {
             assertTrue(results.size() > min);
-        if (max != null)
+        }
+        if (max != null) {
             assertTrue(results.size() < max);
-        if (e != null)
+        }
+        if (e != null) {
             for (IObject iobj : results) {
                 assertTrue(e.getId().equals(
                         iobj.getDetails().getOwner().getId()));
             }
-        if (g != null)
+        }
+        if (g != null) {
             for (IObject iobj : results) {
                 assertTrue(g.getId().equals(
                         iobj.getDetails().getGroup().getId()));
             }
+        }
     }
 
     @Test(groups = "ticket:318")
@@ -1156,8 +1161,9 @@ public class PojosServiceTest extends TestCase {
         // but this shouldn't.
         Iterator it = results.iterator();
         while (it.hasNext()) {
-            if (it.next() instanceof Image)
+            if (it.next() instanceof Image) {
                 it.remove();
+            }
         }
         assertFilterWorked(results, null, 100, fixture.e, null);
 
@@ -1172,8 +1178,9 @@ public class PojosServiceTest extends TestCase {
         // but this shouldn't.
         it = results.iterator();
         while (it.hasNext()) {
-            if (it.next() instanceof Image)
+            if (it.next() instanceof Image) {
                 it.remove();
+            }
         }
         assertFilterWorked(results, null, 100, null, fixture.g);
 

@@ -67,7 +67,7 @@ public class TestEllipseArea extends TestCase {
         Rectangle r = area.getBounds();
         Rectangle rScale;
         for (int i = 0; i < MAX_ITER; i++) {
-            j = ((double) i) / MAX_ITER;
+            j = (double) i / MAX_ITER;
             area.scale(j);
             rScale = area.getBounds();
             assertEquals("Wrong scale x [i = " + i + "].", rScale.x,

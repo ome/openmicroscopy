@@ -3,7 +3,6 @@ package ome.client.utests;
 //Java imports
 import org.testng.annotations.*;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -134,7 +133,7 @@ public class Preferences3Test extends TestCase {
         StaticApplicationContext defaultTest = new StaticApplicationContext(ac);
         defaultTest.registerBeanDefinition("test", testDef);
         defaultTest.refresh();
-        assertTrue("foo".equals((String) ((Map) defaultTest.getBean("test"))
+        assertTrue("foo".equals(((Map) defaultTest.getBean("test"))
                 .get("omero.user")));
 
     }
@@ -162,7 +161,7 @@ public class Preferences3Test extends TestCase {
                 ac2);
         defaultTest2.registerBeanDefinition("test", testDef2);
         defaultTest2.refresh();
-        assertTrue("bar".equals((String) ((Map) defaultTest2.getBean("test"))
+        assertTrue("bar".equals(((Map) defaultTest2.getBean("test"))
                 .get("omero.user")));
 
     }

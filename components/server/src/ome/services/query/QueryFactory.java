@@ -80,12 +80,14 @@ public class QueryFactory {
 
         for (QuerySource source : sources) {
             q = source.lookup(queryID, params);
-            if (q != null)
+            if (q != null) {
                 break;
+            }
         }
 
-        if (q == null)
+        if (q == null) {
             throw new QueryException("No query found for queryID=" + queryID);
+        }
 
         return q;
 

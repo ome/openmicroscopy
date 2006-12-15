@@ -1,7 +1,6 @@
 package ome.server.itests.query.pojos;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Configuration;
@@ -279,8 +278,9 @@ public class LoadContainersQueryTest extends AbstractManagedContextTest {
         boolean found = false;
         for (Dataset dataset : (List<Dataset>) list) {
             for (Image image : (List<Image>) dataset.linkedImageList()) {
-                if (!image.getId().equals(id))
+                if (!image.getId().equals(id)) {
                     continue;
+                }
                 found = true;
                 assertNotNull(image.getDefaultPixels());
             }

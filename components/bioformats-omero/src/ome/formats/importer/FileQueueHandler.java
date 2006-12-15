@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -96,8 +95,9 @@ public class FileQueueHandler extends JPanel implements ActionListener,
             if (store != null) {
                 ImportDialog dialog = new ImportDialog(viewer, "Import", true,
                         store);
-                if (dialog.cancelled == true || dialog.dataset == null)
+                if (dialog.cancelled == true || dialog.dataset == null) {
                     return;
+                }
 
                 addFileToQueue(file, dialog.dataset, dialog.dataset.getName(),
                         dialog.project.getName(), dialog.useFullPath,
@@ -123,8 +123,9 @@ public class FileQueueHandler extends JPanel implements ActionListener,
 
             Boolean fileSelected = false;
             for (File f : files) {
-                if (f.isFile() && reader.isThisType(f.getName()))
+                if (f.isFile() && reader.isThisType(f.getName())) {
                     fileSelected = true;
+                }
             }
 
             if (fileSelected != true) {
@@ -140,14 +141,16 @@ public class FileQueueHandler extends JPanel implements ActionListener,
             if (fileSelected == true && store != null) {
                 ImportDialog dialog = new ImportDialog(viewer, "Import", true,
                         store);
-                if (dialog.cancelled == true || dialog.dataset == null)
+                if (dialog.cancelled == true || dialog.dataset == null) {
                     return;
+                }
                 for (File f : files) {
-                    if (f.isFile() && reader.isThisType(f.getName()))
+                    if (f.isFile() && reader.isThisType(f.getName())) {
                         addFileToQueue(f, dialog.dataset, dialog.dataset
                                 .getName(), dialog.project.getName(),
                                 dialog.useFullPath, dialog.numOfDirectories,
                                 dialog.archiveImage.isSelected());
+                    }
                 }
             } else {
                 JOptionPane
@@ -193,9 +196,10 @@ public class FileQueueHandler extends JPanel implements ActionListener,
 
                 if (fads != null) {
                     store = viewer.loginHandler.getMetadataStore();
-                    if (store != null)
+                    if (store != null) {
                         importHandler = new ImportHandler(viewer, qTable,
                                 store, reader, fads);
+                    }
                 }
                 qTable.importing = true;
             } else {
@@ -229,8 +233,9 @@ public class FileQueueHandler extends JPanel implements ActionListener,
         row.add(file);
         row.add(archiveImage);
         qTable.table.addRow(row);
-        if (qTable.table.getRowCount() == 1)
+        if (qTable.table.getRowCount() == 1) {
             qTable.importBtn.setEnabled(true);
+        }
     }
 
     private String getImageName(File file, Boolean useFullPath,
@@ -238,14 +243,15 @@ public class FileQueueHandler extends JPanel implements ActionListener,
         // standardize the format of files from window '\' to unix '/'
         String path = file.getAbsolutePath().replace('\\', '/');
 
-        if (useFullPath == true)
+        if (useFullPath == true) {
             return path;
-        else if (numOfDirectories == 0)
+        } else if (numOfDirectories == 0) {
             return file.getName();
-        else {
+        } else {
             String[] directories = splitDirectories(path);
-            if (numOfDirectories > directories.length - 1)
+            if (numOfDirectories > directories.length - 1) {
                 numOfDirectories = directories.length - 1;
+            }
 
             int start = directories.length - numOfDirectories - 1;
 
@@ -280,8 +286,9 @@ public class FileQueueHandler extends JPanel implements ActionListener,
 
     private void removeFileFromQueue(int row) {
         qTable.table.removeRow(row);
-        if (qTable.table.getRowCount() == 0)
+        if (qTable.table.getRowCount() == 0) {
             qTable.importBtn.setEnabled(false);
+        }
     }
 
     /**

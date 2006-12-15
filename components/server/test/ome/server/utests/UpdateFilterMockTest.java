@@ -15,7 +15,6 @@ import org.testng.annotations.*;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.core.Image;
 import ome.model.internal.Details;
 
 /**

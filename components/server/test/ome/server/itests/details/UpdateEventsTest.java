@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 import ome.conditions.SecurityViolation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
-import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;

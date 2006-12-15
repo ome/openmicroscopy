@@ -116,8 +116,8 @@ public class Quantization_8_16_bit extends QuantumStrategy {
     private double initDecileMap(double dStart, double dEnd) {
         cdStart = qDef.getCdStart().intValue();
         cdEnd = qDef.getCdEnd().intValue();
-        double denum = (dEnd - dStart), num = MAX;
-        double decile = ((double) (max - min)) / DECILE;
+        double denum = dEnd - dStart, num = MAX;
+        double decile = (double) (max - min) / DECILE;
         double v = 0, b = dStart;
         int e = 0;
         Q1 = min;
@@ -131,7 +131,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
             num = MAX - 2 * DECILE;
             b = Q1;
             if (dStart >= Q1 && dEnd > Q9) {
-                denum = (Q9 - dStart);
+                denum = Q9 - dStart;
                 b = dStart;
             } else if (dStart >= Q1 && dEnd <= Q9) {
                 denum = dEnd - dStart;
@@ -139,10 +139,12 @@ public class Quantization_8_16_bit extends QuantumStrategy {
             } else if (dStart < Q1 && dEnd <= Q9) {
                 denum = dEnd - Q1;
             }
-            if (cdStart < DECILE)
+            if (cdStart < DECILE) {
                 cdStart = DECILE;
-            if (cdEnd > MAX - DECILE)
+            }
+            if (cdEnd > MAX - DECILE) {
                 cdEnd = MAX - DECILE;
+            }
         }
         aDecile = num / denum;
         bDecile = aDecile * b - e;
@@ -161,8 +163,9 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * gof.
      */
     private void buildLUT() {
-        if (LUT == null)
+        if (LUT == null) {
             initLUT();
+        }
         // Comparable assumed to be Integer
         // domain
         double dStart = getWindowStart(), dEnd = getWindowEnd();
@@ -178,28 +181,33 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         int x = min;
 
         // Build the LUT
-        for (; x < dStart; ++x)
+        for (; x < dStart; ++x) {
             LUT[x - min] = (byte) cdStart;
+        }
 
         for (; x < dEnd; ++x) {
             if (x > Q1) {
-                if (x <= Q9)
+                if (x <= Q9) {
                     v = aDecile * normalize.transform(x, 1) - bDecile;
-                else
+                } else {
                     v = cdEnd;
-            } else
+                }
+            } else {
                 v = cdStart;
+            }
             v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
             v = Approximation.nearestInteger(v);
             v = Approximation.nearestInteger(a1 * v + cdStart);
             LUT[x - min] = (byte) v;
         }
 
-        for (; x <= max; ++x)
+        for (; x <= max; ++x) {
             LUT[x - min] = (byte) cdEnd;
+        }
     }
 
     /** The input window size changed, rebuild the LUT. */
+    @Override
     protected void onWindowChange() {
         buildLUT();
     }
@@ -221,13 +229,15 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * 
      * @see QuantumStrategy#quantize(double)
      */
+    @Override
     public int quantize(double value) throws QuantizationException {
         int x = (int) value;
-        if (x < min || x > max)
+        if (x < min || x > max) {
             throw new QuantizationException("The value " + x
                     + " is not in the interval [" + min + "," + max + "]");
+        }
         int i = LUT[x - min];
-        return (i & 0xFF); // assumed x in [min, max]
+        return i & 0xFF; // assumed x in [min, max]
     }
 
 }

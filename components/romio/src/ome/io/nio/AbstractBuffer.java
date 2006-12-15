@@ -14,8 +14,9 @@ public class AbstractBuffer {
     private String path;
 
     AbstractBuffer(String path) {
-        if (path == null)
+        if (path == null) {
             throw new NullPointerException("Expecting not-null path argument.");
+        }
 
         this.path = path;
     }
@@ -24,6 +25,7 @@ public class AbstractBuffer {
         return path;
     }
 
+    @Override
     public String toString() {
         return getPath();
     }

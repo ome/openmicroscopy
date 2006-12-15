@@ -44,8 +44,9 @@ class RGBByteBuffer extends DataBuffer {
      *            The index of the requested data array element.
      * @see java.awt.image.DataBuffer#getElem(int, int)
      */
+    @Override
     public int getElem(int bank, int i) {
-        return (banks[bank][i] & 0xFF);
+        return banks[bank][i] & 0xFF;
     }
 
     /**
@@ -60,6 +61,7 @@ class RGBByteBuffer extends DataBuffer {
      *            The data to set the element in the specified bank.
      * @see java.awt.image.DataBuffer#setElem(int, int, int)
      */
+    @Override
     public void setElem(int bank, int i, int val) {
         banks[bank][i] = (byte) val;
     }

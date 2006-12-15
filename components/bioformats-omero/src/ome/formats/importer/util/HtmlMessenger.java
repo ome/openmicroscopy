@@ -63,8 +63,9 @@ public class HtmlMessenger {
                         .getResponseBodyAsStream(), method.getRequestCharSet());
                 char[] buf = new char[32678];
                 StringBuilder str = new StringBuilder();
-                for (int n; (n = reader.read(buf)) != -1;)
+                for (int n; (n = reader.read(buf)) != -1;) {
                     str.append(buf, 0, n);
+                }
                 method.releaseConnection();
                 serverReply = str.toString();
             }

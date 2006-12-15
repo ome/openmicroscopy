@@ -13,7 +13,6 @@ import org.testng.annotations.*;
 
 // Application-internal dependencies
 import ome.conditions.SecurityViolation;
-import ome.model.core.Image;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a

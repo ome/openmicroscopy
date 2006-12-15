@@ -35,8 +35,9 @@ public class ArrayStringType implements UserType {
     }
 
     private String string(int[] ids) {
-        if (null == ids)
+        if (null == ids) {
             return null;
+        }
         StringBuilder sb = new StringBuilder(ids.length * 3);
         sb.append(" ");
         for (int i = 0; i < ids.length; i++) {
@@ -66,8 +67,9 @@ public class ArrayStringType implements UserType {
     public Object nullSafeGet(ResultSet arg0, String[] arg1, Object arg2)
             throws HibernateException, SQLException {
         String list = (String) Hibernate.STRING.nullSafeGet(arg0, arg1[0]);
-        if (list == null)
+        if (list == null) {
             return new int[] {};
+        }
         return parse(list);
     }
 
@@ -78,8 +80,9 @@ public class ArrayStringType implements UserType {
     }
 
     public Object deepCopy(Object arg0) throws HibernateException {
-        if (arg0 == null)
+        if (arg0 == null) {
             return null;
+        }
         int l = ((int[]) arg0).length;
         int[] newIds = new int[l];
         System.arraycopy(arg0, 0, newIds, 0, l);
@@ -96,12 +99,12 @@ public class ArrayStringType implements UserType {
 
     public Object assemble(Serializable arg0, Object arg1)
             throws HibernateException {
-        return (Serializable) deepCopy(arg0);
+        return deepCopy(arg0);
     }
 
     public Object replace(Object arg0, Object arg1, Object arg2)
             throws HibernateException {
-        return (Serializable) deepCopy(arg0);
+        return deepCopy(arg0);
     }
 
 }

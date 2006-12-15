@@ -19,7 +19,7 @@ public class ShallowCopyTest extends TestCase {
         pix.setSizeC(1);
         pix.setImage(new Image());
 
-        Pixels test = (Pixels) new ShallowCopy().copy(pix);
+        Pixels test = new ShallowCopy().copy(pix);
         assertNotNull(test.getId());
         assertNotNull(test.getDetails());
         assertNotNull(test.getSizeC());

@@ -20,18 +20,22 @@ import org.apache.commons.logging.LogFactory;
  * @deprecated
  * @DEV.TODO this needs to be refactored to use BeanUtils; don't use. *
  */
+@Deprecated
 public class ReflectionUtils {
 
     private static Log log = LogFactory.getLog(ReflectionUtils.class);
 
     public static void findFieldsOfClass(Class target, Object o, String path,
             Log log, Set done) {
-        if (null == path || path.equals(""))
+        if (null == path || path.equals("")) {
             path = "\nthis";
-        if (null == done)
+        }
+        if (null == done) {
             done = new HashSet();
-        if (done.contains(o))
+        }
+        if (done.contains(o)) {
             return;
+        }
         done.add(o);
 
         if (target.isInstance(o)) {
@@ -39,7 +43,7 @@ public class ReflectionUtils {
                     + " < " + o.getClass());
         } else if (o instanceof Set) {
             for (Iterator it = ((Set) o).iterator(); it.hasNext();) {
-                Object element = (Object) it.next();
+                Object element = it.next();
                 findFieldsOfClass(target, element, path, log, done);
             }
         } else {
@@ -76,8 +80,9 @@ public class ReflectionUtils {
     static List checkGettersAndSetters(Method[] methods) {
         List goodMethods = new ArrayList();
 
-        if (null == methods)
+        if (null == methods) {
             return goodMethods;
+        }
 
         for (int i = 0; i < methods.length; i++) {
             boolean ok = true;
@@ -97,8 +102,9 @@ public class ReflectionUtils {
                 ok = false;
             }
 
-            if (ok)
+            if (ok) {
                 goodMethods.add(method);
+            }
         }
         return goodMethods;
     }

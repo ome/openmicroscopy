@@ -35,6 +35,7 @@ public class NullQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(NullQuerySource.class);
 
+    @Override
     public Query lookup(String queryID, Parameters parameters) {
         return null;
     }

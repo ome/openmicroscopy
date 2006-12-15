@@ -34,6 +34,11 @@ import javax.swing.text.StyledDocument;
 
 public class LoginDialog extends JDialog implements ActionListener {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4771222958599802316L;
+
     JButton loginBtn;
 
     private JTextField uname;
@@ -69,8 +74,9 @@ public class LoginDialog extends JDialog implements ActionListener {
         // password = userPrefs.get("password", password);
         server = userPrefs.get("server", server);
         port = userPrefs.get("port", port);
-        if (port == null)
+        if (port == null) {
             port = "1099";
+        }
 
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -101,11 +107,13 @@ public class LoginDialog extends JDialog implements ActionListener {
 
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowOpened(WindowEvent e) {
-                if (uname == null)
+                if (uname == null) {
                     uname.requestFocus();
-                else
+                } else {
                     pswd.requestFocus();
+                }
             }
         });
 
@@ -136,8 +144,9 @@ public class LoginDialog extends JDialog implements ActionListener {
         JTextField result = new JTextField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
         container.add(result, c);
         return result;
     }
@@ -166,8 +175,9 @@ public class LoginDialog extends JDialog implements ActionListener {
         JPasswordField result = new JPasswordField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
         container.add(result, c);
         return result;
     }

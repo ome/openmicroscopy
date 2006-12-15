@@ -30,7 +30,7 @@ public class CountCollectorTest extends TestCase {
         p.linkDataset(d);
 
         c.collect(p);
-        Set s = (Set) c.getIds(Dataset.ANNOTATIONS);
+        Set s = c.getIds(Dataset.ANNOTATIONS);
 
         assertTrue(s.contains(d.getId()));
     }
@@ -51,8 +51,8 @@ public class CountCollectorTest extends TestCase {
         i.addImageAnnotation(iann);
 
         c.collect(p);
-        Set s_1 = (Set) c.getIds(Dataset.IMAGELINKS);
-        Set s_2 = (Set) c.getIds(Image.ANNOTATIONS);
+        Set s_1 = c.getIds(Dataset.IMAGELINKS);
+        Set s_2 = c.getIds(Image.ANNOTATIONS);
 
         assertTrue(s_1.contains(d.getId()));
         assertTrue(s_2.contains(i.getId()));
@@ -71,7 +71,7 @@ public class CountCollectorTest extends TestCase {
         d.linkImage(i2);
 
         c.collect(d);
-        Set s = (Set) c.getIds(Image.CATEGORYLINKS);
+        Set s = c.getIds(Image.CATEGORYLINKS);
         assertTrue(s.size() == 2);
         assertTrue(s.contains(i1.getId()));
         assertTrue(s.contains(i2.getId()));

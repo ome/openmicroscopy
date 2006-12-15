@@ -8,30 +8,16 @@ package ome.server.itests;
 
 // Java imports
 
-// Third-party libraries
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-// Application-internal dependencies
-import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.ThumbnailStore;
-import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
-import ome.model.enums.RenderingModel;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
-import ome.testing.ObjectFactory;
-import omeis.providers.re.RenderingEngine;
 
 @Test(groups = "integration")
 public class ThumbnailServiceTest extends AbstractManagedContextTest {
@@ -45,11 +31,13 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
     // =========================================================================
     // ~ Testng Adapter
     // =========================================================================
+    @Override
     @Configuration(beforeTestMethod = true)
     public void adaptSetUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     public void adaptTearDown() throws Exception {
         super.tearDown();

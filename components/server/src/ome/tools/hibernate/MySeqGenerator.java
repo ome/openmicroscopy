@@ -20,6 +20,7 @@ public class MySeqGenerator extends SequenceGenerator {
      * If the parameters do not contain a {@link SequenceGenerator#SEQUENCE}
      * name, we assign one based on the table name.
      */
+    @Override
     public void configure(Type type, Properties params, Dialect dialect)
             throws MappingException {
         if (params.getProperty(SEQUENCE) == null

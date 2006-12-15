@@ -91,10 +91,12 @@ public class ByteArray extends ReadOnlyByteArray {
      *             If a <code>null</code> buffer is specified.
      */
     public void set(int index, byte[] buf) {
-        if (buf == null)
+        if (buf == null) {
             throw new NullPointerException("No buffer.");
-        if (buf.length == 0)
+        }
+        if (buf.length == 0) {
             return;
+        }
         checkIndex(index);
         checkIndex(index + buf.length - 1);
         System.arraycopy(buf, 0, base, offset + index, buf.length);
@@ -130,12 +132,14 @@ public class ByteArray extends ReadOnlyByteArray {
      *             <code>null</code>.
      */
     public int set(int index, int maxLength, InputStream in) throws IOException {
-        if (in == null)
+        if (in == null) {
             throw new NullPointerException("No stream.");
-        if (maxLength <= 0)
+        }
+        if (maxLength <= 0) {
             return 0;
+        }
         checkIndex(index);
-        maxLength = (index + maxLength <= length ? maxLength : length - index);
+        maxLength = index + maxLength <= length ? maxLength : length - index;
         return in.read(base, offset + index, maxLength);
     }
 

@@ -233,10 +233,12 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      */
     private void append(String key, Object... objs) {
         LinkedList<Object> l = map.get(key);
-        if (l == null)
+        if (l == null) {
             put(key, null);
-        if (objs == null)
+        }
+        if (objs == null) {
             return;
+        }
         for (Object object : objs) {
             l.addLast(object);
         }
@@ -249,10 +251,12 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      */
     private void prepend(String key, Object... objs) {
         LinkedList<Object> l = map.get(key);
-        if (l == null)
+        if (l == null) {
             put(key, null);
-        if (objs == null)
+        }
+        if (objs == null) {
             return;
+        }
         for (Object object : objs) {
             l.addFirst(object);
         }

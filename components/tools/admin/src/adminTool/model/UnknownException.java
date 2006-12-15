@@ -24,6 +24,10 @@ package src.adminTool.model;
  * @since OME3.0
  */
 public class UnknownException extends AdminToolException {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8488989184105545895L;
     public Exception e;
 
     public UnknownException(Exception parent) {

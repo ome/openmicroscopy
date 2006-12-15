@@ -160,8 +160,8 @@ public class Permissions implements Serializable {
 
     /** tests that a given {@link Role} has the given {@link Right}. */
     public boolean isGranted(Role role, Right right) {
-        return (perm1 & right.mask() << role.shift()) == (right.mask() << role
-                .shift());
+        return (perm1 & right.mask() << role.shift()) == right.mask() << role
+                .shift();
     }
 
     /** tests that a given {@link Flag} is set. */
@@ -185,29 +185,36 @@ public class Permissions implements Serializable {
         Permissions p = new Permissions(EMPTY);
         String regex = "([Rr_][Ww_]){3}";
 
-        if (rwrwrw == null || !rwrwrw.matches(regex))
+        if (rwrwrw == null || !rwrwrw.matches(regex)) {
             throw new ApiUsageException("Permissions are of the form: " + regex);
+        }
 
         char c;
 
         c = rwrwrw.charAt(0);
-        if (c == 'r' || c == 'R')
+        if (c == 'r' || c == 'R') {
             p.grant(USER, READ);
+        }
         c = rwrwrw.charAt(1);
-        if (c == 'w' || c == 'W')
+        if (c == 'w' || c == 'W') {
             p.grant(USER, WRITE);
+        }
         c = rwrwrw.charAt(2);
-        if (c == 'r' || c == 'R')
+        if (c == 'r' || c == 'R') {
             p.grant(GROUP, READ);
+        }
         c = rwrwrw.charAt(3);
-        if (c == 'w' || c == 'W')
+        if (c == 'w' || c == 'W') {
             p.grant(GROUP, WRITE);
+        }
         c = rwrwrw.charAt(4);
-        if (c == 'r' || c == 'R')
+        if (c == 'r' || c == 'R') {
             p.grant(WORLD, READ);
+        }
         c = rwrwrw.charAt(5);
-        if (c == 'w' || c == 'W')
+        if (c == 'w' || c == 'W') {
             p.grant(WORLD, WRITE);
+        }
 
         return p;
     }
@@ -259,8 +266,9 @@ public class Permissions implements Serializable {
      * for members of WORLD.
      */
     public Permissions grantAll(Permissions mask) {
-        if (mask == null)
+        if (mask == null) {
             return this;
+        }
         long maskPerm1 = mask.getPerm1();
         this.perm1 = this.perm1 | maskPerm1;
         return this;
@@ -285,8 +293,9 @@ public class Permissions implements Serializable {
      * Note: the logic here is different from Unix UMASKS.
      */
     public Permissions revokeAll(Permissions mask) {
-        if (mask == null)
+        if (mask == null) {
             return this;
+        }
         long maskPerm1 = mask.getPerm1();
         this.perm1 = this.perm1 & maskPerm1;
         return this;
@@ -294,17 +303,19 @@ public class Permissions implements Serializable {
 
     /** turn a given {@link Flag} on. A null {@link Flag} will be ignored. */
     public Permissions set(Flag flag) {
-        if (flag == null)
+        if (flag == null) {
             return this;
-        this.perm1 &= (-1L ^ flag.bit());
+        }
+        this.perm1 &= -1L ^ flag.bit();
         return this;
     }
 
     /** turn a given {@link Flag} off. A null {@link Flag} will be ignored. */
     public Permissions unSet(Flag flag) {
-        if (flag == null)
+        if (flag == null) {
             return this;
-        this.perm1 |= (0L ^ flag.bit());
+        }
+        this.perm1 |= 0L ^ flag.bit();
         return this;
     }
 
@@ -336,13 +347,15 @@ public class Permissions implements Serializable {
      * {@link Right} / {@link Role} pairs granted.
      */
     public boolean sameRights(Permissions p) {
-        if (p == this)
+        if (p == this) {
             return true;
+        }
 
         for (Role ro : Role.values()) {
             for (Right rt : Right.values()) {
-                if (isGranted(ro, rt) != p.isGranted(ro, rt))
+                if (isGranted(ro, rt) != p.isGranted(ro, rt)) {
                     return false;
+                }
             }
         }
 
@@ -362,11 +375,13 @@ public class Permissions implements Serializable {
         //    	
         // Permissions p = (Permissions) obj;
 
-        if (p == this)
+        if (p == this) {
             return true;
+        }
 
-        if (p.perm1 == this.perm1)
+        if (p.perm1 == this.perm1) {
             return true;
+        }
 
         return false;
 
@@ -398,12 +413,12 @@ public class Permissions implements Serializable {
 
     /** returns a long with only a single 0 defined by role/right */
     final protected static long singleBitOut(Role role, Right right) {
-        return (-1L ^ (right.mask() << role.shift()));
+        return -1L ^ right.mask() << role.shift();
     }
 
     /** returns a long with only a single 1 defined by role/right */
     final protected static long singleBitOn(Role role, Right right) {
-        return (0L | (right.mask() << role.shift()));
+        return 0L | right.mask() << role.shift();
     }
 
     /**
@@ -431,9 +446,10 @@ public class Permissions implements Serializable {
          *            Non-null {@link Permissions} instance.
          */
         ImmutablePermissions(Permissions p) {
-            if (p == null)
+            if (p == null) {
                 throw new IllegalArgumentException(
                         "Permissions may not be null");
+            }
 
             this.delegate = new Permissions(p);
         }
@@ -556,9 +572,10 @@ public class Permissions implements Serializable {
         private void readObject(ObjectInputStream s) throws IOException,
                 ClassNotFoundException {
             Permissions p = (Permissions) s.readObject();
-            if (p == null)
+            if (p == null) {
                 throw new IllegalArgumentException(
                         "Permissions may not be null");
+            }
 
             this.delegate = new Permissions(p);
         }

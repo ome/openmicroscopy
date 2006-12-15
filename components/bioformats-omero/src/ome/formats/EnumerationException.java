@@ -12,6 +12,11 @@ package ome.formats;
  */
 public class EnumerationException extends RuntimeException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8297550574546103502L;
+
     /** The enumeration class that was used in a failed enumeration lookup. */
     private Class failureClass;
 
@@ -32,6 +37,7 @@ public class EnumerationException extends RuntimeException {
         return value;
     }
 
+    @Override
     public String toString() {
         return getMessage() + "'" + value + "' in '" + failureClass + "'.";
     }

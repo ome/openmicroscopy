@@ -35,6 +35,11 @@ import src.adminTool.ui.messenger.CommentMessenger;
  * 
  */
 public class AdminWindow extends JFrame implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3490036241587183165L;
+
     private JMenuBar menuBar;
 
     private JMenu fileMenu;
@@ -99,8 +104,9 @@ public class AdminWindow extends JFrame implements ActionListener {
             mainPanel.startLogin();
             pack();
         }
-        if (e.getActionCommand().equals("exit"))
+        if (e.getActionCommand().equals("exit")) {
             this.dispose();
+        }
         if (e.getActionCommand().equals("comment")) {
             CommentMessenger comments = new CommentMessenger(this,
                     "Send Comment to Developers", true);

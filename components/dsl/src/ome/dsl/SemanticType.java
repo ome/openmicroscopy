@@ -141,6 +141,7 @@ public abstract class SemanticType {
         return st;
     }
 
+    @Override
     public String toString() {
         String result = "\n" + getId();
         for (Iterator it = getProperties().iterator(); it.hasNext();) {

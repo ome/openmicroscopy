@@ -13,7 +13,6 @@ import java.util.List;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.system.Principal;
 
 // Java imports
 
@@ -57,8 +56,9 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     /** copy constructor. Makes defensive copies where necessary */
     public SimpleEventContext(EventContext ec) {
-        if (ec == null)
+        if (ec == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
+        }
 
         cgId = ec.getCurrentGroupId();
         cuId = ec.getCurrentUserId();

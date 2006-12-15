@@ -34,8 +34,9 @@ public class CountCollector extends ProxySafeFilter {
 
     public CountCollector(String[] targetFields) {
 
-        if (targetFields == null)
+        if (targetFields == null) {
             throw new IllegalArgumentException("Expecting non null argument.");
+        }
 
         this.fields = new String[targetFields.length];
         System.arraycopy(targetFields, 0, this.fields, 0, targetFields.length);
@@ -87,8 +88,9 @@ public class CountCollector extends ProxySafeFilter {
 
     public Set<Long> getIds(String field) {
         int idx = Arrays.binarySearch(fields, field);
-        if (idx < 0)
+        if (idx < 0) {
             return null;
+        }
 
         return ids[idx];
 
@@ -97,24 +99,29 @@ public class CountCollector extends ProxySafeFilter {
     public void addCounts(String field, Long id, Long count) {
 
         int idx = Arrays.binarySearch(fields, field);
-        if (idx < 0)
+        if (idx < 0) {
             return;
+        }
 
-        if (count == null)
+        if (count == null) {
             return;
+        }
 
         Map<Long, IObject> l = lookup[idx];
 
-        if (l == null)
+        if (l == null) {
             return;
+        }
 
         IObject obj = l.get(id);
 
-        if (obj == null)
+        if (obj == null) {
             return;
+        }
 
-        if (obj.getDetails() == null)
+        if (obj.getDetails() == null) {
             obj.setDetails(new Details());
+        }
 
         Map counts;
         if (obj.getDetails().getCounts() == null) {

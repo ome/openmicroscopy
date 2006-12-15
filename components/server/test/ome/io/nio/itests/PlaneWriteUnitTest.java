@@ -41,11 +41,12 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
             testPlane = new byte[planeSize.intValue()];
 
             for (int i = 0; i < planeSize; i++) {
-                if (i % 2 == 0)
+                if (i % 2 == 0) {
                     testPlane[i] = -128;
-                else
+                } else {
                     testPlane[i] = 126; // Changed to not match
                                         // PixelService.nullPlane -j.m
+                }
             }
 
             byte[] md = Helper.calculateMessageDigest(testPlane);

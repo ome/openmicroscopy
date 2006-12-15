@@ -88,8 +88,9 @@ public class Session {
      *            Valid ServiceFactory instance. Not null.
      */
     public Session(ServiceFactory factory) {
-        if (factory == null)
+        if (factory == null) {
             throw new IllegalArgumentException("ServiceFactory may not be null");
+        }
 
         this.serviceFactory = factory;
         this.storage = new Storage();
@@ -111,11 +112,13 @@ public class Session {
     public IObject find(Class klass, Long id) {
         errorIfClosed();
 
-        if (klass == null || id == null)
+        if (klass == null || id == null) {
             throw new IllegalArgumentException("Class and id may not be null.");
+        }
 
-        if (storage.isDeleted(klass, id))
+        if (storage.isDeleted(klass, id)) {
             return null;
+        }
 
         return storage.findPersistent(klass, id);
     }
@@ -152,8 +155,9 @@ public class Session {
         errorIfClosed();
 
         // Silently ignore.
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         switch (getState(iObject)) // TODO refactor out.
         {
             case TRANSIENT:
@@ -183,8 +187,9 @@ public class Session {
     public void markDirty(IObject iObject) {
         errorIfClosed();
 
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         switch (getState(iObject)) {
             case PERSISTENT:
                 storage.storeDirty(iObject);
@@ -205,8 +210,9 @@ public class Session {
     public void delete(IObject iObject) {
         errorIfClosed();
 
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         switch (getState(iObject)) {
             case PERSISTENT:
                 storage.storeDeleted(iObject);
@@ -233,16 +239,18 @@ public class Session {
         IObject[] delete = storage.copyDeletedEntities();
 
         IObject[] inserted = iUpdate.saveAndReturnArray(insert);
-        if (insert.length != inserted.length)
+        if (insert.length != inserted.length) {
             throw new RuntimeException("Differing sizes returned from server.");
+        }
 
         for (int i = 0; i < inserted.length; i++) {
             storage.replaceTransient(insert[i], inserted[i]);
         }
 
         IObject[] updated = iUpdate.saveAndReturnArray(update);
-        if (update.length != updated.length)
+        if (update.length != updated.length) {
             throw new RuntimeException("Differing sizes returned from server.");
+        }
 
         for (int i = 0; i < updated.length; i++) {
             storage.storePersistent(updated[i]);
@@ -268,8 +276,9 @@ public class Session {
     public IObject checkOut(IObject iObject) {
         errorIfClosed();
 
-        if (iObject == null)
+        if (iObject == null) {
             return null;
+        }
 
         Class k = iObject.getClass();
 
@@ -283,11 +292,13 @@ public class Session {
 
         Long id = iObject.getId();
 
-        if (storage.isDeleted(k, id))
+        if (storage.isDeleted(k, id)) {
             return null;
+        }
 
-        if (storage.isPersistent(k, id))
+        if (storage.isPersistent(k, id)) {
             return storage.findPersistent(k, id);
+        }
 
         // if nothing found, return the same.
         return iObject;
@@ -321,13 +332,15 @@ public class Session {
         Long id = possibleReplacement.getId();
         IObject registeredVersion = storage.findPersistent(k, id);
 
-        if (storage.isDirty(k, id))
+        if (storage.isDirty(k, id)) {
             return conflictResolver.resolveConflict(registeredVersion,
                     possibleReplacement);
+        }
 
-        if (storage.isDeleted(k, id))
+        if (storage.isDeleted(k, id)) {
             return conflictResolver.resolveConflict(registeredVersion,
                     possibleReplacement);
+        }
 
         return possibleReplacement;
 
@@ -341,17 +354,20 @@ public class Session {
      *            state to test. Not null.
      */
     protected int getState(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             throw new IllegalArgumentException(
                     "Entities to test may not be null");
+        }
 
-        if (iObject.getId() == null)
+        if (iObject.getId() == null) {
             return TRANSIENT;
+        }
 
         if (iObject instanceof IMutable) {
             IMutable iMutable = (IMutable) iObject;
-            if (iMutable.getVersion() == null)
+            if (iMutable.getVersion() == null) {
                 return INVALID;
+            }
         }
 
         return PERSISTENT;
@@ -362,9 +378,10 @@ public class Session {
      * {@link #close()} method is called.
      */
     protected void errorIfClosed() {
-        if (closed)
+        if (closed) {
             throw new IllegalStateException("Session " + toString()
                     + " is closed.");
+        }
     }
 
     private final static String NULL_VERSION = "Invalid entity. Is it missing a version?";

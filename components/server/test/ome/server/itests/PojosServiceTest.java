@@ -90,7 +90,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         ds = da.getDataset();
         p = (Project) ds.linkedProjectList().get(0);
 
-        Project p_test = (Project) iPojos.loadContainerHierarchy(Project.class,
+        Project p_test = iPojos.loadContainerHierarchy(Project.class,
                 Collections.singleton(p.getId()), null).iterator().next();
         return p_test;
     }
@@ -105,7 +105,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         ds.setName("uEv");
         da.setContent("uEv");
         da.setDataset(ds);
-        da = (DatasetAnnotation) iPojos.createDataObject(da, null);
+        da = iPojos.createDataObject(da, null);
         return da;
     }
 

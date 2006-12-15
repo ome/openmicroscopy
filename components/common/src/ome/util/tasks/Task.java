@@ -66,8 +66,9 @@ public abstract class Task implements Runnable {
      *            Context variables for the task. Optional (can be null).
      */
     public Task(ServiceFactory serviceFactory, Properties properties) {
-        if (serviceFactory == null)
+        if (serviceFactory == null) {
             throw new IllegalArgumentException("ServiceFactory cannot be null.");
+        }
         this.sf = serviceFactory;
         this.props = properties == null ? System.getProperties() : properties;
     }
@@ -174,8 +175,9 @@ public abstract class Task implements Runnable {
      *            Any enumeration. May not be null.
      */
     protected String enumValue(Enum e) {
-        if (e == null)
+        if (e == null) {
             throw new ApiUsageException("Enum cannot be null.");
+        }
         return getProperties().getProperty(e.toString());
     }
 }

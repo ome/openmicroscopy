@@ -57,6 +57,7 @@ class ReverseIntensityMap implements CodomainMap {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         return "ReverseIntensityMap";
     }

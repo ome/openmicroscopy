@@ -9,9 +9,6 @@ package ome.util;
 
 // Java imports
 
-// Third-party libraries
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -55,9 +52,10 @@ public abstract class Validator {
         // Safe?
         if (piType.equals("RGB") || piType.equals("ARGB")
                 || piType.equals("CMYK") || piType.equals("HSV")) {
-            if (color == null)
+            if (color == null) {
                 v
                         .invalidate("Channel.color cannot be null if PiType == {RGB|ARGB|CMYK|HSV}");
+            }
         }
 
         return v;
@@ -89,9 +87,10 @@ public abstract class Validator {
         // (excep? or invalidate?)
         int sizeT = pixels.getSizeT().intValue();
         int sizeZ = pixels.getSizeZ().intValue();
-        if (!(planeInfoSize == 0 || planeInfoSize == sizeC * sizeT * sizeZ))
+        if (!(planeInfoSize == 0 || planeInfoSize == sizeC * sizeT * sizeZ)) {
             v
                     .invalidate("Size of planeInfo in Pixels should be 0 or sizeC*sizeT*sizeZ");
+        }
 
         return v;
     }

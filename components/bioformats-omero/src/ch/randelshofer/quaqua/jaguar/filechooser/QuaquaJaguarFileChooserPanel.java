@@ -15,7 +15,6 @@
 
 package ch.randelshofer.quaqua.jaguar.filechooser;
 
-import ch.randelshofer.quaqua.*;
 import ch.randelshofer.quaqua.util.*;
 
 import javax.swing.*;
@@ -29,6 +28,11 @@ import javax.swing.*;
  *          1.0 July 24, 2003 Created.
  */
 public class QuaquaJaguarFileChooserPanel extends javax.swing.JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1032262073563287646L;
+
     private ResourceBundleUtil labels = (ResourceBundleUtil) UIManager
             .get("Labels");
 

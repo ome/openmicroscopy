@@ -48,6 +48,7 @@ public class ImportHandler {
 
         new Thread() {
 
+            @Override
             public void run() {
                 importImages();
             }
@@ -117,9 +118,9 @@ public class ImportHandler {
         // calculate hour/min/sec time for the run
         timeInSeconds = timestampDiff / 1000;
         hours = timeInSeconds / 3600;
-        timeInSeconds = timeInSeconds - (hours * 3600);
+        timeInSeconds = timeInSeconds - hours * 3600;
         minutes = timeInSeconds / 60;
-        timeInSeconds = timeInSeconds - (minutes * 60);
+        timeInSeconds = timeInSeconds - minutes * 60;
         seconds = timeInSeconds;
 
         viewer.appendToOutputLn("> Total import time: " + hours + " hour(s), "

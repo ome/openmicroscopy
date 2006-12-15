@@ -14,19 +14,14 @@ import org.testng.annotations.Test;
 
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.security.SecuritySystem;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
-import ome.tools.hibernate.SecurityFilter;
-
 import static ome.model.internal.Permissions.Role.*;
 import static ome.model.internal.Permissions.Right.*;
 

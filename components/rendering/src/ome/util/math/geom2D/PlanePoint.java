@@ -80,8 +80,9 @@ public class PlanePoint {
      * @return The sum of this vector with <code>vec</code>.
      */
     public PlanePoint sum(PlanePoint vec) {
-        if (vec == null)
+        if (vec == null) {
             throw new NullPointerException("No vector.");
+        }
         return new PlanePoint(x1 + vec.x1, x2 + vec.x2);
     }
 
@@ -97,8 +98,9 @@ public class PlanePoint {
      * @return The sum of this vector with <code>-vec</code>.
      */
     public PlanePoint diff(PlanePoint vec) {
-        if (vec == null)
+        if (vec == null) {
             throw new NullPointerException("No vector.");
+        }
         return new PlanePoint(x1 - vec.x1, x2 - vec.x2);
     }
 
@@ -133,8 +135,9 @@ public class PlanePoint {
      * @return The vector associated to this point and <i>p</i>.
      */
     public PlanePoint vec(PlanePoint p) {
-        if (p == null)
+        if (p == null) {
             throw new NullPointerException("No point.");
+        }
         return new PlanePoint(p.x1 - x1, p.x2 - x2);
     }
 
@@ -152,9 +155,10 @@ public class PlanePoint {
      * @return The dot product.
      */
     public double dot(PlanePoint vec) {
-        if (vec == null)
+        if (vec == null) {
             throw new NullPointerException("No vector.");
-        return (x1 * vec.x1 + x2 * vec.x2);
+        }
+        return x1 * vec.x1 + x2 * vec.x2;
     }
 
     /**
@@ -179,8 +183,9 @@ public class PlanePoint {
      */
     public PlanePoint normalize() {
         double n = norm();
-        if (n == 0)
+        if (n == 0) {
             return this; // Null vector.
+        }
         return new PlanePoint(x1 / n, x2 / n);
     }
 
@@ -202,12 +207,14 @@ public class PlanePoint {
      *             vector.
      */
     public double angle(PlanePoint vec) {
-        if (vec == null)
+        if (vec == null) {
             throw new NullPointerException("No vector.");
+        }
         double thisNorm = norm(), vecNorm = vec.norm(), dotPrd = this.dot(vec);
-        if (thisNorm == 0 || vecNorm == 0)
+        if (thisNorm == 0 || vecNorm == 0) {
             throw new IllegalArgumentException(
                     "The angle is not defined for a null vector.");
+        }
         return Math.acos(dotPrd / (thisNorm * vecNorm));
     }
 
@@ -217,11 +224,12 @@ public class PlanePoint {
      * 
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals(Object o) {
         boolean isEqual = false;
         if (o != null && o instanceof PlanePoint) {
             PlanePoint other = (PlanePoint) o;
-            isEqual = (x1 == other.x1 && x2 == other.x2);
+            isEqual = x1 == other.x1 && x2 == other.x2;
         }
         return isEqual;
     }
@@ -232,10 +240,11 @@ public class PlanePoint {
      * 
      * @see Object#hashCode()
      */
+    @Override
     public int hashCode() {
         long bits = Double.doubleToLongBits(x1);
         bits ^= Double.doubleToLongBits(x2) * 31;
-        return (((int) bits) ^ ((int) (bits >> 32)));
+        return (int) bits ^ (int) (bits >> 32);
     }
 
 }

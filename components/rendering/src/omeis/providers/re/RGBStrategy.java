@@ -117,10 +117,11 @@ class RGBStrategy extends RenderingStrategy {
      * @return Returns the color band selected in <code>color</code>.
      */
     private int getColorBand(Color color) {
-        if (color.getGreen().intValue() == 255)
+        if (color.getGreen().intValue() == 255) {
             return RGBBuffer.G_BAND;
-        else if (color.getBlue().intValue() == 255)
+        } else if (color.getBlue().intValue() == 255) {
             return RGBBuffer.B_BAND;
+        }
         return RGBBuffer.R_BAND;
     }
 
@@ -148,8 +149,9 @@ class RGBStrategy extends RenderingStrategy {
 
         // Create a task for each active wavelength.
         for (int w = 0; w < cBindings.length; w++) {
-            if (tasks.size() == 3)
+            if (tasks.size() == 3) {
                 break; // We only render 3 w at most.
+            }
             if (cBindings[w].getActive().booleanValue()) {
                 // Get the raw data.
                 performanceStats.startIO(w);
@@ -177,6 +179,7 @@ class RGBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBBuffer render(Renderer ctx, PlaneDef planeDef) throws IOException,
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -200,6 +203,7 @@ class RGBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
             throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -241,10 +245,12 @@ class RGBStrategy extends RenderingStrategy {
         int n = tasks.length;
         Future[] rndTskFutures = new Future[n]; // [0] unused.
         ExecutorService processor = Executors.newCachedThreadPool();
-        while (0 < --n)
+        while (0 < --n) {
             rndTskFutures[n] = processor.submit(tasks[n]);
-        if (n == 0)
+        }
+        if (n == 0) {
             tasks[0].call();
+        }
 
         // Wait for all forked tasks (if any) to complete.
         processor.shutdown();
@@ -252,8 +258,9 @@ class RGBStrategy extends RenderingStrategy {
             try {
                 rndTskFutures[n].get();
             } catch (Exception e) {
-                if (e instanceof QuantizationException)
+                if (e instanceof QuantizationException) {
                     throw (QuantizationException) e;
+                }
                 throw (RuntimeException) e;
                 // B/c call() only throws QuantizationException, it must be RE.
             }
@@ -266,6 +273,7 @@ class RGBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getImageSize(PlaneDef, Pixels)
      */
+    @Override
     int getImageSize(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 * sizeX2 * 3;
@@ -276,6 +284,7 @@ class RGBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, Pixels)
      */
+    @Override
     String getPlaneDimsAsString(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 + "x" + sizeX2;

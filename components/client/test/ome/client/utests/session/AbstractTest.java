@@ -20,12 +20,14 @@ public class AbstractTest extends MockObjectTestCase {
 
     Session session;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
         session = new Session(serviceFactory);
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -45,10 +47,12 @@ public class AbstractTest extends MockObjectTestCase {
      */
     protected Mock updateMockForFlush(IObject[] createdEntitites,
             IObject[] updatedEntities) {
-        if (createdEntitites == null)
+        if (createdEntitites == null) {
             createdEntitites = new IObject[] {};
-        if (updatedEntities == null)
+        }
+        if (updatedEntities == null) {
             updatedEntities = new IObject[] {};
+        }
 
         Mock m = mock(IUpdate.class);
         m.expects(once()).method("saveAndReturnArray").will(

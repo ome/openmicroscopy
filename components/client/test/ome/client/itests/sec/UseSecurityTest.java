@@ -1,21 +1,13 @@
 package ome.client.itests.sec;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-
-import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
-import ome.model.IEnum;
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.acquisition.ImagingEnvironment;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Flag;
@@ -24,18 +16,9 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
-import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
-import ome.util.ShallowCopy;
-
-import static ome.model.internal.Permissions.Right.*;
-import static ome.model.internal.Permissions.Role.*;
-
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
-
-import junit.framework.TestCase;
 
 @Test(groups = { "ticket:337", "security", "integration" })
 public class UseSecurityTest extends AbstractPermissionsTest {
@@ -53,6 +36,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     // single plays little role in USE, but verify not locked
+    @Override
     public void testSingleProject_U() throws Exception {
         createProject(u, RW_Rx_Rx, user_other_group);
         verifyDetails(prj, user, user_other_group, RW_Rx_Rx);
@@ -61,6 +45,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         verifyLocked(u, prj, d(prj, common_group), true);
     }
 
+    @Override
     public void testSingleProject_W() throws Exception {
         createProject(w, RW_Rx_Rx, common_group);
         verifyDetails(prj, world, common_group, RW_Rx_Rx);
@@ -68,6 +53,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         verifyLocked(w, prj, d(prj, RW_xx_xx), true); // no other group
     }
 
+    @Override
     public void testSingleProject_R() throws Exception {
         createProject(r, RW_Rx_Rx, system_group);
         verifyDetails(prj, root, system_group, RW_Rx_Rx);
@@ -80,6 +66,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // ~ one-to-many
     // =========================================================================
 
+    @Override
     public void test_U_Pixels_And_U_Thumbnails() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -154,6 +141,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         // xx_xx_xx / xx_xx_xx No need. can't create.
     }
 
+    @Override
     public void test_O_Pixels_And_U_Thumbnails() throws Exception {
         ownsfA = o;
         ownerA = other;
@@ -253,6 +241,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         oneToMany(r, false, other);
     }
 
+    @Override
     public void test_U_Pixels_And_R_Thumbnails() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -377,6 +366,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // ~ many-to-many
     // =========================================================================
 
+    @Override
     public void test_U_Projects_U_Datasets_U_Link() throws Exception {
         ownsfA = ownsfB = ownsfC = u;
         ownerA = ownerB = ownerC = user;
@@ -458,6 +448,7 @@ public class UseSecurityTest extends AbstractPermissionsTest {
     // ~ Special: "tag" (e.g. Image/Pixels)
     // =========================================================================
 
+    @Override
     @Test
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;
@@ -740,11 +731,13 @@ public class UseSecurityTest extends AbstractPermissionsTest {
         try {
             _i.setDetails(d);
             sf.getUpdateService().saveObject(_i);
-            if (!can_change)
+            if (!can_change) {
                 fail("secvio!");
+            }
         } catch (SecurityViolation sv) {
-            if (can_change)
+            if (can_change) {
                 throw sv;
+            }
         }
     }
 

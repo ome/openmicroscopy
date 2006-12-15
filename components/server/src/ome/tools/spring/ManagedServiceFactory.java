@@ -33,6 +33,7 @@ import ome.system.ServiceFactory;
 public class ManagedServiceFactory extends ServiceFactory implements
         ApplicationContextAware {
 
+    @Override
     protected String getPrefix() {
         return "managed:";
     }
@@ -41,6 +42,7 @@ public class ManagedServiceFactory extends ServiceFactory implements
      * returns null to prevent the lookup of any context, but rather wait on
      * injection as a {@link ApplicationContextAware}
      */
+    @Override
     protected String getDefaultContext() {
         return null;
     }

@@ -19,18 +19,13 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-// Third-party libraries
-import junit.framework.TestCase;
-
 // Application-internal dependencies
 import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.logic.PojosImpl;
-import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.model.containers.Project;
-import ome.services.query.QueryFactory;
 import ome.services.util.ServiceHandler;
 import ome.tools.hibernate.SessionHandler;
 import ome.util.builders.PojoOptions;
@@ -46,6 +41,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
 
     protected IPojos manager;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -59,6 +55,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         manager = (IPojos) factory.getProxy();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         manager = null;
@@ -229,11 +226,12 @@ public class PojosConstraintsTest extends MockObjectTestCase {
                     fail("Expected an exception here");
                 }
             } catch (Exception e) {
-                if (failed)
+                if (failed) {
                     throw e;
+                }
 
                 if (!exceptionExpected
-                        || (t != null && !(t.isAssignableFrom(e.getClass())))) {
+                        || t != null && !t.isAssignableFrom(e.getClass())) {
                     throw new RuntimeException("Exception type " + e.getClass()
                             + " not expected. Rethrowing", e);
                 }

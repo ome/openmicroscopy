@@ -40,6 +40,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
 
     List<Long> leaderOfGroups, memberOfGroups;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -107,6 +108,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         }
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();

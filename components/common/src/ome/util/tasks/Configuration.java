@@ -79,8 +79,9 @@ public class Configuration {
      *            Not null.
      */
     public Configuration(Properties props) {
-        if (props == null)
+        if (props == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
+        }
 
         this.properties = props;
 
@@ -89,16 +90,19 @@ public class Configuration {
         }
 
         taskClass = parseTask(p(task), "");
-        if (taskClass == null)
+        if (taskClass == null) {
             taskClass = parseTask(p(task), DEFAULTPKG);
-        if (taskClass == null)
+        }
+        if (taskClass == null) {
             throw new IllegalArgumentException("Cannot find task class for:"
                     + task);
+        }
 
         if (p(host) != null || p(port) != null) {
-            if (p(host) == null || p(port) == null)
+            if (p(host) == null || p(port) == null) {
                 throw new IllegalArgumentException(
                         "host and port must be specified together.");
+            }
             server = new Server(p(host), Integer.valueOf(p(port)).intValue());
         }
 
@@ -154,14 +158,17 @@ public class Configuration {
      * @return a non-null {@link ServiceFactory} instance.
      */
     public ServiceFactory createServiceFactory() {
-        if (getLogin() != null && getServer() != null)
+        if (getLogin() != null && getServer() != null) {
             return new ServiceFactory(getServer(), getLogin());
+        }
 
-        if (getLogin() != null)
+        if (getLogin() != null) {
             return new ServiceFactory(getLogin());
+        }
 
-        if (getServer() != null)
+        if (getServer() != null) {
             return new ServiceFactory(getServer());
+        }
 
         return new ServiceFactory();
     }
@@ -185,8 +192,9 @@ public class Configuration {
                     getProperties());
             return newTask;
         } catch (Exception e) {
-            if (RuntimeException.class.isAssignableFrom(e.getClass()))
+            if (RuntimeException.class.isAssignableFrom(e.getClass())) {
                 throw (RuntimeException) e;
+            }
             throw new RuntimeException(e);
         }
     }

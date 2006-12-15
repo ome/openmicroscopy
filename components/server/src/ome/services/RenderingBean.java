@@ -230,17 +230,19 @@ public class RenderingBean extends AbstractLevel2Service implements
             this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
             this.renderer = null;
 
-            if (pixelsObj == null)
+            if (pixelsObj == null) {
                 throw new ValidationException("Pixels object with id "
                         + pixelsId + " not found.");
+            }
 
         } finally {
             rwl.writeLock().unlock();
         }
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("lookupPixels for id " + pixelsId + " succeeded: "
                     + this.pixelsObj);
+        }
     }
 
     /**
@@ -273,9 +275,10 @@ public class RenderingBean extends AbstractLevel2Service implements
             rwl.writeLock().unlock();
         }
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("lookupRenderingDef for Pixels=" + pixelsId
                     + " succeeded: " + this.rendDefObj);
+        }
 
     }
 
@@ -933,21 +936,24 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
 
     protected void errorIfNullPixels() {
-        if (pixelsObj == null)
+        if (pixelsObj == null) {
             throw new ApiUsageException(
                     "RenderingEngine not ready: Pixels object not set.");
+        }
     }
 
     protected void errorIfNullRenderingDef() {
-        if (rendDefObj == null)
+        if (rendDefObj == null) {
             throw new ApiUsageException(
                     "RenderingEngine not ready: RenderingDef object not set.");
+        }
 
     }
 
     protected void errorIfNullRenderer() {
-        if (renderer == null)
+        if (renderer == null) {
             throw new ApiUsageException(NULL_RENDERER);
+        }
 
     }
 
@@ -955,18 +961,21 @@ public class RenderingBean extends AbstractLevel2Service implements
     // =========================================================================
 
     private <T extends IObject> T lookup(T argument) {
-        if (argument == null)
+        if (argument == null) {
             return null;
-        if (argument.getId() == null)
+        }
+        if (argument.getId() == null) {
             return argument;
+        }
         return (T) iQuery
                 .get(argument.getClass(), argument.getId().longValue());
     }
 
     @SuppressWarnings("unchecked")
     private Pixels copyPixels(Pixels pixels) {
-        if (pixels == null)
+        if (pixels == null) {
             return null;
+        }
         Pixels newPixels = new ShallowCopy().copy(pixels);
         newPixels.setChannels(copyChannels(pixels.getChannels()));
         newPixels.setPixelsDimensions(new ShallowCopy().copy(pixels
@@ -977,8 +986,9 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     private List<Channel> copyChannels(List<Channel> channels) {
         List<Channel> newChannels = new ArrayList<Channel>();
-        for (Channel c : channels)
+        for (Channel c : channels) {
             newChannels.add(copyChannel(c));
+        }
         return newChannels;
     }
 
@@ -991,8 +1001,9 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
 
     private RenderingModel copyRenderingModel(RenderingModel model) {
-        if (model == null)
+        if (model == null) {
             return null;
+        }
         RenderingModel newModel = new RenderingModel();
         newModel.setId(model.getId());
         newModel.setValue(model.getValue());
@@ -1002,8 +1013,9 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
 
     private Family copyFamily(Family family) {
-        if (family == null)
+        if (family == null) {
             return null;
+        }
         Family newFamily = new Family();
         newFamily.setId(family.getId());
         newFamily.setValue(family.getValue());

@@ -53,30 +53,35 @@ public class MockServiceFactory extends ServiceFactory {
 
     public Mock mockAdmin;
 
+    @Override
     public IAdmin getAdminService() {
         return (IAdmin) mockAdmin.proxy();
     }
 
     public Mock mockAnalysis;
 
+    @Override
     public IAnalysis getAnalysisService() {
         return (IAnalysis) mockAnalysis.proxy();
     }
 
     public Mock mockPixels;
 
+    @Override
     public IPixels getPixelsService() {
         return (IPixels) mockPixels.proxy();
     }
 
     public Mock mockPojos;
 
+    @Override
     public IPojos getPojosService() {
         return (IPojos) mockPojos.proxy();
     }
 
     public Mock mockQuery;
 
+    @Override
     public IQuery getQueryService() {
         return (IQuery) mockQuery.proxy();
     }
@@ -89,12 +94,14 @@ public class MockServiceFactory extends ServiceFactory {
 
     public Mock mockUpdate;
 
+    @Override
     public IUpdate getUpdateService() {
         return (IUpdate) mockUpdate.proxy();
     }
 
     public Mock mockTypes;
 
+    @Override
     public ITypes getTypesService() {
         return (ITypes) mockTypes.proxy();
     }

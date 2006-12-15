@@ -33,7 +33,6 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 // import java.util.regex.*;
@@ -277,10 +276,17 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         super(filechooser);
     }
 
+    @Override
     public void installComponents(JFileChooser fc) {
         FileSystemView fsv = fc.getFileSystemView();
 
         sidebarList = new javax.swing.JList() {
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 6310481175502546982L;
+
+            @Override
             public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
                 d.width = 10;
@@ -719,8 +725,8 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         // End of drag and drop assignment
 
         // Change component visibility to match the dialog type
-        boolean isSave = (fc.getDialogType() == JFileChooser.SAVE_DIALOG)
-                || (fc.getDialogType() == JFileChooser.CUSTOM_DIALOG);
+        boolean isSave = fc.getDialogType() == JFileChooser.SAVE_DIALOG
+                || fc.getDialogType() == JFileChooser.CUSTOM_DIALOG;
         fileNameTextField.setEnabled(isSave);
         fileNamePanel.setVisible(isSave);
 
@@ -730,10 +736,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
                 .get("Labels");
         boolean isLocalized = bundle.getLocale().getLanguage().equals(
                 getLocale().getLanguage());
-        browser.setPreviewRenderer((isSave || !isLocalized) ? null
+        browser.setPreviewRenderer(isSave || !isLocalized ? null
                 : new FilePreview(fc));
     }
 
+    @Override
     public void uninstallComponents(JFileChooser fc) {
         fc.removeAll();
 
@@ -747,6 +754,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Installs listeners. We install the same listeners as BasicFileChooserUI
      * plus an AncestorListener and a property change listener.
      */
+    @Override
     protected void installListeners(JFileChooser fc) {
         super.installListeners(fc);
         ancestorListener = createAncestorListener(fc);
@@ -756,6 +764,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         fc.addPropertyChangeListener(filterComboBoxModel);
     }
 
+    @Override
     protected void uninstallListeners(JFileChooser fc) {
         super.uninstallListeners(fc);
         if (ancestorListener != null) {
@@ -772,6 +781,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
     }
 
+    @Override
     protected void installStrings(JFileChooser fc) {
         super.installStrings(fc);
 
@@ -848,6 +858,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     /**
      * FIXME - This could be moved up to BasicFileChooserUI.
      */
+    @Override
     public JPanel getAccessoryPanel() {
         return accessoryPanel;
     }
@@ -857,7 +868,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      */
     private String getString(String string, Locale l, String defaultValue) {
         String value = UIManager.getString(string/* , l */);
-        return (value == null) ? defaultValue : value;
+        return value == null ? defaultValue : value;
     }
 
     /**
@@ -868,6 +879,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         return new FileChooserAncestorListener();
     }
 
+    @Override
     public void createModel() {
         JFileChooser fc = getFileChooser();
         model = new AliasFileSystemTreeModel(fc);
@@ -971,7 +983,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
                     TreePath subPath = getTreeModel().toSubPath(fullPath);
 
                     // All parent paths must be equal
-                    TreePath parentPath = (subPath == null) ? null : subPath
+                    TreePath parentPath = subPath == null ? null : subPath
                             .getParentPath();
                     if (list.size() == 0) {
                         commonParentPath = parentPath;
@@ -1005,7 +1017,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         if (fullPath != null && fullPath.getPathCount() > 0) {
             AliasFileSystemTreeModel.Node node = (AliasFileSystemTreeModel.Node) fullPath
                     .getLastPathComponent();
-            directoryComboBoxModel.setPath((node.isLeaf()) ? fullPath
+            directoryComboBoxModel.setPath(node.isLeaf() ? fullPath
                     .getParentPath() : fullPath);
 
         }
@@ -1043,8 +1055,8 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      */
     private boolean isFileNameFieldVisible() {
         JFileChooser fc = getFileChooser();
-        return (fc.getDialogType() == JFileChooser.SAVE_DIALOG)
-                || (fc.getDialogType() == JFileChooser.CUSTOM_DIALOG);
+        return fc.getDialogType() == JFileChooser.SAVE_DIALOG
+                || fc.getDialogType() == JFileChooser.CUSTOM_DIALOG;
     }
 
     private void updateApproveButtonState() {
@@ -1117,8 +1129,9 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      */
     protected class BrowserSelectionListener implements TreeSelectionListener {
         public void valueChanged(TreeSelectionEvent e) {
-            if (isAdjusting != 0)
+            if (isAdjusting != 0) {
                 return;
+            }
             JFileChooser fc = getFileChooser();
             FileSystemView fsv = fc.getFileSystemView();
             TreePath path = browser.getSelectionPath();
@@ -1134,7 +1147,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
             // we strip directories from this list, if the JFileChooser does
             // not allow directory selection.
             int count = 0;
-            File[] files = new File[(paths == null) ? 0 : paths.length];
+            File[] files = new File[paths == null ? 0 : paths.length];
             ArrayList list = new ArrayList(files.length);
             for (int i = 0; i < files.length; i++) {
                 AliasFileSystemTreeModel.Node node = (AliasFileSystemTreeModel.Node) paths[i]
@@ -1153,7 +1166,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
                 fc.setSelectedFiles((File[]) list
                         .toArray(new File[list.size()]));
             } else {
-                fc.setSelectedFile((list.size() > 0) ? (File) list.get(0)
+                fc.setSelectedFile(list.size() > 0 ? (File) list.get(0)
                         : null);
             }
         }
@@ -1169,6 +1182,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * @return a <code>Dimension</code> specifying the preferred width and
      *         height of the file chooser
      */
+    @Override
     public Dimension getPreferredSize(JComponent c) {
         /*
          * Dimension d = c.getLayout().preferredLayoutSize(c); if (d != null) {
@@ -1187,6 +1201,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * @return a <code>Dimension</code> specifying the minimum width and
      *         height of the file chooser
      */
+    @Override
     public Dimension getMinimumSize(JComponent c) {
         return new Dimension(MIN_SIZE);
     }
@@ -1199,6 +1214,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * @return a <code>Dimension</code> specifying the maximum width and
      *         height of the file chooser
      */
+    @Override
     public Dimension getMaximumSize(JComponent c) {
         return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
@@ -1305,7 +1321,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
                 .get("Labels");
         boolean isLocalized = bundle.getLocale().getLanguage().equals(
                 getLocale().getLanguage());
-        browser.setPreviewRenderer((isSave || !isLocalized) ? null
+        browser.setPreviewRenderer(isSave || !isLocalized ? null
                 : new FilePreview(fc));
     }
 
@@ -1325,6 +1341,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Listen for filechooser property changes, such as the selected file
      * changing, or the type of the dialog changing.
      */
+    @Override
     public PropertyChangeListener createPropertyChangeListener(JFileChooser fc) {
         return new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
@@ -1412,6 +1429,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         browser.ensurePathIsVisible(path);
     }
 
+    @Override
     public String getFileName() {
         if (fileNameTextField != null) {
             return fileNameTextField.getText();
@@ -1420,6 +1438,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
     }
 
+    @Override
     public void setFileName(String filename) {
         if (fileNameTextField != null
                 && !fileNameTextField.hasFocus()
@@ -1447,6 +1466,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     // Renderer for DirectoryComboBox
     //
     class DirectoryComboBoxRenderer extends DefaultListCellRenderer {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -3470800726013495485L;
+
         IndentIcon ii = new IndentIcon();
 
         private Border border = new EmptyBorder(1, 0, 1, 0);
@@ -1457,6 +1481,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
             separator.setPreferredSize(new Dimension(9, 9));
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
 
@@ -1498,6 +1523,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     // Renderer for Volumes list
     //
     class VolumesRenderer extends DefaultListCellRenderer {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -8716394469816260850L;
+
         /*
          * private final Border selectedBorder = new MatteBorder(1,0,1,0, new
          * Color(7,131,216)); private final Border selectedBorderI = new
@@ -1512,6 +1542,12 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         private Border border = new EmptyBorder(1, 3, 2, 0);
 
         private JComponent separator = new JComponent() {
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 4736426883786380078L;
+
+            @Override
             public void paintComponent(Graphics g) {
                 Dimension s = getSize();
                 g.setColor(new Color(179, 179, 179));
@@ -1528,10 +1564,12 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         /*
          * public boolean isOpaque() { return false; }
          */
+        @Override
         protected void paintBorder(Graphics g) {
             // empty
         }
 
+        @Override
         protected void paintComponent(Graphics gr) {
             // Note: We draw here over the border insets
             // This saves having borders for all three possible states
@@ -1565,6 +1603,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
             super.paintComponent(g);
         }
 
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
             if (value instanceof File) {
@@ -1624,12 +1663,12 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
 
         public int getIconWidth() {
-            return (icon == null) ? depth * space : icon.getIconWidth() + depth
+            return icon == null ? depth * space : icon.getIconWidth() + depth
                     * space;
         }
 
         public int getIconHeight() {
-            return (icon == null) ? 0 : icon.getIconHeight();
+            return icon == null ? 0 : icon.getIconHeight();
         }
 
     }
@@ -1648,6 +1687,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      */
     protected class DirectoryComboBoxModel extends AbstractListModel implements
             ComboBoxModel {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -6891877901187497816L;
+
         TreePath path;
 
         AliasFileSystemTreeModel.Node selectedDirectory = null;
@@ -1720,7 +1764,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
 
         public int getSize() {
-            return (path == null) ? 0 : path.getPathCount();
+            return path == null ? 0 : path.getPathCount();
         }
 
         public Object getElementAt(int index) {
@@ -1739,6 +1783,12 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Render different type sizes and styles.
      */
     public class FilterComboBoxRenderer extends DefaultListCellRenderer {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1958741254345294430L;
+
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                 int index, boolean isSelected, boolean cellHasFocus) {
 
@@ -1765,6 +1815,10 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      */
     protected class FilterComboBoxModel extends AbstractListModel implements
             ComboBoxModel, PropertyChangeListener {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 4564161675350381712L;
         protected FileFilter[] filters;
 
         protected FilterComboBoxModel() {
@@ -1836,13 +1890,19 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Acts when DirectoryComboBox has changed the selected item.
      */
     protected class DirectoryComboBoxAction extends AbstractAction {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 2752751177519248331L;
+
         protected DirectoryComboBoxAction() {
             super("DirectoryComboBoxAction");
         }
 
         public void actionPerformed(ActionEvent e) {
-            if (isAdjusting != 0)
+            if (isAdjusting != 0) {
                 return;
+            }
 
             JFileChooser fc = getFileChooser();
             AliasFileSystemTreeModel.Node node = (AliasFileSystemTreeModel.Node) directoryComboBox
@@ -1858,15 +1918,18 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
     }
 
+    @Override
     protected JButton getApproveButton(JFileChooser fc) {
         return approveButton;
     }
 
+    @Override
     public Action getApproveSelectionAction() {
         return approveSelectionAction;
     }
 
     protected class DoubleClickListener extends MouseAdapter {
+        @Override
         public void mouseClicked(MouseEvent e) {
             // Note: We must not react on mouse clicks with clickCount=1.
             // Because this interfers with the mouse handling code in
@@ -1895,8 +1958,9 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         String filename = null;
         if (isFileNameFieldVisible()) {
             filename = getFileName();
-            if (filename.equals(""))
+            if (filename.equals("")) {
                 filename = null;
+            }
         }
 
         if (fc.isMultiSelectionEnabled()) {
@@ -1926,7 +1990,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
                     .getSelectionPath().getLastPathComponent();
             selectedFile = node.getFile();
             if (filename != null) {
-                selectedFile = new File((!node.isLeaf()) ? selectedFile
+                selectedFile = new File(!node.isLeaf() ? selectedFile
                         : selectedFile.getParentFile(), filename);
             } else if (fc.getFileSelectionMode() == JFileChooser.FILES_ONLY
                     && !node.isLeaf()) {
@@ -1959,6 +2023,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     // ***** Directory Actions *****
     // *****************************
 
+    @Override
     public Action getNewFolderAction() {
         return newFolderAction;
     }
@@ -1967,6 +2032,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Creates a new folder.
      */
     protected class NewFolderAction extends AbstractAction {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 6498567146409689288L;
+
         protected NewFolderAction() {
             super("New Folder");
         }
@@ -1981,7 +2051,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
             dialog.show();
             dialog.dispose();
 
-            return (optionPane.getInputValue() == JOptionPane.UNINITIALIZED_VALUE) ? null
+            return optionPane.getInputValue() == JOptionPane.UNINITIALIZED_VALUE ? null
                     : (String) optionPane.getInputValue();
         }
 
@@ -2046,8 +2116,9 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
         }
 
         private void textChanged() {
-            if (isAdjusting != 0)
+            if (isAdjusting != 0) {
                 return;
+            }
 
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
@@ -2123,6 +2194,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     /**
      * API method of FileChooserUI.
      */
+    @Override
     public void ensureFileIsVisible(JFileChooser fc, File f) {
         if (f != null) {
             TreePath fullPath = getFileSystemTreeModel().toPath(f,
@@ -2142,6 +2214,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     /**
      * API method of FileChooserUI.
      */
+    @Override
     public String getApproveButtonText(JFileChooser fc) {
         String buttonText = fc.getApproveButtonText();
         if (buttonText != null) {
@@ -2160,6 +2233,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     /**
      * API method of FileChooserUI.
      */
+    @Override
     public FileView getFileView(JFileChooser fc) {
         return fileView;
     }
@@ -2202,8 +2276,9 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
 
     private class VolumesSelectionListener implements ListSelectionListener {
         public void valueChanged(ListSelectionEvent e) {
-            if (isAdjusting != 0)
+            if (isAdjusting != 0) {
                 return;
+            }
 
             if (sidebarList != null) {
                 FileInfo info = (FileInfo) sidebarList.getSelectedValue();
@@ -2236,6 +2311,11 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
      * Responds to an Open or Save request
      */
     protected class QuaquaApproveSelectionAction extends AbstractAction {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 8502490377915027288L;
+
         protected QuaquaApproveSelectionAction() {
             super("approveSelection");
         }

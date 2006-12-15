@@ -28,7 +28,6 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.services.query.QueryFactory;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.SelfConfigurableService;
@@ -107,8 +106,9 @@ public abstract class AbstractBean implements SelfConfigurableService {
         if (sessionContext.getCallerPrincipal() instanceof Principal) {
             p = (Principal) sessionContext.getCallerPrincipal();
             securitySystem.login(p);
-            if (logger.isDebugEnabled())
+            if (logger.isDebugEnabled()) {
                 logger.debug("Running with user: " + p.getName());
+            }
         } else {
             throw new ApiUsageException(
                     "ome.system.Principal instance must be provided on login.");

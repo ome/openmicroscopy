@@ -11,14 +11,9 @@ package ome.server.itests.details;
 // Third-party libraries
 import org.testng.annotations.Test;
 
-// Application-internal dependencies
-import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
-import ome.model.containers.Dataset;
 import ome.model.core.Image;
-import ome.model.internal.Permissions;
-import ome.model.meta.Event;
 import ome.model.meta.ExternalInfo;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;

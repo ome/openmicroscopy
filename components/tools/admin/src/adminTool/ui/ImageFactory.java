@@ -8,8 +8,6 @@ package src.adminTool.ui;
 
 import javax.swing.ImageIcon;
 
-import src.adminTool.model.ExceptionHandler;
-
 // Java imports
 
 // Third-party libraries
@@ -70,11 +68,13 @@ public class ImageFactory {
     }
 
     public static ImageFactory get() {
-        if (ref == null)
+        if (ref == null) {
             ref = new ImageFactory();
+        }
         return ref;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
     }

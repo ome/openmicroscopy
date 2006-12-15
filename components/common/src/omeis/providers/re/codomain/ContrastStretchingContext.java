@@ -65,15 +65,18 @@ public class ContrastStretchingContext extends CodomainMapContext {
      *             If the value is not in the interval.
      */
     private void verifyInputInterval(int start, int end) {
-        if (start >= end)
+        if (start >= end) {
             throw new IllegalArgumentException(start + " cannot greater than "
                     + end + " in contrast stretching context.");
-        if (start < intervalStart)
+        }
+        if (start < intervalStart) {
             throw new IllegalArgumentException(start + " cannot lower than "
                     + intervalStart + " in contrast stretching context.");
-        if (end > intervalEnd)
+        }
+        if (end > intervalEnd) {
             throw new IllegalArgumentException(end + " cannot be greater than "
                     + intervalStart + " in contrast stretching context.");
+        }
     }
 
     /**
@@ -85,10 +88,11 @@ public class ContrastStretchingContext extends CodomainMapContext {
      */
     private void setFirstLineCoefficient(int intervalStart) {
         double r = xStart - intervalStart;
-        if (r == 0)
+        if (r == 0) {
             a0 = 0;
-        else
+        } else {
             a0 = (yStart - intervalStart) / r;
+        }
         b0 = intervalStart * (1 - a0);
     }
 
@@ -99,10 +103,11 @@ public class ContrastStretchingContext extends CodomainMapContext {
     private void setSecondLineCoefficient() {
         double r = xEnd - xStart;
         // To be on the save side, shouldn't happen.
-        if (r == 0)
+        if (r == 0) {
             a1 = 0;
-        else
+        } else {
             a1 = (yEnd - yStart) / r;
+        }
         b1 = yStart - a1 * xStart;
     }
 
@@ -115,10 +120,11 @@ public class ContrastStretchingContext extends CodomainMapContext {
      */
     private void setThirdLineCoefficient(int intervalEnd) {
         double r = intervalEnd - xEnd;
-        if (r == 0)
+        if (r == 0) {
             a2 = 0;
-        else
+        } else {
             a2 = (intervalEnd - yEnd) / r;
+        }
         b2 = intervalEnd * (1 - a2);
     }
 
@@ -127,15 +133,20 @@ public class ContrastStretchingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#buildContext()
      */
+    @Override
     void buildContext() {
-        if (xStart < intervalStart)
+        if (xStart < intervalStart) {
             xStart = intervalStart;
-        if (yStart < intervalStart)
+        }
+        if (yStart < intervalStart) {
             yStart = intervalStart;
-        if (xEnd > intervalEnd)
+        }
+        if (xEnd > intervalEnd) {
             xEnd = intervalEnd;
-        if (yEnd > intervalEnd)
+        }
+        if (yEnd > intervalEnd) {
             yEnd = intervalEnd;
+        }
 
         setFirstLineCoefficient(intervalStart);
         setSecondLineCoefficient();
@@ -147,6 +158,7 @@ public class ContrastStretchingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#getCodomainMap()
      */
+    @Override
     CodomainMap getCodomainMap() {
         return new ContrastStretchingMap();
     }
@@ -156,6 +168,7 @@ public class ContrastStretchingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#copy()
      */
+    @Override
     public CodomainMapContext copy() {
         ContrastStretchingContext copy = new ContrastStretchingContext();
         copy.intervalEnd = intervalEnd;

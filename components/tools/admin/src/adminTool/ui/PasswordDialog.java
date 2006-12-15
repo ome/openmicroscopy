@@ -36,6 +36,11 @@ import javax.swing.JPasswordField;
  * @since OME3.0
  */
 public class PasswordDialog extends JDialog implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 2144168457336467085L;
+
     private JLabel passwordLabel;
 
     private JPasswordField passwordField;

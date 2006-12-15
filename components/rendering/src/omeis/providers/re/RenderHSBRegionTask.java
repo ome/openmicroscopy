@@ -9,10 +9,6 @@ package omeis.providers.re;
 
 // Java imports
 import java.util.List;
-import java.util.concurrent.Callable;
-
-// Third-party libraries
-
 // Application-internal dependencies
 import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
@@ -107,10 +103,11 @@ class RenderHSBRegionTask implements RenderingTask {
      *             If an error occurs while quantizing a pixels intensity value.
      */
     public Object call() throws QuantizationException {
-        if (dataBuffer instanceof RGBIntBuffer)
+        if (dataBuffer instanceof RGBIntBuffer) {
             renderPackedInt();
-        else
+        } else {
             renderBanded();
+        }
         return null;
     }
 
@@ -147,20 +144,23 @@ class RenderHSBRegionTask implements RenderingTask {
                     // Pre-multiply the alpha component and add the existing
                     // colour value to the new colour value.
                     v = discreteValue * alpha;
-                    rValue = ((int) (rColor * v)) + r[pix];
-                    gValue = ((int) (gColor * v)) + g[pix];
-                    bValue = ((int) (bColor * v)) + b[pix];
+                    rValue = (int) (rColor * v) + r[pix];
+                    gValue = (int) (gColor * v) + g[pix];
+                    bValue = (int) (bColor * v) + b[pix];
 
                     // Ensure that each colour component value is between 0 and
                     // 255 (byte). We must make *certain* that values to not
                     // wrap over 255 otherwise there will be corruption
                     // introduced into the rendered image.
-                    if (rValue > 255)
+                    if (rValue > 255) {
                         rValue = 255;
-                    if (gValue > 255)
+                    }
+                    if (gValue > 255) {
                         gValue = 255;
-                    if (bValue > 255)
+                    }
+                    if (bValue > 255) {
                         bValue = 255;
+                    }
 
                     r[pix] = (byte) (rValue & 0xFF);
                     g[pix] = (byte) (gValue & 0xFF);
@@ -227,12 +227,15 @@ class RenderHSBRegionTask implements RenderingTask {
                     // 255 (byte). We must make *certain* that values to not
                     // wrap over 255 otherwise there will be corruption
                     // introduced into the rendered image.
-                    if (rValue > 255)
+                    if (rValue > 255) {
                         rValue = 255;
-                    if (gValue > 255)
+                    }
+                    if (gValue > 255) {
                         gValue = 255;
-                    if (bValue > 255)
+                    }
+                    if (bValue > 255) {
                         bValue = 255;
+                    }
 
                     // Packed each colour component along with a 1.0 alpha into
                     // the buffer so that buffered images that use this buffer

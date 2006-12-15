@@ -27,6 +27,7 @@ public class PreferencesTest extends
                 "An attempt to override.");
     }
 
+    @Override
     protected String[] getConfigLocations() {
         System.getProperties().setProperty("test.system.value",
                 "This was set at config.");

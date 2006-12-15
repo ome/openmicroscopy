@@ -54,6 +54,7 @@ public class ServiceFactory {
      * 
      * @deprecated
      */
+    @Deprecated
     public OmeroContext getContext() {
         return ctx;
     }

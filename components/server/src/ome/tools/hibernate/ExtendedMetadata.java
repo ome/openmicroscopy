@@ -64,8 +64,9 @@ public class ExtendedMetadata {
      */
     @SuppressWarnings("unchecked")
     public ExtendedMetadata(SessionFactory sessionFactory) {
-        if (sessionFactory == null)
+        if (sessionFactory == null) {
             throw new ApiUsageException("SessionFactory may not be null.");
+        }
 
         Map<String, ClassMetadata> m = sessionFactory.getAllClassMetadata();
 
@@ -103,8 +104,9 @@ public class ExtendedMetadata {
      * @see Permissions.Flag#LOCKED
      */
     public IObject[] getLockCandidates(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return new IObject[] {};
+        }
 
         Locks l = locksHolder.get(iObject.getClass().getName());
         return l.getLockCandidates(iObject);
@@ -121,21 +123,24 @@ public class ExtendedMetadata {
      * @see Permissions.Flag#LOCKED
      */
     public String[][] getLockChecks(Class<? extends IObject> klass) {
-        if (klass == null)
+        if (klass == null) {
             throw new ApiUsageException("Cannot proceed with null klass.");
+        }
 
         String[][] checks = lockedByHolder.get(klass.getName());
 
-        if (checks == null)
+        if (checks == null) {
             throw new ApiUsageException("Metadata not found for: "
                     + klass.getName());
+        }
 
         return checks;
     }
 
     public String[] getImmutableFields(Class<? extends IObject> klass) {
-        if (klass == null)
+        if (klass == null) {
             throw new ApiUsageException("Cannot proceed with null klass.");
+        }
 
         Immutables i = immutablesHolder.get(klass.getName());
         return i.getImmutableFields();
@@ -151,8 +156,9 @@ public class ExtendedMetadata {
      * is the inverse process.
      */
     private String[][] lockedByFields(String klass, Map<String, ClassMetadata> m) {
-        if (m == null)
+        if (m == null) {
             throw new InternalException("ClassMetadata map cannot be null.");
+        }
 
         List<String[]> fields = new ArrayList<String[]>();
 
@@ -163,8 +169,9 @@ public class ExtendedMetadata {
             Locks inverse = locksHolder.get(k);
             for (int i = 0; i < inverse.size(); i++) {
 
-                if (!inverse.include(i))
+                if (!inverse.include(i)) {
                     continue;
+                }
 
                 // this is an embedded component and must be treated
                 // specially. specifically, that we cannot compare against
@@ -253,10 +260,12 @@ class Locks {
     }
 
     private void add(int i) {
-        if (i >= size)
+        if (i >= size) {
             throw new IllegalArgumentException("size");
-        if (this.include[i] == true)
+        }
+        if (this.include[i] == true) {
             throw new IllegalStateException("set");
+        }
 
         this.include[i] = true;
         this.subnames[i] = new String[] {};
@@ -265,16 +274,21 @@ class Locks {
     }
 
     private void add(int i, String[] paths, Type[] types) {
-        if (i >= size)
+        if (i >= size) {
             throw new IllegalArgumentException("size");
-        if (paths == null)
+        }
+        if (paths == null) {
             throw new IllegalArgumentException("paths");
-        if (types == null)
+        }
+        if (types == null) {
             throw new IllegalArgumentException("types");
-        if (paths.length != types.length)
+        }
+        if (paths.length != types.length) {
             throw new IllegalStateException("size");
-        if (this.include[i] == true)
+        }
+        if (this.include[i] == true) {
             throw new IllegalStateException("set");
+        }
 
         if (paths.length > 0) {
             this.include[i] = true;
@@ -292,8 +306,9 @@ class Locks {
         IObject[] toCheck = new IObject[total()];
         Object[] values = cm.getPropertyValues(o, EntityMode.POJO);
         for (int i = 0; i < size(); i++) {
-            if (!include(i))
+            if (!include(i)) {
                 continue;
+            }
 
             // this relation has subtypes and therefore is an embedded
             // component. This means that the value in values[] is the
@@ -401,12 +416,13 @@ class Immutables {
     EntityPersister ep;
 
     Immutables(ClassMetadata metadata) {
-        if (metadata instanceof EntityPersister)
+        if (metadata instanceof EntityPersister) {
             this.ep = (EntityPersister) metadata;
-        else
+        } else {
             throw new IllegalArgumentException("Metadata passed to Immutables"
                     + " must be an instanceof EntityPersister, not "
                     + (metadata == null ? null : metadata.getClass()));
+        }
 
         List<String> retVal = new ArrayList<String>();
         Type[] type = this.ep.getPropertyTypes();

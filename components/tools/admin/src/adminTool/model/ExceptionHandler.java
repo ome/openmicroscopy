@@ -28,18 +28,20 @@ public class ExceptionHandler {
 
     public void catchException(Exception e) throws IAdminException,
             UnknownException, PermissionsException {
-        if (e instanceof ome.conditions.ApiUsageException)
+        if (e instanceof ome.conditions.ApiUsageException) {
             throw new IAdminException(e);
-        if (e instanceof ome.conditions.ValidationException)
+        }
+        if (e instanceof ome.conditions.ValidationException) {
             throw new IAdminException(e);
-        else if (e instanceof javax.ejb.EJBAccessException)
+        } else if (e instanceof javax.ejb.EJBAccessException) {
             throw new PermissionsException(e);
-        else if (e instanceof java.lang.SecurityException)
+        } else if (e instanceof java.lang.SecurityException) {
             throw new PermissionsException(e);
-        else if (e instanceof ome.conditions.SecurityViolation)
+        } else if (e instanceof ome.conditions.SecurityViolation) {
             throw new PermissionsException(e);
-        else
+        } else {
             throw new UnknownException(e);
+        }
     }
 
     private ExceptionHandler() {
@@ -47,11 +49,13 @@ public class ExceptionHandler {
     }
 
     public static ExceptionHandler get() {
-        if (ref == null)
+        if (ref == null) {
             ref = new ExceptionHandler();
+        }
         return ref;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
     }

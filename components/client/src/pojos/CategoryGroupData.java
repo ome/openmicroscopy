@@ -80,8 +80,9 @@ public class CategoryGroupData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asCategoryGroup().setName(name);
     }

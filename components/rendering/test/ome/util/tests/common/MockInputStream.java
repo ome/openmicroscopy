@@ -54,14 +54,16 @@ public class MockInputStream extends InputStream implements IMock {
         Object[] args = new Object[] { buffer, new Integer(offset),
                 new Integer(length) };
         MockedCall mc = new MockedCall(read3, args, new Integer(retVal));
-        if (e != null)
+        if (e != null) {
             mc.setException(e);
+        }
         mockSupport.add(mc);
     }
 
     // Used in verification mode. After verifying the call, it also writes
     // 1 into buffer[offset+i], i=0,..,length-1 if the return value is not -1.
     // Then it returns that return value set in the set-up call.
+    @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
         Object[] args = new Object[] { buffer, new Integer(offset),
                 new Integer(length) };
@@ -69,15 +71,18 @@ public class MockInputStream extends InputStream implements IMock {
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException()) {
             Exception e = (Exception) mc.getException();
-            if (e instanceof IOException)
+            if (e instanceof IOException) {
                 throw (IOException) e;
+            }
             throw (RuntimeException) e;
         }
         Integer r = (Integer) mc.getResult();
         int retVal = r.intValue();
-        if (retVal != -1)
-            for (int i = 0; i < length; ++i)
+        if (retVal != -1) {
+            for (int i = 0; i < length; ++i) {
                 buffer[offset + i] = 1;
+            }
+        }
         return retVal;
     }
 
@@ -86,19 +91,22 @@ public class MockInputStream extends InputStream implements IMock {
     // thrown in verification mode.
     public void close(Exception e) {
         MockedCall mc = new MockedCall(close);
-        if (e != null)
+        if (e != null) {
             mc.setException(e);
+        }
         mockSupport.add(mc);
     }
 
     // Used in verification mode.
+    @Override
     public void close() throws IOException {
         MockedCall mc = new MockedCall(close);
         mc = mockSupport.verifyCall(mc);
         if (mc.hasException()) {
             Exception e = (Exception) mc.getException();
-            if (e instanceof IOException)
+            if (e instanceof IOException) {
                 throw (IOException) e;
+            }
             throw (RuntimeException) e;
         }
     }
@@ -118,6 +126,7 @@ public class MockInputStream extends InputStream implements IMock {
     }
 
     // Not used for our tests, implemented b/c abstract in superclass.
+    @Override
     public int read() throws IOException {
         return 0;
     }

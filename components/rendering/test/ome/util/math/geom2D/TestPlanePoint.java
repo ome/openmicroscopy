@@ -313,9 +313,10 @@ public class TestPlanePoint extends TestCase {
     public void testHashCodeDiffCalls() {
         PlanePoint p = new PlanePoint(500, -30000);
         int h = p.hashCode();
-        for (int i = 0; i < MAX_ITER; ++i)
+        for (int i = 0; i < MAX_ITER; ++i) {
             assertEquals("Should return same value across different calls.", h,
                     p.hashCode());
+        }
     }
 
     @Test

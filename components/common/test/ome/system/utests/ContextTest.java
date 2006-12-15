@@ -180,8 +180,9 @@ class ParentListener extends AbstractListener {
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-        if (isRefresh(event))
+        if (isRefresh(event)) {
             ((Collector) m.get(ContextTest.C)).parentRefreshed = true;
+        }
     }
 }
 
@@ -191,8 +192,9 @@ class ChildListener extends AbstractListener {
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-        if (isRefresh(event))
+        if (isRefresh(event)) {
             ((Collector) m.get(ContextTest.C)).childRefreshed = true;
+        }
     }
 }
 

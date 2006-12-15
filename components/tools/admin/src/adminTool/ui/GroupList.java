@@ -39,6 +39,11 @@ import src.adminTool.model.Model;
  * @since OME3.0
  */
 public class GroupList extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7613633180952936071L;
+
     private JList groups;
 
     private DefaultListModel listModel;
@@ -63,34 +68,39 @@ public class GroupList extends JPanel {
 
     public void refresh() {
         List data;
-        if (filterByUser)
+        if (filterByUser) {
             data = model.getGroupsUserNotMemberOf(userName);
-        else
+        } else {
             data = model.getGroupsList();
+        }
         listModel.clear();
-        for (int i = 0; i < data.size(); i++)
+        for (int i = 0; i < data.size(); i++) {
             listModel.add(i, data.get(i));
+        }
         groups.setModel(listModel);
     }
 
     public void selectFirstGroup() {
-        if (listModel.size() != 0)
+        if (listModel.size() != 0) {
             groups.setSelectedIndex(0);
+        }
     }
 
     public int findCurrentGroup(String name) {
         for (int i = 0; i < listModel.size(); i++) {
             String listelement = (String) listModel.get(i);
-            if (listelement.equals(name))
+            if (listelement.equals(name)) {
                 return i;
+            }
         }
         return -1;
     }
 
     public void selectCurrentGroup() {
         int currentGroup = findCurrentGroup(model.getCurrentGroup().getName());
-        if (currentGroup != -1)
+        if (currentGroup != -1) {
             groups.setSelectedIndex(currentGroup);
+        }
     }
 
     public void clear() {
@@ -98,14 +108,17 @@ public class GroupList extends JPanel {
     }
 
     public String getSelectedGroup() {
-        if (listModel.size() == 0)
+        if (listModel.size() == 0) {
             return null;
-        if (groups.getLeadSelectionIndex() < 0)
+        }
+        if (groups.getLeadSelectionIndex() < 0) {
             return null;
-        if (groups.getLeadSelectionIndex() < listModel.size())
+        }
+        if (groups.getLeadSelectionIndex() < listModel.size()) {
             return (String) listModel.get(groups.getLeadSelectionIndex());
-        else
+        } else {
             return null;
+        }
     }
 
     public GroupList(Model model) {
@@ -123,8 +136,9 @@ public class GroupList extends JPanel {
         List data = model.getGroupsList();
 
         listModel.clear();
-        for (int i = 0; i < data.size(); i++)
+        for (int i = 0; i < data.size(); i++) {
             listModel.add(i, data.get(i));
+        }
 
         groups.setModel(listModel);
 
@@ -158,9 +172,10 @@ public class GroupList extends JPanel {
                 if (!e.getValueIsAdjusting()) {
                     JList list = (JList) e.getSource();
                     if (list.getLeadSelectionIndex() >= 0
-                            && list.getLeadSelectionIndex() < listModel.size())
+                            && list.getLeadSelectionIndex() < listModel.size()) {
                         controller.groupSelected((String) listModel.get(list
                                 .getLeadSelectionIndex()));
+                    }
                 }
             }
         });

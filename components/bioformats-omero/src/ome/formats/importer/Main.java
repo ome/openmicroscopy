@@ -325,10 +325,11 @@ public class Main extends JFrame implements ActionListener, WindowListener {
      *            boolean toggle for the import menu
      */
     public void setImportEnabled(boolean toggle) {
-        if (toggle == true)
+        if (toggle == true) {
             login.setText("Logout...");
-        else
+        } else {
             login.setText("Login...");
+        }
     }
 
     /**

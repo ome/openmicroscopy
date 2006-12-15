@@ -43,7 +43,6 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
-import ome.model.meta.Event;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
@@ -196,11 +195,13 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     @RolesAllowed("user")
     public void deleteObject(IObject row) {
-        if (row == null)
+        if (row == null) {
             return;
-        if (row.getId() == null)
+        }
+        if (row.getId() == null) {
             throw new ApiUsageException(
                     "Non-managed IObject entity cannot be deleted. Must have an id.");
+        }
         doAction(row, new UpdateAction<IObject>() {
             @Override
             public IObject run(IObject value, UpdateFilter filter) {
@@ -214,12 +215,14 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     // =========================================================
     private void beforeUpdate(Object argument, UpdateFilter filter) {
 
-        if (argument == null)
+        if (argument == null) {
             throw new IllegalArgumentException(
                     "Argument to save cannot be null.");
+        }
 
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug(" Saving event before merge. ");
+        }
 
     }
 
@@ -229,8 +232,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link UpdateFilter} or to another event listener.
      */
     protected IObject internalSave(IObject obj, UpdateFilter filter) {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug(" Internal save. ");
+        }
 
         IObject result = (IObject) filter.filter(null, obj);
         result = (IObject) getHibernateTemplate().merge(result);
@@ -238,8 +242,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     protected void internalDelete(IObject obj, UpdateFilter filter) {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug(" Internal delete. ");
+        }
 
         getHibernateTemplate().delete(
                 getHibernateTemplate().load(Utils.trueClass(obj.getClass()),
@@ -248,8 +253,9 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     private void afterUpdate(UpdateFilter filter) {
 
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug(" Post-save cleanup. ");
+        }
 
         // Clean up
         getHibernateTemplate().flush();

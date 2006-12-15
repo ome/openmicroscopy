@@ -14,7 +14,6 @@ import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.operation.DatabaseOperation;
-import org.springframework.context.ApplicationContext;
 import org.testng.annotations.Configuration;
 
 // Application-internal dependencies
@@ -28,11 +27,13 @@ public abstract class AbstractDbUnitTest extends AbstractInternalContextTest {
 
     // ~ Testng Adapter
     // =========================================================================
+    @Override
     @Configuration(beforeTestMethod = true)
     public void adaptSetUp() throws Exception {
         setUp();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     public void adaptTearDown() throws Exception {
         tearDown();

@@ -8,12 +8,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
-import ome.conditions.ApiUsageException;
-import ome.conditions.ValidationException;
-import ome.model.core.Image;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;

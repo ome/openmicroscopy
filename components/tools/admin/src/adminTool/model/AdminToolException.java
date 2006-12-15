@@ -24,6 +24,10 @@ package src.adminTool.model;
  * @since OME3.0
  */
 public class AdminToolException extends Exception {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6620847444830770468L;
     Exception e;
 
     AdminToolException(Exception parent) {

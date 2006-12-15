@@ -66,8 +66,9 @@ public class ProjectData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public ProjectData(Project project) {
-        if (project == null)
+        if (project == null) {
             throw new IllegalArgumentException("Object cannot null.");
+        }
         setValue(project);
     }
 
@@ -80,8 +81,9 @@ public class ProjectData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asProject().setName(name);
     }

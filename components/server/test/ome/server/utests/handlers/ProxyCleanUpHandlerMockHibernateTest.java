@@ -44,6 +44,7 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase {
 
     Mock mockSession, mockCtx;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -54,6 +55,7 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase {
         ctx = (PersistenceContext) mockCtx.proxy();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();

@@ -13,11 +13,9 @@ package omeis.providers.re.quantum;
 
 // Application-internal dependencies
 import ome.api.IPixels;
-import ome.api.IQuery;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
-import ome.system.OmeroContext;
 
 /**
  * Factory to create objects to carry out quantization for a given context. This
@@ -109,7 +107,7 @@ public class QuantumFactory {
      * @return A family enumeration object.
      */
     public static Family getFamily(IPixels iPixels, String value) {
-        return (Family) iPixels.getEnumeration(Family.class, value);
+        return iPixels.getEnumeration(Family.class, value);
     }
 
     /**
@@ -122,8 +120,9 @@ public class QuantumFactory {
      *             If the check fails.
      */
     private static void verifyDef(QuantumDef qd, PixelsType type) {
-        if (qd == null)
+        if (qd == null) {
             throw new NullPointerException("No quantum definition.");
+        }
         verifyBitResolution(qd.getBitResolution().intValue());
     }
 
@@ -164,9 +163,10 @@ public class QuantumFactory {
                 b = true;
                 break;
         }
-        if (!b)
+        if (!b) {
             throw new IllegalArgumentException("Unsupported bit resolution: "
                     + bitResolution + ".");
+        }
     }
 
     /**
@@ -197,8 +197,9 @@ public class QuantumFactory {
         verifyDef(qd, type);
         QuantumStrategy strg = null;
         strg = getQuantization(qd, type, iPixels);
-        if (strg == null)
+        if (strg == null) {
             throw new IllegalArgumentException("Unsupported strategy");
+        }
         return strg;
     }
 

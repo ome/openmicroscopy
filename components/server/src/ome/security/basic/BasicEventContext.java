@@ -87,15 +87,17 @@ class BasicEventContext implements EventContext {
 
     public List<Long> getLeaderOfGroupsList() {
         Collection<Long> l = this.leaderOfGroups;
-        if (l == null)
+        if (l == null) {
             return Collections.emptyList();
+        }
         return new ArrayList<Long>(l);
     }
 
     public List<Long> getMemberOfGroupsList() {
         Collection<Long> l = this.memberOfGroups;
-        if (l == null)
+        if (l == null) {
             return Collections.emptyList();
+        }
         return new ArrayList<Long>(l);
     }
 

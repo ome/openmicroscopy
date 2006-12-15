@@ -8,9 +8,6 @@ package ome.server.utests;
 
 // Java imports
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 // Third-party libraries
 import org.drools.spi.ConsequenceException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;

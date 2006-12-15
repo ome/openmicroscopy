@@ -1,8 +1,5 @@
 package ome.server.itests;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.api.IUpdate;

@@ -114,8 +114,9 @@ public class PixelsData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public PixelsData(Pixels pixels) {
-        if (pixels == null)
+        if (pixels == null) {
             throw new IllegalArgumentException("The object cannot be null.");
+        }
         setValue(pixels);
     }
 
@@ -228,8 +229,9 @@ public class PixelsData extends DataObject {
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null)
+        if (dims != null) {
             dims.setSizeX(new Float(pixelSizeX));
+        }
     }
 
     /**
@@ -252,8 +254,9 @@ public class PixelsData extends DataObject {
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null)
+        if (dims != null) {
             dims.setSizeY(new Float(pixelSizeY));
+        }
     }
 
     /**
@@ -276,8 +279,9 @@ public class PixelsData extends DataObject {
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
         PixelsDimensions dims = asPixels().getPixelsDimensions();
-        if (dims != null)
+        if (dims != null) {
             dims.setSizeZ(new Float(pixelSizeZ));
+        }
     }
 
     /**
@@ -307,8 +311,9 @@ public class PixelsData extends DataObject {
      * @return See above.
      */
     public ImageData getImage() {
-        if (image == null && asPixels().getImage() != null)
+        if (image == null && asPixels().getImage() != null) {
             image = new ImageData(asPixels().getImage());
+        }
         return image;
     }
 
@@ -321,10 +326,11 @@ public class PixelsData extends DataObject {
     public void setImage(ImageData image) {
         setDirty(true);
         this.image = image;
-        if (image == null)
+        if (image == null) {
             asPixels().setImage(null);
-        else
+        } else {
             asPixels().setImage(image.asImage());
+        }
     }
 
 }

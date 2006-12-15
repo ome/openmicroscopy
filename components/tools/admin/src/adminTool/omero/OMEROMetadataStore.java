@@ -67,12 +67,14 @@ public class OMEROMetadataStore {
             String port) {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
-        if (password == null)
+        if (password == null) {
             password = new String("");
-        if (password.length() > 0)
+        }
+        if (password.length() > 0) {
             maskedPswd = "<" + password.length() + "chars>";
-        else
+        } else {
             maskedPswd = "<empty>";
+        }
 
         // Attempt to log in
         Server server = new Server(host, Integer.parseInt(port));

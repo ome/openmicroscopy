@@ -13,7 +13,6 @@ import javax.naming.NamingException;
 // Third-party libraries
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;

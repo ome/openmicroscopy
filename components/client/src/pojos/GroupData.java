@@ -62,8 +62,9 @@ public class GroupData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public GroupData(ExperimenterGroup group) {
-        if (group == null)
+        if (group == null) {
             throw new IllegalArgumentException("Annotation cannot null.");
+        }
         setValue(group);
     }
 
@@ -86,8 +87,9 @@ public class GroupData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asGroup().setName(name);
     }

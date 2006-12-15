@@ -51,11 +51,13 @@ public class ProxyCleanupFilter extends ContextFilter {
 
     @Override
     public Filterable filter(String fieldId, Filterable f) {
-        if (f == null)
+        if (f == null) {
             return null;
+        }
 
-        if (unloadedObjectCache.containsKey(f))
+        if (unloadedObjectCache.containsKey(f)) {
             return (IObject) unloadedObjectCache.get(f);
+        }
 
         // A proxy; send over the wire in altered form.
         if (!Hibernate.isInitialized(f)) {
@@ -99,11 +101,11 @@ public class ProxyCleanupFilter extends ContextFilter {
 
         // ticket:61 : preventing Hibernate collection types from escaping.
         if (retVal instanceof AbstractPersistentCollection) {
-            if (retVal instanceof Set)
+            if (retVal instanceof Set) {
                 retVal = new HashSet(retVal);
-
-            else if (retVal instanceof List)
+            } else if (retVal instanceof List) {
                 retVal = new ArrayList(retVal);
+            }
 
         } // end ticket:61
 

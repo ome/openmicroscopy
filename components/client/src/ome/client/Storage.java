@@ -81,8 +81,9 @@ public class Storage {
      * checked
      */
     public boolean isTransient(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return false;
+        }
         return created.containsKey(iObject);
     }
 
@@ -106,36 +107,41 @@ public class Storage {
      *         {@link #hasReplacement(IObject)}
      */
     public IObject getReplacement(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return null;
+        }
         return (IObject) created.get(iObject);
     }
 
     /** get tracked version of entity */
     public IObject findPersistent(Class klass, Long id) {
-        if (klass == null || id == null)
+        if (klass == null || id == null) {
             return null;
+        }
         return (IObject) persistent.get(new Key(klass, id));
     }
 
     /** is entity scheduled currently tracked */
     public boolean isPersistent(Class klass, Long id) {
-        if (klass == null || id == null)
+        if (klass == null || id == null) {
             return false;
+        }
         return persistent.containsKey(new Key(klass, id));
     }
 
     /** is entity scheduled for deletion */
     public boolean isDeleted(Class klass, Long id) {
-        if (klass == null || id == null)
+        if (klass == null || id == null) {
             return false;
+        }
         return deleted.containsKey(new Key(klass, id));
     }
 
     /** is entity scheduled for updated */
     public boolean isDirty(Class klass, Long id) {
-        if (klass == null || id == null)
+        if (klass == null || id == null) {
             return false;
+        }
         return dirty.containsKey(new Key(klass, id));
 
     }
@@ -144,17 +150,20 @@ public class Storage {
 
     /** schedule entity for insertion */
     public void storeTransient(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return;
-        if (iObject.getId() != null)
+        }
+        if (iObject.getId() != null) {
             throw new IllegalArgumentException("IObject has id; can't be new.");
+        }
         created.put(iObject, null);
     }
 
     /** mark replacement for transient entity */
     public void replaceTransient(IObject iObject, IObject replacement) {
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         created.put(iObject, replacement);
     }
 
@@ -163,22 +172,25 @@ public class Storage {
      * exceptions
      */
     public void storePersistent(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         persistent.put(new Key(iObject), iObject);
     }
 
     /** schedule an entity for update */
     public void storeDirty(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         dirty.put(new Key(iObject), iObject);
     }
 
     /** schedule an entity for deletion */
     public void storeDeleted(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             return;
+        }
         deleted.put(new Key(iObject), iObject);
     }
 
@@ -205,9 +217,10 @@ public class Storage {
          *            Not null. iObject.getId() != null
          */
         public Key(IObject iObject) {
-            if (iObject == null || iObject.getId() == null)
+            if (iObject == null || iObject.getId() == null) {
                 throw new IllegalArgumentException(
                         "IObject must be in the PERSISTENT state.");
+            }
 
             this.c = iObject.getClass();
             this.id = iObject.getId();
@@ -216,36 +229,41 @@ public class Storage {
 
         /** standard constructor for creating a Key instance */
         public Key(Class klass, Long entityId) {
-            if (klass == null || entityId == null)
+            if (klass == null || entityId == null) {
                 throw new IllegalArgumentException(
                         "Class and id arguments for Key may not be null.");
+            }
 
             this.c = klass;
             this.id = entityId;
         }
 
+        @Override
         public boolean equals(Object obj) {
-            if (!(obj instanceof Key))
+            if (!(obj instanceof Key)) {
                 return false;
+            }
 
             Key other = (Key) obj;
 
             if (
             // second Josh Bloch suggestion for often ==
-            (this.c == other.c || (this.c != null && c.equals(other.c))) &&
+            (this.c == other.c || this.c != null && c.equals(other.c)) &&
             // first Josh Bloch suggestion
-                    (this == null ? other.id == null : this.id.equals(other.id)))
+                    (this == null ? other.id == null : this.id.equals(other.id))) {
                 return true;
+            }
 
             return false;
 
         }
 
+        @Override
         public int hashCode() {
             long _id = this.id.longValue();
             int result = 11;
             result = result * 17 + this.c.hashCode();
-            result = result * 19 + (int) (_id ^ (_id >>> 32));
+            result = result * 19 + (int) (_id ^ _id >>> 32);
             return result;
         }
 

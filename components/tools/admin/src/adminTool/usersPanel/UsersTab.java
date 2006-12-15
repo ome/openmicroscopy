@@ -51,6 +51,11 @@ import src.adminTool.ui.messenger.MessageBox;
  */
 public class UsersTab extends JPanel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4955413583430334254L;
+
     private UserList userList;
 
     private GroupList groupList;
@@ -423,9 +428,10 @@ public class UsersTab extends JPanel {
                                 + "This operation may not work as the server will not\n"
                                 + "delete users who own data in the server.",
                         "Delete user?", JOptionPane.YES_NO_OPTION);
-        if (answer == JOptionPane.YES_OPTION)
+        if (answer == JOptionPane.YES_OPTION) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 }

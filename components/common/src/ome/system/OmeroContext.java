@@ -103,8 +103,9 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      */
     public static OmeroContext getClientContext() {
         synchronized (mutex) {
-            if (_client == null)
+            if (_client == null) {
                 _client = getInstance(CLIENT_CONTEXT);
+            }
 
             return _client;
         }
@@ -121,8 +122,9 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      * @see ServiceFactory#ServiceFactory(Properties)
      */
     public static OmeroContext getClientContext(Properties props) {
-        if (props == null)
+        if (props == null) {
             throw new ApiUsageException("Properties argument may not be null.");
+        }
 
         Properties copy = new Properties(props);
         ConstructorArgumentValues ctorArg = new ConstructorArgumentValues();
@@ -149,8 +151,9 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
      */
     public static OmeroContext getManagedServerContext() {
         synchronized (mutex) {
-            if (_managed == null)
+            if (_managed == null) {
                 _managed = getInstance(MANAGED_CONTEXT);
+            }
 
             return _managed;
         }
@@ -215,7 +218,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         List<ConfigurableApplicationContext> list = new LinkedList<ConfigurableApplicationContext>();
         while (ac instanceof ConfigurableApplicationContext) {
             list.add((ConfigurableApplicationContext) ac);
-            ac = (ConfigurableApplicationContext) ac.getParent();
+            ac = ac.getParent();
         }
 
         for (int i = list.size() - 1; i >= 0; i--) {

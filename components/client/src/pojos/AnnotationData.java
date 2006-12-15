@@ -99,8 +99,9 @@ public class AnnotationData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public AnnotationData(ImageAnnotation imageAnnotation) {
-        if (imageAnnotation == null)
+        if (imageAnnotation == null) {
             throw new IllegalArgumentException("Annotation cannot null.");
+        }
         annotationType = IMAGE_ANNOTATION;
         setValue(imageAnnotation);
     }
@@ -115,8 +116,9 @@ public class AnnotationData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public AnnotationData(DatasetAnnotation datasetAnnotation) {
-        if (datasetAnnotation == null)
+        if (datasetAnnotation == null) {
             throw new IllegalArgumentException("Annotation cannot null.");
+        }
         annotationType = DATASET_ANNOTATION;
         setValue(datasetAnnotation);
     }
@@ -160,8 +162,9 @@ public class AnnotationData extends DataObject {
      * @return See above.
      */
     public Timestamp getLastModified() {
-        if (nullDetails())
+        if (nullDetails()) {
             return null;
+        }
         return timeOfEvent(getDetails().getUpdateEvent());
     }
 
@@ -176,14 +179,17 @@ public class AnnotationData extends DataObject {
      *             {@link DatasetData} or an {@link ImageData}.
      */
     public void setAnnotatedObject(DataObject annotatedObject) {
-        if (annotatedObject == null)
+        if (annotatedObject == null) {
             throw new IllegalArgumentException("The annotated object cannot"
                     + "be null.");
+        }
         if (!(annotatedObject instanceof DatasetData)
-                && !(annotatedObject instanceof DatasetData))
+                && !(annotatedObject instanceof DatasetData)) {
             throw new IllegalArgumentException("DataObject not valid.");
-        if (this.annotatedObject == annotatedObject)
+        }
+        if (this.annotatedObject == annotatedObject) {
             return;
+        }
         setDirty(true);
         this.annotatedObject = annotatedObject;
         switch (annotationType) {

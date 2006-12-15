@@ -1,6 +1,5 @@
 package ome.server.itests.query.pojos;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,22 +10,15 @@ import java.util.Set;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;
-import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.query.PojosCGCPathsQueryDefinition;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
-import ome.services.query.PojosGetImagesQueryDefinition;
-import ome.services.query.QueryParameterDef;
 import ome.testing.CreatePojosFixture;
-import ome.util.builders.PojoOptions;
 
 @Test(groups = { "broken", "ticket:541" })
 public class FindAnnotationsQueryTest extends AbstractManagedContextTest {

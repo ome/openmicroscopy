@@ -34,12 +34,14 @@ public class AOPAdapterTest extends MockObjectTestCase {
 
     // ~ Testng Adapter
     // =========================================================================
+    @Override
     @Configuration(beforeTestMethod = true)
     public void setUp() throws Exception {
         super.setUp();
         newInvocation();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     public void tearDown() throws Exception {
         super.verify();

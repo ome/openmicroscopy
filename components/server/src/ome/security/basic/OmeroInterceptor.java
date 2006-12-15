@@ -27,10 +27,8 @@ import org.springframework.util.Assert;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.model.internal.Permissions.Flag;
 import ome.tools.hibernate.HibernateUtils;
 
 /**

@@ -11,12 +11,17 @@ package ome.io.nio;
  * 
  */
 public class DimensionsOutOfBoundsException extends Exception {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3048308196188011243L;
     private String message;
 
     public DimensionsOutOfBoundsException(String message) {
         this.message = message;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }

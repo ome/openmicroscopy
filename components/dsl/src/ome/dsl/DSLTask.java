@@ -1,7 +1,6 @@
 package ome.dsl;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
@@ -43,6 +42,7 @@ public class DSLTask extends Task {
         _fileSets.add(fileSet);
     }
 
+    @Override
     public void execute() throws BuildException {
         if (_fileSets.isEmpty()) {
             throw new BuildException("No fileset specified");

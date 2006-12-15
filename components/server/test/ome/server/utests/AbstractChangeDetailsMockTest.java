@@ -8,14 +8,10 @@ package ome.server.utests;
 
 // Java imports
 
-// Third-party libraries
-import org.springframework.orm.hibernate3.HibernateOperations;
 import org.testng.annotations.*;
 
 // Application-internal dependencies
 import ome.model.core.Image;
-import ome.model.meta.Event;
-import ome.tools.hibernate.UpdateFilter;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -34,6 +30,7 @@ public class AbstractChangeDetailsMockTest extends AbstractLoginMockTest {
     // 3. change to user or root
     // 5. TODO even laterer: allowing changes based on group privileges.
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.tearDown();

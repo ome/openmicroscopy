@@ -12,9 +12,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 
 // Application-internal dependencies
@@ -76,8 +73,9 @@ public class UpdateFilter extends ContextFilter {
     @Override
     public Object filter(String fieldId, Object o) {
 
-        if (alreadySeen(o))
+        if (alreadySeen(o)) {
             return returnSeen(o);
+        }
 
         Object result;
 
@@ -108,8 +106,9 @@ public class UpdateFilter extends ContextFilter {
      */
     @Override
     public Filterable filter(String fieldId, Filterable f) {
-        if (alreadySeen(f))
+        if (alreadySeen(f)) {
             return (Filterable) returnSeen(f);
+        }
 
         // WORKAROUND for ticket:307
         // see https://trac.openmicroscopy.org.uk/omero/ticket/307
@@ -144,8 +143,9 @@ public class UpdateFilter extends ContextFilter {
     @Override
     public Collection filter(String fieldId, Collection c) {
 
-        if (alreadySeen(c))
+        if (alreadySeen(c)) {
             return (Collection) returnSeen(c);
+        }
 
         return super.filter(fieldId, c);
 
@@ -157,25 +157,30 @@ public class UpdateFilter extends ContextFilter {
     protected boolean hasReplacement(Object o) {
         if (o instanceof IObject) {
             IObject obj = (IObject) o;
-            if (obj.getGraphHolder().getReplacement() != null)
+            if (obj.getGraphHolder().getReplacement() != null) {
                 return true;
+            }
         }
         return false;
     }
 
     protected boolean alreadySeen(Object o) {
-        if (o == null)
+        if (o == null) {
             return false;
-        if (!Hibernate.isInitialized(o))
+        }
+        if (!Hibernate.isInitialized(o)) {
             return true;
+        }
         return hasReplacement(o) ? true : _cache.containsKey(o);
     }
 
     protected Object returnSeen(Object o) {
-        if (o == null)
+        if (o == null) {
             return null;
-        if (!Hibernate.isInitialized(o))
+        }
+        if (!Hibernate.isInitialized(o)) {
             return o;
+        }
         if (hasReplacement(o)) {
             IObject obj = (IObject) o;
             IObject replacement = obj.getGraphHolder().getReplacement();

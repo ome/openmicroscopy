@@ -71,10 +71,11 @@ public class GroupsTabController implements UserListController,
 
         model.setCurrentGroup(name);
         view.setGroupDetails(model.getCurrentGroup());
-        if (view.getGroupName().equals("NewGroup"))
+        if (view.getGroupName().equals("NewGroup")) {
             view.setGroupNameEditable(true);
-        else
+        } else {
             view.setGroupNameEditable(false);
+        }
     }
 
     public void addNewGroup() {
@@ -163,8 +164,9 @@ public class GroupsTabController implements UserListController,
                 return;
             }
 
-            if (!model.findUserByName(selectedUser))
+            if (!model.findUserByName(selectedUser)) {
                 return;
+            }
 
             String groupSelected = view.getSelectedGroup();
             if (groupSelected == null) {
@@ -173,8 +175,9 @@ public class GroupsTabController implements UserListController,
                 return;
             }
 
-            if (!model.findGroupByName(groupSelected))
+            if (!model.findGroupByName(groupSelected)) {
                 return;
+            }
 
             model.addGroupToUser(model.getCurrentGroupID());
 
@@ -194,8 +197,9 @@ public class GroupsTabController implements UserListController,
                 view.showErrorMessage("Please select a user to remove.");
                 return;
             }
-            if (!model.findUserByName(selectedUser))
+            if (!model.findUserByName(selectedUser)) {
                 return;
+            }
 
             String groupSelected = view.getSelectedGroup();
             if (groupSelected == null) {
@@ -204,8 +208,9 @@ public class GroupsTabController implements UserListController,
                 return;
             }
 
-            if (!model.findGroupByName(groupSelected))
+            if (!model.findGroupByName(groupSelected)) {
                 return;
+            }
             model.removeGroupFromUser(model.getCurrentGroupID());
             view.setGroupDetails(model.getCurrentGroup());
             view.refreshMembershipList();

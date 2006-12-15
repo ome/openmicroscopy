@@ -40,7 +40,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         int planeCountT = pixels.getSizeZ().intValue()
                 * pixels.getSizeC().intValue();
 
-        return (planeCountT * t) + (pixels.getSizeZ() * c) + z;
+        return planeCountT * t + pixels.getSizeZ() * c + z;
     }
 
     private String getPlaneCheckErrStr(int z, int c, int t) {
@@ -61,8 +61,9 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     private byte[] createPlane(int planeSize, byte planeNo) {
         byte[] plane = new byte[planeSize];
 
-        for (int i = 0; i < planeSize; i++)
+        for (int i = 0; i < planeSize; i++) {
             plane[i] = planeNo;
+        }
 
         return plane;
     }

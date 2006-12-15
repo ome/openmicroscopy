@@ -58,8 +58,9 @@ public class Run {
 
     protected static Properties parseArgs(String[] args) {
         Properties p = new Properties();
-        if (args == null || args.length == 0)
+        if (args == null || args.length == 0) {
             return p; // Early exit.
+        }
 
         List<String> argList = Arrays.asList(args);
         for (int i = 0; i < args.length; i++) {

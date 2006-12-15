@@ -1,18 +1,8 @@
 package ome.system.utests;
 
 import org.testng.annotations.*;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.model.core.Pixels;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 
 import junit.framework.TestCase;

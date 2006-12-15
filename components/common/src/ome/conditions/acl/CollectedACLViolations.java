@@ -29,6 +29,10 @@ import ome.model.internal.Permissions;
 @ApplicationException
 public class CollectedACLViolations extends ome.conditions.SecurityViolation {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -340834454556786566L;
     private List<ACLViolation> violations;
 
     public CollectedACLViolations(String msg) {
@@ -36,8 +40,9 @@ public class CollectedACLViolations extends ome.conditions.SecurityViolation {
     }
 
     public void addViolation(ACLViolation v) {
-        if (null == violations)
+        if (null == violations) {
             violations = new ArrayList<ACLViolation>();
+        }
 
         violations.add(v);
     }

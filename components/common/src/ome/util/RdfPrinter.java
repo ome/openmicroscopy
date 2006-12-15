@@ -45,16 +45,19 @@ public class RdfPrinter extends ContextFilter {
         }
     }
 
+    @Override
     public Object filter(String fieldId, Object o) {
         entry(fieldId, o);
         return super.filter(fieldId, o);
     }
 
+    @Override
     public Filterable filter(String fieldId, Filterable f) {
         entry(fieldId, f);
         return super.filter(fieldId, f);
     }
 
+    @Override
     public Collection filter(String fieldId, Collection c) {
         sb.append(currentContext() == null ? "" : currentContext());
         space();

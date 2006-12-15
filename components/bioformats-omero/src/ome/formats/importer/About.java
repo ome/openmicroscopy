@@ -48,20 +48,23 @@ public abstract class About {
                                 new InputStreamReader(is));
                         while (true) {
                             String line = in.readLine();
-                            if (line == null)
+                            if (line == null) {
                                 break;
-                            if (title == null)
+                            }
+                            if (title == null) {
                                 title = "About " + line;
-                            else
+                            } else {
                                 sb.append("\n");
+                            }
                             sb.append(line);
                         }
                         in.close();
                         msg = sb.toString();
                     }
                 } catch (IOException exc) {
-                    if (title == null)
+                    if (title == null) {
                         title = "About";
+                    }
                     msg = "Error: could not read version information";
                 }
             }

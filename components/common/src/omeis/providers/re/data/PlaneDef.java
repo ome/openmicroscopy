@@ -94,8 +94,9 @@ public class PlaneDef implements Serializable {
                 throw new IllegalArgumentException("Wrong slice identifier: "
                         + slice + ".");
         }
-        if (t < 0)
+        if (t < 0) {
             throw new IllegalArgumentException("Negative timepoint: " + t + ".");
+        }
         this.t = t;
     }
 
@@ -110,11 +111,13 @@ public class PlaneDef implements Serializable {
      */
     public void setX(int x) {
         // Verify X normal.
-        if (ZY != slice)
+        if (ZY != slice) {
             throw new IllegalArgumentException(
                     "X index can only be set for ZY planes.");
-        if (x < 0)
+        }
+        if (x < 0) {
             throw new IllegalArgumentException("Negative index: " + x + ".");
+        }
         this.x = x;
     }
 
@@ -129,11 +132,13 @@ public class PlaneDef implements Serializable {
      */
     public void setY(int y) {
         // Verify Y normal.
-        if (XZ != slice)
+        if (XZ != slice) {
             throw new IllegalArgumentException(
                     "Y index can only be set for XZ planes.");
-        if (y < 0)
+        }
+        if (y < 0) {
             throw new IllegalArgumentException("Negative index: " + y + ".");
+        }
         this.y = y;
     }
 
@@ -148,11 +153,13 @@ public class PlaneDef implements Serializable {
      */
     public void setZ(int z) {
         // Verify Z normal.
-        if (XY != slice)
+        if (XY != slice) {
             throw new IllegalArgumentException(
                     "Z index can only be set for XY planes.");
-        if (z < 0)
+        }
+        if (z < 0) {
             throw new IllegalArgumentException("Negative index: " + z + ".");
+        }
         this.z = z;
     }
 
@@ -211,6 +218,7 @@ public class PlaneDef implements Serializable {
      * 
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals(Object o) {
         boolean isEqual = false;
         if (o != null && o instanceof PlaneDef) { // Else can't be equal.
@@ -218,13 +226,13 @@ public class PlaneDef implements Serializable {
             if (other.slice == slice && other.t == t) { // Else can't be equal.
                 switch (slice) {
                     case XY:
-                        isEqual = (other.z == z);
+                        isEqual = other.z == z;
                         break;
                     case ZY:
-                        isEqual = (other.x == x);
+                        isEqual = other.x == x;
                         break;
                     case XZ:
-                        isEqual = (other.y == y);
+                        isEqual = other.y == y;
                         break;
                 }
             }
@@ -238,6 +246,7 @@ public class PlaneDef implements Serializable {
      * 
      * @see Object#hashCode()
      */
+    @Override
     public int hashCode() {
         // We return f(u, t) = (u % 2^15)*2^15 + (t % 2^15), where u is one out
         // of x, y, z depending on slice.
@@ -253,7 +262,7 @@ public class PlaneDef implements Serializable {
                 u = y;
                 break;
         }
-        return ((u % two15) * two15 + (t % two15));
+        return u % two15 * two15 + t % two15;
     }
 
     /*
@@ -281,6 +290,7 @@ public class PlaneDef implements Serializable {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         switch (slice) {

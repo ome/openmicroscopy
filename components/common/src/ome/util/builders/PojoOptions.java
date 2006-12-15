@@ -73,8 +73,9 @@ public class PojoOptions
     protected void copy(Map map) {
         String[] s = new String[] { FIELDS, COUNTS, LEAF, EXPERIMENTER, GROUP };
         for (int i = 0; i < s.length; i++) {
-            if (map.containsKey(s[i]))
+            if (map.containsKey(s[i])) {
                 this.options.put(s[i], map.get(s[i]));
+            }
         }
     }
 

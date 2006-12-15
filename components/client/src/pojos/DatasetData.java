@@ -96,8 +96,9 @@ public class DatasetData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public DatasetData(Dataset dataset) {
-        if (dataset == null)
+        if (dataset == null) {
             throw new IllegalArgumentException("Object cannot null.");
+        }
         setValue(dataset);
     }
 
@@ -112,8 +113,9 @@ public class DatasetData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asDataset().setName(name);
     }
@@ -287,8 +289,9 @@ public class DatasetData extends DataObject {
      * @return See above.
      */
     public Long getAnnotationCount() {
-        if (annotationCount == null)
+        if (annotationCount == null) {
             annotationCount = getCount(Dataset.ANNOTATIONS);
+        }
         return annotationCount;
     }
 

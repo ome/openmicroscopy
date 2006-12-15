@@ -38,8 +38,9 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
 
         // optional ids
         Collection ids = (Collection) value(IDS);
-        if (ids != null && ids.size() > 0)
+        if (ids != null && ids.size() > 0) {
             c.add(Restrictions.in("id", (Collection) value(IDS)));
+        }
 
         // fetch hierarchy
         // TODO this should be pushed into Hierarchy

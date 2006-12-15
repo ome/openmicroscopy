@@ -9,15 +9,7 @@ package ome.util.utests;
 
 import org.testng.annotations.*;
 
-import java.util.HashMap;
-
-import ome.util.builders.PojoOptions;
 import ome.util.tasks.Run;
-import ome.util.tasks.Configuration;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import junit.framework.TestCase;
 
 public class CommandLineRunnerTest extends TestCase {

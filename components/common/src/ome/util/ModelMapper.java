@@ -11,11 +11,9 @@ package ome.util;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,6 +61,7 @@ public abstract class ModelMapper extends ContextFilter {
         return (Map) model2target.get(o);
     }
 
+    @Override
     public Filterable filter(String fieldId, Filterable source) {
         Filterable o = super.filter(fieldId, source);
         ModelBased target = (ModelBased) findTarget(o);
@@ -70,6 +69,7 @@ public abstract class ModelMapper extends ContextFilter {
         return o;
     }
 
+    @Override
     public Collection filter(String fieldId, Collection source) {
         Collection o = super.filter(fieldId, source);
         Collection target = findCollection(o);
@@ -77,6 +77,7 @@ public abstract class ModelMapper extends ContextFilter {
         return o;
     }
 
+    @Override
     public Map filter(String fieldId, Map source) {
         Map o = super.filter(fieldId, source);
         Map target = findMap(o);
@@ -99,8 +100,9 @@ public abstract class ModelMapper extends ContextFilter {
 
         // IMMUTABLES
         if (null == current || current instanceof Number
-                || current instanceof String || current instanceof Boolean)
+                || current instanceof String || current instanceof Boolean) {
             return current;
+        }
 
         Object target = model2target.get(current);
         if (null == target) {
@@ -125,8 +127,9 @@ public abstract class ModelMapper extends ContextFilter {
     }
 
     public Collection findCollection(Collection source) {
-        if (source == null)
+        if (source == null) {
             return null;
+        }
 
         Collection target = (Collection) model2target.get(source);
         if (null == target) {
@@ -144,13 +147,14 @@ public abstract class ModelMapper extends ContextFilter {
     }
 
     public Map findMap(Map source) {
-        if (source == null)
+        if (source == null) {
             return null;
+        }
 
         Map target = (Map) model2target.get(source);
         if (null == target) {
             try {
-                target = (Map) source.getClass().newInstance();
+                target = source.getClass().newInstance();
                 model2target.put(source, target);
             } catch (InstantiationException ie) {
                 throw new RuntimeException(ie);
@@ -186,36 +190,43 @@ public abstract class ModelMapper extends ContextFilter {
     }
 
     public Timestamp event2timestamp(Event event) {
-        if (event == null)
+        if (event == null) {
             return null;
-        if (!event.isLoaded())
+        }
+        if (!event.isLoaded()) {
             return null;
-        if (event.getTime() == null)
+        }
+        if (event.getTime() == null) {
             return null;
+        }
         return event.getTime();
     }
 
     public int nullSafeInt(Integer i) {
-        if (i == null)
+        if (i == null) {
             return 0;
+        }
         return i.intValue();
     }
 
     public long nullSafeLong(Long l) {
-        if (l == null)
+        if (l == null) {
             return 0;
+        }
         return l.longValue();
     }
 
     public double nullSafeDouble(Double d) {
-        if (d == null)
+        if (d == null) {
             return 0.0;
+        }
         return d.doubleValue();
     }
 
     public float nullSafeFloat(Float f) {
-        if (f == null)
+        if (f == null) {
             return 0.0F;
+        }
         return f.floatValue();
     }
 

@@ -87,8 +87,9 @@ public class RGBBuffer implements Serializable {
         this.sizeX1 = sizeX1;
         this.sizeX2 = sizeX2;
         bands = new byte[3][];
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 3; ++i) {
             bands[i] = new byte[sizeX1 * sizeX2];
+        }
     }
 
     /**

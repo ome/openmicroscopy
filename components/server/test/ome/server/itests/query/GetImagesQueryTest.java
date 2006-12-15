@@ -8,8 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -455,31 +453,31 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
     private Project createProject() {
         Project p1 = new Project();
         p1.setName(this.getClass().getName());
-        return (Project) iUpdate.saveAndReturnObject(p1);
+        return iUpdate.saveAndReturnObject(p1);
     }
 
     private Dataset createDataset() {
         Dataset d1 = new Dataset();
         d1.setName(this.getClass().getName());
-        return (Dataset) iUpdate.saveAndReturnObject(d1);
+        return iUpdate.saveAndReturnObject(d1);
     }
 
     private Image createImage() {
         Image i1 = new Image();
         i1.setName(this.getClass().getName());
-        return (Image) iUpdate.saveAndReturnObject(i1);
+        return iUpdate.saveAndReturnObject(i1);
     }
 
     private Category createCategory() {
         Category c1 = new Category();
         c1.setName(this.getClass().getName());
-        return (Category) iUpdate.saveAndReturnObject(c1);
+        return iUpdate.saveAndReturnObject(c1);
     }
 
     private CategoryGroup createCategoryGroup() {
         CategoryGroup cg1 = new CategoryGroup();
         cg1.setName(this.getClass().getName());
-        return (CategoryGroup) iUpdate.saveAndReturnObject(cg1);
+        return iUpdate.saveAndReturnObject(cg1);
     }
 
     private class MAP {

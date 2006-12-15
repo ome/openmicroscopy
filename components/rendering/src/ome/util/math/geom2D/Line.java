@@ -55,12 +55,15 @@ public class Line {
      *            same as <code>o</code>.
      */
     public Line(PlanePoint o, PlanePoint p) {
-        if (o == null)
+        if (o == null) {
             throw new NullPointerException("No origin.");
-        if (p == null)
+        }
+        if (p == null) {
             throw new NullPointerException("No point p.");
-        if (o.equals(p))
+        }
+        if (o.equals(p)) {
             throw new IllegalArgumentException("Need two different points.");
+        }
         origin = o;
         direction = origin.vec(p).normalize();
     }
@@ -80,14 +83,18 @@ public class Line {
      *            The origin of the line. Mustn't be <code>null</code>.
      */
     public Line(PlanePoint p, PlanePoint q, PlanePoint o) {
-        if (p == null)
+        if (p == null) {
             throw new NullPointerException("No point p.");
-        if (q == null)
+        }
+        if (q == null) {
             throw new NullPointerException("No point q.");
-        if (o == null)
+        }
+        if (o == null) {
             throw new NullPointerException("No origin.");
-        if (p.equals(q))
+        }
+        if (p.equals(q)) {
             throw new IllegalArgumentException("Need two different points.");
+        }
         origin = o;
         direction = p.vec(q).normalize();
     }
@@ -115,15 +122,18 @@ public class Line {
      *         <code>false</code> otherwise.
      */
     public boolean lies(PlanePoint p) {
-        if (p == null)
+        if (p == null) {
             throw new NullPointerException("No point.");
-        if (direction.x1 == 0)
-            return (p.x1 == origin.x1);
-        if (direction.x2 == 0)
-            return (p.x2 == origin.x2);
+        }
+        if (direction.x1 == 0) {
+            return p.x1 == origin.x1;
+        }
+        if (direction.x2 == 0) {
+            return p.x2 == origin.x2;
+        }
         double k1 = (p.x1 - origin.x1) / direction.x1, k2 = (p.x2 - origin.x2)
                 / direction.x2;
-        return (k1 == k2);
+        return k1 == k2;
     }
 
     /**
@@ -145,17 +155,20 @@ public class Line {
      *         <code>false</code> otherwise.
      */
     public boolean lies(PlanePoint p, boolean positiveOrientation) {
-        if (!lies(p))
+        if (!lies(p)) {
             return false;
+        }
         double k;
-        if (direction.x1 != 0)
+        if (direction.x1 != 0) {
             k = (p.x1 - origin.x1) / direction.x1;
-        else
+        } else {
             k = (p.x2 - origin.x2) / direction.x2; // direction.x2 can't be 0
+        }
                                                     // too.
-        if (positiveOrientation)
-            return (0 <= k);
-        return (k < 0);
+        if (positiveOrientation) {
+            return 0 <= k;
+        }
+        return k < 0;
     }
 
     /**
@@ -164,11 +177,12 @@ public class Line {
      * 
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals(Object o) {
         boolean isEqual = false;
         if (o != null && o instanceof Line) {
             Line other = (Line) o;
-            isEqual = (origin == other.origin && direction == other.direction);
+            isEqual = origin == other.origin && direction == other.direction;
         }
         return isEqual;
     }
@@ -179,6 +193,7 @@ public class Line {
      * 
      * @see Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return origin.hashCode();
     }

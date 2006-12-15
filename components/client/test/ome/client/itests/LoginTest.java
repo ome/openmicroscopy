@@ -1,15 +1,12 @@
 package ome.client.itests;
 
 import org.testng.annotations.*;
-import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
 
 import junit.framework.TestCase;
 
-import ome.api.IPojos;
 import ome.api.IQuery;
-import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;

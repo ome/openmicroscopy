@@ -90,7 +90,7 @@ public abstract class _TDisp extends Ice.ObjectImpl implements T {
             }
         }
 
-        assert (false);
+        assert false;
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
 }

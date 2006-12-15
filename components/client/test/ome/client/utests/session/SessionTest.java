@@ -1,7 +1,6 @@
 package ome.client.utests.session;
 
 import org.jmock.Mock;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.api.IUpdate;

@@ -183,6 +183,7 @@ public abstract class Property { // TODO need to define equality so that two
         return p;
     }
 
+    @Override
     public String toString() {
         return "Property: " + getName() + " (" + getType() + ")";
     }
@@ -373,9 +374,10 @@ class ZeroManyField extends Property {
         }
     }
 
+    @Override
     public void validate() {
         if (getInverse() == null && !getOrdered().booleanValue()
-                && getTag() == null)
+                && getTag() == null) {
             throw new IllegalArgumentException(
                     "\n"
                             + this.toString()
@@ -388,6 +390,7 @@ class ZeroManyField extends Property {
                             + "<type id=...>\n"
                             + "\t<properties>\n"
                             + "\t\t<onemany name=\"example\" type=\"Example\" inverse=\"parent\">");
+        }
     }
 }
 
@@ -405,6 +408,7 @@ abstract class AbstractLink extends ZeroManyField {
 
     }
 
+    @Override
     public void validate() {
         if (getTarget() == null) {
             throw new IllegalArgumentException(
@@ -483,6 +487,7 @@ class EntryField extends Property {
         setForeignKey(null);
     }
 
+    @Override
     public void validate() {
         if (!"string".equals(getType())) {
             throw new IllegalStateException(

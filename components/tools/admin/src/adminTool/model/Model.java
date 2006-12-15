@@ -54,7 +54,7 @@ public class Model {
     public boolean isDefaultGroup(String name) throws IAdminException,
             UnknownException, PermissionsException {
         try {
-            return (iAdmin.getDefaultGroup(currentUser).getId() == getGroupID(name));
+            return iAdmin.getDefaultGroup(currentUser).getId() == getGroupID(name);
         } catch (ome.conditions.ApiUsageException e) {
             ExceptionHandler.get().catchException(e);
         }
@@ -64,7 +64,7 @@ public class Model {
     public boolean isDefaultGroup(long groupID) throws IAdminException,
             UnknownException, PermissionsException {
         try {
-            return (iAdmin.getDefaultGroup(currentUser).getId() == groupID);
+            return iAdmin.getDefaultGroup(currentUser).getId() == groupID;
         } catch (ome.conditions.ApiUsageException e) {
             ExceptionHandler.get().catchException(e);
         }
@@ -81,21 +81,25 @@ public class Model {
 
     public boolean isSystemUser(String userName) {
         boolean foundUser = findUserByName(userName);
-        if (!foundUser)
+        if (!foundUser) {
             return false;
+        }
 
         List<String> groupNames = new ArrayList<String>();
         try {
             ExperimenterGroup[] groups = iAdmin.containedGroups(currentUser);
-            for (ExperimenterGroup e : groups)
+            for (ExperimenterGroup e : groups) {
                 groupNames.add(e.getName());
+            }
         } catch (ome.conditions.ApiUsageException e) {
         }
 
         boolean systemUser = false;
-        for (String group : groupNames)
-            if (group.equals("system"))
+        for (String group : groupNames) {
+            if (group.equals("system")) {
                 systemUser = true;
+            }
+        }
         return systemUser;
     }
 
@@ -165,8 +169,9 @@ public class Model {
             UnknownException, PermissionsException {
         try {
             Experimenter old = iAdmin.lookupExperimenter(name);
-            if (old == null)
+            if (old == null) {
                 return;
+            }
             old.setOmeName(user.getOmeName());
             old.setFirstName(user.getFirstName());
             old.setMiddleName(user.getMiddleName());
@@ -184,8 +189,9 @@ public class Model {
             throws IAdminException, UnknownException, PermissionsException {
         try {
             ExperimenterGroup old = iAdmin.lookupGroup(name);
-            if (old == null)
+            if (old == null) {
                 return;
+            }
             old.setName(group.getName());
             old.setDescription(old.getDescription());
             currentGroup = old.getId();
@@ -219,34 +225,42 @@ public class Model {
     public List<String> getUserList() {
         List<Experimenter> users = iAdmin.lookupExperimenters();
         List<String> userNames = new ArrayList<String>(users.size());
-        for (Experimenter e : users)
-            if (!systemUser(e.getOmeName()))
+        for (Experimenter e : users) {
+            if (!systemUser(e.getOmeName())) {
                 userNames.add(e.getOmeName());
+            }
+        }
         return userNames;
     }
 
     public List<String> getGroupsList() {
         List<ExperimenterGroup> groups = iAdmin.lookupGroups();
         List<String> groupNames = new ArrayList<String>(groups.size());
-        for (ExperimenterGroup g : groups)
-            if (!systemGroup(g.getName()))
+        for (ExperimenterGroup g : groups) {
+            if (!systemGroup(g.getName())) {
                 groupNames.add(g.getName());
+            }
+        }
         return groupNames;
     }
 
     public boolean systemUser(String name) {
-        if (name.equals("root"))
+        if (name.equals("root")) {
             return true;
+        }
         return false;
     }
 
     public boolean systemGroup(String name) {
-        if (name.equals("system"))
+        if (name.equals("system")) {
             return true;
-        if (name.equals("user"))
+        }
+        if (name.equals("user")) {
             return true;
-        if (name.equals("default"))
+        }
+        if (name.equals("default")) {
             return true;
+        }
         return false;
     }
 
@@ -254,9 +268,11 @@ public class Model {
         List<String> userNames = new ArrayList<String>();
         try {
             Experimenter[] users = iAdmin.containedExperimenters(groupID);
-            for (Experimenter e : users)
-                if (!systemUser(e.getOmeName()))
+            for (Experimenter e : users) {
+                if (!systemUser(e.getOmeName())) {
                     userNames.add(e.getOmeName());
+                }
+            }
         } catch (ome.conditions.ApiUsageException e) {
         }
         return userNames;
@@ -271,9 +287,11 @@ public class Model {
         List<String> groupNames = new ArrayList<String>();
         try {
             ExperimenterGroup[] groups = iAdmin.containedGroups(userID);
-            for (ExperimenterGroup e : groups)
-                if (!systemGroup(e.getName()))
+            for (ExperimenterGroup e : groups) {
+                if (!systemGroup(e.getName())) {
                     groupNames.add(e.getName());
+                }
+            }
         } catch (ome.conditions.ApiUsageException e) {
         }
         return groupNames;
@@ -352,12 +370,14 @@ public class Model {
     public void addGroupToUser(long group) throws IAdminException,
             UnknownException, PermissionsException {
         try {
-            if (!userBelongsToGroup(currentUser, group))
+            if (!userBelongsToGroup(currentUser, group)) {
                 iAdmin.addGroups(iAdmin.getExperimenter(currentUser), iAdmin
                         .getGroup(group));
+            }
             List<String> groups = getUserGroupMembership(currentUser);
-            if (groups.size() == 1)
+            if (groups.size() == 1) {
                 iAdmin.setDefaultGroup(getUser(currentUser), getGroup(group));
+            }
         } catch (Exception e) {
             ExceptionHandler.get().catchException(e);
         }
@@ -366,18 +386,21 @@ public class Model {
     public boolean userBelongsToGroup(long userID, long groupID) {
         ExperimenterGroup grp = iAdmin.getGroup(groupID);
         List<String> groups = iAdminContainedGroups(userID);
-        for (int i = 0; i < groups.size(); i++)
-            if (groups.get(i).equals(grp.getName()))
+        for (int i = 0; i < groups.size(); i++) {
+            if (groups.get(i).equals(grp.getName())) {
                 return true;
+            }
+        }
         return false;
     }
 
     public void removeGroupFromUser(long group) throws IAdminException,
             UnknownException, PermissionsException {
         try {
-            if (userBelongsToGroup(currentUser, group))
+            if (userBelongsToGroup(currentUser, group)) {
                 iAdmin.removeGroups(iAdmin.getExperimenter(currentUser), iAdmin
                         .getGroup(group));
+            }
         } catch (Exception e) {
             ExceptionHandler.get().catchException(e);
         }
@@ -428,8 +451,9 @@ public class Model {
                     break;
                 }
             }
-            if (!found)
+            if (!found) {
                 notInGroup.add(groupName);
+            }
         }
         return notInGroup;
     }
@@ -452,8 +476,9 @@ public class Model {
                     break;
                 }
             }
-            if (!found)
+            if (!found) {
                 notInGroup.add(userName);
+            }
         }
         return notInGroup;
     }
@@ -470,8 +495,9 @@ public class Model {
         } catch (ome.conditions.ApiUsageException e) {
             found = false;
         }
-        if (found)
+        if (found) {
             currentUser = user.getId();
+        }
         return found;
     }
 
@@ -483,8 +509,9 @@ public class Model {
         } catch (ome.conditions.ApiUsageException e) {
             found = false;
         }
-        if (found)
+        if (found) {
             currentGroup = group.getId();
+        }
         return found;
     }
 

@@ -28,6 +28,7 @@ public class SetsAndLinksTest extends TestCase {
 
     Pixels pix;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         p = new Project();
@@ -151,8 +152,8 @@ public class SetsAndLinksTest extends TestCase {
     // ~ Private helpers
     // ===========================================================================
     private void testIsDefault(Experimenter experimenter) {
-        assert (Boolean.TRUE.equals(((GroupExperimenterMap) experimenter
-                .iterateGroupExperimenterMap().next()).getDefaultGroupLink()));
+        assert Boolean.TRUE.equals(((GroupExperimenterMap) experimenter
+                .iterateGroupExperimenterMap().next()).getDefaultGroupLink());
     }
 
 }

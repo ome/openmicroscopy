@@ -54,6 +54,7 @@ public class ConfigTest extends TestCase {
      * been deprecated in TestNG 5. All our test classes will need to be
      * updated.)
      */
+    @Override
     @Configuration(beforeTestClass = true)
     protected void setUp() throws Exception {
         /*

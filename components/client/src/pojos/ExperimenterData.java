@@ -78,8 +78,9 @@ public class ExperimenterData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public ExperimenterData(Experimenter experimenter) {
-        if (experimenter == null)
+        if (experimenter == null) {
             throw new IllegalArgumentException("Object cannot null.");
+        }
         setValue(experimenter);
     }
 
@@ -220,9 +221,10 @@ public class ExperimenterData extends DataObject {
      */
     public GroupData getDefaultGroup() {
         if (defaultGroup == null
-                && asExperimenter().getDefaultGroupLink() != null)
+                && asExperimenter().getDefaultGroupLink() != null) {
             defaultGroup = new GroupData(asExperimenter().getDefaultGroupLink()
                     .parent());
+        }
         return defaultGroup;
     }
 
@@ -230,8 +232,9 @@ public class ExperimenterData extends DataObject {
      * Sets the default Group.
      */
     public void setDefaultGroup(GroupData group) {
-        if (getDefaultGroup() == group)
+        if (getDefaultGroup() == group) {
             return;
+        }
         setDirty(true);
         this.defaultGroup = group;
         if (this.defaultGroup != null) {

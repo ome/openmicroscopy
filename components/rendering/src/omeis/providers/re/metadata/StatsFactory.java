@@ -104,16 +104,18 @@ public class StatsFactory {
         }// end x2
 
         double total = sizeX2 * sizeX1;
-        for (int i = 0; i < totals.length; i++)
+        for (int i = 0; i < totals.length; i++) {
             locationStats[i] = totals[i] / total;
+        }
         // Default, we assume that we have at least 3 sub-intervals.
         inputStart = segments[0].getPoint(1).x1;
         inputEnd = segments[NB_BIN - 1].getPoint(1).x1;
         total = total - totals[0] - totals[NB_BIN - 1];
-        if (totals[0] >= totals[NB_BIN - 1])
+        if (totals[0] >= totals[NB_BIN - 1]) {
             inputEnd = accumulateCloseToMin(totals, segments, total, epsilon);
-        else
+        } else {
             inputStart = accumulateCloseToMax(totals, segments, total, epsilon);
+        }
         noiseReduction = noiseReduction();
     }
 
@@ -121,14 +123,17 @@ public class StatsFactory {
     private boolean noiseReduction() {
         double sumMin = 0, sumMax = 0;
         for (int i = 0; i < locationStats.length; i++) {
-            if (i < BIN)
+            if (i < BIN) {
                 sumMin += locationStats[i];
-            if (i >= locationStats.length - BIN)
+            }
+            if (i >= locationStats.length - BIN) {
                 sumMax += locationStats[i];
+            }
         }
         boolean nr = true;
-        if (sumMin >= NR_THRESHOLD || sumMax >= NR_THRESHOLD)
+        if (sumMin >= NR_THRESHOLD || sumMax >= NR_THRESHOLD) {
             nr = false;
+        }
         return nr;
     }
 
@@ -188,8 +193,9 @@ public class StatsFactory {
         double gMax = stats.getGlobalMax().doubleValue();
         Plane2D plane2D = PlaneFactory.createPlane(pd, index, metadata,
                 pixelsData);
-        if (gMax - gMin >= NB_BIN)
+        if (gMax - gMin >= NB_BIN) {
             computeBins(plane2D, stats, sizeY, sizeX);
+        }
     }
 
     public double[] getLocationStats() {

@@ -12,6 +12,7 @@ public class StorageTest extends TestCase {
 
     Storage storage;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         storage = new Storage();

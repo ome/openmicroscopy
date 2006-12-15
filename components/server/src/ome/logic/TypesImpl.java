@@ -17,8 +17,6 @@ package ome.logic;
 // Java imports
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -42,8 +40,6 @@ import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.security.SecureAction;
 
 /**

@@ -127,8 +127,9 @@ public class Details implements IDetails, Filterable, Serializable {
      * at most compared with the current DB to find <em>added</em> entities.
      */
     public void addFiltered(String collectionName) {
-        if (_filteredCollections == null)
+        if (_filteredCollections == null) {
             _filteredCollections = new HashSet<String>();
+        }
 
         _filteredCollections.add(collectionName);
     }
@@ -139,8 +140,9 @@ public class Details implements IDetails, Filterable, Serializable {
      * at most compared with the current DB to find <em>added</em> entities.
      */
     public void addFiltered(Collection<String> collection) {
-        if (_filteredCollections == null)
+        if (_filteredCollections == null) {
             _filteredCollections = new HashSet<String>();
+        }
 
         _filteredCollections.addAll(collection);
     }
@@ -150,10 +152,12 @@ public class Details implements IDetails, Filterable, Serializable {
      * saved to the DB.
      */
     public boolean isFiltered(String collectionName) {
-        if (_filteredCollections == null)
+        if (_filteredCollections == null) {
             return false;
-        if (_filteredCollections.contains(collectionName))
+        }
+        if (_filteredCollections.contains(collectionName)) {
             return true;
+        }
         return false;
     }
 
@@ -171,8 +175,9 @@ public class Details implements IDetails, Filterable, Serializable {
      * @return number of String keys in the filtered set.
      */
     public int filteredSize() {
-        if (_filteredCollections == null)
+        if (_filteredCollections == null) {
             return 0;
+        }
         return _filteredCollections.size();
     }
 
@@ -183,8 +188,9 @@ public class Details implements IDetails, Filterable, Serializable {
      * @return filtered set copy.
      */
     public Set<String> filteredSet() {
-        if (_filteredCollections == null)
+        if (_filteredCollections == null) {
             return new HashSet<String>();
+        }
         return new HashSet<String>(_filteredCollections);
     }
 
@@ -227,8 +233,9 @@ public class Details implements IDetails, Filterable, Serializable {
         sb.append(_creation == null ? null : _creation.getId());
         sb.append(";update=");
         sb.append(_update == null ? null : _update.getId());
-        if (_externalInfo != null)
+        if (_externalInfo != null) {
             sb.append(";external=" + _externalInfo.getId());
+        }
         sb.append("}");
         return sb.toString();
     }
@@ -312,21 +319,21 @@ public class Details implements IDetails, Filterable, Serializable {
     protected Map _dynamicFields;
 
     public Object retrieve(String field) {
-        if (field == null)
+        if (field == null) {
             return null;
-        else if (field.equals(OWNER))
+        } else if (field.equals(OWNER)) {
             return getOwner();
-        else if (field.equals(GROUP))
+        } else if (field.equals(GROUP)) {
             return getGroup();
-        else if (field.equals(PERMISSIONS))
+        } else if (field.equals(PERMISSIONS)) {
             return getPermissions();
-        else if (field.equals(CREATIONEVENT))
+        } else if (field.equals(CREATIONEVENT)) {
             return getCreationEvent();
-        else if (field.equals(UPDATEEVENT))
+        } else if (field.equals(UPDATEEVENT)) {
             return getUpdateEvent();
-        else if (field.equals(EXTERNALINFO))
+        } else if (field.equals(EXTERNALINFO)) {
             return getExternalInfo();
-        else {
+        } else {
             if (_dynamicFields != null) {
                 return _dynamicFields.get(field);
             }
@@ -335,23 +342,24 @@ public class Details implements IDetails, Filterable, Serializable {
     }
 
     public void putAt(String field, Object value) {
-        if (field == null)
+        if (field == null) {
             return;
-        else if (field.equals(OWNER))
+        } else if (field.equals(OWNER)) {
             setOwner((Experimenter) value);
-        else if (field.equals(GROUP))
+        } else if (field.equals(GROUP)) {
             setGroup((ExperimenterGroup) value);
-        else if (field.equals(PERMISSIONS))
+        } else if (field.equals(PERMISSIONS)) {
             setPermissions((Permissions) value);
-        else if (field.equals(CREATIONEVENT))
+        } else if (field.equals(CREATIONEVENT)) {
             setCreationEvent((Event) value);
-        else if (field.equals(UPDATEEVENT))
+        } else if (field.equals(UPDATEEVENT)) {
             setUpdateEvent((Event) value);
-        else if (field.equals(EXTERNALINFO))
+        } else if (field.equals(EXTERNALINFO)) {
             setExternalInfo((ExternalInfo) value);
-        else {
-            if (_dynamicFields == null)
+        } else {
+            if (_dynamicFields == null) {
                 _dynamicFields = new HashMap();
+            }
 
             _dynamicFields.put(field, value);
         }

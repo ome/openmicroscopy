@@ -36,7 +36,7 @@ public class PixbufIOFixture {
         // is a SHA1 of "pixels"
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356");
 
-        pixels = (Pixels) updater.saveAndReturnObject(p);
+        pixels = updater.saveAndReturnObject(p);
 
     }
 

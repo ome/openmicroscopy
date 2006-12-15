@@ -11,7 +11,6 @@ import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:200", "security", "integration" })
@@ -26,6 +25,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // ~ single
     // =========================================================================
 
+    @Override
     public void testSingleProject_U() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -70,6 +70,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     // don't need to test for OTHER because OTHER and USER are symmetric.
 
+    @Override
     public void testSingleProject_W() throws Exception {
         ownsfA = w;
         ownerA = world;
@@ -115,6 +116,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     // don't need to test PI because acts just like a group member
 
+    @Override
     public void testSingleProject_R() throws Exception {
         ownsfA = r;
         ownerA = root;
@@ -172,8 +174,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
             t = sf.getQueryService().find(Project.class, prj.getId());
             assertNotNull(t);
         } catch (SecurityViolation e) {
-            if (ok)
+            if (ok) {
                 throw e;
+            }
         }
 
         String q = "select p from Project p where p.id = :id";
@@ -191,6 +194,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // ~ bidirectional one-to-many
     // =========================================================================
 
+    @Override
     public void test_U_Pixels_And_U_Thumbnails() throws Exception {
         ownsfA = ownsfB = u;
         ownerA = ownerB = user;
@@ -269,6 +273,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     }
 
+    @Override
     public void test_O_Pixels_And_U_Thumbnails() throws Exception {
         ownsfA = o;
         ownerA = other;
@@ -341,6 +346,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     }
 
+    @Override
     public void test_U_Pixels_And_O_Thumbnails() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -382,6 +388,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
     }
 
+    @Override
     public void test_U_Pixels_And_R_Thumbnails() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -456,8 +463,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         try {
             createThumbnail(ownsfB, groupB, permsB, pix);
             verifyDetails(tb, ownerB, groupB, permsB);
-            if (!canCreate)
+            if (!canCreate) {
                 fail("secvio!");
+            }
 
             pix = tb.getPixels();
 
@@ -498,8 +506,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
             }
 
         } catch (SecurityViolation sv) {
-            if (canCreate)
+            if (canCreate) {
                 throw sv;
+            }
         }
     }
 
@@ -617,8 +626,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
 
             createThumbnail(ownsfA, groupA, permsA, pix);
             verifyDetails(tb, ownerA, groupA, permsA);
-            if (!canCreate)
+            if (!canCreate) {
                 fail("secvio!");
+            }
 
             pix = tb.getPixels();
 
@@ -642,13 +652,15 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
                     assertNull(test);
                 }
             } catch (SecurityViolation sv) {
-                if (tb_ok && pix_ok)
+                if (tb_ok && pix_ok) {
                     throw sv;
+                }
             }
 
         } catch (SecurityViolation sv) {
-            if (canCreate)
+            if (canCreate) {
                 throw sv;
+            }
         }
     }
 
@@ -677,11 +689,13 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
         try {
             createInstrument(ownsfA, groupA, permsA, micro);
             verifyDetails(instr, ownerA, groupA, permsA);
-            if (!canCreate)
+            if (!canCreate) {
                 fail("secvio!");
+            }
         } catch (SecurityViolation sv) {
-            if (canCreate)
+            if (canCreate) {
                 throw sv;
+            }
         }
 
         String outerJoin = "select i from Instrument i left outer join fetch i.microscope where i.id = :id";
@@ -704,6 +718,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // ~ many-to-many
     // =========================================================================
 
+    @Override
     public void test_U_Projects_U_Datasets_U_Link() throws Exception {
         ownsfA = ownsfB = ownsfC = u;
         ownerA = ownerB = ownerC = user;
@@ -795,8 +810,9 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
                 assertNull(test);
             }
         } catch (SecurityViolation sv) {
-            if (prj_ok && ds_ok)
+            if (prj_ok && ds_ok) {
                 throw sv;
+            }
         }
 
     }
@@ -804,6 +820,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // ~ Special: "tag" (e.g. Image/Pixels)
     // =========================================================================
 
+    @Override
     @Test
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;

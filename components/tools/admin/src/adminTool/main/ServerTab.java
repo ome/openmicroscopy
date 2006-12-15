@@ -26,4 +26,9 @@ import javax.swing.JPanel;
  */
 public class ServerTab extends JPanel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8489017241134562829L;
+
 }

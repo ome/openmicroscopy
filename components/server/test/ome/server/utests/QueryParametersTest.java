@@ -1,25 +1,13 @@
 package ome.server.utests;
 
 import org.testng.annotations.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
-import ome.model.containers.Project;
-import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
-import ome.services.query.ClassQuerySource;
 import ome.services.query.CollectionQueryParameterDef;
-import ome.services.query.NullQuerySource;
-import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.Query;
-import ome.services.query.QueryException;
-import ome.services.query.QueryFactory;
 import ome.services.query.QueryParameterDef;
-import ome.services.query.QuerySource;
-import ome.services.query.StringQuerySource;
-
 import junit.framework.TestCase;
 
 public class QueryParametersTest extends TestCase {

@@ -109,11 +109,13 @@ public class MockSupport {
      *            The next call in the sequence of expected calls.
      */
     public void add(MockedCall mc) {
-        if (isActive)
+        if (isActive) {
             throw new IllegalAccessError(
                     "Can't set expectations while they're verified.");
-        if (mc == null)
+        }
+        if (mc == null) {
             throw new NullPointerException("No mocked call was specified.");
+        }
         expectedCalls.add(mc);
     }
 
@@ -123,8 +125,9 @@ public class MockSupport {
      * be invoked from now on.
      */
     public void activate() {
-        if (isActive)
+        if (isActive) {
             throw new IllegalAccessError("Can't re-activate.");
+        }
         isActive = true;
         expectationsIterator = expectedCalls.iterator();
     }
@@ -161,15 +164,18 @@ public class MockSupport {
      *         be extracted.
      */
     public MockedCall verifyCall(MockedCall actual) {
-        if (!isActive)
+        if (!isActive) {
             throw new IllegalAccessError(
                     "Can't verify expectations while they're set.");
-        if (!expectationsIterator.hasNext())
+        }
+        if (!expectationsIterator.hasNext()) {
             failTooManyCalls(actual);
+        }
         performedCalls++;
         MockedCall expected = (MockedCall) expectationsIterator.next();
-        if (!expected.isSameCall(actual))
+        if (!expected.isSameCall(actual)) {
             failUnexpectedCall(expected, actual, performedCalls);
+        }
         return expected;
     }
 
@@ -178,11 +184,13 @@ public class MockSupport {
      * condition is not met, the test fails.
      */
     public void verifyCallSequence() {
-        if (!isActive)
+        if (!isActive) {
             throw new IllegalAccessError(
                     "Can't verify expectations while they're set.");
-        if (expectationsIterator.hasNext())
+        }
+        if (expectationsIterator.hasNext()) {
             failMoreCallsExpected();
+        }
     }
 
     /**

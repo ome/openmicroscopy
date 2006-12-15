@@ -18,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 
 /**
@@ -47,8 +46,9 @@ public class ApiConstraintChecker {
         }
 
         /* get arrays of arguments with parameters */
-        if (args == null)
+        if (args == null) {
             args = new Object[] {};
+        }
 
         boolean[] validated = new boolean[args.length];
 
@@ -57,8 +57,9 @@ public class ApiConstraintChecker {
 
         for (int j = 0; j < allAnnotations.length; j++) {
             Annotation[][] anns = (Annotation[][]) allAnnotations[j];
-            if (anns == null)
+            if (anns == null) {
                 continue;
+            }
 
             for (int i = 0; i < args.length; i++) {
                 Object arg = args[i];
@@ -93,8 +94,9 @@ public class ApiConstraintChecker {
                         else if (arg instanceof Collection) {
                             Collection coll = (Collection) arg;
                             for (Object object : coll) {
-                                if (!validSet.isValid(object.getClass()))
+                                if (!validSet.isValid(object.getClass())) {
                                     throw new ApiUsageException(msg);
+                                }
                             }
 
                         }
@@ -110,13 +112,14 @@ public class ApiConstraintChecker {
 
             for (int i = 0; i < validated.length; i++) {
                 /* warn if someone's forgotten to annotate a method */
-                if (args[i] instanceof Collection && !validated[i])
+                if (args[i] instanceof Collection && !validated[i]) {
                     throw new ValidationException(
                             mthd
                                     + " is missing a required @"
                                     + Validate.class.getName()
                                     + " annotation. This should be added to one of the "
                                     + " implemented interfaces. Refusing to proceed...");
+                }
 
             }
         }
@@ -134,20 +137,24 @@ class ValidSet {
     }
 
     public boolean isValid(Class target) {
-        if (classes == null)
+        if (classes == null) {
             return false;
+        }
 
         for (int i = 0; i < classes.length; i++) {
             Class klass = classes[i];
-            if (klass == null)
+            if (klass == null) {
                 continue;
+            }
 
-            if (klass.isAssignableFrom(target))
+            if (klass.isAssignableFrom(target)) {
                 return true;
+            }
         }
         return false;
     }
 
+    @Override
     public String toString() {
         return Arrays.asList(classes).toString();
     }

@@ -48,6 +48,7 @@ class XYPlane extends Plane2D {
      * 
      * @see Plane2D#calculateOffset(int, int)
      */
+    @Override
     protected int calculateOffset(int x1, int x2) {
         return bytesPerPixel * (sizeX * x2 + x1);
     }

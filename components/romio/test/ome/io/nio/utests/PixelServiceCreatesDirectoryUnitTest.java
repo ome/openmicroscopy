@@ -1,7 +1,6 @@
 package ome.io.nio.utests;
 
 import org.testng.annotations.*;
-import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -16,6 +15,7 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
 
     private PixelsService service;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         pixels = new Pixels();

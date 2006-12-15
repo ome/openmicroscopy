@@ -38,11 +38,13 @@ public class QueryParameter implements Serializable {
 
     public QueryParameter(String name, Class type, Object value) {
 
-        if (name == null)
+        if (name == null) {
             throw new ApiUsageException("Expecting a value for name.");
+        }
 
-        if (type == null)
+        if (type == null) {
             throw new ApiUsageException("Expecting a value for type.");
+        }
 
         if (value == null || type.isAssignableFrom(value.getClass())) {
             this.name = name;
@@ -58,6 +60,7 @@ public class QueryParameter implements Serializable {
         }
     }
 
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer(64);
         sb.append("QP{");
@@ -71,25 +74,31 @@ public class QueryParameter implements Serializable {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof QueryParameter))
+        if (!(obj instanceof QueryParameter)) {
             return false;
+        }
 
         QueryParameter qp = (QueryParameter) obj;
 
-        if (this == qp)
+        if (this == qp) {
             return true;
+        }
 
-        if (!this.name.equals(qp.name))
+        if (!this.name.equals(qp.name)) {
             return false;
-        if (!this.type.equals(qp.type))
+        }
+        if (!this.type.equals(qp.type)) {
             return false;
+        }
 
         return this.value == null ? qp.value == null : this.value
                 .equals(qp.value);
 
     }
 
+    @Override
     public int hashCode() {
         int result = 11;
         result = 17 * result + name.hashCode();
@@ -106,17 +115,20 @@ public class QueryParameter implements Serializable {
             ClassNotFoundException {
         s.defaultReadObject();
 
-        if (type == null)
+        if (type == null) {
             throw new InvalidObjectException(
                     "QueryParameter type cannot be null.");
+        }
 
-        if (value == null)
+        if (value == null) {
             throw new InvalidObjectException(
                     "QueryParameter value cannot be null.");
+        }
 
-        if (!type.isAssignableFrom(value.getClass()))
+        if (!type.isAssignableFrom(value.getClass())) {
             throw new InvalidObjectException(
                     "QueryParameter value must be of type type.");
+        }
     }
 
 }

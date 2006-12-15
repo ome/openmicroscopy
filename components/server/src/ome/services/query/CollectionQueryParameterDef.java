@@ -16,13 +16,8 @@ package ome.services.query;
 
 // Java imports
 import java.util.Collection;
-import java.util.Map;
-
-// Third-party libraries
-
 // Application-internal dependencies
 import ome.conditions.ApiUsageException;
-import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 
 /**
@@ -53,24 +48,28 @@ public class CollectionQueryParameterDef extends QueryParameterDef {
     public void errorIfInvalid(QueryParameter parameter) {
         super.errorIfInvalid(parameter);
 
-        if (!optional && ((Collection) parameter.value).size() < 1)
+        if (!optional && ((Collection) parameter.value).size() < 1) {
             throw new ApiUsageException(
                     "Requried collection parameters may not be empty.");
+        }
 
-        if (parameter.value != null)
+        if (parameter.value != null) {
             for (Object element : (Collection) parameter.value) {
 
-                if (element == null)
+                if (element == null) {
                     throw new ApiUsageException(
                             "Null elements are not allowed "
                                     + "in parameter collections");
+                }
 
-                if (!elementType.isAssignableFrom(element.getClass()))
+                if (!elementType.isAssignableFrom(element.getClass())) {
                     throw new ApiUsageException("Elements of type "
                             + element.getClass().getName()
                             + " are not allowed in collections of type "
                             + elementType.getName());
+                }
             }
+        }
 
     }
 

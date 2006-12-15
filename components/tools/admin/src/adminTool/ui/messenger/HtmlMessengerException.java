@@ -12,6 +12,11 @@ package src.adminTool.ui.messenger;
  * 
  */
 public class HtmlMessengerException extends Exception {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 464850411907138178L;
+
     public HtmlMessengerException(String message, Exception e) {
         super(message, e);
     }

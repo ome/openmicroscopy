@@ -21,20 +21,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Style;
-import javax.swing.text.StyledDocument;
-
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 
 import layout.TableLayout;
 
@@ -106,8 +98,9 @@ public class CommentMessenger extends JDialog implements ActionListener {
         Icon questionIcon = UIManager.getIcon("OptionPane.questionIcon");
 
         int iconSpace = 0;
-        if (questionIcon != null)
+        if (questionIcon != null) {
             iconSpace = questionIcon.getIconWidth() + 20;
+        }
 
         double commentTable[][] = {
                 { iconSpace, (160 - iconSpace), TableLayout.FILL }, // columns

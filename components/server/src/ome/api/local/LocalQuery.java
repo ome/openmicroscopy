@@ -14,8 +14,6 @@ package ome.api.local;
 // Application-internal dependencies
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-import ome.model.IObject;
-import ome.services.dao.Dao;
 import ome.services.query.Query;
 
 /**

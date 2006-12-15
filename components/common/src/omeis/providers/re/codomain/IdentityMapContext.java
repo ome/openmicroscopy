@@ -32,6 +32,7 @@ public class IdentityMapContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#buildContext()
      */
+    @Override
     void buildContext() {
     }
 
@@ -40,6 +41,7 @@ public class IdentityMapContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#getCodomainMap()
      */
+    @Override
     CodomainMap getCodomainMap() {
         return new IdentityMap();
     }
@@ -49,6 +51,7 @@ public class IdentityMapContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#copy()
      */
+    @Override
     public CodomainMapContext copy() {
         IdentityMapContext copy = new IdentityMapContext();
         copy.intervalEnd = intervalEnd;

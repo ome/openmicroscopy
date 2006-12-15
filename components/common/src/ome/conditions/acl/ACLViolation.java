@@ -41,8 +41,9 @@ public abstract class ACLViolation extends ome.conditions.SecurityViolation {
     public String getMessage() {
 
         String s = super.getMessage();
-        if (s == null)
+        if (s == null) {
             s = "";
+        }
 
         String k = klass == null ? "No class" : klass.getName();
 

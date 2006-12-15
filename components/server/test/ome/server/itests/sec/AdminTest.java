@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
-import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -21,7 +20,6 @@ import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Roles;
 import ome.util.IdBlock;
-import sun.misc.UUDecoder;
 
 public class AdminTest extends AbstractManagedContextTest {
 

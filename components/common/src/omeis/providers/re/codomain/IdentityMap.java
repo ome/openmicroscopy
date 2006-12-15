@@ -41,6 +41,7 @@ class IdentityMap implements CodomainMap {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         return "IdentityMap";
     }

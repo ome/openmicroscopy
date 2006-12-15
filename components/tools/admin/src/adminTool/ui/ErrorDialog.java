@@ -47,6 +47,11 @@ import src.adminTool.model.AdminToolException;
  * @since OME3.0
  */
 public class ErrorDialog extends JDialog implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 2720363380489177326L;
+
     private JTextArea operationText;
 
     private JTextArea exceptionText;
@@ -190,7 +195,8 @@ public class ErrorDialog extends JDialog implements ActionListener {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("ok"))
+        if (e.getActionCommand().equals("ok")) {
             this.dispose();
+        }
     }
 }

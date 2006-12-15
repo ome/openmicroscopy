@@ -78,8 +78,9 @@ public class FileQueueTable extends JPanel implements ActionListener {
         setBorder(BorderFactory.createEmptyBorder(6, 5, 9, 8));
 
         JPanel buttonPanel = new JPanel();
-        if (debugBorders == true)
+        if (debugBorders == true) {
             buttonPanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
+        }
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
         addBtn = addButton(">>", addIcon, null);
         addBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
@@ -106,8 +107,9 @@ public class FileQueueTable extends JPanel implements ActionListener {
         add(Box.createRigidArea(new Dimension(5, 0)));
 
         JPanel queuePanel = new JPanel();
-        if (debugBorders == true)
+        if (debugBorders == true) {
             queuePanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
+        }
         queuePanel.setLayout(new BoxLayout(queuePanel, BoxLayout.PAGE_AXIS));
         queuePanel.add(Box.createRigidArea(new Dimension(0, 10)));
         JPanel labelPanel = new JPanel();
@@ -174,8 +176,9 @@ public class FileQueueTable extends JPanel implements ActionListener {
     }
 
     public void setProgressPending(int row) {
-        if (table.getValueAt(row, 2).equals("added"))
+        if (table.getValueAt(row, 2).equals("added")) {
             table.setValueAt("pending", row, 2);
+        }
     }
 
     public void setImportProgress(int step) {
@@ -262,14 +265,17 @@ public class FileQueueTable extends JPanel implements ActionListener {
         public void tableChanged(TableModelEvent arg0) {
         }
 
+        @Override
         public int getColumnCount() {
             return columnNames.length;
         }
 
+        @Override
         public String getColumnName(int col) {
             return columnNames[col];
         }
 
+        @Override
         public boolean isCellEditable(int row, int col) {
             return false;
         }
@@ -285,6 +291,7 @@ public class FileQueueTable extends JPanel implements ActionListener {
 
         private static final long serialVersionUID = 1L;
 
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                 Object value, boolean isSelected, boolean hasFocus, int row,
                 int column) {
@@ -314,16 +321,20 @@ public class FileQueueTable extends JPanel implements ActionListener {
         }
 
         // The following methods override the defaults for performance reasons
+        @Override
         public void validate() {
         }
 
+        @Override
         public void revalidate() {
         }
 
+        @Override
         protected void firePropertyChange(String propertyName, Object oldValue,
                 Object newValue) {
         }
 
+        @Override
         public void firePropertyChange(String propertyName, boolean oldValue,
                 boolean newValue) {
         }
@@ -331,6 +342,7 @@ public class FileQueueTable extends JPanel implements ActionListener {
 
     @SuppressWarnings("serial")
     class LeftDotRenderer extends DefaultTableCellRenderer {
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                 Object value, boolean isSelected, boolean hasFocus, int row,
                 int column) {
@@ -340,8 +352,8 @@ public class FileQueueTable extends JPanel implements ActionListener {
             int availableWidth = table.getColumnModel().getColumn(column)
                     .getWidth();
             availableWidth -= table.getIntercellSpacing().getWidth();
-            Insets borderInsets = getBorder().getBorderInsets((Component) this);
-            availableWidth -= (borderInsets.left + borderInsets.right);
+            Insets borderInsets = getBorder().getBorderInsets(this);
+            availableWidth -= borderInsets.left + borderInsets.right;
             String cellText = getText();
             FontMetrics fm = getFontMetrics(getFont());
             // Set tool tip if desired
@@ -373,6 +385,7 @@ public class FileQueueTable extends JPanel implements ActionListener {
 
         private static final long serialVersionUID = 1L;
 
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                 Object value, boolean isSelected, boolean hasFocus, int row,
                 int column) {

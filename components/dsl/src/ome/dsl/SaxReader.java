@@ -108,21 +108,25 @@ class DSLHandler extends DefaultHandler {
     private Property property;
 
     /** dispatches to output (printing) and handling (object-creation) routines */
+    @Override
     public void startElement(String arg0, String arg1, String element,
             Attributes attrs) throws SAXException {
-        if (verbose)
+        if (verbose) {
             outputStart(element, attrs);
+        }
         handleEntry(element, attrs);
         super.startElement(arg0, arg1, element, attrs);
     }
 
     /** dispatches to output (printing) and handling (object-creation) routines */
+    @Override
     public void endElement(String arg0, String arg1, String element)
             throws SAXException {
         super.endElement(arg0, arg1, element);
         handleExit(element);
-        if (verbose)
+        if (verbose) {
             outputStop(element);
+        }
     }
 
     /** creates a new type or property based on element name */

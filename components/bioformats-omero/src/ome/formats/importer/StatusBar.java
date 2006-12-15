@@ -20,8 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.Border;
 
-import ome.model.containers.Dataset;
-
 // Third-party libraries
 
 /**
@@ -37,6 +35,11 @@ import ome.model.containers.Dataset;
  * @since OME2.2
  */
 public class StatusBar extends JPanel {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 2146428337244764232L;
 
     /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar progressBar;
@@ -102,9 +105,9 @@ public class StatusBar extends JPanel {
      */
     public void setProgress(boolean visible, int perc, String string) {
         progressBar.setVisible(visible);
-        if (perc < 0)
+        if (perc < 0) {
             progressBar.setIndeterminate(true);
-        else {
+        } else {
             progressBar.setFont(getFont().deriveFont(11.0f));
             progressBar.setPreferredSize(new Dimension(220, 20));
             progressBar.setStringPainted(true);

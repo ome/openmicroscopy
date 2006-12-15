@@ -10,32 +10,11 @@ package ome.logic;
 // Java imports
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
-
-// Third-party imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.framework.ProxyFactoryBean;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.security.SecuritySystem;
-import ome.services.query.QueryFactory;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.SelfConfigurableService;
-import ome.system.ServiceFactory;
-import ome.tools.spring.AOPAdapter;
-import ome.tools.spring.InternalServiceFactory;
 
 /**
  * abstract base class for creating

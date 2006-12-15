@@ -8,7 +8,6 @@ import org.apache.tools.ant.types.FileSet;
 import com.thoughtworks.qdox.JavaDocBuilder;
 import com.thoughtworks.qdox.model.DocletTag;
 import com.thoughtworks.qdox.model.JavaClass;
-import com.thoughtworks.qdox.model.JavaMethod;
 import com.thoughtworks.qdox.model.JavaSource;
 
 import ome.dsl.VelocityHelper;
@@ -46,6 +45,7 @@ public class APITask extends Task {
         _fileSets.add(fileSet);
     }
 
+    @Override
     public void execute() throws BuildException {
         if (_fileSets.isEmpty()) {
             throw new BuildException("No fileset specified");
@@ -111,10 +111,12 @@ public class APITask extends Task {
 
             for (int j = 0; j < classes.length; j++) {
                 JavaClass cls = classes[j];
-                if (!cls.isInterface())
+                if (!cls.isInterface()) {
                     continue;
-                if (!cls.isPublic())
+                }
+                if (!cls.isPublic()) {
                     continue;
+                }
 
                 DocletTag iceTag = cls.getTagByName("ICE");
                 // if (null != iceTag)

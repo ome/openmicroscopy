@@ -36,6 +36,7 @@ public class PixelsTrans extends Transformer {
                 transformer.getCreationEvent(), transformer.getToSave());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List transmute() {
         ome.model.ImagePixel oldPixels = (ome.model.ImagePixel) getModel();
@@ -89,8 +90,9 @@ public class PixelsTrans extends Transformer {
                     this, lc);
             toSave = actransform.transmute();
             ac = (AcquisitionContext) toSave.get(toSave.size() - 1);
-        } else
+        } else {
             ac = new AcquisitionContext();
+        }
         toSave.add(ac);
 
         // Add the acquistion context to the pixels set
@@ -113,15 +115,17 @@ public class PixelsTrans extends Transformer {
         ome.model.ImagePixel oldPixels = (ome.model.ImagePixel) getModel();
         Set channels = oldPixels.getChannelComponents();
 
-        if (channels.size() < 1)
+        if (channels.size() < 1) {
             return null;
+        }
 
         for (Object o : channels) {
             ome.model.ChannelComponent channel = (ome.model.ChannelComponent) o;
             ome.model.LogicalChannel lc = channel.getLogicalChannel();
 
-            if (lc != null)
+            if (lc != null) {
                 return lc;
+            }
         }
 
         return null;

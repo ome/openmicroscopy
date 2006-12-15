@@ -30,6 +30,7 @@ public class PixelsTypeTrans extends Transformer {
                 transformer.getCreationEvent(), transformer.getToSave());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List transmute() {
         Omero3Connector connector = Omero3Connector.getInstance();

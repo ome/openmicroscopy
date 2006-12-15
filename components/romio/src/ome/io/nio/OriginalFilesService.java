@@ -6,8 +6,6 @@
  */
 package ome.io.nio;
 
-import java.io.FileNotFoundException;
-
 import ome.model.core.OriginalFile;
 
 /**

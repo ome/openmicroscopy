@@ -37,10 +37,12 @@ public class ChannelTrans extends Transformer {
         this.index = index;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List transmute() {
-        if (index == null)
+        if (index == null) {
             throw new NullPointerException("Index must be set.");
+        }
         ome.model.ChannelComponent oldChannel = (ome.model.ChannelComponent) getModel();
 
         List toSave = getToSave();

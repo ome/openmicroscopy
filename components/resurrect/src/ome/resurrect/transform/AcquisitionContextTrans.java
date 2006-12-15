@@ -30,6 +30,7 @@ public class AcquisitionContextTrans extends Transformer {
                 transformer.getCreationEvent(), transformer.getToSave());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List transmute() {
         ome.model.LogicalChannel oldLogicalChannel = (ome.model.LogicalChannel) getModel();

@@ -27,6 +27,7 @@ public class Preferences2Test extends
                 "An attempt to override.");
     }
 
+    @Override
     protected String[] getConfigLocations() {
         return new String[] { "ome/client/utests/no_props.xml" };
     }

@@ -110,21 +110,26 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
         Long g = d.getGroup().getId();
 
         // most likely and fastest first
-        if (p.isGranted(WORLD, READ))
+        if (p.isGranted(WORLD, READ)) {
             return true;
+        }
 
-        if (currentUserId.equals(o) && p.isGranted(USER, READ))
+        if (currentUserId.equals(o) && p.isGranted(USER, READ)) {
             return true;
+        }
 
         if (memberOfGroups.contains(g)
-                && d.getPermissions().isGranted(GROUP, READ))
+                && d.getPermissions().isGranted(GROUP, READ)) {
             return true;
+        }
 
-        if (admin)
+        if (admin) {
             return true;
+        }
 
-        if (leaderOfGroups.contains(g))
+        if (leaderOfGroups.contains(g)) {
             return true;
+        }
 
         return false;
     }

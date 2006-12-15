@@ -9,20 +9,12 @@ package ome.services.query;
 
 // Java imports
 import java.lang.reflect.Constructor;
-import java.sql.SQLException;
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-
 // Application-internal dependencies
 import ome.model.IObject;
 import ome.parameters.Parameters;
-import ome.parameters.QueryParameter;
 
 /**
  * creates a query based on the id string by interpreting it as a Class. The
@@ -53,6 +45,7 @@ public class ClassQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(ClassQuerySource.class);
 
+    @Override
     public Query lookup(String queryID, Parameters parameters) {
         Query q = null;
         Class klass = null;

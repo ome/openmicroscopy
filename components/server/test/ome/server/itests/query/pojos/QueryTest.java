@@ -130,7 +130,7 @@ public class QueryTest extends AbstractManagedContextTest {
 
     @Test
     public void testGetExperimenter() throws Exception {
-        Experimenter e = (Experimenter) iQuery.get(Experimenter.class, 0);
+        Experimenter e = iQuery.get(Experimenter.class, 0);
         assertNotNull(e.getDefaultGroupLink());
         assertNotNull(e.getDefaultGroupLink().parent());
 
@@ -146,7 +146,7 @@ public class QueryTest extends AbstractManagedContextTest {
     public void test_examplById() throws Exception {
         Experimenter ex = new Experimenter(new Long(0));
         try {
-            Experimenter e = (Experimenter) iQuery.findByExample(ex);
+            Experimenter e = iQuery.findByExample(ex);
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("unique result"));
         }

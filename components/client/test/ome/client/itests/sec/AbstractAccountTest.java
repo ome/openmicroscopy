@@ -1,13 +1,8 @@
 package ome.client.itests.sec;
 
-import javax.sql.DataSource;
-
 import org.jboss.util.id.GUID;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.*;
-
-import junit.framework.TestCase;
 
 import ome.api.IAdmin;
 import ome.api.IQuery;
@@ -157,11 +152,13 @@ public class AbstractAccountTest extends AbstractSecurityTest {
         try {
             new ServiceFactory(new Login(name, password)).getQueryService()
                     .get(Experimenter.class, 0L);
-            if (!works)
+            if (!works) {
                 fail("Login should not have succeeded:" + name + ":" + password);
+            }
         } catch (Exception e) {
-            if (works)
+            if (works) {
                 throw new RuntimeException(e);
+            }
         }
 
     }

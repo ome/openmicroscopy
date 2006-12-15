@@ -37,6 +37,11 @@ import src.adminTool.model.Model;
  */
 public class UserGroupMembershipList extends JPanel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4914633082830959422L;
+
     private JList groups;
 
     private DefaultListModel listModel;
@@ -48,14 +53,17 @@ public class UserGroupMembershipList extends JPanel {
     }
 
     public String getSelectedUserGroup() {
-        if (listModel.size() == 0)
+        if (listModel.size() == 0) {
             return null;
-        if (groups.getLeadSelectionIndex() < 0)
+        }
+        if (groups.getLeadSelectionIndex() < 0) {
             return null;
-        if (groups.getLeadSelectionIndex() < listModel.size())
+        }
+        if (groups.getLeadSelectionIndex() < listModel.size()) {
             return (String) listModel.get(groups.getLeadSelectionIndex());
-        else
+        } else {
             return null;
+        }
     }
 
     public UserGroupMembershipList(Model model) {
@@ -79,8 +87,9 @@ public class UserGroupMembershipList extends JPanel {
         if (model.findUserByName(userName)) {
             List data = model.getUserGroupMembership(model.getCurrentUserID());
             listModel.clear();
-            for (int i = 0; i < data.size(); i++)
+            for (int i = 0; i < data.size(); i++) {
                 listModel.add(i, data.get(i));
+            }
         }
     }
 

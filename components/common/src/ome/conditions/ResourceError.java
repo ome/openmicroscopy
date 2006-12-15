@@ -25,6 +25,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class ResourceError extends RootException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 773187967180983956L;
+
     public ResourceError(String msg) {
         super(msg);
     }

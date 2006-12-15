@@ -12,10 +12,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
@@ -34,8 +32,6 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicEventContext;
 import ome.system.EventContext;
-import ome.system.Principal;
-import ome.system.SimpleEventContext;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -303,8 +299,9 @@ class CurrentDetails {
 
     public boolean isDisabled(String id) {
         Set<String> s = data.get().disabledSubsystems;
-        if (s == null || id == null || !s.contains(id))
+        if (s == null || id == null || !s.contains(id)) {
             return false;
+        }
         return true;
 
     }
@@ -314,8 +311,9 @@ class CurrentDetails {
 
     public Set<IObject> getLockCandidates() {
         Set<IObject> s = data.get().lockCandidates;
-        if (s == null)
+        if (s == null) {
             return new HashSet<IObject>();
+        }
         return s;
     }
 

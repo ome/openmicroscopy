@@ -11,8 +11,9 @@ public class HelperUnitTest extends TestCase {
     private static String ROOT = File.separator + "OMERO" + File.separator;
 
     private String p(String path) {
-        if (File.separator.equals("\\"))
+        if (File.separator.equals("\\")) {
             return path.replace("/", "\\");
+        }
         return path;
     }
 

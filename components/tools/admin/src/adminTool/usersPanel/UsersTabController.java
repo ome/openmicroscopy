@@ -214,8 +214,9 @@ public class UsersTabController implements UserListController {
             return false;
         }
         ArrayList groups = view.getGroups();
-        if (groups.size() != 0)
+        if (groups.size() != 0) {
             return false;
+        }
         return true;
     }
 
@@ -232,14 +233,16 @@ public class UsersTabController implements UserListController {
 
     public void userSelected(String userName) {
         try {
-            if (model.getNumUsers() == 0)
+            if (model.getNumUsers() == 0) {
                 return;
+            }
             model.setCurrentUser(userName);
             view.setUserDetails(model.getCurrentUser());
-            if (view.getUserName().equals("NewUser"))
+            if (view.getUserName().equals("NewUser")) {
                 view.setUserNameEditable(true);
-            else
+            } else {
                 view.setUserNameEditable(false);
+            }
         } catch (Exception e) {
             handleException(e, "Select User and Display details");
         }
@@ -368,14 +371,16 @@ public class UsersTabController implements UserListController {
 
     public void removeUser() {
         String selectedUser = view.getSelectedUser();
-        if (!view.confirmUserDeletion())
+        if (!view.confirmUserDeletion()) {
             return;
+        }
         try {
-            if (!model.findUserByName(selectedUser))
+            if (!model.findUserByName(selectedUser)) {
                 throw new IAdminException(
                         new Exception(
                                 "Cannot find user in "
                                         + "Database. Admintool may be out of sync with Database."));
+            }
         } catch (Exception e) {
             handleException(e,
                     "Admintool seems to be out of sync with database."

@@ -13,7 +13,6 @@ package ome.security;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.hibernate.EntityMode;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -34,13 +33,8 @@ import org.hibernate.event.PreUpdateEventListener;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.internal.Details;
-import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Flag;
-import ome.security.basic.BasicSecuritySystem;
 import ome.tools.hibernate.HibernateUtils;
 
 /**

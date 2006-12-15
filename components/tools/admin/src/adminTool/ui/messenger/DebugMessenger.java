@@ -121,16 +121,18 @@ public class DebugMessenger extends JDialog implements ActionListener {
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false); // content panes must be opaque
 
-        if (debug == true)
+        if (debug == true) {
             tPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), tPane.getBorder()));
+        }
 
         // fill out the comments panel (changes according to icon existance)
         Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
 
         int iconSpace = 0;
-        if (errorIcon != null)
+        if (errorIcon != null) {
             iconSpace = errorIcon.getIconWidth() + 10;
+        }
 
         double commentTable[][] = {
                 { iconSpace, (160 - iconSpace), TableLayout.FILL }, // columns

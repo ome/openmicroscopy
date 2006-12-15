@@ -10,6 +10,7 @@ public class OmeroInterceptorTest extends AbstractBasicSecuritySystemTest {
 
     OmeroInterceptor oi;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();

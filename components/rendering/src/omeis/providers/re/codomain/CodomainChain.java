@@ -100,15 +100,18 @@ public class CodomainChain {
      *             If the value is not in the interval.
      */
     private void verifyInterval(int start, int end) {
-        if (start >= end)
+        if (start >= end) {
             throw new IllegalArgumentException(start
                     + " cannot be greater than " + end);
-        if (start < QuantumStrategy.MIN)
+        }
+        if (start < QuantumStrategy.MIN) {
             throw new IllegalArgumentException(start + " cannot be lower than "
                     + QuantumStrategy.MIN);
-        if (end > QuantumStrategy.MAX)
+        }
+        if (end > QuantumStrategy.MAX) {
             throw new IllegalArgumentException(end + " cannot be greater than "
                     + QuantumStrategy.MAX);
+        }
     }
 
     /**
@@ -122,10 +125,11 @@ public class CodomainChain {
      * @return See above.
      */
     private int verifyInput(int x) {
-        if (x < intervalStart)
+        if (x < intervalStart) {
             x = intervalStart;
-        else if (x > intervalEnd)
+        } else if (x > intervalEnd) {
             x = intervalEnd;
+        }
         return x;
     }
 
@@ -165,21 +169,24 @@ public class CodomainChain {
      */
     public CodomainChain(int start, int end, List mapContexts) {
         chain = new ArrayList();
-        if (identityCtx == null)
+        if (identityCtx == null) {
             identityCtx = new IdentityMapContext();
+        }
         if (mapContexts != null && 0 < mapContexts.size()) {
             Iterator i = mapContexts.iterator();
             CodomainMapContext ctx;
             while (i.hasNext()) {
                 ctx = (CodomainMapContext) i.next();
-                if (chain.contains(ctx)) // Recall equals() is overridden.
+                if (chain.contains(ctx)) {
                     throw new IllegalArgumentException(
                             "Context already defined.");
+                }
                 ctx = ctx.copy();
                 chain.add(ctx);
             }
-        } else
+        } else {
             chain.add(identityCtx);
+        }
 
         setInterval(start, end);
     }
@@ -256,10 +263,12 @@ public class CodomainChain {
      *             If the context is already defined.
      */
     public void add(CodomainMapContext mapCtx) {
-        if (mapCtx == null)
+        if (mapCtx == null) {
             throw new NullPointerException("No context.");
-        if (chain.contains(mapCtx)) // Recall equals() is overridden.
+        }
+        if (chain.contains(mapCtx)) {
             throw new IllegalArgumentException("Context already defined.");
+        }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
         mapCtx.setCodomain(intervalStart, intervalEnd);
         mapCtx.buildContext();
@@ -282,11 +291,13 @@ public class CodomainChain {
      *             If the specifed context doesn't exist.
      */
     public void update(CodomainMapContext mapCtx) {
-        if (mapCtx == null)
+        if (mapCtx == null) {
             throw new NullPointerException("No context.");
+        }
         int i = chain.indexOf(mapCtx); // Recall equals() is overridden.
-        if (i == -1)
+        if (i == -1) {
             throw new IllegalArgumentException("No such a context.");
+        }
         mapCtx = mapCtx.copy(); // Get memento and discard original object.
         mapCtx.setCodomain(intervalStart, intervalEnd);
         mapCtx.buildContext();
@@ -331,6 +342,7 @@ public class CodomainChain {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         Iterator i = chain.iterator();
@@ -340,10 +352,11 @@ public class CodomainChain {
         while (i.hasNext()) {
             mapCtx = (CodomainMapContext) i.next();
             buf.append(mapCtx.getCodomainMap());
-            if (j == n)
+            if (j == n) {
                 buf.append(".");
-            else
+            } else {
                 buf.append(", ");
+            }
             j++;
         }
         return buf.toString();

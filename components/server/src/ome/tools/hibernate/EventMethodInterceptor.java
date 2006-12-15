@@ -37,8 +37,9 @@ public class EventMethodInterceptor implements MethodInterceptor {
     public static class DisableAction extends Action {
         @Override
         public Object call(MethodInvocation mi) {
-            if (disabled(mi))
+            if (disabled(mi)) {
                 throw createException(mi);
+            }
             return super.call(mi);
         }
 

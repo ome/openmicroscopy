@@ -51,9 +51,10 @@ public class GuiCommonElements {
         panel.setBorder(BorderFactory.createEmptyBorder(margin_top,
                 margin_left, margin_bottom, margin_right));
 
-        if (debug == true)
+        if (debug == true) {
             panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), panel.getBorder()));
+        }
 
         return panel;
     }
@@ -79,9 +80,10 @@ public class GuiCommonElements {
         textPane.setFocusable(false);
         container.add(textPane, placement);
 
-        if (debug == true)
+        if (debug == true) {
             textPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), textPane.getBorder()));
+        }
 
         return textPane;
     }
@@ -95,12 +97,13 @@ public class GuiCommonElements {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
 
-        if (suffix == "")
+        if (suffix == "") {
             size = new double[][] { { labelWidth, TableLayout.FILL }, { 30 } };
-        else
+        } else {
             size = new double[][] {
                     { labelWidth, TableLayout.FILL, TableLayout.PREFERRED },
                     { 30 } };
+        }
 
         TableLayout layout = new TableLayout(size);
         panel.setLayout(layout);
@@ -112,8 +115,9 @@ public class GuiCommonElements {
         label.setLabelFor(result);
         label.setOpaque(false);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
 
         panel.add(label, "0, 0, r, c");
         panel.add(result, "1, 0, f, c");
@@ -123,9 +127,10 @@ public class GuiCommonElements {
             panel.add(suffixLabel, "2,0, l, c");
         }
 
-        if (debug == true)
+        if (debug == true) {
             panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), panel.getBorder()));
+        }
 
         container.add(panel, placement);
         return result;
@@ -148,9 +153,10 @@ public class GuiCommonElements {
         areaScrollPane
                 .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        if (debug == true)
+        if (debug == true) {
             panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), panel.getBorder()));
+        }
 
         if (name != "") {
             JLabel label = new JLabel(name);
@@ -227,9 +233,10 @@ public class GuiCommonElements {
         areaScrollPane
                 .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        if (debug == true)
+        if (debug == true) {
             panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), panel.getBorder()));
+        }
 
         if (name != "") {
             JLabel label = new JLabel(name);
@@ -267,9 +274,10 @@ public class GuiCommonElements {
         button.setOpaque(false);
         container.add(button, placement);
 
-        if (debug == true)
+        if (debug == true) {
             button.setBorder(BorderFactory.createCompoundBorder(BorderFactory
                     .createLineBorder(Color.red), button.getBorder()));
+        }
 
         return button;
     }

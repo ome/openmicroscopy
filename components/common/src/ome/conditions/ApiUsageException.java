@@ -28,6 +28,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class ApiUsageException extends RootException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8372725926525758661L;
+
     public ApiUsageException(String msg) {
         super(msg);
     }

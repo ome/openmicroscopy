@@ -27,7 +27,6 @@ import static ome.model.internal.Permissions.Role.*;
 import ome.model.internal.Token;
 import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
-import ome.system.EventContext;
 import ome.tools.hibernate.SecurityFilter;
 
 /**
@@ -71,8 +70,9 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Class<? extends IObject> klass, Details d) {
         Assert.notNull(klass);
         // Assert.notNull(d);
-        if (d == null || secSys.isSystemType(klass))
+        if (d == null || secSys.isSystemType(klass)) {
             return true;
+        }
         return SecurityFilter.passesFilter(d, secSys.currentUserId(), secSys
                 .memberOfGroups(), secSys.leaderOfGroups(), secSys
                 .currentUserIsAdmin());
@@ -92,7 +92,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
 
-        else if (secSys.isSystemType((Class<? extends IObject>) cls)) {
+        else if (secSys.isSystemType(cls)) {
             return false;
         }
 
@@ -129,9 +129,9 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
 
         // needs no details info
-        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin())
+        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
             return true;
-        else if (secSys.isSystemType((Class<? extends IObject>) iObject
+        } else if (secSys.isSystemType(iObject
                 .getClass())) {
             return false;
         }
@@ -143,15 +143,17 @@ public class BasicACLVoter implements ACLVoter {
 
         // this can now only happen if a table doesn't have permissions
         // and there aren't any of those. so let it be updated.
-        if (d == null)
+        if (d == null) {
             return true;
+        }
 
         Long o = d.getOwner() == null ? null : d.getOwner().getId();
         Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
         // needs no permissions info
-        if (g != null && secSys.leaderOfGroups().contains(g))
+        if (g != null && secSys.leaderOfGroups().contains(g)) {
             return true;
+        }
 
         Permissions p = d.getPermissions();
 
@@ -164,14 +166,17 @@ public class BasicACLVoter implements ACLVoter {
         }
 
         // standard
-        if (p.isGranted(WORLD, WRITE))
+        if (p.isGranted(WORLD, WRITE)) {
             return true;
+        }
         if (p.isGranted(USER, WRITE) && o != null
-                && o.equals(secSys.currentUserId()))
+                && o.equals(secSys.currentUserId())) {
             return true;
+        }
         if (p.isGranted(GROUP, WRITE) && g != null
-                && secSys.memberOfGroups().contains(g))
+                && secSys.memberOfGroups().contains(g)) {
             return true;
+        }
 
         return false;
     }

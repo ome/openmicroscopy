@@ -126,8 +126,9 @@ public class ImageData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public ImageData(Image image) {
-        if (image == null)
+        if (image == null) {
             throw new IllegalArgumentException("Object cannot null.");
+        }
         setValue(image);
     }
 
@@ -142,8 +143,9 @@ public class ImageData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asImage().setName(name);
     }
@@ -203,8 +205,9 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
-        if (defaultPixels == null && asImage().getDefaultPixels() != null)
+        if (defaultPixels == null && asImage().getDefaultPixels() != null) {
             defaultPixels = new PixelsData(asImage().getDefaultPixels());
+        }
         return defaultPixels;
     }
 
@@ -215,8 +218,9 @@ public class ImageData extends DataObject {
      *            The default set of pixels.
      */
     public void setDefaultPixels(PixelsData defaultPixels) {
-        if (getDefaultPixels() == defaultPixels)
+        if (getDefaultPixels() == defaultPixels) {
             return;
+        }
         setDirty(true);
         this.defaultPixels = defaultPixels;
         if (defaultPixels != null) {
@@ -406,8 +410,9 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Long getAnnotationCount() {
-        if (annotationCount == null)
+        if (annotationCount == null) {
             annotationCount = getCount(Image.ANNOTATIONS);
+        }
         return annotationCount;
     }
 
@@ -417,8 +422,9 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public Long getClassificationCount() {
-        if (classificationCount == null)
+        if (classificationCount == null) {
             classificationCount = getCount(Image.CATEGORYLINKS);
+        }
         return classificationCount;
     }
 

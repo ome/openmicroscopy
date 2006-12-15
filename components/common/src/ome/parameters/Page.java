@@ -55,24 +55,30 @@ public class Page implements Serializable {
     // =========================================================================
     private static final long serialVersionUID = 1135303821179948L;
 
+    @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Page))
+        if (!(obj instanceof Page)) {
             return false;
+        }
 
         Page p = (Page) obj;
 
-        if (this == p)
+        if (this == p) {
             return true;
+        }
 
-        if (p.m_offset != this.m_offset)
+        if (p.m_offset != this.m_offset) {
             return false;
+        }
 
-        if (p.m_limit != this.m_limit)
+        if (p.m_limit != this.m_limit) {
             return false;
+        }
 
         return true;
     }
 
+    @Override
     public int hashCode() {
         int result = 11;
         result = 17 * result + m_offset;
@@ -83,11 +89,13 @@ public class Page implements Serializable {
     // ~ Helpers
     // =========================================================================
     private void validate(int offset, int limit) {
-        if (offset < 0)
+        if (offset < 0) {
             throw new ValidationException("Offset cannot be less than zero.");
+        }
 
-        if (limit < 0)
+        if (limit < 0) {
             throw new ValidationException("Limit cannot be less than zero.");
+        }
 
     }
 

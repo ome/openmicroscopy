@@ -50,6 +50,7 @@ public class OmeroSessionFactoryBean extends LocalSessionFactoryBean {
     /**
      * @see org.springframework.orm.hibernate3.LocalSessionFactoryBean#postProcessConfiguration(org.hibernate.cfg.Configuration)
      */
+    @Override
     protected void postProcessConfiguration(Configuration config)
             throws HibernateException {
 

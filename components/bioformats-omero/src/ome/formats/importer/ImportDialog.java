@@ -142,10 +142,11 @@ public class ImportDialog extends JDialog implements ActionListener {
         group.add(fullPathButton);
         group.add(partPathButton);
 
-        if (useFullPath == true)
+        if (useFullPath == true) {
             group.setSelected(fullPathButton.getModel(), true);
-        else
+        } else {
             group.setSelected(partPathButton.getModel(), true);
+        }
 
         namedPanel.add(fullPathButton, c);
         namedPanel.add(partPathButton, c);
@@ -263,8 +264,9 @@ public class ImportDialog extends JDialog implements ActionListener {
         result.setHorizontalAlignment(JTextField.CENTER);
         prefex.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
 
         container.add(result);
 
@@ -422,10 +424,11 @@ public class ImportDialog extends JDialog implements ActionListener {
             userPrefs.putLong("savedProject", ((ProjectItem) pbox
                     .getSelectedItem()).getId());
             userPrefs.putLong("savedDataset", dataset.getId());
-            if (fullPathButton.isSelected() == true)
+            if (fullPathButton.isSelected() == true) {
                 userPrefs.putBoolean("savedFileNaming", true);
-            else
+            } else {
                 userPrefs.putBoolean("savedFileNaming", false);
+            }
             userPrefs
                     .putInt("savedNumOfDirs", numOfDirectoriesField.getValue());
 
@@ -474,8 +477,9 @@ public class ImportDialog extends JDialog implements ActionListener {
         }
 
         ImportDialog dialog = new ImportDialog(null, "Test", true, null);
-        if (dialog != null)
+        if (dialog != null) {
             System.exit(0);
+        }
     }
 
     public class WholeNumberField extends JTextField {
@@ -508,12 +512,14 @@ public class ImportDialog extends JDialog implements ActionListener {
             setText(integerFormatter.format(value));
         }
 
+        @Override
         protected Document createDefaultModel() {
             return new WholeNumberDocument();
         }
 
         protected class WholeNumberDocument extends PlainDocument {
 
+            @Override
             public void insertString(int offs, String str, AttributeSet a)
                     throws BadLocationException {
 
@@ -552,8 +558,9 @@ class DatasetItem {
 
     @Override
     public String toString() {
-        if (dataset == null)
+        if (dataset == null) {
             return "";
+        }
         return dataset.getName();
     }
 
@@ -604,7 +611,7 @@ class ProjectItem {
         p.setName("--- Select Project ---");
         items[0] = new ProjectItem(p);
 
-        for (int i = 1; i < (projects.size() + 1); i++) {
+        for (int i = 1; i < projects.size() + 1; i++) {
             items[i] = new ProjectItem(projects.get(i - 1));
         }
         return items;

@@ -24,8 +24,9 @@ public class LogAppender {
     private static LogAppender soleInstance;
 
     public static LogAppender getInstance() {
-        if (soleInstance == null)
+        if (soleInstance == null) {
             soleInstance = new LogAppender();
+        }
         return soleInstance;
     }
 
@@ -34,9 +35,9 @@ public class LogAppender {
     }
 
     public void append(String s) {
-        if (t == null)
+        if (t == null) {
             System.err.println(s);
-        else {
+        } else {
             try {
                 doc = (StyledDocument) t.getDocument();
                 style = doc.addStyle("StyleName", null);

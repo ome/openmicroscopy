@@ -24,6 +24,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class SecurityViolation extends RootException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4513363960541699377L;
+
     public SecurityViolation(String msg) {
         super(msg);
     }

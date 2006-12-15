@@ -77,7 +77,7 @@ public class ColorsFactory {
      * @return See above.
      */
     private static boolean rangeBlue(int emWavelenght) {
-        return (emWavelenght <= BLUE_MAX && emWavelenght >= BLUE_MIN);
+        return emWavelenght <= BLUE_MAX && emWavelenght >= BLUE_MIN;
     }
 
     /**
@@ -89,7 +89,7 @@ public class ColorsFactory {
      * @return See above.
      */
     private static boolean rangeGreen(int emWave) {
-        return (emWave >= GREEN_MIN && emWave <= GREEN_MAX);
+        return emWave >= GREEN_MIN && emWave <= GREEN_MAX;
     }
 
     /**
@@ -101,7 +101,7 @@ public class ColorsFactory {
      * @return See above.
      */
     private static boolean rangeRed(int emWave) {
-        return (emWave >= RED_MIN && emWave <= RED_MAX);
+        return emWave >= RED_MIN && emWave <= RED_MAX;
     }
 
     /**
@@ -114,14 +114,18 @@ public class ColorsFactory {
      */
     private static Color getColor(Channel channel) {
         Integer emWave = channel.getLogicalChannel().getEmissionWave();
-        if (emWave == null)
+        if (emWave == null) {
             return null;
-        if (rangeBlue(emWave))
+        }
+        if (rangeBlue(emWave)) {
             return newBlueColor();
-        if (rangeGreen(emWave))
+        }
+        if (rangeGreen(emWave)) {
             return newGreenColor();
-        if (rangeRed(emWave))
+        }
+        if (rangeRed(emWave)) {
             return newRedColor();
+        }
         return null;
     }
 
@@ -137,8 +141,9 @@ public class ColorsFactory {
      */
     public static Color getColor(int index, Channel channel) {
         Color c = ColorsFactory.getColor(channel);
-        if (c != null)
+        if (c != null) {
             return c;
+        }
         switch (index) {
             case 0:
                 return newBlueColor();

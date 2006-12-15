@@ -30,8 +30,9 @@ public class Omero2Connector {
     private static Omero2Connector soleInstance;
 
     public static Omero2Connector getInstance() {
-        if (soleInstance == null)
+        if (soleInstance == null) {
             soleInstance = new Omero2Connector();
+        }
         return soleInstance;
     }
 

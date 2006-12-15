@@ -32,6 +32,10 @@ package omeis.providers.re.quantum;
  */
 public class QuantizationException extends Exception {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1474572990450040235L;
     /** The OME index of the wavelength that coudln't be rendered. */
     private int wavelength;
 

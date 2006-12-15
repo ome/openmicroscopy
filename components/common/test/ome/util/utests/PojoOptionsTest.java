@@ -16,6 +16,7 @@ public class PojoOptionsTest extends TestCase {
 
     PojoOptions ob;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         ob = new PojoOptions();

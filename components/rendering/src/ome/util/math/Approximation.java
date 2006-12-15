@@ -39,8 +39,9 @@ public class Approximation {
         double d = Math.floor(v);
         double diff = Math.abs(v - d);
         double value = d;
-        if (diff > 0.5)
+        if (diff > 0.5) {
             value++;
+        }
         return value;
     }
 

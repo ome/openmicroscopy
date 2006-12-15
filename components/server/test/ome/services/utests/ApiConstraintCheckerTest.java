@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.interceptor.InvocationContext;
-
 import org.testng.annotations.*;
 
 import ome.annotations.ApiConstraintChecker;

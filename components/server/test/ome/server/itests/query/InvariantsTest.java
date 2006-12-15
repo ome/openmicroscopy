@@ -2,14 +2,11 @@ package ome.server.itests.query;
 
 import java.util.List;
 
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
 import org.testng.annotations.Test;
 
-import ome.api.IQuery;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.server.itests.ConfigHelper;
 
 public class InvariantsTest extends AbstractManagedContextTest {
 

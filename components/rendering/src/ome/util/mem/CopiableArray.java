@@ -44,8 +44,9 @@ public abstract class CopiableArray implements Copiable {
      *             If the size is not strictly positive,
      */
     protected CopiableArray(int size) {
-        if (size <= 0)
+        if (size <= 0) {
             throw new IllegalArgumentException("Size cannot be <=0");
+        }
         elements = new Copiable[size];
     }
 
@@ -79,8 +80,9 @@ public abstract class CopiableArray implements Copiable {
      *             If the index is not valid.
      */
     public void set(Copiable element, int index) {
-        if (index >= elements.length || index < 0)
+        if (index >= elements.length || index < 0) {
             throw new IllegalArgumentException("index not valid");
+        }
         elements[index] = element;
     }
 
@@ -94,8 +96,9 @@ public abstract class CopiableArray implements Copiable {
      *             If the index is not valid.
      */
     public Copiable get(int index) {
-        if (index >= elements.length || index < 0)
+        if (index >= elements.length || index < 0) {
             throw new IllegalArgumentException("index not valid");
+        }
         return elements[index];
     }
 
@@ -111,20 +114,25 @@ public abstract class CopiableArray implements Copiable {
      *             If the indexes are not valid.
      */
     public void copy(int from, int to) {
-        if (from >= elements.length || from < 0)
+        if (from >= elements.length || from < 0) {
             throw new IllegalArgumentException("from index not valid");
-        if (to >= elements.length || to < 0)
+        }
+        if (to >= elements.length || to < 0) {
             throw new IllegalArgumentException("to index not valid");
-        if (from > to)
+        }
+        if (from > to) {
             throw new IllegalArgumentException(from + " must be <= than " + to);
+        }
 
         Copiable master = elements[from];
         if (master != null) {
-            for (int i = from + 1; i <= to; i++)
+            for (int i = from + 1; i <= to; i++) {
                 elements[i] = (Copiable) master.copy();
+            }
         } else {
-            for (int i = from + 1; i <= to; i++)
+            for (int i = from + 1; i <= to; i++) {
                 elements[i] = null;
+            }
         }
     }
 
@@ -138,8 +146,9 @@ public abstract class CopiableArray implements Copiable {
         Copiable c;
         for (int i = 0; i < elements.length; i++) {
             c = elements[i];
-            if (c != null)
+            if (c != null) {
                 c = (Copiable) c.copy();
+            }
             copy.set(c, i);
         }
         return copy;

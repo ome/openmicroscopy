@@ -42,12 +42,15 @@ public class Segment {
      *            The end point of the segment.
      */
     public Segment(PlanePoint o, PlanePoint e) {
-        if (o == null)
+        if (o == null) {
             throw new NullPointerException("No origin.");
-        if (e == null)
+        }
+        if (e == null) {
             throw new NullPointerException("No end p.");
-        if (o.equals(e))
+        }
+        if (o.equals(e)) {
             throw new IllegalArgumentException("Need two different points.");
+        }
         origin = o;
         direction = origin.vec(e);
     }
@@ -63,9 +66,10 @@ public class Segment {
      * @return See above.
      */
     public PlanePoint getPoint(double k) {
-        if (k < 0 || k > 1)
+        if (k < 0 || k > 1) {
             throw new IllegalArgumentException("Coefficient must be in the "
                     + "range [0, 1].");
+        }
         return new PlanePoint(origin.x1 + k * direction.x1, origin.x2 + k
                 * direction.x2);
     }
@@ -79,30 +83,34 @@ public class Segment {
      *         <code>false</code> otherwise.
      */
     public boolean lies(PlanePoint p) {
-        if (p == null)
+        if (p == null) {
             throw new NullPointerException("No point.");
+        }
         boolean result = false;
         double k1, k2;
         if (direction.x1 == 0 && direction.x2 != 0) {
             k2 = (p.x2 - origin.x2) / direction.x2;
-            if (k2 < 0 || k2 > 1)
+            if (k2 < 0 || k2 > 1) {
                 result = false;
-            else
-                result = (p.x1 == origin.x1);
+            } else {
+                result = p.x1 == origin.x1;
+            }
         } else if (direction.x1 != 0 && direction.x2 == 0) {
             k1 = (p.x1 - origin.x1) / direction.x1;
-            if (k1 < 0 || k1 > 1)
+            if (k1 < 0 || k1 > 1) {
                 result = false;
-            else
-                result = (p.x2 == origin.x2);
+            } else {
+                result = p.x2 == origin.x2;
+            }
         } else if (direction.x1 != 0 && direction.x2 != 0) {
             k1 = (p.x1 - origin.x1) / direction.x1;
             k2 = (p.x2 - origin.x2) / direction.x2;
             if (k1 == k2) {
-                if (k1 < 0 || k1 > 1)
+                if (k1 < 0 || k1 > 1) {
                     result = false;
-                else
+                } else {
                     result = true;
+                }
             }
         }
         return result;
@@ -114,11 +122,12 @@ public class Segment {
      * 
      * @see Object#equals(Object)
      */
+    @Override
     public boolean equals(Object o) {
         boolean isEqual = false;
         if (o != null && o instanceof Line) {
             Line other = (Line) o;
-            isEqual = (origin == other.origin && direction == other.direction);
+            isEqual = origin == other.origin && direction == other.direction;
         }
         return isEqual;
     }
@@ -129,6 +138,7 @@ public class Segment {
      * 
      * @see Object#hashCode()
      */
+    @Override
     public int hashCode() {
         return origin.hashCode();
     }

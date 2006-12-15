@@ -21,17 +21,18 @@ public class VersionIncrementTest extends TestCase {
 
     Dataset d = new Dataset(), d2;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         p.setName(NAME);
         d.setName(NAME);
         p.linkDataset(d);
 
-        p = (Project) iUpdate.saveAndReturnObject(p);
+        p = iUpdate.saveAndReturnObject(p);
         d = (Dataset) p.linkedDatasetIterator().next();
 
         p.setName(p.getName() + " updated.");
-        p2 = (Project) iUpdate.saveAndReturnObject(p);
+        p2 = iUpdate.saveAndReturnObject(p);
         d2 = (Dataset) p2.linkedDatasetIterator().next();
     }
 

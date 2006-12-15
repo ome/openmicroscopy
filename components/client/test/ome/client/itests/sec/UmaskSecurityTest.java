@@ -1,11 +1,8 @@
 package ome.client.itests.sec;
 
 import ome.model.IObject;
-import ome.model.core.Pixels;
 import ome.model.internal.Permissions;
 import ome.system.ServiceFactory;
-import ome.testing.ObjectFactory;
-
 import org.testng.annotations.Test;
 
 @Test(groups = { "ticket:TODO", "security", "integration" })

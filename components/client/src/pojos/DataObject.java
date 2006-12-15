@@ -69,11 +69,13 @@ public abstract class DataObject {
             Object value = iObjects.get(key);
 
             DataObject convertedKey = null, convertedValue = null;
-            if (key instanceof IObject)
+            if (key instanceof IObject) {
                 convertedKey = asPojo((IObject) iObjects.get(key));
+            }
 
-            if (value instanceof IObject)
+            if (value instanceof IObject) {
                 convertedValue = asPojo((IObject) iObjects.get(value));
+            }
 
             result.put(null == convertedKey ? key : convertedKey,
                     null == convertedValue ? value : convertedValue);
@@ -83,29 +85,30 @@ public abstract class DataObject {
 
     public static DataObject asPojo(IObject obj) {
         DataObject converted = null;
-        if (obj instanceof Project)
+        if (obj instanceof Project) {
             converted = new ProjectData((Project) obj);
-        else if (obj instanceof Dataset)
+        } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        else if (obj instanceof DatasetAnnotation)
+        } else if (obj instanceof DatasetAnnotation) {
             converted = new AnnotationData((DatasetAnnotation) obj);
-        else if (obj instanceof Image)
+        } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
-        else if (obj instanceof ImageAnnotation)
+        } else if (obj instanceof ImageAnnotation) {
             converted = new AnnotationData((ImageAnnotation) obj);
-        else if (obj instanceof Image)
+        } else if (obj instanceof Image) {
             converted = new CategoryGroupData((CategoryGroup) obj);
-        else if (obj instanceof Category)
+        } else if (obj instanceof Category) {
             converted = new CategoryData((Category) obj);
-        else if (obj instanceof Pixels)
+        } else if (obj instanceof Pixels) {
             converted = new PixelsData((Pixels) obj);
-        else if (obj instanceof Experimenter)
+        } else if (obj instanceof Experimenter) {
             converted = new ExperimenterData((Experimenter) obj);
-        else if (obj instanceof ExperimenterGroup)
+        } else if (obj instanceof ExperimenterGroup) {
             converted = new GroupData((ExperimenterGroup) obj);
-        else if (obj != null)
+        } else if (obj != null) {
             throw new IllegalArgumentException("Unknown type: "
                     + obj.getClass().getName());
+        }
         return converted;
     }
 
@@ -125,9 +128,10 @@ public abstract class DataObject {
     private boolean dirty = false;
 
     protected void setValue(IObject value) {
-        if (value == null)
+        if (value == null) {
             throw new IllegalArgumentException(
                     "IObject delegate for DataObject cannot be null.");
+        }
 
         this.value = value;
     }
@@ -179,8 +183,9 @@ public abstract class DataObject {
     }
 
     public boolean isFiltered(String fieldName) {
-        if (fieldName == null)
+        if (fieldName == null) {
             return false;
+        }
         return value.getDetails().filteredSet() == null ? false : value
                 .getDetails().filteredSet().contains(fieldName);
     }
@@ -199,6 +204,7 @@ public abstract class DataObject {
         return permissions;
     }
 
+    @Override
     public String toString() {
         return getClass().getName() + " (id=" + getId() + ")";
     }
@@ -241,11 +247,13 @@ public abstract class DataObject {
         Object count = null;
 
         if (!nullDetails() && countName != null
-                && getDetails().getCounts() != null)
+                && getDetails().getCounts() != null) {
             count = getDetails().getCounts().get(countName);
+        }
 
-        if (count instanceof Long)
+        if (count instanceof Long) {
             return (Long) count;
+        }
 
         return null;
 

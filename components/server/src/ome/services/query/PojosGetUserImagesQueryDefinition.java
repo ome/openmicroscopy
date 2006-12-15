@@ -1,16 +1,11 @@
 package ome.services.query;
 
 import java.sql.SQLException;
-import java.util.Collection;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
-
 import ome.model.core.Image;
 import ome.parameters.Parameters;
-import static ome.parameters.Parameters.*;
 
 public class PojosGetUserImagesQueryDefinition extends Query {
 

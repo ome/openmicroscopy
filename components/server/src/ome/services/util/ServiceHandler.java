@@ -62,9 +62,10 @@ public class ServiceHandler implements MethodInterceptor {
      * @see org.aopalliance.intercept.MethodInterceptor#invoke(org.aopalliance.intercept.MethodInvocation)
      */
     public Object invoke(MethodInvocation arg0) throws Throwable {
-        if (arg0 == null)
+        if (arg0 == null) {
             throw new InternalException(
                     "Cannot act on null MethodInvocation. Stopping.");
+        }
 
         Class implClass = arg0.getThis().getClass();
         Method mthd = arg0.getMethod();
@@ -95,8 +96,9 @@ public class ServiceHandler implements MethodInterceptor {
             finalOutput = "Excp:\t" + t;
             throw getAndLogException(t);
         } finally {
-            if (log.isInfoEnabled())
+            if (log.isInfoEnabled()) {
                 log.info(finalOutput);
+            }
         }
 
     }
@@ -121,10 +123,9 @@ public class ServiceHandler implements MethodInterceptor {
             String msg = " Wrapped Exception: (" + t.getClass().getName()
                     + "):\n" + t.getMessage();
 
-            if (RootException.class.isAssignableFrom(t.getClass()))
+            if (RootException.class.isAssignableFrom(t.getClass())) {
                 return t;
-
-            else if (OptimisticLockingFailureException.class.isAssignableFrom(t
+            } else if (OptimisticLockingFailureException.class.isAssignableFrom(t
                     .getClass())) {
                 OptimisticLockException ole = new OptimisticLockException(t
                         .getMessage());
@@ -213,8 +214,9 @@ public class ServiceHandler implements MethodInterceptor {
 
         for (int j = 0; j < allAnnotations.length; j++) {
             Annotation[][] anns = (Annotation[][]) allAnnotations[j];
-            if (anns == null)
+            if (anns == null) {
                 continue;
+            }
 
             for (int i = 0; i < args.length; i++) {
                 Annotation[] annotations = anns[i];

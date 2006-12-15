@@ -31,6 +31,11 @@ import java.util.ArrayList;
 class RectangleAreaAdapter extends Rectangle implements PlaneArea {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = -7476019438822628816L;
+
+    /**
      * Constructs a new {@link Rectangle} whose top-left corner is (0, 0) and
      * whose width and height are both zero.
      */
@@ -77,10 +82,13 @@ class RectangleAreaAdapter extends Rectangle implements PlaneArea {
         ArrayList vector = new ArrayList(r.height * r.width);
         int xEnd = r.x + r.width, yEnd = r.y + r.height;
         int x, y;
-        for (y = r.y; y < yEnd; ++y)
-            for (x = r.x; x < xEnd; ++x)
-                if (contains(x, y))
+        for (y = r.y; y < yEnd; ++y) {
+            for (x = r.x; x < xEnd; ++x) {
+                if (contains(x, y)) {
                     vector.add(new PlanePoint(x, y));
+                }
+            }
+        }
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
 
@@ -92,11 +100,11 @@ class RectangleAreaAdapter extends Rectangle implements PlaneArea {
     public boolean onBoundaries(double x, double y) {
         double xCorner = getX(), yCorner = getY();
         double w = getWidth(), h = getHeight();
-        return ((x == xCorner && y >= yCorner && y <= yCorner + h)
-                || (x == xCorner + w && y >= yCorner && y <= yCorner + h)
-                || (y == yCorner && x >= xCorner && x <= xCorner + w) || (y == yCorner
+        return x == xCorner && y >= yCorner && y <= yCorner + h
+                || x == xCorner + w && y >= yCorner && y <= yCorner + h
+                || y == yCorner && x >= xCorner && x <= xCorner + w || y == yCorner
                 + h
-                && x >= xCorner && x <= xCorner + w));
+                && x >= xCorner && x <= xCorner + w;
     }
 
     /**

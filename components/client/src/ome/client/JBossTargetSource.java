@@ -13,7 +13,6 @@ import javax.naming.NamingException;
 
 // Third-party libraries
 import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.target.SingletonTargetSource;
 import org.springframework.jndi.JndiObjectTargetSource;
@@ -92,6 +91,7 @@ public class JBossTargetSource implements TargetSource {
     /**
      * delegates to {@link JndiObjectTargetSource#hashCode()}
      */
+    @Override
     public int hashCode() {
         return this.target.hashCode();
     }
@@ -100,6 +100,7 @@ public class JBossTargetSource implements TargetSource {
      * Two invoker interceptors are equal if they have the same target or if the
      * targets or the targets are equal.
      */
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -111,6 +112,7 @@ public class JBossTargetSource implements TargetSource {
         return this.target.equals(otherTargetSource.target);
     }
 
+    @Override
     public String toString() {
         return "JBossTargetSource for target: " + this.target;
     }

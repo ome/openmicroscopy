@@ -119,8 +119,9 @@ public class ImportLibrary {
      *             if datasetName is null.
      */
     public void setDataset(Dataset dataset) {
-        if (dataset == null)
+        if (dataset == null) {
             throw new ApiUsageException("Dataset name cannot be null.");
+        }
         this.dataset = dataset;
     }
 
@@ -129,9 +130,10 @@ public class ImportLibrary {
 
     /** simpler getter. Checks if dataset is still null */
     public Dataset getDataset() {
-        if (this.dataset == null)
+        if (this.dataset == null) {
             throw new ApiUsageException(
                     "The dataset has not been set. Please call setDataset(String).");
+        }
 
         return this.dataset;
     }
@@ -321,16 +323,19 @@ public class ImportLibrary {
      * @return
      */
     private int getTotalOffset(int currentZ, int currentW, int currentT) {
-        return (zSize * currentZ) + (wSize * currentW) + (tSize * currentT);
+        return zSize * currentZ + wSize * currentW + tSize * currentT;
     }
 
     private int getSequenceNumber(String dimOrder) {
-        if (dimOrder.equals("XYZTC"))
+        if (dimOrder.equals("XYZTC")) {
             return 0;
-        if (dimOrder.equals("XYCZT"))
+        }
+        if (dimOrder.equals("XYCZT")) {
             return 1;
-        if (dimOrder.equals("XYZCT"))
+        }
+        if (dimOrder.equals("XYZCT")) {
             return 2;
+        }
         throw new RuntimeException();
     }
 }

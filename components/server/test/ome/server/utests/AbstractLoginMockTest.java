@@ -77,6 +77,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
     protected MockServiceFactory sf;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -148,6 +149,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         sec.loadEventContext(false);
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();
@@ -304,8 +306,9 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         }
 
         public boolean eval(Object o) {
-            if (type.isAssignableFrom(o.getClass()))
+            if (type.isAssignableFrom(o.getClass())) {
                 return true;
+            }
             return false;
         }
     }

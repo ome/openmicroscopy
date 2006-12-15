@@ -50,7 +50,7 @@ public class Helper {
      */
     public static String byteToHex(byte data) {
         StringBuffer buf = new StringBuffer();
-        buf.append(toHexChar((data >>> 4) & 0x0F));
+        buf.append(toHexChar(data >>> 4 & 0x0F));
         buf.append(toHexChar(data & 0x0F));
         return buf.toString();
     }
@@ -63,10 +63,11 @@ public class Helper {
      * @return char the converted char
      */
     public static char toHexChar(int i) {
-        if ((0 <= i) && (i <= 9))
+        if (0 <= i && i <= 9) {
             return (char) ('0' + i);
-        else
-            return (char) ('a' + (i - 10));
+        } else {
+            return (char) ('a' + i - 10);
+        }
     }
 
     /**
@@ -81,6 +82,6 @@ public class Helper {
         for (int i = 0; i < data.length; i++) {
             buf.append(byteToHex(data[i]));
         }
-        return (buf.toString());
+        return buf.toString();
     }
 }

@@ -157,9 +157,9 @@ public abstract class Plane2D {
                 case PlaneFactory.BYTE:
                     return (short) (data.get(offset) & 0xff);
                 case PlaneFactory.SHORT:
-                    return (data.getShort(offset) & 0xffff);
+                    return data.getShort(offset) & 0xffff;
                 case PlaneFactory.INT:
-                    return (data.getInt(offset) & 0xffffffffL);
+                    return data.getInt(offset) & 0xffffffffL;
             }
         }
         throw new RuntimeException("Unknown pixel type.");

@@ -55,8 +55,9 @@ public class ImportFixture {
     }
 
     public ImportFixture put(File file, Dataset ds) {
-        if (file == null || ds == null)
+        if (file == null || ds == null) {
             throw new ApiUsageException("Arguments cannot be null.");
+        }
 
         fads.put(file, ds);
         return this;

@@ -76,8 +76,9 @@ public class CategoryData extends DataObject {
      *             If the object is <code>null</code>.
      */
     public CategoryData(Category category) {
-        if (category == null)
+        if (category == null) {
             throw new IllegalArgumentException("Category cannot null.");
+        }
         setValue(category);
     }
 
@@ -92,8 +93,9 @@ public class CategoryData extends DataObject {
      *             If the name is <code>null</code>.
      */
     public void setName(String name) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name cannot be null.");
+        }
         setDirty(true);
         asCategory().setName(name);
     }
@@ -137,11 +139,13 @@ public class CategoryData extends DataObject {
     public CategoryGroupData getGroup() {
         if (group == null && asCategory().sizeOfCategoryGroupLinks() >= 0) {
             List list = asCategory().linkedCategoryGroupList();
-            if (list != null)
-                if (list.size() > 0)
+            if (list != null) {
+                if (list.size() > 0) {
                     group = new CategoryGroupData((CategoryGroup) list.get(0));
-                else
+                } else {
                     ;// TODO what now?
+                }
+            }
         }
         return group;
     }
@@ -153,13 +157,15 @@ public class CategoryData extends DataObject {
      *            The group the category belongs to.
      */
     public void setGroup(CategoryGroupData group) {
-        if (group == getGroup())
+        if (group == getGroup()) {
             return;
+        }
         setDirty(true);
         this.group = group;
         asCategory().clearCategoryGroupLinks();
-        if (group != null)
+        if (group != null) {
             asCategory().linkCategoryGroup(group.asCategoryGroup());
+        }
     }
 
     // Lazy loaded links

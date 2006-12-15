@@ -38,6 +38,11 @@ import javax.swing.JTextArea;
  * @since OME3.0
  */
 public class MessageBox extends JDialog implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 641206591947204316L;
+
     private JTextArea text;
 
     private JScrollPane pane;
@@ -93,7 +98,8 @@ public class MessageBox extends JDialog implements ActionListener {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("ok"))
+        if (e.getActionCommand().equals("ok")) {
             this.dispose();
+        }
     }
 }

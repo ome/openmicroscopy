@@ -1,26 +1,12 @@
 package omeis.providers.re.data;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
 import ome.api.IPixels;
-import ome.api.IQuery;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.model.core.Channel;
 import ome.model.core.Pixels;
-import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
-import ome.model.display.QuantumDef;
-import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-
-import omeis.providers.re.ColorsFactory;
-import omeis.providers.re.Renderer;
-import omeis.providers.re.quantum.QuantumFactory;
 
 /**
  * 
@@ -62,9 +48,11 @@ public class PlaneFactory {
      */
     public static boolean in(PixelsType type, String[] strings) {
         String typeAsString = type.getValue();
-        for (int i = 0; i < strings.length; i++)
-            if (typeAsString.equals(strings[i]))
+        for (int i = 0; i < strings.length; i++) {
+            if (typeAsString.equals(strings[i])) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -76,17 +64,18 @@ public class PlaneFactory {
      * @return The number of bytes per pixel value.
      */
     static int bytesPerPixel(PixelsType type) {
-        if (in(type, new String[] { "int8", "uint8" }))
+        if (in(type, new String[] { "int8", "uint8" })) {
             return 1;
-        else if (in(type, new String[] { "int16", "uint16" }))
+        } else if (in(type, new String[] { "int16", "uint16" })) {
             return 2;
-        else if (in(type, new String[] { "int32", "uint32", "float" }))
+        } else if (in(type, new String[] { "int32", "uint32", "float" })) {
             return 4;
-        else if (type.getValue().equals("double"))
+        } else if (type.getValue().equals("double")) {
             return 8;
-        else
+        } else {
             throw new RuntimeException("Unknown pixel type: '"
                     + type.getValue() + "'");
+        }
     }
 
     /**
@@ -98,19 +87,20 @@ public class PlaneFactory {
      * @return The Java type as an enumerated integer.
      */
     static int javaType(PixelsType type) {
-        if (in(type, new String[] { "int8", "uint8" }))
+        if (in(type, new String[] { "int8", "uint8" })) {
             return BYTE;
-        else if (in(type, new String[] { "int16", "uint16" }))
+        } else if (in(type, new String[] { "int16", "uint16" })) {
             return SHORT;
-        else if (in(type, new String[] { "int32", "uint32" }))
+        } else if (in(type, new String[] { "int32", "uint32" })) {
             return INT;
-        else if (type.getValue().equals("float"))
+        } else if (type.getValue().equals("float")) {
             return FLOAT;
-        else if (type.getValue().equals("double"))
+        } else if (type.getValue().equals("double")) {
             return DOUBLE;
-        else
+        } else {
             throw new RuntimeException("Unknown pixel type: '"
                     + type.getValue() + "'");
+        }
     }
 
     /**
@@ -121,14 +111,15 @@ public class PlaneFactory {
      * @return The number of bytes per pixel value.
      */
     static boolean isTypeSigned(PixelsType type) {
-        if (in(type, new String[] { "uint8", "uint16", "uint32" }))
+        if (in(type, new String[] { "uint8", "uint16", "uint32" })) {
             return false;
-        else if (in(type, new String[] { "int8", "int16", "int32", "float",
-                "double" }))
+        } else if (in(type, new String[] { "int8", "int16", "int32", "float",
+                "double" })) {
             return true;
-        else
+        } else {
             throw new RuntimeException("Unknown pixel type: '"
                     + type.getValue() + "'");
+        }
     }
 
     /**
@@ -146,12 +137,13 @@ public class PlaneFactory {
      */
     public static Plane2D createPlane(PlaneDef planeDef, int channel,
             Pixels pixels, PixelBuffer buffer) {
-        if (planeDef == null)
+        if (planeDef == null) {
             throw new NullPointerException("Expecting not null planeDef");
-        else if (pixels == null)
+        } else if (pixels == null) {
             throw new NullPointerException("Expecting not null pixels");
-        else if (buffer == null)
+        } else if (buffer == null) {
             throw new NullPointerException("Expecting not null buffer");
+        }
 
         Integer z = Integer.valueOf(planeDef.getZ());
         Integer c = Integer.valueOf(channel);
@@ -184,7 +176,7 @@ public class PlaneFactory {
      * @return A rendering model enumeration object.
      */
     public static RenderingModel getRenderingModel(IPixels iPixels, String value) {
-        return (RenderingModel) iPixels.getEnumeration(RenderingModel.class,
+        return iPixels.getEnumeration(RenderingModel.class,
                 value);
     }
 }

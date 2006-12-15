@@ -11,8 +11,6 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -118,8 +116,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
         String[] names = meta.getPropertyNames();
         for (int i = 0; i < names.length; i++) {
             // TODO: possibly with caching and Arrays.sort/search
-            if (names[i].equals(property))
+            if (names[i].equals(property)) {
                 return true;
+            }
         }
         return false;
     }
@@ -206,8 +205,9 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAll(final Class<T> klass,
             final Filter filter) {
-        if (filter == null)
+        if (filter == null) {
             return getHibernateTemplate().loadAll(klass);
+        }
 
         return (List<T>) getHibernateTemplate().execute(
                 new HibernateCallback() {
@@ -300,12 +300,13 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         Criteria c = session.createCriteria(klass);
                         parseFilter(c, filter);
 
-                        if (caseSensitive)
+                        if (caseSensitive) {
                             c.add(Expression.like(fieldName, value,
                                     MatchMode.ANYWHERE));
-                        else
+                        } else {
                             c.add(Expression.ilike(fieldName, value,
                                     MatchMode.ANYWHERE));
+                        }
 
                         return c.list();
 

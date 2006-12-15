@@ -127,13 +127,15 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     // =========================================================================
 
     private void assertContains(Object[] array, Object i) {
-        if (!contained(array, i))
+        if (!contained(array, i)) {
             fail(i + " not contained in " + Arrays.toString(array));
+        }
     }
 
     private void assertDoesntContain(IObject[] array, IObject i) {
-        if (contained(array, i))
+        if (contained(array, i)) {
             fail(i + " contained in " + Arrays.toString(array));
+        }
     }
 
     private void assertContains(String[][] array, String t1, String t2) {
@@ -141,8 +143,9 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
         for (int i = 0; i < array.length; i++) {
             String[] test = array[i];
-            if (test[0].equals(t1) && test[1].equals(t2))
+            if (test[0].equals(t1) && test[1].equals(t2)) {
                 contained |= true;
+            }
         }
         assertTrue(contained);
 
@@ -152,11 +155,13 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
         boolean contained = false;
         for (Object object : array) {
             if (i == null) {
-                if (object == null)
+                if (object == null) {
                     contained = true;
+                }
             } else {
-                if (i.equals(object))
+                if (i.equals(object)) {
                     contained = true;
+                }
             }
         }
         return contained;

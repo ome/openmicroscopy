@@ -41,6 +41,7 @@ public abstract class SqlPropertiesParser {
 
     static class MyPropertyPlaceholderConfigurer extends
             PropertyPlaceholderConfigurer {
+        @Override
         protected void processProperties(
                 ConfigurableListableBeanFactory beanFactoryToProcess,
                 Properties props) throws BeansException {
@@ -70,13 +71,14 @@ public abstract class SqlPropertiesParser {
             throw new RuntimeException("Failed to parse properties file "
                     + filename, e);
         } finally {
-            if (null != is)
+            if (null != is) {
                 try {
                     is.close();
                 } catch (Exception e) {
                     throw new RuntimeException(
                             "Failed to close properties file " + filename, e);
                 }
+            }
         }
 
     }

@@ -41,6 +41,11 @@ import src.adminTool.usersPanel.UsersTabController;
  * @since OME3.0
  */
 public class AdminActions extends JPanel implements ChangeListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3309945601722978624L;
+
     private JTabbedPane tabbedPane;
 
     private UsersTab usersTab;

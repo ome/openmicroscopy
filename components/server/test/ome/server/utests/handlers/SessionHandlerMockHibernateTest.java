@@ -9,8 +9,6 @@ package ome.server.utests.handlers;
 // Java imports
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.Iterator;
-
 import javax.sql.DataSource;
 
 import junit.framework.Assert;
@@ -22,14 +20,12 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;
 import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
-import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.testng.annotations.*;
@@ -72,6 +68,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     private Mock mockSession, mockFactory, mockInvocation, mockStateful,
             mockStateless, mockDataSource, mockTransaction, mockConnection;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -89,18 +86,21 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
 
         // Things should always be cleaned up by handler/interceptor
         assertFalse(TransactionSynchronizationManager.hasResource(factory));
-        if (!TransactionSynchronizationManager.isSynchronizationActive())
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.initSynchronization();
+        }
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         session = null;
         reset(mockStateful, mockStateless, mockSession, mockFactory,
                 mockTransaction, mockDataSource, mockConnection, mockInvocation);
         super.tearDown();
-        if (TransactionSynchronizationManager.isSynchronizationActive())
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     // ~ Tests
@@ -364,8 +364,9 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
                 returnValue(method));
         ArgumentsMatchBuilder amb = mockInvocation.expects(once()).method(
                 "proceed");
-        if (stubs != null && stubs.length > 0)
+        if (stubs != null && stubs.length > 0) {
             amb.will(stubs[0]);
+        }
     }
 
     private void prepareThreadWithSession() {
@@ -378,8 +379,9 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
 
     private void reset(Mock... mocks) {
         for (Mock mock : mocks) {
-            if (mock != null)
+            if (mock != null) {
                 mock.reset();
+            }
         }
     }
 

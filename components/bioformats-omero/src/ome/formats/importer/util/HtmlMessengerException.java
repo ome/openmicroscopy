@@ -11,6 +11,11 @@ package ome.formats.importer.util;
  * 
  */
 public class HtmlMessengerException extends Exception {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6967360147496748871L;
+
     public HtmlMessengerException(String message, Exception e) {
         super(message, e);
     }

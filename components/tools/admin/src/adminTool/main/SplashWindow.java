@@ -13,8 +13,6 @@ package src.adminTool.main;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
-import java.io.*;
-
 import src.adminTool.ui.messenger.DebugMessenger;
 
 /**
@@ -41,6 +39,11 @@ import src.adminTool.ui.messenger.DebugMessenger;
  * @version 2.2.1 2006-05-27 Abort when splash image can not be loaded.
  */
 public class SplashWindow extends Window {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8060925680951723074L;
+
     /**
      * The current instance of the splash window. (Singleton design pattern).
      */
@@ -108,6 +111,7 @@ public class SplashWindow extends Window {
         // clicking on its display area. This mouse listener
         // listens for mouse clicks and disposes the splash window.
         MouseAdapter disposeOnClick = new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent evt) {
                 // Note: To avoid that method splash hangs, we
                 // must set paintCalled to true and call notifyAll.
@@ -127,6 +131,7 @@ public class SplashWindow extends Window {
     /**
      * Updates the display area of the window.
      */
+    @Override
     public void update(Graphics g) {
         // Note: Since the paint method is going to draw an
         // image that covers the complete area of the component we
@@ -138,6 +143,7 @@ public class SplashWindow extends Window {
     /**
      * Paints the image on the window.
      */
+    @Override
     public void paint(Graphics g) {
         g.drawImage(image, 0, 0, this);
 

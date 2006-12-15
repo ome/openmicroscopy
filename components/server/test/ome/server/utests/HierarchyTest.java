@@ -14,7 +14,6 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.services.query.Hierarchy;
-import ome.services.query.Query;
 
 public class HierarchyTest extends MockObjectTestCase {
 

@@ -42,8 +42,9 @@ public class FileBuffer extends AbstractBuffer {
      */
     FileBuffer(String path, OriginalFile file) {
         super(path);
-        if (file == null)
+        if (file == null) {
             throw new NullPointerException("Expecting a not-null file element.");
+        }
 
         this.file = file;
     }
@@ -55,8 +56,9 @@ public class FileBuffer extends AbstractBuffer {
      *             if an I/O error occurs.
      */
     public void close() throws IOException {
-        if (channel != null)
+        if (channel != null) {
             channel.close();
+        }
     }
 
     /**

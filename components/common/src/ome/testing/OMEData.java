@@ -10,7 +10,6 @@ package ome.testing;
 // Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -114,8 +113,9 @@ public class OMEData {
 
     List getRandomNumber(List l, Number number) {
 
-        if (number == null)
+        if (number == null) {
             return null;
+        }
 
         if (l == null || l.size() == 0) {
             log.warn(emptyColl);
@@ -150,8 +150,9 @@ public class OMEData {
         List l = get(propertyKey);
         List result = getRandomNumber(l, new Integer(1));
 
-        if (result == null || result.size() < 1)
+        if (result == null || result.size() < 1) {
             return null;
+        }
 
         return result.get(0);
     }

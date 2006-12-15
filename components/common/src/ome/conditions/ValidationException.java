@@ -39,6 +39,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class ValidationException extends ApiUsageException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8958921873970581811L;
+
     public ValidationException(String msg) {
         super(msg);
     }

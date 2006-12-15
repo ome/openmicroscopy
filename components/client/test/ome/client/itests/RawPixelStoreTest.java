@@ -35,7 +35,7 @@ public class RawPixelStoreTest extends TestCase {
         pix.setSizeZ(1);
         pix.setSizeT(1);
         pix.setSizeC(1);
-        pix = (Pixels) iUpdate.saveAndReturnObject(pix);
+        pix = iUpdate.saveAndReturnObject(pix);
 
         raw.setPixelsId(pix.getId());
         raw.calculateMessageDigest();

@@ -10,8 +10,9 @@ public class Client {
             ic = Ice.Util.initialize(args);
             Ice.ObjectPrx base = ic.stringToProxy("T:default -p 10000");
             mono.TPrx printer = mono.TPrxHelper.checkedCast(base);
-            if (printer == null)
+            if (printer == null) {
                 throw new Error("Invalid proxy");
+            }
 
             Roi5DRemote r5 = printer.getRoi5D();
 

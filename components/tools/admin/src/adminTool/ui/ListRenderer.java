@@ -35,6 +35,10 @@ import javax.swing.border.Border;
 public class ListRenderer extends JLabel implements ListCellRenderer {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 3849688761374070167L;
+    /**
      * Border of the cell.
      */
     private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
@@ -62,10 +66,11 @@ public class ListRenderer extends JLabel implements ListCellRenderer {
             setForeground(list.getSelectionForeground());
             setBackground(list.getSelectionBackground());
         } else {
-            if (index % 2 == 0)
+            if (index % 2 == 0) {
                 setBackground(Color.white);
-            else
+            } else {
                 setBackground(new Color(236, 243, 254));
+            }
             setForeground(list.getForeground());
         }
 

@@ -38,8 +38,9 @@ class LogarithmicMap implements QuantumMap {
      * @return See above.
      */
     private double verifyInput(double x) {
-        if (x <= 0)
+        if (x <= 0) {
             x = 1.0;
+        }
         return x;
     }
 

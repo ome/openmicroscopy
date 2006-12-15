@@ -7,11 +7,6 @@
 
 package omeis.providers.re;
 
-// Java imports
-import java.util.concurrent.Callable;
-
-// Third-party libraries
-
 // Application-internal dependencies
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.Plane2D;
@@ -96,7 +91,7 @@ class RenderRGBWaveTask implements RenderingTask {
      */
     public Object call() throws QuantizationException {
         int x1, x2, discreteValue, pix;
-        float alpha = ((float) this.alpha) / 255;
+        float alpha = (float) this.alpha / 255;
         for (x2 = 0; x2 < sizeX2; ++x2) {
             for (x1 = 0; x1 < sizeX1; ++x1) {
                 pix = sizeX1 * x2 + x1;

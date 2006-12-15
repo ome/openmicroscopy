@@ -24,6 +24,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class ACLUpdateViolation extends ACLViolation {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1940049248694216053L;
+
     public ACLUpdateViolation(Class klass, Long id, String msg) {
         super(klass, id, msg);
     }

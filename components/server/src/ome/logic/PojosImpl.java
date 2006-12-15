@@ -99,20 +99,21 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
         PojoOptions po = new PojoOptions(options);
 
-        if (null == rootNodeIds && !po.isExperimenter() && !po.isGroup())
+        if (null == rootNodeIds && !po.isExperimenter() && !po.isGroup()) {
             throw new IllegalArgumentException(
                     "Set of ids for loadContainerHierarchy() may not be null "
                             + "if experimenter and group options are null.");
+        }
 
         if (!Project.class.equals(rootNodeType)
                 && !Dataset.class.equals(rootNodeType)
                 && !CategoryGroup.class.equals(rootNodeType)
-                && !Category.class.equals(rootNodeType))
-
+                && !Category.class.equals(rootNodeType)) {
             throw new IllegalArgumentException(
                     "Class parameter for loadContainerIHierarchy() must be in "
                             + "{Project,Dataset,Category,CategoryGroup}, not "
                             + rootNodeType);
+        }
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
@@ -196,8 +197,9 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
             Class<T> rootNodeType, Set<Long> rootNodeIds,
             Set<Long> annotatorIds, Map options) {
 
-        if (rootNodeIds.size() == 0)
+        if (rootNodeIds.size() == 0) {
             return new HashMap();
+        }
 
         PojoOptions po = new PojoOptions(options);
 
@@ -264,10 +266,12 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                     .getName());
             Category c = (Category) entry.get(Category.class.getName());
 
-            if (!map.containsKey(cg))
+            if (!map.containsKey(cg)) {
                 map.put(cg, new HashSet<Category>());
-            if (c != null)
+            }
+            if (c != null) {
                 map.get(cg).add(c);
+            }
 
         }
 
@@ -403,7 +407,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Collection retrieveCollection(IObject arg0, String arg1, Map arg2) {
-        IObject context = (IObject) iQuery.get(arg0.getClass(), arg0.getId());
+        IObject context = iQuery.get(arg0.getClass(), arg0.getId());
         Collection c = (Collection) context.retrieve(arg1); // FIXME not
                                                             // type.o.null safe
         iQuery.initialize(c);

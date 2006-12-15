@@ -58,8 +58,9 @@ public abstract class Transformer {
     }
 
     public void setModel(Object model) {
-        if (model == null)
+        if (model == null) {
             throw new NullPointerException("Expecting not null model.");
+        }
         this.model = model;
     }
 
@@ -78,8 +79,9 @@ public abstract class Transformer {
     }
 
     public void setOwner(Experimenter owner) {
-        if (owner == null)
+        if (owner == null) {
             throw new NullPointerException("Expecting not null owner.");
+        }
         this.owner = owner;
     }
 
@@ -88,8 +90,9 @@ public abstract class Transformer {
     }
 
     public void setToSave(List toSave) {
-        if (toSave == null)
+        if (toSave == null) {
             throw new NullPointerException("Expecting not null toSave.");
+        }
         this.toSave = toSave;
     }
 
@@ -98,8 +101,9 @@ public abstract class Transformer {
     }
 
     public void setCreationEvent(Event creationEvent) {
-        if (creationEvent == null)
+        if (creationEvent == null) {
             throw new NullPointerException("Expecting not null creationEvent.");
+        }
         this.creationEvent = creationEvent;
     }
 

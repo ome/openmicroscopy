@@ -31,6 +31,11 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 public class LoginDialog extends JDialog implements ActionListener {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6483431622358616124L;
+
     JButton loginBtn;
 
     private JTextField uname;
@@ -119,8 +124,9 @@ public class LoginDialog extends JDialog implements ActionListener {
         JTextField result = new JTextField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
         container.add(result, c);
         return result;
     }
@@ -149,8 +155,9 @@ public class LoginDialog extends JDialog implements ActionListener {
         JPasswordField result = new JPasswordField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null)
+        if (initialValue != null) {
             result.setText(initialValue);
+        }
         container.add(result, c);
         return result;
     }

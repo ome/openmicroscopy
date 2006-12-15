@@ -1,8 +1,6 @@
 package ome.server.itests;
 
 import java.util.Date;
-import java.util.UUID;
-
 import org.testng.annotations.Test;
 
 import ome.model.containers.Project;
@@ -48,7 +46,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest {
                 new Parameters().addId(id));
 
         p.setName(p.getName() + " updated.");
-        p = (Project) this.iUpdate.saveAndReturnObject(p);
+        p = this.iUpdate.saveAndReturnObject(p);
         Experimenter e2 = getExperimenter(expName);
         assertTrue(expVersion.equals(e2.getVersion()));
     }
@@ -56,7 +54,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest {
     // ~ Helpers
     // =========================================================================
     private Experimenter getExperimenter(String expName) {
-        Experimenter e = (Experimenter) iQuery.findByString(Experimenter.class,
+        Experimenter e = iQuery.findByString(Experimenter.class,
                 "omeName", expName);
         return e;
     }

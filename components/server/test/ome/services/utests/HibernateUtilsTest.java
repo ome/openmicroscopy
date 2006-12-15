@@ -8,10 +8,6 @@ package ome.services.utests;
 
 // Java imports
 
-// Third-party libraries
-import junit.framework.TestCase;
-
-import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -32,11 +28,13 @@ import ome.tools.hibernate.HibernateUtils;
  */
 public class HibernateUtilsTest extends MockObjectTestCase {
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();

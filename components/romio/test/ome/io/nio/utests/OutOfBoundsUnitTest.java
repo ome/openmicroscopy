@@ -23,6 +23,7 @@ public class OutOfBoundsUnitTest extends TestCase {
 
     private PixelBuffer pixelBuffer;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         pixels = new Pixels();

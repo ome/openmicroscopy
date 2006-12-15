@@ -53,7 +53,7 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
                     + PojosFindAnnotationsQueryDefinition.class.getName());
         }
 
-        Class target = typeToAnnotationType.get((Class) value(CLASS));
+        Class target = typeToAnnotationType.get(value(CLASS));
         String path = annotationTypeToPath.get(target);
 
         // TODO refactor into CriteriaUtils
@@ -71,8 +71,9 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
 
         if (check("annotatorIds")) {
             Collection annotatorIds = (Collection) value("annotatorIds");
-            if (annotatorIds != null && annotatorIds.size() > 0)
+            if (annotatorIds != null && annotatorIds.size() > 0) {
                 ann.add(Restrictions.in("details.owner.id", annotatorIds));
+            }
         }
         setCriteria(ann);
     }

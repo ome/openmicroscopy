@@ -26,6 +26,11 @@ package src.adminTool.model;
 public class PermissionsException extends AdminToolException {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 3969360675980114219L;
+
+    /**
      * @param parent
      */
     PermissionsException(Exception parent) {

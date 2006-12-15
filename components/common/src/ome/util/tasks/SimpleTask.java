@@ -47,8 +47,9 @@ public class SimpleTask extends Task {
      */
     @Override
     public void init() {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug("Initializing task:" + this);
+        }
     }
 
     /**
@@ -56,8 +57,9 @@ public class SimpleTask extends Task {
      */
     @Override
     public void doTask() {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug("Running task:" + this);
+        }
     }
 
     /**
@@ -65,8 +67,9 @@ public class SimpleTask extends Task {
      */
     @Override
     public void handleException(RuntimeException re) {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug("Handling exception in:" + this, re);
+        }
         throw re;
     }
 
@@ -75,8 +78,9 @@ public class SimpleTask extends Task {
      */
     @Override
     public void close() {
-        if (getLogger().isDebugEnabled())
+        if (getLogger().isDebugEnabled()) {
             getLogger().debug("Closing task:" + this);
+        }
     }
 
 }

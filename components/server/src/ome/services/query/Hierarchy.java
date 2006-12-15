@@ -97,8 +97,9 @@ public class Hierarchy {
          */
         static int lookupWithError(Class k) {
             int i = lookup(k);
-            if (i < 0)
+            if (i < 0) {
                 throw new IllegalArgumentException("Unknown class:" + k);
+            }
             return i;
         }
 
@@ -108,10 +109,12 @@ public class Hierarchy {
          */
         static boolean isContainer(Class k) {
             int i = lookup(k);
-            if (i < 0)
+            if (i < 0) {
                 return false;
-            if (Image.class.isAssignableFrom(klass[i]))
+            }
+            if (Image.class.isAssignableFrom(klass[i])) {
                 return false;
+            }
             return true;
         }
 
@@ -120,8 +123,9 @@ public class Hierarchy {
         static LinkedList<Integer> getList(Class k) {
             int i = lookupWithError(k);
             LinkedList<Integer> retVal = new LinkedList<Integer>();
-            if (!isContainer(k))
+            if (!isContainer(k)) {
                 return retVal;
+            }
 
             retVal.add(i);
             retVal.addAll(Nodes.getList(klass[ptr[i]]));
@@ -191,9 +195,10 @@ public class Hierarchy {
 
     public static Criteria[] fetchParents(Criteria c, Class klass, int stopDepth) {
 
-        if (!Nodes.isContainer(klass))
+        if (!Nodes.isContainer(klass)) {
             throw new IllegalStateException(
                     "Invalid class for parent hierarchy:" + klass);
+        }
 
         return walk(c, klass, Nodes.pathToParent(klass), "parent", stopDepth,
                 Query.LEFT_JOIN);
@@ -202,9 +207,10 @@ public class Hierarchy {
     public static Criteria[] fetchChildren(Criteria c, Class klass,
             int stopDepth) {
 
-        if (!Nodes.isContainer(klass))
+        if (!Nodes.isContainer(klass)) {
             throw new IllegalStateException(
                     "Invalid class for child hierarchy:" + klass);
+        }
 
         return walk(c, klass, Nodes.pathToChildFrom(klass), "child", stopDepth,
                 Query.LEFT_JOIN);
@@ -213,9 +219,10 @@ public class Hierarchy {
     // TODO used?
     public static Criteria[] joinParents(Criteria c, Class klass, int stopDepth) {
 
-        if (!Nodes.isContainer(klass))
+        if (!Nodes.isContainer(klass)) {
             throw new IllegalStateException(
                     "Invalid class for parent hierarchy:" + klass);
+        }
 
         return walk(c, klass, Nodes.pathToParent(klass), "parent", stopDepth,
                 Query.INNER_JOIN);
@@ -223,9 +230,10 @@ public class Hierarchy {
 
     public static Criteria[] joinChildren(Criteria c, Class klass, int stopDepth) {
 
-        if (!Nodes.isContainer(klass))
+        if (!Nodes.isContainer(klass)) {
             throw new IllegalStateException(
                     "Invalid class for child hierarchy:" + klass);
+        }
 
         return walk(c, klass, Nodes.pathToChildFrom(klass), "child", stopDepth,
                 Query.INNER_JOIN);
@@ -282,6 +290,10 @@ public class Hierarchy {
  */
 class HierarchyToMapTransformer extends AliasToEntityMapResultTransformer {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3530890859099882786L;
     Map _aliases;
 
     HierarchyToMapTransformer(Map aliases) {

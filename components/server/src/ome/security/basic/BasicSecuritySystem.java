@@ -122,8 +122,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      * fulfill this requirement.
      */
     public final void setExtendedMetadata(ExtendedMetadata metadata) {
-        if (this.em != null)
+        if (this.em != null) {
             throw new InternalException("Cannot reset metadata.");
+        }
 
         this.em = metadata;
     }
@@ -159,14 +160,18 @@ public class BasicSecuritySystem implements SecuritySystem {
      * events
      */
     public boolean isGlobal(Class<? extends IObject> klass) {
-        if (klass == null)
+        if (klass == null) {
             return false;
-        if (Experimenter.class.isAssignableFrom(klass))
+        }
+        if (Experimenter.class.isAssignableFrom(klass)) {
             return true;
-        if (Event.class.isAssignableFrom(klass))
+        }
+        if (Event.class.isAssignableFrom(klass)) {
             return true;
-        if (EventLog.class.isAssignableFrom(klass))
+        }
+        if (EventLog.class.isAssignableFrom(klass)) {
             return true;
+        }
         return false;
     }
 
@@ -177,20 +182,27 @@ public class BasicSecuritySystem implements SecuritySystem {
      *      href="https://trac.openmicroscopy.org.uk/omero/ticket/156">ticket156</a>
      */
     public boolean isSystemType(Class<? extends IObject> klass) {
-        if (klass == null)
+        if (klass == null) {
             return false;
-        if (Experimenter.class.isAssignableFrom(klass))
+        }
+        if (Experimenter.class.isAssignableFrom(klass)) {
             return true;
-        if (ExperimenterGroup.class.isAssignableFrom(klass))
+        }
+        if (ExperimenterGroup.class.isAssignableFrom(klass)) {
             return true;
-        if (GroupExperimenterMap.class.isAssignableFrom(klass))
+        }
+        if (GroupExperimenterMap.class.isAssignableFrom(klass)) {
             return true;
-        if (Event.class.isAssignableFrom(klass))
+        }
+        if (Event.class.isAssignableFrom(klass)) {
             return true;
-        if (EventLog.class.isAssignableFrom(klass))
+        }
+        if (EventLog.class.isAssignableFrom(klass)) {
             return true;
-        if (IEnum.class.isAssignableFrom(klass))
+        }
+        if (IEnum.class.isAssignableFrom(klass)) {
             return true;
+        }
         return false;
     }
 
@@ -203,8 +215,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      * @return true if the current user is owner or supervisor of this entity
      */
     public boolean isOwnerOrSupervisor(IObject iObject) {
-        if (iObject == null)
+        if (iObject == null) {
             throw new ApiUsageException("Object can't be null");
+        }
         final Long o = HibernateUtils.nullSafeOwnerId(iObject);
         final Long g = HibernateUtils.nullSafeGroupId(iObject);
 
@@ -280,20 +293,23 @@ public class BasicSecuritySystem implements SecuritySystem {
     // =========================================================================
 
     public void disable(String... ids) {
-        if (ids == null || ids.length == 0)
+        if (ids == null || ids.length == 0) {
             throw new ApiUsageException("Ids should not be empty.");
+        }
         cd.addAllDisabled(ids);
     }
 
     public void enable(String... ids) {
-        if (ids == null || ids.length == 0)
+        if (ids == null || ids.length == 0) {
             cd.clearDisabled();
+        }
         cd.removeAllDisabled(ids);
     }
 
     public boolean isDisabled(String id) {
-        if (id == null)
+        if (id == null) {
             throw new ApiUsageException("Id should not be null.");
+        }
         return cd.isDisabled(id);
     }
 
@@ -324,8 +340,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      *            then require locking. Nulls are tolerated but do nothing.
      */
     public void markLockedIfNecessary(IObject iObject) {
-        if (iObject == null || isSystemType(iObject.getClass()))
+        if (iObject == null || isSystemType(iObject.getClass())) {
             return;
+        }
 
         Set<IObject> s = new HashSet<IObject>();
 
@@ -372,11 +389,13 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         checkReady("transientDetails");
 
-        if (obj == null)
+        if (obj == null) {
             throw new ApiUsageException("Argument cannot be null.");
+        }
 
-        if (hasPrivilegedToken(obj))
+        if (hasPrivilegedToken(obj)) {
             return obj.getDetails(); // EARLY EXIT
+        }
 
         Details source = obj.getDetails();
         Details newDetails = cd.createDetails();
@@ -448,25 +467,28 @@ public class BasicSecuritySystem implements SecuritySystem {
             final Details previousDetails) {
         checkReady("managedDetails");
 
-        if (iobj == null)
+        if (iobj == null) {
             throw new ApiUsageException("Argument cannot be null.");
+        }
 
-        if (iobj.getId() == null)
+        if (iobj.getId() == null) {
             throw new ValidationException(
                     "Id required on all detached instances.");
+        }
 
         // Note: privileged check moved into the if statement below.
 
         // done first as validation.
         if (iobj instanceof IMutable) {
             Integer version = ((IMutable) iobj).getVersion();
-            if (version == null || version.intValue() < 0)
+            if (version == null || version.intValue() < 0) {
                 ;
             // throw new ValidationException(
             // "Version must properly be set on managed objects :\n"+
             // obj.toString()
             // );
             // TODO
+            }
         }
 
         // check if the newDetails variable has been reset or if the instance
@@ -511,11 +533,13 @@ public class BasicSecuritySystem implements SecuritySystem {
             boolean locked = false;
             boolean privileged = false;
 
-            if (previousDetails.getPermissions().isSet(Flag.LOCKED))
+            if (previousDetails.getPermissions().isSet(Flag.LOCKED)) {
                 locked = true;
+            }
 
-            if (hasPrivilegedToken(iobj))
+            if (hasPrivilegedToken(iobj)) {
                 privileged = true;
+            }
 
             // isGlobal implies nothing (currently) about external info
             // see mapping.vm for more.
@@ -681,12 +705,13 @@ public class BasicSecuritySystem implements SecuritySystem {
                 tmpDetails.unSet(Flag.LOCKED);
             }
             if (!currentP.identical(tmpDetails)) {
-                if (!isOwnerOrSupervisor(obj)) // TODO and privileged? if not,
-                                                // remove from below??
+                if (!isOwnerOrSupervisor(obj)) {
+                    // remove from below??
                     throw new SecurityViolation(String.format(
                             "You are not authorized to change "
                                     + "the permissions for %s from %s to %s",
                             obj, previousP, currentP));
+                }
 
                 altered = true;
             }
@@ -698,8 +723,9 @@ public class BasicSecuritySystem implements SecuritySystem {
         // was removed.
         if (locked) {
 
-            if (previousP == null) // if null it can't have been locked.
+            if (previousP == null) {
                 throw new InternalException("Null permissions cannot be locked");
+            }
 
             Permissions calculatedP = newDetails.getPermissions();
 
@@ -711,14 +737,15 @@ public class BasicSecuritySystem implements SecuritySystem {
                     altered = true;
                 }
 
-                if ((previousP.isGranted(USER, READ) && !calculatedP.isGranted(
-                        USER, READ))
-                        || (previousP.isGranted(GROUP, READ) && !calculatedP
-                                .isGranted(GROUP, READ))
-                        || (previousP.isGranted(WORLD, READ) && !calculatedP
-                                .isGranted(WORLD, READ)))
+                if (previousP.isGranted(USER, READ) && !calculatedP.isGranted(
+                        USER, READ)
+                        || previousP.isGranted(GROUP, READ) && !calculatedP
+                                .isGranted(GROUP, READ)
+                        || previousP.isGranted(WORLD, READ) && !calculatedP
+                                .isGranted(WORLD, READ)) {
                     throw new SecurityViolation(
                             "Cannot remove READ from locked entity:" + obj);
+                }
             }
         }
 
@@ -984,9 +1011,10 @@ public class BasicSecuritySystem implements SecuritySystem {
     public void setEventContext(EventContext context) {
         final Principal p = clearAndCheckPrincipal();
 
-        if (!(context instanceof BasicEventContext))
+        if (!(context instanceof BasicEventContext)) {
             throw new ApiUsageException("BasicSecuritySystem can only accept "
                     + "BasicEventContext instances.");
+        }
 
         final BasicEventContext bec = (BasicEventContext) context;
         final String u_name = bec.getCurrentUserName();
@@ -1012,21 +1040,25 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         final Principal p = principalHolder.get();
 
-        if (p == null)
+        if (p == null) {
             throw new SecurityViolation(
                     "Principal is null. Not logged in to SecuritySystem.");
+        }
 
-        if (p.getName() == null)
+        if (p.getName() == null) {
             throw new InternalException(
                     "Principal.name is null. Security system failure.");
+        }
 
-        if (p.getGroup() == null)
+        if (p.getGroup() == null) {
             throw new InternalException(
                     "Principal.group is null in EventContext. Security system failure.");
+        }
 
-        if (p.getEventType() == null)
+        if (p.getEventType() == null) {
             throw new InternalException(
                     "Principal.eventType is null in EventContext. Security system failure.");
+        }
 
         // ticket:404 -- preventing users from logging into "user" group
         if (roles.getUserGroupName().equals(p.getGroup())) {
@@ -1102,15 +1134,17 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     public void clearLogs() {
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("Clearing EventLogs.");
+        }
 
         cd.clearLogs();
     }
 
     public void clearEventContext() {
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug("Clearing EventContext.");
+        }
 
         cd.clear();
     }
@@ -1197,9 +1231,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         // TODO inject
         if (obj.getId() != null
-                && !((LocalQuery) sf.getQueryService()).contains(obj))
+                && !((LocalQuery) sf.getQueryService()).contains(obj)) {
             throw new SecurityViolation("Services are not allowed to call "
                     + "doAction() on non-Session-managed entities.");
+        }
 
         // FIXME
         // Token oneTimeToken = new Token();
@@ -1240,8 +1275,9 @@ public class BasicSecuritySystem implements SecuritySystem {
      */
     public void copyToken(IObject source, IObject copy) {
 
-        if (source == null || copy == null || source == copy)
+        if (source == null || copy == null || source == copy) {
             return;
+        }
 
         GraphHolder gh1 = source.getGraphHolder();
         GraphHolder gh2 = copy.getGraphHolder();
@@ -1255,16 +1291,18 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     public boolean hasPrivilegedToken(IObject obj) {
 
-        if (obj == null)
+        if (obj == null) {
             return false;
+        }
 
         GraphHolder gh = obj.getGraphHolder();
 
         // most objects will not have a token
         if (gh.hasToken()) {
             // check if truly secure.
-            if (gh.tokenMatches(token))
+            if (gh.tokenMatches(token)) {
                 return true;
+            }
         }
         return false;
     }

@@ -146,13 +146,15 @@ public abstract class Query<T> implements HibernateCallback {
      */
     protected void checkParameters() {
 
-        if (defs == null)
+        if (defs == null) {
             throw new IllegalStateException(
                     "Query parameter definitions not set.");
+        }
 
-        if (params == null)
+        if (params == null) {
             throw new IllegalArgumentException("Null arrays "
                     + "are not valid for definitions.");
+        }
 
         Set<String> missing = new HashSet<String>();
         for (String name : defs.keySet()) {
@@ -309,16 +311,18 @@ public abstract class Query<T> implements HibernateCallback {
 
             if (po.isGroup()) {
                 for (String filter : groupFilters) {
-                    if (session.getEnabledFilter(filter) != null)
+                    if (session.getEnabledFilter(filter) != null) {
                         newlyEnabledFilters.add(filter);
+                    }
 
                     session.enableFilter(filter).setParameter(GROUP_ID,
                             po.getGroup());
                 }
             } else if (po.isExperimenter()) {
                 for (String filter : ownerFilters) {
-                    if (session.getEnabledFilter(filter) != null)
+                    if (session.getEnabledFilter(filter) != null) {
                         newlyEnabledFilters.add(filter);
+                    }
 
                     session.enableFilter(filter).setParameter(OWNER_ID,
                             po.getExperimenter());

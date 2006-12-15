@@ -162,9 +162,10 @@ public class MockedCall {
      * @return The return value of the method call represented by this object.
      */
     public Object getResult() {
-        if (signature.isReturnTypeVoid())
+        if (signature.isReturnTypeVoid()) {
             throw new IllegalArgumentException(
                     "This method has a void return type.");
+        }
         return result;
     }
 
@@ -175,8 +176,9 @@ public class MockedCall {
      *            The exception.
      */
     public void setException(Throwable t) {
-        if (t == null)
+        if (t == null) {
             throw new NullPointerException("No exception.");
+        }
         exception = t;
     }
 
@@ -188,7 +190,7 @@ public class MockedCall {
      *         otherwise.
      */
     public boolean hasException() {
-        return (exception != null);
+        return exception != null;
     }
 
     /**
@@ -216,16 +218,17 @@ public class MockedCall {
      *         call arguments.
      */
     public boolean isSameCall(MockedCall mc) {
-        boolean b = (mc != null && signature.equals(mc.signature));
+        boolean b = mc != null && signature.equals(mc.signature);
         if (b) {
             // B/c of setArgs and constructor implementations, we know that the
             // args array always have the same number of elements as specified
             // by the signature object (this number may also be 0: no params).
-            for (int i = 0; i < args.length; ++i)
+            for (int i = 0; i < args.length; ++i) {
                 if (!isSameObject(args[i], mc.args[i])) {
                     b = false;
                     break;
                 }
+            }
         }
         return b;
     }
@@ -236,6 +239,7 @@ public class MockedCall {
      * 
      * @return A string representation of this method call.
      */
+    @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append(signature.getName());
@@ -270,12 +274,15 @@ public class MockedCall {
      */
     private void checkSignature(MethodSignature ms, boolean hasParams,
             boolean isVoid) {
-        if (ms == null)
+        if (ms == null) {
             throw new NullPointerException("No method signature was provided.");
-        if (hasParams != ms.hasParameters())
+        }
+        if (hasParams != ms.hasParameters()) {
             throw new IllegalArgumentException("Wrong parameters declaration.");
-        if (isVoid != ms.isReturnTypeVoid())
+        }
+        if (isVoid != ms.isReturnTypeVoid()) {
             throw new IllegalArgumentException("Wrong return type declaration.");
+        }
     }
 
     /**
@@ -290,12 +297,14 @@ public class MockedCall {
      */
     private void setArgs(Object[] args) {
         // Constructor has already checked that method has params.
-        if (args == null || args.length != signature.numberOfParameters())
+        if (args == null || args.length != signature.numberOfParameters()) {
             throw new IllegalArgumentException("Wrong number of arguments.");
+        }
         for (int i = 0; i < args.length; ++i) {
-            if (!signature.isValidArgument(args[i], i))
+            if (!signature.isValidArgument(args[i], i)) {
                 throw new IllegalArgumentException("Invalid argument type: "
                         + i);
+            }
             this.args[i] = args[i];
         }
     }
@@ -312,8 +321,9 @@ public class MockedCall {
      */
     private void setResult(Object result) {
         // Constructor has already checked that return type is not void.
-        if (!signature.isValidReturnValue(result))
+        if (!signature.isValidReturnValue(result)) {
             throw new IllegalArgumentException("Invalid return type.");
+        }
         this.result = result;
     }
 
@@ -329,13 +339,14 @@ public class MockedCall {
      *         <code>false</code> otherwise.
      */
     private boolean isSameObject(Object p1, Object p2) {
-        boolean b = (p1 == p2);
+        boolean b = p1 == p2;
         if (!b) {
-            if (p1 == null) // Then p2 can't be null.
+            if (p1 == null) {
                 b = false;
-            else
+            } else {
                 // Both p1 and p2 are not null.
                 b = p2.equals(p1);
+            }
         }
         return b;
     }

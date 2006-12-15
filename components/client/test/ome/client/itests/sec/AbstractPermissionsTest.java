@@ -2,10 +2,7 @@ package ome.client.itests.sec;
 
 import java.util.UUID;
 
-import ome.api.IUpdate;
-import ome.conditions.SecurityViolation;
 import ome.model.IObject;
-import ome.model.acquisition.ImagingEnvironment;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Microscope;
 import ome.model.containers.Dataset;
@@ -17,11 +14,8 @@ import ome.model.display.Thumbnail;
 import ome.model.enums.MicroscopeType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
@@ -31,8 +25,6 @@ import static ome.model.internal.Permissions.Role.*;
 
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
-
-import junit.framework.TestCase;
 
 /**
  * The subclasses of {@link AbstractPermissionsTest} define the proper working

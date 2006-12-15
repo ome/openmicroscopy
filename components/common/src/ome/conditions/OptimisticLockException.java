@@ -26,6 +26,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class OptimisticLockException extends ApiUsageException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4632580711597252540L;
+
     public OptimisticLockException(String msg) {
         super(msg);
     }

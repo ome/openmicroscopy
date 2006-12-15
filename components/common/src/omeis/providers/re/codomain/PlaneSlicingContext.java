@@ -122,8 +122,9 @@ public class PlaneSlicingContext extends CodomainMapContext {
      *             If the value is not in the interval.
      */
     private void verifyInput(int x) {
-        if (x < intervalStart || x > intervalEnd)
+        if (x < intervalStart || x > intervalEnd) {
             throw new IllegalArgumentException("Value not in the interval.");
+        }
     }
 
     /** Empty private contructor used to make a copy of the object. */
@@ -145,8 +146,9 @@ public class PlaneSlicingContext extends CodomainMapContext {
      */
     public PlaneSlicingContext(int planePrevious, int planeSelected,
             boolean constant) {
-        if (planePrevious > planeSelected)
+        if (planePrevious > planeSelected) {
             throw new IllegalArgumentException("Not a valid plane selection");
+        }
         verifyBitPlanes(planePrevious);
         verifyBitPlanes(planeSelected);
         this.planePrevious = planePrevious;
@@ -159,6 +161,7 @@ public class PlaneSlicingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#buildContext()
      */
+    @Override
     void buildContext() {
     }
 
@@ -167,6 +170,7 @@ public class PlaneSlicingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#getCodomainMap()
      */
+    @Override
     CodomainMap getCodomainMap() {
         return new PlaneSlicingMap();
     }
@@ -176,6 +180,7 @@ public class PlaneSlicingContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#copy()
      */
+    @Override
     public CodomainMapContext copy() {
         PlaneSlicingContext copy = new PlaneSlicingContext();
         copy.intervalEnd = intervalEnd;
@@ -292,8 +297,9 @@ public class PlaneSlicingContext extends CodomainMapContext {
      *             the selected one.
      */
     public void setPlanes(int planePrevious, int planeSelected) {
-        if (planePrevious > planeSelected)
+        if (planePrevious > planeSelected) {
             throw new IllegalArgumentException("Not a valid plane selection");
+        }
         verifyBitPlanes(planePrevious);
         verifyBitPlanes(planeSelected);
         this.planePrevious = planePrevious;

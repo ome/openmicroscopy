@@ -140,8 +140,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public Experimenter userProxy(final Long id) {
-        if (id == null)
+        if (id == null) {
             throw new ApiUsageException("Id argument cannot be null.");
+        }
 
         Experimenter e = iQuery.get(Experimenter.class, id);
         return e;
@@ -149,8 +150,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public Experimenter userProxy(final String omeName) {
-        if (omeName == null)
+        if (omeName == null) {
             throw new ApiUsageException("omeName argument cannot be null.");
+        }
 
         Experimenter e = iQuery.findByString(Experimenter.class, "omeName",
                 omeName);
@@ -164,8 +166,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public ExperimenterGroup groupProxy(Long id) {
-        if (id == null)
+        if (id == null) {
             throw new ApiUsageException("Id argument cannot be null.");
+        }
 
         ExperimenterGroup g = iQuery.get(ExperimenterGroup.class, id);
         return g;
@@ -173,8 +176,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public ExperimenterGroup groupProxy(final String groupName) {
-        if (groupName == null)
+        if (groupName == null) {
             throw new ApiUsageException("groupName argument cannot be null.");
+        }
 
         ExperimenterGroup g = iQuery.findByString(ExperimenterGroup.class,
                 "name", groupName);
@@ -288,7 +292,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                         + "join e.groupExperimenterMap as map left outer join "
                         + "map.parent as g where g.id = :id", new Parameters()
                         .addId(groupId));
-        return (Experimenter[]) experimenters
+        return experimenters
                 .toArray(new Experimenter[experimenters.size()]);
     }
 
@@ -300,7 +304,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                                 + "outer join g.groupExperimenterMap as map left outer "
                                 + "join map.child as e where e.id = :id",
                         new Parameters().addId(experimenterId));
-        return (ExperimenterGroup[]) groups
+        return groups
                 .toArray(new ExperimenterGroup[groups.size()]);
     }
 
@@ -383,8 +387,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
         if (null != otherGroups) {
             for (ExperimenterGroup group : otherGroups) {
-                if (group == null)
+                if (group == null) {
                     continue;
+                }
                 if (group.getId() == null) {
                     throw new ApiUsageException(
                             "Groups must be previously saved during "
@@ -417,10 +422,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("system")
     public void addGroups(Experimenter user, ExperimenterGroup... groups) {
-        if (user == null)
+        if (user == null) {
             return; // Handled by annotations
-        if (groups == null)
+        }
+        if (groups == null) {
             return;
+        }
 
         Experimenter foundUser = userProxy(user.getId());
         for (ExperimenterGroup group : groups) {
@@ -439,17 +446,20 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("system")
     public void removeGroups(Experimenter user, ExperimenterGroup... groups) {
-        if (user == null)
+        if (user == null) {
             return;
-        if (groups == null)
+        }
+        if (groups == null) {
             return;
+        }
 
         Experimenter foundUser = getExperimenter(user.getId());
         List<Long> toRemove = new ArrayList<Long>();
 
         for (ExperimenterGroup g : groups) {
-            if (g.getId() != null)
+            if (g.getId() != null) {
                 toRemove.add(g.getId());
+            }
         }
         for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
                 .collectGroupExperimenterMap(null)) {
@@ -469,10 +479,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("system")
     public void setDefaultGroup(Experimenter user, ExperimenterGroup group) {
-        if (user == null)
+        if (user == null) {
             return;
-        if (group == null)
+        }
+        if (group == null) {
             return;
+        }
 
         if (group.getId() == null) {
             throw new ApiUsageException("Group argument to setDefaultGroup "
@@ -501,10 +513,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("system")
     public void setGroupOwner(ExperimenterGroup group, Experimenter owner) {
-        if (owner == null)
+        if (owner == null) {
             return;
-        if (group == null)
+        }
+        if (group == null) {
             return;
+        }
 
         if (group.getId() == null) {
             throw new ApiUsageException("Group argument to setGroupOwner "
@@ -576,8 +590,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         // do check TODO refactor
         final EventContext ec = getSecuritySystem().getEventContext();
         if (!ec.getMemberOfGroupsList().contains(group.getId())
-                && !ec.isCurrentUserAdmin())
+                && !ec.isCurrentUserAdmin()) {
             throw new SecurityViolation("Cannot change group for:" + iObject);
+        }
 
         // make change.
         copy.getDetails().setGroup(group);
@@ -618,9 +633,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         });
 
         // now check for ownership _outside_ of runAsAdmin
-        if (!aclVoter.allowChmod(copy[0]))
+        if (!aclVoter.allowChmod(copy[0])) {
             throw new SecurityViolation("Cannot change permissions for:"
                     + copy[0]);
+        }
 
         // if we reach here, ok to save.
         getSecuritySystem().runAsAdmin(new AdminAction() {
@@ -634,8 +650,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("system")
     public boolean[] unlock(final IObject... iObjects) {
         // do nothing if possible
-        if (iObjects == null | iObjects.length < 1)
+        if (iObjects == null | iObjects.length < 1) {
             return new boolean[] {};
+        }
 
         // create a new session. It's important that we pass in the empty
         // interceptor here, otherwise even root wouldn't be allowed to unlock

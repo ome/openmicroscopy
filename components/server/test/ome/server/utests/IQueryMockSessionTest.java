@@ -47,6 +47,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     protected Mock mockSession, mockFactory;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
@@ -61,6 +62,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         createMocks();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();
@@ -129,7 +131,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         List blank = new ArrayList();
         Mock mockCriteria = criteriaListCall(blank);
         mockSession.expects(once()).method("createCriteria").will(
-                returnValue((Criteria) mockCriteria.proxy())).id("test");
+                returnValue(mockCriteria.proxy())).id("test");
         List retVal = iQuery.findAll(Project.class, null);
         assertTrue(retVal == blank);
     }
@@ -145,7 +147,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         mockCriteria.expects(once()).method("setMaxResults");
 
         mockSession.expects(once()).method("createCriteria").will(
-                returnValue((Criteria) mockCriteria.proxy())).id("test");
+                returnValue(mockCriteria.proxy())).id("test");
         List retVal = iQuery.findAll(Project.class, filter);
         assertTrue(retVal == blank);
     }
@@ -163,7 +165,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         Mock mockCriteria = criteriaUniqueResultCall(dummy);
         mockCriteria.expects(once()).method("add");
         mockSession.expects(once()).method("createCriteria").will(
-                returnValue((Criteria) mockCriteria.proxy())).id("test");
+                returnValue(mockCriteria.proxy())).id("test");
         Object retVal = iQuery.findByExample(test);
         assertTrue(retVal == dummy);
     }
@@ -187,7 +189,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         Mock mockCriteria = criteriaListCall(blank);
         mockCriteria.expects(once()).method("add");
         mockSession.expects(once()).method("createCriteria").will(
-                returnValue((Criteria) mockCriteria.proxy())).id("test");
+                returnValue(mockCriteria.proxy())).id("test");
         Object retVal = iQuery.findAllByExample(test, null);
         assertTrue(retVal == blank);
     }
@@ -202,7 +204,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         mockCriteria.expects(once()).method("setMaxResults");
 
         mockSession.expects(once()).method("createCriteria").will(
-                returnValue((Criteria) mockCriteria.proxy())).id("test");
+                returnValue(mockCriteria.proxy())).id("test");
         Object retVal = iQuery.findAllByExample(test, new Filter().page(1, 10));
         assertTrue(retVal == blank);
     }

@@ -37,6 +37,11 @@ import src.adminTool.model.Model;
  * @since OME3.0
  */
 public class UserList extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5888473074867308294L;
+
     private JList users;
 
     private DefaultListModel listModel;
@@ -65,25 +70,30 @@ public class UserList extends JPanel {
 
     public void refresh() {
         List data;
-        if (filterByGroup)
+        if (filterByGroup) {
             data = model.getUsersNotInGroup(groupName);
-        else
+        } else {
             data = model.getUserList();
+        }
         listModel.clear();
-        for (int i = 0; i < data.size(); i++)
+        for (int i = 0; i < data.size(); i++) {
             listModel.add(i, data.get(i));
+        }
         users.setModel(listModel);
     }
 
     public String getSelectedUser() {
-        if (listModel.size() == 0)
+        if (listModel.size() == 0) {
             return null;
-        if (users.getLeadSelectionIndex() < 0)
+        }
+        if (users.getLeadSelectionIndex() < 0) {
             return null;
-        if (users.getLeadSelectionIndex() < listModel.size())
+        }
+        if (users.getLeadSelectionIndex() < listModel.size()) {
             return (String) listModel.get(users.getLeadSelectionIndex());
-        else
+        } else {
             return null;
+        }
     }
 
     public UserList(Model model) {
@@ -101,9 +111,10 @@ public class UserList extends JPanel {
                 if (!e.getValueIsAdjusting()) {
                     JList list = (JList) e.getSource();
                     if (list.getLeadSelectionIndex() >= 0
-                            && list.getLeadSelectionIndex() < listModel.size())
+                            && list.getLeadSelectionIndex() < listModel.size()) {
                         controller.userSelected((String) listModel.get(list
                                 .getLeadSelectionIndex()));
+                    }
                 }
             }
         });

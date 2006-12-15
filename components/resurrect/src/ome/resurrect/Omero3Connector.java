@@ -31,8 +31,9 @@ public class Omero3Connector {
     private static Omero3Connector soleInstance;
 
     public static Omero3Connector getInstance() {
-        if (soleInstance == null)
+        if (soleInstance == null) {
             soleInstance = new Omero3Connector();
+        }
         return soleInstance;
     }
 
@@ -49,8 +50,9 @@ public class Omero3Connector {
             public Object doInHibernate(org.hibernate.Session session)
                     throws org.hibernate.HibernateException,
                     java.sql.SQLException {
-                for (Object o : objects)
+                for (Object o : objects) {
                     session.save(o);
+                }
 
                 return null;
             }
@@ -79,11 +81,12 @@ public class Omero3Connector {
 
                 List l = query.setParameter("value", asString).list();
 
-                if (l.size() != 1)
+                if (l.size() != 1) {
                     throw new RuntimeException("Request for PixelsType: '"
                             + asString
                             + "' resulted in an abnormal number of results: '"
                             + l.size() + "'. Should be 1.");
+                }
 
                 return (PixelsType) l.get(0);
             }
@@ -102,11 +105,12 @@ public class Omero3Connector {
 
                 List l = query.setParameter("value", asString).list();
 
-                if (l.size() != 1)
+                if (l.size() != 1) {
                     throw new RuntimeException("Request for PIType: '"
                             + asString
                             + "' resulted in an abnormal number of results: '"
                             + l.size() + "'. Should be 1.");
+                }
 
                 return (PIType) l.get(0);
             }

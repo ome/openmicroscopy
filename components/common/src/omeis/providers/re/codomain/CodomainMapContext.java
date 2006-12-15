@@ -56,10 +56,12 @@ public abstract class CodomainMapContext {
      * 
      * @see Object#equals(Object)
      */
+    @Override
     public final boolean equals(Object o) {
-        if (o == null)
+        if (o == null) {
             return false;
-        return (o.getClass() == getClass());
+        }
+        return o.getClass() == getClass();
     }
 
     /**

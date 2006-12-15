@@ -29,6 +29,11 @@ import ome.conditions.ApiUsageException;
  * @since OMERO 3.0
  */
 public class QueryException extends ApiUsageException {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6576647291843374605L;
+
     public QueryException(String message) {
         super(message);
     }

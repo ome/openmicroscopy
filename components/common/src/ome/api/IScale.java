@@ -2,9 +2,6 @@ package ome.api;
 
 import java.awt.image.BufferedImage;
 
-import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
-
 /**
  * Provides methods for performing scaling (change of the image size through
  * interpolation or other means) on BufferedImages.

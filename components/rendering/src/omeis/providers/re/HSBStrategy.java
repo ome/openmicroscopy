@@ -11,7 +11,6 @@ package omeis.providers.re;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -127,8 +126,9 @@ class HSBStrategy extends RenderingStrategy {
      */
     private int numTasks() {
         for (int i = maxTasks; i > 0; i--) {
-            if ((sizeX2 % i) == 0)
+            if (sizeX2 % i == 0) {
                 return i;
+            }
         }
         return 1;
     }
@@ -244,6 +244,7 @@ class HSBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBBuffer render(Renderer ctx, PlaneDef planeDef) throws IOException,
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -267,6 +268,7 @@ class HSBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
             throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -306,20 +308,23 @@ class HSBStrategy extends RenderingStrategy {
         Future[] rndTskFutures = new Future[n]; // [0] unused.
         ExecutorService processor = Executors.newCachedThreadPool();
 
-        while (0 < --n)
+        while (0 < --n) {
             rndTskFutures[n] = processor.submit(tasks[n]);
+        }
 
         // Call the task in the current thread.
-        if (n == 0)
+        if (n == 0) {
             tasks[0].call();
+        }
 
         // Wait for all forked tasks (if any) to complete.
         for (n = 1; n < rndTskFutures.length; ++n) {
             try {
                 rndTskFutures[n].get();
             } catch (Exception e) {
-                if (e instanceof QuantizationException)
+                if (e instanceof QuantizationException) {
                     throw (QuantizationException) e;
+                }
                 throw new RuntimeException(e);
             }
         }
@@ -336,6 +341,7 @@ class HSBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getImageSize(PlaneDef, Pixels)
      */
+    @Override
     int getImageSize(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 * sizeX2 * 3;
@@ -346,6 +352,7 @@ class HSBStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, Pixels)
      */
+    @Override
     String getPlaneDimsAsString(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 + "x" + sizeX2;

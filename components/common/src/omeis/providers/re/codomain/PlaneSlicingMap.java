@@ -47,10 +47,11 @@ class PlaneSlicingMap implements CodomainMap {
      * @return The transformed value.
      */
     private int transformConstant(int x) {
-        if (x < psCtx.getPlaneSelected())
+        if (x < psCtx.getPlaneSelected()) {
             return psCtx.getLowerLimit();
-        else if (x > psCtx.getPlaneSelected() + 1)
+        } else if (x > psCtx.getPlaneSelected() + 1) {
             return psCtx.getUpperLimit();
+        }
         return psCtx.getPlaneSelected();
     }
 
@@ -63,8 +64,9 @@ class PlaneSlicingMap implements CodomainMap {
      * @return The transformed value.
      */
     private int transformNonConstant(int x) {
-        if (x > psCtx.getPlanePrevious() && x <= psCtx.getPlaneSelected())
+        if (x > psCtx.getPlanePrevious() && x <= psCtx.getPlaneSelected()) {
             return psCtx.getPlaneSelected();
+        }
         return x;
     }
 
@@ -83,8 +85,9 @@ class PlaneSlicingMap implements CodomainMap {
      * @see CodomainMap#transform(int)
      */
     public int transform(int x) {
-        if (psCtx.IsConstant())
+        if (psCtx.IsConstant()) {
             return transformConstant(x);
+        }
         return transformNonConstant(x);
     }
 
@@ -93,6 +96,7 @@ class PlaneSlicingMap implements CodomainMap {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         return "PlaneSlicingMap";
     }

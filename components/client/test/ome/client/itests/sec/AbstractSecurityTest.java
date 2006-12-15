@@ -10,7 +10,6 @@ import ome.system.Login;
 import ome.system.ServiceFactory;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import junit.framework.TestCase;

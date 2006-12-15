@@ -124,10 +124,12 @@ public class Login {
         Properties p = new Properties();
         p.setProperty(OMERO_USER, _user);
         p.setProperty(OMERO_PASS, _pass);
-        if (_group != null)
+        if (_group != null) {
             p.setProperty(OMERO_GROUP, _group);
-        if (_event != null)
+        }
+        if (_event != null) {
             p.setProperty(OMERO_EVENT, _event);
+        }
         return p;
     }
 

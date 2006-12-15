@@ -36,6 +36,11 @@ import src.adminTool.model.Model;
  */
 public class UserListRenderer extends JLabel implements ListCellRenderer {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3938947286318706289L;
+
     private Model model;
 
     /**
@@ -75,17 +80,19 @@ public class UserListRenderer extends JLabel implements ListCellRenderer {
             }
         } else {
             try {
-                if (model.isSystemUser((String) value))
+                if (model.isSystemUser((String) value)) {
                     setForeground(Color.red);
-                else
+                } else {
                     setForeground(list.getForeground());
+                }
             } catch (Exception e) {
             }
 
-            if (index % 2 == 0)
+            if (index % 2 == 0) {
                 setBackground(Color.white);
-            else
+            } else {
                 setBackground(new Color(236, 243, 254));
+            }
         }
 
         setBorder(emptyBorder);

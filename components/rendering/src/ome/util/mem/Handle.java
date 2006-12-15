@@ -109,8 +109,9 @@ public abstract class Handle implements Copiable, Cloneable {
      *            Reference to the Body object. Mustn't be <code>null</code>.
      */
     protected Handle(Copiable body) {
-        if (body == null)
+        if (body == null) {
             throw new NullPointerException("No body.");
+        }
         this.body = body;
         shared = false;
     }

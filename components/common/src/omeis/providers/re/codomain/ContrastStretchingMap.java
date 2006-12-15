@@ -50,12 +50,13 @@ class ContrastStretchingMap implements CodomainMap {
      */
     public int transform(int x) {
         int y = csCtx.intervalStart;
-        if (x >= csCtx.intervalStart && x < csCtx.getXStart())
+        if (x >= csCtx.intervalStart && x < csCtx.getXStart()) {
             y = (int) (csCtx.getA0() * x + csCtx.getB0());
-        else if (x >= csCtx.getXStart() && x < csCtx.getXEnd())
+        } else if (x >= csCtx.getXStart() && x < csCtx.getXEnd()) {
             y = (int) (csCtx.getA1() * x + csCtx.getB1());
-        else if (x >= csCtx.getXEnd() && x <= csCtx.intervalStart)
+        } else if (x >= csCtx.getXEnd() && x <= csCtx.intervalStart) {
             y = (int) (csCtx.getA2() * x + csCtx.getB2());
+        }
         return y;
     }
 
@@ -64,6 +65,7 @@ class ContrastStretchingMap implements CodomainMap {
      * 
      * @see Object#toString()
      */
+    @Override
     public String toString() {
         return "ContrastStretchingMap";
     }

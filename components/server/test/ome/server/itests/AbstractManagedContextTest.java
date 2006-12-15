@@ -4,16 +4,13 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.hibernate.SessionFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
 import ome.api.IPixels;
@@ -77,6 +74,7 @@ public class AbstractManagedContextTest extends
     /**
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
+    @Override
     protected void onSetUp() throws Exception {
         factory = new ServiceFactory((OmeroContext) applicationContext);
         iQuery = (LocalQuery) factory.getQueryService();
@@ -133,6 +131,7 @@ public class AbstractManagedContextTest extends
         login(omeName, roles.getUserGroupName(), "Test");
     }
 
+    @Override
     protected String[] getConfigLocations() {
         return new String[] {};
     }

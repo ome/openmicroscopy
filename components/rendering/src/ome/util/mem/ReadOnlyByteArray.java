@@ -57,9 +57,10 @@ public class ReadOnlyByteArray {
      *            The index to verify.
      */
     protected void checkIndex(int i) {
-        if (i < 0 || length <= i)
+        if (i < 0 || length <= i) {
             throw new ArrayIndexOutOfBoundsException("Index not in [0, "
                     + length + "): " + i + ".");
+        }
     }
 
     /**
@@ -79,12 +80,14 @@ public class ReadOnlyByteArray {
      *            The length of the slice.
      */
     public ReadOnlyByteArray(byte[] base, int offset, int length) {
-        if (base == null)
+        if (base == null) {
             throw new NullPointerException("No base.");
-        if (offset < 0 || length < 0 || base.length < offset + length)
+        }
+        if (offset < 0 || length < 0 || base.length < offset + length) {
             throw new IllegalArgumentException("[offset=" + offset
                     + ", offset+length=" + (offset + length)
                     + "] not in [0, base.length=" + base.length + "].");
+        }
         this.base = base;
         this.offset = offset;
         this.length = length;

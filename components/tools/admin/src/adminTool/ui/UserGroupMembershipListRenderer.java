@@ -37,6 +37,11 @@ import src.adminTool.model.Model;
 public class UserGroupMembershipListRenderer extends JLabel implements
         ListCellRenderer {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4382569253491943052L;
+
     private Model model;
 
     /**
@@ -77,17 +82,19 @@ public class UserGroupMembershipListRenderer extends JLabel implements
             }
         } else {
             try {
-                if (model.isDefaultGroup((String) value))
+                if (model.isDefaultGroup((String) value)) {
                     setForeground(Color.red);
-                else
+                } else {
                     setForeground(list.getForeground());
+                }
             } catch (Exception e) {
             }
 
-            if (index % 2 == 0)
+            if (index % 2 == 0) {
                 setBackground(Color.white);
-            else
+            } else {
                 setBackground(new Color(236, 243, 254));
+            }
         }
 
         setBorder(emptyBorder);

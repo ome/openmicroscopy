@@ -32,6 +32,11 @@ import src.adminTool.ui.messenger.DebugMessenger;
  * @since OME3.0
  */
 public class MainPanel extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -3324298308687880815L;
+
     public boolean loggedIn;
 
     public StatusBar statusBar;

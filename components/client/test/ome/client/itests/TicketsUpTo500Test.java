@@ -4,9 +4,7 @@ import org.testng.annotations.*;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +15,6 @@ import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Dataset;
@@ -29,7 +26,6 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
-import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
@@ -56,7 +52,7 @@ public class TicketsUpTo500Test extends TestCase {
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
-        pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
+        pixels = iUpdate.saveAndReturnObject(pixels);
         PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
                 "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
                 new Parameters().addId(pixels.getId()));
@@ -70,7 +66,7 @@ public class TicketsUpTo500Test extends TestCase {
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         planeInfo.setPixels(pixels);
-        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
+        planeInfo = iUpdate.saveAndReturnObject(planeInfo);
         Pixels test = (Pixels) iQuery.findByQuery("select p from Pixels p "
                 + "where p.planeInfo.id = :id", new Parameters()
                 .addId(planeInfo.getId()));
@@ -84,7 +80,7 @@ public class TicketsUpTo500Test extends TestCase {
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = createPlaneInfo();
         pixels.addPlaneInfo(planeInfo);
-        pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
+        pixels = iUpdate.saveAndReturnObject(pixels);
         PlaneInfo test = (PlaneInfo) iQuery.findByQuery(
                 "select pi from PlaneInfo pi " + "where pi.pixels.id = :id",
                 new Parameters().addId(pixels.getId()));
@@ -177,15 +173,17 @@ public class TicketsUpTo500Test extends TestCase {
 
         found = false;
         for (Project project : set) {
-            if (!project.getId().equals(p.getId()))
+            if (!project.getId().equals(p.getId())) {
                 continue;
+            }
             tP = project;
             tD = (Dataset) tP.linkedDatasetList().get(0);
             assertTrue(tD.sizeOfImageLinks() < 0);
             found = true;
         }
-        if (!found)
+        if (!found) {
             fail(" prj not found (no ids/no leaves)");
+        }
 
         // with no ids but leaves
         set = sf.getPojosService().loadContainerHierarchy(Project.class, null,
@@ -193,15 +191,17 @@ public class TicketsUpTo500Test extends TestCase {
 
         found = false;
         for (Project project : set) {
-            if (!project.getId().equals(p.getId()))
+            if (!project.getId().equals(p.getId())) {
                 continue;
+            }
             tP = project;
             tD = (Dataset) tP.linkedDatasetList().get(0);
             assertTrue(tD.sizeOfImageLinks() > 0);
             found = true;
         }
-        if (!found)
+        if (!found) {
             fail(" prj not found (no ids/leaves)");
+        }
 
         // Dataset --------------------------------------
         ids = new HashSet<Long>(Arrays.asList(d.getId()));
@@ -226,14 +226,16 @@ public class TicketsUpTo500Test extends TestCase {
 
         found = false;
         for (Dataset dataset : set2) {
-            if (!dataset.getId().equals(d.getId()))
+            if (!dataset.getId().equals(d.getId())) {
                 continue;
+            }
             tD = dataset;
             assertTrue(tD.sizeOfImageLinks() < 0);
             found = true;
         }
-        if (!found)
+        if (!found) {
             fail(" ds not found (no ids/no leaves)");
+        }
 
         // with no ids & no leaves
         set2 = sf.getPojosService().loadContainerHierarchy(Dataset.class, null,
@@ -241,14 +243,16 @@ public class TicketsUpTo500Test extends TestCase {
 
         found = false;
         for (Dataset dataset : set2) {
-            if (!dataset.getId().equals(d.getId()))
+            if (!dataset.getId().equals(d.getId())) {
                 continue;
+            }
             tD = dataset;
             assertTrue(tD.sizeOfImageLinks() > 0);
             found = true;
         }
-        if (!found)
+        if (!found) {
             fail(" ds not found (no ids/leaves)");
+        }
 
     }
 
@@ -304,9 +308,9 @@ public class TicketsUpTo500Test extends TestCase {
 
         final IPojos pj = sf.getPojosService();
 
-        d = (Dataset) pj.updateDataObject(d, null);
+        d = pj.updateDataObject(d, null);
 
-        Set<Dataset> ds = (Set<Dataset>) pj.loadContainerHierarchy(
+        Set<Dataset> ds = pj.loadContainerHierarchy(
                 Dataset.class, Collections.singleton(d.getId()), withLeaves
                         .map());
 

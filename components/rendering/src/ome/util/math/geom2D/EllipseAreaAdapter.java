@@ -71,10 +71,13 @@ class EllipseAreaAdapter extends Ellipse2D.Float implements PlaneArea {
         ArrayList vector = new ArrayList(r.height * r.width);
         int xEnd = r.x + r.width, yEnd = r.y + r.height;
         int x, y;
-        for (y = r.y; y < yEnd; ++y)
-            for (x = r.x; x < xEnd; ++x)
-                if (contains(x, y))
+        for (y = r.y; y < yEnd; ++y) {
+            for (x = r.x; x < xEnd; ++x) {
+                if (contains(x, y)) {
                     vector.add(new PlanePoint(x, y));
+                }
+            }
+        }
         return (PlanePoint[]) vector.toArray(new PlanePoint[vector.size()]);
     }
 
@@ -100,11 +103,12 @@ class EllipseAreaAdapter extends Ellipse2D.Float implements PlaneArea {
     public boolean onBoundaries(double x, double y) {
         double wEps = getWidth() + 2 * epsilon, hEps = getHeight() + 2
                 * epsilon;
-        if (wEps <= 0.0 || hEps <= 0)
+        if (wEps <= 0.0 || hEps <= 0) {
             return false;
+        }
         double normx = (x - getX()) / wEps - getWidth() / (2 * wEps);
         double normy = (y - getY()) / hEps - getHeight() / (2 * hEps);
-        return ((normx * normx + normy * normy <= 0.25) && !contains(x, y));
+        return normx * normx + normy * normy <= 0.25 && !contains(x, y);
     }
 
     /**

@@ -2,12 +2,10 @@ package ome.server.itests.update;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -28,7 +26,7 @@ public class UpdateTest extends AbstractUpdateTest {
     @Test
     public void testSaveSimpleObject() throws Exception {
         Pixels p = ObjectFactory.createPixelGraph(null);
-        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        p = iUpdate.saveAndReturnObject(p);
 
         // FIXME This can no longer be done this way.
         // List logs = securitySystem.getCurrentEvent().collectLogs(null);
@@ -50,9 +48,9 @@ public class UpdateTest extends AbstractUpdateTest {
         String name = "SIMPLE:" + System.currentTimeMillis();
         Project p = new Project();
         p.setName(name);
-        p = (Project) iUpdate.saveAndReturnObject(p);
+        p = iUpdate.saveAndReturnObject(p);
 
-        Project compare = (Project) iQuery.findByString(Project.class, "name",
+        Project compare = iQuery.findByString(Project.class, "name",
                 name);
 
         assertTrue(p.getId().equals(compare.getId()));
@@ -62,7 +60,7 @@ public class UpdateTest extends AbstractUpdateTest {
         send.setId(p.getId());
         send.setVersion(p.getVersion()); // This is important.
         send.setDescription("...test...");
-        Project test = (Project) iUpdate.saveAndReturnObject(send);
+        Project test = iUpdate.saveAndReturnObject(send);
 
         assertTrue(p.getId().equals(test.getId()));
 
@@ -79,7 +77,7 @@ public class UpdateTest extends AbstractUpdateTest {
         active.setImage(image);
         active.setDefaultPixels(true);
 
-        active = (Pixels) iUpdate.saveAndReturnObject(active);
+        active = iUpdate.saveAndReturnObject(active);
         Pixels other = ObjectFactory.createPixelGraph(null);
         other.setImage(active.getImage());
 
@@ -102,7 +100,7 @@ public class UpdateTest extends AbstractUpdateTest {
         def.setWaveRendering(bindings);
         def.setSpatialDomainEnhancement(enhancements);
 
-        def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+        def = iUpdate.saveAndReturnObject(def);
 
     }
 
@@ -124,7 +122,7 @@ public class UpdateTest extends AbstractUpdateTest {
 
         def.setWaveRendering(bindings);
 
-        def = (RenderingDef) iUpdate.saveAndReturnObject(def);
+        def = iUpdate.saveAndReturnObject(def);
 
     }
 
@@ -183,8 +181,9 @@ public class UpdateTest extends AbstractUpdateTest {
         List<Experimenter> es = iQuery.findAll(Experimenter.class, null);
         for (Experimenter experimenter : es) {
             Long l = experimenter.getId();
-            if (!l.equals(new Long(0L)))
+            if (!l.equals(new Long(0L))) {
                 e = l;
+            }
         }
 
         Project[] ps = new Project[] { new Project(), new Project(),

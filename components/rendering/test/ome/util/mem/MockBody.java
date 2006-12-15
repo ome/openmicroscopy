@@ -49,19 +49,21 @@ class MockBody implements Copiable, IMock {
     // Used both in set up and verification mode.
     public void readState() {
         MockedCall mc = new MockedCall(readState);
-        if (mockSupport.isSetUpMode())
+        if (mockSupport.isSetUpMode()) {
             mockSupport.add(mc);
-        else
+        } else {
             mockSupport.verifyCall(mc);
+        }
     }
 
     // Used both in set up and verification mode.
     public void writeState() {
         MockedCall mc = new MockedCall(writeState);
-        if (mockSupport.isSetUpMode())
+        if (mockSupport.isSetUpMode()) {
             mockSupport.add(mc);
-        else
+        } else {
             mockSupport.verifyCall(mc);
+        }
     }
 
     // Used in set up mode.

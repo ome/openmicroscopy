@@ -2,31 +2,13 @@ package ome.server.itests.query;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.testng.annotations.Test;
 
-import ome.api.IPojos;
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.query.CollectionCountQueryDefinition;
-import ome.services.query.IObjectClassQuery;
-import ome.services.query.PojosCGCPathsQueryDefinition;
-import ome.services.query.PojosFindAnnotationsQueryDefinition;
-import ome.services.query.PojosFindHierarchiesQueryDefinition;
-import ome.services.query.PojosGetImagesQueryDefinition;
-import ome.services.query.PojosLoadHierarchyQueryDefinition;
-import ome.services.query.Query;
-import ome.services.query.QueryFactory;
-import ome.services.query.StringQuery;
 
 @Test(groups = { "query" })
 public class SimpleQueriesTest extends AbstractManagedContextTest {

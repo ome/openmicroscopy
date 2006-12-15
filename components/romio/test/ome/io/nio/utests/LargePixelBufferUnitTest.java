@@ -20,6 +20,7 @@ public class LargePixelBufferUnitTest extends TestCase {
 
     private static final int timepointSize = stackSize * 3;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         pixels = new Pixels();
@@ -62,14 +63,14 @@ public class LargePixelBufferUnitTest extends TestCase {
 
     @Test
     public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException {
-        long offset = ((long) timepointSize * 25) + ((long) planeSize * 25);
+        long offset = (long) timepointSize * 25 + (long) planeSize * 25;
         assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
     }
 
     @Test
     public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException {
-        long offset = ((long) timepointSize * 25) + ((long) stackSize * 1)
-                + ((long) planeSize * 25);
+        long offset = (long) timepointSize * 25 + (long) stackSize * 1
+                + (long) planeSize * 25;
         assertEquals(pixelBuffer.getPlaneOffset(25, 1, 25).longValue(), offset);
     }
 }

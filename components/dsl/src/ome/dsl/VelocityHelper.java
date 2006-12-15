@@ -13,8 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Arrays;
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,8 +54,9 @@ public class VelocityHelper {
         ve
                 .setProperty("class.resource.loader.class",
                         "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        if (null != macros)
+        if (null != macros) {
             ve.setProperty(RuntimeConstants.VM_LIBRARY, macros);
+        }
         try {
             ve.init();
         } catch (Exception e) {

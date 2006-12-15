@@ -32,7 +32,6 @@ import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
-import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOImage;
@@ -40,8 +39,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.interceptor.Interceptors;
-
 // Third-party libraries
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,20 +48,14 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
-// Application-internal dependencies
-import ome.api.IQuery;
 import ome.api.IScale;
-import ome.api.RawFileStore;
 import ome.api.ThumbnailStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.SimpleLifecycle;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
 import ome.system.EventContext;
@@ -94,6 +85,11 @@ import sun.awt.image.IntegerInterleavedRaster;
 @SecurityDomain("OmeroSecurity")
 public class ThumbnailBean extends AbstractLevel2Service implements
         ThumbnailStore, Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 3047482880497900069L;
+
     /** The logger for this class. */
     private transient static Log log = LogFactory.getLog(ThumbnailBean.class);
 
@@ -142,6 +138,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * 
      * @see ome.logic.AbstractBean#create()
      */
+    @Override
     @PostConstruct
     @PostActivate
     public void create() {
@@ -164,6 +161,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * 
      * @see ome.logic.AbstractBean#destroy()
      */
+    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
@@ -206,9 +204,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             pixelsId = new Long(id);
             pixels = iQuery.get(Pixels.class, pixelsId);
 
-            if (pixels == null)
+            if (pixels == null) {
                 throw new ApiUsageException(
                         "Unable to locate pixels set with ID: " + id);
+            }
 
             re.lookupPixels(id);
             re.lookupRenderingDef(id);
@@ -413,14 +412,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private void sanityCheckThumbnailSizes(int sizeX, int sizeY) {
         // Sanity checks
-        if (sizeX > pixels.getSizeX())
+        if (sizeX > pixels.getSizeX()) {
             throw new ApiUsageException("sizeX > pixels.sizeX");
-        if (sizeX < 0)
+        }
+        if (sizeX < 0) {
             throw new ApiUsageException("sizeX is negative");
-        if (sizeY > pixels.getSizeY())
+        }
+        if (sizeY > pixels.getSizeY()) {
             throw new ApiUsageException("sizeY > pixels.sizeY");
-        if (sizeY < 0)
+        }
+        if (sizeY < 0) {
             throw new ApiUsageException("sizeY is negative");
+        }
     }
 
     /**
@@ -458,9 +461,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
 
     protected void errorIfNullPixels() {
-        if (pixelsId == null)
+        if (pixelsId == null) {
             throw new ApiUsageException(
                     "Thumbnail service not ready: Pixels object not set.");
+        }
     }
 
     /*
@@ -474,15 +478,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void createThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (sizeX == null)
+        if (sizeX == null) {
             sizeX = DEFAULT_X_WIDTH;
-        if (sizeY == null)
+        }
+        if (sizeY == null) {
             sizeY = DEFAULT_Y_WIDTH;
+        }
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Thumbnail metadata = getThumbnailMetadata(sizeX, sizeY);
-        if (metadata == null)
+        if (metadata == null) {
             metadata = createThumbnailMetadata(sizeX, sizeY);
+        }
 
         BufferedImage image = createScaledImage(sizeX, sizeY);
         try {
@@ -503,8 +510,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void createThumbnails() {
         List<Thumbnail> thumbnails = getThumbnailMetadata();
 
-        for (Thumbnail t : thumbnails)
+        for (Thumbnail t : thumbnails) {
             createThumbnail(t.getSizeX(), t.getSizeY());
+        }
     }
 
     /*
@@ -518,10 +526,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (sizeX == null)
+        if (sizeX == null) {
             sizeX = DEFAULT_X_WIDTH;
-        if (sizeY == null)
+        }
+        if (sizeY == null) {
             sizeY = DEFAULT_Y_WIDTH;
+        }
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
         try {
@@ -552,8 +562,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailByLongestSide(Integer size) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (size == null)
+        if (size == null) {
             size = DEFAULT_X_WIDTH;
+        }
         sanityCheckThumbnailSizes(size, size);
 
         int sizeX = pixels.getSizeX();
@@ -578,10 +589,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (sizeX == null)
+        if (sizeX == null) {
             sizeX = DEFAULT_X_WIDTH;
-        if (sizeY == null)
+        }
+        if (sizeY == null) {
             sizeY = DEFAULT_Y_WIDTH;
+        }
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
         BufferedImage image = createScaledImage(sizeX, sizeY);
@@ -605,8 +618,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (size == null)
+        if (size == null) {
             size = DEFAULT_X_WIDTH;
+        }
         sanityCheckThumbnailSizes(size, size);
 
         int sizeX = pixels.getSizeX();
@@ -630,15 +644,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public boolean thumbnailExists(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
-        if (sizeX == null)
+        if (sizeX == null) {
             sizeX = DEFAULT_X_WIDTH;
-        if (sizeY == null)
+        }
+        if (sizeY == null) {
             sizeY = DEFAULT_Y_WIDTH;
+        }
         sanityCheckThumbnailSizes(sizeX, sizeY);
 
         Thumbnail thumb = getThumbnailMetadata(sizeX, sizeY);
-        if (thumb == null)
+        if (thumb == null) {
             return false;
+        }
         return true;
     }
 }

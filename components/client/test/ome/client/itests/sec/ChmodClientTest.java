@@ -1,20 +1,11 @@
 package ome.client.itests.sec;
 
-import javax.ejb.EJBException;
-
 import org.testng.annotations.*;
 
-import junit.framework.TestCase;
-
-import ome.api.IQuery;
-import ome.api.IUpdate;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
@@ -85,11 +76,13 @@ public class ChmodClientTest extends AbstractChangeDetailClientTest {
             i = factory.getUpdateService().saveAndReturnObject(i);
 
             factory2.getAdminService().changePermissions(i, target);
-            if (!ok)
+            if (!ok) {
                 fail("secvio!");
+            }
         } catch (SecurityViolation sv) {
-            if (ok)
+            if (ok) {
                 throw sv;
+            }
         }
 
         // via Details
@@ -101,11 +94,13 @@ public class ChmodClientTest extends AbstractChangeDetailClientTest {
 
             i.getDetails().setPermissions(target);
             factory2.getUpdateService().saveObject(i);
-            if (!ok)
+            if (!ok) {
                 fail("secvio!");
+            }
         } catch (SecurityViolation sv) {
-            if (ok)
+            if (ok) {
                 throw sv;
+            }
         }
     }
 

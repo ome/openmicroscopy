@@ -32,6 +32,7 @@ public class ReverseIntensityContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#buildContext()
      */
+    @Override
     void buildContext() {
     }
 
@@ -40,6 +41,7 @@ public class ReverseIntensityContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#getCodomainMap()
      */
+    @Override
     CodomainMap getCodomainMap() {
         return new ReverseIntensityMap();
     }
@@ -49,6 +51,7 @@ public class ReverseIntensityContext extends CodomainMapContext {
      * 
      * @see CodomainMapContext#copy()
      */
+    @Override
     public CodomainMapContext copy() {
         ReverseIntensityContext copy = new ReverseIntensityContext();
         copy.intervalEnd = intervalEnd;

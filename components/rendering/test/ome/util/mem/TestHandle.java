@@ -34,6 +34,7 @@ public class TestHandle extends TestCase {
 
     private MockBody body; // Mock to play the Body role.
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         handle = new SimpleHandle();

@@ -28,8 +28,6 @@ import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
-import ome.annotations.NotNull;
-import ome.api.IPixels;
 import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
@@ -40,7 +38,6 @@ import ome.logic.AbstractBean;
 import ome.model.core.OriginalFile;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
-import omeis.providers.re.RenderingEngine;
 
 /**
  * Raw file gateway which provides access to the OMERO file repository.
@@ -61,6 +58,11 @@ import omeis.providers.re.RenderingEngine;
 @SecurityDomain("OmeroSecurity")
 public class RawFileBean extends AbstractBean implements RawFileStore,
         Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -450924529925301925L;
+
     /** The id of the original files instance. */
     private Long id;
 
@@ -113,6 +115,7 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
      * 
      * @see ome.logic.AbstractBean#create()
      */
+    @Override
     @PostConstruct
     @PostActivate
     public void create() {
@@ -129,6 +132,7 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
      * 
      * @see ome.logic.AbstractBean#destroy()
      */
+    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
@@ -137,8 +141,9 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
         ioService = null;
         file = null;
         try {
-            if (buffer != null)
+            if (buffer != null) {
                 buffer.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new ResourceError(e.getMessage());
@@ -177,8 +182,9 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
             id = new Long(fileId);
             file = null;
             try {
-                if (buffer != null)
+                if (buffer != null) {
                     buffer.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new ResourceError(e.getMessage());

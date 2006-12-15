@@ -99,12 +99,13 @@ public abstract class QuantumStrategy {
         String value = family.getValue();
         verifyFamily(value);
         if (value.equals(QuantumFactory.LINEAR)
-                || value.equals(QuantumFactory.POLYNOMIAL))
+                || value.equals(QuantumFactory.POLYNOMIAL)) {
             valueMapper = new PolynomialMap();
-        else if (value.equals(QuantumFactory.LOGARITHMIC))
+        } else if (value.equals(QuantumFactory.LOGARITHMIC)) {
             valueMapper = new LogarithmicMap();
-        else if (value.equals(QuantumFactory.EXPONENTIAL))
+        } else if (value.equals(QuantumFactory.EXPONENTIAL)) {
             valueMapper = new ExponentialMap();
+        }
     }
 
     /**
@@ -118,9 +119,10 @@ public abstract class QuantumStrategy {
         if (!value.equals(QuantumFactory.LINEAR)
                 && !value.equals(QuantumFactory.LOGARITHMIC)
                 && !value.equals(QuantumFactory.EXPONENTIAL)
-                && !value.equals(QuantumFactory.POLYNOMIAL))
+                && !value.equals(QuantumFactory.POLYNOMIAL)) {
             throw new IllegalArgumentException("Unsupported family type: '"
                     + value + "'");
+        }
     }
 
     /**
@@ -139,22 +141,27 @@ public abstract class QuantumStrategy {
         if (min <= max) {
             double range = max - min;
             if (PlaneFactory.in(type, new String[] { "int8", "uint8" })) {
-                if (range < 0x100)
+                if (range < 0x100) {
                     b = true;
+                }
             } else if (PlaneFactory
                     .in(type, new String[] { "int16", "uint16" })) {
-                if (range < 0x10000)
+                if (range < 0x10000) {
                     b = true;
+                }
             } else if (PlaneFactory
                     .in(type, new String[] { "int32", "uint32" })) {
-                if (range < 0x100000000L)
+                if (range < 0x100000000L) {
                     b = true;
+                }
             } else if (PlaneFactory
-                    .in(type, new String[] { "float", "double" }))
+                    .in(type, new String[] { "float", "double" })) {
                 b = true;
+            }
         }
-        if (!b)
+        if (!b) {
             throw new IllegalArgumentException("Pixel interval not supported");
+        }
     }
 
     /**
@@ -169,11 +176,13 @@ public abstract class QuantumStrategy {
         windowEnd = globalMax = 1.0;
         family = QuantumFactory.getFamily(iPixels, QuantumFactory.LINEAR);
         curveCoefficient = 1.0;
-        if (qd == null)
+        if (qd == null) {
             throw new NullPointerException("No quantum definition");
+        }
         this.qDef = qd;
-        if (pt == null)
+        if (pt == null) {
             throw new NullPointerException("No pixel type");
+        }
         this.type = pt;
     }
 
@@ -202,12 +211,14 @@ public abstract class QuantumStrategy {
      *            The upper bound of the interval.
      */
     public void setWindow(double start, double end) {
-        if (start < globalMin)
+        if (start < globalMin) {
             throw new IllegalArgumentException("'" + start
                     + " less than global minimum: '" + globalMin + "'");
-        if (globalMax < end)
+        }
+        if (globalMax < end) {
             throw new IllegalArgumentException("'" + end
                     + " greater than global maximum: '" + globalMax + "'");
+        }
         verifyInterval(start, end);
         windowStart = start;
         windowEnd = end;
@@ -273,8 +284,9 @@ public abstract class QuantumStrategy {
     double getGlobalMin() {
         // needed b/c of float value
         double d = globalMin - Math.floor(globalMin);
-        if (d != 0)
+        if (d != 0) {
             globalMin = Math.floor(globalMin);
+        }
         return globalMin;
     }
 

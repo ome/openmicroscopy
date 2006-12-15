@@ -147,6 +147,11 @@ public class PermissionsTest extends TestCase {
     // =========================================================================
 
     private static class Perms extends Permissions {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = -181330578094652586L;
+
         public long toLong() {
             return super.getPerm1();
         }
@@ -390,7 +395,7 @@ public class PermissionsTest extends TestCase {
         Perms pp = new Perms().revoke(role, right);
         long l = pp.toLong();
         System.out.println(l + ":" + Long.toBinaryString(l));
-        long bit = (long) Perms.bit(role, right);
+        long bit = Perms.bit(role, right);
         System.out.println(bit + ":" + Long.toBinaryString(bit));
         assertTrue((l ^ bit) == -1L);
 

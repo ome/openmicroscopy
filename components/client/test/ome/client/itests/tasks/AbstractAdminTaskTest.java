@@ -9,14 +9,8 @@ package ome.client.itests.tasks;
 
 import org.testng.annotations.*;
 
-import java.util.Properties;
-import java.util.UUID;
-
 import ome.system.Login;
 import ome.system.ServiceFactory;
-import ome.util.tasks.Run;
-import ome.util.tasks.admin.AddUserTask;
-
 import junit.framework.TestCase;
 
 @Test(groups = { "client", "integration" })

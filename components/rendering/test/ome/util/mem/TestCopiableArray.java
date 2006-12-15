@@ -35,6 +35,7 @@ public class TestCopiableArray extends TestCase {
 
     private MockBody element; // Mock to play the element role.
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         copiableArray = new SimpleCopiableArray(SIZE);
@@ -87,8 +88,9 @@ public class TestCopiableArray extends TestCase {
 
     @Test
     public void testSetAndGet() {
-        for (int i = 0; i < copiableArray.getSize(); i++)
+        for (int i = 0; i < copiableArray.getSize(); i++) {
             copiableArray.set(element, i);
+        }
         for (int i = 0; i < copiableArray.getSize(); i++) {
             assertEquals("Wrong Copiable", element, copiableArray.get(i));
             assertNotNull(copiableArray.get(i));
@@ -105,8 +107,9 @@ public class TestCopiableArray extends TestCase {
             copiableArray.set(mb, i);
             array.set(mb, i);
         }
-        for (int i = 0; i < copiableArray.getSize(); i++)
+        for (int i = 0; i < copiableArray.getSize(); i++) {
             assertSame("Wrong Copiable", array.get(i), copiableArray.get(i));
+        }
     }
 
     @Test

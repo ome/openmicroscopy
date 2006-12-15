@@ -3,7 +3,6 @@ package ome.model.utests;
 import org.testng.annotations.*;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +26,7 @@ public class LoadingUnloadingTest extends TestCase {
 
     Pixels pix;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         p = new Project();
@@ -48,6 +48,7 @@ public class LoadingUnloadingTest extends TestCase {
     @Test
     public void test_model_mapping_events() throws Exception {
         ModelMapper m = new ModelMapper() {
+            @Override
             protected Map c2c() {
                 return new HashMap();
             }
@@ -81,11 +82,13 @@ public class LoadingUnloadingTest extends TestCase {
             String field = (String) it.next();
             try {
                 p.retrieve(field);
-                if (!Project.ID.equals(field))
+                if (!Project.ID.equals(field)) {
                     fail("Should have thrown an exception on:" + field);
+                }
             } catch (IllegalStateException stateExc) {
-                if (Project.ID.equals(field))
+                if (Project.ID.equals(field)) {
                     fail("Should NOT throw an exception on id");
+                }
             }
 
         }

@@ -48,15 +48,16 @@ class SetValues implements Filter {
     }
 
     public Filterable filter(String fieldId, Filterable f) {
-        if (f == null)
+        if (f == null) {
             return null;
+        }
         if (Details.class.isAssignableFrom(f.getClass())) {
             target.putAt(fieldId, ((Details) f).shallowCopy());
         }
 
         else if (IObject.class.isAssignableFrom(f.getClass())) {
             IObject old = (IObject) f;
-            IObject iobj = (IObject) ShallowCopy.reflectiveNewInstance(old);
+            IObject iobj = ShallowCopy.reflectiveNewInstance(old);
             iobj.setId(old.getId());
             iobj.unload();
             target.putAt(fieldId, iobj);
@@ -105,8 +106,9 @@ class StoreValues implements Filter {
     public Map values = new HashMap();
 
     public Filterable filter(String fieldId, Filterable f) {
-        if (f == null)
+        if (f == null) {
             return null;
+        }
         if (Details.class.isAssignableFrom(f.getClass())) {
             values.put(fieldId, ((Details) f).shallowCopy());
         }

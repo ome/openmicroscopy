@@ -150,6 +150,7 @@ class GreyScaleStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBBuffer render(Renderer ctx, PlaneDef planeDef) throws IOException,
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -174,6 +175,7 @@ class GreyScaleStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
      */
+    @Override
     RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
             throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
@@ -240,6 +242,7 @@ class GreyScaleStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getImageSize(PlaneDef, Pixels)
      */
+    @Override
     int getImageSize(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 * sizeX2 * 3;
@@ -250,6 +253,7 @@ class GreyScaleStrategy extends RenderingStrategy {
      * 
      * @see RenderingStrategy#getPlaneDimsAsString(PlaneDef, Pixels)
      */
+    @Override
     String getPlaneDimsAsString(PlaneDef pd, Pixels pixels) {
         initAxesSize(pd, pixels);
         return sizeX1 + "x" + sizeX2;

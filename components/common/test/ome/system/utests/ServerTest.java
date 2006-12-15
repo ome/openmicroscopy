@@ -1,10 +1,7 @@
 package ome.system.utests;
 
 import org.testng.annotations.*;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-
 import ome.conditions.ApiUsageException;
 import ome.system.Server;
 

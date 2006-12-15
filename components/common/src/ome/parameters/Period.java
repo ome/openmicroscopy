@@ -41,9 +41,10 @@ public class Period {
     }
 
     public Period add(String field) {
-        if (null == field)
+        if (null == field) {
             throw new ApiUsageException(
                     "Field name argument to addOrder cannot be null.");
+        }
         m_order.add(field);
         return this;
     }

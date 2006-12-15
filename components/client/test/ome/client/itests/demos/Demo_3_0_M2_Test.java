@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.*;
 
@@ -14,7 +13,6 @@ import junit.framework.TestCase;
 
 import ome.api.IQuery;
 import ome.api.IUpdate;
-import ome.api.RawPixelsStore;
 import ome.model.core.Pixels;
 import ome.model.enums.RenderingModel;
 import ome.model.meta.Experimenter;

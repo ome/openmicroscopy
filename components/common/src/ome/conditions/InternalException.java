@@ -25,6 +25,11 @@ import javax.ejb.ApplicationException;
 @ApplicationException
 public class InternalException extends RootException {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2866954105868569561L;
+
     public InternalException(String msg) {
         super(msg);
     }

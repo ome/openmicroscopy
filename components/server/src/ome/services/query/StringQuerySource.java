@@ -42,6 +42,7 @@ public class StringQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(StringQuerySource.class);
 
+    @Override
     public Query lookup(String queryID, Parameters parameters) {
         Parameters p = new Parameters(parameters);
         p.addString(StringQuery.STRING, queryID);

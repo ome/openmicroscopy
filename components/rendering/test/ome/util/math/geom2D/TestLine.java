@@ -273,9 +273,10 @@ public class TestLine extends TestCase {
         PlanePoint p = new PlanePoint(500, -30000), q = new PlanePoint(0, 0);
         Line r = new Line(p, q);
         int h = r.hashCode();
-        for (int i = 0; i < MAX_ITER; ++i)
+        for (int i = 0; i < MAX_ITER; ++i) {
             assertEquals("Should return same value across different calls.", h,
                     r.hashCode());
+        }
     }
 
     @Test

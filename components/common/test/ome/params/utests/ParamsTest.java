@@ -3,9 +3,7 @@ package ome.params.utests;
 import org.testng.annotations.*;
 import junit.framework.TestCase;
 
-import ome.conditions.ValidationException;
 import ome.parameters.Filter;
-import ome.parameters.Page;
 import ome.parameters.Parameters;
 
 public class ParamsTest extends TestCase {

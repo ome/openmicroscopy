@@ -10,7 +10,6 @@ package ome.tools.hibernate;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -26,9 +25,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.hibernate3.HibernateInterceptor;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -52,8 +49,9 @@ class SessionStatus {
     Session session;
 
     SessionStatus(Session session) {
-        if (null == session)
+        if (null == session) {
             throw new IllegalArgumentException("No null sessions.");
+        }
 
         this.session = session;
     }
@@ -133,12 +131,13 @@ public class SessionHandler implements MethodInterceptor {
         if (TransactionSynchronizationManager.hasResource(factory)) {
             SessionHolder holder = (SessionHolder) TransactionSynchronizationManager
                     .getResource(factory);
-            if (holder == null)
+            if (holder == null) {
                 throw new IllegalStateException("Can't be null.");
-            else if (holder == DUMMY)
+            } else if (holder == DUMMY) {
                 TransactionSynchronizationManager.unbindResource(factory);
-            else
+            } else {
                 throw new IllegalStateException("Thread corrupted.");
+            }
         }
     }
 
@@ -291,12 +290,14 @@ public class SessionHandler implements MethodInterceptor {
         // If we reach this point, it's ok to bind the new SessionHolder,
         // however the DUMMY EmptySessionHolder may be present so unbind
         // just in case.
-        if (TransactionSynchronizationManager.hasResource(factory))
+        if (TransactionSynchronizationManager.hasResource(factory)) {
             TransactionSynchronizationManager.unbindResource(factory);
+        }
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
-        if (!TransactionSynchronizationManager.isSynchronizationActive())
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             throw new InternalException("Synchronization not active for "
                     + "TransactionSynchronizationManager");
+        }
     }
 
     private Session nullOrSessionBoundToThread() {
@@ -306,8 +307,9 @@ public class SessionHandler implements MethodInterceptor {
                     .getResource(factory);
             // A bit tricky. Works in coordinate with resetThreadSession
             // since the DUMMY would be replaced anyway.
-            if (holder != null && holder.isEmpty())
+            if (holder != null && holder.isEmpty()) {
                 holder = null;
+            }
         }
         return holder == null ? null : holder.getSession();
     }
@@ -327,8 +329,9 @@ public class SessionHandler implements MethodInterceptor {
     }
 
     private void debug(String message) {
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()) {
             log.debug(message);
+        }
     }
 
 }

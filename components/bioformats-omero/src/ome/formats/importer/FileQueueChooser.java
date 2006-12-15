@@ -37,7 +37,7 @@ public class FileQueueChooser extends JFileChooser {
 
     FileQueueChooser() {
 
-        if (savedDirectory.equals("") || !(new File(savedDirectory).exists())) {
+        if (savedDirectory.equals("") || !new File(savedDirectory).exists()) {
             this.setCurrentDirectory(this.getFileSystemView()
                     .getHomeDirectory());
         } else {
@@ -69,10 +69,12 @@ public class FileQueueChooser extends JFileChooser {
             combo = new ComboFileFilter(ff, "All supported file types");
             addChoosableFileFilter(combo);
         }
-        for (int i = 0; i < ff.length; i++)
+        for (int i = 0; i < ff.length; i++) {
             this.addChoosableFileFilter(ff[i]);
-        if (combo != null)
+        }
+        if (combo != null) {
             this.setFileFilter(combo);
+        }
 
         // Retrieve all JLists and JTables from the fileChooser
         fileListObjects = getFileListObjects(this);
@@ -94,7 +96,7 @@ public class FileQueueChooser extends JFileChooser {
         Stack<Component> s = new Stack<Component>();
         s.push(fc);
         while (!s.isEmpty()) {
-            Component c = (Component) s.pop();
+            Component c = s.pop();
 
             if (c instanceof Container) {
                 Container d = (Container) c;
@@ -102,14 +104,16 @@ public class FileQueueChooser extends JFileChooser {
 
                     if (d.getComponent(i) instanceof JTable) {
                         v.add(d.getComponent(i));
-                    } else
+                    } else {
                         s.push(d.getComponent(i));
+                    }
                 }
             }
         }
         Component[] arr = new Component[v.size()];
-        for (int i = 0; i < arr.length; i++)
+        for (int i = 0; i < arr.length; i++) {
             arr[i] = v.get(i);
+        }
 
         return arr;
     }
@@ -121,8 +125,9 @@ public class FileQueueChooser extends JFileChooser {
             Object src = evt.getSource();
 
             if (src == fileList) {
-                if (evt.getModifiers() != InputEvent.BUTTON1_MASK)
+                if (evt.getModifiers() != InputEvent.BUTTON1_MASK) {
                     return;
+                }
                 File[] arr = getSelectedFiles();
                 if (evt.getClickCount() > 1 && arr.length == 1
                         && arr[0].isFile()) {

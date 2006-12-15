@@ -41,9 +41,10 @@ public class AbstractFileSystemService {
 
         File rootDirectory = new File(this.root);
         if (!rootDirectory.isDirectory() || !rootDirectory.canRead()
-                || !rootDirectory.canWrite())
+                || !rootDirectory.canWrite()) {
             throw new IllegalArgumentException(
                     "Invalid directory specified for file system service.");
+        }
     }
 
     /**
@@ -58,8 +59,9 @@ public class AbstractFileSystemService {
         File file = new File(path);
         if (!file.exists()) {
             File directory = new File(file.getParent());
-            if (!directory.exists())
+            if (!directory.exists()) {
                 directory.mkdirs();
+            }
         }
     }
 
@@ -80,8 +82,9 @@ public class AbstractFileSystemService {
         Long remaining = id;
         Long dirno = 0L;
 
-        if (id == null)
+        if (id == null) {
             throw new NullPointerException("Expecting a not-null id.");
+        }
 
         while (remaining > 999) {
             remaining /= 1000;

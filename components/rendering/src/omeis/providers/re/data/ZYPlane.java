@@ -48,6 +48,7 @@ class ZYPlane extends Plane2D {
      * 
      * @see Plane2D#calculateOffset(int, int)
      */
+    @Override
     protected int calculateOffset(int x1, int x2) {
         return bytesPerPixel
                 * (x1 * sizeX * sizeY + sizeX * x2 + planeDef.getX());

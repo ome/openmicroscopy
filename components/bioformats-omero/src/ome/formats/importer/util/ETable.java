@@ -18,6 +18,11 @@ import javax.swing.table.*;
  * @author Elliott Hughes
  */
 public class ETable extends JTable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4670371770167527212L;
+
     private static final Color MAC_FOCUSED_SELECTED_CELL_HORIZONTAL_LINE_COLOR = new Color(
             0x7daaea);
 
@@ -143,6 +148,7 @@ public class ETable extends JTable {
     /**
      * Paints empty rows too, after letting the UI delegate do its painting.
      */
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         paintEmptyRows(g);
@@ -183,10 +189,11 @@ public class ETable extends JTable {
      * behavior of JList, which expands to fill the available space. JTable
      * normally restricts its size to just what's needed by its model.
      */
+    @Override
     public boolean getScrollableTracksViewportHeight() {
         if (getParent() instanceof JViewport) {
             JViewport parent = (JViewport) getParent();
-            return (parent.getHeight() > getPreferredSize().height);
+            return parent.getHeight() > getPreferredSize().height;
         }
         return false;
     }
@@ -195,7 +202,7 @@ public class ETable extends JTable {
      * Returns the appropriate background color for the given row.
      */
     protected Color colorForRow(int row) {
-        return (row % 2 == 0) ? alternateRowColor() : getBackground();
+        return row % 2 == 0 ? alternateRowColor() : getBackground();
     }
 
     private Color alternateRowColor() {
@@ -205,6 +212,7 @@ public class ETable extends JTable {
     /**
      * Shades alternate rows in different colors.
      */
+    @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row,
             int column) {
         Component c = super.prepareRenderer(renderer, row, column);

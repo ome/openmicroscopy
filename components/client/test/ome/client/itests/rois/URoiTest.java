@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.*;
 
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +22,9 @@ import ome.model.core.Pixels;
 import ome.model.enums.OverlayType;
 import ome.model.enums.RegionType;
 import ome.model.meta.Experimenter;
-import ome.model.uroi.BoundingBox;
 import ome.model.uroi.Overlay;
 import ome.model.uroi.Region;
 import ome.model.uroi.URoi;
-import ome.model.uroi.UShape;
 import ome.model.uroi.USlice;
 import ome.model.uroi.USquare;
 import ome.model.uroi.XY;
@@ -112,7 +109,7 @@ public class URoiTest extends TestCase {
             }
         }
 
-        up.saveArray((Region[]) l.toArray(new Region[l.size()]));
+        up.saveArray(l.toArray(new Region[l.size()]));
 
     }
 

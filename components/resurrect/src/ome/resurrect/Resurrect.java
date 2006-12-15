@@ -68,15 +68,18 @@ public class Resurrect {
         table.addListener(SWT.Selection,
                 new org.eclipse.swt.widgets.Listener() {
                     public void handleEvent(org.eclipse.swt.widgets.Event ev) {
-                        if (ev.detail == SWT.CHECK)
+                        if (ev.detail == SWT.CHECK) {
                             System.out.println(ev.item + " checked");
+                        }
                     }
                 });
         shell.setSize(200, 300);
         shell.open();
-        while (!shell.isDisposed())
-            if (!display.readAndDispatch())
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
                 display.sleep();
+            }
+        }
         display.dispose();
     }
 

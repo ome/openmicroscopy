@@ -2,44 +2,29 @@ package ome.client.itests;
 
 import org.testng.annotations.*;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
 
 import ome.api.IAdmin;
-import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotation;
-import ome.model.annotations.ImageAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
-import ome.model.core.Pixels;
-import ome.model.core.PlaneInfo;
 import ome.model.enums.Format;
-import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.parameters.Parameters;
-import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.ServiceFactory;
-import ome.testing.ObjectFactory;
 import ome.util.builders.PojoOptions;
-import pojos.ImageData;
 
 @Test(groups = { "client", "integration" })
 public class TicketsUpTo1000Test extends TestCase {

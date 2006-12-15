@@ -3,37 +3,19 @@ package ome.client.itests;
 //Java imports
 import org.testng.annotations.*;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-
 import junit.framework.TestCase;
 
 //Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-
 //Application-internal dependencies
 import ome.api.RawPixelsStore;
 import ome.client.ConfigurableJndiObjectFactoryBean;
-import ome.system.Login;
-import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 

@@ -116,12 +116,15 @@ public class LoginHandler {
         server = dialog.server;
         port = dialog.port;
 
-        if (username != null)
+        if (username != null) {
             userPrefs.put("username", username);
-        if (server != null)
+        }
+        if (server != null) {
             userPrefs.put("server", server);
-        if (port != null)
+        }
+        if (port != null) {
             userPrefs.put("port", port);
+        }
     }
 
     private boolean isValidLogin() throws Exception {

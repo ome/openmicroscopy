@@ -7,14 +7,6 @@
 
 package ome.api;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import javax.annotation.security.RolesAllowed;
-
-import ome.annotations.NotNull;
-import ome.conditions.ResourceError;
-
 /**
  * Raw file gateway which provides access to the OMERO file repository.
  * 

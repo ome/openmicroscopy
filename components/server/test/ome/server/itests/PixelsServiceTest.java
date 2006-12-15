@@ -26,8 +26,6 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.RenderingModel;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
-import ome.system.OmeroContext;
-import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
@@ -50,11 +48,13 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
     // =========================================================================
     // ~ Testng Adapter
     // =========================================================================
+    @Override
     @Configuration(beforeTestMethod = true)
     public void adaptSetUp() throws Exception {
         super.setUp();
     }
 
+    @Override
     @Configuration(afterTestMethod = true)
     public void adaptTearDown() throws Exception {
         super.tearDown();
@@ -85,7 +85,7 @@ public class PixelsServiceTest extends AbstractManagedContextTest {
         Pixels p = pix.retrievePixDescription(1L);
         assertNotNull(p);
         RenderingDef r = makeRndDef(p);
-        r = (RenderingDef) iUpdate.saveAndReturnObject(r);
+        r = iUpdate.saveAndReturnObject(r);
 
         RenderingDef test = pix.retrieveRndSettings(1L);
         assertNotNull(test);

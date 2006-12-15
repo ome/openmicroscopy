@@ -74,7 +74,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(d, 0);
             assertEquals("Wrong point [i = " + i + "].", p, r.getPoint(d));
         }
@@ -86,7 +86,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(0, d);
             assertEquals("Wrong point [i = " + i + "].", p, r.getPoint(d));
         }
@@ -98,7 +98,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(d, 1);
             assertEquals("Wrong point [i = " + i + "].", p, r.getPoint(d));
         }
@@ -110,7 +110,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(1, d);
             assertEquals("Wrong point [i = " + i + "].", p, r.getPoint(d));
         }
@@ -134,7 +134,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(d, 1);
             assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
             p = new PlanePoint(d, 0);
@@ -148,7 +148,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(1, d);
             assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
             p = new PlanePoint(d, 0);
@@ -162,7 +162,7 @@ public class TestSegment extends TestCase {
         Segment r = new Segment(o, p);
         double d;
         for (int i = 1; i < INTERVAL; ++i) {
-            d = ((double) i) / INTERVAL;
+            d = (double) i / INTERVAL;
             p = new PlanePoint(d, d);
             assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
             p = new PlanePoint(d, 0);
@@ -188,9 +188,10 @@ public class TestSegment extends TestCase {
         PlanePoint p = new PlanePoint(500, -30000), q = new PlanePoint(0, 0);
         Segment r = new Segment(p, q);
         int h = r.hashCode();
-        for (int i = 0; i < MAX_ITER; ++i)
+        for (int i = 0; i < MAX_ITER; ++i) {
             assertEquals("Should return same value across different calls.", h,
                     r.hashCode());
+        }
     }
 
     @Test

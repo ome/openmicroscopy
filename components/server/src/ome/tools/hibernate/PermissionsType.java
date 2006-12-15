@@ -10,10 +10,8 @@ import java.util.Properties;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.usertype.EnhancedUserType;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
-import org.hibernate.usertype.UserVersionType;
 
 //CompositeUserType, EnhancedUserType, UserCollectionType, UserVersionType
 //org.hibernate.usertype.ParameterizedType
@@ -40,8 +38,9 @@ public class PermissionsType implements UserType, ParameterizedType {
     public Object nullSafeGet(ResultSet arg0, String[] arg1, Object arg2)
             throws HibernateException, SQLException {
         byte[] list = (byte[]) Hibernate.BINARY.nullSafeGet(arg0, arg1[0]);
-        if (list == null)
+        if (list == null) {
             return new byte[] {}; // TODO
+        }
         return list;
     }
 
@@ -55,8 +54,9 @@ public class PermissionsType implements UserType, ParameterizedType {
     }
 
     public Object deepCopy(Object arg0) throws HibernateException {
-        if (arg0 == null)
+        if (arg0 == null) {
             return null;
+        }
         int l = ((byte[]) arg0).length;
         byte[] newBits = new byte[l];
         System.arraycopy(arg0, 0, newBits, 0, l);
@@ -73,12 +73,12 @@ public class PermissionsType implements UserType, ParameterizedType {
 
     public Object assemble(Serializable arg0, Object arg1)
             throws HibernateException {
-        return (Serializable) deepCopy(arg0);
+        return deepCopy(arg0);
     }
 
     public Object replace(Object arg0, Object arg1, Object arg2)
             throws HibernateException {
-        return (Serializable) deepCopy(arg0);
+        return deepCopy(arg0);
     }
 
     public void setParameterValues(Properties params) {

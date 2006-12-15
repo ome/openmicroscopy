@@ -29,7 +29,6 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
-import ome.model.stats.StatsInfo;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -156,12 +155,13 @@ public class Renderer {
         buffer = bufferObj;
         this.iPixels = iPixels;
 
-        if (metadata == null)
+        if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
-        else if (rndDef == null)
+        } else if (rndDef == null) {
             throw new NullPointerException("Expecting not null rndDef");
-        else if (buffer == null)
+        } else if (buffer == null) {
             throw new NullPointerException("Expecting not null buffer");
+        }
 
         // Create and configure the quantum strategies.
         QuantumDef qd = rndDef.getQuantization();
@@ -275,8 +275,9 @@ public class Renderer {
      */
     public RGBBuffer render(PlaneDef pd) throws IOException,
             QuantizationException {
-        if (pd == null)
+        if (pd == null) {
             throw new NullPointerException("No plane definition.");
+        }
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -309,8 +310,9 @@ public class Renderer {
      */
     public int[] renderAsPackedInt(PlaneDef pd) throws IOException,
             QuantizationException {
-        if (pd == null)
+        if (pd == null) {
             throw new NullPointerException("No plane definition.");
+        }
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -339,8 +341,9 @@ public class Renderer {
      *             If <code>pd</code> is <code>null</code>.
      */
     public int getImageSize(PlaneDef pd) {
-        if (pd == null)
+        if (pd == null) {
             throw new NullPointerException("No plane definition.");
+        }
         return renderingStrategy.getImageSize(pd, metadata);
     }
 
@@ -362,8 +365,9 @@ public class Renderer {
      *             If <code>pd</code> is <code>null</code>.
      */
     public String getPlaneDimsAsString(PlaneDef pd) {
-        if (pd == null)
+        if (pd == null) {
             throw new NullPointerException("No plane definition.");
+        }
         return renderingStrategy.getPlaneDimsAsString(pd, metadata);
     }
 
@@ -455,8 +459,9 @@ public class Renderer {
      */
     private static void computeLocationStats(Pixels pixels,
             List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
-        if (planeDef == null)
+        if (planeDef == null) {
             throw new NullPointerException("No plane definition.");
+        }
         StatsFactory sf = new StatsFactory();
 
         int w = 0;
@@ -627,10 +632,11 @@ public class Renderer {
 
             // If we have more than one channel set each of the first three
             // active, otherwise only activate the first.
-            if (i < 3)
+            if (i < 3) {
                 channelBinding.setActive(true);
-            else
+            } else {
                 channelBinding.setActive(false);
+            }
 
             channelBinding.setColor(ColorsFactory.getColor(i, channel));
             channelBinding.setNoiseReduction(false);
@@ -656,8 +662,9 @@ public class Renderer {
 
         // Remove all the codomainMapCtx except the identity. (Also keeping up
         // with rendering engine state)
-        if (getCodomainChain() != null)
+        if (getCodomainChain() != null) {
             getCodomainChain().remove();
+        }
 
         // Save the rendering definition to the database.
         iPixels.saveRndSettings(rndDef);
@@ -725,8 +732,9 @@ public class Renderer {
      */
     private static List<ChannelBinding> createNewChannelBindings(Pixels p) {
         ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
-        for (int i = 0; i < p.getSizeC(); i++)
+        for (int i = 0; i < p.getSizeC(); i++) {
             cbs.add(new ChannelBinding());
+        }
         return cbs;
     }
 }

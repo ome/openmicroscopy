@@ -47,30 +47,35 @@ public class PixelBuffer extends AbstractBuffer {
 
     PixelBuffer(String path, Pixels pixels) {
         super(path);
-        if (pixels == null)
+        if (pixels == null) {
             throw new NullPointerException(
                     "Expecting a not-null pixels element.");
+        }
 
         this.pixels = pixels;
     }
 
     private void checkBounds(Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        if (y != null && (y > getSizeY() - 1 || y < 0))
+        if (y != null && (y > getSizeY() - 1 || y < 0)) {
             throw new DimensionsOutOfBoundsException("Y '" + y
                     + "' greater than height '" + getSizeY() + "'.");
+        }
 
-        if (z != null && (z > getSizeZ() - 1 || z < 0))
+        if (z != null && (z > getSizeZ() - 1 || z < 0)) {
             throw new DimensionsOutOfBoundsException("Z '" + z
                     + "' greater than height '" + getSizeZ() + "'.");
+        }
 
-        if (c != null && (c > getSizeC() - 1 || c < 0))
+        if (c != null && (c > getSizeC() - 1 || c < 0)) {
             throw new DimensionsOutOfBoundsException("C '" + c
                     + "' greater than height '" + getSizeC() + "'.");
+        }
 
-        if (t != null && (t > getSizeT() - 1 || t < 0))
+        if (t != null && (t > getSizeT() - 1 || t < 0)) {
             throw new DimensionsOutOfBoundsException("T '" + t
                     + "' greater than height '" + getSizeT() + "'.");
+        }
     }
 
     private FileChannel getFileChannel() throws FileNotFoundException {
@@ -96,36 +101,41 @@ public class PixelBuffer extends AbstractBuffer {
     }
 
     public Integer getPlaneSize() {
-        if (planeSize == null)
+        if (planeSize == null) {
             planeSize = getSizeX() * getSizeY() * getByteWidth();
+        }
 
         return planeSize;
     }
 
     public Integer getRowSize() {
-        if (rowSize == null)
+        if (rowSize == null) {
             rowSize = getSizeX() * getByteWidth();
+        }
 
         return rowSize;
     }
 
     public Integer getStackSize() {
-        if (stackSize == null)
+        if (stackSize == null) {
             stackSize = getPlaneSize() * getSizeZ();
+        }
 
         return stackSize;
     }
 
     public Integer getTimepointSize() {
-        if (timepointSize == null)
+        if (timepointSize == null) {
             timepointSize = getStackSize() * getSizeC();
+        }
 
         return timepointSize;
     }
 
     public Integer getTotalSize() {
-        if (totalSize == null)
+        if (totalSize == null) {
             totalSize = getTimepointSize() * getSizeT();
+        }
 
         return totalSize;
     }
@@ -139,8 +149,8 @@ public class PixelBuffer extends AbstractBuffer {
         Integer stackSize = getStackSize();
         Integer planeSize = getPlaneSize();
 
-        return ((long) rowSize * y) + ((long) timepointSize * t)
-                + ((long) stackSize * c) + ((long) planeSize * z);
+        return (long) rowSize * y + (long) timepointSize * t
+                + (long) stackSize * c + (long) planeSize * z;
     }
 
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
@@ -151,8 +161,8 @@ public class PixelBuffer extends AbstractBuffer {
         Integer stackSize = getStackSize();
         Integer planeSize = getPlaneSize();
 
-        return ((long) timepointSize * t) + ((long) stackSize * c)
-                + ((long) planeSize * z);
+        return (long) timepointSize * t + (long) stackSize * c
+                + (long) planeSize * z;
     }
 
     public Long getStackOffset(Integer c, Integer t)
@@ -162,7 +172,7 @@ public class PixelBuffer extends AbstractBuffer {
         Integer timepointSize = getTimepointSize();
         Integer stackSize = getStackSize();
 
-        return ((long) timepointSize * t) + ((long) stackSize * c);
+        return (long) timepointSize * t + (long) stackSize * c;
     }
 
     public Long getTimepointOffset(Integer t)
@@ -171,7 +181,7 @@ public class PixelBuffer extends AbstractBuffer {
 
         Integer timepointSize = getTimepointSize();
 
-        return ((long) timepointSize * t);
+        return (long) timepointSize * t;
     }
 
     public MappedByteBuffer getRegion(Integer size, Long offset)
@@ -203,9 +213,11 @@ public class PixelBuffer extends AbstractBuffer {
 
         byte[] nullPlane = PixelsService.nullPlane;
 
-        for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++)
-            if (region.get(i) != nullPlane[i])
+        for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++) {
+            if (region.get(i) != nullPlane[i]) {
                 return region;
+            }
+        }
 
         return null; // All of the nullPlane bytes match, non-filled plane
     }

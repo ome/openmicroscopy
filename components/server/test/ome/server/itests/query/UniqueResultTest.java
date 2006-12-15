@@ -229,7 +229,7 @@ public class UniqueResultTest extends AbstractManagedContextTest {
     // ~ Private helpers
     // =========================================================================
     private Project getProject() {
-        Project p = (Project) iQuery.findAll(Project.class,
+        Project p = iQuery.findAll(Project.class,
                 new Filter().page(0, 1)).get(0);
         return p;
     }
@@ -260,8 +260,9 @@ public class UniqueResultTest extends AbstractManagedContextTest {
 
     private Query query(boolean unique) {
         Filter f = new Filter();
-        if (unique)
+        if (unique) {
             f.unique();
+        }
 
         Query q = factory().lookup("select p from Project p where p.id = :id",
                 new Parameters().addId(getProject().getId()).setFilter(f));

@@ -59,8 +59,9 @@ public abstract class Version {
      * @return Integer value of {@link RevisionNumber#value()}
      */
     public static Integer getRevision(Class klass) {
-        if (klass == null)
+        if (klass == null) {
             return null;
+        }
         RevisionNumber rev = (RevisionNumber) klass
                 .getAnnotation(RevisionNumber.class);
         if (rev != null && rev.value() != null) {
@@ -84,8 +85,9 @@ public abstract class Version {
      * @return Date value of {@link RevisionDate#value()}
      */
     public static Date getDate(Class klass) {
-        if (klass == null)
+        if (klass == null) {
             return null;
+        }
         RevisionDate rev = (RevisionDate) klass
                 .getAnnotation(RevisionDate.class);
         if (rev != null && rev.value() != null) {

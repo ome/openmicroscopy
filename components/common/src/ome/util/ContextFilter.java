@@ -204,8 +204,9 @@ public class ContextFilter implements Filter {
     }
 
     public Object previousContext(int index) {
-        if (index < 0 || index >= _context.size())
+        if (index < 0 || index >= _context.size()) {
             return null;
+        }
         return _context.get(_context.size() - index - 1);
     }
 
@@ -239,6 +240,7 @@ public class ContextFilter implements Filter {
 
         Object value;
 
+        @Override
         public String toString() {
             return "(" + key + ":" + value + ")";
         }

@@ -7,9 +7,6 @@
 
 package ome.services;
 
-// Java imports
-import static javax.ejb.TransactionAttributeType.REQUIRED;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
@@ -99,6 +96,7 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
     // ~ Lifecycle methods
     // =========================================================================
 
+    @Override
     @PostConstruct
     @PostActivate
     public void create() {
@@ -110,6 +108,7 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
         }
     }
 
+    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
@@ -144,10 +143,11 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
     };
 
     private void errorIfNotLoaded() {
-        if (buffer == null)
+        if (buffer == null) {
             throw new ApiUsageException(
                     "This RawPixelsStore has not been properly initialized.\n"
                             + "Please set the pixels id before executing any other methods.\n");
+        }
     }
 
     // ~ Delegation

@@ -18,7 +18,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -52,6 +51,11 @@ import src.adminTool.ui.messenger.MessageBox;
  * @since OME3.0
  */
 public class GroupsTab extends JPanel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8311862619538272312L;
+
     private UserList userList;
 
     private GroupMembershipList groupMembershipList;
@@ -112,8 +116,9 @@ public class GroupsTab extends JPanel {
 
     public void refreshMembershipList() {
         String grp = groupList.getSelectedGroup();
-        if (grp != null)
+        if (grp != null) {
             groupMembershipList.setGroup(grp);
+        }
     }
 
     public void refresh() {

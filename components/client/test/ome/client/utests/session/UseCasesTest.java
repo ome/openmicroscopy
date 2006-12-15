@@ -2,7 +2,6 @@ package ome.client.utests.session;
 
 import java.util.ConcurrentModificationException;
 
-import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
 import ome.model.IObject;

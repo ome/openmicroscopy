@@ -13,7 +13,6 @@ import ome.services.query.Query;
 import ome.services.query.QueryException;
 import ome.services.query.QueryFactory;
 import ome.services.query.QuerySource;
-import ome.services.query.StringQuery;
 import ome.services.query.StringQuerySource;
 
 import junit.framework.TestCase;

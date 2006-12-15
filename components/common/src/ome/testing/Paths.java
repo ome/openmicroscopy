@@ -64,9 +64,10 @@ public class Paths {
      *            "CGCPaths.all" TODO
      */
     public Paths(List data) {
-        if (data == null)
+        if (data == null) {
             throw new ApiUsageException(
                     "Data argument to Paths constructor may not be null.");
+        }
 
         List cgciPaths = data;
         for (Iterator it = cgciPaths.iterator(); it.hasNext();) {
@@ -75,16 +76,19 @@ public class Paths {
             Long i = m.get("i") == null ? Paths.NULL_IMAGE : (Long) m.get("i");
             add(cg, c, i);
 
-            if (singlePath == null && i != Paths.NULL_IMAGE)
+            if (singlePath == null && i != Paths.NULL_IMAGE) {
                 singlePath = get(new Long(size() - 1));
+            }
 
         }
         log.info(toString());
-        if (singlePath == null)
+        if (singlePath == null) {
             log.warn("No path found with non-null image.");
+        }
 
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int t = 0; t < cg.size(); t++) {
@@ -94,7 +98,7 @@ public class Paths {
                 sb.append("/");
                 sb.append(c.get(t));
                 sb.append("/");
-                sb.append((NULL_IMAGE.equals((Long) i.get(t)) ? "EMPTY" : i
+                sb.append((NULL_IMAGE.equals(i.get(t)) ? "EMPTY" : i
                         .get(t))
                         + "\n");
             } else {
@@ -131,9 +135,10 @@ public class Paths {
             Long N = new Long(n);
             if ((cg.get(n).equals(testCg) || testCg == WILDCARD || testCg == EXISTS)
                     && (c.get(n).equals(testC) || testC == WILDCARD || testC == EXISTS)
-                    && (i.get(n).equals(testI) || testI == WILDCARD || (testI == EXISTS && i
-                            .get(n) != NULL_IMAGE)) && (!removed.contains(N)))
+                    && (i.get(n).equals(testI) || testI == WILDCARD || testI == EXISTS && i
+                            .get(n) != NULL_IMAGE) && !removed.contains(N)) {
                 result.add(N);
+            }
         }
         return result;
     }

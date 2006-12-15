@@ -100,10 +100,11 @@ public class OMEROMetadataStore implements MetadataStore {
             String port) throws MetadataStoreException {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
-        if (password.length() > 0)
+        if (password.length() > 0) {
             maskedPswd = "<" + password.length() + "chars>";
-        else
+        } else {
             maskedPswd = "<empty>";
+        }
         log.debug(String.format("Initializing store: %s/%s %s:%s", username,
                 maskedPswd, host, port));
 
@@ -137,8 +138,9 @@ public class OMEROMetadataStore implements MetadataStore {
      */
     public OMEROMetadataStore(ServiceFactory factory)
             throws MetadataStoreException {
-        if (factory == null)
+        if (factory == null) {
             throw new MetadataStoreException("Factory argument cannot be null.");
+        }
 
         sf = factory;
 
@@ -167,10 +169,11 @@ public class OMEROMetadataStore implements MetadataStore {
      * @see loci.formats.MetadataStore#setRoot(java.lang.Object)
      */
     public void setRoot(Object root) throws IllegalArgumentException {
-        if (!(root instanceof Pixels))
+        if (!(root instanceof Pixels)) {
             throw new IllegalArgumentException("'root' object of type '"
                     + root.getClass()
                     + "' must be of type 'ome.model.core.Pixels'");
+        }
         pixels = (Pixels) root;
     }
 
@@ -193,16 +196,19 @@ public class OMEROMetadataStore implements MetadataStore {
      * @return enumeration object.
      */
     private IObject getEnumeration(Class<? extends IObject> klass, String value) {
-        if (klass == null)
+        if (klass == null) {
             throw new NullPointerException("Expecting not-null klass.");
-        if (value == null)
+        }
+        if (value == null) {
             return null;
+        }
 
         IObject enumeration = iQuery.findByString(klass, "value", value);
 
-        if (enumeration == null)
+        if (enumeration == null) {
             throw new EnumerationException("Problem finding enumeration: ",
                     klass, value);
+        }
         return enumeration;
     }
 
@@ -457,17 +463,20 @@ public class OMEROMetadataStore implements MetadataStore {
         log.debug(String.format(
                 "Setting GlobalMin: '%f' GlobalMax: '%f' for channel: '%d'",
                 globalMin, globalMax, channelIdx));
-        if (globalMin == null)
+        if (globalMin == null) {
             throw new NullPointerException("globalMin should not be null.");
+        }
 
-        if (globalMax == null)
+        if (globalMax == null) {
             throw new NullPointerException("globalMax should not be null.");
+        }
 
         List<Channel> channels = pixels.getChannels();
 
-        if (channels.size() < channelIdx)
+        if (channels.size() < channelIdx) {
             throw new IndexOutOfBoundsException("No such channel index: "
                     + channelIdx);
+        }
 
         Channel channel = channels.get(channelIdx);
         StatsInfo statsInfo = new StatsInfo();
@@ -517,8 +526,9 @@ public class OMEROMetadataStore implements MetadataStore {
      *            the timepoint in the pixels array.
      */
     public void setPlane(Long id, byte[] pixels, int theZ, int theC, int theT) {
-        if (pservice == null)
+        if (pservice == null) {
             pservice = sf.createRawPixelsStore();
+        }
 
         pservice.setPixelsId(id);
         pservice.setPlane(pixels, theZ, theC, theT);
@@ -537,8 +547,9 @@ public class OMEROMetadataStore implements MetadataStore {
      *            the timepoint in the pixels array.
      */
     public void setStack(Long id, byte[] pixels, int theC, int theT) {
-        if (pservice == null)
+        if (pservice == null) {
             pservice = sf.createRawPixelsStore();
+        }
 
         pservice.setPixelsId(id);
         pservice.setStack(pixels, theT, theC, theT);
@@ -582,7 +593,7 @@ public class OMEROMetadataStore implements MetadataStore {
                 + "(select link.child.id from ProjectDatasetLink link where "
                 + "link.parent.id = :id)", new Parameters().addId(project
                 .getId()));
-        return (List<Dataset>) l;
+        return l;
 
         // Use this for M3 build till it gets fixed if this is needed.
         // return new ArrayList();
@@ -598,7 +609,7 @@ public class OMEROMetadataStore implements MetadataStore {
         List l = iQuery.findAllByQuery(
                 "from Project as p where p.details.owner.id = :id",
                 new Parameters().addId(exp.getId()));
-        return (List<Project>) l;
+        return l;
     }
 
     /**
@@ -642,9 +653,10 @@ public class OMEROMetadataStore implements MetadataStore {
                                         + "where child.id = :id and ofile.path =:path",
                                 p);
 
-                if (o == null)
+                if (o == null) {
                     throw new FileNotFoundException(
                             "Unable to look up originalFile");
+                }
 
                 rawFileStore.setFileId(o.getId());
 

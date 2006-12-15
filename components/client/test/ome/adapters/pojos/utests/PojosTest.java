@@ -55,6 +55,7 @@ public class PojosTest extends TestCase {
 
     ExperimenterGroup g;
 
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         p = new Project(new Long(1));
@@ -200,8 +201,9 @@ public class PojosTest extends TestCase {
         DatasetData dd = null;
         while (it.hasNext()) {
             dd = (DatasetData) it.next();
-            if (dd.asIObject() == d3)
+            if (dd.asIObject() == d3) {
                 break;
+            }
         }
         assertTrue(dd.getAnnotations().size() == 1);
         assertTrue(dd.getImages().size() == 1);
@@ -217,8 +219,9 @@ public class PojosTest extends TestCase {
         it = pd.getDatasets().iterator();
         while (it.hasNext()) {
             dd = (DatasetData) it.next();
-            if (dd.asIObject() == d2)
+            if (dd.asIObject() == d2) {
                 break;
+            }
         }
         id = (ImageData) dd.getImages().iterator().next();
         assertTrue(id.getCategories().size() == 1);
@@ -312,6 +315,11 @@ public class PojosTest extends TestCase {
     public void testDefaultGroupIsAvailable() throws Exception {
 
         class MyExperimenter extends Experimenter {
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 231310658359804476L;
+
             void setDefLink(GroupExperimenterMap map) {
                 this.setDefaultGroupLink(map);
             }

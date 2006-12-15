@@ -45,10 +45,11 @@ public class Definitions {
     }
 
     public Definitions(QueryParameterDef... parameterDefs) {
-        if (parameterDefs != null)
+        if (parameterDefs != null) {
             for (QueryParameterDef def : parameterDefs) {
                 defs.put(def.name, def);
             }
+        }
     }
 
     public boolean containsKey(Object key) {

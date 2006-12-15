@@ -9,10 +9,7 @@ package ome.server.itests.query.pojos;
 // Java imports
 import java.util.Set;
 
-// Third-party libraries
-import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.system.ServiceFactory;
 import ome.testing.CreatePojosFixture;
 
 import org.apache.commons.logging.Log;

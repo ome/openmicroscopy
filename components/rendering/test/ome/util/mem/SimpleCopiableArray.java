@@ -31,6 +31,7 @@ class SimpleCopiableArray extends CopiableArray {
         super(size);
     }
 
+    @Override
     protected CopiableArray makeNew(int size) {
         return new SimpleCopiableArray(size);
     }
