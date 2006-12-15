@@ -11,15 +11,21 @@
 -->
 <types>
   <type id="ome.model.annotations.ImageAnnotation">
-	  <properties>
-		  <required name="image" type="ome.model.core.Image"/>
+    <properties>
+      <required name="image" type="ome.model.core.Image"/>
       <required name="content" type="text"/>      
-	  </properties>
+    </properties>
   </type>
   <type id="ome.model.annotations.DatasetAnnotation">
-	  <properties>
-		  <required name="dataset" type="ome.model.containers.Dataset"/>
+    <properties>
+      <required name="dataset" type="ome.model.containers.Dataset"/>
       <required name="content" type="text"/>
-	  </properties>
+    </properties>
+  </type>
+  <type id="ome.model.annotations.ProjectAnnotation">
+    <properties>
+      <required name="project" type="ome.model.containers.Project"/>
+      <required name="content" type="text"/>
+    </properties>
   </type>
 </types>

@@ -18,6 +18,7 @@
 	  <properties>
 		  <child name="datasetLinks" type="ome.model.containers.ProjectDatasetLink"
         target="ome.model.containers.Dataset"/>
+		  <zeromany name="annotations" type="ome.model.annotations.ProjectAnnotation" inverse="project"/>
 	  </properties>
   </type>
   
