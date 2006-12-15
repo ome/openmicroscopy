@@ -2,27 +2,21 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataService
  *
  *------------------------------------------------------------------------------
- *
- *  Copyright (C) 2004 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -394,11 +388,12 @@ public interface OmeroDataService
      * 
      * @param images        The images to classify.
      * @param categories    The categories to add the images to.
+     * @return The classified images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public void classify(Set images, Set categories)
+    public Set classify(Set images, Set categories)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -406,11 +401,12 @@ public interface OmeroDataService
      * 
      * @param images        The images to declassify
      * @param categories    The categories to remove the images from.
+     * @return The declassified images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public void declassify(Set images, Set categories)
+    public Set declassify(Set images, Set categories)
         throws DSOutOfServiceException, DSAccessException;
 
     /**

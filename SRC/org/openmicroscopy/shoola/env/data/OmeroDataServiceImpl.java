@@ -2,27 +2,21 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *
- *  Copyright (C) 2004 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -438,7 +432,7 @@ class OmeroDataServiceImpl
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#classify(Set, Set)
      */
-    public void classify(Set images, Set categories)
+    public Set classify(Set images, Set categories)
             throws DSOutOfServiceException, DSAccessException
     {
         try {
@@ -458,7 +452,6 @@ class OmeroDataServiceImpl
         Iterator image;
         List objects = new ArrayList();
         IObject ioParent, ioChild;
-        
         while (category.hasNext()) {
             ioParent = ((DataObject) category.next()).asIObject();
             image = images.iterator();
@@ -477,13 +470,19 @@ class OmeroDataServiceImpl
             }
             gateway.createObjects(array, (new PojoOptions()).map());
         }
+        Iterator i = images.iterator();
+        Set ids = new HashSet(images.size());
+        while (i.hasNext()) {
+        	ids.add(new Long(((DataObject) i.next()).getId()));
+		}
+        return getImages(ImageData.class, ids, ExperimenterData.class, -1);
     }
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#declassify(Set, Set)
      */
-    public void declassify(Set images, Set categories)
+    public Set declassify(Set images, Set categories)
             throws DSOutOfServiceException, DSAccessException
     {
         try {
@@ -501,6 +500,12 @@ class OmeroDataServiceImpl
         Iterator category = categories.iterator();
         while (category.hasNext())
             cut((DataObject) category.next(), images);
+        Iterator i = images.iterator();
+        Set ids = new HashSet(images.size());
+        while (i.hasNext()) {
+        	ids.add(new Long(((DataObject) i.next()).getId()));
+		}
+        return getImages(ImageData.class, ids, ExperimenterData.class, -1);
     }
 
     /**
