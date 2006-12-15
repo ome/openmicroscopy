@@ -18,6 +18,7 @@ import org.jboss.annotation.ejb.Management;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.system.OmeroContext;
+import ome.system.Version;
 
 /**
  * Hook run after all the application has been deployed to the server. At that
@@ -25,7 +26,8 @@ import ome.system.OmeroContext;
  * attempting to connect to the database "internally" should work.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
+ * @version $Revision$, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec
+ *          2006) $
  * @since 3.0-Beta1
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/444">ticket:444</a>
  */
@@ -47,7 +49,6 @@ public class StartupHook implements Startup {
      *      href="https://trac.openmicroscopy.org.uk/omero/ticket/444">ticket:444</a>
      */
     public void start() throws Exception {
-        System.out.println("Starting Omero...");
 
         try {
             connect();
@@ -56,7 +57,11 @@ public class StartupHook implements Startup {
         }
 
         connect();
-        System.out.println("Ready.");
+        System.out.println("-------------------------------------------------");
+        System.out.println(String.format("OMERO Version: %s (Rev: %s) Ready.",
+                Version.OMERO, Version.getRevision(this.getClass())));
+        System.out.println("-------------------------------------------------");
+
     }
 
     /**
