@@ -80,7 +80,7 @@ import java.util.Properties;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision: 2359 $ $Date: 2005-02-10 19:16:23 +0100 (Thu, 10 Feb 2005) $)
+ * (<b>Internal version:</b> $Revision$ $Date$)
  * </small>
  * @since OME2.2
  */

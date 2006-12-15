@@ -28,7 +28,7 @@ import static ome.model.internal.Permissions.Role.*;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.more@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
  *          </small>
  * @since 3.0-M3
  */

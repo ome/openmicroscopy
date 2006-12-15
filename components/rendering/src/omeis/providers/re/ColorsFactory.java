@@ -24,7 +24,7 @@ import ome.model.display.Color;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.6 $ $Date:
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/07/05 16:13:52 $) </small>
  * @since OME2.2
  */

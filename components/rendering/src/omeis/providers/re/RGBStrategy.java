@@ -54,7 +54,7 @@ import omeis.providers.re.quantum.QuantizationException;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.14 $ $Date:
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/22 17:09:48 $) </small>
  * @since OME2.2
  */

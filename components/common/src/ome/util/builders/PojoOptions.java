@@ -30,7 +30,7 @@ import ome.model.core.Image;
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
  *          </small>
  * @since OME2.2
  */

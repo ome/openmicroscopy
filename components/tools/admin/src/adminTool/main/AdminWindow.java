@@ -29,7 +29,7 @@ import src.adminTool.ui.messenger.CommentMessenger;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
  *          </small>
  * @since OME2.2
  * 

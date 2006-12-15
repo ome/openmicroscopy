@@ -12,7 +12,7 @@ package ome.api;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: 1.2 $ $Date:
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/08 15:21:59 $) </small>
  * @since OMERO3.0
  */

@@ -41,7 +41,7 @@ import ome.model.IObject;
  *         Tony Sceflo &nbsp;&nbsp;&nbsp;&nbsp; <a href="mailto:tonys@mit.edu">
  *         tonys@mit.edu</a>
  * 
- * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
  *          </small>
  * @since OMERO3.0
  * 

@@ -21,7 +21,7 @@ import ome.system.EventContext;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
  *          </small>
  * @since OME3.0
  */

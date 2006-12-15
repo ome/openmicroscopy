@@ -19,7 +19,7 @@ import omeis.providers.re.RGBBuffer;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.3 $ $Date:
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/28 11:08:53 $) </small>
  * @since OME2.2
  */

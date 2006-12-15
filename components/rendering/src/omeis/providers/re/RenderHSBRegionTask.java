@@ -23,7 +23,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * 
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackat.ca</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: 1.4 $ $Date:
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/17 12:57:33 $) </small>
  * @since OMERO3.0
  */

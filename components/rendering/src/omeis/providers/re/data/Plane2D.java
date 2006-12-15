@@ -46,7 +46,7 @@ import omeis.providers.re.Renderer;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.1 $ $Date:
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/08 20:15:03 $) </small>
  * @since OME2.2
  */

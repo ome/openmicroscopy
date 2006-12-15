@@ -22,7 +22,7 @@ import ome.annotations.NotNull;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: 1.2 $ $Date:
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/06/08 15:21:59 $) </small>
  * @since OME2.2
  */

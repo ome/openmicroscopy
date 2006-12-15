@@ -51,7 +51,7 @@ import omeis.providers.re.RenderingEngine;
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: 1.4 $ $Date:
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
  *          2005/07/05 16:13:52 $) </small>
  * @since OMERO3
  */

@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 public class VersionTest extends TestCase {
 
     public void testGetSvnKeyword() throws Exception {
-        assertEquals("100", Version.stringFromSvnString("$Revision: 100 $"));
+        assertEquals("100", Version.stringFromSvnString("$Revision$"));
     }
 
     public void testGetRevision() throws Exception {
@@ -40,7 +40,7 @@ public class VersionTest extends TestCase {
     }
 }
 
-@RevisionNumber("$Revision: 100 $")
-@RevisionDate("$Date: 2002-07-22 21:42:37 -0700 (Mon, 22 Jul 2002) $")
+@RevisionNumber("$Revision$")
+@RevisionDate("$Date$")
 class Blank {
 }
