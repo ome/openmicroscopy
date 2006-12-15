@@ -58,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.PermissionData;
 
 /** 
- * 
+ * UI component displaying the permissions of the <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -132,7 +132,8 @@ class PermissionPane
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isUserWrite());
@@ -146,7 +147,8 @@ class PermissionPane
             }
         
         });
-        box.setEnabled(isOwner);
+        //box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;      //reset to default
@@ -171,7 +173,8 @@ class PermissionPane
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+//      box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isGroupWrite());
@@ -185,7 +188,8 @@ class PermissionPane
             }
         
         });
-        box.setEnabled(isOwner);
+//      box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         c.gridy = 1;
         c.gridx = 0;
@@ -212,7 +216,8 @@ class PermissionPane
                view.setEdit(true);
             }
         });
-        box.setEnabled(isOwner);
+//      box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         box =  new JCheckBox(WRITE);
         box.setSelected(permissions.isWorldWrite());
@@ -226,7 +231,8 @@ class PermissionPane
             }
         
         });
-        box.setEnabled(isOwner);
+//      box.setEnabled(isOwner);
+        box.setEnabled(false);
         p.add(box);
         c.gridy = 2;
         c.gridx = 0;

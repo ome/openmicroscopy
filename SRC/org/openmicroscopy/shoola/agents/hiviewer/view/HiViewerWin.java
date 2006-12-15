@@ -133,6 +133,18 @@ class HiViewerWin
      */
     private int                 lastMove;
     
+    /** 
+     * Sets the divider's location of the {@link #mainPane} if a move
+     * happened.
+     */
+    private void lastMove()
+    {
+    	if (lastMove != -1)  {
+        	mainPane.setDividerLocation(lastMove);
+            mainPane.setResizeWeight(0);
+        }	
+    }
+    
     /**
      * Sets the <code>Browser</code>'s UI and <code>ClipBoard</code>'s UI into
      * a horizontal splitPane.
@@ -148,11 +160,8 @@ class HiViewerWin
                                     clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
-        if (lastMove != -1)  {
-        	mainPane.setDividerLocation(lastMove);
-            mainPane.setResizeWeight(0);
-        } else
-        	mainPane.setResizeWeight(1); //before we remove items.
+        mainPane.setResizeWeight(1); //before we remove items.
+        lastMove();
         return mainPane;
     }
     
@@ -422,10 +431,7 @@ class HiViewerWin
         if (cb == null) return;
         if (b) {
             mainPane.setRightComponent(cb);
-            if (lastMove != -1) {
-	            mainPane.setDividerLocation(lastMove);
-	            mainPane.setResizeWeight(0);
-            }
+            lastMove();
         } else {
             lastMove = mainPane.getDividerLocation();
             mainPane.remove(cb);

@@ -80,21 +80,20 @@ public class ChannelButton
     /** The pop up menu associated to this component. */
     private ChannelButtonPopupMenu  popupMenu;
     
-    /** The number of milliseconds we'll wait till we know we've got a single
+    /** 
+     * The number of milliseconds we'll wait till we know we've got a single
      * click event. 
      */
     private static final int DOUBLE_CLICK_THRESHOLD = 200; // ms
    
     /** Timer scheduling the double click task. */
-    private Timer timer;
-   
+    private Timer timer;  
     
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
     {
-        Boolean value = null;
+        Boolean value =  Boolean.TRUE;
         if (isSelected()) value = Boolean.FALSE;
-        else value = Boolean.TRUE;
         HashMap map = new HashMap(1);
         map.put(new Integer(index), value);
         firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
@@ -107,27 +106,26 @@ public class ChannelButton
      */
     private void onClick(MouseEvent e)
     {
-    	if (e.getButton() == 1 && !(e.isControlDown() || e.isMetaDown()) ) {
+    	boolean mask = (e.isControlDown() || e.isMetaDown());
+    	if (e.getButton() == MouseEvent.BUTTON1 && !(mask) ) {
     		if (e.getClickCount() == 1) timer.start();
-    		else if (e.getClickCount() == 2)
-    		{
+    		else if (e.getClickCount() == 2) {
     			timer.stop();
     			doubleClick();
     		}
-    	}
-        else if ((e.getButton() == 2 || (e.isControlDown() || e.isMetaDown()))) 
+    	} else if ((e.getButton() == MouseEvent.BUTTON2 || mask)) 
         	onReleased(e);
     }
    
     /**
-     * Executed by the timer when the double click threshold has expried and
+     * Executed by the timer when the double click threshold has expired and
      * we know we have a single click.
      */
     private void singleClick()   {	setChannelSelected();	}
     
     /**
-     * Executed in the onClick method when the second click event has been 
-     * received before the double click threshold time has expired. 
+     * Executed in the {@link #onClick()} method when the second click event 
+     * has been received before the double click threshold time has expired. 
      */
     private void doubleClick()   {  showColorPicker();      }
        
