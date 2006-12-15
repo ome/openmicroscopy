@@ -92,11 +92,6 @@ public abstract class Plane2D {
         this.sizeY = pixels.getSizeY();
         this.data = data;
 
-        // FIXME: Hack for now while we're still using pixel data from the old
-        // OMEIS repository! There really should be a configuration option for
-        // this or potentially usage of an endianness flag on the Pixels set.
-        this.data.order(ByteOrder.LITTLE_ENDIAN);
-
         // Grab the pixel type from the pixels set
         PixelsType type = pixels.getPixelsType();
 
