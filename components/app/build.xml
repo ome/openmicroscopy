@@ -63,7 +63,7 @@
             <attribute name="Build-OS-Version"  value="${os.version}"/>
             <attribute name="Build-User"        value="${user.name}"/>
             <attribute name="Build-Machine"     value="${build.hostname}"/>
-            <attribute name="License"           value="GNU LGPL, version 2.1"/>
+            <attribute name="License"           value="${product.license}"/>
          </manifest>
       </jar>
 

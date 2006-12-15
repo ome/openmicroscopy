@@ -5,4 +5,4 @@ and version information, see the text
 files accompanying this program.
 
 This program is covered by the
-LGPL license.
+GPL license.

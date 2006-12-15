@@ -2,7 +2,7 @@ README (OMERO Import Test Client)
 
 Last Updated: July 31st, 2006
 
-Please note that portions of this software are copyrighted under the GNU Lesser General Public License. Details for this license can be found at in the lglp.txt file included with this software, or from http://www.gnu.org/licenses/lgpl.html.
+Please note that portions of this software are copyrighted under the GNU General Public License. Details for this license can be found at in the gpl.txt file included with this software, or from http://www.gnu.org/licenses/gpl.html.
 
 -----
 
