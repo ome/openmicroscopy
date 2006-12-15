@@ -171,10 +171,10 @@
            "${dist.dir}/${dist.bundle.name}-${dist.bundle.version}-OSX.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
       <fileset dir="${dist.dir}" 
-               includes="Shoola.app/**"
+               includes="OMEROClient.app/**"
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}" 
-                  fullpath="Shoola.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="OMEROClient.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="555"/> 
       <fileset file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}" fullpath="LICENSE"/> 

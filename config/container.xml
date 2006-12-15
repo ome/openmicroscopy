@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
- *                     SHOOLA MASTER CONFIGURATION FILE
+ *                     OMEROClient MASTER CONFIGURATION FILE
  *
- * This file specifies the configuration settings for the Shoola runtime (the
- * Container) and links the available UI components (the Agents) to it.  The
+ * This file specifies the configuration settings for the OMEROClient runtime 
+ * (the Container) and links the available UI components (the Agents) to it. The
  * configuration entries are organized in the following groups:
  *
  * + Services: The runtime services provided by the Container.
@@ -14,9 +14,9 @@
  * + Look and Feel: The L&F to use for the whole application.
  *
  *
- * Note that the only entry that needs to be edited *before* launching Shoola
- * is the URL of the OMERO Data Server (OMERODS) in the Services group.  
- * All other entries can optionally be edited to tweak runtime behavior, 
+ * Note that the only entry that needs to be edited *before* launching 
+ * OMEROClient is the URL of the OMERO Data Server (OMERODS) in the Services 
+ * group. All other entries can optionally be edited to tweak runtime behavior, 
  * but can in most cases be safely ignored.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
@@ -26,9 +26,7 @@
    * 
    * SERVICES
    *
-   * The runtime services provided by the Container.
-   * The only entry that needs to be edited *before* launching Shoola is the
-   * URL of the OMERO Data Server (OMERODS).  All the other entries can 
+   * The runtime services provided by the Container.All entries can 
    * optionally be edited to tweak runtime behavior.
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 

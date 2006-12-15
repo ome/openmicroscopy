@@ -75,7 +75,7 @@
   <property name="base.src.dir" location="SRC"/>
   <property name="base.test.dir" location="TEST"/> 
   <property name="base.test.lib.dir" location="${base.lib.dir}/test"/>
-  <property name="base.licensefile" location="legal/lgpl.txt"/>
+  <property name="base.licensefile" location="legal/gpl.txt"/>
   <property name="base.docgen.index.file"   location="docgen/index.html"/> 
   <property name="base.userdocs.index.file" 
 	    location="docgen/xdocs/docs/userdocs/index.html"/>

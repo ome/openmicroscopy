@@ -2,7 +2,7 @@
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Child build file to create the project documentation.
- * This file is only meant to be used as an imported file within the Shoola
+ * This file is only meant to be used as an imported file within the OMEROClient
  * master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="docs" default="usage">
@@ -92,7 +92,7 @@
     <javadoc sourcepath="${base.src.dir}"
              packagenames="org.openmicroscopy.*" 
              destdir="${docs.javadoc.dir}"
-             windowtitle="OME-Shoola JavaDoc"
+             windowtitle="OMEROClient JavaDoc"
              use="yes"
              author="yes"
              version="yes"
@@ -101,7 +101,7 @@
              verbose="yes">
       <classpath refid="app.run.classpath" />
       <bottom>
-        <![CDATA[<p><i>Copyright &#169; 2002-2005 Open Microscopy Environment.  
+        <![CDATA[<p><i>Copyright &#169; 2006 Open Microscopy Environment.  
         All Rights reserved.</i></p>]]>
       </bottom>
     </javadoc>

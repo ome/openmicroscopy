@@ -2,7 +2,7 @@
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Child build file to test the application.
- * This file is only meant to be used as an imported file within the Shoola
+ * This file is only meant to be used as an imported file within the OMEROClient
  * master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="test" default="usage">
@@ -41,7 +41,7 @@
    *           These are all .java files under ${base.test.dir} that start with 
    *           'Test', with the exclsion of the contents of the env.data.t 
    *           package and its sub-packages.  (Which contain Data Services test
-   *           cases that require a live connection to OMEDS to run.)
+   *           cases that require a live connection to OMERO to run.)
    *           It is possible to modify all this by changing the values of the
    *           test.suite.include and test.suite.exclude properties, which 
    *           specifies what files end up in the test.suite.
@@ -85,21 +85,21 @@
    *           suite.  These are all .java files under ${base.test.dir} that 
    *           start with 'Test' and belong in the env.data.t package or any of
    *           its sub-packages.  These tests are run separately from the 
-   *           main test suite because require a live connection to OMEDS and
+   *           main test suite because require a live connection to OMERO and
    *           need to be run in the same JVM.  (So that the connection may be
    *           recycled across tests.)
    *   + test.ds.url: The URL to use in the Data Services tests to connect to
-   *           OMEDS.  Should be set through the -D or -propertyfile option of
+   *           OMERO.  Should be set through the -D or -propertyfile option of
    *           the Ant command line.  
    *   + test.ds.user: The user name to use in the Data Services tests to 
-   *           connect to OMEDS.  Should be set through the -D or -propertyfile
+   *           connect to OMERO.  Should be set through the -D or -propertyfile
    *           option of the Ant command line.
    *   + test.ds.pass: The password to use in the Data Services tests to 
-   *           connect to OMEDS.  Should be set through the -D or -propertyfile
+   *           connect to OMERO.  Should be set through the -D or -propertyfile
    *           option of the Ant command line.
    *
    *   NOTE: For further information about running Data Services test that
-   *         require a live connection to OMEDS, you should refer to the
+   *         require a live connection to OMERO, you should refer to the
    *         docs accompanying:
    *            org.openmicroscopy.shoola.env.data.DataServicesTestCase
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 

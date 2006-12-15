@@ -9,7 +9,7 @@
   After doing this, your directory should contain:
 
     * A "config" directory.
-    * The "OMERO Client" application.
+    * The "OMEROClient" application.
     * A "LICENSE" file.
     * This install file.
 
@@ -17,7 +17,7 @@
   ____________________
   Running The Software
 
-  Double-click on the "OMERO Client" application icon within the installation
+  Double-click on the "OMEROClient" application icon within the installation
   directory.  A splash screen will pop up.  Enter your OMERO user name, password
   and the name of the server then press the log in button.  Enjoy OMERO!
 

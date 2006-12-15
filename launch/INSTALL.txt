@@ -25,7 +25,7 @@
 
     * A "config" directory.
     * A "lib" directory.
-    * A "shoola.jar" file.
+    * A "omeroclient.jar" file.
     * A startup script for Windows, Unix and Mac OS X.
     * A "LICENSE" file.
     * This install file.
