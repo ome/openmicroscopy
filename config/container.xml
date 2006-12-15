@@ -138,11 +138,6 @@
         <class>org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent</class>
         <config>imviewer.xml</config>
       </agent>
-      <agent>
-        <name>ROI Analysis Tool</name>
-        <class>org.openmicroscopy.shoola.agents.roi.ROIAgt</class>
-        <config>roi.xml</config>
-      </agent>
       <agent> 
         <name>Hierarchy Viewer</name>
         <class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
