@@ -133,13 +133,17 @@ public class TicketsUpTo1000Test extends TestCase
         d = (Dataset) i.linkedDatasetList().get(0);
         c = (Category) i.linkedCategoryList().get(0);
 
+        Long user_id = sf.getAdminService().getEventContext().getCurrentUserId(); 
+        PojoOptions po = new PojoOptions();
+        po.leaves();
+        po.exp(user_id);
+        po.countsFor(user_id);
+        
         Set s = 
         	sf.getPojosService().findContainerHierarchies
-        	(Project.class,Collections.singleton(
-        		i.getId()),new PojoOptions().leaves().map());
+        	(Project.class,Collections.singleton(i.getId()),po.map());
         s = sf.getPojosService().findContainerHierarchies
-            (CategoryGroup.class,Collections.singleton(
-            	i.getId()),new PojoOptions().leaves().map());
+            (CategoryGroup.class,Collections.singleton(i.getId()),po.map());
      
         assertTrue(s.size()>0);
     }
