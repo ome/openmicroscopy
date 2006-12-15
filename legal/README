@@ -5,7 +5,7 @@
 
                       OPEN MICROSCOPY ENVIRONMENT (OME)
                               
-                                 S H O O L A
+                                 OMEROClient
                                  
                                     Legal
 
@@ -19,27 +19,28 @@
   --------
   
   Within this document, the term 'third-party software' shall refer to the set 
-  of all the files which are contained in the Shoola CVS module and which are 
-  listed in each 'Artifacts' entry within the 'Third-Party Software Licenses' 
-  section of this document.  The term 'Shoola' or, equivalently, 'our software'
-  shall refer to any other file contained in the Shoola CVS module.
+  of all the files which are contained in the OMERO Client SVN module and which 
+  are listed in each 'Artifacts' entry within the 
+  'Third-Party Software Licenses' section of this document. 
+  The term 'OMEROClient' or, equivalently, 'our software'
+  shall refer to any other file contained in the OMEROClient SVN module.
   
   
   
   Purpose
   -------
   
-  This document states which licenses apply to which files in the Shoola CVS
-  module.  It also gives credit to other projects and developers that provided
-  us with their valuable software.
+  This document states which licenses apply to which files in the OMEROClient 
+  SVN module. It also gives credit to other projects and developers that 
+  provided us with their valuable software.
   
   
   
-  OME-Shoola License
+  OMEROClient License
   ------------------
   
-  Our software is licensed under the terms of the Lesser General Public License
-  (LGPL), a copy of which may be found in the 'lgpl.txt' file within this
+  Our software is licensed under the terms of the GNU General Public License
+  (GPL), a copy of which may be found in the 'gpl.txt' file within this
   directory.
   
   

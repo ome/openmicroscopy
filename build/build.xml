@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
- * Master build file for the OME-Shoola java client.
+ * Master build file for the OMEROClient java client.
  * You can use this file to compile, run, test, and package the application
  * for distribution.  Furthermore, you can generate all other project artifacts,
  * like documentation.  Please refer to the usage target for further details.
@@ -43,9 +43,9 @@
  *    simple: public targets have a description attribute (private targets do
  *    not) and are listed by the usage target.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<project name="OME-Shoola" default="usage" basedir="../">
+<project name="OMEROClient" default="usage" basedir="../">
  
-  <description>The OME-Shoola Java Client Project.</description> 
+  <description>The OMEROClient Java Client Project.</description> 
   
   <!-- The build directory.  Every target outputs below this directory. -->  
   <property name="build.dir" location="OUT"/>

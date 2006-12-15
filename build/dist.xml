@@ -2,7 +2,7 @@
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Child build file to create the app deliverables.
- * This file is only meant to be used as an imported file within the Shoola
+ * This file is only meant to be used as an imported file within the OMEROClient
  * master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="dist" default="usage">
@@ -52,9 +52,9 @@
    *           Mac OS X bundle.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <property name="dist.dir" location="${build.dir}/dist"/>
-  <property name="dist.jar.file" value="shoola.jar"/>
-  <property name="dist.bundle.name" value="omero-shoola"/> 
-  <property name="dist.bundle.version" value="3-M3_30-10-06"/>
+  <property name="dist.jar.file" value="omeroclient.jar"/>
+  <property name="dist.bundle.name" value="omeroclient"/> 
+  <property name="dist.bundle.version" value="3-M3_Beta_15-12-06"/>
   <fileset id="dist.launch.scripts" dir="${base.launch.dir}">
     <include name="*.sh"/>
     <include name="*.bat"/> 
@@ -64,7 +64,7 @@
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/> 
   <property name="dist.osx.icon" 
-            location="${base.launch.dir}/osx/shoola.icns"/>
+            location="${base.launch.dir}/osx/omeroclient.icns"/>
   <property name="dist.osx.stub" 
             location="${base.launch.dir}/osx/JavaApplicationStub"/> 
   <property name="dist.osx.stub.name" value="JavaApplicationStub"/> 
@@ -104,7 +104,7 @@
     <jar destfile="${dist.dir}/${dist.jar.file}">
       <fileset dir="${app.compiled.dir}"/>
       <manifest>
-        <attribute name="Created-By" value="OME Development Team"/>
+        <attribute name="Created-By" value="OMERO Development Team"/>
         <attribute name="Class-Path" value="${dist.jar.manifest.cp}"/>
         <attribute name="Main-Class" value="${app.mainclass}"/>
       </manifest> 
@@ -154,11 +154,11 @@
           depends="jar"
           description="Build and package the app for OS X distribution.">
     <jarbundler dir="${dist.dir}"
-                name="Shoola"
+                name="OMEROClient"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
-                infostring="OMERO-Shoola Java Client, ${dist.bundle.version}"
-                aboutmenuname="OMERO-Shoola Java Client"
+                infostring="OMEROClient Java Client, ${dist.bundle.version}"
+                aboutmenuname="OMEROClient Java Client"
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
