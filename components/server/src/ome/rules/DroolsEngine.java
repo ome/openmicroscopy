@@ -14,9 +14,9 @@
 
 package ome.rules;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
@@ -25,47 +25,43 @@ import org.drools.RuleBase;
 import org.drools.WorkingMemory;
 import org.drools.event.DebugWorkingMemoryEventListener;
 
-//Application-internal dependencies
-
+// Application-internal dependencies
 
 /**
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public class DroolsEngine implements RulesEngine {
 
-	private static Log log = LogFactory.getLog(DroolsEngine.class);
-	
-	private RuleBase businessRules;
-	
-	private boolean debug;
-	
-	public DroolsEngine(RuleBase rules, boolean addDebugListener) {
-		this.businessRules = rules;
-		debug = addDebugListener;
-	}
+    private static Log log = LogFactory.getLog(DroolsEngine.class);
 
-	public void evaluate(Object... assertions)
-			throws Exception {
+    private RuleBase businessRules;
 
-		WorkingMemory workingMemory = businessRules.newWorkingMemory();
-		workingMemory.getApplicationDataMap().put("cache",new HashSet());
-		
-		if (debug){
-			workingMemory.addEventListener(new DebugWorkingMemoryEventListener());
-		}
+    private boolean debug;
 
-		for (Object o : assertions) {
-			workingMemory.assertObject(o);
-		}
+    public DroolsEngine(RuleBase rules, boolean addDebugListener) {
+        this.businessRules = rules;
+        debug = addDebugListener;
+    }
 
-		log.debug("Firing rules...");
-		workingMemory.fireAllRules();
-	}
+    public void evaluate(Object... assertions) throws Exception {
+
+        WorkingMemory workingMemory = businessRules.newWorkingMemory();
+        workingMemory.getApplicationDataMap().put("cache", new HashSet());
+
+        if (debug) {
+            workingMemory
+                    .addEventListener(new DebugWorkingMemoryEventListener());
+        }
+
+        for (Object o : assertions) {
+            workingMemory.assertObject(o);
+        }
+
+        log.debug("Firing rules...");
+        workingMemory.fireAllRules();
+    }
 
 }

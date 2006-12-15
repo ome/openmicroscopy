@@ -7,26 +7,23 @@
 
 package ome.tools.spring;
 
-//Java imports
+// Java imports
 
-//Third-party imports
+// Third-party imports
 import org.hibernate.Session;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-//Application-internal dependencies
+// Application-internal dependencies
 
 /** 
  */
-public class ManualFlushHibernateTemplate extends HibernateTemplate
-{
-    
-   @Override
-   protected void checkWriteOperationAllowed(Session session)
-   throws InvalidDataAccessApiUsageException {
-	   // do nothing.
-   }
-    
+public class ManualFlushHibernateTemplate extends HibernateTemplate {
+
+    @Override
+    protected void checkWriteOperationAllowed(Session session)
+            throws InvalidDataAccessApiUsageException {
+        // do nothing.
+    }
 
 }
-

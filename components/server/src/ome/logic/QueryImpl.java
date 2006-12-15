@@ -7,7 +7,7 @@
 
 package ome.logic;
 
-//Java imports
+// Java imports
 import java.sql.SQLException;
 import java.util.List;
 
@@ -21,7 +21,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-//Third-party libraries
+// Third-party libraries
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +40,7 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.api.IQuery;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalQuery;
@@ -52,76 +52,74 @@ import ome.parameters.Parameters;
 import ome.services.dao.Dao;
 import ome.services.query.Query;
 
-/**  Provides methods for directly querying object graphs.
+/**
+ * Provides methods for directly querying object graphs.
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  * 
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly=true)
+@Transactional(readOnly = true)
 @Stateless
 @Remote(IQuery.class)
-@RemoteBinding (jndiBinding="omero/remote/ome.api.IQuery")
+@RemoteBinding(jndiBinding = "omero/remote/ome.api.IQuery")
 @Local(LocalQuery.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalQuery")
+@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
 @SecurityDomain("OmeroSecurity")
-@Interceptors({SimpleLifecycle.class})
+@Interceptors( { SimpleLifecycle.class })
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
     @Override
-    protected Class<? extends ServiceInterface> getServiceInterface()
-    {
+    protected Class<? extends ServiceInterface> getServiceInterface() {
         return IQuery.class;
     }
-    
+
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
     @RolesAllowed("user")
-    public <T extends IObject> Dao<T> getDao()
-    {
+    public <T extends IObject> Dao<T> getDao() {
         return new Dao<T>(this);
     }
-    
+
     @RolesAllowed("user")
-    @Transactional(readOnly=false)
-    public boolean contains(Object obj){
+    @Transactional(readOnly = false)
+    public boolean contains(Object obj) {
         return getHibernateTemplate().contains(obj);
     }
-    
+
     @RolesAllowed("user")
-    @Transactional(readOnly=false)
-    public void evict(Object obj){
+    @Transactional(readOnly = false)
+    public void evict(Object obj) {
         getHibernateTemplate().evict(obj);
     }
-    
+
     @RolesAllowed("user")
-    public void initialize(Object obj){
+    public void initialize(Object obj) {
         Hibernate.initialize(obj);
     }
-    
+
     @RolesAllowed("user")
-    @Transactional(propagation=Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public boolean checkType(String type) {
-        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory()
+                .getClassMetadata(type);
         return meta == null ? false : true;
     }
-    
+
     @RolesAllowed("user")
-    @Transactional(propagation=Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public boolean checkProperty(String type, String property) {
-        ClassMetadata meta = getHibernateTemplate().getSessionFactory().getClassMetadata(type);
+        ClassMetadata meta = getHibernateTemplate().getSessionFactory()
+                .getClassMetadata(type);
         String[] names = meta.getPropertyNames();
-        for (int i = 0; i < names.length; i++)
-        {
+        for (int i = 0; i < names.length; i++) {
             // TODO: possibly with caching and Arrays.sort/search
-            if (names[i].equals(property)) return true;
+            if (names[i].equals(property))
+                return true;
         }
         return false;
     }
@@ -131,21 +129,19 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T> T execute(HibernateCallback callback)
-    {
+    public <T> T execute(HibernateCallback callback) {
         return (T) getHibernateTemplate().execute(callback);
     }
-    
+
     /**
      * @see ome.api.local.LocalQuery#execute(Query)
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T> T execute(ome.services.query.Query<T> query)
-    {
+    public <T> T execute(ome.services.query.Query<T> query) {
         return (T) getHibernateTemplate().execute(query);
     }
-    
+
     // ~ INTERFACE METHODS
     // =========================================================================
 
@@ -156,31 +152,30 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public IObject get(final Class klass, final long id) 
-    throws ValidationException
-    {
-        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+    public IObject get(final Class klass, final long id)
+            throws ValidationException {
+        return (IObject) getHibernateTemplate().execute(
+                new HibernateCallback() {
+                    public Object doInHibernate(Session session)
+                            throws HibernateException {
 
-                IObject o = null;
-                try 
-                {
-                    o = (IObject) session.load(klass,id);
-                } catch (ObjectNotFoundException onfe)
-                {
-                    throw new ApiUsageException(String.format(
-                            "The requested object (%s,%s) is not available.\n" +
-                            "Please use IQuery.find to deteremine existance.\n",
-                            klass.getName(),id));
-                }
-                
-                Hibernate.initialize(o);
-                return o;
-                
-                
-            }
-        });
+                        IObject o = null;
+                        try {
+                            o = (IObject) session.load(klass, id);
+                        } catch (ObjectNotFoundException onfe) {
+                            throw new ApiUsageException(
+                                    String
+                                            .format(
+                                                    "The requested object (%s,%s) is not available.\n"
+                                                            + "Please use IQuery.find to deteremine existance.\n",
+                                                    klass.getName(), id));
+                        }
+
+                        Hibernate.initialize(o);
+                        return o;
+
+                    }
+                });
     }
 
     /**
@@ -190,19 +185,18 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public IObject find(final Class klass, final long id)
-    {
-        return (IObject) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+    public IObject find(final Class klass, final long id) {
+        return (IObject) getHibernateTemplate().execute(
+                new HibernateCallback() {
+                    public Object doInHibernate(Session session)
+                            throws HibernateException {
 
-                IObject o = (IObject) session.get(klass,id); 
-                Hibernate.initialize(o);
-                return o;
-                
-                
-            }
-        });
+                        IObject o = (IObject) session.get(klass, id);
+                        Hibernate.initialize(o);
+                        return o;
+
+                    }
+                });
     }
 
     /**
@@ -210,20 +204,20 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> List<T> findAll(final Class<T> klass, final Filter filter)
-    {
-        if ( filter == null )
-            return getHibernateTemplate().loadAll( klass );
-        
-        return (List<T>) getHibernateTemplate().execute( new HibernateCallback(){
-           public Object doInHibernate(Session session) 
-           throws HibernateException, SQLException
-            {
-               Criteria c = session.createCriteria(klass);
-               parseFilter( c,filter );
-               return c.list();
-            } 
-        });
+    public <T extends IObject> List<T> findAll(final Class<T> klass,
+            final Filter filter) {
+        if (filter == null)
+            return getHibernateTemplate().loadAll(klass);
+
+        return (List<T>) getHibernateTemplate().execute(
+                new HibernateCallback() {
+                    public Object doInHibernate(Session session)
+                            throws HibernateException, SQLException {
+                        Criteria c = session.createCriteria(klass);
+                        parseFilter(c, filter);
+                        return c.list();
+                    }
+                });
     }
 
     /**
@@ -231,8 +225,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> T findByExample(final T example) throws ApiUsageException
-    {
+    public <T extends IObject> T findByExample(final T example)
+            throws ApiUsageException {
         return (T) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
@@ -240,162 +234,163 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                 Criteria c = session.createCriteria(example.getClass());
                 c.add(Example.create(example));
                 return c.uniqueResult();
-                
+
             }
         });
     }
 
     /**
-     * @see ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)
+     * @see ome.api.IQuery#findAllByExample(ome.model.IObject,
+     *      ome.parameters.Filter)
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> List<T> findAllByExample(final T example, final Filter filter)
-    {
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+    public <T extends IObject> List<T> findAllByExample(final T example,
+            final Filter filter) {
+        return (List<T>) getHibernateTemplate().execute(
+                new HibernateCallback() {
+                    public Object doInHibernate(Session session)
+                            throws HibernateException {
 
-                Criteria c = session.createCriteria(example.getClass());
-                c.add(Example.create(example));
-                parseFilter(c,filter);
-                return c.list();
-                
-            }
-        });
+                        Criteria c = session.createCriteria(example.getClass());
+                        c.add(Example.create(example));
+                        parseFilter(c, filter);
+                        return c.list();
+
+                    }
+                });
     }
 
     /**
-     * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String, java.lang.String)
+     * @see ome.api.IQuery#findByString(java.lang.Class, java.lang.String,
+     *      java.lang.String)
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> T findByString(
-    final Class<T> klass, 
-    final String fieldName, 
-    final String value) 
-    throws ApiUsageException
-    {
+    public <T extends IObject> T findByString(final Class<T> klass,
+            final String fieldName, final String value)
+            throws ApiUsageException {
         return (T) getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException {
 
                 Criteria c = session.createCriteria(klass);
-                c.add(Expression.like(fieldName,value));
+                c.add(Expression.like(fieldName, value));
                 return c.uniqueResult();
-                
+
             }
         });
     }
 
     /**
-     * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String, java.lang.String, boolean, ome.parameters.Filter)
+     * @see ome.api.IQuery#findAllByString(java.lang.Class, java.lang.String,
+     *      java.lang.String, boolean, ome.parameters.Filter)
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> List<T> findAllByString(
-            final Class<T> klass, 
-            final String fieldName, 
-            final String value, 
-            final boolean caseSensitive, 
-            final Filter filter) 
-    throws ApiUsageException
-    {
-        return (List<T>) getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
+    public <T extends IObject> List<T> findAllByString(final Class<T> klass,
+            final String fieldName, final String value,
+            final boolean caseSensitive, final Filter filter)
+            throws ApiUsageException {
+        return (List<T>) getHibernateTemplate().execute(
+                new HibernateCallback() {
+                    public Object doInHibernate(Session session)
+                            throws HibernateException {
 
-                Criteria c = session.createCriteria(klass);
-                parseFilter( c,filter );
-                
-                if (caseSensitive)
-                    c.add(Expression.like(fieldName,value,MatchMode.ANYWHERE));
-                else 
-                    c.add(Expression.ilike(fieldName,value,MatchMode.ANYWHERE));
-                
-                return c.list();
-                
-            }
-        });
+                        Criteria c = session.createCriteria(klass);
+                        parseFilter(c, filter);
+
+                        if (caseSensitive)
+                            c.add(Expression.like(fieldName, value,
+                                    MatchMode.ANYWHERE));
+                        else
+                            c.add(Expression.ilike(fieldName, value,
+                                    MatchMode.ANYWHERE));
+
+                        return c.list();
+
+                    }
+                });
     }
 
-    /** 
-     * @see ome.api.IQuery#findByQuery(java.lang.String, ome.parameters.Parameters)
+    /**
+     * @see ome.api.IQuery#findByQuery(java.lang.String,
+     *      ome.parameters.Parameters)
      */
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public <T extends IObject> T findByQuery(String queryName, Parameters params) 
-    throws ValidationException
-    {
-        
-        if ( params == null )
-        {
+    public <T extends IObject> T findByQuery(String queryName, Parameters params)
+            throws ValidationException {
+
+        if (params == null) {
             params = new Parameters();
         }
-        
+
         // specify that we should only return a single value if possible
         params.getFilter().unique();
-        
-        Query<T> q = getQueryFactory().lookup( queryName, params );
+
+        Query<T> q = getQueryFactory().lookup(queryName, params);
         T result = null;
-        try { 
+        try {
             result = execute(q);
         } catch (ClassCastException cce) {
             throw new ApiUsageException(
-                    "Query named:\n\t"+queryName+"\n" +
-                    "has returned an Object of type "+cce.getMessage()+"\n" +
-                    "Queries must return IObjects when using findByQuery. \n" +
-                    "Please try findAllByQuery for queries which return Lists."
-                    );
+                    "Query named:\n\t"
+                            + queryName
+                            + "\n"
+                            + "has returned an Object of type "
+                            + cce.getMessage()
+                            + "\n"
+                            + "Queries must return IObjects when using findByQuery. \n"
+                            + "Please try findAllByQuery for queries which return Lists.");
         } catch (NonUniqueResultException nure) {
             throw new ApiUsageException(
-                    "Query named:\n\t"+queryName+"\n" +
-                    "has returned more than one Object\n" +
-                    "findByQuery must return a single value.\n" +
-                    "Please try findAllByQuery for queries which return Lists."
-                    );
+                    "Query named:\n\t"
+                            + queryName
+                            + "\n"
+                            + "has returned more than one Object\n"
+                            + "findByQuery must return a single value.\n"
+                            + "Please try findAllByQuery for queries which return Lists.");
         }
         return result;
-        
+
     }
 
-    /** 
-     * @see ome.api.IQuery#findAllByQuery(java.lang.String, ome.parameters.Parameters)
+    /**
+     * @see ome.api.IQuery#findAllByQuery(java.lang.String,
+     *      ome.parameters.Parameters)
      */
     @RolesAllowed("user")
-    public <T extends IObject> List<T> findAllByQuery(String queryName, Parameters params)
-    {
-        Query<List<T>> q = getQueryFactory().lookup( queryName, params );
+    public <T extends IObject> List<T> findAllByQuery(String queryName,
+            Parameters params) {
+        Query<List<T>> q = getQueryFactory().lookup(queryName, params);
         return execute(q);
     }
 
     // ~ Others
-	// =========================================================================
+    // =========================================================================
 
     /**
      * @see IQuery#refresh(IObject)
      */
-    public <T extends IObject> T refresh(T iObject) throws ApiUsageException 
-    {
-    	getHibernateTemplate().refresh(iObject);
-    	return iObject;
+    public <T extends IObject> T refresh(T iObject) throws ApiUsageException {
+        getHibernateTemplate().refresh(iObject);
+        return iObject;
     }
-    
+
     // ~ HELPERS
     // =========================================================================
-    
-    /** responsible for applying the information provided in a
-     * {@link ome.parameters.Filter} to a {@link org.hibernate.Critieria} 
-     * instance. 
-     */ 
-    protected void parseFilter( Criteria c, Filter f)
-    {
-        if ( f != null )
-        {
-            c.setFirstResult( f.firstResult() );
-            c.setMaxResults( f.maxResults() );
+
+    /**
+     * responsible for applying the information provided in a
+     * {@link ome.parameters.Filter} to a {@link org.hibernate.Critieria}
+     * instance.
+     */
+    protected void parseFilter(Criteria c, Filter f) {
+        if (f != null) {
+            c.setFirstResult(f.firstResult());
+            c.setMaxResults(f.maxResults());
         }
     }
 
 }
-				

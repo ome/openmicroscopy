@@ -28,12 +28,10 @@ import ome.conditions.ApiUsageException;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class QueryException extends ApiUsageException
-{
-    public QueryException(String message)
-    {
+public class QueryException extends ApiUsageException {
+    public QueryException(String message) {
         super(message);
     }
-    
+
     // TODO should extend FixAndRetryException
 }

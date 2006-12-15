@@ -10,34 +10,29 @@ package ome.formats;
 /**
  * @author "Brian W. Loranger"
  */
-public class EnumerationException extends RuntimeException
-{
+public class EnumerationException extends RuntimeException {
 
     /** The enumeration class that was used in a failed enumeration lookup. */
-    private Class  failureClass;
+    private Class failureClass;
 
     /** The enumeration value that was used in a failed enumeration lookup. */
     private String value;
 
-    public EnumerationException(String message, Class klass, String value)
-    {
+    public EnumerationException(String message, Class klass, String value) {
         super(message);
         this.failureClass = klass;
         this.value = value;
     }
 
-    public Class getFailureClass()
-    {
+    public Class getFailureClass() {
         return failureClass;
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return getMessage() + "'" + value + "' in '" + failureClass + "'.";
     }
 }

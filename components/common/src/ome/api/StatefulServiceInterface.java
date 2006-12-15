@@ -16,7 +16,7 @@ import ome.model.meta.Event;
 import ome.system.EventContext;
 
 /**
- * OMERO API Interface with stateful semantics. 
+ * OMERO API Interface with stateful semantics.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -25,15 +25,17 @@ import ome.system.EventContext;
  *          </small>
  * @since OME3.0
  */
-public interface StatefulServiceInterface extends ServiceInterface { 
-    
-    /** signals the end of the service lifecycle. Resources such as Sessions
-     * can be released. All further calls will throw an exception.
+public interface StatefulServiceInterface extends ServiceInterface {
+
+    /**
+     * signals the end of the service lifecycle. Resources such as Sessions can
+     * be released. All further calls will throw an exception.
      */
     void close();
 
-	/** Returns the current {@link EventContext} for this instance. This is
-	 * useful for later identifying changes made by this {@link Event}.
-	 */
+    /**
+     * Returns the current {@link EventContext} for this instance. This is
+     * useful for later identifying changes made by this {@link Event}.
+     */
     EventContext getCurrentEventContext();
 }

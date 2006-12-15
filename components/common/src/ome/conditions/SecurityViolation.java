@@ -6,30 +6,26 @@
  */
 package ome.conditions;
 
-//Java imports
+// Java imports
 import javax.ejb.ApplicationException;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-/** 
- * User does not have permissions to perform given action. 
+/**
+ * User does not have permissions to perform given action.
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
 @ApplicationException
-public class SecurityViolation extends RootException
-{
+public class SecurityViolation extends RootException {
 
-	public SecurityViolation(String msg){
-		super(msg);
-	}
-	
+    public SecurityViolation(String msg) {
+        super(msg);
+    }
+
 }

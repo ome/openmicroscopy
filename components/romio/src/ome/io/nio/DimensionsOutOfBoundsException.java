@@ -6,22 +6,18 @@
  */
 package ome.io.nio;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public class DimensionsOutOfBoundsException extends Exception
-{
+public class DimensionsOutOfBoundsException extends Exception {
     private String message;
 
-    public DimensionsOutOfBoundsException(String message)
-    {
+    public DimensionsOutOfBoundsException(String message) {
         this.message = message;
     }
-    
-    public String getMessage()
-    {
+
+    public String getMessage() {
         return message;
     }
 }

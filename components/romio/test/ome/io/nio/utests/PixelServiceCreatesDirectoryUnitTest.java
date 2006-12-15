@@ -9,16 +9,15 @@ import ome.model.enums.PixelsType;
 
 import junit.framework.TestCase;
 
-
-public class PixelServiceCreatesDirectoryUnitTest extends TestCase
-{
+public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     private Pixels pixels;
+
     private PixelBuffer pixelBuffer;
+
     private PixelsService service;
-    
-  @Configuration(beforeTestMethod = true)
-    protected void setUp()
-    {
+
+    @Configuration(beforeTestMethod = true)
+    protected void setUp() {
         pixels = new Pixels();
         pixels.setId(1234567890123L);
         pixels.setSizeX(256);
@@ -26,18 +25,17 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase
         pixels.setSizeZ(64);
         pixels.setSizeC(3);
         pixels.setSizeT(50);
-        
+
         PixelsType type = new PixelsType();
         type.setValue("uint16");
         pixels.setPixelsType(type);
 
         service = new PixelsService(PixelsService.ROOT_DEFAULT);
     }
-    
-  @Test
-    public void testLargeId() throws Exception
-    {
-      pixelBuffer = service.createPixelBuffer(pixels);
+
+    @Test
+    public void testLargeId() throws Exception {
+        pixelBuffer = service.createPixelBuffer(pixels);
     }
-    
+
 }

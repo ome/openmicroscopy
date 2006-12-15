@@ -7,26 +7,25 @@
 
 package ome.tools;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
-
+// Application-internal dependencies
 
 public class StringUtils {
 
-	public static String getClassName(final Class arg0) {
-		
-		if (arg0 ==null)
-			throw new IllegalArgumentException("Class argument cannot be null.");
-		
-		String klass = arg0.getName();
-		int last = klass.lastIndexOf(".");
-		if (last == -1)	
-			return klass;
-		
-		return klass.substring(last+1);
-	}
-	
+    public static String getClassName(final Class arg0) {
+
+        if (arg0 == null)
+            throw new IllegalArgumentException("Class argument cannot be null.");
+
+        String klass = arg0.getName();
+        int last = klass.lastIndexOf(".");
+        if (last == -1)
+            return klass;
+
+        return klass.substring(last + 1);
+    }
+
 }

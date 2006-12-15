@@ -33,18 +33,19 @@ import ome.tools.hibernate.ProxyCleanupFilter;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
-@Test( groups = {"ticket:61","hibernate","priority"} )
-public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase
-{
+@Test(groups = { "ticket:61", "hibernate", "priority" })
+public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase {
 
-	ProxyCleanupFilter filter;
-	SessionImplementor session;
-	PersistenceContext ctx;
-	Mock mockSession, mockCtx;
+    ProxyCleanupFilter filter;
+
+    SessionImplementor session;
+
+    PersistenceContext ctx;
+
+    Mock mockSession, mockCtx;
 
     @Configuration(beforeTestMethod = true)
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         super.setUp();
         filter = new ProxyCleanupFilter();
         mockSession = mock(SessionImplementor.class);
@@ -54,9 +55,8 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase
     }
 
     @Configuration(afterTestMethod = true)
-    protected void tearDown() throws Exception
-    {
-    	super.verify();
+    protected void tearDown() throws Exception {
+        super.verify();
         super.tearDown();
     }
 
@@ -65,45 +65,44 @@ public class ProxyCleanUpHandlerMockHibernateTest extends MockObjectTestCase
 
     @Test
     public void testPersistentMap() throws Exception {
-    	Map m = new PersistentMap(session, new HashMap());
-    	m = filter.filter(null, m);
-    	assertFalse( m instanceof PersistentMap );
-	}
-    
+        Map m = new PersistentMap(session, new HashMap());
+        m = filter.filter(null, m);
+        assertFalse(m instanceof PersistentMap);
+    }
+
     @Test
     public void testPersistentSet() throws Exception {
-    	Set s = new PersistentSet();
-    	s = (Set) filter.filter(null, s);
-    	assertFalse( s instanceof PersistentSet );
-	}
-    
+        Set s = new PersistentSet();
+        s = (Set) filter.filter(null, s);
+        assertFalse(s instanceof PersistentSet);
+    }
+
     @Test
     public void testPersistentList() throws Exception {
-    	List l = new PersistentList();
-    	l = (List) filter.filter(null, l);
-    	assertFalse( l instanceof PersistentList );
-	}
-    
+        List l = new PersistentList();
+        l = (List) filter.filter(null, l);
+        assertFalse(l instanceof PersistentList);
+    }
+
     @Test
     public void testPersistentBag() throws Exception {
-    	List l = new PersistentBag();
-    	l = (List) filter.filter(null, l);
-    	assertFalse( l instanceof PersistentBag );
-	}
-    
+        List l = new PersistentBag();
+        l = (List) filter.filter(null, l);
+        assertFalse(l instanceof PersistentBag);
+    }
+
     @Test
     public void testPersistentIdBag() throws Exception {
-    	List l = new PersistentIdentifierBag();
-    	l = (List) filter.filter(null, l);
-    	assertFalse( l instanceof PersistentIdentifierBag );
-	}
-    
-    /* exist also as subclasses of AbstractPersistentCollection
-     *  - PersistentArrayHolder -- deprecated
-     *  - PersistentElementHolder -- ??
-     *  - PersistentIndexedElementHolder -- ??
-     *  - subclasses of the already tested items
-     */
+        List l = new PersistentIdentifierBag();
+        l = (List) filter.filter(null, l);
+        assertFalse(l instanceof PersistentIdentifierBag);
+    }
 
+    /*
+     * exist also as subclasses of AbstractPersistentCollection -
+     * PersistentArrayHolder -- deprecated - PersistentElementHolder -- ?? -
+     * PersistentIndexedElementHolder -- ?? - subclasses of the already tested
+     * items
+     */
 
 }

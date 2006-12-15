@@ -14,29 +14,28 @@ import org.apache.tools.ant.types.PatternSet.NameEntry;
 import ome.dsl.APITask;
 import junit.framework.TestCase;
 
-public class AntTasksTest extends TestCase
-{
+public class AntTasksTest extends TestCase {
 
     private static Log log = LogFactory.getLog(AntTasksTest.class);
 
-  @Test
-    public void testAPITask() {}
-    /** disabling; need logic to find common/ 
-     * perhaps OMERO_HOME has to be set. FIXME
+    @Test
+    public void testAPITask() {
+    }
+
+    /**
+     * disabling; need logic to find common/ perhaps OMERO_HOME has to be set.
+     * FIXME
      */
-    public void DISABLEDtestAPITask()
-    {
+    public void DISABLEDtestAPITask() {
 
         final File currentDir = new File(System.getProperty("user.dir"));
 
         final File commonDir = new File(currentDir.getParentFile().getPath()
                 + File.separator + "common");
 
-        final class T extends APITask
-        {
+        final class T extends APITask {
 
-            public T()
-            {
+            public T() {
 
                 DefaultLogger logger = new DefaultLogger();
                 logger.setMessageOutputLevel(Project.MSG_DEBUG);

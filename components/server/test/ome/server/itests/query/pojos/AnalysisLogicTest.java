@@ -6,10 +6,10 @@
  */
 package ome.server.itests.query.pojos;
 
-//Java imports
+// Java imports
 import java.util.Set;
 
-//Third-party libraries
+// Third-party libraries
 import ome.server.itests.AbstractInternalContextTest;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.ServiceFactory;
@@ -20,79 +20,71 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-/** 
+/**
  * 
- *  
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * 
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-@Test(
-        groups = "integration"
-)
-public class AnalysisLogicTest
-        extends
-            AbstractManagedContextTest {
+@Test(groups = "integration")
+public class AnalysisLogicTest extends AbstractManagedContextTest {
 
     private static Log log = LogFactory.getLog(AnalysisLogicTest.class);
 
     CreatePojosFixture DATA;
-    
-    @Configuration( beforeTestClass = true )
-    public void makePojos() throws Exception
-    {
-    	try {
-    		setUp();
-    		DATA = new CreatePojosFixture( this.factory );
-    		DATA.pdi();
-    	} finally {
-    		tearDown();
-    	}
-    }
-    
-    @Test
-    public void testGetProjectsForUser(){
-    	Set s = iAnalysis.getProjectsForUser(1);
-    	assertTrue(notNull,s.size()>0);
-    }
-    
-    @Test
-    public void testAllDatasets(){
-    	Set s = iAnalysis.getAllDatasets();
-    	assertTrue(notNull,s.size()>0);
+
+    @Configuration(beforeTestClass = true)
+    public void makePojos() throws Exception {
+        try {
+            setUp();
+            DATA = new CreatePojosFixture(this.factory);
+            DATA.pdi();
+        } finally {
+            tearDown();
+        }
     }
 
-// TODO   
-//  @Test
-//	public void testChainExecutionsForDataset() {
-//		Set s = iAnalysis.getChainExecutionsForDataset(1);
-//		assertTrue(notNull,s.size()>0);
-//	}
-	
     @Test
-	public void testDsFromPs(){
-		Set s = iAnalysis.getDatasetsForProject(DATA.pu9992.getId());
-		assertTrue(notNull, s.size()>0);
-	}
+    public void testGetProjectsForUser() {
+        Set s = iAnalysis.getProjectsForUser(1);
+        assertTrue(notNull, s.size() > 0);
+    }
 
     @Test
-	public void testPsFromDs(){
-		Set s = iAnalysis.getProjectsForDataset(DATA.du7772.getId());
-		assertTrue(notNull, s.size()>0);
-	}
+    public void testAllDatasets() {
+        Set s = iAnalysis.getAllDatasets();
+        assertTrue(notNull, s.size() > 0);
+    }
+
+    // TODO
+    // @Test
+    // public void testChainExecutionsForDataset() {
+    // Set s = iAnalysis.getChainExecutionsForDataset(1);
+    // assertTrue(notNull,s.size()>0);
+    // }
 
     @Test
-	public void testIsFromDs(){
-		Set s = iAnalysis.getImagesForDataset(DATA.du7772.getId());
-		assertTrue(notNull, s.size()>0);
-	}
-	
-	private final static String notNull = "There has to be something";
-	
+    public void testDsFromPs() {
+        Set s = iAnalysis.getDatasetsForProject(DATA.pu9992.getId());
+        assertTrue(notNull, s.size() > 0);
+    }
+
+    @Test
+    public void testPsFromDs() {
+        Set s = iAnalysis.getProjectsForDataset(DATA.du7772.getId());
+        assertTrue(notNull, s.size() > 0);
+    }
+
+    @Test
+    public void testIsFromDs() {
+        Set s = iAnalysis.getImagesForDataset(DATA.du7772.getId());
+        assertTrue(notNull, s.size() > 0);
+    }
+
+    private final static String notNull = "There has to be something";
+
 }

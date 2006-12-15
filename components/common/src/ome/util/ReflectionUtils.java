@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * @author josh
  * @deprecated
- * @DEV.TODO this needs to be refactored to use BeanUtils; don't use. * 
+ * @DEV.TODO this needs to be refactored to use BeanUtils; don't use. *
  */
 public class ReflectionUtils {
 
@@ -26,20 +26,21 @@ public class ReflectionUtils {
 
     public static void findFieldsOfClass(Class target, Object o, String path,
             Log log, Set done) {
-        if (null == path||path.equals(""))
+        if (null == path || path.equals(""))
             path = "\nthis";
-        if (null==done)
+        if (null == done)
             done = new HashSet();
         if (done.contains(o))
             return;
         done.add(o);
-        
+
         if (target.isInstance(o)) {
-            log.info(path + ";" + "\n----------------------\n" + o.toString()+" < "+o.getClass());
-        } else if (o instanceof Set){
-            for (Iterator it = ((Set)o).iterator(); it.hasNext();) {
+            log.info(path + ";" + "\n----------------------\n" + o.toString()
+                    + " < " + o.getClass());
+        } else if (o instanceof Set) {
+            for (Iterator it = ((Set) o).iterator(); it.hasNext();) {
                 Object element = (Object) it.next();
-                findFieldsOfClass(target,element,path,log,done);
+                findFieldsOfClass(target, element, path, log, done);
             }
         } else {
             Method[] accessors = getGettersAndSetters(o);
@@ -47,7 +48,7 @@ public class ReflectionUtils {
             for (int i = 0; i < accessors.length; i++) {
                 Method method = accessors[i];
                 if (method.getName().startsWith("get")) {
-                    log.debug("Trying "+method);
+                    log.debug("Trying " + method);
                     Object obj = invokeGetter(o, method);
                     if (null != obj) {
                         findFieldsOfClass(target, obj, path + ".\n"
@@ -62,8 +63,9 @@ public class ReflectionUtils {
         Method[] methods, superMethods = null;
         methods = obj.getClass().getDeclaredMethods();
         Package pkg = obj.getClass().getPackage();
-        if (null != pkg
-                && pkg.toString().indexOf("ome.model2") > -1) {//FIXME not valid
+        if (null != pkg && pkg.toString().indexOf("ome.model2") > -1) {// FIXME
+                                                                        // not
+                                                                        // valid
             superMethods = obj.getClass().getSuperclass().getDeclaredMethods();
         }
         List goodMethods = checkGettersAndSetters(methods);
@@ -114,10 +116,14 @@ public class ReflectionUtils {
         return null;
     }
 
-    /** call getter and return object. 
+    /**
+     * call getter and return object.
+     * 
      * @DEV.TODO there maybe be cases where an exception is ok
-     * @param target object on which to call getter
-     * @param getter method for some field
+     * @param target
+     *            object on which to call getter
+     * @param getter
+     *            method for some field
      * @return value stored in field
      */
     public static Object invokeGetter(Object target, Method getter) {

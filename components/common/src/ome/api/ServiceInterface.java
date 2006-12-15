@@ -23,4 +23,5 @@ package ome.api;
  *          </small>
  * @since OME3.0
  */
-public interface ServiceInterface { }
+public interface ServiceInterface {
+}

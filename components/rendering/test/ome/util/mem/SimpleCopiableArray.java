@@ -7,38 +7,31 @@
 
 package ome.util.mem;
 
+// Java imports
 
-//Java imports
+// Third-party libraries
 
-//Third-party libraries
+// Application-internal dependencies
 
-//Application-internal dependencies
-
-/** 
+/**
  * Supports unit tests for the {@link CopiableArray} class.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 1.1 $ $Date: 2005/06/25 18:09:08 $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.1 $ $Date:
+ *          2005/06/25 18:09:08 $) </small>
  * @since OME2.2
  */
-class SimpleCopiableArray
-    extends CopiableArray
-{
+class SimpleCopiableArray extends CopiableArray {
 
-    SimpleCopiableArray(int size)
-    {
+    SimpleCopiableArray(int size) {
         super(size);
     }
-    
-    protected CopiableArray makeNew(int size)
-    {
+
+    protected CopiableArray makeNew(int size) {
         return new SimpleCopiableArray(size);
     }
 

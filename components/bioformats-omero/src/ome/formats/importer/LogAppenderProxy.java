@@ -11,31 +11,26 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
-public class LogAppenderProxy extends AppenderSkeleton implements Appender
-{
+public class LogAppenderProxy extends AppenderSkeleton implements Appender {
 
     private static LogAppender delegate;
 
-    public LogAppenderProxy()
-    {
+    public LogAppenderProxy() {
         super();
         delegate = LogAppender.getInstance();
     }
 
     @Override
-    protected void append(LoggingEvent arg0)
-    {
+    protected void append(LoggingEvent arg0) {
         String s = getLayout().format(arg0);
         delegate.append(s);
     }
 
-    public void close()
-    {
+    public void close() {
         return;
     }
 
-    public boolean requiresLayout()
-    {
+    public boolean requiresLayout() {
         return true;
     }
 }

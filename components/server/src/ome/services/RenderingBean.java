@@ -94,126 +94,120 @@ import omeis.providers.re.quantum.QuantizationException;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-
 @Stateful
 @Remote(RenderingEngine.class)
-@RemoteBinding(jndiBinding="omero/remote/omeis.providers.re.RenderingEngine")
+@RemoteBinding(jndiBinding = "omero/remote/omeis.providers.re.RenderingEngine")
 @Local(RenderingEngine.class)
-@LocalBinding (jndiBinding="omero/local/omeis.providers.re.RenderingEngine")
+@LocalBinding(jndiBinding = "omero/local/omeis.providers.re.RenderingEngine")
 @SecurityDomain("OmeroSecurity")
 @Cache(NoPassivationCache.class)
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional // TODO previously not here. examine the difference.
-public class RenderingBean extends AbstractLevel2Service 
-    implements RenderingEngine, Serializable
-{
+@Transactional
+// TODO previously not here. examine the difference.
+public class RenderingBean extends AbstractLevel2Service implements
+        RenderingEngine, Serializable {
 
     private static final long serialVersionUID = -4383698215540637039L;
-    
+
     private static final Log log = LogFactory.getLog(RenderingBean.class);
-    
+
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface() {
-    	return RenderingEngine.class;
+        return RenderingEngine.class;
     }
-    
+
     // ~ State
-	// =========================================================================
-    
+    // =========================================================================
+
     /*
-     * LIFECYCLE: 
-     * 1. new() || new(Services[]) 
-     * 2. (lookupX || useX)+ && load  
-     * 3. call methods 
-     * 4. optionally: return to 2.
-     * 5. destroy() 
-     *
-     * TODO: when a setXXX() method is called, when do I reload? always?
-     * or ondirty?
+     * LIFECYCLE: 1. new() || new(Services[]) 2. (lookupX || useX)+ && load 3.
+     * call methods 4. optionally: return to 2. 5. destroy()
+     * 
+     * TODO: when a setXXX() method is called, when do I reload? always? or
+     * ondirty?
      */
 
     /**
-     * Transforms the raw data. Entry point to the unsych parts of the component.
-     * As soon as Renderer is not null, the Engine is ready to use.
+     * Transforms the raw data. Entry point to the unsych parts of the
+     * component. As soon as Renderer is not null, the Engine is ready to use.
      */
-    private transient Renderer                       renderer;
-    
+    private transient Renderer renderer;
+
     /** The pixels set to the rendering engine is for. */
-    private transient Pixels                         pixelsObj;
-    
+    private transient Pixels pixelsObj;
+
     /** The rendering settings associated to the pixels set. */
-    private transient RenderingDef                   rendDefObj;
-    
+    private transient RenderingDef rendDefObj;
+
     /** Reference to the service used to retrieve the pixels data. */
-    private transient PixelsService                  pixDataSrv;
-    
+    private transient PixelsService pixDataSrv;
+
     /** Reference to the service used to retrieve the pixels metadata. */
-    private transient IPixels                        pixMetaSrv;
-    
-    /** read-write lock to prevent READ-calls during WRITE operations. Unneeded
+    private transient IPixels pixMetaSrv;
+
+    /**
+     * read-write lock to prevent READ-calls during WRITE operations. Unneeded
      * for remote invocations (EJB synchronizes).
      */
-    private transient ReentrantReadWriteLock         rwl 
-    	= new ReentrantReadWriteLock();
-    
+    private transient ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
     /** set injector. For use during configuration. Can only be called once. */
-    public void setPixelsMetadata(IPixels metaService)
-    {
-    	this.throwIfAlreadySet(this.pixMetaSrv, metaService);
+    public void setPixelsMetadata(IPixels metaService) {
+        this.throwIfAlreadySet(this.pixMetaSrv, metaService);
         pixMetaSrv = metaService;
     }
-    
+
     /** set injector. For use during configuration. Can only be called once. */
-    public void setPixelsData(PixelsService dataService)
-    {
-    	throwIfAlreadySet(this.pixDataSrv, dataService);
+    public void setPixelsData(PixelsService dataService) {
+        throwIfAlreadySet(this.pixDataSrv, dataService);
         pixDataSrv = dataService;
     }
-    
+
     // ~ Lifecycle methods
-	// =========================================================================
-    
-    /** lifecycle method -- {@link PostActivate} and {@link PostConstruct}. 
-     * Delegates to super class */
+    // =========================================================================
+
+    /**
+     * lifecycle method -- {@link PostActivate} and {@link PostConstruct}.
+     * Delegates to super class
+     */
     @PostActivate
     @PostConstruct
     @Override
-    public void create()
-    {
-    	super.create();
+    public void create() {
+        super.create();
     }
 
     /** lifecycle method -- {@link PrePassivate}. Disallows all passivation. */
     @PrePassivate
-    public void passivate()
-    {
-    	super.passivationNotAllowed();
+    public void passivate() {
+        super.passivationNotAllowed();
     }
-    
-    /** lifecycle method -- {@link PreDestroy}. Nulls {@link Renderer} instance
-     * and delegates to super class with {@link ReentrantReadWriteLock write lock}
+
+    /**
+     * lifecycle method -- {@link PreDestroy}. Nulls {@link Renderer} instance
+     * and delegates to super class with
+     * {@link ReentrantReadWriteLock write lock}
      */
     @PreDestroy
     @Override
-    public void destroy()
-    {
+    public void destroy() {
         rwl.writeLock().lock();
 
         try {
-            renderer = null; // marks as unready. all other state is marked transient.
+            renderer = null; // marks as unready. all other state is marked
+                                // transient.
             super.destroy();
         } finally {
             rwl.writeLock().unlock();
         }
     }
-    
+
     @Remove
-    @Transactional(readOnly=true)
-    public void close()
-    {
-    	// don't need to do anything.
+    @Transactional(readOnly = true)
+    public void close() {
+        // don't need to do anything.
     }
-    
+
     /*
      * SETTERS for use in dependency injection. All invalidate the current
      * renderer. Only possible with the WriteLock so no possibility of
@@ -221,82 +215,80 @@ public class RenderingBean extends AbstractLevel2Service
      * 
      * a.k.a. STATE-MANAGEMENT
      */
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#lookupPixels(long)
      */
     @RolesAllowed("user")
-    public void lookupPixels(long pixelsId)
-    {
+    public void lookupPixels(long pixelsId) {
         rwl.writeLock().lock();
 
         try {
 
-            this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId); 
+            this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
             this.renderer = null;
 
-            if ( pixelsObj == null )
-                throw new ValidationException(
-                        "Pixels object with id "+pixelsId+" not found.");
-            
+            if (pixelsObj == null)
+                throw new ValidationException("Pixels object with id "
+                        + pixelsId + " not found.");
+
         } finally {
             rwl.writeLock().unlock();
         }
-        
+
         if (log.isDebugEnabled())
-            log.debug("lookupPixels for id "+pixelsId+" succeeded: "+this.pixelsObj);
+            log.debug("lookupPixels for id " + pixelsId + " succeeded: "
+                    + this.pixelsObj);
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#lookupRenderingDef(long)
      */
     @RolesAllowed("user")
-    public void lookupRenderingDef(long pixelsId)
-    {
+    public void lookupRenderingDef(long pixelsId) {
         rwl.writeLock().lock();
-        
-        try
-        {
+
+        try {
             rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
             renderer = null;
-            
-            if (rendDefObj == null)
-            {
-            	// We've been initialized on a pixels set that has no rendering
-            	// definition for the given user. In order to keep the proper
-            	// bean state, we initialize the local instance variable and
-            	// write out new rendering settings into the database.
-            	PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-            	rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
-            	Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv, buffer);
-            	pixMetaSrv.saveRndSettings(rendDefObj);
-            	iUpdate.flush();
-            	rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+
+            if (rendDefObj == null) {
+                // We've been initialized on a pixels set that has no rendering
+                // definition for the given user. In order to keep the proper
+                // bean state, we initialize the local instance variable and
+                // write out new rendering settings into the database.
+                PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
+                rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
+                Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv,
+                        buffer);
+                pixMetaSrv.saveRndSettings(rendDefObj);
+                iUpdate.flush();
+                rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
             }
-        }
-        finally
-        {
+        } finally {
             rwl.writeLock().unlock();
         }
-        
+
         if (log.isDebugEnabled())
-            log.debug("lookupRenderingDef for Pixels="+pixelsId+" succeeded: "+this.rendDefObj);
-        
+            log.debug("lookupRenderingDef for Pixels=" + pixelsId
+                    + " succeeded: " + this.rendDefObj);
+
     }
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#load()
      */
     @RolesAllowed("user")
-    public void load()
-    {
+    public void load() {
         rwl.writeLock().lock();
 
-        try
-        {
+        try {
             errorIfNullPixels();
 
             /*
@@ -305,115 +297,107 @@ public class RenderingBean extends AbstractLevel2Service
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
-        }
-        finally
-        {
+        } finally {
             rwl.writeLock().unlock();
         }
-    } 
+    }
 
-    /** Implemented as specified by the {@link RenderingEngine} interface. TODO
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface. TODO
+     * 
      * @see RenderingEngine#getCurrentEventContext()
      */
     @RolesAllowed("user")
-    public EventContext getCurrentEventContext()
-    {
-        return new SimpleEventContext( getSecuritySystem().getEventContext() );
+    public EventContext getCurrentEventContext() {
+        return new SimpleEventContext(getSecuritySystem().getEventContext());
     }
-    
+
     /*
      * DELEGATING METHODS ==================================================
-     *  
-     *  All following methods follow the pattern:
-     *   1) get read or write lock
-     *      try {
-     *   2)   error on null 
-     *   3)   delegate method to renderer/renderingObj/pixelsObj
-     *      } finally {
-     *   4)   release lock
-     *      }
-     *  
-     *  TODO for all of these methods it would be good to have an
-     *  interceptor to check for a null renderer value. 
-     *      would have to be JBoss specific 
-     *      or apply at the Renderer level
-     *      or this would have to be a delegate to REngine to Renderer!
-     *      
-     *  @Write || @Read on each. 
-     *  for example 
-     *  see http://www.onjava.com/pub/a/onjava/2004/08/25/aoa.html?page=3
-     *  for asynch. annotations (also @TxSynchronized)
-     *   
+     * 
+     * All following methods follow the pattern: 1) get read or write lock try {
+     * 2) error on null 3) delegate method to renderer/renderingObj/pixelsObj }
+     * finally { 4) release lock }
+     * 
+     * TODO for all of these methods it would be good to have an interceptor to
+     * check for a null renderer value. would have to be JBoss specific or apply
+     * at the Renderer level or this would have to be a delegate to REngine to
+     * Renderer!
+     * 
+     * @Write || @Read on each. for example see
+     * http://www.onjava.com/pub/a/onjava/2004/08/25/aoa.html?page=3 for asynch.
+     * annotations (also @TxSynchronized)
+     * 
      */
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#render(PlaneDef)
      */
-    @RolesAllowed("user") 
-    public RGBBuffer render(PlaneDef pd)
-            throws ResourceError, ValidationException
-    {
+    @RolesAllowed("user")
+    public RGBBuffer render(PlaneDef pd) throws ResourceError,
+            ValidationException {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
             return renderer.render(pd);
         } catch (IOException e) {
-            ResourceError re = new ResourceError(
-                    "IO error while rendering:\n"+e.getMessage());
+            ResourceError re = new ResourceError("IO error while rendering:\n"
+                    + e.getMessage());
             re.initCause(e);
             throw re;
         } catch (QuantizationException e) {
             InternalException ie = new InternalException(
-                    "QuantizationException while rendering:\n"+e.getMessage());
+                    "QuantizationException while rendering:\n" + e.getMessage());
             ie.initCause(e);
             throw ie;
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#render(PlaneDef)
      */
-    @RolesAllowed("user") 
-    public int[] renderAsPackedInt(PlaneDef pd)
-            throws ResourceError, ValidationException
-    {
+    @RolesAllowed("user")
+    public int[] renderAsPackedInt(PlaneDef pd) throws ResourceError,
+            ValidationException {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
             return renderer.renderAsPackedInt(pd);
         } catch (IOException e) {
-            ResourceError re = new ResourceError(
-                    "IO error while rendering:\n"+e.getMessage());
+            ResourceError re = new ResourceError("IO error while rendering:\n"
+                    + e.getMessage());
             re.initCause(e);
             throw re;
         } catch (QuantizationException e) {
             InternalException ie = new InternalException(
-                    "QuantizationException while rendering:\n"+e.getMessage());
+                    "QuantizationException while rendering:\n" + e.getMessage());
             ie.initCause(e);
             throw ie;
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
+
     // ~ Settings
-	// =========================================================================
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    // =========================================================================
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#resetDefaults()
      */
-    @RolesAllowed("user") 
-    public void resetDefaults()
-    {
+    @RolesAllowed("user")
+    public void resetDefaults() {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.resetDefaults();
@@ -423,13 +407,13 @@ public class RenderingBean extends AbstractLevel2Service
         iUpdate.flush();
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#saveCurrentSettings()
      */
-    @RolesAllowed("user") 
-    public void saveCurrentSettings()
-    {
+    @RolesAllowed("user")
+    public void saveCurrentSettings() {
         rwl.writeLock().lock();
 
         try {
@@ -441,16 +425,16 @@ public class RenderingBean extends AbstractLevel2Service
         iUpdate.flush();
     }
 
-    //  ~ Renderer Delegation (READ)
+    // ~ Renderer Delegation (READ)
     // =========================================================================
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getChannelCurveCoefficient(int)
      */
-    @RolesAllowed("user") 
-    public double getChannelCurveCoefficient(int w)
-    {
+    @RolesAllowed("user")
+    public double getChannelCurveCoefficient(int w) {
         rwl.readLock().lock();
 
         try {
@@ -462,13 +446,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
+    /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getChannelFamily(int)
      */
     @RolesAllowed("user")
-    public Family getChannelFamily(int w)
-    {
+    public Family getChannelFamily(int w) {
         rwl.readLock().lock();
 
         try {
@@ -482,12 +466,12 @@ public class RenderingBean extends AbstractLevel2Service
     }
 
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getChannelNoiseReduction(int)
      */
-    @RolesAllowed("user") 
-    public boolean getChannelNoiseReduction(int w)
-    {
+    @RolesAllowed("user")
+    public boolean getChannelNoiseReduction(int w) {
         rwl.readLock().lock();
 
         try {
@@ -500,17 +484,17 @@ public class RenderingBean extends AbstractLevel2Service
     }
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    @RolesAllowed("user") 
-    public double[] getChannelStats(int w)
-    {
+    @RolesAllowed("user")
+    public double[] getChannelStats(int w) {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
-//            ChannelBinding[] cb = renderer.getChannelBindings();
-//        FIXME
-//        double[] stats = cb[w].getStats(), copy = new double[stats.length];
-//        System.arraycopy(stats, 0, copy, 0, stats.length);
+            // ChannelBinding[] cb = renderer.getChannelBindings();
+            // FIXME
+            // double[] stats = cb[w].getStats(), copy = new
+            // double[stats.length];
+            // System.arraycopy(stats, 0, copy, 0, stats.length);
             return null;
         } finally {
             rwl.readLock().unlock();
@@ -519,13 +503,13 @@ public class RenderingBean extends AbstractLevel2Service
         // copy to be on the safe side.
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getChannelWindowEnd(int)
      */
-    @RolesAllowed("user") 
-    public double getChannelWindowEnd(int w)
-    {
+    @RolesAllowed("user")
+    public double getChannelWindowEnd(int w) {
         rwl.readLock().lock();
 
         try {
@@ -537,13 +521,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getChannelWindowStart(int)
      */
-    @RolesAllowed("user") 
-    public double getChannelWindowStart(int w)
-    {
+    @RolesAllowed("user")
+    public double getChannelWindowStart(int w) {
         rwl.readLock().lock();
 
         try {
@@ -554,14 +538,14 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.readLock().unlock();
         }
     }
-    
+
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getRGBA(int)
      */
-    @RolesAllowed("user") 
-    public int[] getRGBA(int w)
-    {
+    @RolesAllowed("user")
+    public int[] getRGBA(int w) {
 
         rwl.readLock().lock();
 
@@ -581,13 +565,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#isActive(int)
      */
-    @RolesAllowed("user") 
-    public boolean isActive(int w)
-    {
+    @RolesAllowed("user")
+    public boolean isActive(int w) {
         rwl.readLock().lock();
 
         try {
@@ -599,16 +583,16 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    //  ~ RendDefObj Delegation
+    // ~ RendDefObj Delegation
     // =========================================================================
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getDefaultT()
      */
-    @RolesAllowed("user") 
-    public int getDefaultT()
-    {
+    @RolesAllowed("user")
+    public int getDefaultT() {
         rwl.readLock().lock();
 
         try {
@@ -619,14 +603,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getDefaultZ()
      */
-    @RolesAllowed("user") 
-    public int getDefaultZ()
-    {
+    @RolesAllowed("user")
+    public int getDefaultZ() {
         rwl.readLock().lock();
 
         try {
@@ -637,79 +620,78 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getModel()
      */
     @RolesAllowed("user")
-    public RenderingModel getModel()
-    {
+    public RenderingModel getModel() {
         rwl.readLock().lock();
 
         try {
             errorIfNullRenderingDef();
-            return copyRenderingModel( rendDefObj.getModel() );
+            return copyRenderingModel(rendDefObj.getModel());
         } finally {
             rwl.readLock().unlock();
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getQuantumDef()
      */
     @RolesAllowed("user")
-    public QuantumDef getQuantumDef()
-    {
+    public QuantumDef getQuantumDef() {
         rwl.readLock().lock();
 
         try {
             errorIfNullRenderingDef();
-            return new ShallowCopy().copy( rendDefObj.getQuantization() );
+            return new ShallowCopy().copy(rendDefObj.getQuantization());
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
-    //  ~ Pixels Delegation
+
+    // ~ Pixels Delegation
     // =========================================================================
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getPixels()
      */
-    @RolesAllowed("user") 
-    public Pixels getPixels()
-    {
+    @RolesAllowed("user")
+    public Pixels getPixels() {
         rwl.readLock().lock();
 
         try {
             errorIfNullPixels();
-            return copyPixels( pixelsObj );
+            return copyPixels(pixelsObj);
         } finally {
             rwl.readLock().unlock();
         }
     }
-    
-    //  ~ Service Delegation
+
+    // ~ Service Delegation
     // =========================================================================
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getAvailableModels()
      */
     @RolesAllowed("user")
-    public List getAvailableModels()
-    {
+    public List getAvailableModels() {
         rwl.readLock().lock();
 
         try {
-        	List<RenderingModel> models = 
-        		pixMetaSrv.getAllEnumerations(RenderingModel.class);
+            List<RenderingModel> models = pixMetaSrv
+                    .getAllEnumerations(RenderingModel.class);
             List<RenderingModel> result = new ArrayList<RenderingModel>();
-            for (RenderingModel model : models)
-            {
-                result.add( copyRenderingModel(model));
+            for (RenderingModel model : models) {
+                result.add(copyRenderingModel(model));
             }
             return result;
         } finally {
@@ -717,21 +699,20 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#getAvailableFamilies()
      */
     @RolesAllowed("user")
-    public List getAvailableFamilies()
-    {
+    public List getAvailableFamilies() {
         rwl.readLock().lock();
 
         try {
-        	List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
-        	List<Family> result = new ArrayList<Family>();
-            for (Family family : families)
-            {
-                result.add( copyFamily(family) );
+            List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
+            List<Family> result = new ArrayList<Family>();
+            for (Family family : families) {
+                result.add(copyFamily(family));
             }
             return result;
         } finally {
@@ -739,15 +720,14 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    //  ~ Renderer Delegation (WRITE)
+    // ~ Renderer Delegation (WRITE)
     // =========================================================================
 
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    @RolesAllowed("user") 
-    public void addCodomainMap(CodomainMapContext mapCtx)
-    {
+    @RolesAllowed("user")
+    public void addCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.getCodomainChain().add(mapCtx.copy());
@@ -755,11 +735,10 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.writeLock().unlock();
         }
     }
-    
+
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    @RolesAllowed("user") 
-    public void removeCodomainMap(CodomainMapContext mapCtx)
-    {
+    @RolesAllowed("user")
+    public void removeCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
@@ -768,28 +747,27 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.writeLock().unlock();
         }
     }
-    
+
     /** Implemented as specified by the {@link RenderingEngine} interface. */
-    @RolesAllowed("user") 
-    public void updateCodomainMap(CodomainMapContext mapCtx)
-    {
+    @RolesAllowed("user")
+    public void updateCodomainMap(CodomainMapContext mapCtx) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.getCodomainChain().update(mapCtx.copy());
-        } finally { 
+        } finally {
             rwl.writeLock().unlock();
         }
     }
 
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setActive(int, boolean)
      */
-    @RolesAllowed("user") 
-    public void setActive(int w, boolean active)
-    {
+    @RolesAllowed("user")
+    public void setActive(int w, boolean active) {
         try {
             rwl.writeLock().lock();
             errorIfInvalidState();
@@ -801,14 +779,14 @@ public class RenderingBean extends AbstractLevel2Service
     }
 
     /**
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setChannelWindow(int, double, double)
      */
-    @RolesAllowed("user") 
-    public void setChannelWindow(int w, double start, double end)
-    {
+    @RolesAllowed("user")
+    public void setChannelWindow(int w, double start, double end) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.setChannelWindow(w, start, end);
@@ -817,13 +795,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setCodomainInterval(int, int)
      */
-    @RolesAllowed("user") 
-    public void setCodomainInterval(int start, int end)
-    {
+    @RolesAllowed("user")
+    public void setCodomainInterval(int start, int end) {
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
@@ -833,15 +811,15 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setDefaultT(int)
      */
-    @RolesAllowed("user") 
-    public void setDefaultT(int t)
-    {
+    @RolesAllowed("user")
+    public void setDefaultT(int t) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.setDefaultT(t);
@@ -849,16 +827,16 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.writeLock().unlock();
         }
     }
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setDefaultZ(int)
      */
-    @RolesAllowed("user") 
-    public void setDefaultZ(int z)
-    {
+    @RolesAllowed("user")
+    public void setDefaultZ(int z) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.setDefaultZ(z);
@@ -866,14 +844,14 @@ public class RenderingBean extends AbstractLevel2Service
             rwl.writeLock().unlock();
         }
     }
-    
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setModel(RenderingModel)
      */
-    @RolesAllowed("user") 
-    public void setModel(RenderingModel model)
-    {
+    @RolesAllowed("user")
+    public void setModel(RenderingModel model) {
         rwl.writeLock().lock();
 
         try {
@@ -887,14 +865,14 @@ public class RenderingBean extends AbstractLevel2Service
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
-     * @see RenderingEngine#setQuantizationMap(int, Family, double, boolean) 
+     * 
+     * @see RenderingEngine#setQuantizationMap(int, Family, double, boolean)
      */
     @RolesAllowed("user")
-    public void setQuantizationMap(int w, Family family,
-            double coefficient, boolean noiseReduction)
-    {
+    public void setQuantizationMap(int w, Family family, double coefficient,
+            boolean noiseReduction) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             Family f = lookup(family);
@@ -904,13 +882,13 @@ public class RenderingBean extends AbstractLevel2Service
         }
     }
 
-    /** 
-     * Implemented as specified by the {@link RenderingEngine} interface. 
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setQuantumStrategy(int)
      */
-    @RolesAllowed("user") 
-    public void setQuantumStrategy(int bitResolution)
-    {
+    @RolesAllowed("user")
+    public void setQuantumStrategy(int bitResolution) {
         rwl.writeLock().lock();
 
         try {
@@ -923,13 +901,13 @@ public class RenderingBean extends AbstractLevel2Service
 
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
      * @see RenderingEngine#setRGBA(int, int, int, int, int)
      */
-    @RolesAllowed("user") 
-    public void setRGBA(int w, int red, int green, int blue, int alpha)
-    {
+    @RolesAllowed("user")
+    public void setRGBA(int w, int red, int green, int blue, int alpha) {
         rwl.writeLock().lock();
-        
+
         try {
             errorIfInvalidState();
             renderer.setRGBA(w, red, green, blue, alpha);
@@ -940,109 +918,98 @@ public class RenderingBean extends AbstractLevel2Service
 
     // ~ Error checking methods
     // =========================================================================
-    
-    protected final static String NULL_RENDERER = 
-        "RenderingEngine not ready: renderer is null."+ 
-        "This method can only be called " +
-        "after the renderer is properly " +
-        "initialized (not-null). \n" +
-        "Try lookup and/or use methods.";
- 
+
+    protected final static String NULL_RENDERER = "RenderingEngine not ready: renderer is null."
+            + "This method can only be called "
+            + "after the renderer is properly "
+            + "initialized (not-null). \n"
+            + "Try lookup and/or use methods.";
+
     // TODO ObjectUnreadyException
-    protected void errorIfInvalidState()
-    {
+    protected void errorIfInvalidState() {
         errorIfNullPixels();
         errorIfNullRenderingDef();
         errorIfNullRenderer();
     }
-        
-    protected void errorIfNullPixels()
-    {
+
+    protected void errorIfNullPixels() {
         if (pixelsObj == null)
             throw new ApiUsageException(
                     "RenderingEngine not ready: Pixels object not set.");
     }
-    
-    protected void errorIfNullRenderingDef()
-    {
+
+    protected void errorIfNullRenderingDef() {
         if (rendDefObj == null)
             throw new ApiUsageException(
                     "RenderingEngine not ready: RenderingDef object not set.");
 
     }
-    
-    protected void errorIfNullRenderer()
-    {
-        if ( renderer == null )
+
+    protected void errorIfNullRenderer() {
+        if (renderer == null)
             throw new ApiUsageException(NULL_RENDERER);
 
     }
-    
+
     // ~ Lookups & copies
     // =========================================================================
 
-    private <T extends IObject> T lookup( T argument )
-    {
-    		if ( argument == null ) return null;
-    		if ( argument.getId() == null ) return argument;
-    		return (T) iQuery.get(
-    				argument.getClass(),
-    				argument.getId().longValue());
+    private <T extends IObject> T lookup(T argument) {
+        if (argument == null)
+            return null;
+        if (argument.getId() == null)
+            return argument;
+        return (T) iQuery
+                .get(argument.getClass(), argument.getId().longValue());
     }
-    
-	@SuppressWarnings("unchecked")
-	private Pixels copyPixels(Pixels pixels)
-    {
-    	if (pixels == null) return null;
-    	Pixels newPixels = new ShallowCopy().copy(pixels);
-    	newPixels.setChannels(copyChannels(pixels.getChannels()));
-    	newPixels.setPixelsDimensions(
-    			new ShallowCopy().copy(pixels.getPixelsDimensions()));
-    	newPixels.setPixelsType(
-    			new ShallowCopy().copy(pixels.getPixelsType()));
-    	return newPixels;
+
+    @SuppressWarnings("unchecked")
+    private Pixels copyPixels(Pixels pixels) {
+        if (pixels == null)
+            return null;
+        Pixels newPixels = new ShallowCopy().copy(pixels);
+        newPixels.setChannels(copyChannels(pixels.getChannels()));
+        newPixels.setPixelsDimensions(new ShallowCopy().copy(pixels
+                .getPixelsDimensions()));
+        newPixels.setPixelsType(new ShallowCopy().copy(pixels.getPixelsType()));
+        return newPixels;
     }
-    
-    private List<Channel> copyChannels(List<Channel> channels)
-    {
-    	List<Channel> newChannels = new ArrayList<Channel>();
-    	for (Channel c : channels)
-    		newChannels.add(copyChannel(c));
-    	return newChannels;
+
+    private List<Channel> copyChannels(List<Channel> channels) {
+        List<Channel> newChannels = new ArrayList<Channel>();
+        for (Channel c : channels)
+            newChannels.add(copyChannel(c));
+        return newChannels;
     }
-    
-    private Channel copyChannel(Channel channel)
-    {
-    	Channel newChannel = new ShallowCopy().copy(channel);
-    	newChannel.setLogicalChannel(
-    			new ShallowCopy().copy(channel.getLogicalChannel()));
-    	newChannel.setStatsInfo(
-    			new ShallowCopy().copy(channel.getStatsInfo()));
-    	return newChannel;
+
+    private Channel copyChannel(Channel channel) {
+        Channel newChannel = new ShallowCopy().copy(channel);
+        newChannel.setLogicalChannel(new ShallowCopy().copy(channel
+                .getLogicalChannel()));
+        newChannel.setStatsInfo(new ShallowCopy().copy(channel.getStatsInfo()));
+        return newChannel;
     }
-    
-    private RenderingModel copyRenderingModel(RenderingModel model)
-    {
-        if (model == null) return null;
+
+    private RenderingModel copyRenderingModel(RenderingModel model) {
+        if (model == null)
+            return null;
         RenderingModel newModel = new RenderingModel();
-        newModel.setId( model.getId() );
-        newModel.setValue( model.getValue() );
-        newModel.setDetails( model.getDetails() == null ? null :
-            model.getDetails().shallowCopy() );
+        newModel.setId(model.getId());
+        newModel.setValue(model.getValue());
+        newModel.setDetails(model.getDetails() == null ? null : model
+                .getDetails().shallowCopy());
         return newModel;
     }
 
-    private Family copyFamily(Family family)
-    {
-        if (family == null) return null;
-        Family newFamily = new Family( );
-        newFamily.setId( family.getId() );
-        newFamily.setValue( family.getValue() );
-        newFamily.setDetails( 
-                family.getDetails() == null ? null : 
-                    family.getDetails().shallowCopy() );
+    private Family copyFamily(Family family) {
+        if (family == null)
+            return null;
+        Family newFamily = new Family();
+        newFamily.setId(family.getId());
+        newFamily.setValue(family.getValue());
+        newFamily.setDetails(family.getDetails() == null ? null : family
+                .getDetails().shallowCopy());
         return newFamily;
     }
 
 }
-

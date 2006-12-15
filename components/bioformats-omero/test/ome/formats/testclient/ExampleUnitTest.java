@@ -27,9 +27,9 @@ import junit.framework.TestCase;
 @Test
 public class ExampleUnitTest extends TestCase {
 
-	private final static Log log = LogFactory.getLog(ExampleUnitTest.class);
-	
-	public void test() throws Exception {	
-	}
-	
+    private final static Log log = LogFactory.getLog(ExampleUnitTest.class);
+
+    public void test() throws Exception {
+    }
+
 }

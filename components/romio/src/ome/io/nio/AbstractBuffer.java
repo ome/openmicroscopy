@@ -6,32 +6,26 @@
  */
 package ome.io.nio;
 
-
 /**
  * @author jmoore
- *
+ * 
  */
-public class AbstractBuffer
-{
+public class AbstractBuffer {
     private String path;
-    
-    AbstractBuffer (String path)
-    {
+
+    AbstractBuffer(String path) {
         if (path == null)
-            throw new NullPointerException(
-                    "Expecting not-null path argument.");
-        
+            throw new NullPointerException("Expecting not-null path argument.");
+
         this.path = path;
     }
 
-    public String getPath()
-    {
+    public String getPath() {
         return path;
     }
-    
-    public String toString()
-    {
+
+    public String toString() {
         return getPath();
     }
-    
+
 }

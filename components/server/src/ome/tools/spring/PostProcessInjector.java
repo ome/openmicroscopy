@@ -7,23 +7,21 @@
 
 package ome.tools.spring;
 
-//Java imports
+// Java imports
 
-//Third-party imports
+// Third-party imports
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.security.basic.BasicSecuritySystem;
 import ome.tools.hibernate.ExtendedMetadata;
 
-/** catch all {@link BeanPostProcessor} which handles cyclical references.
+/**
+ * catch all {@link BeanPostProcessor} which handles cyclical references.
  */
-public class PostProcessInjector
-{
-    public PostProcessInjector(BasicSecuritySystem sys, ExtendedMetadata meta) 
-    {
-    	sys.setExtendedMetadata( meta );
-	}
-    
-}
+public class PostProcessInjector {
+    public PostProcessInjector(BasicSecuritySystem sys, ExtendedMetadata meta) {
+        sys.setExtendedMetadata(meta);
+    }
 
+}

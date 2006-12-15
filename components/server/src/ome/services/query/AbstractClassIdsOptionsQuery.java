@@ -14,7 +14,7 @@
 
 package ome.services.query;
 
-//Java imports
+// Java imports
 
 // Third-party libraries
 
@@ -22,27 +22,23 @@ package ome.services.query;
 import ome.parameters.Parameters;
 
 /**
- * simple abstract class that provides a common 
+ * simple abstract class that provides a common
  * {@link ome.services.query.Definitions} containing:
  * {@link ome.services.query.IdsQueryParameterDef},
- * {@link ome.services.query.OptionsQueryParameterDef},
- * and {@link ome.services.query.ClassQueryParameterDef}.
+ * {@link ome.services.query.OptionsQueryParameterDef}, and
+ * {@link ome.services.query.ClassQueryParameterDef}.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public abstract class AbstractClassIdsOptionsQuery extends Query
-{
+public abstract class AbstractClassIdsOptionsQuery extends Query {
 
-    static Definitions defs = new Definitions(
-        new IdsQueryParameterDef(),
-        new OptionsQueryParameterDef(),
-        new ClassQueryParameterDef());
+    static Definitions defs = new Definitions(new IdsQueryParameterDef(),
+            new OptionsQueryParameterDef(), new ClassQueryParameterDef());
 
-    public AbstractClassIdsOptionsQuery(Parameters parameters)
-    {
-        super( defs, parameters );
-    }  
+    public AbstractClassIdsOptionsQuery(Parameters parameters) {
+        super(defs, parameters);
+    }
 
 }

@@ -14,7 +14,7 @@ package ome.api.local;
 // Application-internal dependencies
 
 /**
- * Provides local (internal) extensions for updating 
+ * Provides local (internal) extensions for updating
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -26,7 +26,9 @@ package ome.api.local;
 public interface LocalUpdate extends ome.api.IUpdate {
 
     void rollback();
+
     void flush();
+
     void commit();
 
 }

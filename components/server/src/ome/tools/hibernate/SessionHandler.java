@@ -45,15 +45,13 @@ import ome.conditions.InternalException;
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-class SessionStatus
-{
+class SessionStatus {
 
-    int     calls = 0;
+    int calls = 0;
 
     Session session;
 
-    SessionStatus(Session session)
-    {
+    SessionStatus(Session session) {
         if (null == session)
             throw new IllegalArgumentException("No null sessions.");
 
@@ -67,17 +65,15 @@ class SessionStatus
  * {@link org.springframework.orm.hibernate3.HibernateInterceptor} for stateless
  * services but which keeps a {@link java.util.WeakHashMap} of sessions keyed by
  * the stateful service reference.
- *
- * original idea from: 
+ * 
+ * original idea from:
  * http://opensource2.atlassian.com/confluence/spring/pages/viewpage.action?pageId=1447
- *
- * See also:
- * http://sourceforge.net/forum/message.php?msg_id=2455707
+ * 
+ * See also: http://sourceforge.net/forum/message.php?msg_id=2455707
  * http://forum.springframework.org/archive/index.php/t-10344.html
  * http://opensource2.atlassian.com/projects/spring/browse/SPR-746
  * 
- * and these:
- * http://www.hibernate.org/43.html#A5
+ * and these: http://www.hibernate.org/43.html#A5
  * http://www.carbonfive.com/community/archives/2005/07/ive_been_meanin.html
  * http://www.hibernate.org/377.html
  * 
@@ -86,201 +82,187 @@ class SessionStatus
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-public class SessionHandler implements MethodInterceptor
-{
+public class SessionHandler implements MethodInterceptor {
 
-	/** used by the SessionHandler to test for the end of the stateful service's
-	 * life. Using reflection so we get a bit more type safety.
-	 */
-	private final Method close;
-	
-    private final static Log           log      = LogFactory
-                                                        .getLog(SessionHandler.class);
+    /**
+     * used by the SessionHandler to test for the end of the stateful service's
+     * life. Using reflection so we get a bit more type safety.
+     */
+    private final Method close;
+
+    private final static Log log = LogFactory.getLog(SessionHandler.class);
 
     private Map<Object, SessionStatus> sessions = Collections
-                                                        .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
+            .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
 
-    private DataSource                 dataSource;
+    private DataSource dataSource;
 
-    private SessionFactory             factory;
+    private SessionFactory factory;
 
     private final static SessionHolder DUMMY = new EmptySessionHolder();
-    	
-    final private static String CTOR_MSG = "Both arguments to the SessionHandler" +
-            " constructor should be not null."; 
-    
-    /** constructor taking a {@link DataSource} and a {@link SessionFactory}.
-     * A new {@link HibernateInterceptor} will be created.
-     * @param dataSource Not null.
-     * @param factory Not null.
+
+    final private static String CTOR_MSG = "Both arguments to the SessionHandler"
+            + " constructor should be not null.";
+
+    /**
+     * constructor taking a {@link DataSource} and a {@link SessionFactory}. A
+     * new {@link HibernateInterceptor} will be created.
+     * 
+     * @param dataSource
+     *            Not null.
+     * @param factory
+     *            Not null.
      */
-    public SessionHandler(DataSource dataSource, SessionFactory factory)
-    {
-        if ( dataSource == null || factory == null )
-        {
+    public SessionHandler(DataSource dataSource, SessionFactory factory) {
+        if (dataSource == null || factory == null) {
             throw new ApiUsageException(CTOR_MSG);
         }
 
         this.dataSource = dataSource;
         this.factory = factory;
-        
-    	try {
-			close = StatefulServiceInterface.class.getMethod("close");
-		} catch (Exception e) {
-			throw new InternalException("Can't get StatefulServiceInterface.close method.");
-		}
+
+        try {
+            close = StatefulServiceInterface.class.getMethod("close");
+        } catch (Exception e) {
+            throw new InternalException(
+                    "Can't get StatefulServiceInterface.close method.");
+        }
     }
-    
-    public void cleanThread()
-    {
-    	if (TransactionSynchronizationManager.hasResource(factory))
-    	{
-    		SessionHolder holder = (SessionHolder)
-    		TransactionSynchronizationManager.getResource(factory);
-    		if (holder == null) 
-    			throw new IllegalStateException("Can't be null.");
-    		else if (holder == DUMMY) 
-    			TransactionSynchronizationManager.unbindResource(factory);
-    		else
-    			throw new IllegalStateException("Thread corrupted.");
-    	}
+
+    public void cleanThread() {
+        if (TransactionSynchronizationManager.hasResource(factory)) {
+            SessionHolder holder = (SessionHolder) TransactionSynchronizationManager
+                    .getResource(factory);
+            if (holder == null)
+                throw new IllegalStateException("Can't be null.");
+            else if (holder == DUMMY)
+                TransactionSynchronizationManager.unbindResource(factory);
+            else
+                throw new IllegalStateException("Thread corrupted.");
+        }
     }
-    
+
     /**
      * delegates to {@link HibernateInterceptor} or manages sessions internally,
      * based on the type of service.
      */
-    public Object invoke(final MethodInvocation invocation) throws Throwable
-    {
+    public Object invoke(final MethodInvocation invocation) throws Throwable {
         // Stateless; normal semantics.
-        if (!StatefulServiceInterface.class.isAssignableFrom(
-                invocation.getThis().getClass()))
-        {
-        	throw new InternalException( 
-        			"Stateless service configured as stateful." );
+        if (!StatefulServiceInterface.class.isAssignableFrom(invocation
+                .getThis().getClass())) {
+            throw new InternalException(
+                    "Stateless service configured as stateful.");
         }
-        
+
         // Stateful; let's get to work.
         debug("Performing action in stateful session.");
         return doStateful(invocation);
     }
 
-    private Object doStateful(MethodInvocation invocation) throws Throwable
-    {
+    private Object doStateful(MethodInvocation invocation) throws Throwable {
         Object result = null;
-        System.out.println(Thread.currentThread().getName()+"::"+invocation.getMethod().getName());
+        System.out.println(Thread.currentThread().getName() + "::"
+                + invocation.getMethod().getName());
         SessionStatus status = null;
-        try
-        {
-        	// Need to open even if "closing" because the service may need
-        	// to perform cleanup in its close() method.
-        	status = newOrRestoredSession(invocation);
-        	status.session.setFlushMode( FlushMode.COMMIT );
-        	// changing MANUAL to COMMIT for ticket:557. the appserver
-        	// won't allow us to commit here anyway, and setting to COMMIT
-        	// prevents Spring from automatically re-writing the flushMode
-        	// as AUTO
+        try {
+            // Need to open even if "closing" because the service may need
+            // to perform cleanup in its close() method.
+            status = newOrRestoredSession(invocation);
+            status.session.setFlushMode(FlushMode.COMMIT);
+            // changing MANUAL to COMMIT for ticket:557. the appserver
+            // won't allow us to commit here anyway, and setting to COMMIT
+            // prevents Spring from automatically re-writing the flushMode
+            // as AUTO
             result = invocation.proceed();
             return result;
-        }
-        finally
-        {
-        	// TODO do we need to check for disconnected or closed session here?
-        	// The newOrRestoredSession method does not attempt to close the
-        	// session before throwing the dirty session exception. We must do 
-        	// it here.
+        } finally {
+            // TODO do we need to check for disconnected or closed session here?
+            // The newOrRestoredSession method does not attempt to close the
+            // session before throwing the dirty session exception. We must do
+            // it here.
             try {
-                if (isCloseSession(invocation))
-                {
-                	status = sessions.remove(invocation.getThis());
+                if (isCloseSession(invocation)) {
+                    status = sessions.remove(invocation.getThis());
                     status.session.disconnect();
-                	status.session.close();
-                }
-                else
-                {
-                	if (status != null )
-                	{
-                		// Guarantee that no one has changed the FlushMode
-                		status.session.setFlushMode( FlushMode.MANUAL );
-                		status.session.disconnect();
-                		status.calls--;
-                	}
+                    status.session.close();
+                } else {
+                    if (status != null) {
+                        // Guarantee that no one has changed the FlushMode
+                        status.session.setFlushMode(FlushMode.MANUAL);
+                        status.session.disconnect();
+                        status.calls--;
+                    }
                 }
             } catch (Exception e) {
-                
-            	log.error("Error while closing/disconnecting session.", e);
-                
+
+                log.error("Error while closing/disconnecting session.", e);
+
             } finally {
 
-            	try {
-            		resetThreadSession();
-            	} catch (Exception e){
-            		log.error("Could not cleanup thread session.",e);
-            		throw e;
-            	}
-            	
+                try {
+                    resetThreadSession();
+                } catch (Exception e) {
+                    log.error("Could not cleanup thread session.", e);
+                    throw e;
+                }
+
             }
 
         }
     }
 
     private SessionStatus newOrRestoredSession(MethodInvocation invocation)
-            throws HibernateException
-    {
+            throws HibernateException {
 
         SessionStatus status = sessions.get(invocation.getThis());
-    	Session previousSession = nullOrSessionBoundToThread();
+        Session previousSession = nullOrSessionBoundToThread();
 
         // a session is currently running.
         // something has gone wrong (e.g. with cleanup) abort!
-        if ( previousSession != null )
-        {
-        		String msg = "Dirty Hibernate Session "
-        			+ previousSession + " found in Thread "
-        			+ Thread.currentThread();
+        if (previousSession != null) {
+            String msg = "Dirty Hibernate Session " + previousSession
+                    + " found in Thread " + Thread.currentThread();
 
-        		// If it is closeSession, then this will be handled by 
-        		// the finally{} block of doStateful
-        		if (!isCloseSession(invocation))
-        		{
-        			previousSession.close();
-        		}
-        		throw new InternalException(msg);
-        } 
-    	
-    	// we may or may not be in a session, but if we haven't yet bound 
-    	// it to This, then we need to.
-        else if (status == null || !status.session.isOpen())
-        {
+            // If it is closeSession, then this will be handled by
+            // the finally{} block of doStateful
+            if (!isCloseSession(invocation)) {
+                previousSession.close();
+            }
+            throw new InternalException(msg);
+        }
+
+        // we may or may not be in a session, but if we haven't yet bound
+        // it to This, then we need to.
+        else if (status == null || !status.session.isOpen()) {
             Session currentSession = acquireAndBindSession();
-            status = new SessionStatus( currentSession );
+            status = new SessionStatus(currentSession);
             sessions.put(invocation.getThis(), status);
-        } 
+        }
 
         // the session bound to This is already currently being called. abort!
-        else if (status.calls > 1)
-        {
+        else if (status.calls > 1) {
             throw new InternalException(
-                    "Hibernate session is not re-entrant.\n" +
-                    "Either you have two threads operating on the same " +
-                    "stateful object (don't do this)\n or you have a " +
-                    "recursive call (recurse on the unwrapped object). ");
+                    "Hibernate session is not re-entrant.\n"
+                            + "Either you have two threads operating on the same "
+                            + "stateful object (don't do this)\n or you have a "
+                            + "recursive call (recurse on the unwrapped object). ");
         }
-        
+
         // all is fine.
         else {
             debug("Binding and reconnecting session.");
             // TODO doesn't make sense to check, because hibernate always
             // says "yes" if it has a connectionProvider
-//            if (status.session.isConnected())
-//            {
-//            	throw new InternalException("Session already connected!");
-//            }
+            // if (status.session.isConnected())
+            // {
+            // throw new InternalException("Session already connected!");
+            // }
             bindSession(status.session);
-//            Connection connection = DataSourceUtils.getConnection(dataSource);
-//            status.session.reconnect(connection);
+            // Connection connection =
+            // DataSourceUtils.getConnection(dataSource);
+            // status.session.reconnect(connection);
         }
-        
+
         // It's ready to be used. Increment.
         status.calls++;
         return status;
@@ -290,110 +272,91 @@ public class SessionHandler implements MethodInterceptor
     // ~ SESSIONS
     // =========================================================================
 
-    private boolean isCloseSession(MethodInvocation invocation)
-    {
+    private boolean isCloseSession(MethodInvocation invocation) {
         return close.getName().equals(invocation.getMethod().getName());
     }
 
-    private Session acquireAndBindSession() throws HibernateException
-    {
+    private Session acquireAndBindSession() throws HibernateException {
         debug("Opening and binding session.");
         Session session = factory.openSession();
         bindSession(session);
         return session;
     }
 
-    private void bindSession(Session session) 
-    {
+    private void bindSession(Session session) {
         debug("Binding session to thread.");
         SessionHolder sessionHolder = new SessionHolder(session);
         sessionHolder.setTransaction(sessionHolder.getSession()
                 .beginTransaction()); // FIXME TODO
-        // If we reach this point, it's ok to bind the new SessionHolder, 
+        // If we reach this point, it's ok to bind the new SessionHolder,
         // however the DUMMY EmptySessionHolder may be present so unbind
         // just in case.
         if (TransactionSynchronizationManager.hasResource(factory))
-        	TransactionSynchronizationManager.unbindResource(factory);
+            TransactionSynchronizationManager.unbindResource(factory);
         TransactionSynchronizationManager.bindResource(factory, sessionHolder);
-        if ( ! TransactionSynchronizationManager.isSynchronizationActive())
-        	throw new InternalException( "Synchronization not active for " +
-        			"TransactionSynchronizationManager");
-    }
-    
-    private Session nullOrSessionBoundToThread()
-    {
-    	SessionHolder holder = null;
-    	if (TransactionSynchronizationManager.hasResource(factory))
-    	{
-    		holder = (SessionHolder) 
-    		TransactionSynchronizationManager.getResource(factory);
-    		// A bit tricky. Works in coordinate with resetThreadSession
-    		// since the DUMMY would be replaced anyway.
-    		if (holder != null && holder.isEmpty())
-    			holder = null;
-    	}
-    	return holder == null ? null : holder.getSession();
+        if (!TransactionSynchronizationManager.isSynchronizationActive())
+            throw new InternalException("Synchronization not active for "
+                    + "TransactionSynchronizationManager");
     }
 
-    private boolean isSessionBoundToThread()
-    {
-    	return nullOrSessionBoundToThread() != null;
+    private Session nullOrSessionBoundToThread() {
+        SessionHolder holder = null;
+        if (TransactionSynchronizationManager.hasResource(factory)) {
+            holder = (SessionHolder) TransactionSynchronizationManager
+                    .getResource(factory);
+            // A bit tricky. Works in coordinate with resetThreadSession
+            // since the DUMMY would be replaced anyway.
+            if (holder != null && holder.isEmpty())
+                holder = null;
+        }
+        return holder == null ? null : holder.getSession();
     }
 
-    private void resetThreadSession()
-    {
-        if (isSessionBoundToThread())
-        {
+    private boolean isSessionBoundToThread() {
+        return nullOrSessionBoundToThread() != null;
+    }
+
+    private void resetThreadSession() {
+        if (isSessionBoundToThread()) {
             debug("Session bound to thread. Reseting.");
             TransactionSynchronizationManager.unbindResource(factory);
-            TransactionSynchronizationManager.bindResource(factory, DUMMY);            	
+            TransactionSynchronizationManager.bindResource(factory, DUMMY);
         } else {
             debug("Session not bound to thread. No need to reset.");
         }
     }
 
-    private void debug(String message)
-    {
-        if ( log.isDebugEnabled())
+    private void debug(String message) {
+        if (log.isDebugEnabled())
             log.debug(message);
     }
-    	
+
 }
 
 class EmptySessionHolder extends SessionHolder {
-	public EmptySessionHolder() {
-		super(
-				(Session) Proxy.newProxyInstance(
-			    		Session.class.getClassLoader(),
-			            new Class[] { Session.class },
-			            new InvocationHandler() {
-			    			public Object invoke(Object proxy, Method method, Object[] args)
-			    			throws Throwable { 
-			    				String name = method.getName();
-			    				if ( name.equals("toString") )
-								{
-			    					return "NULL SESSION PROXY";
-								}
-			    				
-			    				else if (name.equals("hashCode"))
-			    				{
-			    					return 0;
-			    				}
-			    				else if ( name.equals("equals") )
-			    				{
-			    					return args[0] == null ? false : proxy == args[0];
-			    				}
-			    				else 
-			    				{
-			    					throw new RuntimeException("No methods allowed");
-			    				}
-			    			}
-			    		}
-				)
-			);
-	}
-	@Override
-	public boolean isEmpty() {
-		return true;
-	}
+    public EmptySessionHolder() {
+        super((Session) Proxy.newProxyInstance(Session.class.getClassLoader(),
+                new Class[] { Session.class }, new InvocationHandler() {
+                    public Object invoke(Object proxy, Method method,
+                            Object[] args) throws Throwable {
+                        String name = method.getName();
+                        if (name.equals("toString")) {
+                            return "NULL SESSION PROXY";
+                        }
+
+                        else if (name.equals("hashCode")) {
+                            return 0;
+                        } else if (name.equals("equals")) {
+                            return args[0] == null ? false : proxy == args[0];
+                        } else {
+                            throw new RuntimeException("No methods allowed");
+                        }
+                    }
+                }));
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
 }

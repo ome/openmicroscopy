@@ -18,7 +18,6 @@ import ome.model.meta.ExperimenterGroup;
 
 // Application-internal dependencies
 
-
 /**
  * Provides local (internal) extensions for administration
  * 
@@ -30,53 +29,54 @@ import ome.model.meta.ExperimenterGroup;
  * @since OMERO3.0
  */
 public interface LocalAdmin extends ome.api.IAdmin {
-    
-	/** 
-	 * returns a possibly uninitialized proxy for the given 
-	 * {@link Experimenter#getOmeName() user name}. Use of the 
-	 * {@link Experimenter} instance will initial its values.
-	 */
-	Experimenter userProxy( String omeName );
-	
-	/** 
-	 * returns a possibly uninitialized proxy for the given 
-	 * {@link Experimenter#getId() user id}. Use of the 
-	 * {@link Experimenter} instance will initial its values.
-	 */
-	Experimenter userProxy( Long userId );
-	
-	/** 
-	 * returns a possibly uninitialized proxy for the given 
-	 * {@link ExperimenterGroup#getId() group id}. Use of the 
-	 * {@link Experimenter} instance will initial its values.
-	 */
-	ExperimenterGroup groupProxy( Long groupId );
-	
-	
-	/** 
-	 * returns a possibly uninitialized proxy for the given 
-	 * {@link ExperimenterGroup#getName() group name}. Use of the 
-	 * {@link Experimenter} instance will initial its values.
-	 */
-	ExperimenterGroup groupProxy( String groupName );
-	
-	/** 
-     * Finds the ids for all groups for which the given {@link Experimenter}
-     * is owner/leader.
-     * 
-     * @param e Non-null, managed (i.e. with id) {@link Experimenter}
-     * @see ExperimenterGroup#getDetails()
-     * @see Details#getOwner()
-     */
-    List<Long> getLeaderOfGroupIds( Experimenter e );
 
-	/** 
-     * Finds the ids for all groups for which the given {@link Experimenter}
-     * is a member.
+    /**
+     * returns a possibly uninitialized proxy for the given
+     * {@link Experimenter#getOmeName() user name}. Use of the
+     * {@link Experimenter} instance will initial its values.
+     */
+    Experimenter userProxy(String omeName);
+
+    /**
+     * returns a possibly uninitialized proxy for the given
+     * {@link Experimenter#getId() user id}. Use of the {@link Experimenter}
+     * instance will initial its values.
+     */
+    Experimenter userProxy(Long userId);
+
+    /**
+     * returns a possibly uninitialized proxy for the given
+     * {@link ExperimenterGroup#getId() group id}. Use of the
+     * {@link Experimenter} instance will initial its values.
+     */
+    ExperimenterGroup groupProxy(Long groupId);
+
+    /**
+     * returns a possibly uninitialized proxy for the given
+     * {@link ExperimenterGroup#getName() group name}. Use of the
+     * {@link Experimenter} instance will initial its values.
+     */
+    ExperimenterGroup groupProxy(String groupName);
+
+    /**
+     * Finds the ids for all groups for which the given {@link Experimenter} is
+     * owner/leader.
      * 
-     * @param e Non-null, managed (i.e. with id) {@link Experimenter}
+     * @param e
+     *            Non-null, managed (i.e. with id) {@link Experimenter}
      * @see ExperimenterGroup#getDetails()
      * @see Details#getOwner()
      */
-    List<Long> getMemberOfGroupIds( Experimenter e );
+    List<Long> getLeaderOfGroupIds(Experimenter e);
+
+    /**
+     * Finds the ids for all groups for which the given {@link Experimenter} is
+     * a member.
+     * 
+     * @param e
+     *            Non-null, managed (i.e. with id) {@link Experimenter}
+     * @see ExperimenterGroup#getDetails()
+     * @see Details#getOwner()
+     */
+    List<Long> getMemberOfGroupIds(Experimenter e);
 }

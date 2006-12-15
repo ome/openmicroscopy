@@ -36,9 +36,7 @@ import ome.util.CBlock;
  *          </small>
  * @since OME2.2
  */
-public class CategoryData
-    extends DataObject
-{
+public class CategoryData extends DataObject {
 
     /** Identifies the {@link Category#NAME} field. */
     public final static String NAME = Category.NAME;
@@ -50,22 +48,20 @@ public class CategoryData
     public final static String IMAGES = Category.IMAGELINKS;
 
     /** Identifies the {@link Category#CATEGORYGROUPLINKS} field. */
-    public final static String CATEGORY_GROUP_LINKS = 
-                                            Category.CATEGORYGROUPLINKS;
+    public final static String CATEGORY_GROUP_LINKS = Category.CATEGORYGROUPLINKS;
 
     /**
      * All the Images classified under this Category. The elements of this set
      * are {@link ImageData} objects. If this Category contains no Image, then
      * this set will be empty &#151; but never <code>null</code>.
      */
-    private Set                images;
+    private Set images;
 
     /** The Category Group this Category belongs in. */
-    private CategoryGroupData  group;
+    private CategoryGroupData group;
 
     /** Creates a new instance. */
-    public CategoryData()
-    {
+    public CategoryData() {
         setDirty(true);
         setValue(new Category());
     }
@@ -73,47 +69,51 @@ public class CategoryData
     /**
      * Creates a new instance.
      * 
-     * @param category  Back pointer to the {@link Category} model object.
-     *                  Mustn't be <code>null</code>.
-     * @throws IllegalArgumentException If the object is <code>null</code>.
+     * @param category
+     *            Back pointer to the {@link Category} model object. Mustn't be
+     *            <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If the object is <code>null</code>.
      */
-    public CategoryData(Category category)
-    {
+    public CategoryData(Category category) {
         if (category == null)
             throw new IllegalArgumentException("Category cannot null.");
         setValue(category);
     }
 
     // Immutables
-    
+
     /**
      * Sets the name of the category.
      * 
-     * @param name The name of the category. Mustn't be <code>null</code>.
-     * @throws IllegalArgumentException If the name is <code>null</code>.
+     * @param name
+     *            The name of the category. Mustn't be <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If the name is <code>null</code>.
      */
-    public void setName(String name)
-    {
-        if (name == null) 
+    public void setName(String name) {
+        if (name == null)
             throw new IllegalArgumentException("The name cannot be null.");
         setDirty(true);
         asCategory().setName(name);
     }
 
-    /** 
+    /**
      * Returns the name of the category.
      * 
      * @return See above.
      */
-    public String getName() { return asCategory().getName(); }
+    public String getName() {
+        return asCategory().getName();
+    }
 
     /**
      * Sets the description of the category.
      * 
-     * @param description The description of the category.
+     * @param description
+     *            The description of the category.
      */
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         setDirty(true);
         asCategory().setDescription(description);
     }
@@ -123,21 +123,22 @@ public class CategoryData
      * 
      * @return See above.
      */
-    public String getDescription() { return asCategory().getDescription(); }
+    public String getDescription() {
+        return asCategory().getDescription();
+    }
 
     // Singleton set.
-    
+
     /**
      * Returns the Category group this category belongs to.
      * 
      * @return See above.
      */
-    public CategoryGroupData getGroup()
-    {
+    public CategoryGroupData getGroup() {
         if (group == null && asCategory().sizeOfCategoryGroupLinks() >= 0) {
             List list = asCategory().linkedCategoryGroupList();
             if (list != null)
-                if (list.size() > 0 )
+                if (list.size() > 0)
                     group = new CategoryGroupData((CategoryGroup) list.get(0));
                 else
                     ;// TODO what now?
@@ -148,11 +149,12 @@ public class CategoryData
     /**
      * Sets the Category group this category belongs to.
      * 
-     * @param group The group the category belongs to.
+     * @param group
+     *            The group the category belongs to.
      */
-    public void setGroup(CategoryGroupData group)
-    {
-        if (group == getGroup()) return;
+    public void setGroup(CategoryGroupData group) {
+        if (group == getGroup())
+            return;
         setDirty(true);
         this.group = group;
         asCategory().clearCategoryGroupLinks();
@@ -161,18 +163,16 @@ public class CategoryData
     }
 
     // Lazy loaded links
-    
+
     /**
      * Returns a set of images contained in the category.
-     *
+     * 
      * @return See above.
      */
-    public Set getImages()
-    {
+    public Set getImages() {
         if (images == null && asCategory().sizeOfImageLinks() >= 0) {
             images = new HashSet(asCategory().eachLinkedImage(new CBlock() {
-                public Object call(IObject object)
-                {
+                public Object call(IObject object) {
                     return new ImageData((Image) object);
                 }
             }));
@@ -181,15 +181,15 @@ public class CategoryData
     }
 
     // Link mutators
-    
+
     /**
      * Sets the images contained in this category.
      * 
-     * @param newValue The set of images.
+     * @param newValue
+     *            The set of images.
      */
-    public void setImages(Set newValue )
-    {
-        Set currentValue = getImages(); 
+    public void setImages(Set newValue) {
+        Set currentValue = getImages();
         SetMutator m = new SetMutator(currentValue, newValue);
         ImageData imgData;
         Set categories;
@@ -201,7 +201,7 @@ public class CategoryData
             categories.remove(this);
             imgData.setCategories(categories);
         }
-        
+
         while (m.moreAdditions()) {
             setDirty(true);
             imgData = (ImageData) m.nextAddition();

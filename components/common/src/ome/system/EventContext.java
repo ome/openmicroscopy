@@ -7,19 +7,19 @@
 
 package ome.system;
 
-//Java imports
+// Java imports
 import java.util.List;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 
 /**
- * manages authenticated principals and other context for a given event. Just
- * as all API method calls take place in a transaction and a session (in that 
- * order), they also take place within an Event.  
+ * manages authenticated principals and other context for a given event. Just as
+ * all API method calls take place in a transaction and a session (in that
+ * order), they also take place within an Event.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
@@ -29,20 +29,26 @@ import ome.annotations.RevisionNumber;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public interface EventContext 
-{
+public interface EventContext {
 
     Long getCurrentUserId();
+
     String getCurrentUserName();
+
     Long getCurrentGroupId();
+
     String getCurrentGroupName();
+
     boolean isCurrentUserAdmin();
+
     boolean isReadOnly();
-    
+
     Long getCurrentEventId();
+
     String getCurrentEventType();
-    
+
     List<Long> getMemberOfGroupsList();
+
     List<Long> getLeaderOfGroupsList();
-    
+
 }

@@ -11,17 +11,12 @@
 
 package mono;
 
-public final class TPrxHolder
-{
-    public
-    TPrxHolder()
-    {
+public final class TPrxHolder {
+    public TPrxHolder() {
     }
 
-    public
-    TPrxHolder(TPrx value)
-    {
-	this.value = value;
+    public TPrxHolder(TPrx value) {
+        this.value = value;
     }
 
     public TPrx value;

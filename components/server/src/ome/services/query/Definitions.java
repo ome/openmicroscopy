@@ -23,7 +23,6 @@ import java.util.Set;
 
 // Application-internal dependencies
 
-
 /**
  * container for {@link ome.services.query.QueryParameterDef} instances.
  * Typically created as a static variable in a Query and passed to the super
@@ -35,48 +34,41 @@ import java.util.Set;
  */
 public class Definitions {
 
-    /** 
+    /**
      * internal storage for the {@link QueryParameterDef}s. Should not change
      * after construction.
      */
-    final private Map<String,QueryParameterDef> defs 
-        = new HashMap<String, QueryParameterDef>();
-    
+    final private Map<String, QueryParameterDef> defs = new HashMap<String, QueryParameterDef>();
+
     /* no default constructor */
-    private Definitions(){}
-    
-    public Definitions(QueryParameterDef...parameterDefs)
-    {
-        if ( parameterDefs != null)
-            for (QueryParameterDef def : parameterDefs)
-            {
-                defs.put( def.name, def );
+    private Definitions() {
+    }
+
+    public Definitions(QueryParameterDef... parameterDefs) {
+        if (parameterDefs != null)
+            for (QueryParameterDef def : parameterDefs) {
+                defs.put(def.name, def);
             }
     }
-    
-    public boolean containsKey(Object key)
-    {
+
+    public boolean containsKey(Object key) {
         return defs.containsKey(key);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return defs.isEmpty();
     }
 
-    public Set<String> keySet()
-    {
+    public Set<String> keySet() {
         return defs.keySet();
     }
 
-    public int size()
-    {
+    public int size() {
         return defs.size();
     }
 
-    public QueryParameterDef get(Object key)
-    {
+    public QueryParameterDef get(Object key) {
         return defs.get(key);
     }
-   
+
 }

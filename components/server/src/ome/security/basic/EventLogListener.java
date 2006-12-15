@@ -22,31 +22,26 @@ import org.hibernate.event.PostUpdateEventListener;
 // Application-internal dependencies
 import ome.model.IObject;
 
-
 /**
  * responsible for responding to all Hibernate Events. Delegates tasks to
  * various components. It is assumed that graphs coming to the Hibernate methods
- * which produces these events have already been processed by the 
+ * which produces these events have already been processed by the
  * {@link ome.tools.hibernate.UpdateFilter}
  */
-public class EventLogListener
-implements PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener
-{
-        
+public class EventLogListener implements PostUpdateEventListener,
+        PostDeleteEventListener, PostInsertEventListener {
 
-	private static final long serialVersionUID = 3245068515908082533L;
+    private static final long serialVersionUID = 3245068515908082533L;
 
-	private static Log                   log       = LogFactory
-                                                           .getLog(EventLogListener.class);
-    
-    protected BasicSecuritySystem			secSys;
-    
+    private static Log log = LogFactory.getLog(EventLogListener.class);
+
+    protected BasicSecuritySystem secSys;
+
     /**
-     * main constructor. 
+     * main constructor.
      */
-    public EventLogListener(BasicSecuritySystem securitySystem)
-    {
-    	this.secSys = securitySystem;
+    public EventLogListener(BasicSecuritySystem securitySystem) {
+        this.secSys = securitySystem;
     }
 
     // 
@@ -55,32 +50,27 @@ implements PostUpdateEventListener, PostDeleteEventListener, PostInsertEventList
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //
 
-    public void onPostDelete(PostDeleteEvent event)
-    {
-    	add("DELETE",event.getEntity());
+    public void onPostDelete(PostDeleteEvent event) {
+        add("DELETE", event.getEntity());
     }
 
-    public void onPostInsert(PostInsertEvent event)
-    {
-    	add("INSERT",event.getEntity());
+    public void onPostInsert(PostInsertEvent event) {
+        add("INSERT", event.getEntity());
     }
 
-    public void onPostUpdate(PostUpdateEvent event)
-    {
-    	add("UPDATE",event.getEntity());
+    public void onPostUpdate(PostUpdateEvent event) {
+        add("UPDATE", event.getEntity());
     }
 
     // ~ Helpers
-	// =========================================================================
-    
-    void add(String action, Object entity)
-    {
-    	if (entity instanceof IObject)
-    	{
-    		Class klass = entity.getClass();
-    		Long id = ((IObject) entity).getId();
-    		secSys.addLog(action, klass, id);
-    	}
+    // =========================================================================
+
+    void add(String action, Object entity) {
+        if (entity instanceof IObject) {
+            Class klass = entity.getClass();
+            Long id = ((IObject) entity).getId();
+            secSys.addLog(action, klass, id);
+        }
     }
-    
+
 }

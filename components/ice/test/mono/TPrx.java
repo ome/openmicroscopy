@@ -11,8 +11,8 @@
 
 package mono;
 
-public interface TPrx extends Ice.ObjectPrx
-{
+public interface TPrx extends Ice.ObjectPrx {
     public ome.model.roi.Roi5DRemote getRoi5D();
+
     public ome.model.roi.Roi5DRemote getRoi5D(java.util.Map __ctx);
 }

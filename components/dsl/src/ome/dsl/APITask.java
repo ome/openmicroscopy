@@ -32,27 +32,22 @@ import java.util.Set;
  * 
  * @DEV.TODO refactor out AbstractTask
  */
-public class APITask extends Task
-{
+public class APITask extends Task {
 
     private List _fileSets = new ArrayList();
 
     private File _outputDir;
 
-    public void setDestdir(File dir)
-    {
+    public void setDestdir(File dir) {
         _outputDir = dir;
     }
 
-    public void addFileset(FileSet fileSet)
-    {
+    public void addFileset(FileSet fileSet) {
         _fileSets.add(fileSet);
     }
 
-    public void execute() throws BuildException
-    {
-        if (_fileSets.isEmpty())
-        {
+    public void execute() throws BuildException {
+        if (_fileSets.isEmpty()) {
             throw new BuildException("No fileset specified");
         }
 
@@ -60,30 +55,24 @@ public class APITask extends Task
         JavaDocBuilder builder = new JavaDocBuilder();
 
         java.util.Iterator p = _fileSets.iterator();
-        while (p.hasNext())
-        {
+        while (p.hasNext()) {
             FileSet fileset = (FileSet) p.next();
             DirectoryScanner scanner = fileset
                     .getDirectoryScanner(getProject());
             scanner.scan();
             String[] files = scanner.getIncludedFiles();
-            for (int i = 0; i < files.length; i++)
-            {
+            for (int i = 0; i < files.length; i++) {
                 String filename = fileset.getDir(getProject()) + File.separator
                         + files[i];
                 File file = new File(filename);
 
-                if (!file.exists())
-                {
+                if (!file.exists()) {
                     log("File " + file + " not found.");
-                } else
-                {
-                    try
-                    {
+                } else {
+                    try {
                         FileReader r = new FileReader(file);
                         builder.addSource(r);
-                    } catch (FileNotFoundException fnfe)
-                    {
+                    } catch (FileNotFoundException fnfe) {
                         log("FileReader " + file + " not created. Skippin.");
                     }
                 }
@@ -92,47 +81,45 @@ public class APITask extends Task
 
         interfaces.addAll(extract(builder));
 
-        for (Iterator it = interfaces.iterator(); it.hasNext();)
-        {
+        for (Iterator it = interfaces.iterator(); it.hasNext();) {
             JavaClass jclass = (JavaClass) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("api", jclass);
-            try
-            {
+            try {
                 FileWriter fw = new FileWriter(_outputDir + File.separator
-                        + jclass.getFullyQualifiedName().replaceAll("[.]", "_") + ".ice");
+                        + jclass.getFullyQualifiedName().replaceAll("[.]", "_")
+                        + ".ice");
                 vh.invoke("ome/dsl/api.vm", fw);
                 fw.flush();
                 fw.close();
-            } catch (Exception e)
-            {
-                throw new BuildException("Error while writing type:" + jclass.getFullyQualifiedName(), e);
+            } catch (Exception e) {
+                throw new BuildException("Error while writing type:"
+                        + jclass.getFullyQualifiedName(), e);
             }
         }
 
     }
 
-    List extract(JavaDocBuilder builder)
-    {
+    List extract(JavaDocBuilder builder) {
         List list = new ArrayList();
 
         JavaSource[] sources = builder.getSources();
 
-        for (int i = 0; i < sources.length; i++)
-        {
+        for (int i = 0; i < sources.length; i++) {
             JavaSource src = sources[i];
             JavaClass[] classes = src.getClasses();
 
-            for (int j = 0; j < classes.length; j++)
-            {
+            for (int j = 0; j < classes.length; j++) {
                 JavaClass cls = classes[j];
-                if (!cls.isInterface()) continue;
-                if (!cls.isPublic()) continue;
+                if (!cls.isInterface())
+                    continue;
+                if (!cls.isPublic())
+                    continue;
 
                 DocletTag iceTag = cls.getTagByName("ICE");
-//                if (null != iceTag) 
-                    list.add(cls);
-               
+                // if (null != iceTag)
+                list.add(cls);
+
             }
         }
         return list;

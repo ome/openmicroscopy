@@ -11,8 +11,7 @@
 
 package mono;
 
-public interface _TDel extends Ice._ObjectDel
-{
+public interface _TDel extends Ice._ObjectDel {
     ome.model.roi.Roi5DRemote getRoi5D(java.util.Map __ctx)
-	throws IceInternal.NonRepeatable;
+            throws IceInternal.NonRepeatable;
 }

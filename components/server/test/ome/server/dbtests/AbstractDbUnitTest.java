@@ -6,11 +6,10 @@
  */
 package ome.server.dbtests;
 
-//Java imports
+// Java imports
 import javax.sql.DataSource;
 
-
-//Third-party libraries
+// Third-party libraries
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
@@ -18,7 +17,7 @@ import org.dbunit.operation.DatabaseOperation;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.Configuration;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.server.itests.*;
 
 /**
@@ -30,33 +29,39 @@ public abstract class AbstractDbUnitTest extends AbstractInternalContextTest {
     // ~ Testng Adapter
     // =========================================================================
     @Configuration(beforeTestMethod = true)
-    public void adaptSetUp() throws Exception{setUp();}
+    public void adaptSetUp() throws Exception {
+        setUp();
+    }
+
     @Configuration(afterTestMethod = true)
-    public void adaptTearDown() throws Exception{tearDown();}
+    public void adaptTearDown() throws Exception {
+        tearDown();
+    }
+
     // =========================================================================
-    
+
     protected static IDatabaseConnection c = null;
+
     protected DataSource ds = null;
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AbstractDbUnitTest.class);
     }
 
     @Override
-    protected void onSetUpInTransaction() throws Exception
-    {
+    protected void onSetUpInTransaction() throws Exception {
         ds = (DataSource) applicationContext.getBean("dataSource");
-        if (null==c) {
+        if (null == c) {
             try {
                 c = new DatabaseConnection(ds.getConnection());
-                DatabaseOperation.CLEAN_INSERT.execute(c,getData());
-            } catch (Exception e){
+                DatabaseOperation.CLEAN_INSERT.execute(c, getData());
+            } catch (Exception e) {
                 c = null;
                 throw e;
             }
         }
     }
-    
+
     public abstract IDataSet getData() throws Exception;
-    
+
 }

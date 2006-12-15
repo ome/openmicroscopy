@@ -6,30 +6,27 @@
  */
 package ome.conditions;
 
-//Java imports
+// Java imports
 import javax.ejb.ApplicationException;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-/** 
+/**
  * abstract superclass of all Omero exceptions. Only subclasses of this type
- * will be thrown by the server.  
+ * will be thrown by the server.
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
 @ApplicationException
-public abstract class RootException extends RuntimeException{
+public abstract class RootException extends RuntimeException {
 
-	public RootException(String msg){
-		super(msg);
-	}
-	
+    public RootException(String msg) {
+        super(msg);
+    }
+
 }

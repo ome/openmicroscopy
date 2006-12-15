@@ -7,34 +7,34 @@
 
 package ome.services.hooks;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 
-/** 
+/**
  * JMX-Start method. This interface needs to be public for JMX to work properly.
  * Otherwise, this interface is unimportant. See {@link StartupHook} for more
  * information.
  * 
- * @author  Josh Moore, josh.moore at gmx.de
+ * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @since   3.0-Beta1
- * @see     StartupHook
+ * @since 3.0-Beta1
+ * @see StartupHook
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public interface Startup {
-    
-	/**
-	 * Called by the application server when the service is started and all 
-	 * the services it depends on are started.
-	 * 
-	 * @throws Exception
-	 */
+
+    /**
+     * Called by the application server when the service is started and all the
+     * services it depends on are started.
+     * 
+     * @throws Exception
+     */
     void start() throws Exception;
 
 }

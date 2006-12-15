@@ -43,68 +43,66 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian W. Loranger
  */
 
-public class Main extends JFrame implements ActionListener, WindowListener
-{
-    private static final long   serialVersionUID = 1228000122345370913L;
+public class Main extends JFrame implements ActionListener, WindowListener {
+    private static final long serialVersionUID = 1228000122345370913L;
 
     /** The data of the last release date. */
-    public static String        releaseDate      
-         = "2006-11-10 10:40:46 +0000 (Fri, 10 Nov 2006)";
+    public static String releaseDate = "2006-11-10 10:40:46 +0000 (Fri, 10 Nov 2006)";
 
     /** The repository revision. */
-    public static String        revision  = "$LastChangedRevision$";
+    public static String revision = "$LastChangedRevision$";
 
     /** The data of the last repository revision. */
-    public static String        revisionDate     
-         = "$LastChangedDate$";
+    public static String revisionDate = "$LastChangedDate$";
 
-    
     /** Logger for this class. */
     @SuppressWarnings("unused")
-    private static Log          log     = LogFactory.getLog(Main.class);
+    private static Log log = LogFactory.getLog(Main.class);
 
     // -- Constants --
 
-    private final static String TITLE            = "OMERO Importer";
-    public final static String splash           = "gfx/Splash.png";
-    private final static boolean useSplashScreenAbout   = false;
-     
+    private final static String TITLE = "OMERO Importer";
+
+    public final static String splash = "gfx/Splash.png";
+
+    private final static boolean useSplashScreenAbout = false;
+
     private final static int width = 980;
+
     private final static int height = 580;
-    
-    public LoginHandler        loginHandler;
 
-    public StatusBar            statusBar;
+    public LoginHandler loginHandler;
 
-    private JMenu               fileMenu;
+    public StatusBar statusBar;
 
-    private JMenu               helpMenu;
-  
-    private JMenuItem           login;
-    
-    public Boolean             loggedIn;
+    private JMenu fileMenu;
 
-    private JTextPane           outputTextPane;
+    private JMenu helpMenu;
 
-    private JTextPane           debugTextPane;
+    private JMenuItem login;
 
-    @SuppressWarnings("unused")
-    private String              username;
+    public Boolean loggedIn;
+
+    private JTextPane outputTextPane;
+
+    private JTextPane debugTextPane;
 
     @SuppressWarnings("unused")
-    private String              password;
+    private String username;
 
     @SuppressWarnings("unused")
-    private String              server;
+    private String password;
 
     @SuppressWarnings("unused")
-    private String              port;
+    private String server;
+
+    @SuppressWarnings("unused")
+    private String port;
 
     /**
      * Main entry class for the application
      */
-    public Main()
-    {
+    public Main() {
         super(TITLE);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         JPanel pane = new JPanel();
@@ -122,7 +120,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
         menubar.add(fileMenu);
         login = new JMenuItem("Login...");
         login.setActionCommand("login");
-        login.addActionListener(this);        
+        login.addActionListener(this);
         fileMenu.add(login);
         JMenuItem fileExit = new JMenuItem("Exit");
         fileExit.setActionCommand("exit");
@@ -139,7 +137,6 @@ public class Main extends JFrame implements ActionListener, WindowListener
         helpMenu.add(helpComment);
         helpMenu.add(helpAbout);
 
-
         // tabbed panes
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false); // content panes must be opaque
@@ -149,13 +146,13 @@ public class Main extends JFrame implements ActionListener, WindowListener
 
         // The file chooser sub-pane
         FileQueueHandler fileQueueHandler = new FileQueueHandler(this);
-        //splitPane.setResizeWeight(0.5);
+        // splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
         tPane.addTab("File Viewer", null, filePanel,
-        "Add and delete images here to the import queue.");
+                "Add and delete images here to the import queue.");
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
-        
+
         // output text pane
         JPanel outputPanel = new JPanel();
         outputPanel.setLayout(new BorderLayout());
@@ -164,24 +161,20 @@ public class Main extends JFrame implements ActionListener, WindowListener
 
         JScrollPane outputScrollPane = new JScrollPane();
         outputScrollPane.getViewport().add(outputTextPane);
-        
+
         outputScrollPane.getVerticalScrollBar().addAdjustmentListener(
-                new AdjustmentListener()
-        {
-            public void adjustmentValueChanged(AdjustmentEvent e)
-            {
-                outputTextPane.setCaretPosition(outputTextPane.getDocument().
-                        getLength());
-            }
-        }
-        );
+                new AdjustmentListener() {
+                    public void adjustmentValueChanged(AdjustmentEvent e) {
+                        outputTextPane.setCaretPosition(outputTextPane
+                                .getDocument().getLength());
+                    }
+                });
 
         outputPanel.add(outputScrollPane, BorderLayout.CENTER);
 
         tPane.addTab("Output Text", null, outputPanel,
                 "Standard output text goes here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_2);
-
 
         // debug pane
         JPanel debugPanel = new JPanel();
@@ -193,15 +186,12 @@ public class Main extends JFrame implements ActionListener, WindowListener
         debugScrollPane.getViewport().add(debugTextPane);
 
         debugScrollPane.getVerticalScrollBar().addAdjustmentListener(
-                new AdjustmentListener()
-        {
-            public void adjustmentValueChanged(AdjustmentEvent e)
-            {
-                debugTextPane.setCaretPosition(debugTextPane.getDocument().
-                        getLength());
-            }
-        }
-        );
+                new AdjustmentListener() {
+                    public void adjustmentValueChanged(AdjustmentEvent e) {
+                        debugTextPane.setCaretPosition(debugTextPane
+                                .getDocument().getLength());
+                    }
+                });
 
         debugPanel.add(debugScrollPane, BorderLayout.CENTER);
 
@@ -226,17 +216,17 @@ public class Main extends JFrame implements ActionListener, WindowListener
                 + getPrintableKeyword(revision) + ").");
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
-        
-        loginHandler = new LoginHandler(this);;
+
+        loginHandler = new LoginHandler(this);
+        ;
     }
 
     /**
-     * @param s This method appends data to the output window.
+     * @param s
+     *            This method appends data to the output window.
      */
-    public void appendToOutput(String s)
-    {
-        try
-        {
+    public void appendToOutput(String s) {
+        try {
             StyledDocument doc = (StyledDocument) outputTextPane.getDocument();
             Style style = doc.addStyle("StyleName", null);
             StyleConstants.setForeground(style, Color.black);
@@ -245,24 +235,24 @@ public class Main extends JFrame implements ActionListener, WindowListener
             StyleConstants.setBold(style, false);
 
             doc.insertString(doc.getLength(), s, style);
-        } catch (BadLocationException e) {}
+        } catch (BadLocationException e) {
+        }
     }
 
     /**
-     * @param s Append to the output window and add a line return
+     * @param s
+     *            Append to the output window and add a line return
      */
-    public void appendToOutputLn(String s)
-    {
+    public void appendToOutputLn(String s) {
         appendToOutput(s + "\n");
     }
 
     /**
-     * @param s This method appends data to the output window.
+     * @param s
+     *            This method appends data to the output window.
      */
-    public void appendToDebug(String s)
-    {
-        try
-        {
+    public void appendToDebug(String s) {
+        try {
             StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
             Style style = doc.addStyle("StyleName", null);
             StyleConstants.setForeground(style, Color.black);
@@ -271,51 +261,44 @@ public class Main extends JFrame implements ActionListener, WindowListener
             StyleConstants.setBold(style, false);
 
             doc.insertString(doc.getLength(), s, style);
-        } catch (BadLocationException e) {}
+        } catch (BadLocationException e) {
+        }
     }
 
     /**
-     * @param s Append to the output window and add a line return
+     * @param s
+     *            Append to the output window and add a line return
      */
-    public void appendToDebugLn(String s)
-    {
+    public void appendToDebugLn(String s) {
         appendToDebug(s + "\n");
     }
-    
-    public void actionPerformed(ActionEvent e)
-    {
+
+    public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
 
-        if ("login".equals(cmd))
-        {
-            if (loggedIn == true)
-            {
+        if ("login".equals(cmd)) {
+            if (loggedIn == true) {
                 setImportEnabled(false);
                 loggedIn = false;
                 appendToOutputLn("> Logged out.");
-                statusBar.setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+                statusBar.setStatusIcon("gfx/server_disconn16.png",
+                        "Logged out.");
                 loginHandler = null;
-            } else 
-            {                
+            } else {
                 loginHandler = new LoginHandler(this);
-                //store = loginHandler.getMetadataStore();
-                //loginHandler.tryLogin(this);
-                //store = loginHandler.getMetadataStore();
+                // store = loginHandler.getMetadataStore();
+                // loginHandler.tryLogin(this);
+                // store = loginHandler.getMetadataStore();
             }
         } else if ("exit".equals(cmd)) {
-            if (quitConfirmed(this) == true)
-            {
+            if (quitConfirmed(this) == true) {
                 System.exit(0);
             }
-        }
-        else if ("about".equals(cmd))
-        {
+        } else if ("about".equals(cmd)) {
             // HACK - JOptionPane prevents shutdown on dispose
             setDefaultCloseOperation(EXIT_ON_CLOSE);
             About.show(this.getContentPane(), useSplashScreenAbout);
-        }
-        else if ("comment".equals(cmd))
-        {
+        } else if ("comment".equals(cmd)) {
             new CommentMessenger(this, "Comment Dialog", true);
         }
     }
@@ -326,81 +309,72 @@ public class Main extends JFrame implements ActionListener, WindowListener
      *         used for the version number and build time variables, leaving
      *         only the stuff we want.
      */
-    public static String getPrintableKeyword(String keyword)
-    {
+    public static String getPrintableKeyword(String keyword) {
         int begin = keyword.indexOf(" ") + 1;
         int end = keyword.lastIndexOf(" ");
         return keyword.substring(begin, end);
     }
 
     /** Toggles wait cursor. */
-    public void waitCursor(boolean wait)
-    {
+    public void waitCursor(boolean wait) {
         setCursor(wait ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null);
     }
 
     /**
-     * @param toggle boolean toggle for the import menu
+     * @param toggle
+     *            boolean toggle for the import menu
      */
-    public void setImportEnabled(boolean toggle)
-    {
-        if (toggle == true) login.setText("Logout...");
-        else login.setText("Login...");
+    public void setImportEnabled(boolean toggle) {
+        if (toggle == true)
+            login.setText("Logout...");
+        else
+            login.setText("Login...");
     }
 
     /**
      * only allow the exit menu option
      */
-    public void onlyAllowExit()
-    {
+    public void onlyAllowExit() {
         fileMenu.setEnabled(true);
         helpMenu.setEnabled(true);
     }
 
     /**
-     * @param toggle Enable all menu options
+     * @param toggle
+     *            Enable all menu options
      */
-    public void enableMenus(boolean toggle)
-    {
+    public void enableMenus(boolean toggle) {
         fileMenu.setEnabled(toggle);
         helpMenu.setEnabled(toggle);
     }
 
     // Getters and Setters
 
-    public void setPassword(String password)
-    {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setPort(String port)
-    {
+    public void setPort(String port) {
         this.port = port;
     }
 
-    public void setServer(String server)
-    {
+    public void setServer(String server) {
         this.server = server;
     }
 
-    public void setUsername(String username)
-    {
+    public void setUsername(String username) {
         this.username = username;
     }
 
     private boolean quitConfirmed(JFrame frame) {
         String s1 = "Quit";
         String s2 = "Cancel";
-        Object[] options = {s1, s2};
+        Object[] options = { s1, s2 };
         int n = JOptionPane.showOptionDialog(frame,
-                "Do you really want to quit?\n" +
-                "Doing so will cancel any running imports.",
-                "Quit Confirmation",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                s1);
+                "Do you really want to quit?\n"
+                        + "Doing so will cancel any running imports.",
+                "Quit Confirmation", JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, s1);
         if (n == JOptionPane.YES_OPTION) {
             return true;
         } else {
@@ -408,52 +382,62 @@ public class Main extends JFrame implements ActionListener, WindowListener
         }
     }
 
-    public void windowClosing(WindowEvent e)  
-    {
-        if (quitConfirmed(this) == true)
-        {
+    public void windowClosing(WindowEvent e) {
+        if (quitConfirmed(this) == true) {
             System.exit(0);
         }
     }
 
-    public void windowActivated(WindowEvent e)  {}
-    public void windowClosed(WindowEvent e)  {}
-    public void windowDeactivated(WindowEvent e)  {}
-    public void windowDeiconified(WindowEvent e)  {}
-    public void windowIconified(WindowEvent e)  {}
-    public void windowOpened(WindowEvent e) {}
+    public void windowActivated(WindowEvent e) {
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowDeactivated(WindowEvent e) {
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    public void windowIconified(WindowEvent e) {
+    }
+
+    public void windowOpened(WindowEvent e) {
+    }
 
     /**
-     * @param args Start up the application, display the main window and the
+     * @param args
+     *            Start up the application, display the main window and the
      *            login dialog.
      */
-    public static void main(String[] args)
-    {  
+    public static void main(String[] args) {
 
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
+        String laf = UIManager.getSystemLookAndFeelClassName();
 
-        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+        // laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
+        // laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        // laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        // laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        // laf = "javax.swing.plaf.metal.MetalLookAndFeel";
 
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
+        if (laf.equals("apple.laf.AquaLookAndFeel")) {
             System.setProperty("Quaqua.design", "panther");
-            
+
             try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
+                UIManager
+                        .setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
+            } catch (Exception e) {
+                System.err.println(laf + " not supported.");
+            }
         } else {
             try {
                 UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
+            } catch (Exception e) {
+                System.err.println(laf + " not supported.");
+            }
         }
-        
+
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
                 public void run() {
@@ -465,7 +449,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
             // makes the splash window go away too early.
             // Nothing to worry about. Maybe we should write a log message.
         } catch (InvocationTargetException e) {
-            // Error: Startup has failed badly. 
+            // Error: Startup has failed badly.
             // We can not continue running our application.
             InternalError error = new InternalError();
             error.initCause(e);

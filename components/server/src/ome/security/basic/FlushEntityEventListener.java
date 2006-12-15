@@ -9,7 +9,6 @@ package ome.security.basic;
 
 // Java imports
 
-
 // Third-party imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,33 +25,30 @@ import ome.annotations.RevisionNumber;
  * responsible for responding to {@link FlushEntityEvent}. Necessary to perform
  * clean up of entities.
  * 
- * @author  Josh Moore, josh.moore at gmx.de
+ * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @since   3.0
- * @see     BasicSecuritySystem#lockMarked()
+ * @since 3.0
+ * @see BasicSecuritySystem#lockMarked()
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class FlushEntityEventListener extends DefaultFlushEntityEventListener
-{
+public class FlushEntityEventListener extends DefaultFlushEntityEventListener {
 
-	private static final long serialVersionUID = 240558701677298961L;
+    private static final long serialVersionUID = 240558701677298961L;
 
-	private static Log log = LogFactory.getLog( FlushEntityEventListener.class );
-	
-	private BasicSecuritySystem secSys;
-	
-	/** main constructor. Requires a non-null security system */
-	public FlushEntityEventListener( BasicSecuritySystem securitySystem )
-	{
-		Assert.notNull(securitySystem);
-		this.secSys = securitySystem;
-	}
-    
-	@Override
-	public void onFlushEntity(FlushEntityEvent event) throws HibernateException
-	{
-		secSys.lockMarked();
-		super.onFlushEntity(event);
-	}
+    private static Log log = LogFactory.getLog(FlushEntityEventListener.class);
+
+    private BasicSecuritySystem secSys;
+
+    /** main constructor. Requires a non-null security system */
+    public FlushEntityEventListener(BasicSecuritySystem securitySystem) {
+        Assert.notNull(securitySystem);
+        this.secSys = securitySystem;
+    }
+
+    @Override
+    public void onFlushEntity(FlushEntityEvent event) throws HibernateException {
+        secSys.lockMarked();
+        super.onFlushEntity(event);
+    }
 }

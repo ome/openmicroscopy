@@ -14,17 +14,17 @@
 
 package ome.logic;
 
-//Java imports
+// Java imports
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 
-//Third-party libraries
+// Third-party libraries
 import org.springframework.transaction.annotation.Transactional;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.api.IAnalysis;
 import ome.api.ServiceInterface;
 import ome.model.containers.Dataset;
@@ -33,103 +33,98 @@ import ome.model.containers.Project;
 import ome.parameters.Parameters;
 
 /**
- * implementation of the Analysis service. 
+ * implementation of the Analysis service.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 1.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly=true)
+@Transactional(readOnly = true)
 public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
     @Override
-    protected Class<? extends ServiceInterface> getServiceInterface()
-    {
+    protected Class<? extends ServiceInterface> getServiceInterface() {
         return IAnalysis.class;
     }
-    
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-	public Set getProjectsForUser(long experimenterId) {
-		//return aDao.getProjectsForUser(experimenterId); TODO remove from Analysis Dao?
 
-		// Criteria
-		Experimenter exp = new Experimenter();
-		exp.setId(experimenterId);
-		
-		// Example
-		Project prj = new Project();
-		prj.getDetails().setOwner(exp);
-		
-		return new HashSet(iQuery.findAllByExample(prj,null)); 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public Set getProjectsForUser(long experimenterId) {
+        // return aDao.getProjectsForUser(experimenterId); TODO remove from
+        // Analysis Dao?
+
+        // Criteria
+        Experimenter exp = new Experimenter();
+        exp.setId(experimenterId);
+
+        // Example
+        Project prj = new Project();
+        prj.getDetails().setOwner(exp);
+
+        return new HashSet(iQuery.findAllByExample(prj, null));
         // FIXME does this work. if not:
         // "from Project p where p.experimenter = :expId"
-	}
+    }
 
-	public Set getAllDatasets() {
-		return new HashSet(iQuery.findAllByExample(new Dataset(),null));
-	}
+    public Set getAllDatasets() {
+        return new HashSet(iQuery.findAllByExample(new Dataset(), null));
+    }
 
-	public Set getAllForImage(long imageId) {
-		// TODO Auto-generated method stub
-		//return null;
-		throw new RuntimeException("Not implemented yet.");
-	}
+    public Set getAllForImage(long imageId) {
+        // TODO Auto-generated method stub
+        // return null;
+        throw new RuntimeException("Not implemented yet.");
+    }
 
-//	public Set getChainExecutionsForDataset(int datasetId) {
-//
-//		// Criteria
-//		Dataset ds = new Dataset();
-//		ds.setId(datasetId);
-//		
-//		// Example
-//		AnalysisChainExecution ace = new AnalysisChainExecution();
-//		ace.setDataset(ds);
-//		
-//		return new HashSet(iQuery.getListByExample(ace));
-//	}
-// 
-	// Criteria is a set ~~~~~~~~~~~~~~~~~~~~~~~`
-	
-	public Set getDatasetsForProject(long projectId) {
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(" select d from Dataset d ");
-		sb.append("  left outer join fetch d.projectLinks pdl ");
+    // public Set getChainExecutionsForDataset(int datasetId) {
+    //
+    // // Criteria
+    // Dataset ds = new Dataset();
+    // ds.setId(datasetId);
+    //		
+    // // Example
+    // AnalysisChainExecution ace = new AnalysisChainExecution();
+    // ace.setDataset(ds);
+    //		
+    // return new HashSet(iQuery.getListByExample(ace));
+    // }
+    // 
+    // Criteria is a set ~~~~~~~~~~~~~~~~~~~~~~~`
+
+    public Set getDatasetsForProject(long projectId) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select d from Dataset d ");
+        sb.append("  left outer join fetch d.projectLinks pdl ");
         sb.append("  left outer join fetch pdl.parent p ");
-		sb.append("  where p.id = :id");
-		
-		return new HashSet(iQuery.findAllByQuery(
-                sb.toString(),new Parameters().addId( projectId )));
-		
-	}
+        sb.append("  where p.id = :id");
 
-	public Set getProjectsForDataset(long datasetId) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(" select p from Project p ");
-		sb.append("  left outer join fetch p.datasetLinks pdl ");
+        return new HashSet(iQuery.findAllByQuery(sb.toString(),
+                new Parameters().addId(projectId)));
+
+    }
+
+    public Set getProjectsForDataset(long datasetId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select p from Project p ");
+        sb.append("  left outer join fetch p.datasetLinks pdl ");
         sb.append("  left outer join fetch pdl.child d ");
-		sb.append("  where d.id = :id");
-		
-		return new HashSet(iQuery.findAllByQuery(
-                sb.toString(),new Parameters().addId( datasetId )));
-	}
+        sb.append("  where d.id = :id");
 
-	public Set getImagesForDataset(long datasetId) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(" select i from Image i ");
-		sb.append("  left outer join fetch i.datasetLinks dil ");
+        return new HashSet(iQuery.findAllByQuery(sb.toString(),
+                new Parameters().addId(datasetId)));
+    }
+
+    public Set getImagesForDataset(long datasetId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select i from Image i ");
+        sb.append("  left outer join fetch i.datasetLinks dil ");
         sb.append("  left outer join fetch dil.parent d ");
-		sb.append("  where d.id = :id");
-		
-		return new HashSet(iQuery.findAllByQuery(
-                sb.toString(),new Parameters().addId( datasetId )));
-	}
+        sb.append("  where d.id = :id");
 
-	
+        return new HashSet(iQuery.findAllByQuery(sb.toString(),
+                new Parameters().addId(datasetId)));
+    }
 
 }

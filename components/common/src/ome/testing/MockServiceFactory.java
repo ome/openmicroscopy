@@ -25,13 +25,13 @@ import omeis.providers.re.RenderingEngine;
 /**
  * <a href="http://jmock.org">JMock'ed</a> ServiceFactory whose public fields
  * can be set like:
- *  
+ * 
  * <code>
  *   mockServiceFactory.mockUpdate = mock(IUpdate.class);
  * </code>
  * 
  * and later used like:
- *  
+ * 
  * <code>
  *   mockServiceFactory.mockUpdate.expects( once() ).method( "saveObject" );
  * </code>
@@ -44,60 +44,59 @@ import omeis.providers.re.RenderingEngine;
  * @since 3.0
  * @see org.jmock.MockObjectTestCase
  */
-public class MockServiceFactory extends ServiceFactory
-{
-	
-	@Override
-	protected String getDefaultContext() {
-		return null;
-	}
-    
-	public Mock mockAdmin;
-	public IAdmin getAdminService()
-	{
-		return (IAdmin) mockAdmin.proxy( ); 
-	}
-	
+public class MockServiceFactory extends ServiceFactory {
+
+    @Override
+    protected String getDefaultContext() {
+        return null;
+    }
+
+    public Mock mockAdmin;
+
+    public IAdmin getAdminService() {
+        return (IAdmin) mockAdmin.proxy();
+    }
+
     public Mock mockAnalysis;
-    public IAnalysis getAnalysisService()
-    {
-        return (IAnalysis) mockAnalysis.proxy( );
+
+    public IAnalysis getAnalysisService() {
+        return (IAnalysis) mockAnalysis.proxy();
     }
 
     public Mock mockPixels;
-    public IPixels getPixelsService()
-    {
-        return (IPixels) mockPixels.proxy( );
+
+    public IPixels getPixelsService() {
+        return (IPixels) mockPixels.proxy();
     }
 
     public Mock mockPojos;
-    public IPojos getPojosService()
-    {
-        return (IPojos) mockPojos.proxy( );
+
+    public IPojos getPojosService() {
+        return (IPojos) mockPojos.proxy();
     }
 
     public Mock mockQuery;
-    public IQuery getQueryService()
-    {
-        return (IQuery) mockQuery.proxy( );
+
+    public IQuery getQueryService() {
+        return (IQuery) mockQuery.proxy();
     }
 
     public Mock mockRendering;
-    public RenderingEngine getRenderingService()
-    {
-        return (RenderingEngine) mockRendering.proxy( );
+
+    public RenderingEngine getRenderingService() {
+        return (RenderingEngine) mockRendering.proxy();
     }
-    
+
     public Mock mockUpdate;
-    public IUpdate getUpdateService()
-    {
-        return (IUpdate) mockUpdate.proxy( );
+
+    public IUpdate getUpdateService() {
+        return (IUpdate) mockUpdate.proxy();
     }
-    
+
     public Mock mockTypes;
-    public ITypes getTypesService()
-    {
-    	return (ITypes) mockTypes.proxy();
+
+    public ITypes getTypesService() {
+        return (ITypes) mockTypes.proxy();
     }
 
 }

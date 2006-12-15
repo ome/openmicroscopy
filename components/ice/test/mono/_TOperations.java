@@ -11,7 +11,6 @@
 
 package mono;
 
-public interface _TOperations
-{
+public interface _TOperations {
     ome.model.roi.Roi5DRemote getRoi5D(Ice.Current __current);
 }

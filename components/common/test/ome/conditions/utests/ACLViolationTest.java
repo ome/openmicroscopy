@@ -21,24 +21,20 @@ import ome.system.Login;
 
 import junit.framework.TestCase;
 
-
-public class ACLViolationTest extends TestCase
-{
+public class ACLViolationTest extends TestCase {
 
     @Test
-    @ExpectedExceptions( CollectedACLViolations.class )
+    @ExpectedExceptions(CollectedACLViolations.class)
     public void testCollectionACLViolationToStringTest() throws Exception {
-		CollectedACLViolations coll = new CollectedACLViolations("test");
-		ACLViolation[] array = {
-				new ACLLoadViolation(Image.class,1L,"can't load img"),
-				new ACLDeleteViolation(Project.class,2L,"can't delete prj")
-		};
-		for (int i = 0; i < array.length; i++) {
-			coll.addViolation(array[i]);
-		}
-		coll.setStackTrace(new CollectedACLViolations(null).getStackTrace());
-		throw coll;
-	}
+        CollectedACLViolations coll = new CollectedACLViolations("test");
+        ACLViolation[] array = {
+                new ACLLoadViolation(Image.class, 1L, "can't load img"),
+                new ACLDeleteViolation(Project.class, 2L, "can't delete prj") };
+        for (int i = 0; i < array.length; i++) {
+            coll.addViolation(array[i]);
+        }
+        coll.setStackTrace(new CollectedACLViolations(null).getStackTrace());
+        throw coll;
+    }
 
-  
 }

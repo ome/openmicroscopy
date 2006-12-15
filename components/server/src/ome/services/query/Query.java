@@ -37,55 +37,58 @@ import ome.util.builders.PojoOptions;
 
 /**
  * base Query type to facilitate the creation of ORM queries. This class
- * attempts to enforce a strict usage pattern. First, subclasses must define
- * a {@link ome.services.query.Definitions} instance, which can optionally 
- * (and perhaps preferrably) be static, which must be passed into the 
- * super constructor along with the {@link ome.parameters.Parameters} provided
- * during lookup.
+ * attempts to enforce a strict usage pattern. First, subclasses must define a
+ * {@link ome.services.query.Definitions} instance, which can optionally (and
+ * perhaps preferrably) be static, which must be passed into the super
+ * constructor along with the {@link ome.parameters.Parameters} provided during
+ * lookup.
  * <p>
- *  Queries can optionally define a {@link #enableFilters(Session)} method
- *  (perhaps using pre-defined filters like {@link #ownerOrGroupFilters(Session, String[])}
- *  to limit the entities returned.
+ * Queries can optionally define a {@link #enableFilters(Session)} method
+ * (perhaps using pre-defined filters like
+ * {@link #ownerOrGroupFilters(Session, String[])} to limit the entities
+ * returned.
  * </p>
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public abstract class Query<T> implements HibernateCallback
-{
+public abstract class Query<T> implements HibernateCallback {
     private static Log log = LogFactory.getLog(Query.class);
-    
+
     // For Criteria
-    /** 
+    /**
      * imported constant for ease of use
-     * @see FetchMode#JOIN 
+     * 
+     * @see FetchMode#JOIN
      */
     protected final static FetchMode FETCH = FetchMode.JOIN;
-    
-    /** 
+
+    /**
      * imported constant for ease of use
-     * @see Criteria#LEFT_JOIN 
+     * 
+     * @see Criteria#LEFT_JOIN
      */
     protected final static int LEFT_JOIN = Criteria.LEFT_JOIN;
-    
-    /** 
+
+    /**
      * imported constant for ease of use
-     * @see Criteria#INNER_JOIN 
+     * 
+     * @see Criteria#INNER_JOIN
      */
     protected final static int INNER_JOIN = Criteria.INNER_JOIN;
 
     /**
-     * container of {@link QueryParameterDef} instances. Typically created 
-     * statically in Query subclasses and passed to the  
-     * {@link Query#Query(Definitions, Parameters)} constructor 
+     * container of {@link QueryParameterDef} instances. Typically created
+     * statically in Query subclasses and passed to the
+     * {@link Query#Query(Definitions, Parameters)} constructor
      */
     protected final Definitions defs;
-    
-    /** 
+
+    /**
      * container of {@link QueryParameter} instances. These must at least cover
-     * all the {@link QueryParameterDef}s defined for this {@link Query} but can
-     * define more. Other special fields of {@link Parameters}, such as a 
+     * all the {@link QueryParameterDef}s defined for this {@link Query} but
+     * can define more. Other special fields of {@link Parameters}, such as a
      * {@link ome.parameters.Filter} instance can also be used by {@link Query}
      * instances.
      */
@@ -96,8 +99,8 @@ public abstract class Query<T> implements HibernateCallback
      * If not null on {@link #doInHibernate(Session) execution}, this instance
      * will be used.
      * 
-     * This field is private so that we can guarantee that subclasses 
-     * build one and only one representation.
+     * This field is private so that we can guarantee that subclasses build one
+     * and only one representation.
      * 
      * @see #_criteria
      */
@@ -108,27 +111,29 @@ public abstract class Query<T> implements HibernateCallback
      * If not null on {@link #doInHibernate(Session) execution}, this instance
      * will be used.
      * 
-     * This field is private so that we can guarantee that subclasses 
-     * build one and only one representation.
+     * This field is private so that we can guarantee that subclasses build one
+     * and only one representation.
      * 
      * @see #_query
      */
     private org.hibernate.Criteria _criteria;
-    
+
     /* have to have the Parameters */
-    private Query() {  
+    private Query() {
         this.defs = null;
         this.params = null;
         checkParameters();
     }
-    
-    /** 
-     * main constructor used by subclasses. Both arguments must be provided. 
-     * @param definitions Not null.
-     * @param parameters Not null.
+
+    /**
+     * main constructor used by subclasses. Both arguments must be provided.
+     * 
+     * @param definitions
+     *            Not null.
+     * @param parameters
+     *            Not null.
      */
-    public Query(Definitions definitions, Parameters parameters)
-    {
+    public Query(Definitions definitions, Parameters parameters) {
         this.defs = definitions;
         this.params = parameters;
         checkParameters();
@@ -136,64 +141,57 @@ public abstract class Query<T> implements HibernateCallback
 
     /**
      * check the {@link Parameters} instance against the {@link Definitions}
-     * instance for this Query. Can be extended by subclasses, but 
+     * instance for this Query. Can be extended by subclasses, but
      * <code>super.checkParameters()</code> should most likely be called.
      */
-    protected void checkParameters(){
-        
+    protected void checkParameters() {
+
         if (defs == null)
             throw new IllegalStateException(
                     "Query parameter definitions not set.");
-        
-        if (params == null) 
-            throw new IllegalArgumentException(
-                    "Null arrays "+
-                    "are not valid for definitions.");
-        
+
+        if (params == null)
+            throw new IllegalArgumentException("Null arrays "
+                    + "are not valid for definitions.");
+
         Set<String> missing = new HashSet<String>();
-        for ( String name : defs.keySet() )
-        {
-            if ( ! defs.get( name ).optional 
-                    && ! params.keySet().contains( name ))
-            {
-                missing.add( name );
+        for (String name : defs.keySet()) {
+            if (!defs.get(name).optional && !params.keySet().contains(name)) {
+                missing.add(name);
             }
         }
-        
-        if ( missing.size() > 0 )
-        {
+
+        if (missing.size() > 0) {
             throw new IllegalArgumentException(
-                    "Required parameters missing from query: "+ missing 
-                    );
+                    "Required parameters missing from query: " + missing);
         }
-            
-        for (String name : defs.keySet())
-        {
-            QueryParameter parameter = params.get( name );
-            QueryParameterDef def = defs.get( name );
-            
-            def.errorIfInvalid( parameter );
-                
+
+        for (String name : defs.keySet()) {
+            QueryParameter parameter = params.get(name);
+            QueryParameterDef def = defs.get(name);
+
+            def.errorIfInvalid(parameter);
+
         }
-        
+
     }
 
     // ~ Lookups
     // =========================================================================
 
     /**
-     * check that there is a {@link Definitions definition} for this 
-     * {@link Query} with the provided argument as its 
-     * {@link QueryParameterDef#name name}. 
+     * check that there is a {@link Definitions definition} for this
+     * {@link Query} with the provided argument as its
+     * {@link QueryParameterDef#name name}.
      */
-    public boolean check(String name){
+    public boolean check(String name) {
         return defs.containsKey(name);
     }
-    
+
     /**
      * get the {@link QueryParameter} for this name argument.
      */
-    public QueryParameter get(String name){
+    public QueryParameter get(String name) {
         return params.get(name);
     }
 
@@ -201,105 +199,90 @@ public abstract class Query<T> implements HibernateCallback
      * get the Object value for this name argument. Returns null even if no
      * QueryParameter is associated with the name (no exception).
      */
-    public Object value(String name){
+    public Object value(String name) {
         QueryParameter p = params.get(name);
         return p == null ? null : p.value;
     }
-    
 
     // ~ Execution
     // =========================================================================
 
     /**
-     * template method defined by {@link HibernateTemplate}. This does not
-     * need to be overriden by subclasses, but rather 
-     * {@link #buildQuery(Session)}. This ensures that the filters are set 
-     * properly, that {@link #buildQuery(Session)} does its job, and that 
-     * everything is cleaned up properly afterwards.
+     * template method defined by {@link HibernateTemplate}. This does not need
+     * to be overriden by subclasses, but rather {@link #buildQuery(Session)}.
+     * This ensures that the filters are set properly, that
+     * {@link #buildQuery(Session)} does its job, and that everything is cleaned
+     * up properly afterwards.
      * 
-     *   It also enforces contracts established by {@link Parameters} and 
-     *   {@link ome.parameters.Filter}
+     * It also enforces contracts established by {@link Parameters} and
+     * {@link ome.parameters.Filter}
      */
-    public Object doInHibernate(Session session)
-        throws HibernateException, SQLException
-    {
+    public Object doInHibernate(Session session) throws HibernateException,
+            SQLException {
         try {
             enableFilters(session);
             buildQuery(session);
-            
-            if ( _query == null && _criteria == null )
-            {
+
+            if (_query == null && _criteria == null) {
                 throw new IllegalStateException(
-                        "buildQuery did not properly define a Query or " +
-                        "Criteria\n by calling setQuery() or setCriteria()."
-                );
+                        "buildQuery did not properly define a Query or "
+                                + "Criteria\n by calling setQuery() or setCriteria().");
             }
 
             boolean unique = params.getFilter().isUnique();
-            
-            if ( _query != null )
-            {
-                _query.setFirstResult( params.getFilter().firstResult() );
-                _query.setMaxResults( params.getFilter().maxResults() );
-                return unique ? 
-                        _query.uniqueResult() :
-                            _query.list();
+
+            if (_query != null) {
+                _query.setFirstResult(params.getFilter().firstResult());
+                _query.setMaxResults(params.getFilter().maxResults());
+                return unique ? _query.uniqueResult() : _query.list();
             } else {
-                _criteria.setFirstResult( params.getFilter().firstResult() );
-                _criteria.setMaxResults( params.getFilter().maxResults() );
-                return unique ? 
-                        _criteria.uniqueResult() : 
-                            _criteria.list();
+                _criteria.setFirstResult(params.getFilter().firstResult());
+                _criteria.setMaxResults(params.getFilter().maxResults());
+                return unique ? _criteria.uniqueResult() : _criteria.list();
             }
-            
+
         } finally {
             disableFilters(session);
         }
     }
-    
-    /**
-     * main point of entry for subclasses. This method must build either a 
-     * {@link org.hibernate.Criteria} or a {@link org.hibernate.Query} instance
-     * and make it available via {@link #setCriteria(org.hibernate.Criteria)} 
-     * or {@link #setQuery(org.hibernate.Query)}
-     */
-    protected abstract void buildQuery(Session session) 
-    throws HibernateException, SQLException;
 
     /**
-     * provide this Query instance with a {@link org.hibernate.Query} to be
-     * used for retrieving data. {@link #setCriteria(org.hibernate.Criteria)}
-     * should not also be called with a non-null value. 
+     * main point of entry for subclasses. This method must build either a
+     * {@link org.hibernate.Criteria} or a {@link org.hibernate.Query} instance
+     * and make it available via {@link #setCriteria(org.hibernate.Criteria)} or
+     * {@link #setQuery(org.hibernate.Query)}
      */
-    protected void setQuery( org.hibernate.Query query )
-    {
-        if ( _criteria != null )
-        {
+    protected abstract void buildQuery(Session session)
+            throws HibernateException, SQLException;
+
+    /**
+     * provide this Query instance with a {@link org.hibernate.Query} to be used
+     * for retrieving data. {@link #setCriteria(org.hibernate.Criteria)} should
+     * not also be called with a non-null value.
+     */
+    protected void setQuery(org.hibernate.Query query) {
+        if (_criteria != null) {
             throw new IllegalStateException(
-                    "This Query already has a Criteria set:"+_criteria
-            );
+                    "This Query already has a Criteria set:" + _criteria);
         }
         _query = query;
     }
 
     /**
      * provide this Query instance with a {@link org.hibernate.Criteria} to be
-     * used for retrieving data. {@link #setQuery(org.hibernate.Query)}
-     * should not also be called with a non-null value. 
+     * used for retrieving data. {@link #setQuery(org.hibernate.Query)} should
+     * not also be called with a non-null value.
      */
-    protected void setCriteria( org.hibernate.Criteria criteria )
-    {
-        if ( _query != null )
-        {
+    protected void setCriteria(org.hibernate.Criteria criteria) {
+        if (_query != null) {
             throw new IllegalStateException(
-                    "This Query already has a Query set:"+_query
-            );
+                    "This Query already has a Query set:" + _query);
         }
         _criteria = criteria;
     }
-    
+
     /**
-     * the set of filters that is being or has been enabled for this Query. 
+     * the set of filters that is being or has been enabled for this Query.
      */
     protected Set<String> newlyEnabledFilters = new HashSet<String>();
 
@@ -307,62 +290,51 @@ public abstract class Query<T> implements HibernateCallback
      * does nothing by default, but can be overriden by subclasses to enable
      * particular filters.
      */
-    protected void enableFilters(Session session){
-        
+    protected void enableFilters(Session session) {
+
     }
 
     /**
-     * standard filter used by many subclasses which uses the 
+     * standard filter used by many subclasses which uses the
      * {@link PojoOptions#isExperimenter()} and {@link PojoOptions#isGroup()}
-     * booleans to see if a filter should be turned on. If both booleans are 
-     * active, group wins. The constant {@link Parameters#OWNER_ID} or 
+     * booleans to see if a filter should be turned on. If both booleans are
+     * active, group wins. The constant {@link Parameters#OWNER_ID} or
      * {@link Parameters#GROUP_ID} is then used to define a filter.
      */
-    protected void ownerOrGroupFilters(Session session, 
-    		String[] ownerFilters,
-    		String[] groupFilters)
-    {
-    
-        if (check(OPTIONS) )
-        {
-            PojoOptions po = new PojoOptions( (Map)value( OPTIONS ) );
-            
-            if ( po.isGroup() )
-            {
-	            for (String filter : groupFilters)
-	            {
-	                if (session.getEnabledFilter( filter ) != null) 
-	                    newlyEnabledFilters.add(  filter );
-	            
-	                session.enableFilter( filter )
-	                    .setParameter( GROUP_ID, po.getGroup() );
-	            }
+    protected void ownerOrGroupFilters(Session session, String[] ownerFilters,
+            String[] groupFilters) {
+
+        if (check(OPTIONS)) {
+            PojoOptions po = new PojoOptions((Map) value(OPTIONS));
+
+            if (po.isGroup()) {
+                for (String filter : groupFilters) {
+                    if (session.getEnabledFilter(filter) != null)
+                        newlyEnabledFilters.add(filter);
+
+                    session.enableFilter(filter).setParameter(GROUP_ID,
+                            po.getGroup());
+                }
+            } else if (po.isExperimenter()) {
+                for (String filter : ownerFilters) {
+                    if (session.getEnabledFilter(filter) != null)
+                        newlyEnabledFilters.add(filter);
+
+                    session.enableFilter(filter).setParameter(OWNER_ID,
+                            po.getExperimenter());
+                }
             }
-            else if ( po.isExperimenter() )
-            {
-	            for (String filter : ownerFilters)
-	            {
-	                if (session.getEnabledFilter( filter ) != null) 
-	                    newlyEnabledFilters.add(  filter );
-	            
-	                session.enableFilter( filter )
-	                    .setParameter( OWNER_ID, po.getExperimenter() );
-	            }
-            }
-            
+
         }
     }
-    
+
     /**
      * turns the filters off that are listed in {@link #newlyEnabledFilters}
      */
-    protected void disableFilters(Session session)
-    {
-        for (String enabledFilter : newlyEnabledFilters)
-        {
-            session.disableFilter(enabledFilter);    
+    protected void disableFilters(Session session) {
+        for (String enabledFilter : newlyEnabledFilters) {
+            session.disableFilter(enabledFilter);
         }
-        
-    }    
-}
 
+    }
+}

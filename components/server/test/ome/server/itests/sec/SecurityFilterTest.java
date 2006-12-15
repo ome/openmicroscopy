@@ -33,219 +33,217 @@ import static ome.model.internal.Permissions.Right.*;
 @Test(groups = { "ticket:117", "security", "filter" })
 public class SecurityFilterTest extends AbstractManagedContextTest {
 
-	static String ticket117 = "ticket:117";
+    static String ticket117 = "ticket:117";
 
-	Permissions userReadableOnly = new Permissions().revoke(GROUP, READ)
-			.revoke(WORLD, READ);
+    Permissions userReadableOnly = new Permissions().revoke(GROUP, READ)
+            .revoke(WORLD, READ);
 
-	Permissions unreadable = new Permissions( userReadableOnly )
-			.revoke(USER, READ);
+    Permissions unreadable = new Permissions(userReadableOnly).revoke(USER,
+            READ);
 
-	Permissions groupReadable = new Permissions().revoke(WORLD, READ);
+    Permissions groupReadable = new Permissions().revoke(WORLD, READ);
 
-	List<Experimenter>   users   = new ArrayList<Experimenter>();
-	List<String>         names = new ArrayList<String>();
+    List<Experimenter> users = new ArrayList<Experimenter>();
+
+    List<String> names = new ArrayList<String>();
 
     @Configuration(beforeTestClass = true)
-    public void createData() throws Exception{
-    	setUp();
+    public void createData() throws Exception {
+        setUp();
 
-    	String gname = uuid();
-    	ExperimenterGroup g = new ExperimenterGroup();
-		g.setName( gname );
-		iAdmin.createGroup(g);
+        String gname = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(gname);
+        iAdmin.createGroup(g);
 
-		for (int i = 0; i < 3; i++) {
-			String name = UUID.randomUUID().toString();
-			Experimenter e2 = new Experimenter();
-			e2.setOmeName( name );
-			e2.setFirstName("security");
-			e2.setLastName("filter too");
-			users.add( 
-					new Experimenter(
-							factory.getAdminService().createUser(e2,gname),
-							false));
-			names.add( name );
-			
-		}
-		tearDown();
-	}
+        for (int i = 0; i < 3; i++) {
+            String name = UUID.randomUUID().toString();
+            Experimenter e2 = new Experimenter();
+            e2.setOmeName(name);
+            e2.setFirstName("security");
+            e2.setLastName("filter too");
+            users.add(new Experimenter(factory.getAdminService().createUser(e2,
+                    gname), false));
+            names.add(name);
 
-	@Test
-	public void testFilterDisallowsRead() throws Exception {
+        }
+        tearDown();
+    }
 
-		Image i;
+    @Test
+    public void testFilterDisallowsRead() throws Exception {
 
-		loginUser(names.get(0));
-		i = createImage(userReadableOnly);
+        Image i;
 
-		loginUser(names.get(1));
-		assertCannotReadImage(i);
+        loginUser(names.get(0));
+        i = createImage(userReadableOnly);
 
-		loginUser(names.get(0));
-		assertCanReadImage(i);
-	}
+        loginUser(names.get(1));
+        assertCannotReadImage(i);
 
-	@Test
-	public void testRootCanReadAll() throws Exception {
+        loginUser(names.get(0));
+        assertCanReadImage(i);
+    }
 
-		Image i;
+    @Test
+    public void testRootCanReadAll() throws Exception {
 
-		loginUser(names.get(0));
-		i = createImage(unreadable);
-		assertCannotReadImage(i);
+        Image i;
 
-		loginUser(names.get(1));
-		assertCannotReadImage(i);
+        loginUser(names.get(0));
+        i = createImage(unreadable);
+        assertCannotReadImage(i);
 
-		loginRoot();
-		assertCanReadImage(i);
-	}
+        loginUser(names.get(1));
+        assertCannotReadImage(i);
 
-	@Test
-	public void testGroupReadable() throws Exception {
+        loginRoot();
+        assertCanReadImage(i);
+    }
 
-		Image i;
+    @Test
+    public void testGroupReadable() throws Exception {
 
-		loginRoot();
-		ExperimenterGroup group = new ExperimenterGroup();
-		group.setName(UUID.randomUUID().toString());
-		group = factory.getAdminService().getGroup(
-				factory.getAdminService().createGroup(group));
+        Image i;
 
-		ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
-		factory.getAdminService().addGroups(users.get(0), proxy);
-		factory.getAdminService().addGroups(users.get(1), proxy);
+        loginRoot();
+        ExperimenterGroup group = new ExperimenterGroup();
+        group.setName(UUID.randomUUID().toString());
+        group = factory.getAdminService().getGroup(
+                factory.getAdminService().createGroup(group));
 
-		loginUser(names.get(0));
-		i = createImage(groupReadable);
-		factory.getAdminService().changeGroup(i, group.getName());
-		assertCanReadImage(i);
+        ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
+        factory.getAdminService().addGroups(users.get(0), proxy);
+        factory.getAdminService().addGroups(users.get(1), proxy);
 
-		loginUser(names.get(1));
-		assertCanReadImage(i);
+        loginUser(names.get(0));
+        i = createImage(groupReadable);
+        factory.getAdminService().changeGroup(i, group.getName());
+        assertCanReadImage(i);
 
-		loginUser(names.get(2));
-		assertCannotReadImage(i);
+        loginUser(names.get(1));
+        assertCanReadImage(i);
 
-	}
+        loginUser(names.get(2));
+        assertCannotReadImage(i);
 
-	@Test
-	public void testGroupLeadersCanReadAllInGroup() throws Exception {
-		Image i;
+    }
 
-		loginRoot();
-		// add user(2) as PI of a new group
-		ExperimenterGroup group = new ExperimenterGroup();
-		group.setName(UUID.randomUUID().toString());
-		group.getDetails().setOwner(users.get(2));
-		group = factory.getAdminService().getGroup(
-				factory.getAdminService().createGroup(group));
+    @Test
+    public void testGroupLeadersCanReadAllInGroup() throws Exception {
+        Image i;
 
-		// add all users to that group
-		ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
-		factory.getAdminService().addGroups(users.get(0), proxy);
-		factory.getAdminService().addGroups(users.get(1), proxy);
-		factory.getAdminService().addGroups(users.get(2), proxy);
+        loginRoot();
+        // add user(2) as PI of a new group
+        ExperimenterGroup group = new ExperimenterGroup();
+        group.setName(UUID.randomUUID().toString());
+        group.getDetails().setOwner(users.get(2));
+        group = factory.getAdminService().getGroup(
+                factory.getAdminService().createGroup(group));
 
-		// as non-PI create an image..
-		loginUser(names.get(0));
-		i = createImage(userReadableOnly);
-		factory.getAdminService().changeGroup(i, group.getName());
-		assertCanReadImage(i);
+        // add all users to that group
+        ExperimenterGroup proxy = new ExperimenterGroup(group.getId(), false);
+        factory.getAdminService().addGroups(users.get(0), proxy);
+        factory.getAdminService().addGroups(users.get(1), proxy);
+        factory.getAdminService().addGroups(users.get(2), proxy);
 
-		// others in group can't read
-		loginUser(names.get(1));
-		assertCannotReadImage(i);
+        // as non-PI create an image..
+        loginUser(names.get(0));
+        i = createImage(userReadableOnly);
+        factory.getAdminService().changeGroup(i, group.getName());
+        assertCanReadImage(i);
 
-		// but PI can
-		loginUser(names.get(2));
-		assertCanReadImage(i);
-	}
-	
-	@Test
-	public void testUserCanHideFromSelf() throws Exception {
-		Image i;
+        // others in group can't read
+        loginUser(names.get(1));
+        assertCannotReadImage(i);
 
-		// create an image with no permissions
-		loginUser(names.get(0));
-		i = createImage(unreadable);
-		assertCannotReadImage(i);
+        // but PI can
+        loginUser(names.get(2));
+        assertCanReadImage(i);
+    }
 
-	}
-	
-	@Test
-	public void testFilterDoesntHinderOuterJoins() throws Exception {
+    @Test
+    public void testUserCanHideFromSelf() throws Exception {
+        Image i;
 
-	}
+        // create an image with no permissions
+        loginUser(names.get(0));
+        i = createImage(unreadable);
+        assertCannotReadImage(i);
 
-	@Test
-	public void testWorldReadable() throws Exception {
+    }
 
-	}
+    @Test
+    public void testFilterDoesntHinderOuterJoins() throws Exception {
 
-	@Test
-	public void testStatefulServicesFollowSameContract() throws Exception {
+    }
 
-	}
+    @Test
+    public void testWorldReadable() throws Exception {
 
-	// ~ Helpers
-	// =========================================================================
+    }
 
-	private Image createImage(Permissions p) {
-		Image img = new Image();
-		img.setName(ticket117 + ":" + UUID.randomUUID().toString());
-		img.getDetails().setPermissions(p);
-		img = factory.getUpdateService().saveAndReturnObject(img);
-		return img;
-	}
+    @Test
+    public void testStatefulServicesFollowSameContract() throws Exception {
 
-	private void assertCannotReadImage(Image img) {
-		Image image;
-		
-		image = getImageAsString(img);
-		assertNull(image);
+    }
 
-		image = getImageByCriteria(img);
-		assertNull(image);
+    // ~ Helpers
+    // =========================================================================
 
-	}
+    private Image createImage(Permissions p) {
+        Image img = new Image();
+        img.setName(ticket117 + ":" + UUID.randomUUID().toString());
+        img.getDetails().setPermissions(p);
+        img = factory.getUpdateService().saveAndReturnObject(img);
+        return img;
+    }
 
-	private void assertCanReadImage(Image img) {
-		Image image;
-		
-		image = getImageAsString(img);
-		assertNotNull(image);
+    private void assertCannotReadImage(Image img) {
+        Image image;
 
-		image = getImageByCriteria(img);
-		assertNotNull(image);
-	}
+        image = getImageAsString(img);
+        assertNull(image);
 
-	private Image getImageAsString(Image img) {
-		return iQuery.findByString(Image.class, "name", img.getName());
-	}
-	
-	private Image getImageByCriteria(Image img) {
-		return iQuery.execute(new ImageQuery(img));
-	}
+        image = getImageByCriteria(img);
+        assertNull(image);
+
+    }
+
+    private void assertCanReadImage(Image img) {
+        Image image;
+
+        image = getImageAsString(img);
+        assertNotNull(image);
+
+        image = getImageByCriteria(img);
+        assertNotNull(image);
+    }
+
+    private Image getImageAsString(Image img) {
+        return iQuery.findByString(Image.class, "name", img.getName());
+    }
+
+    private Image getImageByCriteria(Image img) {
+        return iQuery.execute(new ImageQuery(img));
+    }
 }
 
 class ImageQuery extends Query<Image> {
-	
-	static Definitions defs = new Definitions(
-			new QueryParameterDef("name",String.class,false));
-	
-	public ImageQuery(Image img)
-	{
-		super(defs,new Parameters( new Filter().unique() )
-			.addString("name",img.getName()));
-	}
-	
-	@Override
-	protected void buildQuery(Session session) 
-	throws HibernateException, SQLException {
-		Criteria c = session.createCriteria(Image.class);
-		c.add(Restrictions.eq("name", value("name")));
-		setCriteria( c );
-	}
+
+    static Definitions defs = new Definitions(new QueryParameterDef("name",
+            String.class, false));
+
+    public ImageQuery(Image img) {
+        super(defs, new Parameters(new Filter().unique()).addString("name", img
+                .getName()));
+    }
+
+    @Override
+    protected void buildQuery(Session session) throws HibernateException,
+            SQLException {
+        Criteria c = session.createCriteria(Image.class);
+        c.add(Restrictions.eq("name", value("name")));
+        setCriteria(c);
+    }
 }

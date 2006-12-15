@@ -11,19 +11,17 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.system.ServiceFactory;
 
-public class ProjectCreator
-{
+public class ProjectCreator {
 
     private static final String USERNAME = "root";
 
     private static final String PASSWORD = "ome";
 
-    private static final String SERVER   = "mage";
+    private static final String SERVER = "mage";
 
-    private static final String PORT     = "1099";
+    private static final String PORT = "1099";
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         System.getProperties().setProperty("omero.user", USERNAME);
         System.getProperties().setProperty("omero.pass", PASSWORD);
         System.getProperties().setProperty("server.host", SERVER);

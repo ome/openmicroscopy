@@ -11,16 +11,11 @@
 
 package mono;
 
-public final class TI extends _TDisp
-{
-    public
-    TI()
-    {
+public final class TI extends _TDisp {
+    public TI() {
     }
 
-    public ome.model.roi.Roi5DRemote
-    getRoi5D(Ice.Current __current)
-    {
-	return null;
+    public ome.model.roi.Roi5DRemote getRoi5D(Ice.Current __current) {
+        return null;
     }
 }

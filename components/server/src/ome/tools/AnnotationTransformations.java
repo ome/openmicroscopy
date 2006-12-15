@@ -7,7 +7,7 @@
 
 package ome.tools;
 
-//Java imports
+// Java imports
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,15 +17,15 @@ import java.util.Set;
 import ome.model.annotations.DatasetAnnotation;
 import ome.model.annotations.ImageAnnotation;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
 public class AnnotationTransformations {
 
-	public static Map sortDatasetAnnotatiosn(Set result) {
+    public static Map sortDatasetAnnotatiosn(Set result) {
 
-		Map map = new HashMap();
+        Map map = new HashMap();
 
         // SORT
         Iterator i = result.iterator();
@@ -38,24 +38,24 @@ public class AnnotationTransformations {
             ((Set) map.get(ds_id)).add(ann);
         }
 
-        return map;	
-	}
+        return map;
+    }
 
-	public static Map sortImageAnnotatiosn(Set result) {
+    public static Map sortImageAnnotatiosn(Set result) {
 
-		Map map = new HashMap();
+        Map map = new HashMap();
 
-		// SORT
-		Iterator i = result.iterator();
-		while (i.hasNext()) {
-			ImageAnnotation ann = (ImageAnnotation) i.next();
-			Long img_id = ann.getImage().getId();
-			if (!map.containsKey(img_id)) {
-				map.put(img_id, new HashSet());
-			}
-			((Set) map.get(img_id)).add(ann);
-		}
+        // SORT
+        Iterator i = result.iterator();
+        while (i.hasNext()) {
+            ImageAnnotation ann = (ImageAnnotation) i.next();
+            Long img_id = ann.getImage().getId();
+            if (!map.containsKey(img_id)) {
+                map.put(img_id, new HashSet());
+            }
+            ((Set) map.get(img_id)).add(ann);
+        }
 
-		return map;
-	}
+        return map;
+    }
 }

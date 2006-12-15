@@ -21,56 +21,57 @@ import ome.system.ServiceFactory;
 @Test(groups = { "client", "integration" })
 public class LoginTest extends TestCase {
 
-	@Test
-	public void test_withPropertiesNull() throws Exception {
-		Properties p = new Properties();
-		ServiceFactory factory = new ServiceFactory(p);
-		IQuery iQuery = factory.getQueryService();
-		iQuery.get(Experimenter.class, 0L);
-	}
+    @Test
+    public void test_withPropertiesNull() throws Exception {
+        Properties p = new Properties();
+        ServiceFactory factory = new ServiceFactory(p);
+        IQuery iQuery = factory.getQueryService();
+        iQuery.get(Experimenter.class, 0L);
+    }
 
-	@Test
-	@ExpectedExceptions(ome.conditions.ApiUsageException.class)
-	public void test_withLoginNull() throws Exception {
-		Login login = new Login(null, "b");
-		ServiceFactory factory = new ServiceFactory(login);
-		IQuery iQuery = factory.getQueryService();
-		iQuery.get(Experimenter.class, 0L);
-	}
+    @Test
+    @ExpectedExceptions(ome.conditions.ApiUsageException.class)
+    public void test_withLoginNull() throws Exception {
+        Login login = new Login(null, "b");
+        ServiceFactory factory = new ServiceFactory(login);
+        IQuery iQuery = factory.getQueryService();
+        iQuery.get(Experimenter.class, 0L);
+    }
 
-	@Test
-	public void test_withProps() throws Exception {
-		Properties p = new Properties();
-		p.setProperty("omero.user", "root");
-		p.setProperty("omero.pass", "ome");
-		ServiceFactory factory = new ServiceFactory(p);
-		IQuery iQuery = factory.getQueryService();
-		iQuery.get(Experimenter.class, 0L);
-	}
+    @Test
+    public void test_withProps() throws Exception {
+        Properties p = new Properties();
+        p.setProperty("omero.user", "root");
+        p.setProperty("omero.pass", "ome");
+        ServiceFactory factory = new ServiceFactory(p);
+        IQuery iQuery = factory.getQueryService();
+        iQuery.get(Experimenter.class, 0L);
+    }
 
-	@Test
-	public void test_withLogin() throws Exception {
-		Login login = new Login("root", "ome");
-		ServiceFactory factory = new ServiceFactory(login);
-		IQuery iQuery = factory.getQueryService();
-		iQuery.get(Experimenter.class, 0L);
-	}
-	
-	@Test( groups = {"ticket:182"})
-	public void testLoginWithUmask() throws Exception {
-		Login login = new Login("root","ome");
-		ServiceFactory factory = new ServiceFactory(login);
-		factory.setUmask(Permissions.READ_ONLY);
-		Image i = new Image();
-		i.setName(UUID.randomUUID().toString());
-		Image test = factory.getUpdateService().saveAndReturnObject(i);
-		assertFalse(test.getDetails().getPermissions().isGranted(Role.USER, Right.WRITE));
-	}
+    @Test
+    public void test_withLogin() throws Exception {
+        Login login = new Login("root", "ome");
+        ServiceFactory factory = new ServiceFactory(login);
+        IQuery iQuery = factory.getQueryService();
+        iQuery.get(Experimenter.class, 0L);
+    }
 
-	@Test( groups = {"ticket:297","broken"})
-	public void testLoginWithGUEST() throws Exception {
-		ServiceFactory factory = new ServiceFactory( Login.GUEST );
-		factory.getQueryService().findAll( Image.class, null );
-	}
-	
+    @Test(groups = { "ticket:182" })
+    public void testLoginWithUmask() throws Exception {
+        Login login = new Login("root", "ome");
+        ServiceFactory factory = new ServiceFactory(login);
+        factory.setUmask(Permissions.READ_ONLY);
+        Image i = new Image();
+        i.setName(UUID.randomUUID().toString());
+        Image test = factory.getUpdateService().saveAndReturnObject(i);
+        assertFalse(test.getDetails().getPermissions().isGranted(Role.USER,
+                Right.WRITE));
+    }
+
+    @Test(groups = { "ticket:297", "broken" })
+    public void testLoginWithGUEST() throws Exception {
+        ServiceFactory factory = new ServiceFactory(Login.GUEST);
+        factory.getQueryService().findAll(Image.class, null);
+    }
+
 }

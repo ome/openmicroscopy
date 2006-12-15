@@ -11,7 +11,5 @@
 
 package mono;
 
-public interface T extends Ice.Object,
-			   _TOperations, _TOperationsNC
-{
+public interface T extends Ice.Object, _TOperations, _TOperationsNC {
 }

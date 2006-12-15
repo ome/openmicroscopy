@@ -6,15 +6,12 @@
  */
 package ome.formats.importer.util;
 
-
 /**
  * @author TheBrain
- *
+ * 
  */
-public class HtmlMessengerException extends Exception
-{
-    public HtmlMessengerException(String message, Exception e)
-    {
+public class HtmlMessengerException extends Exception {
+    public HtmlMessengerException(String message, Exception e) {
         super(message, e);
     }
 }

@@ -37,51 +37,51 @@ import ome.model.IObject;
 @RevisionNumber("$Revision$")
 public class ReloadingRefreshEventListener implements RefreshEventListener {
 
-	private static final long serialVersionUID = 4292680015211981832L;
+    private static final long serialVersionUID = 4292680015211981832L;
 
-	private static Log log = LogFactory
-			.getLog(ReloadingRefreshEventListener.class);
+    private static Log log = LogFactory
+            .getLog(ReloadingRefreshEventListener.class);
 
-	/**
-	 * @see RefreshEventListener#onRefresh(RefreshEvent)
-	 */
-	@SuppressWarnings("unchecked")
-	public void onRefresh(RefreshEvent event) throws HibernateException 
-	{
-		onRefresh( event, IdentityMap.instantiate(10) );
-	}
-	
-	/** 
-	 * @see RefreshEventListener#onRefresh(RefreshEvent, Map)
-	 */
-	@SuppressWarnings("unchecked")
-	public void onRefresh(RefreshEvent event, Map refreshedAlready)
-			throws HibernateException {
-		IObject orig = (IObject) event.getObject();
-		
-		if (orig.getId() == null)
-			throw new ApiUsageException("Transient entities cannot be refreshed.");
-		
-		if (HibernateUtils.isUnloaded(orig)) {
-			final EventSource source = event.getSession();
-			log("Reloading unloaded entity:", orig.getClass(), ":", orig
-					.getId());
-			Object obj = source.load(orig.getClass(), orig.getId());
-			refreshedAlready.put(orig, obj);
-			return; // EARLY EXIT!
-		}
-	}
+    /**
+     * @see RefreshEventListener#onRefresh(RefreshEvent)
+     */
+    @SuppressWarnings("unchecked")
+    public void onRefresh(RefreshEvent event) throws HibernateException {
+        onRefresh(event, IdentityMap.instantiate(10));
+    }
 
-	// ~ Helpers
-	// =========================================================================
+    /**
+     * @see RefreshEventListener#onRefresh(RefreshEvent, Map)
+     */
+    @SuppressWarnings("unchecked")
+    public void onRefresh(RefreshEvent event, Map refreshedAlready)
+            throws HibernateException {
+        IObject orig = (IObject) event.getObject();
 
-	private void log(Object... objects) {
-		if (log.isDebugEnabled() && objects != null && objects.length > 0) {
-			StringBuilder sb = new StringBuilder(objects.length * 16);
-			for (Object obj : objects) {
-				sb.append(obj.toString());
-			}
-			log.debug(sb.toString());
-		}
-	}
+        if (orig.getId() == null)
+            throw new ApiUsageException(
+                    "Transient entities cannot be refreshed.");
+
+        if (HibernateUtils.isUnloaded(orig)) {
+            final EventSource source = event.getSession();
+            log("Reloading unloaded entity:", orig.getClass(), ":", orig
+                    .getId());
+            Object obj = source.load(orig.getClass(), orig.getId());
+            refreshedAlready.put(orig, obj);
+            return; // EARLY EXIT!
+        }
+    }
+
+    // ~ Helpers
+    // =========================================================================
+
+    private void log(Object... objects) {
+        if (log.isDebugEnabled() && objects != null && objects.length > 0) {
+            StringBuilder sb = new StringBuilder(objects.length * 16);
+            for (Object obj : objects) {
+                sb.append(obj.toString());
+            }
+            log.debug(sb.toString());
+        }
+    }
 }

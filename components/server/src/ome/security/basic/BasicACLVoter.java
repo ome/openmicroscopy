@@ -43,136 +43,137 @@ import ome.tools.hibernate.SecurityFilter;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public class BasicACLVoter implements ACLVoter {
-	
-	private final static Log log = LogFactory.getLog(BasicACLVoter.class);
-	
-	private BasicSecuritySystem secSys;
 
-	public BasicACLVoter( BasicSecuritySystem securitySystem )
-	{
-		this.secSys = securitySystem;
-	}
-	
-	// ~ Interface methods
-	// =========================================================================
+    private final static Log log = LogFactory.getLog(BasicACLVoter.class);
 
-	/**
-	 * 
-	 */
-	public boolean allowChmod(IObject iObject) {
-		return secSys.isOwnerOrSupervisor(iObject);
-	}
-	
-	/**
-	 * 
-	 * 
-	 * delegates to SecurityFilter because that is where the logic is defined
-	 * for the {@link #enableReadFilter(Object) read filter}
-	 */
-	public boolean allowLoad(Class<? extends IObject> klass, Details d) {
-		Assert.notNull(klass);
-//		Assert.notNull(d);
-		if ( d == null || secSys.isSystemType(klass) )
-			return true;
-		return SecurityFilter.passesFilter(d,secSys.currentUserId(),
-				secSys.memberOfGroups(),secSys.leaderOfGroups(),
-				secSys.currentUserIsAdmin());
-	}
+    private BasicSecuritySystem secSys;
 
-	public void throwLoadViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Cannot read "
-				+ iObject.getClass().getName());
-	}
+    public BasicACLVoter(BasicSecuritySystem securitySystem) {
+        this.secSys = securitySystem;
+    }
 
-	public boolean allowCreation(IObject iObject) {
-		Assert.notNull(iObject);
-		Class cls = iObject.getClass();
+    // ~ Interface methods
+    // =========================================================================
 
-		if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
-			return true;
-		}
+    /**
+     * 
+     */
+    public boolean allowChmod(IObject iObject) {
+        return secSys.isOwnerOrSupervisor(iObject);
+    }
 
-		else if (secSys.isSystemType((Class<? extends IObject>) cls)) {
-			return false;
-		}
+    /**
+     * 
+     * 
+     * delegates to SecurityFilter because that is where the logic is defined
+     * for the {@link #enableReadFilter(Object) read filter}
+     */
+    public boolean allowLoad(Class<? extends IObject> klass, Details d) {
+        Assert.notNull(klass);
+        // Assert.notNull(d);
+        if (d == null || secSys.isSystemType(klass))
+            return true;
+        return SecurityFilter.passesFilter(d, secSys.currentUserId(), secSys
+                .memberOfGroups(), secSys.leaderOfGroups(), secSys
+                .currentUserIsAdmin());
+    }
 
-		return true;
-	}
+    public void throwLoadViolation(IObject iObject) throws SecurityViolation {
+        Assert.notNull(iObject);
+        throw new SecurityViolation("Cannot read "
+                + iObject.getClass().getName());
+    }
 
-	public void throwCreationViolation(IObject iObject)
-			throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation(iObject.getClass().getName()
-				+ " is a System-type, and may only be "
-				+ "created through privileged APIs.");
-	}
+    public boolean allowCreation(IObject iObject) {
+        Assert.notNull(iObject);
+        Class cls = iObject.getClass();
 
-	public boolean allowUpdate(IObject iObject, Details trustedDetails) {
-		return allowUpdateOrDelete(iObject, trustedDetails);
-	}
+        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
+            return true;
+        }
 
-	public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Updating " + iObject + " not allowed.");
-	}
+        else if (secSys.isSystemType((Class<? extends IObject>) cls)) {
+            return false;
+        }
 
-	public boolean allowDelete(IObject iObject, Details trustedDetails) {
-		return allowUpdateOrDelete(iObject, trustedDetails);
-	}
+        return true;
+    }
 
-	public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
-		Assert.notNull(iObject);
-		throw new SecurityViolation("Deleting " + iObject + " not allowed.");
-	}
+    public void throwCreationViolation(IObject iObject)
+            throws SecurityViolation {
+        Assert.notNull(iObject);
+        throw new SecurityViolation(iObject.getClass().getName()
+                + " is a System-type, and may only be "
+                + "created through privileged APIs.");
+    }
 
-	private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) {
-		Assert.notNull(iObject);
+    public boolean allowUpdate(IObject iObject, Details trustedDetails) {
+        return allowUpdateOrDelete(iObject, trustedDetails);
+    }
 
-		// needs no details info
-		if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin())
-			return true;
-		else if (secSys.isSystemType((Class<? extends IObject>) iObject.getClass())) {
-			return false;
-		}
+    public void throwUpdateViolation(IObject iObject) throws SecurityViolation {
+        Assert.notNull(iObject);
+        throw new SecurityViolation("Updating " + iObject + " not allowed.");
+    }
 
-		// previously we were taking the details directly from iObject
-		// iObject, however, is in a critical state. Values such as
-		// Permissions, owner, and group may have been changed.
-		Details d = trustedDetails;
+    public boolean allowDelete(IObject iObject, Details trustedDetails) {
+        return allowUpdateOrDelete(iObject, trustedDetails);
+    }
 
-		// this can now only happen if a table doesn't have permissions
-		// and there aren't any of those. so let it be updated.
-		if (d == null)
-			return true;
+    public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
+        Assert.notNull(iObject);
+        throw new SecurityViolation("Deleting " + iObject + " not allowed.");
+    }
 
-		Long o = d.getOwner() == null ? null : d.getOwner().getId();
-		Long g = d.getGroup() == null ? null : d.getGroup().getId();
+    private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) {
+        Assert.notNull(iObject);
 
-		// needs no permissions info
-		if (g != null && secSys.leaderOfGroups().contains(g))
-			return true;
+        // needs no details info
+        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin())
+            return true;
+        else if (secSys.isSystemType((Class<? extends IObject>) iObject
+                .getClass())) {
+            return false;
+        }
 
-		Permissions p = d.getPermissions();
+        // previously we were taking the details directly from iObject
+        // iObject, however, is in a critical state. Values such as
+        // Permissions, owner, and group may have been changed.
+        Details d = trustedDetails;
 
-		// this should never occur.
-		if (p == null) {
-			throw new InternalException(
-					"Permissions null! Security system "
-							+ "failure -- refusing to continue. The Permissions should "
-							+ "be set to a default value.");
-		}
+        // this can now only happen if a table doesn't have permissions
+        // and there aren't any of those. so let it be updated.
+        if (d == null)
+            return true;
 
-		// standard
-		if (p.isGranted(WORLD, WRITE))
-			return true;
-		if (p.isGranted(USER, WRITE) && o != null && o.equals(secSys.currentUserId()))
-			return true;
-		if (p.isGranted(GROUP, WRITE) && g != null
-				&& secSys.memberOfGroups().contains(g))
-			return true;
+        Long o = d.getOwner() == null ? null : d.getOwner().getId();
+        Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
-		return false;
-	}
+        // needs no permissions info
+        if (g != null && secSys.leaderOfGroups().contains(g))
+            return true;
+
+        Permissions p = d.getPermissions();
+
+        // this should never occur.
+        if (p == null) {
+            throw new InternalException(
+                    "Permissions null! Security system "
+                            + "failure -- refusing to continue. The Permissions should "
+                            + "be set to a default value.");
+        }
+
+        // standard
+        if (p.isGranted(WORLD, WRITE))
+            return true;
+        if (p.isGranted(USER, WRITE) && o != null
+                && o.equals(secSys.currentUserId()))
+            return true;
+        if (p.isGranted(GROUP, WRITE) && g != null
+                && secSys.memberOfGroups().contains(g))
+            return true;
+
+        return false;
+    }
 
 }

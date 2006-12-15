@@ -14,24 +14,20 @@
 
 package ome.rules;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
-
+// Application-internal dependencies
 
 /**
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 public interface RulesEngine {
 
-	void evaluate(Object... assertions) throws Exception;
-	
+    void evaluate(Object... assertions) throws Exception;
+
 }

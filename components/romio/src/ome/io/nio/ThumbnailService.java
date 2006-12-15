@@ -14,57 +14,49 @@ import java.io.IOException;
 
 import ome.model.display.Thumbnail;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public class ThumbnailService extends AbstractFileSystemService
-{
+public class ThumbnailService extends AbstractFileSystemService {
 
-    public ThumbnailService(String path)
-    {
+    public ThumbnailService(String path) {
         super(path);
     }
-    
+
     public void createThumbnail(Thumbnail thumbnail, byte[] buf)
-        throws IOException
-    {
-    	String path = getThumbnailPath(thumbnail.getId());
-    	createSubpath(path);
-    	
-    	FileOutputStream stream = new FileOutputStream(path);
-    	stream.write(buf);
-    	stream.close();
+            throws IOException {
+        String path = getThumbnailPath(thumbnail.getId());
+        createSubpath(path);
+
+        FileOutputStream stream = new FileOutputStream(path);
+        stream.write(buf);
+        stream.close();
     }
-    
-    public long getThumbnailLength(Thumbnail thumbnail)
-    {
-    	File f = new File(getThumbnailPath(thumbnail.getId()));
-    	return f.length();
+
+    public long getThumbnailLength(Thumbnail thumbnail) {
+        File f = new File(getThumbnailPath(thumbnail.getId()));
+        return f.length();
     }
-    
-    public byte[] getThumbnail(Thumbnail thumbnail) throws IOException
-    {
-    	byte[] buf = new byte[(int) getThumbnailLength(thumbnail)];
-    	return getThumbnail(thumbnail, buf);
+
+    public byte[] getThumbnail(Thumbnail thumbnail) throws IOException {
+        byte[] buf = new byte[(int) getThumbnailLength(thumbnail)];
+        return getThumbnail(thumbnail, buf);
     }
-    
+
     public byte[] getThumbnail(Thumbnail thumbnail, byte[] buf)
-    	throws IOException
-    {
-    	String path = getThumbnailPath(thumbnail.getId());
-    	FileInputStream stream = new FileInputStream(path);
-    	stream.read(buf, 0, buf.length);
-    	stream.close();
-    	return buf;
+            throws IOException {
+        String path = getThumbnailPath(thumbnail.getId());
+        FileInputStream stream = new FileInputStream(path);
+        stream.read(buf, 0, buf.length);
+        stream.close();
+        return buf;
     }
-    
+
     public FileOutputStream getThumbnailOutputStream(Thumbnail thumbnail)
-    	throws IOException
-    {
-    	String path = getThumbnailPath(thumbnail.getId());
-    	createSubpath(path);
-    	return new FileOutputStream(path);
+            throws IOException {
+        String path = getThumbnailPath(thumbnail.getId());
+        createSubpath(path);
+        return new FileOutputStream(path);
     }
 }

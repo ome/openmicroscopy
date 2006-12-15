@@ -31,18 +31,16 @@ import ome.server.itests.*;
  * @author josh
  * @DEV.TODO test "valid=false" sections of queries
  */
-@Test(enabled = false, groups = {"broken","fix","integration"})
-public class CGCPathsDbUnitTest extends AbstractDbUnitTest
-{
+@Test(enabled = false, groups = { "broken", "fix", "integration" })
+public class CGCPathsDbUnitTest extends AbstractDbUnitTest {
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         junit.textui.TestRunner.run(CGCPathsDbUnitTest.class);
     }
 
-    static void runBuild()
-    {
-        String path = BuildRunner.getPath("../antlib/resources/build.xml").getFile();
+    static void runBuild() {
+        String path = BuildRunner.getPath("../antlib/resources/build.xml")
+                .getFile();
         File buildFile = new File(path);
         Project p = new Project();
 
@@ -53,8 +51,7 @@ public class CGCPathsDbUnitTest extends AbstractDbUnitTest
         consoleLogger.setMessageOutputLevel(Project.MSG_DEBUG);
         p.addBuildListener(consoleLogger);
 
-        try
-        {
+        try {
             p.fireBuildStarted();
             p.init();
             p.setBasedir("/tmp");// FIXME
@@ -67,33 +64,30 @@ public class CGCPathsDbUnitTest extends AbstractDbUnitTest
             // p.executeTarget(p.getDefaultTarget());
             p.executeTarget("reload-db");
             p.fireBuildFinished(null);
-        } catch (BuildException e)
-        {
+        } catch (BuildException e) {
             p.fireBuildFinished(e);
         }
     }
 
     @Override
-    public IDataSet getData() throws Exception
-    {
+    public IDataSet getData() throws Exception {
         URL file = this.getClass().getClassLoader()
                 .getResource("cgc-paths.xml");
         return new XmlDataSet(new FileInputStream(file.getFile()));
     }
 
     @Test
-    public void testFindCGCPathsContained()
-    {
+    public void testFindCGCPathsContained() {
 
         Set set, contained, notContained;
 
         set = TestUtils.getSetFromInt(new int[] { 2 });
-//        contained = new HashSet(cdao.findCGCPaths(set, true));
-//        notContained = new HashSet(cdao.findCGCPaths(set, false));
-////        assertTrue("X not-contained paths expected in but found none",
-//                notContained.size() > 0);
-//        assertTrue("X contained paths expected but found none", contained
-//                .size() > 0);
+        // contained = new HashSet(cdao.findCGCPaths(set, true));
+        // notContained = new HashSet(cdao.findCGCPaths(set, false));
+        // // assertTrue("X not-contained paths expected in but found none",
+        // notContained.size() > 0);
+        // assertTrue("X contained paths expected but found none", contained
+        // .size() > 0);
 
     }
 }

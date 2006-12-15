@@ -7,16 +7,16 @@
 
 package ome.security.basic;
 
-//Java imports
+// Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IObject;
@@ -28,93 +28,99 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.EventContext;
 
-/** 
+/**
  * 
  */
-class BasicEventContext implements EventContext
-{
-	// this should never be null. Making private
-	private Details details = new Details();
-	
-	Permissions umask;
-	boolean isAdmin = false;
-	boolean isReadOnly = false;
-	Collection<Long> memberOfGroups;
-	Collection<Long> leaderOfGroups;
-	Set<String> disabledSubsystems;
-	Set<IObject> lockCandidates;
-	List<EventLog> logs;
+class BasicEventContext implements EventContext {
+    // this should never be null. Making private
+    private Details details = new Details();
+
+    Permissions umask;
+
+    boolean isAdmin = false;
+
+    boolean isReadOnly = false;
+
+    Collection<Long> memberOfGroups;
+
+    Collection<Long> leaderOfGroups;
+
+    Set<String> disabledSubsystems;
+
+    Set<IObject> lockCandidates;
+
+    List<EventLog> logs;
 
     // ~ EventContext interface
-	// =========================================================================
-    
-	public Long getCurrentEventId() {
-		Event e = this.details.getCreationEvent();
-		return e == null ? null : e.getId();
-	}
+    // =========================================================================
 
-	public String getCurrentEventType() {
-		Event e = this.details.getCreationEvent();
-		return e == null ? null : e.getType() == null ? null : e.getType().getValue(); 
-	}
+    public Long getCurrentEventId() {
+        Event e = this.details.getCreationEvent();
+        return e == null ? null : e.getId();
+    }
 
-	public Long getCurrentGroupId() {
-		ExperimenterGroup g = this.details.getGroup();
-		return g == null ? null : g.getId();
-	}
+    public String getCurrentEventType() {
+        Event e = this.details.getCreationEvent();
+        return e == null ? null : e.getType() == null ? null : e.getType()
+                .getValue();
+    }
 
-	public String getCurrentGroupName() {
-		ExperimenterGroup g = this.details.getGroup();
-		return g == null ? null : g.getName();
-	}
+    public Long getCurrentGroupId() {
+        ExperimenterGroup g = this.details.getGroup();
+        return g == null ? null : g.getId();
+    }
 
-	public Long getCurrentUserId() {
-		Experimenter e = this.details.getOwner();
-		return e == null ? null : e.getId();
-	}
+    public String getCurrentGroupName() {
+        ExperimenterGroup g = this.details.getGroup();
+        return g == null ? null : g.getName();
+    }
 
-	public String getCurrentUserName() {
-		Experimenter e = this.details.getOwner();
-		return e == null ? null : e.getOmeName();
-	}
+    public Long getCurrentUserId() {
+        Experimenter e = this.details.getOwner();
+        return e == null ? null : e.getId();
+    }
 
-	public List<Long> getLeaderOfGroupsList() {
-		Collection<Long> l = this.leaderOfGroups;
-		if (l == null) return Collections.emptyList();
-		return new ArrayList<Long>(l);
-	}
+    public String getCurrentUserName() {
+        Experimenter e = this.details.getOwner();
+        return e == null ? null : e.getOmeName();
+    }
 
-	public List<Long> getMemberOfGroupsList() {
-		Collection<Long> l = this.memberOfGroups;
-		if (l == null) return Collections.emptyList();
-		return new ArrayList<Long>(l);
-	}
+    public List<Long> getLeaderOfGroupsList() {
+        Collection<Long> l = this.leaderOfGroups;
+        if (l == null)
+            return Collections.emptyList();
+        return new ArrayList<Long>(l);
+    }
 
-	public boolean isCurrentUserAdmin() {
-		return this.isAdmin;
-	}
+    public List<Long> getMemberOfGroupsList() {
+        Collection<Long> l = this.memberOfGroups;
+        if (l == null)
+            return Collections.emptyList();
+        return new ArrayList<Long>(l);
+    }
 
-	public boolean isReadOnly() {
-		return this.isReadOnly;
-	}
-	
-	// ~ Accessors
-	// =========================================================================
+    public boolean isCurrentUserAdmin() {
+        return this.isAdmin;
+    }
+
+    public boolean isReadOnly() {
+        return this.isReadOnly;
+    }
+
+    // ~ Accessors
+    // =========================================================================
     public Details getDetails() {
-    	if (this.details == null)
-    	{
-    		throw new InternalException(
-    				"BasicEventContext.details should never be null.");
-    	}
-		return details;
-	}
-    
+        if (this.details == null) {
+            throw new InternalException(
+                    "BasicEventContext.details should never be null.");
+        }
+        return details;
+    }
+
     public void setDetails(Details details) {
-    	if (details == null)
-    	{
-    		throw new ApiUsageException(
-    				"Details argument cannot be null.");
-    	}
-		this.details = details;
-	}
-} 
+        if (details == null) {
+            throw new ApiUsageException("Details argument cannot be null.");
+        }
+        this.details = details;
+    }
+}

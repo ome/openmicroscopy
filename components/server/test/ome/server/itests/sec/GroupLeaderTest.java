@@ -21,77 +21,77 @@ import ome.server.itests.AbstractManagedContextTest;
 
 public class GroupLeaderTest extends AbstractManagedContextTest {
 
-	// ~ IAdmin.createUser
-	// =========================================================================
+    // ~ IAdmin.createUser
+    // =========================================================================
 
-	@Test
-	public void testGroupWithOwnerThroughIUpdate() throws Exception {
+    @Test
+    public void testGroupWithOwnerThroughIUpdate() throws Exception {
 
-		loginRoot();
-		
-		String gid = uuid();
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName(gid);
-		g = new ExperimenterGroup(iAdmin.createGroup(g),false);
+        loginRoot();
 
-		Experimenter e = new Experimenter();
-		e.setOmeName(UUID.randomUUID().toString());
-		e.setFirstName("group leader");
-		e.setLastName("GroupLeaderTest");
-		e = iAdmin.getExperimenter(iAdmin.createUser(e,gid));
+        String gid = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(gid);
+        g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
-		iAdmin.setGroupOwner(g, e);
+        Experimenter e = new Experimenter();
+        e.setOmeName(UUID.randomUUID().toString());
+        e.setFirstName("group leader");
+        e.setLastName("GroupLeaderTest");
+        e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
-		List<ExperimenterGroup> groups = iQuery
-				.findAllByQuery(
-						"select g from ExperimenterGroup g where g.details.owner.id = :id",
-						new Parameters().addId(e.getId()));
+        iAdmin.setGroupOwner(g, e);
 
-		assertNotNull(groups);
-		assertTrue(groups.size() > 0);
+        List<ExperimenterGroup> groups = iQuery
+                .findAllByQuery(
+                        "select g from ExperimenterGroup g where g.details.owner.id = :id",
+                        new Parameters().addId(e.getId()));
 
-	}
+        assertNotNull(groups);
+        assertTrue(groups.size() > 0);
 
-	@Test
-	public void testGroupWithOwnerThroughIAdmin() throws Exception {
+    }
 
-		loginRoot();
+    @Test
+    public void testGroupWithOwnerThroughIAdmin() throws Exception {
 
-		String gid = uuid();
-		ExperimenterGroup g = new ExperimenterGroup();
-		g.setName(gid);
-		g = new ExperimenterGroup(iAdmin.createGroup(g),false);
+        loginRoot();
 
-		Experimenter e = new Experimenter();
-		e.setOmeName(UUID.randomUUID().toString());
-		e.setFirstName("group leader");
-		e.setLastName("GroupLeaderTest");
-		e = iAdmin.getExperimenter(iAdmin.createUser(e,gid));
+        String gid = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(gid);
+        g = new ExperimenterGroup(iAdmin.createGroup(g), false);
 
-		iAdmin.setGroupOwner(g, e);
+        Experimenter e = new Experimenter();
+        e.setOmeName(UUID.randomUUID().toString());
+        e.setFirstName("group leader");
+        e.setLastName("GroupLeaderTest");
+        e = iAdmin.getExperimenter(iAdmin.createUser(e, gid));
 
-		List<ExperimenterGroup> groups = iQuery
-				.findAllByQuery(
-						"select g from ExperimenterGroup g where g.details.owner.id = :id",
-						new Parameters().addId(e.getId()));
+        iAdmin.setGroupOwner(g, e);
 
-		assertNotNull(groups);
-		assertTrue(groups.size() > 0);
+        List<ExperimenterGroup> groups = iQuery
+                .findAllByQuery(
+                        "select g from ExperimenterGroup g where g.details.owner.id = :id",
+                        new Parameters().addId(e.getId()));
 
-		final Experimenter exp = e;
-		List<Long> groupIds = iQuery.execute(new HibernateCallback(){
-        	public Object doInHibernate(Session session) 
-        	throws HibernateException, SQLException {
-        		Query q = session.createQuery(
-        		"select g.id from ExperimenterGroup g where g.details.owner.id = :id");
-        		q.setParameter("id", exp.getId());
-        		return q.list();
-        	}
-		});
+        assertNotNull(groups);
+        assertTrue(groups.size() > 0);
 
-		assertNotNull(groupIds);
-		assertTrue(groupIds.size() > 0);
+        final Experimenter exp = e;
+        List<Long> groupIds = iQuery.execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                Query q = session
+                        .createQuery("select g.id from ExperimenterGroup g where g.details.owner.id = :id");
+                q.setParameter("id", exp.getId());
+                return q.list();
+            }
+        });
 
-	}
+        assertNotNull(groupIds);
+        assertTrue(groupIds.size() > 0);
+
+    }
 
 }

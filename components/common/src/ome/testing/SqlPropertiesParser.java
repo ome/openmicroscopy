@@ -35,46 +35,45 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-public abstract class SqlPropertiesParser
-{
+public abstract class SqlPropertiesParser {
 
     private static Log log = LogFactory.getLog(SqlPropertiesParser.class);
 
-    static class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer{
-        protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props) 
-            throws BeansException {}
+    static class MyPropertyPlaceholderConfigurer extends
+            PropertyPlaceholderConfigurer {
+        protected void processProperties(
+                ConfigurableListableBeanFactory beanFactoryToProcess,
+                Properties props) throws BeansException {
+        }
+
         public String doIt(String property) {
             try {
-                return parseStringValue(property,this.mergeProperties(),new HashSet());
+                return parseStringValue(property, this.mergeProperties(),
+                        new HashSet());
             } catch (Exception e) {
-                throw new RuntimeException("Error in evaluating embedded properties.",e);
+                throw new RuntimeException(
+                        "Error in evaluating embedded properties.", e);
             }
         }
     }
-        
+
     static MyPropertyPlaceholderConfigurer prc = new MyPropertyPlaceholderConfigurer();
-    
-    protected static void load(Properties props, String filename)
-    {
+
+    protected static void load(Properties props, String filename) {
         InputStream is = SqlPropertiesParser.class.getClassLoader()
                 .getResourceAsStream(filename);
 
-        try
-        {
+        try {
             props.load(is);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to parse properties file "
                     + filename, e);
-        } finally
-        {
+        } finally {
             if (null != is)
-                try
-                {
+                try {
                     is.close();
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new RuntimeException(
                             "Failed to close properties file " + filename, e);
                 }
@@ -83,36 +82,30 @@ public abstract class SqlPropertiesParser
     }
 
     /* last one wins */
-    public static Map parse(String[] filenames)
-    {
+    public static Map parse(String[] filenames) {
         // Get strings from files
         Map result = new HashMap();
         Properties props = new Properties();
-        for (int i = 0; i < filenames.length; i++)
-        {
+        for (int i = 0; i < filenames.length; i++) {
             load(props, filenames[i]);
         }
 
         // Put them into a map converting embedded ${...}
         prc.setProperties(props);
         prc.postProcessBeanFactory(null);
-        for (Enumeration en = props.propertyNames(); en.hasMoreElements();)
-        {
+        for (Enumeration en = props.propertyNames(); en.hasMoreElements();) {
             String name = (String) en.nextElement();
             result.put(name, prc.doIt(props.getProperty(name)));
         }
 
         // Do extra parsing where necessary
-        for (Iterator it = result.keySet().iterator(); it.hasNext();)
-        {
+        for (Iterator it = result.keySet().iterator(); it.hasNext();) {
             String name = (String) it.next();
             String value = (String) result.get(name);
-            if (!value.startsWith("select"))
-            {
+            if (!value.startsWith("select")) {
                 String[] strValues = value.split("\\s*,\\s*");
                 Long[] longValues = new Long[strValues.length];
-                for (int i = 0; i < strValues.length; i++)
-                {
+                for (int i = 0; i < strValues.length; i++) {
                     longValues[i] = Long.valueOf(strValues[i]);
                 }
                 result.put(name, Arrays.asList(longValues));

@@ -7,53 +7,50 @@
 
 package omeis.providers.re.data;
 
-
-//Java imports
+// Java imports
 import java.nio.MappedByteBuffer;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.model.core.Pixels;
 
-/** 
+/**
  * Provides the {@link Plane2D} implementation for <i>ZY</i> planes.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 1.1 $ $Date: 2005/06/08 20:15:03 $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.1 $ $Date:
+ *          2005/06/08 20:15:03 $) </small>
  * @since OME2.2
  */
-class ZYPlane
-	extends Plane2D
-{
+class ZYPlane extends Plane2D {
 
     /**
      * Creates a new instance.
      * 
-     * @param pDef The type of plane.
-     * @param pixels The pixels set which the Plane2D references.
-     * @param data The raw pixels.
+     * @param pDef
+     *            The type of plane.
+     * @param pixels
+     *            The pixels set which the Plane2D references.
+     * @param data
+     *            The raw pixels.
      */
-    ZYPlane(PlaneDef pDef, Pixels pixels, MappedByteBuffer data)
-    {
-		super(pDef, pixels, data);
+    ZYPlane(PlaneDef pDef, Pixels pixels, MappedByteBuffer data) {
+        super(pDef, pixels, data);
     }
-    
-    /** 
-     * Implemented as specified by the superclass. 
+
+    /**
+     * Implemented as specified by the superclass.
+     * 
      * @see Plane2D#calculateOffset(int, int)
      */
-	protected int calculateOffset(int x1, int x2) 
-	{ 
-		return bytesPerPixel*(x1*sizeX*sizeY+sizeX*x2+planeDef.getX());
-	}
+    protected int calculateOffset(int x1, int x2) {
+        return bytesPerPixel
+                * (x1 * sizeX * sizeY + sizeX * x2 + planeDef.getX());
+    }
 
 }
-

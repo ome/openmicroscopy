@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
 
 /**
  * @author josh
- *
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface BuildTime {
-	boolean omit = false;
+    boolean omit = false;
 }

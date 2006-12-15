@@ -9,38 +9,35 @@ import ome.model.containers.Project;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 
+public class EventStateChangeTest extends AbstractManagedContextTest {
 
-public class EventStateChangeTest extends AbstractManagedContextTest
-{
+    Long id;
 
-    Long    id;
+    Project p = new Project();
 
-    Project p       = new Project();
+    String name = "StateChange:" + new Date();
 
-    String  name    = "StateChange:" + new Date();
-
-    Long    expId;
+    Long expId;
 
     Integer expVersion;
 
-    String  expName;
+    String expName;
 
     @Test
-    public void test_just_experimenter() throws Exception
-    {
-    
-        Experimenter e = getExperimenter( "root" );
-        iUpdate.saveObject( e );
-        System.out.println("XXXXXXXXXXXXXXXEventStateChangeTest.test_just_experimenter()");
-        
+    public void test_just_experimenter() throws Exception {
+
+        Experimenter e = getExperimenter("root");
+        iUpdate.saveObject(e);
+        System.out
+                .println("XXXXXXXXXXXXXXXEventStateChangeTest.test_just_experimenter()");
+
     }
-    
-    @Test( groups = { "broken", "versions", "ticket:118" } )
+
+    @Test(groups = { "broken", "versions", "ticket:118" })
     public void test_experimenter_shouldnt_increment_on_update()
-            throws Exception
-    {
-    
-    	Experimenter e = loginNewUser();    	
+            throws Exception {
+
+        Experimenter e = loginNewUser();
         e = getExperimenter(e.getOmeName());
         expVersion = e.getVersion();
 
@@ -49,7 +46,7 @@ public class EventStateChangeTest extends AbstractManagedContextTest
         p = (Project) iQuery.findByQuery("from Project p "
                 + " join fetch p.details.owner " + " where p.id = :id ",
                 new Parameters().addId(id));
-        
+
         p.setName(p.getName() + " updated.");
         p = (Project) this.iUpdate.saveAndReturnObject(p);
         Experimenter e2 = getExperimenter(expName);
@@ -58,10 +55,9 @@ public class EventStateChangeTest extends AbstractManagedContextTest
 
     // ~ Helpers
     // =========================================================================
-    private Experimenter getExperimenter(String expName)
-    {
-        Experimenter e = (Experimenter) iQuery.findByString(
-                Experimenter.class, "omeName", expName);
+    private Experimenter getExperimenter(String expName) {
+        Experimenter e = (Experimenter) iQuery.findByString(Experimenter.class,
+                "omeName", expName);
         return e;
     }
 

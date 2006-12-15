@@ -18,7 +18,6 @@ import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
 
-
 /**
  * An OMERO metadata store. This particular metadata store requires the user to
  * be logged into OMERO prior to use with the {@link #login()} method. NOTE: All
@@ -28,8 +27,7 @@ import ome.system.ServiceFactory;
  * @author Brian W. Loranger brain at lifesci.dundee.ac.uk
  * @author Chris Allan callan at blackcat.ca
  */
-public class OMEROMetadataStore 
-{
+public class OMEROMetadataStore {
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
@@ -38,68 +36,70 @@ public class OMEROMetadataStore
     private RawPixelsStore pservice;
 
     /** OMERO query service */
-    private IQuery         iQuery;
+    private IQuery iQuery;
 
     /** OMERO update service */
-    private IUpdate        iUpdate;
+    private IUpdate iUpdate;
 
     /** OMERO admin service. */
-    private IAdmin			iAdmin;
-    
+    private IAdmin iAdmin;
+
     /** The "root" pixels object */
-    private Pixels         pixels = new Pixels();
-    
-    private Experimenter    exp;
-    
-    private RawFileStore    rawFileStore;
-    
+    private Pixels pixels = new Pixels();
+
+    private Experimenter exp;
+
+    private RawFileStore rawFileStore;
+
     /**
      * Creates a new instance.
      * 
-     * @param username the username to use to login to the OMERO server.
-     * @param password the password to use to login to the OMERO server.
-     * @param host the hostname of the OMERO server.
-     * @param port the port the OMERO server is listening on.
-      */
+     * @param username
+     *            the username to use to login to the OMERO server.
+     * @param password
+     *            the password to use to login to the OMERO server.
+     * @param host
+     *            the hostname of the OMERO server.
+     * @param port
+     *            the port the OMERO server is listening on.
+     */
     public OMEROMetadataStore(String username, String password, String host,
-            String port)
-    {
+            String port) {
         // Mask the password information for display in the debug window
         String maskedPswd = "";
-        if(password==null)
-        	password = new String("");
-        if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
-        else maskedPswd = "<empty>";
-        
-        // Attempt to log in
-            Server server = new Server(host, Integer.parseInt(port));
-            Login login = new Login(username, password);
-            // Instantiate our service factory
-            sf = new ServiceFactory(server, login);
+        if (password == null)
+            password = new String("");
+        if (password.length() > 0)
+            maskedPswd = "<" + password.length() + "chars>";
+        else
+            maskedPswd = "<empty>";
 
-            // Now initialize all our services
-            iAdmin = sf.getAdminService();
-            
-            iQuery = sf.getQueryService();
-            iUpdate = sf.getUpdateService();
-            pservice = sf.createRawPixelsStore();
-            rawFileStore = sf.createRawFileStore();
-            
-            exp = iQuery.findByString(Experimenter.class, "omeName", username);
+        // Attempt to log in
+        Server server = new Server(host, Integer.parseInt(port));
+        Login login = new Login(username, password);
+        // Instantiate our service factory
+        sf = new ServiceFactory(server, login);
+
+        // Now initialize all our services
+        iAdmin = sf.getAdminService();
+
+        iQuery = sf.getQueryService();
+        iUpdate = sf.getUpdateService();
+        pservice = sf.createRawPixelsStore();
+        rawFileStore = sf.createRawFileStore();
+
+        exp = iQuery.findByString(Experimenter.class, "omeName", username);
     }
-    
-    public IAdmin getAdminService()
-    {
-    	return iAdmin;
+
+    public IAdmin getAdminService() {
+        return iAdmin;
     }
-    
-    public IQuery getQueryService()
-    {
-    	return iQuery;
+
+    public IQuery getQueryService() {
+        return iQuery;
     }
-   
-    public IUpdate getUpdateService()
-    {
-    	return iUpdate;
+
+    public IUpdate getUpdateService() {
+        return iUpdate;
     }
 }

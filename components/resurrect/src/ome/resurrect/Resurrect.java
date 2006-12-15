@@ -16,26 +16,23 @@ import ome.resurrect.transform.ExperimenterTrans;
 
 /**
  * @author callan
- *
+ * 
  */
-public class Resurrect
-{
-    /** Connector to the OME 2.5 (OMERO2) database **/
+public class Resurrect {
+    /** Connector to the OME 2.5 (OMERO2) database * */
     Omero2Connector c2;
-    
-    /** Connector to the OMERO3 database **/
+
+    /** Connector to the OMERO3 database * */
     Omero3Connector c3;
-    
-    /** Event that will be used for all transmutations **/
+
+    /** Event that will be used for all transmutations * */
     Event event;
-   
-    public static void main(String[] args)
-    {
+
+    public static void main(String[] args) {
         new Resurrect();
     }
 
-    public Resurrect()
-    {
+    public Resurrect() {
         c2 = Omero2Connector.getInstance();
 
         List<ome.model.Experimenter> l = c2.getExperimenters();
@@ -43,65 +40,61 @@ public class Resurrect
         displayGui(l);
 
         c3 = Omero3Connector.getInstance();
-        
+
         event = new Event();
         event.setName("Transmutted by Resurrect");
-        c3.save(event);        
-        
+        c3.save(event);
+
         transmuteAllExperimenters(l);
         transmutePixels(73);
     }
 
-    private void displayGui(List<ome.model.Experimenter> l)
-    {
+    private void displayGui(List<ome.model.Experimenter> l) {
         Display display = new Display();
-        //Shell shell = new Shell(display);
+        // Shell shell = new Shell(display);
         Shell shell = new Shell(display, SWT.CLOSE | SWT.MIN);
-        Table table = new Table 
-            (shell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        Table table = new Table(shell, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
+                | SWT.H_SCROLL);
         for (ome.model.Experimenter e : l) {
-            TableItem item = new TableItem (table, SWT.NONE);
-            item.setText (e.getFirstname() + " " + e.getLastname());
+            TableItem item = new TableItem(table, SWT.NONE);
+            item.setText(e.getFirstname() + " " + e.getLastname());
         }
-        table.setSize (200, 244);
-        
+        table.setSize(200, 244);
+
         Button button = new Button(shell, SWT.PUSH);
         button.setBounds(50, 246, 100, 26);
         button.setText("Import");
-        
-        table.addListener (SWT.Selection, new org.eclipse.swt.widgets.Listener () {
-            public void handleEvent (org.eclipse.swt.widgets.Event ev) {
-                if (ev.detail == SWT.CHECK)
-                    System.out.println (ev.item + " checked");
-            }
-        });
-        shell.setSize (200, 300);
+
+        table.addListener(SWT.Selection,
+                new org.eclipse.swt.widgets.Listener() {
+                    public void handleEvent(org.eclipse.swt.widgets.Event ev) {
+                        if (ev.detail == SWT.CHECK)
+                            System.out.println(ev.item + " checked");
+                    }
+                });
+        shell.setSize(200, 300);
         shell.open();
-        while(!shell.isDisposed())
+        while (!shell.isDisposed())
             if (!display.readAndDispatch())
                 display.sleep();
         display.dispose();
     }
 
-    private void transmuteAllExperimenters(List<ome.model.Experimenter> l)
-    {
+    private void transmuteAllExperimenters(List<ome.model.Experimenter> l) {
 
         List toSave = null;
-        for (ome.model.Experimenter e : l)
-        {
-            ExperimenterTrans transform =
-                new ExperimenterTrans(e, null, null, event, null);
+        for (ome.model.Experimenter e : l) {
+            ExperimenterTrans transform = new ExperimenterTrans(e, null, null,
+                    event, null);
             toSave = transform.transmute();
             c3.save(toSave.toArray());
         }
     }
-    
-    private void transmutePixels(int id)
-    {
+
+    private void transmutePixels(int id) {
         Experimenter e = c3.getExperimenter(1);
         List l = c2.transmutePixels(e, event, id);
-        
+
         c3.save(l.toArray());
     }
 }
-

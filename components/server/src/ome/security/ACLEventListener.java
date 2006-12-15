@@ -43,42 +43,37 @@ import ome.model.internal.Permissions.Flag;
 import ome.security.basic.BasicSecuritySystem;
 import ome.tools.hibernate.HibernateUtils;
 
-
-
 /**
- * responsible for intercepting all pre-INSERT, pre-UPDATE, pre-DELETE, and 
- * post-LOAD events to apply access control. For each event, a call is made
- * to the {@link SecuritySystem} to see if the event is allowed, and if not,
- * another call is made to the {@link  SecuritySystem} to throw a 
+ * responsible for intercepting all pre-INSERT, pre-UPDATE, pre-DELETE, and
+ * post-LOAD events to apply access control. For each event, a call is made to
+ * the {@link SecuritySystem} to see if the event is allowed, and if not,
+ * another call is made to the {@link  SecuritySystem} to throw a
  * {@link SecurityViolation}.
  * 
- * @author  Josh Moore, josh.moore at gmx.de
+ * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see     SecuritySystem
- * @see		SecurityViolation
- * @since   3.0-M3
+ * @see SecuritySystem
+ * @see SecurityViolation
+ * @since 3.0-M3
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class ACLEventListener
-        implements 
-        /* BEFORE... */ PreDeleteEventListener, PreInsertEventListener,
-        /* and...... */ PreLoadEventListener, PreUpdateEventListener,
-        /* AFTER.... */ PostDeleteEventListener, PostInsertEventListener,
-        /* TRIGGERS. */ PostLoadEventListener, PostUpdateEventListener 
-{
+public class ACLEventListener implements
+/* BEFORE... */PreDeleteEventListener, PreInsertEventListener,
+/* and...... */PreLoadEventListener, PreUpdateEventListener,
+/* AFTER.... */PostDeleteEventListener, PostInsertEventListener,
+/* TRIGGERS. */PostLoadEventListener, PostUpdateEventListener {
 
-	private static final long serialVersionUID = 3603644089117965153L;
+    private static final long serialVersionUID = 3603644089117965153L;
 
-	private static Log log = LogFactory.getLog(ACLEventListener.class);
+    private static Log log = LogFactory.getLog(ACLEventListener.class);
 
-	private ACLVoter aclVoter;
-	
+    private ACLVoter aclVoter;
+
     /**
      * main constructor. controls access to individual db rows..
      */
-    public ACLEventListener(ACLVoter aclVoter)
-    {
+    public ACLEventListener(ACLVoter aclVoter) {
         this.aclVoter = aclVoter;
     }
 
@@ -88,77 +83,76 @@ public class ACLEventListener
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //
 
-    /** unused */ public void onPostDelete(PostDeleteEvent event) {}
-    /** unused */ public void onPostInsert(PostInsertEvent event) {}
-    /** unused */ public void onPostUpdate(PostUpdateEvent event) {}
-    /** unused */ public void onPreLoad(PreLoadEvent event) {}
+    /** unused */
+    public void onPostDelete(PostDeleteEvent event) {
+    }
 
-    /** catches all load events after the fact, and tests the current users
+    /** unused */
+    public void onPostInsert(PostInsertEvent event) {
+    }
+
+    /** unused */
+    public void onPostUpdate(PostUpdateEvent event) {
+    }
+
+    /** unused */
+    public void onPreLoad(PreLoadEvent event) {
+    }
+
+    /**
+     * catches all load events after the fact, and tests the current users
      * permissions to read that object. We have to catch the load after the fact
      * because the permissions information is stored in the db.
      */
-    public void onPostLoad(PostLoadEvent event)
-    {
-    	Object entity = event.getEntity();
-    	if ( entity instanceof IObject )
-    	{
-    		IObject obj = (IObject) entity;
-            if ( ! aclVoter.allowLoad(obj.getClass(),obj.getDetails()))
-            {
-            	aclVoter.throwLoadViolation(obj);
+    public void onPostLoad(PostLoadEvent event) {
+        Object entity = event.getEntity();
+        if (entity instanceof IObject) {
+            IObject obj = (IObject) entity;
+            if (!aclVoter.allowLoad(obj.getClass(), obj.getDetails())) {
+                aclVoter.throwLoadViolation(obj);
             }
-    	}
+        }
     }
 
-    
-    public boolean onPreInsert(PreInsertEvent event)
-    {
-    	Object entity = event.getEntity();
-		if ( entity instanceof IObject )
-		{
-			IObject obj = (IObject) entity;
-	        if ( ! aclVoter.allowCreation(obj) )
-	        {
-	        	aclVoter.throwCreationViolation(obj);
-	        }
-		}
+    public boolean onPreInsert(PreInsertEvent event) {
+        Object entity = event.getEntity();
+        if (entity instanceof IObject) {
+            IObject obj = (IObject) entity;
+            if (!aclVoter.allowCreation(obj)) {
+                aclVoter.throwCreationViolation(obj);
+            }
+        }
         return false;
     }
 
-    public boolean onPreUpdate(PreUpdateEvent event)
-    {
-    	Object entity = event.getEntity();
-    	Object[] state = event.getOldState(); 
-    	String[] names = event.getPersister().getPropertyNames();
-		if ( entity instanceof IObject )
-		{
-			IObject obj = (IObject) entity;
-			
-	        if ( ! HibernateUtils.onlyLockChanged( event.getSource(), 
-	        		event.getPersister(), obj, state, names ) && 
-	        		! aclVoter.allowUpdate(obj, 
-	        				HibernateUtils.getDetails(state, names)) )
-	        {
-	        	aclVoter.throwUpdateViolation(obj);
-	        }
-		}
+    public boolean onPreUpdate(PreUpdateEvent event) {
+        Object entity = event.getEntity();
+        Object[] state = event.getOldState();
+        String[] names = event.getPersister().getPropertyNames();
+        if (entity instanceof IObject) {
+            IObject obj = (IObject) entity;
+
+            if (!HibernateUtils.onlyLockChanged(event.getSource(), event
+                    .getPersister(), obj, state, names)
+                    && !aclVoter.allowUpdate(obj, HibernateUtils.getDetails(
+                            state, names))) {
+                aclVoter.throwUpdateViolation(obj);
+            }
+        }
         return false;
     }
-    
-    public boolean onPreDelete(PreDeleteEvent event)
-    {
-    	Object entity = event.getEntity();
-    	Object[] state = event.getDeletedState();
-    	String[] names = event.getPersister().getPropertyNames();
-		if ( entity instanceof IObject )
-		{
-			IObject obj = (IObject) entity;
-	        if ( ! aclVoter.allowDelete(obj, 
-	        		HibernateUtils.getDetails(state,names)) )
-	        {
-	        	aclVoter.throwDeleteViolation(obj);
-	        }
-		}
+
+    public boolean onPreDelete(PreDeleteEvent event) {
+        Object entity = event.getEntity();
+        Object[] state = event.getDeletedState();
+        String[] names = event.getPersister().getPropertyNames();
+        if (entity instanceof IObject) {
+            IObject obj = (IObject) entity;
+            if (!aclVoter.allowDelete(obj, HibernateUtils.getDetails(state,
+                    names))) {
+                aclVoter.throwDeleteViolation(obj);
+            }
+        }
         return false;
     }
 

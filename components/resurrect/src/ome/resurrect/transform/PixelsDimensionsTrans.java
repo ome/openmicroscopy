@@ -14,28 +14,23 @@ import ome.model.core.PixelsDimensions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public class PixelsDimensionsTrans extends Transformer
-{
-    public PixelsDimensionsTrans(Object model, Session session, Experimenter owner,
-            Event creationEvent, List toSave)
-    {
+public class PixelsDimensionsTrans extends Transformer {
+    public PixelsDimensionsTrans(Object model, Session session,
+            Experimenter owner, Event creationEvent, List toSave) {
         super(model, session, owner, creationEvent, toSave);
     }
-    
-    public PixelsDimensionsTrans(Transformer transformer, Object model)
-    {
+
+    public PixelsDimensionsTrans(Transformer transformer, Object model) {
         super(model, transformer.getSession(), transformer.getOwner(),
-              transformer.getCreationEvent(), transformer.getToSave());
+                transformer.getCreationEvent(), transformer.getToSave());
     }
-    
+
     @SuppressWarnings("unchecked")
-    public List transmute()
-    {
+    public List transmute() {
 
         List toSave = getToSave();
         Event creationEvent = getCreationEvent();
@@ -47,7 +42,7 @@ public class PixelsDimensionsTrans extends Transformer
         p.setSizeX(oldDimensions.getPixelSizeX());
         p.setSizeY(oldDimensions.getPixelSizeY());
         p.setSizeZ(oldDimensions.getPixelSizeZ());
-        
+
         toSave.add(p);
         return toSave;
     }

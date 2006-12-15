@@ -14,7 +14,7 @@
 
 package ome.logic;
 
-//Java imports
+// Java imports
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -27,13 +27,13 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-//Third-party libraries
+// Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.api.ITypes;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
@@ -50,114 +50,99 @@ import ome.security.SecureAction;
  * implementation of the ITypes service interface.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
 @Stateless
 @Remote(ITypes.class)
-@RemoteBinding (jndiBinding="omero/remote/ome.api.ITypes")
+@RemoteBinding(jndiBinding = "omero/remote/ome.api.ITypes")
 @Local(ITypes.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.ITypes")
+@LocalBinding(jndiBinding = "omero/local/ome.api.ITypes")
 @SecurityDomain("OmeroSecurity")
-@Interceptors({SimpleLifecycle.class})
-public class TypesImpl extends AbstractLevel2Service implements ITypes
-{
+@Interceptors( { SimpleLifecycle.class })
+public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
     @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface()
-    {
+    protected final Class<? extends ServiceInterface> getServiceInterface() {
         return ITypes.class;
     }
 
     // ~ Service methods
     // =========================================================================
-    
-    @RolesAllowed("user")
-    public <T extends IEnum> T createEnumeration( T newEnum )
-    {
-    	final LocalUpdate up = iUpdate;
 
-    	// TODO should this belong to root?
-    	Details d = getSecuritySystem().newTransientDetails(newEnum);
-    	newEnum.setDetails(d);
-    	return getSecuritySystem().doAction(newEnum, new SecureAction(){
-    		public IObject updateObject(IObject iObject) {
-    			return up.saveAndReturnObject(iObject);
-    		}
-    	});
-    }
-    
     @RolesAllowed("user")
-    public <T extends IEnum> List<T> allEnumerations(Class<T> k)
-    {
-        return iQuery.findAll(k,null);
+    public <T extends IEnum> T createEnumeration(T newEnum) {
+        final LocalUpdate up = iUpdate;
+
+        // TODO should this belong to root?
+        Details d = getSecuritySystem().newTransientDetails(newEnum);
+        newEnum.setDetails(d);
+        return getSecuritySystem().doAction(newEnum, new SecureAction() {
+            public IObject updateObject(IObject iObject) {
+                return up.saveAndReturnObject(iObject);
+            }
+        });
     }
 
     @RolesAllowed("user")
-    public <T extends IEnum> T getEnumeration(Class<T> k, String string)
-    {
-        IEnum e = iQuery.findByString(k,"value",string);
+    public <T extends IEnum> List<T> allEnumerations(Class<T> k) {
+        return iQuery.findAll(k, null);
+    }
+
+    @RolesAllowed("user")
+    public <T extends IEnum> T getEnumeration(Class<T> k, String string) {
+        IEnum e = iQuery.findByString(k, "value", string);
         iQuery.initialize(e);
-        if ( e == null )
-        {
-        	throw new ApiUsageException(String.format(
-        			"An %s enum does not exist with the value: %s",
-        			k.getName(),string));
+        if (e == null) {
+            throw new ApiUsageException(String.format(
+                    "An %s enum does not exist with the value: %s",
+                    k.getName(), string));
         }
         return k.cast(e);
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getResultTypes()
-    {
+    public <T extends IObject> List<Class<T>> getResultTypes() {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getAnnotationTypes()
-    {
+    public <T extends IObject> List<Class<T>> getAnnotationTypes() {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getContainerTypes()
-    {
+    public <T extends IObject> List<Class<T>> getContainerTypes() {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getPojoTypes()
-    {
+    public <T extends IObject> List<Class<T>> getPojoTypes() {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> List<Class<T>> getImportTypes()
-    {
+    public <T extends IObject> List<Class<T>> getImportTypes() {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> Permissions permissions(Class<T> k)
-    {
+    public <T extends IObject> Permissions permissions(Class<T> k) {
         // TODO Auto-generated method stub
         return null;
-        
+
     }
 
 }

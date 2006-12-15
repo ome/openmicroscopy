@@ -6,39 +6,38 @@ import ome.server.itests.AbstractManagedContextTest;
 
 import org.testng.annotations.Test;
 
-@Test(groups = {"security"})
+@Test(groups = { "security" })
 public class DisablingTest extends AbstractManagedContextTest {
 
-	@Test
-	public void testSimpleDisabling() throws Exception {
-		loadSucceeds();
-		securitySystem.disable("load");
-		loadFails();
-		securitySystem.enable();
-		loadSucceeds();
-	}
+    @Test
+    public void testSimpleDisabling() throws Exception {
+        loadSucceeds();
+        securitySystem.disable("load");
+        loadFails();
+        securitySystem.enable();
+        loadSucceeds();
+    }
 
-	@Test
-	public void testGetsReset() throws Exception {
-		securitySystem.disable("load");
-		loadFails(); // this implicitly resets
-		assertFalse( securitySystem.isDisabled("load") );
-	}
-	
-	// ~ Helpers
-	// =========================================================================
+    @Test
+    public void testGetsReset() throws Exception {
+        securitySystem.disable("load");
+        loadFails(); // this implicitly resets
+        assertFalse(securitySystem.isDisabled("load"));
+    }
 
-	private void loadSucceeds() {
-		iQuery.get(Experimenter.class, 0L);
-	}
+    // ~ Helpers
+    // =========================================================================
 
-	private void loadFails() {
-		try {
-			loadSucceeds();
-		} catch (InternalException ie) {
-			// good.
-		}
-	}
+    private void loadSucceeds() {
+        iQuery.get(Experimenter.class, 0L);
+    }
 
+    private void loadFails() {
+        try {
+            loadSucceeds();
+        } catch (InternalException ie) {
+            // good.
+        }
+    }
 
 }

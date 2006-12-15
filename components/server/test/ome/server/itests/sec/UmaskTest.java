@@ -17,20 +17,19 @@ import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.util.IdBlock;
 
-@Test( groups = {"ticket:182", "ticket:307"} )
-public class UmaskTest extends AbstractManagedContextTest
-{
+@Test(groups = { "ticket:182", "ticket:307" })
+public class UmaskTest extends AbstractManagedContextTest {
 
-	// ~ Tickets
-	// =========================================================================
-	
-	public void testSoftIsRemovedOnTransientDetails() throws Exception {
-		Project p = new Project();
-		p.setName("ticket:307");
-		assertNull( p.getDetails().getPermissions());
-		p = iUpdate.saveAndReturnObject(p);
-		assertNotNull( p.getDetails().getPermissions());
-		assertFalse( p.getDetails().getPermissions().isSet(Flag.SOFT));
-	}
-	
+    // ~ Tickets
+    // =========================================================================
+
+    public void testSoftIsRemovedOnTransientDetails() throws Exception {
+        Project p = new Project();
+        p.setName("ticket:307");
+        assertNull(p.getDetails().getPermissions());
+        p = iUpdate.saveAndReturnObject(p);
+        assertNotNull(p.getDetails().getPermissions());
+        assertFalse(p.getDetails().getPermissions().isSet(Flag.SOFT));
+    }
+
 }

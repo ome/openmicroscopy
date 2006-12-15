@@ -14,7 +14,7 @@
 
 package ome.logic;
 
-//Java imports
+// Java imports
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,13 +31,13 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-//Third-party libraries
+// Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 import org.springframework.transaction.annotation.Transactional;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.api.IPojos;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -66,162 +66,146 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 
-
 /**
  * implementation of the Pojos service interface.
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 2.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional
 @Stateless
 @Remote(IPojos.class)
-@RemoteBinding (jndiBinding="omero/remote/ome.api.IPojos")
+@RemoteBinding(jndiBinding = "omero/remote/ome.api.IPojos")
 @Local(IPojos.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.IPojos")
+@LocalBinding(jndiBinding = "omero/local/ome.api.IPojos")
 @SecurityDomain("OmeroSecurity")
-@Interceptors({SimpleLifecycle.class})
-public class PojosImpl extends AbstractLevel2Service implements IPojos 
-{
+@Interceptors( { SimpleLifecycle.class })
+public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface()
-    {
+    protected final Class<? extends ServiceInterface> getServiceInterface() {
         return IPojos.class;
     }
-    
+
     // ~ READ
     // =========================================================================
-    
-    @RolesAllowed("user") 
-    @Transactional(readOnly = true)
-    public Set loadContainerHierarchy(Class rootNodeType, 
-            Set rootNodeIds, Map options) {
-        
-        PojoOptions po = new PojoOptions(options);
-        
-        if (null==rootNodeIds && !po.isExperimenter() && !po.isGroup()) 
-        	throw new IllegalArgumentException(
-        			"Set of ids for loadContainerHierarchy() may not be null " +
-                    "if experimenter and group options are null.");
 
-        if (! Project.class.equals(rootNodeType) 
-                && ! Dataset.class.equals(rootNodeType) 
-                && ! CategoryGroup.class.equals(rootNodeType) 
-                && ! Category.class.equals(rootNodeType))
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
+            Map options) {
+
+        PojoOptions po = new PojoOptions(options);
+
+        if (null == rootNodeIds && !po.isExperimenter() && !po.isGroup())
+            throw new IllegalArgumentException(
+                    "Set of ids for loadContainerHierarchy() may not be null "
+                            + "if experimenter and group options are null.");
+
+        if (!Project.class.equals(rootNodeType)
+                && !Dataset.class.equals(rootNodeType)
+                && !CategoryGroup.class.equals(rootNodeType)
+                && !Category.class.equals(rootNodeType))
 
             throw new IllegalArgumentException(
-                "Class parameter for loadContainerIHierarchy() must be in " +
-                "{Project,Dataset,Category,CategoryGroup}, not "
-                        + rootNodeType);
+                    "Class parameter for loadContainerIHierarchy() must be in "
+                            + "{Project,Dataset,Category,CategoryGroup}, not "
+                            + rootNodeType);
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosLoadHierarchyQueryDefinition.class.getName(),
-                new Parameters()
-                    .addClass(rootNodeType)
-                    .addIds(rootNodeIds)
-                    .addOptions(po.map())); //TODO no more "options" just QPs.
+                new Parameters().addClass(rootNodeType).addIds(rootNodeIds)
+                        .addOptions(po.map())); // TODO no more "options" just
+                                                // QPs.
         List<IObject> l = iQuery.execute(q);
 
         collectCounts(l, po);
-    	
+
         return new HashSet<IObject>(l);
-        
-	}
-    
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-	public Set findContainerHierarchies(
-            final Class rootNodeType, 
-            final Set imageIds, 
-            Map options) {
-		
-		PojoOptions po = new PojoOptions(options);
-        
+
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set findContainerHierarchies(final Class rootNodeType,
+            final Set imageIds, Map options) {
+
+        PojoOptions po = new PojoOptions(options);
+
         // TODO refactor to use Hierarchy class H.isTopLevel()
-        if (!(Project.class.equals(rootNodeType)
-                ||CategoryGroup.class.equals(rootNodeType)))
-        {
-            throw new ApiUsageException( 
-                "Class parameter for findContainerHierarchies() must be" +
-                " in {Project,CategoryGroup}, not " + rootNodeType);
+        if (!(Project.class.equals(rootNodeType) || CategoryGroup.class
+                .equals(rootNodeType))) {
+            throw new ApiUsageException(
+                    "Class parameter for findContainerHierarchies() must be"
+                            + " in {Project,CategoryGroup}, not "
+                            + rootNodeType);
         }
-        
-        
+
         Query<List<Image>> q = getQueryFactory().lookup(
                 PojosFindHierarchiesQueryDefinition.class.getName(),
-                new Parameters()
-                    .addClass(rootNodeType)
-                    .addIds(imageIds)
-                    .addOptions(po.map()));
+                new Parameters().addClass(rootNodeType).addIds(imageIds)
+                        .addOptions(po.map()));
         List<Image> l = iQuery.execute(q);
-        collectCounts(l,po);
-
+        collectCounts(l, po);
 
         //
         // Destructive changes below this point.
         //
         @SuppressWarnings("unchecked")
         class EvictBlock<E extends IObject> implements CBlock {
-        	public E call(IObject object) {
-        		iQuery.evict(object);
-        		return (E) object;
-        	};
+            public E call(IObject object) {
+                iQuery.evict(object);
+                return (E) object;
+            };
         }
 
-        // TODO; this if-else statement could be removed if Transformations 
-        // did their own dispatching 
-        // TODO: logging, null checking. daos should never return null 
+        // TODO; this if-else statement could be removed if Transformations
+        // did their own dispatching
+        // TODO: logging, null checking. daos should never return null
         // TODO then size!
-		if (Project.class.equals(rootNodeType)) {
-			if (imageIds.size()==0){
-				return new HashSet();
-			}
-            
-			return HierarchyTransformations.invertPDI(new HashSet<Image>(l),
-					new EvictBlock<IObject>());
-			
-		}
+        if (Project.class.equals(rootNodeType)) {
+            if (imageIds.size() == 0) {
+                return new HashSet();
+            }
 
-		else if (CategoryGroup.class.equals(rootNodeType)){
-			if (imageIds.size()==0){
-				return new HashSet();
-			}
-			
-			return HierarchyTransformations.invertCGCI(new HashSet<Image>(l),
-					new EvictBlock<IObject>()); 
-		}
-		
-		else {
+            return HierarchyTransformations.invertPDI(new HashSet<Image>(l),
+                    new EvictBlock<IObject>());
+
+        }
+
+        else if (CategoryGroup.class.equals(rootNodeType)) {
+            if (imageIds.size() == 0) {
+                return new HashSet();
+            }
+
+            return HierarchyTransformations.invertCGCI(new HashSet<Image>(l),
+                    new EvictBlock<IObject>());
+        }
+
+        else {
             throw new InternalException("This can't be reached.");
-		}
-		
-	}
+        }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-	public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
-            Class<T> rootNodeType, 
-            Set<Long> rootNodeIds, 
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <T extends IObject> Map<Long, Set<? extends IObject>> findAnnotations(
+            Class<T> rootNodeType, Set<Long> rootNodeIds,
             Set<Long> annotatorIds, Map options) {
-		
-        if (rootNodeIds.size()==0)
+
+        if (rootNodeIds.size() == 0)
             return new HashMap();
 
-		PojoOptions po = new PojoOptions(options);
-		
+        PojoOptions po = new PojoOptions(options);
+
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosFindAnnotationsQueryDefinition.class.getName(),
-                new Parameters()
-                    .addIds(rootNodeIds)
-                    .addClass(rootNodeType)
-                    .addSet("annotatorIds",annotatorIds)
-                    .addOptions(po.map()));
+                new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
+                        .addSet("annotatorIds", annotatorIds).addOptions(
+                                po.map()));
 
         List<IObject> l = iQuery.execute(q);
         // no count collection
@@ -229,382 +213,344 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos
         //
         // Destructive changes below this point.
         //
-        for (Object object : l)
-        {
-            iQuery.evict(object);    
+        for (Object object : l) {
+            iQuery.evict(object);
         }
 
-        // TODO these here or in Query Definition? 
+        // TODO these here or in Query Definition?
         // Does it belong to API or to query?
-        if (Dataset.class.equals(rootNodeType)){ 
-            return AnnotationTransformations.sortDatasetAnnotatiosn(
-                    new HashSet<IObject>(l));
-        } 
-        else if (Image.class.equals(rootNodeType)){
-            return AnnotationTransformations.sortImageAnnotatiosn(
-                    new HashSet<IObject>(l));
-        }
-        else { 
+        if (Dataset.class.equals(rootNodeType)) {
+            return AnnotationTransformations
+                    .sortDatasetAnnotatiosn(new HashSet<IObject>(l));
+        } else if (Image.class.equals(rootNodeType)) {
+            return AnnotationTransformations
+                    .sortImageAnnotatiosn(new HashSet<IObject>(l));
+        } else {
             throw new IllegalArgumentException(
-                    "Class parameter for findAnnotation() must be in " +
-                    "{Dataset,Image}, not "+ rootNodeType);
+                    "Class parameter for findAnnotation() must be in "
+                            + "{Dataset,Image}, not " + rootNodeType);
         }
-        
 
-	}
+    }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-	public Set findCGCPaths(Set imgIds, 
-            String algorithm, Map options) {
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set findCGCPaths(Set imgIds, String algorithm, Map options) {
 
-		if (imgIds.size()==0){
-			return new HashSet();
-		}
+        if (imgIds.size() == 0) {
+            return new HashSet();
+        }
 
-		if (! IPojos.ALGORITHMS.contains(algorithm)) {
-			throw new IllegalArgumentException(
-					"No such algorithm known:"+algorithm);
-		}
-		
-		PojoOptions po = new PojoOptions(options);
+        if (!IPojos.ALGORITHMS.contains(algorithm)) {
+            throw new IllegalArgumentException("No such algorithm known:"
+                    + algorithm);
+        }
 
-        Query<List<Map<String,IObject>>> q = getQueryFactory().lookup(
+        PojoOptions po = new PojoOptions(options);
+
+        Query<List<Map<String, IObject>>> q = getQueryFactory().lookup(
                 PojosCGCPathsQueryDefinition.class.getName(),
-                new Parameters()
-                    .addIds(imgIds)
-                    .addAlgorithm(algorithm)
-                    .addOptions(po.map()));
-        
-		List<Map<String,IObject>> result_set = iQuery.execute(q);
+                new Parameters().addIds(imgIds).addAlgorithm(algorithm)
+                        .addOptions(po.map()));
 
-        Map<CategoryGroup,Set<Category>> map 
-        = new HashMap<CategoryGroup,Set<Category>>();
+        List<Map<String, IObject>> result_set = iQuery.execute(q);
+
+        Map<CategoryGroup, Set<Category>> map = new HashMap<CategoryGroup, Set<Category>>();
         Set<CategoryGroup> returnValues = new HashSet<CategoryGroup>();
-        
+
         // Parse
-        for (Map<String,IObject> entry : result_set){
-            CategoryGroup cg = (CategoryGroup) entry.get(CategoryGroup.class.getName());
+        for (Map<String, IObject> entry : result_set) {
+            CategoryGroup cg = (CategoryGroup) entry.get(CategoryGroup.class
+                    .getName());
             Category c = (Category) entry.get(Category.class.getName());
 
-            if (!map.containsKey(cg)) map.put(cg,new HashSet<Category>());
-            if (c != null) map.get(cg).add(c);
+            if (!map.containsKey(cg))
+                map.put(cg, new HashSet<Category>());
+            if (c != null)
+                map.get(cg).add(c);
 
         }
 
         //
         // Destructive changes below this point.
         //
-        for (CategoryGroup cg : map.keySet())
-        {
+        for (CategoryGroup cg : map.keySet()) {
             iQuery.evict(cg);
             // Overriding various checks.
-            // Ticket #92 :  
+            // Ticket #92 :
             // We know what we're doing so we place a new HashSet here.
-            cg.putAt(CategoryGroup.CATEGORYLINKS, new HashSet() );
+            cg.putAt(CategoryGroup.CATEGORYLINKS, new HashSet());
 
-            for (Category c : map.get(cg))
-            {
+            for (Category c : map.get(cg)) {
                 iQuery.evict(c);
                 // Overriding various checks.
-                // Ticket #92 again.  
-                c.putAt(Category.CATEGORYGROUPLINKS, new HashSet() );
+                // Ticket #92 again.
+                c.putAt(Category.CATEGORYGROUPLINKS, new HashSet());
                 cg.linkCategory(c);
             }
             returnValues.add(cg);
         }
 
-        collectCounts(returnValues,po);
+        collectCounts(returnValues, po);
         return returnValues;
-		
-	}
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-	public Set getImages(Class rootNodeType, 
-            Set rootNodeIds, Map options) {
-		
-		if (rootNodeIds.size()==0){
-			return new HashSet();
-		}
+    }
 
-		PojoOptions po = new PojoOptions(options);
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set getImages(Class rootNodeType, Set rootNodeIds, Map options) {
+
+        if (rootNodeIds.size() == 0) {
+            return new HashSet();
+        }
+
+        PojoOptions po = new PojoOptions(options);
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
-                new Parameters()
-                    .addIds(rootNodeIds)
-                    .addClass(rootNodeType)
-                    .addOptions(po.map()));
+                new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
+                        .addOptions(po.map()));
 
         List<IObject> l = iQuery.execute(q);
-        collectCounts(l,po);
+        collectCounts(l, po);
         return new HashSet<IObject>(l);
-		
-	}
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-	public Set getUserImages(Map options) {
-		
-		PojoOptions po = new PojoOptions(options);
-		
-		if (!po.isExperimenter() && !po.isGroup()){
-			throw new IllegalArgumentException(
-					"experimenter or group option " +
-                    "is required for getUserImages().");
-		}
-        
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Set getUserImages(Map options) {
+
+        PojoOptions po = new PojoOptions(options);
+
+        if (!po.isExperimenter() && !po.isGroup()) {
+            throw new IllegalArgumentException("experimenter or group option "
+                    + "is required for getUserImages().");
+        }
+
         Query<List<Image>> q = getQueryFactory().lookup(
-        		PojosGetUserImagesQueryDefinition.class.getName(),
-        		new Parameters()
-        			.addOptions(options));
+                PojosGetUserImagesQueryDefinition.class.getName(),
+                new Parameters().addOptions(options));
 
         List<Image> l = iQuery.execute(q);
-        collectCounts(l,po);
-		return new HashSet<Image>(l);
-		
-	}
-    
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-    public Map getUserDetails(Set names, 
-            Map options)
-    {
-        
+        collectCounts(l, po);
+        return new HashSet<Image>(l);
+
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Map getUserDetails(Set names, Map options) {
+
         List results;
         Map<String, Experimenter> map = new HashMap<String, Experimenter>();
-        
-        /* query only if we have some ids */
-        if (names.size() > 0)
-        {
-            Parameters params = new Parameters().addSet("name_list",names);
-            results = iQuery.findAllByQuery(
-                    "select e from Experimenter e " +
-                    "left outer join fetch e.defaultGroupLink dgl " +
-                    "left outer join fetch dgl.parent dg " +
-                    "left outer join fetch e.groupExperimenterMap gs " +
-                    "left outer join fetch gs.parent g " +
-                    "where e.omeName in ( :name_list )",
-                    params
-            );
-            
-            for (Object object : results)
-            {
-                Experimenter e = (Experimenter) object;
-                map.put(e.getOmeName(),e);
-            }
-        }
-        
-        /* ensures all ids appear in map */
-        for (Object object : names)
-        {
-            String name = (String) object;
-            if (! map.containsKey(name)){
-                map.put(name,null);
-            }
-        }        
-        
-        return map;
-        
-    }
-    
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-    public Map getCollectionCount(String type, String property, 
-            Set ids, Map options)
-    {
-        
-        String parsedProperty = LsidUtils.parseField(property);
-        
-        checkType(type);
-        checkProperty(type,parsedProperty);
 
-        Map<Long,Integer> results = new HashMap<Long,Integer>();
-        
-        String query = "select size(table."+parsedProperty+") from "+type+" table where table.id = :id";
-        // FIXME: optimize by doing new list(id,size(table.property)) ... group by id
-        for (Iterator iter = ids.iterator(); iter.hasNext();)
-        {
-            Long id = (Long) iter.next();
-            Query<List<Integer>> q = getQueryFactory().lookup(query,new Parameters().addId(id));
-            Integer count = iQuery.execute(q).get(0);
-            results.put(id,count);
+        /* query only if we have some ids */
+        if (names.size() > 0) {
+            Parameters params = new Parameters().addSet("name_list", names);
+            results = iQuery.findAllByQuery("select e from Experimenter e "
+                    + "left outer join fetch e.defaultGroupLink dgl "
+                    + "left outer join fetch dgl.parent dg "
+                    + "left outer join fetch e.groupExperimenterMap gs "
+                    + "left outer join fetch gs.parent g "
+                    + "where e.omeName in ( :name_list )", params);
+
+            for (Object object : results) {
+                Experimenter e = (Experimenter) object;
+                map.put(e.getOmeName(), e);
+            }
         }
-        
+
+        /* ensures all ids appear in map */
+        for (Object object : names) {
+            String name = (String) object;
+            if (!map.containsKey(name)) {
+                map.put(name, null);
+            }
+        }
+
+        return map;
+
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Map getCollectionCount(String type, String property, Set ids,
+            Map options) {
+
+        String parsedProperty = LsidUtils.parseField(property);
+
+        checkType(type);
+        checkProperty(type, parsedProperty);
+
+        Map<Long, Integer> results = new HashMap<Long, Integer>();
+
+        String query = "select size(table." + parsedProperty + ") from " + type
+                + " table where table.id = :id";
+        // FIXME: optimize by doing new list(id,size(table.property)) ... group
+        // by id
+        for (Iterator iter = ids.iterator(); iter.hasNext();) {
+            Long id = (Long) iter.next();
+            Query<List<Integer>> q = getQueryFactory().lookup(query,
+                    new Parameters().addId(id));
+            Integer count = iQuery.execute(q).get(0);
+            results.put(id, count);
+        }
+
         return results;
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=true)
-    public Collection retrieveCollection(IObject arg0, String arg1, Map arg2)
-    {
-        IObject context = (IObject) iQuery.get(arg0.getClass(),arg0.getId());
-        Collection c = (Collection) context.retrieve(arg1); // FIXME not type.o.null safe
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Collection retrieveCollection(IObject arg0, String arg1, Map arg2) {
+        IObject context = (IObject) iQuery.get(arg0.getClass(), arg0.getId());
+        Collection c = (Collection) context.retrieve(arg1); // FIXME not
+                                                            // type.o.null safe
         iQuery.initialize(c);
         return c;
     }
 
     // ~ WRITE
     // =========================================================================
-    
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public IObject createDataObject(IObject arg0, Map arg1)
-    {
-       IObject retVal = iUpdate.saveAndReturnObject(arg0);
-       collectCounts( retVal, new PojoOptions(arg1) );
-       return retVal;
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public IObject createDataObject(IObject arg0, Map arg1) {
+        IObject retVal = iUpdate.saveAndReturnObject(arg0);
+        collectCounts(retVal, new PojoOptions(arg1));
+        return retVal;
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public IObject[] createDataObjects(IObject[] arg0, Map arg1)
-    {
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public IObject[] createDataObjects(IObject[] arg0, Map arg1) {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-        collectCounts( retVal, new PojoOptions(arg1) );
+        collectCounts(retVal, new PojoOptions(arg1));
         return retVal;
 
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public void unlink(ILink[] arg0, Map arg1)
-    {
-        deleteDataObjects(arg0,arg1);
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void unlink(ILink[] arg0, Map arg1) {
+        deleteDataObjects(arg0, arg1);
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public ILink[] link(ILink[] arg0, Map arg1)
-    {
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public ILink[] link(ILink[] arg0, Map arg1) {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
         // IUpdate returns an IObject array here. Can't be cast using (Link[])
         ILink[] links = new ILink[retVal.length];
         System.arraycopy(retVal, 0, links, 0, retVal.length);
-        collectCounts( links, new PojoOptions(arg1) );
+        collectCounts(links, new PojoOptions(arg1));
         return links;
 
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public IObject updateDataObject(IObject arg0, Map arg1)
-    {
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public IObject updateDataObject(IObject arg0, Map arg1) {
         IObject retVal = iUpdate.saveAndReturnObject(arg0);
-        collectCounts( retVal, new PojoOptions(arg1) );
+        collectCounts(retVal, new PojoOptions(arg1));
         return retVal;
 
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public IObject[] updateDataObjects(IObject[] arg0, Map arg1)
-    {
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public IObject[] updateDataObjects(IObject[] arg0, Map arg1) {
         IObject[] retVal = iUpdate.saveAndReturnArray(arg0);
-        collectCounts( retVal, new PojoOptions(arg1) );
+        collectCounts(retVal, new PojoOptions(arg1));
         return retVal;
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public void deleteDataObject(IObject row, Map arg1)
-    {
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void deleteDataObject(IObject row, Map arg1) {
         iUpdate.deleteObject(row);
     }
 
-    @RolesAllowed("user") 
-    @Transactional(readOnly=false)
-    public void deleteDataObjects(IObject[] rows, Map options)
-    {
-        for (IObject object : rows)
-        {
-            deleteDataObject(object,options);    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void deleteDataObjects(IObject[] rows, Map options) {
+        for (IObject object : rows) {
+            deleteDataObject(object, options);
         }
-        
+
     }
 
-    //  ~ Helpers
+    // ~ Helpers
     // =========================================================================
-    
+
     /**
-     * Determines collection counts for all <code>String[] fields</code> in 
+     * Determines collection counts for all <code>String[] fields</code> in
      * the options.
      * 
      * TODO possibly move to CountCollector itself. It'll need an IQuery then.
      * or is it a part of the Pojo QueryDefinitions ?
      */
-    private void collectCounts(Object retVal, PojoOptions po)
-    {
-        if (po.hasCountFields() && po.isCounts())
-        {
+    private void collectCounts(Object retVal, PojoOptions po) {
+        if (po.hasCountFields() && po.isCounts()) {
             CountCollector c = new CountCollector(po.countFields());
             c.collect(retVal);
-            for (String key : po.countFields())
-            {
-                
-                if ( key == null 
-                        || c.getIds( key ) == null 
-                        || c.getIds( key ).size() == 0)
-                {
-                    getLogger().warn( " Skipping "+key+" in collection counts.");
+            for (String key : po.countFields()) {
+
+                if (key == null || c.getIds(key) == null
+                        || c.getIds(key).size() == 0) {
+                    getLogger().warn(
+                            " Skipping " + key + " in collection counts.");
                     continue;
                 }
-                
+
                 Query<List<Object[]>> q_c = getQueryFactory().lookup(
                         /* TODO po.map() here */
                         CollectionCountQueryDefinition.class.getName(),
-                        new Parameters()
-                            .addIds(c.getIds(key))
-                            .addString("field",key));
-                
+                        new Parameters().addIds(c.getIds(key)).addString(
+                                "field", key));
+
                 List<Object[]> l_c = iQuery.execute(q_c);
-                for (Object[] results : l_c)
-                {
-                   Long id = (Long) results[0];
-                   Long count = (Long) results[1];
-                   c.addCounts(key,id,count);
+                for (Object[] results : l_c) {
+                    Long id = (Long) results[0];
+                    Long count = (Long) results[1];
+                    c.addCounts(key, id, count);
                 }
-                
+
             }
         }
     }
-    
+
     final static String alphaNumeric = "^\\w+$";
-    final static String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO annotations
 
-    protected void checkType(String type)
-    {
-        if (!type.matches(alphaNumericDotted))
-        {
+    final static String alphaNumericDotted = "^\\w[.\\w]+$"; // TODO
+                                                                // annotations
+
+    protected void checkType(String type) {
+        if (!type.matches(alphaNumericDotted)) {
             throw new IllegalArgumentException(
-                    "Type argument to getCollectionCount may ONLY be " +
-                    "alpha-numeric with dots ("+alphaNumericDotted+")");
+                    "Type argument to getCollectionCount may ONLY be "
+                            + "alpha-numeric with dots (" + alphaNumericDotted
+                            + ")");
         }
 
-        if (!iQuery.checkType(type)) 
-        {
-            throw new IllegalArgumentException(type +" is an unknown type.");
+        if (!iQuery.checkType(type)) {
+            throw new IllegalArgumentException(type + " is an unknown type.");
         }
     }
-    
-    protected void checkProperty(String type, String property)
-    {
-        
-        if (!property.matches(alphaNumeric))
-        {
-            throw new IllegalArgumentException("Property argument to " +
-                    "getCollectionCount may ONLY be alpha-numeric ("+
-                    alphaNumeric+")");
+
+    protected void checkProperty(String type, String property) {
+
+        if (!property.matches(alphaNumeric)) {
+            throw new IllegalArgumentException("Property argument to "
+                    + "getCollectionCount may ONLY be alpha-numeric ("
+                    + alphaNumeric + ")");
         }
-            
-    
-        if (!iQuery.checkProperty(type,property))
-        {
-            throw new IllegalArgumentException(type+"."+property+
-                    " is an unknown property on type "+type);
+
+        if (!iQuery.checkProperty(type, property)) {
+            throw new IllegalArgumentException(type + "." + property
+                    + " is an unknown property on type " + type);
         }
-    
+
     }
-    
+
 }

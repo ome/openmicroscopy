@@ -47,7 +47,6 @@ import ome.model.meta.Event;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
-
 /**
  * implementation of the IUpdate service interface
  * 
@@ -56,254 +55,223 @@ import ome.util.Utils;
  * @since OMERO 3.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly=false)
+@Transactional(readOnly = false)
 @Stateless
 @Remote(IUpdate.class)
-@RemoteBinding (jndiBinding="omero/remote/ome.api.IUpdate")
+@RemoteBinding(jndiBinding = "omero/remote/ome.api.IUpdate")
 @Local(LocalUpdate.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.local.LocalUpdate")
+@LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
 @SecurityDomain("OmeroSecurity")
-@Interceptors({SimpleLifecycle.class})
-public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate
-{
+@Interceptors( { SimpleLifecycle.class })
+public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     protected transient LocalQuery localQuery;
-    
-    public final void setQueryService( LocalQuery query )
-    {
-    	throwIfAlreadySet(this.localQuery, query);
-    	this.localQuery = query;
+
+    public final void setQueryService(LocalQuery query) {
+        throwIfAlreadySet(this.localQuery, query);
+        this.localQuery = query;
     }
-    
+
     @Override
-    protected Class<? extends ServiceInterface> getServiceInterface()
-    {
+    protected Class<? extends ServiceInterface> getServiceInterface() {
         return IUpdate.class;
     };
-    
+
     // ~ LOCAL PUBLIC METHODS
     // =========================================================================
 
     @RolesAllowed("user")
-    public void rollback()
-    {
-        getHibernateTemplate().execute( new HibernateCallback() {
-            public Object doInHibernate(Session session) 
-            throws HibernateException ,SQLException {
+    public void rollback() {
+        getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
                 session.connection().rollback();
                 return null;
-            }; 
-         });
-    }
-
-    @RolesAllowed("user")
-    public void flush()
-    {
-        getHibernateTemplate().execute( new HibernateCallback() {
-           public Object doInHibernate(Session session) 
-           throws HibernateException ,SQLException {
-               session.flush();
-               return null;
-           }; 
+            };
         });
     }
 
     @RolesAllowed("user")
-    public void commit()
-    {
-        getHibernateTemplate().execute( new HibernateCallback() {
-            public Object doInHibernate(Session session) 
-            throws HibernateException ,SQLException {
+    public void flush() {
+        getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                session.flush();
+                return null;
+            };
+        });
+    }
+
+    @RolesAllowed("user")
+    public void commit() {
+        getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
                 session.connection().commit();
                 return null;
-            }; 
-         });
+            };
+        });
     }
 
-    
     // ~ INTERFACE METHODS
     // =========================================================================
-    
+
     @RolesAllowed("user")
-    public void saveObject(IObject graph)
-    {
-    	doAction(graph,new UpdateAction<IObject>()
-    	{
-    		@Override
-    		public IObject run(IObject value, UpdateFilter filter) {
-    			return internalSave(value, filter); 
-    		}
-    	});
-    }
-    
-    @RolesAllowed("user")
-    public IObject saveAndReturnObject( IObject graph )
-    {
-    	return doAction( graph, new UpdateAction<IObject>()
-    	{
-    		@Override
-    		public IObject run( IObject value, UpdateFilter filter) {
-    			return internalSave(value, filter); 
-    		}
-    	});
+    public void saveObject(IObject graph) {
+        doAction(graph, new UpdateAction<IObject>() {
+            @Override
+            public IObject run(IObject value, UpdateFilter filter) {
+                return internalSave(value, filter);
+            }
+        });
     }
 
     @RolesAllowed("user")
-    public void saveCollection(Collection graph)
-    {
-    	doAction( graph, new UpdateAction<Collection>()
-    	{
-    		@Override
-    		public Collection run(Collection value, UpdateFilter filter) {
-    	        for (Object o : value)
-    	        {
-    	            IObject obj = (IObject) o;
-    	            obj = internalSave( obj, filter );
-    	        }
-    	        return null;
-    		}
-    	});
+    public IObject saveAndReturnObject(IObject graph) {
+        return doAction(graph, new UpdateAction<IObject>() {
+            @Override
+            public IObject run(IObject value, UpdateFilter filter) {
+                return internalSave(value, filter);
+            }
+        });
     }
-    
+
     @RolesAllowed("user")
-    public Collection saveAndReturnCollection( Collection graph)
-    {
-        throw new RuntimeException("Not implemented yet.");
+    public void saveCollection(Collection graph) {
+        doAction(graph, new UpdateAction<Collection>() {
+            @Override
+            public Collection run(Collection value, UpdateFilter filter) {
+                for (Object o : value) {
+                    IObject obj = (IObject) o;
+                    obj = internalSave(obj, filter);
+                }
+                return null;
+            }
+        });
     }
-    
+
     @RolesAllowed("user")
-    public void saveMap(Map graph)
-    {
+    public Collection saveAndReturnCollection(Collection graph) {
         throw new RuntimeException("Not implemented yet.");
     }
 
     @RolesAllowed("user")
-    public IObject[] saveAndReturnArray(IObject[] graph)
-    {
-    	return doAction( graph, new UpdateAction<IObject[]>(){
-    		@Override
-    		public IObject[] run(IObject[] value, UpdateFilter filter) {
-    	        IObject[] copy = new IObject[value.length];
-    			for (int i = 0; i < value.length; i++)
-    	        {
-    	            copy[i] = internalSave( value[i], filter );
-    	        }
-    	        return copy;
-    		}
-    	});
-    }
-    
-    @RolesAllowed("user")
-    public void saveArray(IObject[] graph)
-    {
-    	doAction( graph, new UpdateAction<IObject[]>(){
-    		@Override
-    		public IObject[] run(IObject[] value, UpdateFilter filter) {
-    	        IObject[] copy = new IObject[value.length];
-    			for (int i = 0; i < value.length; i++)
-    	        {
-    	            copy[i] = internalSave( value[i], filter );
-    	        }
-    	        return copy;
-    		}
-    	});
+    public void saveMap(Map graph) {
+        throw new RuntimeException("Not implemented yet.");
     }
 
     @RolesAllowed("user")
-    public Map saveAndReturnMap( Map map )
-    {
+    public IObject[] saveAndReturnArray(IObject[] graph) {
+        return doAction(graph, new UpdateAction<IObject[]>() {
+            @Override
+            public IObject[] run(IObject[] value, UpdateFilter filter) {
+                IObject[] copy = new IObject[value.length];
+                for (int i = 0; i < value.length; i++) {
+                    copy[i] = internalSave(value[i], filter);
+                }
+                return copy;
+            }
+        });
+    }
+
+    @RolesAllowed("user")
+    public void saveArray(IObject[] graph) {
+        doAction(graph, new UpdateAction<IObject[]>() {
+            @Override
+            public IObject[] run(IObject[] value, UpdateFilter filter) {
+                IObject[] copy = new IObject[value.length];
+                for (int i = 0; i < value.length; i++) {
+                    copy[i] = internalSave(value[i], filter);
+                }
+                return copy;
+            }
+        });
+    }
+
+    @RolesAllowed("user")
+    public Map saveAndReturnMap(Map map) {
         // TODO Auto-generated method stub
-        //return null;
+        // return null;
         throw new RuntimeException("Not implemented yet.");
     }
 
     @RolesAllowed("user")
-    public void deleteObject( IObject row )
-    {
-    	if ( row == null ) return;
-    	if ( row.getId() == null ) throw new ApiUsageException(
-    			"Non-managed IObject entity cannot be deleted. Must have an id."
-    			);
-    	doAction( row, new UpdateAction<IObject>()
-    	{
-    		@Override
-    		public IObject run(IObject value, UpdateFilter filter) {
-    			internalDelete(value, filter); 
-    			return null;
-    		}
-    	});
+    public void deleteObject(IObject row) {
+        if (row == null)
+            return;
+        if (row.getId() == null)
+            throw new ApiUsageException(
+                    "Non-managed IObject entity cannot be deleted. Must have an id.");
+        doAction(row, new UpdateAction<IObject>() {
+            @Override
+            public IObject run(IObject value, UpdateFilter filter) {
+                internalDelete(value, filter);
+                return null;
+            }
+        });
     }
-    
+
     // ~ Internals
     // =========================================================
-    private void beforeUpdate( Object argument, UpdateFilter filter )
-    {
+    private void beforeUpdate(Object argument, UpdateFilter filter) {
 
-        if ( argument == null )
-            throw new IllegalArgumentException( 
+        if (argument == null)
+            throw new IllegalArgumentException(
                     "Argument to save cannot be null.");
 
-        if ( getLogger().isDebugEnabled() )
-            getLogger().debug( " Saving event before merge. " );
+        if (getLogger().isDebugEnabled())
+            getLogger().debug(" Saving event before merge. ");
 
     }
 
-    /** 
-     * Note if we use anything other than merge here, functionality
-     * from {@link ome.tools.hibernate.MergeEventListener} needs to be 
-     * moved to {@link UpdateFilter} or to another event listener.
+    /**
+     * Note if we use anything other than merge here, functionality from
+     * {@link ome.tools.hibernate.MergeEventListener} needs to be moved to
+     * {@link UpdateFilter} or to another event listener.
      */
-    protected IObject internalSave (IObject obj, UpdateFilter filter )
-    {
-        if ( getLogger().isDebugEnabled() )
-            getLogger().debug( " Internal save. " );
-        
-        IObject result = (IObject) filter.filter(null,obj); 
+    protected IObject internalSave(IObject obj, UpdateFilter filter) {
+        if (getLogger().isDebugEnabled())
+            getLogger().debug(" Internal save. ");
+
+        IObject result = (IObject) filter.filter(null, obj);
         result = (IObject) getHibernateTemplate().merge(result);
         return result;
     }
 
-    protected void internalDelete(IObject obj, UpdateFilter filter )
-    {
-        if ( getLogger().isDebugEnabled() )
-            getLogger().debug( " Internal delete. " );
-        
+    protected void internalDelete(IObject obj, UpdateFilter filter) {
+        if (getLogger().isDebugEnabled())
+            getLogger().debug(" Internal delete. ");
+
         getHibernateTemplate().delete(
-                getHibernateTemplate().load(
-                        Utils.trueClass( obj.getClass() ),
-                        obj.getId() ));
+                getHibernateTemplate().load(Utils.trueClass(obj.getClass()),
+                        obj.getId()));
     }
-    
-    
-    private void afterUpdate( UpdateFilter filter)
-    {
-        
-        if ( getLogger().isDebugEnabled() )
-            getLogger().debug( " Post-save cleanup. " );
-           
+
+    private void afterUpdate(UpdateFilter filter) {
+
+        if (getLogger().isDebugEnabled())
+            getLogger().debug(" Post-save cleanup. ");
+
         // Clean up
         getHibernateTemplate().flush();
         filter.unloadReplacedObjects();
-      
+
     }
-    
-    private <T> T doAction( T graph, UpdateAction<T> action )
-    {
-    	T retVal;
-        UpdateFilter filter = new UpdateFilter( );
-        try 
-        {
-        	beforeUpdate( graph, filter );
-        	retVal = action.run( graph, filter );
-        	afterUpdate( filter );
+
+    private <T> T doAction(T graph, UpdateAction<T> action) {
+        T retVal;
+        UpdateFilter filter = new UpdateFilter();
+        try {
+            beforeUpdate(graph, filter);
+            retVal = action.run(graph, filter);
+            afterUpdate(filter);
         } finally {
-        	// currently nothing.
+            // currently nothing.
         }
         return retVal;
     }
-    
-    private abstract class UpdateAction<T>{
-    	public abstract T run( T value, UpdateFilter filter );
+
+    private abstract class UpdateAction<T> {
+        public abstract T run(T value, UpdateFilter filter);
     }
 
-    
 }

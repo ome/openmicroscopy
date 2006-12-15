@@ -41,10 +41,10 @@ public aspect Policy
          */
         || within(ome.tools.hibernate.*)
 
-        /* 
-         * Hibernate tests should be explicitly listed 
+        /*
+         * Hibernate tests should be explicitly listed
          */
-        //|| within(ome.server.itests.update.AbstractQueryTest+)
+        // || within(ome.server.itests.update.AbstractQueryTest+)
         || within(ome.server.itests.update.AbstractUpdateTest+)
         || within(ome.server.itests.hibernate.HotSwapTest)
         || within(ome.server.itests.update.FilterTest);

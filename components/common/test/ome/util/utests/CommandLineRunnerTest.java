@@ -22,21 +22,22 @@ import junit.framework.TestCase;
 
 public class CommandLineRunnerTest extends TestCase {
 
-	@Test
-	public void testTooManyEquals() throws Exception {
-		arrayFails(new String[]{"user=josh=moore"});
-	}
+    @Test
+    public void testTooManyEquals() throws Exception {
+        arrayFails(new String[] { "user=josh=moore" });
+    }
 
-	// ~ Helpers
-	// =========================================================================
-	
-	protected void arrayFails(String[] array) {
-		try {
-			Run.main(array);
-			fail("Should throw IllegalArgument");
-		} catch (Exception e) {
-			assertTrue(IllegalArgumentException.class.isAssignableFrom(e.getClass()));
-		}
-	}
+    // ~ Helpers
+    // =========================================================================
+
+    protected void arrayFails(String[] array) {
+        try {
+            Run.main(array);
+            fail("Should throw IllegalArgument");
+        } catch (Exception e) {
+            assertTrue(IllegalArgumentException.class.isAssignableFrom(e
+                    .getClass()));
+        }
+    }
 
 }

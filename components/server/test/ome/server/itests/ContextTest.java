@@ -17,69 +17,62 @@ import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
 import omeis.providers.re.RenderingEngine;
 
-@Test(
-        groups = "integration"
-)
-public class ContextTest extends TestCase
-{
+@Test(groups = "integration")
+public class ContextTest extends TestCase {
 
     protected RE re;
-    
-    static class RE  extends RenderingBean {
+
+    static class RE extends RenderingBean {
         public boolean pdCalled = false, pmCalled = false;
+
         public void setPixelsData(ome.io.nio.PixelsService arg0) {
             pdCalled = true;
         };
-        public void setPixelsMetadata(IPixels arg0)
-        {
+
+        public void setPixelsMetadata(IPixels arg0) {
             pmCalled = true;
         }
     }
-    
+
     @Override
-  @Configuration(beforeTestMethod = true)
-    protected void setUp() throws Exception
-    {
+    @Configuration(beforeTestMethod = true)
+    protected void setUp() throws Exception {
         re = new RE();
     }
 
-  @Test
-    public void testListBeans() throws Exception
-    {
-        
+    @Test
+    public void testListBeans() throws Exception {
+
         assertTrue(0 < Arrays.asList(
-            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
-                    OmeroContext.getManagedServerContext().getBeanFactory(), 
-                    Object.class, true, true)).size());
+                BeanFactoryUtils
+                        .beanNamesForTypeIncludingAncestors(OmeroContext
+                                .getManagedServerContext().getBeanFactory(),
+                                Object.class, true, true)).size());
     }
-    
-  @Test
-    public void testManagedContext() throws Exception
-    {
+
+    @Test
+    public void testManagedContext() throws Exception {
         OmeroContext ctx = OmeroContext.getManagedServerContext();
         onContext(ctx);
     }
-  
-   protected void onContext(OmeroContext ctx)
-   {
-        ServiceFactory sf = new ServiceFactory( ctx );
+
+    protected void onContext(OmeroContext ctx) {
+        ServiceFactory sf = new ServiceFactory(ctx);
         IQuery q = sf.getQueryService();
-        assertTrue( Advised.class.isAssignableFrom( q.getClass() ));
+        assertTrue(Advised.class.isAssignableFrom(q.getClass()));
     }
-    
-  @Test
-    public void testConfigureBean() throws Exception
-    {
-        
+
+    @Test
+    public void testConfigureBean() throws Exception {
+
         OmeroContext ctx = OmeroContext.getManagedServerContext();
-        ctx.applyBeanPropertyValues(re,RenderingEngine.class);
+        ctx.applyBeanPropertyValues(re, RenderingEngine.class);
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);
     }
-    
-  @Test
-    public void testSelfConfigureBean() throws Exception
-    {
+
+    @Test
+    public void testSelfConfigureBean() throws Exception {
         re.selfConfigure();
         assertTrue(re.pdCalled);
         assertTrue(re.pmCalled);

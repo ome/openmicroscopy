@@ -50,151 +50,144 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 public class CodeGeneration { // FIXME extends TestCase {
 
-	private static Log log = LogFactory.getLog(CodeGeneration.class);
-	
-	String tmp = System.getProperty("user.dir")+"/target/classes";
-	
-	public void test1() {
-		try {
-			File file = File.createTempFile("jav", ".java", new File(tmp));
-			file.deleteOnExit();
+    private static Log log = LogFactory.getLog(CodeGeneration.class);
 
-			String filename = file.getName();
-			String classname = filename.substring(0, filename.length() - 5);
+    String tmp = System.getProperty("user.dir") + "/target/classes";
 
-			PrintWriter out = new PrintWriter(new FileOutputStream(file));
-			out.println("/**");
-			out.println(" * Source created on " + new Date());
-			out.println(" */");
-			out.println("public class " + classname + " {");
-			out
-					.println("    public static void main(String[] args) throws Exception {");
+    public void test1() {
+        try {
+            File file = File.createTempFile("jav", ".java", new File(tmp));
+            file.deleteOnExit();
 
-			out.print("        ");
-			out.println("System.out.println(\""+classname+"\");");
-			out.println("    }");
-			out.println("}");
+            String filename = file.getName();
+            String classname = filename.substring(0, filename.length() - 5);
 
-			out.flush();
-			out.close();
+            PrintWriter out = new PrintWriter(new FileOutputStream(file));
+            out.println("/**");
+            out.println(" * Source created on " + new Date());
+            out.println(" */");
+            out.println("public class " + classname + " {");
+            out
+                    .println("    public static void main(String[] args) throws Exception {");
 
-			boolean status = Main.compile("-d "+tmp+" "+file.getAbsolutePath());
+            out.print("        ");
+            out.println("System.out.println(\"" + classname + "\");");
+            out.println("    }");
+            out.println("}");
 
-			if (status) {
-				File clazzFile = new File(file.getParent(), classname + ".class");
-				clazzFile.deleteOnExit();
-				
-				Class clazz = Class.forName(classname);
-				Method main = clazz.getMethod("main",
-						new Class[] { String[].class });
-				main.invoke(null, new Object[] { new String[0] });
-				addToDb(classname, clazzFile);
-			} else {
-				throw new RuntimeException("Compile failed.");
-			}
+            out.flush();
+            out.close();
 
-		} catch (Exception e) {
-			throw new RuntimeException("Died on dynamic call.", e);
-		}
-	}
+            boolean status = Main.compile("-d " + tmp + " "
+                    + file.getAbsolutePath());
 
-	// STORING IN DATABASE
-	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-			new String[]{"WEB-INF/dbcp.xml","WEB-INF/config-local.xml"});
-	JdbcTemplate jt = new JdbcTemplate((DataSource) ctx
-			.getBean("dataSource"));
-	
-	// CURRENTLY FUNCTIONING AS DAO
-	// create table testing ( name varchar(128), class bytea );
-	/* byte streams to DB with postgres:
-	 * http://pgsqld.active-venture.com/jdbc-binary-data.html
-	 * File file = new File("myimage.gif");
-	 * FileInputStream fis = new FileInputStream(file);
-	 * PreparedStatement ps = conn.prepareStatement("INSERT INTO images VALUES (?, ?)");
-	 * ps.setString(1, file.getName());
-	 * ps.setBinaryStream(2, fis, file.length());
-	 * ps.executeUpdate();
-	 * ps.close();
-	 * fis.close();
-	 * 
-	 * PreparedStatement ps = con.prepareStatement("SELECT img FROM images WHERE imgname=?");
-	 * ps.setString(1, "myimage.gif");
-	 * ResultSet rs = ps.executeQuery();
-	 * if (rs != null) {
-	 * while(rs.next()) {
-	 *   byte[] imgBytes = rs.getBytes(1);
-	 *    // use the stream in some way here
-	 *   }
-	 *   rs.close();
-	 *   }
-	 *   ps.close();
-	 *   Here the binary data was retrieved as an byte[]. You could have used a InputStream object instead.
-	 */
+            if (status) {
+                File clazzFile = new File(file.getParent(), classname
+                        + ".class");
+                clazzFile.deleteOnExit();
 
+                Class clazz = Class.forName(classname);
+                Method main = clazz.getMethod("main",
+                        new Class[] { String[].class });
+                main.invoke(null, new Object[] { new String[0] });
+                addToDb(classname, clazzFile);
+            } else {
+                throw new RuntimeException("Compile failed.");
+            }
 
-	public void addToDb(String classname, File clazzFile) {
-		
-		String name = classname;
-		Long length = clazzFile.length();
-		byte[] code = new byte[length.intValue()];
-		
-		InputStream in=null;
-		try {
-			in = new FileInputStream(clazzFile);
-			int stored = in.read(code);
-			if (stored != length.intValue()){
-				throw new RuntimeException("Not everything read");
-			} 
-			jt.update("insert into testing (name,class) values (?,?);",
-					new Object[]{name,code} );
-		} catch (Exception e){
-			throw new RuntimeException("Error storing in DB",e);
-		} finally {
-			if (null!=in) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					//
-				}
-			}
-		}
-	}
-	
-	protected String getNameFromDB(){
-		 Map map = (Map) jt.queryForList("select name from testing").get(0);
-		 return (String) map.get("name");
-	}
-	
-	public byte[] getClassFromDB(String className){
-//		Object o = jt.queryForList("select class from testing where name = ?",new Object[]{className});
-//		if (null==l || l.size()==0) throw new RuntimeException("No results found.");
-//		Map map = (Map) l.get(0);
-//		String s = (String) map.get("class");
-//		return (byte[])s.getBytes();
-		return (byte[]) jt.queryForObject("select class from testing where name = ?",new Object[]{className},byte[].class);
-	}
+        } catch (Exception e) {
+            throw new RuntimeException("Died on dynamic call.", e);
+        }
+    }
 
-	public static void main(String[] args) {
-		//ensures that the class isn't available from other tests!
-		new CodeGeneration().testGetClassFromDB();	
-	}
-	
-	public void testGetClassFromDB(){
+    // STORING IN DATABASE
+    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
+            new String[] { "WEB-INF/dbcp.xml", "WEB-INF/config-local.xml" });
 
-		//fail("now need to write classloader to test");
-		String name = getNameFromDB();
-		Class clazz = new OmeroDBClassLoader().doIt(
-				name, getClassFromDB(name)
-				);
-		try {
-			Method main = clazz.getMethod("main",new Class[]{String[].class});
-			main.invoke(null,new Object[]{new String[]{}});
-		} catch (Exception e) {
-			throw new RuntimeException("couldn't re-invoke main.",e);
-		}
-		
-		
-	}
+    JdbcTemplate jt = new JdbcTemplate((DataSource) ctx.getBean("dataSource"));
 
-	
+    // CURRENTLY FUNCTIONING AS DAO
+    // create table testing ( name varchar(128), class bytea );
+    /*
+     * byte streams to DB with postgres:
+     * http://pgsqld.active-venture.com/jdbc-binary-data.html File file = new
+     * File("myimage.gif"); FileInputStream fis = new FileInputStream(file);
+     * PreparedStatement ps = conn.prepareStatement("INSERT INTO images VALUES
+     * (?, ?)"); ps.setString(1, file.getName()); ps.setBinaryStream(2, fis,
+     * file.length()); ps.executeUpdate(); ps.close(); fis.close();
+     * 
+     * PreparedStatement ps = con.prepareStatement("SELECT img FROM images WHERE
+     * imgname=?"); ps.setString(1, "myimage.gif"); ResultSet rs =
+     * ps.executeQuery(); if (rs != null) { while(rs.next()) { byte[] imgBytes =
+     * rs.getBytes(1); // use the stream in some way here } rs.close(); }
+     * ps.close(); Here the binary data was retrieved as an byte[]. You could
+     * have used a InputStream object instead.
+     */
+
+    public void addToDb(String classname, File clazzFile) {
+
+        String name = classname;
+        Long length = clazzFile.length();
+        byte[] code = new byte[length.intValue()];
+
+        InputStream in = null;
+        try {
+            in = new FileInputStream(clazzFile);
+            int stored = in.read(code);
+            if (stored != length.intValue()) {
+                throw new RuntimeException("Not everything read");
+            }
+            jt.update("insert into testing (name,class) values (?,?);",
+                    new Object[] { name, code });
+        } catch (Exception e) {
+            throw new RuntimeException("Error storing in DB", e);
+        } finally {
+            if (null != in) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    //
+                }
+            }
+        }
+    }
+
+    protected String getNameFromDB() {
+        Map map = (Map) jt.queryForList("select name from testing").get(0);
+        return (String) map.get("name");
+    }
+
+    public byte[] getClassFromDB(String className) {
+        // Object o = jt.queryForList("select class from testing where name =
+        // ?",new Object[]{className});
+        // if (null==l || l.size()==0) throw new RuntimeException("No results
+        // found.");
+        // Map map = (Map) l.get(0);
+        // String s = (String) map.get("class");
+        // return (byte[])s.getBytes();
+        return (byte[]) jt.queryForObject(
+                "select class from testing where name = ?",
+                new Object[] { className }, byte[].class);
+    }
+
+    public static void main(String[] args) {
+        // ensures that the class isn't available from other tests!
+        new CodeGeneration().testGetClassFromDB();
+    }
+
+    public void testGetClassFromDB() {
+
+        // fail("now need to write classloader to test");
+        String name = getNameFromDB();
+        Class clazz = new OmeroDBClassLoader().doIt(name, getClassFromDB(name));
+        try {
+            Method main = clazz.getMethod("main",
+                    new Class[] { String[].class });
+            main.invoke(null, new Object[] { new String[] {} });
+        } catch (Exception e) {
+            throw new RuntimeException("couldn't re-invoke main.", e);
+        }
+
+    }
+
 }

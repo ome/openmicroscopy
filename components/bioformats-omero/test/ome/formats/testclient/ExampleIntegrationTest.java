@@ -24,37 +24,38 @@ import ome.system.ServiceFactory;
 
 import junit.framework.TestCase;
 
-@Test( groups = "integration" )
+@Test(groups = "integration")
 public class ExampleIntegrationTest extends TestCase {
 
-	private final static Log log = LogFactory.getLog(ExampleIntegrationTest.class);
-	
-	protected ImportFixture fixture;
-	
-	public void testUseHardCoded() throws Exception {
-		ServiceFactory sf = new ServiceFactory(new Login("root","ome"));
-		
-		Dataset d = new Dataset();
-		d.setName(UUID.randomUUID().toString());
-		d = sf.getUpdateService().saveAndReturnObject(d);
-		
-		OMEROMetadataStore store = new OMEROMetadataStore(sf);
-		
-		String  file 	 = "tinyTest.d3d.dv";
-		File 	tinyTest = ResourceUtils.getFile("classpath:"+file);
-		
-		fixture = new ImportFixture(store);
-		fixture.put(tinyTest,d);
-		
-		fixture.setUp();
-		fixture.doImport(new ImportLibrary.Step(){
-			@Override
-			public void step(int n) {
-				log.debug("Wrote plane:"+n);
-			}
-		});
-		fixture.tearDown();
-		
-	}
-	
+    private final static Log log = LogFactory
+            .getLog(ExampleIntegrationTest.class);
+
+    protected ImportFixture fixture;
+
+    public void testUseHardCoded() throws Exception {
+        ServiceFactory sf = new ServiceFactory(new Login("root", "ome"));
+
+        Dataset d = new Dataset();
+        d.setName(UUID.randomUUID().toString());
+        d = sf.getUpdateService().saveAndReturnObject(d);
+
+        OMEROMetadataStore store = new OMEROMetadataStore(sf);
+
+        String file = "tinyTest.d3d.dv";
+        File tinyTest = ResourceUtils.getFile("classpath:" + file);
+
+        fixture = new ImportFixture(store);
+        fixture.put(tinyTest, d);
+
+        fixture.setUp();
+        fixture.doImport(new ImportLibrary.Step() {
+            @Override
+            public void step(int n) {
+                log.debug("Wrote plane:" + n);
+            }
+        });
+        fixture.tearDown();
+
+    }
+
 }

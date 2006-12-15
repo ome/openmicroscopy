@@ -15,54 +15,47 @@ import ome.model.core.LogicalChannel;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public class ChannelTrans extends Transformer
-{
-    /** The index of the channel **/
+public class ChannelTrans extends Transformer {
+    /** The index of the channel * */
     Integer index;
 
     public ChannelTrans(Object model, Session session, Experimenter owner,
-                        Event creationEvent, List toSave)
-    {
+            Event creationEvent, List toSave) {
         super(model, session, owner, creationEvent, toSave);
     }
-    
-    public ChannelTrans(Transformer transformer, Object model)
-    {
+
+    public ChannelTrans(Transformer transformer, Object model) {
         super(model, transformer.getSession(), transformer.getOwner(),
-              transformer.getCreationEvent(), transformer.getToSave());
+                transformer.getCreationEvent(), transformer.getToSave());
     }
-    
-    public void setIndex(int index)
-    {
+
+    public void setIndex(int index) {
         this.index = index;
     }
- 
+
     @SuppressWarnings("unchecked")
-    public List transmute()
-    {
+    public List transmute() {
         if (index == null)
             throw new NullPointerException("Index must be set.");
-        ome.model.ChannelComponent oldChannel = 
-            (ome.model.ChannelComponent) getModel();
-        
+        ome.model.ChannelComponent oldChannel = (ome.model.ChannelComponent) getModel();
+
         List toSave = getToSave();
         Event creationEvent = getCreationEvent();
-        
-        LogicalChannelTrans transform =
-            new LogicalChannelTrans(this, oldChannel.getLogicalChannel());
+
+        LogicalChannelTrans transform = new LogicalChannelTrans(this,
+                oldChannel.getLogicalChannel());
         toSave = transform.transmute();
-       
+
         Channel c = new Channel();
         c.setCreationEvent(creationEvent);
         c.setIndex(index);
         c.setLogicalChannel((LogicalChannel) toSave.get(toSave.size() - 1));
         c.setOwner(getOwner());
-        
+
         toSave.add(c);
         return toSave;
     }

@@ -32,34 +32,32 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-public class LoginDialog extends JDialog implements ActionListener
-{
+public class LoginDialog extends JDialog implements ActionListener {
 
-    JButton                loginBtn;
+    JButton loginBtn;
 
-    private JTextField     uname;
+    private JTextField uname;
 
     private JPasswordField pswd;
 
-    private JTextField     srvr;
+    private JTextField srvr;
 
-    private JTextField     prt;
+    private JTextField prt;
 
-    public String          username;
+    public String username;
 
-    public String          password;
+    public String password;
 
-    public String          server;
+    public String server;
 
-    public String          port;
+    public String port;
 
-    public boolean         cancelled = true;
+    public boolean cancelled = true;
 
-    private Preferences    userPrefs = Preferences
-                                             .userNodeForPackage(LoginDialog.class);
+    private Preferences userPrefs = Preferences
+            .userNodeForPackage(LoginDialog.class);
 
-    LoginDialog(JFrame owner, String title, boolean modal)
-    {
+    LoginDialog(JFrame owner, String title, boolean modal) {
         setLocation(200, 200);
         setTitle(title);
         setModal(modal);
@@ -71,14 +69,15 @@ public class LoginDialog extends JDialog implements ActionListener
         // password = userPrefs.get("password", password);
         server = userPrefs.get("server", server);
         port = userPrefs.get("port", port);
-        if (port == null) port = "1099";
+        if (port == null)
+            port = "1099";
 
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
 
         String message = "Enter your username, password, server, and port to "
-            + "access the database.";
+                + "access the database.";
 
         JTextPane instructions = addTextPane(this, message, c, 0, 4, 1.0f);
 
@@ -94,19 +93,17 @@ public class LoginDialog extends JDialog implements ActionListener
         prt = addEntryField(this, "Port: ", port, 'R', c, 0, 1, 1,
                 "Input the server port here.");
 
-        loginBtn = addButton(this, "Login", c, 2, 1, 1.0f,
-                "Click to login.");
+        loginBtn = addButton(this, "Login", c, 2, 1, 1.0f, "Click to login.");
 
         this.getRootPane().setDefaultButton(loginBtn);
 
         loginBtn.addActionListener(this);
 
-        addWindowListener(new WindowAdapter()
-        {
+        addWindowListener(new WindowAdapter() {
 
-            public void windowOpened(WindowEvent e)
-            {
-                if (uname == null) uname.requestFocus();
+            public void windowOpened(WindowEvent e) {
+                if (uname == null)
+                    uname.requestFocus();
                 else
                     pswd.requestFocus();
             }
@@ -117,8 +114,7 @@ public class LoginDialog extends JDialog implements ActionListener
 
     static JTextField addEntryField(Container container, String name,
             String initialValue, int mnemonic, GridBagConstraints c,
-            int labelCol, int labelWidth, int fieldWidth, String tooltip)
-    {
+            int labelCol, int labelWidth, int fieldWidth, String tooltip) {
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(2, 20, 2, 2);
@@ -140,15 +136,15 @@ public class LoginDialog extends JDialog implements ActionListener
         JTextField result = new JTextField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null) result.setText(initialValue);
+        if (initialValue != null)
+            result.setText(initialValue);
         container.add(result, c);
         return result;
     }
 
     static JPasswordField addPasswordField(Container container, String name,
             String initialValue, int mnemonic, GridBagConstraints c,
-            int labelCol, int labelWidth, int fieldWidth, String tooltip)
-    {
+            int labelCol, int labelWidth, int fieldWidth, String tooltip) {
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(2, 20, 2, 2);
@@ -170,15 +166,15 @@ public class LoginDialog extends JDialog implements ActionListener
         JPasswordField result = new JPasswordField(100);
         label.setLabelFor(result);
         result.setToolTipText(tooltip);
-        if (initialValue != null) result.setText(initialValue);
+        if (initialValue != null)
+            result.setText(initialValue);
         container.add(result, c);
         return result;
     }
 
     static JButton addButton(Container container, String name,
             GridBagConstraints c, int column, int width, float weight,
-            String tooltip)
-    {
+            String tooltip) {
 
         c.anchor = GridBagConstraints.EAST;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -195,8 +191,7 @@ public class LoginDialog extends JDialog implements ActionListener
     }
 
     static JTextPane addTextPane(Container container, String text,
-            GridBagConstraints c, int column, int width, float weight)
-    {
+            GridBagConstraints c, int column, int width, float weight) {
 
         c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -214,11 +209,9 @@ public class LoginDialog extends JDialog implements ActionListener
         StyleConstants.setSpaceAbove(style, 4);
         StyleConstants.setSpaceBelow(style, 10);
 
-        try
-        {
+        try {
             document.insertString(document.getLength(), text, style);
-        } catch (BadLocationException e)
-        {
+        } catch (BadLocationException e) {
             System.err
                     .println("BadLocationException inserting text to document.");
         }
@@ -233,10 +226,8 @@ public class LoginDialog extends JDialog implements ActionListener
         return textPane;
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
-        if (e.getSource() == loginBtn)
-        {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == loginBtn) {
             username = uname.getText();
             password = pswd.getText();
             server = srvr.getText();

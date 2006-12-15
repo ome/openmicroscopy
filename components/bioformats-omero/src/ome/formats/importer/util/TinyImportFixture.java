@@ -22,8 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
 
 /**
- * test fixture which uses a hard-coded file ("tinyTest.d3d.dv") from the 
- * classpath, and adds them to a new UUID-named dataset. 
+ * test fixture which uses a hard-coded file ("tinyTest.d3d.dv") from the
+ * classpath, and adds them to a new UUID-named dataset.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
@@ -33,21 +33,19 @@ import org.springframework.util.ResourceUtils;
  */
 // @RevisionDate("$Date$")
 // @RevisionNumber("$Revision$")
-public class TinyImportFixture extends ImportFixture
-{
+public class TinyImportFixture extends ImportFixture {
 
-	/** Hard-coded filename of the image to be imported */
-	public final static String FILENAME = "tinyTest.d3d.dv";
-	
-    Log                        log = LogFactory.getLog(TinyImportFixture.class);
+    /** Hard-coded filename of the image to be imported */
+    public final static String FILENAME = "tinyTest.d3d.dv";
+
+    Log log = LogFactory.getLog(TinyImportFixture.class);
 
     private Dataset d;
-    
+
     private ServiceFactory sf;
-    
-    public TinyImportFixture(ServiceFactory services) throws Exception
-    {
-        super( new OMEROMetadataStore(services), new ImageReader() );
+
+    public TinyImportFixture(ServiceFactory services) throws Exception {
+        super(new OMEROMetadataStore(services), new ImageReader());
         this.sf = services;
     }
 
@@ -56,22 +54,21 @@ public class TinyImportFixture extends ImportFixture
      * 
      * @throws Exception
      */
-    public void setUp() throws Exception
-    {
-		d = new Dataset();
-		d.setName(UUID.randomUUID().toString());
-		d = sf.getUpdateService().saveAndReturnObject(d);
-		
-		File 	tinyTest = ResourceUtils.getFile("classpath:"+FILENAME);
-		
-		super.put( tinyTest, d );
-    	super.setUp();
+    public void setUp() throws Exception {
+        d = new Dataset();
+        d.setName(UUID.randomUUID().toString());
+        d = sf.getUpdateService().saveAndReturnObject(d);
+
+        File tinyTest = ResourceUtils.getFile("classpath:" + FILENAME);
+
+        super.put(tinyTest, d);
+        super.setUp();
     }
-    
-    /** provides access to the created {@link Dataset} instance.
+
+    /**
+     * provides access to the created {@link Dataset} instance.
      */
-    public Dataset getDataset()
-    {
-    	return d;
+    public Dataset getDataset() {
+        return d;
     }
 }

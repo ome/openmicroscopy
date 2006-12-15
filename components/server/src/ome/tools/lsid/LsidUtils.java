@@ -13,37 +13,31 @@
  */
 
 // Java imports
-
 // Third-party libraries
-
 // Application-internal dependencies
-
 package ome.tools.lsid;
 
+public abstract class LsidUtils {
 
-public abstract class LsidUtils
-{
-
-    /** takes a field identifier as code-generated in each IObject class
-     * and produces a back-end useable type name.
+    /**
+     * takes a field identifier as code-generated in each IObject class and
+     * produces a back-end useable type name.
      */
-    public static String parseType(String lsidProperty)
-    {
-        return lsidProperty.substring(0,lsidProperty.indexOf("_"));
+    public static String parseType(String lsidProperty) {
+        return lsidProperty.substring(0, lsidProperty.indexOf("_"));
     }
-    
-    /** takes a field identifier as code-generated in each IObject class
-     * and produces a back-end useable name.
+
+    /**
+     * takes a field identifier as code-generated in each IObject class and
+     * produces a back-end useable name.
      * 
      * TODO should change those fields from Strings to LSIDs with proper getters
-     * to avoid this parsing overhead. 
-     * TODO throw exceptions on invalid. 
+     * to avoid this parsing overhead. TODO throw exceptions on invalid.
      * 
      * TODO possibly unused.
      */
-    public static String parseField(String lsidProperty)
-    {
-        return lsidProperty.substring(lsidProperty.indexOf("_")+1);
+    public static String parseField(String lsidProperty) {
+        return lsidProperty.substring(lsidProperty.indexOf("_") + 1);
     }
-    
+
 }

@@ -11,38 +11,26 @@
 
 package mono;
 
-public final class THolder
-{
-    public
-    THolder()
-    {
+public final class THolder {
+    public THolder() {
     }
 
-    public
-    THolder(T value)
-    {
-	this.value = value;
+    public THolder(T value) {
+        this.value = value;
     }
 
-    public class Patcher implements IceInternal.Patcher
-    {
-	public void
-	patch(Ice.Object v)
-	{
-	    value = (T)v;
-	}
+    public class Patcher implements IceInternal.Patcher {
+        public void patch(Ice.Object v) {
+            value = (T) v;
+        }
 
-	public String
-	type()
-	{
-	    return "::mono::T";
-	}
+        public String type() {
+            return "::mono::T";
+        }
     }
 
-    public Patcher
-    getPatcher()
-    {
-	return new Patcher();
+    public Patcher getPatcher() {
+        return new Patcher();
     }
 
     public T value;

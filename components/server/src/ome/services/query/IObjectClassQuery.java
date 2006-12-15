@@ -29,9 +29,9 @@ import ome.parameters.QueryParameter;
 
 /**
  * simple query subclass which uses the {@link ome.parameters.Parameters#CLASS}
- * parameter value to create a {@link org.hibernate.Criteria} and then 
- * adds {@link org.hibernate.criterion.Expression} instances based on all
- * other parameter names.
+ * parameter value to create a {@link org.hibernate.Criteria} and then adds
+ * {@link org.hibernate.criterion.Expression} instances based on all other
+ * parameter names.
  * <p>
  * For example:
  * </p>
@@ -39,7 +39,7 @@ import ome.parameters.QueryParameter;
  *   Parameters p = new Parameters().addClass( Image.class )
  *   .addString( "name", "LT-3059");
  * </code>
- * <p>  
+ * <p>
  * produces a query of the form "select i from Image i where name = 'LT-3059'"
  * </p>
  * 
@@ -47,30 +47,27 @@ import ome.parameters.QueryParameter;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class IObjectClassQuery extends Query 
-{
+public class IObjectClassQuery extends Query {
 
     static String CLASS = Parameters.CLASS;
-    
-    static Definitions defs = new Definitions(
-        new QueryParameterDef(CLASS, Class.class, false));
-    
-    public IObjectClassQuery(Parameters parameters ){
-        super( defs, parameters );
+
+    static Definitions defs = new Definitions(new QueryParameterDef(CLASS,
+            Class.class, false));
+
+    public IObjectClassQuery(Parameters parameters) {
+        super(defs, parameters);
     }
 
     @Override
-    protected void buildQuery(Session session) 
-        throws HibernateException, SQLException
-    {
+    protected void buildQuery(Session session) throws HibernateException,
+            SQLException {
         Criteria c = session.createCriteria((Class) value(CLASS));
-        for (QueryParameter qp : params.queryParameters())
-        {
-            if ( ! qp.name.equals( CLASS ) )
-            {
-                c.add(Expression.eq(qp.name,qp.value)); // TODO checks for type.                
+        for (QueryParameter qp : params.queryParameters()) {
+            if (!qp.name.equals(CLASS)) {
+                c.add(Expression.eq(qp.name, qp.value)); // TODO checks for
+                                                            // type.
             }
         }
-        setCriteria( c );
+        setCriteria(c);
     }
 }

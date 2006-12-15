@@ -6,30 +6,26 @@
  */
 package ome.conditions.acl;
 
-//Java imports
+// Java imports
 import javax.ejb.ApplicationException;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-/** 
- * User does not have permissions to perform given action. 
+/**
+ * User does not have permissions to perform given action.
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
 @ApplicationException
-public class ACLDeleteViolation extends ACLViolation
-{
+public class ACLDeleteViolation extends ACLViolation {
 
-	public ACLDeleteViolation(Class klass, Long id, String msg){
-		super(klass, id, msg);
-	}
-	
+    public ACLDeleteViolation(Class klass, Long id, String msg) {
+        super(klass, id, msg);
+    }
+
 }

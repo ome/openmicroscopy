@@ -19,30 +19,31 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public class PlaneReadUnitTest extends AbstractManagedContextTest
-{
+public class PlaneReadUnitTest extends AbstractManagedContextTest {
     private Integer planeCount;
+
     private Integer planeSize;
+
     private byte[][] originalDigests;
+
     private String path;
+
     private Pixels pixels;
+
     private PixbufIOFixture baseFixture;
-    
-    private int getDigestOffset(int z, int c, int t)
-    {
-        int planeCountT = pixels.getSizeZ().intValue() *
-                          pixels.getSizeC().intValue();
-        
+
+    private int getDigestOffset(int z, int c, int t) {
+        int planeCountT = pixels.getSizeZ().intValue()
+                * pixels.getSizeC().intValue();
+
         return (planeCountT * t) + (pixels.getSizeZ() * c) + z;
     }
-    
-    private String getPlaneCheckErrStr(int z, int c, int t)
-    {
+
+    private String getPlaneCheckErrStr(int z, int c, int t) {
         StringBuilder sb = new StringBuilder();
         sb.append("Error with plane: ");
         sb.append("Z[");
@@ -57,120 +58,108 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest
         return sb.toString();
     }
 
-    private byte[] createPlane(int planeSize, byte planeNo)
-    {
+    private byte[] createPlane(int planeSize, byte planeNo) {
         byte[] plane = new byte[planeSize];
-        
+
         for (int i = 0; i < planeSize; i++)
             plane[i] = planeNo;
-        
+
         return plane;
     }
-    
-    private void createPlanes() throws IOException
-    {
-    	int byteWidth = PixelBuffer.getBitDepth(pixels.getPixelsType()) / 8;
+
+    private void createPlanes() throws IOException {
+        int byteWidth = PixelBuffer.getBitDepth(pixels.getPixelsType()) / 8;
         planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
-        planeSize  = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
-        path = new PixelsService(PixelsService.ROOT_DEFAULT).getPixelsPath(pixels.getId());
+        planeSize = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
+        path = new PixelsService(PixelsService.ROOT_DEFAULT)
+                .getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
-        
+
         FileOutputStream stream = new FileOutputStream(path);
-        
-        for (int i = 0; i < planeCount; i++)
-        {
-            byte[] plane = createPlane(planeSize.intValue(), (byte)(i - 128));
+
+        for (int i = 0; i < planeCount; i++) {
+            byte[] plane = createPlane(planeSize.intValue(), (byte) (i - 128));
             originalDigests[i] = Helper.calculateMessageDigest(plane);
             stream.write(plane);
         }
     }
- 
+
     @Override
-    protected void onSetUp() throws Exception
-    {
+    protected void onSetUp() throws Exception {
         super.onSetUp();
-        
+
         // Create set up the base fixture which sets up the database for us
         baseFixture = new PixbufIOFixture(this.iUpdate);
         pixels = baseFixture.setUp();
-        
+
         // "Our" fixture which creates the planes needed for this test case.
         createPlanes();
     }
-    
+
     @Test
-    public void testInitialPlane()
-        throws IOException, DimensionsOutOfBoundsException
-    {
+    public void testInitialPlane() throws IOException,
+            DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane);
-        
-        assertEquals(Helper.bytesToHex(originalDigests[0]),
-                     Helper.bytesToHex(messageDigest));
+
+        assertEquals(Helper.bytesToHex(originalDigests[0]), Helper
+                .bytesToHex(messageDigest));
     }
-    
+
     @Test
-    public void testLastPlane()
-        throws IOException, DimensionsOutOfBoundsException
-    {
+    public void testLastPlane() throws IOException,
+            DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
-        MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1,
-                                                 pixels.getSizeC() - 1,
-                                                 pixels.getSizeT() - 1);
-        int digestOffset = getDigestOffset(pixels.getSizeZ() - 1,
-                                           pixels.getSizeC() - 1,
-                                           pixels.getSizeT() - 1);
+        MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
+                .getSizeC() - 1, pixels.getSizeT() - 1);
+        int digestOffset = getDigestOffset(pixels.getSizeZ() - 1, pixels
+                .getSizeC() - 1, pixels.getSizeT() - 1);
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane);
-        
-        assertEquals(Helper.bytesToHex(originalDigests[digestOffset]),
-                     Helper.bytesToHex(messageDigest));
+
+        assertEquals(Helper.bytesToHex(originalDigests[digestOffset]), Helper
+                .bytesToHex(messageDigest));
     }
 
     @Test
-    public void testAllPlanes()
-    throws IOException, DimensionsOutOfBoundsException
-    {
+    public void testAllPlanes() throws IOException,
+            DimensionsOutOfBoundsException {
         PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
-        
+
         String newMessageDigest;
         String oldMessageDigest;
         int digestOffset;
-        for (int t = 0; t < pixels.getSizeT(); t++)
-        {
-            for (int c = 0; c < pixels.getSizeC(); c++)
-            {
-                for (int z = 0; z < pixels.getSizeZ(); z++)
-                {
+        for (int t = 0; t < pixels.getSizeT(); t++) {
+            for (int c = 0; c < pixels.getSizeC(); c++) {
+                for (int z = 0; z < pixels.getSizeZ(); z++) {
                     digestOffset = getDigestOffset(z, c, t);
                     MappedByteBuffer plane = pixbuf.getPlane(z, c, t);
-                    newMessageDigest = 
-                        Helper.bytesToHex(Helper.calculateMessageDigest(plane));
-                    oldMessageDigest =
-                        Helper.bytesToHex(originalDigests[digestOffset]);
-                    
+                    newMessageDigest = Helper.bytesToHex(Helper
+                            .calculateMessageDigest(plane));
+                    oldMessageDigest = Helper
+                            .bytesToHex(originalDigests[digestOffset]);
+
                     assertEquals(getPlaneCheckErrStr(z, c, t),
-                                 oldMessageDigest, newMessageDigest);
+                            oldMessageDigest, newMessageDigest);
                 }
             }
         }
     }
-    
+
     @Override
-    protected void onTearDown() throws Exception
-    {
+    protected void onTearDown() throws Exception {
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
-        
+
         // Tear down the resources create in this fixture
         File f = new File(path);
         f.delete();
-        
+
         super.onTearDown();
     }
 }

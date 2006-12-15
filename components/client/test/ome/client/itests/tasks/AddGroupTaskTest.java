@@ -22,23 +22,20 @@ import junit.framework.TestCase;
 
 public class AddGroupTaskTest extends AbstractAdminTaskTest {
 
-	@Test
-	public void testSimple() throws Exception {
-		Properties p = new Properties();
-		p.setProperty("name",UUID.randomUUID().toString());
-		p.setProperty("description", "task");
-		p.setProperty("leader", "root");
-		new AddGroupTask(root,p).run();
-	}
-	
-	@Test
-	public void testViaCommandLine() throws Exception {
-		Run.main(join(rootString, 
-				new String[]{
-				"task=admin.AddGroupTask",
-				"description=task",
-				"leader=root",
-				"name="+UUID.randomUUID().toString()}));
-	}
+    @Test
+    public void testSimple() throws Exception {
+        Properties p = new Properties();
+        p.setProperty("name", UUID.randomUUID().toString());
+        p.setProperty("description", "task");
+        p.setProperty("leader", "root");
+        new AddGroupTask(root, p).run();
+    }
+
+    @Test
+    public void testViaCommandLine() throws Exception {
+        Run.main(join(rootString, new String[] { "task=admin.AddGroupTask",
+                "description=task", "leader=root",
+                "name=" + UUID.randomUUID().toString() }));
+    }
 
 }

@@ -11,7 +11,6 @@
 
 package mono;
 
-public interface _TOperationsNC
-{
+public interface _TOperationsNC {
     ome.model.roi.Roi5DRemote getRoi5D();
 }

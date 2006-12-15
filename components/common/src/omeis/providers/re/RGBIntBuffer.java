@@ -7,138 +7,141 @@
 
 package omeis.providers.re;
 
+// Java imports
 
-//Java imports
+// Third-party libraries
 
-//Third-party libraries
+// Application-internal dependencies
 
-//Application-internal dependencies
-
-/** 
- * Holds the data of an <i>RGB</i> image.
- * The image data is stored in three byte arrays, one for each color band.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 1.2 $ $Date: 2005/06/22 17:09:48 $)
- * </small>
+/**
+ * Holds the data of an <i>RGB</i> image. The image data is stored in three
+ * byte arrays, one for each color band.
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.2 $ $Date:
+ *          2005/06/22 17:09:48 $) </small>
  * @since OME2.2
  */
-public class RGBIntBuffer extends RGBBuffer
-{
+public class RGBIntBuffer extends RGBBuffer {
 
     /** The serial number. */
-	private static final long serialVersionUID = 5319594152389817324L;
+    private static final long serialVersionUID = 5319594152389817324L;
 
-	/** The data buffer storing pixel values. */
-	private int[] dataBuf;
-    
-    /** 
-     * Number of pixels on the <i>X1</i>-axis.
-     * This is the <i>X</i>-axis in the case of an <i>XY</i> or <i>XZ</i> plane.
-     * Otherwise it is the <i>Z</i>-axis &#151; <i>ZY</i> plane.
+    /** The data buffer storing pixel values. */
+    private int[] dataBuf;
+
+    /**
+     * Number of pixels on the <i>X1</i>-axis. This is the <i>X</i>-axis in
+     * the case of an <i>XY</i> or <i>XZ</i> plane. Otherwise it is the <i>Z</i>-axis
+     * &#151; <i>ZY</i> plane.
      */
-    private int         sizeX1;
-    
-    /** 
-     * Number of pixels on the X2-axis.
-     * This is the <i>Y</i>-axis in the case of an <i>XY</i> or <i>ZY</i> plane.
-     * Otherwise it is the <i>Z</i>-axis &#151; <i>XZ</i> plane. 
+    private int sizeX1;
+
+    /**
+     * Number of pixels on the X2-axis. This is the <i>Y</i>-axis in the case
+     * of an <i>XY</i> or <i>ZY</i> plane. Otherwise it is the <i>Z</i>-axis
+     * &#151; <i>XZ</i> plane.
      */
-    private int         sizeX2;
-    
-    
+    private int sizeX2;
+
     /**
      * Creates a new 3-band packed integer buffer.
      * 
-     * @param sizeX1 The number of pixels on the <i>X1</i>-axis.
-     *               This is the <i>X</i>-axis in the case of an <i>XY</i>-plane
-     *               or <i>XZ</i>-plane. Otherwise it is the 
-     *               <i>Z</i>-axis &#151; <i>ZY</i>-plane.
-     * @param sizeX2 The number of pixels on the <i>X2</i>-axis.
-     *               This is the <i>Y</i>-axis in the case of an <i>XY</i>-plane
-     *               or <i>ZY</i>-plane. Otherwise it is the <i>Z</i>-axis
-     *               &#151; <i>XZ</i>-plane. 
+     * @param sizeX1
+     *            The number of pixels on the <i>X1</i>-axis. This is the <i>X</i>-axis
+     *            in the case of an <i>XY</i>-plane or <i>XZ</i>-plane.
+     *            Otherwise it is the <i>Z</i>-axis &#151; <i>ZY</i>-plane.
+     * @param sizeX2
+     *            The number of pixels on the <i>X2</i>-axis. This is the <i>Y</i>-axis
+     *            in the case of an <i>XY</i>-plane or <i>ZY</i>-plane.
+     *            Otherwise it is the <i>Z</i>-axis &#151; <i>XZ</i>-plane.
      * @see #bands
      */
-    public RGBIntBuffer(int sizeX1, int sizeX2)
-    {
+    public RGBIntBuffer(int sizeX1, int sizeX2) {
         this.sizeX1 = sizeX1;
         this.sizeX2 = sizeX2;
-        dataBuf = new int[sizeX1*sizeX2];
+        dataBuf = new int[sizeX1 * sizeX2];
     }
-    
+
     /**
      * Sets the Red value for a particular pixel index.
-     * @param index The index in the band array.
-     * @param value The pixel value to set.
+     * 
+     * @param index
+     *            The index in the band array.
+     * @param value
+     *            The pixel value to set.
      */
-    public void setRedValue(int index, int value)
-    {
-    	dataBuf[index] = dataBuf[index] | (value << 16);
+    public void setRedValue(int index, int value) {
+        dataBuf[index] = dataBuf[index] | (value << 16);
     }
-    
+
     /**
      * Sets the Green value for a particular pixel index.
-     * @param index The index in the band array.
-     * @param value The pixel value to set.
+     * 
+     * @param index
+     *            The index in the band array.
+     * @param value
+     *            The pixel value to set.
      */
-    public void setGreenValue(int index, int value)
-    {
-    	dataBuf[index] = dataBuf[index] | (value << 8);
+    public void setGreenValue(int index, int value) {
+        dataBuf[index] = dataBuf[index] | (value << 8);
     }
-    
+
     /**
      * Sets the Blue value for a particular pixel index.
-     * @param index The index in the band array.
-     * @param value The pixel value to set.
+     * 
+     * @param index
+     *            The index in the band array.
+     * @param value
+     *            The pixel value to set.
      */
-    public void setBlueValue(int index, int value)
-    {
-    	dataBuf[index] = dataBuf[index] | value;
+    public void setBlueValue(int index, int value) {
+        dataBuf[index] = dataBuf[index] | value;
     }
-    
+
     /**
      * Retrieves the Red value for a particular pixel index.
-     * @param index The index in the band array.
+     * 
+     * @param index
+     *            The index in the band array.
      * @return The pixel value at the index.
      */
-    public byte getRedValue(int index)
-    {
-    	return (byte) ((dataBuf[index] & 0x00FF0000) >> 16);
+    public byte getRedValue(int index) {
+        return (byte) ((dataBuf[index] & 0x00FF0000) >> 16);
     }
-    
+
     /**
      * Retrieves the Green value for a particular pixel index.
-     * @param index The index in the band array.
+     * 
+     * @param index
+     *            The index in the band array.
      * @return The pixel value at the index.
      */
-    public byte getGreenValue(int index)
-    {
-    	return (byte) ((dataBuf[index] & 0x0000FF00) >> 8);
+    public byte getGreenValue(int index) {
+        return (byte) ((dataBuf[index] & 0x0000FF00) >> 8);
     }
-    
+
     /**
      * Retrieves the Blue value for a particular pixel index.
-     * @param index The index in the band array.
+     * 
+     * @param index
+     *            The index in the band array.
      * @return The pixel value at the index.
      */
-    public byte getBlueValue(int index)
-    {
-    	return (byte) (dataBuf[index] & 0x000000FF);
+    public byte getBlueValue(int index) {
+        return (byte) (dataBuf[index] & 0x000000FF);
     }
-    
+
     /**
      * Retrieves the data buffer that contains the pixel values.
+     * 
      * @return an integer array containing pixel values.
      */
-    public int[] getDataBuffer()
-    {
-    	return dataBuf;
+    public int[] getDataBuffer() {
+        return dataBuf;
     }
 }

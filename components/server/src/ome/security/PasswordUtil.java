@@ -25,29 +25,29 @@ import ome.conditions.InternalException;
  */
 public abstract class PasswordUtil {
 
-	public static String preparePassword(String newPassword) {
-		// This allows setting passwords to "null" - locked account.
-		return newPassword == null ? null
-		// This allows empty passwords to be considered "open-access"
-				: newPassword.trim().length() == 0 ? newPassword
-				// Regular MD5 digest.
-						: passwordDigest(newPassword);
-	}
+    public static String preparePassword(String newPassword) {
+        // This allows setting passwords to "null" - locked account.
+        return newPassword == null ? null
+        // This allows empty passwords to be considered "open-access"
+                : newPassword.trim().length() == 0 ? newPassword
+                // Regular MD5 digest.
+                        : passwordDigest(newPassword);
+    }
 
-	public static String passwordDigest(String clearText) {
-		if (clearText == null) {
-			throw new ApiUsageException("Value for digesting may not be null");
-		}
+    public static String passwordDigest(String clearText) {
+        if (clearText == null) {
+            throw new ApiUsageException("Value for digesting may not be null");
+        }
 
-		// These constants are also defined in app/resources/jboss-login.xml
-		// and this method is called from {@link JBossLoginModule}
-		String hashedText = Util.createPasswordHash("MD5", "base64",
-				"ISO-8859-1", null, clearText, null);
+        // These constants are also defined in app/resources/jboss-login.xml
+        // and this method is called from {@link JBossLoginModule}
+        String hashedText = Util.createPasswordHash("MD5", "base64",
+                "ISO-8859-1", null, clearText, null);
 
-		if (hashedText == null) {
-			throw new InternalException("Failed to obtain digest.");
-		}
-		return hashedText;
-	}
+        if (hashedText == null) {
+            throw new InternalException("Failed to obtain digest.");
+        }
+        return hashedText;
+    }
 
 }

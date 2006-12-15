@@ -7,40 +7,33 @@
 
 package ome.util;
 
-//Java imports
+// Java imports
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-/** 
+/**
  * utility iterator which does nothing as quickly as possible.
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- *              <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-public class EmptyIterator implements Iterator
-{
+public class EmptyIterator implements Iterator {
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return false;
     }
 
-    public Object next()
-    {
+    public Object next() {
         throw new NoSuchElementException();
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 

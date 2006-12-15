@@ -6,57 +6,55 @@
  */
 package ome.server.itests;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 import org.testng.annotations.Test;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.model.core.Image;
 import ome.model.meta.Event;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 
-/** 
+/**
  * 
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-public class ImmutabilityTest extends AbstractManagedContextTest 
-{
+public class ImmutabilityTest extends AbstractManagedContextTest {
 
-	@Test
-	public void testCreationEventWillBeSilentlyUnchanged() throws Exception {
-		
-		loginRoot();
-		
-		Image i = new Image();
-		i.setName("immutable creation");
-		i = iUpdate.saveAndReturnObject(i);
-		
-		Event oldEvent = i.getDetails().getCreationEvent();
-		Event newEvent = iQuery.findByQuery("select e from Event e where id != :id",
-				new Parameters( new Filter().page(0,1) ).addId(oldEvent.getId()));
-		
-		i.getDetails().setCreationEvent(newEvent);
-		
-		// This fails because it gets silently copied to our new instance. See:
-		// https://trac.openmicroscopy.org.uk/omero/ticket/346
-		// i = iUpdate.saveAndReturnObject(i);
-		//assertEquals( i.getDetails().getCreationEvent().getId(), oldEvent.getId());
-		
-		// Saving and reacquiring to be sure.
-		iUpdate.saveObject(i);
-		// unfortunately still not working properly i = iQuery.refresh(i);
-		i = iQuery.get(i.getClass(), i.getId());
-		assertEquals( i.getDetails().getCreationEvent().getId(), oldEvent.getId());
-			
-	}
+    @Test
+    public void testCreationEventWillBeSilentlyUnchanged() throws Exception {
 
-    
+        loginRoot();
+
+        Image i = new Image();
+        i.setName("immutable creation");
+        i = iUpdate.saveAndReturnObject(i);
+
+        Event oldEvent = i.getDetails().getCreationEvent();
+        Event newEvent = iQuery.findByQuery(
+                "select e from Event e where id != :id", new Parameters(
+                        new Filter().page(0, 1)).addId(oldEvent.getId()));
+
+        i.getDetails().setCreationEvent(newEvent);
+
+        // This fails because it gets silently copied to our new instance. See:
+        // https://trac.openmicroscopy.org.uk/omero/ticket/346
+        // i = iUpdate.saveAndReturnObject(i);
+        // assertEquals( i.getDetails().getCreationEvent().getId(),
+        // oldEvent.getId());
+
+        // Saving and reacquiring to be sure.
+        iUpdate.saveObject(i);
+        // unfortunately still not working properly i = iQuery.refresh(i);
+        i = iQuery.get(i.getClass(), i.getId());
+        assertEquals(i.getDetails().getCreationEvent().getId(), oldEvent
+                .getId());
+
+    }
+
 }

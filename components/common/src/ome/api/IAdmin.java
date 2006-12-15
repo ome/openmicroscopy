@@ -25,15 +25,15 @@ import ome.system.EventContext;
 import ome.system.Roles;
 
 /**
- *  Administration interface providing access to admin-only functionality as 
- *  well as JMX-based server access and selected user functions. Most methods 
- *  require membership in privileged {@link ExperimenterGroup groups}.
+ * Administration interface providing access to admin-only functionality as well
+ * as JMX-based server access and selected user functions. Most methods require
+ * membership in privileged {@link ExperimenterGroup groups}.
  * 
- *  Methods which return {@link ome.model.meta.Experimenter} or 
- *  {@link ome.model.meta.ExperimenterGroup} instances fetch and load all 
- *  related instances of {@link ome.model.meta.ExperimenterGroup} or
- *  {@link ome.model.meta.Experimenter}, respectively.
- *  
+ * Methods which return {@link ome.model.meta.Experimenter} or
+ * {@link ome.model.meta.ExperimenterGroup} instances fetch and load all related
+ * instances of {@link ome.model.meta.ExperimenterGroup} or
+ * {@link ome.model.meta.Experimenter}, respectively.
+ * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -41,255 +41,363 @@ import ome.system.Roles;
  *          </small>
  * @since OME3.0
  */
-public interface IAdmin extends ServiceInterface{
-    
+public interface IAdmin extends ServiceInterface {
+
     // ~ Getting users and groups
     // =========================================================================
-    
-    /** fetch an {@link Experimenter} and all related 
-     * {@link ExperimenterGroup groups}. 
-     * @param id id of the Experimenter
-     * @return an Experimenter. Never null.
-     * @throws ome.conditions.ApiUsageException if id does not exist.
-     */
-    Experimenter getExperimenter( @NotNull Long id );
 
-    /** look up an {@link Experimenter} and all related 
-     * {@link ExperimenterGroup groups} by name.
-     * @param omeName Name of the Experimenter 
+    /**
+     * fetch an {@link Experimenter} and all related
+     * {@link ExperimenterGroup groups}.
+     * 
+     * @param id
+     *            id of the Experimenter
      * @return an Experimenter. Never null.
-     * @throws ome.conditions.ApiUsageException if omeName does not exist.
+     * @throws ome.conditions.ApiUsageException
+     *             if id does not exist.
      */
-    Experimenter lookupExperimenter( @NotNull String omeName );
-    
+    Experimenter getExperimenter(@NotNull
+    Long id);
+
+    /**
+     * look up an {@link Experimenter} and all related
+     * {@link ExperimenterGroup groups} by name.
+     * 
+     * @param omeName
+     *            Name of the Experimenter
+     * @return an Experimenter. Never null.
+     * @throws ome.conditions.ApiUsageException
+     *             if omeName does not exist.
+     */
+    Experimenter lookupExperimenter(@NotNull
+    String omeName);
+
     /**
      * Looks up all experimenters that are present.
+     * 
      * @return all Experimenters. Never null.
      */
     List<Experimenter> lookupExperimenters();
 
-    /** fetch an {@link ExperimenterGroup} and all contained
+    /**
+     * fetch an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users}.
-     * @param id id of the ExperimenterGroup 
+     * 
+     * @param id
+     *            id of the ExperimenterGroup
      * @return an ExperimenterGroup. Never null.
-     * @throws ome.conditions.ApiUsageException if id does not exist.
+     * @throws ome.conditions.ApiUsageException
+     *             if id does not exist.
      */
-    ExperimenterGroup getGroup( @NotNull Long id );
-    
-    /** look up an {@link ExperimenterGroup} and all contained 
+    ExperimenterGroup getGroup(@NotNull
+    Long id);
+
+    /**
+     * look up an {@link ExperimenterGroup} and all contained
      * {@link Experimenter users} by name.
-     * @param groupName Name of the ExperimenterGroup 
+     * 
+     * @param groupName
+     *            Name of the ExperimenterGroup
      * @return an ExperimenterGroup. Never null.
-     * @throws ome.conditions.ApiUsageException if groupName does not exist.
+     * @throws ome.conditions.ApiUsageException
+     *             if groupName does not exist.
      */
-    ExperimenterGroup lookupGroup( @NotNull String groupName );
-    
+    ExperimenterGroup lookupGroup(@NotNull
+    String groupName);
+
     /**
      * Looks up all groups that are present.
+     * 
      * @return all Groups. Never null.
      */
     List<ExperimenterGroup> lookupGroups();
-    
-    /** fetch all {@link Experimenter users} contained in this group. The
+
+    /**
+     * fetch all {@link Experimenter users} contained in this group. The
      * returned users will have all fields filled in and all collections
      * unloaded.
      * 
-     * @param groupId id of the ExperimenterGroup
+     * @param groupId
+     *            id of the ExperimenterGroup
      * @return non-null array of all {@link Experimenter users} in this group.
      */
-    Experimenter[] containedExperimenters( @NotNull Long groupId );
-    
-    /** fetch all {@link ExperimenterGroup groups} of which the given user
-     * is a member. The returned groups will have all fields filled in and all
+    Experimenter[] containedExperimenters(@NotNull
+    Long groupId);
+
+    /**
+     * fetch all {@link ExperimenterGroup groups} of which the given user is a
+     * member. The returned groups will have all fields filled in and all
      * collections unloaded.
      * 
-     * @param experimenterId id of the Experimenter. Not null.
-     * @return non-null array of all {@link ExperimenterGroup groups} for
-     *  this user.
+     * @param experimenterId
+     *            id of the Experimenter. Not null.
+     * @return non-null array of all {@link ExperimenterGroup groups} for this
+     *         user.
      */
-    ExperimenterGroup[] containedGroups( @NotNull Long experimenterId );
-    
-    /** retrieve the default {@link ExperimenterGroup group} for the given
-     * user id.
+    ExperimenterGroup[] containedGroups(@NotNull
+    Long experimenterId);
+
+    /**
+     * retrieve the default {@link ExperimenterGroup group} for the given user
+     * id.
      * 
-     * @param experimenterId of the Experimenter. Not null.
-     * @return non-null {@link ExperimenterGroup}. If no default group is found,
-     * 		an exception will be thrown. 
+     * @param experimenterId
+     *            of the Experimenter. Not null.
+     * @return non-null {@link ExperimenterGroup}. If no default group is
+     *         found, an exception will be thrown.
      */
-    ExperimenterGroup getDefaultGroup( @NotNull Long experimenterId );
-    
+    ExperimenterGroup getDefaultGroup(@NotNull
+    Long experimenterId);
+
     // ~ Updating users and groups
     // =========================================================================
-    
+
     /**
      * Updates an experimenter.
-     * @param experimenter the Experimenter to update.
+     * 
+     * @param experimenter
+     *            the Experimenter to update.
      */
-    void updateExperimenter(@NotNull Experimenter experimenter);
-    
+    void updateExperimenter(@NotNull
+    Experimenter experimenter);
+
     /**
      * Updates a group.
-     * @param group the ExperimenterGroup to update.
+     * 
+     * @param group
+     *            the ExperimenterGroup to update.
      */
-    void updateGroup(@NotNull ExperimenterGroup group);
-    
+    void updateGroup(@NotNull
+    ExperimenterGroup group);
+
     // ~ Creating users in groups
     // =========================================================================
-    
-    /** create and return a new user. This user will be created with the default
+
+    /**
+     * create and return a new user. This user will be created with the default
      * group specified.
      * 
-     * @param newUser a new {@link Experimenter} instance 
+     * @param newUser
+     *            a new {@link Experimenter} instance
      * @parm group group name of the default group for this user
      * @return id of the newly created {@link Experimenter}
      */
-    long createUser( @NotNull Experimenter newUser, @NotNull String group );
-    
-    /** create and return a new system user. This user will be created with the 
+    long createUser(@NotNull
+    Experimenter newUser, @NotNull
+    String group);
+
+    /**
+     * create and return a new system user. This user will be created with the
      * "System" (administration) group as default and will also be in the "user"
      * group.
      * 
-     * @param newUser a new {@link Experimenter} instance 
+     * @param newUser
+     *            a new {@link Experimenter} instance
      * @return id of the newly created {@link Experimenter}
      */
-    long createSystemUser( @NotNull Experimenter newSystemUser );
+    long createSystemUser(@NotNull
+    Experimenter newSystemUser);
 
-    /** create and return a new user in the given groups. 
-     * @param experimenter A new {@link Experimenter} instance. Not null.
-     * @param defaultGroup Instance of {@link ExperimenterGroup}. Not null.
-     * @param otherGroups Array of {@link ExperimenterGroup} instances. Can be null.     
-     * @return id of the newly created {@link Experimenter}
-     *  Not null.
+    /**
+     * create and return a new user in the given groups.
+     * 
+     * @param experimenter
+     *            A new {@link Experimenter} instance. Not null.
+     * @param defaultGroup
+     *            Instance of {@link ExperimenterGroup}. Not null.
+     * @param otherGroups
+     *            Array of {@link ExperimenterGroup} instances. Can be null.
+     * @return id of the newly created {@link Experimenter} Not null.
      */
-    long createExperimenter( 
-            @NotNull Experimenter experimenter, 
-            @NotNull ExperimenterGroup defaultGroup,
-            ExperimenterGroup...otherGroups );
-    
-    /** create and return a new group. 
-     * @param newGroup a new {@link ExperimenterGroup} instance. Not null. 
+    long createExperimenter(@NotNull
+    Experimenter experimenter, @NotNull
+    ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);
+
+    /**
+     * create and return a new group.
+     * 
+     * @param newGroup
+     *            a new {@link ExperimenterGroup} instance. Not null.
      * @return id of the newly created {@link ExperimenterGroup}
      */
-    long createGroup( ExperimenterGroup group );
+    long createGroup(ExperimenterGroup group);
 
-    /** adds a user to the given groups. 
-     * @param user A currently managed entity. Not null.
-     * @param groups Groups to which the user will be added. Not null. 
+    /**
+     * adds a user to the given groups.
+     * 
+     * @param user
+     *            A currently managed entity. Not null.
+     * @param groups
+     *            Groups to which the user will be added. Not null.
      */
-    void addGroups( 
-    		@NotNull Experimenter user, 
-    		@NotNull ExperimenterGroup...groups );
-    
-    /** removes a user from the given groups. 
-     * @param user A currently managed entity. Not null.
-     * @param groups Groups from which the user will be removed. Not null. 
+    void addGroups(@NotNull
+    Experimenter user, @NotNull
+    ExperimenterGroup... groups);
+
+    /**
+     * removes a user from the given groups.
+     * 
+     * @param user
+     *            A currently managed entity. Not null.
+     * @param groups
+     *            Groups from which the user will be removed. Not null.
      */
-    void removeGroups( 
-    		@NotNull Experimenter user, 
-    		@NotNull ExperimenterGroup...groups );
-    
-    /** sets the default group for a given user. 
-     * @param user A currently managed {@link Experimenter}. Not null.
-     * @param group The group which should be set as default group for this 
-     *  user. Not null. 
+    void removeGroups(@NotNull
+    Experimenter user, @NotNull
+    ExperimenterGroup... groups);
+
+    /**
+     * sets the default group for a given user.
+     * 
+     * @param user
+     *            A currently managed {@link Experimenter}. Not null.
+     * @param group
+     *            The group which should be set as default group for this user.
+     *            Not null.
      */
-    void setDefaultGroup( 
-    		@NotNull Experimenter user, 
-    		@NotNull ExperimenterGroup group );
-    
-    /** sets the owner of a group to be a given user.
-     * @param group A currently managed {@link ExperimenterGroup}. Not null.
-     * @param owner A currently managed {@link Experimenter}. Not null.
+    void setDefaultGroup(@NotNull
+    Experimenter user, @NotNull
+    ExperimenterGroup group);
+
+    /**
+     * sets the owner of a group to be a given user.
+     * 
+     * @param group
+     *            A currently managed {@link ExperimenterGroup}. Not null.
+     * @param owner
+     *            A currently managed {@link Experimenter}. Not null.
      */
-    void setGroupOwner(
-    		@NotNull ExperimenterGroup group,
-    		@NotNull Experimenter owner);
-    
-    /** removes a user after removing the password information for that user. 
-     * This prevents constraint violations for DB-based login modules. 
-     * @param user Experimenter to be deleted. Not null.
+    void setGroupOwner(@NotNull
+    ExperimenterGroup group, @NotNull
+    Experimenter owner);
+
+    /**
+     * removes a user after removing the password information for that user.
+     * This prevents constraint violations for DB-based login modules.
+     * 
+     * @param user
+     *            Experimenter to be deleted. Not null.
      */
-    void deleteExperimenter( @NotNull Experimenter user );
-    
+    void deleteExperimenter(@NotNull
+    Experimenter user);
+
     // ~ Permissions and Ownership
     // =========================================================================
 
-    /** call 
+    /**
+     * call
      * {@link ome.model.internal.Details#setOwner(Experimenter) details.setOwner()}
-     * on this instance. It is valid for the instance to be 
-     * {@link IObject#unload() unloaded} (or constructed with an 
+     * on this instance. It is valid for the instance to be
+     * {@link IObject#unload() unloaded} (or constructed with an
      * unloading-constructor.)
-     * @param iObject An entity or an unloaded reference to an entity. Not null.
-     * @param omeName The user name who should gain ownership of this entity. Not null.
+     * 
+     * @param iObject
+     *            An entity or an unloaded reference to an entity. Not null.
+     * @param omeName
+     *            The user name who should gain ownership of this entity. Not
+     *            null.
      */
-    void changeOwner( @NotNull IObject iObject, @NotNull String omeName );
+    void changeOwner(@NotNull
+    IObject iObject, @NotNull
+    String omeName);
 
-    /** call 
+    /**
+     * call
      * {@link ome.model.internal.Details#setGroup(ExperimenterGroup) details.setGroup()}
-     * on this instance. It is valid for the instance to be 
-     * {@link IObject#unload() unloaded} (or constructed with an 
+     * on this instance. It is valid for the instance to be
+     * {@link IObject#unload() unloaded} (or constructed with an
      * unloading-constructor.)
-     * @param iObject An entity or an unloaded reference to an entity. Not null.
-     * @param groupName The group name who should gain ownership of this entity. Not null.
+     * 
+     * @param iObject
+     *            An entity or an unloaded reference to an entity. Not null.
+     * @param groupName
+     *            The group name who should gain ownership of this entity. Not
+     *            null.
      */
-    void changeGroup( @NotNull IObject iObject, @NotNull String groupName );
+    void changeGroup(@NotNull
+    IObject iObject, @NotNull
+    String groupName);
 
-    /** call 
+    /**
+     * call
      * {@link ome.model.internal.Details#setPermissions(Permissions) defaults.setPermissions()}
-     * on this instance. It is valid for the instance to be 
-     * {@link IObject#unload() unloaded} (or constructed with an 
+     * on this instance. It is valid for the instance to be
+     * {@link IObject#unload() unloaded} (or constructed with an
      * unloading-constructor.)
-     * @param iObject An entity or an unloaded reference to an entity. Not null.
-     * @param perms The permissions value for this entity. Not null.
+     * 
+     * @param iObject
+     *            An entity or an unloaded reference to an entity. Not null.
+     * @param perms
+     *            The permissions value for this entity. Not null.
      */
-    void changePermissions( @NotNull IObject iObject, @NotNull Permissions perms );
-    
-    /** checks an entity for any in-bound references and if none are present,
+    void changePermissions(@NotNull
+    IObject iObject, @NotNull
+    Permissions perms);
+
+    /**
+     * checks an entity for any in-bound references and if none are present,
      * will remove the {@link Flag#LOCKED} status. This method is backend-
-     * intensive and should not be used in a tight loop. Returns an array with 
+     * intensive and should not be used in a tight loop. Returns an array with
      * length equal to the number of instances passed in. A true value means
      * that the object is now unlocked.
-     * @param iObjects a variable array argument of objects to be unlocked
-     * @return an array of equal length to iObjects where a true value 
-     * 		asserts that the instance is now unlocked in the database. 
+     * 
+     * @param iObjects
+     *            a variable array argument of objects to be unlocked
+     * @return an array of equal length to iObjects where a true value asserts
+     *         that the instance is now unlocked in the database.
      */
-    boolean[] unlock( IObject...iObjects );
-    
+    boolean[] unlock(IObject... iObjects);
+
     // ~ Authentication and Authorization
     // =========================================================================
-    
-    /** change the password for the current user
-     * @param newPassword Not-null. 
-     * Must pass validation in the security sub-system.
-     * @throws ome.conditions.SecurityViolation if the new password is too weak. 
+
+    /**
+     * change the password for the current user
+     * 
+     * @param newPassword
+     *            Not-null. Must pass validation in the security sub-system.
+     * @throws ome.conditions.SecurityViolation
+     *             if the new password is too weak.
      */
-    void changePassword( @Hidden String newPassword );
-    
-    /** change the password for the a given user.
-     * @param newPassword Not-null. 
-     * Might must pass validation in the security sub-system.
-     * @throws ome.conditions.SecurityViolation if the new password is too weak. 
+    void changePassword(@Hidden
+    String newPassword);
+
+    /**
+     * change the password for the a given user.
+     * 
+     * @param newPassword
+     *            Not-null. Might must pass validation in the security
+     *            sub-system.
+     * @throws ome.conditions.SecurityViolation
+     *             if the new password is too weak.
      */
-    void changeUserPassword( @NotNull String omeName, @Hidden String newPassword );
-    
-    /** uses JMX to refresh the login cache <em>if supported</em>. Some backends
-     * may not provide refreshing. This may be called internally during some
-     * other administrative tasks. The exact implementation of this depends on
-     * the application server and the authentication/authorization backend.
+    void changeUserPassword(@NotNull
+    String omeName, @Hidden
+    String newPassword);
+
+    /**
+     * uses JMX to refresh the login cache <em>if supported</em>. Some
+     * backends may not provide refreshing. This may be called internally during
+     * some other administrative tasks. The exact implementation of this depends
+     * on the application server and the authentication/authorization backend.
      */
     void synchronizeLoginCache();
 
     // ~ Security context
-	// =========================================================================
+    // =========================================================================
 
-    /** returns the active {@link Roles} in use by the server. 
+    /**
+     * returns the active {@link Roles} in use by the server.
+     * 
      * @return Non-null, immutable {@link Roles} instance.
      */
     Roles getSecurityRoles();
-    
-    /** returns an implementation of {@link EventContext} loaded with 
-     * the security for the current user and thread. If called remotely, 
-     * not all values of {@link EventContext} will be sensible.
+
+    /**
+     * returns an implementation of {@link EventContext} loaded with the
+     * security for the current user and thread. If called remotely, not all
+     * values of {@link EventContext} will be sensible.
+     * 
      * @return Non-null, immutable {@link EventContext} instance
      */
     EventContext getEventContext();

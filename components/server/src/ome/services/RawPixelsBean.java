@@ -50,8 +50,6 @@ import ome.system.SimpleEventContext;
 
 import omeis.providers.re.RenderingEngine;
 
-
-
 /**
  * @author <br>
  *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -61,420 +59,343 @@ import omeis.providers.re.RenderingEngine;
  * @since OMERO3
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly=false)
+@Transactional(readOnly = false)
 @Stateful
 @Remote(RawPixelsStore.class)
-@RemoteBinding(jndiBinding="omero/remote/ome.api.RawPixelsStore")
+@RemoteBinding(jndiBinding = "omero/remote/ome.api.RawPixelsStore")
 @Local(RenderingEngine.class)
-@LocalBinding (jndiBinding="omero/local/ome.api.RawPixelsStore")
+@LocalBinding(jndiBinding = "omero/local/ome.api.RawPixelsStore")
 @SecurityDomain("OmeroSecurity")
-public class RawPixelsBean extends AbstractBean 
-    implements RawPixelsStore, Serializable
-{
+public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
+        Serializable {
 
     private static final long serialVersionUID = -6640632220587930165L;
 
-    private Long id; 
-    
+    private Long id;
+
     private transient Pixels pixelsInstance;
-    
+
     private transient PixelBuffer buffer;
-    
+
     private transient PixelsService dataService;
-    
+
     private transient IPixels metadataService;
-    
+
     @Override
     protected Class<? extends ServiceInterface> getServiceInterface() {
-    	return RawPixelsStore.class;
+        return RawPixelsStore.class;
     }
-    
-    public final void setPixelsMetadata(IPixels metaService)
-    {
-    	throwIfAlreadySet(this.metadataService, metaService);
+
+    public final void setPixelsMetadata(IPixels metaService) {
+        throwIfAlreadySet(this.metadataService, metaService);
         metadataService = metaService;
     }
-    
-    public final void setPixelsData(PixelsService dataService)
-    {
-    	throwIfAlreadySet(this.dataService, dataService);
+
+    public final void setPixelsData(PixelsService dataService) {
+        throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
     }
-    
+
     // ~ Lifecycle methods
-	// =========================================================================
-    
+    // =========================================================================
+
     @PostConstruct
     @PostActivate
-    public void create()
-    {  
+    public void create() {
         super.create();
-        if ( id != null )
-        {
+        if (id != null) {
             long reset = id.longValue();
             id = null;
-            setPixelsId( reset );
+            setPixelsId(reset);
         }
     }
 
     @PrePassivate
     @PreDestroy
-    public void destroy()
-    {
+    public void destroy() {
         super.destroy();
         // id is the only thing passivated.
         dataService = null;
         pixelsInstance = null;
         buffer = null;
     }
-    
+
     @Remove
-    @Transactional(readOnly=true)
-    public void close()
-    {
-    	// don't need to do anything.
+    @Transactional(readOnly = true)
+    public void close() {
+        // don't need to do anything.
     }
-    
+
     @RolesAllowed("user")
-    public void setPixelsId( long pixelsId )
-    {
-        if ( id == null || id.longValue() != pixelsId )
-        {
-            id = new Long( pixelsId );
+    public void setPixelsId(long pixelsId) {
+        if (id == null || id.longValue() != pixelsId) {
+            id = new Long(pixelsId);
             pixelsInstance = null;
             buffer = null;
 
-            pixelsInstance = metadataService.retrievePixDescription( id );
-        	buffer = dataService.getPixelBuffer( pixelsInstance );
-		}
+            pixelsInstance = metadataService.retrievePixDescription(id);
+            buffer = dataService.getPixelBuffer(pixelsInstance);
+        }
     }
 
     @RolesAllowed("user")
     public EventContext getCurrentEventContext() {
-    	return new SimpleEventContext( getSecuritySystem().getEventContext() );
+        return new SimpleEventContext(getSecuritySystem().getEventContext());
     };
-    
-    private void errorIfNotLoaded()
-    {
-        if ( buffer == null )
-        throw new ApiUsageException(
-                "This RawPixelsStore has not been properly initialized.\n" +
-                "Please set the pixels id before executing any other methods.\n");
+
+    private void errorIfNotLoaded() {
+        if (buffer == null)
+            throw new ApiUsageException(
+                    "This RawPixelsStore has not been properly initialized.\n"
+                            + "Please set the pixels id before executing any other methods.\n");
     }
-    
+
     // ~ Delegation
     // =========================================================================
 
     @RolesAllowed("user")
-    public byte[] calculateMessageDigest()
-    {
+    public byte[] calculateMessageDigest() {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             return buffer.calculateMessageDigest();
-        }
-        catch (Exception e)
-        {
-        	handleException(e);
-        }
-		return null;
-    }
-
-    @RolesAllowed("user")
-    public byte[] getPlane(Integer arg0, Integer arg1, Integer arg2)
-    {
-        errorIfNotLoaded();
-        
-        MappedByteBuffer plane = null;
-		try
-		{
-			plane = buffer.getPlane(arg0, arg1, arg2);
-		}
-		catch (Exception e)
-		{
-			handleException(e);
-		}
-
-		return bufferAsByteArrayWithExceptionIfNull(plane);
-    }
-
-    @RolesAllowed("user")
-    public Long getPlaneOffset(Integer arg0, Integer arg1, Integer arg2)
-    {
-        errorIfNotLoaded();
-        
-        try
-        {
-            return buffer.getPlaneOffset(arg0, arg1, arg2);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
         return null;
     }
 
     @RolesAllowed("user")
-    public Integer getPlaneSize()
-    {
+    public byte[] getPlane(Integer arg0, Integer arg1, Integer arg2) {
         errorIfNotLoaded();
-        
+
+        MappedByteBuffer plane = null;
+        try {
+            plane = buffer.getPlane(arg0, arg1, arg2);
+        } catch (Exception e) {
+            handleException(e);
+        }
+
+        return bufferAsByteArrayWithExceptionIfNull(plane);
+    }
+
+    @RolesAllowed("user")
+    public Long getPlaneOffset(Integer arg0, Integer arg1, Integer arg2) {
+        errorIfNotLoaded();
+
+        try {
+            return buffer.getPlaneOffset(arg0, arg1, arg2);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return null;
+    }
+
+    @RolesAllowed("user")
+    public Integer getPlaneSize() {
+        errorIfNotLoaded();
+
         return buffer.getPlaneSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getRegion(Integer arg0, Long arg1)
-    {
+    public byte[] getRegion(Integer arg0, Long arg1) {
         errorIfNotLoaded();
-        
+
         MappedByteBuffer region = null;
-        try
-        {
+        try {
             region = buffer.getRegion(arg0, arg1);
-        } catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
-        return bufferAsByteArrayWithExceptionIfNull(region); 
+        return bufferAsByteArrayWithExceptionIfNull(region);
     }
 
     @RolesAllowed("user")
-    public byte[] getRow(Integer arg0, Integer arg1, Integer arg2, Integer arg3)
-    {
+    public byte[] getRow(Integer arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
-        
+
         MappedByteBuffer row = null;
-        try
-        {
+        try {
             row = buffer.getRow(arg0, arg1, arg2, arg3);
+        } catch (Exception e) {
+            handleException(e);
         }
-        catch (Exception e)
-        {
-			handleException(e);
-        }
-        return bufferAsByteArrayWithExceptionIfNull( row ); 
-        
+        return bufferAsByteArrayWithExceptionIfNull(row);
+
     }
 
     @RolesAllowed("user")
-    public Long getRowOffset(Integer arg0, Integer arg1, Integer arg2, Integer arg3)
-    {
+    public Long getRowOffset(Integer arg0, Integer arg1, Integer arg2,
+            Integer arg3) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             return buffer.getRowOffset(arg0, arg1, arg2, arg3);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
         return null;
     }
 
     @RolesAllowed("user")
-    public Integer getRowSize()
-    {
+    public Integer getRowSize() {
         errorIfNotLoaded();
-        
+
         return buffer.getRowSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getStack(Integer arg0, Integer arg1)
-    {
+    public byte[] getStack(Integer arg0, Integer arg1) {
         errorIfNotLoaded();
-        
+
         MappedByteBuffer stack = null;
-        try
-        {
+        try {
             stack = buffer.getStack(arg0, arg1);
+        } catch (Exception e) {
+            handleException(e);
         }
-        catch (Exception e)
-        {
-			handleException(e);
-        }
-        return bufferAsByteArrayWithExceptionIfNull( stack );
+        return bufferAsByteArrayWithExceptionIfNull(stack);
     }
 
     @RolesAllowed("user")
-    public Long getStackOffset(Integer arg0, Integer arg1)
-    {
+    public Long getStackOffset(Integer arg0, Integer arg1) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             return buffer.getStackOffset(arg0, arg1);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
         return null;
     }
 
     @RolesAllowed("user")
-    public Integer getStackSize()
-    {
+    public Integer getStackSize() {
         errorIfNotLoaded();
-        
+
         return buffer.getStackSize();
     }
 
     @RolesAllowed("user")
-    public byte[] getTimepoint(Integer arg0)
-    {
+    public byte[] getTimepoint(Integer arg0) {
         errorIfNotLoaded();
-        
+
         MappedByteBuffer timepoint = null;
-        try
-        {
+        try {
             timepoint = buffer.getTimepoint(arg0);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
         return bufferAsByteArrayWithExceptionIfNull(timepoint);
     }
 
     @RolesAllowed("user")
-    public Long getTimepointOffset(Integer arg0)
-    {
+    public Long getTimepointOffset(Integer arg0) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             return buffer.getTimepointOffset(arg0);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
         return null;
     }
 
     @RolesAllowed("user")
-    public Integer getTimepointSize()
-    {
+    public Integer getTimepointSize() {
         errorIfNotLoaded();
-        
+
         return buffer.getTimepointSize();
     }
 
     @RolesAllowed("user")
-    public Integer getTotalSize()
-    {
+    public Integer getTotalSize() {
         errorIfNotLoaded();
-        
+
         return buffer.getTotalSize();
     }
 
     @RolesAllowed("user")
-    public void setPlane(byte[] arg0, Integer arg1, Integer arg2, Integer arg3)
-    {
+    public void setPlane(byte[] arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             buffer.setPlane(arg0, arg1, arg2, arg3);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
     @RolesAllowed("user")
-    public void setRegion(Integer arg0, Long arg1, byte[] arg2)
-    {
+    public void setRegion(Integer arg0, Long arg1, byte[] arg2) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             buffer.setRegion(arg0, arg1, arg2);
-        }
-        catch (Exception e)
-        {
-			handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
     @RolesAllowed("user")
-    public void setRow(byte[] arg0, Integer arg1, Integer arg2, Integer arg3, Integer arg4)
-    {
+    public void setRow(byte[] arg0, Integer arg1, Integer arg2, Integer arg3,
+            Integer arg4) {
         errorIfNotLoaded();
-        
-        try
-        {
-        	ByteBuffer buf = ByteBuffer.wrap(arg0);
-        	buffer.setRow(buf, arg1, arg2, arg3, arg4);
-        }
-        catch (Exception e)
-        {
-        	handleException(e);
+
+        try {
+            ByteBuffer buf = ByteBuffer.wrap(arg0);
+            buffer.setRow(buf, arg1, arg2, arg3, arg4);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
     @RolesAllowed("user")
-    public void setStack(byte[] arg0, Integer arg1, Integer arg2, Integer arg3)
-    {
+    public void setStack(byte[] arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             buffer.setStack(arg0, arg1, arg2, arg3);
-        }
-        catch (Exception e)
-        {
-        	handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
 
     @RolesAllowed("user")
-    public void setTimepoint(byte[] arg0, Integer arg1)
-    {
+    public void setTimepoint(byte[] arg0, Integer arg1) {
         errorIfNotLoaded();
-        
-        try
-        {
+
+        try {
             buffer.setTimepoint(arg0, arg1);
-        }
-        catch (Exception e)
-        {
-        	handleException(e);
+        } catch (Exception e) {
+            handleException(e);
         }
     }
-    
+
     // ~ Helpers
     // =========================================================================
-    
-    private byte[] bufferAsByteArrayWithExceptionIfNull( MappedByteBuffer buffer )
-    {
-		byte[] b = new byte[buffer.capacity()];
-		buffer.get(b, 0, buffer.capacity());
-		return b;
-    }
-    
-    private void handleException(Exception e)
-    {
-		e.printStackTrace();
-		
-    	if (e instanceof IOException)
-		{
-			throw new ResourceError(e.getMessage());
-		}
-    	if (e instanceof DimensionsOutOfBoundsException)
-		{
-			throw new ApiUsageException(e.getMessage());
-		}
-    	if (e instanceof BufferOverflowException)
-    	{
-    		throw new ResourceError(e.getMessage());
-    	}
 
-    	// Fallthrough
-    	throw new RuntimeException(e);
+    private byte[] bufferAsByteArrayWithExceptionIfNull(MappedByteBuffer buffer) {
+        byte[] b = new byte[buffer.capacity()];
+        buffer.get(b, 0, buffer.capacity());
+        return b;
+    }
+
+    private void handleException(Exception e) {
+        e.printStackTrace();
+
+        if (e instanceof IOException) {
+            throw new ResourceError(e.getMessage());
+        }
+        if (e instanceof DimensionsOutOfBoundsException) {
+            throw new ApiUsageException(e.getMessage());
+        }
+        if (e instanceof BufferOverflowException) {
+            throw new ResourceError(e.getMessage());
+        }
+
+        // Fallthrough
+        throw new RuntimeException(e);
     }
 }

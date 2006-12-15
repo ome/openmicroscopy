@@ -18,82 +18,75 @@ import ome.services.query.StringQuerySource;
 
 import junit.framework.TestCase;
 
-public class QueryFactoryTest extends TestCase
-{
+public class QueryFactoryTest extends TestCase {
 
     Query q;
+
     QueryFactory qf;
+
     QuerySource nullQS, stringQS, classQS;
 
     @Override
     @Configuration(beforeTestMethod = true)
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         nullQS = new NullQuerySource();
         stringQS = new StringQuerySource();
         classQS = new ClassQuerySource();
-        /*HibernateNamedQuerySource hnqs; // needs hibernateTemplate
-        DatabaseQuerySource dqs; // needs jdbcTemplate or IQuery
-        VelocityQuerySource vqs; // needs template path and macro path
-        */
-        
-    }    
+        /*
+         * HibernateNamedQuerySource hnqs; // needs hibernateTemplate
+         * DatabaseQuerySource dqs; // needs jdbcTemplate or IQuery
+         * VelocityQuerySource vqs; // needs template path and macro path
+         */
+
+    }
 
     @Test
-    @ExpectedExceptions( ApiUsageException.class )
-    public void testQueryFactoryWithNullThrowsException() throws Exception
-    {
+    @ExpectedExceptions(ApiUsageException.class)
+    public void testQueryFactoryWithNullThrowsException() throws Exception {
         qf = new QueryFactory();
     }
-    
+
     @Test
-    @ExpectedExceptions( ApiUsageException.class )
-    public void testQueryFactoryWithEmptySourcesThrowsOnLookup() throws Exception
-    {
-        qf = new QueryFactory(new QuerySource[]{});
+    @ExpectedExceptions(ApiUsageException.class)
+    public void testQueryFactoryWithEmptySourcesThrowsOnLookup()
+            throws Exception {
+        qf = new QueryFactory(new QuerySource[] {});
     }
-    
+
     @Test
     public void testQueryFactoryWithoutStringQuerySourceThrowsUnfoundExceptionOnUnkownQuery()
-            throws Exception
-    {
+            throws Exception {
         qf = new QueryFactory(nullQS);
-        try
-        {
+        try {
             qf.lookup("UNKNOWN QUERY ID", null);
             fail("Should throw a query exception");
-        } catch (QueryException e)
-        {
+        } catch (QueryException e) {
             // Good.
         }
     }
 
     @Test
-    public void testQueryFactoryWithStringQuerySourceNeverThrowsUnfoundException() throws Exception
-    {
+    public void testQueryFactoryWithStringQuerySourceNeverThrowsUnfoundException()
+            throws Exception {
         qf = new QueryFactory(stringQS);
-        q = qf.lookup("UNKNOWN QUERY ID BUT STILL WORKS",null);
-        assertNotNull("We should have a string query",q);
-    }
-    
-    @Test
-    public void testQFWithClassQuerySource() throws Exception
-    {
-        qf = new QueryFactory(classQS);
-        q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
-                new Parameters()
-                    .addClass(Project.class)
-                    .addIds(Arrays.asList(0L))
-                    .addString(Parameters.OWNER_ID,null)
-                    .addOptions(null));
-        assertNotNull("We should have a Pojos Query",q);
+        q = qf.lookup("UNKNOWN QUERY ID BUT STILL WORKS", null);
+        assertNotNull("We should have a string query", q);
     }
 
     @Test
-    @ExpectedExceptions( ApiUsageException.class )
-    public void test_StringSourceDoesntTakeNull() throws Exception
-    {
-        q = stringQS.lookup(null,null);
+    public void testQFWithClassQuerySource() throws Exception {
+        qf = new QueryFactory(classQS);
+        q = qf.lookup(PojosLoadHierarchyQueryDefinition.class.getName(),
+                new Parameters().addClass(Project.class).addIds(
+                        Arrays.asList(0L)).addString(Parameters.OWNER_ID, null)
+                        .addOptions(null));
+        assertNotNull("We should have a Pojos Query", q);
     }
-    
+
+    @Test
+    @ExpectedExceptions(ApiUsageException.class)
+    public void test_StringSourceDoesntTakeNull() throws Exception {
+        q = stringQS.lookup(null, null);
+    }
+
 }

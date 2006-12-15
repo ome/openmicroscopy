@@ -22,14 +22,16 @@ import org.drools.spring.metadata.annotation.java.Rule;
 
 @Rule
 public class AllObjects {
-	
-	    @Condition
-	    public boolean objectAsserted(@Fact("object") Object obj) {
-	        return true;
-	    }
-	    
-	    @Consequence
-	    public void consequence(@Fact("object") Object obj, KnowledgeHelper kh) {
-	    	System.out.println("here i am"+obj);//TODO walk the graph!
-	    }
-	}
+
+    @Condition
+    public boolean objectAsserted(@Fact("object")
+    Object obj) {
+        return true;
+    }
+
+    @Consequence
+    public void consequence(@Fact("object")
+    Object obj, KnowledgeHelper kh) {
+        System.out.println("here i am" + obj);// TODO walk the graph!
+    }
+}

@@ -7,20 +7,18 @@
 
 package ome.security;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 
-
-/** 
- * action for passing to {@link SecuritySystem#runAsAdmin(AdminAction)}. All 
- * external input should be <em>carefully</em> checked or even better copied 
- * before being passed to this method. A common idiom would be:
- * <code>
+/**
+ * action for passing to {@link SecuritySystem#runAsAdmin(AdminAction)}. All
+ * external input should be <em>carefully</em> checked or even better copied
+ * before being passed to this method. A common idiom would be: <code>
  *   public void someApiMethod(IObject target, String someValue)
  *   {
  *         	AdminAction action = new AdminAction(){
@@ -33,18 +31,19 @@ import ome.annotations.RevisionNumber;
  *   }
  * </code>
  * 
- * @author  Josh Moore, josh.moore at gmx.de
+ * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see     SecuritySystem#runAsAdmin(AdminAction)
- * @since   3.0-M3
+ * @see SecuritySystem#runAsAdmin(AdminAction)
+ * @since 3.0-M3
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public interface AdminAction
-{	
-	/** executes with special privilegs within the {@link SecuritySystem}. 
-	 * @see SecuritySystem#runAsAdmin(AdminAction)
-	 */
-	void runAsAdmin( );
+public interface AdminAction {
+    /**
+     * executes with special privilegs within the {@link SecuritySystem}.
+     * 
+     * @see SecuritySystem#runAsAdmin(AdminAction)
+     */
+    void runAsAdmin();
 
 }

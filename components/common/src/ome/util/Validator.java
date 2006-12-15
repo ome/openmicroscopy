@@ -31,18 +31,15 @@ import ome.model.display.Color;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-public abstract class Validator
-{
+public abstract class Validator {
 
     protected static Log log = LogFactory.getLog(Validator.class);
 
-    public static Validation validate(IObject obj)
-    {
+    public static Validation validate(IObject obj) {
         return Validation.VALID();
     }
 
-    public static Validation validate(Channel channel)
-    {
+    public static Validation validate(Channel channel) {
         Validation v = Validation.VALID();
 
         /**
@@ -57,8 +54,7 @@ public abstract class Validator
         // null
         // Safe?
         if (piType.equals("RGB") || piType.equals("ARGB")
-                || piType.equals("CMYK") || piType.equals("HSV"))
-        {
+                || piType.equals("CMYK") || piType.equals("HSV")) {
             if (color == null)
                 v
                         .invalidate("Channel.color cannot be null if PiType == {RGB|ARGB|CMYK|HSV}");
@@ -67,28 +63,24 @@ public abstract class Validator
         return v;
     }
 
-    public static Validation validate(ImagingEnvironment imageEnvironment)
-    {
+    public static Validation validate(ImagingEnvironment imageEnvironment) {
         Validation v = Validation.VALID();
 
         Float co2 = imageEnvironment.getCo2percent();
-        if (null != co2 && (co2.floatValue() < 0 || co2.floatValue() > 1))
-        {
+        if (null != co2 && (co2.floatValue() < 0 || co2.floatValue() > 1)) {
             v.invalidate("ImageEnvironment.co2percent must be between 0 and 1");
         }
 
         Float humidity = imageEnvironment.getHumidity();
         if (null != humidity
-                && (humidity.floatValue() < 0 || humidity.floatValue() > 1))
-        {
+                && (humidity.floatValue() < 0 || humidity.floatValue() > 1)) {
             v.invalidate("ImageEnvironment.humidity must be between 0 and 1");
         }
 
         return v;
     }
 
-    public static Validation valid(Pixels pixels)
-    {
+    public static Validation valid(Pixels pixels) {
         Validation v = Validation.VALID();
 
         /** careful; collections! */

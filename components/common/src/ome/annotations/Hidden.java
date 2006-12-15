@@ -11,28 +11,25 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-//Java imports
+// Java imports
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
-
-/** 
+/**
  * annotation which specifies that a method parameter (e.g. a password) must be
  * hidden from logging output.
  * 
- * @author  Josh Moore, josh.moore at gmx.de
+ * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @since   3.0-M3
+ * @since 3.0-M3
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/209">ticket:209</a>
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Hidden
-{
-	// no fields
+public @interface Hidden {
+    // no fields
 }
-

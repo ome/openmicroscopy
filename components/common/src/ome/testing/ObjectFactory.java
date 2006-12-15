@@ -25,28 +25,25 @@ import ome.model.enums.RenderingModel;
 import ome.model.internal.Details;
 import ome.model.stats.StatsInfo;
 
-
-/** these method serve as a both client and test data store.
- * An object that has no id is "new"; an object with an id is detached 
- * and can represent something serialized from IQuery.
+/**
+ * these method serve as a both client and test data store. An object that has
+ * no id is "new"; an object with an id is detached and can represent something
+ * serialized from IQuery.
  * 
- * NOTE: this is a bit dangerous, causing model builds to fail sometimes.
- * where else could it live?
+ * NOTE: this is a bit dangerous, causing model builds to fail sometimes. where
+ * else could it live?
  */
-public class ObjectFactory
-{
-	public static Thumbnail createThumbnails(Pixels p)
-	{
-		Thumbnail t = new Thumbnail();
-		t.setMimeType("txt");
-		t.setSizeX(1);
-		t.setSizeY(1);
-		p.addThumbnail(t);
-		return t;
-	}
-	
-    public static Pixels createPixelGraph(Pixels example)
-    {
+public class ObjectFactory {
+    public static Thumbnail createThumbnails(Pixels p) {
+        Thumbnail t = new Thumbnail();
+        t.setMimeType("txt");
+        t.setSizeX(1);
+        t.setSizeY(1);
+        p.addThumbnail(t);
+        return t;
+    }
+
+    public static Pixels createPixelGraph(Pixels example) {
 
         Pixels p = new Pixels();
         AcquisitionContext ac = new AcquisitionContext();
@@ -60,12 +57,11 @@ public class ObjectFactory
         LogicalChannel lc = new LogicalChannel();
         StatsInfo si = new StatsInfo();
         PlaneInfo pl = new PlaneInfo();
-        
-        if (example != null)
-        {
+
+        if (example != null) {
             p.setId(example.getId());
             p.setVersion(example.getVersion());
-            
+
             // everything else unloaded.
             ac.setId(example.getAcquisitionContext().getId());
             ac.unload();
@@ -77,30 +73,29 @@ public class ObjectFactory
             pd.unload();
             i.setId(example.getImage().getId());
             i.unload();
-            c.setId(((Channel)example.getChannels().get(0)).getId());
+            c.setId(((Channel) example.getChannels().get(0)).getId());
             c.unload();
             // Not needed but useful
-            p.addPlaneInfo((PlaneInfo)example.iteratePlaneInfo().next());
-            ((PlaneInfo)p.iteratePlaneInfo().next()).unload();
+            p.addPlaneInfo((PlaneInfo) example.iteratePlaneInfo().next());
+            ((PlaneInfo) p.iteratePlaneInfo().next()).unload();
         }
-        
-        else
-        {
-        
+
+        else {
+
             mode.setValue("Wide-field");
-            pi.setValue("RGB");                    
+            pi.setValue("RGB");
             ac.setPhotometricInterpretation(pi);
             ac.setMode(mode);
-        
+
             pt.setValue("int8");
-     
+
             dO.setValue("XYZTC");
-            
+
             pd.setSizeX(new Float(1.0));
             pd.setSizeY(new Float(1.0));
             pd.setSizeZ(new Float(1.0));
             c.setPixels(p);
-        
+
             // Not required but useful
             si.setGlobalMax(new Double(0.0));
             si.setGlobalMin(new Double(0.0));
@@ -112,7 +107,7 @@ public class ObjectFactory
             pl.setTimestamp(new Float(0.0));
             p.addPlaneInfo(pl);
             i.setName("test");
-        
+
         }
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
@@ -125,7 +120,7 @@ public class ObjectFactory
         p.setDimensionOrder(dO);
         p.setPixelsDimensions(pd);
         p.setImage(i);
-        
+
         List channels = new ArrayList();
         channels.add(c);
         p.setChannels(channels);
@@ -136,60 +131,57 @@ public class ObjectFactory
 
         return p;
     }
-    
-    public static ChannelBinding createChannelBinding()
-    {
+
+    public static ChannelBinding createChannelBinding() {
         // Prereqs for binding
         Color color = new Color();
-        color.setAlpha( new Integer(1) );
-        color.setBlue( new Integer(1) );
-        color.setGreen( new Integer(1) );
-        color.setRed( new Integer(1) );
-        
+        color.setAlpha(new Integer(1));
+        color.setBlue(new Integer(1));
+        color.setGreen(new Integer(1));
+        color.setRed(new Integer(1));
+
         Family family = new Family();
-        family.setValue( "linear" );
-        
+        family.setValue("linear");
+
         ChannelBinding binding = new ChannelBinding();
-        binding.setActive( Boolean.FALSE );
-        binding.setCoefficient( new Double(1) );
-        binding.setColor( color );
-        binding.setFamily( family );
-        binding.setInputEnd( new Float(1.0) );
-        binding.setInputStart( new Float(1.0) );
-        binding.setNoiseReduction( Boolean.FALSE );
-        
+        binding.setActive(Boolean.FALSE);
+        binding.setCoefficient(new Double(1));
+        binding.setColor(color);
+        binding.setFamily(family);
+        binding.setInputEnd(new Float(1.0));
+        binding.setInputStart(new Float(1.0));
+        binding.setNoiseReduction(Boolean.FALSE);
+
         return binding;
     }
-    
-    public static RenderingDef createRenderingDef()
-    {
+
+    public static RenderingDef createRenderingDef() {
         // Prereqs for RenderingDef
         RenderingModel model = new RenderingModel();
-        model.setValue( "rgb" );
-        
+        model.setValue("rgb");
+
         QuantumDef qdef = new QuantumDef();
-        qdef.setBitResolution( new Integer(1) );
-        qdef.setCdEnd( new Integer(1) );
-        qdef.setCdStart( new Integer(1) );
-        
+        qdef.setBitResolution(new Integer(1));
+        qdef.setCdEnd(new Integer(1));
+        qdef.setCdStart(new Integer(1));
+
         RenderingDef def = new RenderingDef();
-        def.setDefaultT( new Integer(1) );
-        def.setDefaultZ( new Integer(1) );
-        def.setModel( model );
-        def.setPixels( ObjectFactory.createPixelGraph( null ) );
-        def.setQuantization( qdef );
-        
+        def.setDefaultT(new Integer(1));
+        def.setDefaultZ(new Integer(1));
+        def.setModel(model);
+        def.setPixels(ObjectFactory.createPixelGraph(null));
+        def.setQuantization(qdef);
+
         return def;
     }
-    
-    public static PlaneSlicingContext createPlaneSlicingContext()
-    {
+
+    public static PlaneSlicingContext createPlaneSlicingContext() {
         PlaneSlicingContext enhancement = new PlaneSlicingContext();
-        enhancement.setConstant( Boolean.FALSE );
-        enhancement.setLowerLimit( new Integer(1) );
-        enhancement.setPlanePrevious( new Integer(1) );
-        enhancement.setPlaneSelected( new Integer(1) );
-        enhancement.setUpperLimit( new Integer(1) );
+        enhancement.setConstant(Boolean.FALSE);
+        enhancement.setLowerLimit(new Integer(1));
+        enhancement.setPlanePrevious(new Integer(1));
+        enhancement.setPlaneSelected(new Integer(1));
+        enhancement.setUpperLimit(new Integer(1));
 
         return enhancement;
 

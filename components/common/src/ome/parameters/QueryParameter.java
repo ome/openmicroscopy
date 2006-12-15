@@ -7,46 +7,44 @@
 
 package ome.parameters;
 
-//Java imports
+// Java imports
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.conditions.ApiUsageException;
 
-/** 
+/**
  * arbitrary query parameter used by {@link ome.api.IQuery}.
  * 
- * @author  <br>Josh Moore&nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">
- * 					josh.moore@gmx.de</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
- * </small>
+ * @author <br>
+ *         Josh Moore&nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision: $ $Date: $)
+ *          </small>
  * @since 3.0-M2
  */
-public class QueryParameter implements Serializable
-{
-    
-    final public Class type;
-    final public String name;
-    final public Object value;
-    
-    public QueryParameter(String name, Class type, Object value){
+public class QueryParameter implements Serializable {
 
-        if ( name == null )
+    final public Class type;
+
+    final public String name;
+
+    final public Object value;
+
+    public QueryParameter(String name, Class type, Object value) {
+
+        if (name == null)
             throw new ApiUsageException("Expecting a value for name.");
-        
-        if ( type == null )
+
+        if (type == null)
             throw new ApiUsageException("Expecting a value for type.");
-        
-        if (value == null || type.isAssignableFrom(value.getClass()))
-        {
+
+        if (value == null || type.isAssignableFrom(value.getClass())) {
             this.name = name;
             this.type = type;
             this.value = value;
@@ -60,8 +58,7 @@ public class QueryParameter implements Serializable
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuffer sb = new StringBuffer(64);
         sb.append("QP{");
         sb.append("name=");
@@ -73,54 +70,53 @@ public class QueryParameter implements Serializable
         sb.append("}");
         return sb.toString();
     }
-    
-    public boolean equals(Object obj)
-    {
-        if ( ! (obj instanceof QueryParameter))
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof QueryParameter))
             return false;
-        
+
         QueryParameter qp = (QueryParameter) obj;
-        
-        if ( this == qp )
+
+        if (this == qp)
             return true;
 
-        if ( ! this.name.equals( qp.name) ) return false;
-        if ( ! this.type.equals( qp.type ) ) return false;
+        if (!this.name.equals(qp.name))
+            return false;
+        if (!this.type.equals(qp.type))
+            return false;
 
-        return this.value == null 
-            ? qp.value == null 
-                    : this.value.equals( qp.value );
-        
+        return this.value == null ? qp.value == null : this.value
+                .equals(qp.value);
+
     }
-    
-    public int hashCode()
-    {
+
+    public int hashCode() {
         int result = 11;
         result = 17 * result + name.hashCode();
         result = 19 * result + type.hashCode();
         result = 23 * result + (value == null ? 0 : value.hashCode());
         return result;
     }
-    
+
     // ~ Serialization
     // =========================================================================
     private static final long serialVersionUID = 112229651549133492L;
-    private void readObject(ObjectInputStream s)
-    throws IOException, ClassNotFoundException
-    {
+
+    private void readObject(ObjectInputStream s) throws IOException,
+            ClassNotFoundException {
         s.defaultReadObject();
-        
-        if (type == null ) 
+
+        if (type == null)
             throw new InvalidObjectException(
                     "QueryParameter type cannot be null.");
-            
+
         if (value == null)
             throw new InvalidObjectException(
                     "QueryParameter value cannot be null.");
-            
-        if (! type.isAssignableFrom(value.getClass()))
+
+        if (!type.isAssignableFrom(value.getClass()))
             throw new InvalidObjectException(
                     "QueryParameter value must be of type type.");
     }
-    
+
 }

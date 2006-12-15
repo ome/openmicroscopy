@@ -7,26 +7,21 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.server.itests.AbstractManagedContextTest;
 
+public class AbstractUpdateTest extends AbstractManagedContextTest {
 
-public class AbstractUpdateTest
-        extends AbstractManagedContextTest
-{
-    
-    protected boolean equalCollections(Collection<IObject> before, Collection<IObject> after)
-    {
+    protected boolean equalCollections(Collection<IObject> before,
+            Collection<IObject> after) {
         Set<Long> beforeIds = new HashSet<Long>();
-        for (IObject object : before)
-        {
+        for (IObject object : before) {
             beforeIds.add(object.getId());
         }
-        
+
         Set<Long> afterIds = new HashSet<Long>();
-        for (IObject object : after)
-        {
+        for (IObject object : after) {
             afterIds.add(object.getId());
         }
-        
+
         return beforeIds.containsAll(afterIds);
     }
-    
+
 }

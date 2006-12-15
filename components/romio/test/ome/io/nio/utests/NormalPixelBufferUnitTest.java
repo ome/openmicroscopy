@@ -9,71 +9,67 @@ import ome.model.enums.PixelsType;
 
 import junit.framework.TestCase;
 
-
-public class NormalPixelBufferUnitTest extends TestCase
-{
+public class NormalPixelBufferUnitTest extends TestCase {
     private Pixels pixels;
+
     private PixelBuffer pixelBuffer;
+
     private static final int planeSize = 256 * 256 * 2;
+
     private static final int stackSize = planeSize * 64;
+
     private static final int timepointSize = stackSize * 3;
-    
-  @Configuration(beforeTestMethod = true)
-    protected void setUp()
-    {
+
+    @Configuration(beforeTestMethod = true)
+    protected void setUp() {
         pixels = new Pixels();
-        
+
         pixels.setId(1L);
         pixels.setSizeX(256);
         pixels.setSizeY(256);
         pixels.setSizeZ(64);
         pixels.setSizeC(3);
         pixels.setSizeT(50);
-        
+
         PixelsType type = new PixelsType();
         type.setValue("uint16");
         pixels.setPixelsType(type);
-        
+
         PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
         pixelBuffer = service.getPixelBuffer(pixels);
     }
-    
-  @Test
-    public void testGetPlaneSize()
-    {
+
+    @Test
+    public void testGetPlaneSize() {
         assertEquals(pixelBuffer.getPlaneSize().intValue(), planeSize);
     }
-    
-  @Test
-    public void testGetStackSize()
-    {
+
+    @Test
+    public void testGetStackSize() {
         assertEquals(pixelBuffer.getStackSize().intValue(), stackSize);
     }
-    
-  @Test
-    public void testGetTimepointSize()
-    {
+
+    @Test
+    public void testGetTimepointSize() {
         assertEquals(pixelBuffer.getTimepointSize().intValue(), timepointSize);
     }
-    
-  @Test
-    public void testGetInitialPlaneOffset() throws DimensionsOutOfBoundsException
-    {
+
+    @Test
+    public void testGetInitialPlaneOffset()
+            throws DimensionsOutOfBoundsException {
         assertEquals(pixelBuffer.getPlaneOffset(0, 0, 0).longValue(), 0L);
     }
-    
-  @Test
-    public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException
-    {
-        long offset = ((long)timepointSize * 25) + ((long)planeSize * 25);
+
+    @Test
+    public void testGetPlaneOffset1() throws DimensionsOutOfBoundsException {
+        long offset = ((long) timepointSize * 25) + ((long) planeSize * 25);
         assertEquals(pixelBuffer.getPlaneOffset(25, 0, 25).longValue(), offset);
     }
-    
-  @Test
-    public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException
-    {
-        long offset = ((long)timepointSize * 25) + ((long)stackSize * 1) +
-                      ((long)planeSize * 25);
+
+    @Test
+    public void testGetPlaneOffset2() throws DimensionsOutOfBoundsException {
+        long offset = ((long) timepointSize * 25) + ((long) stackSize * 1)
+                + ((long) planeSize * 25);
         assertEquals(pixelBuffer.getPlaneOffset(25, 1, 25).longValue(), offset);
     }
 }

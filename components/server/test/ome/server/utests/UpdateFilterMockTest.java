@@ -24,25 +24,21 @@ import ome.model.internal.Details;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since Omero 2.0
  */
-public class UpdateFilterMockTest extends AbstractLoginMockTest
-{
-
+public class UpdateFilterMockTest extends AbstractLoginMockTest {
 
     // ~ NON GRAPHS (single elements)
     // =========================================================================
-    
+
     @Test
-    public void test_filter_null() throws Exception
-    {
-        filter.filter( null, (Object) null );
-        filter.filter( null, (IObject) null );
-        filter.filter( null, (Details) null );
-        filter.filter( null, (Map) null );
-        filter.filter( null, (Collection) null );
+    public void test_filter_null() throws Exception {
+        filter.filter(null, (Object) null);
+        filter.filter(null, (IObject) null);
+        filter.filter(null, (Details) null);
+        filter.filter(null, (Map) null);
+        filter.filter(null, (Collection) null);
     }
 
     // ~ GRAPHS (multiple levels)
     // =========================================================================
 
-   
 }

@@ -25,25 +25,25 @@ import static ome.model.internal.Permissions.Right.*;
 
 public class GraphHolderTest extends TestCase {
 
-	GraphHolder gh;
+    GraphHolder gh;
 
-	@Test
-	public void testShouldNeverBeNull() throws Exception {
-		DyeLaser dl = new DyeLaser();
-		assertNotNull(dl.getGraphHolder());
-		
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(dl);
-		
-		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-		ObjectInputStream ois = new ObjectInputStream(bais);
-		DyeLaser test = (DyeLaser) ois.readObject();
-		baos.close();
-		oos.close();
-		bais.close();
-		ois.close();
-		
-		assertNotNull(test.getGraphHolder());
-	}
+    @Test
+    public void testShouldNeverBeNull() throws Exception {
+        DyeLaser dl = new DyeLaser();
+        assertNotNull(dl.getGraphHolder());
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(dl);
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        DyeLaser test = (DyeLaser) ois.readObject();
+        baos.close();
+        oos.close();
+        bais.close();
+        ois.close();
+
+        assertNotNull(test.getGraphHolder());
+    }
 }

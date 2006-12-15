@@ -34,50 +34,51 @@ import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.model.containers.Dataset;
 
-
-public class FileQueueTable 
-    extends JPanel 
-    implements ActionListener
-{
+public class FileQueueTable extends JPanel implements ActionListener {
 
     public QueueTableModel table = new QueueTableModel();
+
     public ETable queue = new ETable(table);
 
     private static final long serialVersionUID = -4239932269937114120L;
 
+    JButton addBtn;
 
-    JButton           addBtn;
-    JButton           removeBtn;
-    JButton           importBtn;
-    
+    JButton removeBtn;
+
+    JButton importBtn;
+
     private int row;
+
     private int maxPlanes;
+
     public boolean cancel = false;
+
     public boolean importing = false;
-    
+
     FileQueueTable() {
 
-// ----- Variables -----
+        // ----- Variables -----
         // Debug Borders
         Boolean debugBorders = false;
-        
+
         // Size of the add/remove buttons (which are square).
         int buttonSize = 40;
         // Add graphic for add button
         String addIcon = "gfx/add.png";
         // Remove graphics for remove button
         String removeIcon = "gfx/remove.png";
-        
+
         // Width of the status columns
         int statusWidth = 100;
 
-// ----- GUI Layout Elements -----
+        // ----- GUI Layout Elements -----
         // Start layout here
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(6,5,9,8));
-        
+        setBorder(BorderFactory.createEmptyBorder(6, 5, 9, 8));
+
         JPanel buttonPanel = new JPanel();
-        if (debugBorders == true) 
+        if (debugBorders == true)
             buttonPanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
         addBtn = addButton(">>", addIcon, null);
@@ -87,7 +88,7 @@ public class FileQueueTable
         addBtn.setSize(new Dimension(buttonSize, buttonSize));
         addBtn.setActionCommand(Actions.ADD);
         addBtn.addActionListener(this);
-        
+
         removeBtn = addButton("<<", removeIcon, null);
         removeBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
@@ -95,52 +96,51 @@ public class FileQueueTable
         removeBtn.setSize(new Dimension(buttonSize, buttonSize));
         removeBtn.setActionCommand(Actions.REMOVE);
         removeBtn.addActionListener(this);
-        
+
         buttonPanel.add(Box.createVerticalGlue());
         buttonPanel.add(addBtn);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         buttonPanel.add(removeBtn);
         buttonPanel.add(Box.createVerticalGlue());
         add(buttonPanel);
-        add(Box.createRigidArea(new Dimension(5,0)));
+        add(Box.createRigidArea(new Dimension(5, 0)));
 
         JPanel queuePanel = new JPanel();
         if (debugBorders == true)
             queuePanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         queuePanel.setLayout(new BoxLayout(queuePanel, BoxLayout.PAGE_AXIS));
-        queuePanel.add(Box.createRigidArea(new Dimension(0,10)));
+        queuePanel.add(Box.createRigidArea(new Dimension(0, 10)));
         JPanel labelPanel = new JPanel();
-        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.LINE_AXIS)); 
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.LINE_AXIS));
         JLabel label = new JLabel("Import Queue:");
         labelPanel.add(label);
         labelPanel.add(Box.createHorizontalGlue());
         queuePanel.add(labelPanel);
-        queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
-        
-        TableColumnModel cModel =  queue.getColumnModel();
-               
+        queuePanel.add(Box.createRigidArea(new Dimension(0, 5)));
+
+        TableColumnModel cModel = queue.getColumnModel();
+
         MyTableHeaderRenderer myHeader = new MyTableHeaderRenderer();
-              
+
         // Create a custom header for the table
         cModel.getColumn(0).setHeaderRenderer(myHeader);
         cModel.getColumn(1).setHeaderRenderer(myHeader);
         cModel.getColumn(2).setHeaderRenderer(myHeader);
         cModel.getColumn(0).setCellRenderer(new LeftDotRenderer());
         cModel.getColumn(1).setCellRenderer(new TextCellCenter());
-        cModel.getColumn(2).setCellRenderer(new TextCellCenter());            
-        
+        cModel.getColumn(2).setCellRenderer(new TextCellCenter());
+
         // Set the width of the status column
         TableColumn statusColumn = queue.getColumnModel().getColumn(2);
         statusColumn.setPreferredWidth(statusWidth);
         statusColumn.setMaxWidth(statusWidth);
         statusColumn.setMinWidth(statusWidth);
-              
 
         SelectionListener listener = new SelectionListener(queue);
         queue.getSelectionModel().addListSelectionListener(listener);
-        queue.getColumnModel().getSelectionModel()
-            .addListSelectionListener(listener);
-        
+        queue.getColumnModel().getSelectionModel().addListSelectionListener(
+                listener);
+
         // Hide 3rd to 5th columns
         TableColumnModel tcm = queue.getColumnModel();
         TableColumn datasetColumn = tcm.getColumn(3);
@@ -149,13 +149,12 @@ public class FileQueueTable
         tcm.removeColumn(pathColumn);
         TableColumn archiveColumn = tcm.getColumn(3);
         tcm.removeColumn(archiveColumn);
-        
-        
+
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(queue);
-        
+
         queuePanel.add(scrollPane);
-        
+
         JPanel importPanel = new JPanel();
         importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.LINE_AXIS));
         importBtn = addButton("Import", null, null);
@@ -164,60 +163,50 @@ public class FileQueueTable
         importBtn.setEnabled(true);
         importBtn.setActionCommand(Actions.IMPORT);
         importBtn.addActionListener(this);
-        queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
+        queuePanel.add(Box.createRigidArea(new Dimension(0, 5)));
         queuePanel.add(importPanel);
         add(queuePanel);
     }
-    
-    public void setProgressInfo(int row, int maxPlanes)
-    {
+
+    public void setProgressInfo(int row, int maxPlanes) {
         this.row = row;
         this.maxPlanes = maxPlanes;
     }
- 
-    public void setProgressPending(int row)
-    {
+
+    public void setProgressPending(int row) {
         if (table.getValueAt(row, 2).equals("added"))
-            table.setValueAt("pending", row, 2);    
-    }
-    
-    public void setImportProgress(int step)
-    {
-        String text = step + "/" + maxPlanes;
-        table.setValueAt(text, row, 2);   
-    }
-    
-    public void setProgressPrepping(int row)
-    {
-        table.setValueAt("importing", row, 2); 
+            table.setValueAt("pending", row, 2);
     }
 
-    public void setProgressDone(int row)
-    {
-        table.setValueAt("done", row, 2); 
+    public void setImportProgress(int step) {
+        String text = step + "/" + maxPlanes;
+        table.setValueAt(text, row, 2);
     }
-    
-    public void setProgressArchiving(int row)
-    {
+
+    public void setProgressPrepping(int row) {
+        table.setValueAt("importing", row, 2);
+    }
+
+    public void setProgressDone(int row) {
+        table.setValueAt("done", row, 2);
+    }
+
+    public void setProgressArchiving(int row) {
         table.setValueAt("archiving", row, 2);
     }
-    
-    public int getMaximum()
-    {
+
+    public int getMaximum() {
         return maxPlanes;
     }
-        
-    static JButton addButton(String name, String image, String tooltip)
-    {
+
+    static JButton addButton(String name, String image, String tooltip) {
         JButton button = null;
 
-        if (image == null) 
-        {
+        if (image == null) {
             button = new JButton(name);
         } else {
             java.net.URL imgURL = Main.class.getResource(image);
-            if (imgURL != null)
-            {
+            if (imgURL != null) {
                 button = new JButton(null, new ImageIcon(imgURL));
             } else {
                 button = new JButton(name);
@@ -229,18 +218,17 @@ public class FileQueueTable
 
     public ImportContainer[] getFilesAndDataset() {
 
-        int num = table.getRowCount();     
+        int num = table.getRowCount();
         ImportContainer[] fads = new ImportContainer[num];
 
-        for (int i = 0; i < num; i++)
-        {
+        for (int i = 0; i < num; i++) {
             try {
                 boolean archive = (Boolean) table.getValueAt(i, 5);
                 File file = new File(table.getValueAt(i, 4).toString());
                 Dataset dataset = (Dataset) table.getValueAt(i, 3);
                 String imageName = table.getValueAt(i, 0).toString();
-                fads[i] = new ImportContainer(file, dataset, imageName, archive);            }
-            catch (ArrayIndexOutOfBoundsException e) {
+                fads[i] = new ImportContainer(file, dataset, imageName, archive);
+            } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
 
@@ -248,216 +236,225 @@ public class FileQueueTable
         return fads;
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
+    public void actionPerformed(ActionEvent e) {
         Object src = e.getSource();
-        if (src == addBtn)
-        {
+        if (src == addBtn) {
             firePropertyChange(Actions.ADD, false, true);
-        } 
-        if (src == removeBtn)
-        {
+        }
+        if (src == removeBtn) {
             firePropertyChange(Actions.REMOVE, false, true);
         }
-        if (src == importBtn)
-        {
+        if (src == importBtn) {
             queue.clearSelection();
 
-                firePropertyChange(Actions.IMPORT, false, true); 
+            firePropertyChange(Actions.IMPORT, false, true);
         }
     }
 
-    class QueueTableModel 
-        extends DefaultTableModel 
-        implements TableModelListener {
-        
+    class QueueTableModel extends DefaultTableModel implements
+            TableModelListener {
+
         private static final long serialVersionUID = 1L;
-        private String[] columnNames = {"Files in Queue", "Project/Dataset", "Status", "DatasetNum", "Path", "Archive"};
 
-        public void tableChanged(TableModelEvent arg0) { }
-        
-        public int getColumnCount() { return columnNames.length; }
+        private String[] columnNames = { "Files in Queue", "Project/Dataset",
+                "Status", "DatasetNum", "Path", "Archive" };
 
-        public String getColumnName(int col) { return columnNames[col]; }
-        
-        public boolean isCellEditable(int row, int col) { return false; }
-        
-        public boolean rowSelectionAllowed() { return false; }
+        public void tableChanged(TableModelEvent arg0) {
+        }
+
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        public String getColumnName(int col) {
+            return columnNames[col];
+        }
+
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
+
+        public boolean rowSelectionAllowed() {
+            return false;
+        }
     }
- 
-    public class MyTableHeaderRenderer 
-        extends DefaultTableCellRenderer 
-    {
+
+    public class MyTableHeaderRenderer extends DefaultTableCellRenderer {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
 
         private static final long serialVersionUID = 1L;
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
 
-           // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column) {
+
+            // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
             setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
             setForeground(UIManager.getColor("TableHeader.foreground"));
             setBackground(UIManager.getColor("TableHeader.background"));
             setFont(UIManager.getFont("TableHeader.font"));
-    
+
             // Configure the component with the specified value
             setFont(getFont().deriveFont(Font.BOLD));
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             setText(value.toString());
             setOpaque(true);
-                
+
             // Set tool tip if desired
-            setToolTipText((String)value);
-            
+            setToolTipText((String) value);
+
             setEnabled(table == null || table.isEnabled());
-                        
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-    
+
+            super.getTableCellRendererComponent(table, value, isSelected,
+                    hasFocus, row, column);
+
             // Since the renderer is a component, return itself
             return this;
         }
-        
-        // The following methods override the defaults for performance reasons
-        public void validate() {}
-        public void revalidate() {}
-        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
-        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-    }
-    
-    @SuppressWarnings("serial")
-    class LeftDotRenderer 
-        extends DefaultTableCellRenderer
-    {
-        public Component getTableCellRendererComponent(
-            JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column)
-        {
-            super.getTableCellRendererComponent(
-                    table, value, isSelected, hasFocus, row, column);
 
-            int availableWidth = table.getColumnModel().getColumn(column).getWidth();
+        // The following methods override the defaults for performance reasons
+        public void validate() {
+        }
+
+        public void revalidate() {
+        }
+
+        protected void firePropertyChange(String propertyName, Object oldValue,
+                Object newValue) {
+        }
+
+        public void firePropertyChange(String propertyName, boolean oldValue,
+                boolean newValue) {
+        }
+    }
+
+    @SuppressWarnings("serial")
+    class LeftDotRenderer extends DefaultTableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column) {
+            super.getTableCellRendererComponent(table, value, isSelected,
+                    hasFocus, row, column);
+
+            int availableWidth = table.getColumnModel().getColumn(column)
+                    .getWidth();
             availableWidth -= table.getIntercellSpacing().getWidth();
-            Insets borderInsets = getBorder().getBorderInsets((Component)this);
+            Insets borderInsets = getBorder().getBorderInsets((Component) this);
             availableWidth -= (borderInsets.left + borderInsets.right);
             String cellText = getText();
-            FontMetrics fm = getFontMetrics( getFont() );
+            FontMetrics fm = getFontMetrics(getFont());
             // Set tool tip if desired
- 
-            if (fm.stringWidth(cellText) > availableWidth)
-            {
+
+            if (fm.stringWidth(cellText) > availableWidth) {
                 String dots = "...";
-                int textWidth = fm.stringWidth( dots );
+                int textWidth = fm.stringWidth(dots);
                 int nChars = cellText.length() - 1;
-                for (; nChars > 0; nChars--)
-                {
+                for (; nChars > 0; nChars--) {
                     textWidth += fm.charWidth(cellText.charAt(nChars));
- 
-                    if (textWidth > availableWidth)
-                    {
+
+                    if (textWidth > availableWidth) {
                         break;
                     }
                 }
- 
-                setText( dots + cellText.substring(nChars + 1) );
+
+                setText(dots + cellText.substring(nChars + 1));
             }
 
             setFont(UIManager.getFont("TableCell.font"));
-           
+
             return this;
         }
     }
-    
-    public class TextCellCenter
-        extends DefaultTableCellRenderer 
-    {
+
+    public class TextCellCenter extends DefaultTableCellRenderer {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
 
         private static final long serialVersionUID = 1L;
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
 
-            super.getTableCellRendererComponent(
-                    table, value, isSelected, hasFocus, row, column);
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row,
+                int column) {
+
+            super.getTableCellRendererComponent(table, value, isSelected,
+                    hasFocus, row, column);
 
             setFont(UIManager.getFont("TableCell.font"));
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
             // Set tool tip if desired
-            setToolTipText((String)value);
-            
+            setToolTipText((String) value);
+
             // Since the renderer is a component, return itself
             return this;
         }
     }
 
-    public class SelectionListener 
-        implements ListSelectionListener {
+    public class SelectionListener implements ListSelectionListener {
         JTable table;
-    
+
         // It is necessary to keep the table since it is not possible
         // to determine the table from the event's source
         SelectionListener(JTable table) {
             this.table = table;
         }
+
         public void valueChanged(ListSelectionEvent e) {
-            // If cell selection is enabled, both row and column change events are fired
+            // If cell selection is enabled, both row and column change events
+            // are fired
             if (e.getSource() == table.getSelectionModel()
-                  && table.getRowSelectionAllowed()) {
+                    && table.getRowSelectionAllowed()) {
                 // Column selection changed
                 int first = e.getFirstIndex();
                 int last = e.getLastIndex();
                 dselectRow(first, last);
-            } else if (e.getSource() == table.getColumnModel().getSelectionModel()
-                   && table.getColumnSelectionAllowed() ){
+            } else if (e.getSource() == table.getColumnModel()
+                    .getSelectionModel()
+                    && table.getColumnSelectionAllowed()) {
                 // Row selection changed
                 int first = e.getFirstIndex();
                 int last = e.getLastIndex();
                 dselectRow(first, last);
             }
-    
+
             if (e.getValueIsAdjusting()) {
                 // The mouse button has not yet been released
             }
         }
-        
-        private void dselectRow(int first, int last)
-        {
-            for (int i = first; i < last; i++ )
-            {
-                try
-                {
-                    //System.err.println("first: " + first + 
-                    //    " last: " + last + " i: " + i);
-                    if (!table.getValueAt(i, 2).equals("added") 
-                            && table.getSelectionModel().isSelectedIndex(i))
-                    {
+
+        private void dselectRow(int first, int last) {
+            for (int i = first; i < last; i++) {
+                try {
+                    // System.err.println("first: " + first +
+                    // " last: " + last + " i: " + i);
+                    if (!table.getValueAt(i, 2).equals("added")
+                            && table.getSelectionModel().isSelectedIndex(i)) {
                         table.getSelectionModel().removeSelectionInterval(i, i);
                         table.clearSelection();
-                    }                    
-                } catch (ArrayIndexOutOfBoundsException e)
-                {
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                 }
             }
         }
     }
-        
-    public static void main (String[] args) {
 
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-        
+    public static void main(String[] args) {
+
+        String laf = UIManager.getSystemLookAndFeelClassName();
+        // laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        // laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        // laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        // laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+
         try {
             UIManager.setLookAndFeel(laf);
-        } catch (Exception e) 
-        { System.err.println(laf + " not supported."); }
-        
-        FileQueueTable q = new FileQueueTable(); 
-        JFrame f = new JFrame();   
+        } catch (Exception e) {
+            System.err.println(laf + " not supported.");
+        }
+
+        FileQueueTable q = new FileQueueTable();
+        JFrame f = new JFrame();
         f.getContentPane().add(q);
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -16,7 +16,6 @@ package ome.services.query;
 
 // Java imports
 
-
 // Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +24,6 @@ import ome.parameters.Parameters;
 
 // Application-internal dependencies
 
-
 /**
  * always returns null for any id. Useful for testing.
  * 
@@ -33,14 +31,12 @@ import ome.parameters.Parameters;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  */
-public class NullQuerySource extends QuerySource
-{
+public class NullQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(NullQuerySource.class);
-    
-    public Query lookup(String queryID, Parameters parameters)
-    {
+
+    public Query lookup(String queryID, Parameters parameters) {
         return null;
     }
-    
+
 }

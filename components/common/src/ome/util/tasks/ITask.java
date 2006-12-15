@@ -7,7 +7,6 @@
 
 package ome.util.tasks;
 
-public interface ITask extends Runnable
-{
+public interface ITask extends Runnable {
 
 }

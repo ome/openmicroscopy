@@ -14,33 +14,31 @@ import org.hibernate.Session;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 
-
 /**
  * @author callan
- *
+ * 
  */
-public abstract class Transformer
-{
-    /** The model object that the transformer is operating on **/
+public abstract class Transformer {
+    /** The model object that the transformer is operating on * */
     private Object model;
-    
-    /** Hibernate session for performing necessary queries **/
+
+    /** Hibernate session for performing necessary queries * */
     private Session session;
-    
-    /** Owner of this and all subsequent data types **/
+
+    /** Owner of this and all subsequent data types * */
     private Experimenter owner;
-    
-    /** A reference to the list of new model objects to be saved **/
+
+    /** A reference to the list of new model objects to be saved * */
     private List toSave;
-    
-    /** Creation event for this and all subsequent data types **/
+
+    /** Creation event for this and all subsequent data types * */
     private Event creationEvent;
-    
-    Transformer() {}
-    
+
+    Transformer() {
+    }
+
     Transformer(Object model, Session session, Experimenter owner,
-                       Event creationEvent, List toSave)
-    {
+            Event creationEvent, List toSave) {
         if (model == null)
             throw new NullPointerException("Expecting not null model.");
         if (session == null)
@@ -51,71 +49,61 @@ public abstract class Transformer
             throw new NullPointerException("Expecting not null creationEvent");
         if (toSave == null)
             toSave = new ArrayList();
-        
+
         this.model = model;
         this.session = session;
         this.owner = owner;
         this.creationEvent = creationEvent;
         this.toSave = toSave;
     }
-    
-    public void setModel(Object model)
-    {
+
+    public void setModel(Object model) {
         if (model == null)
             throw new NullPointerException("Expecting not null model.");
         this.model = model;
     }
-    
-    public Object getModel()
-    {
+
+    public Object getModel() {
         return model;
     }
-    
-    public void setSession(Session session)
-    {
+
+    public void setSession(Session session) {
         if (session == null)
             throw new NullPointerException("Expecting not null session.");
         this.session = session;
     }
-    
-    public Session getSession()
-    {
+
+    public Session getSession() {
         return session;
     }
-    
-    public void setOwner(Experimenter owner)
-    {
+
+    public void setOwner(Experimenter owner) {
         if (owner == null)
             throw new NullPointerException("Expecting not null owner.");
         this.owner = owner;
     }
-    
-    public Experimenter getOwner()
-    {
+
+    public Experimenter getOwner() {
         return owner;
     }
-    
-    public void setToSave(List toSave)
-    {
+
+    public void setToSave(List toSave) {
         if (toSave == null)
             throw new NullPointerException("Expecting not null toSave.");
         this.toSave = toSave;
     }
-    
-    public List getToSave()
-    {
+
+    public List getToSave() {
         return toSave;
     }
-    
-    public void setCreationEvent(Event creationEvent)
-    {
+
+    public void setCreationEvent(Event creationEvent) {
         if (creationEvent == null)
             throw new NullPointerException("Expecting not null creationEvent.");
         this.creationEvent = creationEvent;
     }
-    
-    public Event getCreationEvent()
-    {
+
+    public Event getCreationEvent() {
         return creationEvent;
     }
 

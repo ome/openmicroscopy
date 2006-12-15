@@ -6,31 +6,27 @@
  */
 package ome.conditions;
 
-//Java imports
+// Java imports
 import javax.ejb.ApplicationException;
 
-//Third-party libraries
+// Third-party libraries
 
-//Application-internal dependencies
+// Application-internal dependencies
 
 /**
- * Represents a incorrectible/unforseeable event within the server that lead
- * to a failure of a process.
- *  
- * @author  Josh Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 2.5 
- * <small>
- * (<b>Internal version:</b> $Rev$ $Date$)
- * </small>
+ * Represents a incorrectible/unforseeable event within the server that lead to
+ * a failure of a process.
+ * 
+ * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @version 2.5 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.5
  */
 @ApplicationException
-public class ResourceError extends RootException
-{
-	
-	public ResourceError(String msg){
-		super(msg);
-	}
-	
+public class ResourceError extends RootException {
+
+    public ResourceError(String msg) {
+        super(msg);
+    }
+
 }

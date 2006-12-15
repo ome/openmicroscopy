@@ -7,47 +7,50 @@
 
 package omeis.providers.re.codomain;
 
+// Java imports
 
-//Java imports
+// Third-party libraries
 
-//Third-party libraries
+// Application-internal dependencies
 
-//Application-internal dependencies
-
-/** 
+/**
  * The Identity map. This map is always in the codomain chain.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2 
- * <small>
- * (<b>Internal version:</b> $Revision: 1.2 $ $Date: 2005/06/20 10:59:54 $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.2 $ $Date:
+ *          2005/06/20 10:59:54 $) </small>
  * @since OME2.2
  */
-class IdentityMap
-	implements CodomainMap
-{
-	
-	/** 
+class IdentityMap implements CodomainMap {
+
+    /**
      * Returns the value, no transformation needed in this case.
+     * 
      * @see CodomainMap#transform(int)
      */
-	public int transform(int x) { return x; }
-    
-    /** 
-     * Overriden to return the name of this map. 
+    public int transform(int x) {
+        return x;
+    }
+
+    /**
+     * Overriden to return the name of this map.
+     * 
      * @see Object#toString()
      */
-    public String toString() { return "IdentityMap"; }
-    
-    /** 
-     * Required by I/F but no-op implementation in our case. 
+    public String toString() {
+        return "IdentityMap";
+    }
+
+    /**
+     * Required by I/F but no-op implementation in our case.
+     * 
      * @see CodomainMap#setContext(CodomainMapContext)
      */
-    public void setContext(CodomainMapContext cxt) {}
+    public void setContext(CodomainMapContext cxt) {
+    }
 
 }

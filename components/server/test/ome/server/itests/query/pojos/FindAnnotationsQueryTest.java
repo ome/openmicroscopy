@@ -28,146 +28,121 @@ import ome.services.query.QueryParameterDef;
 import ome.testing.CreatePojosFixture;
 import ome.util.builders.PojoOptions;
 
-@Test( groups = { "broken", "ticket:541" } )
-public class FindAnnotationsQueryTest extends AbstractManagedContextTest
-{
+@Test(groups = { "broken", "ticket:541" })
+public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
     PojosFindAnnotationsQueryDefinition q;
-    List                                list;
-    Set                                 ids;
-    CreatePojosFixture					DATA;
-    
-    @Configuration( beforeTestClass = true )
-    public void makePojos() throws Exception
-    {
-    	try {
-    		setUp();
-    		DATA = new CreatePojosFixture( this.factory );
-    		DATA.pdi();
-    		DATA.annotations();
-    	} finally {
-    		tearDown();
-    	}
+
+    List list;
+
+    Set ids;
+
+    CreatePojosFixture DATA;
+
+    @Configuration(beforeTestClass = true)
+    public void makePojos() throws Exception {
+        try {
+            setUp();
+            DATA = new CreatePojosFixture(this.factory);
+            DATA.pdi();
+            DATA.annotations();
+        } finally {
+            tearDown();
+        }
     }
-    
-    protected void creation_fails(Parameters parameters)
-    {
-        try
-        {
+
+    protected void creation_fails(Parameters parameters) {
+        try {
             // new IdsQueryParameterDef(),
             // new OptionsQueryParameterDef(),
             // new QueryParameterDef(QP.CLASS,Class.class,false),
             // new QueryParameterDef("annotatorIds",Collection.class,true));
-            q = new PojosFindAnnotationsQueryDefinition( parameters );
-            fail( "Should have failed!" );
-        } catch ( IllegalArgumentException e ) {
-        } catch ( ApiUsageException e ) {
+            q = new PojosFindAnnotationsQueryDefinition(parameters);
+            fail("Should have failed!");
+        } catch (IllegalArgumentException e) {
+        } catch (ApiUsageException e) {
         }
     }
 
     @Test
-    public void test_illegal_arguments() throws Exception
-    {
+    public void test_illegal_arguments() throws Exception {
 
-        creation_fails( new Parameters()
-                .addIds(null) // Null
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+        creation_fails(new Parameters().addIds(null) // Null
+                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                        Collections.emptySet()));
 
-        creation_fails( new Parameters()
-                .addIds(Collections.emptySet()) // Empty!
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
-        
-        creation_fails( new Parameters()
-                .addIds(Arrays.asList(1l)) 
-                .addOptions(null)
-                .addClass(null) // Null here
-                .addSet("annotatorIds",Collections.emptySet()));
-        
-        creation_fails( new Parameters()
-                .addIds(Arrays.asList(1)) // Integer not Long
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+        creation_fails(new Parameters().addIds(Collections.emptySet()) // Empty!
+                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                        Collections.emptySet()));
+
+        creation_fails(new Parameters().addIds(Arrays.asList(1l)).addOptions(
+                null).addClass(null) // Null here
+                .addSet("annotatorIds", Collections.emptySet()));
+
+        creation_fails(new Parameters().addIds(Arrays.asList(1)) // Integer
+                                                                    // not Long
+                .addOptions(null).addClass(Image.class).addSet("annotatorIds",
+                        Collections.emptySet()));
     }
 
     @Test
-    public void test_simple_usage() throws Exception
-    {
+    public void test_simple_usage() throws Exception {
         Long doesntExist = -1L;
-        q = new PojosFindAnnotationsQueryDefinition(
-                new Parameters()
-                .addIds(Arrays.asList( doesntExist )) 
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+        q = new PojosFindAnnotationsQueryDefinition(new Parameters().addIds(
+                Arrays.asList(doesntExist)).addOptions(null).addClass(
+                Image.class).addSet("annotatorIds", Collections.emptySet()));
 
-        list = (List) iQuery.execute( q );
+        list = (List) iQuery.execute(q);
     }
 
     @Test
-    public void test_images_exist() throws Exception
-    {
-        ids = new HashSet(data.getMax("Image.Annotated.ids",2));
-        q = new PojosFindAnnotationsQueryDefinition(
-                new Parameters()
-                .addIds(ids) 
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+    public void test_images_exist() throws Exception {
+        ids = new HashSet(data.getMax("Image.Annotated.ids", 2));
+        q = new PojosFindAnnotationsQueryDefinition(new Parameters()
+                .addIds(ids).addOptions(null).addClass(Image.class).addSet(
+                        "annotatorIds", Collections.emptySet()));
 
         Collection<ImageAnnotation> results = (Collection) iQuery.execute(q);
-        for ( ImageAnnotation annotation : results )
-        {
+        for (ImageAnnotation annotation : results) {
             assertTrue(ids.contains(annotation.getImage().getId()));
         }
     }
-    
+
     @Test
-    public void test_dataset_exist() throws Exception
-    {
-        ids = new HashSet(data.getMax("Dataset.Annotated.ids",2));
-        q = new PojosFindAnnotationsQueryDefinition(
-                new Parameters()
-                .addIds(ids) 
-                .addOptions(null)
-                .addClass(Dataset.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+    public void test_dataset_exist() throws Exception {
+        ids = new HashSet(data.getMax("Dataset.Annotated.ids", 2));
+        q = new PojosFindAnnotationsQueryDefinition(new Parameters()
+                .addIds(ids).addOptions(null).addClass(Dataset.class).addSet(
+                        "annotatorIds", Collections.emptySet()));
 
         Collection<DatasetAnnotation> results = (Collection) iQuery.execute(q);
-        for ( DatasetAnnotation annotation : results )
-        {
+        for (DatasetAnnotation annotation : results) {
             assertTrue(ids.contains(annotation.getDataset().getId()));
         }
     }
-    
-    @Test( groups = { "ticket:172" } )
+
+    @Test(groups = { "ticket:172" })
     public void testFindImageAnnotationsReturnsEventTimes() throws Exception {
-		Image i = new Image();
-		i.setName("ticket:172");
-		ImageAnnotation a = new ImageAnnotation();
-		a.setImage(i);
-		a.setContent("ticket:172");
-		a = iUpdate.saveAndReturnObject(a);
-		
+        Image i = new Image();
+        i.setName("ticket:172");
+        ImageAnnotation a = new ImageAnnotation();
+        a.setImage(i);
+        a.setContent("ticket:172");
+        a = iUpdate.saveAndReturnObject(a);
+
         ids = new HashSet(Arrays.asList(a.getImage().getId()));
-        q = new PojosFindAnnotationsQueryDefinition(
-                new Parameters()
-                .addIds(ids) 
-                .addOptions(null)
-                .addClass(Image.class)
-                .addSet("annotatorIds",Collections.emptySet()));
+        q = new PojosFindAnnotationsQueryDefinition(new Parameters()
+                .addIds(ids).addOptions(null).addClass(Image.class).addSet(
+                        "annotatorIds", Collections.emptySet()));
 
         Collection<ImageAnnotation> results = (Collection) iQuery.execute(q);
-        for ( ImageAnnotation annotation : results )
-        {
-        	assertNotNull(annotation.getDetails().getCreationEvent().getTime());
-        	assertNotNull(annotation.getDetails().getUpdateEvent().getTime());
-        	assertNotNull(annotation.getImage().getDetails().getCreationEvent().getTime());
-        	assertNotNull(annotation.getImage().getDetails().getUpdateEvent().getTime());
+        for (ImageAnnotation annotation : results) {
+            assertNotNull(annotation.getDetails().getCreationEvent().getTime());
+            assertNotNull(annotation.getDetails().getUpdateEvent().getTime());
+            assertNotNull(annotation.getImage().getDetails().getCreationEvent()
+                    .getTime());
+            assertNotNull(annotation.getImage().getDetails().getUpdateEvent()
+                    .getTime());
         }
-	}
+    }
 
 }

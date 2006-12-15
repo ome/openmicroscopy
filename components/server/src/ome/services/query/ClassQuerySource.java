@@ -24,86 +24,74 @@ import ome.model.IObject;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 
-
 /**
- * creates a query based on the id string by interpreting it as a Class.
- * The class can either be a {@link ome.services.query.Query} implementation 
- * or an {@link ome.model.IObject} implementation.
+ * creates a query based on the id string by interpreting it as a Class. The
+ * class can either be a {@link ome.services.query.Query} implementation or an
+ * {@link ome.model.IObject} implementation.
  * 
  * <p>
- * If it is an {@link ome.model.IObject} implementation, the 
+ * If it is an {@link ome.model.IObject} implementation, the
  * {@link ome.parameters.QueryParameter} instances passed in through
- * {@link Parameters} are interpreted as being field names whose 
- * {@link ome.parameters.QueryParameter#value values} should equals the 
- * value in the database.
- * </p> 
+ * {@link Parameters} are interpreted as being field names whose
+ * {@link ome.parameters.QueryParameter#value values} should equals the value in
+ * the database.
+ * </p>
  * 
  * <p>
  * If it is an {@link ome.services.query.Query} implementation, then it is
- * instantiated by passing the {@link ome.parameters.Parameters} into the 
+ * instantiated by passing the {@link ome.parameters.Parameters} into the
  * constructor.
  * </p>
- *  
+ * 
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since OMERO 3.0
  * @see ome.services.query.IObjectClassQuery
  */
-public class ClassQuerySource extends QuerySource
-{
+public class ClassQuerySource extends QuerySource {
 
     private static Log log = LogFactory.getLog(ClassQuerySource.class);
-    
-    public Query lookup(String queryID, Parameters parameters)
-    {
+
+    public Query lookup(String queryID, Parameters parameters) {
         Query q = null;
         Class klass = null;
-        try
-        {
+        try {
             klass = Class.forName(queryID);
-        } catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             // Not an issue.
         }
-        
-        
+
         // return null immediately
-        if ( klass == null ) 
-        {
+        if (klass == null) {
             return null;
         }
 
         // it's a query
-        else if ( Query.class.isAssignableFrom( klass ))
-        {
+        else if (Query.class.isAssignableFrom(klass)) {
             try {
                 Constructor c = klass.getConstructor(Parameters.class);
                 q = (Query) c.newInstance(parameters);
-            } catch (Exception e)
-            {
-                if ( log.isDebugEnabled() ) 
-                {
+            } catch (Exception e) {
+                if (log.isDebugEnabled()) {
                     e.printStackTrace();
                 }
-                throw new RuntimeException("Error while trying to instantiate:" 
-                        +queryID,e);
+                throw new RuntimeException("Error while trying to instantiate:"
+                        + queryID, e);
             }
             return q;
         }
-        
+
         // it's an IObject
-        else if ( IObject.class.isAssignableFrom( klass ))
-        {
-            Parameters p = new Parameters( parameters );
-            p.addClass( klass );
-            return new IObjectClassQuery( p );
+        else if (IObject.class.isAssignableFrom(klass)) {
+            Parameters p = new Parameters(parameters);
+            p.addClass(klass);
+            return new IObjectClassQuery(p);
         }
-        
-        else
-        {
+
+        else {
             return null;
         }
     }
-    
+
 }
