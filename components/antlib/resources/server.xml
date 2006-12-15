@@ -41,6 +41,47 @@
 		<fileset dir="${app.comp}/${target.rel}" includes="*.ear" id="ear.files"/>
 	</target>
 
+<!--
+  How to get the number of copied files into a property?
+  http://marc.theaimsgroup.com/?l=ant-user&m=112275530712936&w=2
+  http://permalink.gmane.org/gmane.comp.jakarta.ant.user/32944
+-->
+<target name="count-ear-files">
+
+    <!-- prepare the target directory -->
+    <tempfile property="count.dir"/>
+    <tempfile property="count.file"/>
+    <mkdir dir="count.dir"/>
+
+    <!-- start logging to file -->
+    <record name="count.file" action="start"/>
+
+    <!-- Let 'copy' do its job -->
+    <copy todir="count.dir" verbose="true">
+        <fileset dir="${jboss.deploy.dir}">
+	  <include name="*.ear"/>
+	</fileset>
+    </copy>
+
+    <!-- stop writing to log file -->
+    <record name="count.file" action="stop"/>
+
+    <!-- convert the log message to a property-file -->
+    <replaceregexp file="count.file" match=".*Copying (.*) file.*" replace="count=\1"/>
+
+    <!-- read that file, handle zero-files-copied special case (empty file created) -->
+    <property file="count.file"/>
+    <property name="count" value="0"/>
+
+    <!-- use that property -->
+    <echo message="Copied files: ${count}"/>
+
+    <!-- clean up -->
+    <delete dir="count.dir"/>
+    <delete file="count.file"/>
+
+</target>
+
 	<target name="deploy-ear-jboss" depends="check-system,earfiles">
 		<copy todir="${jboss.deploy.dir}">
 			<fileset refid="ear.files"/>
