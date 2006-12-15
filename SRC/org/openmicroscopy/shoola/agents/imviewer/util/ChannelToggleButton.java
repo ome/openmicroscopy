@@ -57,8 +57,7 @@ public class ChannelToggleButton
 {
     
     /** Bound property indicating that the channel is selected. */
-	public static final String		CHANNEL_PICKED_PROPERTY = 
-		                                "channelPicked";
+	public static final String		CHANNEL_PICKED_PROPERTY = "channelPicked";
 
     /** The channel index. */
 	private final int    index;
