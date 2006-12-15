@@ -35,7 +35,7 @@
   Service implementation ("internal:") and wrapper ("managed:") for the 
   ome.api.IConfig interface. 
 
-  remote:ome.api.IConfig - This is for remoting and should only be apply 
+  managed:ome.api.IConfig - This is for remoting and should only be apply 
     interceptors to the "internal" version below. essentially ignore.
   internal:ome.api.IConfig - This is the bean that needs to have items 
     injected. Used server side. If not available, everyone has to go 
