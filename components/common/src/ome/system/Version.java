@@ -1,5 +1,5 @@
 /*
- * ome.system.Version
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -35,21 +35,28 @@ import ome.conditions.InternalException;
 public abstract class Version {
 
     /**
-     * date format used by Subversions "Date" keyword. This can be used as the
+     * Current OMERO version. This is the value under which you can retrieve the
+     * code from subversion as well as what will appear in the server console
+     * upon startup.
+     */
+    public final static String OMERO = "3.0-TRUNK";
+
+    /**
+     * Date format used by Subversions "Date" keyword. This can be used as the
      * constructor argument to a {@link SimpleDateFormat} in order to parse
      * {@link RevisionDate} values.
      */
     public final static String SVN_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss Z (EEE, dd MMM yyyy)";
 
     /**
-     * formatter for SVN date strings. Formatters are not synchronized, and
+     * Formatter for SVN date strings. Formatters are not synchronized, and
      * therefore this instance is volatile
      */
     private static volatile SimpleDateFormat formatter = new SimpleDateFormat(
             SVN_DATE_FORMAT);
 
     /**
-     * parse the given class for its {@link RevisionNumber} annotation. A null
+     * Parses the given class for its {@link RevisionNumber} annotation. A null
      * class argument is tolerated and returns a null {@link Integer}.
      * Otherwise, the {@link String} contained in {@link RevisionNumber#value()}
      * will be parsed as an Integer after processing by
@@ -74,7 +81,7 @@ public abstract class Version {
     }
 
     /**
-     * parse the given class for its {@link RevisionDate} annotation. A null
+     * Parses the given class for its {@link RevisionDate} annotation. A null
      * class argument is tolerated and returns a null {@link Date}. Otherwise,
      * the {@link String} contained in {@link RevisionDate#value()} will be
      * parsed as an Date after processing by
@@ -107,7 +114,7 @@ public abstract class Version {
     }
 
     /**
-     * parse the given {@link String} to remove the leading "$", keyword name,
+     * Parses the given {@link String} to remove the leading "$", keyword name,
      * and colons. This assumes that Subversion keywords are formatted such that
      * the first space and the last space in the String, directly surround the
      * value of interest. If this does not hold or if the argument is null, a

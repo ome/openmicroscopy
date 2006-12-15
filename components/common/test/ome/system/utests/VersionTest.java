@@ -20,11 +20,14 @@ import junit.framework.TestCase;
 public class VersionTest extends TestCase {
 
     public void testGetSvnKeyword() throws Exception {
-        assertEquals("100", Version.stringFromSvnString("$Revision$"));
+        String versionStr = Version.stringFromSvnString("$Revision$");
+        Integer version = Integer.valueOf(versionStr);
+        checkVersion(version);
     }
 
     public void testGetRevision() throws Exception {
-        assertEquals((Integer) 100, Version.getRevision(Blank.class));
+        Integer version = Version.getRevision(Blank.class);
+        checkVersion(version);
     }
 
     public void testGetDate() throws Exception {
@@ -37,6 +40,14 @@ public class VersionTest extends TestCase {
         String dateStr = Blank.class.getAnnotation(RevisionDate.class).value();
         java.util.Date date = formatter.parse(Version
                 .stringFromSvnString(dateStr));
+    }
+    
+    // ~ Helpers
+    // =========================================================================
+    
+    private void checkVersion(Integer version) {
+        assertNotNull(version);
+        assertTrue(0 < version.intValue());
     }
 }
 

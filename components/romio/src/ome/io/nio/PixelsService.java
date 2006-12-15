@@ -41,7 +41,9 @@ public class PixelsService extends AbstractFileSystemService {
     }
 
     public PixelBuffer getPixelBuffer(Pixels pixels) {
-        return new PixelBuffer(getPixelsPath(pixels.getId()), pixels);
+        String path = getPixelsPath(pixels.getId());
+        createSubpath(path);
+        return new PixelBuffer(path, pixels);
     }
 
     private void initPixelBuffer(PixelBuffer pixbuf) throws IOException {
