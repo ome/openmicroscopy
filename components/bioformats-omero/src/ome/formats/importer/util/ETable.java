@@ -1,3 +1,9 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 /** ETable.java is a part of the salma-heyek java repository of classes 
  * (found athttp://software.jessies.org/salma-hayek/) and is covered by the GNU 
  * lesser general license.
