@@ -100,7 +100,7 @@ class SplashScreenView
 	
     /** Absolute positioning and size of the password text field. */
     private static final Rectangle  SERVER_BOUNDS = 
-                                            new Rectangle(149, 276, 230, 25);
+                                            new Rectangle(149, 276, 230, 24);
     
 	/** Absolute positioning and size of the login button. */
 	private static final Rectangle	LOGIN_BOUNDS = 
@@ -213,6 +213,7 @@ class SplashScreenView
         server = new JComboBox(UIFactory.getServersAsArray());
         server.setFont(FONT);
         server.setForeground(FONT_COLOR);
+        server.setOpaque(false);
     }
     
     /**
