@@ -52,6 +52,7 @@ public class ChannelMetadata
     /** The OME index of the channel. */
     private final int               index;
     
+    /** The original channel object. */
     private final Channel           channel;
     
     /**

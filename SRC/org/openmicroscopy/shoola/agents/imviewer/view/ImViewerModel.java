@@ -78,14 +78,19 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 class ImViewerModel
 {
 
+	/** Indicates the displayed image has one star. */
     static final int     RATING_ONE = 3;
     
+    /** Indicates the displayed image has two star. */
     static final int     RATING_TWO = 4;
     
+    /** Indicates the displayed image has three star. */
     static final int     RATING_THREE = 5;
     
+    /** Indicates the displayed image has four star. */
     static final int     RATING_FOUR = 6;
     
+    /** Indicates the displayed image has five star. */
     static final int     RATING_FIVE = 7;
     
     /** The maximum width of the thumbnail. */

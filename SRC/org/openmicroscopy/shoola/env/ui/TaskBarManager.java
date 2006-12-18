@@ -28,6 +28,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 //Third-party libraries
 
@@ -63,12 +66,42 @@ class TaskBarManager
 	implements AgentEventListener
 {
 
+	/** The name of the about file in the config directory. */
+	private static final String		ABOUT_FILE = "about.txt";
+	
 	/** The view this controller is managing. */
 	private TaskBarView		view;
 	
 	/** Reference to the container. */
 	private Container		container;
 
+	/**
+	 * Reads the content of the specified file and returns it as a string.
+	 * 
+	 * @param file	Absolute pathname to the file.
+	 * @return See above.
+	 */
+	private String loadAbout(String file)
+	{
+		String message;
+		try {
+			FileInputStream fis = new FileInputStream(file);
+			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+			StringBuffer buffer = new StringBuffer();
+			while (true) {
+                String line = in.readLine();
+                if (line == null) break;
+                buffer.append("\n");
+                buffer.append(line);
+            }
+			in.close();
+            message = buffer.toString();
+		} catch (Exception e) {
+			message = "Error: About information not found";
+		}
+		return message;
+	}
+	
 	/**
 	 * Synchronizes the enabled state of the connection-related buttons
 	 * according to the current connection state. 
@@ -137,13 +170,12 @@ class TaskBarManager
 		un.submitMessage("");
 	}
 	
-    /** 
-     * Basic information about the software. Temporary solution.
-     *
-     */
+    /**  Displays information about software. */
     private void softWareUpdates()
     {
-        SoftwareUpdateDialog d = new SoftwareUpdateDialog(view);
+    	//READ content of the about file.
+    	String message = loadAbout(container.resolveConfigFile(ABOUT_FILE));
+        SoftwareUpdateDialog d = new SoftwareUpdateDialog(view, message);
         UIUtilities.centerAndShow(d);
     }
     

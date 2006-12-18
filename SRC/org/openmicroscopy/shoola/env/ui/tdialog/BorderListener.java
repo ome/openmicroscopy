@@ -24,9 +24,6 @@
 package org.openmicroscopy.shoola.env.ui.tdialog;
 
 
-
-
-
 //Java imports
 import java.awt.Dimension;
 import java.awt.Point;

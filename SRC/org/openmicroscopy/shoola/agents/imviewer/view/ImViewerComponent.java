@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -929,33 +931,59 @@ class ImViewerComponent
     }
     
     /** 
-     * Is the lens visible in the window.
-     *  
-     * @return see above.
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isLensVisible()
      */
     public boolean isLensVisible()
     {
-		return view.isLensVisible();
+    	if (model.getState() == DISCARDED)
+    		throw new IllegalStateException("The method cannot be invoked in " +
+    		"the DISCARDED state.");
+    	return view.isLensVisible();
     }
     
-    /**
-     * If the parameter is true show the lens; this will only happen if the lens
-     * is smaller than the image.
-     *  
-     * @param b see above.
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setLensVisible(boolean)
      */
     public void setLensVisible(boolean b)
     {
+    	if (model.getState() == DISCARDED)
+    		throw new IllegalStateException("The method cannot be invoked in " +
+    		"the DISCARDED state.");
     	view.setLensVisible(b);
     }
    
-    /**
-     * Get the zoomedImage from the lens component. 
-     * @return img zoomed image in the lens component.
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getZoomedLensImage()
      */
     public BufferedImage getZoomedLensImage()
     {
+    	if (model.getState() == DISCARDED)
+    		throw new IllegalStateException("The method cannot be invoked in " +
+    		"the DISCARDED state.");
     	return view.getZoomedLensImage();
     }
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#showMenu(int, Component, Point)
+     */
+	public void showMenu(int menuID, Component source, Point location)
+	{
+		if (model.getState() == DISCARDED)
+    		throw new IllegalStateException("The method cannot be invoked in " +
+    		"the DISCARDED state.");
+		switch (menuID) {
+	        case COLOR_PICKER_MENU:
+	            break;
+	        default:
+	            throw new IllegalArgumentException("Menu not supported.");
+		}
+		if (source == null) throw new IllegalArgumentException("No component.");
+        if (location == null) throw new IllegalArgumentException("No point.");
+		view.showMenu(menuID, source, location);
+	}
     
 }

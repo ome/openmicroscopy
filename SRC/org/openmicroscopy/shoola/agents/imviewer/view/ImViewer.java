@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,9 @@ public interface ImViewer
     /** Bound Property name indicating that the colour model has changed. */
     public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
     												"colorModelChanged";
+    
+    /** Identifies the <code>Color Picket</code> menu. */
+    public static final int         COLOR_PICKER_MENU = 0;
     
     /**
      * Set the visiblity of the lens. 
@@ -466,5 +471,17 @@ public interface ImViewer
      * @return See above.
      */
     public ImageIcon getImageIcon();
+    
+    /**
+     * Brings up the menu on top of the specified component at 
+     * the specified location.
+     * 
+     * @param menuID    The id of the menu. One out of the following constants:
+     *                  {@link #COLOR_PICKER_MENU}.
+     * @param source	The component that requested the popup menu.
+     * @param location	The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+    public void showMenu(int menuID, Component source, Point location);
     
 }

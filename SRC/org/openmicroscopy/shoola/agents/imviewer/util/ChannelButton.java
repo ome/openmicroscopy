@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -52,9 +53,14 @@ import org.openmicroscopy.shoola.util.ui.ColouredButton;
  * @since OME2.2
  */
 public class ChannelButton
-    extends ColouredButton implements ActionListener
+    extends ColouredButton 
+    implements ActionListener
 {
     
+	/** The default size of the component. */
+	public static final Dimension 	DEFAULT_MIN_SIZE = new Dimension(30, 30);
+	
+	
     /** Bound property indicating to bring up the info dialog. */
     public static final String  INFO_PROPERTY = "info";
     
@@ -68,7 +74,7 @@ public class ChannelButton
      */
     public static final String  CHANNEL_COLOR_PROPERTY = "channelColor";
     
-    /** The OME index of the channel. */
+    /** The index of the channel. */
     private final int               index;
     
     /** The pop up menu associated to this component. */

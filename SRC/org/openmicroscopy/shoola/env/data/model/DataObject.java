@@ -30,7 +30,8 @@ package org.openmicroscopy.shoola.env.data.model;
 //Application-internal dependencies
 
 /** 
- * 
+ * Internal object implement this interface if they need to make
+ * deep copy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,7 +46,11 @@ package org.openmicroscopy.shoola.env.data.model;
  */
 public interface DataObject
 {
-	
+	/** 
+	 * Creates a new instance 
+	 * 
+	 * @return See above.
+	 */
 	public DataObject makeNew();
 	
 }

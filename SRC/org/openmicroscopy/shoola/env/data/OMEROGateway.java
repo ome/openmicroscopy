@@ -886,7 +886,7 @@ class OMEROGateway
             Parameters param = new Parameters();
             param.addLong("parentID", parent.getId());
             param.addLong("childID", child.getId());
-           return service.findByQuery(sql, param);
+            return service.findByQuery(sql, param);
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the requested link for "+
             "parent ID: "+parent.getId()+" and child ID: "+child.getId());

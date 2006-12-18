@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -219,6 +221,9 @@ class ImViewerControl
     /** Identifies the <code>customized size of the unit bar</code> action. */
     static final Integer     UNIT_BAR_CUSTOM = new Integer(35);
     
+    /** Identifies the <code>color Picker</code> action. */
+    static final Integer     COLOR_PICKER = new Integer(36);
+    
     /** Delay before updating lens after new image loads. */
     static final int		 LENS_UPDATE_DELAY = 200;
     
@@ -328,6 +333,7 @@ class ImViewerControl
                 UnitBarSizeAction.HUNDRED));
         actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model, 
                 UnitBarSizeAction.CUSTOMIZED));
+        actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
     }
     
     /** 
@@ -611,7 +617,8 @@ class ImViewerControl
                 un.notifyInfo("Channel info", "No metadata for the " +
                         "selected channel.");
             }
-        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName)) {
+        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName) ||
+        		ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
             Color c = model.getChannelColor(colorPickerIndex);
             ColourPicker dialog = new ColourPicker(view, c);

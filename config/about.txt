@@ -1,0 +1,4 @@
+For further information about copyright and version information,
+see the text files accompanying this software.
+
+This software is covered by the GPL license.

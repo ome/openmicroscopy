@@ -45,9 +45,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 //Third-party libraries
 
@@ -379,5 +386,31 @@ public class UIUtilities
     	if (value.equals("0")) return null;
     	return value; 
 	}
+    
+    /**
+     * Formats the text and displays it in a {@link JTextPane}.
+     * 
+     * @param text The text to display.
+     * @return See above.
+     */
+    public static JTextPane buildTextPane(String text)
+    {
+    	StyleContext context = new StyleContext();
+        StyledDocument document = new DefaultStyledDocument(context);
+
+        Style style = context.getStyle(StyleContext.DEFAULT_STYLE);
+        StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);
+
+        try {
+            document.insertString(document.getLength(), text, style);
+        } catch (BadLocationException e) {}
+
+        JTextPane textPane = new JTextPane(document);
+        textPane.setOpaque(false);
+        textPane.setEditable(false);
+        textPane.setFocusable(false);
+        
+        return textPane;
+    }
     
 }

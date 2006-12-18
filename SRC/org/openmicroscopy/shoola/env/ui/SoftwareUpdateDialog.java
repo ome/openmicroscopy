@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -36,13 +37,14 @@ import java.awt.event.WindowEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
-
 
 //Third-party libraries
 
@@ -66,17 +68,23 @@ class SoftwareUpdateDialog
     extends JDialog
 {
 
+	/** The window's title. */
+	private static final String		TITLE = "About Software...";
+	
     /** The text displayed before the version and revision values. */
-    private static final String     CLIENT_NAME = "Client";
+    private static final String     CLIENT_NAME = "Client:";
     
     /** The client's version. */
     private static final String     CLIENT_VERSION = "3.0_M3 ";
    
     /** The text displayed before the revision date. */
-    private static final String     REVISION_NAME = "Revision Date ";
+    private static final String     REVISION_NAME = "Revision Date:";
     
     /** The text displayed before the release date. */
-    private static final String     RELEASE_NAME = "Release Date ";
+    private static final String     RELEASE_NAME = "Release Date:";
+    
+    /** Default text message. */
+    private static final String		ABOUT_TITLE = "About Software";
     
     /** The close button. */
     private JButton closeButton;
@@ -86,6 +94,14 @@ class SoftwareUpdateDialog
     {
         setVisible(false);
         dispose();
+    }
+    
+    /** Sets the propertie of thsi window. */
+    private void setWindowProperties()
+    {
+    	setTitle(TITLE);
+        setModal(true);
+        setResizable(false);
     }
     
     /** Initializes the components composing the display. */
@@ -204,28 +220,65 @@ class SoftwareUpdateDialog
         return bar;
     }
     
-    /** Builds and lays out the UI. */
-    private void buildGUI()
+    /**
+     * Builds a panel hosting the passed message.
+     * 
+     * @param aboutMessage The message to display
+     * @return See above.
+     */
+    private JPanel buildAbout(String aboutMessage)
     {
-        getContentPane().add(buildContentPanel(), BorderLayout.CENTER);
+    	JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        JLabel name = UIUtilities.setTextFont(ABOUT_TITLE);
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        content.add(name, c);
+        c.gridy = 1;
+
+        content.add(UIUtilities.buildTextPane(aboutMessage), c);
+        c.gridy = 2;
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(content);
+        p.add(new JSeparator());
+    	return UIUtilities.buildComponentPanel(p);
+    }
+    
+    /** 
+     * Builds and lays out the UI. 
+     * 
+     * @param aboutMessage	The message retrieved from the About file.
+     */
+    private void buildGUI(String aboutMessage)
+    {
+    	Container c = getContentPane();
+    	c.add(buildAbout(aboutMessage), BorderLayout.NORTH);
+        c.add(buildContentPanel(), BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);
-        getContentPane().add(p, BorderLayout.SOUTH);
+        c.add(p, BorderLayout.SOUTH);
     }
     
     /**
      * Creates a new intance.
      * 
-     * @param owner The owner of the frame.
+     * @param owner 		The owner of the frame.
+     * @param aboutMessage	The message retrieved from the About file.
      */
-    SoftwareUpdateDialog(JFrame owner)
+    SoftwareUpdateDialog(JFrame owner, String aboutMessage)
     {
         super(owner);
-        setModal(true);
-        setResizable(false);
+        setWindowProperties();
         initComponents();
-        buildGUI();
+        buildGUI(aboutMessage);
         pack();
     }
     

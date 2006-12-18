@@ -28,9 +28,6 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -74,10 +71,10 @@ class ToolBar
 {
 
     /** Lenght of the z-section selection text field. */
-    private static final String     MAX_LENGTH_Z = "99";
+    //private static final String     MAX_LENGTH_Z = "99";
     
     /** Lenght of the timepoint selection text field. */
-    private static final String     MAX_LENGTH_T = "100";
+    //private static final String     MAX_LENGTH_T = "100";
     
     /** Action command ID to indicate that a new z-section is selected.*/
     private static final int        Z_SELECTED = 0;
@@ -111,9 +108,6 @@ class ToolBar
     
     /** The currently selected timepoint. */
     private int             currentT;
-    
-    /** Width of a character w.r.t. the font metric. */
-    private int             charWidth;
 
     /**
      * Helper method to create a {@link JButton} with an icon and an action.
@@ -247,6 +241,7 @@ class ToolBar
      * 
      * @return See above.
      */
+    /*
     private JPanel buildFieldsComponent()
     {
         JPanel fields = new JPanel();
@@ -283,6 +278,7 @@ class ToolBar
         fields.add(tLabel);
         return fields;
     }
+    */
     
     /** Builds and lays out the GUI. */
     private void buildGUI()
@@ -306,7 +302,6 @@ class ToolBar
         if (model == null) throw new NullPointerException("No model.");
         this.controller = controller;    
         this.model = model;
-        charWidth = getFontMetrics(getFont()).charWidth('m');
         initComponents();
     }
     

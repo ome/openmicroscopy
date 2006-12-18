@@ -53,6 +53,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -249,22 +250,21 @@ class DomainPane
         ChannelMetadata[] data = model.getChannelData();
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         ChannelMetadata d;
-        ChannelToggleButton channelButton;
+        ChannelToggleButton item;
         p.add(Box.createRigidArea(VBOX));
         for (int j = 0; j < data.length; j++) {
         	d = data[j];
         
-        	channelButton = new ChannelToggleButton(""+d.getEmissionWavelength()
-        						, model.getChannelColor(j), j);
-        	channelList.add(channelButton);
-        	if (model.getSelectedChannel() == j)
-            	channelButton.setSelected(true);
+        	item = new ChannelToggleButton(""+d.getEmissionWavelength(), 
+        							model.getChannelColor(j), j);
+        	channelList.add(item);
+        	item.setSelected(model.getSelectedChannel() == j);
 
-           	channelButton.setGrayedOut(gs);
-            channelButton.addPropertyChangeListener(controller);
-            channelButton.setPreferredSize(new Dimension(30, 30));
-            channelButton.setMinimumSize(new Dimension(30, 30));
-            p.add(channelButton);
+        	item.setGrayedOut(gs);
+        	item.addPropertyChangeListener(controller);
+        	item.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
+        	item.setMinimumSize(ChannelButton.DEFAULT_MIN_SIZE);
+            p.add(item);
             p.add(Box.createRigidArea(VBOX));
         }
         return UIUtilities.buildComponentPanel(p);     

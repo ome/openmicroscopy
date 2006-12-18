@@ -703,7 +703,7 @@ class HiViewerComponent
 		Browser browser = model.getBrowser();
 		browser.accept(visitor);
 		browser.getUI().repaint();
-		
+		browser.setSelectedDisplay(browser.getLastSelectedDisplay());
 		if (model.getTreeView() != null)
         	model.getTreeView().repaint();
 		model.onDataObjectSave();

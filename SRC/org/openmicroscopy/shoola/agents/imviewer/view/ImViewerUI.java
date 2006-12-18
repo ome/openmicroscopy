@@ -28,8 +28,10 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +47,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 
@@ -55,7 +58,9 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
@@ -693,7 +698,7 @@ class ImViewerUI
     {
         if (lens==null) 
         	lens = new LensComponent(this);
-        if (b==true)
+        if (b)
         {
             if (model.getMaxX() < lens.getLensUI().getWidth() || 
                 model.getMaxY() < lens.getLensUI().getHeight())
@@ -712,16 +717,14 @@ class ImViewerUI
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
-                lens.setZoomWindowLocation(this.getX()+this.getWidth(), 
-                												this.getY());
+                lens.setZoomWindowLocation(getX()+getWidth(), getY());
             }
 
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getRenderedImage());
             lens.setLensPreferredColour();
-            lens.setVisible(b);
-        } else
-            lens.setVisible(b);
+        }
+        lens.setVisible(b);
         this.repaint();
     }
     
@@ -739,6 +742,34 @@ class ImViewerUI
      */
     void setImageZoomFactor(float factor) { lens.setImageZoomFactor(factor); }
     
+    /**
+     * Creates the color picker menu and brings it on screen.
+     * 
+     * @param menuID    The id of the menu. One out of the following constants:
+     *                  {@link ImViewer#COLOR_PICKER_MENU}.
+     * @param source	The component that requested the popup menu.
+     * @param location	The point at which to display the menu, relative to the
+     *                  <code>component</code>'s coordinates.
+     */
+	void showMenu(int menuID, Component source, Point location)
+	{
+		if (menuID !=ImViewer.COLOR_PICKER_MENU) return;
+		ChannelMetadata[] data = model.getChannelData();
+		ChannelMetadata d;
+		JPopupMenu menu = new JPopupMenu();
+		ChannelColorMenuItem item;
+		for (int j = 0; j < data.length; j++) {
+        	d = data[j];
+        
+        	item = new ChannelColorMenuItem(
+        							"Wavelength "+d.getEmissionWavelength(), 
+        							model.getChannelColor(j), j);
+        	menu.add(item);
+            item.addPropertyChangeListener(controller);
+        }
+		menu.show(source, location.x, location.y);
+	}
+	
     /** Overridden to the set the location of the {@link ImViewer}. */
     public void setOnScreen()
     {
@@ -760,6 +791,8 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+
+
 
 	
 }

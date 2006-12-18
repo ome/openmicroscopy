@@ -131,7 +131,7 @@ class OMEROEntry
         try {
             if (node.hasChildNodes()) value = parseTag(node);
         } catch (DOMException dex) { 
-            rethrow("Can't parse OMERODS entry.", dex);
+            rethrow("Can't parse OMERO entry.", dex);
         }
     }
     

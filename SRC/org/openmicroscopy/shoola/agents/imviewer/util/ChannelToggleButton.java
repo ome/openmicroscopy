@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.ColouredButton;
 public class ChannelToggleButton 
     extends ColouredButton
 {
-    
+
     /** Bound property indicating that the channel is selected. */
 	public static final String		CHANNEL_PICKED_PROPERTY = "channelPicked";
 

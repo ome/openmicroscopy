@@ -126,7 +126,7 @@ class TaskBarView
 	/** Identifies the help button within the toolbar. */
 	static final int	HELP_BTN = 11;
 	
-	/** Identifies the comment menu item within the toolbar. */
+	/** Identifies the comment menu item within the help menu. */
 	static final int	COMMENT_MI = 12;
 	
 	/** 
@@ -187,7 +187,7 @@ class TaskBarView
 									iconManager.getIcon(IconManager.HELP));
 		buttons[HOWTO_MI] = new JMenuItem("How To...",
 									iconManager.getIcon(IconManager.HOW_TO));
-		buttons[UPDATES_MI] = new JMenuItem("Software Updates",
+		buttons[UPDATES_MI] = new JMenuItem("About Software",
 								iconManager.getIcon(IconManager.SW_UPDATES));
 		buttons[ABOUT_MI] = new JMenuItem("About OME",
 												IconManager.getOMEIcon());
@@ -339,11 +339,11 @@ class TaskBarView
 		buttons[CONNECT_BTN] = new JButton(
 								iconManager.getIcon(IconManager.CONNECT_DS));
 		buttons[CONNECT_BTN].setToolTipText(
-					UIUtilities.formatToolTipText("Connect to OMEDS."));
+					UIUtilities.formatToolTipText("Connect to OMERO."));
 		buttons[DISCONNECT_BTN] = new JButton(
 								iconManager.getIcon(IconManager.DISCONNECT_DS));
 		buttons[DISCONNECT_BTN].setToolTipText(
-					UIUtilities.formatToolTipText("Disconnect from OMEDS."));
+					UIUtilities.formatToolTipText("Disconnect from OMERO."));
 		buttons[HELP_BTN] = new JButton(iconManager.getIcon(IconManager.HELP));
 		buttons[HELP_BTN].setToolTipText(
 					UIUtilities.formatToolTipText("Bring up help contents."));
@@ -545,20 +545,17 @@ class TaskBarView
         JMenuBar bar = getJMenuBar();
         if (before) {
             JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
-            for (int i = 0; i < existingMenus.length; i++) {
+            for (int i = 0; i < existingMenus.length; i++) 
                 existingMenus[i] = bar.getMenu(i);
-            }
+            
             bar.removeAll();
-            for (int j = 0; j < menus.length; j++) {
+            for (int j = 0; j < menus.length; j++) 
                 bar.add(menus[j]);
-            }
-            for (int i = 0; i < existingMenus.length; i++) {
+            for (int i = 0; i < existingMenus.length; i++) 
                 bar.add(existingMenus[i]);
-            }
         } else {
-            for (int j = 0; j < menus.length; j++) {
+            for (int j = 0; j < menus.length; j++) 
                 bar.add(menus[j]);
-            }
         }
     }
 

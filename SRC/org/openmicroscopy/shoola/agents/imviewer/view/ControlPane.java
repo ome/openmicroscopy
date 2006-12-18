@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -107,10 +108,10 @@ class ControlPane
     private JComboBox       zoomingBox;
     
     /** Slider to select the z-section. */
-    private OneKnobSlider         zSlider;
+    private OneKnobSlider	zSlider;
     
     /** Slider to select the timepoint. */
-    private OneKnobSlider         tSlider;
+    private OneKnobSlider	tSlider;
     
     /** One  {@link ChannelButton} per channel. */
     private HashSet         channelButtons;
@@ -120,6 +121,9 @@ class ControlPane
     
     /** Button to select the color model. */
     private JButton         colorModelButton;
+    
+    /** Button to bring up the color picker. */
+    private JButton         colorPickerButton;
     
     /** Helper reference. */
     private IconManager     icons;
@@ -241,6 +245,10 @@ class ControlPane
             }
         
         });
+        ViewerAction a = controller.getAction(ImViewerControl.COLOR_PICKER);
+        colorPickerButton = new JButton(a);
+        colorPickerButton.addMouseListener((ColorPickerAction) a);
+        UIUtilities.unifiedButtonLookAndFeel(colorPickerButton);
     }
     
     /**
@@ -330,6 +338,8 @@ class ControlPane
         bar.add(colorModelButton);
         bar.add(Box.createRigidArea(VBOX));
         bar.add(channelMovieButton);
+        bar.add(Box.createRigidArea(VBOX));
+        bar.add(colorPickerButton);
         return bar;
     }
     
@@ -353,7 +363,7 @@ class ControlPane
                     model.getChannelColor(k), k, model.isChannelActive(k));
             if (gs) button.setGrayedOut(gs);
             button.addPropertyChangeListener(controller);
-            button.setPreferredSize(new Dimension(30, 30));
+            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
             channelButtons.add(button);
             p.add(button);
             p.add(Box.createRigidArea(VBOX));

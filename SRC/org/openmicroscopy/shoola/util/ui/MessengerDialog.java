@@ -306,32 +306,6 @@ public class MessengerDialog
 	}
 	
 	/**
-	 * Builds the UI component displaying the instructions message.
-	 * 
-	 * @param text The text to display.
-	 * @return See above.
-	 */
-	private JTextPane buildInstructions(String text)
-	{
-		StyleContext context = new StyleContext();
-        StyledDocument document = new DefaultStyledDocument(context);
-
-        Style style = context.getStyle(StyleContext.DEFAULT_STYLE);
-        StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);
-
-        try {
-            document.insertString(document.getLength(), text, style);
-        } catch (BadLocationException e) {}
-
-        JTextPane textPane = new JTextPane(document);
-        textPane.setOpaque(false);
-        textPane.setEditable(false);
-        textPane.setFocusable(false);
-        
-        return textPane;
-	}
-	
-	/**
 	 * Builds and lays out the panel hosting the <code>comment</code> details.
 	 * 
 	 * @param comment		The comment's text.
@@ -438,7 +412,7 @@ public class MessengerDialog
         
         if (icon != null)
         	commentPanel.add(new JLabel(icon), "0, 0, l, c");
-        commentPanel.add(buildInstructions(instructions), "1, 0, 2, 0");
+        commentPanel.add(UIUtilities.buildTextPane(instructions), "1, 0, 2, 0");
         commentPanel.add(buildEmailAreaPanel('E'), "0, 1, 2, 1");
         commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 2, 2, 2");
 		return commentPanel;

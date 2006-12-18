@@ -119,7 +119,11 @@ abstract class Entry
      */
     private static class NameTypePair
     {
-        String  name, type;
+    	/** The name attribute. */
+        String  name;
+        
+        /** The type attribute. */
+        String  type;
     }
       
 	/** 
