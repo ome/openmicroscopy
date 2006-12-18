@@ -286,7 +286,7 @@ public class GroupsTab extends JPanel {
         buttonPanel.add(Box.createHorizontalStrut(250));
         buttonPanel.add(saveBtn);
         panel.add(buttonPanel);
-        panel.add(Box.createVerticalStrut(100));
+        panel.add(Box.createVerticalStrut(50));
 
         JPanel userGroupListButtonPanel = new JPanel();
         userGroupListButtonPanel.setLayout(new BoxLayout(

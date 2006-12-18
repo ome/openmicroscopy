@@ -131,6 +131,16 @@ public class Model {
         }
     }
 
+    public void changeLoggedInUserPassword(String password) throws IAdminException,
+    	UnknownException, PermissionsException 
+    {
+    	try {
+    		iAdmin.changeUserPassword(loggedInUser, password);
+    	} catch (Exception e) {
+    		ExceptionHandler.get().catchException(e);
+    	}
+    }
+
     public Experimenter getUser(long i) throws IAdminException,
             UnknownException, PermissionsException {
         try {

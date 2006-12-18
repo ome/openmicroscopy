@@ -9,6 +9,7 @@ package src.adminTool.usersPanel;
 // Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -95,6 +96,8 @@ public class UsersTab extends JPanel {
     private JButton saveBtn;
 
     private JButton resetPasswordBtn;
+    
+    private JButton changeYourPasswordBtn;
 
     private JButton setDefaultBtn;
 
@@ -214,7 +217,8 @@ public class UsersTab extends JPanel {
         removeUserBtn.addActionListener(new UserAction(UserAction.REMOVE,
                 controller));
         saveBtn.addActionListener(new SaveAction(controller));
-        resetPasswordBtn.addActionListener(new PasswordAction(controller));
+        resetPasswordBtn.addActionListener(new PasswordAction(PasswordAction.CHANGE_SELECTED_USER, controller));
+        changeYourPasswordBtn.addActionListener(new PasswordAction(PasswordAction.CHANGE_CURRENT_USER, controller));
         setDefaultBtn.addActionListener(new SetDefaultAction(controller));
         setSystemBtn.addActionListener(new SetSystemAction(controller));
     }
@@ -272,7 +276,8 @@ public class UsersTab extends JPanel {
         ImageIcon defaultGroupIcon = ImageFactory.get().image(
                 ImageFactory.DEFAULT_GROUP);
         saveBtn = new JButton("Save");
-        resetPasswordBtn = new JButton("Reset Password");
+        resetPasswordBtn = new JButton("Reset User Password");
+        changeYourPasswordBtn = new JButton("Reset Your Password");
         setSystemBtn = new JButton("Set System User");
         addUserBtn = new JButton(addUserIcon);
         removeUserBtn = new JButton(removeUserIcon);
@@ -333,14 +338,19 @@ public class UsersTab extends JPanel {
         userDataEntryPanel.add(Box.createVerticalStrut(5));
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.add(Box.createHorizontalStrut(100));
+        buttonPanel.add(Box.createHorizontalStrut(30));
         buttonPanel.add(resetPasswordBtn);
         buttonPanel.add(Box.createHorizontalStrut(30));
         buttonPanel.add(setSystemBtn);
         buttonPanel.add(Box.createHorizontalStrut(30));
         buttonPanel.add(saveBtn);
         userDataEntryPanel.add(buttonPanel);
+        JPanel secondButtonPanel = new JPanel();
+        secondButtonPanel.setLayout(new BoxLayout(secondButtonPanel, BoxLayout.X_AXIS));
+        secondButtonPanel.add(changeYourPasswordBtn);
+        userDataEntryPanel.add(secondButtonPanel);
 
+        
         // buttons controlling which group user belongs to.
         JPanel userGroupButtonPanel = new JPanel();
         userGroupButtonPanel.setLayout(new BoxLayout(userGroupButtonPanel,
@@ -355,6 +365,8 @@ public class UsersTab extends JPanel {
                 BoxLayout.Y_AXIS));
         userGroupListPanel.add(userGroupListLabel);
         userGroupListPanel.add(userGroupMembershipList);
+        userGroupMembershipList.setPreferredSize(new Dimension(340,160));
+        userGroupMembershipList.setMaximumSize(new Dimension(340,160));
 
         // panel holding user group list and buttons.
         JPanel userGroupPanel = new JPanel();
@@ -410,7 +422,7 @@ public class UsersTab extends JPanel {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
         container.add(listContainer);
-        container.add(Box.createHorizontalStrut(50));
+        container.add(Box.createHorizontalStrut(30));
         container.add(userInfoPanel);
         // container.add(Box.createHorizontalStrut(10));
         this.setLayout(new BorderLayout());

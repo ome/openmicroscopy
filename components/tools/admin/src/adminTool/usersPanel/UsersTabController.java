@@ -71,6 +71,22 @@ public class UsersTabController implements UserListController {
         }
     }
 
+    void changeLoggedInUserPassword() {
+
+    	PasswordDialog passwordDialog = new PasswordDialog();
+        Point loc = view.getLocationOnScreen();
+        int x = loc.x + view.getWidth() / 2 - passwordDialog.getWidth() / 2;
+        int y = loc.y + view.getHeight() / 2 - passwordDialog.getHeight() / 2;
+        passwordDialog.setLocation(x, y);
+        passwordDialog.setVisible(true);
+        if (passwordDialog.OKSelected()) {
+            try {
+                model.changeLoggedInUserPassword(passwordDialog.getPassword());
+            } catch (Exception e) {
+                handleException(e, "Change User password");
+            }
+        }
+    }
     void setSystemUser() {
         String selectedUser = view.getSelectedUser();
         try {

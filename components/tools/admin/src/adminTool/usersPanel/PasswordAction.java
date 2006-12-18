@@ -25,10 +25,17 @@ import java.awt.event.ActionListener;
  *          </small>
  * @since OME3.0
  */
-public class PasswordAction implements ActionListener {
+public class PasswordAction 
+	implements ActionListener 
+{
+	public static int CHANGE_SELECTED_USER = 0;
+	public static int CHANGE_CURRENT_USER = 0;
+	
     private UsersTabController controller;
+    private int 				actionType;
 
-    PasswordAction(UsersTabController controller) {
+    PasswordAction(int actionType, UsersTabController controller) {
+    	this.actionType = actionType;
         this.controller = controller;
     }
 
@@ -37,8 +44,13 @@ public class PasswordAction implements ActionListener {
      * 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) {
-        controller.changePassword();
+    public void actionPerformed(ActionEvent e) 
+    {
+    	if(actionType == CHANGE_SELECTED_USER)
+    		controller.changePassword();
+    	if(actionType == CHANGE_CURRENT_USER)
+    		controller.changeLoggedInUserPassword();
+    	
 
     }
 

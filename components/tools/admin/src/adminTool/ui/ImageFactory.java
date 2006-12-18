@@ -57,7 +57,7 @@ public class ImageFactory {
         path[ADD_USER] = "/resources/graphx/addUser_kusers_nuvola48_mod3.png";
         path[REMOVE_USER] = "/resources/graphx/RemoveUser_kusers_nuvola48_mod3.png";
         path[LEFT_ARROW] = "/resources/graphx/1leftarrow_nuvola32.png";
-        path[RIGHT_ARROW] = "/resources/graphx/1leftarrow_nuvola32.png";
+        path[RIGHT_ARROW] = "/resources/graphx/1rightarrow_nuvola32.png";
         path[DEFAULT_GROUP] = "/resources/graphx/kgpg_identity_nuvola32.png";
     }
 

@@ -34,7 +34,10 @@ import src.adminTool.ui.messenger.CommentMessenger;
  * @since OME2.2
  * 
  */
-public class AdminWindow extends JFrame implements ActionListener {
+public class AdminWindow 
+	extends JFrame 
+	implements ActionListener 
+{
     /**
      * 
      */
@@ -57,9 +60,9 @@ public class AdminWindow extends JFrame implements ActionListener {
     private MainPanel mainPanel;
 
     public AdminWindow() {
-        setTitle("Admin Tool");
+        setTitle("Omero Admin");
         setLocation(300, 100);
-        setSize(800, 500);
+        setSize(840, 600);
         createMenu();
         mainPanel = new MainPanel(this);
         this.setLayout(new BorderLayout());
@@ -84,8 +87,6 @@ public class AdminWindow extends JFrame implements ActionListener {
         helpMenu = new JMenu("Help");
         help = new JMenuItem("About AdminTool");
         addComment = new JMenuItem("Send Comment To Developers");
-        helpMenu.add(help);
-        helpMenu.add(new JSeparator());
         helpMenu.add(addComment);
         addComment.addActionListener(this);
         addComment.setActionCommand("comment");
@@ -102,7 +103,7 @@ public class AdminWindow extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("login")) {
             mainPanel.startLogin();
-            pack();
+     //       pack();
         }
         if (e.getActionCommand().equals("exit")) {
             this.dispose();
