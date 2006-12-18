@@ -296,6 +296,7 @@ public class UsersTab extends JPanel {
             removeFromGroupBtn.setEnabled(false);
             setDefaultBtn.setEnabled(false);
             setSystemBtn.setEnabled(false);
+            resetPasswordBtn.setEnabled(false);
         } else {
             saveBtn.setEnabled(true);
             addUserBtn.setEnabled(true);
@@ -304,6 +305,7 @@ public class UsersTab extends JPanel {
             removeFromGroupBtn.setEnabled(true);
             setDefaultBtn.setEnabled(true);
             setSystemBtn.setEnabled(true);
+            resetPasswordBtn.setEnabled(true);
         }
     }
 
