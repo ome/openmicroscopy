@@ -28,9 +28,9 @@ import src.adminTool.ui.messenger.DebugMessenger;
  * 
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ *    href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ *    href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision$Date: $)
  *          </small>
  * @since OME3.0
@@ -48,6 +48,53 @@ public class GroupsTabController implements UserListController,
         this.view = view;
     }
 
+    void setDefaultGroup() {
+        String selectedUser = view.getSelectedMember();
+        try {
+            if (selectedUser == null) {
+                view.showErrorMessage("You must select a user before you set "
+                        + "default group.");
+                return;
+            }
+            // Check user exists.
+            if (!model.findUserByName(selectedUser)) {
+                throw new IAdminException(
+                        new Exception(
+                                "Cannot find user in "
+                                        + "Database. Admintool may be out " +
+                                        		"of sync with Database."));
+            }
+
+            // check that the groupslist returns a non-null string.
+            String groupSelected = view.getSelectedGroup();
+            if (groupSelected == null) {
+                view.showErrorMessage("You must select a group before you set "
+                        + "default group.");
+                return;
+            }
+            // Check that group exists.
+            if (!model.findGroupByName(groupSelected)) {
+                throw new IAdminException(
+                        new Exception(
+                                "Cannot find group in "
+                                        + "Database. Admintool may be out of " +
+                                        		"sync with Database."));
+            }
+        } catch (Exception e) {
+            handleException(e,
+                    "Admintool seems to be out of sync with database."
+                            + "Try restarting Admintool.");
+        }
+
+        // Change the default group for the user to the one selected.
+        try {
+            model.setDefaultGroup(model.getCurrentGroupID());
+            view.setGroupDetails(model.getCurrentGroup());
+        } catch (Exception e) {
+            handleException(e, "Set Current Group as Users Default Group");
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -171,7 +218,8 @@ public class GroupsTabController implements UserListController,
             String groupSelected = view.getSelectedGroup();
             if (groupSelected == null) {
                 view
-                        .showErrorMessage("Please select the group you wish add to user.");
+                        .showErrorMessage("Please select the group you " +
+                        		"wish add to user.");
                 return;
             }
 
@@ -204,12 +252,19 @@ public class GroupsTabController implements UserListController,
             String groupSelected = view.getSelectedGroup();
             if (groupSelected == null) {
                 view
-                        .showErrorMessage("Please select a group to remove from user.");
+                        .showErrorMessage("Please select a group to remove " +
+                        		"from user.");
                 return;
             }
 
             if (!model.findGroupByName(groupSelected)) {
                 return;
+            }
+            if(model.isDefaultGroup(model.getCurrentGroupID()))
+            {
+            	view.showErrorMessage("Cannot remove user from group when it " +
+            			"is user\'s default group.");
+            	return;
             }
             model.removeGroupFromUser(model.getCurrentGroupID());
             view.setGroupDetails(model.getCurrentGroup());

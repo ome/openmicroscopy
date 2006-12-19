@@ -78,6 +78,8 @@ public class GroupsTab extends JPanel {
 
     private JButton saveBtn;
 
+    private JButton setDefaultBtn;
+
     private JButton addUserBtn;
 
     private JButton removeUserBtn;
@@ -174,6 +176,7 @@ public class GroupsTab extends JPanel {
                 .addActionListener(new UserAction(UserAction.ADD, controller));
         removeUserBtn.addActionListener(new UserAction(UserAction.REMOVE,
                 controller));
+        setDefaultBtn.addActionListener(new SetDefaultAction(controller));
         groupList.selectFirstGroup();
     }
 
@@ -222,10 +225,12 @@ public class GroupsTab extends JPanel {
 
     void createActionButtons() {
         saveBtn = new JButton("Save");
+        setDefaultBtn = new JButton("Set Default Group");
+        
         ImageIcon addUserIcon = ImageFactory.get().image(
-                ImageFactory.LEFT_ARROW);
-        ImageIcon removeUserIcon = ImageFactory.get().image(
                 ImageFactory.RIGHT_ARROW);
+        ImageIcon removeUserIcon = ImageFactory.get().image(
+                ImageFactory.LEFT_ARROW);
         ImageIcon addGroupIcon = ImageFactory.get()
                 .image(ImageFactory.ADD_USER);
         ImageIcon removeGroupIcon = ImageFactory.get().image(
@@ -283,7 +288,9 @@ public class GroupsTab extends JPanel {
         panel.add(createLabelText(descriptionLabel, description, 60));
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.add(Box.createHorizontalStrut(250));
+        buttonPanel.add(Box.createHorizontalStrut(100));
+        buttonPanel.add(setDefaultBtn);
+        buttonPanel.add(Box.createHorizontalStrut(50));
         buttonPanel.add(saveBtn);
         panel.add(buttonPanel);
         panel.add(Box.createVerticalStrut(50));
