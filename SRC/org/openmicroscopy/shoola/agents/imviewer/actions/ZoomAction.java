@@ -199,7 +199,7 @@ public class ZoomAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         this.zoomingIndex = zoomingIndex;
         putValue(Action.NAME, names[zoomingIndex]);
-        setName(names[zoomingIndex]);
+        name = names[zoomingIndex];
     }
     
     /** 

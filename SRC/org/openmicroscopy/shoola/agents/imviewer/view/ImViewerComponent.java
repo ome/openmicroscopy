@@ -435,6 +435,7 @@ class ImViewerComponent
             throw new IllegalStateException(
             "This method can't be invoked in the LOADING_RENDERING_CONTROL.");
         model.setRenderingControl(result);
+        fireStateChange();
         //Register the renderer
         model.getRenderer().addPropertyChangeListener(controller);
         LoadingWindow window = view.getLoadingWindow();

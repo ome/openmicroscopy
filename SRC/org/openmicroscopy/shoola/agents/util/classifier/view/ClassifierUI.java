@@ -89,6 +89,7 @@ class ClassifierUI
     	sorter = new ViewerSorter();
     	tree = new TreeCheck("", null);
     	tree.setRootVisible(false);
+    	tree.setShowsRootHandles(true);
     	tree.addPropertyChangeListener(TreeCheck.NODE_SELECTED_PROPERTY, 
 										controller);
     }
@@ -206,5 +207,11 @@ class ClassifierUI
 		initComponents();
 		buildGUI();
 	}
+
+    /** Selects all the nodes in the tree. */
+	void selectAll() { tree.selectAllNodes(); }
+	
+    /** Selects all the nodes in the tree. */
+	void deselectAll() { tree.deselectAllNodes(); }
 	
 }

@@ -96,7 +96,7 @@ public class DeleteAction
     /** 
      * Description of the action if the selected item is <code>null</code>. 
      */
-    private static final String DESCRIPTION = "Remove item.";
+    private static final String DESCRIPTION = "Remove the selected item.";
     
     /** 
      * Description of the action if the selected items are 

@@ -35,7 +35,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -83,14 +82,13 @@ public class DataSaveVisitor
     {
         long id = ((ImageData) node.getHierarchyObject()).getId();
         Iterator i = nodes.iterator();
-        DataObject object;
+        Object object;
         while (i.hasNext()) {
-        	object = (DataObject) i.next();
+        	object =  i.next();
         	if (object instanceof ImageData) {
-        		if (object.getId() == id) {
+        		if (((ImageData) object).getId() == id) {
         			node.setHierarchyObject(object);
         			node.setNodeDecoration();
-        			node.repaint();
         		}
         	}
 		}
@@ -103,14 +101,14 @@ public class DataSaveVisitor
     public void visit(ImageSet node)
     {
     	Object uo = node.getHierarchyObject();
-    	if (!(uo instanceof DataObject)) return;
+    	if (!(uo instanceof DatasetData)) return;
     	Iterator i = nodes.iterator();
-        DataObject object;
-        long id = ((DataObject) uo).getId();
+        Object object;
+        long id = ((DatasetData) uo).getId();
         while (i.hasNext()) {
-        	object = (DataObject) i.next();
-        	if (object instanceof ImageData) {
-        		if (object.getId() == id) {
+        	object = i.next();
+        	if (object instanceof DatasetData) {
+        		if (((DatasetData) object).getId() == id) {
         			node.setHierarchyObject(object);
         			if (uo instanceof DatasetData) {
         	            if (node.isAnnotated())

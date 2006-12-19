@@ -57,8 +57,7 @@ public class TreeViewAction
     public static final String NAME = "Show Tree Pane";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display a representation of " +
-    											"the  browsed data.";
+    private static final String DESCRIPTION = "Display the treeView.";
     
     /** 
      * Sets the action enabled depending on the <code>Browser</code> state

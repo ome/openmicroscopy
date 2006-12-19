@@ -185,7 +185,7 @@ class TreeViewUI
         tree = new JTree();
         tree.setShowsRootHandles(true);
         tree.setCellRenderer(new TreeCellRenderer(true, false));
-        tree.putClientProperty("JTree.lineStyle", "Angled");
+        //tree.putClientProperty("JTree.lineStyle", "Angled");
         tree.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         TreeViewImageSet root = new TreeViewImageSet(node);

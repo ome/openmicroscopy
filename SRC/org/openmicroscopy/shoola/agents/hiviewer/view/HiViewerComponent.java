@@ -30,6 +30,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -190,9 +192,10 @@ class HiViewerComponent
             	setStatus("Done", -1);
             else setStatus(HiViewer.PAINTING_TEXT, -1);
             fireStateChange();
-        	if (model.getTreeView() != null) {
+            TreeView tv = model.getTreeView();
+        	if (tv != null) {
         		model.createTreeView();
-        		view.showTreeView(true);
+        		view.showTreeView(tv.isDisplay());
         	}
         	view.showClipBoard(isClipBoardDisplay);
         	view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -692,7 +695,7 @@ class HiViewerComponent
 			default:
 				break;
 		}
-		if ( nodes == null) {
+		if (nodes == null) {
 			model.onDataObjectSave();
 			fireStateChange();
 			return;
@@ -702,10 +705,13 @@ class HiViewerComponent
 		DataSaveVisitor visitor = new DataSaveVisitor(this, nodes);
 		Browser browser = model.getBrowser();
 		browser.accept(visitor);
-		browser.getUI().repaint();
+		JComponent c = browser.getUI();
+		c.validate();
+		c.repaint();
 		browser.setSelectedDisplay(browser.getLastSelectedDisplay());
-		if (model.getTreeView() != null)
-        	model.getTreeView().repaint();
+		TreeView tv = model.getTreeView();
+		if (tv != null) tv.repaint();
+        	
 		model.onDataObjectSave();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		fireStateChange();

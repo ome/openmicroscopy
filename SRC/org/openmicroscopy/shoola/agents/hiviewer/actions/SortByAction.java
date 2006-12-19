@@ -61,10 +61,10 @@ public class SortByAction
     public static final int     BY_NAME = 1;
     
     /** The name of the action. */
-    private static final String DESCRIPTION_NAME = "Sort the nodes by name";
+    private static final String DESCRIPTION_NAME = "Sort by name";
     
     /** The name of the action. */
-    private static final String DESCRIPTION_DATE = "Sort the nodes by date.";
+    private static final String DESCRIPTION_DATE = "Sort by date.";
     
     /** One of the constants defined by this class. */
     private int index;

@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.util.player;
 
 
-
-
 //Java imports
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
@@ -38,14 +36,15 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
- * 
+ * Abstract class that each player should extend e.g. the movie player
+ * or the channel player.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -139,6 +138,7 @@ public abstract class Player
      */
     public void setDelay(int v)
     {
+    	System.out.println(v);
         if (state != STOP) return;
         delay = DELAY/v;
         timer.setDelay(delay);

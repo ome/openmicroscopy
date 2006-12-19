@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Clears the result of a previous find.
+ * Clears previous result.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,8 +57,7 @@ public class ClearAction
     private static final String NAME = "Clear";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Clears the result of " +
-                                                "a previous find action."; 
+    private static final String DESCRIPTION = "Clear previous result."; 
     
     /**
      * Creates a new instance.

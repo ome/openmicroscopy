@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.util.classifier.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -112,12 +114,56 @@ class ClassifierView
     /** The status bar. */
     private StatusBar			statusBar;
     
+    /** Button to select all nodes. */
+    private JButton				selectAll;
+    
+    /** Button to deselect all nodes. */
+    private JButton				deselectAll;
+    
+    /** Initializes the UI components. */
+    private void initComponents()
+    {
+    	selectAll = new JButton("Select All");
+    	selectAll.setToolTipText("Select all categories");
+    	selectAll.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				classifierUI.selectAll();
+			}
+		
+		});
+    	deselectAll = new JButton("Deselect All");
+    	deselectAll.setToolTipText("Deselect all categories");
+    	deselectAll.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				classifierUI.deselectAll();
+			}
+		
+		});
+    }
+    
+    /**
+     * Builds the tool bar hosting the selection buttons.
+     * 
+     * @return See above.
+     */
+    private JPanel buildSelectToolBar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setBorder(null);
+    	bar.add(selectAll);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.add(deselectAll);
+    	return UIUtilities.buildComponentPanel(bar);
+    }
+    
     /** 
      * Builds the UI component hosting the controls.
      * 
      * @return See above.
      */
-    private JPanel buildToolBar()
+    private JPanel buildControlsToolBar()
     {
     	JPanel bar = new JPanel();
     	bar.setBorder(null);
@@ -141,7 +187,11 @@ class ClassifierView
     	p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	p.add(classifierUI);
     	p.add(new JSeparator());
-    	p.add(buildToolBar());
+    	JPanel bars = new JPanel();
+    	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
+    	bars.add(buildSelectToolBar());
+    	bars.add(buildControlsToolBar());
+    	p.add(bars);
     	return p;
     }
     
@@ -231,6 +281,7 @@ class ClassifierView
         this.model = model;
         statusBar = new StatusBar();
         classifierUI = new ClassifierUI(model, controller);
+        initComponents();
         setTitle(getWindowTitle());
     	buildGUI();
 	}

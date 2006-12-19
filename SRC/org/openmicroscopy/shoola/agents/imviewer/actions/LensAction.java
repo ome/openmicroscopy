@@ -58,7 +58,7 @@ public class LensAction
     private static final String NAME = "Lens";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Shows or hides the lens.";
+    private static final String DESCRIPTION = "Show or hide the lens.";
     
     /**
      * Creates a new instance.

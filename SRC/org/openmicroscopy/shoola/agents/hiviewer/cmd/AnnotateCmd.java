@@ -89,8 +89,11 @@ public class AnnotateCmd
         if (node.getHierarchyObject() == null) return;
         if (b) {
         	Set nodes = browser.getSelectedDisplays();
-        	if (nodes.size() > 1) 
+        	if (nodes.size() > 1) {
         		model.annotateDataObjects(nodes);
+        		return;
+        	}
+        		
         }
 
         DataObject hierarchyObject = (DataObject) node.getHierarchyObject();

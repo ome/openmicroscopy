@@ -229,7 +229,7 @@ class BrowserUI
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
         treeDisplay.setCellRenderer(new TreeCellRenderer());
         treeDisplay.setShowsRootHandles(true);
-        treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
+        //treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         TreeImageSet root = new TreeImageSet("");

@@ -102,10 +102,10 @@ public class MessengerDialog
 	/** The default message displayed. */
 	private static final String		MESSAGE = "Thank you for taking the time " +
 			"to send us your comments. \n\n" +
-			"Your feedback will be used to futher the developmment of " +
-			"OMERO and improve our software. Any personal details you provide " +
-			"are purely optional, and will only be used for development " +
-			"purposes .";
+			"Your feedback will be used to further the development of " +
+			"OMERO and improve our software. Any personal details you " +
+			"provide are purely optional, and will only be used for " +
+			"development purposes.";
 	
 	/** The default message displayed. */
 	private static final String		DEBUG_MESSAGE = "An error message has " +

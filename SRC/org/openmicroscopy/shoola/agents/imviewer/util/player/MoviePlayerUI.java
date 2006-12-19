@@ -182,7 +182,7 @@ class MoviePlayerUI
         movieTypes = new JComboBox(selections);
         movieTypes.setSelectedIndex(getMovieTypeIndex(model.getMovieType()));
         
-        //      Spinner timepoint granularity is 1, so must be stepSize  
+        //Spinner timepoint granularity is 1, so must be stepSize  
         int max = model.getMaximumTimer();
         fps = new JSpinner(new SpinnerNumberModel(model.getTimerDelay(), 
                     MoviePlayer.FPS_MIN, max, 1));

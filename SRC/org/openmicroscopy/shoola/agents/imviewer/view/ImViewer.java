@@ -93,6 +93,9 @@ public interface ImViewer
     /** Flag to denote the <i>Channel Movie</i> state. */
     public static final int     CHANNEL_MOVIE = 8;
     
+    /** Flag to denote the <i>Rendering control loaded</i> state. */
+    public static final int     RENDERING_CONTROL_LOADED = 9;
+    
     /** Bound property name indicating that a new z-section is selected. */
     public final static String  Z_SELECTED_PROPERTY = "zSelected";
     

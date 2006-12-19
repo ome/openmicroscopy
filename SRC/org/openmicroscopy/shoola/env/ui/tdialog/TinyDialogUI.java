@@ -354,6 +354,8 @@ public class TinyDialogUI
     public void attachMouseListener(MouseListener controller)
     {
         titleBar.addMouseListener(controller);
+        if (canvas instanceof ThumbnailCanvas) 
+        	canvas.addMouseListener(controller);
     }
     
 }

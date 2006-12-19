@@ -61,6 +61,18 @@ public class ColorModelAction
     extends ViewerAction
 {
     
+    
+    /** 
+     * The description of the action if the index is {@link #RGB_MODEL}
+     * or  {@link #HSB_MODEL}.
+     */
+    public static final String 	DESCRIPTION_RGB = "RGB color model.";
+    
+    /** 
+     * The description of the action if the index is {@link #GREY_SCALE_MODEL}.
+     */
+    public static final String 	DESCRIPTION_GREY_SCALE = "Grey Scale model.";
+    
     /** Identifies the <code>Grey Scale</code>. */
     public static final int     GREY_SCALE_MODEL = 0;
     
@@ -72,9 +84,7 @@ public class ColorModelAction
     
     /** The maximum number of supported model. */
     private static final int    MAX = 2;
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Select a color model.";
+
 
     /**
      * The name of the association corresponding to the constants defined
@@ -131,6 +141,25 @@ public class ColorModelAction
     }
     
     /**
+     * Returns the description of the action depending on the specified
+     * index.
+     * 
+     * @param index The index.
+     * @return See above.
+     */
+    private String getDescription(int index)
+    {
+    	switch (index) {
+	        case GREY_SCALE_MODEL:
+	            default:
+	            return DESCRIPTION_GREY_SCALE;
+	        case RGB_MODEL:    
+	        case HSB_MODEL:
+	            return DESCRIPTION_RGB;
+    	}
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param model         Reference to the model.
@@ -143,11 +172,11 @@ public class ColorModelAction
         super(model, NAME);
         controlIndex(modelIndex);
         putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+                UIUtilities.formatToolTipText(getDescription(modelIndex)));
         this.modelIndex = modelIndex;
         putValue(Action.NAME, names[modelIndex]);
         putValue(Action.SMALL_ICON, getColorModelIcon(modelIndex));
-        setName(names[modelIndex]);
+        name = names[modelIndex];
     }
     
     /** 

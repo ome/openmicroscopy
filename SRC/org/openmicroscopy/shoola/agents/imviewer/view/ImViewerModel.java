@@ -446,6 +446,7 @@ class ImViewerModel
     {
         this.rndControl = rndControl;
         renderer = RendererFactory.createRenderer(component, rndControl);
+        state = ImViewer.RENDERING_CONTROL_LOADED;
     } 
 
     /**

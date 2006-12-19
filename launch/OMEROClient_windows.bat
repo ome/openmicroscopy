@@ -1,6 +1,6 @@
 @echo off
 
-rem OME Shoola startup script for Windows
+rem OMEROClient startup script for Windows
 rem ----------------------------------------------------------------------------
 rem  Copyright (C) 2006 University of Dundee. All rights reserved.
 rem

@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -61,7 +62,7 @@ public class ViewerAction
     protected ImViewer  model;
    
     /** The name of the action. */
-    private String      name;
+    protected String	name;
     
     /**
      * Subclasses can override the method if necessary.
@@ -96,18 +97,16 @@ public class ViewerAction
     }
     
     /**
-     * Sets the name of the action.
-     * 
-     * @param name The action's name.
-     */
-    void setName(String name) { this.name = name; }
-    
-    /**
      * Returns the name of the action.
      * 
      * @return See above.
      */
-    public String getName() { return name; }
+    public String getName()
+    { 
+    	 if (name == null || name.length() == 0)
+             return (String) getValue(Action.NAME);  
+    	return name; 
+    } 
     
     /** 
      * Reacts to state changes in the {@link ImViewer}.
@@ -115,7 +114,7 @@ public class ViewerAction
      */
     public void stateChanged(ChangeEvent e)
     {
-        if (model.getState()  == ImViewer.READY) {
+        if (model.getState() == ImViewer.READY) {
             setEnabled(!(model.getHistoryState() == ImViewer.CHANNEL_MOVIE)); 
         } else setEnabled(false); 
         onStateChange(e);

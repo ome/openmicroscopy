@@ -46,8 +46,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -555,8 +555,8 @@ class BrowserModel
         TreeImageDisplay d  = getLastSelectedDisplay();
         if (d == null) return;
         Object o = d.getUserObject();
-        if (o instanceof ImageData) {
-            ViewCmd cmd = new ViewCmd(parent, (ImageData) o);
+        if (o instanceof DataObject) {
+            ViewCmd cmd = new ViewCmd(parent, (DataObject) o);
             cmd.execute();
         }
     }

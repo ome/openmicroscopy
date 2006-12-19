@@ -38,7 +38,6 @@ import javax.swing.JMenuItem;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.ToolBarButtonMenu;
 
 
 /** 
@@ -79,8 +78,10 @@ public class TopWindowGroup
 	 */
 	private static class WindowConfig
 	{
+		/** The windows sub menu item. */
 		JMenuItem			winSubMenuEntry;
-		JMenuItem			dropDownButtonEntry;
+		
+		/** Reference to the manager. */
 		TopWindowManager	manager;
 	}
 
@@ -90,9 +91,6 @@ public class TopWindowGroup
 	
 	/** The sub-menu in the {@link TaskBar#WINDOW_MENU}. */
 	private JMenu		           winSubMenu;
-	
-	/** The drop-down button on  the {@link TaskBar#QUICK_LAUNCH_TOOLBAR}. */
-	private ToolBarButtonMenu      dropDownButton;
 	
 	/** Maps each window in the group to its configuration object. */
 	private Map			           windows;
@@ -115,9 +113,8 @@ public class TopWindowGroup
 	{
 		WindowConfig cfg = new WindowConfig();
 		cfg.winSubMenuEntry = new JMenuItem();
-		cfg.dropDownButtonEntry = new JMenuItem();
 		cfg.manager = new TopWindowManager(window, new AbstractButton[] 
-								{cfg.winSubMenuEntry, cfg.dropDownButtonEntry});
+								{cfg.winSubMenuEntry});
 		return cfg;
 	}
 	
@@ -144,13 +141,10 @@ public class TopWindowGroup
 	{
 		winSubMenu.add(closeAllWinSubMenuEntry);
 		winSubMenu.addSeparator();
-		dropDownButton.addToMenu(closeAllDropDownButtonEntry);
-		dropDownButton.addSeparator();
 	}
 
 	/**
-	 * Helper method to remove all items from the {@link #winSubMenu}
-	 * and from the {@link #dropDownButton}.
+	 * Helper method to remove all items from the {@link #winSubMenu}.
 	 * This method is called after the last window has been removed from this
 	 * group so as to get rid of the close all buttons and separators.
 	 */	
@@ -158,7 +152,6 @@ public class TopWindowGroup
 	{
 		winSubMenu.removeAll();
 		winSubMenu.setEnabled(false);
-		dropDownButton.clearMenu();
 	}
 	
 	/**
@@ -188,9 +181,7 @@ public class TopWindowGroup
 		winSubMenu = new JMenu(name);
 		winSubMenu.setIcon(icon);
 		winSubMenu.setEnabled(false);
-		dropDownButton = new ToolBarButtonMenu();
 		taskBar.addToMenu(TaskBar.WINDOW_MENU, winSubMenu);
-		taskBar.addToToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, dropDownButton);
 		windows = new HashMap();
 		makeCloseAllButtons();
 	}
@@ -226,15 +217,12 @@ public class TopWindowGroup
 		
 		cfg.winSubMenuEntry.setText(name);
 		cfg.winSubMenuEntry.setIcon(icon);
-		cfg.dropDownButtonEntry.setText(name);
-		cfg.dropDownButtonEntry.setIcon(icon);
 		//NOTE: If window has already a cfg, then we simply overwrite the
 		//previous text and icon of the display buttons.
 		
 		if (windows.size() == 1) addCloseAllButtons();
 		winSubMenu.setEnabled(true);
 		winSubMenu.add(cfg.winSubMenuEntry);
-		dropDownButton.addToMenu(cfg.dropDownButtonEntry, true);
 	}
 	
 	/**
@@ -252,7 +240,6 @@ public class TopWindowGroup
 		windows.remove(window);
 		if (windows.size() == 0) clearMenus();
 		winSubMenu.remove(cfg.winSubMenuEntry);
-		dropDownButton.removeFromMenu(cfg.dropDownButtonEntry);
 	}
 	
 	/**

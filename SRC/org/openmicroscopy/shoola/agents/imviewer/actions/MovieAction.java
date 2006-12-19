@@ -84,7 +84,16 @@ public class MovieAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-        if (model.getState() == ImViewer.DISCARDED) discard();
+    	switch (model.getState()) {
+			case ImViewer.DISCARDED:
+				discard();
+				break;
+			case ImViewer.RENDERING_CONTROL_LOADED:
+			case ImViewer.READY:
+				int max = Math.max(model.getMaxZ(), model.getMaxT());
+				setEnabled(max != 0);
+				break;
+			}
     }
     
     /**

@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
@@ -175,6 +176,23 @@ class ControlPane
     }
     
     /**
+     * Returns the description of the current color model.
+     * 
+     * @param model The color model.
+     * @return See above.
+     */
+    private String getColorModelDescription(String model)
+    {
+    	if (model.equals(ImViewer.GREY_SCALE_MODEL))
+            return ColorModelAction.DESCRIPTION_GREY_SCALE;
+        else if (model.equals(ImViewer.RGB_MODEL))
+        	return ColorModelAction.DESCRIPTION_RGB;
+        else if (model.equals(ImViewer.HSB_MODEL))
+        	return ColorModelAction.DESCRIPTION_RGB;
+        return null;
+    }
+    
+    /**
      * Returns the icon corresponding to the current color model.
      * 
      * @param model The color model.
@@ -294,6 +312,7 @@ class ControlPane
         tSlider.setShowEndLabel(true);
         tSlider.setShowTipLabel(true);
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
+        colorModelButton.setToolTipText(getColorModelDescription(model.getColorModel()));
     }
     
     /**
@@ -486,6 +505,8 @@ class ControlPane
             button.setGrayedOut(gs);
         }
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
+        colorModelButton.setToolTipText(getColorModelDescription(
+				model.getColorModel()));
     }
     
     /** 
@@ -535,6 +556,8 @@ class ControlPane
             button.setGrayedOut(gs);
         }
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
+        colorModelButton.setToolTipText(getColorModelDescription(
+        							model.getColorModel()));
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
     }

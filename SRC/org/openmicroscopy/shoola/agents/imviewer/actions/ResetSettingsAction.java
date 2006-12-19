@@ -59,7 +59,7 @@ public class ResetSettingsAction
     public static final String  NAME = "Undo All";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Reverts to Original Settings";
+    private static final String DESCRIPTION = "Revert to Original Settings";
     
     /**
      * Creates a new instance.

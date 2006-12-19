@@ -293,7 +293,7 @@ class MoviePlayer
     int getTimerDelay() { return timerDelay; }
     
     /**
-     * The maixmum value of the timer.
+     * The maximum value of the timer.
      * 
      * @return See above.
      */

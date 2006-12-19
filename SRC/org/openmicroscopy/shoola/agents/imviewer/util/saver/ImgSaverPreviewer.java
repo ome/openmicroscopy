@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -43,12 +44,10 @@ import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -59,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -69,7 +68,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ImgSaverPreviewer
     extends JDialog
 {
-
 
     /** Space between each image. */
     static final int        SPACE = 10;
@@ -144,13 +142,10 @@ class ImgSaverPreviewer
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-        IconManager icons = IconManager.getInstance();
-        saveButton = new JButton(icons.getIcon(IconManager.SAVE));
-        saveButton.setText("Save As");
+        saveButton = new JButton("Save As");
         saveButton.setToolTipText(
                 UIUtilities.formatToolTipText("Save the preview image."));
-        cancelButton = new JButton(icons.getIcon(IconManager.CANCEL));
-        cancelButton.setText("Cancel");
+        cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText(
                 UIUtilities.formatToolTipText("Close without saving."));
         canvas = new ImgSaverPreviewerCanvas(this);
@@ -165,9 +160,7 @@ class ImgSaverPreviewer
      */
     private JPanel buildToolBar()
     {
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
+        JPanel bar = new JPanel();
         bar.add(cancelButton);
         bar.add(saveButton);
         return UIUtilities.buildComponentPanelRight(bar);
@@ -176,8 +169,9 @@ class ImgSaverPreviewer
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        getContentPane().add(buildToolBar(), BorderLayout.NORTH);
-        getContentPane().add(new JScrollPane(layeredPane), BorderLayout.CENTER);
+    	Container c = getContentPane();
+        c.add(buildToolBar(), BorderLayout.NORTH);
+        c.add(new JScrollPane(layeredPane), BorderLayout.CENTER);
     }
      
     /**

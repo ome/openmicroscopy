@@ -164,16 +164,20 @@ public class OptionsDialog
     private void buildMessagePanel(String msg, Icon msgIcon)
     {
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
+        messagePanel.setOpaque(false);
         if (msgIcon != null) {
             JLabel iconLabel = new JLabel(msgIcon);
             iconLabel.setAlignmentY(TOP_ALIGNMENT);
-            messagePanel.add(iconLabel);
+            JPanel p = UIUtilities.buildComponentPanel(iconLabel);
+            p.setAlignmentY(TOP_ALIGNMENT);
+            messagePanel.add(p);
             messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
         }
         MultilineLabel message = new MultilineLabel(msg);
+        message.setOpaque(false);
         message.setPreferredSize(MSG_AREA_SIZE);
         message.setAlignmentY(TOP_ALIGNMENT);
-        messagePanel.add(message);
+        messagePanel.add(UIUtilities.buildComponentPanelRight(message));
     }
     
     /**

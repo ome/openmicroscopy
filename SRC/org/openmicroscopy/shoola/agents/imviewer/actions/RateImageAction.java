@@ -134,7 +134,7 @@ public class RateImageAction
         this.ratingIndex = ratingIndex;
         putValue(Action.NAME, 
                 UIUtilities.formatToolTipText(names[ratingIndex]));
-        setName(names[ratingIndex]);
+        name = names[ratingIndex];
     }
     
     /** 

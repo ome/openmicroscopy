@@ -32,8 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,7 +43,6 @@ import javax.swing.SwingConstants;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -108,20 +105,6 @@ class ToolBar
     
     /** The currently selected timepoint. */
     private int             currentT;
-
-    /**
-     * Helper method to create a {@link JButton} with an icon and an action.
-     * 
-     * @param icon      The icon associated.
-     * @param action    The action associated.
-     * @return See above.
-     */
-    private JButton createButton(Icon icon, Action action)
-    {
-        JButton button = new JButton(icon);
-        button.setAction(action);
-        return button;
-    }
     
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
@@ -130,22 +113,18 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        IconManager im = IconManager.getInstance();
-        JButton button =  createButton(im.getIcon(IconManager.RENDERER), 
+        JButton button = new JButton( 
                             controller.getAction(ImViewerControl.RENDERER));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        button =  createButton(im.getIcon(IconManager.MOVIE), 
-                controller.getAction(ImViewerControl.MOVIE));
+        button =  new JButton(controller.getAction(ImViewerControl.MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);    
-        button =  createButton(im.getIcon(IconManager.LENS), 
-                controller.getAction(ImViewerControl.LENS));
+        button =  new JButton(controller.getAction(ImViewerControl.LENS));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
         bar.add(new JSeparator(SwingConstants.VERTICAL));
-        button =  createButton(im.getIcon(IconManager.SAVE), 
-                controller.getAction(ImViewerControl.SAVE));
+        button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
     }
