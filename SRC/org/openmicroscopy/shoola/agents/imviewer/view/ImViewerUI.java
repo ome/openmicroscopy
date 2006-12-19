@@ -648,10 +648,7 @@ class ImViewerUI
      * Updates the buttons' selection when a new button is selected or 
      * deselected.
      */
-    void setChannelsSelection()
-    {
-        controlPane.setChannelsSelection();
-    }
+    void setChannelsSelection() { controlPane.setChannelsSelection(); }
 
     /** 
      * Sets the color of the specified channel. 
@@ -670,10 +667,11 @@ class ImViewerUI
     /**
      * Sets the image in the lens to the plane image shown on the screen.
      * 
-     * @param img see above.
+     * @param img The value to set.
      */
     void setLensPlaneImage(BufferedImage img)
     {
+    	if (lens == null) return;
         lens.setPlaneImage(img);
     }
     
@@ -690,21 +688,20 @@ class ImViewerUI
     }
     
     /**
-     * Sets the lens's visiblilty.
+     * Sets the lens's visibility. If the lens hasn't previously created, 
+     * we first create the lens.
      * 
-     * @param b See above.
+     * @param b Pass <code>true</code> to display the lens, <code>false</code>
+     * 			otherwise.
      */
     void setLensVisible(boolean b)
     {
-        if (lens==null) 
-        	lens = new LensComponent(this);
-        if (b)
-        {
+        if (lens == null) lens = new LensComponent(this);
+        if (b) {
             if (model.getMaxX() < lens.getLensUI().getWidth() || 
                 model.getMaxY() < lens.getLensUI().getHeight())
                     return;
-            if (firstTimeLensShown)
-            {
+            if (firstTimeLensShown) {
                 firstTimeLensShown = false;
                 int lensX = model.getMaxX()/2-lens.getLensUI().getWidth()/2;
                 int lensY = model.getMaxY()/2-lens.getLensUI().getHeight()/2;
@@ -721,26 +718,44 @@ class ImViewerUI
             }
 
             lens.setImageZoomFactor((float) model.getZoomFactor());
-            lens.setPlaneImage(model.getRenderedImage());
+            lens.setPlaneImage(model.getDisplayedImage());
             lens.setLensPreferredColour();
         }
         lens.setVisible(b);
-        this.repaint();
+        repaint();
     }
     
     /**
-     * Gets the <code>zoomedImage</code> from the lens component. 
+     * Returns the <code>zoomedImage</code> from the lens component
+     * or <code>null</code> if the lens is <code>null</code>.
      * 
      * @return See above.
      */
-    BufferedImage getZoomedLensImage() { return lens.getZoomedImage(); }
+    BufferedImage getZoomedLensImage()
+    { 
+    	if (lens == null) return null;
+    	return lens.getZoomedImage(); 
+    }
     
     /**
      * Sets the lens magnification factor.
      * 
      * @param factor The value to set.
      */
-    void setImageZoomFactor(float factor) { lens.setImageZoomFactor(factor); }
+    void setImageZoomFactor(float factor)
+    { 
+    	if (lens == null) return;
+    	lens.setImageZoomFactor(factor); 
+    }
+    
+    /** Hides the lens if the window is iconified.
+     */
+    void onIconified()
+    {
+    	if (lens == null) return;
+    	lens.setVisible(false);
+    	repaint();
+    }
     
     /**
      * Creates the color picker menu and brings it on screen.
@@ -753,14 +768,13 @@ class ImViewerUI
      */
 	void showMenu(int menuID, Component source, Point location)
 	{
-		if (menuID !=ImViewer.COLOR_PICKER_MENU) return;
+		if (menuID != ImViewer.COLOR_PICKER_MENU) return;
 		ChannelMetadata[] data = model.getChannelData();
 		ChannelMetadata d;
 		JPopupMenu menu = new JPopupMenu();
 		ChannelColorMenuItem item;
 		for (int j = 0; j < data.length; j++) {
         	d = data[j];
-        
         	item = new ChannelColorMenuItem(
         							"Wavelength "+d.getEmissionWavelength(), 
         							model.getChannelColor(j), j);
@@ -770,7 +784,10 @@ class ImViewerUI
 		menu.show(source, location.x, location.y);
 	}
 	
-    /** Overridden to the set the location of the {@link ImViewer}. */
+    /** 
+     * Overridden to the set the location of the {@link ImViewer}.
+     * @see TopWindow#setOnScreen() 
+     */
     public void setOnScreen()
     {
         if (model != null) {
@@ -791,8 +808,5 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-
-
-
 	
 }

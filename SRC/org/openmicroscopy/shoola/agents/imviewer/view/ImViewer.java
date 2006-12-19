@@ -81,9 +81,6 @@ public interface ImViewer
     /** Flag to denote the <i>Loading Plane Info</i> state. */
     public static final int     LOADING_PLANE_INFO = 4;
     
-    /** Flag to denote the <i>Ready Image</i> state. */
-    public static final int     READY_IMAGE = 5;
-    
     /** Flag to denote the <i>Ready</i> state. */
     public static final int     READY = 6;
     
@@ -126,25 +123,28 @@ public interface ImViewer
     												"colorModelChanged";
     
     /** Identifies the <code>Color Picket</code> menu. */
-    public static final int         COLOR_PICKER_MENU = 0;
+    public static final int 	COLOR_PICKER_MENU = 0;
     
     /**
-     * Set the visiblity of the lens. 
+     * Sets the visiblity of the lens
      * 
-     * @param b see above.
+     * @param b Pass <code>true</code> to display the lens, <code>false</code>
+     * 			to hide it.
      */
     public void setLensVisible(boolean b);
     
     /**
-     * Is the lens visible. 
+     * Returns <code>true</code> if the lens is visible, <code>false</code>
+     * otherwise.
      * 
      * @return see above.
      */
     public boolean isLensVisible();
     
     /**
-     * Get the zoomedImage from the lens component. 
-     * @return img zoomed image in the lens component.
+     * Returnst the zoomed image from the lens component. 
+     * 
+     * @return See above..
      */
     public BufferedImage getZoomedLensImage();
     
@@ -356,13 +356,6 @@ public interface ImViewer
      * @return See above.
      */
     public BufferedImage getImage();
-    
-    /**
-     * Returns the rendered image.
-     * 
-     * @return See above.
-     */
-    public BufferedImage getRenderedImage();
     
     /**
      * Returns the default timepoint.

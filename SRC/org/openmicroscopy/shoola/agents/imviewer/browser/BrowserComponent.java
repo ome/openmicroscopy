@@ -159,7 +159,7 @@ class BrowserComponent
      */
     public void setZoomFactor(double factor)
     {
-    	if(factor != -1)
+    	if (factor != -1)
     	{
         if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
             factor < ZoomAction.MIN_ZOOM_FACTOR)
@@ -189,6 +189,7 @@ class BrowserComponent
     {
         return model.getZoomFactor();	
     }
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getTitle()

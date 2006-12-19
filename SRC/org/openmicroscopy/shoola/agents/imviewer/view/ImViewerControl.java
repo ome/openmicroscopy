@@ -422,7 +422,32 @@ class ImViewerControl
         menu.removeAll();
         while (i.hasNext()) 
             menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
+    }
 
+    /** 
+     * Timer used to delay update of lens when new image loads. This means that
+     * the timer will only update the lens after a small period of time. 
+     */
+    private void createTimer()
+    {    
+    	timer = new Timer(LENS_UPDATE_DELAY, new ActionListener() 
+    	{
+    		public void actionPerformed(ActionEvent e) 
+    		{
+    			if (view.isLensVisible()) updateLensImage();
+	    	}
+    	});
+    	timer.stop();
+    }
+
+    /** 
+     * Called from the timer, update the image in the lens and stop the timer.
+     */
+    private void updateLensImage()
+    {
+    	if (view.isLensVisible())
+    		view.setLensPlaneImage(model.getImage());
+    	timer.stop();
     }
     
     /**
@@ -460,32 +485,6 @@ class ImViewerControl
         createTimer();
     }
 
-    /** 
-     * Timer used to delay update of lens when new image loads. This means that
-     * the timer will only update the lens after a small period of time. 
-     */
-    private void createTimer()
-    {    
-    	timer = new Timer(LENS_UPDATE_DELAY, new ActionListener() 
-    	{
-    		public void actionPerformed(ActionEvent e) 
-    		{
-    			if (view.isLensVisible()) updateLensImage();
-	    	}
-    	});
-    	timer.stop();
-    }
-
-    /** 
-     * Called from the timer, update the image in the lens and stop the timer.
-     */
-    private void updateLensImage()
-    {
-    	if (view.isLensVisible())
-    		view.setLensPlaneImage(model.getRenderedImage());
-    	timer.stop();
-    }
-    
     
     /**
      * Returns the action corresponding to the specified id.
@@ -634,6 +633,9 @@ class ImViewerControl
             model.setUnitBarSize(v);
         } else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
             //TODO: implement method
+        } else if (ImViewer.ICONIFIED_PROPERTY.equals(propName)) {
+        	view.onIconified();
+        	if (timer != null) timer.stop();
         }
     }
 

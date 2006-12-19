@@ -83,6 +83,62 @@ public class LensComponent
 	private LensModel		lensModel;
 	
 	/**
+	 * Displays in pixels if <code>true</code>, in microns otherwise.
+	 * 
+	 * @param b See above.
+	 */
+	void setDisplayInPixels(boolean b)
+	{
+		zoomWindow.setDisplayInPixels(b);
+		zoomWindow.setLensXY(lens.getX(), lens.getY());
+		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());	
+	}
+	
+	/**
+	 * Sets the lens Size to a value described in LensAction. 
+	 * 
+	 * @param lensSize The size of the lens. 
+	 */
+	void setLensSize(int lensSize) 
+	{
+	     switch (lensSize) {
+             case LensAction.LENSDEFAULTSIZE:
+            	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
+            			 LensComponent.LENS_DEFAULT_HEIGHT);
+            	 break;
+             case LensAction.LENS40x40:
+            	 lensController.setLensSize(40, 40);
+            	 break;
+             case LensAction.LENS50x50:
+            	 lensController.setLensSize(50, 50);
+            	 break;
+             case LensAction.LENS60x60:
+            	 lensController.setLensSize(60, 60);
+            	 break;
+             case LensAction.LENS70x70:
+            	 lensController.setLensSize(70, 70);
+            	 break;
+             case LensAction.LENS80x80:
+            	 lensController.setLensSize(80, 80);
+            	 break;
+             case LensAction.LENS90x90:
+            	 lensController.setLensSize(90, 90);
+            	 break;
+             case LensAction.LENS100x100:
+            	 lensController.setLensSize(100, 100);
+            	 break;
+             case LensAction.LENS120x120:
+            	 lensController.setLensSize(120, 120);
+            	 break;
+             case LensAction.LENS150x150:
+            	 lensController.setLensSize(150, 150);
+            	 break;
+             default:
+                 throw new IllegalArgumentException("Index not supported.");
+	     }
+	}
+	
+	/**
 	 * Creates the lenscomponent which is the container for the lens 
 	 * infrastructure.
 	 * 
@@ -94,7 +150,7 @@ public class LensComponent
 		lensModel = new LensModel(planeImage);
 		zoomWindow = new ZoomWindow(parent, this);
 		lens = new LensUI(this, LENS_DEFAULT_WIDTH, LENS_DEFAULT_HEIGHT);
-		lensController = new LensController(lensModel , lens, zoomWindow);
+		lensController = new LensController(lensModel, lens, zoomWindow);
 		lensModel.setWidth(LENS_DEFAULT_WIDTH);
 		lensModel.setHeight(LENS_DEFAULT_HEIGHT);
 		lensModel.setImageZoomFactor(1.0f);
@@ -117,6 +173,15 @@ public class LensComponent
 		this(parent, null);
 	}
 	
+	/**
+	 * Sets the colour of the lens to better contrast with the 
+	 * background of the image.
+	 */
+	public void setLensPreferredColour()
+	{
+		lens.setLensColour(lensModel.getLensPreferredColour());
+	}
+	
 	/** Hides the lens and the control dialog. */
 	public void zoomWindowClosed()
 	{
@@ -124,18 +189,6 @@ public class LensComponent
 		lens.setVisible(false);
 	}
 	
-	/**
-	 * Displays in pixels if <code>true</code>, in microns otherwise.
-	 * 
-	 * @param b See above.
-	 */
-	void setDisplayInPixels(boolean b)
-	{
-		zoomWindow.setDisplayInPixels(b);
-		zoomWindow.setLensXY(lens.getX(), lens.getY());
-		zoomWindow.setLensWidthHeight(lens.getWidth(), lens.getHeight());	
-	}
-
 	/**
 	 * Sets the mapping from pixel size to microns along the x and y axis. 
      * 
@@ -203,50 +256,6 @@ public class LensComponent
 	public void setLensLocation(int x, int y)
 	{
 		lensController.setLensLocation(x, y);
-	}
-
-	/**
-	 * Sets the lens Size to a value described in LensAction. 
-	 * 
-	 * @param lensSize The size of the lens. 
-	 */
-	public void setLensSize(int lensSize) 
-	{
-	     switch (lensSize) {
-             case LensAction.LENSDEFAULTSIZE:
-            	 lensController.setLensSize(LensComponent.LENS_DEFAULT_WIDTH, 
-            			 LensComponent.LENS_DEFAULT_HEIGHT);
-            	 break;
-             case LensAction.LENS40x40:
-            	 lensController.setLensSize(40, 40);
-            	 break;
-             case LensAction.LENS50x50:
-            	 lensController.setLensSize(50, 50);
-            	 break;
-             case LensAction.LENS60x60:
-            	 lensController.setLensSize(60, 60);
-            	 break;
-             case LensAction.LENS70x70:
-            	 lensController.setLensSize(70, 70);
-            	 break;
-             case LensAction.LENS80x80:
-            	 lensController.setLensSize(80, 80);
-            	 break;
-             case LensAction.LENS90x90:
-            	 lensController.setLensSize(90, 90);
-            	 break;
-             case LensAction.LENS100x100:
-            	 lensController.setLensSize(100, 100);
-            	 break;
-             case LensAction.LENS120x120:
-            	 lensController.setLensSize(120, 120);
-            	 break;
-             case LensAction.LENS150x150:
-            	 lensController.setLensSize(150, 150);
-            	 break;
-             default:
-                 throw new IllegalArgumentException("Index not supported.");
-	     }
 	}
 	
 	/**
@@ -323,14 +332,6 @@ public class LensComponent
 	{
 		zoomWindow.setLocation(x, y);
 	}
-	
-	/**
-	 * Sets the colour of the lens to better contrast with the 
-	 * background of the image.
-	 */
-	public void setLensPreferredColour()
-	{
-		lens.setLensColour(lensModel.getLensPreferredColour());
-	}
+
     
 }

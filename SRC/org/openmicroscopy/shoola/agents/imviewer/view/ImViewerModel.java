@@ -419,11 +419,12 @@ class ImViewerModel
     }
     
     /**
-     * Returns the newly rendered image.
+     * This method should only be invoked when we save the displayed image
+     * and split its components.
      * 
      * @return See above.
      */
-    BufferedImage getRenderedImage()
+    BufferedImage getSplitComponentImage()
     {
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
@@ -431,8 +432,8 @@ class ImViewerModel
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
             return os.renderImage(pixelsID, pDef);
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (RenderingServiceException e) {
+            handleException(e);
         }
         return null;
     }
@@ -496,11 +497,11 @@ class ImViewerModel
      */
     void setImage(BufferedImage image)
     {
+    	state = ImViewer.READY; 
         browser.setRenderedImage(image);
         //update image icon
         computeSizes();
         imageIcon = magnifyImage(factor, image);
-        state = ImViewer.READY; 
     }
 
     /**

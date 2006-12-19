@@ -191,7 +191,7 @@ class ImViewerComponent
      */
     public void setZoomFactor(double factor)
     {
-    	if(factor != -1)
+    	if (factor != -1)
     	{
     		if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
                 factor < ZoomAction.MIN_ZOOM_FACTOR)
@@ -206,8 +206,8 @@ class ImViewerComponent
     		model.setZoomFitToWindow(true);
     		model.setZoomFactor(factor);
     	}
-        if(view.isLensVisible())
-        	view.setImageZoomFactor((float)model.getZoomFactor());
+        if (view.isLensVisible())
+        	view.setImageZoomFactor((float) model.getZoomFactor());
     }
 
     /**
@@ -242,8 +242,7 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        if (map == null || map.size() != 1)
-            return;
+        if (map == null || map.size() != 1) return;
         Iterator i = map.keySet().iterator();
         Integer key = null;
         ViewerAction value = null;
@@ -702,7 +701,7 @@ class ImViewerComponent
             index = ((Integer) i.next()).intValue();
             for (int j = 0; j < model.getMaxC(); j++)
                 model.setChannelActive(j, j == index); 
-            images.add(model.getRenderedImage());
+            images.add(model.getSplitComponentImage());
         }
         i = l.iterator();
         while (i.hasNext()) { //reset values.
@@ -728,24 +727,7 @@ class ImViewerComponent
         }
         return model.getDisplayedImage();
     }
-
-    /**
-     * Implemented as specified by the {@link ImViewer} interface
-     * @see ImViewer#getRenderedImage()
-     * 
-     */
-    public BufferedImage getRenderedImage()
-    {
-        switch (model.getState()) {
-            case NEW:
-            case LOADING_RENDERING_CONTROL:
-            case DISCARDED:
-                throw new IllegalStateException(
-                "This method can't be invoked in the DISCARDED, NEW or" +
-                "LOADING_RENDERING_CONTROL state.");
-        }
-        return model.getRenderedImage();
-    } 
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getPixelsSizeX()

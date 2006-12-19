@@ -39,6 +39,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextPane;
 
 //Third-party libraries
 
@@ -173,7 +174,8 @@ public class OptionsDialog
             messagePanel.add(p);
             messagePanel.add(Box.createRigidArea(H_SPACER_SIZE));
         }
-        MultilineLabel message = new MultilineLabel(msg);
+        //UIUtilities.buildTextPane(msg);
+        JTextPane message = UIUtilities.buildTextPane(msg);;
         message.setOpaque(false);
         message.setPreferredSize(MSG_AREA_SIZE);
         message.setAlignmentY(TOP_ALIGNMENT);
