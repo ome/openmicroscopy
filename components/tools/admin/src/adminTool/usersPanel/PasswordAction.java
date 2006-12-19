@@ -29,7 +29,7 @@ public class PasswordAction
 	implements ActionListener 
 {
 	public static int CHANGE_SELECTED_USER = 0;
-	public static int CHANGE_CURRENT_USER = 0;
+	public static int CHANGE_CURRENT_USER = 1;
 	
     private UsersTabController controller;
     private int 				actionType;

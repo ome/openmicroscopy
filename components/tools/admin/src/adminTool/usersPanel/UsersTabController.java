@@ -49,6 +49,7 @@ public class UsersTabController implements UserListController {
 
     void changePassword() {
         String user = view.getSelectedUser();
+
         if (user == null) {
             view.showErrorMessage("You must select a user before you can"
                     + " change their password.");
@@ -167,8 +168,8 @@ public class UsersTabController implements UserListController {
     void addNewUser() {
         if (model.findUserByName("NewUser")) {
             view
-                    .showErrorMessage("You have already created a user called \'NewUser\'."
-                            + "This is the user you should rename/modify.");
+            .showErrorMessage("You have already created a user called \'NewUser\'."
+            + "This is the user you should rename/modify.");
             return;
         }
         try {
