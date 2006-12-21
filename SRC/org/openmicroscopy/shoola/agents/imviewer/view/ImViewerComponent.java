@@ -342,6 +342,8 @@ class ImViewerComponent
         model.setImage(image);
         view.setStatus(getStatusText(), -1, true);
         view.setIconImage(model.getImageIcon());
+        if (view.isLensVisible())
+        	view.setLensPlaneImage(image);
         fireStateChange();
     }
 
@@ -713,9 +715,9 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#getImage()
+     * @see ImViewer#getDisplayedImage()
      */
-    public BufferedImage getImage()
+    public BufferedImage getDisplayedImage()
     {
         switch (model.getState()) {
             case NEW:

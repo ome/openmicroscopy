@@ -428,6 +428,7 @@ class EditorModel
      */
     List getAnnotations(long ownerID)
     {
+    	if (annotations == null) return null;
         return (List) annotations.get(new Long(ownerID));
     }
     

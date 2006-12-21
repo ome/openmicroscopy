@@ -120,9 +120,8 @@ public class ThumbnailLoader
     public void handleException(Throwable exc) 
     {
         String s = "Thumbnail Retrieval Failure: ";
+        //register error but don't notify user.
         registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure", 
-                                               s, exc);
         viewer.setThumbnail(null);
     }
     

@@ -75,6 +75,7 @@ public class ColourPicker
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         setModal(true);
         setResizable(false);
+        setAlwaysOnTop(true);
     }
     
     /** Closes and disposes. */

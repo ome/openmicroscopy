@@ -355,7 +355,7 @@ public interface ImViewer
      * 
      * @return See above.
      */
-    public BufferedImage getImage();
+    public BufferedImage getDisplayedImage();
     
     /**
      * Returns the default timepoint.

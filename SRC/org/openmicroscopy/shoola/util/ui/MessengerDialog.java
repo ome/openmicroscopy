@@ -82,6 +82,12 @@ public class MessengerDialog
 	extends JDialog
 {
 
+	/** Identifies the error dialog type. */
+	public static final int			ERROR_TYPE = 0;
+	
+	/** Identifies the error dialog type. */
+	public static final int			COMMENT_TYPE = 1;
+	
 	/** Bound property indicating to send the message. */
 	public static final String		SEND_PROPERTY = "send";
 	
@@ -133,6 +139,11 @@ public class MessengerDialog
 	/** The e-mail field's suffix. */
 	private static final String		EMAIL_SUFFIX = " (Optional)";
 
+	/** 
+	 * One of the following constants: {@link #ERROR_TYPE} or 
+	 * {@link #COMMENT_TYPE}.
+	 */
+	private int				dialogType;
 	
 	/** Button to close and dispose of the window. */
 	private JButton 		cancelButton;
@@ -224,6 +235,7 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
+        commentArea.setOpaque(true);
         if (exception != null) {
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");
@@ -490,6 +502,7 @@ public class MessengerDialog
 	{
 		super(parent);
 		this.emailAddress = emailAddress;
+		dialogType = COMMENT_TYPE;
 		initialize(title);
 	}
 	
@@ -506,9 +519,17 @@ public class MessengerDialog
 						Exception exception)
 	{
 		super(parent);
+		dialogType = ERROR_TYPE;
 		this.emailAddress = emailAddress;
 		this.exception = exception;
 		initialize(title);
 	}	
+	
+	/**
+	 * Returns the type associated to this widget. 
+	 * 
+	 * @return See above.
+	 */
+	public int getDialogType() { return dialogType; }
 	
 }

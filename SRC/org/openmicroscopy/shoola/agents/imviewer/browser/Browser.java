@@ -78,6 +78,13 @@ public interface Browser
     public BufferedImage getDisplayedImage();
     
     /**
+     * Returns the original image returned by the rendering engine.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getRenderedImage();
+    
+    /**
      * Removes the specified component from the layered pane hosting 
      * the image.
      * 

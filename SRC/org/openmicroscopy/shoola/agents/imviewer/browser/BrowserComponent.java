@@ -133,6 +133,15 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getRenderedImage()
+     */
+    public BufferedImage getRenderedImage()
+    {
+        return model.getRenderedImage();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#removeComponent(JComponent)
      */
     public void removeComponent(JComponent c)

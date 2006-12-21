@@ -32,6 +32,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -81,6 +83,7 @@ import pojos.DatasetData;
  */
 public class FilterWindow
     extends JDialog
+    implements PropertyChangeListener
 {
 
     /** The <code>Dataset</code> container type. */
@@ -205,6 +208,7 @@ public class FilterWindow
             public void actionPerformed(ActionEvent e) { close(); }
         });
         setButton = new JButton("Apply");
+        setButton.setEnabled(false);
         setButton.setToolTipText(
                 UIUtilities.formatToolTipText("Apply the selection."));
         setButton.addActionListener(new ActionListener() {
@@ -373,9 +377,23 @@ public class FilterWindow
         this.parent = parent;
         this.containerType = containerType;
         initComponents();
+        tree.addPropertyChangeListener(TreeCheck.NODE_SELECTED_PROPERTY, this);
         buildGUI(getFilterComponent(nodes));
         attachListeners();
         setSize(WINDOW_SIZE);
     }
+
+    /**
+     * Reacts to property change fired by the <code>tree</code>.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent pce)
+	{
+		String name = pce.getPropertyName();
+    	if (TreeCheck.NODE_SELECTED_PROPERTY.equals(name)) {
+    		int i = ((Integer) pce.getNewValue()).intValue();
+    		setButton.setEnabled(i > 0);
+    	} 
+	}
     
 }

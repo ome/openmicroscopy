@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.util.ui.slider;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -52,7 +51,7 @@ import javax.swing.JPanel;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -103,7 +102,6 @@ public class TwoKnobsSlider
     /** Indicates that the right know is moved. */
     public static final int             RIGHT = 2;
 
-
     /** The default dimension of an horizontal slider. */
     protected static final Dimension    MIN_HORIZONTAL = new Dimension(36, 21);
     
@@ -149,7 +147,7 @@ public class TwoKnobsSlider
     
     /** 
      * Indicates which knod is moved.
-     * One of the following constants: {@link #INITIAL}, {@link #LEFT},
+     * One of the following constants: {@link #INITIAL}, {@link #LEFT} or
      * {@link #RIGHT}.
      */
     private int                 knobControl;
@@ -168,9 +166,7 @@ public class TwoKnobsSlider
     /** The height of the font. */
     private int                 fontHeight;
     
-    /**
-     * Computes the preferred size of this component.
-     */
+    /** Computes the preferred size of this component. */
     private void calculatePreferredSize()
     {
         int h = knobHeight;
@@ -186,9 +182,8 @@ public class TwoKnobsSlider
     /** Sets the default values. */
     private void setDefault()
     {
-        FontMetrics metrics = getFontMetrics(getFont());
         insetCache = getInsets();
-        fontHeight = metrics.getHeight();
+        fontHeight = getFontMetrics(getFont()).getHeight();
         knobControl = INITIAL;
         pushKnobControl = INITIAL;
         knobWidth = KNOB_WIDTH;
@@ -232,23 +227,19 @@ public class TwoKnobsSlider
         int oldEnd = getEndValue();
         if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
             handleMouseEventForHorizSlider((int) me.getPoint().getX());
-            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED)
-            {
+            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
                                 getStartValue());
-            }
-            else if (knobControl == RIGHT || 
+            } else if (knobControl == RIGHT || 
                     pushKnobControl == RIGHT_KNOB_PUSHED) {
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, getEndValue());
             }
                 
         } else {
             handleMouseEventForVertSlider((int) me.getPoint().getY());
-            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED)
-            {
+            if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, getEndValue());
-            }
-            else if (knobControl == RIGHT || 
+            } else if (knobControl == RIGHT || 
                     pushKnobControl == RIGHT_KNOB_PUSHED)
             {
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
@@ -657,15 +648,12 @@ public class TwoKnobsSlider
      */
     public Dimension getPreferredSize()
     { 
-        Dimension d;
-        if (getOrientation() == VERTICAL) {
-            d = new Dimension(getPreferredVerticalSize());
-        } else {
-            d = new Dimension(getPreferredHorizontalSize());
-            d.height = insetCache.top + insetCache.bottom;
-            d.height += preferredSize_.height;
-        }
-        return d;
+        if (getOrientation() == VERTICAL) 
+            return getPreferredVerticalSize();
+        int width = getPreferredHorizontalSize().width;
+        int height = insetCache.top + insetCache.bottom;
+        height += preferredSize_.height;
+        return new Dimension(width, height);
     }
     
     /**
@@ -677,6 +665,7 @@ public class TwoKnobsSlider
     /**
      * Overrides the {@link #update(Graphics)} method to avoid 
      * flicking event.
+     * @see JPanel#update(Graphics)
      */
     public void update(Graphics g) { paintComponent(g); }
     
@@ -694,6 +683,7 @@ public class TwoKnobsSlider
     /**
      * Overrides the {@link #paintComponent(Graphics)} to paint the slider, 
      * label, ticks if required.
+     * @see JPanel#paintComponent(Graphics)
      */
     public void paintComponent(Graphics g)
     {

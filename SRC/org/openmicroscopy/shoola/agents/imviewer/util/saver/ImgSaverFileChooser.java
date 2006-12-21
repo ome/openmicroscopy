@@ -152,13 +152,13 @@ class ImgSaverFileChooser
     }
     
     /**
-     * Overriden to close the {@link ImgSaver} when the selection is cancelled.
+     * Overridden to close the {@link ImgSaver} when the selection is cancelled.
      * @see JFileChooser#cancelSelection()
      */
     public void cancelSelection() { model.setClosed(true); }
     
     /**
-     * Overriden to set the format, name and type of images to save.
+     * Overridden to set the format, name and type of images to save.
      * @see JFileChooser#approveSelection()
      */
     public void approveSelection()

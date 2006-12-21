@@ -115,11 +115,11 @@ public class ImgSaver
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
-                mainImage = model.getImage();
+                mainImage = model.getDisplayedImage();
                 imageComponents = null;
                 break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
-                mainImage = model.getImage();
+                mainImage = model.getDisplayedImage();
                 imageComponents = model.getImageComponents();
                 break;
         }
@@ -261,15 +261,16 @@ public class ImgSaver
             while (i.hasNext()) {
                 g2.drawImage((BufferedImage) i.next(), null, x, 0); 
                 if (unitBar && v != null)
-                    ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, 
-                            v);
+                    ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
+                    									s, v);
                 x += width;
                 g2.fillRect(x, 0, ImgSaverPreviewer.SPACE, h);
                 x += ImgSaverPreviewer.SPACE;
             }
             g2.drawImage(mainImage, null, x, 0); 
             if (unitBar && v != null)
-                ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
+                ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, s, 
+                									v);
             writeImage(newImage, name);
         }
     }

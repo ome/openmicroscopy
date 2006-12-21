@@ -59,16 +59,25 @@ class UserNotifierManager
 	implements PropertyChangeListener
 {
     
-	/** The default message if an error occured while tranfering data. */
-	private static final String	MESSAGE = "Sorry, but due to an error we " +
-								"were not able to automatically \n" +
-								"send your debug information. \n\n" +
+	/** The default message if an error occured while transfering data. */
+	private static final String	MESSAGE_START = "Sorry, but due to an error " +
+								"we were not able to automatically \n" +
+								"send your . ";
+	
+	/** The default message if an error occured while transfering data. */
+	private static final String	MESSAGE_END = "\n\n"+
 								"You can still send us the error message by " +
 								"clicking on the \n" +
 								"error message tab, copying the error " +
 								"message to the clipboard, \n" +
 								"and sending it to ";
-		
+	
+	/** Message if the dialog's type is {@link MessengerDialog#ERROR_TYPE}. */
+	private static final String	ERROR_MSG = "debug information.";
+	
+	/** Message if the dialog's type is {@link MessengerDialog#COMMENT_TYPE}. */
+	private static final String	COMMENT_MSG = "comment.";
+	
 	/** The reply to a messenger request. */
 	private static final String REPLY = "Comments have been successfully " +
 										"posted";
@@ -103,7 +112,12 @@ class UserNotifierManager
 			JOptionPane.showMessageDialog(source, REPLY);
 		} catch (Exception e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(source, MESSAGE+teamAddress+".");
+			String s = MESSAGE_START;
+			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
+				s += ERROR_MSG;
+			else s += COMMENT_MSG;
+			s += MESSAGE_END;
+			JOptionPane.showMessageDialog(source, s+teamAddress+".");
 		}
 		source.setVisible(false);
 		source.dispose();
