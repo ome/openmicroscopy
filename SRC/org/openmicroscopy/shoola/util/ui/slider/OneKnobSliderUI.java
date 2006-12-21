@@ -30,7 +30,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
@@ -42,7 +41,6 @@ import javax.swing.plaf.basic.BasicSliderUI;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import org.openmicroscopy.shoola.util.ui.TipDialog;
 
 
 /** 
@@ -89,8 +87,7 @@ public class OneKnobSliderUI
     									new Color(176, 176, 176, 255);
     
     /** Offset to the left of the mouse used for placing tooltip. */
-    private static final int 	TOOLTIP_OFFSET = 25;
-    
+    //private static final int 	TOOLTIP_OFFSET = 25;
     
     /** Image used for the thumb. */
     private  Image 				thumbImage;
@@ -133,7 +130,7 @@ public class OneKnobSliderUI
     private  Rectangle			maxArrowRect;
     
     /** Dialog used to display tooltip containing the position of the slider. */
-    private  TipDialog			tipDialog;
+    //private  TipDialog			tipDialog;
     
     /** The end label displayed at top, or left of slider. */
     private  String				endLabel;
@@ -142,7 +139,7 @@ public class OneKnobSliderUI
     private  boolean			showEndLabel;
     
     /** Show the tip label ovet the thumb when slider moved. */
-    private boolean 			showTipLabel;
+    //private boolean 			showTipLabel;
     
     /** The rect holding the location of the end label. */
     private Rectangle			endLabelRect;
@@ -326,7 +323,6 @@ public class OneKnobSliderUI
         super(slider);
         showArrows = true;
         loadThumbArrowImage();    
-        showTipLabel = false;
         showEndLabel = false;
     }
     
@@ -349,9 +345,8 @@ public class OneKnobSliderUI
      */
     void setShowTipLabel(boolean show)
     {
-    	showTipLabel = show;
-    	if(showTipLabel)
-    		tipDialog = new TipDialog(endLabel);
+    	//showTipLabel = show;
+    	//if (showTipLabel) tipDialog = new TipDialog(endLabel);
     }
     
     /**
@@ -516,11 +511,13 @@ public class OneKnobSliderUI
 		public void mouseReleased(MouseEvent event)
 		{
 			super.mouseReleased(event);
+			/*
             if (showTipLabel && tipDialog != null)
 			{
 				if (tipDialog.isVisible()) tipDialog.setVisible(false);
 			}	
             slider.repaint();
+            */
 		}
 		
         /**
@@ -621,7 +618,8 @@ public class OneKnobSliderUI
 	                {
 	                	scrollTimer.stop();
 	                	scrollListener.setScrollByBlock(false);
-	                    scrollListener.setDirection(OneKnobSliderUI.NEGATIVE_SCROLL);
+	                    scrollListener.setDirection(
+	                    				OneKnobSliderUI.NEGATIVE_SCROLL);
 	                    scrollTimer.start();
 	                    slider.repaint();
 	                }
@@ -658,9 +656,10 @@ public class OneKnobSliderUI
 		public void mouseDragged(MouseEvent event) 
 		{
 			super.mouseDragged(event);
-			if (showTipLabel && tipDialog != null && endLabel != null)
+			/*
+			if (showTipLabel && tipDialog != null && endLabel != null &&
+				slider.isVisible())
 			{
-			
 				Point location = slider.getLocationOnScreen();
 				location.x += thumbRect.x+TOOLTIP_OFFSET;
 				location.y += thumbRect.y;
@@ -670,6 +669,7 @@ public class OneKnobSliderUI
 				tipDialog.setLocation(location);
 				tipDialog.setVisible(true);
 			}
+			*/
 		}
 	}
 	
