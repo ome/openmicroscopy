@@ -168,13 +168,13 @@ class BrowserComponent
      */
     public void setZoomFactor(double factor)
     {
-    	if (factor != -1)
+    	if (factor != -1) 
     	{
-        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
-            factor < ZoomAction.MIN_ZOOM_FACTOR)
-            throw new IllegalArgumentException("The zoom factor is value " +
-                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
-                    ZoomAction.MAX_ZOOM_FACTOR);
+	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
+	            factor < ZoomAction.MIN_ZOOM_FACTOR)
+	            throw new IllegalArgumentException("The zoom factor is value " +
+	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
+	                    ZoomAction.MAX_ZOOM_FACTOR);
     	}
     	else
     	{
@@ -186,8 +186,7 @@ class BrowserComponent
     		factor = Math.min(zoomFactorX, zoomFactorY); 
     	}
         model.setZoomFactor(factor);
-        view.zoomImage();
-        
+        view.zoomImage();  
     }
 
     /** 
@@ -300,6 +299,16 @@ class BrowserComponent
 		if (model.getUnitBarColor().equals(color)) return;
 		model.setUnitBarColor(color);
 		view.repaint();
+	}
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#scrollTo(Rectangle)
+     */
+	public void scrollTo(Rectangle bounds)
+	{
+		if (bounds == null) return;
+		view.scrollTo(bounds);
 	}
     
 }

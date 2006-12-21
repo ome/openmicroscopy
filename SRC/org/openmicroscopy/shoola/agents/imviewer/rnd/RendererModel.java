@@ -37,7 +37,6 @@ import ome.model.display.CodomainMapContext;
 import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
-
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -132,8 +131,11 @@ class RendererModel
      */
     private void handleException(RenderingServiceException e)
     {
+    	ImViewerAgent.getRegistry().getLogger().error(this, 
+    											e.getExtendedMessage());
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	un.notifyError(ImViewerAgent.ERROR, e.getMessage(), e.getCause());
+    	un.notifyError(ImViewerAgent.ERROR, e.getExtendedMessage(), 
+    										e.getCause());
     	parentModel.discard();
     }
     

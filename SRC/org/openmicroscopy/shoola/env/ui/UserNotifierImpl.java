@@ -126,8 +126,8 @@ public class UserNotifierImpl
     	Exception e;
     	if (detail == null) e = new Exception(summary);
     	else e = new Exception(detail);
-    	MessengerDialog d = 
-    			new MessengerDialog(SHARED_FRAME, DEFAULT_COMMENT_TITLE, "", e); 
+    	if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
+    	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);

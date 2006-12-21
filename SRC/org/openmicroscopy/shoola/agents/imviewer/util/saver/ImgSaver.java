@@ -148,10 +148,18 @@ public class ImgSaver
             un.notifyInfo("Image Saved", saveMessage);
             setClosed(true);
         } catch (Exception e) {
-            e.printStackTrace();
+        	ImViewerAgent.getRegistry().getLogger().error(this, e.getMessage());
             f.delete();
             un.notifyError("Save image failure", "Unable to save the image", e);
         }
+    }
+    
+    /** Sets the properties of the dialog. */
+    private void setProperties()
+    {
+    	setTitle(TITLE);
+        setModal(true);
+        setAlwaysOnTop(true);
     }
     
     /**
@@ -165,8 +173,7 @@ public class ImgSaver
         super(owner);
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        setTitle(TITLE);
-        setModal(true);
+        setProperties();
         uiDelegate = new ImgSaverUI(this);
         pack();
     }
@@ -192,7 +199,8 @@ public class ImgSaver
      */
     void setFileMessage(String saveMessage) { this.saveMessage = saveMessage; }
     
-    /** Brings up a preview of the image or images to save. 
+    /** 
+     * Brings up a preview of the image or images to save. 
      * 
      * @param exist Pass <code>true</code> to bring up the selection dialog
      *              prior to the preview image widget, <code>false</code>
@@ -251,7 +259,7 @@ public class ImgSaver
             int w = width*(n+1)+ImgSaverPreviewer.SPACE*(n-1);
 
             BufferedImage newImage = new BufferedImage(w, h, 
-                    BufferedImage.TYPE_INT_RGB);
+                    						BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = (Graphics2D) newImage.getGraphics();
             g2.setColor(Color.WHITE);
             ImagePaintingFactory.setGraphicRenderingSettings(g2);

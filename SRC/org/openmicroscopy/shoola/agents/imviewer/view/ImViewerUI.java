@@ -687,6 +687,13 @@ class ImViewerUI
         return false;
     }
     
+    /** Displays the lens on screen when the image is zoomed. */
+    void scrollLens()
+    {
+    	if (lens == null) return;
+    	model.getBrowser().scrollTo(lens.getLensScaledBounds());
+    }
+    
     /**
      * Sets the lens's visibility. If the lens hasn't previously created, 
      * we first create the lens.
@@ -709,7 +716,7 @@ class ImViewerUI
                     lensX = model.getMaxX()-lens.getLensUI().getWidth();
                 if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
                     lensY = model.getMaxY()-lens.getLensUI().getHeight();
-                lens.setImageZoomFactor((float)model.getZoomFactor());
+                lens.setImageZoomFactor((float) model.getZoomFactor());
                 lens.setLensLocation(lensX, lensY);
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.lens;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 
@@ -312,6 +313,17 @@ public class LensComponent
 		return lensModel.getLensScaledLocation();
 	}
 	
+	/**
+	 * Returns the bounds of the scaled image size, takes into account the zoom 
+	 * factor of the image viewer.
+	 *  
+	 * @return See above.
+	 */
+	public Rectangle getLensScaledBounds()
+	{
+		return lensModel.getLensScaledBounds();
+	}
+	
 	/** 
 	 * Gets the image location.
 	 * 
@@ -332,6 +344,5 @@ public class LensComponent
 	{
 		zoomWindow.setLocation(x, y);
 	}
-
     
 }

@@ -64,9 +64,9 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * 			<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -206,8 +206,10 @@ class ImViewerComponent
     		model.setZoomFitToWindow(true);
     		model.setZoomFactor(factor);
     	}
-        if (view.isLensVisible())
+        if (view.isLensVisible()) {
         	view.setImageZoomFactor((float) model.getZoomFactor());
+        	view.scrollLens();	
+        }	
     }
 
     /**

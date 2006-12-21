@@ -273,7 +273,12 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
                                                             groupID);
+        
         view.setViews(visNodes);
+        if (!view.isPartialName()) {
+        	PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
+    		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+        }
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
@@ -373,7 +378,12 @@ class BrowserComponent
         long groupID = model.getRootGroupID();
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
+
         view.setLeavesViews(visLeaves, parent);
+        if (!view.isPartialName()) {
+        	PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
+    		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+        }
         model.setState(READY);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();

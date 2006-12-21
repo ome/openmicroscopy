@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
@@ -190,5 +191,12 @@ public interface Browser
      * @param color The value to set.
      */
 	public void setUnitBarColor(Color color);
+
+	/**
+	 * Scrolls to the location.
+	 * 
+	 * @param bounds The bounds of the node.
+	 */
+	public void scrollTo(Rectangle bounds);
     
 }

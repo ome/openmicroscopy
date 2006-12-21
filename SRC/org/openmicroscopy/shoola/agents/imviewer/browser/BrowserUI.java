@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -147,7 +148,7 @@ class BrowserUI
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
         setComponentsSize(img.getWidth(), img.getHeight());
-        JViewport currentView = this.getViewport();
+        JViewport currentView = getViewport();
         int h = img.getHeight();
         int w = img.getWidth();
         int viewportW = currentView.getWidth();
@@ -183,5 +184,19 @@ class BrowserUI
      * @return see above. 
      */
     Dimension getCurrentViewport() { return getViewport().getSize(); }
+
+	/**
+	 * Scrolls to the location.
+	 * 
+	 * @param bounds The bounds of the node.
+	 */
+	void scrollTo(Rectangle bounds)
+	{
+		Rectangle viewRect = getViewport().getViewRect();
+		if (!viewRect.contains(bounds)) {
+            getVerticalScrollBar().setValue(bounds.y);
+            getHorizontalScrollBar().setValue(bounds.x);
+        }
+	}
     
 }

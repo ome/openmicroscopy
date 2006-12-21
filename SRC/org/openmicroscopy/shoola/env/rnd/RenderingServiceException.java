@@ -23,6 +23,9 @@
 
 package org.openmicroscopy.shoola.env.rnd;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 
 //Java imports
 
@@ -77,4 +80,17 @@ public class RenderingServiceException
         super(message, cause);
     }
 
+    /**
+     * Prints the stack trace and returns it as a string.
+     * 
+     * @return See above.
+     */
+	public String getExtendedMessage()
+	{
+		StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        printStackTrace(pw);
+        return sw.toString();
+	}
+	
 }

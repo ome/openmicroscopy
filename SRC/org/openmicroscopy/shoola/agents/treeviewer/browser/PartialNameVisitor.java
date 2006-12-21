@@ -75,9 +75,6 @@ class PartialNameVisitor
 	 * implementation in our case.
 	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
 	 */
-	public void visit(TreeImageSet node) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void visit(TreeImageSet node) {}
 
 }

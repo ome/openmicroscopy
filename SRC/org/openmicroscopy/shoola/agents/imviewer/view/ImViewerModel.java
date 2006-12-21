@@ -196,8 +196,12 @@ class ImViewerModel
      */
     private void handleException(RenderingServiceException e)
     {
+    	ImViewerAgent.getRegistry().getLogger().error(this, 
+    											e.getExtendedMessage());
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	un.notifyError(ImViewerAgent.ERROR, e.getMessage(), e.getCause());
+    	un.notifyError(ImViewerAgent.ERROR, e.getExtendedMessage(), 
+    										e.getCause());
+    	
     	component.discard();
     }
     
@@ -428,7 +432,7 @@ class ImViewerModel
     {
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
-        state = ImViewer.LOADING_IMAGE;
+        //state = ImViewer.LOADING_IMAGE;
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
             return os.renderImage(pixelsID, pDef);

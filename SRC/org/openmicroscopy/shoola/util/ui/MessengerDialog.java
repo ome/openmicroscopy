@@ -239,7 +239,7 @@ public class MessengerDialog
         if (exception != null) {
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");
-        	formatButton(cancelButton, 'C', COPY_TOOLTIP);
+        	formatButton(copyButton, 'C', COPY_TOOLTIP);
         	copyButton.addActionListener(new ActionListener() {
         		
     			public void actionPerformed(ActionEvent e) { copy(); }

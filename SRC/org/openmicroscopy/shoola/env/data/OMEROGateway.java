@@ -279,7 +279,6 @@ class OMEROGateway
             }
             return data;
         } catch (Exception e) {
-        	e.printStackTrace();
             throw new DSOutOfServiceException("Cannot retrieve user's " +
                     						"data", e);
         }
@@ -889,7 +888,8 @@ class OMEROGateway
             return service.findByQuery(sql, param);
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the requested link for "+
-            "parent ID: "+parent.getId()+" and child ID: "+child.getId());
+            					"parent ID: "+parent.getId()+" and child " +
+            					"ID: "+child.getId());
         }
         return null;
     }
@@ -920,7 +920,7 @@ class OMEROGateway
             return service.findAllByQuery(sql, param);
         } catch (Exception e) {
             handleException(e, "Cannot retrieve the requested link for "+
-            "parent ID: "+parent.getId());
+            					"parent ID: "+parent.getId());
         }
         return null;
     }
@@ -942,10 +942,9 @@ class OMEROGateway
              return service.find(o.getClass(), o.getId().longValue());
          } catch (Exception e) {
              handleException(e, "Cannot retrieve the requested object with "+
-             "object ID: "+o.getId());
+            		 			"object ID: "+o.getId());
          }
          return null;
-    }
-    
+    } 
 
 }

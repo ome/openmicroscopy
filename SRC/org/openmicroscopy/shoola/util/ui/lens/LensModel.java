@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -393,7 +394,20 @@ class LensModel
      * @return scaled lens location.
      */
     Point getLensLocation() { return new Point(getX(), getY()); }
-    	    
+    	  
+	/**
+	 * Returns the bounds of the scaled image size, takes into account the zoom 
+	 * factor of the image viewer.
+	 *  
+	 * @return See above.
+	 */
+	Rectangle getLensScaledBounds() 
+	{
+		Point p = getLensScaledLocation();
+		Dimension d = getLensScaledSize();
+		return new Rectangle(p.x, p.y, d.width, d.height);
+	}
+	
     /** 
      * Depending on the sampled colour of the image; if the image is 
      * predominantly dark return a light lens else return a dark lens 
