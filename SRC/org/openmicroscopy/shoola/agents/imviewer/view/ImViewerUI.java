@@ -725,7 +725,7 @@ class ImViewerUI
             }
 
             lens.setImageZoomFactor((float) model.getZoomFactor());
-            lens.setPlaneImage(model.getDisplayedImage());
+            lens.setPlaneImage(model.getOriginalImage());
             lens.setLensPreferredColour();
         }
         lens.setVisible(b);

@@ -262,7 +262,7 @@ class BrowserControl
     
     /** Forwards event to the {@link Browser} to load the hiearchy data. */
     void loadData() { model.loadData(); }
-    
+	
     /**
      * Detects when the {@link Browser} is ready and then registers for
      * property change notification.
@@ -291,5 +291,7 @@ class BrowserControl
             model.collapse(model.getLastSelectedDisplay());
         }
     }
+
+
     
 }

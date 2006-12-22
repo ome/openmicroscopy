@@ -48,6 +48,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -555,7 +556,7 @@ class BrowserModel
         TreeImageDisplay d  = getLastSelectedDisplay();
         if (d == null) return;
         Object o = d.getUserObject();
-        if (o instanceof DataObject) {
+        if (o instanceof ImageData) {
             ViewCmd cmd = new ViewCmd(parent, (DataObject) o);
             cmd.execute();
         }

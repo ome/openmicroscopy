@@ -674,6 +674,13 @@ class ImViewerModel
     BufferedImage getDisplayedImage() { return browser.getDisplayedImage(); }
 
     /**
+     * Returned the original image returned by the image service.
+     * 
+     * @return See above.
+     */
+    BufferedImage getOriginalImage() { return browser.getRenderedImage(); }
+    
+    /**
      * The size in microns of a pixel along the X-axis.
      * 
      * @return See above.

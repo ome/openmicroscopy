@@ -131,6 +131,7 @@ class InfoPaneUI
             content.add(label, c);
             area = new JTextField(value);
             area.setEditable(false);
+            area.setEnabled(false);
             label.setLabelFor(area);
             fields.put(key, area);
             c.gridx = 1;

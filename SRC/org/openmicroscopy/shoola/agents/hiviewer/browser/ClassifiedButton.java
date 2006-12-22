@@ -53,8 +53,8 @@ class ClassifiedButton
 {
 
     /** Description of the button. */
-    private final String DESCRIPTION = "Classified image. Click to " +
-            "declassify the image. ";
+    private final String DESCRIPTION = "Categorised image. Click to " +
+            "display the categorization. ";
     
     /** The node hosting this button. */
     private final ImageNode parentNode;

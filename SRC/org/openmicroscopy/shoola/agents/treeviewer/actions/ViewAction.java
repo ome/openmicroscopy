@@ -63,8 +63,10 @@ public class ViewAction
     private static final String BROWSE = "Browse";
     
     /** Description of the action. */
-    private static final String DESCRIPTION = "View the selected image or " +
-            "browse the selected project, dataset, categoryGroup or category";
+    private static final String DESCRIPTION = "Browse the selected nodes";
+    
+    /** Description of the action when the selected node is an image. */
+    private static final String DESCRIPTION_IMAGE = "View the selected image";
     
     /**
      * Sets the action enabled depending on the browser's type and 
@@ -95,7 +97,12 @@ public class ViewAction
                     return;
                 }
             }
-            if ((ho instanceof ImageData)) name = VIEW;  
+            if ((ho instanceof ImageData)) {
+            	name = VIEW;  
+            	description = DESCRIPTION_IMAGE;
+            	putValue(Action.SHORT_DESCRIPTION, 
+                        UIUtilities.formatToolTipText(description));
+            }
             else name = BROWSE;
             if (selectedDisplay instanceof TreeImageSet) {
             	setEnabled(
