@@ -79,25 +79,27 @@ public class ChannelMetadataLoader
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
      * Returns the root node of the requested tree.
-     * 
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return results; }
 
     /**
      * Loads the channel metadata linked to pixels set to render.
-     * 
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+	 * 
      * @param pixelsID The Id of the pixels set.
      */
     public ChannelMetadataLoader(long pixelsID)
     {
+    	if (pixelsID < 0)
+    		 throw new IllegalArgumentException("Pixels ID not valid.");
         loadCall = makeBatchCall(pixelsID);
     }
     

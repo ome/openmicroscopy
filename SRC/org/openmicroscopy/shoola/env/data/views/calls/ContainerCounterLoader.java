@@ -64,7 +64,6 @@ public class ContainerCounterLoader
 
     /**
      * Adds a {@link BatchCall} to the tree for each value to retrieve.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
@@ -115,13 +114,14 @@ public class ContainerCounterLoader
     /**
      * Returns <code>null</code> as there's no final result.
      * In fact, values are progressively delivered with feedback events.
-     * 
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return null; }
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param rootIDs	Collection of root ids. Mustn't be <code>null</code>.
      */

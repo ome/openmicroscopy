@@ -117,7 +117,6 @@ public class AnnotationLoader
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }

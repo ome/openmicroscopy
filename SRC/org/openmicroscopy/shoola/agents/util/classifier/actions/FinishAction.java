@@ -75,4 +75,5 @@ public class FinishAction
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) { model.finish(); }
+	
 }

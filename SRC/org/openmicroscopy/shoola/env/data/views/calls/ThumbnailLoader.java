@@ -147,18 +147,15 @@ public class ThumbnailLoader
     {
         if (pixelsCall) {
             add(makeBatchCall());
-        } else {
-            String description;
-            for (int i = 0;  i < images.length; ++i) {
-                description = "Loading thumbnail: "+images[i].getName();
-                final int index = i;
-                add(new BatchCall(description) {
-                        public void doCall()
-                        { 
-                            loadThumbail(index); 
-                        }
-                });
-            }
+            return;
+        }
+        String description;
+        for (int i = 0;  i < images.length; ++i) {
+        	description = "Loading thumbnail: "+images[i].getName();
+        	final int index = i;
+        	add(new BatchCall(description) {
+        		public void doCall() { loadThumbail(index); }
+        	});    
         }
     }
 
@@ -174,8 +171,7 @@ public class ThumbnailLoader
     /**
      * Returns <code>null</code> as there's no final result.
      * In fact, thumbnails are progressively delivered with 
-     * feedback events.
-     * 
+     * feedback events. 
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return null; }
@@ -185,8 +181,8 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param imgs Contains {@link ImageData}s, one
-     *                      for each thumbnail to retrieve.
+     * @param imgs 		Contains {@link ImageData}s, one
+     * 					for each thumbnail to retrieve.
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      */
@@ -209,7 +205,7 @@ public class ThumbnailLoader
      * If bad arguments are passed, we throw a runtime exception so to fail
      * early and in the caller's thread.
      * 
-     * @param image The {@link ImageData}, the thumbnail
+     * @param image 	The {@link ImageData}, the thumbnail
      * @param maxWidth  The maximum acceptable width of the thumbnails.
      * @param maxHeight The maximum acceptable height of the thumbnails.
      */

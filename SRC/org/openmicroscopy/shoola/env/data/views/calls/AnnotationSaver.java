@@ -211,6 +211,8 @@ public class AnnotationSaver
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param annotatedObject   The annotated <code>DataObject</code>.
      *                          Mustn't be <code>null</code>.
@@ -246,6 +248,8 @@ public class AnnotationSaver
     
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param toCreate	Collections of <code>DataObject</code>s to 
      * 					annotate. Mustn't be <code>null</code>.
@@ -261,7 +265,9 @@ public class AnnotationSaver
     
     /**
      * Creates a new instance.
-     * 
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+	 * 
      * @param toUpdate	The annotated <code>DataObject</code>s.
      * 					Mustn't be <code>null</code>.
      * @param toCreate	The <code>DataObject</code>s to annotate.
@@ -277,7 +283,9 @@ public class AnnotationSaver
     
     /**
      * Creates a new instance.
-     * 
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+	 * 
      * @param toUpdate	The annotated <code>DataObject</code>s.
      * 					Mustn't be <code>null</code>.
      * @param toCreate	The <code>DataObject</code>s to annotate.

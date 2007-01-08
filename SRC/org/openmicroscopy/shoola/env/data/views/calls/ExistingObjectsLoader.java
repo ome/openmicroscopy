@@ -103,6 +103,8 @@ public class ExistingObjectsLoader
     
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param nodeType      The type of the root node. One out of the
      *                      following list: <code>ProjectData</code>, 

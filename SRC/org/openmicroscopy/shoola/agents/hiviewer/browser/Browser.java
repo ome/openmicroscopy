@@ -98,7 +98,7 @@ public interface Browser
     /** Bound property indicating a classification visualization. */
     public static final String  CLASSIFIED_NODE_PROPERTY = "classifiedNode";
     
-    /** Bound property indicating to rool over nodes. */
+    /** Bound property indicating to magnify the node when moused over. */
     public static final String  ROLL_OVER_PROPERTY = "rollOver";
     
     /**

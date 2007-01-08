@@ -116,14 +116,12 @@ public class HierarchyFinder
     
     /**
      * Adds the {@link #findCall} to the computation tree.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(findCall); }
     
     /**
      * Returns the root node of the found trees.
-     * 
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return rootNodes; }

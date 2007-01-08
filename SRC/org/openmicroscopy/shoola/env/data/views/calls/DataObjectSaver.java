@@ -166,6 +166,8 @@ public class DataObjectSaver
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param userObject    The {@link DataObject} to create or update.
      *                      Mustn't be <code>null</code>.
@@ -206,6 +208,8 @@ public class DataObjectSaver
   
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param userObjects   The {@link DataObject}s to remove.
      *                      Mustn't be <code>null</code>.
@@ -231,6 +235,8 @@ public class DataObjectSaver
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param objects       The {@link DataObject} to remove.
      *                      Mustn't be <code>null</code>.

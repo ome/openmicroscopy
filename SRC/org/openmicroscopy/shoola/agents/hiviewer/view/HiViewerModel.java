@@ -423,7 +423,7 @@ abstract class HiViewerModel
      * Sets the value of the <code>Roll over</code> flag.
      * 
      * @param rollOver  Pass <code>true</code> to zoom the image when the user
-     *                  mouses over a{@link ImageNode}, <code>false</code> 
+     *                  mouses over an {@link ImageNode}, <code>false</code> 
      *                  otherwise.
      * @see Browser#setRollOver(boolean)                 
      */

@@ -95,13 +95,13 @@ class OMEROGateway
     private ThumbnailStore          thumbnailService;
     
     /**
-     * Tells whether we're currently connected and logged into <i>OMEDS</i>.
+     * Tells whether we're currently connected and logged into <i>OMERO</i>.
      */
     private boolean                 connected;
     
     /** 
      * Used whenever a broken link is detected to get the Login Service and
-     * try reestabishing a valid link to <i>OMEDS</i>. 
+     * try reestabishing a valid link to <i>OMERO</i>. 
      */
     private DataServicesFactory     dsFactory;
     

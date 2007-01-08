@@ -141,12 +141,13 @@ class ClassifierComponent
 			throw new IllegalStateException("This method can only be " +
 					"invoked in the READY state.");
 		Set categories = view.getSelectedPaths();
-		if (categories == null) {
+		if (categories == null || categories.size() == 0) {
 			UserNotifier un = ClassifierFactory.getRegistry().getUserNotifier();
             un.notifyInfo("Categorisation", "No category selected."); 
             return; 
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		view.finish();
 		controller.getAction(ClassifierControl.FINISH).setEnabled(false);
 		model.fireClassificationsSaving(categories);
 		fireStateChange();

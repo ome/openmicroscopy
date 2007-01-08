@@ -93,6 +93,8 @@ public class RenderingControlLoader
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
      * 
      * @param pixelsID  The id of the pixels set the rendering control is for.
      */

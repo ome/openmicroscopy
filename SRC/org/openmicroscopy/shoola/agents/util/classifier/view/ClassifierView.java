@@ -132,6 +132,7 @@ class ClassifierView
 			}
 		
 		});
+    	selectAll.setEnabled(false);
     	deselectAll = new JButton("Deselect All");
     	deselectAll.setToolTipText("Deselect all categories");
     	deselectAll.addActionListener(new ActionListener() {
@@ -141,6 +142,7 @@ class ClassifierView
 			}
 		
 		});
+    	deselectAll.setEnabled(false);
     }
     
     /**
@@ -302,6 +304,11 @@ class ClassifierView
 	/** Displays the classifications. */
 	void showClassifications()
 	{
+		Set paths = model.getClassificationPaths();
+		boolean b = true;
+		if (paths == null || paths.size() == 0) b = false;
+		selectAll.setEnabled(b);
+		deselectAll.setEnabled(b);
 		classifierUI.showClassifications();
 	}
 	
@@ -313,11 +320,23 @@ class ClassifierView
      */
     Set getSelectedPaths() { return classifierUI.getSelectedPaths(); }
     
+    /** 
+     * Sets the <code>enabled</code> flag of the selection buttons to 
+     * <code>false</code>.
+     */
+	void finish()
+	{
+		selectAll.setEnabled(false);
+		deselectAll.setEnabled(false);
+	}
+	
 	/** Sets the window on screen. */
 	void setOnScreen()
 	{
 		setSize(DEFAULT_SIZE);
 		UIUtilities.centerAndShow(this);
 	}
+
+
 	
 }

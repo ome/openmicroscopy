@@ -150,7 +150,9 @@ public class ExistingObjectsSaver
     
     /**
      * Creates a new instance.
-     * 
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+	 * 
      * @param parent    The <code>DataObject</code> to update. Either a 
      *                  <code>ProjectData</code> or <code>DatasetData</code>.
      * @param children  The items to add.
@@ -189,6 +191,8 @@ public class ExistingObjectsSaver
 
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param toPaste   The <code>DataObject</code>s to update. 
      * @param toRemove  The <code>DataObject</code>s to cut. 

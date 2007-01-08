@@ -91,7 +91,8 @@ public class ClassificationLoader
      * Checks if the index specified is supported.
      * 
      * @param i The passed index.
-     * @return <code>true</code> it the index is supported.
+     * @return 	Returns <code>true</code> if the index is supported,
+     * 			<code>false</code> otherwise.
      */
     private boolean checkAlgorithmIndex(int i)
     {
@@ -107,6 +108,8 @@ public class ClassificationLoader
     /**
      * Creates a {@link BatchCall} to load all Category Group/Category paths
      * that don't end with the specified Image.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param imageIDs      The set of image ids.
      * @param algorithm     One out of the following constants:

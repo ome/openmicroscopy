@@ -147,7 +147,6 @@ class ClassifierUI
         buildTreeNode(root, sorter.sort(paths));
         dtm.reload();
         return tree;
-        //return new JScrollPane(tree);
     }
     
     /**

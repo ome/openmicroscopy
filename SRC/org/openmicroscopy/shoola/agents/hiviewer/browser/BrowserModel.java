@@ -377,7 +377,11 @@ class BrowserModel
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setRollOver(boolean)
      */
-    public void setRollOver(boolean rollOver) { this.rollOver = rollOver; }
+    public void setRollOver(boolean rollOver)
+    { 
+    	setRollOverNode(null);
+    	this.rollOver = rollOver; 
+    }
     
     /**
      * Implemented as specified by the {@link Browser} interface.

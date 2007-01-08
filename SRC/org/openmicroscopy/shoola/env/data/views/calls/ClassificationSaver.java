@@ -119,6 +119,8 @@ public class ClassificationSaver
     
     /**
      * Classifies or declassifies the specified images.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param images        The images to handle.
      * @param categories    The categories to add the image to or remove the

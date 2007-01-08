@@ -110,20 +110,20 @@ public class DMLoader
     
     /**
      * Adds the {@link #loadCall} to the computation tree.
-     * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
      * Returns the root node of the requested tree.
-     * 
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return results; }
     
     /**
      * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
      *                      {@link ProjectData}, {@link DatasetData},

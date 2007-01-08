@@ -140,7 +140,8 @@ public class ImagesLoader
     }
 
     /**
-     * Creates a new instance.
+     * Creates a new instance. If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
      * 
      * @param nodeType		The type of the root node. Can only be one out of:
      * 						{@link DatasetData} or {@link CategoryGroupData}.
