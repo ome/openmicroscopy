@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -187,12 +188,12 @@ class LensMenu
 	private JMenu createDisplayOptions()
 	{
 		JMenu					displayOptions;
-		JRadioButtonMenuItem	setDisplayScale;
+		JCheckBoxMenuItem	setDisplayScale;
 		displayOptions = new JMenu(DISPLAY_UNITS);
 		ButtonGroup displayUnits = new ButtonGroup();
 		for (int indexCnt = 0 ; indexCnt < DisplayAction.MAX ; indexCnt++)
 		{
-			setDisplayScale = new JRadioButtonMenuItem(new DisplayAction
+			setDisplayScale = new JCheckBoxMenuItem(new DisplayAction
 													(lensComponent, indexCnt));
 			displayUnits.add(setDisplayScale);
 			displayOptions.add(setDisplayScale);

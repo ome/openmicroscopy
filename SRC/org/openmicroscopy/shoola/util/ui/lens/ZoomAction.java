@@ -49,7 +49,7 @@ class ZoomAction
 	extends AbstractAction
 {
 	/** Number of options in action. */
-	final static int MAX = 9;
+	final static int MAX = 10;
 
 	/** Constant for zoom action to set the magnification of the lens to x1.*/
 	final static int		ZOOMx1 = 0;
@@ -91,7 +91,7 @@ class ZoomAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[MAX+1];
+	        names = new String[MAX];
 	        names[ZOOMx1] = "Set Magnification x1";
 	        names[ZOOMx2] = "Set Magnification x2";
 	        names[ZOOMx3] = "Set Magnification x3";

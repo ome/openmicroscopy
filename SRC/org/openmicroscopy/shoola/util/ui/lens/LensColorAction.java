@@ -51,7 +51,7 @@ class LensColorAction
 {
 	
 	/** The number of items in the actions. */
-	final static int  		MAX = 11;
+	final static int  		MAX = 12;
 	
 	/** Identify the default color. */
 	final static int 		DEFAULT = 0;
@@ -99,7 +99,7 @@ class LensColorAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[MAX+1];
+	        names = new String[MAX];
 	        names[DEFAULT] = "Default";
 	        names[RED] = "Red";
 	        names[ORANGE] = "Orange";

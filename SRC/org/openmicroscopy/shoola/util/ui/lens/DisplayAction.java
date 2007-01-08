@@ -49,7 +49,7 @@ class DisplayAction
 	extends AbstractAction
 {
 	/** Number of options in action. */
-	final static int MAX = 1;
+	final static int MAX = 2;
 
 	/** Display units in microns. */
 	final static int		MICRON_OPTION = 0;
@@ -67,7 +67,7 @@ class DisplayAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[MAX+1];
+	        names = new String[MAX];
 	        names[MICRON_OPTION] = "Microns";
 	        names[PIXEL_OPTION] = "Pixels";
 	}
