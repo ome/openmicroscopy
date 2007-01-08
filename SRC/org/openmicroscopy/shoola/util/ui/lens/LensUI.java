@@ -453,9 +453,13 @@ public class LensUI
 	 */
 	void setLensColour(Color c)
 	{
-		if (c != null) this.lensBorderColour = c;
-		invalidate();
-		repaint();
+		if (c != null) 
+		{
+			this.lensBorderColour = c;
+			this.lensCrossHairColour = c;
+			invalidate();
+			repaint();
+		}
 	}
 	
     /**
