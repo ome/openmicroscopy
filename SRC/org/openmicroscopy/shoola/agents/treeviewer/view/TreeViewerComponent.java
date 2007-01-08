@@ -272,8 +272,7 @@ class TreeViewerComponent
         model.setEditor(editor);
 
         if (editorType == CREATE_EDITOR) {
-            editorDialog = new EditorDialog(view);
-            editorDialog.addComponent(editor.getUI());
+            editorDialog = new EditorDialog(view, editor);
             UIUtilities.centerAndShow(editorDialog);
             onComponentStateChange(false);
         } else view.addComponent(editor.getUI());

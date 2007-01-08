@@ -251,5 +251,8 @@ public interface Editor
     
     /** Retrieves the thumbnail when the state is <code>READY</code>. */
     public void retrieveThumbnail();
+
+    /** Indicates to set the focus on the name area. */
+	public void setFocusOnName();
     
 }

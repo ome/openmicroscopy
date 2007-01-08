@@ -455,6 +455,16 @@ class EditorComponent
     	if (model.hasThumbnail() && !model.isThumbnailLoaded())
     		firePropertyChange(TreeViewer.THUMBNAIL_LOADING_PROPERTY, 
                     null, model.getHierarchyObject()); 
-    }  
+    }
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#retrieveThumbnail()
+     */
+	public void setFocusOnName()
+	{
+		if (model.getEditorType() != CREATE_EDITOR) return;
+		view.setFocusOnName();
+	}  
     
 }

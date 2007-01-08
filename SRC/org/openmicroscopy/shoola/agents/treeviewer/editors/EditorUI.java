@@ -730,6 +730,12 @@ class EditorUI
             model.setEditorSelectedPane(selectedIndex);
     }
     
+    /** Sets the focus on the name area. */
+	void setFocusOnName()
+	{
+		doBasic.nameArea.requestFocus();
+	}
+	
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
@@ -749,5 +755,6 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
+
 
 }
