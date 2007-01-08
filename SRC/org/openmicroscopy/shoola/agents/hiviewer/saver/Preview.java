@@ -34,7 +34,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -43,7 +42,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 
 //Third-party libraries
 
@@ -53,7 +51,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The dialog displaying the image to save.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,6 +73,9 @@ class Preview
     
     /** Dimension of the box put between buttons. */
     private static final Dimension  RIGID_HBOX = new Dimension(10, 0);
+    
+    /** The default size of the window. */
+    private static final Dimension	WIN_SIZE = new Dimension(400, 500);
     
     /** The possible gap values. */
     private static final String[]   gaps;
@@ -177,14 +178,14 @@ class Preview
     private void buildGUI()
     {
         IconManager im = IconManager.getInstance();
-        TitlePanel tp = new TitlePanel("Preview", "Preview...", 
-                im.getIcon(IconManager.SAVE_AS_BIG));
-        JScrollPane pane = new JScrollPane(previewCanvas);
+        TitlePanel tp = new TitlePanel("Preview", "Preview the image", 
+                					im.getIcon(IconManager.SAVE_AS_BIG));
         Container c = getContentPane();
         c.add(tp, BorderLayout.NORTH);
-        c.add(pane, BorderLayout.CENTER);
+        c.add(new JScrollPane(previewCanvas), BorderLayout.CENTER);
         c.add(buildControlsPanel(), BorderLayout.EAST);
-        c.add(buildToolBar(), BorderLayout.SOUTH);
+        c.add(UIUtilities.buildComponentPanelRight(buildButtonPanel()), 
+        		BorderLayout.SOUTH);
     }
     
     /** 
@@ -220,19 +221,6 @@ class Preview
     }
     
     /** 
-     * Builds and returns the tool bar. 
-     * 
-     * @return See above.
-     */
-    private JToolBar buildToolBar()
-    {
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.add(UIUtilities.buildComponentPanelRight(buildButtonPanel()));
-        return bar;
-    }
-    
-    /** 
      * Builds and returns a panel with buttons. 
      *
      * @return See above.
@@ -241,11 +229,12 @@ class Preview
     {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(preview);
-        p.add(Box.createRigidArea(HBOX));
+        //p.add(preview);
+        //p.add(Box.createRigidArea(HBOX));
         p.add(save);
         p.add(Box.createRigidArea(HBOX));
         p.add(cancel);
+        p.add(Box.createRigidArea(RIGID_HBOX));
         p.setOpaque(false); //make panel transparent
         return p;
     }
@@ -262,6 +251,7 @@ class Preview
         manager = new PreviewMng(this, model);
         previewCanvas.paintImage();
         buildGUI();
+        setSize(WIN_SIZE);
     }
 
     /**

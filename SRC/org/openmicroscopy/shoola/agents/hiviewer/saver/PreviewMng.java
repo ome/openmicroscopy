@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.saver;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -36,7 +37,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import javax.swing.JButton;
 
 //Third-party libraries
@@ -45,7 +46,7 @@ import javax.swing.JButton;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutUtils;
 
 /** 
- * 
+ * Controller of the {@link Preview}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,8 +96,10 @@ class PreviewMng
         int index = view.colors.getSelectedIndex();
         Color c = view.getSelectedColor(index);
         int space = Integer.parseInt((String) view.spacing.getSelectedItem());
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         createImage(c, space);
         view.previewCanvas.paintImage();
+        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
     
     /** 
@@ -107,10 +110,11 @@ class PreviewMng
      * */
     private void createImage(Color color, int space)
     {
-        Set thumbnails = model.getThumbnails();
+        List thumbnails = model.getThumbnails();
         if (maxDim == null)  maxDim(thumbnails);
         int n = thumbnails.size();
-        n = (int) Math.ceil(Math.sqrt(n));
+        n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+        //n = (int) Math.ceil(Math.sqrt(n));
         BufferedImage child;
         Iterator children = thumbnails.iterator();
         int w = maxDim.width*n+(n+1)*space;
@@ -149,7 +153,7 @@ class PreviewMng
      * 
      * @param thumbnails The collection of thumbnails.
      */
-    private void maxDim(Set thumbnails)
+    private void maxDim(List thumbnails)
     {
         maxDim = new Dimension(0, 0);
         BufferedImage child;
@@ -165,6 +169,16 @@ class PreviewMng
     /** Initializes the listeners. */
     private void initListeners()
     {
+    	view.colors.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) { preview(); }
+		
+		});
+    	view.spacing.addActionListener(new ActionListener() {
+    		
+			public void actionPerformed(ActionEvent e) { preview(); }
+		
+		});
         attachButtonListener(view.save, SAVE);
         attachButtonListener(view.cancel, CANCEL);
         attachButtonListener(view.preview, PREVIEW);

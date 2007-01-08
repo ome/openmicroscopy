@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.view;
 import java.awt.Cursor;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -43,14 +45,17 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.SortByAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.AnnotateCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.DataSaveVisitor;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeView;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -726,6 +731,26 @@ class HiViewerComponent
 		//TODO check state.
 		model.fireHierarchyLoading(true);
 		fireStateChange();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#saveThumbnails(Set)
+     */
+	public void saveThumbnails(Set thumbnails)
+	{
+		if (thumbnails == null || thumbnails.size() == 0)
+			throw new IllegalArgumentException("No images to save.");
+		List l = model.getSorter().sort(thumbnails);
+		Iterator i = l.iterator();
+		List thumbs = new ArrayList(l.size());
+		while (i.hasNext()) {
+			thumbs.add(
+					((ImageNode) i.next()).getThumbnail().getDisplayedImage());
+		}
+		ContainerSaver saver = new ContainerSaver(view, thumbs);
+        saver.pack();
+        UIUtilities.centerAndShow(saver);
 	}
 
 }

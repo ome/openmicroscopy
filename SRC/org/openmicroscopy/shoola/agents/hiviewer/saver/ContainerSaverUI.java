@@ -57,7 +57,8 @@ class ContainerSaverUI
     private static final String         TITLE = "Save the thumbnails";
     
     /** The summary's text. */
-    private static final String         SUMMARY = "";
+    private static final String         SUMMARY = "Save the selected " +
+    									"thumbnails as a single image.";
     
     /** 
      * Builds and lays out the GUI. 
@@ -90,4 +91,5 @@ class ContainerSaverUI
         if (saver == null) throw new IllegalArgumentException("No model.");
         buildGUI(saver);
     }
+    
 }

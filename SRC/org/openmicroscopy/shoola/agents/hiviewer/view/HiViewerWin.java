@@ -43,7 +43,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
@@ -198,12 +197,12 @@ class HiViewerWin
         menu.setIcon(im.getIcon(IconManager.TRANSPARENT));
         int index = LayoutFactory.getDefaultLayoutIndex();
         ButtonGroup group = new ButtonGroup();
-        JRadioButtonMenuItem item = new JRadioButtonMenuItem();
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         item.setSelected(index == LayoutFactory.SQUARY_LAYOUT);
         item.setAction(controller.getAction(HiViewerControl.SQUARY));
         group.add(item);
         menu.add(item);
-        item = new JRadioButtonMenuItem();
+        item = new JCheckBoxMenuItem();
         item.setSelected(index == LayoutFactory.FLAT_LAYOUT);
         item.setAction(controller.getAction(HiViewerControl.FLAT_LAYOUT));
         group.add(item);
@@ -223,10 +222,10 @@ class HiViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.SAVE_THUMB)));
         menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.EXIT)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
         return menu;
     }
     

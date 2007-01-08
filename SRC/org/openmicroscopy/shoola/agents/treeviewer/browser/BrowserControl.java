@@ -231,10 +231,12 @@ class BrowserControl
                         node.getUserObject().getClass())) {
                     l.add(no);
                 } else {
-                    tree.removeSelectionPath(paths[i]);
+                    //tree.removeSelectionPath(paths[i]);
                 }
             }
         }
+        
+        
         if (l.size() != n) {
             UserNotifier un = 
                 TreeViewerAgent.getRegistry().getUserNotifier();

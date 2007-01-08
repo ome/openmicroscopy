@@ -35,7 +35,7 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.util.ui.OptionsDialog;
 
 /** 
- * 
+ * Dialog window used to ask a Yes/No question to the user.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.OptionsDialog;
  * </small>
  * @since OME2.2
  */
-public class SelectionDialog
+class SelectionDialog
     extends OptionsDialog
 {
    
@@ -67,7 +67,7 @@ public class SelectionDialog
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param messageIcon The icon displayed in the window.
      */
-    SelectionDialog (ContainerSaver model, Icon messageIcon) 
+    SelectionDialog(ContainerSaver model, Icon messageIcon) 
     {
         super(model, "Save images", MESSAGE, messageIcon);
         if (model == null) throw new IllegalArgumentException("No model");

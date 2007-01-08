@@ -24,15 +24,17 @@
 package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.saver.ContainerSaver;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageFinder;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Command to saves the thumbnails contained in a dataset or category.
@@ -55,7 +57,6 @@ public class SaveThumbnailsCmd
     /** Reference to the model. */
     private HiViewer                model;
     
-    
     /**
      * Creates a new command to save the thumbnails contained in a 
      * Dataset/Category.
@@ -74,16 +75,21 @@ public class SaveThumbnailsCmd
     {
         Browser browser = model.getBrowser();
         if (browser == null) return;
-        ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
-        if (selectedDisplay.containsImages()) {
-            SaveThumbnailsVisitor visitor = new SaveThumbnailsVisitor(model);
-            selectedDisplay.accept(visitor);
-            //Now create the FileChooser
-            ContainerSaver saver = new ContainerSaver(model.getUI(), 
-                    visitor.getThumbnails());
-            saver.pack();
-            UIUtilities.centerAndShow(saver);
+        //if layout is flat
+        Set thumbnails = null;
+        if (browser.getSelectedLayout() == LayoutFactory.FLAT_LAYOUT) {
+        	thumbnails = browser.getImageNodes();
+        } else {
+        	ImageDisplay selectedDisplay = browser.getLastSelectedDisplay();
+        	if (selectedDisplay.containsImages()) {
+        		ImageFinder finder = new ImageFinder();
+        		selectedDisplay.accept(finder, 
+        								ImageDisplayVisitor.IMAGE_NODE_ONLY);
+        		thumbnails = finder.getImageNodes();
+            }
         }
+        if (thumbnails ==  null) return;
+        model.saveThumbnails(thumbnails);
     }
 
 }

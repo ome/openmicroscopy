@@ -459,5 +459,12 @@ public interface HiViewer
 	
 	/** Refreshes the display. */
 	public void refresh();
+
+	/**
+	 * Saves the passed images as a single image.
+	 * 
+	 * @param thumbnails The images to save. Mustn't be <code>null</code>.
+	 */
+	public void saveThumbnails(Set thumbnails);
     
 }

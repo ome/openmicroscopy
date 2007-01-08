@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.saver;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Set;
+import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -59,7 +59,7 @@ public class ContainerSaver
     private ContainerSaverManager   manager;
     
     /** The set of images to save. */
-    private Set                     thumbnails;
+    private List                    thumbnails;
     
     /** The format of the image either PNG or JPEG.*/
     private String                  extension;
@@ -84,13 +84,13 @@ public class ContainerSaver
     /**
      * Creates a new instance.
      * 
-     * @param owner The owner of this widget. Mustn't be <code>null</code>.
-     * @param thumbnails The thumbnails to save.
+     * @param owner			The owner of this widget.
+     * @param thumbnails 	The thumbnails to save.
+     * 						Mustn't be <code>null</code>.
      */
-    public ContainerSaver(JFrame owner, Set thumbnails) 
+    public ContainerSaver(JFrame owner, List thumbnails) 
     {
         super(owner);
-        if (owner == null) throw new IllegalArgumentException("No owner.");
         if (thumbnails == null)
             throw new IllegalArgumentException("No images.");
         this.thumbnails = thumbnails;
@@ -156,8 +156,9 @@ public class ContainerSaver
      * 
      * @return See above.
      */
-    Set getThumbnails() {return thumbnails; }
+    List getThumbnails() { return thumbnails; }
    
     /** Brings up the preview widget. */
     void showPreview() { manager.showPreview(); }
+    
 }

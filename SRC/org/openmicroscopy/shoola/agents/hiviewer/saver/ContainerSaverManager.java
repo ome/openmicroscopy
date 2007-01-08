@@ -83,7 +83,7 @@ class ContainerSaverManager
         //Hide the model
         model.setVisible(false);
         if (preview == null) preview = new Preview(model);
-        preview.pack();
+        //preview.pack();
         UIUtilities.centerAndShow(preview);
     }
 

@@ -34,10 +34,12 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.SaveThumbnailsCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * Saves the images displayed in an imageSet as a unique thumbnail.
@@ -72,15 +74,26 @@ public class SaveThumbnailsAction
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+    	if (model.getBrowser().getSelectedLayout() == 
+    		LayoutFactory.FLAT_LAYOUT) {
+        	setEnabled(true);
+        	return;
+        }
         if (selectedDisplay == null) {
             setEnabled(false);
             return;
-        }
+        }	
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Object ho = selectedDisplay.getHierarchyObject();
+            if (model.getBrowser().getSelectedLayout() == 
+            	LayoutFactory.FLAT_LAYOUT && !(ho instanceof ImageData))
+            {
+            	setEnabled(true);
+            	return;
+            }
             setEnabled(((ho instanceof CategoryData) || 
-                    (ho instanceof DatasetData)));
+            			(ho instanceof DatasetData)));
         }
     }
     
