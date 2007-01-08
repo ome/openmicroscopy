@@ -281,10 +281,8 @@ class EditorUI
         switch (model.getEditorType()) {
             case Editor.CREATE_EDITOR:
                 String subTitle = "Add a new "+ message.toLowerCase();
-                if (messageParent != null) {
+                if (messageParent != null) 
                     subTitle += messageParent+model.getParentName()+"."; 
-                }
-                
                 titlePanel = new TitlePanel(message, subTitle, 
                         im.getIcon(IconManager.CREATE_BIG));
                 break;

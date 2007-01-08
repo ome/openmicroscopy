@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -465,6 +466,16 @@ class EditorComponent
 	{
 		if (model.getEditorType() != CREATE_EDITOR) return;
 		view.setFocusOnName();
+	}
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setSize(Dimension)
+     */
+	public void setSize(Dimension d)
+	{
+		if (model.getEditorType() != CREATE_EDITOR) return;
+		view.setSize(d);
 	}  
     
 }

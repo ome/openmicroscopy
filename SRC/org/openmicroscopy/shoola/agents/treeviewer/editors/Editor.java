@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -208,6 +209,15 @@ public interface Editor
      *                               {@link #DISCARDED}.
      */
     public JComponent getUI();
+    
+    /**
+     * Sets the size of the UI component. This method should be invoked
+     * rather than directly invoking setSize(Dimension) on the returned value
+     * of {@link #getUI()}.
+     * 
+     * @param d The dimension to set.
+     */
+    public void setSize(Dimension d);
     
     /**
      * Sets the result of the save operation.

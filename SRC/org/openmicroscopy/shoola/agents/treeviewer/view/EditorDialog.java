@@ -77,6 +77,7 @@ class EditorDialog
         setModal(true);
         getContentPane().add(editor.getUI(), BorderLayout.CENTER);
         setSize(WIN_DIM);
+        editor.setSize(WIN_DIM);
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
         {

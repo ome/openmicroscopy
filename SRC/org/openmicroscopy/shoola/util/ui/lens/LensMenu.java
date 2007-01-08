@@ -30,12 +30,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
-import org.openmicroscopy.shoola.util.ui.ColorMenuItem;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ColorMenuItem;
 
 /** 
  * LensMenu is a singleton class which creates both the popupmenus and menubars
@@ -87,10 +86,10 @@ class LensMenu
 	private LensComponent		lensComponent;
 
 	/** The menubar which holds the menu items. */
-	private JPopupMenu				popupMenu;
+	private JPopupMenu			popupMenu;
 	
 	/** The menubar which holds the menu items. */
-	private JMenuBar				menubar;
+	private JMenuBar			menubar;
 
 	/**
 	 * Create the menu and attach the lens component. 
@@ -126,9 +125,9 @@ class LensMenu
 	private JMenu createLensOptions()
 	{
 		JMenu lensOptions = new JMenu(LENS_OPTIONS);
-		JMenuItem 				setLensSize;
+		JMenuItem setLensSize;
 		
-		for( int indexCnt = 0 ; indexCnt < LensAction.MAX ; indexCnt++)
+		for (int indexCnt = 0 ; indexCnt < LensAction.MAX ; indexCnt++)
 		{
 			setLensSize = new JMenuItem(new LensAction(lensComponent, 
 																	indexCnt));
@@ -148,7 +147,7 @@ class LensMenu
 		JMenu					zoomOptions;
 		JMenuItem				setLensZoom;
 		zoomOptions = new JMenu(ZOOM_OPTIONS);
-		for( int indexCnt = 0 ; indexCnt < ZoomAction.MAX ; indexCnt++)
+		for (int indexCnt = 0 ; indexCnt < ZoomAction.MAX ; indexCnt++)
 		{
 			setLensZoom = new JMenuItem(new ZoomAction(lensComponent, 
 																	indexCnt));
@@ -166,12 +165,11 @@ class LensMenu
 	{
 		JMenu					lensColorOptions;
 		ColorMenuItem			lensColor;
-		
+		LensColorAction lensColorAction;
 		lensColorOptions = new JMenu(LENS_COLOUR_OPTIONS);
-		for( int indexCnt = 0; indexCnt < LensColorAction.MAX ; indexCnt++)
+		for (int indexCnt = 0; indexCnt < LensColorAction.MAX ; indexCnt++)
 		{
-			LensColorAction lensColorAction = 
-								new LensColorAction(lensComponent, indexCnt);
+			lensColorAction = new LensColorAction(lensComponent, indexCnt);
 			lensColor = new ColorMenuItem(lensColorAction.getColor());
 			lensColor.addActionListener(lensColorAction);
 			lensColor.setText(lensColorAction.getName());
@@ -192,14 +190,13 @@ class LensMenu
 		JRadioButtonMenuItem	setDisplayScale;
 		displayOptions = new JMenu(DISPLAY_UNITS);
 		ButtonGroup displayUnits = new ButtonGroup();
-		for( int indexCnt = 0 ; indexCnt < DisplayAction.MAX ; indexCnt++)
+		for (int indexCnt = 0 ; indexCnt < DisplayAction.MAX ; indexCnt++)
 		{
 			setDisplayScale = new JRadioButtonMenuItem(new DisplayAction
 													(lensComponent, indexCnt));
 			displayUnits.add(setDisplayScale);
 			displayOptions.add(setDisplayScale);
-			if(indexCnt == 1)
-				setDisplayScale.setSelected(true);
+			setDisplayScale.setSelected(indexCnt == 1);
 		}
 		return displayOptions;
 	}
@@ -229,7 +226,6 @@ class LensMenu
 	 */
 	private void createMenubarMenu()
 	{
-	
 		menubar = new JMenuBar();
 		
 		menubar.add(createLensOptions());
