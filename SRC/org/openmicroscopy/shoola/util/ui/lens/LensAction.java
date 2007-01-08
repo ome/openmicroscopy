@@ -49,6 +49,9 @@ import javax.swing.Action;
 class LensAction 
 		extends AbstractAction
 {
+
+	/** Number of options in action. */
+	final static int MAX = 9;
 	
 	/** Default size of lens. (20x20). */
     final static int		LENSDEFAULTSIZE = 0;
@@ -90,7 +93,7 @@ class LensAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[10];
+	        names = new String[MAX+1];
 	        names[LENSDEFAULTSIZE] = "Set Lens to Default size";
 	        names[LENS40x40] = "Set lens to 40x40";
 	        names[LENS50x50] = "Set lens to 50x50";

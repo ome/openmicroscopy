@@ -139,6 +139,10 @@ public class LensUI
 	/** size of the crosshair when nto snapped. */
 	final static int			UNSNAPPED_CROSSHAIR = 8;
 	
+	/** Default colour of the lens. */
+	final static Color 			DEFAULT_LENS_COLOR = 
+												new Color(128, 128, 128,240);
+	
 	/** size of the crosshair, running from centre of lens. */
 	private int 				crosshairLength = UNSNAPPED_CROSSHAIR;
 	
@@ -146,9 +150,8 @@ public class LensUI
 	private int 				crosshairTick = crosshairLength/2-1;
 	
 	/** Colour of the frame of the lens */
-	private Color 				lensBorderColour = 
-								new Color(128, 128, 128, 240);
-	
+	private Color 				lensBorderColour = DEFAULT_LENS_COLOR; 
+		
 	/** Colour of the lens cross hair. */
 	private Color 				lensCrossHairColour = 
 								new Color(194, 194, 194, 220);
@@ -451,6 +454,8 @@ public class LensUI
 	void setLensColour(Color c)
 	{
 		if (c != null) this.lensBorderColour = c;
+		invalidate();
+		repaint();
 	}
 	
     /**

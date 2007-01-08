@@ -48,7 +48,9 @@ import javax.swing.Action;
 class DisplayAction 		
 	extends AbstractAction
 {
-	
+	/** Number of options in action. */
+	final static int MAX = 1;
+
 	/** Display units in microns. */
 	final static int		MICRON_OPTION = 0;
 	
@@ -65,7 +67,7 @@ class DisplayAction
 	private static String[]     names;
 	   
 	static {
-	        names = new String[2];
+	        names = new String[MAX+1];
 	        names[MICRON_OPTION] = "Microns";
 	        names[PIXEL_OPTION] = "Pixels";
 	}

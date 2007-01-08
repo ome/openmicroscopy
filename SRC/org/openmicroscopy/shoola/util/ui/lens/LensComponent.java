@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -311,6 +312,16 @@ public class LensComponent
 	public Point getLensScaledLocation()
 	{
 		return lensModel.getLensScaledLocation();
+	}
+	
+	/**
+	 * Set the colour of the lens border to a the colour specified. 
+	 * 
+	 * @param col new colour of the lens.
+	 */
+	public void setLensColour(Color col)
+	{
+		lens.setLensColour(col);
 	}
 	
 	/**
