@@ -80,7 +80,7 @@ class LensMenu
 	/** 
 	 * Text for the option to change the colour of the lens.
 	 */
-	final static String LENS_COLOUR_OPTIONS = "Lens Color";
+	final static String LENS_COLOR_OPTIONS = "Lens Color";
 	
 	/** Parent component of the lens and zoomWindowUI. */
 	private LensComponent		lensComponent;
@@ -166,7 +166,7 @@ class LensMenu
 		JMenu					lensColorOptions;
 		ColorMenuItem			lensColor;
 		LensColorAction lensColorAction;
-		lensColorOptions = new JMenu(LENS_COLOUR_OPTIONS);
+		lensColorOptions = new JMenu(LENS_COLOR_OPTIONS);
 		for (int indexCnt = 0; indexCnt < LensColorAction.MAX ; indexCnt++)
 		{
 			lensColorAction = new LensColorAction(lensComponent, indexCnt);
