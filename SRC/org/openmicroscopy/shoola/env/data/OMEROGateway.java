@@ -856,8 +856,12 @@ class OMEROGateway
         try {
             ThumbnailStore service = getThumbService();
             service.setPixelsId(pixelsID);
-            return service.getThumbnailDirect(new Integer(sizeX), 
+            byte[] r = 
+            service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
+            //service.close();
+            //thumbnailService = null;
+            return r;
         } catch (Exception e) {
             throw new RenderingServiceException("Cannot get thumbnail", e);
         }
