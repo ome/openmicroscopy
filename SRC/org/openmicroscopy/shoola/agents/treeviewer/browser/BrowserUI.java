@@ -115,6 +115,9 @@ class BrowserUI
     /** Reference to the listener. */
     private TreeExpansionListener	listener;
     
+    /** Reference to the selection listener. */
+    private TreeSelectionListener	selectionListener;
+    
     /** The component hosting the tree. */
     private JScrollPane             scrollPane;
 
@@ -247,13 +250,14 @@ class BrowserUI
            public void mouseReleased(MouseEvent e) { onClick(e, true); }
         });
         treeDisplay.addTreeExpansionListener(listener);
-        treeDisplay.addTreeSelectionListener(new TreeSelectionListener() {
+        selectionListener = new TreeSelectionListener() {
         
             public void valueChanged(TreeSelectionEvent e)
             {
                 controller.onClick();
             }
-        });
+        };
+        treeDisplay.addTreeSelectionListener(selectionListener);
         //Initialize the goIntoTree
         goIntoTree = new JTree();      
         goIntoTree.setVisible(true);
@@ -891,5 +895,22 @@ class BrowserUI
      * @return See above.
      */
     boolean isPartialName() { return !partialButton.isSelected(); }
+    
+    /**
+     * Removes the collection of <code>TreePath</code>s from the main tree.
+     * We first need to remove the <code>TreeSelectionListener</code> to avoid 
+     * loop.
+     * 
+     * @param paths Collection of paths to be removed.
+     */
+    void removeTreePaths(List paths)
+    {
+    	treeDisplay.removeTreeSelectionListener(selectionListener);
+    	Iterator j = paths.iterator();
+        while (j.hasNext()) 
+        	treeDisplay.removeSelectionPath((TreePath) j.next());
+
+        treeDisplay.addTreeSelectionListener(selectionListener);
+    }
     
 }

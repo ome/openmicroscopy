@@ -223,6 +223,7 @@ class BrowserControl
         Object o;
         ArrayList l = new ArrayList();
         l.add(node);
+        ArrayList pathsToRemove = new ArrayList();
         for (int i = 1; i < n; i++) {
             o = paths[i].getLastPathComponent();
             if (o instanceof TreeImageDisplay) {
@@ -231,7 +232,8 @@ class BrowserControl
                         node.getUserObject().getClass())) {
                     l.add(no);
                 } else {
-                    //tree.removeSelectionPath(paths[i]);
+                	pathsToRemove.add(paths[i]);
+                
                 }
             }
         }
@@ -242,9 +244,11 @@ class BrowserControl
                 TreeViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Node selection", "You can only select " +
                     "node of the same type e.g. images.");
-            model.setSelectedDisplay(null);
-            return;
+            view.removeTreePaths(pathsToRemove);
+            //model.setSelectedDisplay(null);
+            //return;
         }
+        if (l.size() == 0) return;
         //Pass TreeImageDisplay array
         TreeImageDisplay[] nodes = (TreeImageDisplay[]) l.toArray(
                                     new TreeImageDisplay[l.size()]);
