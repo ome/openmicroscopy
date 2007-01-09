@@ -162,6 +162,7 @@ class Preview
     {
         colors = new JComboBox(bgColors);
         spacing = new JComboBox(gaps);
+        spacing.setSelectedIndex(GAP_FOUR);
         previewCanvas = new PreviewCanvas(this);
         save = new JButton("Save");
         save.setToolTipText(
