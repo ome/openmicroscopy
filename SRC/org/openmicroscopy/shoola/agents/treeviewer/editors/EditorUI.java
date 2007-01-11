@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -170,6 +171,9 @@ class EditorUI
     /** The title of the tabbed pane hosting the details on the image. */
     private static final String     INFO_TITLE = "Info";
 
+    /** Default width and height of the thumbnail. */
+    private static final int		DEFAULT_THUMB = 96;
+    
     /** Button to finish the operation e.g. create, edit, etc. */
     private JButton         finishButton;
     
@@ -494,6 +498,21 @@ class EditorUI
         return null;
     }
     
+    /** Create a default thumbnail. */
+    private void setTitlePanelIcon()
+    {
+    	Class nodeType = model.getHierarchyObject().getClass();
+        if (nodeType.equals(ImageData.class) && 
+        		model.getEditorType() == Editor.PROPERTIES_EDITOR) {
+           //Create a default Thumbnail.
+        	JLabel label = new JLabel(
+        			new ImageIcon(Factory.createDefaultThumbnail(DEFAULT_THUMB, 
+        													DEFAULT_THUMB)));
+            
+            titlePanel.setIconComponent(label);
+        }   
+    }
+    
     /** Creates a new instance. */
     EditorUI()
     {
@@ -518,6 +537,7 @@ class EditorUI
         initComponents();
         getMessage();
         buildGUI(); 
+        setTitlePanelIcon();
     }
     
     /**

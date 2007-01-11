@@ -182,6 +182,7 @@ public class TitlePanel
         remove(graphx);
         graphx = c;
         add(graphx);
+        repaint();
     }
     
     /**

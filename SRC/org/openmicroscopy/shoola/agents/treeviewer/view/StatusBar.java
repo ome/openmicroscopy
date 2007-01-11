@@ -88,14 +88,17 @@ class StatusBar
     /** Reference to the control. */
     private TreeViewerControl   controller;
     
+    /** Helper reference. */
+    private IconManager 		icons;
+    
     /** Initializes the components. */
     private void initComponents()
     {
-        IconManager icons = IconManager.getInstance();
+        icons = IconManager.getInstance();
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
-        statusButton = new JButton(icons.getIcon(IconManager.TRANSPARENT));
+        statusButton = new JButton(icons.getIcon(IconManager.CANCEL));
         statusButton.setContentAreaFilled(false);
         statusButton.setBorder(null);
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
@@ -121,13 +124,12 @@ class StatusBar
         p.add(Box.createRigidArea(H_SPACER_SIZE));
         p.add(status);
         add(UIUtilities.buildComponentPanel(p));
-        JPanel progress = new JPanel();
-        progress.setLayout(new BoxLayout(progress, BoxLayout.X_AXIS));
-        progress.add(progressBar);
-        IconManager icons = IconManager.getInstance();
+        JPanel progressPanel = new JPanel();
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
         progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
-        progress.add(progressLabel);
-        add(UIUtilities.buildComponentPanelRight(progress));
+        progressPanel.add(progressLabel);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
+        add(UIUtilities.buildComponentPanelRight(progressPanel));
     }
     
     /**
@@ -172,8 +174,13 @@ class StatusBar
      */
     void setProgress(boolean hide)
     {
-        progressBar.setVisible(!hide);
-        progressLabel.setVisible(!hide);
+        //progressBar.setVisible(!hide);
+        //progressLabel.setVisible(!hide);
+    	if (hide) 
+    		progressLabel.setIcon(icons.getIcon(IconManager.TRANSPARENT));
+    	else 
+    		progressLabel.setIcon(icons.getIcon(IconManager.PROGRESS));
+    		
     }
     
 }
