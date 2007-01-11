@@ -14,8 +14,7 @@ package ome.api;
  * NOTE: The calling order for the service is as follows:
  * <ol>
  * <li>setPixelsId()</li>
- * <li>setRenderingDefId()</li>
- * <li>any of the thumbnail accessor methods</li>
+ * <li>any of the thumbnail accessor methods or resetDefaults()</li>
  * </ol>
  * </p>
  * 
@@ -207,4 +206,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbDirect()
      */
     public boolean thumbnailExists(Integer sizeX, Integer sizeY);
+    
+    /**
+     * Resets the rendering definition for the active pixels set to its
+     * default settings.
+     */
+    public void resetDefaults();
 }

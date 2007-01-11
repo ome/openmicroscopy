@@ -661,4 +661,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
         return true;
     }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void resetDefaults() {
+    	re.resetDefaults();
+    }
 }
