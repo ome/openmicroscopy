@@ -29,8 +29,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
-
 
 //Third-party libraries
 
@@ -93,33 +91,7 @@ class LensMenu
 	private JMenuBar			menubar;
 
 	/**
-	 * Create the menu and attach the lens component. 
-	 * 
-	 * @param lensComponent
-	 */
-	LensMenu(LensComponent lensComponent)
-	{
-		this.lensComponent = lensComponent;
-		createPopupMenu();
-		createMenubarMenu();
-	}
-	
-	/**
-	 * Gets the popup version of the menu. 
-	 * 
-	 * @return See above.
-	 */
-	JPopupMenu getPopupMenu() { return popupMenu; }
-	
-	/**
-	 * Gets the menubar version of the menu. 
-	 * 
-	 * @return See above.
-	 */
-	JMenuBar getMenubar() { return menubar; }
-	
-	/**
-	 * Create the menu which will allow the user to adjust the size of the lens.
+	 * Creates the menu which will allow the user to adjust the size of the lens.
 	 * 
 	 * @return The lens sizing menu.
 	 */
@@ -235,6 +207,33 @@ class LensMenu
 		menubar.add(createLensColorOptions());
 	}
 
+	
+	/**
+	 * Creates the menu and attaches the lens component. 
+	 * 
+	 * @param lensComponent
+	 */
+	LensMenu(LensComponent lensComponent)
+	{
+		this.lensComponent = lensComponent;
+		createPopupMenu();
+		createMenubarMenu();
+	}
+	
+	/**
+	 * Gets the popup version of the menu. 
+	 * 
+	 * @return See above.
+	 */
+	JPopupMenu getPopupMenu() { return popupMenu; }
+	
+	/**
+	 * Gets the menubar version of the menu. 
+	 * 
+	 * @return See above.
+	 */
+	JMenuBar getMenubar() { return menubar; }
+	
 }
 
 

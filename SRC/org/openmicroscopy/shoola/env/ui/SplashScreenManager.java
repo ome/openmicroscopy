@@ -196,7 +196,7 @@ class SplashScreenManager
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
-        view.cancel.setEnabled(true);
+        //view.cancel.setEnabled(true);
         view.server.setEnabled(true);
         if (!init) {
             view.setCursor(Cursor.getDefaultCursor());
@@ -239,7 +239,7 @@ class SplashScreenManager
                 view.user.setEnabled(false);
                 view.pass.setEnabled(false);
                 view.login.setEnabled(false);
-                view.cancel.setEnabled(false);
+                //view.cancel.setEnabled(false);
                 view.server.setEnabled(false);
                 view.setCursor(
                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

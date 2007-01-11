@@ -77,21 +77,15 @@ class ImgSaverFileChooser
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	setAcceptAllFileFilterUsed(false);
         setDialogType(SAVE_DIALOG);
         setFileSelectionMode(FILES_ONLY);
-        BMPFilter bmpFilter = new BMPFilter();
-        setFileFilter(bmpFilter);
-        addChoosableFileFilter(bmpFilter); 
-        JPEGFilter jpegFilter = new JPEGFilter();
-        setFileFilter(jpegFilter);
-        addChoosableFileFilter(jpegFilter); 
-        PNGFilter pngFilter = new PNGFilter();
-        addChoosableFileFilter(pngFilter); 
-        setFileFilter(pngFilter);
-        TIFFFilter tiffFilter = new TIFFFilter();
-        setFileFilter(tiffFilter);
-        addChoosableFileFilter(tiffFilter); 
-        setAcceptAllFileFilterUsed(false);
+        addChoosableFileFilter(new BMPFilter()); 
+        addChoosableFileFilter(new JPEGFilter()); 
+        PNGFilter filter = new PNGFilter();
+        addChoosableFileFilter(filter); 
+        addChoosableFileFilter(new TIFFFilter());
+        setFileFilter(filter);
         setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
         setApproveButtonText("Save as");
     }

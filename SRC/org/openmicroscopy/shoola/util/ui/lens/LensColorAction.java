@@ -134,35 +134,34 @@ class LensColorAction
 	}
 
 	
-   /** 
-    * Controls if the specified index is valid.
-    * 
-    * @param i The index to check.
-    */
-   private void checkIndex(int i)
-   {
-       switch (i) {
-       case DEFAULT:
-       case	RED:
-       case ORANGE:
-       case YELLOW:
-       case GREEN:
-       case BLUE:
-       case INDIGO:
-       case VIOLET:
-       case BLACK:
-       case LIGHT_GRAY:
-       case DARK_GRAY:
-       case WHITE:
-       		return;
-           default:
-               throw new IllegalArgumentException("Index not supported.");
-       }
-   }
+	/** 
+	 * Controls if the specified index is valid.
+	 * 
+	 * @param i The index to check.
+	 */
+	private void checkIndex(int i)
+	{
+		switch (i) {
+			case DEFAULT:
+			case	RED:
+			case ORANGE:
+			case YELLOW:
+			case GREEN:
+			case BLUE:
+			case INDIGO:
+			case VIOLET:
+			case BLACK:
+			case LIGHT_GRAY:
+			case DARK_GRAY:
+			case WHITE:
+				return;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
    
 	/**
-	 * Lens action changes the size of the lens based on the parameter 
-	 * lensIndex. 
+	 * Creates a new instance. 
 	 * 
 	 * @param lens          The parent component. Mustn't be <code>null</code>.
 	 * @param displayIndex  The index of the action. One of the constants

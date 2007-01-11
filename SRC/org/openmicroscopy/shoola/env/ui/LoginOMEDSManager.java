@@ -64,13 +64,21 @@ class LoginOMEDSManager
 	/** Reference to the View. */
 	private LoginOMEDS			view;
 	
+	/** Reference to the IconManager. */
 	private IconManager			im;
 	
-	private boolean				isUser, isPass;
+	/** Flag indicating if the user's field is modified. */
+	private boolean				isUser;
 	
-	private Document 			dUser, dPass;
+	/** Flag indicating if the password's field is modified. */
+	private boolean				isPass;
 	
-
+	/** Document holding the user's name. */
+	private Document 			dUser;
+	
+	/** Document holding the user's password. */
+	private Document			dPass;
+	
     /** Sets the icon of the {@link LoginOMEDS#loginButton}. */
     private void setLoginButtonIcon()
     {
@@ -83,7 +91,6 @@ class LoginOMEDSManager
      * Handles the selection of a new item. Allows the user to enter
      * the name of a new server if the selected item is 
      * the last one displayed
-     *
      */
     private void handleServerSelection()
     {
@@ -132,7 +139,7 @@ class LoginOMEDSManager
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and
 	 * button will be disabled and the Login Service will  be invoked to
-     * log onto <i>OMEDS</i> with the given credentials.  The login dialog
+     * log onto <i>OMERO</i> with the given credentials.  The login dialog
      * is then disposed.
      * @see ActionListener#actionPerformed(ActionEvent)
 	 */

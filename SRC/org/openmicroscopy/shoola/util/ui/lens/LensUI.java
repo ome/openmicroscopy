@@ -141,7 +141,7 @@ public class LensUI
 	
 	/** Default colour of the lens. */
 	final static Color 			DEFAULT_LENS_COLOR = 
-												new Color(128, 128, 128,240);
+												new Color(128, 128, 128, 240);
 	
 	/** size of the crosshair, running from centre of lens. */
 	private int 				crosshairLength = UNSNAPPED_CROSSHAIR;

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -51,7 +50,7 @@ class LensAction
 {
 
 	/** Number of options in action. */
-	final static int MAX = 10;
+	final static int 		MAX = 10;
 	
 	/** Default size of lens. (20x20). */
     final static int		LENSDEFAULTSIZE = 0;

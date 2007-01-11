@@ -65,6 +65,12 @@ public class ImageNode
     /** Bound property indicating to pint the thumbnail. */
     public final static String     PIN_THUMBNAIL_PROPERTY = "pinThumbnail";
 
+    /** The left element displayed before the acquisition date. */
+    private final static String		LEFT =" (";
+    
+    /** The right element displayed before the acquisition date. */
+    private final static String		RIGHT =")";
+    
     /** The thumbnail this node is going to display. */
     private Thumbnail       thumbnail;
     
@@ -110,7 +116,8 @@ public class ImageNode
         super(title, "", hierarchyObject);
         //Probably cleaner to use a visitor but for performance reason better
         //that way.
-        setTitle(getPartialName(title+" >"+getFormattedAcquisitionTime()));
+        setTitle(getPartialName(title+LEFT+getFormattedAcquisitionTime()+
+        						RIGHT));
         setNodeDecoration();
         setTitleBarType(SMALL_BAR);
         if (t == null) throw new NullPointerException("No thumbnail.");
@@ -185,25 +192,25 @@ public class ImageNode
     
     /**
      * Returns the time of acquisition or the actual time if information
-     * not available
+     * not available.
      * 
-     * @return See above
+     * @return See above.
      */
     public Timestamp getAcquisitionTime()
     {
-        Timestamp t = null;
-          try {
-              t = ((ImageData) getHierarchyObject()).getInserted();
-        } catch (Exception e) {}
-        if (t == null) t = new Timestamp(new Date().getTime());
-        return t;
+    	Timestamp t = null;
+    	try {
+    		t = ((ImageData) getHierarchyObject()).getInserted();
+    	} catch (Exception e) {}
+    	if (t == null) t = new Timestamp(new Date().getTime());
+    	return t;
     }
     
     /**
      * Returns the time of acquisition or the actual time if information
-     * not available
+     * not available.
      * 
-     * @return See above
+     * @return See above.
      */
     public String getFormattedAcquisitionTime()
     {
@@ -211,8 +218,8 @@ public class ImageNode
     }
     
     /** 
-     * Overrides the #setSize(int, int) method, otherwise
-     * after collapsing the node, we can resize the imageNode.
+     * Overrides the <code>setSize(int, int)</code> method, otherwise
+     * after collapsing the node, we can resize the node.
      * @see ImageDisplay#setSize(int, int)
      */
     public void setSize(int w, int h)

@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.saver;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -35,6 +37,10 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.Encoder;
+import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
 /** 
@@ -135,7 +141,11 @@ public class ContainerSaver
         name += "."+extension; //Add extension
         File f = new File(name);
         try {
-            WriterImage.saveImage(f, img, extension);
+        	if (extension.equals(TIFFFilter.TIF)) {
+                Encoder encoder = new TIFFEncoder(Factory.createImage(img), 
+                        new DataOutputStream(new FileOutputStream(f)));
+                WriterImage.saveImage(encoder);
+            } else WriterImage.saveImage(f, img, extension);
             un.notifyInfo("Image saved", message);
         } catch (Exception e) {
             f.delete();

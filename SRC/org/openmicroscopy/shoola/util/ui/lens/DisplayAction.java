@@ -48,8 +48,9 @@ import javax.swing.Action;
 class DisplayAction 		
 	extends AbstractAction
 {
+	
 	/** Number of options in action. */
-	final static int MAX = 2;
+	final static int 		MAX = 2;
 
 	/** Display units in microns. */
 	final static int		MICRON_OPTION = 0;

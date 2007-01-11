@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
 
@@ -427,8 +428,9 @@ class HiViewerWin
             lastMove();
         } else {
             lastMove = mainPane.getDividerLocation();
-            mainPane.remove(cb);
+            mainPane.remove(cb);   
         }
+        ((BasicSplitPaneUI) mainPane.getUI()).getDivider().setVisible(b);
     }
     
     /**

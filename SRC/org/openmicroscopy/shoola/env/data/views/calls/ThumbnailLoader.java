@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -99,12 +100,10 @@ public class ThumbnailLoader
         OmeroImageService rds = context.getImageService();
         BufferedImage thumbPix = null;
         try {
-            thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
+            thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
+        } catch (RenderingServiceException e) {
             context.getLogger().error(this, 
-                    "Cannot retrieve thumbnail: "+e.getMessage());
+                    "Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }
         if (thumbPix == null) 
             thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);

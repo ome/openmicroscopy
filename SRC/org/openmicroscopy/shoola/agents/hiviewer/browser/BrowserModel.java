@@ -174,7 +174,7 @@ class BrowserModel
         while (parent != null && !(parent instanceof RootDisplay)) {
             title = parent.getTitle();
             if (title == null || title.length() == 0) title = "[..]";
-            buf.insert(0, " > ");
+            if (parent instanceof ImageSet) buf.insert(0, " > ");
             buf.insert(0, title);
             parent = parent.getParentDisplay();
         }

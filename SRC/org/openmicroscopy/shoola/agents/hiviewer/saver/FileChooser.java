@@ -33,11 +33,14 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 
 /** 
- * 
+ * Chooser to select the name, format and type of images to save.
+ * The supported formats are: JPEG, PNG.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,7 +58,7 @@ class FileChooser
 {
     
     /** The default extension. */
-    private static final String DEFAULT_FORMAT = PNGFilter.PNG;
+    private static final String DEFAULT_FORMAT = TIFFFilter.TIFF;
     
     /** The default save message. */
     private static final String MSG_DIR = "The image has been saved in \n";
@@ -69,15 +72,15 @@ class FileChooser
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	setAcceptAllFileFilterUsed(false);
         setDialogType(SAVE_DIALOG);
         setFileSelectionMode(FILES_ONLY);
-        JPEGFilter jpegFilter = new JPEGFilter();
-        setFileFilter(jpegFilter);
-        addChoosableFileFilter(jpegFilter); 
-        PNGFilter pngFilter = new PNGFilter();
-        addChoosableFileFilter(pngFilter); 
-        setFileFilter(pngFilter);
-        setAcceptAllFileFilterUsed(false);
+        addChoosableFileFilter(new BMPFilter()); 
+        addChoosableFileFilter(new JPEGFilter()); 
+        PNGFilter filter = new PNGFilter();
+        addChoosableFileFilter(filter); 
+        addChoosableFileFilter(new TIFFFilter()); 
+        setFileFilter(filter);
         setApproveButtonText("Save as");
     }
 
@@ -89,10 +92,12 @@ class FileChooser
      */
     private String getFormat(FileFilter filter)
     {
-        String format = DEFAULT_FORMAT;
-        if (filter instanceof JPEGFilter) format = JPEGFilter.JPG;
-        else if (filter instanceof PNGFilter) format = PNGFilter.PNG;
-        return format;
+    	 String format = DEFAULT_FORMAT;
+         if (filter instanceof JPEGFilter) format = JPEGFilter.JPG;
+         else if (filter instanceof PNGFilter) format = PNGFilter.PNG;
+         else if (filter instanceof TIFFFilter) format = TIFFFilter.TIF;
+         else if (filter instanceof BMPFilter) format = BMPFilter.BMP;
+         return format;
     }
     
     /** 

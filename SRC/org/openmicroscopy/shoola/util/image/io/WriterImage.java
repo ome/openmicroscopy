@@ -34,7 +34,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -58,9 +57,9 @@ public class WriterImage
     
     /**
      * Encodes the specified image. Depending on the specified format
-     * a <code>JPEG</code> or <code>PNG</code> image is created.
+     * a <code>JPEG</code>, <code>PNG</code>, <code>BMP</code> image is created.
      * 
-     * @param f The file used to create the outpu stream.
+     * @param f The file used to create the output stream.
      * @param img The image to encode.
      * @param format The file format.
      * @throws EncoderException Exception thrown if an error occured during the
@@ -69,6 +68,10 @@ public class WriterImage
     public static void saveImage(File f, BufferedImage img, String format)
         throws EncoderException
     {
+    	if (f == null) 
+    		throw new IllegalArgumentException("No file specified.");
+    	if (img == null) 
+    		throw new IllegalArgumentException("No image specified.");
         try {
             Iterator writers = ImageIO.getImageWritersByFormatName(format);
             ImageWriter writer = (ImageWriter) writers.next();
@@ -84,13 +87,15 @@ public class WriterImage
     /** 
      * Encodes the specified image.
      * 
-     * @param encoder The encoder to use.
+     * @param encoder The encoder to use. Mustn't be <code>null</code>.
      * @throws EncoderException Exception thrown if an error occured during the
      * encoding process.
      */
     public static void saveImage(Encoder encoder)
         throws EncoderException
     {   
+    	if (encoder == null)
+    		throw new IllegalArgumentException("No encoder specified.");
         try {
             encoder.write();
             encoder.getOutput().close();   

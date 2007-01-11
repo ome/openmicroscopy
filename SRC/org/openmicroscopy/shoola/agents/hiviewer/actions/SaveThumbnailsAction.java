@@ -32,6 +32,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.SaveThumbnailsCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
@@ -69,11 +70,26 @@ public class SaveThumbnailsAction
             "single image. ";
     
     /**
+     * Sets the action enabled depending on the current state.
+     * @see HiViewerAction#onStateChange()
+     */
+    protected void onStateChange()
+    {
+    	if (model.getState() == HiViewer.READY) {
+    		Browser browser = model.getBrowser();
+    		if (browser != null) 
+    			onDisplayChange(browser.getLastSelectedDisplay());
+    		else setEnabled(false);
+    	} else setEnabled(false);	
+    }
+    
+    /**
      * Sets the action enabled depending on the currently selected display
      * @see HiViewerAction#onDisplayChange(ImageDisplay)
      */
     protected void onDisplayChange(ImageDisplay selectedDisplay)
     {
+    	if (model.getState() != HiViewer.READY) return;
     	if (model.getBrowser().getSelectedLayout() == 
     		LayoutFactory.FLAT_LAYOUT) {
         	setEnabled(true);

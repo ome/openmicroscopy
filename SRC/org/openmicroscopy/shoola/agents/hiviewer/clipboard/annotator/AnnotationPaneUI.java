@@ -156,6 +156,7 @@ class AnnotationPaneUI
         deleteBox = new JCheckBox(DELETE_ANNOTATION);
         listModel = new DefaultListModel();
         annotatedByList = new JList(listModel);
+        annotatedByList.setBackground(getBackground());
         annotatedByList.setBorder(new TitledBorder("Annotated by"));
         annotatedByList.setSelectionMode(
                 ListSelectionModel.SINGLE_INTERVAL_SELECTION);

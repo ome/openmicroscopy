@@ -70,6 +70,8 @@ public class FrameBorder
     /** The color of the background, which is used for the margin. */
     private Color   backgroundColor;
     
+    /** The insets of the component. */
+    private Insets	insets;
     
     /**
      * Creates a line border with the specified color and no margin.
@@ -107,6 +109,7 @@ public class FrameBorder
         this.lineColor = lineColor;
         this.backgroundColor = backgroundColor;
         this.margin = margin;
+        insets = new Insets(margin+1, margin+1, margin+1, margin+1);
     }
     
     /**
@@ -146,10 +149,7 @@ public class FrameBorder
      * @param c the component for which this border insets value applies.
      * @return See above.
      */
-    public Insets getBorderInsets(Component c)
-    {
-        return new Insets(margin+1, margin+1, margin+1, margin+1);
-    }
+    public Insets getBorderInsets(Component c) { return insets; }
 
     /** 
      * Returns the color of the border.

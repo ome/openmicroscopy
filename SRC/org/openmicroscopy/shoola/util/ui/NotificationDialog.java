@@ -208,7 +208,7 @@ public class NotificationDialog
 															Icon messageIcon) 
 	{
 		super(owner, title, true);
-		
+		setAlwaysOnTop(true);
 		//setResizable(false);  
 		//Believe it or not the icon from owner won't be displayed if the
 		//dialog is not resizable. 
