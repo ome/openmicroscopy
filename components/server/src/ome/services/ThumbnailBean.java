@@ -76,7 +76,7 @@ import sun.awt.image.IntegerInterleavedRaster;
  * 
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 @Stateful
 @Remote(ThumbnailStore.class)
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.ThumbnailStore")
@@ -179,7 +179,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * @see ome.api.StatefulServiceInterface#close()
      */
     @Remove
-    @Transactional(readOnly = true)
     public void close() {
         // don't need to do anything.
     }
@@ -475,6 +474,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
@@ -507,6 +507,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *      ome.model.display.RenderingDef)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void createThumbnails() {
         List<Thumbnail> thumbnails = getThumbnailMetadata();
 
@@ -523,6 +524,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *      java.lang.Integer)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
@@ -559,6 +561,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *      ome.model.display.RenderingDef, java.lang.Integer)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public byte[] getThumbnailByLongestSide(Integer size) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();

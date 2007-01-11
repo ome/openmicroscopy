@@ -102,7 +102,7 @@ import omeis.providers.re.quantum.QuantizationException;
 @SecurityDomain("OmeroSecurity")
 @Cache(NoPassivationCache.class)
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly = true)
 // TODO previously not here. examine the difference.
 public class RenderingBean extends AbstractLevel2Service implements
         RenderingEngine, Serializable {
@@ -194,8 +194,8 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.writeLock().lock();
 
         try {
-            renderer = null; // marks as unready. all other state is marked
-                                // transient.
+        	// Mark us unready. All other state is marked transient.
+            renderer = null; 
             super.destroy();
         } finally {
             rwl.writeLock().unlock();
@@ -203,7 +203,6 @@ public class RenderingBean extends AbstractLevel2Service implements
     }
 
     @Remove
-    @Transactional(readOnly = true)
     public void close() {
         // don't need to do anything.
     }
@@ -226,7 +225,6 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.writeLock().lock();
 
         try {
-
             this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
             this.renderer = null;
 
@@ -234,7 +232,6 @@ public class RenderingBean extends AbstractLevel2Service implements
                 throw new ValidationException("Pixels object with id "
                         + pixelsId + " not found.");
             }
-
         } finally {
             rwl.writeLock().unlock();
         }
@@ -260,16 +257,14 @@ public class RenderingBean extends AbstractLevel2Service implements
 
             if (rendDefObj == null) {
                 // We've been initialized on a pixels set that has no rendering
-                // definition for the given user. In order to keep the proper
-                // bean state, we initialize the local instance variable and
-                // write out new rendering settings into the database.
-                PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-                rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
-                Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv,
-                        buffer);
-                pixMetaSrv.saveRndSettings(rendDefObj);
-                iUpdate.flush();
-                rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+                // definition for the given user. In order to maintain the
+            	// proper state and ensure that we avoid transactional problems
+            	// we're going to notify the caller instead of performing *any*
+            	// magic that would require a database update.
+            	//      #564 -- Chris Allan <callan@blackcat.ca>
+            	throw new ValidationException(
+            			"Missing rendering definition for pixels '"
+            			+ pixelsId + "'");
             }
         } finally {
             rwl.writeLock().unlock();
@@ -398,13 +393,34 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#resetDefaults()
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void resetDefaults() {
         rwl.writeLock().lock();
 
-        try {
-            errorIfInvalidState();
-            renderer.resetDefaults();
-        } finally {
+        try
+        {
+            errorIfNullPixels();
+            long pixelsId = pixelsObj.getId();
+            
+            // Ensure that we haven't just been called before 
+            // lookupRenderingDef().
+            if (rendDefObj == null
+                && pixMetaSrv.retrieveRndSettings(pixelsId) == null)
+            {
+           		PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
+           		rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
+           		Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv,
+           		                       buffer);
+            	pixMetaSrv.saveRndSettings(rendDefObj);
+            }
+            else
+            {
+            	errorIfInvalidState();
+            	renderer.resetDefaults();
+            }
+        }
+        finally
+        {
             rwl.writeLock().unlock();
         }
         iUpdate.flush();
@@ -416,6 +432,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#saveCurrentSettings()
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void saveCurrentSettings() {
         rwl.writeLock().lock();
 

@@ -27,12 +27,18 @@ package ome.api;
 public interface ThumbnailStore extends StatefulServiceInterface {
     /**
      * This method manages the state of the service; it must be invoked before
-     * using any other methods.
+     * using any other methods. As the <pre>ThumbnailStore</pre> relies on the
+     * <pre>RenderingEngine</pre> a valid rendering definition must be available
+     * for it to work. 
      * 
      * @param pixelsId
      *            an {@link ome.model.core.Pixels} id.
      * @throws ApiUsageException
      *             if no pixels object exists with the ID <i>pixelsId</i>.
+     * @throws ValidationException If no rendering definition can be found for
+     * the pixels object specified. This indicates that {@link resetDefaults()}
+     * should be called.
+     *
      */
     public void setPixelsId(long pixelsId);
 
