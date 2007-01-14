@@ -34,12 +34,11 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *            an {@link ome.model.core.Pixels} id.
      * @throws ApiUsageException
      *             if no pixels object exists with the ID <i>pixelsId</i>.
-     * @throws ValidationException If no rendering definition can be found for
-     * the pixels object specified. This indicates that {@link resetDefaults()}
-     * should be called.
+     * @return <code>true</code> if a <code>RenderingDef</code> exists for the
+     * <code>Pixels</code> set, otherwise <code>false</code>
      *
      */
-    public void setPixelsId(long pixelsId);
+    public boolean setPixelsId(long pixelsId);
 
     /**
      * This method manages the state of the service; it should be invoked

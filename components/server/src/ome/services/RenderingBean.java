@@ -248,7 +248,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#lookupRenderingDef(long)
      */
     @RolesAllowed("user")
-    public void lookupRenderingDef(long pixelsId) {
+    public boolean lookupRenderingDef(long pixelsId) {
         rwl.writeLock().lock();
 
         try {
@@ -261,10 +261,8 @@ public class RenderingBean extends AbstractLevel2Service implements
             	// proper state and ensure that we avoid transactional problems
             	// we're going to notify the caller instead of performing *any*
             	// magic that would require a database update.
-            	//      #564 -- Chris Allan <callan@blackcat.ca>
-            	throw new ValidationException(
-            			"Missing rendering definition for pixels '"
-            			+ pixelsId + "'");
+            	// *** Ticket #564 -- Chris Allan <callan@blackcat.ca> ***
+            	return false;
             }
         } finally {
             rwl.writeLock().unlock();
@@ -274,7 +272,7 @@ public class RenderingBean extends AbstractLevel2Service implements
             log.debug("lookupRenderingDef for Pixels=" + pixelsId
                     + " succeeded: " + this.rendDefObj);
         }
-
+        return true;
     }
 
     /**
@@ -408,10 +406,10 @@ public class RenderingBean extends AbstractLevel2Service implements
                 && pixMetaSrv.retrieveRndSettings(pixelsId) == null)
             {
            		PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-           		rendDefObj = Renderer.createNewRenderingDef(pixelsObj);
-           		Renderer.resetDefaults(rendDefObj, pixelsObj, pixMetaSrv,
+           		RenderingDef def = Renderer.createNewRenderingDef(pixelsObj);
+           		Renderer.resetDefaults(def, pixelsObj, pixMetaSrv,
            		                       buffer);
-            	pixMetaSrv.saveRndSettings(rendDefObj);
+            	pixMetaSrv.saveRndSettings(def);
             }
             else
             {

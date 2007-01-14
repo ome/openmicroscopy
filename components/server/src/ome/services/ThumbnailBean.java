@@ -198,7 +198,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * @see ome.api.ThumbnailStore#setPixelsId(long)
      */
     @RolesAllowed("user")
-    public void setPixelsId(long id) {
+    public boolean setPixelsId(long id) {
         if (pixelsId == null || pixelsId.longValue() != id) {
             pixelsId = new Long(id);
             pixels = iQuery.get(Pixels.class, pixelsId);
@@ -209,9 +209,13 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             }
 
             re.lookupPixels(id);
-            re.lookupRenderingDef(id);
+            if (re.lookupRenderingDef(id) == false) {
+            	pixelsId = null;
+            	return false;
+            }
             re.load();
         }
+        return true;
     }
 
     @RolesAllowed("user")

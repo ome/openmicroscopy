@@ -109,8 +109,10 @@ public interface RenderingEngine extends SelfConfigurableService,
      * 
      * @param pixelsId
      *            The pixels set ID.
+     * @return <code>true</code> if a <code>RenderingDef</code> exists for the
+     * <code>Pixels</code> set, otherwise <code>false</code>
      */
-    public void lookupRenderingDef(long pixelsId);
+    public boolean lookupRenderingDef(long pixelsId);
 
     /** Creates a instance of the rendering engine. */
     public void load();
