@@ -881,7 +881,7 @@ class OMEROGateway
                                                 new Integer(sizeY));
         } catch (Throwable t) {
         	service.close();
-        	service = null;
+        	thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
