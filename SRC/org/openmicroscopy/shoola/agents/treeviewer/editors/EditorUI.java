@@ -170,9 +170,6 @@ class EditorUI
     
     /** The title of the tabbed pane hosting the details on the image. */
     private static final String     INFO_TITLE = "Info";
-
-    /** Default width and height of the thumbnail. */
-    private static final int		DEFAULT_THUMB = 96;
     
     /** Button to finish the operation e.g. create, edit, etc. */
     private JButton         finishButton;
@@ -506,8 +503,7 @@ class EditorUI
         		model.getEditorType() == Editor.PROPERTIES_EDITOR) {
            //Create a default Thumbnail.
         	JLabel label = new JLabel(
-        			new ImageIcon(Factory.createDefaultThumbnail(DEFAULT_THUMB, 
-        													DEFAULT_THUMB)));
+        			new ImageIcon(Factory.createDefaultThumbnail()));
             
             titlePanel.setIconComponent(label);
         }   

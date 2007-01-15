@@ -102,6 +102,7 @@ public class ThumbnailLoader
         try {
             thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
         } catch (RenderingServiceException e) {
+        	e.printStackTrace();
             context.getLogger().error(this, 
                     "Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }
@@ -125,9 +126,9 @@ public class ThumbnailLoader
                 try {
                     thumbPix = rds.getThumbnail(pixelsID, maxWidth, maxHeight);
                     
-                } catch (Exception e) {
+                } catch (RenderingServiceException e) {
                     context.getLogger().error(this, 
-                    "Cannot retrieve thumbnail from ID: "+e.getMessage());
+                    "Cannot retrieve thumbnail from ID: "+e.getExtendedMessage());
                 }
                 if (thumbPix == null) 
                     thumbPix = Factory.createDefaultThumbnail(maxWidth, 

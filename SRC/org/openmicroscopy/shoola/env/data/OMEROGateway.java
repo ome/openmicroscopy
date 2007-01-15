@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ejb.EJBAccessException;
-import javax.ejb.EJBException;
 
 
 //Third-party libraries
@@ -43,7 +42,6 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IPojos;
 import ome.api.IQuery;
-import ome.api.IThumb;
 import ome.api.IUpdate;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
@@ -793,7 +791,10 @@ class OMEROGateway
         try {
             RenderingEngine service = getRenderingService();
             service.lookupPixels(pixelsID);
-            service.lookupRenderingDef(pixelsID);
+            if (!(service.lookupRenderingDef(pixelsID))) {
+            	service.resetDefaults();
+				service.lookupRenderingDef(pixelsID);
+            }
             service.load();
             return service;
         } catch (Exception e) {
@@ -869,19 +870,18 @@ class OMEROGateway
     synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
         throws RenderingServiceException
     {
+    	ThumbnailStore service = getThumbService();
         try {
-            ThumbnailStore service = getThumbService();
-            service.setPixelsId(pixelsID);
-             
+            if (!(service.setPixelsId(pixelsID))) {
+				service.resetDefaults();
+				service.setPixelsId(pixelsID);
+            }
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
-        } catch (Exception e) {
-        	if (e instanceof EJBException) {
-        		thumbnailService.close();
-        		thumbnailService = null;
-        		return getThumbnail(pixelsID, sizeX, sizeY);
-        	} else
-            throw new RenderingServiceException("Cannot get thumbnail", e);
+        } catch (Throwable t) {
+        	service.close();
+        	service = null;
+            throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
     

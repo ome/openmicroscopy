@@ -67,24 +67,30 @@ import java.awt.image.RescaleOp;
 public class Factory
 {
         
-    /** Indicates that the text will be added in the top-left corner. */ 
-    public static final int            LOC_TOP_LEFT = 0;
-    
-    /** Indicates that the text will be added in the top-right corner. */ 
-    public static final int            LOC_TOP_RIGHT = 1;
-    
-    /** Indicates that the text will be added in the bottom-left corner. */ 
-    public static final int            LOC_BOTTOM_LEFT = 2;
-    
-    /** Indicates that the text will be added in the bottom-right corner. */ 
-    public static final int            LOC_BOTTOM_RIGHT = 3;
+	/** Indicates that the text will be added in the top-left corner. */ 
+	public static final int             LOC_TOP_LEFT = 0;
 
-    /** Border added to the text. */
-    private static final int            BORDER = 2;
+	/** Indicates that the text will be added in the top-right corner. */ 
+	public static final int             LOC_TOP_RIGHT = 1;
+
+	/** Indicates that the text will be added in the bottom-left corner. */ 
+	public static final int             LOC_BOTTOM_LEFT = 2;
+
+	/** Indicates that the text will be added in the bottom-right corner. */ 
+	public static final int             LOC_BOTTOM_RIGHT = 3;
+
+	/** The default width and height of a thumbnail. */
+	public static final int				DEFAULT_THUMB = 96;
+
+	/** Border added to the text. */
+	private static final int            BORDER = 2;
+
+	/** The default message for the default thumbnail. */
+	private static final String         DEFAULT_TEXT = "No thumbnail";
     
-    /** The default message for the default thumbnail. */
-    private static final String         DEFAULT_TEXT = "No thumbnail";
-    
+	/** Default text drawn on thumbnail before retrieval. */
+	private static final String			LOADING_TEXT = "Loading...";
+	
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
             0.f, -1.f,  0.f,
@@ -97,36 +103,16 @@ public class Factory
             0.1f, 0.2f, 0.1f,
             0.1f, 0.1f, 0.1f};
 
-    /** 
-     * Magnifies the specified image.
-     * 
-     * @param f the magnification factor.
-     * @param img The image to magnify.
-     * 
-     * @return The magnified image.
-     */
-    public static BufferedImage magnifyImage(double f, BufferedImage img)
-    {
-        if (img == null) return null;
-        int width = img.getWidth(), height = img.getHeight();
-        AffineTransform at = new AffineTransform();
-        at.scale(f, f);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-            AffineTransformOp.TYPE_BILINEAR); 
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
-                        (int) (height*f), img.getType());
-        biop.filter(img, rescaleBuff);
-        return rescaleBuff;
-    }
-    
     /**
      * Creates a default thumbnail image.
      * 
      * @param sizeX The width of the thumbnail
      * @param sizeY The height of the thumbnail.
+     * @param text	The text to draw.
      * @return See above.
      */
-    public static BufferedImage createDefaultThumbnail(int sizeX, int sizeY)
+    private static BufferedImage createDefaultThumbnail(int sizeX, int sizeY, 
+    													String text)
     {
         BufferedImage thumbPix = new BufferedImage(sizeX, sizeY, 
                                 BufferedImage.TYPE_INT_RGB);
@@ -138,8 +124,33 @@ public class Factory
         int yTxt = sizeY/2-fontMetrics.getHeight();
         g.setColor(Color.WHITE);
         g.setFont(g.getFont().deriveFont(Font.BOLD));
-        g.drawString(DEFAULT_TEXT, xTxt, yTxt);
+        g.drawString(text, xTxt, yTxt);
         return thumbPix;
+    }
+
+    /**
+     * Creates a default thumbnail whose width is {@link #DEFAULT_THUMB}
+     * and height is {@link #DEFAULT_THUMB} and default message
+     * {@link #LOADING_TEXT}.
+     * 
+     * @return See above,
+     */
+    public static BufferedImage createDefaultThumbnail()
+    {
+    	return createDefaultThumbnail(DEFAULT_THUMB, DEFAULT_THUMB, 
+    									LOADING_TEXT);
+    }
+    
+    /**
+     * Creates a default thumbnail image.
+     * 
+     * @param sizeX The width of the thumbnail
+     * @param sizeY The height of the thumbnail.
+     * @return See above.
+     */
+    public static BufferedImage createDefaultThumbnail(int sizeX, int sizeY)
+    {
+    	return createDefaultThumbnail(sizeX, sizeY, DEFAULT_TEXT);
     }
     
     /** 
@@ -172,6 +183,28 @@ public class Factory
         g.drawImage(bimg, biop, 0, 0);
         return rescaleBuff;
     }   
+    
+    /** 
+     * Magnifies the specified image.
+     * 
+     * @param f 	The magnification factor.
+     * @param img 	The image to magnify.
+     * 
+     * @return The magnified image.
+     */
+    public static BufferedImage magnifyImage(double f, BufferedImage img)
+    {
+        if (img == null) return null;
+        int width = img.getWidth(), height = img.getHeight();
+        AffineTransform at = new AffineTransform();
+        at.scale(f, f);
+        BufferedImageOp biop = new AffineTransformOp(at, 
+            AffineTransformOp.TYPE_BILINEAR); 
+        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
+                        (int) (height*f), img.getType());
+        biop.filter(img, rescaleBuff);
+        return rescaleBuff;
+    }
     
     /** 
      * Applies a sharpen filter or a low_pass filter. 

@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -126,10 +127,15 @@ class StatusBar
         add(UIUtilities.buildComponentPanel(p));
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
-        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
+        Icon icon = icons.getIcon(IconManager.PROGRESS);
+        progressLabel = new JLabel(icon);
+        progressPanel.add(progressBar);
         progressPanel.add(progressLabel);
         progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
         add(UIUtilities.buildComponentPanelRight(progressPanel));
+        Dimension d = progressBar.getPreferredSize();
+        progressBar.setPreferredSize(new Dimension(d.width, 
+        							icon.getIconHeight()));
     }
     
     /**
@@ -174,13 +180,12 @@ class StatusBar
      */
     void setProgress(boolean hide)
     {
-        //progressBar.setVisible(!hide);
+        progressBar.setVisible(!hide);
         //progressLabel.setVisible(!hide);
     	if (hide) 
     		progressLabel.setIcon(icons.getIcon(IconManager.TRANSPARENT));
     	else 
-    		progressLabel.setIcon(icons.getIcon(IconManager.PROGRESS));
-    		
+    		progressLabel.setIcon(icons.getIcon(IconManager.PROGRESS));	
     }
     
 }
