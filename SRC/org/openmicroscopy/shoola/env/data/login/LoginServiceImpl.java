@@ -156,7 +156,7 @@ public class LoginServiceImpl
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
-            msg.println("Reason: "+dsose);
+            msg.println("Reason: "+dsose.getMessage());
             msg.println("OMERO Address: "+uc.getHostName());
             if (uc != null) msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
