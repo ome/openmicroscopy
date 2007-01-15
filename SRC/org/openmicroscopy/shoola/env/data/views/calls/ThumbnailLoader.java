@@ -102,7 +102,6 @@ public class ThumbnailLoader
         try {
             thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
         } catch (RenderingServiceException e) {
-        	e.printStackTrace();
             context.getLogger().error(this, 
                     "Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }

@@ -169,8 +169,7 @@ class OmeroImageServiceImpl
             msg.println("Get thumbnail direct from ID, PixelsID: "+pixID);
             Logger logger = context.getLogger();
             logger.debug(this, msg);
-            byte[] v = gateway.getThumbnail(pixID, sizeX, sizeY);
-            return createImage(v);
+            return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
         } catch (Exception e) {
             throw new RenderingServiceException("Get Thumbnail", e);
         }
