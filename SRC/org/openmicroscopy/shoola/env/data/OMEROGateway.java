@@ -376,7 +376,8 @@ class OMEROGateway
             return getUserDetails(userName);
         } catch (Exception e) {
             connected = false;
-            String s = "Can't connect to OMERO. OMERO info not valid.";
+            String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
+            s += printErrorText(e);
             throw new DSOutOfServiceException(s, e);  
         } 
     }
