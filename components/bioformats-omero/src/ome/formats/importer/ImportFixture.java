@@ -1,8 +1,14 @@
 /*
  * ome.formats.testclient.ImportFixture
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *------------------------------------------------------------------------------
+ *
+ *  Copyright (C) 2005 Open Microscopy Environment
+ *      Massachusetts Institute of Technology,
+ *      National Institutes of Health,
+ *      University of Dundee
+ *      
+ *------------------------------------------------------------------------------
  */
 package ome.formats.importer;
 
@@ -24,58 +30,63 @@ import org.apache.commons.logging.LogFactory;
  * test fixture for importing files without a GUI.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
+ * @version $Revision: 1167 $, $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $
  * @see OMEROMetadataStore
  * @see ExampleUnitTest
  * @since 3.0-M3
  */
-// @RevisionDate("$Date$")
-// @RevisionNumber("$Revision$")
-public class ImportFixture {
+// @RevisionDate("$Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $")
+// @RevisionNumber("$Revision: 1167 $")
+public class ImportFixture
+{
 
-    Log log = LogFactory.getLog(ImportFixture.class);
+    Log                        log = LogFactory.getLog(ImportFixture.class);
 
-    private String user, pass, host, port;
+    private String             user, pass, host, port;
 
     private OMEROMetadataStore store;
 
-    private ImageReader reader;
+    private ImageReader        reader;
 
-    private ImportLibrary library;
+    private ImportLibrary      library;
 
-    private Map<File, Dataset> fads = new HashMap<File, Dataset>();
-
-    public ImportFixture(OMEROMetadataStore store) {
+    private Map<File,Dataset>  fads = new HashMap<File,Dataset>();
+    
+    public ImportFixture(OMEROMetadataStore store)
+    {
         this(store, new ImageReader());
     }
 
-    public ImportFixture(OMEROMetadataStore store, ImageReader reader) {
+    public ImportFixture(OMEROMetadataStore store, ImageReader reader)
+    {
         this.store = store;
         this.reader = reader;
     }
 
-    public ImportFixture put(File file, Dataset ds) {
-        if (file == null || ds == null) {
-            throw new ApiUsageException("Arguments cannot be null.");
-        }
-
-        fads.put(file, ds);
-        return this;
+    public ImportFixture put(File file, Dataset ds)
+    {
+    	if ( file == null || ds == null )
+    		throw new ApiUsageException("Arguments cannot be null.");
+    	
+    	fads.put(file, ds);
+    	return this;
     }
-
-    public ImportFixture putAll(Map<File, Dataset> map) {
-        for (File f : map.keySet()) {
-            put(f, map.get(f));
-        }
-        return this;
+    
+    public ImportFixture putAll(Map<File,Dataset> map)
+    {
+    	for (File f : map.keySet()) {
+			put(f,map.get(f));
+		}
+    	return this;
     }
-
+    
     /**
      * checks for the necessary fields and initializes the {@link ImportLibrary}
      * 
      * @throws Exception
      */
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         this.library = new ImportLibrary(store, reader, fadMap(this.fads));
     }
 
@@ -83,15 +94,19 @@ public class ImportFixture {
      * sets {@link ImportLibrary}, {@link OMEROMetadataStore}, and file array
      * to null. Also attempts to call {@link FormatReader#close()}.
      */
-    public void tearDown() {
+    public void tearDown()
+    {
         this.fads = null;
         this.store = null;
         this.library = null;
-        try {
+        try
+        {
             this.reader.close();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new RuntimeException(e);
-        } finally {
+        } finally
+        {
             this.reader = null;
         }
     }
@@ -105,15 +120,17 @@ public class ImportFixture {
      * <li>{@link ImportLibrary#importData(long, String, ome.formats.testclient.ImportLibrary.Step)}</li>
      * </ul>
      * 
-     * @param step
-     *            an action to take per plane. not null.
+     * @param step an action to take per plane. not null.
      * @throws Exception
      */
-    public void doImport(ImportLibrary.Step step) throws Exception {
-        if (step == null) {
+    public void doImport(ImportLibrary.Step step) throws Exception
+    {
+        if (step == null)
+        {
             throw new ApiUsageException("Step may not be null.");
         }
-        for (File file : fads.keySet()) {
+        for (File file : fads.keySet())
+        {
             String fileName = file.getAbsolutePath();
             library.setDataset(fads.get(file));
             library.open(fileName);
@@ -130,27 +147,29 @@ public class ImportFixture {
      * 
      * @throws Exception
      */
-    public void doImport() throws Exception {
-        doImport(new ImportLibrary.Step() {
+    public void doImport() throws Exception
+    {
+        doImport(new ImportLibrary.Step()
+        {
 
             @Override
-            public void step(int n) {
-            }
+            public void step(int n)
+            {}
         });
     }
 
     // ~ Helpers
-    // =========================================================================
-
-    private ImportContainer[] fadMap(Map<File, Dataset> map) {
-        int size = map.keySet().size();
-        ImportContainer[] fads = new ImportContainer[size];
-        File[] files = map.keySet().toArray(new File[size]);
-        for (int i = 0; i < fads.length; i++) {
-            fads[i] = new ImportContainer(files[i], map.get(files[i]), files[i]
-                    .toString(), false);
-        }
-        return fads;
+	// =========================================================================
+    
+    private ImportContainer[] fadMap(Map<File,Dataset> map)
+    {
+    	int size = map.keySet().size();
+    	ImportContainer[] fads = new ImportContainer[size];
+    	File[] files = map.keySet().toArray( new File[size] );
+    	for (int i = 0; i < fads.length; i++) {
+			fads[i] = new ImportContainer(files[i],map.get(files[i]),files[i].toString(), false);
+		}
+    	return fads;
     }
-
+    
 }
