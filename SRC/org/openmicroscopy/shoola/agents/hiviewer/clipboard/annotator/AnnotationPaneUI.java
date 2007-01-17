@@ -377,7 +377,7 @@ class AnnotationPaneUI
             if (userDetails.getId() == id.intValue()) userIndex = index;
             String n = "Name not available"; //TODO: REMOVE ASAP
             try {
-                n = data.getLastName();
+            	n = data.getFirstName()+" "+data.getLastName();
             } catch (Exception e) {}
             owners[index] = n;
             ownersMap.put(new Integer(index), id);

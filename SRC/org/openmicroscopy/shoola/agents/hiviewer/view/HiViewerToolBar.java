@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 
 //Third-party libraries
@@ -90,7 +89,9 @@ class HiViewerToolBar
                 controller.getAction(HiViewerControl.CLIPBOARD_VIEW));
         b.setSelected(true);
         bar.add(b);
-        bar.add(new JSeparator(SwingConstants.HORIZONTAL));
+        bar.add(Box.createRigidArea(HGLUE));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(Box.createRigidArea(HGLUE));
         return bar;
     }
     
@@ -120,12 +121,14 @@ class HiViewerToolBar
         //UIUtilities.unifiedButtonLookAndFeel(b);
         //b.setBorderPainted(true);
         bar.add(b);
-        bar.add(new JSeparator(SwingConstants.HORIZONTAL));
+        bar.add(Box.createRigidArea(HGLUE));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         bar.add(Box.createRigidArea(HGLUE));
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.ROLL_OVER));
         b.setSelected(model.isRollOver());
         bar.add(b);
+        bar.add(Box.createRigidArea(HGLUE));
         JButton button = 
         	new JButton(controller.getAction(HiViewerControl.ZOOM_IN));
         UIUtilities.unifiedButtonLookAndFeel(button);
