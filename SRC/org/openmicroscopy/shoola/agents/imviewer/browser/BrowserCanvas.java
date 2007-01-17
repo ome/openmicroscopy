@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -75,7 +76,6 @@ class BrowserCanvas
         this.view = view;
         setDoubleBuffered(true);
     }
-
     
     /**
      * Overridden to paint the image.
@@ -99,10 +99,11 @@ class BrowserCanvas
         // Position scalebar in the bottom left of the viewport or
         // the image which ever is viewable. 
         Rectangle imgRect = new Rectangle(0, 0, img.getWidth(), 
-        		img.getHeight());
+        									img.getHeight());
         Rectangle viewRect = view.getViewport().getBounds();
-        int x = (int) view.getViewport().getViewPosition().getX();
-        int y = (int) view.getViewport().getViewPosition().getY();
+        Point p = view.getViewport().getViewPosition();
+        int x = (int) p.getX();
+        int y = (int) p.getY();
         int width = Math.min(x+viewRect.width, img.getWidth());
         int height = Math.min(y+viewRect.height, img.getHeight());
         if (imgRect.contains(viewRect)) {

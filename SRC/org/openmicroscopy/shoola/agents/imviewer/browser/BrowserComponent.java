@@ -168,21 +168,20 @@ class BrowserComponent
      */
     public void setZoomFactor(double factor)
     {
-    	if (factor != -1) 
-    	{
+    	if (factor != -1) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
 	            factor < ZoomAction.MIN_ZOOM_FACTOR)
 	            throw new IllegalArgumentException("The zoom factor is value " +
 	                    "between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 	                    ZoomAction.MAX_ZOOM_FACTOR);
-    	}
-    	else
-    	{
+    	} else {
     		int width = model.getRenderedImage().getWidth();
     		int height = model.getRenderedImage().getHeight();
     		Dimension viewport = view.getCurrentViewport();
-    		double zoomFactorX = viewport.getWidth()/width;
-    		double zoomFactorY = viewport.getHeight()/height;
+    		double zoomFactorX = 0;
+    		if (width > 0) zoomFactorX = viewport.getWidth()/width;
+    		double zoomFactorY = 0;
+    		if (height > 0) zoomFactorY = viewport.getHeight()/height;
     		factor = Math.min(zoomFactorX, zoomFactorY); 
     	}
         model.setZoomFactor(factor);
@@ -193,25 +192,13 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getZoomFactor()
      */
-    public double getZoomFactor()
-    {
-        return model.getZoomFactor();	
-    }
+    public double getZoomFactor() { return model.getZoomFactor(); }
     
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getTitle()
      */
     public String getTitle() { return model.getTitle(); }
-
-    /** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getLensImage(double)
-     */
-    public BufferedImage getLensImage(double lensFactor)
-    {
-        return null;
-    }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
@@ -258,37 +245,25 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#isUnitBar()
      */
-    public boolean isUnitBar()
-    {
-        return model.isUnitBar();
-    }
+    public boolean isUnitBar() { return model.isUnitBar(); }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUnitBarValue()
      */
-    public String getUnitBarValue()
-    {
-        return model.getUnitBarValue();
-    }
+    public String getUnitBarValue() { return model.getUnitBarValue(); }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUnitBarSize()
      */
-    public double getUnitBarSize()
-    {
-        return model.getUnitBarSize();
-    }
+    public double getUnitBarSize() { return model.getUnitBarSize(); }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUnitBarColor()
      */
-    public Color getUnitBarColor()
-    {
-        return model.getUnitBarColor();
-    }
+    public Color getUnitBarColor() { return model.getUnitBarColor(); }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.

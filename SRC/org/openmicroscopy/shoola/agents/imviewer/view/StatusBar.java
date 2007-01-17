@@ -25,11 +25,13 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 //Third-party libraries
 
@@ -38,7 +40,7 @@ import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Presents the progress of the data retrieval.
+ * Displays plane information.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,18 +58,24 @@ class StatusBar
     extends JPanel
 {
 
-    /** The bar notifying the user for the data retrieval progress. */
-    private JProgressBar        progressBar;
-
+	/** Dimension of the horizontal space between UI components. */
+	private static final		Dimension HBOX = new Dimension(5, 5);
+	
     /** Displays the status message. */
     private JLabel              status;
+    
+    /** Button to display plane info. */
+    private JButton				statusButton;
     
     /** Initializes the components. */
     private void initComponents()
     {
         IconManager icons = IconManager.getInstance();
-        progressBar = new JProgressBar();
-        status = new JLabel(icons.getIcon(IconManager.STATUS_INFO));
+        statusButton = new JButton(icons.getIcon(IconManager.STATUS_INFO));
+        statusButton.setContentAreaFilled(false);
+        statusButton.setBorder(null);
+        UIUtilities.unifiedButtonLookAndFeel(statusButton);
+        status = new JLabel();
     }
     
     /** Build and lay out the UI. */
@@ -75,11 +83,9 @@ class StatusBar
     {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBorder(BorderFactory.createEtchedBorder());
+        add(statusButton);
+        add(Box.createRigidArea(HBOX));
         add(status);
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(progressBar);
-        add(UIUtilities.buildComponentPanelRight(p));
     }
     
     /** Creates a new instance. */
@@ -95,23 +101,5 @@ class StatusBar
      * @param s The message to display.
      */
     void setStatus(String s) { status.setText(s); }
-    
-    /**
-     * Sets the value of the progress bar.
-     * 
-     * @param hide  Pass <code>true</code> to hide the progress bar, 
-     *              <code>false</otherwise>
-     * @param perc  The value to set.
-     */
-    void setProgress(boolean hide, int perc)
-    {
-        progressBar.setVisible(!hide);
-        if (perc < 0) progressBar.setIndeterminate(true);
-        else {
-            progressBar.setStringPainted(true);
-            progressBar.setIndeterminate(false);
-            progressBar.setValue(perc);
-        }
-    }
     
 }

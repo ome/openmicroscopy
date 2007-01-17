@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
@@ -97,6 +99,9 @@ public class TinyDialog
     /** The magnification factor. */
     private float			zoomFactor;
     
+    /** Collection of components to add to the title. */
+    private List			decoration;
+    
     /** The title displayed in this window's title bar. */
     protected String        title;
     
@@ -109,6 +114,13 @@ public class TinyDialog
         setRestoreSize(new Dimension(getWidth(), getHeight()));
         zoomFactor = MINIMUM_ZOOM;
     }
+    
+    /**
+     * 
+     * 
+     * @return See above.
+     */
+    List getDecoration() { return decoration; }
     
     /** 
      * Returns the original image to display.
@@ -326,6 +338,29 @@ public class TinyDialog
                 newValue = b ? Boolean.TRUE : Boolean.FALSE;
         closed = b;
         firePropertyChange(CLOSED_PROPERTY, oldValue, newValue);
+    }
+    
+    /**
+     * Sets the node's decoration.
+     * 
+     * @param l The collection of <code>component</code>s to add to the
+     * 			<code>TitleBar</code>.
+     */
+    public void setDecoration(List l)
+    {
+    	if (uiDelegate == null) return;
+    	uiDelegate.setDecoration(l);
+    }
+    
+    /** 
+     * Sets the canvas. 
+     * 
+     * @param c The component to set.
+     */
+    public void setCanvas(JComponent c)
+    {
+    	if (uiDelegate == null || c == null) return;
+    	uiDelegate.setCanvas(c);
     }
     
     /** 

@@ -182,7 +182,7 @@ class ImViewerComponent
     public void setStatus(String description, int perc)
     {
         if (model.getState() == DISCARDED) return;
-        view.setStatus(description, perc, false);
+        view.setStatus(description);
     }
 
     /** 
@@ -342,7 +342,7 @@ class ImViewerComponent
             throw new IllegalStateException("This method can only be invoked " +
                     "in the LOADING_IMAGE state.");
         model.setImage(image);
-        view.setStatus(getStatusText(), -1, true);
+        view.setStatus(getStatusText());
         view.setIconImage(model.getImageIcon());
         if (view.isLensVisible())
         	view.setLensPlaneImage(image);
@@ -446,7 +446,7 @@ class ImViewerComponent
         window.setProgress(50);
         view.buildComponents();
         view.setOnScreen();
-        view.setStatus(RENDERING_MSG, -1, false);
+        view.setStatus(RENDERING_MSG);
         renderXYPlane();
         //model.fireChannelMetadataLoading();
         //fireStateChange();
@@ -868,7 +868,7 @@ class ImViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException("The method cannot be invoked in " +
                     "the DISCARDED state.");
-        view.setStatus(getStatusText(), -1, true);
+        view.setStatus(getStatusText());
         view.resetDefaults(); 
     }
 

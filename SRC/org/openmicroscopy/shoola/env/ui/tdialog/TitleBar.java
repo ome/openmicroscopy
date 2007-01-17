@@ -24,16 +24,16 @@
 package org.openmicroscopy.shoola.env.ui.tdialog;
 
 
-
-
-
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -63,6 +63,12 @@ class TitleBar
     extends JComponent
 {
 
+	/** Identifies the <code>SizeButton</code>. */
+	static final int	SIZE_BUTTON = 0;
+	
+	/** Identifies the <code>CloseButton</code>. */
+	static final int	CLOSE_BUTTON = 1;
+	
     /** 
      * The width and hight, in pixels, of the {@link #sizeButton} and
      * {@link #closeButton}. 
@@ -76,7 +82,8 @@ class TitleBar
      * The width, in pixels, of the area reserved to the {@link #sizeButton}
      * and  {@link #closeButton}. 
      */
-    static final int    SIZE_BUTTON_AREA_WIDTH = 2*SIZE_BUTTON_DIM+3*H_SPACING;
+    private static final int   SIZE_BUTTON_AREA_WIDTH = 2*SIZE_BUTTON_DIM+
+    													3*H_SPACING;
     //13 = 2 for space from left edge + 9 for button + 2 for space b/f title.
     
     /** The height, in pixels, of the whole title bar. */
@@ -86,14 +93,16 @@ class TitleBar
     static final int    MIN_WIDTH = SIZE_BUTTON_AREA_WIDTH+26;  //50
     
     /** Paints the title string on the title area. */
-    private TitlePainter    titlePainter;
+    private TitlePainter    	titlePainter;
     
     /** The button the user presses to collapse/expand the window. */
-    final SizeButton        sizeButton;
+    private SizeButton        	sizeButton;
     
     /** The button the user presses to close the window. */
-    final CloseButton       closeButton;
-    //TODO: make private.
+    private CloseButton       	closeButton;
+    
+    /** Default width of the button area. */
+    private int					buttonAreaWidth;
     
     /**
      * Returns the current bounds of the area reserved to the title.
@@ -109,7 +118,7 @@ class TitleBar
             //painting, so the title bar should have been sized.
             return new Rectangle(0, 0, 0, 0);
         
-        return new Rectangle(SIZE_BUTTON_AREA_WIDTH, 0, 
+        return new Rectangle(buttonAreaWidth, 0, 
                                 w-SIZE_BUTTON_AREA_WIDTH, getHeight());
     }
     
@@ -128,14 +137,62 @@ class TitleBar
         //create buttons
         sizeButton = new SizeButton();
         sizeButton.setActionType(SizeButton.COLLAPSE);
-        closeButton = new CloseButton();
-        closeButton.setActionType(CloseButton.CLOSE_ACTION);
-        
         //add sub components
         add(sizeButton);
-        if (closedButton) add(closeButton);
+        buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
+        if (closedButton) {
+        	closeButton = new CloseButton();
+            closeButton.setActionType(CloseButton.CLOSE_ACTION);
+        	add(closeButton);
+        	buttonAreaWidth += SIZE_BUTTON_DIM+H_SPACING;
+        }
         
         setLayout(new TitleBarLayout());
+    }
+    
+    /**
+     * Sets the node's decoration.
+     * 
+     * @param l The list of components to add to the title bar.
+     */
+    void setDecoration(List l)
+    {
+    	removeAll();
+    	add(sizeButton);
+    	buttonAreaWidth = SIZE_BUTTON_DIM+2*H_SPACING;
+    	if (closeButton != null) {
+    		add(closeButton);
+    		buttonAreaWidth += SIZE_BUTTON_DIM+H_SPACING;
+    	}
+    	if (l == null) return;
+    	Iterator i = l.iterator();
+    	Object object;
+    	JComponent c;
+    	while (i.hasNext()) {
+    		object = i.next();
+			if (object instanceof JComponent) {
+				c = (JComponent) object;
+				add(c);
+				buttonAreaWidth += c.getPreferredSize().width+H_SPACING;
+			}	
+		}
+    }
+
+    /**
+     * Returns the button identified by the passed id.
+     * 
+     * @param id The id of the button.
+     * @return See above.
+     */
+    JButton getButton(int id)
+    {
+    	switch (id) {
+			case SIZE_BUTTON:
+				return sizeButton;
+			case CLOSE_BUTTON:
+				return closeButton;
+		}
+    	return null;
     }
     
     /**

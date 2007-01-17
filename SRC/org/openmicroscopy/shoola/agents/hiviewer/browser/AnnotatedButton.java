@@ -49,23 +49,30 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
  * </small>
  * @since OME2.2
  */
-class AnnotatedButton
+public class AnnotatedButton
 	extends JButton
 {
 
     /** Description of the button. */
-    private final String DESCRIPTION = "Annotated object. Click to view " +
-            "the annotation. ";
+    private final String DESCRIPTION = "Annotated object.";
+    
+    /** Description of the button. */
+    private final String DESCRIPTION_FULL = "Annotated object. Click to view " +
+            								"the annotation. ";
     
     /** The node hosting this button. */
     private final ImageNode    parentNode;
     
-    /** 
+    /**
+     *  
      * Creates a new instance. 
      * 
-     * @param node The node hosting this button.  Mustn't be <code>null</code>.
+     * @param node 			The node hosting this button. 
+     * 						Mustn't be <code>null</code>.
+     * @param withListener 	Pass <code>true</code> to attach an action listener
+     * 						<code>false</code> otherwise.
      */
-    AnnotatedButton(ImageNode node)
+    public AnnotatedButton(ImageNode node, boolean withListener)
     {
     	if (node == null) throw new IllegalArgumentException("No node");
         parentNode = node;
@@ -78,15 +85,28 @@ class AnnotatedButton
         IconManager im = IconManager.getInstance();
         setIcon(im.getIcon(IconManager.ANNOTATED_SMALL));
         //setRolloverIcon(im.getIcon(IconManager.ANNOTATED_SMALL_OVER));
-        setToolTipText(DESCRIPTION);
-        addActionListener(new ActionListener() {
+        if (withListener) {
+        	setToolTipText(DESCRIPTION_FULL);
+            addActionListener(new ActionListener() {
+                
+                public void actionPerformed(ActionEvent e)
+                {
+                    parentNode.fireAnnotation();
+                }
             
-            public void actionPerformed(ActionEvent e)
-            {
-                parentNode.fireAnnotation();
-            }
+            });
+        } else setToolTipText(DESCRIPTION);
         
-        });
+    }
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param node The node hosting this button.  Mustn't be <code>null</code>.
+     */
+    AnnotatedButton(ImageNode node)
+    {
+    	this(node, true);
     }
     
 }

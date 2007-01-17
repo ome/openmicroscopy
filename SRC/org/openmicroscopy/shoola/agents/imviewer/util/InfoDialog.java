@@ -135,7 +135,7 @@ public class InfoDialog
     private JPanel buildToolBar()
     {
         JPanel toolBar = new JPanel();
-        toolBar.setBorder(BorderFactory.createEtchedBorder());
+        //toolBar.setBorder(BorderFactory.createEtchedBorder());
         toolBar.add(finishButton);
         toolBar.add(Box.createRigidArea(H_BOX));
         toolBar.add(cancelButton);
@@ -189,7 +189,7 @@ public class InfoDialog
         Container c = getContentPane();
         IconManager icons = IconManager.getInstance();
         TitlePanel tp = new TitlePanel(TITLE, TEXT, 
-                icons.getIcon(IconManager.HISTOGRAM_BIG));
+        							icons.getIcon(IconManager.INFO_48));
         c.add(tp, BorderLayout.NORTH);
         c.add(buildBody(), BorderLayout.CENTER);
         c.add(UIUtilities.buildComponentPanelRight(buildToolBar()),
@@ -200,7 +200,7 @@ public class InfoDialog
      * Creates a new instance.
      * 
      * @param owner     The owner of the frame.
-     * @param metadata  The metadata to display.
+     * @param metadata  The metadata to display. Mustn't be <code>null</code>.
      */
     public InfoDialog(JFrame owner, ChannelMetadata metadata)
     {

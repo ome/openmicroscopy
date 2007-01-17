@@ -48,22 +48,30 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
  * </small>
  * @since OME2.2
  */
-class ClassifiedButton
+public class ClassifiedButton
     extends JButton
 {
 
     /** Description of the button. */
-    private final String DESCRIPTION = "Categorised image. Click to " +
+    private final String DESCRIPTION = "Categorised image.";
+    
+    /** Description of the button. */
+    private final String DESCRIPTION_FULL = "Categorised image. Click to " +
             "display the categorization. ";
     
     /** The node hosting this button. */
     private final ImageNode parentNode;
     
-    /** Creates a new instance. 
+    /**
+     *  
+     * Creates a new instance. 
      * 
-     * @param node The node hosting this button.  Mustn't be <code>null</code>.
+     * @param node 			The node hosting this button. 
+     * 						Mustn't be <code>null</code>.
+     * @param withListener 	Pass <code>true</code> to attach an action listener
+     * 						<code>false</code> otherwise.
      */
-    ClassifiedButton(ImageNode node)
+    public ClassifiedButton(ImageNode node, boolean withListener)
     {
     	if (node == null) throw new IllegalArgumentException("No node");
         parentNode = node;
@@ -75,16 +83,27 @@ class ClassifiedButton
         //setRolloverEnabled(true);
         IconManager im = IconManager.getInstance();
         setIcon(im.getIcon(IconManager.CLASSIFIED_SMALL));
-        //setRolloverIcon(im.getIcon(IconManager.CLASSIFIED_SMALL_OVER));
-        setToolTipText(DESCRIPTION);
-        addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-                parentNode.fireClassification();
-            }
-        
-        });
+        if (withListener) {
+        	setToolTipText(DESCRIPTION_FULL);
+            addActionListener(new ActionListener() {
+            
+                public void actionPerformed(ActionEvent e)
+                {
+                    parentNode.fireClassification();
+                }
+            
+            });
+        } else setToolTipText(DESCRIPTION);
+    }
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param node The node hosting this button.  Mustn't be <code>null</code>.
+     */
+    ClassifiedButton(ImageNode node)
+    {
+    	this(node, true);
     }
     
 }

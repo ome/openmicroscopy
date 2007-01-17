@@ -31,12 +31,18 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.browser.AnnotatedButton;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ClassifiedButton;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import pojos.DataObject;
@@ -94,6 +100,50 @@ class ThumbWin
     }
     
     /**
+     * Returns <code>true</code> if the hosted object is annotated, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean isAnnotated()
+    {
+    	if (dataObject instanceof ImageData) {
+            ImageData d =  (ImageData) dataObject;
+            Long n = d.getAnnotationCount();
+            return (n != null && n.longValue() > 0);
+        }
+        return false;
+    }
+    
+    /**
+     * Returns <code>true</code> if the hosted object is classified, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean isClassified()
+    {
+    	if (dataObject instanceof ImageData) {
+            ImageData d =  (ImageData) dataObject;
+            Long n = d.getClassificationCount();
+            return (n != null && n.longValue() > 0);
+        }
+        return false;
+    }
+    
+    /** Sets the node's decoration. */
+    private void setNodeDecoration()
+    {
+    	if (!(node instanceof ImageNode)) return;
+    	List nodes = new ArrayList();
+    	if (isAnnotated()) 
+    		nodes.add(new AnnotatedButton((ImageNode) node, false));
+        if (isClassified()) 
+        	nodes.add(new ClassifiedButton((ImageNode) node, false));
+        setDecoration(nodes);
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param parent            The parent frame. Mustn't be <code>null</code>.
@@ -121,7 +171,24 @@ class ThumbWin
         uiDelegate.attachMouseListener(this);
         addMouseListener(this);
         addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, this);
+        setNodeDecoration();
     }
+    
+    /**
+     * Sets the new data object.
+     * 
+     * @param image The Image object the thumbnail is for.
+     *              Mustn't be <code>null</code>.
+     */
+    void setDataObject(DataObject image)
+    {
+    	if (image == null) throw new IllegalArgumentException("No image.");
+    	dataObject = image;
+    	setNodeDecoration();
+    	validate();
+    	repaint();
+    }
+    
     
     /**
      * Returns the reference to the {@link HiViewer}.

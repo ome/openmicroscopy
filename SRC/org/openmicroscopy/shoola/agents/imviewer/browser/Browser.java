@@ -123,15 +123,6 @@ public interface Browser
     public String getTitle();
     
     /**
-     * Returns the newly created lens image. The magnification level of the
-     * lens image depends on the specified factor.
-     * 
-     * @param lensFactor    The magnification of the lens image.
-     * @return See above.
-     */
-    public BufferedImage getLensImage(double lensFactor);
-    
-    /**
      * Sets the size of the components composing the display.
      * 
      * @param w The width to set.

@@ -35,8 +35,10 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Adds the images to the categories.
- * 
+ * Adds/removes the images to/from the categories depending on the 
+ * specified mode.
+ * This class calls the <code>classify</code> and <code>declassify</code>
+ * methods in the <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -716,7 +716,7 @@ class HiViewerComponent
 		browser.setSelectedDisplay(browser.getLastSelectedDisplay());
 		TreeView tv = model.getTreeView();
 		if (tv != null) tv.repaint();
-        	
+        ThumbWinManager.updateDisplayNodes(nodes);
 		model.onDataObjectSave();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		fireStateChange();

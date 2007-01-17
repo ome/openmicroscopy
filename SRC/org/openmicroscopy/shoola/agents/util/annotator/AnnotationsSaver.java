@@ -33,6 +33,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
+
 /** 
  * Creates or updates the specified annotation.
  * This class calls the <code>createAnnotation</code>, 
@@ -83,10 +84,11 @@ public class AnnotationsSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The Annotator this loader is for.
+	 * @param viewer		The Annotator this loader is for. 
+	 * 						Mustn't be <code>null</code>.
 	 * @param type			The type of annotation.
 	 * @param toUpdate		Collection of <code>DataObject</code> to update
-	 * 						the annotation for.
+	 * 						the annotation for. Mustn't be <code>null</code>.
 	 */
 	public AnnotationsSaver(Annotator viewer, Map toUpdate)
 	{
@@ -101,10 +103,12 @@ public class AnnotationsSaver
 	 * Creates a new instance.
 	 * 
 	 * @param viewer		The Annotator this loader is for.
+	 * 						Mustn't be <code>null</code>.
 	 * @param toUpdate		Collection of <code>DataObject</code> to update
-	 * 						the annotation for.
+	 * 						the annotation for. Mustn't be <code>null</code>.
 	 * @param toAnnotate	Collection of <code>DataObject</code>s to annotate.
-	 * @param annotation	The annotation. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation	The annotation. Mustn't be <code>null</code>.
 	 */
 	public AnnotationsSaver(Annotator viewer, Map toUpdate,
 							Set toAnnotate, AnnotationData annotation)
@@ -125,9 +129,11 @@ public class AnnotationsSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The Annotator this loader is for.
+	 * @param viewer		The Annotator this loader is for. 
+	 * 						Mustn't be <code>null</code>.
 	 * @param toAnnotate	Collection of <code>DataObject</code>s to annotate.
-	 * @param annotation	The annotation.
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation	The annotation. Mustn't be <code>null</code>.
 	 */
 	public AnnotationsSaver(Annotator viewer, Set toAnnotate, 
 							AnnotationData annotation)

@@ -61,7 +61,7 @@ public class LoadingWin
         JProgressBar progressBar = new JProgressBar();
         progressBar.setVisible(true);
         progressBar.setIndeterminate(true);
-        uiDelegate.setCanvas(progressBar);
+        setCanvas(progressBar);
     }
     
     /**

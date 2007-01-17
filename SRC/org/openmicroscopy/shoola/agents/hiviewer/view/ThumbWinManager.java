@@ -31,6 +31,8 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JFrame;
 
@@ -66,6 +68,30 @@ class ThumbWinManager
     
     /** The sole instance. */
     private static final ThumbWinManager singleton = new ThumbWinManager();
+    
+    /**
+     * Updates the nodes displayed in a floating window.
+     * 
+     * @param nodes Collection of nodes to updates.
+     */
+    static void updateDisplayNodes(List nodes)
+    {
+    	if (nodes == null || nodes.size() == 0) return;
+    	if (windows.size() == 0) return;
+    	Iterator i = nodes.iterator();
+    	Object node;
+    	ImageData ho;
+    	ThumbWin w;
+    	while (i.hasNext()) {
+			node = i.next();
+			if (node instanceof ImageData) {
+				ho = (ImageData) node;
+				w = (ThumbWin) windows.get(new Long(ho.getId()));
+				if (w != null) w.setDataObject(ho);
+			}
+			
+		}
+    }
     
     /**
      * Brings a window on screen to display <code>node</code>'s thumbnail.

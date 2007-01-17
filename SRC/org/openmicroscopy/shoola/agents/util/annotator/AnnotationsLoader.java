@@ -66,9 +66,11 @@ public class AnnotationsLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The Annotator this loader is for.
+	 * @param viewer		The Annotator this loader is for. 
+	 * 						Mustn't be <code>null</code>.
 	 * @param objects		Collection of <code>DataObject</code>s to 
 	 *						retrieve the annotations for.
+	 *						Mustn't be <code>null</code>.
 	 * @param type			The type of annotation.
 	 */
 	public AnnotationsLoader(Annotator viewer, Set objects, Class type)

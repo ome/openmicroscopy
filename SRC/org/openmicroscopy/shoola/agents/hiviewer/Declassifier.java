@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -110,8 +111,14 @@ public class Declassifier
     public void handleResult(Object result)
     {
         ///if (classifier.getState() == Classifier.DISCARDED) return; 
-        List ids = new ArrayList(1);
-        ids.add(new Long(image.getId()));
-        clipBoard.onClassificationChange(ids);
+        Set s = (Set) result;
+        List l = new ArrayList();
+        if (s != null) {
+        	Iterator i = s.iterator();
+    		while (i.hasNext()) 
+				l.add(i.next());
+        }
+        clipBoard.onClassificationChange(l);
     }
+    
 }

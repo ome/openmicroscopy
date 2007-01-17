@@ -163,8 +163,8 @@ class BrowserUI
     }
       
     /**
-     * Sets the size of the components b/c a layeredPane doesn't have a layout
-     * manager.
+     * Sets the size of the components because a layeredPane doesn't have a 
+     * layout manager.
      * 
      * @param w The width to set.
      * @param h The height to set.

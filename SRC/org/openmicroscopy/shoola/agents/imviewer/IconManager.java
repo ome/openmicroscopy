@@ -152,11 +152,13 @@ public class IconManager
     /** The <code>Info</code> icon. */
     public static int           INFO = 30;
     
+    /** The <code>Info</code> icon 48 by 48. */
+    public static int           INFO_48 = 31;
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 30;
+    private static int          MAX_ID = 31;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -164,7 +166,8 @@ public class IconManager
     static {
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[RENDERER] = "render16.png";
-        relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        //relPaths[MOVIE] = "openOffice_stock_insert-video-plugin-16.png";
+        relPaths[MOVIE] = "nuvola_kaboodle16.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
         relPaths[LENS] = "nuvola_viewmag16.png";
         relPaths[TINY_INFO] = "messagebox_info8.png";
@@ -194,6 +197,7 @@ public class IconManager
         relPaths[TEMPORARY_HISTOGRAM] = "histogram_temporary.png";
         relPaths[COLOR_PICKER] = "nuvola_colorpicker16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
+        relPaths[INFO_48] = "nuvola_messagebox_info48.png";
     }
     
     /** The sole instance. */

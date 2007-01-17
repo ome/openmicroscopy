@@ -504,7 +504,7 @@ class HiViewerControl
         		List l = new ArrayList(set.size());
         		Iterator i = set.iterator();
         		while (i.hasNext()) 
-					l.add( i.next());
+					l.add(i.next());
         		model.onDataObjectSave(l);
         	}
         	view.discardDataHandler();

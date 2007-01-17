@@ -35,7 +35,10 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 
 /** 
- * 
+ * Loads the classification paths for declassifying or classifying the images
+ * depending on the specified mode.
+ * This class calls the <code>loadClassificationPaths</code>
+ * method in the <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

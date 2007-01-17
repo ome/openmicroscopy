@@ -37,6 +37,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -184,6 +186,7 @@ public class TinyDialogUI
     private void attachButtonListener(ActionListener controller, 
                                         JButton b, int id)
     {
+    	if (b == null) return;
         b.addActionListener(controller);
         b.setActionCommand(""+id);
     }
@@ -212,6 +215,7 @@ public class TinyDialogUI
     {
         initialize(window);
         canvas = new ThumbnailCanvas(image);
+        canvas.setToolTipText(window.title);
         makeComponentsSize(image.getWidth(), image.getHeight()); 
         makeBorders();
         buildUI();
@@ -283,10 +287,12 @@ public class TinyDialogUI
      */
     void attachActionListener(ActionListener controller)
     {
-        attachButtonListener(controller, titleBar.sizeButton, 
+        attachButtonListener(controller, 
+        					titleBar.getButton(TitleBar.SIZE_BUTTON), 
                             DialogControl.SIZE);
-        attachButtonListener(controller, titleBar.closeButton, 
-                DialogControl.CLOSE);
+        attachButtonListener(controller, 
+        					titleBar.getButton(TitleBar.CLOSE_BUTTON), 
+        					DialogControl.CLOSE);
     }
     
     /**
@@ -308,16 +314,18 @@ public class TinyDialogUI
      */
     void updateCollapsedState()
     {
+    	SizeButton button = 
+    			(SizeButton) titleBar.getButton(TitleBar.SIZE_BUTTON);
         if (window.isCollapsed()) {
             removeComponent(canvas);
             Dimension d = new Dimension(window.getWidth(), 
                     TitleBar.HEIGHT+2*BORDER_THICKNESS);
             titleBar.setPreferredSize(d);
-            titleBar.sizeButton.setActionType(SizeButton.EXPAND);
+            button.setActionType(SizeButton.EXPAND);
             window.setSize(d.width, d.height);
         } else {
             addComponent(canvas);
-            titleBar.sizeButton.setActionType(SizeButton.COLLAPSE);
+            button.setActionType(SizeButton.COLLAPSE);
             Dimension dT = titleBar.getPreferredSize();
             Dimension dW = window.getRestoreSize();
             window.setSize(dT.width, dW.height);
@@ -335,12 +343,24 @@ public class TinyDialogUI
         }
     }
      
+    /**
+     * Sets the node's decoration.
+     * 
+     * @param l The collection of <code>component</code>s to add to the
+     * 			<code>TitleBar</code>.
+     */
+	void setDecoration(List l)
+	{
+		if (titleBar == null) return;
+		titleBar.setDecoration(l);
+	}
+	
     /** 
      * Sets the canvas. 
      * 
      * @param c The component to set.
      */
-    public void setCanvas(JComponent c)
+    void setCanvas(JComponent c)
     { 
         canvas = c;
         addComponent(canvas);

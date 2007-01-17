@@ -88,17 +88,15 @@ class TitleBarLayout
     public void layoutContainer(Container c) 
     {
         TitleBar titleBar = (TitleBar) c;
-        titleBar.sizeButton.setBounds(
-                TitleBar.H_SPACING,  //x, space from the left edge. 
-                (TitleBar.HEIGHT-TitleBar.SIZE_BUTTON_DIM)/2, //y, centered.
-                TitleBar.SIZE_BUTTON_DIM, //w=h, it must be a square.
-                TitleBar.SIZE_BUTTON_DIM);
-        titleBar.closeButton.setBounds(
-                //x, next to the sizeButton. 
-                2*TitleBar.H_SPACING+TitleBar.SIZE_BUTTON_DIM,  
-                (TitleBar.HEIGHT-TitleBar.SIZE_BUTTON_DIM)/2, //y, centered.
-                TitleBar.SIZE_BUTTON_DIM, //w=h, it must be a square.
-                TitleBar.SIZE_BUTTON_DIM);
+        Component[] comp = titleBar.getComponents();
+        Dimension d;
+        int nextX = TitleBar.H_SPACING;
+        int y = (TitleBar.HEIGHT-TitleBar.SIZE_BUTTON_DIM)/2;
+        for (int i = 0; i < comp.length; ++i) {
+        	d = comp[i].getPreferredSize();
+            comp[i].setBounds(nextX, y, d.width, TitleBar.SIZE_BUTTON_DIM);
+            nextX += d.width+TitleBar.H_SPACING;
+        }
     }
     
     /**

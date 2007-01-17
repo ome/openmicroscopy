@@ -136,7 +136,7 @@ class ImViewerUI
     private LoadingWindow   loadingWindow;
     
     /** First time the lens has been shown then variable <code>true</code>. */
-    private boolean firstTimeLensShown = true;
+    private boolean 		firstTimeLensShown = true;
     
     /** 
      * Creates the menu bar.
@@ -473,7 +473,7 @@ class ImViewerUI
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
-        
+        container.setBackground(Color.RED);
         container.add(controlPane, BorderLayout.WEST);
         container.add(browser.getUI(), BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
@@ -634,14 +634,10 @@ class ImViewerUI
      * Updates status bar.
      * 
      * @param description   The text to display.
-     * @param perc          The precentage to display.
-     * @param hide          Pass <code>true</code> to hide the bar,
-     *                      <code>false</code> otherwise.
      */
-    void setStatus(String description, int perc, boolean hide)
+    void setStatus(String description)
     {
         statusBar.setStatus(description);
-        statusBar.setProgress(hide, perc);
     }
 
     /**
@@ -710,12 +706,14 @@ class ImViewerUI
                     return;
             if (firstTimeLensShown) {
                 firstTimeLensShown = false;
-                int lensX = model.getMaxX()/2-lens.getLensUI().getWidth()/2;
-                int lensY = model.getMaxY()/2-lens.getLensUI().getHeight()/2;
+                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
+                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
+                int lensX = diffX/2;
+                int lensY = diffY/2;
                 if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
-                    lensX = model.getMaxX()-lens.getLensUI().getWidth();
+                    lensX = diffX;
                 if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
-                    lensY = model.getMaxY()-lens.getLensUI().getHeight();
+                    lensY = diffY;
                 lens.setImageZoomFactor((float) model.getZoomFactor());
                 lens.setLensLocation(lensX, lensY);
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
@@ -755,8 +753,7 @@ class ImViewerUI
     	lens.setImageZoomFactor(factor); 
     }
     
-    /** Hides the lens if the window is iconified.
-     */
+    /** Hides the lens when the window is iconified. */
     void onIconified()
     {
     	if (lens == null) return;
@@ -806,7 +803,7 @@ class ImViewerUI
                 int height = 9*(screen.height/10);
                 if (size.width > width || size.height > height) {
                     setSize(width, height);
-                } else pack(); 
+                } else pack();
             } else pack();
             UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
                     this);

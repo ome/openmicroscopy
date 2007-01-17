@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -502,8 +501,9 @@ class EditorUI
         if (nodeType.equals(ImageData.class) && 
         		model.getEditorType() == Editor.PROPERTIES_EDITOR) {
            //Create a default Thumbnail.
-        	JLabel label = new JLabel(
-        			new ImageIcon(Factory.createDefaultThumbnail()));
+        	IconManager icons = IconManager.getInstance();
+        	JLabel label = new JLabel(icons.getImageIcon(IconManager.IMAGE_48));
+        			//new ImageIcon(Factory.createDefaultThumbnail()));
             
             titlePanel.setIconComponent(label);
         }   

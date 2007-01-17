@@ -37,7 +37,6 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiTranslator;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
@@ -468,13 +467,16 @@ class ClipBoardComponent
      * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#onClassificationChange(List)
      */
-    public void onClassificationChange(List imageNodeIDs)
+    public void onClassificationChange(List imageNodes)
     {
         if (model.getState() != ClipBoard.DECLASSIFICATION) return;
+        model.getParentModel().onDataObjectSave(imageNodes);
+        /*
         Browser browser = model.getParentModel().getBrowser();
         if (browser == null) return;
         ImageDisplay d = browser.getLastSelectedDisplay();
         view.onDisplayChange(d);
+        */
     }
 
     /**
