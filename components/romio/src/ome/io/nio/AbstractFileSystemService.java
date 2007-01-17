@@ -43,7 +43,8 @@ public class AbstractFileSystemService {
         if (!rootDirectory.isDirectory() || !rootDirectory.canRead()
                 || !rootDirectory.canWrite()) {
             throw new IllegalArgumentException(
-                    "Invalid directory specified for file system service.");
+                    "Invalid directory specified for file system service."
+		    + rootDirectory);
         }
     }
 
