@@ -18,7 +18,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
-import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
@@ -150,7 +149,7 @@ public abstract class HibernateUtils {
                 string = LsidUtils.parseField(string);
                 int idx = index(string, propertyNames);
                 Object previous = previousState[idx];
-                if (!(previous instanceof PersistentCollection)) // implies
+                if (!(previous instanceof Collection)) // implies
                                                                     // not null
                 {
                     throw new InternalException(String.format(
@@ -159,7 +158,7 @@ public abstract class HibernateUtils {
                             string, entity));
                 }
                 log("Copying filtered collection ", string);
-                Collection copy = copy(((PersistentCollection) previous));
+                Collection copy = copy(((Collection) previous));
                 persister.setPropertyValue(entity, idx, copy, source
                         .getEntityMode());
             }
@@ -178,7 +177,7 @@ public abstract class HibernateUtils {
                             propertyNames[i], entity));
                 } else {
                     log("Copying nulled collection ", propertyNames[i]);
-                    Collection copy = copy(((PersistentCollection) previous));
+                    Collection copy = copy(((Collection) previous));
                     persister.setPropertyValue(entity, i, copy, source
                             .getEntityMode());
                 }
@@ -365,7 +364,7 @@ public abstract class HibernateUtils {
     }
 
     @SuppressWarnings("unchecked")
-    protected static Collection copy(PersistentCollection c) {
+    protected static Collection copy(Collection c) {
         if (c instanceof Set) {
             return new HashSet((Set) c);
         }
