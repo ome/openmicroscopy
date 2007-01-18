@@ -32,6 +32,7 @@ package ome.formats.importer.util;
 import java.io.File;
 import java.util.UUID;
 
+import loci.formats.ChannelSeparator;
 import loci.formats.ImageReader;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportFixture;
@@ -69,7 +70,8 @@ public class TinyImportFixture extends ImportFixture
     
     public TinyImportFixture(ServiceFactory services) throws Exception
     {
-        super( new OMEROMetadataStore(services), new ImageReader() );
+        super( new OMEROMetadataStore(services),
+               new ChannelSeparator(new ImageReader()) );
         this.sf = services;
     }
 
