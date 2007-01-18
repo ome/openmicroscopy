@@ -29,10 +29,10 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
@@ -117,17 +117,17 @@ public class ZoomCmd
         double factor = currentScale;
         switch (index) {
             case ZOOM_IN:
-                if (currentScale >= ThumbnailProvider.MAX_SCALING_FACTOR) 
-                    factor = ThumbnailProvider.MAX_SCALING_FACTOR;
+                if (currentScale >= Thumbnail.MAX_SCALING_FACTOR) 
+                    factor = Thumbnail.MAX_SCALING_FACTOR;
                 else factor += INCREMENT;
                 break;
             case ZOOM_OUT:
-                if (currentScale <= ThumbnailProvider.MIN_SCALING_FACTOR) 
-                    factor = ThumbnailProvider.MIN_SCALING_FACTOR;
+                if (currentScale <= Thumbnail.MIN_SCALING_FACTOR) 
+                    factor = Thumbnail.MIN_SCALING_FACTOR;
                 else factor -= INCREMENT;
                 break;
             case ZOOM_FIT:
-                factor = ThumbnailProvider.SCALING_FACTOR;    
+                factor = Thumbnail.SCALING_FACTOR;    
         }
         return factor;
     }

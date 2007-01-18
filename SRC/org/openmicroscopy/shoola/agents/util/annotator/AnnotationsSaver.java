@@ -30,6 +30,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
@@ -86,7 +87,6 @@ public class AnnotationsSaver
 	 * 
 	 * @param viewer		The Annotator this loader is for. 
 	 * 						Mustn't be <code>null</code>.
-	 * @param type			The type of annotation.
 	 * @param toUpdate		Collection of <code>DataObject</code> to update
 	 * 						the annotation for. Mustn't be <code>null</code>.
 	 */
@@ -179,7 +179,7 @@ public class AnnotationsSaver
 	 */
 	public void handleResult(Object result)
 	{
-	    if (viewer.getState() == Annotator.DISCARDED) return; 
+	    if (viewer.getState() == DataHandler.DISCARDED) return; 
 	    viewer.saveAnnotations((List) result);
 	}
 

@@ -136,16 +136,10 @@ public abstract class DataTreeViewerLoader
         viewer.cancel();
     }
     
-    /**
-     * Fires an asynchrnonous data loading. 
-     * @see DSCallAdapter#load()
-     */
+    /** Fires an asynchrnonous data loading. */
     public abstract void load();
     
-    /** 
-     * Cancels any ongoing data loading.
-     * @see DSCallAdapter#cancel()
-     */
+    /** Cancels any ongoing data loading. */
     public abstract void cancel(); 
     
 }

@@ -36,6 +36,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.util.classifier.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.util.classifier.actions.FinishAction;
@@ -101,11 +102,11 @@ class ClassifierControl
     
 	/**
      * Creates a new instance.
-     * The {@link #initialize(AnnotatorView) initialize} method 
+     * The {@link #initialize(ClassifierView) initialize} method 
      * should be called straight 
      * after to link this Controller to the other MVC components.
      * 
-     * @param model  Reference to the {@link Annotator} component, which, in 
+     * @param model  Reference to the {@link Classifier} component, which, in 
      *               this context, is regarded as the Model.
      *               Mustn't be <code>null</code>.
      */
@@ -147,18 +148,18 @@ class ClassifierControl
 	public void stateChanged(ChangeEvent e)
 	{
 		switch (model.getState()) {
-			case Classifier.READY:
+			case DataHandler.READY:
 				view.setStatus("", true);
 				view.setOnScreen();	
 				break;
-			case Classifier.LOADING:
+			case DataHandler.LOADING:
 				view.setStatus(LOADING_MSG, false);
 				break;
-			case Classifier.DISCARDED:
+			case DataHandler.DISCARDED:
 				view.setVisible(false);
 				view.dispose();
 				break;
-			case Classifier.SAVING:
+			case DataHandler.SAVING:
 				view.setStatus(SAVING_MSG, false);
 				break;
 		}

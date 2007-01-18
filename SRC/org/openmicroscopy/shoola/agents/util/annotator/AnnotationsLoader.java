@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -90,7 +91,7 @@ public class AnnotationsLoader
 	
 	/** 
 	 * Cancels the data loading. 
-	 * @see AnnotatorLoader#laod()
+	 * @see AnnotatorLoader#load()
 	 */
 	public void load()
 	{
@@ -109,7 +110,7 @@ public class AnnotationsLoader
 	 */
 	public void handleResult(Object result)
 	{
-	    if (viewer.getState() == Annotator.DISCARDED) return; 
+	    if (viewer.getState() == DataHandler.DISCARDED) return; 
 	    viewer.setAnnotations((Map) result);
 	}
 

@@ -280,7 +280,7 @@ public class IconManager
         relPaths[FORWARD_NAV] = "eclipse_forward_nav16.png";
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
-        relPaths[CANCEL] = "nuvola_button_cancel16.png";
+        relPaths[CANCEL] = "nuvola_cancel16.png";
         relPaths[DATA_MANAGER] = "eclipse_external_tools16.png";
         relPaths[CLASSIFIER] = "eclipse_sroot_obj16.png";
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";

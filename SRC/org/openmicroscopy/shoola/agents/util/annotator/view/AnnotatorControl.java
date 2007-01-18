@@ -34,6 +34,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction;
@@ -144,18 +145,18 @@ class AnnotatorControl
 	public void stateChanged(ChangeEvent e)
 	{
 		switch (model.getState()) {
-			case Annotator.READY:
+			case DataHandler.READY:
 				view.setStatus("", true);
 				view.setOnScreen();	
 				break;
-			case Annotator.LOADING:
+			case DataHandler.LOADING:
 				view.setStatus(LOADING_MSG, false);
 				break;
-			case Annotator.DISCARDED:
+			case DataHandler.DISCARDED:
 				view.setVisible(false);
 				view.dispose();
 				break;
-			case Annotator.SAVING:
+			case DataHandler.SAVING:
 				view.setStatus(SAVING_MSG, false);
 				break;
 		}

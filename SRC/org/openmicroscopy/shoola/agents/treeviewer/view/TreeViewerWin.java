@@ -50,6 +50,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -141,7 +142,7 @@ class TreeViewerWin
     /** Creates the {@link JTabbedPane} hosting the browsers. */
     private void createTabbedPane()
     {
-        tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+        tabs = new JTabbedPane(SwingConstants.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
         Font font = (Font) TreeViewerAgent.getRegistry().lookup(
                 "/resources/fonts/Titles");
@@ -237,7 +238,7 @@ class TreeViewerWin
         menuItems.add(item);
         createRootMenu();
         //menu.add(createRootMenu());
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.VIEW);
         item = new JMenuItem(a);
         item.setText(a.getActionName());
@@ -245,7 +246,7 @@ class TreeViewerWin
         menu.add(item);
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.REFRESH_TREE)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.EXIT)));
         return menu;
@@ -268,12 +269,12 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.FIND)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLASSIFY)));
         menu.add(new JMenuItem(
@@ -283,7 +284,7 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.PROPERTIES);
         item = new JMenuItem(a);
         item.setText(a.getActionName());

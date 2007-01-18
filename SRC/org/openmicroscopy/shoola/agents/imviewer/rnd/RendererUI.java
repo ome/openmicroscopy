@@ -39,6 +39,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -156,7 +157,7 @@ class RendererUI
     private void buildGUI()
     {
         Container c = getContentPane();
-        JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
+        JTabbedPane tabs = new JTabbedPane(SwingConstants.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
         ControlPane pane = (ControlPane) controlPanes.get(DOMAIN);

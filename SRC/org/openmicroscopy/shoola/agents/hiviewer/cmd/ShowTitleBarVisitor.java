@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.cmd;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
@@ -76,8 +77,8 @@ class ShowTitleBarVisitor
      */
     public void visit(ImageNode node)
     { 
-        if (show) node.setTitleBarType(ImageNode.SMALL_BAR);
-        else node.setTitleBarType(ImageNode.HEADER_BAR);
+        if (show) node.setTitleBarType(TinyPane.SMALL_BAR);
+        else node.setTitleBarType(TinyPane.HEADER_BAR);
     }
 
 }

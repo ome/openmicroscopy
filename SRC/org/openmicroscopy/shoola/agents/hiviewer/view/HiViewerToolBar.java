@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 
 //Third-party libraries
@@ -90,7 +91,7 @@ class HiViewerToolBar
         b.setSelected(true);
         bar.add(b);
         bar.add(Box.createRigidArea(HGLUE));
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(new JSeparator(SwingConstants.VERTICAL));
         bar.add(Box.createRigidArea(HGLUE));
         return bar;
     }
@@ -122,7 +123,7 @@ class HiViewerToolBar
         //b.setBorderPainted(true);
         bar.add(b);
         bar.add(Box.createRigidArea(HGLUE));
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(new JSeparator(SwingConstants.VERTICAL));
         bar.add(Box.createRigidArea(HGLUE));
         b = new JToggleButton(
                 controller.getAction(HiViewerControl.ROLL_OVER));

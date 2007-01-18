@@ -134,7 +134,7 @@ public abstract class TopWindow
 	protected TopWindow(String title, TaskBar tb) 
 	{
 		super(title);
-		setIconImage(IconManager.getOMEImageIcon());  //Default.
+		setIconImage(AbstractIconManager.getOMEImageIcon());  //Default.
 		if (tb == null)
 			throw new NullPointerException("No reference to the TaskBar.");
 		taskBar = tb;
@@ -153,7 +153,7 @@ public abstract class TopWindow
 	protected TopWindow(String title)
 	{
 		super(title);
-		setIconImage(IconManager.getOMEImageIcon());  //Default.
+		setIconImage(AbstractIconManager.getOMEImageIcon());  //Default.
 	}
 	
 	/** 

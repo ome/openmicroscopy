@@ -50,6 +50,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -348,7 +349,7 @@ class EditorUI
                 return doBasic;
             case Editor.PROPERTIES_EDITOR:
                 IconManager im = IconManager.getInstance();
-                tabs = new JTabbedPane(JTabbedPane.TOP, 
+                tabs = new JTabbedPane(SwingConstants.TOP, 
                                                    JTabbedPane.WRAP_TAB_LAYOUT);
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
@@ -388,7 +389,9 @@ class EditorUI
         JComponent c = buildCenterComponent();
         c.setOpaque(true);
         c.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        add(new JScrollPane(c), BorderLayout.CENTER);
+        JScrollPane pane = new JScrollPane(c);
+        c.setPreferredSize(pane.getViewport().getExtentSize());
+        add(pane, BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);

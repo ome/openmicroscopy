@@ -102,7 +102,6 @@ public class AnnotationSaver
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
      * @param objects   The annotated <code>DataObject</code>s.
-     * @param data      The annotation to update.
      * @return The {@link BatchCall}.
      */
     private BatchCall updateAnnotation(final Map objects)
@@ -119,8 +118,6 @@ public class AnnotationSaver
     /**
      * Creates a {@link BatchCall} to create an annotation.
      * 
-     * @param nodeType	The type of the node. One out of the following types:
-     *                  <code>DatasetData, ImageData</code>. 
      * @param objects   The annotated <code>DataObject</code>s.
      * @param data      The annotation to create.
      * @return The {@link BatchCall}.
@@ -270,9 +267,6 @@ public class AnnotationSaver
 	 * 
      * @param toUpdate	The annotated <code>DataObject</code>s.
      * 					Mustn't be <code>null</code>.
-     * @param toCreate	The <code>DataObject</code>s to annotate.
-     * 					Mustn't be <code>null</code>.
-     * @param data		The Annotation object.Mustn't be <code>null</code>.
      */
     public AnnotationSaver(Map toUpdate)
     {

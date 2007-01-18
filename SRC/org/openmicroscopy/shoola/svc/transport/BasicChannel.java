@@ -82,7 +82,7 @@ class BasicChannel
     	throws IllegalArgumentException
 	{
 	    try {
-	    	serverURL = new URI(url);
+	    	serverURL = new URI(url, false);
 	        requestPath = serverURL.getPath();
 	    } catch (URIException e) {
 	        throw new IllegalArgumentException(

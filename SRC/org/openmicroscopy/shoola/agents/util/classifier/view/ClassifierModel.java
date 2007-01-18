@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.ClassificationsLoader;
 import org.openmicroscopy.shoola.agents.util.classifier.ClassificationsSaver;
 import org.openmicroscopy.shoola.agents.util.classifier.ClassifierLoader;
@@ -110,7 +111,7 @@ class ClassifierModel
 		this.rootID = rootID;
 		this.rootType = rootType;
 		mode = m;
-		state = Classifier.NEW;
+		state = DataHandler.NEW;
 	}
 	
 	/**
@@ -129,17 +130,17 @@ class ClassifierModel
 	int getState() { return state; }    
    
 	/**
-     * Sets the object in the {@link Classifier#DISCARDED} state.
+     * Sets the object in the {@link DataHandler#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
      */
 	void discard()
 	{
 		cancel();
-        state = Classifier.DISCARDED;
+        state = DataHandler.DISCARDED;
     }
    
 	/**
-	 * Sets the object in the {@link Classifier#READY} state.
+	 * Sets the object in the {@link DataHandler#READY} state.
 	 * Any ongoing data loading will be cancelled.
 	 */
 	void cancel()
@@ -148,7 +149,7 @@ class ClassifierModel
            currentLoader.cancel();
            currentLoader = null;
        }
-       state = Classifier.READY;
+       state = DataHandler.READY;
     }
 	
 	/** Loads asynchronously the classifications paths. */
@@ -165,7 +166,7 @@ class ClassifierModel
 		currentLoader = new ClassificationsLoader(component, ids, rootType, 
 												rootID, mode);
 		currentLoader.load();
-		state = Classifier.LOADING;
+		state = DataHandler.LOADING;
 	}
 	
 	/** 
@@ -178,7 +179,7 @@ class ClassifierModel
 		currentLoader = new ClassificationsSaver(component, toClassified, 
 												categories, mode);
 		currentLoader.load();
-		state = Classifier.SAVING;
+		state = DataHandler.SAVING;
 	}
 
 	/**
@@ -189,7 +190,7 @@ class ClassifierModel
 	void setClassificationPaths(Set paths)
 	{ 
 		classificationPaths = paths; 
-		state = Classifier.READY;
+		state = DataHandler.READY;
 	}
 	
 	/**

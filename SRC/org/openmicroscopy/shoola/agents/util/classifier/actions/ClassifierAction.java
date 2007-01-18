@@ -32,6 +32,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 
 /** 
@@ -81,9 +82,9 @@ public class ClassifierAction
 	public void stateChanged(ChangeEvent e)
 	{
 		switch (model.getState()) {
-			case Classifier.DISCARDED:
-			case Classifier.LOADING:
-			case Classifier.SAVING:
+			case DataHandler.DISCARDED:
+			case DataHandler.LOADING:
+			case DataHandler.SAVING:
 				setEnabled(false);
 				break;
 			default:

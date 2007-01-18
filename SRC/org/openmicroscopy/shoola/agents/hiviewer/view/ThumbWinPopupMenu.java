@@ -32,6 +32,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
@@ -104,11 +105,11 @@ class ThumbWinPopupMenu
                           im.getIcon(IconManager.ANNOTATE));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
-        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(classify);
         add(declassify);
         add(annotate);
-        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(new JSeparator(SwingConstants.HORIZONTAL));
         add(properties);
         properties.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae)

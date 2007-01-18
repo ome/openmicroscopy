@@ -67,7 +67,7 @@ public class CommunicatorProxy
 
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitComment(String, String, String)
+	 * @see Communicator#submitComment(String, String, String, String)
 	 */
 	public void submitComment(String email, String comment, String extra, 
 							String reply) 

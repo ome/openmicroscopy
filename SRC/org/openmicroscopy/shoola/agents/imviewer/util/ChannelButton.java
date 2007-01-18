@@ -121,13 +121,14 @@ public class ChannelButton
      * Executed by the timer when the double click threshold has expired and
      * we know we have a single click.
      */
-    private void singleClick()   {	setChannelSelected();	}
+    private void singleClick()   { setChannelSelected(); }
     
     /**
-     * Executed in the {@link #onClick()} method when the second click event 
-     * has been received before the double click threshold time has expired. 
+     * Executed in the {@link #onClick(MouseEvent)} method when the second click 
+     * event has been received before the double click threshold time has 
+     * expired. 
      */
-    private void doubleClick()   {  showColorPicker();      }
+    private void doubleClick()   { showColorPicker(); }
        
     /** 
      * Handles the mouse released event because Popup menus are triggered 

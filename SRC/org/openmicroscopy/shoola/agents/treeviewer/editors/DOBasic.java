@@ -43,6 +43,7 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
+import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -238,19 +239,21 @@ class DOBasic
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{0, TableLayout.PREFERRED, 5, 0, 100} }; //rows
+        int height = 100;
+        if (model.isAnnotatable()) height = 50;
+        double[][] tl = {{TableLayoutConstants.PREFERRED, 
+        					TableLayoutConstants.FILL}, //columns
+        				{0, TableLayoutConstants.PREFERRED, 5, 0, height} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JLabel l;
         if (model.getEditorType() != Editor.CREATE_EDITOR) { 
-            layout.setRow(0, TableLayout.PREFERRED);
+            layout.setRow(0, TableLayoutConstants.PREFERRED);
             content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
             l = new JLabel(""+model.getDataObjectID());
             l.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
             content.add(l, "1, 0, f, c");
-            
         }
         content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
         content.add(nameArea, "1, 1, f, c");

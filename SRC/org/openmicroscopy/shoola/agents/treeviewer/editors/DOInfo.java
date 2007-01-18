@@ -45,6 +45,7 @@ import javax.swing.border.EtchedBorder;
 
 //Third-party libraries
 import layout.TableLayout;
+import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -169,10 +170,11 @@ class DOInfo
     private JPanel buildPermissions(final PermissionData permissions)
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, 
-        				TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED,
-        					TableLayout.PREFERRED} }; //rows
+        double[][] tl = {{TableLayoutConstants.PREFERRED, 
+        				TableLayoutConstants.FILL}, //columns
+        				{TableLayoutConstants.PREFERRED, 
+        					TableLayoutConstants.PREFERRED,
+        					TableLayoutConstants.PREFERRED} }; //rows
         content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         //The owner is the only person allowed to modify the permissions.
@@ -289,9 +291,9 @@ class DOInfo
         contentPanel = buildContentPanel(details);
         setBorder(new EtchedBorder());
         if (model.getObjectPermissions() != null && permission) {
-        	double[][] tl = {{TableLayout.FILL}, //columns
-        					{TableLayout.PREFERRED, 
-        					TableLayout.PREFERRED} }; //rows
+        	double[][] tl = {{TableLayoutConstants.FILL}, //columns
+        					{TableLayoutConstants.PREFERRED, 
+        					TableLayoutConstants.PREFERRED} }; //rows
         	setLayout(new TableLayout(tl));
             JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -304,7 +306,8 @@ class DOInfo
             add(contentPanel, "0, 0, f, t");
             add(p, "0, 1, f, t");
         } else {
-        	double[][] tl = {{TableLayout.FILL}, {TableLayout.PREFERRED} }; 
+        	double[][] tl = {{TableLayoutConstants.FILL}, 
+        					{TableLayoutConstants.PREFERRED}}; 
         	setLayout(new TableLayout(tl));
         	add(contentPanel, "0, 0, f, t");
         }

@@ -47,11 +47,12 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 /** 
  * Caches XY images, within a given pixels set, that have been rendered.
  * <p>The number of entries in the cache at any given time is  
- * {@link #MAX_ENTRIES} at most, being {@link #MAX_ENTRIES} the greatest integer
- * such that <nobr>
- * {@link #MAX_ENTRIES}*{@link #IMAGE_SIZE} &lt;= {@link #CACHE_SIZE}
+ * <code>MAX_ENTRIES</code> at most, being <code>MAX_ENTRIES</code> the greatest
+ * integer such that <nobr>
+ * <code>MAX_ENTRIES</code>*<code>IMAGE_SIZE</code> &lt;= 
+ * <code>CACHE_SIZE</code>
  * </nobr>.</p>
- * <p>If {@link #MAX_ENTRIES} is reached and an entry has to be added, we 
+ * <p>If <code>MAX_ENTRIES</code> is reached and an entry has to be added, we 
  * discard a previous entry to make room for the new one.  The removal policy
  * is based on the current navigation direction maintained by the 
  * {@link NavigationHistory} and is as follows.  Let <code>C</code> be the set

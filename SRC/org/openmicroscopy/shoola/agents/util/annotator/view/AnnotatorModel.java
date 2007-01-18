@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsLoader;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotatorLoader;
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -221,7 +222,7 @@ class AnnotatorModel
 		maxObjects = objects.size();
 		annotated = new HashSet();
 		toAnnotate  = new HashSet();
-		state = Annotator.NEW;
+		state = DataHandler.NEW;
 		Iterator i = objects.iterator();
 		DataObject data;
 		while (i.hasNext()) {
@@ -249,17 +250,17 @@ class AnnotatorModel
 	int getState() { return state; }    
  
 	/**
-	 * Sets the object in the {@link Annotator#DISCARDED} state.
+	 * Sets the object in the {@link DataHandler#DISCARDED} state.
 	 * Any ongoing data loading will be cancelled.
 	 */
 	void discard()
 	{
 		cancel();
-		state = Annotator.DISCARDED;
+		state = DataHandler.DISCARDED;
 	}
  
 	/**
-	 * Sets the object in the {@link Annotator#READY} state.
+	 * Sets the object in the {@link DataHandler#READY} state.
 	 * Any ongoing data loading will be cancelled.
 	 */
 	void cancel()
@@ -268,7 +269,7 @@ class AnnotatorModel
 			currentLoader.cancel();
 			currentLoader = null;
 		}
-		state = Annotator.READY;
+		state = DataHandler.READY;
 	}
 	
 	/**
@@ -292,11 +293,11 @@ class AnnotatorModel
 	 */
 	void fireAnnotationsRetrieval()
 	{
-		if (annotated.size() == 0) state = Annotator.READY;
+		if (annotated.size() == 0) state = DataHandler.READY;
 		else {
 			currentLoader = new AnnotationsLoader(component, annotated, type);
 			currentLoader.load();
-			state = Annotator.LOADING;
+			state = DataHandler.LOADING;
 		}
 	}
 	
@@ -316,7 +317,7 @@ class AnnotatorModel
 			currentLoader = new AnnotationsSaver(component, 
 								 getAnnotatedObjects(data), toAnnotate, data);
 		currentLoader.load();
-		state = Annotator.SAVING;
+		state = DataHandler.SAVING;
 	}
 	
 	/**
@@ -356,7 +357,7 @@ class AnnotatorModel
 		}
 
 		this.annotations = sortedAnnotations;
-		state = Annotator.READY;
+		state = DataHandler.READY;
 	}
 	
 	/** 

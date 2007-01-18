@@ -143,7 +143,7 @@ public class UserNotifierImpl
     	
     	if (SHARED_FRAME == null) {
 			SHARED_FRAME = new JFrame();
-			SHARED_FRAME.setIconImage(IconManager.getOMEImageIcon());
+			SHARED_FRAME.setIconImage(AbstractIconManager.getOMEImageIcon());
     	}
     }
     

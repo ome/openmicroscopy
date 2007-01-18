@@ -41,6 +41,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -236,9 +237,9 @@ class ControlPane
         ratingBox =  new JComboBox(ratingActions);
         ratingBox.setEnabled(false);
 
-        zSlider = new OneKnobSlider(JSlider.VERTICAL, 0, 1, 0);
+        zSlider = new OneKnobSlider(SwingConstants.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
-        tSlider = new OneKnobSlider(JSlider.VERTICAL, 0, 1, 0);
+        tSlider = new OneKnobSlider(SwingConstants.VERTICAL, 0, 1, 0);
         tSlider.setEnabled(false);
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);

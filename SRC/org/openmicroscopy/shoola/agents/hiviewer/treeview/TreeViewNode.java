@@ -352,7 +352,6 @@ public abstract class TreeViewNode
     /**
      * Returns the name of the <code>DataObject</code> hosted by this node.
      * 
-     * @param obj The object to check.
      * @return See above.
      */
     public String getNodeName()

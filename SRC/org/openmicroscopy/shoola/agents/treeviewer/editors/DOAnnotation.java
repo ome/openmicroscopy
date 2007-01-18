@@ -54,6 +54,7 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
+import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -203,11 +204,11 @@ class DOAnnotation
      * 
      * @return See above.
      */
-    private JPanel buildAnnotationPanel()
+    private JScrollPane buildAnnotationPanel()
     {
         //Set panel layout and border
         JPanel p = new JPanel();
-        double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
+        double[][] tl = {{TableLayoutConstants.FILL, 5, TableLayoutConstants.FILL}, //columns
         				{0, 150} }; //rows
         p.setLayout(new TableLayout(tl));
         p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
@@ -215,7 +216,7 @@ class DOAnnotation
         empty.setOpaque(true);
         p.add(empty, "1, 0, f, t");
         p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");       
-        return p;
+        return new JScrollPane(p);
     }
 
     /**

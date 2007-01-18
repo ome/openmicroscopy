@@ -30,6 +30,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
@@ -102,7 +103,7 @@ public class ClassificationsLoader
 	
 	/** 
      * Loads the classifications paths.
-     * @see ClassifierLoader#laod()
+     * @see ClassifierLoader#load()
      */
 	public void load()
 	{
@@ -125,7 +126,7 @@ public class ClassificationsLoader
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Classifier.DISCARDED) return; 
+        if (viewer.getState() == DataHandler.DISCARDED) return; 
         viewer.setClassifications((Set) result);
     }
     

@@ -133,16 +133,10 @@ public abstract class AnnotatorLoader
 	    viewer.cancel();
 	}
 	
-	/**
-	 * Fires an asynchronous data loading. 
-	 * @see DSCallAdapter#load()
-	 */
+	/** Fires an asynchronous data loading. */
 	public abstract void load();
 	
-	/** 
-	 * Cancels any ongoing data loading.
-	 * @see DSCallAdapter#cancel()
-	 */
+	/** Cancels any ongoing data loading. */
 	public abstract void cancel(); 
 	
 }

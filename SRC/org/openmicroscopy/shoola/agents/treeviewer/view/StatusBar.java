@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -70,6 +69,9 @@ class StatusBar
      * horizontally.
      */
     private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
+    
+    /** Dimension of the progress bar. */
+    private static final Dimension PROGRESSBAR_SIZE = new Dimension(30, 8);
     
     /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar        progressBar;
@@ -127,15 +129,16 @@ class StatusBar
         add(UIUtilities.buildComponentPanel(p));
         JPanel progressPanel = new JPanel();
         progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));
-        Icon icon = icons.getIcon(IconManager.PROGRESS);
-        progressLabel = new JLabel(icon);
+        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
         progressPanel.add(progressBar);
+        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
         progressPanel.add(progressLabel);
         progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
         add(UIUtilities.buildComponentPanelRight(progressPanel));
-        Dimension d = progressBar.getPreferredSize();
-        progressBar.setPreferredSize(new Dimension(d.width, 
-        							icon.getIconHeight()));
+        
+        progressBar.setPreferredSize(PROGRESSBAR_SIZE);
+        progressBar.setSize(PROGRESSBAR_SIZE);
+        
     }
     
     /**
@@ -168,7 +171,9 @@ class StatusBar
      */
     void setStatusIcon(boolean b)
     { 
-        statusButton.setVisible(b);
+    	if (b) statusButton.setIcon(icons.getIcon(IconManager.CANCEL));
+    	else statusButton.setIcon(icons.getIcon(IconManager.TRANSPARENT));
+        //statusButton.setVisible(b);
         buttonEnabled = b;
     }
     
@@ -180,12 +185,8 @@ class StatusBar
      */
     void setProgress(boolean hide)
     {
-        progressBar.setVisible(!hide);
-        //progressLabel.setVisible(!hide);
-    	if (hide) 
-    		progressLabel.setIcon(icons.getIcon(IconManager.TRANSPARENT));
-    	else 
-    		progressLabel.setIcon(icons.getIcon(IconManager.PROGRESS));	
+    	progressBar.setVisible(!hide);
+        progressLabel.setEnabled(!hide);
     }
     
 }

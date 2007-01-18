@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -118,7 +119,7 @@ public class ClassificationsSaver
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Classifier.DISCARDED) return; 
+        if (viewer.getState() == DataHandler.DISCARDED) return; 
         viewer.saveClassifications((Set) result);
     }
     

@@ -306,7 +306,7 @@ class OMEROGateway
     private IUpdate getIUpdateService() { return entry.getUpdateService(); }
     
     /**
-     * Returns the {@link IThumb} service.
+     * Returns the {@link ThumbnailStore} service.
      *  
      * @return See above.
      */
@@ -649,7 +649,7 @@ class OMEROGateway
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
-     * @see IPojos#createDataObjects(IObject, Map)
+     * @see IPojos#createDataObject(IObject, Map)
      */
     IObject createObject(IObject object, Map options)
         throws DSOutOfServiceException, DSAccessException
@@ -694,7 +694,7 @@ class OMEROGateway
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
-     * @see IPojos#deleteObject(IObject)
+     * @see IUpdate#deleteObject(IObject)
      */
     void deleteObject(IObject object)
         throws DSOutOfServiceException, DSAccessException
@@ -714,7 +714,7 @@ class OMEROGateway
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException       If an error occured while trying to 
      *                                 retrieve data from OMEDS service. 
-     * @see IPojos#deleteObject(IObject) 
+     * @see IUpdate#deleteObject(IObject) 
      */
     void deleteObjects(IObject[] objects)
         throws DSOutOfServiceException, DSAccessException
