@@ -19,7 +19,7 @@
   --------
   
   Within this document, the term 'third-party software' shall refer to the set 
-  of all the files which are contained in the OMERO Client SVN module and which 
+  of all the files which are contained in the OMERO.insight SVN module and which 
   are listed in each 'Artifacts' entry within the 
   'Third-Party Software Licenses' section of this document. 
   The term 'OMEROClient' or, equivalently, 'our software'
@@ -30,13 +30,13 @@
   Purpose
   -------
   
-  This document states which licenses apply to which files in the OMEROClient 
+  This document states which licenses apply to which files in the OMERO.insight 
   SVN module. It also gives credit to other projects and developers that 
   provided us with their valuable software.
   
   
   
-  OMEROClient License
+  OMERO.insightLicense
   ------------------
   
   Our software is licensed under the terms of the GNU General Public License
@@ -50,7 +50,7 @@
   
   We are in debt with many open-source projects for providing us with valuable
   artifacts, ranging from application libraries to graphics files.  This section
-  lists all the third-party software that is used by OMEROClient.  
+  lists all the third-party software that is used by OMERO.insight.  
   Software artifacts are grouped according to the project of provenience and 
   using the following format:
   
@@ -62,7 +62,7 @@
   		This shall mean 'all the files whose name starts with S'.  For example, 
   		'ant-*' means all the files whose name starts with 'ant-'.
   		Unless otherwise specified, directory pathnames are given relative to 
-  		the root of the OMEROClient SVN module.
+  		the root of the OMERO.insight SVN module.
   License: The type of license that applies to the files listed in 'Artifacts'.
   License File: The file, within this directory, that contains the license.
   
@@ -164,6 +164,14 @@
   Web Site: http://www.icon-king.com/
   Artifacts: All the nuvola_* graphics files contained the OMEROClient SVN
   			 module.
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
+  
+  Project: Ximian.  We're using a few of their icons that they designed for
+  		Open Office.
+  Web Site: http://www.novell.com/linux/ximian.html
+  Artifacts: All the openOffice_* graphics files contained the OMEROClient SVN 
+  		module.
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
 

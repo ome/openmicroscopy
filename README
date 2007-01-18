@@ -5,7 +5,7 @@
 
                       OPEN MICROSCOPY ENVIRONMENT (OME)
                               
-                                 OMEROClient
+                                 OMERO.insight
 
 
 
@@ -13,21 +13,21 @@
 
 
 
-  OMEROClient Project
+  OMERO.insight Project
   ------------------
   
-  The OMEROClient Project is a sub-project of the Open Microscopy Environment
+  The OMERO.insight Project is a sub-project of the Open Microscopy Environment
   Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
   client for the visualization and manipulation of both image data and metadata
-  maintained at an OME server site.  OMEROClient is completely written in Java.
+  maintained at an OME server site. OMERO.insight is completely written in Java.
   
 
 
   Directory Contents
   ------------------
   
-  This directory is the repository of the software artifacts of the OMEROClient
-  Project.  Its contents are as follows:
+  This directory is the repository of the software artifacts of the 
+  OMERO.insight Project. Its contents are as follows:
   
     + build: This directory contains the tools to compile, run, test, and 
           deliver the application.
@@ -56,7 +56,7 @@
 
 
 
-  Building OMEROClient
+  Building OMERO.insight
   -------------------
   
   The compilation, testing, launch, and delivery of the application are

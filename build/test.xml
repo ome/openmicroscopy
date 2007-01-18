@@ -2,8 +2,8 @@
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Child build file to test the application.
- * This file is only meant to be used as an imported file within the OMEROClient
- * master build file.
+ * This file is only meant to be used as an imported file within the 
+ * OMERO.insight master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="test" default="usage">
 

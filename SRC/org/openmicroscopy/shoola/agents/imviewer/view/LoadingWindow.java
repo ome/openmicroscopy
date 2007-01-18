@@ -64,16 +64,16 @@ class LoadingWindow
 {
 
     /** Bounds property indicating that the window is closed. */
-    static final String         CLOSED_PROPERTY = "closed";
+    static final String         	CLOSED_PROPERTY = "closed";
     
     /** The title of the window. */
-    private static final String TITLE = "Loading window";
+    private static final String 	TITLE = "Loading window";
     
     /** The message displayed. */
-    private static final String LOADING_TXT = "Loaded: ";
+    private static final String 	LOADING_TXT = "Loaded: ";
     
     /** The default size of the window. */
-    private static final Dimension DEFAULT_SIZE = new Dimension(400, 50);
+    private static final Dimension	DEFAULT_SIZE = new Dimension(400, 60);
     
     /** Displays the status message. */
     private JLabel              status;

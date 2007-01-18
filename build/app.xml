@@ -117,7 +117,7 @@
   <target name="run"
           depends="compile" 
           description="Run the app in its own JVM."> 
-    <echo message="Launching OMEROClient..."/>
+    <echo message="Launching OMERO.insight ..."/>
     <java classname="${app.mainclass}"
           classpathref="app.run.classpath" 
           fork="yes"

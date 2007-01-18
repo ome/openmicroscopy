@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
- *                     OMEROClient MASTER CONFIGURATION FILE
+ *                     OMERO.insight MASTER CONFIGURATION FILE
  *
- * This file specifies the configuration settings for the OMEROClient runtime 
+ * This file specifies the configuration settings for the OMERO.insight runtime 
  * (the Container) and links the available UI components (the Agents) to it. The
  * configuration entries are organized in the following groups:
  *
@@ -15,7 +15,7 @@
  *
  *
  * Note that the only entry that needs to be edited *before* launching 
- * OMEROClient is the URL of the OMERO Data Server (OMERODS) in the Services 
+ * OMERO.insight is the URL of the OMERO Data Server (OMERODS) in the Services 
  * group. All other entries can optionally be edited to tweak runtime behavior, 
  * but can in most cases be safely ignored.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
@@ -62,7 +62,7 @@
          installation directory. -->
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
-    <entry name="/services/LOG/file">shoola.log</entry>       
+    <entry name="/services/LOG/file">omeroinsight.log</entry>       
     
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will

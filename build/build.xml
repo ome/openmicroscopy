@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
- * Master build file for the OMEROClient java client.
+ * Master build file for the OMERO.insight java client.
  * You can use this file to compile, run, test, and package the application
- * for distribution.  Furthermore, you can generate all other project artifacts,
- * like documentation.  Please refer to the usage target for further details.
+ * for distribution. Furthermore, you can generate all other project artifacts,
+ * like documentation. Please refer to the usage target for further details.
  *
  *
  * DEPENDENCIES
@@ -43,18 +43,18 @@
  *    simple: public targets have a description attribute (private targets do
  *    not) and are listed by the usage target.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<project name="OMEROClient" default="usage" basedir="../">
+<project name="OMERO.insight" default="usage" basedir="../">
  
-  <description>The OMEROClient Java Client Project.</description> 
+  <description>The OMERO.insight Java Client Project.</description> 
   
   <!-- The build directory.  Every target outputs below this directory. -->  
   <property name="build.dir" location="OUT"/>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * The following properties define the mappings to the artifacts relevant
-   * to the build.  These artifacts are contained in the local CVS repository
+   * to the build.  These artifacts are contained in the local SVN repository
    * hosting this build file.  Here's a short description of contents of the 
-   * CVS dirs that are relevant to the build:
+   * SVN dirs that are relevant to the build:
    *   + root dir: Contains the license file.
    *   + build: Contains this master build file and all its children.
    *   + config: Container and agents configuration files.

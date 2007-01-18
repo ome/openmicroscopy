@@ -211,7 +211,7 @@ public class IconManager
 		relPaths[WELCOME] = "nuvola_background16.png";
 		relPaths[HOW_TO] = "nuvola_artscontrol16.png";
 		relPaths[SW_UPDATES] = "nuvola_download_manager16.png";
-        relPaths[QUESTION] = "nuvola_filetypes32.png";
+        relPaths[QUESTION] = "nuvola_filetypes48.png";
         relPaths[COMMENT] = "nuvola_knotes16.png";
 	}
 	

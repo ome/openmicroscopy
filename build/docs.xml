@@ -2,8 +2,8 @@
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
  * Child build file to create the project documentation.
- * This file is only meant to be used as an imported file within the OMEROClient
- * master build file.
+ * This file is only meant to be used as an imported file within the 
+ * OMERO.insight master build file.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="docs" default="usage">
  
@@ -92,7 +92,7 @@
     <javadoc sourcepath="${base.src.dir}"
              packagenames="org.openmicroscopy.*" 
              destdir="${docs.javadoc.dir}"
-             windowtitle="OMEROClient JavaDoc"
+             windowtitle="OMERO.insight JavaDoc"
              use="yes"
              author="yes"
              version="yes"

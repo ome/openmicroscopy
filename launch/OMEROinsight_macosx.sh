@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# OMEROClient startup script for Unix
+# OMERO.insight startup script for MacOS X
 # ------------------------------------------------------------------------------
 #  Copyright (C) 2006 University of Dundee. All rights reserved.
 #
@@ -24,4 +24,4 @@
 # -Xms or "max" -Xmx memory size. More information about these command line
 # switches may be found by running "java -X"
 
-java -Xms128000000 -Xmx256000000 -jar omeroclient.jar
+java -Xms128000000 -Xmx256000000 -jar omeroinsight.jar

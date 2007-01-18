@@ -1,11 +1,30 @@
- OME-Shoola Project
- ------------------
+ OMERO.insight Project
+ --------------------
   
-  The OME-Shoola Project is a sub-project of the Open Microscopy Environment
+  The OMERO.insight Project is a sub-project of the Open Microscopy Environment
   Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
   client for the visualization and manipulation of both image data and metadata
-  maintained at an OME server site. Shoola is completely written in Java.
+  maintained at an OMERO server site. OMERO.insight is completely written in 
+  Java.
+ --------------------------------------------------------------------------------
+Last updated: 15/01/2007
+Version: M3 Beta 1
 
+Changes: 
+ - DataManager: Fixed sized problem when loading image Data.
+ - DataManager: Display a default thumbnail when editing an image.
+ - HiViewer: Fixed divider location problem when removing clipBoard.
+ - Gateway: Retrieved thumbnails from updated Thumbnail service.
+
+--------------------------------------------------------------------------------
+Last updated: 09/01/2007
+Version: M3 Beta 1
+
+Changes: 
+ - DataManager: Fixed lost of focus problem when creating a new object.
+ - HiViewer: Enhancement of the Export as funtion.
+ - Agents: Fixed minor UI issues.
+ 
 --------------------------------------------------------------------------------
 Last updated: 14/12/2006
 Version: M3 Beta 1
