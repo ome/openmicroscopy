@@ -283,7 +283,7 @@ class SplashScreenManager
 	{
 		String name = evt.getPropertyName();
 		if (ServerDialog.SERVER_PROPERTY.equals(name)) {
-			String v = view.serverName;
+			String v = view.getServerName();
 			String s = (String) evt.getNewValue();
 			if (s == null) return;
 			String trim = s.trim();

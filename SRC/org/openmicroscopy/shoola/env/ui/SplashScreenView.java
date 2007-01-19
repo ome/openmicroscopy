@@ -302,6 +302,7 @@ class SplashScreenView
         layers.add(background, new Integer(0));
         layers.add(p, new Integer(1));
         getContentPane().add(layers);
+        getRootPane().setDefaultButton(login);
     }
     
 	/** Creates the splash screen UI. */
@@ -327,6 +328,18 @@ class SplashScreenView
     	if (s == null || s.length() == 0) return;
     	serverText.setText(s);
     	serverText.repaint();
+    }
+    
+    /** 
+     * Returns the server's name.
+     * 
+     * @return See above.
+     */
+    String getServerName()
+    {
+    	String s = serverText.getText();
+    	if (s == null) return "";
+    	return s.trim();
     }
     
 }
