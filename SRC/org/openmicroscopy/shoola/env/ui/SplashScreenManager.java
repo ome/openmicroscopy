@@ -25,15 +25,20 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.data.login.LoginConfig;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Manages the splash screen input, data and update.
@@ -62,11 +67,14 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
  */
 
 class SplashScreenManager
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
     
 	/** The component's UI. */
 	private SplashScreenView	view;
+	
+	/** The component's UI. */
+	private SplashScreenViewTop	viewTop;
 	
 	/** Tells whether or not the splash screen window is open. */
 	private boolean				isOpen;
@@ -84,16 +92,15 @@ class SplashScreenManager
 	private Container			container;
 	
     /** 
-     * Handles the selection of a new item. Allows the user to enter
-     * the name of a new server if the selected item is 
-     * the last one displayed
-     *
+     * Bings up the server dialog to select an existing server or enter
+     * a new server address.
      */
     private void handleServerSelection()
     {
-        view.server.setEditable(
-                (view.server.getSelectedItem().equals(
-                        LoginConfig.DEFAULT_SERVER)));
+    	ServerDialog d = new ServerDialog(view.servers);
+    	d.addPropertyChangeListener(ServerDialog.SERVER_PROPERTY, this);
+    	d.addPropertyChangeListener(ServerDialog.CLOSE_PROPERTY, this);
+    	UIUtilities.centerAndShow(d);
     }
     
 	/**
@@ -108,11 +115,17 @@ class SplashScreenManager
 	{
 		container = c;
 		view = new SplashScreenView();
+		viewTop = new SplashScreenViewTop();
+		Rectangle r = viewTop.getBounds();
+		view.setBounds(r.x, 
+					r.y+SplashScreenViewTop.WIN_H+SplashScreenViewTop.GAP, 
+					SplashScreenView.LOGIN_WIDTH, 
+					SplashScreenView.LOGIN_HEIGHT);
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
 		view.login.addActionListener(this);
         view.cancel.addActionListener(listener);
-        view.server.addActionListener(new ActionListener() {
+        view.configButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e)
             {
@@ -120,7 +133,14 @@ class SplashScreenManager
             }
         
         });
-        view.server.setSelectedIndex(0);
+        view.addWindowListener(new WindowAdapter()
+        {
+        	public void windowOpened(WindowEvent e) {
+        		view.user.requestFocus();
+        	} 
+        });
+        view.setAlwaysOnTop(true);
+        viewTop.setAlwaysOnTop(true);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -131,8 +151,10 @@ class SplashScreenManager
 	 */
 	void open()
 	{
-		if (view == null) return;  //close() has already been called.
+		//close() has already been called.
+		if (view == null || viewTop == null) return;  
 		view.setVisible(true);
+		viewTop.setVisible(true);
 		isOpen = true;	
 	}
 
@@ -142,9 +164,12 @@ class SplashScreenManager
 	 */
 	void close()
 	{
-		if (view == null) return;  //close() has already been called.
+		//close() has already been called.
+		if (view == null || viewTop == null) return;
 		view.dispose();
+		viewTop.dispose();
 		view = null;
+		viewTop = null;
 		isOpen = false;
 	}
 
@@ -162,9 +187,9 @@ class SplashScreenManager
 		//NB: Increment to show that the execution process is finished 
 		// i.e. all tasks executed.
 		totalTasks++;	
-		view.progressBar.setMinimum(0);
-		view.progressBar.setMaximum(value);
-		view.progressBar.setValue(0);
+		viewTop.progressBar.setMinimum(0);
+		viewTop.progressBar.setMaximum(value);
+		viewTop.progressBar.setValue(0);
 	}
 	
 	/**
@@ -178,9 +203,9 @@ class SplashScreenManager
 	void updateProgress(String task)
 	{
 		if (!isOpen) return;
-		view.currentTask.setText(task);
-		view.progressBar.setValue(doneTasks++);
-		if (doneTasks == totalTasks) view.progressBar.setVisible(false);
+		viewTop.currentTask.setText(task);
+		viewTop.progressBar.setValue(doneTasks++);
+		if (doneTasks == totalTasks) viewTop.progressBar.setVisible(false);
 	}
     
     /**
@@ -197,7 +222,7 @@ class SplashScreenManager
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
         //view.cancel.setEnabled(true);
-        view.server.setEnabled(true);
+        view.configButton.setEnabled(true);
         if (!init) {
             view.setCursor(Cursor.getDefaultCursor());
             view.user.setText("");
@@ -217,7 +242,7 @@ class SplashScreenManager
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
-        view.server.setEnabled(true);
+        view.configButton.setEnabled(true);
     }
     
 	/** 
@@ -231,7 +256,7 @@ class SplashScreenManager
         StringBuffer buf = new StringBuffer();
         buf.append(view.pass.getPassword());
         String usr = view.user.getText().trim(), psw = buf.toString();
-        String s = ((String) view.server.getSelectedItem()).trim();
+        String s = view.serverText.getText().trim();
         try {
             UserCredentials uc = new UserCredentials(usr, psw, s);
             if (userCredentials != null) { 
@@ -240,7 +265,7 @@ class SplashScreenManager
                 view.pass.setEnabled(false);
                 view.login.setEnabled(false);
                 //view.cancel.setEnabled(false);
-                view.server.setEnabled(false);
+                view.configButton.setEnabled(false);
                 view.setCursor(
                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             }
@@ -248,6 +273,24 @@ class SplashScreenManager
             UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", iae.getMessage());
         }
+	}
+
+	/**
+	 * Reacts to property changes fired by the {@link ServerDialog}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ServerDialog.SERVER_PROPERTY.equals(name)) {
+			String v = view.serverName;
+			String s = (String) evt.getNewValue();
+			if (s == null) return;
+			String trim = s.trim();
+			if (v.equals(trim)) return;
+			view.setNewServer(trim);
+		} else if (ServerDialog.CLOSE_PROPERTY.equals(name))
+			view.user.requestFocus();
 	}
 
 }

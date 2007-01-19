@@ -473,7 +473,6 @@ class ImViewerUI
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
-        container.setBackground(Color.RED);
         container.add(controlPane, BorderLayout.WEST);
         container.add(browser.getUI(), BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);

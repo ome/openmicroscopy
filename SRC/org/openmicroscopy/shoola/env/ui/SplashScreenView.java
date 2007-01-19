@@ -26,27 +26,26 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.Insets;
+import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
-import javax.swing.border.BevelBorder;
+import javax.swing.JTextPane;
 
 //Third-party libraries
+import layout.TableLayout;
+import layout.TableLayoutConstants;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The splash screen UI. 
@@ -58,6 +57,9 @@ import javax.swing.border.BevelBorder;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ * @author Brian Loranger &nbsp;&nbsp;&nbsp;&nbsp;
+ * 		<a href="mailto:brian.loranger@lifesci.dundee.ac.uk">
+ * 			brian.loranger@lifesci.dundee.ac.uk</a>
  * @version 2.2 
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -69,97 +71,67 @@ class SplashScreenView
 	extends JFrame
 {
 
+	/** The title of the splash screens. */
+	static final String				TITLE = "Open Microscopy Environment";
+	
 	/** 
 	 * The width of the splash screen window. 
 	 * This value must be the same as the width of the splash screen image.
 	 */
-	private static final int		WIN_W = 404;  
+	static final int				LOGIN_WIDTH = 551;  
 		
 	/** 
-	 * The height of the splash screen window.
-	 * This value must be the same as the height of the splash screen image.
+	 * The width of the splash screen window. 
+	 * This value must be the same as the width of the splash screen image.
 	 */
-	private static final int		WIN_H = 404;
-	
-	/** Absolute positioning and size of the task name. */
-	private static final Rectangle	TASK_BOUNDS = 
-											new Rectangle(110, 190, 200, 20);
-											//TODO: use font metrics.
-	
-	/** Absolute positioning and size of the progress bar. */
-	private static final Rectangle	PROGRESS_BOUNDS = 
-											new Rectangle(95, 210, 200, 10);
+	static final int				LOGIN_HEIGHT = 113;  
+    
+	/** Font for progress bar label. */
+	static final Font				FONT = new Font("SansSerif", Font.PLAIN, 
+													10);
+    
+	/** Font for progress bar label. */
+	static final Font				TASK_FONT = new Font("SansSerif", 
+													Font.PLAIN, 8);
+    
+	/** The font color for text. */
+    static final Color      		TEXT_COLOR   = Color.WHITE;
 		
-	/** Absolute positioning and size of the user text field. */
-	private static final Rectangle	USER_BOUNDS = 
-											new Rectangle(149, 242, 115, 15);
-											
-	/** Absolute positioning and size of the password text field. */
-	private static final Rectangle	PASS_BOUNDS = 
-											new Rectangle(149, 259, 115, 15);
+    /** The size of the font for the version. */
+    private static final float		VERSION_FONT_SIZE   = 10;
+    
+    /** The size of the font for the text. */
+    private static final int      	TEXT_FONT_SIZE   = 18;
+    
+    /** The login text. */
+    private static final String		TEXT_LOGIN = "Please Log In";
+    
+    /** The username text. */
+    private static final String		USER_TEXT = "Username: ";
+    
+    /** The password text. */
+    private static final String		PASSWORD_TEXT = "Password: ";
+    
+    /** Default text if no server. */
+    private static final String		DEFAULT_SERVER = "Add a new server ->";
 	
-    /** Absolute positioning and size of the password text field. */
-    private static final Rectangle  SERVER_BOUNDS = 
-                                            new Rectangle(149, 276, 230, 24);
-    
-	/** Absolute positioning and size of the login button. */
-	private static final Rectangle	LOGIN_BOUNDS = 
-											new Rectangle(242, 320, 50, 20);
-	
-    /** Absolute positioning and size of the cancel button. */
-    private static final Rectangle  CANCEL_BOUNDS = 
-                                            new Rectangle(172, 320, 50, 20);
-    
-    /** Absolute positioning of the version label. */
-    private static final Rectangle  VERSION_BOUNDS =
-                                            new Rectangle(62, 347, 250, 20);
-    
-	/** Font for progress bar label and text fields. */
-	private static final Font		FONT = 
-										new Font("SansSerif", Font.PLAIN, 10);
-    
-	/** Font for progress bar label and text fields. */
-	private static final Font		TASK_FONT = 
-										new Font("SansSerif", Font.PLAIN, 8);
-    
-    /** Font for the version label. */
-    private static final Font       VERSION_FONT = 
-                                        new Font("SansSerif", 
-                                                Font.PLAIN+Font.BOLD, 12);
-    
-    /** The font color for the version label. */
-    private static final Color      VERSION_FONT_COLOR = 
-                                        new Color(225, 225, 225);
-    
-	/** The font color for the login text fields. */
-	private static final Color		FONT_COLOR = new Color(250, 100, 0);
-		
-	/** The font color for the login text fields. */
-	private static final Color		TASK_FONT_COLOR = new Color(102, 0, 204);	
-		
     /** The client's version. */
-    private static final String     VERSION = "3.0_M3_Beta1 ";
+    private static final String     VERSION = "3.0_M3_Beta1/OMERO M3";
     
-    /** The server's version. For developers' purpose only. */
-    private static final String     OMERO_VERSION = " server: OMERO M3";
-
 	/** Text field to enter the login user name. */
 	JTextField          user;
 	
 	/** Password field to enter login password. */
 	JPasswordField      pass;
 	
+	/** Config button. */
+	JButton				configButton;
+	
 	/** Login button. */
 	JButton             login;
 	
     /** Cancel button. */
     JButton             cancel;
-    
-	/** Displays the name of the task that is currently being executed. */
-	JLabel              currentTask;
-	
-	/** Provides feedback on the state of the initialization process. */
-	JProgressBar        progressBar;
 	
     /** Label hosting the version of shoola. */
 	JLabel              versionLabel;
@@ -167,53 +139,28 @@ class SplashScreenView
     /** Box displaying the user preferred server on the current machine. */
     JComboBox           server;
     
-    /**
-     * Initializes the widgets for displaying feedback on the initialization
-     * state.
-     */
-    private void initProgressDisplay()
-    {
-        currentTask = new JLabel();
-        currentTask.setFont(FONT);
-        currentTask.setForeground(TASK_FONT_COLOR);
-        progressBar = new JProgressBar();
-        progressBar.setFont(TASK_FONT);
-        progressBar.setStringPainted(true);
-    }
+    /** Collection of available servers. */
+    List				servers;
     
+    /** The name of the server or default value if none already defined. */
+    String				serverName;
+    
+    /** Field hosting the server text. */
+    JTextPane 			serverText;
+
     /** Creates and initializes the login fields and the version label. */
     private void initFields()
     {
-        user = new JTextField();
-        user.setFont(FONT);
-        user.setForeground(FONT_COLOR);
-        user.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        pass = new JPasswordField();
-        pass.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        pass.setFont(FONT);
-        pass.setForeground(FONT_COLOR);
-        versionLabel = new JLabel();
-        versionLabel.setDoubleBuffered(false);
-        String version = "$Rev$";
-        Pattern p = Pattern.compile("\\d{1,9}");
-        Matcher m = p.matcher(version);
-        m.find();
-        //versionLabel.setText(VERSION+"(rev "+m.group()+")"+OMERO_VERSION);
-        versionLabel.setText(VERSION+OMERO_VERSION);
-        versionLabel.setForeground(VERSION_FONT_COLOR);
-        versionLabel.setFont(VERSION_FONT);
-    }
-    
-    /** 
-     * Creates and initializes the box displaying the list of available
-     * servers.
-     */
-    private void initBox()
-    {
-        server = new JComboBox(UIFactory.getServersAsArray());
-        server.setFont(FONT);
-        server.setForeground(FONT_COLOR);
-        server.setOpaque(false);
+    	user = new JTextField(20);
+    	user.setToolTipText("Enter your username.");
+    	pass = new JPasswordField();
+    	pass.setToolTipText("Enter your password.");
+    	
+    	servers = UIFactory.getServers();
+    	if (servers == null || servers.size() == 0)
+    		serverName = DEFAULT_SERVER;
+    	else serverName = (String) servers.get(0);
+        serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
     }
     
     /**
@@ -223,22 +170,118 @@ class SplashScreenView
      * @param button        The button to set the default for.
      * @param rollOverIcon  The rollover icon for the specified button.
      */
-    private void setButtonDefault(JButton button, Icon rollOverIcon)
+    private void setButtonDefault(JButton button)
     {
         //Next two statements get rid of surrounding border.
-        button.setBorder(null);
-        button.setMargin(null);  
-        button.setRolloverIcon(rollOverIcon);
+        button.setOpaque(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
     
     /** Creates and initializes the login button and the cancel button. */
     private void initButtons()
     {
-        login = new JButton(IconManager.getLoginButton());
-        setButtonDefault(login, IconManager.getLoginButtonOver());
-        cancel = new JButton(IconManager.getCancelButton());
-        setButtonDefault(cancel, IconManager.getCancelButtonOver());
+    	login = new JButton("Login");
+    	login.setMnemonic('L');
+    	login.setToolTipText("Login");
+    	setButtonDefault(login);
+    	UIUtilities.enterPressesWhenFocused(login);
+    	cancel = new JButton("Quit");
+    	cancel.setMnemonic('Q');
+    	cancel.setToolTipText("Quit the Application");
+    	setButtonDefault(cancel);
+    	configButton = new JButton();
+    	configButton.setMnemonic('X');
+    	configButton.setToolTipText("Config Server");
+    	configButton.setBorderPainted(false);
+    	configButton.setBorder(null);
+    	configButton.setMargin(new Insets(0, 0, 0, 0));
+    	configButton.setFocusPainted(false);
+    	configButton.setContentAreaFilled(false);
+    	configButton.setIcon(IconManager.getConfigButton());
+    	configButton.setPressedIcon(IconManager.getConfigButtonPressed());
+    }
+    
+    /**
+     * Builds and lays out the specified text field.
+     * 
+     * @param field		The field to lay out.
+     * @param mnemonic	The mnemonic value.
+     * @param s			The value to display in front of the field.
+     * @return See above.
+     */
+    private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
+    {
+    	double[][] size = new double[][]{{TableLayoutConstants.PREFERRED, 
+    										TableLayout.FILL}, {30}};
+        
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        TableLayout layout = new TableLayout(size);
+        panel.setLayout(layout);       
+
+        JLabel label = UIUtilities.setTextFont(s);
+        label.setForeground(TEXT_COLOR);
+        label.setDisplayedMnemonic(mnemonic);
+        
+        label.setLabelFor(field);
+        label.setOpaque(false);
+        panel.add(label, "0, 0, r, c");        
+        panel.add(field, "1, 0, f, c");
+        return panel;
+    }
+    
+    /**
+     * Builds and lays out the panel hosting the login information.
+     * 
+     * @return See above.
+     */
+    private JPanel buildTopPanel()
+    {
+    	double topTable[][] =  {{245, 18, 220, 28}, // columns
+    							{32, TableLayout.FILL}}; // rows
+    	JPanel topPanel = new JPanel();
+    	topPanel.setOpaque(false);
+        topPanel.setLayout(new TableLayout(topTable));   
+        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
+        												TEXT_COLOR);
+        Font f = pleaseLogIn.getFont();
+        Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
+        pleaseLogIn.setFont(newFont);
+        topPanel.add(pleaseLogIn, "0, 0, l, c"); //Add to panel.
+        
+        topPanel.add(serverText, "2, 0, r, c"); //Add to panel.
+        topPanel.add(configButton, "3, 0, c, c");
+        topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 0, 1");
+        topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "2, 1, 3, 1");
+    	return topPanel;
+    }
+    
+    /**
+     * Builds the UI component hosting the buttons.
+     * 
+     * @return See above.
+     */
+    private JPanel buildMainPanel()
+    {
+        double mainTable[][] =
+                {{TableLayoutConstants.FILL, 100, 5, 100}, // columns
+                {TableLayoutConstants.FILL, 30}}; // rows
+    	JPanel mainPanel = new JPanel();
+    	mainPanel.setLayout(new TableLayout(mainTable));       
+    	mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    	mainPanel.setOpaque(false);
+    	mainPanel.add(login, "1, 1, f, c");
+    	mainPanel.add(cancel, "3, 1, f, c");
+
+    	JTextPane versionInfo = UIUtilities.buildTextPane(VERSION, TEXT_COLOR);
+    	Font f = versionInfo.getFont();
+    	Font newFont = f.deriveFont(VERSION_FONT_SIZE);
+    	versionInfo.setFont(newFont);
+    	mainPanel.add(versionInfo, "0, 1, l, b");
+    	mainPanel.add(buildTopPanel(), "0, 0, 3, 0");
+    	return mainPanel;
     }
     
     /** 
@@ -248,49 +291,23 @@ class SplashScreenView
     private void buildGUI()
     {
         setIconImage(IconManager.getOMEImageIcon());  //Frame icon.
-        
-        //Position window at center of screen and size it to splash image.
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-WIN_W)/2, (screenSize.height-WIN_H)/2,
-                    WIN_W, WIN_H);
-        
-        //Get the splash screen image.
-        JLabel splash = new JLabel(IconManager.getSplashScreen());
-        
-        //Layer components.
+        JLabel background = new JLabel(IconManager.getLoginBackground());
+        background.setBorder(BorderFactory.createEmptyBorder());
         JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
-        layers.add(splash, new Integer(0));
-        layers.add(currentTask, new Integer(1));
-        layers.add(progressBar, new Integer(1));
-        layers.add(user, new Integer(1));
-        layers.add(pass, new Integer(1));
-        layers.add(cancel, new Integer(1));
-        layers.add(login, new Integer(1));
-        layers.add(versionLabel, new Integer(1));
-        layers.add(server, new Integer(1));
-        //Add components to content pane.
-        getContentPane().setLayout(null);  //Absolute layout.
-        getContentPane().add(layers);
+        layers.setBounds(0, 0, LOGIN_WIDTH, LOGIN_HEIGHT);
+        JPanel p = buildMainPanel();
+        background.setBounds(0, 0, LOGIN_WIDTH, LOGIN_HEIGHT);
+        p.setBounds(0, 0, LOGIN_WIDTH, LOGIN_HEIGHT);
         
-        //Do layout.
-        layers.setBounds(0, 0, WIN_W, WIN_H);
-        splash.setBounds(0, 0, WIN_W, WIN_H);
-        currentTask.setBounds(TASK_BOUNDS);
-        progressBar.setBounds(PROGRESS_BOUNDS);
-        user.setBounds(USER_BOUNDS);
-        pass.setBounds(PASS_BOUNDS);
-        server.setBounds(SERVER_BOUNDS);
-        cancel.setBounds(CANCEL_BOUNDS);
-        login.setBounds(LOGIN_BOUNDS);
-        versionLabel.setBounds(VERSION_BOUNDS);
+        layers.add(background, new Integer(0));
+        layers.add(p, new Integer(1));
+        getContentPane().add(layers);
     }
     
 	/** Creates the splash screen UI. */
 	SplashScreenView() 
 	{
-		super("Open Microscopy Environment");
-		initProgressDisplay();
-        initBox();
+		super(TITLE);
 		initFields();
 		initButtons();
 		buildGUI();
@@ -299,4 +316,17 @@ class SplashScreenView
 		setUndecorated(true);
 	}
 
+    
+    /** 
+     * Sets the value of the new server
+     * 
+     * @param s The value to set.
+     */
+    void setNewServer(String s)
+    {
+    	if (s == null || s.length() == 0) return;
+    	serverText.setText(s);
+    	serverText.repaint();
+    }
+    
 }

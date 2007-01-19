@@ -99,11 +99,11 @@ class MessengerRequest
 	 * 
 	 * @param email		The e-mail address of the user reporting an error.
 	 * @param comment	The comment entered by the user.
-	 * @param error		The error message. 
 	 * @param extra		The extra information entered by the user.
+	 * @param error		The error message. 
 	 * @param invoker	The client posting the message.
 	 */
-	MessengerRequest(String email, String comment, String error, String extra,
+	MessengerRequest(String email, String comment, String extra, String error,
 					String invoker)
 	{
 		super();

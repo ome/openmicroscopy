@@ -149,9 +149,9 @@ public class LoginServiceImpl
                         LoginConfig.SERVER_NAME_SEPARATOR+list;
                 }
             }
-            if (listOfServers != null) {
+            if (listOfServers != null)
                 userPrefs.put(LoginConfig.OMERO_SERVER, listOfServers);
-            }
+
             return true;
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();

@@ -71,7 +71,6 @@ public class CommunicatorFactory
 			throw new SvcActivationException("Couldn't activate Communicator.", 
                     e);
 		}
-		System.out.println("service: "+service);
 		return service;
 	}
 

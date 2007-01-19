@@ -36,6 +36,8 @@ import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -46,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
@@ -395,12 +398,25 @@ public class UIUtilities
      */
     public static JTextPane buildTextPane(String text)
     {
+    	return buildTextPane(text, null);
+    }
+    
+    /**
+     * Formats the text and displays it in a {@link JTextPane}.
+     * 
+     * @param text 			The text to display.
+     * @param foreground	The foreground color.
+     * @return See above.
+     */
+    public static JTextPane buildTextPane(String text, Color foreground)
+    {
     	StyleContext context = new StyleContext();
         StyledDocument document = new DefaultStyledDocument(context);
 
         Style style = context.getStyle(StyleContext.DEFAULT_STYLE);
         StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);
-
+        if (foreground != null)
+        	StyleConstants.setForeground(style, foreground);
         try {
             document.insertString(document.getLength(), text, style);
         } catch (BadLocationException e) {}
@@ -412,5 +428,23 @@ public class UIUtilities
         
         return textPane;
     }
-    
+    /** 
+     * Sets the focus default for the specified button.
+     * 
+     * @param button
+     */
+    public static void enterPressesWhenFocused(JButton button)
+    {
+    	button.registerKeyboardAction(
+    			button.getActionForKeyStroke(
+    					KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, false)), 
+    					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), 
+    					JComponent.WHEN_FOCUSED);
+
+    	button.registerKeyboardAction(
+    			button.getActionForKeyStroke(
+    					KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0, true)), 
+    					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), 
+    					JComponent.WHEN_FOCUSED);
+    }
 }

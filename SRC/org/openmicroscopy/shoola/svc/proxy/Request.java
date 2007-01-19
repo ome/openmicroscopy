@@ -22,17 +22,17 @@
  */
 package org.openmicroscopy.shoola.svc.proxy;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.httpclient.HttpMethod;
+import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
- * 
+ * Top-class that each <code>Request</code> class should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 //Third-party libraries
@@ -125,6 +127,25 @@ public class UIFactory
             }
         }   
         return listOfServers;
+    }
+    
+    /**
+     * Returns a collection of available servers.
+     * 
+     * @return See above.
+     */
+    public static List getServers()
+    {
+    	Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
+        String servers = prefs.get(LoginConfig.OMERO_SERVER, null);
+        if (servers == null || servers.length() == 0)  return null;
+        String[] l = servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
+        if (l == null) return null;
+        List listOfServers = new ArrayList(l.length);
+        int index;
+        for (index = 0; index < l.length; index++)
+        	listOfServers.add(l[index].trim());
+        return listOfServers; 
     }
     
 }

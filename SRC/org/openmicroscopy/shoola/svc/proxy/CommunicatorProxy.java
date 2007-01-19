@@ -53,7 +53,10 @@ public class CommunicatorProxy
 {
 
 	/** The tool invoking the service. */
-	private static final String INVOKER = "OMERO Client";
+	private static final String INVOKER_ERROR = "insight_bug";
+	
+	/** The tool invoking the service. */
+	private static final String INVOKER_COMMENT = "insight_comment";
 	
 	/**
 	 * Creates a new instance.
@@ -74,7 +77,7 @@ public class CommunicatorProxy
 		throws TransportException 
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-													null, INVOKER);
+													null, INVOKER_COMMENT);
 		MessengerReply in = new MessengerReply(reply);
         
         try {
@@ -94,7 +97,7 @@ public class CommunicatorProxy
 		throws TransportException
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-														error, INVOKER);
+														error, INVOKER_ERROR);
 		MessengerReply in = new MessengerReply(reply);
         
         try {

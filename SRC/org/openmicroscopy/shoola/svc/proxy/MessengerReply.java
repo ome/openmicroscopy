@@ -52,7 +52,7 @@ class MessengerReply
 
 	/** The reply to a messenger request. */
 	private static final String REPLY = "Comments have been successfully " +
-										"posted";
+										"posted.";
 	
 	/** The reply to send to the user. */
 	private String reply;

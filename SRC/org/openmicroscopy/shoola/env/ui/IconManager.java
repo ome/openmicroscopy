@@ -66,8 +66,31 @@ public class IconManager
 {
 	
 	/** The pathname, relative to this class, of the splash screen. */
-	private static final String		SPLASH_SCREEN = "graphx/splash.jpg";
+	private static final String		SPLASH_SCREEN = 
+									"graphx/client_splashscreen.png";
 
+	/** The pathname, relative to this class, of the login splash screen. */
+	private static final String		LOGIN_BACKGROUND = 
+										"graphx/login_background.png";
+	
+	/**  The pathname, relative to this class, of the config logo. */
+	private static final String		SPLASH_SCREEN_CONFIG_LOGO= 
+												"graphx/nuvola_configure48.png";
+	
+	/** 
+	 * The pathname, relative to this class, of the splash screen config button
+	 * image. 
+	 */
+	private static final String		SPLASH_SCREEN_CONFIG= 
+														"graphx/config.png";
+	
+	/** 
+	 * The pathname, relative to this class, of the splash screen config button
+	 * image when pressed.
+	 */
+	private static final String		SPLASH_SCREEN_CONFIG_PRESSED= 
+													"graphx/config_pressed.png";
+	
 	/** 
 	 * The pathname, relative to this class, of the splash screen login button
 	 * image. 
@@ -155,7 +178,7 @@ public class IconManager
      */ 
     private static final String     DEFAULT_PLUS_OVER_PATH = 
                                         "graphx/plus_over.png";
-    
+    	
 	/** ID of the <code>help</code> icon. */
 	static final int		HELP = 0;
 	
@@ -226,6 +249,46 @@ public class IconManager
 	static Icon getSplashScreen()
 	{
 		return createIcon(SPLASH_SCREEN);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getLoginBackground()
+	{
+		return createIcon(LOGIN_BACKGROUND);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getConfigButton()
+	{
+		return createIcon(SPLASH_SCREEN_CONFIG);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getConfigLogo()
+	{
+		return createIcon(SPLASH_SCREEN_CONFIG_LOGO);
+	}
+	
+	/**
+	 * Returns the image of the login button within the splash screen.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getConfigButtonPressed()
+	{
+		return createIcon(SPLASH_SCREEN_CONFIG_PRESSED);
 	}
 	
 	/**
