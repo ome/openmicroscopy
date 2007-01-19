@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JRootPane;
 
 //Third-party libraries
 
@@ -264,5 +265,12 @@ public interface Editor
 
     /** Indicates to set the focus on the name area. */
 	public void setFocusOnName();
+
+	/** 
+	 * Sets the default button.
+	 * 
+	 * @param rootPane The root pane of the frame hosting the editor.
+	 */
+	public void setDefaultButton(JRootPane rootPane);
     
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JRootPane;
 
 //Third-party libraries
 
@@ -476,6 +477,16 @@ class EditorComponent
 	{
 		if (model.getEditorType() != CREATE_EDITOR) return;
 		view.setSize(d);
+	}
+
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#setDefaultButton(JRootPane)
+     */
+	public void setDefaultButton(JRootPane rootPane)
+	{
+		if (rootPane == null) return;
+		view.setDefaultButton(rootPane);
 	}  
     
 }

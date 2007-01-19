@@ -57,6 +57,12 @@ public class AnnotatorAction
 	protected Annotator model;
 	
 	/**
+     * Callback to notify of a change in the data retrieval state.
+     * Subclasses override the method.
+     */
+	protected void onStateChange() {}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -92,7 +98,7 @@ public class AnnotatorAction
 				setEnabled(true);
 				break;
 		}
-		
+		onStateChange();
 	}
 
 }

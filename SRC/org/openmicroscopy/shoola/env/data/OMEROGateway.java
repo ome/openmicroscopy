@@ -786,7 +786,7 @@ class OMEROGateway
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    RenderingEngine createRenderingEngine(long pixelsID)
+    synchronized RenderingEngine createRenderingEngine(long pixelsID)
         throws DSOutOfServiceException, DSAccessException
     {
         try {

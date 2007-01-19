@@ -270,12 +270,15 @@ class TreeViewerComponent
         editor.addPropertyChangeListener(controller);
         editor.activate();
         model.setEditor(editor);
-
+        
         if (editorType == CREATE_EDITOR) {
             editorDialog = new EditorDialog(view, editor);
             UIUtilities.centerAndShow(editorDialog);
             onComponentStateChange(false);
-        } else view.addComponent(editor.getUI());
+        } else {
+        	view.addComponent(editor.getUI());
+        	editor.setDefaultButton(view.getRootPane());
+        }
     }
 
     /**

@@ -127,6 +127,7 @@ public class OptionsDialog
         buttonPanel = new JPanel();
         noButton = new JButton("No");
         yesButton = new JButton("Yes");
+        getRootPane().setDefaultButton(yesButton);
     }
     
     /**

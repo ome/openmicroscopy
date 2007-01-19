@@ -180,7 +180,7 @@ class ServerDialog
         		serverName.requestFocus();
         	} 
         });
-		
+		getRootPane().setDefaultButton(finishButton);
 	}
 	
 	/**

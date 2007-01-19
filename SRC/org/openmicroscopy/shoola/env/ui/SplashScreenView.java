@@ -167,13 +167,13 @@ class SplashScreenView
      * Removes border and margin for the specified button and sets the default
      * cursor to {@link Cursor#HAND_CURSOR}.
      * 
-     * @param button        The button to set the default for.
-     * @param rollOverIcon  The rollover icon for the specified button.
+     * @param button	The button to set the default for.
      */
     private void setButtonDefault(JButton button)
     {
         //Next two statements get rid of surrounding border.
         button.setOpaque(false);
+        button.setRolloverEnabled(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
     
@@ -212,7 +212,7 @@ class SplashScreenView
     private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
     {
     	double[][] size = new double[][]{{TableLayoutConstants.PREFERRED, 
-    										TableLayout.FILL}, {30}};
+    									TableLayoutConstants.FILL}, {30}};
         
         JPanel panel = new JPanel();
         panel.setOpaque(false);
@@ -238,7 +238,7 @@ class SplashScreenView
     private JPanel buildTopPanel()
     {
     	double topTable[][] =  {{245, 18, 220, 28}, // columns
-    							{32, TableLayout.FILL}}; // rows
+    							{32, TableLayoutConstants.FILL}}; // rows
     	JPanel topPanel = new JPanel();
     	topPanel.setOpaque(false);
         topPanel.setLayout(new TableLayout(topTable));   

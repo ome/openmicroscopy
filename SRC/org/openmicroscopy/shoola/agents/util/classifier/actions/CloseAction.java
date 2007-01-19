@@ -51,7 +51,7 @@ public class CloseAction
 {
 
 	 /** The name of the action. */
-    private static final String NAME = "Cancel";
+    private static final String NAME = "Close";
     
     /** The description of the action. */
     private static final String DESCRIPTION = "Cancels the operation and " +

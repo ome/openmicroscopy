@@ -246,6 +246,7 @@ public class MessengerDialog
     		
     		});
         }
+        getRootPane().setDefaultButton(sendButton);
 	}
 
 	/**

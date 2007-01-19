@@ -48,6 +48,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -753,6 +754,16 @@ class EditorUI
 		doBasic.nameArea.requestFocus();
 	}
 	
+	/**
+	 * Sets the default button for the specified root pane.
+	 * 
+	 * @param rootPane The root pane to consider.
+	 */
+	void setDefaultButton(JRootPane rootPane)
+	{
+		rootPane.setDefaultButton(finishButton);
+	}
+
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
@@ -772,6 +783,7 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
+
 
 
 }

@@ -61,7 +61,7 @@ class SplashScreenViewTop
 	 * The height of the splash screen window.
 	 * This value must be the same as the height of the splash screen image.
 	 */
-	static final int				WIN_H = 332;
+	static final int				WIN_H = 361;
 	
 	/** The gap between the two splash screens. */
 	static final int				GAP = 5;
@@ -74,11 +74,11 @@ class SplashScreenViewTop
 	
 	/** Absolute positioning and size of the task name. */
 	private static final Rectangle	TASK_BOUNDS = 
-											new Rectangle(175, 275, 250, 20);
+											new Rectangle(175, 295, 250, 20);
 	
 	/** Absolute positioning and size of the progress bar. */
 	private static final Rectangle	PROGRESS_BOUNDS = 
-											new Rectangle(160, 295, 250, 10);
+											new Rectangle(160, 315, 250, 10);
 	
 	/** Font for progress bar label. */
 	private static final Font	FONT = new Font("SansSerif", Font.PLAIN, 10);

@@ -85,7 +85,7 @@ class EditorDialog
         		editor.setFocusOnName();
         	} 
         });
-        
+        editor.setDefaultButton(getRootPane());
     }
     
     /** Closes and disposes. */

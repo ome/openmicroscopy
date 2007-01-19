@@ -171,6 +171,7 @@ class ClassifierView
     	bar.setBorder(null);
     	JButton b = new JButton(controller.getAction(ClassifierControl.FINISH));
         bar.add(b);
+        getRootPane().setDefaultButton(b);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         b = new JButton(controller.getAction(ClassifierControl.CANCEL));
         bar.add(b);
