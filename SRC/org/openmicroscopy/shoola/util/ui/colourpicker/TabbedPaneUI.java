@@ -232,18 +232,20 @@ class TabbedPaneUI
         
         acceptButton = new JButton("Accept");
         acceptButton.setToolTipText("Accept Current Colour");
-        UIUtilities.unifiedButtonLookAndFeel(acceptButton);
-        acceptButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(acceptButton);
+        //acceptButton.setBorderPainted(true);
+        //acceptButton.setFocusPainted(true);
         acceptButtonAction = new AbstractAction("Accept Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.accept(); }
         };
+        parent.getRootPane().setDefaultButton(acceptButton);
         acceptButton.addActionListener(acceptButtonAction);
         
         revertButton = new JButton("Revert");
         revertButton.setToolTipText("Revert to Original Colour");
-        UIUtilities.unifiedButtonLookAndFeel(revertButton);
-        revertButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(revertButton);
+        //revertButton.setBorderPainted(true);
         revertButtonAction = new AbstractAction("Revert Button Action") 
         {
             public void actionPerformed(ActionEvent evt)  { revertAction(); }
@@ -252,8 +254,8 @@ class TabbedPaneUI
         
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel Selection and Close Colour Picker");
-        UIUtilities.unifiedButtonLookAndFeel(cancelButton);
-        cancelButton.setBorderPainted(true);
+        //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
+        //cancelButton.setBorderPainted(true);
         cancelButtonAction = new AbstractAction("Cancel Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.cancel(); }
