@@ -212,10 +212,10 @@ public class ColourSwatchUI
 		colourlist.addListSelectionListener(new ListSelectionListener(){
 				public void valueChanged(ListSelectionEvent e)
 				{
-					Object []Obj = (Object[]) 
+					Object[] obj = (Object[]) 
 					colourlist.getModel().getElementAt(((JList) e.getSource()).
 							getLeadSelectionIndex());
-					control.setColour((Color) Obj[0]);	
+					control.setColour((Color) obj[0]);	
 		}
 
 		});
@@ -223,15 +223,12 @@ public class ColourSwatchUI
 		scrollpane = new JScrollPane(colourlist);
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
 		gbc.weightx = 80;
 		gbc.weighty = 580;
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.insets = new Insets(10, 10, 10, 10);
 		this.add(scrollpane, gbc);
-		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.weightx = 80;
 		gbc.weighty = 5;
@@ -240,15 +237,13 @@ public class ColourSwatchUI
 		gbc.insets = new Insets(0, 5, 0, 5);
 		
 		this.add(alphaLabel, gbc);
-		
-		gbc.gridx = 0;
 		gbc.gridy = 2;
 		this.add(alphaSlider, gbc);
 		
 		gbc.gridx = 1;
 		gbc.gridy = 2;
 		gbc.weightx = 20;
-		this.add(alphaTextbox,gbc);
+		this.add(alphaTextbox, gbc);
 	}
 	
 	/** 

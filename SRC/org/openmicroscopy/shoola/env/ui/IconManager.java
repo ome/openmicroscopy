@@ -81,8 +81,7 @@ public class IconManager
 	 * The pathname, relative to this class, of the splash screen config button
 	 * image. 
 	 */
-	private static final String		SPLASH_SCREEN_CONFIG= 
-														"graphx/config.png";
+	private static final String		SPLASH_SCREEN_CONFIG = "graphx/config.png";
 	
 	/** 
 	 * The pathname, relative to this class, of the splash screen config button
@@ -91,33 +90,20 @@ public class IconManager
 	private static final String		SPLASH_SCREEN_CONFIG_PRESSED= 
 													"graphx/config_pressed.png";
 	
-	/** 
-	 * The pathname, relative to this class, of the splash screen login button
-	 * image. 
-	 */
-	private static final String		SPLASH_SCREEN_LOGIN = 
-														"graphx/login_out.jpg";
-
-	/** 
-	 * The pathname, relative to this class, of the splash screen login button
-	 * image displayed when the mouse is over the button. 
-	 */
-	private static final String		SPLASH_SCREEN_LOGIN_OVER = 
-														"graphx/login_over.jpg";
-		
-    /** 
-     * The pathname, relative to this class, of the splash screen cancel button
-     * image. 
-     */
-    private static final String     SPLASH_SCREEN_CANCEL = 
-                                                        "graphx/cancel_out.jpg";
-
-    /** 
-     * The pathname, relative to this class, of the splash screen cancel button
-     * image displayed when the mouse is over the button. 
-     */
-    private static final String     SPLASH_SCREEN_CANCEL_OVER = 
-                                                "graphx/cancel_over.jpg";
+    
+    /** The pathname, relative to this class, of the server icon. */ 
+    private static final String     SERVER_LOGO = "graphx/nuvola_server22.png";
+    
+    /** The pathname, relative to this class, of the arrow right icon. */ 
+    private static final String     ARROW_RIGHT = 
+    									"graphx/nuvola_1rightarrow16.png";
+    
+    /** The pathname, relative to this class, of the arrow down icon. */ 
+    private static final String     ARROW_DOWN = 
+    										"graphx/nuvola_1downarrow16.png";
+    
+    /** The pathname, relative to this class, of the minus icon. */ 
+    private static final String     MINUS = "graphx/nuvola_edit_remove16.png";
     
 	/** 
 	 * The pathname, relative to this class, of the default error icon to
@@ -262,6 +248,16 @@ public class IconManager
 	}
 	
 	/**
+	 * Returns the image of the server icon withing the server dialog.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getServer()
+	{
+		return createIcon(SERVER_LOGO);
+	}
+	
+	/**
 	 * Returns the image of the login button within the splash screen.
 	 * 
 	 * @return See above.
@@ -292,44 +288,34 @@ public class IconManager
 	}
 	
 	/**
-	 * Returns the image of the login button within the splash screen.
+	 * Returns the image of the options button within the server dialog.
 	 * 
 	 * @return See above.
 	 */
-	static Icon getLoginButton()
+	static Icon getArrowDown()
 	{
-		return createIcon(SPLASH_SCREEN_LOGIN);
+		return createIcon(ARROW_DOWN);
 	}
 	
 	/**
-	 * Returns the rollover image of the login button within the splash screen.
+	 * Returns the image of the options button within the server dialog.
 	 * 
 	 * @return See above.
 	 */
-	static Icon getLoginButtonOver()
+	static Icon getArrowRight()
 	{
-		return createIcon(SPLASH_SCREEN_LOGIN_OVER);
+		return createIcon(ARROW_RIGHT);
 	}
     
-    /**
-     * Returns the image of the cancel button within the splash screen.
-     * 
-     * @return See above.
-     */
-    static Icon getCancelButton()
-    {
-        return createIcon(SPLASH_SCREEN_CANCEL);
-    }
-    
-    /**
-     * Returns the rollover image of the cancel button within the splash screen.
-     * 
-     * @return See above.
-     */
-    static Icon getCancelButtonOver()
-    {
-        return createIcon(SPLASH_SCREEN_CANCEL_OVER);
-    }
+	/**
+	 * Returns the image of the remove button within the server dialog.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getMinus()
+	{
+		return createIcon(MINUS);
+	}
 
 	/**
 	 * Returns the default error icon to use for notification dialogs.

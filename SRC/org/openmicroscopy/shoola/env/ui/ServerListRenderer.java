@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.colourpicker.ColourListRenderer
+ * org.openmicroscopy.shoola.env.ui.ServerListRenderer 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,13 +20,15 @@
  *
  *------------------------------------------------------------------------------
  */
+package org.openmicroscopy.shoola.env.ui;
 
-package org.openmicroscopy.shoola.util.ui.colourpicker;
+
 
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -38,73 +40,58 @@ import javax.swing.border.Border;
 //Application-internal dependencies
 
 /** 
- * ColourListRenderer will render the colour icons and colour names in the list
+ * ColourListRenderer will render the server icons and server names in the list
  * box.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-
-class ColourListRenderer
+class ServerListRenderer 
 	extends JLabel  
-	implements ListCellRenderer  
+	implements ListCellRenderer 
 {
-	
-	/** Create the colouricon which will hold the colours. */
-	private static ColourIcon icon = new ColourIcon(32, 24);
-	
+
 	/** Border colour of the cell when the icon is selected. */
 	private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
 	
 	/** Border colour of the cell when the icon is not selected. */
 	private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-		
-	/**
-	 * Creates a new instance.
-     * Sets the background to opaque.
-	 */
-	ColourListRenderer()
-	{
-		setOpaque(true);
-	}
 	
 	/** 
-     * Overridden method
+	 * Creates a new instance. 
+	 * Sets the background to opaque. 
+	 */
+	ServerListRenderer() { setOpaque(true); }
+	
+	/** 
+     * Overridden to display icon and server name.
 	 * @see ListCellRenderer#getListCellRendererComponent(JList, Object, int, 
      *                                                  boolean, boolean)
 	 */
 	public Component getListCellRendererComponent(JList list, Object value, 
-			int index, boolean isSelected, boolean hasFocus) 
+			int index, boolean isSelected, boolean cellHasFocus) 
 	{
 		Object [] array = (Object[]) value;
-		Color newCol = new Color(((Color) array[0]).getRed(),
-				((Color) array[0]).getGreen(), ((Color) array[0]).getBlue());
-		
-		
-		icon.setColour(newCol);
-		setIcon(icon);
+		setIcon((Icon) array[0]);
 		this.setVerticalAlignment(SwingConstants.CENTER);
-		this.setIconTextGap(40);
+		this.setIconTextGap(10);
 		setText((String) array[1]);
-		if (isSelected)
-		{
+		if (isSelected) {
 			setForeground(list.getSelectionForeground());
 			setBackground(list.getSelectionBackground());
-		}
-		else
-		{
+		} else {
 			setForeground(list.getForeground());
 			setBackground(list.getBackground());
 		}
 		
-		if (hasFocus) setBorder(lineBorder);
+		if (cellHasFocus) setBorder(lineBorder);
 		else setBorder(emptyBorder);
 		return this;
 	}

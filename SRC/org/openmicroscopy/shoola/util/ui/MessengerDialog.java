@@ -247,6 +247,7 @@ public class MessengerDialog
     		});
         }
         getRootPane().setDefaultButton(sendButton);
+        setAlwaysOnTop(true);
 	}
 
 	/**

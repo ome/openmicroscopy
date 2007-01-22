@@ -325,8 +325,10 @@ class SplashScreenView
      */
     void setNewServer(String s)
     {
-    	if (s == null || s.length() == 0) return;
+    	if (s == null || s.length() == 0) 
+    		s = DEFAULT_SERVER;
     	serverText.setText(s);
+    	serverText.validate();
     	serverText.repaint();
     }
     

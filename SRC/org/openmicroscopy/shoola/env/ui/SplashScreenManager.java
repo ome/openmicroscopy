@@ -98,8 +98,7 @@ class SplashScreenManager
     private void handleServerSelection()
     {
     	ServerDialog d = new ServerDialog(view.servers);
-    	d.addPropertyChangeListener(ServerDialog.SERVER_PROPERTY, this);
-    	d.addPropertyChangeListener(ServerDialog.CLOSE_PROPERTY, this);
+    	d.addPropertyChangeListener(this);
     	UIUtilities.centerAndShow(d);
     }
     
@@ -289,8 +288,17 @@ class SplashScreenManager
 			String trim = s.trim();
 			if (v.equals(trim)) return;
 			view.setNewServer(trim);
-		} else if (ServerDialog.CLOSE_PROPERTY.equals(name))
+		} else if (ServerDialog.CLOSE_PROPERTY.equals(name)) {
 			view.user.requestFocus();
+		} else if (ServerDialog.REMOVE_PROPERTY.equals(name)) {
+			view.user.requestFocus();
+			String v = view.getServerName();
+			String oldValue = (String) evt.getOldValue();
+			UIFactory.removeServer(oldValue);
+			if (v.equals(oldValue)) 
+				view.setNewServer((String) evt.getNewValue());
+		} 
+			
 	}
 
 }
