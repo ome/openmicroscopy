@@ -32,14 +32,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -157,7 +155,7 @@ class RendererUI
     private void buildGUI()
     {
         Container c = getContentPane();
-        JTabbedPane tabs = new JTabbedPane(SwingConstants.TOP,
+        JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
         ControlPane pane = (ControlPane) controlPanes.get(DOMAIN);

@@ -45,7 +45,6 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -179,7 +178,7 @@ class BrowserUI
                             controller.getAction(BrowserControl.FILTER_MENU));
         button.setBorderPainted(false);
         menuBar.add(button);
-        menuBar.add(new JSeparator(SwingConstants.VERTICAL));
+        menuBar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);
         menuBar.add(button);

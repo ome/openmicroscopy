@@ -54,7 +54,6 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
-import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -208,7 +207,7 @@ class DOAnnotation
     {
         //Set panel layout and border
         JPanel p = new JPanel();
-        double[][] tl = {{TableLayoutConstants.FILL, 5, TableLayoutConstants.FILL}, //columns
+        double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
         				{0, 150} }; //rows
         p.setLayout(new TableLayout(tl));
         p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");

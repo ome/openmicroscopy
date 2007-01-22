@@ -31,7 +31,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 
@@ -178,11 +177,11 @@ class PopupMenu
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
         add(createManagementMenu());
-        add(new JSeparator(SwingConstants.HORIZONTAL));
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(classifyElement);
         add(declassifyElement);
         add(annotate);
-        add(new JSeparator(SwingConstants.HORIZONTAL));
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
     }
     

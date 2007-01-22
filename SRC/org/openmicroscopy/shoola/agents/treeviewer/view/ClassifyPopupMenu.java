@@ -27,17 +27,16 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.Font;
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.border.BevelBorder;
 
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 
 /** 
  * Menu brought up on screen when the user clicks on the <code>Classify</code>

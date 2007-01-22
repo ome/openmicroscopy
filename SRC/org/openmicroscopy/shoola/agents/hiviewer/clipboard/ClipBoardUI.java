@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -32,10 +33,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -47,7 +48,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationP
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
-
 import pojos.ImageData;
 
 /** 
@@ -101,7 +101,7 @@ class ClipBoardUI
     /** Initializes the UI components. */
     private void initComponents()
     {
-        tabPane = new JTabbedPane(SwingConstants.TOP,
+        tabPane = new JTabbedPane(JTabbedPane.TOP,
         						JTabbedPane.WRAP_TAB_LAYOUT);
         tabPane.setAlignmentX(LEFT_ALIGNMENT);
         popupMenu = new PopupMenu(model);
@@ -110,23 +110,45 @@ class ClipBoardUI
     /** Builds and lays out the GUI. */
     private void buildUI()
     {
+    	int h = 0;
         ClipBoardPane pane = model.getClipboardPane(ClipBoard.FIND_PANE);
-        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                        pane, pane.getPaneDescription());
+        Icon icon = pane.getPaneIcon();
+        if (icon != null) h = icon.getIconHeight();
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+        				pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
-        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                        pane, pane.getPaneDescription());
+        icon = pane.getPaneIcon();
+        if (icon != null) {
+        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
+        }
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+						pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.CLASSIFICATION_PANE);
-        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                        pane, pane.getPaneDescription());
+        icon = pane.getPaneIcon();
+        if (icon != null) {
+        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
+        }
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+						pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
-        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                        pane, pane.getPaneDescription());
+        icon = pane.getPaneIcon();
+        if (icon != null) {
+        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
+        }
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+						pane.getPaneDescription());
         pane = model.getClipboardPane(ClipBoard.INFO_PANE);
-        tabPane.addTab(pane.getPaneName(), pane.getPaneIcon(),
-                        pane, pane.getPaneDescription());
+        icon = pane.getPaneIcon();
+        if (icon != null) {
+        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
+        }
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+						pane.getPaneDescription());
         tabPane.setSelectedIndex(model.getPaneIndex());
+        
         setViewportView(tabPane);
+        getViewport().setPreferredSize(
+        		new Dimension(getViewportBorderBounds().width, h+5));
     }
     
     /**

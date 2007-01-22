@@ -41,7 +41,6 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;

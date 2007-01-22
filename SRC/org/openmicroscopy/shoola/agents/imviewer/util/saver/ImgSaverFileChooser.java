@@ -88,6 +88,8 @@ class ImgSaverFileChooser
         setFileFilter(filter);
         setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
         setApproveButtonText("Save as");
+        File f = UIUtilities.getDefaultFolder();
+        if (f != null) setCurrentDirectory(f);
     }
     
     /**

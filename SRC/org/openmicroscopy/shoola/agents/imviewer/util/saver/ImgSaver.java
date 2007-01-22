@@ -83,7 +83,7 @@ public class ImgSaver
     
     /** The UI delegate. */
     private ImgSaverUI      uiDelegate;
-    
+
     /** The name of the file to save. */
     private String          name;
     
@@ -177,7 +177,7 @@ public class ImgSaver
         uiDelegate = new ImgSaverUI(this);
         pack();
     }
- 
+    
     /**
      * Sets the name of the file to save.
      * 
@@ -229,7 +229,7 @@ public class ImgSaver
            dispose();
        }
     }
-
+    
     /** Saves the displayed image. */
     void saveImage()
     {
@@ -281,6 +281,8 @@ public class ImgSaver
                 									v);
             writeImage(newImage, name);
         }
+        if (uiDelegate.isSetDefaultFolder())
+        	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
     }
 
     /**

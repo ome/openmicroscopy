@@ -48,7 +48,6 @@ import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 import layout.TableLayout;
-import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
@@ -275,9 +274,8 @@ class EditorPaneUI
     private JPanel buildContentPanel()
     {
     	JPanel content = new JPanel();
-        double[][] tl = {{TableLayoutConstants.PREFERRED, 
-        				TableLayoutConstants.FILL}, //columns
-        				{TableLayoutConstants.PREFERRED, 5, 0, 100} }; //rows
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+        				{TableLayout.PREFERRED, 5, 0, 100} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));

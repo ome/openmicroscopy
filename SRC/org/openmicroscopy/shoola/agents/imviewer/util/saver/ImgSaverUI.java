@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -85,6 +86,12 @@ class ImgSaverUI
     /** The possible saving types. */
     private JComboBox                   savingTypes;
 
+    /** Reference to the file chooser. */
+    private ImgSaverFileChooser			chooser;
+    
+    /** Box to save the current directory as default. */
+    private JCheckBox					settings;
+    
     /** Initializes the static fields. */
     static {
         selections = new String[2];
@@ -96,6 +103,10 @@ class ImgSaverUI
     private void initComponents()
     {
         savingTypes = new JComboBox(selections);
+        chooser = new ImgSaverFileChooser(model);
+        settings = new JCheckBox();
+        settings.setText("Set the current directory as default.");
+        settings.setSelected(true);
     }
     
     /**
@@ -113,6 +124,7 @@ class ImgSaverUI
         result.add(UIUtilities.buildComponentPanel(savingTypes));
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(result);
+        p.add(UIUtilities.buildComponentPanelRight(settings));
         return p;
     }
     
@@ -121,7 +133,7 @@ class ImgSaverUI
     {
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout(0, 0));
-        p.add(new ImgSaverFileChooser(model), BorderLayout.CENTER);
+        p.add(chooser, BorderLayout.CENTER);
         p.add(buildSelectionPane(), BorderLayout.SOUTH);
         IconManager im = IconManager.getInstance();
         Container c = model.getContentPane();
@@ -159,5 +171,23 @@ class ImgSaverUI
      * @return See above.
      */
     int getSavingType() { return savingTypes.getSelectedIndex(); }
+    
+    /**
+    * Returns the pathname string of the current directory.
+    *
+    * @return  The string form of this abstract pathname.
+    */
+    String getCurrentDirectory()
+    { 
+    	return chooser.getCurrentDirectory().toString(); 
+    }
+    
+    /**
+     * Returns <code>true</code> if the default folder is set when
+     * saving the image, <code>false</code> toherwise.
+     * 
+     * @return See above.
+     */
+    boolean isSetDefaultFolder() { return settings.isSelected(); }
     
 }

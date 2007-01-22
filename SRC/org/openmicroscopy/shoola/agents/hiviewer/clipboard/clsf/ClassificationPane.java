@@ -32,7 +32,6 @@ import java.awt.GridBagLayout;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -45,7 +44,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoardPane;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-
 import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.ImageData;

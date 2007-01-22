@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Dialog window to save a set of thumbnails.
@@ -76,6 +77,9 @@ public class ContainerSaver
     /** The message displayed when the image has been saved. */
     private String                  message;
     
+    /** The UI delegate. */
+    private ContainerSaverUI		uiDelegate;
+    
     /**
      * Notifies the user that an error occured. 
      * 
@@ -101,7 +105,7 @@ public class ContainerSaver
             throw new IllegalArgumentException("No images.");
         this.thumbnails = thumbnails;
         //create the view and the control
-        new ContainerSaverUI(this);
+        uiDelegate = new ContainerSaverUI(this);
         manager = new ContainerSaverManager(this);
     }
     
@@ -147,6 +151,8 @@ public class ContainerSaver
                 WriterImage.saveImage(encoder);
             } else WriterImage.saveImage(f, img, extension);
             un.notifyInfo("Image saved", message);
+            if (uiDelegate.isSetDefaultFolder())
+            	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
         } catch (Exception e) {
             f.delete();
             un.notifyError("Save image failure", "Unable to save the image", e);

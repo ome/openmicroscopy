@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
-
-
 //Java imports
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -38,7 +36,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -123,7 +120,7 @@ class ToolBar
         button =  new JButton(controller.getAction(ImViewerControl.LENS));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  
-        bar.add(new JSeparator(SwingConstants.VERTICAL));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);  

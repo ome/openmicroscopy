@@ -27,13 +27,11 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -198,11 +196,11 @@ class PopupMenu
     private void buildGUI()
     {
         add(view);
-        add(new JSeparator(SwingConstants.HORIZONTAL));
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(classify);
         add(declassify);
         add(annotate);
-        add(new JSeparator(SwingConstants.HORIZONTAL));
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
     }
     

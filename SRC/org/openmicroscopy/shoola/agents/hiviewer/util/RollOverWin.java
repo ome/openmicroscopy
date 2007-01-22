@@ -31,12 +31,9 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-
 
 //Third-party libraries
 
@@ -47,7 +44,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-
 import pojos.DataObject;
 
 

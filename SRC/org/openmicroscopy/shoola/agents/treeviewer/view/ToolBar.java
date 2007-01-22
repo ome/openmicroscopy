@@ -37,7 +37,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
 
 //Third-party libraries
 
@@ -96,7 +95,7 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.CREATE_OBJECT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        bar.add(new JSeparator(SwingConstants.VERTICAL));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     
@@ -123,7 +122,7 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        bar.add(new JSeparator(SwingConstants.VERTICAL));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     

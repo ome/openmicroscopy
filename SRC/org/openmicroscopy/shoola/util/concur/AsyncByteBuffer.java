@@ -134,7 +134,7 @@ public class AsyncByteBuffer
         ProducerLoop currentProducer;
         
         //Acquire this object's lock and get a reference to the current
-        //producer.  We needto acquire the lock in order to avoid any
+        //producer.  We need to acquire the lock in order to avoid any
         //overlapping with setProducer().  However, we release it right
         //after grabbing the reference so to allow a setProducer() call
         //to proceed if we have to wait for data.

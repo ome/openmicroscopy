@@ -45,7 +45,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 //Third-party libraries
@@ -222,9 +221,9 @@ class HiViewerWin
         menu.setMnemonic(KeyEvent.VK_F);
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.SAVE_THUMB)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.EXIT)));
         return menu;
@@ -240,15 +239,15 @@ class HiViewerWin
         JMenu menu = new JMenu("Edit");
         menu.setMnemonic(KeyEvent.VK_E);
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.FIND)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.VIEW)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.CLASSIFY)));
         menu.add(new JMenuItem(controller.getAction(
                                 HiViewerControl.DECLASSIFY)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.ANNOTATE)));
         menu.add(new JMenuItem(controller.getAction(HiViewerControl.REMOVE)));
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                     controller.getAction(HiViewerControl.PROPERTIES)));
         return menu;
@@ -285,7 +284,7 @@ class HiViewerWin
         //item.setSelected(model.isRollOver());
         //item.setAction(controller.getAction(HiViewerControl.ROLL_OVER));
         //menu.add(item);
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         JMenuItem mi = new JMenuItem(
         			controller.getAction(HiViewerControl.ZOOM_IN));
         mi.setText(ZoomInAction.NAME);
@@ -296,7 +295,7 @@ class HiViewerWin
         mi = new JMenuItem(controller.getAction(HiViewerControl.ZOOM_FIT));
         mi.setText(ZoomFitAction.NAME);
         menu.add(mi);
-        menu.add(new JSeparator(SwingConstants.HORIZONTAL));
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createLayoutMenu());
         return menu;
     }

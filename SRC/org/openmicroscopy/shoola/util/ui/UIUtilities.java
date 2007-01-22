@@ -37,6 +37,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -103,6 +105,9 @@ public class UIUtilities
 	
     /** Maximum width of the table. */
     public static final int                 TABLE_WIDTH = 200;
+    
+    /** Key value for the default folder. */
+    private static final String DEFAULT_FOLDER = "defaultFolder";
     
 	/**
 	 * Centers the specified component on the screen.
@@ -428,10 +433,11 @@ public class UIUtilities
         
         return textPane;
     }
+    
     /** 
      * Sets the focus default for the specified button.
      * 
-     * @param button
+     * @param button The button to handle.
      */
     public static void enterPressesWhenFocused(JButton button)
     {
@@ -447,4 +453,43 @@ public class UIUtilities
     					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), 
     					JComponent.WHEN_FOCUSED);
     }
+    
+    
+    /**
+     * Returns the pathname string of the default folder.
+     * 
+     * @return See above.
+     */
+    public static String getDefaultFolderAsString()
+    {
+    	Preferences  prefs = Preferences.userNodeForPackage(UIUtilities.class);
+    	if (prefs == null) return null;
+    	return prefs.get(DEFAULT_FOLDER, null);
+    }
+    
+    /**
+     * Sets the pathname string of the default folder.
+     * 
+     * @param f The value to set.
+     */
+    public static void setDefaultFolder(String f)
+    {
+    	Preferences  prefs = Preferences.userNodeForPackage(UIUtilities.class);
+    	if (prefs == null) return;
+    	if (f == null) f = "";
+    	prefs.put(DEFAULT_FOLDER, f);
+    }
+    
+    /**
+     * Returns the default folder.
+     *  
+     * @return See above.
+     */
+    public static File getDefaultFolder()
+    {
+    	String f = UIUtilities.getDefaultFolderAsString();
+    	if (f == null || f == "") return null; 
+    	return new File(f);
+    }
+    
 }

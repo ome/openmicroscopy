@@ -328,6 +328,26 @@ class OMEROGateway
     }
     
     /**
+     * Checks if some default rendering settings have to be created
+     * for the specified set of pixels.
+     * 
+     * @param pixelsID The pixels ID.
+     * @return 	Returns <code>true</code> if default settings have been created
+     * 			<code>false</code> otherwise.
+     */
+    private boolean needDefault(long pixelsID)
+    {
+    	ThumbnailStore service = getThumbService();
+    	RenderingEngine re = getRenderingService();
+        re.lookupPixels(pixelsID);
+        boolean b = !((re.lookupRenderingDef(pixelsID)) && 
+        			(service.setPixelsId(pixelsID)));
+        if (b)
+        	re.resetDefaults();
+        return b;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param port      The value of the port.
@@ -776,33 +796,6 @@ class OMEROGateway
         }
         return null;
     }
-    
-    /**
-     * Creates a new rendering service for the specified pixels set.
-     * 
-     * @param pixelsID  The pixels set ID.
-     * @return See above.
-     * @throws DSOutOfServiceException If the connection is broken, or logged in
-     * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
-     */
-    synchronized RenderingEngine createRenderingEngine(long pixelsID)
-        throws DSOutOfServiceException, DSAccessException
-    {
-        try {
-            RenderingEngine service = getRenderingService();
-            service.lookupPixels(pixelsID);
-            if (!(service.lookupRenderingDef(pixelsID))) {
-            	service.resetDefaults();
-				service.lookupRenderingDef(pixelsID);
-            }
-            service.load();
-            return service;
-        } catch (Exception e) {
-            handleException(e, "Cannot start the Rendering Engine.");
-        }
-        return null;
-    }
 
     /**
      * Retrieves the dimensions in microns of the specified pixels set.
@@ -873,10 +866,14 @@ class OMEROGateway
     {
     	ThumbnailStore service = getThumbService();
         try {
+        	if (needDefault(pixelsID))
+        		service.setPixelsId(pixelsID);
+        	/*
             if (!(service.setPixelsId(pixelsID))) {
 				service.resetDefaults();
 				service.setPixelsId(pixelsID);
             }
+            */
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
@@ -884,6 +881,38 @@ class OMEROGateway
         	thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
+    }
+
+    
+    /**
+     * Creates a new rendering service for the specified pixels set.
+     * 
+     * @param pixelsID  The pixels set ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    synchronized RenderingEngine createRenderingEngine(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            RenderingEngine service = getRenderingService();
+            service.lookupPixels(pixelsID);
+            //if (needDefault(pixelsID))
+            service.lookupRenderingDef(pixelsID);
+            /*
+            if (!(service.lookupRenderingDef(pixelsID))) {
+            	service.resetDefaults();
+				service.lookupRenderingDef(pixelsID);
+            }
+            */
+            service.load();
+            return service;
+        } catch (Exception e) {
+            handleException(e, "Cannot start the Rendering Engine.");
+        }
+        return null;
     }
     
     /**

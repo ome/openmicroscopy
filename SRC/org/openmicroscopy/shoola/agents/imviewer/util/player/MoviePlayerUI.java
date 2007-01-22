@@ -44,8 +44,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-
 
 //Third-party libraries
 
@@ -389,7 +387,7 @@ class MoviePlayerUI
         add(controls, gbc);
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
-        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
         sep.setPreferredSize(new Dimension(this.getWidth(), 2));
         sep.setMinimumSize(new Dimension(this.getWidth(), 2));
       

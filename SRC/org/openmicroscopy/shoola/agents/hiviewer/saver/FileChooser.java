@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Chooser to select the name, format and type of images to save.
@@ -82,6 +83,8 @@ class FileChooser
         addChoosableFileFilter(new TIFFFilter()); 
         setFileFilter(filter);
         setApproveButtonText("Save as");
+        File f = UIUtilities.getDefaultFolder();
+        if (f != null) setCurrentDirectory(f);
     }
 
     /**

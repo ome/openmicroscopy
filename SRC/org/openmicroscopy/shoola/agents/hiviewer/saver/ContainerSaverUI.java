@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.saver;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.UIManager;
 
@@ -35,6 +37,7 @@ import javax.swing.UIManager;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI delegate.
@@ -60,6 +63,25 @@ class ContainerSaverUI
     private static final String         SUMMARY = "Save the selected " +
     									"thumbnails as a single image.";
     
+    /** Reference to the file chooser. */
+    private FileChooser chooser;
+    
+    /** Box to save the current directory as default. */
+    private JCheckBox	settings; 
+    
+    /** 
+     * Initializes the component composing the display. 
+     * 
+     * @param saver The component to host.
+     */
+    private void initComponents(ContainerSaver saver)
+    {
+        chooser = new FileChooser(saver);
+        settings = new JCheckBox();
+        settings.setText("Set the current directory as default.");
+        settings.setSelected(true);
+    }
+    
     /** 
      * Builds and lays out the GUI. 
      * 
@@ -67,13 +89,17 @@ class ContainerSaverUI
      */
     private void buildGUI(ContainerSaver saver)
     {
+    	JPanel p = new JPanel();
+        p.setLayout(new BorderLayout(0, 0));
+        p.add(chooser, BorderLayout.CENTER);
+        p.add(UIUtilities.buildComponentPanel(settings), BorderLayout.SOUTH);
         Container c = saver.getContentPane();
         IconManager im = IconManager.getInstance();
         TitlePanel tp = new TitlePanel(TITLE, SUMMARY, 
                                 im.getIcon(IconManager.SAVE_AS_BIG));  
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
-        c.add(new FileChooser(saver), BorderLayout.CENTER);
+        c.add(p, BorderLayout.CENTER);
         if (JDialog.isDefaultLookAndFeelDecorated()) {
             if (UIManager.getLookAndFeel().getSupportsWindowDecorations())
                 saver.getRootPane().setWindowDecorationStyle(
@@ -89,7 +115,26 @@ class ContainerSaverUI
     ContainerSaverUI(ContainerSaver saver)
     {
         if (saver == null) throw new IllegalArgumentException("No model.");
+        initComponents(saver);
         buildGUI(saver);
     }
     
+    /**
+     * Returns the pathname string of the current directory.
+     *
+     * @return  The string form of this abstract pathname.
+     */
+     String getCurrentDirectory()
+     { 
+     	return chooser.getCurrentDirectory().toString(); 
+     }
+     
+     /**
+      * Returns <code>true</code> if the default folder is set when
+      * saving the image, <code>false</code> toherwise.
+      * 
+      * @return See above.
+      */
+     boolean isSetDefaultFolder() { return settings.isSelected(); }
+     
 }
