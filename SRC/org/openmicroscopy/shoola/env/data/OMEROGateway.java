@@ -279,8 +279,8 @@ class OMEROGateway
             }
             return data;
         } catch (Exception e) {
-            throw new DSOutOfServiceException("Cannot retrieve user's " +
-                    						"data", e);
+            throw new DSOutOfServiceException("Cannot retrieve user's data " +
+                    						printErrorText(e));
         }
     }
     

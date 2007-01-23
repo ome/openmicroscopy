@@ -6,7 +6,15 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
- --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Last updated: 23/01/2007
+Version: M3 Beta 1
+
+Changes: 
+ - TaskBar: Remove menu when no viewer of hiviewer.
+ - SlpashScreen: New splashscreen. Options to manage the existing servers.
+ - UI components: set default button when a new frame is displayed.
+--------------------------------------------------------------------------------
 Last updated: 15/01/2007
 Version: M3 Beta 1
 

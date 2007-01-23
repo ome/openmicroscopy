@@ -186,7 +186,8 @@ class ServerDialog
 		String text = serverName.getText();
 		String value = null;
 		if (text == null || text.trim().length() == 0) {
-			if (server != null) value = (String) server.getSelectedItem();
+			if (existingServers.size() != 0) 
+				value = (String) server.getSelectedItem();
 		} else value = text.trim();
 			
 		firePropertyChange(SERVER_PROPERTY, null, value);
