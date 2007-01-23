@@ -235,7 +235,7 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
-        commentArea.setOpaque(true);
+        commentArea.setOpaque(false);
         if (exception != null) {
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");
