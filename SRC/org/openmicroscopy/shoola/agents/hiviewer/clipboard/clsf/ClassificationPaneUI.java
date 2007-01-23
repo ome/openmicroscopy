@@ -181,7 +181,7 @@ class ClassificationPaneUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout(0, 0));
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         JPanel titlePanel = new JPanel();

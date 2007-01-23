@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,8 +36,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JList;
@@ -235,12 +234,18 @@ class DOAnnotation
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(UIUtilities.buildComponentPanel(deleteBox));
-        add(new JSeparator());
-        add(Box.createRigidArea(EditorUI.SMALL_V_SPACER_SIZE));
-        add(buildAnnotationPanel());
-        add(Box.createVerticalGlue());
+    	JPanel p = new JPanel();
+    	double[][] tl = {{TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, 10, 10} }; //rows
+        p.setLayout(new TableLayout(tl));
+        p.add(UIUtilities.buildComponentPanel(deleteBox), "0, 0, l, t");
+        JPanel empty = new JPanel();
+        empty.setOpaque(true);
+        p.add(new JSeparator(JSeparator.HORIZONTAL), "0, 1, l, t");
+        p.add(empty, "0, 2, f, t");
+        setLayout(new BorderLayout(0, 0));
+    	add(p, BorderLayout.NORTH);
+        add(buildAnnotationPanel(), BorderLayout.CENTER);
     }
     
     /**
