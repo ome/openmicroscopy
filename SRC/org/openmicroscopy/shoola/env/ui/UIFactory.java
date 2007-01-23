@@ -99,36 +99,6 @@ public class UIFactory
 	//{
 	//	return new UserNotifierImpl();
 	//}
-	
-    /**
-     * Returns an array of the available servers.
-     * 
-     * @return See above.
-     */
-    public static String[] getServersAsArray()
-    {
-        String[] listOfServers = null;
-        Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
-        String servers = prefs.get(LoginConfig.OMERO_SERVER, null);
-        if (servers == null || servers.length() == 0) {
-            listOfServers = new String[1];
-            listOfServers[0] = LoginConfig.DEFAULT_SERVER;
-        } else {
-            String[] l = servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
-            if (l == null) {
-                listOfServers = new String[1];
-                listOfServers[0] = LoginConfig.DEFAULT_SERVER;
-            } else {
-                listOfServers = new String[l.length+1];
-                int index;
-                for (index = 0; index < l.length; index++)
-                    listOfServers[index] = l[index].trim();
-                index = l.length;
-                listOfServers[index] = LoginConfig.DEFAULT_SERVER;
-            }
-        }   
-        return listOfServers;
-    }
     
     /**
      * Removes the specified server from the list of existing servers.

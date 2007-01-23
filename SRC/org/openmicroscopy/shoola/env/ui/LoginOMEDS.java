@@ -33,6 +33,9 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -124,7 +127,19 @@ public class LoginOMEDS
     private void initBox()
     {
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
-        server = new JComboBox(UIFactory.getServersAsArray());
+        List l = UIFactory.getServers();
+        String[] servers;
+        if (l != null) {
+        	servers = new String[l.size()];
+        	Iterator i = l.iterator();
+        	int index = 0;
+        	while (i.hasNext()) {
+        		servers[index] = (String) i.next();
+				index++;
+        	}
+        	server = new JComboBox(servers);
+        } else server = new JComboBox();
+         
         server.setFont(font);
         server.setForeground(FONT_COLOR);
     }
