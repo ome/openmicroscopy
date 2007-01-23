@@ -47,6 +47,7 @@ import javax.swing.plaf.basic.BasicPanelUI;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
 
 
 /** 

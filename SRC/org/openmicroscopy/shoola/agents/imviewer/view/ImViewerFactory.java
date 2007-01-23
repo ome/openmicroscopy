@@ -140,8 +140,8 @@ public class ImViewerFactory
         viewers = new HashSet();
         isAttached = false;
         windowMenu = new JMenu("Viewers");
-        TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-        tb.addToMenu(TaskBar.WINDOW_MENU, windowMenu);
+        //TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+        //tb.addToMenu(TaskBar.WINDOW_MENU, windowMenu);
     }
     
     /**
@@ -175,6 +175,11 @@ public class ImViewerFactory
     {
         ImViewerComponent comp = (ImViewerComponent) ce.getSource(); 
         if (comp.getState() == ImViewer.DISCARDED) viewers.remove(comp);
+        if (viewers.size() == 0) {
+        	TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+            tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
+            isAttached = false;
+        }
     }
 
 }

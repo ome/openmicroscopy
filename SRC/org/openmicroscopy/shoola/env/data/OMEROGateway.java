@@ -335,7 +335,7 @@ class OMEROGateway
      * @return 	Returns <code>true</code> if default settings have been created
      * 			<code>false</code> otherwise.
      */
-    private boolean needDefault(long pixelsID)
+    private synchronized boolean needDefault(long pixelsID)
     {
     	ThumbnailStore service = getThumbService();
     	RenderingEngine re = getRenderingService();

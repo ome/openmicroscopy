@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -35,12 +36,14 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.border.SeparatorBorder;
 
 /** 
- * ColourListRenderer will render the server icons and server names in the list
+ * This class will render the server icon and name in the list
  * box.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,10 +62,17 @@ class ServerListRenderer
 {
 
 	/** Border colour of the cell when the icon is selected. */
-	private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
+	private static final Border	LINE_BORDER = 
+								BorderFactory.createLineBorder(Color.GRAY);
 	
 	/** Border colour of the cell when the icon is not selected. */
-	private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+	private static final Border	SEPARATOR_BORDER = new SeparatorBorder();
+	
+	/** Distance between the icon and the text. */
+	private static final int	GAP = 10;
+
+	/** The vertical space added to the preferred size. */
+	private static final int	VERTICAL = 4;
 	
 	/** 
 	 * Creates a new instance. 
@@ -71,7 +81,7 @@ class ServerListRenderer
 	ServerListRenderer() { setOpaque(true); }
 	
 	/** 
-     * Overridden to display icon and server name.
+     * Overridden to display the icon and the server name.
 	 * @see ListCellRenderer#getListCellRendererComponent(JList, Object, int, 
      *                                                  boolean, boolean)
 	 */
@@ -79,10 +89,14 @@ class ServerListRenderer
 			int index, boolean isSelected, boolean cellHasFocus) 
 	{
 		Object [] array = (Object[]) value;
-		setIcon((Icon) array[0]);
+		Icon icon = (Icon) array[0];
+		setIcon(icon);
 		this.setVerticalAlignment(SwingConstants.CENTER);
-		this.setIconTextGap(10);
+		this.setIconTextGap(GAP);
 		setText((String) array[1]);
+		if (icon != null)
+			setPreferredSize(new Dimension(getWidth(), 
+							icon.getIconHeight()+VERTICAL));
 		if (isSelected) {
 			setForeground(list.getSelectionForeground());
 			setBackground(list.getSelectionBackground());
@@ -90,9 +104,8 @@ class ServerListRenderer
 			setForeground(list.getForeground());
 			setBackground(list.getBackground());
 		}
-		
-		if (cellHasFocus) setBorder(lineBorder);
-		else setBorder(emptyBorder);
+		if (cellHasFocus) setBorder(LINE_BORDER);
+		else setBorder(SEPARATOR_BORDER);
 		return this;
 	}
 

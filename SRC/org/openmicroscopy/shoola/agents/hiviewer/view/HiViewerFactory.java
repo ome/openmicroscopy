@@ -37,6 +37,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
 /** 
@@ -396,6 +397,11 @@ public class HiViewerFactory
     {
         HiViewerComponent comp = (HiViewerComponent) ce.getSource(); 
         if (comp.getState() == HiViewer.DISCARDED) viewers.remove(comp);
+        if (viewers.size() == 0) {
+        	TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+            tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
+            isAttached = false;
+        }
     }
 
 }

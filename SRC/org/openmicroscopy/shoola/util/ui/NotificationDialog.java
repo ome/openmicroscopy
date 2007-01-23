@@ -113,6 +113,7 @@ public class NotificationDialog
 		buttonPanel = new JPanel();
         buttonPanel.setOpaque(true);
 		okButton = new JButton("OK");
+		getRootPane().setDefaultButton(okButton);
 	}
 	
 	/**

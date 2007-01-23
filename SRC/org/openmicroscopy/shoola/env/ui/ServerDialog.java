@@ -115,7 +115,7 @@ class ServerDialog
 	
     /** Example of a new server. */
     private static final String			EXAMPLE = "e.g. " +
-    											"test.openmicroscopy.org.uk";
+    											"test.openmicroscopy.org";
     
     /** Field hosting the new server's name. */
 	private JTextField 	serverName;

@@ -82,7 +82,7 @@ public interface TaskBar
      * Entries in this menu trigger actions related to the application
      * workflow.
      */
-    public static final int     TASKS_MENU = 0;
+    //public static final int     TASKS_MENU = 0;
     
 	/** 
 	 * Identifies the connect menu within the menu bar.
@@ -95,10 +95,10 @@ public interface TaskBar
 	 * Identifies the window menu within the menu bar.
 	 * Entries in this menu trigger actions to bring up top level windows.
 	 */
-	public static final int		WINDOW_MENU = 1;
+	public static final int		WINDOW_MENU = 0;
 	
 	/** Identifies the help menu within the menu bar. */
-	public static final int		HELP_MENU = 2;
+	public static final int		HELP_MENU = 1;
 	
 	/**
 	 * Identifies the tasks toolbar.

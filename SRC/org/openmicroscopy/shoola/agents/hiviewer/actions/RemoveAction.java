@@ -113,18 +113,25 @@ public class RemoveAction
                     setEnabled(model.isObjectWritable((DataObject) ho));
                 } else if (ho instanceof DatasetData) {
                     putValue(Action.NAME, NAME_PROJECT);
-                    if (po instanceof String) setEnabled(false); //root
-                    else setEnabled(model.isObjectWritable((DataObject) ho));
+                    if (po instanceof ProjectData) 
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    else setEnabled(false); 
                 } else if (ho instanceof CategoryData) {
                     putValue(Action.NAME, NAME_CATEGORYGROUP);
-                    if (po instanceof String) setEnabled(false); //root
-                    else setEnabled(model.isObjectWritable((DataObject) ho));
+                    if (po instanceof CategoryGroupData) 
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    else setEnabled(false); 
                 } else if (ho instanceof ImageData) {
-                    if (po instanceof DatasetData) 
-                        putValue(Action.NAME, NAME_DATASET);
-                    else putValue(Action.NAME, NAME_CATEGORY);
-                    if (po instanceof String) setEnabled(false); //root
-                    else setEnabled(model.isObjectWritable((DataObject) ho));
+                    if (po instanceof DatasetData) {
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    	putValue(Action.NAME, NAME_DATASET);
+                    } else if (po instanceof CategoryData) {
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    	putValue(Action.NAME, NAME_CATEGORY);
+                    } else {
+                    	setEnabled(false);
+                    	putValue(Action.NAME, NAME);
+                    }
                 } else setEnabled(false);
             }
         }

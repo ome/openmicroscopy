@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.hiviewer.tpane;
+package org.openmicroscopy.shoola.util.ui.border;
 
 
 
@@ -50,7 +50,7 @@ import javax.swing.border.AbstractBorder;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4717 $ $Date: 2007-01-11 09:59:10 +0000 (Thu, 11 Jan 2007) $)
  * </small>
  * @since OME2.2
  */

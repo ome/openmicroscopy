@@ -325,11 +325,12 @@ class TaskBarView
 		createMenuItems();
 		///menus[FILE_MENU] = createFileMenu();
 		//menus[CONNECT_MENU] = createConnectMenu();
-		menus[TASKS_MENU] = createTasksMenu();
+		//menus[TASKS_MENU] = createTasksMenu();
 		menus[WINDOW_MENU] = createWindowMenu();
 		menus[HELP_MENU] = createHelpMenu();
 		JMenuBar bar = new JMenuBar();
-		for (int i = 0; i < menus.length; ++i)	bar.add(menus[i]);
+		for (int i = 0; i < menus.length; ++i)	
+			bar.add(menus[i]);
 		return bar;
 	}
 	
@@ -418,7 +419,7 @@ class TaskBarView
 	{
 		super(TITLE);
 		buttons = new AbstractButton[MAX_ID+1];
-		menus = new JMenu[3];
+		menus = new JMenu[2];
 		toolbars = new JToolBar[2];
 		toolbars[QUICK_LAUNCH_TOOLBAR] = createToolBar();
 		toolbars[TASKS_TOOLBAR] = createToolBar();
@@ -472,6 +473,27 @@ class TaskBarView
 	{
 		if (menuID < 0 || menus.length <= menuID)
 			throw new IllegalArgumentException("Invalid menu id: "+menuID+".");
+		
+		if (menuID == WINDOW_MENU && entry instanceof JMenu) {
+			 Iterator i = windowMenus.iterator();
+			 JMenu menu;
+			 Component[] comps;
+			 Component c;
+			 //tmp solution to remove item from the copy of the windows menu.
+			 while (i.hasNext()) {
+	                menu = (JMenu) i.next();
+	                comps = menu.getPopupMenu().getComponents();
+	                for (int j = 0; j < comps.length; j++) {
+	                	c = comps[j];
+						if (c instanceof JMenu) {
+							if (((JMenu) c).getText() == entry.getText()) {
+								menu.remove(c);
+							}
+								
+						} 
+					}
+	            }
+		}
 		menus[menuID].remove(entry);
 	}
 
