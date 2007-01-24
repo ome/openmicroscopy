@@ -1,5 +1,5 @@
 /*
- * ome.services.hooks.StartupHook
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -59,7 +59,7 @@ public class StartupHook implements Startup {
         connect();
         System.out.println("-------------------------------------------------");
         System.out.println(String.format("OMERO Version: %s (Rev: %s) Ready.",
-                Version.OMERO, Version.getRevision(this.getClass())));
+                Version.OMERO, Version.getRevision(Version.class)));
         System.out.println("-------------------------------------------------");
 
     }
