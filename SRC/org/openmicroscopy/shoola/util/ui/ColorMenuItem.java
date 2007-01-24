@@ -58,8 +58,17 @@ public class ColorMenuItem
 	/** The height of the icon. */
 	private static final int	ICON_HEIGHT = 16;
 	
+	/** The minimum width and height of the icon. */
+	private static final int	MINIMUM = 4;
+	
 	/** The color hosted by this component. */
 	private Color	color;
+	
+	/** THe width of the icon, by default value set to {@link #ICON_WIDTH}. */
+	private int		iconWidth = ICON_WIDTH;
+	
+	/** THe height of the icon, by default value set to {@link #ICON_HEIGHT}. */
+	private int		iconHeight = ICON_HEIGHT;
 	
 	/**
 	 * Creates the color icon.
@@ -68,28 +77,32 @@ public class ColorMenuItem
 	 */
 	private ImageIcon createIcon()
 	{
-		BufferedImage img = new BufferedImage(ICON_WIDTH, ICON_HEIGHT, 
+		BufferedImage img = new BufferedImage(iconWidth, iconHeight, 
 									BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		g.setColor(color);
-		g.fillRect(0, 0, ICON_WIDTH, ICON_HEIGHT);
+		g.fillRect(0, 0, iconWidth, iconHeight);
 		g.setColor(color.darker());
-		g.drawRect(0, 0, ICON_WIDTH, ICON_HEIGHT);
+		g.drawRect(0, 0, iconWidth, iconHeight);
 		return new ImageIcon(img);
 	}
 	
 	/**
 	 * Creates a new instance. 
+	 * By default an icon of size <code>16x16</code> is created.
 	 * 
 	 * @param c The color hosted by the component. Mustn't be <code>null</code>.
 	 */
 	public ColorMenuItem(Color c)
 	{
 		setColor(c);
+		iconWidth = ICON_WIDTH;
+		iconHeight = ICON_HEIGHT;
 	}
 	
 	/**
-	 * Creates a new instance. 
+	 * Creates a new instance.  
+	 * By default an icon of size <code>16x16</code> is created.
 	 * 
 	 * @param text 	The text of the menu item.
 	 * @param c 	The color hosted by the component. 
@@ -99,6 +112,8 @@ public class ColorMenuItem
 	{
 		setColor(c);
 		setText(text);
+		iconWidth = ICON_WIDTH;
+		iconHeight = ICON_HEIGHT;
 	}
 	
 	/**
@@ -120,5 +135,39 @@ public class ColorMenuItem
 	 * @return See above.
 	 */
 	public Color getColor() { return color; }
+	
+	/**
+	 * Sets the width of the icon.
+	 * 
+	 * @param w The value to set. Must be greater than <code>MINIMUM</code>
+	 */
+	public void setIconWidth(int w)
+	{
+		if (w > MINIMUM) iconWidth = w;
+	}
+	
+	/**
+	 * Sets the height of the icon.
+	 * 
+	 * @param h The value to set. Must be greater than <code>MINIMUM</code>
+	 */
+	public void setIconHeight(int h)
+	{
+		if (h > MINIMUM) iconHeight = h;
+	}
+	
+	/**
+	 * Returns the width of the icon.
+	 * 
+	 * @return See above.
+	 */
+	public int getIconWidth() { return iconWidth; }
+	
+	/**
+	 * Returns the height of the icon.
+	 * 
+	 * @return See above.
+	 */
+	public int getIconHeight() { return iconHeight; }
 	
 }

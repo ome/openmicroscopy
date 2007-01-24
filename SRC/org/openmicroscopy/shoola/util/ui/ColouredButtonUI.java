@@ -35,6 +35,8 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Stroke;
+
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
@@ -60,6 +62,19 @@ class ColouredButtonUI
     extends BasicButtonUI
 {
 
+	//Set a gradient mask of V=.5 to V = 0.3; this has an alpha
+    // value to show the colours of the button underlying the mask.
+   /** Gradient start color. */ 
+	private static final  Color GRADIENT_START = new Color(0.8f, 0.8f, 0.8f, 
+															1.0f);
+	
+	/** Gradient end color. */ 
+	private static final  Color GRADIENT_END = new Color(0.5f, 0.5f, 0.5f, 
+															1.0f);
+	
+	/** The stroke of the graphics context. */
+	private static final Stroke	STROKE = new BasicStroke(1.0f);
+	
     /** Current Colour of the button. */
     private Color           colour;
 
@@ -106,19 +121,11 @@ class ColouredButtonUI
      */
     private void drawGreyMask(Graphics2D g)
     {
-        GradientPaint gp;
-        
-        // Set a gradient mask of V=.5 to V = 0.3; this has an alpha
-        // value to show the colours of the button underlying the mask.
-        Color gradientStart = new Color(0.8f, 0.8f, 0.8f, 1.0f);
-        Color gradientEnd = new Color(0.5f, 0.5f, 0.5f, 1.0f);
-                
-        // Draw the gradient mask.
-        gp = new GradientPaint((int) buttonRect.getX(),
-                 (int) buttonRect.getY(), gradientStart,
-                 (int) buttonRect.getWidth(),
-                 (int) buttonRect.getHeight(), gradientEnd, false);
-    
+    	// Draw the gradient mask.
+    	GradientPaint gp = new GradientPaint((int) buttonRect.getX(),
+    			(int) buttonRect.getY(), GRADIENT_START,
+    			(int) buttonRect.getWidth(), (int) buttonRect.getHeight(),
+    			GRADIENT_END, false);
         g.setPaint(gp);
         g.fill(buttonRect);
     }
@@ -154,7 +161,6 @@ class ColouredButtonUI
             g.setPaint(Color.black);
         g.drawString(button.getText(), x, y);
     }
-    
     
     /**
      * This method calculates the start and end colours for the gradient on
@@ -295,15 +301,17 @@ class ColouredButtonUI
         // Set the colour of the top, left bevels to be a lighter colour
         // than the grey mask of the gradient at that same corner.
         g.setPaint(borderColour);
-        g.setStroke(new BasicStroke(1.0f));
+        g.setStroke(STROKE);
        
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left. 
-        g.drawLine(0, 0, 0, (int) buttonRect.getHeight());
-        g.drawLine(0, 0, (int) buttonRect.getWidth(), 0);
-        g.drawLine(1, 1, 1, (int) buttonRect.getHeight()-1);
-        g.drawLine(1, 1, (int) buttonRect.getWidth()-1, 1);
-        borderColourHSV = new HSV(0, 0, gradientEndHSV.getValue(),0.8f);
+        int height =(int) buttonRect.getHeight();
+        int width = (int) buttonRect.getWidth();
+        g.drawLine(0, 0, 0, height);
+        g.drawLine(0, 0, width, 0);
+        g.drawLine(1, 1, 1, height-1);
+        g.drawLine(1, 1, width-1, 1);
+        borderColourHSV = new HSV(0, 0, gradientEndHSV.getValue(), 0.8f);
         borderColour = borderColourHSV.toColorA();
         
         // Set the colour of the bottom, right bevels to be a darker colour
@@ -312,16 +320,10 @@ class ColouredButtonUI
        
         // Draw the bevel, it is drawn as four line from: bottomleft to 
         // bottom right, and bottomright to top left. 
-       g.drawLine((int) buttonRect.getWidth()-1, 0, 
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        g.drawLine(0, (int) buttonRect.getHeight()-1,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        
-        g.drawLine((int) buttonRect.getWidth()-2, 2,
-            (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-2);
-        
-        g.drawLine(1, (int) buttonRect.getHeight()-2,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-2);
+        g.drawLine(width-1, 0, width-1, height-1);
+        g.drawLine(0, height-1, width-1, height-1);
+        g.drawLine(width-2, 2, width-2, height-2);
+        g.drawLine(1, height-2, width-1, height-2);
     }
     
     /**
@@ -340,14 +342,16 @@ class ColouredButtonUI
         // Set the colour of the top, left bevels to be a lighter colour
         // than the grey mask of the gradient at that same corner.
         g.setPaint(borderColour.darker().darker().darker());
-        g.setStroke(new BasicStroke(1.0f));
+        g.setStroke(STROKE);
         
         // Draw the bevel, it is drawn as four line from: topleft to 
         // topright, and topleft to bottom left. 
-        g.drawLine(0, 0, 0, (int) buttonRect.getHeight());
-        g.drawLine(0, 0, (int) buttonRect.getWidth(), 0);
-        g.drawLine(1, 1, 1, (int) buttonRect.getHeight()-1);
-        g.drawLine(1, 1, (int) buttonRect.getWidth()-1, 1);
+        int height =(int) buttonRect.getHeight();
+        int width = (int) buttonRect.getWidth();
+        g.drawLine(0, 0, 0, height);
+        g.drawLine(0, 0, width, 0);
+        g.drawLine(1, 1, 1, height-1);
+        g.drawLine(1, 1, width-1, 1);
         borderColourHSV = new HSV(0, 0, gradientStartHSV.getValue(), 0.8f);
         borderColour = borderColourHSV.toColorA();
         
@@ -357,16 +361,10 @@ class ColouredButtonUI
         
        // Draw the bevel, it is drawn as four line from: bottomleft to 
        // bottom right, and bottomright to top left. 
-       g.drawLine((int) buttonRect.getWidth()-1, 0, 
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        g.drawLine(0, (int) buttonRect.getHeight()-1,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        
-        g.drawLine((int) buttonRect.getWidth()-2, 2,
-            (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-2);
-        
-        g.drawLine(1, (int) buttonRect.getHeight()-2,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-2);
+        g.drawLine(width-1, 0, width-1, height-1);
+        g.drawLine(0, height-1, width-1, height-1);
+        g.drawLine(width-2, 2, width-2, height-2);
+        g.drawLine(1, height-2, width-1, height-2);
     }
     
     /**
@@ -382,14 +380,16 @@ class ColouredButtonUI
         borderColour = gradientEndRGB.darker();
         HSV col = new HSV(borderColour);
         g.setPaint(col.toColorA());
-        g.setStroke(new BasicStroke(1.0f));
+        g.setStroke(STROKE);
         
         // Draw the bevel, it is drawn as four line from: topleft to 
-        // topright, and topleft to bottom left. 
-        g.drawLine(0, 0, 0, (int) buttonRect.getHeight());
-        g.drawLine(0, 0, (int) buttonRect.getWidth(), 0);
-        g.drawLine(1, 1, 1, (int) buttonRect.getHeight()-1);
-        g.drawLine(1, 1, (int) buttonRect.getWidth()-1, 1);
+        // topright, and topleft to bottom left.
+        int height =(int) buttonRect.getHeight();
+        int width = (int) buttonRect.getWidth();
+        g.drawLine(0, 0, 0, height);
+        g.drawLine(0, 0, width, 0);
+        g.drawLine(1, 1, 1, height-1);
+        g.drawLine(1, 1, width-1, 1);
 
         borderColour = gradientStartRGB;
         col = new HSV(borderColour);
@@ -402,14 +402,10 @@ class ColouredButtonUI
         
         // Draw the bevel, it is drawn as four line from: bottomleft to 
             // bottom right, and bottomright to top left. 
-        g.drawLine((int) buttonRect.getWidth()-1, 0, 
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        g.drawLine(0, (int) buttonRect.getHeight()-1,
-            (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-1);
-        g.drawLine((int) buttonRect.getWidth()-2, 2,
-                (int) buttonRect.getWidth()-2, (int) buttonRect.getHeight()-2);
-        g.drawLine(1, (int) buttonRect.getHeight()-2,
-                (int) buttonRect.getWidth()-1, (int) buttonRect.getHeight()-2);
+        g.drawLine(width-1, 0, width-1, (int) buttonRect.getHeight()-1);
+        g.drawLine(0, height-1, width-1, height-1);
+        g.drawLine(width-2, 2, width-2, height-2);
+        g.drawLine(1, width-2, width-1, height-2);
     }
     
     /**
@@ -443,7 +439,6 @@ class ColouredButtonUI
                 drawGreyMask(g);
                 drawGreyBorder(g);
             }
-
         }
         // Draw text in centre of button.
         drawText(g);
@@ -452,8 +447,8 @@ class ColouredButtonUI
     /**
      * Constructor for ButtonUI component.
      * 
-     * @param b Reference to parent Button.
-     * @param c Colour of the button.
+     * @param b Reference to parent Button. Mustn't be <code>null</code>.
+     * @param c Colour of the button. Mustn't be <code>null</code>.
      */
     ColouredButtonUI(ColouredButton b, Color c)
     {
@@ -461,7 +456,7 @@ class ColouredButtonUI
             throw new IllegalArgumentException("No button.");
         if (c == null) 
             throw new IllegalArgumentException("No color.");
-        this.setColor(c);
+        setColor(c);
         button = b;
         greyedOut = false;
         fontIndex = Font.PLAIN;
@@ -482,9 +477,14 @@ class ColouredButtonUI
     /**
      * Sets the colour of the button. 
      * 
-     * @param c Color to set.
+     * @param c Color to set. Mustn't be <code>null</code>.
      */
-    void setColor(Color c)  { this.colour = c; }
+    void setColor(Color c) 
+    { 
+    	if (c == null) 
+            throw new IllegalArgumentException("No color.");
+    	this.colour = c; 
+    }
        
     /**
      * Sets the index of the derived font used to paint the text.
@@ -494,7 +494,7 @@ class ColouredButtonUI
     void setDeriveFont(int fontIndex) { this.fontIndex = fontIndex; }
     
     /**
-     * Overridden, Paints the button, and Renders the text in the centre of
+     * Overridden to paints the button and to rendersthe text in the centre of
      * the button.
      * @see BasicButtonUI#paint(Graphics, JComponent)
      */

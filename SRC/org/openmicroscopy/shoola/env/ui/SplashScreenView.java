@@ -31,7 +31,6 @@ import java.awt.Insets;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -132,12 +131,6 @@ class SplashScreenView
 	
     /** Cancel button. */
     JButton             cancel;
-	
-    /** Label hosting the version of shoola. */
-	JLabel              versionLabel;
-    
-    /** Box displaying the user preferred server on the current machine. */
-    JComboBox           server;
     
     /** Collection of available servers. */
     List				servers;

@@ -152,7 +152,7 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null || viewTop == null) return;  
-		view.setVisible(true);
+		//view.setVisible(true);
 		viewTop.setVisible(true);
 		isOpen = true;	
 	}
@@ -204,7 +204,10 @@ class SplashScreenManager
 		if (!isOpen) return;
 		viewTop.currentTask.setText(task);
 		viewTop.progressBar.setValue(doneTasks++);
-		if (doneTasks == totalTasks) viewTop.progressBar.setVisible(false);
+		if (doneTasks == totalTasks) {
+			viewTop.progressBar.setVisible(false);
+			view.setVisible(true);
+		}
 	}
     
     /**
