@@ -138,7 +138,6 @@ public abstract class Player
      */
     public void setDelay(int v)
     {
-    	System.out.println(v);
         if (state != STOP) return;
         delay = DELAY/v;
         timer.setDelay(delay);
