@@ -189,18 +189,20 @@ class HSVColourWheelUI
 		alphaTextboxListener = new ActionListener() {		
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
-				try
-				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-				{
-					control.setHSVColour(wheel.getHue(), wheel.getSaturation(), 
-							            HSVSlider.getValue()/255.0f, 
-							             value/255.0f);
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value >=0 && value <=255)
+						control.setHSVColour(wheel.getHue(), 
+											wheel.getSaturation(), 
+								            HSVSlider.getValue()/255.0f, 
+								             value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						alphaTextbox.setText(""+(int) (control.getAlpha()*255));
 					}
-				}
-				catch(NumberFormatException e)
-				{
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					alphaTextbox.setText(""+(int) (control.getAlpha()*255));
 				}
 			}
 		};

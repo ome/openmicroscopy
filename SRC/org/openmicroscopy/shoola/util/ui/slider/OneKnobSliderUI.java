@@ -150,10 +150,8 @@ public class OneKnobSliderUI
     /** The width of the end label. */
     private	int 				labelWidth;
 
-    /**
-	 * This variable is set to <code>true</code> if user dragging thumb.
-	 */
-	protected boolean isDragging;
+    /** This variable is set to <code>true</code> if user dragging thumb. */
+	protected boolean 			isDragging;
 
 	/** Load the thumb and arrow images. */
 	private void loadThumbArrowImage()

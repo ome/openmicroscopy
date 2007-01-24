@@ -30,9 +30,14 @@ import java.awt.GridBagLayout;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * This is the colourpicker which instatiates a dialog. Once the user hits 
@@ -76,6 +81,18 @@ public class ColourPicker
         setModal(true);
         setResizable(false);
         setAlwaysOnTop(true);
+    }
+    
+    /** Notifies the user that an invalid color component has been entered. */
+    static void invalidColorValue()
+    {
+    	IconManager icons = IconManager.getInstance();
+		NotificationDialog dialog = new NotificationDialog(
+                			null, "Invalid color component value", 
+                			"The value must be in the interval [0, 255].", 
+                			icons.getIcon(IconManager.INFO_32));
+		dialog.pack();
+		UIUtilities.centerAndShow(dialog);
     }
     
     /** Closes and disposes. */

@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -279,13 +280,18 @@ class RGBSliderUI
 		redTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
-				try
-				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-					control.setRed(value/255.0f);
-				}
-				catch(NumberFormatException e) {}
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value >=0 && value <= 255)
+						control.setRed(value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						redTextbox.setText(""+(int) (control.getRed()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					redTextbox.setText(""+(int) (control.getRed()*255));
+				} //notify user and reset value
 			}
 		};
 		redTextbox.addActionListener(redTextboxActionListener);	
@@ -303,15 +309,20 @@ class RGBSliderUI
 				JTextField src = (JTextField) actionEvent.getSource();
 				try
 				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-					control.setGreen(value/255.0f);
+					int value = Integer.parseInt(src.getText());
+					if (value >= 0 && value <= 255)
+						control.setGreen(value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						greenTextbox.setText(""+(int) (control.getGreen()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					greenTextbox.setText(""+(int) (control.getGreen()*255));
 				}
-				catch(NumberFormatException e) {}
 			}
 		};
 		greenTextbox.addActionListener(greenTextboxActionListener);
-		
 	}
 	
 	/**
@@ -320,18 +331,22 @@ class RGBSliderUI
 	 */
 	void createBlueTextbox()
 	{
-
 		blueTextbox = new JTextField(""+(int) (control.getBlue()*255));
 		blueTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
-				try
-				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-					control.setBlue(value/255.0f);
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value >=0 && value <=255)
+						control.setBlue(value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						blueTextbox.setText(""+(int) (control.getBlue()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					blueTextbox.setText(""+(int) (control.getBlue()*255));
 				}
-				catch(NumberFormatException e) {}
 			}
 		};
 		blueTextbox.addActionListener(blueTextboxActionListener);
@@ -347,13 +362,18 @@ class RGBSliderUI
 		alphaTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
-				try
-				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-					control.setAlpha(value/255.0f);
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value>=0 && value<=255)
+						control.setAlpha(value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						alphaTextbox.setText(""+(int) (control.getAlpha()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					alphaTextbox.setText(""+(int) (control.getAlpha()*255));
 				}
-				catch(NumberFormatException e) {}
 			}
 		};
 		alphaTextbox.addActionListener(alphaTextboxActionListener);

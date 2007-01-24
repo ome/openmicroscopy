@@ -122,11 +122,32 @@ public class IconManager
     /** ID of the <code>Error icon 64</code> icon. */
     public static final int ERROR_ICON_64 = 22;
     
+    /** ID of the <code>Server</code> icon. */
+    public static final int SERVER = 23;
+    
+    /** ID of the <code>Remove</code> icon. */
+    public static final int REMOVE = 24;
+    
+    /** ID of the <code>Config</code> icon. */
+    public static final int CONFIG = 25;
+    
+    /** ID of the <code>Config pressed</code> icon. */
+    public static final int CONFIG_PRESSED = 26;
+    
+    /** ID of the <code>Config 48</code> icon. */
+    public static final int CONFIG_48= 27;
+  
+    /** ID of the <code>Add</code> icon. */
+    public static final int ADD = 28;
+    
+    /** ID of the <code>Info 32</code> icon. */
+    public static final int INFO_32 = 29;
+  
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 23;
+    private static int      MAX_ID = 29;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -157,6 +178,13 @@ public class IconManager
     	relPaths[CLASSIFICATION_48] = "nuvola_filenew48.png";
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_knotes64.png";
+    	relPaths[SERVER] = "nuvola_server22.png";
+    	relPaths[CONFIG] = "nuvola_server48.png";
+    	relPaths[CONFIG_PRESSED] = "config_pressed.png";
+    	relPaths[CONFIG_48] = "config.png";
+    	relPaths[REMOVE] = "nuvola_edit_remove16.png";
+    	relPaths[ADD] = "nuvola_edit_add16.png";
+    	relPaths[INFO_32] = "nuvola_messagebox_info32.png";
     }
     
     /** 

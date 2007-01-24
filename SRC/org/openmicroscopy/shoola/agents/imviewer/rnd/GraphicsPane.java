@@ -106,7 +106,6 @@ class GraphicsPane
     /** Preview option for render settings */
     private JCheckBox			preview;
 
-    
     /** Initializes the components. */
     private void initComponents()
     {
@@ -281,20 +280,27 @@ class GraphicsPane
     private void startSelectionHandler()
     {
     	double e = model.getWindowEnd();
-    	double val = Double.parseDouble(startField.getText());
+    	double val = -1;
+    	try {
+    		val = Double.parseDouble(startField.getText());
+    	} catch(NumberFormatException nfe) { 
+    		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    		un.notifyInfo("Invalid pixels intensity interval", 
+    				" The value must be in the interval ["+
+    				(int) model.getWindowStart()+","+(int) e+"]");
+    		return;
+    	}
+    	
         if (val == model.getWindowStart()) return;
              
-    	if (startFieldValid())
-    	{
+    	if (startFieldValid()) {
     		controller.setInputInterval(val, e, true);
     		onCurveChange();
-    	}
-    	else
-    	{
+    	} else {
     		startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+val+","+e+"]");
+                    "["+(int) val+","+(int) e+"]");
     	}
     }
     
@@ -307,19 +313,25 @@ class GraphicsPane
     private void endSelectionHandler()
     {
     	double s = model.getWindowStart();
-    	double val = Double.parseDouble(endField.getText());
+    	double val = -1;
+    	try {
+    		val = Double.parseDouble(startField.getText());
+    	} catch(NumberFormatException nfe) { 
+    		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    		un.notifyInfo("Invalid pixels intensity interval", 
+    				" The value must be in the interval ["+
+    				(int) s+","+(int) model.getWindowEnd()+"]");
+    		return;
+    	}
         if (val == model.getWindowEnd()) return;
-    	if (endFieldValid())
-    	{
+    	if (endFieldValid()) {
     		controller.setInputInterval(s, val, true);
     		onCurveChange();
-    	}
-    	else
-    	{
+    	} else {
     		endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+s+","+val+"]");
+                    "["+(int) s+","+(int) val+"]");
     	}
     }
     
@@ -458,11 +470,11 @@ class GraphicsPane
     {
       if (fe.getSource() == startField) {
     	  if (startFieldValid()) startSelectionHandler();
-  		  else startField.setText(model.getWindowStart()+"");
+  		  else startField.setText(""+(int) model.getWindowStart());
       }
       if (fe.getSource() == endField) {
     	  if (endFieldValid()) endSelectionHandler();
-  		 else endField.setText(model.getWindowEnd()+"");
+  		 else endField.setText(""+model.getWindowEnd());
       }	
     }
     

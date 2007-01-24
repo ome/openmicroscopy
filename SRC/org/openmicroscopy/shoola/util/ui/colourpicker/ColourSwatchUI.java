@@ -30,7 +30,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -65,43 +64,35 @@ public class ColourSwatchUI
 	extends JPanel
 {
 	
-	/**
-	 * Refernce to the Colour model.
-	 */
-	private RGBControl	control;
+	/** Reference to the Colour model. */
+	private RGBControl		control;
 	
-	/**
-	 * List of colours.
-	 */
-	private JList		colourlist;	
+	/** List of colours. */
+	private JList			colourlist;	
 	
-	/**
-	 * Scroll pane which contains the JList component.
-	 */
-	private JScrollPane	scrollpane;	
+	/** Scroll pane which contains the JList component. */
+	private JScrollPane		scrollpane;	
 		
 	  /** The slider representing the alpha channel. */
-	private ColourSlider 				alphaSlider;
+	private ColourSlider	alphaSlider;
 	/** Change listener for alpha slider.  */
-	private ChangeListener				alphaChangeListener;
+	private ChangeListener	alphaChangeListener;
 	
-	   /**
-     * The textfield representing the alpha red channel.
-     */
-	private JTextField					alphaTextbox;
+	/** The textfield representing the alpha red channel. */
+	private JTextField		alphaTextbox;
 	
 	  /** The JLabel representing the colour alpha channel. */
-	private JLabel						alphaLabel;
+	private JLabel			alphaLabel;
 	
 	/** Action listener for alpha TextBox.  */
-	private ActionListener				alphaTextboxActionListener;
+	private ActionListener	alphaTextboxActionListener;
 
 	/**
 	 * Boolean variable, true if the current component is active, this is 
 	 * controlled from the parent component. It tells the UI whether or not
 	 * to ignore refresh events.
 	 */
-	private boolean						active;
+	private boolean			active;
 	
 	/**
 	 * Create the UI and attach the control c.
@@ -163,13 +154,18 @@ public class ColourSwatchUI
 		alphaTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
-				try
-				{
-				int value = Integer.parseInt(src.getText());
-				if (value>=0 && value<=255)
-					control.setAlpha(value/255.0f);
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value >=0 && value <=255)
+						control.setAlpha(value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						alphaTextbox.setText(""+(int) (control.getAlpha()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					alphaTextbox.setText(""+(int) (control.getAlpha()*255));
 				}
-				catch(NumberFormatException e) {}
 			}
 		};
 		alphaTextbox.addActionListener(alphaTextboxActionListener);
