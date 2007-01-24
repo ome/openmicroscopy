@@ -71,7 +71,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
 
     // -- Constants --
 
-    private final static String TITLE            = "OMERO Importer";
+    public final static String TITLE            = "OMERO.importer";
     public final static String splash           = "gfx/importer_splash.png";
     private final static boolean useSplashScreenAbout   = false;
      

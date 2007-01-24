@@ -53,7 +53,7 @@ public class CommentMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -894653530593047377L;
 
-    boolean debug = true;
+    boolean debug = false;
     
     String url = "http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php";
 

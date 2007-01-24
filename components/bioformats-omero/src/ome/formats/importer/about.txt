@@ -1,4 +1,4 @@
-OMERO Import Client
+OMERO.importer Client
 
 For further information about copyright 
 and version information, see the text 

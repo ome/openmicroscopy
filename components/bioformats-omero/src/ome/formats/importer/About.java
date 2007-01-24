@@ -78,6 +78,8 @@ public abstract class About
                     msg = "Error: could not read version information";
                 }
             }
+            if (Main.TITLE != null)
+                title = "About " + Main.TITLE;
             JOptionPane.showMessageDialog(c, msg, title,
                     JOptionPane.INFORMATION_MESSAGE);    
         }
