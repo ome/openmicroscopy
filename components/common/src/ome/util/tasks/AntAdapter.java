@@ -30,7 +30,7 @@ import ome.system.ServiceFactory;
  * @version $Revision$, $Date$
  * @see Configuration
  * @see Task
- * @since 3.0-M4
+ * @since 3.0-Beta1
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")

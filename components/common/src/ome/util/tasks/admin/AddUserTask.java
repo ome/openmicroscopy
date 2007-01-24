@@ -45,7 +45,7 @@ import static ome.util.tasks.admin.AddUserTask.Keys.*;
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see SimpleTask
- * @since 3.0-M4
+ * @since 3.0-Beta1
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
