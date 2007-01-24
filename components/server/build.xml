@@ -20,4 +20,36 @@
                 </sql_run>
         </target>
 
+        <target name="generate" depends="lifecycle.generate,hard-wire"/>
+
+	<!-- The hard-wiring target allows certain method interceptors to
+	be hard-wired around method exception *before* any of the "soft" 
+	spring-wired interceptors (see resources/ome/services/services.xml)
+	
+	The values hard-wired in are the class names of subclasses of 
+	ome.logic.HardWireInterceptor with a no-arg constructor. This allows
+	classes unknown to the server at compile time (like those under tools/)
+	to become a part of a distribution. -->
+	<target name="hard-wire">
+	        <!-- FORMAT: &quot;CLASS1&quot;,&quot1;CLASS2&quot;,... -->
+		<property name="replace.pkg"  value="ome/logic"/>
+		<property name="replace.file" value="${replace.pkg}/AbstractBean.java"/>
+	        <property name="omero.hard-wired.interceptors" value=""/>
+                <delete file="${src.dest}/${replace.file}"/>
+                <copy file="${src.dir}/${replace.file}" todir="${src.dest}/${replace.pkg}" />
+                <replace file="${src.dest}/${replace.file}">
+                        <replacefilter token="@REPLACE@" value="REPLACED BY server/build.xml-->*/${omero.hard-wired.interceptors}/*"/>
+                </replace>
+	</target>
+
+	<target name="compile" depends="generate">
+		<myjavac>
+		  <src path="${src.dir}"/>
+		</myjavac>
+		<delete file="${classes.dir}/ome/logic/AbstractBean.class"/>
+		<myjavac>
+		  <src path="${src.dest}"/>
+		</myjavac>
+	</target>
+
 </project>

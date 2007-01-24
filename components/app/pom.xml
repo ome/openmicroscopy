@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
       <groupId>omero</groupId>
-      <artifactId>ejb</artifactId>
+      <artifactId>server</artifactId>
       <version>3.0-TRUNK</version>
       <type>ejb</type>
       <exclusions>
@@ -26,7 +26,7 @@
           <groupId>jboss</groupId>
           <artifactId>jboss-ejb3x</artifactId>
         </exclusion>
-        <!--exclusion>
+        <exclusion>
           <groupId>org.hibernate</groupId>
           <artifactId>hibernate</artifactId>
         </exclusion-->

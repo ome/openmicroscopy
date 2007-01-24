@@ -4,10 +4,26 @@
 # system variables which will be used both at
 # build-time and run-time
 #
-omero.version=3.0-M1
+omero.version=3.0-TRUNK
 omero.repo.local=${omero.home}/lib/repository
 omero.repo.remote=file://${user.home}/.m2/repository
 omero.rootpass=ome
+
+############################################
+# build
+############################################
+# Defaults used in antlib/resources/lifecycle.xml
+# override in <COMPONENT>/build.xml files or
+# in etc/local.properties 
+javac.source=1.5
+javac.target=1.5
+javac.debug=on
+javac.debuglevel=lines,vars,source
+
+# Used in server/build.xml to specify the
+# functionality that will be compiled in
+# via server/src/ome/logic/AbstractBean.java
+omero.hard-wired.interceptors=""
 
 ############################################
 # client connection

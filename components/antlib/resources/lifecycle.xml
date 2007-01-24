@@ -44,28 +44,36 @@
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}
                 </echo>
+		<copyResources/>
 	</target>
 
-	<target name="compile" depends="generate">
-		<copyResources/>
-
-		<!-- Defaults: override in global.xml files -->
-		<property name="javac.source" value="1.5"/>
-		<property name="javac.target" value="1.5"/>
-		<property name="javac.debug"  value="on"/>
-		<property name="javac.debuglevel" value="lines,vars,source"/>
+	<!-- javac macro which can contain any number of path
+	elements for compilation. Usually src.dir and src.dest
+	will need to be compiled together because of inter-
+	dependencies -->
+	<macrodef name="myjavac">
+	        <element name="srcelements" implicit="yes"/>
+		<sequential>
 		<javac 
 			fork="yes"
 			destdir="${classes.dir}"
 			classpathref="omero.classpath" 
+			sourcepath=""
 			source="${javac.source}"
 			target="${javac.target}"
 			debug="${javac.debug}"
 			debuglevel="${javac.debuglevel}"
 		>
-			<src path="${src.dir}"/>
-			<src path="${src.dest}"/>
+		        <srcelements/>
 		</javac>
+		</sequential>
+	</macrodef>
+
+	<target name="compile" depends="generate">
+		<myjavac>
+		  <src path="${src.dir}"/>
+		  <src path="${src.dest}"/>
+		</myjavac>
 	</target>
 
 	<target name="testng-init" unless="test.skip">

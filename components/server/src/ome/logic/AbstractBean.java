@@ -1,5 +1,5 @@
 /*
- * ome.logic.AbstractBean
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -8,15 +8,21 @@
 package ome.logic;
 
 // Java imports
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 // Third-party imports
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.framework.ReflectiveMethodInvocation;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -36,16 +42,26 @@ import ome.tools.spring.AOPAdapter;
 import ome.tools.spring.InternalServiceFactory;
 
 /**
- * abstract base class for creating
+ * Abstract base class for all OMERO services. Responsible
+ * for login, logout, and various forms of interception.
  * 
- * 
+ * @DEV.TODO This class will be moved to a interceptor!
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @since 3.0-M3
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public abstract class AbstractBean implements SelfConfigurableService {
+
+    /** Interceptors that are determinined at compile time by server/build.xml
+     *  The REPLACE token will be replaced with a (possibly) empty comma-
+     *  comma separated list of strings representing the class names of 
+     *  HardWiredInterceptor subclasses which are prepended to the list of
+     *  interceptors for each call. Note: these interceptors will NOT be applied
+     *  to server internal calls.
+     */
+    private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
+            .parse(new String[] { /* @REPLACE@ */});
 
     private transient Log logger = LogFactory.getLog(this.getClass());
 
@@ -88,11 +104,7 @@ public abstract class AbstractBean implements SelfConfigurableService {
             throws Exception {
         try {
             login();
-            String factoryName = "&managed:" + getServiceInterface().getName();
-            AOPAdapter adapter = AOPAdapter.create(
-                    (ProxyFactoryBean) applicationContext.getBean(factoryName),
-                    context);
-            return adapter.proceed();
+            return call(context);
         } catch (Throwable t) {
             throw translateException(t);
         } finally {
@@ -118,6 +130,19 @@ public abstract class AbstractBean implements SelfConfigurableService {
 
     private void logout() {
         securitySystem.logout();
+    }
+
+    private Object call(InvocationContext context) throws Throwable {
+
+        String factoryName = "&managed:" + getServiceInterface().getName();
+        AOPAdapter adapter = AOPAdapter.create(
+                (ProxyFactoryBean) applicationContext.getBean(factoryName),
+                context, CPTORS);
+
+        HardWiredInterceptor.initializeUserAttributes(adapter,
+                getServiceFactory(), sessionContext);
+
+        return adapter.proceed();
     }
 
     // ~ Self-configuration (non-JavaEE)

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<html>
+<head><title>ome.services.licenses</title>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# $Id$
+# 
+# Copyright 2006 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+</head>
+<body bgcolor="white">
+
+Contains an add-on service and interceptor for license administration.
+
+<p>
+  The licenses jar produced by the tools/ build system contains a complete
+  package (not split like the main OMERO components) of API (ILicense), 
+  conditions, service implementations (LicenseBean), and extension point
+  (LicenseStore) which allows for third-parties to compile licensing into
+  the OMERO application.
+</p>
+
+<p>
+  The License service (ome.services.licenses.ILicense) is hooked into the
+  server via the HardWiredInterceptor. See etc/local.properties.example and
+  components/server/build.xml for more details.
+</p>
+  
+<h2>Related Documentation</h2>
+
+For more information, please see:
+<ul>
+  <li>
+    <a href="http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Licenses">
+    http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Licenses</a>
+  </li>
+</ul>
+
+<!-- Put @see and @since tags down here. -->
+  @see ome.logic.AbstractBean
+  @see ome.logic.HardWiredInterceptor
+  
+</body>
+</html>

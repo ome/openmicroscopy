@@ -31,6 +31,9 @@
         <fileset dir="${target.dir}/libs" includes="log4j*"/>
         <fileset dir="${target.dir}/libs" includes="geronimo*"/>
       </delete>
+
+      <!-- Gather all compiled services together -->
+      <jar destfile="${target.dir}/libs/services.jar" basedir="${tools.dest}/service-classes"/>
       
       <!-- DataSource with replacement. -->
       <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" />

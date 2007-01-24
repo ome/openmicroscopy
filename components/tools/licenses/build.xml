@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="licenses" default="install" basedir=".">
+
+	<description>
+	Add-on to the OMERO code base which allows custom implementations
+	of a LicenseStore which regulates access to the server based on 
+	License tokens. 
+	</description>    
+
+	<property name="classpath.file" value="classpath.xml"/>
+	<dirname property="up-two" file="${basedir}"/>
+	<dirname property="up-one" file="${up-two}"/>
+	<import file="${classpath.file}"/>
+
+	<!-- Additional functionality for the lifecycle.package target.
+	Unjars the final contents of the service jar to a top-level tools/
+	directory so that they can be bundled together for the final EAR.
+	This is necessary since otherwise the jar listed here would have to
+	be manually added to app/resources/application.xml -->
+	<target name="package" depends="lifecycle.package">
+	        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.dest}/service-classes"/>
+	</target>
+
+</project>

@@ -42,8 +42,8 @@ import ome.conditions.ApiUsageException;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date$)
- *          </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$ $Date:
+ *          2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $) </small>
  * @since OME3.0
  */
 public class OmeroContext extends ClassPathXmlApplicationContext {
@@ -113,17 +113,36 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
 
     /**
      * initialize a new client OmeroContext (named {@link #CLIENT_CONTEXT}),
-     * using the {@link Properties} provided as a values for property (e.g.
-     * ${name}) replacement in Spring. Two calls to this method with the same
-     * argument will return different ( =! ) contexts.
-     * 
+     * using the {@link #getContext(Properties, String)} method.
+     *
+     * @see #getContext(Properties, String)
      * @see #CLIENT_CONTEXT
      * @see ServiceFactory#ServiceFactory(Login)
+     * @see ServiceFactory#ServiceFactory(Server)
      * @see ServiceFactory#ServiceFactory(Properties)
      */
     public static OmeroContext getClientContext(Properties props) {
-        if (props == null) {
-            throw new ApiUsageException("Properties argument may not be null.");
+        return getContext(props, CLIENT_CONTEXT);
+    }
+
+    /**
+     * initialize a new client OmeroContext using the {@link Properties}
+     * provided as values for property (e.g. ${name}) replacement in Spring.
+     * Two calls to this method with the same argument will return different ( =! )
+     * contexts.
+     * 
+     * @param props
+     *            Non-null properties for replacement.
+     * @param context
+     *            Non-null name of context to find in beanRefContext.xml
+     *
+     * @see ServiceFactory#ServiceFactory(Login)
+     * @see ServiceFactory#ServiceFactory(Server)
+     * @see ServiceFactory#ServiceFactory(Properties)
+     */
+    public static OmeroContext getContext(Properties props, String context) {
+        if (props == null || context == null) {
+            throw new ApiUsageException("Arguments may not be null.");
         }
 
         Properties copy = new Properties(props);
@@ -135,7 +154,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         staticContext.registerBeanDefinition("properties", definition);
         staticContext.refresh();
 
-        OmeroContext ctx = new Locator().lookup(CLIENT_CONTEXT);
+        OmeroContext ctx = new Locator().lookup(context);
         ctx.setParent(staticContext);
         ctx.refresh();
         return ctx;

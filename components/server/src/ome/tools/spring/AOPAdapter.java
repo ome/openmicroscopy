@@ -1,5 +1,5 @@
 /*
- * ome.tools.spring.AOPAdapter
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -9,14 +9,18 @@ package ome.tools.spring;
 
 // Java imports
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 // Third-party imports
+import ome.logic.HardWiredInterceptor;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.AdvisorChainFactoryUtils;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
@@ -24,7 +28,7 @@ import org.springframework.aop.framework.ReflectiveMethodInvocation;
 // Application-internal dependencies
 
 /**
- * adapts between Spring AOP and JEE AOP. AOPadapter can be used to share a
+ * Adapts between Spring AOP and JEE AOP. AOPadapter can be used to share a
  * single service implementation between both Spring and JavaEE. This is
  * achieved by applying the stack of AOP interceptors defined in Spring and
  * having them applied during the {@link AroundInvoke} JavaEE interceptor.
@@ -49,20 +53,26 @@ public class AOPAdapter extends ReflectiveMethodInvocation {
     }
 
     /**
-     * because of hidden constructors, a static factory method is needed to
+     * Produces a {@link MethodInvocation} object which delegates to the EJB3
+     * {@link InvocationContext} at the end of the {@link MethodInterceptor} 
+     * stack. This stack is produced from the {@link HardWiredInterceptor}
+     * list and from the {@link MethodInterceptor} instances defined in the
+     * Spring configuration files for the current service.
+     *
+     * Because of hidden constructors, a static factory method is needed to
      * create the AOPAdapter.
      */
     public static AOPAdapter create(ProxyFactoryBean factory,
-            InvocationContext context) {
+            InvocationContext context, List<HardWiredInterceptor> wired) {
         return new AOPAdapter(context, proxy(factory), target(context),
                 method(context), args(context), targetClass(factory),
-                interceptors(factory, context));
+                interceptors(factory, context, wired));
     }
 
     /**
      * simple override of the
      * {@link org.springframework.aop.framework.ReflectiveMethodInvocation}
-     * contructor which initializes the two fields on AOPAdapter.
+     * contructor which initializes the {@link AOPAdapter#invocation} field.
      */
     public AOPAdapter(InvocationContext context, Object proxy, Object target,
             Method method, Object[] arguments, Class targetClass,
@@ -96,10 +106,13 @@ public class AOPAdapter extends ReflectiveMethodInvocation {
     }
 
     protected static List interceptors(ProxyFactoryBean factory,
-            InvocationContext context) {
-        return AdvisorChainFactoryUtils
+            InvocationContext context, List<HardWiredInterceptor> wired) {
+        List first = new ArrayList(wired);
+        List append = AdvisorChainFactoryUtils
                 .calculateInterceptorsAndDynamicInterceptionAdvice(factory,
                         proxy(factory), method(context), targetClass(factory));
+        first.addAll(append);
+        return first;
     }
 
 }
