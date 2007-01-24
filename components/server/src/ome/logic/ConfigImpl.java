@@ -40,7 +40,7 @@ import ome.api.ServiceInterface;
 import ome.system.Version;
 
 /**
- * implementation of the ITypes service interface.
+ * implementation of the IConfig service interface.
  * 
  * Also used as the main developer example for developing (stateless) ome.logic
  * implementations. See source code documentation for more.
