@@ -38,20 +38,20 @@ import ome.conditions.SecurityViolation;
  * @since 3.0-M3
  */
 /*
- * Developer notes: --------------- The two annotations below are activated by
- * setting subversion properties on this class file. These values can then be
- * accessed via ome.system.Version
+ * Developer notes: The two annotations below are activated by setting
+ * subversion properties on this class file. These values can then be accessed
+ * via ome.system.Version
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public interface IConfig extends ServiceInterface {
 
     /*
-     * Developer notes: --------------- Simple almost hello-world call. There
-     * should be almost nothing that causes this to throw an exception (except
-     * perhaps a Java security policy file which disallows "new Date()").
-     * Therefore we don't add a throws clause here. Anything that is thrown will
-     * be wrapped in an InternalException see
+     * Developer notes: Simple almost hello-world call. There should be almost
+     * nothing that causes this to throw an exception (except perhaps a Java
+     * security policy file which disallows "new Date()"). Therefore we don't
+     * add a throws clause here. Anything that is thrown will be wrapped in an
+     * InternalException see
      * http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Exception+Handling
      */
     /**
@@ -63,11 +63,11 @@ public interface IConfig extends ServiceInterface {
     Date getServerTime();
 
     /*
-     * Developer notes: --------------- This call hits the database through JDBC
-     * (not our own Hibernate infrastructure) and therefore it is more likely
-     * that an exception can occur. An InternalException will also be thrown
-     * (though this may change as more exceptions are created). We mark it here
-     * for general consumption; readers of the API will want to know why.
+     * Developer notes: This call hits the database through JDBC (not our own
+     * Hibernate infrastructure) and therefore it is more likely that an
+     * exception can occur. An InternalException will also be thrown (though
+     * this may change as more exceptions are created). We mark it here for
+     * general consumption; readers of the API will want to know why.
      */
     /**
      * checks the database for it's time using a SELECT statement.
@@ -83,11 +83,11 @@ public interface IConfig extends ServiceInterface {
     Date getDatabaseTime() throws InternalException;
 
     /*
-     * Developer notes: --------------- The @NotNull annotation on the key
-     * parameter will cause all managed method calls on any implementation of
-     * this interface to be checked by ome.annotations.ApiConstraintChecker.
-     * This is done before any access to the Hibernate session is performed and
-     * so balances its own overhead somewhat.
+     * Developer notes: The @NotNull annotation on the key parameter will cause
+     * all managed method calls on any implementation of this interface to be
+     * checked by ome.annotations.ApiConstraintChecker. This is done before any
+     * access to the Hibernate session is performed and so balances its own
+     * overhead somewhat.
      */
     /**
      * retrieve a configuration value from the backend store. Permissions
@@ -123,4 +123,6 @@ public interface IConfig extends ServiceInterface {
     void setConfigValue(@NotNull
     String key, @NotNull
     String value) throws ApiUsageException, SecurityViolation;
+    
+    String getVersion();
 }

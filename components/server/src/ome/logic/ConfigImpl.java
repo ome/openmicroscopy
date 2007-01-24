@@ -37,6 +37,7 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IConfig;
 import ome.api.ServiceInterface;
+import ome.system.Version;
 
 /**
  * implementation of the ITypes service interface.
@@ -243,6 +244,15 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
     // see above
     public void setConfigValue(String key, String value) {
         return;
+    }
+    
+    /**
+     * see {@link IConfig#getVersion()}
+     */
+    @RolesAllowed("user")
+    // see above
+    public String getVersion() {
+        return Version.OMERO;
     }
 
 }
