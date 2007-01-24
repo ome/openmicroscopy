@@ -21,7 +21,7 @@ import ome.conditions.InternalException;
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see SecuritySystem
- * @since 3.0-M4
+ * @since 3.0-Beta1
  */
 public abstract class PasswordUtil {
 
