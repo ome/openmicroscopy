@@ -72,7 +72,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
     // -- Constants --
 
     private final static String TITLE            = "OMERO Importer";
-    public final static String splash           = "gfx/splash.png";
+    public final static String splash           = "gfx/importer_splash.png";
     private final static boolean useSplashScreenAbout   = false;
      
     private final static int width = 980;
@@ -225,7 +225,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
         statusBar.setProgress(false, 0, "");
         this.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
-        this.setVisible(true);
+        this.setVisible(false);
 
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
@@ -233,7 +233,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
         
-        loginHandler = new LoginHandler(this);;
+        loginHandler = new LoginHandler(this, false);
     }
 
     /**
@@ -303,7 +303,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
                 loginHandler = null;
             } else 
             {                
-                loginHandler = new LoginHandler(this);
+                loginHandler = new LoginHandler(this, true);
                 //store = loginHandler.getMetadataStore();
                 //loginHandler.tryLogin(this);
                 //store = loginHandler.getMetadataStore();

@@ -15,6 +15,8 @@ import java.awt.event.*;
 import java.net.*;
 import java.io.*;
 
+import javax.swing.JDialog;
+
 /**
  * A Splash window.
  *  <p>
@@ -101,6 +103,7 @@ public class SplashWindow extends Window {
         (screenDim.width - imgWidth) / 2,
         (screenDim.height - imgHeight) / 2
         );
+
         
         // Users shall be able to close the splash window by
         // clicking on its display area. This mouse listener

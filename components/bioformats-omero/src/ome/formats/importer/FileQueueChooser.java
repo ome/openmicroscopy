@@ -65,8 +65,7 @@ public class FileQueueChooser
         int readerFFSize = reader.getFileFilters().length;
         /** Gets a JFileChooser that recognizes accepted file types. */
         
-        
-        
+        setAcceptAllFileFilterUsed(false);
         FileFilter[] ff = new FileFilter[readerFFSize + 6];
         System.arraycopy(ComboFileFilter.sortFilters(
                 reader.getFileFilters()), 0, ff, 0, readerFFSize);

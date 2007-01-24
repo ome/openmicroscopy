@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -167,6 +168,54 @@ public class GuiCommonElements
         label.setDisplayedMnemonic(mnemonic);
         
         JTextField result = new JTextField(20);
+        label.setLabelFor(result);
+        label.setOpaque(false);
+        result.setToolTipText(tooltip);
+        if (initialValue != null) result.setText(initialValue);
+
+
+        panel.add(label, "0, 0, r, c");        
+        panel.add(result, "1, 0, f, c");
+
+        if (suffix.length() != 0)
+        {
+            JLabel suffixLabel = new JLabel(" " + suffix);
+            panel.add(suffixLabel, "2,0, l, c");
+        }
+            
+        
+        if (debug == true)
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.red),
+                panel.getBorder()));
+        
+        container.add(panel, placement);
+        return result;
+    }
+
+    public JPasswordField addPasswordField(Container container, String name,
+            String initialValue, int mnemonic, String tooltip, 
+            String suffix, double labelWidth, String placement, boolean debug)
+    {
+
+        double[][] size = null;
+        
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        if (suffix == "")
+            size = new double[][]{{labelWidth,TableLayout.FILL},{30}};
+        else
+            size = new double[][] 
+                   {{labelWidth,TableLayout.FILL, TableLayout.PREFERRED},{30}};
+     
+        TableLayout layout = new TableLayout(size);
+        panel.setLayout(layout);       
+
+        JLabel label = new JLabel(name);
+        label.setDisplayedMnemonic(mnemonic);
+        
+        JPasswordField result = new JPasswordField(20);
         label.setLabelFor(result);
         label.setOpaque(false);
         result.setToolTipText(tooltip);

@@ -38,7 +38,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LoginHandler
 {
-
+    private boolean            center;
+    
     private String             username;
 
     private String             password;
@@ -57,9 +58,11 @@ public class LoginHandler
 
     private OMEROMetadataStore store;
 
-    LoginHandler(Main viewer)
+    LoginHandler(Main viewer, boolean center)
     {
+        this.center = center;
         tryLogin(viewer);
+        viewer.setVisible(true);
     }
 
     public void tryLogin(Main v)
@@ -68,8 +71,14 @@ public class LoginHandler
         viewer.enableMenus(false);
 
         // Display the initial login dialog
-        displayLoginDialog(viewer);
-        
+        boolean cancelled = displayLoginDialog(viewer);
+        if (cancelled == true) 
+            {
+                viewer.loggedIn = false;
+                viewer.enableMenus(true);
+                return;
+            }
+                
         viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
         "Trying to connect.");
         try
@@ -119,20 +128,23 @@ public class LoginHandler
 
     }
 
-    private void displayLoginDialog(Main viewer)
+    private boolean displayLoginDialog(Main viewer)
     {
-        LoginDialog dialog = new LoginDialog(viewer, "Login", true);
+        LoginDialog dialog = new LoginDialog(viewer, "Login", true, center);
+        if (dialog.cancelled == true) return true;
 
-        //if (dialog.cancelled == true) return;
         username = dialog.username;
         password = dialog.password;
-        server = dialog.server;
+        server = dialog.currentServer;
         port = dialog.port;
+        dialog.updateServerList(server);
 
         userPrefs.put("username", username);
         // userPrefs.put("password", password); // save the password
         userPrefs.put("server", server);
         userPrefs.put("port", port);
+        
+        return false;
     }
 
     private boolean isValidLogin() throws Exception
