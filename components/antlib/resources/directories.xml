@@ -43,6 +43,10 @@
 	<property name="app.comp" 	value="${components.dir}/app"/>
 	<property name="client.comp"    value="${components.dir}/client"/>
 	<property name="import.comp"    value="${components.dir}/bioformats-omero"/>
+
+	<!-- Tools -->
+	<property name="tools.comp"    value="${components.dir}/tools"/>
+	<property name="tools.dest"    value="${components.dir}/tools/target"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

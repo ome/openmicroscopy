@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="tools" default="install" basedir=".">
+   
+	<target name="help">
+		<echo>
+			The tools/ directory is a special repository
+			for loosely coupled OMERO components.
+		</echo>
+	</target>
+
+	<!-- This property determines which tools will have their
+	build file called. To use:
+
+	  java omero -Dtools=licences,admin TARGET
+
+	-->
+	<property name="tools" value=""/>
+
+	<macrodef name="callTools">
+	  <sequential/>	  
+	</macrodef>
+
+	<target name="parsetools">
+
+	</target>
+
+	<target name="prepare" depends="parsetools"/>
+
+	<target name="generate"/>
+
+	<target name="compile"/>
+
+	<target name="testng-init"/> 
+
+	<target name="test"/>
+		
+	<target name="junittest"/>
+		
+	<target name="package"/>
+
+	<target name="install"/>
+
+	<target name="integration"/>
+
+	<target name="clean"/>
+
+</project>
