@@ -122,7 +122,7 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        bar.add(new JSeparator(JSeparator.VERTICAL));
+        //bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     

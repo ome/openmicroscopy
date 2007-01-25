@@ -52,6 +52,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -107,7 +108,11 @@ public class UIUtilities
     public static final int                 TABLE_WIDTH = 200;
     
     /** Key value for the default folder. */
-    private static final String DEFAULT_FOLDER = "defaultFolder";
+    private static final String 			DEFAULT_FOLDER = "defaultFolder";
+    
+    /** The default mac L&F. */
+    private static final String				MAC_L_AND_F = 
+    											"apple.laf.AquaLookAndFeel";
     
 	/**
 	 * Centers the specified component on the screen.
@@ -363,6 +368,12 @@ public class UIUtilities
         b.setFocusPainted(false);
     }
 
+    public static void opacityCheck(AbstractButton b)
+    {
+    	String laf = UIManager.getSystemLookAndFeelClassName();
+    	b.setContentAreaFilled(!(MAC_L_AND_F.equals(laf)));
+    }
+    
     /**
      * Sets the defaults for the specified area.
      * 

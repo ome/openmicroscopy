@@ -66,12 +66,12 @@ public class ColorModelAction
      * The description of the action if the index is {@link #RGB_MODEL}
      * or  {@link #HSB_MODEL}.
      */
-    public static final String 	DESCRIPTION_RGB = "RGB color model.";
+    public static final String 	DESCRIPTION_RGB = "Colour model.";
     
     /** 
      * The description of the action if the index is {@link #GREY_SCALE_MODEL}.
      */
-    public static final String 	DESCRIPTION_GREY_SCALE = "Grey Scale model.";
+    public static final String 	DESCRIPTION_GREY_SCALE = "Greyscale model.";
     
     /** Identifies the <code>Grey Scale</code>. */
     public static final int     GREY_SCALE_MODEL = 0;
@@ -85,7 +85,6 @@ public class ColorModelAction
     /** The maximum number of supported model. */
     private static final int    MAX = 2;
 
-
     /**
      * The name of the association corresponding to the constants defined
      * above.
@@ -95,8 +94,8 @@ public class ColorModelAction
     /** Defines the static fields. */
     static {
         names = new String[MAX+1];
-        names[GREY_SCALE_MODEL] = "Grey Scale";
-        names[RGB_MODEL] = "Color";
+        names[GREY_SCALE_MODEL] = "Greyscale";
+        names[RGB_MODEL] = "Colour";
         names[HSB_MODEL] = "HSB/HSV"; 
     }
     

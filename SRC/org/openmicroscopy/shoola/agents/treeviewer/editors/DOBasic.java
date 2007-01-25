@@ -68,7 +68,7 @@ class DOBasic
     static final String     ANNOTATION = "Annotation";
     
     /** Title of the classification pane. */
-    static final String     CLASSIFICATION = "Classification";   
+    static final String     CLASSIFICATION = "Categorisation";   
     
     /** Area where to enter the name of the <code>DataObject</code>. */
     JTextField                  nameArea;

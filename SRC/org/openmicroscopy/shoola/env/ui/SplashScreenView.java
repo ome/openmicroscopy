@@ -157,15 +157,13 @@ class SplashScreenView
     }
     
     /**
-     * Removes border and margin for the specified button and sets the default
-     * cursor to {@link Cursor#HAND_CURSOR}.
+     * Enables roll over and  sets the default cursor to 
+     * {@link Cursor#HAND_CURSOR}.
      * 
      * @param button	The button to set the default for.
      */
     private void setButtonDefault(JButton button)
     {
-        //Next two statements get rid of surrounding border.
-        button.setOpaque(false);
         button.setRolloverEnabled(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
@@ -176,12 +174,14 @@ class SplashScreenView
     	login = new JButton("Login");
     	login.setMnemonic('L');
     	login.setToolTipText("Login");
+    	UIUtilities.opacityCheck(login);
     	setButtonDefault(login);
     	UIUtilities.enterPressesWhenFocused(login);
     	cancel = new JButton("Quit");
     	cancel.setMnemonic('Q');
     	cancel.setToolTipText("Quit the Application");
     	setButtonDefault(cancel);
+    	UIUtilities.opacityCheck(cancel);
     	configButton = new JButton();
     	configButton.setMnemonic('X');
     	configButton.setToolTipText("Config Server");
