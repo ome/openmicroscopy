@@ -12,13 +12,52 @@
 	<dirname property="up-one" file="${up-two}"/>
 	<import file="${classpath.file}"/>
 
+        <target name="generate" depends="lifecycle.generate,hard-wire"/>
+
+	<!-- The hard-wiring target allows a specific Store implementation to
+	be hard-wired into the LicenseBean.
+
+	The value is the class names of a LicenseStore implementation with a 
+	a no-arg constructor. This allows classes unknown to the server at 
+	compile time to become a part of a distribution. -->
+	<target name="hard-wire">
+	        <!-- FORMAT: ome...ClassName  -->
+		<property name="replace.pkg"  value="ome/services/licenses"/>
+		<property name="replace.file" value="${replace.pkg}/LicenseBean.java"/>
+                <delete file="${src.dest}/${replace.file}"/>
+                <copy file="${src.dir}/${replace.file}" todir="${src.dest}/${replace.pkg}" />
+                <replace file="${src.dest}/${replace.file}">
+                        <replacefilter 
+			token="ome.services.licenses.Store" 
+			value="${ome.services.licenses.Store_class}/*REPLACED by tools/licenses/build.xml*/"/>
+                </replace>
+	</target>
+
+	<!-- Must compile the files in two steps to prevent duplicate class errors -->
+	<target name="compile" depends="generate">
+		<myjavac>
+		  <src path="${src.dir}"/>
+		</myjavac>
+		<delete file="${classes.dir}/ome/services/licenses/LicenseBean.class"/>
+		<myjavac>
+		  <src path="${src.dest}"/>
+		</myjavac>
+	</target>
+
+
 	<!-- Additional functionality for the lifecycle.package target.
 	Unjars the final contents of the service jar to a top-level tools/
 	directory so that they can be bundled together for the final EAR.
 	This is necessary since otherwise the jar listed here would have to
 	be manually added to app/resources/application.xml -->
 	<target name="package" depends="lifecycle.package">
-	        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.dest}/service-classes"/>
+	        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.unjar}"/>
+	</target>
+
+	<!-- Additional functionality for the lifecycle.install target.
+	Copies the jar to ${tools.jars} for later copying into dist/client. -->
+	<target name="install" depends="lifecycle.install">
+	        <copy file="${target.dir}/${artifact.final.name}" todir="${tools.jars}"/>
 	</target>
 
 </project>

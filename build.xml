@@ -156,6 +156,7 @@
 			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${import.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${server.comp}/${target.rel}" includes="*.jar"/>
+			<fileset dir="${tools.jars}/" includes="*.jar"/>
 			<fileset dir="${lib.dir}/repository">
 				<include name="omero/jboss*/**/*.jar"/>
 				<include name="org/springframework/spring/**/*.jar"/>

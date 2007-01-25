@@ -19,7 +19,7 @@
    deployment descriptors and thirdparty libraries.
    =======================================================================
    -->
-   <target name="package" 
+   <target name="package" depends="prepare"
            description="Packages the EAR by assembling all modules and deployment descriptors">
       
       <!-- Jars; provided jars removed. -->
@@ -32,8 +32,22 @@
         <fileset dir="${target.dir}/libs" includes="geronimo*"/>
       </delete>
 
-      <!-- Gather all compiled services together -->
-      <jar destfile="${target.dir}/libs/services.jar" basedir="${tools.dest}/service-classes"/>
+      <!-- Gather all compiled services together into a single services.jar. 
+      Also, make all application jars available to the services.jar via the
+      MANIFEST file *AND* add one additional (possibly non-extant) extensions.jar
+      which can be created by 3rd parties and added to the EAR file (top-level)
+      for runtime class lookups. -->
+
+      <pathconvert property="mf.classpath"
+	      refid="omero.classpath" 
+	      pathsep=" " dirsep="/">
+	      <flattenmapper/>
+      </pathconvert>
+      <jar destfile="${target.dir}/libs/services.jar" basedir="${tools.unjar}">
+        <manifest>
+          <attribute name="Class-Path" value="${mf.classpath} extensions.jar"/>
+	</manifest>
+      </jar>
       
       <!-- DataSource with replacement. -->
       <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" />

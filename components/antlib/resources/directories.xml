@@ -47,6 +47,8 @@
 	<!-- Tools -->
 	<property name="tools.comp"    value="${components.dir}/tools"/>
 	<property name="tools.dest"    value="${components.dir}/tools/target"/>
+	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
+	<property name="tools.unjar"   value="${components.dir}/tools/target/service-classes"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

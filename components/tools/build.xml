@@ -38,10 +38,21 @@
 		
 	<target name="package"/>
 
-	<target name="install"/>
+	<target name="install">
+	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/licenses"/>
+			<target name="install"/>
+		</ant>
+	</target>
 
 	<target name="integration"/>
 
-	<target name="clean"/>
+	<target name="clean">
+	        <delete dir="${tools.dest}"/>
+	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/licenses"/>
+			<target name="clean"/>
+		</ant>
+	</target>
 
 </project>

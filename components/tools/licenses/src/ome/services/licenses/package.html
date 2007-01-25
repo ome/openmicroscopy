@@ -30,16 +30,16 @@ Contains an add-on service and interceptor for license administration.
 
 <h2>Examples</h2>
 
-<code>
+<pre>
   ServiceFactory sf = new ServiceFactory(new Server("my-host.example.com");
   RenderingEngine re = sf.createRenderingEngine();
   // initialize re and make calls
   re.close()
-</code>
+</pre>
 
 becomes
 
-<code>
+<pre>
   LicensedServiceFactory lsf = 
   		new ome.services.licenses.LicensedServiceFactory
   		(null, new Server("my-host.example.com"), null);
@@ -48,7 +48,7 @@ becomes
   // as before
   re.close();
   lsf.release();
-</code>
+</pre>
 
 <h2>Details</h2>
 

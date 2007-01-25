@@ -57,8 +57,10 @@
 	<target name="javadoc">
 
 	    <patternset id="all.java.files">
-		<include name="src/**/*.java"/>
-		<include name="target/generated/src/**/*.java"/>
+	        <!-- Includes prefixed with "**" in order to pick up
+		tools/ components -->
+		<include name="**/src/**/*.java"/>
+		<include name="**/target/generated/src/**/*.java"/>
 		<exclude name="xxx/**"/>
 	    </patternset>
 
@@ -88,6 +90,9 @@
 			<patternset refid="all.java.files"/>
 		</fileset>
 		<fileset dir="components/client/" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
+		<fileset dir="components/tools/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 

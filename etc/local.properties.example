@@ -25,6 +25,11 @@ javac.debuglevel=lines,vars,source
 # via server/src/ome/logic/AbstractBean.java
 omero.hard-wired.interceptors=""
 
+# Used by tools/licences/build.xml to define
+# which class should be compiled into 
+# ome.services.licenses.LicenseBean
+ome.services.licenses.Store_class=ome.services.licenses.Store
+
 ############################################
 # client connection
 ############################################
