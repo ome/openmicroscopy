@@ -14,7 +14,7 @@ import javax.ejb.ApplicationException;
 // Application-internal dependencies
 
 /**
- * Exception thrown on a regular method call when a previously valid
+ * (CLIENT) Exception thrown on a regular method call when a previously valid
  * license has timed out as interpreted by the {@link LicenseStore}.
  * The {@link LicenseStore} may attempt to re-acquire a license
  * transparently for the user, in which case this exception 

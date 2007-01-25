@@ -14,7 +14,7 @@ import javax.ejb.ApplicationException;
 // Application-internal dependencies
 
 /**
- * Exception thrown on license acquisition when no licenses
+ * (CLIENT) Exception thrown on license acquisition when no licenses
  * are available.
  * 
  * @author Josh Moore, josh.moore @ gmx.de

@@ -15,7 +15,7 @@ import javax.ejb.ApplicationException;
 import ome.conditions.RootException;
 
 /**
- * Abstract superclass of all License exceptions.
+ * (CLIENT) Abstract superclass of all License exceptions.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-RC1

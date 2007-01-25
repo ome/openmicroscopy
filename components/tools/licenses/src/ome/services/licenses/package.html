@@ -23,11 +23,46 @@ Contains an add-on service and interceptor for license administration.
   (LicenseStore) which allows for third-parties to compile licensing into
   the OMERO application.
 </p>
+<p>
+  Some classes will be of no use to the client, but for ease of packaging
+  and distribution the entire component is in a single jar.
+</p>
+
+<h2>Examples</h2>
+
+<code>
+  ServiceFactory sf = new ServiceFactory(new Server("my-host.example.com");
+  RenderingEngine re = sf.createRenderingEngine();
+  // initialize re and make calls
+  re.close()
+</code>
+
+becomes
+
+<code>
+  LicensedServiceFactory lsf = 
+  		new ome.services.licenses.LicensedServiceFactory
+  		(null, new Server("my-host.example.com"), null);
+  lsf.acquire();
+  RenderingEngine re = lsf.createRenderingEngine();
+  // as before
+  re.close();
+  lsf.release();
+</code>
+
+<h2>Details</h2>
 
 <p>
   The License service (ome.services.licenses.ILicense) is hooked into the
   server via the HardWiredInterceptor. See etc/local.properties.example and
   components/server/build.xml for more details.
+</p>
+
+<h2>Notes</h2>
+
+<p>
+  To prevent tampering with the licensing service, it is necessary to run the
+  server under a {@link SecurityManager} with the proper restrictions.
 </p>
   
 <h2>Related Documentation</h2>

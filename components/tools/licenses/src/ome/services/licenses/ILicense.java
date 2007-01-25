@@ -16,7 +16,7 @@ package ome.services.licenses;
 import ome.api.ServiceInterface;
 
 /**
- * Provides methods for acquiring and releasing server licenses.
+ * (CLIENT) Provides methods for acquiring and releasing server licenses.
  * For this service to be active, it must be compiled into the 
  * server jar file via server/build.xml and the 
  * omero.hard-wired.interceptor configuration property.

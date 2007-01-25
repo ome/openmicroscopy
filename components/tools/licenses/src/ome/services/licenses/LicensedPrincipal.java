@@ -14,7 +14,7 @@ package ome.services.licenses;
 import ome.system.Principal;
 
 /**
- * Extension of {@link ome.system.Principal} which carries a byte-array
+ * (CLIENT) Extension of {@link ome.system.Principal} which carries a byte-array
  * license token to the server.
  * 
  * @author Josh Moore, josh.moore at gmx.de

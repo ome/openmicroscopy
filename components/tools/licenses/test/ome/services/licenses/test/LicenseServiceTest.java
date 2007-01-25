@@ -25,7 +25,7 @@ public class LicenseServiceTest extends TestCase{
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        sf = new LicensedServiceFactory(null, null);
+        sf = new LicensedServiceFactory(null, null, null);
         licenseService = sf.getLicenseService();
         licenseService.resetLicenses();
     }

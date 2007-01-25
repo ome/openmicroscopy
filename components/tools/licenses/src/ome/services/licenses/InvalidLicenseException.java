@@ -14,7 +14,7 @@ import javax.ejb.ApplicationException;
 // Application-internal dependencies
 
 /**
- * Exception thrown on a regular method call when the provided 
+ * (CLIENT) Exception thrown on a regular method call when the provided 
  * license token is rejected by the {@link LicenseStore}. This does
  * <em>not</em> include calls to {@link ILicense#releaseLicense()}.
  * 

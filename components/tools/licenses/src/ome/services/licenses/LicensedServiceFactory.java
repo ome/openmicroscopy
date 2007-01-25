@@ -18,7 +18,7 @@ import ome.system.Principal;
 import ome.system.Server;
 
 /**
- * Entry point for all licensed client calls. Provides methods to obtain proxies 
+ * (CLIENT) Entry point for all licensed client calls. Provides methods to obtain proxies 
  * for all remote facades, including the {@link ILicense} extension. If 
  * licesning is activated in the server, a call to {@link #acquireLicense()}
  * should be performed before calls to any methods (other than {@link ILicense}
@@ -35,12 +35,14 @@ import ome.system.Server;
  */
 public class LicensedServiceFactory extends ome.system.ServiceFactory {
 
-    public LicensedServiceFactory(Server srv, Login lgn) {
+    public LicensedServiceFactory(Properties prp, Server srv, Login lgn) {
         super((OmeroContext)null); // Does nothing.
+        Properties p = prp == null ? new Properties() : prp;
         Properties s = srv == null ? new Properties() : srv.asProperties();
         Properties l = lgn == null ? new Properties() : lgn.asProperties();
-        s.putAll(l);
-        this.ctx = OmeroContext.getContext(s,getDefaultContext());
+        p.putAll(s);
+        p.putAll(l);
+        this.ctx = OmeroContext.getContext(p,getDefaultContext());
     }
 
     @Override
