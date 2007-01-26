@@ -879,7 +879,7 @@ class OMEROGateway
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
-        	service.close();
+        	thumbnailService.close();
         	thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }

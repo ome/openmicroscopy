@@ -78,7 +78,7 @@ public class DeleteAction
     
     /** Name of the action if the selected items are <code>Categorie</code>s.*/
     private static final String NAME_CATEGORYGROUP = "Remove from current " +
-    												"categoryGroup";
+    												"category group";
     
     /** 
      * Name of the action if the selected items are <code>Image</code>s and 

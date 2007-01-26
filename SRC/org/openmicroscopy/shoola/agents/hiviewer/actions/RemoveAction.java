@@ -70,7 +70,7 @@ public class RemoveAction
     
     /** Name of the action if the selected items are Datasets. */
     private static final String NAME_CATEGORYGROUP = 
-            "Remove from current categoryGroup";
+            "Remove from current category group";
     
     /** 
      * Name of the action if the selected items are images and 
