@@ -258,7 +258,7 @@ class OMEROGateway
      * {@link PojoMapper#asDataObjects(Map)}.
      * 
      * @param name  The user's name.
-     * @return      The {@link ExperimenterData} of the current user.
+     * @return The {@link ExperimenterData} of the current user.
      * @throws DSOutOfServiceException If the connection is broken, or
      * logged in.
      * @see IPojos#getUserDetails(Set, Map)
@@ -331,20 +331,23 @@ class OMEROGateway
      * Checks if some default rendering settings have to be created
      * for the specified set of pixels.
      * 
-     * @param pixelsID The pixels ID.
-     * @return 	Returns <code>true</code> if default settings have been created
-     * 			<code>false</code> otherwise.
+     * @param pixelsID	The pixels ID.
+     * @param re		The rendering engine to load.
      */
-    private synchronized boolean needDefault(long pixelsID)
+    private synchronized void needDefault(long pixelsID, RenderingEngine re)
     {
-    	ThumbnailStore service = getThumbService();
-    	RenderingEngine re = getRenderingService();
-        re.lookupPixels(pixelsID);
-        boolean b = !((re.lookupRenderingDef(pixelsID)) && 
-        			(service.setPixelsId(pixelsID)));
-        if (b)
-        	re.resetDefaults();
-        return b;
+    	if (re == null) {
+    		ThumbnailStore service = getThumbService();
+    		if (!(service.setPixelsId(pixelsID))) {
+				service.resetDefaults();
+				service.setPixelsId(pixelsID);
+            }
+    	} else {
+    		if (!(re.lookupRenderingDef(pixelsID))) {
+            	re.resetDefaults();
+				re.lookupRenderingDef(pixelsID);
+            }
+    	}
     }
     
     /**
@@ -866,8 +869,7 @@ class OMEROGateway
     {
     	ThumbnailStore service = getThumbService();
         try {
-        	if (needDefault(pixelsID))
-        		service.setPixelsId(pixelsID);
+        	needDefault(pixelsID, null);
         	/*
             if (!(service.setPixelsId(pixelsID))) {
 				service.resetDefaults();
@@ -899,8 +901,8 @@ class OMEROGateway
         try {
             RenderingEngine service = getRenderingService();
             service.lookupPixels(pixelsID);
-            //if (needDefault(pixelsID))
-            service.lookupRenderingDef(pixelsID);
+            needDefault(pixelsID, service);
+           
             /*
             if (!(service.lookupRenderingDef(pixelsID))) {
             	service.resetDefaults();

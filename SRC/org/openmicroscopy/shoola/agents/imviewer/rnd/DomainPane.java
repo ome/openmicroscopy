@@ -215,6 +215,7 @@ class DomainPane
         bitDepthSlider.setValue(convertBitResolution(v));
         bitDepthSlider.addChangeListener(this);
         bitDepthLabel.setText(""+v);
+        bitDepthLabel.repaint();
     }
     
 	/**
@@ -350,7 +351,7 @@ class DomainPane
         p.add(noiseReduction,c);
         c.gridy = 1;
         p.add(histogramButton,c);
-        return p;
+        return UIUtilities.buildComponentPanel(p);
     }
     
     /** Builds and lays out the UI. */
@@ -419,6 +420,19 @@ class DomainPane
                     return 8;
         }
     }
+
+    /**
+     * Resets the value of the gamma slider and the gamma label.
+     * 
+     * @param k The value to set.
+     */
+    private void resetGamma(double k)
+    {
+    	gammaSlider.removeChangeListener(this);
+        gammaSlider.setValue((int) (k*FACTOR));
+        gammaSlider.addChangeListener(this);
+        gammaLabel.setText(""+k);
+    }
     
     /** 
      * Returns the name of the component. 
@@ -464,7 +478,9 @@ class DomainPane
             btn = ((ChannelToggleButton) channelList.get(i));
             btn.setColor(model.getChannelColor(btn.getChannelIndex()));
             btn.setGrayedOut(gs);
-        }     
+        }  
+        resetGamma(model.getCurveCoefficient());
+        
     }
     
     /**
@@ -496,8 +512,13 @@ class DomainPane
         familyBox.setSelectedItem(f);
         familyBox.addActionListener(this);
         
-        gammaSlider.setEnabled(!(f.equals(RendererModel.LINEAR) || 
-                            f.equals(RendererModel.LOGARITHMIC)));
+        
+        boolean b = !(f.equals(RendererModel.LINEAR) || 
+    			f.equals(RendererModel.LOGARITHMIC));
+        double k = 1;
+        if (b) k = model.getCurveCoefficient();
+        resetGamma(k);
+        gammaSlider.setEnabled(b);
         noiseReduction.removeActionListener(
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setSelected(model.isNoiseReduction());
@@ -549,8 +570,12 @@ class DomainPane
     void onCurveChange()
     { 
         String f = model.getFamily();
-        gammaSlider.setEnabled(!(f.equals(RendererModel.LINEAR) || 
-                                f.equals(RendererModel.LOGARITHMIC)));
+        boolean b = !(f.equals(RendererModel.LINEAR) || 
+        			f.equals(RendererModel.LOGARITHMIC));
+        double k = 1;
+        if (b) k = model.getCurveCoefficient();
+        resetGamma(k);
+        gammaSlider.setEnabled(b);
         graphicsPane.onCurveChange(); 
     }
     
@@ -576,7 +601,7 @@ class DomainPane
                     new Integer(v));
         }
     }
-
+    
     /**
      * Reacts to family or channel selection.
      * @see ActionListener#actionPerformed(ActionEvent)

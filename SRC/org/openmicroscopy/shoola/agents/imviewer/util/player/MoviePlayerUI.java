@@ -375,7 +375,7 @@ class MoviePlayerUI
         c.insets = new Insets(10, 0, 10, 0);
          c.gridx = 0;
         c.gridy = 1;
-        controls.add(createFPSControls(), c);
+        //controls.add(createFPSControls(), c);
         
         
         //lays out components

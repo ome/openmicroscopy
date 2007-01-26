@@ -140,7 +140,7 @@ public class ClassificationPane
      * Overridden to return the name of this UI component.
      * @see ClipBoardPane#getPaneName()
      */
-    public String getPaneName() { return "Classification"; }
+    public String getPaneName() { return "Categorisation"; }
 
     /**
      * Overridden to return the icon related to this UI component.

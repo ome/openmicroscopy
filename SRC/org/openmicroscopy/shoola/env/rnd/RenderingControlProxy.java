@@ -256,6 +256,19 @@ class RenderingControlProxy
         }
     }
     
+    private void tmpSolutionForNoiseReduction()
+    {
+    	 //DOES NOTHING TMP SOLUTION.
+        try {
+        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+    			setQuantizationMap(i, getChannelFamily(i), 
+    					getChannelCurveCoefficient(i), false);
+    		}
+		} catch (Exception e) {
+			
+		}
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -281,15 +294,7 @@ class RenderingControlProxy
         models = servant.getAvailableModels();
         rndDef = new RndProxyDef();
         initialize();
-        //DOES NOTHING TMP SOLUTION.
-        try {
-        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-    			setQuantizationMap(i, getChannelFamily(i), 
-    					getChannelCurveCoefficient(i), false);
-    		}
-		} catch (Exception e) {
-			
-		}
+        tmpSolutionForNoiseReduction();
         
         metadata = new ChannelMetadata[m.size()];
         Iterator i = m.iterator();
@@ -637,6 +642,7 @@ class RenderingControlProxy
     { 
         servant.resetDefaults();
         initialize();
+        tmpSolutionForNoiseReduction();
     }
 
     /** 

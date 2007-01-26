@@ -70,6 +70,9 @@ class GraphicsPane
     implements ActionListener, FocusListener, PropertyChangeListener
 {
 
+	/** Text of the preview check box. */
+	private static final String		PREVIEW = "Immediate Update";
+		
     /** Action command ID to indicate that the start value is modified.*/
     private static final int        START_SELECTED = 0;
     
@@ -141,9 +144,9 @@ class GraphicsPane
         endField.addActionListener(this);
         endField.setActionCommand(""+END_SELECTED);
         endField.addFocusListener(this);
-        maxLabel = new JLabel(""+max);
-        minLabel = new JLabel(""+min);
-        preview = new JCheckBox("Preview");
+        maxLabel = new JLabel(""+(int) max);
+        minLabel = new JLabel(""+(int) min);
+        preview = new JCheckBox(PREVIEW);
     }
     
     /** Builds and lays out the GUI. */
@@ -243,14 +246,13 @@ class GraphicsPane
      */
     private boolean startFieldValid()
     {
-        boolean valid = false;
         double val = 0;
         double e = model.getWindowEnd();
         try {
             val = Double.parseDouble(startField.getText());
-            if (model.getGlobalMin() <= val && val < e) valid = true;
+            return (model.getGlobalMin() <= val && val < e);
         } catch(NumberFormatException nfe) {}
-        return valid;
+        return false;
     }
     
     /** 
@@ -261,14 +263,13 @@ class GraphicsPane
      */
     private boolean endFieldValid()
     {
-    	 boolean valid = false;
          double val = 0;
          double s = model.getWindowStart();
          try {
              val = Double.parseDouble(endField.getText());
-             if (s < val && val <= model.getGlobalMax()) valid = true;
+             return (s < val && val <= model.getGlobalMax());
          } catch(NumberFormatException nfe) {}
-         return valid;
+         return false;
     }
     
     /** 
@@ -300,7 +301,8 @@ class GraphicsPane
     		startField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+(int) val+","+(int) e+"]");
+            				"The value must be in the interval "+
+            				"["+(int) val+","+(int) e+"]");
     	}
     }
     
@@ -315,11 +317,11 @@ class GraphicsPane
     	double s = model.getWindowStart();
     	double val = -1;
     	try {
-    		val = Double.parseDouble(startField.getText());
+    		val = Double.parseDouble(endField.getText());
     	} catch(NumberFormatException nfe) { 
     		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     		un.notifyInfo("Invalid pixels intensity interval", 
-    				" The value must be in the interval ["+
+    				"The value must be in the interval ["+
     				(int) s+","+(int) model.getWindowEnd()+"]");
     		return;
     	}
@@ -331,7 +333,8 @@ class GraphicsPane
     		endField.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
-                    "["+(int) s+","+(int) val+"]");
+            			"The value must be in the interval "+
+                    	"["+(int) s+","+(int) val+"]");
     	}
     }
     
@@ -474,7 +477,7 @@ class GraphicsPane
       }
       if (fe.getSource() == endField) {
     	  if (endFieldValid()) endSelectionHandler();
-  		 else endField.setText(""+model.getWindowEnd());
+  		  else endField.setText(""+model.getWindowEnd());
       }	
     }
     

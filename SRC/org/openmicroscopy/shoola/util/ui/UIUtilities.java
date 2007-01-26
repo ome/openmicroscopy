@@ -368,6 +368,12 @@ public class UIUtilities
         b.setFocusPainted(false);
     }
 
+    /**
+     * Sets the opacity of the specified button depending on the 
+     * system look and Feel.
+     * 
+     * @param b The button to handle.
+     */
     public static void opacityCheck(AbstractButton b)
     {
     	String laf = UIManager.getSystemLookAndFeelClassName();
