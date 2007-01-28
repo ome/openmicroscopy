@@ -177,6 +177,10 @@ hibernate.connection.username=${config_hibernate.connection.username}
 hibernate.connection.password=CHANGE_ME
 database.host=${config_database.host}
 database.name=${config_database.name}
+javac.source=${javac.source}
+javac.target=${javac.target}
+javac.debug=${javac.debug}
+javac.debuglevel=${javac.debuglevel}
 </echo>
 
 		<input>

@@ -10,6 +10,7 @@ package ome.services.licenses.test;
 import junit.framework.TestCase;
 import ome.services.licenses.ILicense;
 import ome.services.licenses.LicensedServiceFactory;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -25,6 +26,7 @@ public class LicenseServiceTest extends TestCase{
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
+        
         sf = new LicensedServiceFactory(null, null, null);
         licenseService = sf.getLicenseService();
         licenseService.resetLicenses();

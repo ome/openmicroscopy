@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import ome.security.SecuritySystem;
+
 // Third-party libraries
 
 // Application-internal dependencies
@@ -57,6 +59,12 @@ public class Store implements LicenseStore {
         totalLicenses = total;
         this.usedLicenses = used;
     }
+    
+
+    /** See {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} */
+    public void setStaticSecuritySystem(SecuritySystem securitySystem) {
+        // does nothing in this simple example
+    }
 
     // ~ Local control methods
     // =========================================================================
@@ -76,7 +84,7 @@ public class Store implements LicenseStore {
     // ~ Interface methods
     // =========================================================================
 
-    public void enterMethod(byte[] token) {
+    public void enterMethod(byte[] token, LicensedPrincipal p) {
         TokenInfo tokenInfo = tokenInfos.get(token);
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't enter method.");
@@ -85,7 +93,7 @@ public class Store implements LicenseStore {
         tokenInfo.time = -1;
     }
 
-    public void exitMethod(byte[] token) {
+    public void exitMethod(byte[] token, LicensedPrincipal p) {
         TokenInfo tokenInfo = tokenInfos.get(token);
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't exit method.");
@@ -121,15 +129,15 @@ public class Store implements LicenseStore {
         return timeout;
     }
 
-    public boolean isValid(byte[] token) {
+    public boolean hasLicense(byte[] token) {
         boolean found = false;
         found = tokenInfos.containsKey(token);
         return found;
     }
 
     public boolean releaseLicense(byte[] token) {
-        boolean valid = isValid(token);
-        if (isValid(token)) {
+        boolean valid = hasLicense(token);
+        if (hasLicense(token)) {
             tokenInfos.remove(token);
             usedLicenses--;
         }

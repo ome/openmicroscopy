@@ -36,6 +36,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
 import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
+import ome.security.SecuritySystem;
 
 /**
  * Implementation of the {@link ILicense} service interface. {@link LicenseBean}
@@ -69,14 +70,12 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
      * Hard-coded class name for the {@link LicenseStore} implementation. This
      * value may have been changed via tools/licenses/build.xml
      */
-    private final static String STORE_CLASS = "com.glencoesoftware.internal.licenses.Store";
+    private final static String STORE_CLASS = "ome.services.licenses.Store";
 
     private final static LicenseStore STORE;
 
     // Now we'll try to create an instance of STORE_CLASS and assign it to the
-    // STORE constant. If that doesn't work, we'll use a store that will always
-    // fail ({@link InvalidStore}) because it's difficult to know if just
-    // throwing an exception will prevent the server from starting up.
+    // STORE constant. 
     static {
         try {
             Class storeClass = Class.forName(STORE_CLASS);
@@ -87,6 +86,16 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
         }
     }
 
+    /** 
+     * This injector does not synchronize or check for null as specified in
+     * the {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} method, but
+     * delegates to the {@link #STORE} instance which should implement that 
+     * logic.
+     */
+    public void setStaticSecuritySystem(SecuritySystem security) {
+        STORE.setStaticSecuritySystem(security);
+    }
+    
     // ~ Service methods
     // =========================================================================
     // All methods delegate to the global static STORE instance.
@@ -129,18 +138,18 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
 
     // These methods are not visible to clients
 
-    /** See {@link LicenseStore#isValid(byte[])} */
-    public boolean isValid(byte[] token) {
-        return STORE.isValid(token);
+    /** See {@link LicenseStore#hasLicense(byte[])} */
+    public boolean hasLicense(byte[] token) {
+        return STORE.hasLicense(token);
     }
 
     /** See {@link LicenseStore#enterValid(byte[])} */
-    public void enterMethod(byte[] token) {
-        STORE.enterMethod(token);
+    public void enterMethod(byte[] token, LicensedPrincipal p) {
+        STORE.enterMethod(token, p);
     }
 
     /** See {@link LicenseStore#exitMethod(byte[])} */
-    public void exitMethod(byte[] token) {
-        STORE.exitMethod(token);
+    public void exitMethod(byte[] token, LicensedPrincipal p) {
+        STORE.exitMethod(token, p);
     }
 }

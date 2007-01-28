@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.Task;

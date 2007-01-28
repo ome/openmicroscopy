@@ -29,7 +29,7 @@
                 <replace file="${src.dest}/${replace.file}">
                         <replacefilter 
 			token="ome.services.licenses.Store" 
-			value="${ome.services.licenses.Store_class}/*REPLACED by tools/licenses/build.xml*/"/>
+			value="${ome.services.licenses.Store_class}"/>
                 </replace>
 	</target>
 

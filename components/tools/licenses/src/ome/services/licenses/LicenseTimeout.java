@@ -35,9 +35,9 @@ public class LicenseTimeout extends LicenseException {
         super(msg);
     }
 
-    public LicenseTimeout(String msg, Boolean failedReacquisition) {
+    public LicenseTimeout(String msg, boolean failedReacquisition) {
 	super(msg);
-	reacquireFailed = failedReacquisition;
+	reacquireFailed = Boolean.valueOf(failedReacquisition);
     }
 
     /**

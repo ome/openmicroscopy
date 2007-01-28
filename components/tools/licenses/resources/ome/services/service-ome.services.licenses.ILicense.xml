@@ -19,7 +19,10 @@
 
 <beans>	
 
-  <bean parent="level2" id="internal:ome.services.licenses.ILicense" class="ome.services.licenses.LicenseBean"/>
+  <bean parent="level2" id="internal:ome.services.licenses.ILicense" 
+  		class="ome.services.licenses.LicenseBean">
+  		<property name="staticSecuritySystem" ref="securitySystem"/>
+  </bean>
   
   <bean id="managed:ome.services.licenses.ILicense" parent="managedService">
     <property name="proxyInterfaces" value="ome.services.licenses.ILicense"/>

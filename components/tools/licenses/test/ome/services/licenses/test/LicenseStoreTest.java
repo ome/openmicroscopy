@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 public class LicenseStoreTest extends TestCase {
 
     LicenseStore store;
+    LicensedPrincipal p;
     byte[] dummy = new byte[]{ (byte)1 };
     
     @Test
@@ -107,11 +108,11 @@ public class LicenseStoreTest extends TestCase {
         byte[] token = store.acquireLicense();
         TokenInfo info = ((Store) store).getTokens().get(token);
 
-        store.enterMethod(token);
+        store.enterMethod(token, p);
         assertTrue("Timeout should be disabled.", info.time == -1);
         assertTrue("Should be one method entered", info.count == 1);
 
-        store.exitMethod(token);
+        store.exitMethod(token, p);
         assertTrue("Timeout should be reset.", info.time > 0);
         assertTrue("Should be no method entered", info.count == 0);
 
@@ -135,13 +136,13 @@ public class LicenseStoreTest extends TestCase {
         
         byte[] token = store.acquireLicense();
         
-        assertTrue(store.isValid(token));
+        assertTrue(store.hasLicense(token));
         assertTrue(store.getAvailableLicenseCount() == 9);
         
         store.resetLicenses();
 
         assertTrue(store.getAvailableLicenseCount() == 10);
-        assertFalse(store.isValid(token));
+        assertFalse(store.hasLicense(token));
     }
 
     @Test
