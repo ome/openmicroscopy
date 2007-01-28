@@ -46,7 +46,13 @@ public class Run extends ome.util.tasks.Run {
         Properties props = parseArgs(args);
         Configuration opts = new Config(props);
         Task task = opts.createTask();
-        task.run();
+        ((LicensedServiceFactory) task.getServiceFactory()).acquireLicense();
+        try {
+            task.run();
+        } finally {
+            ((LicensedServiceFactory) task.getServiceFactory())
+                    .releaseLicense();
+        }
     }
 
 }
