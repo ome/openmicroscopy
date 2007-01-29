@@ -10,6 +10,7 @@ package src.adminTool.usersPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.ScrollPane;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -20,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
@@ -62,7 +64,7 @@ public class UsersTab extends JPanel {
     private GroupList groupList;
 
     private UserGroupMembershipList userGroupMembershipList;
-
+    
     private JLabel firstNameLabel;
 
     private JLabel middleNameLabel;

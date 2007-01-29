@@ -78,6 +78,7 @@ public class OMEROMetadataStore {
 
         // Attempt to log in
         Server server = new Server(host, Integer.parseInt(port));
+       
         Login login = new Login(username, password);
         // Instantiate our service factory
         sf = new ServiceFactory(server, login);

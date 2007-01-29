@@ -15,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -43,6 +44,8 @@ public class UserList extends JPanel {
     private static final long serialVersionUID = 5888473074867308294L;
 
     private JList users;
+    
+    private JScrollPane scrollpane;
 
     private DefaultListModel listModel;
 
@@ -122,21 +125,22 @@ public class UserList extends JPanel {
 
     void createUserList() {
         users = new JList(listModel);
+        scrollpane = new JScrollPane(users);
         users.setCellRenderer(new UserListRenderer(model));
 
         refresh();
 
-        users.setPreferredSize(new Dimension(200, 7 * 22));
-        users.setMinimumSize(new Dimension(200, 7 * 22));
-        users.setMaximumSize(new Dimension(200, 7 * 22));
-        users.setPreferredSize(new Dimension(200, 7 * 22));
+        scrollpane.setPreferredSize(new Dimension(200, 7 * 22));
+        scrollpane.setMinimumSize(new Dimension(200, 7 * 22));
+        scrollpane.setMaximumSize(new Dimension(200, 7 * 22));
+        scrollpane.setPreferredSize(new Dimension(200, 7 * 22));
     }
 
     void buildUI() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        panel.add(users, BorderLayout.CENTER);
+        panel.add(scrollpane, BorderLayout.CENTER);
         this.add(panel);
     }
 

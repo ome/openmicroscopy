@@ -8,6 +8,8 @@
 package src.adminTool.omero;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.prefs.Preferences;
@@ -21,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import src.adminTool.main.MainPanel;
 import src.adminTool.ui.ImageFactory;
 import src.adminTool.ui.LoginDialog;
+import src.adminTool.ui.SplashScreenManager;
 
 /**
  * ImageExporter is master file format exporter for all supported formats and
@@ -29,7 +32,7 @@ import src.adminTool.ui.LoginDialog;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class LoginHandler {
+public class LoginHandler implements ActionListener {
 
     private String username;
 
@@ -49,17 +52,19 @@ public class LoginHandler {
     private OMEROMetadataStore store;
 
     public LoginHandler(MainPanel mainview) {
-        tryLogin(mainview);
+        SplashScreenManager sp = new SplashScreenManager(this);
+        sp.open();
+        //tryLogin(mainview);
     }
 
     public void tryLogin(MainPanel v) {
         this.view = v;
 
         // Display the initial login dialog
-        displayLoginDialog(view);
-
+       // displayLoginDialog(view);
         view.statusBar.setStatusIcon(ImageFactory.get().image(
                 ImageFactory.SERVER_CONNECT_TRYING), "Trying to connect.");
+        
         try {
             if (!isValidLogin()) {
                 view.statusBar.setStatusIcon(ImageFactory.get().image(
@@ -70,7 +75,6 @@ public class LoginHandler {
                 JOptionPane.showMessageDialog(view,
                         "Incorrect username/password. Server login \nfailed, please "
                                 + "try to log in again.");
-                view.loggedIn = false;
                 return;
             }
         } catch (Exception e) {
@@ -91,14 +95,12 @@ public class LoginHandler {
                                     + "server hostname/port may be wrong, or \nthe server "
                                     + "may be offline/inaccessable.\n\nPlease try to log "
                                     + "in again.");
-            view.loggedIn = false;
             return;
         }
         userPrefs.put("savedUserName", username);
         userPrefs.put("savedHostName", server);
         userPrefs.put("savedPortNo", port);
 
-        view.loggedIn = true;
         view.statusBar.setStatusIcon(ImageFactory.get().image(
                 ImageFactory.SERVER_CONNECTED), "Server connected.");
 
@@ -145,4 +147,13 @@ public class LoginHandler {
     public String getUsername() {
         return username;
     }
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		System.err.println(e.getActionCommand());
+		
+	}
 }

@@ -124,7 +124,7 @@ public class CommentMessenger extends JDialog implements ActionListener {
 
         commentTextArea = gui.addTextArea(commentPanel, "Comment:", "", 'W',
                 "0, 2, 2, 2", debug);
-
+        
         // Add the tab panel to the main panel
         mainPanel.add(commentPanel, "0, 0, 4, 0");
 

@@ -44,13 +44,23 @@ public class ImageFactory {
     public static int RIGHT_ARROW = 7;
 
     public static int DEFAULT_GROUP = 8;
+    
+    public static int CONFIG_BUTTON = 9;
+    
+    public static int CONFIG_BUTTON_PRESSED = 10;
+    
+    public static int OMEICON = 11;
 
-    private static int MAX_IMAGES = 8;
+    public static int LOGIN_BACKGROUND = 12;
 
+    public static int CONFIG_LOGO = 13;
+
+    private static int MAX_IMAGES = 13;
+   
     private static String[] path = new String[MAX_IMAGES + 1];
-
+    
     static {
-        path[SPLASH_SCREEN] = "/resources/graphx/AdminSplash.png";
+        path[SPLASH_SCREEN] = "/resources/graphx/admin_splash.png";
         path[SERVER_CONNECT_TRYING] = "/resources/graphx/server_trying16.png";
         path[SERVER_CONNECTED] = "/resources/graphx/server_connect16.png";
         path[SERVER_CONNECT_FAILED] = "/resources/graphx/server_disconn16.png";
@@ -59,6 +69,11 @@ public class ImageFactory {
         path[LEFT_ARROW] = "/resources/graphx/1leftarrow_nuvola32.png";
         path[RIGHT_ARROW] = "/resources/graphx/1rightarrow_nuvola32.png";
         path[DEFAULT_GROUP] = "/resources/graphx/kgpg_identity_nuvola32.png";
+        path[CONFIG_BUTTON] = "/resources/graphx/config.png";
+        path[CONFIG_BUTTON_PRESSED] = "/resources/graphx/config_pressed.png";
+        path[OMEICON] = "/resources/graphx/OME16.png";
+        path[LOGIN_BACKGROUND] = "/resources/graphx/login_background.png";
+        path[CONFIG_LOGO] = "/resources/graphx/nuvola_configure48.png";
     }
 
     private static ImageFactory ref;
@@ -82,5 +97,9 @@ public class ImageFactory {
     public ImageIcon image(int icon) {
         return new ImageIcon(ImageFactory.class.getResource(path[icon]));
     }
-
+    
+    public ImageIcon getSplashScreen()
+    {
+    	return new ImageIcon(ImageFactory.class.getResource(path[SPLASH_SCREEN]));
+    }
 }

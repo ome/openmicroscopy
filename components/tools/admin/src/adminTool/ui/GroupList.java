@@ -17,6 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -46,6 +47,8 @@ public class GroupList extends JPanel {
 
     private JList groups;
 
+    private JScrollPane scrollpane;
+    
     private DefaultListModel listModel;
 
     private Model model;
@@ -131,6 +134,7 @@ public class GroupList extends JPanel {
 
     void createGroupList() {
         groups = new JList(listModel);
+        scrollpane = new JScrollPane(groups);
         groups.setCellRenderer(new ListRenderer());
 
         List data = model.getGroupsList();
@@ -142,16 +146,16 @@ public class GroupList extends JPanel {
 
         groups.setModel(listModel);
 
-        groups.setPreferredSize(new Dimension(200, 7 * 22));
-        groups.setMinimumSize(new Dimension(200, 7 * 22));
-        groups.setMaximumSize(new Dimension(200, 7 * 22));
-        groups.setPreferredSize(new Dimension(200, 7 * 22));
+        scrollpane.setPreferredSize(new Dimension(200, 7 * 22));
+        scrollpane.setMinimumSize(new Dimension(200, 7 * 22));
+        scrollpane.setMaximumSize(new Dimension(200, 7 * 22));
+        scrollpane.setPreferredSize(new Dimension(200, 7 * 22));
     }
 
     void buildUI() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.add(groups, BorderLayout.CENTER);
+        panel.add(scrollpane, BorderLayout.CENTER);
         panel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         JPanel containerPanel = new JPanel();
         containerPanel

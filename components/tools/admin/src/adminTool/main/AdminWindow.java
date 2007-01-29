@@ -60,15 +60,15 @@ public class AdminWindow
     private MainPanel mainPanel;
 
     public AdminWindow() {
-        setTitle("Omero Admin");
-        setLocation(300, 100);
+        setTitle("Omero.admin");
         setSize(840, 600);
+        this.setLocationRelativeTo(null);
         createMenu();
         mainPanel = new MainPanel(this);
+        mainPanel.setSize(840,600);
         this.setLayout(new BorderLayout());
         this.add(mainPanel, BorderLayout.CENTER);
         this.setVisible(true);
-        mainPanel.startLogin();
     }
 
     public void createMenu() {
@@ -101,11 +101,7 @@ public class AdminWindow
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("login")) {
-            mainPanel.startLogin();
-     //       pack();
-        }
-        if (e.getActionCommand().equals("exit")) {
+         if (e.getActionCommand().equals("exit")) {
             this.dispose();
         }
         if (e.getActionCommand().equals("comment")) {
