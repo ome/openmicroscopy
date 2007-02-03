@@ -24,7 +24,7 @@
 	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>

@@ -41,7 +41,7 @@ importing this file.
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<file name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<file name="org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
-	<file name="org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<file name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<file name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -65,7 +65,7 @@ importing this file.
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<include name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<include name="org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
-	<include name="org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<include name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<include name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -92,7 +92,7 @@ importing this file.
 	<file name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<file name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<file name="org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
-	<file name="org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<file name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<file name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
 	<file name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
@@ -121,7 +121,7 @@ importing this file.
 	<include name="omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
 	<include name="omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<include name="org/hibernate/hibernate-tools/3.1.0.beta4/hibernate-tools-3.1.0.beta4.jar"/>
-	<include name="org/hibernate/hibernate/3.2.1.GA/hibernate-3.2.1.GA.jar"/>
+	<include name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<include name="org/hibernate/jtidy/r8-21122004/jtidy-r8-21122004.jar"/>
 	<include name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
