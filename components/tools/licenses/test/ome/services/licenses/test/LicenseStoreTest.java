@@ -11,9 +11,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
-import ome.services.licenses.InvalidStore;
 import ome.services.licenses.LicenseException;
 import ome.services.licenses.LicenseStore;
+import ome.services.licenses.LicensedPrincipal;
 import ome.services.licenses.Store;
 import ome.services.licenses.TokenInfo;
 

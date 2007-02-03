@@ -57,16 +57,3 @@ public class Run extends ome.util.tasks.Run {
 
 }
 
-class Config extends Configuration {
-
-    public Config(Properties props) {
-        super(props);
-    }
-
-    @Override
-    public ServiceFactory createServiceFactory() {
-        return new LicensedServiceFactory(getProperties(), getServer(),
-                getLogin());
-    }
-
-}
