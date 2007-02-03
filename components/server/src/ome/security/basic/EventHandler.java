@@ -139,7 +139,7 @@ public class EventHandler implements MethodInterceptor {
             saveLogs();
             secSys.clearLogs();
             return retVal;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             failure = true;
             throw ex;
         } finally {

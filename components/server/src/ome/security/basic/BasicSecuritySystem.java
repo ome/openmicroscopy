@@ -370,8 +370,11 @@ public class BasicSecuritySystem implements SecuritySystem {
     public void lockMarked() {
         Set<IObject> c = cd.getLockCandidates();
 
-        for (IObject i : c) {
+        if (log.isDebugEnabled()) {
+            log.debug("Locking "+c);            
+        }
 
+        for (IObject i : c) {
             Details d = i.getDetails();
             Permissions p = new Permissions(d.getPermissions());
             p.set(Flag.LOCKED);
