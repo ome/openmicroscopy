@@ -1048,9 +1048,15 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     // ~ Helpers
     // =========================================================================
 
-    // will need to eventually use meta-data to get the one-to-manys and
-    // many-to-ones right
-    protected void deleteRecurisvely(ServiceFactory sf, IObject target) {
+    /**
+     * WARNING: This method is for testing purposes ONLY!
+     * 
+     * It will need to eventually use meta-data to get the one-to-manys and
+     * many-to-ones right.
+     * 
+     * @DEV.TODO Need to move to common helper
+     */
+    public static void deleteRecurisvely(ServiceFactory sf, IObject target) {
         // Deleting all links to target
         Set<String> fields = target.fields();
         for (String field : fields) {
