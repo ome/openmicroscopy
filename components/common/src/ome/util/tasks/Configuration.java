@@ -95,7 +95,7 @@ public class Configuration {
         }
         if (taskClass == null) {
             throw new IllegalArgumentException("Cannot find task class for:"
-                    + task);
+                    + p(task));
         }
 
         if (p(host) != null || p(port) != null) {
@@ -215,9 +215,14 @@ public class Configuration {
      * Otherwise, null.
      */
     protected Class<Task> parseTask(String task, String pkg) {
-        String fqn = pkg + "." + task;
+        StringBuilder fqn = new StringBuilder(64);
+        if (pkg != null && pkg.length() > 0 ) {
+            fqn.append(pkg);
+            fqn.append(".");
+        }
+        fqn.append(task);
         try {
-            return (Class<Task>) Class.forName(fqn);
+            return (Class<Task>) Class.forName(fqn.toString());
         } catch (ClassNotFoundException e) {
             return null;
         }
