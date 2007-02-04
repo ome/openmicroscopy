@@ -45,6 +45,7 @@
       <include name="**/application.xml"/>
       <include name="etc/*.properties"/>
       <include name="etc/*.properties.*"/>
+      <include name="product.properties"/>
       <include name="antlib/**/server.xml"/>
       <include name="components/common/src/ome/system/Version.java"/>
    </replace>
