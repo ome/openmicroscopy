@@ -126,7 +126,7 @@ public class EventHandler implements MethodInterceptor {
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
-            log.info(String.format("%s  Auth:\tuser=%s,group=%s,event=%s(%s)",
+            log.info(String.format("  %s Auth:\tuser=%s,group=%s,event=%s(%s)",
                     Utils.getThreadIdentifier(), ec.getCurrentUserId(), ec
                             .getCurrentGroupId(), ec.getCurrentEventId(), ec
                             .getCurrentEventType()));
