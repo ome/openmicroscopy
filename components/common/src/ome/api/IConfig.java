@@ -124,5 +124,14 @@ public interface IConfig extends ServiceInterface {
     String key, @NotNull
     String value) throws ApiUsageException, SecurityViolation;
     
+    /**
+     * Provides the hard-coded server version string from
+     * {@link ome.system.Version}. OMERO-internal values 
+     * will be in the form MAJOR.MINOR[.PATCH][-SUFFIX] where
+     * a typical value might be "3.0-RC1" or "3.1.1-Beta2".
+     *
+     * Customized values should begin with a alphabetic 
+     * sequence followed by a hyphen: ACME-0.0.1
+     */
     String getVersion();
 }
