@@ -34,6 +34,7 @@ import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
+import ome.util.Utils;
 
 /**
  * method interceptor responsible for login and creation of Events. Calls are
@@ -50,7 +51,6 @@ import ome.system.EventContext;
  * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
 public class EventHandler implements MethodInterceptor {
@@ -126,9 +126,10 @@ public class EventHandler implements MethodInterceptor {
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
-            log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)", ec
-                    .getCurrentUserId(), ec.getCurrentGroupId(), ec
-                    .getCurrentEventId(), ec.getCurrentEventType()));
+            log.info(String.format("%s  Auth:\tuser=%s,group=%s,event=%s(%s)",
+                    Utils.getThreadIdentifier(), ec.getCurrentUserId(), ec
+                            .getCurrentGroupId(), ec.getCurrentEventId(), ec
+                            .getCurrentEventType()));
         }
 
         boolean failure = false;

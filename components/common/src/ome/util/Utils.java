@@ -109,4 +109,13 @@ public class Utils {
         return (String[]) set.toArray(new String[set.size()]);
     }
 
+    /**
+     * Returns a {@link String} which can be used to correlate log messages.
+     */
+    public static String getThreadIdentifier() {
+        return new StringBuilder(32)
+        .append(Runtime.getRuntime().hashCode())
+        .append("::")
+        .append(Thread.currentThread().getId()).toString();
+    }
 }

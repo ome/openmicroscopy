@@ -38,6 +38,7 @@ import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.tools.hibernate.SessionHandler;
+import ome.util.Utils;
 
 /**
  * 
@@ -73,10 +74,12 @@ public class ServiceHandler implements MethodInterceptor {
 
         ApiConstraintChecker.errorOnViolation(implClass, mthd, args);
 
+        String threadId = Utils.getThreadIdentifier();
+
         if (log.isInfoEnabled()) {
             // Method and arguments
-            log.info("Meth:\t" + arg0.getMethod().getName());
-            log.info("Args:\t" + getArgumentsString(arg0));
+            log.info(threadId + " Meth:\t" + arg0.getMethod().getName());
+            log.info(threadId + " Args:\t" + getArgumentsString(arg0));
         }
 
         // Results and/or Exceptions
@@ -86,14 +89,14 @@ public class ServiceHandler implements MethodInterceptor {
         try {
             sessions.cleanThread();
             o = arg0.proceed();
-            finalOutput = "Rslt:\t" + o;
+            finalOutput = threadId + " Rslt:\t" + o;
 
             // Extended output and return.
             log(o);
             return o;
 
         } catch (Throwable t) {
-            finalOutput = "Excp:\t" + t;
+            finalOutput = threadId + " Excp:\t" + t;
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {
@@ -125,8 +128,8 @@ public class ServiceHandler implements MethodInterceptor {
 
             if (RootException.class.isAssignableFrom(t.getClass())) {
                 return t;
-            } else if (OptimisticLockingFailureException.class.isAssignableFrom(t
-                    .getClass())) {
+            } else if (OptimisticLockingFailureException.class
+                    .isAssignableFrom(t.getClass())) {
                 OptimisticLockException ole = new OptimisticLockException(t
                         .getMessage());
                 ole.setStackTrace(t.getStackTrace());
