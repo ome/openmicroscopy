@@ -19,7 +19,7 @@ public class ImportContainer
         public String imageName;
         public boolean archive;
         
-        ImportContainer(File file, Dataset dataset, String imageName, boolean archive2)
+        public ImportContainer(File file, Dataset dataset, String imageName, boolean archive2)
         {
             this.file = file;
             this.dataset = dataset;
