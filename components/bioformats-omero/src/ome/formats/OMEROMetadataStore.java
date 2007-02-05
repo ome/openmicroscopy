@@ -466,6 +466,7 @@ public class OMEROMetadataStore implements MetadataStore
         AcquisitionContext ctx = new AcquisitionContext();
         ctx.setPhotometricInterpretation(pi);
         ctx.setMode(acquisitionMode);
+        pixels.setAcquisitionContext(ctx);
 
         Channel channel;
         if (channels.size() == 0)
