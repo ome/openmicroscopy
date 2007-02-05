@@ -89,8 +89,11 @@
         target="ome.model.core.Pixels"/>
 			<required name="path" type="string"/>
 			<required name="name" type="string"/>
-			<required name="size" type="int"/>
-      			<required name="sha1" type="string"/>
+			<required name="size" type="long"/>
+			<optional name="atime" type="timestamp"/>
+			<optional name="mtime" type="timestamp"/>
+			<optional name="ctime" type="timestamp"/>
+			<required name="sha1" type="string"/>
 			<required name="format" type="ome.model.enums.Format"/> 
 		</properties>
 	</type>        

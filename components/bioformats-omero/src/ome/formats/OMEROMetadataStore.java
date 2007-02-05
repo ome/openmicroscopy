@@ -655,7 +655,7 @@ public class OMEROMetadataStore implements MetadataStore
             OriginalFile oFile = new OriginalFile();
             oFile.setName(file.getName());
             oFile.setPath(file.getAbsolutePath());
-            oFile.setSize(new Integer((int) file.length())); //FIXME this needs to be long
+            oFile.setSize(file.length());
             oFile.setSha1("pending");
             oFile.setFormat(f);
             pixels.linkOriginalFile(oFile);
