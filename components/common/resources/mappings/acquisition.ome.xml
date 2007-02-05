@@ -517,6 +517,7 @@
 		<entry name="CMYK"/>
 		<entry name="HSV"/>
 		<entry name="Monochrome"/>
+		<entry name="ColorMap"/>
 	</enum>
 
 	<enum id="ome.model.enums.AcquisitionMode">
