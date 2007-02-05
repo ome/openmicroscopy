@@ -8,9 +8,11 @@ package ome.services.utests;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 
 import javax.interceptor.InvocationContext;
 
+import ome.logic.HardWiredInterceptor;
 import ome.tools.spring.AOPAdapter;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -99,7 +101,8 @@ public class AOPAdapterTest extends MockObjectTestCase {
         // do it
         ProxyFactoryBean factory = (ProxyFactoryBean) context
                 .getBean("&factory");
-        MethodInvocation test = AOPAdapter.create(factory, invocation);
+        List<HardWiredInterceptor> empty = Collections.emptyList();
+        MethodInvocation test = AOPAdapter.create(factory, invocation, empty);
         test.proceed();
 
         // checks
@@ -111,7 +114,6 @@ public class AOPAdapterTest extends MockObjectTestCase {
         super.verify();
 
     }
-
 }
 
 class SimpleInterceptor implements MethodInterceptor {
