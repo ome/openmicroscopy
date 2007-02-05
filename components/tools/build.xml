@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="tools" default="install" basedir=".">
+
+   <dirname property="up-one" file="${basedir}"/>
+   <import file="${up-one}/antlib/resources/global.xml"/>
    
 	<target name="help">
 		<echo>
