@@ -480,4 +480,21 @@ public interface ImViewer
      */
     public void showMenu(int menuID, Component source, Point location);
     
+    /**
+     * Invokes only when the rendering engine was reloaded after time out.
+     *
+     */
+    public void setReloaded();
+
+    /**
+     * Notifies the user than an error occured while trying to modify the 
+     * rendering settings and dispose of the viewer 
+     * if the passed exception is a <code>RenderingServiceException</code>
+     * or reloads the rendering engine if it is an 
+     * <code>DSOutOfServiceException</code>.
+     * 
+     * @param e The exception to handle.
+     */
+	public void reload(Exception e);
+    
 }

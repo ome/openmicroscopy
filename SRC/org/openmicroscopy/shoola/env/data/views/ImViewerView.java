@@ -66,10 +66,12 @@ public interface ImViewerView
      * Loads the rendering proxy associated to the pixels set.
      * 
      * @param pixelsID  The id of the pixels set.
+     * @param reload	Pass <code>true</code> to reload the rendering engine,
+     * 					<code>false</code> otherwise.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadRenderingControl(long pixelsID,
+    public CallHandle loadRenderingControl(long pixelsID, boolean reload,
                         AgentEventListener observer);
     
     /**

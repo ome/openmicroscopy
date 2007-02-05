@@ -58,6 +58,9 @@ public class RenderingControlLoader
     /** The ID of the pixels set. */
     private long        pixelsID;
     
+    /** Flag indicating if the rendering engine has to be reloaded. */
+    private boolean		reload;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -67,11 +70,15 @@ public class RenderingControlLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
+     * @param reload	Pass <code>true</code> to reload the rendering engine,
+     * 					<code>false</code> otherwise.
      */
-    public RenderingControlLoader(ImViewer viewer, long pixelsID)
+    public RenderingControlLoader(ImViewer viewer, long pixelsID, 
+    								boolean reload)
     {
         super(viewer);
         this.pixelsID = pixelsID;
+        this.reload = reload;
     }
 
     /**
@@ -80,7 +87,7 @@ public class RenderingControlLoader
      */
     public void load()
     {
-        handle = ivView.loadRenderingControl(pixelsID, this);
+        handle = ivView.loadRenderingControl(pixelsID, reload, this);
     }
 
     /**
@@ -96,7 +103,8 @@ public class RenderingControlLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        viewer.setRenderingControl((RenderingControl) result);
+        if (!reload) viewer.setRenderingControl((RenderingControl) result);
+        else viewer.setReloaded();
     }
     
 }

@@ -109,4 +109,11 @@ public interface OmeroImageService
     public BufferedImage getThumbnail(long pixelsID, int sizeX, int sizeY)
         throws RenderingServiceException;
     
+    /**
+     * Reloads the rendering engine for the passed set of pixels.
+     * 
+     * @param pixelsID The id of the pixels set.
+     */
+    public void reloadRenderingService(long pixelsID);
+    
 }

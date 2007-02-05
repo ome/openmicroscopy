@@ -55,24 +55,30 @@ public class RenderingControlLoader
 {
 
     /** Result of the call. */
-    private RenderingControl    result;
+    private Object    	result;
     
     /** Loads the specified tree. */
-    private BatchCall           loadCall;
+    private BatchCall	loadCall;
     
     /**
      * Creates a {@link BatchCall} to retrieve rendering control.
      * 
      * @param pixelsID  The id of the pixels set the rendering control is for.
+     * @param reload	Pass <code>true</code> to reload the rendering engine,
+     * 					<code>false</code> otherwise.
      * @return          The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long pixelsID)
+    private BatchCall makeBatchCall(final long pixelsID, final boolean reload)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.loadRenderingControl(pixelsID);
+                if (reload) {
+                	result = Boolean.TRUE;
+                	rds.reloadRenderingService(pixelsID);
+                }
+                else result = rds.loadRenderingControl(pixelsID);
             }
         };
     } 
@@ -97,12 +103,14 @@ public class RenderingControlLoader
      * early and in the caller's thread.
      * 
      * @param pixelsID  The id of the pixels set the rendering control is for.
+     * @param reload	Pass <code>true</code> to reload the rendering engine,
+     * 					<code>false</code> otherwise.
      */
-    public RenderingControlLoader(long pixelsID)
+    public RenderingControlLoader(long pixelsID, boolean reload)
     {
         if (pixelsID < 0)
              throw new IllegalArgumentException("ID not valid.");
-        loadCall = makeBatchCall(pixelsID);
+        loadCall = makeBatchCall(pixelsID, reload);
     }
     
 }

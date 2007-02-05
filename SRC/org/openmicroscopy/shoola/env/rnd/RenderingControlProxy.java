@@ -36,6 +36,9 @@ import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.ejb.EJBException;
+
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
@@ -49,6 +52,8 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
 
@@ -102,7 +107,7 @@ class RenderingControlProxy
     /** The channel metadata. */
     private ChannelMetadata[]       metadata;
     
-    /** locate copy of the rendering used to speed-up the UI painting. */
+    /** Local copy of the rendering used to speed-up the UI painting. */
     private RndProxyDef             rndDef;
     
     /**
@@ -114,6 +119,29 @@ class RenderingControlProxy
     {
         if (sizeCache <= 0) sizeCache = 0;
         return sizeCache*1024*1024;
+    }
+    
+    /**
+     * Helper method to handle exceptions thrown by the connection library.
+     * Methods in this class are required to fill in a meaningful context
+     * message.
+     * 
+     * @param e			The exception.
+     * @param message	The context message.  
+     * @param message
+     * @throws RenderingServiceException A rendering problem
+     * @throws DSOutOfServiceException A connection problem.
+     */
+    private void handleException(Exception e, String message)
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	if (e instanceof EJBException | e instanceof RuntimeException) {
+    		shutDown();
+    		throw new DSOutOfServiceException(message, e);
+    	}
+    		
+    	
+    	throw new RenderingServiceException(message, e);
     }
     
     /**
@@ -256,6 +284,7 @@ class RenderingControlProxy
         }
     }
     
+    
     private void tmpSolutionForNoiseReduction()
     {
     	 //DOES NOTHING TMP SOLUTION.
@@ -270,23 +299,72 @@ class RenderingControlProxy
     }
     
     /**
+     * Resets the rendering engine.
+     * 
+     * @param servant The value to set.
+     */
+    void setRenderingEngine(RenderingEngine servant)
+    {
+    	if (servant == null) return;
+    	this.servant = servant;
+    	
+    	// reset default of the rendering engine.
+    	if (rndDef == null) return;
+    	servant.setDefaultZ(rndDef.getDefaultZ());
+    	servant.setDefaultT(rndDef.getDefaultT());
+    	servant.setQuantumStrategy(rndDef.getBitResolution());
+    	Iterator k = models.iterator();
+        RenderingModel model;
+        String value = rndDef.getColorModel();
+        while (k.hasNext()) {
+            model= (RenderingModel) k.next();
+            if (model.getValue().equals(value)) 
+                servant.setModel(model); 
+        }
+    	servant.setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
+    	
+        ChannelBindingsProxy cb;
+        
+        Family family;
+        int[] rgba;
+        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+            cb = rndDef.getChannel(i);
+            servant.setActive(i, cb.isActive());
+            servant.setChannelWindow(i, cb.getInputStart(), cb.getInputEnd());
+            k = families.iterator();
+            value = cb.getFamily();
+            while (k.hasNext()) {
+                family= (Family) k.next();
+                if (family.getValue().equals(value)) {
+                	servant.setQuantizationMap(i, family, 
+                			cb.getCurveCoefficient(), cb.isNoiseReduction());
+                  
+                }
+            }
+            rgba = cb.getRGBA();
+            servant.setRGBA(rgba[0], rgba[1], rgba[2], rgba[3], rgba[4]);
+        }
+    }
+    
+    /**
      * Creates a new instance.
      * 
-     * @param servant   The service to render a pixels set.
+     * @param re   The service to render a pixels set.
      *                  Mustn't be <code>null</code>.
      * @param pixDims   The dimensions in microns of the pixels set.
      *                  Mustn't be <code>null</code>.
      * @param m         The channel metadata.                
      * @param sizeCache The size of the cache.
+     * @param pixelsID	The pixels ID, this proxy is for.
      */
-    RenderingControlProxy(RenderingEngine servant, PixelsDimensions pixDims,
+    RenderingControlProxy(RenderingEngine re, PixelsDimensions pixDims,
                           List m, int sizeCache)
     {
-        if (servant == null)
+        if (re == null)
             throw new NullPointerException("No rendering engine.");
         if (pixDims == null)
             throw new NullPointerException("No pixels dimensions.");
-        this.servant = servant;
+        servant = re;
         this.pixDims = pixDims;
         this.sizeCache = sizeCache;
         pixs = servant.getPixels();
@@ -353,14 +431,19 @@ class RenderingControlProxy
     }
     
     /** Shuts down the service. */
-    void shutDown() { servant.close(); }
+    void shutDown()
+    { 
+    	try {
+    		servant.close();
+		} catch (Exception e) {} 
+    }
     
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#setModel(String)
      */
     public void setModel(String value)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
     	try {
     		Iterator i = models.iterator();
@@ -374,7 +457,8 @@ class RenderingControlProxy
                 }
             }
 		} catch (Exception e) {
-			throw new RenderingServiceException(ERROR+"model", e);
+			rndDef.setColorModel(value);
+			handleException(e, ERROR+"model.");
 		}
      }
 
@@ -382,10 +466,7 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getModel()
      */
-    public String getModel()
-    { 
-        return rndDef.getColorModel();
-    }
+    public String getModel() { return rndDef.getColorModel(); }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -404,13 +485,14 @@ class RenderingControlProxy
      * @see RenderingControl#setDefaultZ(int)
      */
     public void setDefaultZ(int z)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
     	try {
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
 		} catch (Exception e) {
-			new RenderingServiceException(ERROR+"default Z", e);
+			rndDef.setDefaultZ(z);
+			handleException(e, ERROR+"default Z.");
 		}
     }
 
@@ -419,15 +501,15 @@ class RenderingControlProxy
      * @see RenderingControl#setDefaultT(int)
      */
     public void setDefaultT(int t)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
     	try {
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
 		} catch (Exception e) {
-			new RenderingServiceException(ERROR+"default T", e);
+			rndDef.setDefaultT(t);
+			handleException(e, ERROR+"default T.");
 		}
-        
     }
 
     /** 
@@ -435,13 +517,18 @@ class RenderingControlProxy
      * @see RenderingControl#setQuantumStrategy(int)
      */
     public void setQuantumStrategy(int bitResolution)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
-        checkBitResolution(bitResolution);
-        servant.setQuantumStrategy(bitResolution);
-        rndDef.setBitResolution(bitResolution);
-        invalidateCache();
+    	try {
+    		checkBitResolution(bitResolution);
+            servant.setQuantumStrategy(bitResolution);
+            rndDef.setBitResolution(bitResolution);
+            invalidateCache();
+		} catch (Exception e) {
+			rndDef.setBitResolution(bitResolution);
+			handleException(e, ERROR+"bit beth.");
+		}
     }
 
     /** 
@@ -449,11 +536,16 @@ class RenderingControlProxy
      * @see RenderingControl#setCodomainInterval(int, int)
      */
     public void setCodomainInterval(int start, int end)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-        servant.setCodomainInterval(start, end);
-        invalidateCache();
-        rndDef.setCodomain(start, end);
+    	try {
+    		servant.setCodomainInterval(start, end);
+            rndDef.setCodomain(start, end);
+            invalidateCache();
+		} catch (Exception e) {
+			rndDef.setCodomain(start, end);
+			handleException(e, ERROR+"codomain interval.");
+		}
     }
 
     /** 
@@ -462,21 +554,27 @@ class RenderingControlProxy
      */
     public void setQuantizationMap(int w, String value, double coefficient,
                                     boolean noiseReduction)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-        List list = servant.getAvailableFamilies();
-        Iterator i = list.iterator();
-        Family family;
-        while (i.hasNext()) {
-            family= (Family) i.next();
-            if (family.getValue().equals(value)) {
-                servant.setQuantizationMap(w, family, coefficient, 
-                                            noiseReduction);
-                rndDef.getChannel(w).setQuantization(value, coefficient, 
-                                            noiseReduction);
-                invalidateCache();
+    	try {
+    		List list = servant.getAvailableFamilies();
+            Iterator i = list.iterator();
+            Family family;
+            while (i.hasNext()) {
+                family= (Family) i.next();
+                if (family.getValue().equals(value)) {
+                    servant.setQuantizationMap(w, family, coefficient, 
+                                                noiseReduction);
+                    rndDef.getChannel(w).setQuantization(value, coefficient, 
+                                                noiseReduction);
+                    invalidateCache();
+                }
             }
-        }
+		} catch (Exception e) {
+			rndDef.getChannel(w).setQuantization(value, coefficient, 
+                    noiseReduction);
+			handleException(e, ERROR+"quantization map.");
+		}
     }
 
     /** 
@@ -511,11 +609,16 @@ class RenderingControlProxy
      * @see RenderingControl#setChannelWindow(int, double, double)
      */
     public void setChannelWindow(int w, double start, double end)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-        servant.setChannelWindow(w, start, end);
-        rndDef.getChannel(w).setInterval(start, end);
-        invalidateCache();
+    	try {
+    		servant.setChannelWindow(w, start, end);
+            rndDef.getChannel(w).setInterval(start, end);
+            invalidateCache();
+		} catch (Exception e) {
+			rndDef.getChannel(w).setInterval(start, end);
+			handleException(e, ERROR+"input channel for: "+w+".");
+		}  
     }
 
     /** 
@@ -541,12 +644,17 @@ class RenderingControlProxy
      * @see RenderingControl#setRGBA(int, Color)
      */
     public void setRGBA(int w, Color c)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-        servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-        rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
-                                     c.getAlpha());
-        invalidateCache();
+    	try {
+    		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
+    						c.getAlpha());
+    		rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
+    						c.getAlpha());
+    		invalidateCache();
+		} catch (Exception e) {
+			handleException(e, ERROR+"color for: "+w+".");
+		}
     }
 
     /** 
@@ -564,11 +672,15 @@ class RenderingControlProxy
      * @see RenderingControl#setActive(int, boolean)
      */
     public void setActive(int w, boolean active)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
-        servant.setActive(w, active);
-        rndDef.getChannel(w).setActive(active);
-        invalidateCache();
+    	try {
+    		servant.setActive(w, active);
+            rndDef.getChannel(w).setActive(active);
+            invalidateCache();
+		} catch (Exception e) {
+			handleException(e, ERROR+"active channel for: "+w+".");
+		}
     }
 
     /** 
@@ -585,7 +697,7 @@ class RenderingControlProxy
      * @see RenderingControl#addCodomainMap(CodomainMapContext)
      */
     public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         //servant.addCodomainMap(mapCtx);
         invalidateCache();
@@ -596,7 +708,7 @@ class RenderingControlProxy
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
      */
     public void updateCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         //servant.updateCodomainMap(mapCtx);
         invalidateCache();
@@ -607,7 +719,7 @@ class RenderingControlProxy
      * @see RenderingControl#removeCodomainMap(CodomainMapContext)
      */
     public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         //servant.removeCodomainMap(mapCtx);
         invalidateCache();
@@ -628,9 +740,13 @@ class RenderingControlProxy
      * @see RenderingControl#saveCurrentSettings()
      */
     public void saveCurrentSettings()
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
-    	servant.saveCurrentSettings();
+    	try {
+    		servant.saveCurrentSettings();
+		} catch (Exception e) {
+			handleException(e, ERROR+"save current settings.");
+		}
     }
 
     /** 
@@ -638,11 +754,16 @@ class RenderingControlProxy
      * @see RenderingControl#resetDefaults()
      */
     public void resetDefaults()
-    	throws RenderingServiceException
+    	throws RenderingServiceException, DSOutOfServiceException
     { 
-        servant.resetDefaults();
-        initialize();
-        tmpSolutionForNoiseReduction();
+    	try {
+    		 servant.resetDefaults();
+    		 initialize();
+    		 tmpSolutionForNoiseReduction();
+		} catch (Exception e) {
+			handleException(e, ERROR+"default settings.");
+		}
+       
     }
 
     /** 

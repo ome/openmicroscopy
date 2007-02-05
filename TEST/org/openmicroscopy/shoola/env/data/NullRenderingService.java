@@ -102,4 +102,10 @@ public class NullRenderingService
         return null;
     }
 
+    /**
+     * No-op implementation
+     * @see OmeroImageService#reloadRenderingService(long)
+     */
+	public void reloadRenderingService(long pixelsID) {}
+
 }

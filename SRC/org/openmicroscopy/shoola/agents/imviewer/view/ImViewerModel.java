@@ -49,11 +49,11 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * The Model component in the <code>ImViewer</code> MVC triad.
@@ -186,23 +186,6 @@ class ImViewerModel
                         (int) (height*f), img.getType());
         biop.filter(img, rescaleBuff);
         return rescaleBuff;
-    }
-    
-    /**
-     * Notifies the user than an error occured while trying to modify the 
-     * rendering settings and dispose of the viewer..
-     * 
-     * @param e The exception to handle.
-     */
-    private void handleException(RenderingServiceException e)
-    {
-    	ImViewerAgent.getRegistry().getLogger().error(this, 
-    											e.getExtendedMessage());
-    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	un.notifyError(ImViewerAgent.ERROR, e.getExtendedMessage(), 
-    										e.getCause());
-    	
-    	component.discard();
     }
     
     /**
@@ -394,12 +377,18 @@ class ImViewerModel
         //state = ImViewer.LOADING_METADATA;
     }
 
-    /**
-     * Fires an asynchronous retrieval of the rendering settings.
-     */
+    /** Fires an asynchronous retrieval of the rendering control. */
     void fireRenderingControlLoading()
     {
-        currentLoader = new RenderingControlLoader(component, pixelsID);
+        currentLoader = new RenderingControlLoader(component, pixelsID, false);
+        currentLoader.load();
+        state = ImViewer.LOADING_RENDERING_CONTROL;
+    }
+    
+    /** Fires an asynchronous retrieval of the rendering control. */
+    void reloadRenderingControl()
+    {
+        currentLoader = new RenderingControlLoader(component, pixelsID, true);
         currentLoader.load();
         state = ImViewer.LOADING_RENDERING_CONTROL;
     }
@@ -413,9 +402,9 @@ class ImViewerModel
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
         try {
             component.setImage(os.renderImage(pixelsID, pDef));
-        } catch (RenderingServiceException e) {
-            handleException(e);
-        }
+        } catch (Exception e) {
+			component.reload(e);
+		}
         /*
         currentLoader = new ImageLoader(component, pixelsID, pDef);
         currentLoader.load();
@@ -427,19 +416,18 @@ class ImViewerModel
      * and split its components.
      * 
      * @return See above.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     BufferedImage getSplitComponentImage()
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
         pDef.setZ(getDefaultZ());
         //state = ImViewer.LOADING_IMAGE;
         OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
-        try {
-            return os.renderImage(pixelsID, pDef);
-        } catch (RenderingServiceException e) {
-            handleException(e);
-        }
-        return null;
+        return os.renderImage(pixelsID, pDef);
     }
     
     /**
@@ -511,15 +499,15 @@ class ImViewerModel
     /**
      * Sets the color model.
      * 
-     * @param colorModel    The color model to set.
+     * @param colorModel	The color model to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setColorModel(String colorModel)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setModel(colorModel);
-		} catch (RenderingServiceException e) {
-			handleException(e);
-		}
+    	rndControl.setModel(colorModel);
     }
 
     /**
@@ -527,15 +515,15 @@ class ImViewerModel
      * 
      * @param z The z-section to set.
      * @param t The timepoint to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setSelectedXYPlane(int z, int t)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setDefaultT(t);
-            rndControl.setDefaultZ(z);
-		} catch (RenderingServiceException e) {
-			handleException(e);
-		}
+    	rndControl.setDefaultT(t);
+        rndControl.setDefaultZ(z);
     }
 
     /**
@@ -543,14 +531,14 @@ class ImViewerModel
      * 
      * @param index The channel's index.
      * @param c     The color to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setChannelColor(int index, Color c)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setRGBA(index, c);
-		} catch (RenderingServiceException e) {
-			handleException(e);
-		}
+    	rndControl.setRGBA(index, c);
     }
 
     /**
@@ -559,14 +547,14 @@ class ImViewerModel
      * @param index The channel's index.
      * @param b     Pass <code>true</code> to select the channel,
      *              <code>false</code> otherwise.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setChannelActive(int index, boolean b)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		 rndControl.setActive(index, b);
-		} catch (RenderingServiceException e) {
-			handleException(e);
-		}
+    	rndControl.setActive(index, b);
     }  
 
     /**
@@ -610,8 +598,12 @@ class ImViewerModel
      * 
      * @param play  Pass <code>true</code> to play the movie, <code>false</code>
      *              to stop it.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void playMovie(boolean play)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         if (player != null && !play) {
             player.setPlayerState(Player.STOP);

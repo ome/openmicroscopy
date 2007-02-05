@@ -114,8 +114,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.updateCodomainMap(ctx);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	 model.updateCodomainMap(ctx);
+             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+            		 Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -126,10 +131,15 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setInputInterval(s, e);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-        firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
-                            Boolean.TRUE);
+        try {
+        	model.setInputInterval(s, e);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+            					Boolean.TRUE);
+            firePropertyChange(INPUT_INTERVAL_PROPERTY, Boolean.FALSE, 
+                                Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -140,8 +150,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setCodomainInterval(s, e);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	 model.setCodomainInterval(s, e);
+             firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+            		 			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -152,8 +167,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setBitResolution(v);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.setBitResolution(v);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+           		 			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -170,8 +190,8 @@ class RendererComponent
         view.setSelectedChannel(c);
         //if (model.getParentModel().getColorModel().equals(
         //        ImViewer.GREY_SCALE_MODEL))
-            firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
-                    new Integer(selectedChannel), new Integer(c));
+        firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
+                    	new Integer(selectedChannel), new Integer(c));
     }
 
     /**
@@ -181,7 +201,7 @@ class RendererComponent
      */
     public void setChannelButtonColor(int changedChannel)
     {
-    	   view.setChannelButtonColor(changedChannel);  
+    	view.setChannelButtonColor(changedChannel);  
     }
     
     /**
@@ -202,8 +222,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setFamily(family);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.setFamily(family);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+           		 			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -214,8 +239,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setCurveCoefficient(k);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.setCurveCoefficient(k);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+           		 			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -226,8 +256,13 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.setNoiseReduction(b);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.setNoiseReduction(b);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+           		 			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -259,9 +294,14 @@ class RendererComponent
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
-        model.removeCodomainMap(mapType);
-        view.removeCodomainMap(mapType);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.removeCodomainMap(mapType);
+            view.removeCodomainMap(mapType);
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+            					Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -273,9 +313,14 @@ class RendererComponent
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         if (model.getCodomainMap(mapType) != null) return; //already
-        model.addCodomainMap(mapType);
-        view.addCodomainMap(mapType);
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+        try {
+        	model.addCodomainMap(mapType);
+        	view.addCodomainMap(mapType);
+        	firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+        			Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -308,9 +353,14 @@ class RendererComponent
      */
     public void resetDefaultRndSettings()
     {
-        model.resetDefaultRndSettings();
-        view.resetDefaultRndSettings();
-        firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    	try {
+    		model.resetDefaultRndSettings();
+            view.resetDefaultRndSettings();
+            firePropertyChange(RENDER_PLANE_PROPERTY, Boolean.FALSE, 
+            		Boolean.TRUE);
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
 
     /** 
@@ -328,7 +378,11 @@ class RendererComponent
      */
     public void saveRndSettings()
     {
-        model.saveRndSettings();
+    	try {
+    		model.saveRndSettings();
+		} catch (Exception ex) {
+			model.getParentModel().reload(ex);
+		}
     }
     
 }

@@ -32,6 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import ome.model.display.CodomainMapContext;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
 
@@ -165,11 +166,12 @@ public interface RenderingControl
      * mapped onto a color space.
      * 
      * @param model Identifies the color space model.
-     * @throws RenderingServiceException 	If an error occured while setting 
+     * @throws RenderingServiceException	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setModel(String model)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the color space model that dictated how transformed raw data
@@ -202,9 +204,10 @@ public interface RenderingControl
      * @param z The stack index.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setDefaultZ(int z)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Sets the default timepoint index.
@@ -212,10 +215,11 @@ public interface RenderingControl
      * 
      * @param t The timepoint index.
      * @throws RenderingServiceException 	If an error occured while setting 
-     * 										the value. 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken. 
      */
     public void setDefaultT(int t)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Sets the mapping strategy used during the mapping process.
@@ -223,9 +227,10 @@ public interface RenderingControl
      * @param bitResolution The depth, in bits, of the rendered image.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value. 
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setQuantumStrategy(int bitResolution)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Sets the size of sub-interval of the device space.
@@ -235,9 +240,10 @@ public interface RenderingControl
      * @param end   The upper bound of the interval.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setCodomainInterval(int start, int end)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the lower bound of the codomain.
@@ -271,11 +277,12 @@ public interface RenderingControl
      *                          mapping <code>NoiseReduction</code> algorithm,
      *                          <code>false</code> otherwise.
      * @throws RenderingServiceException 	If an error occured while setting 
-     * 										the value.                          
+     * 										the value.       
+     * @throws DSOutOfServiceException  	If the connection is broken.                   
      */ 
     public void setQuantizationMap(int w, String family, double coefficient, 
                                     boolean noiseReduction)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the family used to map the specified channel onto the device
@@ -312,9 +319,10 @@ public interface RenderingControl
      * @param end   The upper bound of the interval.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setChannelWindow(int w, double start, double end)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the lower bound of the pixel intensity interval.
@@ -341,9 +349,10 @@ public interface RenderingControl
      * @param color The color to set.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value. 
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void setRGBA(int w, Color color)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the color the channel is mapped onto.
@@ -361,10 +370,11 @@ public interface RenderingControl
      * @param active    Pass <code>true</code> to map the channel, 
      *                  <code>false</code> otherwise.
      * @throws RenderingServiceException 	If an error occured while setting 
-     * 										the value.                 
+     * 										the value.  
+     * @throws DSOutOfServiceException  	If the connection is broken.               
      */
     public void setActive(int w, boolean active)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
@@ -384,9 +394,10 @@ public interface RenderingControl
      * @param mapCtx The context to add.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Updates the specified <code>CodomainMapContext</code>.
@@ -395,9 +406,10 @@ public interface RenderingControl
      * @param mapCtx The context to update.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void updateCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Removed the <code>CodomainMapContext</code> from the list of
@@ -406,9 +418,10 @@ public interface RenderingControl
      * @param mapCtx    The context to remove.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns a read-only list of {@link CodomainMapContext}s using during
@@ -426,15 +439,15 @@ public interface RenderingControl
      */
     public List getFamilies();
     
-    
     /** 
      * Saves the current rendering settings to the database.
      *  
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void saveCurrentSettings()
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /** 
      * Resets the original default values. 
@@ -442,9 +455,10 @@ public interface RenderingControl
      * 
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public void resetDefaults()
-    	throws RenderingServiceException;
+    	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns the <code>ChannelMetadata</code> object specified

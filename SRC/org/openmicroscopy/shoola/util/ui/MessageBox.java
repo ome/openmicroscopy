@@ -98,7 +98,7 @@ public class MessageBox
     protected void onNoSelection() {	option = NO_OPTION; }
     
     /**
-     * Show the message box and return the option selected by the user. 
+     * Shows the message box and returns the option selected by the user. 
      * 
      * @return Options selected by the user. 
      */
@@ -106,8 +106,18 @@ public class MessageBox
     {
     	this.setLocation(this.getParent().getLocation());
     	this.setVisible(true);
-    	this.dispose();
     	return option;	
     }
    
+    /**
+     * Shows the message box and returns the option selected by the user. 
+     * 
+     * @return Options selected by the user. 
+     */
+    public int centerMsgBox()
+    {
+    	UIUtilities.centerAndShow(this);
+    	return option;	
+    }
+    
 }

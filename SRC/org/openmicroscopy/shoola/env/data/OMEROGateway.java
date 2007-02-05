@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ejb.EJBAccessException;
-
+import javax.ejb.EJBException;
 
 //Third-party libraries
 
@@ -863,29 +863,29 @@ class OMEROGateway
      * @return See above.
      * @throws RenderingServiceException If an error occured while trying to 
      *              retrieve data from the service. 
+     * @throws DSOutOfServiceException If the connection is broken.
      */
     synchronized byte[] getThumbnail(long pixelsID, int sizeX, int sizeY)
-        throws RenderingServiceException
+        throws RenderingServiceException, DSOutOfServiceException
     {
-    	ThumbnailStore service = getThumbService();
         try {
+        	ThumbnailStore service = getThumbService();
         	needDefault(pixelsID, null);
-        	/*
-            if (!(service.setPixelsId(pixelsID))) {
-				service.resetDefaults();
-				service.setPixelsId(pixelsID);
-            }
-            */
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
-        	thumbnailService.close();
+        	if (t instanceof EJBException | t instanceof RuntimeException) {
+        		thumbnailService = null;
+        		throw new DSOutOfServiceException(
+        				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
+        				printErrorText((Exception) t));
+        	}
+        	if (thumbnailService != null) thumbnailService.close();
         	thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
 
-    
     /**
      * Creates a new rendering service for the specified pixels set.
      * 

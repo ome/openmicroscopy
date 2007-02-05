@@ -40,12 +40,18 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -242,53 +248,59 @@ class ImViewerComponent
             key = (Integer) i.next();
             value = (ViewerAction) map.get(key);
         }
-        List channels = model.getActiveChannels();
-        switch (key.intValue()) {
-            case ColorModelAction.GREY_SCALE_MODEL:
-                historyActiveChannels = model.getActiveChannels();
-                model.setColorModel(GREY_SCALE_MODEL);
-                if (channels != null && channels.size() > 1) {
-                    i = channels.iterator();
-                    int index;
-                    int j = 0;
-                    while (i.hasNext()) {
-                        index = ((Integer) i.next()).intValue();
-                        setChannelActive(index, j == 0);
-                        j++;
-                    }
-                } else if (channels == null || channels.size() == 0) {
-                    //no channel so one will be active.
-                    setChannelActive(0, true);
-                }
-                break;
-            case ColorModelAction.RGB_MODEL:
-            case ColorModelAction.HSB_MODEL:
-                model.setColorModel(HSB_MODEL);
-                if (historyActiveChannels != null && 
-                        historyActiveChannels.size() != 0) {
-                    i = historyActiveChannels.iterator();
-                    while (i.hasNext()) 
-                        setChannelActive(((Integer) i.next()).intValue(), true);
-                } else {
-                    if (channels == null || channels.size() == 0) {
-                        //no channel so one will be active.
-                        setChannelActive(0, true);
-                    } else {
-                        i = channels.iterator();
-                        while (i.hasNext()) 
-                            setChannelActive(((Integer) i.next()).intValue(), 
-                                                true);
-                    }
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Color model not supported");
-        }
-        //need
-        firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
-                                                        new Integer(-1));
-        view.setColorModel(value);
-        renderXYPlane();
+        try {
+        	 List channels = model.getActiveChannels();
+             switch (key.intValue()) {
+     	        case ColorModelAction.GREY_SCALE_MODEL:
+     	        	historyActiveChannels = model.getActiveChannels();
+     	        	model.setColorModel(GREY_SCALE_MODEL);
+     	        	if (channels != null && channels.size() > 1) {
+     	        		i = channels.iterator();
+     	        		int index;
+     	        		int j = 0;
+     	        		while (i.hasNext()) {
+     	        			index = ((Integer) i.next()).intValue();
+     	        			setChannelActive(index, j == 0);
+     	        			j++;
+     	        		}
+     	        	} else if (channels == null || channels.size() == 0) {
+     	        		//no channel so one will be active.
+     	        		setChannelActive(0, true);
+     	        	}
+     	        	break;
+     	        case ColorModelAction.RGB_MODEL:
+     	        case ColorModelAction.HSB_MODEL:
+     	        	model.setColorModel(HSB_MODEL);
+     	        	if (historyActiveChannels != null && 
+     	        			historyActiveChannels.size() != 0) {
+     	        		i = historyActiveChannels.iterator();
+     	        		while (i.hasNext()) 
+     	        			setChannelActive(((Integer) i.next()).intValue(), 
+     	        					true);
+     	        	} else {
+     	        		if (channels == null || channels.size() == 0) {
+     	        			//no channel so one will be active.
+     	        			setChannelActive(0, true);
+     	        		} else {
+     	        			i = channels.iterator();
+     	        			while (i.hasNext()) 
+     	        				setChannelActive(
+     	        						((Integer) i.next()).intValue(), true);
+     	        		}
+     	        	}
+     	        	break;
+     	        default:
+     	        	throw new IllegalArgumentException("Color model not " +
+     	        	"supported");
+             }
+             //need
+             firePropertyChange(COLOR_MODEL_CHANGE_PROPERTY, new Integer(1), 
+                                                             new Integer(-1));
+             view.setColorModel(value);
+             renderXYPlane();
+		} catch (Exception ex) {
+			reload(ex);
+		}
     }
 
     /** 
@@ -309,18 +321,22 @@ class ImViewerComponent
         int defaultT = model.getDefaultT();
         
         if (defaultZ == z && defaultT == t) return;
-        if (defaultZ != z) {
-            firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
-                    new Integer(defaultZ), new Integer(z));
-        }
-        if (defaultT != t) {
-            firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
-                    new Integer(defaultT), new Integer(t));
-        }
-        model.setSelectedXYPlane(z, t);
-        renderXYPlane();
+        try {
+        	 if (defaultZ != z) {
+                 firePropertyChange(ImViewer.Z_SELECTED_PROPERTY, 
+                         new Integer(defaultZ), new Integer(z));
+             }
+             if (defaultT != t) {
+                 firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
+                         new Integer(defaultT), new Integer(t));
+             }
+             model.setSelectedXYPlane(z, t);
+             
+             renderXYPlane();
+		} catch (Exception ex) {
+			reload(ex);
+		}
     }
-
     
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
@@ -353,14 +369,17 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        if (model.getState() == READY) {
-            model.playMovie(play);
-            if (!play) {
-                displayChannelMovie();
-                controller.setHistoryState(READY);
-            }
-            fireStateChange();
-        }    
+        if (model.getState() != READY) return;
+        try {
+        	 model.playMovie(play);
+             if (!play) {
+                 displayChannelMovie();
+                 controller.setHistoryState(READY);
+             }
+             fireStateChange();
+		} catch (Exception ex) {
+			reload(ex);
+		} 
     }
 
     /** 
@@ -377,7 +396,13 @@ class ImViewerComponent
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
         }
-        model.setChannelColor(index, c);
+        //Handle Exception
+        try {
+        	model.setChannelColor(index, c);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+        
         view.setChannelColor(index, c);
         firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
                 new Integer(index));
@@ -399,23 +424,28 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         }
         //depends on model
-        if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
-            if (model.isChannelActive(index)) return;
-            boolean c;
-            for (int i = 0; i < model.getMaxC(); i++) {
-                c = i == index;
-                model.setChannelActive(i, c);  
-                if (c) 
-                    firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
-                            new Integer(index-1), new Integer(index));
+        try {
+        	if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
+                if (model.isChannelActive(index)) return;
+                boolean c;
+                for (int i = 0; i < model.getMaxC(); i++) {
+                    c = i == index;
+                    model.setChannelActive(i, c);  
+                    if (c) 
+                        firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+                                new Integer(index-1), new Integer(index));
+                }
+            } else {
+                model.setChannelActive(index, b);
+                firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+                				new Integer(index-1), new Integer(index));
             }
-        } else {
-            model.setChannelActive(index, b);
-            firePropertyChange(CHANNEL_ACTIVE_PROPERTY, new Integer(index-1),
-                    new Integer(index));
-        }
-        view.setChannelsSelection();
-        renderXYPlane();
+            
+            view.setChannelsSelection();
+            renderXYPlane();
+		} catch (Exception ex) {
+			reload(ex);
+		}
     }
     
     /** 
@@ -455,8 +485,9 @@ class ImViewerComponent
                 throw new IllegalStateException(
                 "This method can't be invoked in the DISCARDED, NEW or" +
                 "LOADING_RENDERING_CONTROL state.");
-        }
+        } 
         model.fireImageRetrieval();
+       
         fireStateChange();
     }
 
@@ -478,10 +509,14 @@ class ImViewerComponent
         //    if (model.getActiveChannels().size() == MAX_CHANNELS_RGB);
          //   return;
         //}
-        model.setChannelActive(index, b);
-        if (b)
-            firePropertyChange(CHANNEL_ACTIVE_PROPERTY, new Integer(index-1),
-                                new Integer(index));
+        try {
+        	model.setChannelActive(index, b);
+            if (b)
+                firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
+                		new Integer(index-1), new Integer(index));
+		} catch (Exception ex) {
+			reload(ex);
+		}
     }
 
     /** 
@@ -691,17 +726,21 @@ class ImViewerComponent
         Iterator i = l.iterator();
         int index;
         ArrayList images = new ArrayList(l.size());
-        while (i.hasNext()) {
-            index = ((Integer) i.next()).intValue();
-            for (int j = 0; j < model.getMaxC(); j++)
-                model.setChannelActive(j, j == index); 
-            images.add(model.getSplitComponentImage());
-        }
-        i = l.iterator();
-        while (i.hasNext()) { //reset values.
-            index = ((Integer) i.next()).intValue();
-            model.setChannelActive(index, true);
-        }
+        try {
+        	while (i.hasNext()) {
+                index = ((Integer) i.next()).intValue();
+                for (int j = 0; j < model.getMaxC(); j++)
+                    model.setChannelActive(j, j == index); 
+                images.add(model.getSplitComponentImage());
+            }
+            i = l.iterator();
+            while (i.hasNext()) { //reset values.
+                index = ((Integer) i.next()).intValue();
+                model.setChannelActive(index, true);
+            }
+		} catch (Exception ex) {
+			reload(ex);
+		}
         return images;
     }
 
@@ -961,6 +1000,49 @@ class ImViewerComponent
 		if (source == null) throw new IllegalArgumentException("No component.");
         if (location == null) throw new IllegalArgumentException("No point.");
 		view.showMenu(menuID, source, location);
+	}
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setReloaded()
+     */
+	public void setReloaded()
+	{
+		if (model.getState() != LOADING_RENDERING_CONTROL)
+    		throw new IllegalStateException("The method can only be invoked " +
+    				"in the LOADING_RENDERING_CONTROL state.");
+		//model.setState(READY);
+		renderXYPlane();
+	}
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#reload(Exception)
+     */
+	public void reload(Exception e)
+	{
+		Logger logger = ImViewerAgent.getRegistry().getLogger();
+    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    	if (e instanceof RenderingServiceException) {
+    		RenderingServiceException rse = (RenderingServiceException) e;
+    		logger.error(this, rse.getExtendedMessage());
+    		un.notifyError(ImViewerAgent.ERROR, rse.getExtendedMessage(), 
+    						e.getCause());
+    		discard();
+    	} else if (e instanceof DSOutOfServiceException) {
+    		MessageBox msg = new MessageBox(view, "Rendering timeout", 
+    			"The rendering engine has timed out. " +
+    			"Do you want to reload it?");
+    		if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+    			logger.debug(this, "Reload rendering Engine.");
+    			model.reloadRenderingControl();
+    			fireStateChange();
+    		} else {
+    			logger.debug(this, e.getMessage());
+    			discard();
+    		}
+    		// Question to user 
+    	}
 	}
     
 }

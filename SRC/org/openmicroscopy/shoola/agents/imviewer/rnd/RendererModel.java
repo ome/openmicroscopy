@@ -37,12 +37,11 @@ import ome.model.display.CodomainMapContext;
 import ome.model.display.ContrastStretchingContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.ReverseIntensityContext;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 
 /** 
@@ -124,22 +123,6 @@ class RendererModel
     private boolean             visible;
     
     /**
-     * Notifies the user than an error occured while trying to modify the 
-     * rendering settings and dispose of the viewer..
-     * 
-     * @param e The exception to handle.
-     */
-    private void handleException(RenderingServiceException e)
-    {
-    	ImViewerAgent.getRegistry().getLogger().error(this, 
-    											e.getExtendedMessage());
-    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	un.notifyError(ImViewerAgent.ERROR, e.getExtendedMessage(), 
-    										e.getCause());
-    	parentModel.discard();
-    }
-    
-    /**
      * Creates a new instance.
      * 
      * @param parentModel   Reference to the {@link ImViewer}.
@@ -200,35 +183,19 @@ class RendererModel
     int getState() { return state; }
 
     /**
-     * Sets the upper bound of the pixels intensity interval.
-     * 
-     * @param end The upper bound to set.
-     */
-    void setInputEnd(double end)
-    {
-
-    	try {
-    		rndControl.setChannelWindow(selectedChannelIndex, getWindowStart(), 
-    				end);
-    	} catch (RenderingServiceException e) {
-    		handleException(e);
-    	}
-    } 
-
-    /**
      * Sets the pixels intensity interval for the
      * currently selected channel.
      * 
-     * @param s         The lower bound of the interval.
-     * @param e         The upper bound of the interval.
+     * @param s	The lower bound of the interval.
+     * @param e	The upper bound of the interval.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setInputInterval(double s, double e)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setChannelWindow(selectedChannelIndex, s, e);
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+    	rndControl.setChannelWindow(selectedChannelIndex, s, e);
     }
 
     /**
@@ -250,28 +217,28 @@ class RendererModel
      * 
      * @param s The lower bound of the interval.
      * @param e The upper bound of the interval.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setCodomainInterval(int s, int e)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setCodomainInterval(s, e);
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+    	rndControl.setCodomainInterval(s, e);
     }
 
     /**
      * Sets the quantum strategy.
      * 
      * @param v The bit resolution defining the strategy.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setBitResolution(int v)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.setQuantumStrategy(v);
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+    	rndControl.setQuantumStrategy(v);
     }
 
     /**
@@ -286,32 +253,32 @@ class RendererModel
      * the mapping process.
      * 
      * @param family The family to set.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setFamily(String family)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
         double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-        try {
-        	rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
     }
 
     /**
      * Selects one curve in the family.
      * 
      * @param k The coefficient identifying a curve within a family.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setCurveCoefficient(double k)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         boolean b = rndControl.getChannelNoiseReduction(selectedChannelIndex);
         String family = rndControl.getChannelFamily(selectedChannelIndex);
-        try {
-        	 rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
     } 
     
     /**
@@ -319,30 +286,30 @@ class RendererModel
      * 
      * @param b Pass <code>true</code>  to turn it on,
      *          <code>false</code> otherwise.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void setNoiseReduction(boolean b)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
         String family = rndControl.getChannelFamily(selectedChannelIndex);
         double k = rndControl.getChannelCurveCoefficient(selectedChannelIndex);
-        try {
-        	rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
-        } catch (RenderingServiceException rse) {
-        	handleException(rse);
-        }
+        rndControl.setQuantizationMap(selectedChannelIndex, family, k, b);
     }
 
     /**
      * Upates the specified {@link CodomainMapContext context}.
      * 
      * @param ctx The context to update.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void updateCodomainMap(CodomainMapContext ctx)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-            rndControl.updateCodomainMap(ctx);
-        } catch (RenderingServiceException rse) {
-        	handleException(rse);
-        }
+    	rndControl.updateCodomainMap(ctx);
     }
 
     /**
@@ -385,15 +352,15 @@ class RendererModel
      * codomain transformations.
      * 
      * @param mapType   The type to identify the codomain map.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void removeCodomainMap(Class mapType)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		 CodomainMapContext ctx = getCodomainMap(mapType);
-    	     if (ctx != null) rndControl.removeCodomainMap(ctx);
-        } catch (RenderingServiceException rse) {
-        	handleException(rse);
-        }
+    	CodomainMapContext ctx = getCodomainMap(mapType);
+	    if (ctx != null) rndControl.removeCodomainMap(ctx);
     }
 
     /**
@@ -401,22 +368,22 @@ class RendererModel
      * codomain transformations.
      * 
      * @param mapType   The type to identify the codomain map.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
     void addCodomainMap(Class mapType)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		if (mapType.equals(ReverseIntensityContext.class)) {
-    			ReverseIntensityContext riCtx = new ReverseIntensityContext();
-    										riCtx.setReverse(Boolean.TRUE);
-    			rndControl.addCodomainMap(riCtx);
-    		} else if (mapType.equals(PlaneSlicingContext.class)) {
+    	if (mapType.equals(ReverseIntensityContext.class)) {
+			ReverseIntensityContext riCtx = new ReverseIntensityContext();
+										riCtx.setReverse(Boolean.TRUE);
+			rndControl.addCodomainMap(riCtx);
+		} else if (mapType.equals(PlaneSlicingContext.class)) {
 
-    		} else if (mapType.equals(ContrastStretchingContext.class)) {
+		} else if (mapType.equals(ContrastStretchingContext.class)) {
 
-    		}
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+		}
     }
 
     /** 
@@ -523,15 +490,18 @@ class RendererModel
         return rndControl.getChannelWindowEnd(selectedChannelIndex);
     }
 
-    /** Resets the default settings. */
+    /** 
+     * Resets the default settings. 
+     * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
     void resetDefaultRndSettings()
+   		throws RenderingServiceException, DSOutOfServiceException
     { 
-    	try {
-    		rndControl.resetDefaults(); 
-            parentModel.resetDefaults(); 
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+    	rndControl.resetDefaults(); 
+        parentModel.resetDefaults(); 
     }
 
 	/**
@@ -541,14 +511,17 @@ class RendererModel
 	 */
 	String getColorModel() { return rndControl.getModel(); }
 
-    /** Saves the rendering settings. */
+    /** 
+     * Saves the rendering settings. 
+     * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
     void saveRndSettings()
+    	throws RenderingServiceException, DSOutOfServiceException
     {
-    	try {
-    		rndControl.saveCurrentSettings(); 
-    	} catch (RenderingServiceException rse) {
-    		handleException(rse);
-    	}
+    	rndControl.saveCurrentSettings(); 
     }
     
 }

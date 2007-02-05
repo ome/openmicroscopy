@@ -164,21 +164,48 @@ class OmeroImageServiceImpl
     public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
         throws RenderingServiceException
     {
+    	Logger logger = context.getLogger();
         try {
             LogMessage msg = new LogMessage();
             msg.println("Get thumbnail direct from ID, PixelsID: "+pixID);
-            Logger logger = context.getLogger();
             logger.debug(this, msg);
             return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
         } catch (Exception e) {
+        	if (e instanceof DSOutOfServiceException) {
+        		logger.error(this, e.getMessage());
+        		return getThumbnail(pixID, sizeX, sizeY);
+        	}
             throw new RenderingServiceException("Get Thumbnail", e);
         }
     }
     
+    /** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#reloadRenderingService(long)
+     */
+	public void reloadRenderingService(long pixelsID)
+	{
+		RenderingControl proxy = 
+            RenderingServicesFactory.getRenderingControl(context, 
+                                            new Long(pixelsID));
+		if (proxy == null) return;
+		try {
+			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			RenderingServicesFactory.resetRenderingControl(context, pixelsID, 
+								re);
+		} catch (Exception e) {
+			Logger logger = context.getLogger();
+			logger.error(this, "Cannot reload rendering engine for : "+
+					pixelsID+"" +e.getMessage());
+		}
+	}
+	
     /** Shuts down all active rendering engines. */
     void shutDown()
     {
         RenderingServicesFactory.shutDownRenderingControls(context);
     }
+
+
 
 }

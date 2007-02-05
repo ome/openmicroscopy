@@ -31,7 +31,6 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Application-internal dependencies
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
@@ -70,12 +69,12 @@ class ImViewerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImViewerView#loadRenderingControl(long, AgentEventListener)
+     * @see ImViewerView#loadRenderingControl(long, boolean, AgentEventListener)
      */
-    public CallHandle loadRenderingControl(long pixelsID, 
+    public CallHandle loadRenderingControl(long pixelsID, boolean reload,
                                         AgentEventListener observer)
     {
-        BatchCallTree cmd = new RenderingControlLoader(pixelsID);
+        BatchCallTree cmd = new RenderingControlLoader(pixelsID, reload);
         return cmd.exec(observer);
     }
 

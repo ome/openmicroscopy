@@ -75,7 +75,7 @@ public class RenderingServicesFactory
     private static int                      cacheSize;
     
     /**
-     * Creates a new instance.  This can't be called outside of container b/c 
+     * Creates a new instance. This can't be called outside of container b/c 
      * agents have no refs to the singleton container. So we can be sure this
      * method is going to create services just once.
      * 
@@ -94,7 +94,7 @@ public class RenderingServicesFactory
         }
         return singleton;
     }
-
+	
     /**
      * Creates a new {@link RenderingControl}. We pass a reference to the 
      * the registry to ensure that agents don't call the method.
@@ -116,7 +116,27 @@ public class RenderingServicesFactory
             throw new IllegalArgumentException("Not allow to access method.");
         return singleton.makeNew(re, pixDims, metadata);
     }
-    
+   
+    /**
+     * Resets the rendering engine.
+     * 
+     * @param context	Reference to the registry. To ensure that agents cannot
+     *                  call the method. It must be a reference to the
+     *                  container's registry.
+     * @param pixelsID	The ID of the pixels set.
+     * @param re		The {@link RenderingEngine rendering service}.
+     */
+	public static void resetRenderingControl(Registry context, long pixelsID, 
+											RenderingEngine re)
+	{
+		if (!(registry.equals(context)))
+            throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy = (RenderingControlProxy) 
+        				singleton.rndSvcProxies.get(new Long(pixelsID));
+		if (proxy != null)
+			proxy.setRenderingEngine(re);
+	}
+	
     /**
      * Shuts downs the rendering service attached to the specified 
      * pixels set.
@@ -238,6 +258,5 @@ public class RenderingServicesFactory
         singleton.rndSvcProxies.put(id, rnd);
         return rnd;
     }
-
     
 }
