@@ -24,7 +24,7 @@ public class OriginalFilesService extends AbstractFileSystemService {
     }
 
     public FileBuffer getFileBuffer(OriginalFile file) {
-        String path = getPixelsPath(file.getId());
+        String path = getFilesPath(file.getId());
         createSubpath(path);
         return new FileBuffer(path, file);
     }
