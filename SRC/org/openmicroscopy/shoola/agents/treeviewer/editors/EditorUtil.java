@@ -103,9 +103,10 @@ class EditorUtil
      * @return The map whose keys are the field names, and the values 
      * 			the corresponding fields' values.
      */
-    static Map transformExperimenterData(ExperimenterData data)
+    static Map<String, String> transformExperimenterData(ExperimenterData data)
     {
-        LinkedHashMap details = new LinkedHashMap(3);
+        LinkedHashMap<String, String> details = 
+        							new LinkedHashMap<String, String>(3);
         if (data == null) {
             details.put(NAME, "");
             details.put(EMAIL, "");
@@ -133,9 +134,10 @@ class EditorUtil
      * @return The map whose keys are the field names, and the values 
      * 			the corresponding fields' values.
      */
-    static Map transformPixelsData(PixelsData data)
+    static Map<String, String> transformPixelsData(PixelsData data)
     {
-        LinkedHashMap details = new LinkedHashMap(9);
+        LinkedHashMap<String, String> details = 
+        						new LinkedHashMap<String, String>(9);
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
@@ -175,9 +177,9 @@ class EditorUtil
      * @return The map whose keys are the field names, and the values 
      * 			the corresponding fields' values.
      */
-    static Map transformGroup(GroupData data)
+    static Map<String, String> transformGroup(GroupData data)
     {
-        HashMap details = new HashMap(2);
+        HashMap<String, String> details = new HashMap<String, String>(2);
         if (data == null) {
             details.put(NAME, "");
             details.put(LEADER, "");

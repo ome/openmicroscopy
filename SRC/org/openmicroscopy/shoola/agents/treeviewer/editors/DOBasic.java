@@ -271,7 +271,8 @@ class DOBasic
     {
         setLayout(new BorderLayout());
         add(buildContentPanel(), BorderLayout.NORTH);
-        if (model.isAnnotatable()) 
+        if (model.isAnnotatable() && 
+        		model.getEditorType() == Editor.PROPERTIES_EDITOR) 
             add(tabbedPane, BorderLayout.CENTER);
     }
 

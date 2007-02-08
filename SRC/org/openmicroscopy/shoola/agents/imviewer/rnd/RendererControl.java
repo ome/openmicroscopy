@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlaneSlicingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ReverseIntensityAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.RndAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelToggleButton;
 import org.openmicroscopy.shoola.agents.imviewer.util.cdm.CodomainMapContextDialog;
@@ -105,13 +106,18 @@ class RendererControl
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
      */
-    private Renderer    model;
+    private Renderer    			model;
     
     /** Reference to the View. */
-    private RendererUI  view;
+    private RendererUI  			view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map         actionsMap;
+    private Map<Integer, RndAction>	actionsMap;
+    
+    /**
+     * Flag indicating if the node was visible or not.
+     */
+    private boolean		visibility;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -137,6 +143,7 @@ class RendererControl
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e)
             {
+            	visibility = false;
                 view.setVisible(false);
             }
         });
@@ -150,7 +157,7 @@ class RendererControl
      */
     RendererControl()
     {
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, RndAction>();
     }
     
     /**
@@ -256,8 +263,18 @@ class RendererControl
             int v = ((Integer) evt.getNewValue()).intValue();
             model.setSelectedChannel(v);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
-            if (((Boolean) evt.getNewValue()).booleanValue()) view.iconify();
-            //else view.deIconify();
+            if (((Boolean) evt.getNewValue()).booleanValue()) {
+            	if (view.isVisible()) {
+            		visibility = true;
+            	}
+            	view.setVisible(false);
+            	//view.iconify();
+            } else {
+            	if (visibility) view.setVisible(true);
+            	//if (view.getExtendedState() == Frame.ICONIFIED)
+            	//	view.deIconify();
+            }
+        	//if (view.isVisible()) view.setVisible(false);
         } else if (name.equals(Renderer.INPUT_INTERVAL_PROPERTY)) {
             view.setInputInterval();
         } else if (name.equals(ImViewer.CHANNEL_COLOR_CHANGE_PROPERTY)) {

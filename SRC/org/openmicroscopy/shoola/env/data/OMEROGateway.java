@@ -874,7 +874,8 @@ class OMEROGateway
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
-        	if (t instanceof EJBException | t instanceof RuntimeException) {
+        	if (t instanceof EJBException || 
+        			t.getCause() instanceof IllegalStateException) {
         		thumbnailService = null;
         		throw new DSOutOfServiceException(
         				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+

@@ -716,8 +716,8 @@ class EditorUI
                 Object ho = model.getHierarchyObject();
                 if (c instanceof DOInfo && ho instanceof ImageData) {
                     ImageData img = (ImageData) ho;
-                    Map details = 
-                        EditorUtil.transformPixelsData(img.getDefaultPixels());
+                    Map<String, String> details = 
+                    	 EditorUtil.transformPixelsData(img.getDefaultPixels());
                     List waves = model.getChannelsData();
                     if (waves == null) return;
                     String s = "";
