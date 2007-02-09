@@ -83,7 +83,7 @@ class UserNotifierManager
 											"been successfully posted.";
 	
 	/** Reply when sending the error message. */
-	private static final String	ERROR_REPLY = "Thnaks, the error message " +
+	private static final String	ERROR_REPLY = "Thanks, the error message " +
 										"has been successfully posted.";
 	
     /** Reference to the container. */
@@ -118,7 +118,7 @@ class UserNotifierManager
 								details.getExtra(), reply);
 			else c.submitError(details.getEmail(), details.getComment(), 
 					details.getExtra(), error, reply);
-			if (bug) reply += COMMENT_REPLY;
+			if (!bug) reply += COMMENT_REPLY;
 			else reply += ERROR_REPLY;
 			
 			JOptionPane.showMessageDialog(source, reply);
