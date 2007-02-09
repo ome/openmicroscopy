@@ -41,8 +41,6 @@
       <port>1099</port>
     </structuredEntry>
     
-    <!-- Login Service configuration.
-    -->
     <!-- The maximum number of times that the Login Service should attempt
          to restore a valid link to OMERO server in the background. 
          Non-positive values will be ignored and the internal default will
@@ -105,8 +103,9 @@
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/hostname">http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php</entry>
-    <entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
+<entry name="/services/DEBUGGER/hostnameComment">http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php</entry>
+<entry name="/services/DEBUGGER/hostnameBug">http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php</entry>
+<entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
   </services>
   
   

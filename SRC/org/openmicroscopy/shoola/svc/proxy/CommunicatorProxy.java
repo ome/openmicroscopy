@@ -53,7 +53,7 @@ public class CommunicatorProxy
 {
 
 	/** The tool invoking the service. */
-	private static final String INVOKER_ERROR = "insight_bug";
+	private static final String INVOKER_ERROR = "insight_bugs";
 	
 	/** The tool invoking the service. */
 	private static final String INVOKER_COMMENT = "insight_comment";
@@ -106,7 +106,6 @@ public class CommunicatorProxy
             throw new TransportException(
                     "Couldn't communicate with server (I/O error).", ioe);
         }
-		
 	}
 	
 }

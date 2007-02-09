@@ -49,10 +49,6 @@ import org.openmicroscopy.shoola.svc.transport.TransportException;
 class MessengerReply 
 	extends Reply
 {
-
-	/** The reply to a messenger request. */
-	private static final String REPLY = "Comments have been successfully " +
-										"posted.";
 	
 	/** The reply to send to the user. */
 	private String reply;
@@ -74,8 +70,7 @@ class MessengerReply
 	public void unmarshal(HttpMethod response, HttpChannel context) 
 		throws TransportException
 	{
-		checkStatusCode(response);
-		this.reply += REPLY;
+		reply += checkStatusCode(response);
 	}
 
 }

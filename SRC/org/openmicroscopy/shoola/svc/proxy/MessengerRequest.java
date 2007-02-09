@@ -112,7 +112,6 @@ class MessengerRequest
 		this.comment = comment;
 		this.extra = extra;
 		this.invoker = invoker;
-		
 	}
 	
 	/**
@@ -126,14 +125,11 @@ class MessengerRequest
         PostMethod request = new PostMethod();
         
         //Marshal.
-        if (email != null)
-        	request.addParameter(EMAIL, email);
-        if (comment != null)
-        	request.addParameter(COMMENT, comment);
-        if (error != null)
-        	request.addParameter(ERROR, error);
-        if (extra != null)
-        	request.addParameter(EXTRA, extra);
+        if (email != null) request.addParameter(EMAIL, email);
+        if (comment != null) request.addParameter(COMMENT, comment);
+        if (error != null) request.addParameter(ERROR, error);
+        	
+        if (extra != null) request.addParameter(EXTRA, extra);
         request.addParameter(INVOKER, invoker);
         request.addParameter(JAVA_VERSION, 
         							System.getProperty("java.version"));

@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -265,7 +267,7 @@ public class MessengerDialog
         textPane.setEditable(false);
 
         // Create one of each type of tab stop
-        java.util.List list = new ArrayList();
+        List<TabStop> list = new ArrayList<TabStop>();
         
         // Create a left-aligned tab stop at 100 pixels from the left margin
         float pos = 15;
@@ -296,8 +298,7 @@ public class MessengerDialog
         list.add(tstop);
         
         // Create a tab set from the tab stops
-        TabStop[] tstops = (TabStop[]) list.toArray(new TabStop[0]);
-        TabSet tabs = new TabSet(tstops);
+        TabSet tabs = new TabSet(list.toArray(new TabStop[0]));
         
         // Add the tab set to the logical style;
         // the logical style is inherited by all paragraphs

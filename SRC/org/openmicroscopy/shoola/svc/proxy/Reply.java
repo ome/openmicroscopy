@@ -55,9 +55,10 @@ public abstract class Reply
 	 * Checks the status of the response.
 	 * 
 	 * @param response	The response to handle.
+	 * @return The message from server.
 	 * @throws TransportException If an error occured while transferring data.
 	 */
-    protected static void checkStatusCode(HttpMethod response)
+    protected static String checkStatusCode(HttpMethod response)
     	throws TransportException
 	{
 	    int status = response.getStatusCode();
@@ -69,15 +70,13 @@ public abstract class Reply
 	            StringBuilder str = new StringBuilder();
 	            for (int n; (n = reader.read(buf)) != -1;)
 	                str.append(buf, 0, n);
-	            throw new TransportException("Couldn't handle request: "+
-	            		str.toString());
+	            return str.toString();
 			} catch (Exception e) {
 				throw new TransportException("Couldn't handle request: "+
 						HttpStatus.getStatusText(status)+".");
 			}
-	    	
 	    }
-            
+		return null;  
 	}
     
     /**

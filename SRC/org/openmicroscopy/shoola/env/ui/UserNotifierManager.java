@@ -78,9 +78,13 @@ class UserNotifierManager
 	/** Message if the dialog's type is {@link MessengerDialog#COMMENT_TYPE}. */
 	private static final String	COMMENT_MSG = "comment.";
 	
-	/** The reply to a messenger request. */
-	private static final String REPLY = "Comments have been successfully " +
-										"posted";
+	/** Reply when sending the comments. */
+	private static final String	COMMENT_REPLY = "Thanks, your comments have " +
+											"been successfully posted.";
+	
+	/** Reply when sending the error message. */
+	private static final String	ERROR_REPLY = "Thnaks, the error message " +
+										"has been successfully posted.";
 	
     /** Reference to the container. */
 	private Container		container;
@@ -95,23 +99,30 @@ class UserNotifierManager
 								MessengerDetails details)
 	{
 		Registry reg = container.getRegistry();
-		String url = (String) reg.lookup(LookupNames.DEBUG_URL);
+		String url;
+		boolean bug = true;
+		String error = details.getError();
+		if (error == null || error.length() == 0) bug = false;
+		if (bug) url = (String) reg.lookup(LookupNames.DEBUG_URL_BUG);
+		else url = (String) reg.lookup(LookupNames.DEBUG_URL_COMMENT);
+		
 		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
 		CommunicatorDescriptor desc = new CommunicatorDescriptor
 						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
 		try {
 			Communicator c = SvcRegistry.getCommunicator(desc);
-			String error = details.getError();
+			
 			String reply = "";
-			if (error == null || error.length() == 0)
+			if (!bug)
 				c.submitComment(details.getEmail(), details.getComment(), 
 								details.getExtra(), reply);
 			else c.submitError(details.getEmail(), details.getComment(), 
 					details.getExtra(), error, reply);
+			if (bug) reply += COMMENT_REPLY;
+			else reply += ERROR_REPLY;
 			
-			JOptionPane.showMessageDialog(source, REPLY);
+			JOptionPane.showMessageDialog(source, reply);
 		} catch (Exception e) {
-			e.printStackTrace();
 			String s = MESSAGE_START;
 			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
 				s += ERROR_MSG;

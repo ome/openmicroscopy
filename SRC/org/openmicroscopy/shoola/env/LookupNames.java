@@ -116,8 +116,12 @@ public class LookupNames
     public static final String LOGIN_RETRY_INTV = 
                                          "/services/LOGIN/omeds/retry-interval";
     
+    /** Field to access the url of the server where to post comments. */
+    public static final String DEBUG_URL_COMMENT = 
+    							"/services/DEBUGGER/hostnameComment";
+    
     /** Field to access the url of the server where to post error messages. */
-    public static final String DEBUG_URL = "/services/DEBUGGER/hostname";
+    public static final String DEBUG_URL_BUG = "/services/DEBUGGER/hostnameBug";
     
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
