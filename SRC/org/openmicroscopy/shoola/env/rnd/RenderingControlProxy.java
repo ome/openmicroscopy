@@ -36,9 +36,7 @@ import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.ejb.EJBException;
-
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Third-party libraries
@@ -52,7 +50,6 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
@@ -135,12 +132,11 @@ class RenderingControlProxy
     private void handleException(Exception e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	if (e instanceof EJBException | e instanceof RuntimeException) {
+    	if (e instanceof EJBException | 
+    			e.getCause() instanceof IllegalStateException) {
     		shutDown();
     		throw new DSOutOfServiceException(message, e);
     	}
-    		
-    	
     	throw new RenderingServiceException(message, e);
     }
     
@@ -763,7 +759,6 @@ class RenderingControlProxy
 		} catch (Exception e) {
 			handleException(e, ERROR+"default settings.");
 		}
-       
     }
 
     /** 
@@ -832,7 +827,7 @@ class RenderingControlProxy
      */
     public List getFamilies()
     { 
-        List l = new ArrayList(families.size());
+        List<String> l = new ArrayList<String>(families.size());
         Iterator i= families.iterator();
         while (i.hasNext())
             l.add(((Family) i.next()).getValue());
