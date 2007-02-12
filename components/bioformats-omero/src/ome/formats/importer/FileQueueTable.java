@@ -199,7 +199,12 @@ public class FileQueueTable
         String text = step + "/" + maxPlanes;
         table.setValueAt(text, row, 2);   
     }
-    
+
+    public void setProgressFailed(int row)
+    {
+     	table.setValueAt("importing", row, 2); 
+    }
+        
     public void setProgressPrepping(int row)
     {
         table.setValueAt("importing", row, 2); 

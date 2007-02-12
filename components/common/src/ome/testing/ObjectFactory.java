@@ -9,7 +9,6 @@ package ome.testing;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
@@ -52,7 +51,6 @@ public class ObjectFactory {
     public static Pixels createPixelGraph(Pixels example) {
 
         Pixels p = new Pixels();
-        AcquisitionContext ac = new AcquisitionContext();
         PhotometricInterpretation pi = new PhotometricInterpretation();
         AcquisitionMode mode = new AcquisitionMode();
         PixelsType pt = new PixelsType();
@@ -69,8 +67,6 @@ public class ObjectFactory {
             p.setVersion(example.getVersion());
 
             // everything else unloaded.
-            ac.setId(example.getAcquisitionContext().getId());
-            ac.unload();
             pt.setId(example.getPixelsType().getId());
             pt.unload();
             dO.setId(example.getDimensionOrder().getId());
@@ -90,8 +86,6 @@ public class ObjectFactory {
 
             mode.setValue("Wide-field");
             pi.setValue("RGB");
-            ac.setPhotometricInterpretation(pi);
-            ac.setMode(mode);
 
             pt.setValue("int8");
 
@@ -101,6 +95,7 @@ public class ObjectFactory {
             pd.setSizeY(new Float(1.0));
             pd.setSizeZ(new Float(1.0));
             c.setPixels(p);
+            lc.setPhotometricInterpretation(pi);
 
             // Not required but useful
             si.setGlobalMax(new Double(0.0));
@@ -121,7 +116,6 @@ public class ObjectFactory {
         p.setSizeC(new Integer(1));
         p.setSizeT(new Integer(1));
         p.setSha1("09bc7b2dcc9a510f4ab3a40c47f7a4cb77954356"); // "pixels"
-        p.setAcquisitionContext(ac);
         p.setPixelsType(pt);
         p.setDimensionOrder(dO);
         p.setPixelsDimensions(pd);

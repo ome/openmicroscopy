@@ -44,7 +44,6 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.model.IObject;
-import ome.model.acquisition.AcquisitionContext;
 import ome.model.acquisition.StageLabel;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -462,12 +461,6 @@ public class OMEROMetadataStore implements MetadataStore
                 AcquisitionMode.class, mode);
 
         List<Channel> channels = pixels.getChannels();
-
-        AcquisitionContext ctx = new AcquisitionContext();
-        ctx.setPhotometricInterpretation(pi);
-        ctx.setMode(acquisitionMode);
-        pixels.setAcquisitionContext(ctx);
-
         Channel channel;
         if (channels.size() == 0)
         {
@@ -482,6 +475,8 @@ public class OMEROMetadataStore implements MetadataStore
         lchannel.setExcitationWave(exWave);
         lchannel.setName(name);
         lchannel.setNdFilter(ndFilter);
+        lchannel.setPhotometricInterpretation(pi);
+        lchannel.setMode(acquisitionMode);
 
         channel.setLogicalChannel(lchannel);
         pixels.setChannels(channels);
@@ -499,11 +494,10 @@ public class OMEROMetadataStore implements MetadataStore
         log.debug(String.format(
                 "Setting GlobalMin: '%f' GlobalMax: '%f' for channel: '%d'",
                 globalMin, globalMax, channelIdx));
-        if (globalMin == null)
-            throw new NullPointerException("globalMin should not be null.");
-
-        if (globalMax == null)
-            throw new NullPointerException("globalMax should not be null.");
+        if (globalMin != null)
+        	globalMin = Math.floor(globalMin);
+        if (globalMax != null)
+        	globalMax = Math.floor(globalMax);
 
         List<Channel> channels = pixels.getChannels();
 
@@ -513,8 +507,8 @@ public class OMEROMetadataStore implements MetadataStore
 
         Channel channel = channels.get(channelIdx);
         StatsInfo statsInfo = new StatsInfo();
-        statsInfo.setGlobalMin(Math.floor(globalMin));
-        statsInfo.setGlobalMax(Math.floor(globalMax));
+        statsInfo.setGlobalMin(globalMin);
+        statsInfo.setGlobalMax(globalMax);
         
         channel.setStatsInfo(statsInfo);
     }

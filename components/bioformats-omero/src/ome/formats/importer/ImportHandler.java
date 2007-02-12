@@ -20,9 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import loci.formats.FormatException;
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
-import loci.formats.ReaderWrapper;
 import ome.formats.OMEROMetadataStore;
 
 import org.apache.commons.logging.Log;
@@ -42,10 +39,6 @@ public class ImportHandler
 
     private Main      viewer;
     
-    private ImageReader iReader;
-    
-    private IFormatReader reader;
-
     //private ProgressMonitor monitor;
     
     private FileQueueTable  qTable;
@@ -55,22 +48,26 @@ public class ImportHandler
     private OMEROMetadataStore store;
 
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStore store,
-            IFormatReader reader, ImportContainer[] fads)
+            OMEROWrapper reader, ImportContainer[] fads)
     {
         this.viewer = viewer;
         this.library = new ImportLibrary(store, reader, fads);
         this.store = store;
         this.qTable = qTable;
-        this.reader = reader;
-        
-        this.iReader = new ImageReader();
         
         new Thread()
         {
 
             public void run()
             {
-                importImages();
+            	try
+            	{
+            		importImages();
+            	}
+            	catch (Exception e)
+            	{
+            		new DebugMessenger(null, "Error Dialog", true, e);
+            	}
             }
         }.start();
 }
@@ -105,20 +102,7 @@ public class ImportHandler
         
         for(int i = 0; i < fads.length; i++)
         {
-            String filename = fads[i].file.getAbsolutePath();
-            
-            try
-            {
-                if (iReader.getReader(filename) instanceof loci.formats.in.BaseTiffReader
-                        && ((ReaderWrapper) reader).getReader().isRGB(filename)
-                        && reader.getSizeC(filename) > 1)
-                {   
-                    qTable.setProgressInvalid(i); 
-                    //qTable.setProgressPending(i);
-                } 
-                else { qTable.setProgressPending(i); }
-            } catch (Exception e) { qTable.setProgressInvalid(i); }
-
+           	qTable.setProgressPending(i);
         }
         
         for (int i = 0; i < fads.length; i++)
@@ -133,10 +117,19 @@ public class ImportHandler
                 
                 library.setDataset(fads[i].dataset);
                 
-                               
-                long pixId = importImage(fads[i].file, i, 
-                        library.getFilesAndDatasets().length, fads[i].imageName,
-                        fads[i].archive);
+                try
+                {
+                	importImage(fads[i].file, i,
+                			    library.getFilesAndDatasets().length,
+                			    fads[i].imageName,
+                			    fads[i].archive);
+                }
+                catch (Exception e)
+                {
+                	qTable.setProgressFailed(i);
+                    viewer.appendToOutputLn("> [" + i + "] Failure importing.");
+                    new DebugMessenger(null, "Error Dialog", true, e);
+                }
             }
         }
         qTable.importBtn.setText("Import"); 
@@ -171,9 +164,12 @@ public class ImportHandler
      * @param index
      * @param total Import the actual image planes
      * @param b 
+	 * @throws FormatException if there is an error parsing metadata.
+	 * @throws IOException if there is an error reading the file.
      */
     private long importImage(File file, int index, int total, String imageName, 
             boolean archive)
+    	throws FormatException, IOException
     {
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();

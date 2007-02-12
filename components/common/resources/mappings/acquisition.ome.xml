@@ -19,7 +19,7 @@
 		<properties>
 			<!-- Acquisition Context 1 -->      
 			<optional name="condition" type="ome.model.acquisition.ImagingEnvironment"/>
-			<optional name="acquisition" type="ome.model.acquisition.Objective">
+			<optional name="objectiveSettings" type="ome.model.acquisition.ObjectiveSettings">
 				<rule id="INS_OBJ_SYNCH" description="only if instrument defined"/>
 			</optional>
 			<optional name="setup" type="ome.model.acquisition.Instrument"/>
@@ -28,7 +28,7 @@
       <!-- TODO: name switch and active Pixels isn't really optional! -->      
 			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image"/>
 			<onemany name="defaultPixels" type="ome.model.core.Pixels" tag="defaultPixels"/> 
-      
+
       <!-- Containers -->
 			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
 				target="ome.model.containers.Category"/>
@@ -39,7 +39,16 @@
 			<zeromany name="annotations" type="ome.model.annotations.ImageAnnotation" inverse="image"/>
 		</properties>
 	</type>
-  
+	
+	<type id="ome.model.acquisition.ObjectiveSettings">
+		<properties>
+			<optional name="correctionCollar" type="float"/>
+			<optional name="medium" type="ome.model.enums.Medium"/>
+			<optional name="refractiveIndex" type="float"/>
+			<required name="objective" type="ome.model.acquisition.Objective"/>
+		</properties>
+	</type>
+
 	<type id="ome.model.core.Pixels">
 		<properties>
       <!-- Acquisition Context 1 -->      
@@ -64,8 +73,6 @@
         target="ome.model.core.OriginalFile"/>
             
       <!-- Acquisition Context 2 -->            
-			<optional name="acquisitionContext"
-				type="ome.model.acquisition.AcquisitionContext"/>
 			<onemany name="channels" type="ome.model.core.Channel" ordered="true">
         <rule id="CHANNEL_CARDINALITY" description="Must be sizeC channels"/>
       </onemany>
@@ -109,11 +116,14 @@
   
 	<type id="ome.model.core.PlaneInfo">
 		<properties>
-      <manyone name="pixels" type="ome.model.core.Pixels"/>
-      <required name="theZ" type="int"/>
-      <required name="theC" type="int"/>
-      <required name="theT" type="int"/>
+			<manyone name="pixels" type="ome.model.core.Pixels"/>
+			<required name="theZ" type="int"/>
+			<required name="theC" type="int"/>
+			<required name="theT" type="int"/>
 			<required name="timestamp" type="float"/>
+			<optional name="positionX" type="float"/>
+			<optional name="positionY" type="float"/>
+			<optional name="positionZ" type="float"/>
 			<optional name="exposureTime" type="float"/><!-- TODO: see mac notes -->
 		</properties>
 	</type>
@@ -150,13 +160,6 @@
     		Acquisition Context 2
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-  <type id="ome.model.acquisition.AcquisitionContext">
-		<properties>
-			<required name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
-			<required name="mode" type="ome.model.enums.AcquisitionMode"/>      
-		</properties>
-	</type>
-
 	<type id="ome.model.core.Channel" >
 		<properties>
 			<optional name="statsInfo" type="ome.model.stats.StatsInfo">
@@ -177,18 +180,21 @@
 			<optional name="name" type="string"/>
 			<optional name="pinHoleSize" type="int"/>
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
- 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
+			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
 			<optional name="excitationWave" type="int"/>
 			<optional name="emissionWave" type="int"/>
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="float"/>
-      <optional name="otf" type="ome.model.acquisition.OTF"/>
+			<optional name="otf" type="ome.model.acquisition.OTF"/>
 			<optional name="detectorSettings" type="ome.model.acquisition.DetectorSettings">
-        <rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull"
-          description="if defined, the instrument must be defined"/>
-      </optional>
-      <optional name="lightSource" type="ome.model.acquisition.LightSettings"/>
-      <optional name="auxLightSource" type="ome.model.acquisition.LightSettings"/>      
+				<rule id="DETECTOR_SETTINGS_REQ" type="conditionalNull"
+					description="if defined, the instrument must be defined"/>
+			</optional>
+			<optional name="lightSource" type="ome.model.acquisition.LightSettings"/>
+			<optional name="auxLightSource" type="ome.model.acquisition.LightSettings"/>  
+			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
+			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
+			<optional name="pockelCellSetting" type="string"/>
 		</properties>
 	</type>
 	
@@ -201,10 +207,12 @@
 
 	<type id="ome.model.acquisition.DetectorSettings">
 		<properties>
-			<required name="voltage" type="float"/>
-			<required name="gain" type="float"/>
-			<required name="offsetValue" type="float"/>
-			<required name="readRate" type="float"/>
+			<optional name="voltage" type="float"/>
+			<optional name="gain" type="float"/>
+			<optional name="offsetValue" type="float"/>
+			<optional name="readOutRate" type="float"/>
+			<optional name="binning" type="ome.model.enums.Binning"/>
+			<optional name="amplification" type="float"/>
 			<required name="detector" type="ome.model.acquisition.Detector"/>
 		</properties>
 	</type>
@@ -236,7 +244,8 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<required name="power" type="float"/>
+			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</abstract>
@@ -255,55 +264,17 @@
 		</properties>
 	</type>
 	
-	<abstract id="ome.model.acquisition.Laser"
+	<type id="ome.model.acquisition.Laser"
 		superclass="ome.model.acquisition.LightSource">
 		<properties>
-			<required name="frequencyDoubled" type="boolean"/>
+			<required name="type" type="ome.model.enums.LaserType"/>
+			<required name="laserMedium" type="ome.model.enums.LaserMedium"/>
+			<required name="frequencyMultiplication" type="ome.model.enums.FrequencyMultiplication"/>
 			<required name="tunable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
+			<optional name="wavelength" type="int"/>
+			<required name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.Laser"/>
-		</properties>
-	</abstract>
-  
-	<type id="ome.model.acquisition.DyeLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.DyeLaserMedia"/>
-		</properties>
-	</type>
-  
-	<type id="ome.model.acquisition.ExcimerLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.ExcimerLaserMedia"/>
-		</properties>
-	</type>
-  
-	<type id="ome.model.acquisition.FreeElectronLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.FreeElectronLaserMedia"/>
-		</properties>
-	</type>
-
-	<type id="ome.model.acquisition.GasLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.GasLaserMedia"/>
-		</properties>
-	</type>
-
-	<type id="ome.model.acquisition.MetalVaporLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.MetalVaporLaserMedia"/>
-		</properties>
-	</type>
-
-	<type id="ome.model.acquisition.SemiConductorLaser"
-		superclass="ome.model.acquisition.Laser">
-		<properties>
-			<required name="medium" type="ome.model.acquisition.SemiConductorLaserMedia"/>
 		</properties>
 	</type>
   	
@@ -315,7 +286,10 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
+			<optional name="voltage" type="float"/>
+			<optional name="gain" type="float"/>
+			<optional name="offsetValue" type="float"/>
 			<required name="type" type="ome.model.enums.DetectorType"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
@@ -325,7 +299,7 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.MicroscopeType"/>
 		</properties>
 	</type>
@@ -334,15 +308,11 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<required name="magnificiation" type="double"/>
 			<required name="lensNA" type="float"/>
-			<optional name="aberrationCorrection"
-				type="ome.model.enums.AberrationCorrection"/>
-			<optional name="correctionCollar" type="ome.model.enums.CorrectionCollar"/>
-			<optional name="irisDiaphragm" type="ome.model.enums.IrisDiaphragm"/>
-			<optional name="immersionMedium" type="ome.model.enums.ImmersionMedium"/>
-			<optional name="phaseCondenserAnnulus" type="int"/>
+			<optional name="immersion" type="ome.model.enums.Immersion"/>
+			<optional name="coating" type="ome.model.enums.Coating"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
@@ -377,7 +347,8 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
+			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
 		</properties>
 	</type>      
   
@@ -385,10 +356,11 @@
 		<properties>
 			<required name="manufacturer" type="string"/>
 			<required name="model" type="string"/>
-			<required name="serialNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<required name="excitationFilter" type="ome.model.acquisition.ExcitationFilter"/>
 			<required name="dichroic" type="ome.model.acquisition.Dichroic"/>
 			<required name="emissionFilter" type="ome.model.acquisition.EmissionFilter"/>
+			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
 		</properties>
 	</type>
 
@@ -397,12 +369,24 @@
 	<type id="ome.model.acquisition.ExcitationFilter">
 		<properties>
 			<required name="type" type="ome.model.enums.FilterType"/>
+			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
 		</properties>
 	</type>
 	
 	<type id="ome.model.acquisition.EmissionFilter">
 		<properties>
 			<required name="type" type="ome.model.enums.FilterType"/>
+			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
+		</properties>
+	</type>
+	
+	<type id="ome.model.acquisition.TransmittanceRange">
+		<properties>
+			<required name="cutIn" type="int"/>
+			<required name="cutOut" type="int"/>
+			<optional name="cutInTolerance" type="int"/>
+			<optional name="cutOutTolerance" type="int"/>
+			<required name="transmittance" type="float"/>
 		</properties>
 	</type>
   	
@@ -432,8 +416,16 @@
 		<entry name="Fluorescence-Lifetime"/>
 		<entry name="Spectral-Imaging"/>
 		<entry name="Other"/>
-	</enum>                
-        
+	</enum>
+
+  <!-- Objective Settings Entity -->
+	<enum id="ome.model.enums.Medium">
+		<entry name="Air"/>
+		<entry name="Oil"/>
+		<entry name="Water"/>
+		<entry name="Glycerol"/>
+	</enum>
+
   <!-- Microscope Entity -->
 	<enum id="ome.model.enums.MicroscopeType">
 		<entry name="Upright"/>
@@ -441,7 +433,7 @@
 		<entry name="Dissection"/>
 		<entry name="Electrophysiology"/>
 	</enum>  
-    
+
   <!-- Object Entity -->
   <enum id="ome.model.enums.AberrationCorrection">
 		<entry name="Achro"/>
@@ -453,20 +445,30 @@
 		<entry name="Fluotar"/>
 		<entry name="Apo"/>
 	</enum>
-  
-  <enum id="ome.model.enums.CorrectionCollar">
-		<entry name="Corr"/>
-		<entry name="W/Corr"/>
-		<entry name="CR"/>
+	
+	<enum id="ome.model.enums.Immersion">
+		<entry name="Oil"/>
+		<entry name="Water"/>
+		<entry name="WaterDipping"/>
+		<entry name="Air"/>
+		<entry name="Multi"/>
+		<entry name="Other"/>
 	</enum>
-  
+
+	<enum id="ome.model.enums.Coating">
+		<entry name="UV"/>
+		<entry name="PlanApo"/>
+		<entry name="PlanFluor"/>
+		<entry name="SuperFluor"/>
+	</enum>
+
 	<enum id="ome.model.enums.IrisDiaphragm">
 		<entry name="I"/>
 		<entry name="Iris"/>
 		<entry name="W/Iris"/>
 	</enum>
 
-	<enum id="ome.model.enums.ImmersionMedium">
+	<enum id="ome.model.enums.Immersion">
 		<entry name="Oil"/>
 		<entry name="Oel"/>
 		<entry name="Water"/>
@@ -536,6 +538,14 @@
 		<entry name="NearFieldScanningOpticalMicroscopy"/>
 		<entry name="SecondHarmonicGenerationImaging"/>
 	</enum>
+	
+  <!-- Detector Settings Entity -->
+	<enum id="ome.model.enums.Binning">
+		<entry name="1x1"/>
+		<entry name="2x2"/>
+		<entry name="4x4"/>
+		<entry name="8x8"/>
+	</enum>
 
   <!-- Detector Entity -->  
   <enum id="ome.model.enums.DetectorType">
@@ -587,20 +597,11 @@
 	</enum>
 	
   <!-- Laser Entity -->
-	<enum id="ome.model.enums.Pulse">
-		<entry name="CW"/>
-		<entry name="Single"/>
-		<entry name="Q-Switched"/>
-		<entry name="Repetitive"/>
-		<entry name="Mode-Locked"/>
-	</enum>
-
-	<enum id="ome.model.acquisition.DyeLaserMedia">
-		<entry name="Rhodamine-6G"/>
-		<entry name="Coumarin-C30"/>
-	</enum>
-  
-	<enum id="ome.model.acquisition.ExcimerLaserMedia">
+	<enum id="ome.model.enums.LaserMedium">
+		<!-- Dye Laser Medium -->
+		<entry name="Rhodamine-5G"/>
+		<entry name="Coumaring-C30"/>
+		<!-- Eximer Laser Medium -->
 		<entry name="ArFl"/>
 		<entry name="ArCl"/>
 		<entry name="KrFl"/>
@@ -608,33 +609,50 @@
 		<entry name="XeFl"/>
 		<entry name="XeCl"/>
 		<entry name="XeBr"/>
-	</enum>
-  
-	<enum id="ome.model.acquisition.FreeElectronLaserMedia">
-		<entry name="e-"/>
-	</enum>
-
-	<enum id="ome.model.acquisition.SemiConductorLaserMedia">
+		<!-- Semi Conductor Laser Medium -->
 		<entry name="GaAs"/>
 		<entry name="GaAlAs"/>
-	</enum>
-  
-	<enum id="ome.model.acquisition.MetalVaporLaserMedia">
+		<!-- Free Electron Laser Medium -->
+		<entry name="e-"/>
+		<!-- Metal Vapor Laser Medium -->
 		<entry name="Cu"/>
 		<entry name="Ag"/>
-	</enum>
-  
-	<enum id="ome.model.acquisition.GasLaserMedia">
-		<entry name="Nitrogen"/>
-		<entry name="Argon"/>
-		<entry name="Krypton"/>
-		<entry name="Xenon"/>
+		<!-- Gas Laser Medium -->
+		<entry name="N"/>
+		<entry name="Ar"/>
+		<entry name="Kr"/>
+		<entry name="Xe"/>
 		<entry name="HeNe"/>
 		<entry name="HeCd"/>
 		<entry name="CO"/>
 		<entry name="CO2"/>
 		<entry name="H2O"/>
 		<entry name="HFl"/>
+	</enum>
+
+	<enum id="ome.model.enums.LaserType">
+		<entry name="Excimer"/>
+		<entry name="Gas"/>
+		<entry name="MetalVapor"/>
+		<entry name="SolidState"/>
+		<entry name="Dye"/>
+		<entry name="Semiconductor"/>
+		<entry name="FreeElectron"/>
+	</enum>
+
+	<enum id="ome.model.enums.Pulse">
+		<entry name="CW"/>
+		<entry name="Single"/>
+		<entry name="Q-Switched"/>
+		<entry name="Repetitive"/>
+		<entry name="Mode-Locked"/>
+	</enum>
+	
+	<enum id="ome.model.enums.FrequencyMultiplication">
+		<entry name="x1"/>
+		<entry name="x2"/>
+		<entry name="x3"/>
+		<entry name="x4"/>
 	</enum>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

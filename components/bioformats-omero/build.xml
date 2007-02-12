@@ -37,6 +37,8 @@
 			<src path="${src.dir}"/>
 			<include name="**/EnumerationException*"/>
 			<include name="**/OMEROMetadataStore*"/>
+			<include name="**/OMEROWrapper*"/>
+			<include name="**/Plane2D*"/>
 			<include name="**/ImportContainer*"/>
 			<include name="**/ImportLibrary*"/>
 			<include name="**/ImportFixture*"/>

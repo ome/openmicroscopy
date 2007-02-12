@@ -18,8 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import loci.formats.FormatReader;
-import loci.formats.IFormatReader;
-import loci.formats.ImageReader;
+import loci.formats.ReaderWrapper;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
@@ -47,7 +46,7 @@ public class ImportFixture
 
     private OMEROMetadataStore store;
 
-    private IFormatReader      reader;
+    private OMEROWrapper       reader;
 
     private ImportLibrary      library;
 
@@ -55,10 +54,10 @@ public class ImportFixture
     
     public ImportFixture(OMEROMetadataStore store)
     {
-        this(store, new ImageReader());
+        this(store, new OMEROWrapper());
     }
 
-    public ImportFixture(OMEROMetadataStore store, IFormatReader reader)
+    public ImportFixture(OMEROMetadataStore store, OMEROWrapper reader)
     {
         this.store = store;
         this.reader = reader;

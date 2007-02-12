@@ -37,6 +37,7 @@ import loci.formats.ImageReader;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
 import ome.model.containers.Dataset;
 import ome.system.ServiceFactory;
 
@@ -70,8 +71,7 @@ public class TinyImportFixture extends ImportFixture
     
     public TinyImportFixture(ServiceFactory services) throws Exception
     {
-        super( new OMEROMetadataStore(services),
-               new ChannelSeparator(new ImageReader()) );
+        super(new OMEROMetadataStore(services), new OMEROWrapper());
         this.sf = services;
     }
 

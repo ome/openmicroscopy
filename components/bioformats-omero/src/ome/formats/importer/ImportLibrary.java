@@ -77,13 +77,13 @@ public class ImportLibrary
 
     private static Log         log = LogFactory.getLog(ImportLibrary.class);
 
-    private Dataset             dataset;
+    private Dataset            dataset;
 
     private OMEROMetadataStore store;
 
-    private IFormatReader        reader;
+    private OMEROWrapper       reader;
 
-    private ImportContainer[]     fads;
+    private ImportContainer[]  fads;
 
     private int                sizeZ;
 
@@ -109,7 +109,7 @@ public class ImportLibrary
      * @param reader not null
      * @param fads2 not null, length > 0
      */
-    public ImportLibrary(OMEROMetadataStore store, IFormatReader reader,
+    public ImportLibrary(OMEROMetadataStore store, OMEROWrapper reader,
             ImportContainer[] fads)
     {
 
@@ -201,11 +201,16 @@ public class ImportLibrary
      * the database.
      * 
      * @return the newly created {@link Pixels} id.
+	 * @throws FormatException if there is an error parsing metadata.
+	 * @throws IOException if there is an error reading the file.
      */
     public long importMetadata(String imageName)
+    	throws FormatException, IOException
     {
         Pixels p = (Pixels) store.getRoot();
         p.getImage().setName(imageName);
+        // Ensure that our metadata is consistent before writing to the DB.
+        reader.finalizeMetadataStore(imageName);
         Long pixId = store.saveToDB();
         store.addPixelsToDataset(pixId, dataset);
         return pixId;
@@ -244,16 +249,8 @@ public class ImportLibrary
         int i = 1;
         try {
             int bytesPerPixel = getBytesPerPixel(reader.getPixelType(fileName));
-            byte[] buffer = null;
-            
-            
-            // Nasty RGB Tiff code that needs to be stripped and fixed
-            if (((ReaderWrapper) reader).getReader().isRGB(fileName)) {
-                buffer = new byte[sizeX * sizeY * sizeC * bytesPerPixel];
-            } else 
-                buffer = new byte[sizeX * sizeY * bytesPerPixel];
-            
-            
+            byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
+
             for (int t = 0; t < sizeT; t++)
             {
                 for (int c = 0; c < sizeC; c++)
@@ -261,10 +258,12 @@ public class ImportLibrary
                     for (int z = 0; z < sizeZ; z++)
                     {
                         int planeNumber = getTotalOffset(z, c, t);
-                        buffer = useCorrectBuffer(fileName, c, buffer, planeNumber);
-                        buffer = swapIfRequired(buffer, fileName);
+                        ByteBuffer buf =
+                        	reader.openPlane2D(fileName, planeNumber,
+                        			           arrayBuf).getData();
+                        arrayBuf = swapIfRequired(buf, fileName);
                         step.step(i);
-                        store.setPlane(pixId, buffer, z, c, t);
+                        store.setPlane(pixId, arrayBuf, z, c, t);
                         i++;
                     }
                 }
@@ -286,24 +285,6 @@ public class ImportLibrary
         }
     }
     
-    
-    /**
-     * uses the right buffer for RGB based tiff images
-     * @param id
-     * @return
-     * @throws FormatException
-     * @throws IOException
-     */
-    private byte[] useCorrectBuffer(String id, int c, byte[] bytes, int no) throws FormatException, IOException
-    {
-        byte[] sourceBytes = reader.openBytes(id, no, bytes);
-        if (((ReaderWrapper) reader).getReader().isRGB(id)) {
-            return loci.formats.ImageTools.splitChannels(sourceBytes, sizeC,
-              false, reader.isInterleaved(id))[c];
-          }
-        else return sourceBytes;
-    }
-
     // ~ Helpers
     // =========================================================================
 
@@ -405,7 +386,7 @@ public class ImportLibrary
      * @throws IOException if there is an error read from the file.
      * @throws FormatException if there is an error during metadata parsing.
      */
-    private byte[] swapIfRequired(byte[] byteArray, String fileName)
+    private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
       throws FormatException, IOException
     {
       int pixelType = reader.getPixelType(fileName);
@@ -415,13 +396,13 @@ public class ImportLibrary
       // are floating point.
       if (pixelType == FormatReader.FLOAT || pixelType == FormatReader.DOUBLE
                   || bytesPerPixel == 1) 
-          return byteArray;
+          return buffer.array();
 
       //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
       if (isLittleEndian(fileName)) {
         if (bytesPerPixel == 2) { // short
-          ShortBuffer buf = ByteBuffer.wrap(byteArray).asShortBuffer();
-          for (int i = 0; i < (byteArray.length / 2); i++) {
+          ShortBuffer buf = buffer.asShortBuffer();
+          for (int i = 0; i < (buffer.capacity() / 2); i++) {
           //short tmp = buf.get(i);
             buf.put(i, Bits.swap(buf.get(i)));
           //if (tmp == 21253 || buf.get(i) == 21253) 
@@ -430,8 +411,8 @@ public class ImportLibrary
           //}
           }
         } else if (bytesPerPixel == 4) { // int/uint
-            IntBuffer buf = ByteBuffer.wrap(byteArray).asIntBuffer();
-            for (int i = 0; i < (byteArray.length / 4); i++) {
+            IntBuffer buf = buffer.asIntBuffer();
+            for (int i = 0; i < (buffer.capacity() / 4); i++) {
               buf.put(i, Bits.swap(buf.get(i)));
             }
         } else {
@@ -440,6 +421,6 @@ public class ImportLibrary
         }
       }
       // We've got a big-endian file with a big-endian byte array.
-      return byteArray;
+      return buffer.array();
     }
 }

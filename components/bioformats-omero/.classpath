@@ -6,7 +6,7 @@
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="lib" path="lib/TableLayout.jar">
 		<attributes>
-			<attribute value="OMERO Import/lib" name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="OMERO Import/lib"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/spring-2.0-m3.jar"/>
@@ -21,8 +21,7 @@
 	<classpathentry kind="lib" path="lib/hibernate-3.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/common-3.0-TRUNK.jar"/>
-	<classpathentry kind="lib" path="lib/client-3.0-TRUNK.jar"/>
-	<classpathentry kind="lib" path="/Library/Java/Extensions/postgresql-8.1-407.jdbc3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

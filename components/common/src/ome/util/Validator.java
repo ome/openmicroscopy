@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.model.IObject;
-import ome.model.acquisition.AcquisitionContext;
 import ome.model.acquisition.ImagingEnvironment;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -45,16 +44,17 @@ public abstract class Validator {
          * model? Do null tests count?
          */
         // Pixels pixels = channel.getPixels (need inverse)
-        AcquisitionContext acqCtx = new Pixels().getAcquisitionContext(); // FIXME
         Color color = channel.getColorComponent();
-        String piType = acqCtx.getPhotometricInterpretation().getValue(); // TODO
+        String piType =
+        	channel.getLogicalChannel().
+        	        getPhotometricInterpretation().getValue(); // TODO
         // null
         // Safe?
         if (piType.equals("RGB") || piType.equals("ARGB")
                 || piType.equals("CMYK") || piType.equals("HSV")) {
             if (color == null) {
-                v
-                        .invalidate("Channel.color cannot be null if PiType == {RGB|ARGB|CMYK|HSV}");
+                v.invalidate("Channel.color cannot be null if PiType == " +
+                		"{RGB|ARGB|CMYK|HSV}");
             }
         }
 

@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 
 import org.testng.annotations.*;
 
-import ome.model.acquisition.DyeLaser;
+import ome.model.acquisition.Laser;
 import ome.model.internal.GraphHolder;
 import junit.framework.TestCase;
 
@@ -23,7 +23,7 @@ public class GraphHolderTest extends TestCase {
 
     @Test
     public void testShouldNeverBeNull() throws Exception {
-        DyeLaser dl = new DyeLaser();
+        Laser dl = new Laser();
         assertNotNull(dl.getGraphHolder());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -32,7 +32,7 @@ public class GraphHolderTest extends TestCase {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         ObjectInputStream ois = new ObjectInputStream(bais);
-        DyeLaser test = (DyeLaser) ois.readObject();
+        Laser test = (Laser) ois.readObject();
         baos.close();
         oos.close();
         bais.close();

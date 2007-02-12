@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -30,8 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import loci.formats.ChannelSeparator;
-import loci.formats.ImageReader;
+import loci.formats.ReaderWrapper;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
@@ -52,7 +50,7 @@ public class FileQueueHandler
     @SuppressWarnings("unused")
     private ImportHandler       importHandler;
     private OMEROMetadataStore  store;
-    private ChannelSeparator    reader;
+    private OMEROWrapper    reader;
     private Main          viewer;
     
     FileQueueChooser fileChooser = null;
@@ -62,7 +60,7 @@ public class FileQueueHandler
     FileQueueHandler(Main viewer)
     {        
         this.viewer = viewer;
-        reader = new ChannelSeparator(new ImageReader());
+        reader = new OMEROWrapper();
         reader.setChannelStatCalculationStatus(true);
      
         setLayout(new BorderLayout());
