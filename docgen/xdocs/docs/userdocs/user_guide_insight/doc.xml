@@ -3,95 +3,96 @@
 <xdoc-info>
 
   <title>OMERO.insight User Guide</title>
-  <author name="Jean-Marie Burel" email="j" />
-
-  <revision number="$Revision: 2440 $" />
-  <last-modified date="$Date: 2005-02-25 18:20:38 +0000 (Fri, 25 Feb 2005) $" />
+  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
+ <author name="David Sloan Burel" email="DSloan@computing.dundee.ac.uk" />
+  <revision number="$$Rev$$"/>
+  <last-modified date="$$LastChangedDate$$"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">
-	<section href="intro.html" name="Introduction"/>
-	<section href="section2.html" name="Quick Start Guide">
-	   <section href="section2_1.html" name="Installing OMERO.insight"/>
-       <section href="section2_2.html" name="Creating a place to store imported images"/>
-	   <section href="section2_3.html" name="Viewing images"/>
+  <section href="intro.html" name="Introduction"/>	
+  <section href="section_2.html" name="Quick Start Guide">
+    <section href="section_2_1.html" name="Installing OMERO.insight"/>
+    <section href="section_2_2.html" name="Creating a place to store imported images"/>
+	<section href="section_2_3.html" name="Viewing images"/>
+  </section>
+  <section href="section_3.html" name="Background Information">
+	<section href="section_3_1.html" name="What is OMERO?"/>
+	<section href="section_3_2.html" name="The OMERO Environment: Client and Server"/>
+	<section href="section_3_3.html" name="5-Dimensional images"/>
+	<section href="section_3_4.html" name="The OMERO Data Model and Hierarchies"/>
+  </section>
+  <section href="section_4.html" name="Using OMERO.insight">
+    <section href="section_4_1.html" name="Starting OMERO.insight"/>
+    <section href="section_4_2.html" name="A brief description of the Data Manager's user interface"/>
+    <section href="section_4_3.html" name="Projects and Datasets">
+	  <section href="section_4_3_1.html" name="Creating a project"/>
+	  <section href="section_4_3_2.html" name="Creating a dataset"/>
+	  <section href="section_4_3_3.html" name="Renaming projects and datasets"/>
+	  <section href="section_4_3_4.html" name="Removing projects and datasets"/>
+	  <section href="section_4_3_5.html" name="Properties and Permissions"/>
+	  <section href="section_4_3_6.html" name="Annotations"/>
 	</section>
-	<section href="section3.html" name="Background Information">
-	   <section href="section3_1.html" name="What is OMERO?"/>
-	   <section href="section3_2.html" name="The OMERO Environment: Client and Server"/>
-	   <section href="section3_3.html" name="5-Dimensional images"/>
-	   <section href="section3_4.html" name="The OMERO Data Model and Hierarchies"/>
+	<section href="section_4_4.html" name="Importing images"/>
+    <section href="section_4_5.html" name="Browsing projects, datasets and images">
+	  <section href="section_4_5_1.html" name="Expanding a project to see constituent datasets"/>
+	  <section href="section_4_5_2.html" name="Expanding a dataset to see constituent images"/>
+	  <section href="section_4_5_3.html" name="The Project, Categories and Images tabs"/>
 	</section>
-	<section href="section4.html" name="Using OMERO.insight">
-	   <section href="section4_1.html" name="Starting OMERO.insight"/>
-	   <section href="section4_2.html" name="A brief description of the Data Manager's user interface"/>
-	   <section href="section4_3.html" name="Projects and Datasets">
-	   <section href="section4_3_1.html" name="Creating a project"/>
-	   <section href="section4_3_2.html" name="Creating a dataset"/>
-	   <section href="section4_3_3.html" name="Renaming projects and datasets"/>
-	   <section href="section4_3_4.html" name="Removing projects and datasets"/>
-	   <section href="section4_3_5.html" name="Properties and Permissions"/>
-	   <section href="section4_3_6.html" name="Annotations"/>
+    <section href="section_4_6.html" name="Sorting and finding images">
+	  <section href="section_4_6_1.html" name="Sorting images"/>
+	  <section href="section_4_6_2.html" name="Retrieving images"/>
+	  <section href="section_4_6_3.html" name="Finding images with Find in Tree"/>
 	</section>
-	<section href="section4_4.html" name="Importing images"/>
-	<section href="section4_5.html" name="Browsing projects, datasets and images">
-	   <section href="section4_5_1.html" name="Expanding a project to see constituent datasets"/>
-	   <section href="section4_5_2.html" name="Expanding a dataset to see constituent images"/>
-	   <section href="section4_5_3.html" name="The Project, Categories and Images tabs"/>
-	</section>
-	<section href="section4_6.html" name="Sorting and finding images">
-	   <section href="section4_6_1.html" name="Sorting images"/>
-	   <section href="section4_6_2.html" name="Retrieving images"/>
-	   <section href="section4_6_3.html" name="Finding images with Find in Tree"/>
-	</section>
-	<section href="section4_7.html" name="Categorising images">
-	   <section href="section4_7_1.html" name="Creating a Category Group"/>
-	   <section href="section4_7_2.html" name="Creating a Category"/>
-	   <section href="section4_7_3.html" name="Removing Categories and Category Groups"/>
-	   <section href="section4_7_4.html" name="Categorising images">
-	      <section href="section4_7_4_1.html" name="Adding an image to a category"/>
-	      <section href="section4_7_4_2.html" name="Categorising multiple images"/>
-	      <section href="section4_7_4_3.html" name="Viewing categorisation details"/>
-	      <section href="section4_7_4_4.html" name="Removing an image from a category"/>
+	<section href="section_4_7.html" name="Categorising images">
+      <section href="section_4_7_1.html" name="Creating a Category Group"/>
+      <section href="section_4_7_2.html" name="Creating a Category"/>
+      <section href="section_4_7_3.html" name="Removing Categories and Category Groups"/>
+      <section href="section_4_7_4.html" name="Categorising images">
+	    <section href="section_4_7_4_1.html" name="Adding an image to a category"/>
+	    <section href="section_4_7_4_2.html" name="Categorising multiple images"/>
+	    <section href="section_4_7_4_3.html" name="Viewing categorisation details"/>
+	    <section href="section_4_7_4_4.html" name="Removing an image from a category"/>
+	  </section>
+    </section> <!-- END SEction 4_7 -->
+    <section href="section_4_8.html" name="Viewing images">
+      <section href="section_4_8_1.html" name="Viewing a single image"/>
+      <section href="section_4_8_2.html" name="Using the Image Viewer">
+	     <section href="section_4_8_2_1.html" name="Adjusting channels">
+	        <section href="section_4_8_2_1_1.html" name="Viewing a specific channel"/>
+	        <section href="section_4_8_2_1_2.html" name="Additional Viewing options"/>
+	     </section>
+          <section href="section_4_8_2_2.html" name="Magnification">
+	        <section href="section_4_8_2_2_1.html" name="Magnifying the whole image"/>
+	        <section href="section_4_8_2_2_2.html" name="Magnifying an area of the image"/>
+	     </section>
+	     <section href="section_4_8_2_3.html" name="Scale bar"/>
+         <section href="section_4_8_2_4.html" name="Viewing z-sections and timepoints">
+	        <section href="section_4_8_2_4_1.html" name="Manually viewing z-sections and timepoints"/>
+	        <section href="section_4_8_2_4_2.html" name="Automated viewing z-sections and timepoints"/>
+	        <section href="section_4_8_2_4_3.html" name="Additional Movie Player options for z-section and timepoint viewing"/>
+	     </section>
+	     <section href="section_4_8_2_5.html" name="Image Rendering options"/>
+         <section href="section_4_8_2_6.html" name="Saving images"/>	 
+      </section> <!-- END SEction 4_8_2 -->
+      <section href="section_4_8_3.html" name="Viewing a selection of images: The Hierarchy Viewer">
+	      <section href="section_4_8_3_1.html" name="Selecting multiple images for viewing"/>
+	      <section href="section_4_8_3_2.html" name="Viewing an image from the Hierarchy Viewer"/>
+	  </section>
+	  <section href="section_4_8_4.html" name="Using the Hierarchy Viewer">
+	      <section href="section_4_8_4_1.html" name="Adjusting thumbnail display"/>
+	      <section href="section_4_8_4_2.html" name="Display Tree View of images"/>
+	      <section href="section_4_8_4_3.html" name="Sorting images"/>
+	      <section href="section_4_8_4_4.html" name="Managing images in the Hierarchy Viewer"/>
+	      <section href="section_4_8_4_5.html" name="Additional image information: the Clipboard"/>
 	   </section>
-	</section>
-	<section href="section4_8.html" name="Viewing images">
-	   <section href="section4_8_1.html" name="Viewing a single image"/>
-	   <section href="section4_8_2.html" name="Using the Image Viewer">
-	      <section href="section4_8_2_1.html" name="Adjusting channels">
-	         <section href="section4_8_2_1_1.html" name="Viewing a specific channel"/>
-	         <section href="section4_8_2_1_2.html" name="Additional Viewing options"/>
-	      </section>
-	      <section href="section4_8_2_2.html" name="Magnification">
-	         <section href="section4_8_2_2_1.html" name="Magnifying the whole image"/>
-	         <section href="section4_8_2_2_2.html" name="Magnifying an area of the image"/>
-	      </section>
-	      <section href="section4_8_2_3.html" name="Scale bar"/>
-	      <section href="section4_8_2_4.html" name="Viewing z-sections and timepoints">
-	         <section href="section4_8_2_4_1.html" name="Manually viewing z-sections and timepoints"/>
-	         <section href="section4_8_2_4_2.html" name="Automated viewing z-sections and timepoints"/>
-	         <section href="section4_8_2_4_3.html" name="Additional Movie Player options for z-section and timepoint viewing"/>
-	      </section>
-	      <section href="section4_8_2_5.html" name="Image Rendering options"/>
-	      <section href="section4_8_2_6.html" name="Saving images"/>
-	    </section>
-	      <section href="section4_8_3.html" name="Viewing a selection of images: The Hierarchy Viewer">
-	         <section href="section4_8_3_1.html" name="Selecting multiple images for viewing"/>
-	         <section href="section4_8_2_1_2.html" name="Viewing an image from the Hierarchy Viewer"/>
-	      </section>
-	      <section href="section4_8_4.html" name="Using the Hierarchy Viewer">
-	         <section href="section4_8_4_1.html" name="Adjusting thumbnail display"/>
-	         <section href="section4_8_4_2.html" name="Display Tree View of images"/>
-	         <section href="section4_8_4_3.html" name="Sorting images"/>
-	         <section href="section4_8_4_4.html" name="Managing images in the Hierarchy Viewer"/>
-	         <section href="section4_8_4_5.html" name="Additional image information: the Clipboard"/>
-	      </section>
-	   </section>
-	   <section href="section4_9.html" name="Managing windows in OMERO.insight"/>
-	   <section href="section4_10.html" name="Closing OMERO.insight"/>
-	   <section href="section5.html" name="Feedback reporting">
-	      <section href="section5_1.html" name="Help Information"/>
-	      <section href="section5_2.html" name="Feedbac Facility"/>
-	   </section>
+      </section> <!-- END SEction 4_8 -->
+    <section href="section_4_9.html" name="Managing windows in OMERO.insight"/> 
+    <section href="section_4_10.html" name="Closing OMERO.insight"/>
+    </section> <!-- END SEction 4 -->
+    <section href="section_5.html" name="Feedback reporting">
+	  <section href="section_5_1.html" name="Help Information"/>
+	  <section href="section_5_2.html" name="Feedback Facility"/>
+    </section>
   </toc>
 </xdoc>
