@@ -179,9 +179,9 @@ public class IconManager
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_knotes64.png";
     	relPaths[SERVER] = "nuvola_server22.png";
-    	relPaths[CONFIG] = "nuvola_server48.png";
+    	relPaths[CONFIG] = "config.png";
     	relPaths[CONFIG_PRESSED] = "config_pressed.png";
-    	relPaths[CONFIG_48] = "config.png";
+    	relPaths[CONFIG_48] = "nuvola_configure48.png";
     	relPaths[REMOVE] = "nuvola_edit_remove16.png";
     	relPaths[ADD] = "nuvola_edit_add16.png";
     	relPaths[INFO_32] = "nuvola_messagebox_info32.png";

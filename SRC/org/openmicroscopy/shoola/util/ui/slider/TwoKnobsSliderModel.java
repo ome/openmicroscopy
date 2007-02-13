@@ -119,7 +119,7 @@ class TwoKnobsSliderModel
         increment = (maximum-minimum)/10;
         minorTickSpacing = 1;
         majorTickSpacing = 10;
-        labels = new HashMap();
+        labels = new HashMap<Integer, String>();
         setPaintLabels(false);
         setPaintEndLabels(true);
         setOrientation(TwoKnobsSlider.HORIZONTAL);

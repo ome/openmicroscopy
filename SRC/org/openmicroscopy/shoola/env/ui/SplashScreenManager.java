@@ -25,11 +25,11 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -38,7 +38,9 @@ import java.beans.PropertyChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 
 /** 
  * Manages the splash screen input, data and update.
@@ -70,11 +72,17 @@ class SplashScreenManager
 	implements ActionListener, PropertyChangeListener
 {
     
+	/** The title of the splash screens. */
+	static final String				TITLE = "Open Microscopy Environment";
+	
+    /** The client's version. */
+    private static final String     VERSION = "3.0_M3_Beta1/OMERO M3";
+    
 	/** The component's UI. */
-	private SplashScreenView	view;
+	private ScreenLogin			view;
 	
 	/** The component's UI. */
-	private SplashScreenViewTop	viewTop;
+	private ScreenLogo	viewTop;
 	
 	/** Tells whether or not the splash screen window is open. */
 	private boolean				isOpen;
@@ -91,35 +99,38 @@ class SplashScreenManager
 	/** Reference to the singleton {@link Container}. */
 	private Container			container;
 	
-    /** 
-     * Bings up the server dialog to select an existing server or enter
-     * a new server address.
-     */
-    private void handleServerSelection()
-    {
-    	ServerDialog d = new ServerDialog(view.servers);
-    	d.addPropertyChangeListener(this);
-    	UIUtilities.centerAndShow(d);
-    }
+	/** Reference to the component. */
+	private SplashScreen		component;
     
 	/**
 	 * Creates the splash screen component.
 	 * Creates a new instance of this manager, of its corresponding UI
 	 * ({@link SplashScreenView}), and links them as needed.
      * 
-     * @param listener 	A listener for {@link SplashScreenView#cancel} button.
+     * @param component	
      * @param c			Reference to the singleton {@link Container}.
 	 */
-	SplashScreenManager(ActionListener listener, Container c)
+	SplashScreenManager(SplashScreen component, Container c)
 	{
 		container = c;
-		view = new SplashScreenView();
-		viewTop = new SplashScreenViewTop();
-		Rectangle r = viewTop.getBounds();
-		view.setBounds(r.x, 
-					r.y+SplashScreenViewTop.WIN_H+SplashScreenViewTop.GAP, 
-					SplashScreenView.LOGIN_WIDTH, 
-					SplashScreenView.LOGIN_HEIGHT);
+		this.component = component;
+		view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), 
+								VERSION);
+		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen());
+		//viewTop = new SplashScreenLogo();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension d = viewTop.getExtendedSize();
+		Dimension dlogin = view.getPreferredSize();
+		int totalHeight = d.height+dlogin.height;
+		viewTop.setBounds((screenSize.width-d.width)/2, 
+	    		 	(screenSize.height-totalHeight)/2, d.width, 
+	    		 	viewTop.getSize().height);
+	    Rectangle r = viewTop.getBounds();
+		view.setBounds(r.x,  r.y+d.height, dlogin.width, dlogin.height);
+		view.addPropertyChangeListener(this);
+		
+	     
+		/*
 		view.user.addActionListener(this);
 		view.pass.addActionListener(this);
 		view.login.addActionListener(this);
@@ -140,6 +151,7 @@ class SplashScreenManager
         });
         view.setAlwaysOnTop(true);
         viewTop.setAlwaysOnTop(true);
+        */
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -186,9 +198,10 @@ class SplashScreenManager
 		//NB: Increment to show that the execution process is finished 
 		// i.e. all tasks executed.
 		totalTasks++;	
-		viewTop.progressBar.setMinimum(0);
-		viewTop.progressBar.setMaximum(value);
-		viewTop.progressBar.setValue(0);
+		//viewTop.progressBar.setMinimum(0);
+		//viewTop.progressBar.setMaximum(value);
+		//viewTop.progressBar.setValue(0);
+		viewTop.initProgressBar(value);
 	}
 	
 	/**
@@ -202,10 +215,13 @@ class SplashScreenManager
 	void updateProgress(String task)
 	{
 		if (!isOpen) return;
-		viewTop.currentTask.setText(task);
-		viewTop.progressBar.setValue(doneTasks++);
+		//viewTop.currentTask.setText(task);
+		int n = doneTasks++;
+		//viewTop.progressBar.setValue(n);
+		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
-			viewTop.progressBar.setVisible(false);
+			viewTop.setStatusVisible(false);
+			//viewTop.progressBar.setVisible(false);
 			view.setVisible(true);
 		}
 	}
@@ -220,6 +236,8 @@ class SplashScreenManager
     void collectUserCredentials(SplashScreenFuture future, boolean init)
     {
         userCredentials = future;
+        view.setControlsEnabled(true);
+        /*
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
@@ -229,6 +247,11 @@ class SplashScreenManager
             view.setCursor(Cursor.getDefaultCursor());
             view.user.setText("");
             view.pass.setText("");
+        }
+        */
+        if (!init) {
+            view.setCursor(Cursor.getDefaultCursor());
+            view.cleanField(ScreenLogin.PASSWORD_FIELD);
         }
     }
 	
@@ -241,10 +264,13 @@ class SplashScreenManager
     void collectUserCredentialsInit(SplashScreenFuture future)
     {
         userCredentials = future;
+        view.setControlsEnabled(true);
+        /*
         view.user.setEnabled(true);
         view.pass.setEnabled(true);
         view.login.setEnabled(true);
         view.configButton.setEnabled(true);
+        */
     }
     
 	/** 
@@ -255,6 +281,7 @@ class SplashScreenManager
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
+		/*
         StringBuffer buf = new StringBuffer();
         buf.append(view.pass.getPassword());
         String usr = view.user.getText().trim(), psw = buf.toString();
@@ -275,8 +302,27 @@ class SplashScreenManager
             UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", iae.getMessage());
         }
+        */
 	}
 
+	/**
+	 * Attempts to log onto <code>OMERO</code>.
+	 * 
+	 * @param lc The user's credentials.
+	 */
+	private void login(LoginCredentials lc)
+	{
+		try {
+			UserCredentials uc = new UserCredentials(lc.getUserName(), 
+					lc.getPassword(), lc.getHostName());
+			userCredentials.set(uc);
+		} catch (Exception e) {
+			UserNotifier un = UIFactory.makeUserNotifier(container);
+            un.notifyError("Login Incomplete", e.getMessage());
+            view.setControlsEnabled(true);
+		}
+	}
+	
 	/**
 	 * Reacts to property changes fired by the {@link ServerDialog}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -284,27 +330,14 @@ class SplashScreenManager
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (ServerDialog.SERVER_PROPERTY.equals(name)) {
-			String v = view.getServerName();
-			String s = (String) evt.getNewValue();
-			if (s == null) {
-				view.setNewServer(null);
-				return;
-			}
-			String trim = s.trim();
-			if (v.equals(trim)) return;
-			view.setNewServer(trim);
-		} else if (ServerDialog.CLOSE_PROPERTY.equals(name)) {
-			view.user.requestFocus();
-		} else if (ServerDialog.REMOVE_PROPERTY.equals(name)) {
-			view.user.requestFocus();
-			String v = view.getServerName();
-			String oldValue = (String) evt.getOldValue();
-			UIFactory.removeServer(oldValue);
-			if (v.equals(oldValue)) 
-				view.setNewServer((String) evt.getNewValue());
-		} 
+		if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
+			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+			if (userCredentials != null  && lc != null) login(lc);
 			
+		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
+			 container.exit();
+		     component.close();
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.ServerListRenderer 
+ * org.openmicroscopy.shoola.util.ui.login.ServerListRenderer 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,27 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.ui;
-
+package org.openmicroscopy.shoola.util.ui.login;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.border.SeparatorBorder;
 
 /** 
  * This class will render the server icon and name in the list
@@ -57,22 +49,8 @@ import org.openmicroscopy.shoola.util.ui.border.SeparatorBorder;
  * @since OME3.0
  */
 class ServerListRenderer 
-	extends JLabel  
-	implements ListCellRenderer 
+	extends DefaultTableCellRenderer
 {
-
-	/** Border colour of the cell when the icon is selected. */
-	private static final Border	LINE_BORDER = 
-								BorderFactory.createLineBorder(Color.GRAY);
-	
-	/** Border colour of the cell when the icon is not selected. */
-	private static final Border	SEPARATOR_BORDER = new SeparatorBorder();
-	
-	/** Distance between the icon and the text. */
-	private static final int	GAP = 10;
-
-	/** The vertical space added to the preferred size. */
-	private static final int	VERTICAL = 4;
 	
 	/** 
 	 * Creates a new instance. 
@@ -82,31 +60,25 @@ class ServerListRenderer
 	
 	/** 
      * Overridden to display the icon and the server name.
-	 * @see ListCellRenderer#getListCellRendererComponent(JList, Object, int, 
-     *                                                  boolean, boolean)
+	 * @see DefaultTableCellRenderer#getTableCellRendererComponent(JTable, 
+	 * 										Object, boolean, boolean, int, int)
 	 */
-	public Component getListCellRendererComponent(JList list, Object value, 
-			int index, boolean isSelected, boolean cellHasFocus) 
+	public Component getTableCellRendererComponent(JTable table, Object value, 
+			boolean isSelected, boolean hasFocus, int row, int column) 
 	{
-		Object [] array = (Object[]) value;
-		Icon icon = (Icon) array[0];
-		setIcon(icon);
-		this.setVerticalAlignment(SwingConstants.CENTER);
-		this.setIconTextGap(GAP);
-		setText((String) array[1]);
-		if (icon != null)
-			setPreferredSize(new Dimension(getWidth(), 
-							icon.getIconHeight()+VERTICAL));
-		if (isSelected) {
-			setForeground(list.getSelectionForeground());
-			setBackground(list.getSelectionBackground());
-		} else {
-			setForeground(list.getForeground());
-			setBackground(list.getBackground());
+		if (value instanceof Icon) setIcon((Icon) value);
+		else {
+			setIcon(null);
+			setText((String) value);
 		}
-		if (cellHasFocus) setBorder(LINE_BORDER);
-		else setBorder(SEPARATOR_BORDER);
+		if (isSelected) {
+			setForeground(table.getSelectionForeground());
+			setBackground(table.getSelectionBackground());
+		} else {
+			setForeground(table.getForeground());
+			setBackground(table.getBackground());
+		}
 		return this;
 	}
-
+	
 }

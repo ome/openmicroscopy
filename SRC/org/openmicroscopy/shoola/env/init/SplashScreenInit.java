@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 public final class SplashScreenInit
 	extends InitializationTask
-	implements ActionListener, InitializationListener
+	implements InitializationListener
 {
 	
 	/** The splash screen component. */
@@ -85,7 +85,7 @@ public final class SplashScreenInit
 	void configure()
 	{
         initializer.register(this);
-		splashScreen = UIFactory.makeSplashScreen(this,container);
+		splashScreen = UIFactory.makeSplashScreen(container);
 		splashScreen.open();
 	}
 
@@ -171,8 +171,7 @@ public final class SplashScreenInit
      */
     public void actionPerformed(ActionEvent e)
     {
-        container.exit();
-        splashScreen.close();
+       
     }
     
 }

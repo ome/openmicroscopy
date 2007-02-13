@@ -125,8 +125,8 @@ public abstract class AbstractComponent
         //Build the union of the all-properties observers and propertyName 
         //observers sets.  This way we avoid repeated notification.
         Set allPropsListeners = (Set) propsRegistry.get(allPropsKey),
-            propListeners = (Set) propsRegistry.get(propertyName),
-            notificationSet = new HashSet();
+            propListeners = (Set) propsRegistry.get(propertyName);
+        Set<Set>   notificationSet = new HashSet<Set>();
         if (allPropsListeners != null) 
             notificationSet.addAll(allPropsListeners);
         if (propListeners != null) notificationSet.addAll(propListeners);

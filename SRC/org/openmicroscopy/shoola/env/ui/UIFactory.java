@@ -57,14 +57,12 @@ public class UIFactory
 	/**
 	 * Creates the splash screen that is used at initialization.
 	 * 
-     * @param listener  A listener for {@link SplashScreenView#cancel} button.
      * @param c			Reference to the singleton {@link Container}.
 	 * @return	        The splash screen.
 	 */
-	public static SplashScreen makeSplashScreen(ActionListener listener, 
-												Container c)
+	public static SplashScreen makeSplashScreen(Container c)
 	{
-		return new SplashScreenProxy(listener, c);
+		return new SplashScreenProxy(c);
 	}
 	
 	/**
@@ -107,6 +105,7 @@ public class UIFactory
      */
     public static void removeServer(String server)
     {
+    	/*
     	if (server == null || server.length() == 0) return;
         List l = getServers();
         if (l == null) return;
@@ -123,6 +122,7 @@ public class UIFactory
 		}
         Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
         prefs.put(LoginConfig.OMERO_SERVER, list);
+        */
     }
     
     /**
@@ -132,6 +132,7 @@ public class UIFactory
      */
     public static List getServers()
     {
+    	/*
     	Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
         String servers = prefs.get(LoginConfig.OMERO_SERVER, null);
         if (servers == null || servers.length() == 0)  return null;
@@ -142,6 +143,8 @@ public class UIFactory
         for (index = 0; index < l.length; index++)
         	listOfServers.add(l[index].trim());
         return listOfServers; 
+        */
+    	return null;
     }
     
 }

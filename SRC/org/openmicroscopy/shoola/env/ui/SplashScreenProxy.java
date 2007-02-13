@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.awt.event.ActionListener;
 import javax.swing.SwingUtilities;
 
 //Third-party libraries
@@ -117,12 +116,11 @@ class SplashScreenProxy
 	 * Creates the proxy, the servant and configures the servant with a
 	 * Future for later collection of user credentials. 
      * 
-     * @param listener 	A listener for {@link SplashScreenView#cancel} button.
      * @param c			Reference to the singleton {@link Container}.
 	 */
-	SplashScreenProxy(ActionListener listener, Container c)
+	SplashScreenProxy(Container c)
 	{
-		servant = new SplashScreenManager(listener, c);
+		servant = new SplashScreenManager(this, c);
 		isValid = false;
 	}
 
