@@ -7,8 +7,11 @@
 
 package ome.client.itests.tasks;
 
+import java.util.UUID;
+
 import org.testng.annotations.*;
 
+import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 import junit.framework.TestCase;
@@ -39,5 +42,13 @@ public abstract class AbstractAdminTaskTest extends TestCase {
         System.arraycopy(arr1, 0, arr, 0, arr1.length);
         System.arraycopy(arr2, 0, arr, arr1.length, arr2.length);
         return arr;
+    }
+
+    protected String makeGroup() {
+        String uuid = UUID.randomUUID().toString();
+        ExperimenterGroup group = new ExperimenterGroup();
+        group.setName(uuid);
+        root.getAdminService().createGroup(group);
+        return uuid;
     }
 }

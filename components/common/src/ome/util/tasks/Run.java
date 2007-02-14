@@ -8,6 +8,7 @@
 package ome.util.tasks;
 
 // Java imports
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -47,7 +48,8 @@ public class Run {
      * called and the returned {@link Task} instance is {@link Task#run() run}.
      */
     public static void main(String[] args) {
-        Properties props = parseArgs(args);
+        Properties props = readStdin();
+        props.putAll(parseArgs(args));
         Configuration opts = new Configuration(props);
         Task task = opts.createTask();
         task.run();
@@ -56,6 +58,28 @@ public class Run {
     // ~ Helpers
     // =========================================================================
 
+    protected static Properties readStdin() {
+        Properties p = new Properties();
+        int available = 0;
+        try {
+            available = System.in.available();
+        } catch (IOException e1) {
+            System.err.println("Could not check available bytes on standard in.");
+            e1.printStackTrace();
+        }
+        if (available > 0) {
+            try {
+                p.load(System.in);
+            } catch (IOException e) {
+                System.err.println("Invalid properties file on standard in:");
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("No input on standard in.");
+        }
+        return p;
+    }
+    
     protected static Properties parseArgs(String[] args) {
         Properties p = new Properties();
         if (args == null || args.length == 0) {

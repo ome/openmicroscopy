@@ -35,8 +35,7 @@ public class Config extends Configuration {
 
     @Override
     public ServiceFactory createServiceFactory() {
-        return new LicensedServiceFactory(getProperties(), getServer(),
-                getLogin());
+        return new LicensedServiceFactory(getProperties(), null, null);
     }
 
 }

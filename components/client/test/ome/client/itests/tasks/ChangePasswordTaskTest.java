@@ -14,8 +14,9 @@ import java.util.UUID;
 
 import ome.util.tasks.Run;
 import ome.util.tasks.admin.AddUserTask;
+import ome.util.tasks.admin.ChangePasswordTask;
 
-public class AddUserTaskTest extends AbstractAdminTaskTest {
+public class ChangePasswordTaskTest extends AbstractAdminTaskTest {
 
     @Test
     public void testSimple() throws Exception {
@@ -26,14 +27,23 @@ public class AddUserTaskTest extends AbstractAdminTaskTest {
         p.setProperty("lastname", "test");
         p.setProperty("group", group);
         new AddUserTask(root, p).run();
+        
+        p.setProperty("password", "bob");
+        new ChangePasswordTask(root,p).run();
     }
 
     @Test
-    public void testViaCommandLine() throws Exception {
+    public void testWithNoPassword() throws Exception {
         String group = makeGroup();
-        Run.main(join(rootString, new String[] { "task=admin.AddUserTask",
-                "firstname=task", "lastname=test", "group=" + group,
-                "omename=" + UUID.randomUUID().toString() }));
+        Properties p = new Properties();
+        p.setProperty("omename", UUID.randomUUID().toString());
+        p.setProperty("firstname", "task");
+        p.setProperty("lastname", "test");
+        p.setProperty("group", group);
+        new AddUserTask(root, p).run();
+
+        // Didn't sett "password" here. Shouldn't be removed.
+        new ChangePasswordTask(root,p).run();
     }
 
 }

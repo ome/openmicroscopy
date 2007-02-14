@@ -67,10 +67,6 @@ public class Configuration {
 
     Class<Task> taskClass;
 
-    Server server;
-
-    Login login;
-
     /**
      * Sole constructor. Performs the necessary parsing of the
      * {@link Properties} values.
@@ -79,6 +75,7 @@ public class Configuration {
      *            Not null.
      */
     public Configuration(Properties props) {
+
         if (props == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
         }
@@ -98,26 +95,6 @@ public class Configuration {
                     + p(task));
         }
 
-        if (p(host) != null || p(port) != null) {
-            if (p(host) == null || p(port) == null) {
-                throw new IllegalArgumentException(
-                        "host and port must be specified together.");
-            }
-            server = new Server(p(host), Integer.valueOf(p(port)).intValue());
-        }
-
-        if (p(user) != null || p(group) != null || p(type) != null
-                || p(pass) != null) {
-            if (p(user) == null || p(group) == null || p(type) == null
-                    || p(pass) == null) {
-                throw new IllegalArgumentException(
-                        "user, group, pass, and type must be specified together.");
-            }
-
-            login = new Login(p(user), p(pass), p(group), p(type));
-
-        }
-
     }
 
     /**
@@ -135,22 +112,6 @@ public class Configuration {
     }
 
     /**
-     * Returns a non-null {@link Server} instance only if server arguments were
-     * provided in the {@link Properties}
-     */
-    public Server getServer() {
-        return server;
-    }
-
-    /**
-     * Returns a non-null {@link Login} instance only if login arguments were
-     * provided in the {@link Properties}
-     */
-    public Login getLogin() {
-        return login;
-    }
-
-    /**
      * Creates a {@link ServiceFactory} instance based on the values of
      * {@link #getServer()} and {@link #getLogin()} (such that a subclass could
      * override these methods to influence the ServiceFactory).
@@ -158,19 +119,7 @@ public class Configuration {
      * @return a non-null {@link ServiceFactory} instance.
      */
     public ServiceFactory createServiceFactory() {
-        if (getLogin() != null && getServer() != null) {
-            return new ServiceFactory(getServer(), getLogin());
-        }
-
-        if (getLogin() != null) {
-            return new ServiceFactory(getLogin());
-        }
-
-        if (getServer() != null) {
-            return new ServiceFactory(getServer());
-        }
-
-        return new ServiceFactory();
+        return new ServiceFactory(getProperties());
     }
 
     /**

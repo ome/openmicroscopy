@@ -50,14 +50,6 @@ public class TaskConfigurationTest extends TestCase {
         assertTrue(k.getName().endsWith("admin.AddUserTask"));
     }
 
-    @Test
-    public void testNullServerAndLogin() throws Exception {
-        Properties p = pairs("task", "admin.AddUserTask");
-        Configuration c = new Configuration(p);
-        assertNull(c.getServer());
-        assertNull(c.getLogin());
-    }
-
     // ~ Helpers
     // =========================================================================
 

@@ -161,6 +161,7 @@
 		<jar destfile="${target.dir}/${artifact.final.name}">
 			<manifest>
 				<attribute name="Class-Path" value="${mf.classpath} extensions.jar"/>
+				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">	
 				<exclude name="local.properties"/>
@@ -228,5 +229,24 @@
 		<eclipse.refreshLocal resource="omero-shoola-adapter" depth="infinite"/>
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
 	</target>
+
+  <target name="standalone" depends="install">
+    <copy todir="${target.dir}/standalone">
+      <fileset dir="${resrc.dir}">
+        <include name="**/config.*"/>
+        <include name="**/*.config"/>
+        <include name="**/*.xml"/>
+      </fileset>
+      <fileset dir="${resrc.dest}">
+        <include name="**/*.properties"/>
+      </fileset>
+      <fileset dir="${omero.repo.local}">
+        <patternset refid="generated.compile.patternset"/>
+        <patternset refid="generated.test.patternset"/>
+        <include name="${artifact.path}"/>
+      </fileset>
+      <flattenmapper/>
+    </copy>
+  </target>
   
 </project>

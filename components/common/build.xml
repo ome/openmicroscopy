@@ -2,6 +2,7 @@
 <!-- TODO add properties goal to update pref.properties -->
 <project name="common" default="install" basedir=".">
 
+	<property name="main.class" value="ome.util.tasks.Run"/>
 	<property name="classpath.file" value="classpath.xml"/>
 	<import file="${classpath.file}"/>
 	
