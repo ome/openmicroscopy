@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.testng.annotations.*;
 
+import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.ServiceFactory;
@@ -49,6 +50,16 @@ public abstract class AbstractAdminTaskTest extends TestCase {
         ExperimenterGroup group = new ExperimenterGroup();
         group.setName(uuid);
         root.getAdminService().createGroup(group);
+        return uuid;
+    }
+    
+    protected String makeUser(String group) {
+        String uuid = UUID.randomUUID().toString();
+        Experimenter user = new Experimenter();
+        user.setOmeName(uuid);
+        user.setFirstName("Task");
+        user.setLastName("Test");
+        root.getAdminService().createUser(user, group);
         return uuid;
     }
 }
