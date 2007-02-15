@@ -27,7 +27,6 @@ package src.adminTool.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.Insets;
 import java.util.List;
 
@@ -36,7 +35,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -45,7 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
-//Third-party libraries
 import layout.TableLayout;
 import layout.TableLayoutConstants;
 
@@ -202,14 +199,14 @@ class SplashScreenView
     	login = new JButton("Login");
     	login.setMnemonic('L');
     	login.setToolTipText("Login");
-    	opacityCheck(login);
     	setButtonDefault(login);
+    	opacityCheck(login);
     	UIUtilities.enterPressesWhenFocused(login);
     	cancel = new JButton("Quit");
     	cancel.setMnemonic('Q');
     	cancel.setToolTipText("Quit the Application");
-    	opacityCheck(cancel);
     	setButtonDefault(cancel);
+    	opacityCheck(cancel);
     	configButton = new JButton();
     	configButton.setMnemonic('X');
     	configButton.setToolTipText("Config Server");

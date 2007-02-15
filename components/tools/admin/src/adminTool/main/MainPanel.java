@@ -10,8 +10,9 @@ package src.adminTool.main;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-import javax.ejb.EJBAccessException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -97,16 +98,21 @@ public class MainPanel extends JPanel implements ActionListener {
         }
     }
     
+    
     private boolean isValidLogin(String username, String password, 
     		String server, String port)  {
-        try {
-            store = new OMEROMetadataStore(username, password, server, port);
-
-        } catch (EJBAccessException e) {
-            return false;
-        }
-
-        return true;
+    
+    	try {
+			InetAddress address = 
+			    InetAddress.getByName(server);
+	        store = new OMEROMetadataStore(username, password, server, port);
+		} catch (UnknownHostException e) {
+			store = null;
+		}
+       
+    	if(store == null)
+    	 return false;
+       return true;
     }
 
 	/* (non-Javadoc)
@@ -116,6 +122,7 @@ public class MainPanel extends JPanel implements ActionListener {
 		// TODO Auto-generated method stub
 		if( e.getActionCommand().equals("Login"))
 		{
+			
 			if( isValidLogin(splashManager.username, splashManager.password, splashManager.server, "1099") )
 			{
 				splashManager.close();

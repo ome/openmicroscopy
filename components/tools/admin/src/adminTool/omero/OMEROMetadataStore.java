@@ -7,6 +7,12 @@
 
 package src.adminTool.omero;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.ejb.EJBAccessException;
+import javax.swing.Timer;
+
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -51,6 +57,8 @@ public class OMEROMetadataStore {
 
     private RawFileStore rawFileStore;
 
+    private Timer timeOutTimer;
+    
     /**
      * Creates a new instance.
      * 
@@ -66,6 +74,7 @@ public class OMEROMetadataStore {
     public OMEROMetadataStore(String username, String password, String host,
             String port) {
         // Mask the password information for display in the debug window
+    		
         String maskedPswd = "";
         if (password == null) {
             password = new String("");

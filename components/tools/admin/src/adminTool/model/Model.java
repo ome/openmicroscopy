@@ -39,6 +39,15 @@ public class Model {
 
     private String loggedInUser;
 
+    private List<Experimenter> users = null;
+    private List<String> userNames = null;
+    private boolean userListDirty = true;
+
+    private List<ExperimenterGroup> groups = null;
+    private List<String> groupNames = null;
+    private boolean groupListDirty = true;
+    
+    
     public Model(OMEROMetadataStore store, String user) throws IAdminException,
             UnknownException, PermissionsException {
         currentUser = -1;
@@ -144,25 +153,68 @@ public class Model {
     public Experimenter getUser(long i) throws IAdminException,
             UnknownException, PermissionsException {
         try {
-            return iAdmin.getExperimenter(i);
+        	if(userListDirty)
+        	{
+        		getUserList();
+        		return iAdmin.getExperimenter(i);
+        	}
+        	else
+        	{
+        		for(Experimenter e : users)
+        		{
+        			if(e.getId()==i)
+        				return e;
+        		}
+        		return null;
+        	}
         } catch (Exception e) {
             ExceptionHandler.get().catchException(e);
         }
         return null;
     }
 
+    
+    
     public String getUserName(long i) {
-        return iAdmin.getExperimenter(i).getOmeName();
+    		if(userListDirty)
+    		{
+    			getUserList();
+    			return iAdmin.getExperimenter(i).getOmeName();
+    		}
+    		else
+    		{
+    			for (Experimenter e : users) 
+    			{
+    				if(e.getId()==i)
+    					return e.getOmeName();
+    			}
+    			return null;
+    		}
     }
 
     public ExperimenterGroup getGroup(long i) {
-        return iAdmin.getGroup(i);
+    	if(groupListDirty)
+    	{
+    		getGroupsList();
+    		return iAdmin.getGroup(i);
+    	}
+    	else
+    	{
+    		for(ExperimenterGroup g : groups)
+    		{
+    			if(g.getId()==i)
+    				return g;
+    		}
+    		return null;
+    	}
     }
 
     public long addUser(Experimenter user) {
         long id;
         try {
             id = iAdmin.createUser(user, "default");
+            userListDirty = true;
+            getUserList();
         } catch (ome.conditions.ApiUsageException e) {
             id = -1;
         }
@@ -171,7 +223,9 @@ public class Model {
 
     public long addGroup(ExperimenterGroup group) {
 
+    	groupListDirty = true;
         currentGroup = iAdmin.createGroup(group);
+        getGroupsList();
         return currentGroup;
     }
 
@@ -182,7 +236,7 @@ public class Model {
             if (old == null) {
                 return;
             }
-            old.setOmeName(user.getOmeName());
+             old.setOmeName(user.getOmeName());
             old.setFirstName(user.getFirstName());
             old.setMiddleName(user.getMiddleName());
             old.setLastName(user.getLastName());
@@ -190,7 +244,11 @@ public class Model {
             old.setInstitution(user.getInstitution());
             currentUser = old.getId();
             iAdmin.updateExperimenter(old);
+            userListDirty = true;
+            getUserList();
+           
         } catch (Exception e) {
+        	userListDirty = true;
             ExceptionHandler.get().catchException(e);
         }
     }
@@ -206,7 +264,10 @@ public class Model {
             old.setDescription(old.getDescription());
             currentGroup = old.getId();
             iAdmin.updateGroup(old);
+            groupListDirty = true;
+            getGroupsList();
         } catch (Exception e) {
+            groupListDirty = true;
             ExceptionHandler.get().catchException(e);
         }
     }
@@ -233,24 +294,32 @@ public class Model {
      * @return
      */
     public List<String> getUserList() {
-        List<Experimenter> users = iAdmin.lookupExperimenters();
-        List<String> userNames = new ArrayList<String>(users.size());
-        for (Experimenter e : users) {
-            if (!systemUser(e.getOmeName())) {
-                userNames.add(e.getOmeName());
-            }
-        }
+    	if( userListDirty )
+    	{
+    		users = iAdmin.lookupExperimenters();
+        	userNames = new ArrayList<String>(users.size());
+        	userListDirty = false;
+        	for (Experimenter e : users) {
+        		if (!systemUser(e.getOmeName())) {
+        			userNames.add(e.getOmeName());
+        		}
+        	}
+    	}
         return userNames;
     }
 
     public List<String> getGroupsList() {
-        List<ExperimenterGroup> groups = iAdmin.lookupGroups();
-        List<String> groupNames = new ArrayList<String>(groups.size());
-        for (ExperimenterGroup g : groups) {
-            if (!systemGroup(g.getName())) {
-                groupNames.add(g.getName());
-            }
-        }
+    	if(groupListDirty)
+    	{
+    		groups = iAdmin.lookupGroups();
+    		groupNames = new ArrayList<String>(groups.size());
+    		groupListDirty = false;
+    		for (ExperimenterGroup g : groups) {
+    			if (!systemGroup(g.getName())) {
+    				groupNames.add(g.getName());
+    				}
+    		}
+    	}
         return groupNames;
     }
 
