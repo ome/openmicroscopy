@@ -43,17 +43,40 @@ public class Run extends ome.util.tasks.Run {
      * called and the returned {@link Task} instance is {@link Task#run() run}.
      */
     public static void main(String[] args) {
-        Properties props = parseArgs(args);
-        Configuration opts = new Config(props);
-        Task task = opts.createTask();
-        ((LicensedServiceFactory) task.getServiceFactory()).acquireLicense();
-        try {
-            task.run();
-        } finally {
-            ((LicensedServiceFactory) task.getServiceFactory())
-                    .releaseLicense();
-        }
+        Config opts = new Config(getProperties(args));
+        Run run = new Run(opts);
+        run.run();
     }
 
+    /** 
+     * Passes the {@link Configuration}-subclass instance (see {@link Config}) 
+     * to the {@link ome.util.tasks.Run#Run(Configuration)} constructor.
+     * @param config
+     */
+    public Run(Config config) {
+        super(config);
+    }
+    
+    /**
+     * Acquires a license during {@link ome.util.tasks.Run#setup()}
+     */
+    @Override
+    protected void setup() {
+        getServiceFactory().acquireLicense();
+        super.setup();
+    }
+    
+    /**
+     * Releases a license during {@link ome.util.tasks.Run#cleanup()}
+     */
+    @Override
+    protected void cleanup() {
+        super.cleanup();
+        getServiceFactory().releaseLicense();
+    }
+
+    protected LicensedServiceFactory getServiceFactory() {
+        return (LicensedServiceFactory) this.task.getServiceFactory();
+    }
 }
 
