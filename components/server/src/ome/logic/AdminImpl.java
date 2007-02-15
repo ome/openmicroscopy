@@ -791,7 +791,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
         Experimenter copy = new Experimenter();
         copy.setOmeName(e.getOmeName());
-        copy.setFirstName(e.getOmeName());
+        copy.setFirstName(e.getFirstName());
+        copy.setMiddleName(e.getMiddleName());
         copy.setLastName(e.getLastName());
         copy.setEmail(e.getEmail());
         if (e.getDetails() != null && e.getDetails().getPermissions() != null) {
