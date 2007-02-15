@@ -11,6 +11,8 @@ package ome.util.tasks.admin;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
@@ -108,7 +110,7 @@ public class ListUsersAndGroupsTask extends SimpleTask {
 
         String g_format = "%s:%d:%s:%s:%s\n";
 
-        String G = enumValue(users);
+        String G = enumValue(groups);
         PrintWriter g_pw = getWriter(G);
 
         if (g_pw != null) {
@@ -118,9 +120,12 @@ public class ListUsersAndGroupsTask extends SimpleTask {
                             + "left outer join fetch m.child e "
                             + "left outer join fetch g.details.owner", null);
             for (ExperimenterGroup g : grps) {
-                g_pw.format(g_format, g.getName(), g.getId(), (null == g
-                        .getDescription() ? "" : g.getDescription()), g
-                        .getDetails().getOwner().getOmeName(), userNames(g));
+                String desc = (null == g.getDescription() ? "" : g
+                        .getDescription());
+                Experimenter e = g.getDetails().getOwner();
+                String owner = (null == e ? "null" : e.getOmeName());
+                g_pw.format(g_format, g.getName(), g.getId(), desc, owner,
+                        userNames(g));
             }
             g_pw.flush();
             // TODO Need to close
@@ -131,22 +136,28 @@ public class ListUsersAndGroupsTask extends SimpleTask {
     // ~ Helpers
     // =========================================================================
 
-    private PrintWriter getWriter(String U) {
-        OutputStream u_os;
-        if (OUT.equals(U)) {
-            u_os = System.out;
-        } else if (ERR.equals(U)) {
-            u_os = System.err;
+    private PrintWriter getWriter(String name) {
+
+        if (null == name)
+            return null;
+
+        PrintWriter pw;
+        if (OUT.equals(name)) {
+            pw = new PrintWriter(System.out);
+        } else if (ERR.equals(name)) {
+            pw = new PrintWriter(System.err);
         } else {
-            File u_file = new File(U);
+            File file = new File(name);
+            FileWriter fw;
             try {
-                u_os = new FileOutputStream(u_file);
-            } catch (FileNotFoundException e) {
-                System.out.println("Cannot create file " + U);
-                return null;
+                fw = new FileWriter(file, true);
+                pw = new PrintWriter(fw);
+            } catch (IOException e) {
+                System.out.println("Cannot create file " + name);
+                pw = null;
             }
         }
-        return new PrintWriter(u_os);
+        return pw;
     }
 
     private List<String> userNames(ExperimenterGroup g) {

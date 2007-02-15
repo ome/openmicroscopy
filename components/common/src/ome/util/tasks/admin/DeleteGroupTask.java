@@ -26,7 +26,7 @@ import ome.util.tasks.SimpleTask;
 import static ome.util.tasks.admin.DeleteGroupTask.Keys.*;
 
 /**
- * {@link SimpleTask} which deletes an {@link ExperimenterGroup} if possible.
+ * {@link AdminTask} which deletes an {@link ExperimenterGroup} if possible.
  * 
  * Understands the parameters:
  * <ul>
@@ -37,12 +37,12 @@ import static ome.util.tasks.admin.DeleteGroupTask.Keys.*;
  * this.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @see SimpleTask
+ * @see AdminTask
  * @since 3.0-Beta2
  */
 @RevisionDate("$Date: 2007-01-24 17:23:09 +0100 (Wed, 24 Jan 2007) $")
 @RevisionNumber("$Revision: 1208 $")
-public class DeleteGroupTask extends SimpleTask {
+public class DeleteGroupTask extends AdminTask {
 
     /**
      * Enumeration of the string values which will be used directly by

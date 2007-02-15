@@ -30,12 +30,12 @@ import static ome.util.tasks.Configuration.Keys.*;
  * Understands the parameters:
  * <ul>
  * <li>task</li>
- * <li>user</li>
- * <li>group</li>
- * <li>type</li>
- * <li>pass</li>
- * <li>host</li>
- * <li>port</li>
+ * <li>omero.user (from etc/local.properties)</li>
+ * <li>omero.group (from etc/local.properties)</li>
+ * <li>omero.type (from etc/local.properties)</li>
+ * <li>omero.pass (from etc/local.properties)</li>
+ * <li>server.host (from etc/local.properties)</li>
+ * <li>server.port (from etc/local.properties)</li>
  * </ul>
  * 
  * To login as a root, for example, {@link Properties} of the form: <code>
@@ -60,7 +60,7 @@ public class Configuration {
      * {@link Configuration}.
      */
     public enum Keys {
-        task, user, group, type, pass, host, port
+        task
     }
 
     final Properties properties;

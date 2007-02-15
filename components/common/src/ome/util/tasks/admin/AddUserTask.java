@@ -24,7 +24,7 @@ import ome.util.tasks.SimpleTask;
 import static ome.util.tasks.admin.AddUserTask.Keys.*;
 
 /**
- * {@link SimpleTask} which creates a {@link Experimenter} with the given login
+ * {@link AdminTask} which creates a {@link Experimenter} with the given login
  * name, first name, and last name, and optionally with the given email, middle
  * name, institution, and email.
  * 
@@ -44,12 +44,12 @@ import static ome.util.tasks.admin.AddUserTask.Keys.*;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see SimpleTask
+ * @see AdminTask
  * @since 3.0-Beta1
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class AddUserTask extends SimpleTask {
+public class AddUserTask extends AdminTask {
 
     /**
      * Enumeration of the string values which will be used directly by

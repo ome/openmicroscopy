@@ -25,7 +25,7 @@ import ome.util.tasks.SimpleTask;
 import static ome.util.tasks.admin.AddGroupTask.Keys.*;
 
 /**
- * {@link SimpleTask} which creates a {@link ExperimenterGroup} with the given
+ * {@link AdminTask} which creates a {@link ExperimenterGroup} with the given
  * name, and optionally with the given description and leader ({@link Experimenter}).
  * 
  * Understands the parameters:
@@ -40,12 +40,12 @@ import static ome.util.tasks.admin.AddGroupTask.Keys.*;
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
- * @see SimpleTask
+ * @see AdminTask
  * @since 3.0-Beta1
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class AddGroupTask extends SimpleTask {
+public class AddGroupTask extends AdminTask {
 
     /**
      * Enumeration of the string values which will be used directly by

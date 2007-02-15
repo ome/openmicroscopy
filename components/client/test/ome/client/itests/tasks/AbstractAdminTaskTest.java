@@ -29,10 +29,10 @@ public abstract class AbstractAdminTaskTest extends TestCase {
         sf = new ServiceFactory("ome.client.test");
         Login rootLogin = (Login) sf.getContext().getBean("rootLogin");
         root = new ServiceFactory(rootLogin);
-        rootString = new String[] { "user=" + rootLogin.getName(),
-                "group=" + rootLogin.getGroup(),
-                "type=" + rootLogin.getEvent(),
-                "pass=" + rootLogin.getPassword() };
+        rootString = new String[] { "omero.user=" + rootLogin.getName(),
+                "omero.group=" + rootLogin.getGroup(),
+                "omero.type=" + rootLogin.getEvent(),
+                "omero.pass=" + rootLogin.getPassword() };
     }
 
     // ~ Helpers

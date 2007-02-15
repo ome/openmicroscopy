@@ -27,7 +27,7 @@ import ome.util.tasks.SimpleTask;
 import static ome.util.tasks.admin.AddUserToGroupTask.Keys.*;
 
 /**
- * {@link SimpleTask} which creates a {@link GroupExperimenterMap} between the
+ * {@link AdminTask} which creates a {@link GroupExperimenterMap} between the
  * specified {@link ExperimenterGroup} and {@link Experimenter}.
  * 
  * Understands the parameters:
@@ -40,12 +40,12 @@ import static ome.util.tasks.admin.AddUserToGroupTask.Keys.*;
  * this.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @see SimpleTask
+ * @see AdminTask
  * @since 3.0-Beta2
  */
 @RevisionDate("$Date: 2007-01-24 17:23:09 +0100 (Wed, 24 Jan 2007) $")
 @RevisionNumber("$Revision: 1208 $")
-public class AddUserToGroupTask extends SimpleTask {
+public class AddUserToGroupTask extends AdminTask {
 
     /**
      * Enumeration of the string values which will be used directly by

@@ -33,10 +33,9 @@ import ome.system.ServiceFactory;
  * resolves to ome.util.tasks.admin.AddUserTask.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see Configuration
  * @see Task
- * @since 3.0-M4
+ * @since 3.0-Beta1
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
@@ -48,16 +47,61 @@ public class Run {
      * called and the returned {@link Task} instance is {@link Task#run() run}.
      */
     public static void main(String[] args) {
-        Properties props = readStdin();
-        props.putAll(parseArgs(args));
-        Configuration opts = new Configuration(props);
-        Task task = opts.createTask();
-        task.run();
+        Run run = new Run(args);
+        run.run();
+    }
+ 
+    protected Configuration opts;
+    
+    protected Task task;
+    
+    public Run(String[] args) {
+        this(new Configuration(getProperties(args)));
+    }
+    
+    public Run(Configuration config) {
+        opts = config;
+        task = opts.createTask();
     }
 
+    public Run(Task taskInstance) {
+        task = taskInstance;
+    }
+    
+    public void run() {
+
+        setup();
+        try {
+            task.run();
+        } catch (TaskFailure te) {
+            throw te;
+        } catch (RuntimeException re) {
+            System.err.println(task + " failed with a RuntimeException:");
+            throw re;
+        } finally {
+            cleanup();
+        }
+
+    }
+    
     // ~ Helpers
     // =========================================================================
 
+
+    protected void setup() {
+        // do nothing
+    }
+    
+    protected void cleanup() {
+        // do nothing
+    }
+    
+    protected static Properties getProperties(String[] args) {
+        Properties props = readStdin();
+        props.putAll(parseArgs(args));
+        return props;
+    }
+    
     protected static Properties readStdin() {
         Properties p = new Properties();
         int available = 0;
