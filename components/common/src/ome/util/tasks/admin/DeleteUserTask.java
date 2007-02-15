@@ -16,10 +16,12 @@ import java.util.Properties;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IAdmin;
+import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
+import ome.util.tasks.TaskFailure;
 
 import static ome.util.tasks.admin.DeleteUserTask.Keys.*;
 
@@ -74,6 +76,13 @@ public class DeleteUserTask extends AdminTask {
     
     @Override
     public void handleException(RuntimeException re) {
-        throw re;
+        if (SecurityViolation.class.isAssignableFrom(re.getClass())) {
+            String msg = re.getMessage();
+            if (msg.contains("Deleting") && msg.contains("not allowed")) {
+                throw new TaskFailure("SecurityViolation:" + msg
+                        + "\n You may try running this task as \"root\"");
+            }
+        }
+        super.handleException(re);    
     }
 }

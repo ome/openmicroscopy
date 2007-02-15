@@ -34,9 +34,9 @@ import ome.system.ServiceFactory;
 public class DebugTask extends SimpleTask {
 
     /**
-     * Sole constructor. Delegates to {@link AdminTask}
+     * Sole constructor. Delegates to {@link SimpleTask}
      * 
-     * @see AdminTask#SimpleTask(ServiceFactory, Properties)
+     * @see SimpleTask#SimpleTask(ServiceFactory, Properties)
      */
     public DebugTask(ServiceFactory serviceFactory, Properties properties) {
         super(serviceFactory, properties);

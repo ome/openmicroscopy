@@ -15,6 +15,8 @@ import java.util.Properties;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.system.ServiceFactory;
 import ome.util.tasks.SimpleTask;
 import ome.util.tasks.TaskFailure;
@@ -27,7 +29,8 @@ import ome.util.tasks.TaskFailure;
  * {@link Task} writers can override any or all of the 4 methods.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision: 1208 $, $Date: 2007-01-24 17:23:09 +0100 (Wed, 24 Jan 2007) $
+ * @version $Revision: 1208 $, $Date: 2007-01-24 17:23:09 +0100 (Wed, 24 Jan
+ *          2007) $
  * @see Task
  * @since 3.0-Beta1
  */
@@ -50,7 +53,6 @@ public abstract class AdminTask extends SimpleTask {
     @Override
     public void init() {
         super.init();
-        // HANDLE SUDO.
     }
 
     /**
@@ -61,9 +63,17 @@ public abstract class AdminTask extends SimpleTask {
         if (re.getClass().getName().contains("EJBAccessException")) {
             if (re.getMessage().contains("Authentication failure")) {
                 throw new TaskFailure("Admin login to server failed.");
+            } else if (re.getMessage().contains("Authorization failure")) {
+                String user = getProperties().getProperty("omero.user");
+                throw new TaskFailure(user
+                        + " is not authorized for this task.");
             }
-        } 
-        
+        } else if (SecurityViolation.class.isAssignableFrom(re.getClass())) {
+            throw new TaskFailure("SecurityViolation:" + re.getMessage());
+        } else if (ApiUsageException.class.isAssignableFrom(re.getClass())) {
+            throw new TaskFailure("ApiUsage:" + re.getMessage());
+        }
+
         super.handleException(re);
     }
 
