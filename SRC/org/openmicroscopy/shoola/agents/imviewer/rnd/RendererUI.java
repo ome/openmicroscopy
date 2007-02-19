@@ -73,13 +73,13 @@ class RendererUI
     static final Integer        CODOMAIN = new Integer(1);
     
     /** Reference to the control. */
-    private RendererControl     controller;
+    private RendererControl     			controller;
     
     /** Reference to the model. */
-    private RendererModel       model;
+    private RendererModel       			model;
     
     /** The map hosting the controls pane. */
-    private HashMap             controlPanes;
+    private HashMap<Integer, ControlPane>	controlPanes;
     
     /**
      * Creates the menu bar.
@@ -158,10 +158,10 @@ class RendererUI
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP,
                                 JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
-        ControlPane pane = (ControlPane) controlPanes.get(DOMAIN);
+        ControlPane pane = controlPanes.get(DOMAIN);
         tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
                         pane.getPaneDescription(), pane.getPaneIndex());
-        pane = (ControlPane) controlPanes.get(CODOMAIN);
+        pane = controlPanes.get(CODOMAIN);
         tabs.insertTab(pane.getPaneName(), pane.getPaneIcon(), pane,
                         pane.getPaneDescription(), pane.getPaneIndex());
         c.setLayout(new BorderLayout());
@@ -179,7 +179,7 @@ class RendererUI
     RendererUI(String title)
     {
         super("Display Settings:  "+title);
-        controlPanes = new HashMap(2);
+        controlPanes = new HashMap<Integer, ControlPane>(2);
     }
     
     /**
@@ -262,7 +262,7 @@ class RendererUI
         Iterator i = controlPanes.keySet().iterator();
         ControlPane pane;
         while (i.hasNext()) {
-            pane = (ControlPane) controlPanes.get(i.next());
+            pane = controlPanes.get(i.next());
             pane.resetDefaultRndSettings();
         }
     }

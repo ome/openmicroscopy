@@ -28,6 +28,7 @@ file in order to avoid conflicts.
 <xsl:variable name="nbsp">
 	<xsl:text> </xsl:text>
 </xsl:variable>
+
 <!-- number format for numbering sections -->
 <xsl:variable name="snf">
 	<xsl:choose>
@@ -177,7 +178,7 @@ This template handles the table-of-content tag
 	</a>
 	<xsl:choose>
 		<xsl:when test="$generate-section-numbers = 'yes'">
-			<xsl:apply-templates select="link" mode="section-nos"/>
+          <xsl:apply-templates select="link" mode="section-nos"/>
 		</xsl:when>
 		<xsl:otherwise>
 			<ul>
@@ -194,7 +195,8 @@ This template renders a toc link with section numbers
 -->
 <xsl:template match="link" mode="section-nos">
 	<xsl:variable name="section-no">
-		<xsl:number level="multiple"/>.</xsl:variable>
+	  <xsl:number level="multiple"/>.
+	</xsl:variable>
 	<xsl:variable name="link" select="."/>
 	<xsl:variable name="level" select="string-length(translate($section-no, '0123456789',''))"/>
 	<table cellpadding="1" cellspacing="0" border="0">
@@ -211,6 +213,7 @@ This template renders a toc link with section numbers
 	</table>
 	<xsl:apply-templates select="link" mode="section-nos"/>
 </xsl:template>
+
 
 <!--
 *************************************************************************

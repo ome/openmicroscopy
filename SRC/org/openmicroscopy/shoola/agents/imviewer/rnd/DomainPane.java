@@ -84,43 +84,45 @@ class DomainPane
      * For slider control only. The minimum value for the curve coefficient. 
      * The real value is divived by 10.
      */
-    static final int            MIN_GAMMA = 1;
+    static final int            	MIN_GAMMA = 1;
     
     /** 
      * For slider control only. The maximum value for the curve coefficient. 
      * The real value is divived by 10.
      */
-    static final int            MAX_GAMMA = 40;
+    static final int            	MAX_GAMMA = 40;
     
     /** 
      * For slider control only. The default value for the curve coefficient. 
      * The real value is divived by 10.
      */
-    static final int            DEFAULT_GAMMA = 10;
+    static final int            	DEFAULT_GAMMA = 10;
  
     /** The minimum value of the bit resolution. */ 
-    static final int            MIN_BIT_DEPTH = 1;
+    static final int            	MIN_BIT_DEPTH = 1;
     
     /** The maximum value of the bit resolution. */ 
-    static final int            MAX_BIT_DEPTH = 8;
+    static final int            	MAX_BIT_DEPTH = 8;
     
     /** The default value of the bit resolution. */ 
-    static final int            DEFAULT_BIT_DEPTH = 8;
+    static final int            	DEFAULT_BIT_DEPTH = 8;
     
     /** The factor .*/
-    private static final int    FACTOR = 10;
+    private static final int    	FACTOR = 10;
     
     /** Identifies the <code>Family</code> selection. */
-    private static final int    FAMILY = 0;
+    private static final int    	FAMILY = 0;
     
     /** Text displayed when the advanced options are hidden. */
-    private static final String	SHOW_ADVANCED_OPTIONS = "Show Advanced Options"; 
+    private static final String		SHOW_ADVANCED_OPTIONS = 
+    									"Show Advanced Options"; 
     
     /** Text displayed when the advanced options are shown. */
-    private static final String	HIDE_ADVANCED_OPTIONS = "Hide Advanced Options"; 
+    private static final String		HIDE_ADVANCED_OPTIONS = 
+    									"Hide Advanced Options"; 
     
     /** Dimension of the box between the channel buttons. */
-    private static final Dimension VBOX = new Dimension(1, 10);
+    private static final Dimension 	VBOX = new Dimension(1, 10);
        
     /** Box to select the family used in the mapping process. */
     private JComboBox       	familyBox;
@@ -129,40 +131,40 @@ class DomainPane
      * A collection of ColourButtons which represent the channel selected 
      * in the mapping process. 
      */
-    private List				channelList;
+    private List<ChannelToggleButton>	channelList;
     
     /** A panel containing the channel buttons. */
-    private JPanel				channelButtonPanel;
+    private JPanel						channelButtonPanel;
     
     /** A panel displaying the advanced features. */
-    private JPanel				advancedPanel;
+    private JPanel						advancedPanel;
     
     /** Slider to select a curve in the family. */
-    private JSlider         	gammaSlider;
+    private JSlider         			gammaSlider;
     
     /** Slider to select the bit resolution of the rendered image. */
-    private JSlider        	 	bitDepthSlider;
+    private JSlider        	 			bitDepthSlider;
     
     /** Field displaying the <code>Gamma</code> value. */
-    private JTextField      	gammaLabel;
+    private JTextField      			gammaLabel;
     
     /** Field displaying the <code>Bit Depth</code> value. */
-    private JTextField      	bitDepthLabel;
+    private JTextField      			bitDepthLabel;
     
     /** Box to select the mapping algorithm. */
-    private JCheckBox       	noiseReduction;
+    private JCheckBox       			noiseReduction;
     
     /** Button to bring up the histogram widget on screen. */
-    private JButton         	histogramButton;
+    private JButton         			histogramButton;
     
     /** The UI component hosting the interval selections. */
-    private GraphicsPane    	graphicsPane;
+    private GraphicsPane    			graphicsPane;
     
     /** The button will display the advanced mapping options when clicked. */
-    private JButton				advancedOptionsButton;
+    private JButton						advancedOptionsButton;
     
     /** A flag denoting whether the advanced options are showing. */
-    private boolean 			isAdvancedSettingsShowing;
+    private boolean 					isAdvancedSettingsShowing;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -198,7 +200,7 @@ class DomainPane
         histogramButton = new JButton(
                 controller.getAction(RendererControl.HISTOGRAM));
         
-        channelList = new ArrayList();
+        channelList = new ArrayList<ChannelToggleButton>();
         channelButtonPanel = createChannelButtons();
         isAdvancedSettingsShowing = false;
         advancedOptionsButton = new JButton(SHOW_ADVANCED_OPTIONS);
@@ -254,7 +256,6 @@ class DomainPane
         p.add(Box.createRigidArea(VBOX));
         for (int j = 0; j < data.length; j++) {
         	d = data[j];
-        
         	item = new ChannelToggleButton(""+d.getEmissionWavelength(), 
         							model.getChannelColor(j), j);
         	channelList.add(item);
@@ -475,7 +476,7 @@ class DomainPane
         ChannelToggleButton btn;
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         for (int i = 0; i < channelList.size(); i++) {
-            btn = ((ChannelToggleButton) channelList.get(i));
+            btn = channelList.get(i);
             btn.setColor(model.getChannelColor(btn.getChannelIndex()));
             btn.setGrayedOut(gs);
         }  
@@ -526,7 +527,7 @@ class DomainPane
                 controller.getAction(RendererControl.NOISE_REDUCTION));
         noiseReduction.setText(NoiseReductionAction.NAME);
         for (int i = 0; i < channelList.size(); i++) 
-        	((ChannelToggleButton) channelList.get(i)).setSelected(i==c);
+        	channelList.get(i).setSelected(i==c);
     }
     
     /** Sets the pixels intensity interval. */
@@ -542,7 +543,7 @@ class DomainPane
      */
     void setChannelButtonColor(int c)
     {
-        ChannelToggleButton btn = (ChannelToggleButton) channelList.get(c);
+        ChannelToggleButton btn = channelList.get(c);
         btn.setColor(model.getChannelColor(c));
         boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
         if (gs)  btn.setGrayedOut(gs);
@@ -557,7 +558,7 @@ class DomainPane
         ChannelToggleButton btn;
         String colorModel = model.getColorModel();
         for (int i = 0 ; i < channelList.size() ; i++) {
-            btn = (ChannelToggleButton) channelList.get(i);
+            btn = channelList.get(i);
             btn.setColor(model.getChannelColor(i));
             btn.setGrayedOut(colorModel.equals (ImViewer.GREY_SCALE_MODEL));
         }

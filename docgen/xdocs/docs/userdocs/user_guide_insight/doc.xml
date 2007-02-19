@@ -3,10 +3,10 @@
 <xdoc-info>
 
   <title>OMERO.insight User Guide</title>
-  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
- <author name="David Sloan Burel" email="DSloan@computing.dundee.ac.uk" />
-  <revision number="$Rev: 4751$"/>
-  <last-modified date="$Date: 2007-02-13 15:53:22 +0000 (Tue, 13 Feb 2007)$"/>
+  <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
+  <author name="David Sloan" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta"/>
+  <last-modified date="2007-02-16"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">

@@ -185,7 +185,7 @@ class RendererControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    Action getAction(Integer id) { return (Action) actionsMap.get(id); }
+    Action getAction(Integer id) { return actionsMap.get(id); }
     
     /**
      * Registers the specified observer.

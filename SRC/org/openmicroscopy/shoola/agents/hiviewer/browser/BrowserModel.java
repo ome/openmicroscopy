@@ -65,37 +65,37 @@ class BrowserModel
      * Flag to control the zoom action when the user mouses over an 
      * {@link ImageNode}. 
      */
-    private boolean         rollOver;
+    private boolean         	rollOver;
     
     /** 
      * Tells if a thumbnail has been selected in the case the 
      * last selected display is an {@link ImageNode}. 
      */
-    private boolean         thumbSelected;
+    private boolean         	thumbSelected;
     
     /** Position of the last pop-up trigger within the browser. */
-    private Point           popupPoint;
+    private Point           	popupPoint;
     
     /** Contains all visualization trees, our View. */
-    private RootDisplay     rootDisplay;
+    private RootDisplay     	rootDisplay;
     
     /** The index of the selected layout. */
-    private int             selectedLayout;
+    private int             	selectedLayout;
 
     /**
      * Tells if more than one {@link ImageNode}s are selected.
      * Doesn't really make sense to select other type of data objects.
      */
-    private boolean         multiSelection;
+    private boolean         	multiSelection;
     
     /** The selected nodes. */
-    private Set             selectedDisplays;
+    private Set<ImageDisplay>	selectedDisplays;
     
     /** Indicates if the image's title bar is visible. */
-    private boolean         titleBarVisible;
+    private boolean         	titleBarVisible;
     
     /** The node on which the mouse was located before exited. */
-    private ImageDisplay    rollOverNode;
+    private ImageDisplay    	rollOverNode;
     
     /**
      * Adds the children of the passed node to its internal desktop.
@@ -130,7 +130,7 @@ class BrowserModel
         super();
         if (view == null) throw new NullPointerException("No view.");
         rootDisplay = view;
-        selectedDisplays = new HashSet();
+        selectedDisplays = new HashSet<ImageDisplay>();
         titleBarVisible = true;
     }
     
@@ -149,10 +149,11 @@ class BrowserModel
         thumbSelected = false;
         popupPoint = null;
         this.multiSelection = multiSelection;
-        Set oldValue = new HashSet(selectedDisplays.size());
+        Set<ImageDisplay> oldValue = 
+        					new HashSet<ImageDisplay>(selectedDisplays.size());
         Iterator i = selectedDisplays.iterator();
         while (i.hasNext())
-            oldValue.add(i.next());
+            oldValue.add((ImageDisplay) i.next());
         
         if (!multiSelection)
             selectedDisplays.removeAll(selectedDisplays);

@@ -7,12 +7,14 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
 --------------------------------------------------------------------------------
-Last updated: 08/02/2007
+Last updated: 09/02/2007
 Version: Beta 1.1
 
 Changes: 
+ - Container: Send error with error message. An non-valid address was previously
+  used. cf. ticket#238
  - Container/Viewer: Handle timeout problems of Thumbnail service and rendering
- service.cf. ticket#235
+ service. cf. ticket#235
  - Viewer: Iconify/de-iconify issue cf. ticket#236
 --------------------------------------------------------------------------------
 Last updated: 23/01/2007

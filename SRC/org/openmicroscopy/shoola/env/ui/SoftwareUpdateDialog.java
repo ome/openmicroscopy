@@ -75,7 +75,7 @@ class SoftwareUpdateDialog
     private static final String     CLIENT_NAME = "Client:";
     
     /** The client's version. */
-    private static final String     CLIENT_VERSION = "3.0_M3 ";
+    private static final String     CLIENT_VERSION = "3.0_Beta1.1 ";
    
     /** The text displayed before the revision date. */
     private static final String     REVISION_NAME = "Revision Date:";

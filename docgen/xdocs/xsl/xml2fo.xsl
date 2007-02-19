@@ -244,7 +244,7 @@ This template renders the cover page.
 			<xsl:value-of select="$dmi/title"/>
 			</fo:block> 
 			<fo:block  text-align="center" space-before="40mm" space-before.conditionality="retain" >
-				<fo:external-graphic src="url('logo-selzer.gif')" /> 
+				<fo:external-graphic src="url('OME-Logo-plain.gif')" /> 
 			</fo:block>
 	</fo:flow>
 </fo:page-sequence>
@@ -888,7 +888,7 @@ i, em, cite, var, dfn.
 
 <!-- 
 *************************************************************************
-This template handles the font-familyt of the following tags: 
+This template handles the font-family of the following tags: 
 code, tt, kbd, samp
 *************************************************************************
 -->

@@ -3,11 +3,11 @@
 <xdoc-info>
 
   <title>Software Build and Deployment Document</title>
-  <author name="Jean-Marie Burel" email="j.burel@dundee.ac.uk" />
-  <author name="Andrea Falconi" email="a.falconi@dundee.ac.uk" />
+  <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
+  <author name="Andrea Falconi" email="comments@openmicroscopy.org.uk" />
 
-  <revision number="$Revision$" />
-  <last-modified date="$Date$" />
+  <version number="Final"/>
+  <last-modified date="2007-02-15"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">
@@ -18,7 +18,7 @@
     </section>
     <section href="repos.html" name="Project Repository">
       <section href="repos1.html" name="Repository Organization"/>
-      <section href="repos2.html" name="Downloading from CVS"/>
+      <section href="repos2.html" name="Downloading from Subversion"/>
     </section>
     <section href="build.html" name="Build Process">
       <section href="build1.html" name="Build Tool"/>

@@ -7,8 +7,10 @@
 <!-- A: COMMON VARIABLES -->
 <xsl:variable name="title" select="/xdoc/xdoc-info/title"/>
 
-<xsl:variable name="revision" select="/xdoc/xdoc-info/revision/@number"/>
 <xsl:variable name="last-modified" select="/xdoc/xdoc-info/last-modified/@date"/>
+
+<xsl:variable name="version" select="/xdoc/xdoc-info/version/@number"/>
+
 
 <!-- Root -->
 
@@ -65,11 +67,12 @@ This template generates the document-meta-info, information on the document.
 </xsl:when>
 </xsl:choose>
 
-<attribute name="Revision">
-<xsl:value-of select="substring($revision, 12, string-length($revision)-13)"/>
+<attribute name="Version">
+<xsl:value-of select="$version"/>
 </attribute>
+
 <attribute name="Date">
-<xsl:value-of select="substring($last-modified, 7, string-length($last-modified)-8)"/>
+<xsl:value-of select="$last-modified"/>
 </attribute>
 </document-meta-info>
 </xsl:template>
@@ -134,9 +137,7 @@ This template generates the document footer.
 -->
 <xsl:template name="document-footer">
 <document-footer>
-Copyright &#169; 2002-2005 
-<a href="http://www.openmicroscopy.org/">Open Microscopy Environment</a>.  
-All Rights reserved.
+Copyright &#169; 2006-2007 University of Dundee. All Rights reserved.
 </document-footer>
 </xsl:template>	
 
@@ -160,30 +161,40 @@ This template generates the document body.
 
 <!-- 
 *************************************************************************
-This template generates the table of content.
+This template generates the table of contents.
 *************************************************************************
 -->
 <xsl:template name="document-toc">
 <table-of-content>
-<xsl:for-each select="/xdoc/toc/section">
-<link>
-<xsl:call-template name="section-href">
-<xsl:with-param name="text" select="@name"/>
-<xsl:with-param name="href" select="@href"/>
-</xsl:call-template>
-<xsl:if test="count(./section) != 0">
-<xsl:for-each select="./section">
-<link>
-<xsl:call-template name="section-href">
-<xsl:with-param name="text" select="@name"/>
-<xsl:with-param name="href" select="@href"/>
-</xsl:call-template>	
-</link>
-</xsl:for-each>	
-</xsl:if>
-</link>
-</xsl:for-each>
+ <xsl:for-each select="/xdoc/toc/section">
+  <xsl:call-template name="link-toc">
+   <xsl:with-param name="node" select="."/>
+  </xsl:call-template>
+ </xsl:for-each>
 </table-of-content>	
+</xsl:template>
+
+<!-- 
+*************************************************************************
+This template generates a link element in the table of contents.
+*************************************************************************
+-->
+<xsl:template name="link-toc">
+<xsl:param name="node"/>
+<link>
+    <xsl:call-template name="section-href">
+    <xsl:with-param name="text" select="$node/@name"/>
+    <xsl:with-param name="href" select="$node/@href"/>
+    </xsl:call-template>
+    <xsl:if test="count(./section) != 0">
+		<xsl:for-each select="./section">
+		<xsl:call-template name="link-toc">
+	    <xsl:with-param name="node" select="."/>
+         </xsl:call-template>
+		</xsl:for-each>
+		<xsl:apply-templates select="link"/>
+	</xsl:if>
+</link>
 </xsl:template>
 
 <!-- 

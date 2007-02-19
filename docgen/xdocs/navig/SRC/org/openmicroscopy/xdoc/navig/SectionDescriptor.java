@@ -54,15 +54,15 @@ class SectionDescriptor
     
     /** 
      * Points to the section content.
-     * This is the value of the 'href' attribute. 
+     * This is the value of the <code>href</code> attribute.. 
      */
     final String    url;
     
     /**
      * Creates a new instance.
      * 
-     * @param name
-     * @param url
+     * @param name 	The name of the section.
+     * @param url	The value of the <code>href</code> attribute.
      */
     public SectionDescriptor(String name, String url)
     {
@@ -72,9 +72,7 @@ class SectionDescriptor
         this.url = url;
     }
     
-    /**
-     * Overrides parent to return the section name.
-     */
+    /** Overrides parent to return the section name. */
     public String toString() { return name; }
 
 }

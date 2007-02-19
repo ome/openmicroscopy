@@ -5,7 +5,7 @@
 
                       OPEN MICROSCOPY ENVIRONMENT (OME)
                               
-                                 OMEROClient
+                                 OMERO.insight
                                  
                                     Legal
 
@@ -19,25 +19,27 @@
   --------
   
   Within this document, the term 'third-party software' shall refer to the set 
-  of all the files which are contained in the OMERO.insight SVN module and which 
+  of all the files which are contained in the shoola-omero Subversion 
+  module and which 
   are listed in each 'Artifacts' entry within the 
   'Third-Party Software Licenses' section of this document. 
-  The term 'OMEROClient' or, equivalently, 'our software'
-  shall refer to any other file contained in the OMEROClient SVN module.
+  The term 'OMERO.insight' or, equivalently, 'our software'
+  shall refer to any other file contained in the shoola-omero Subversion module.
   
   
   
   Purpose
   -------
   
-  This document states which licenses apply to which files in the OMERO.insight 
-  SVN module. It also gives credit to other projects and developers that 
+  This document states which licenses apply to which files in the 
+  shoola-omero Subversion module. 
+  It also gives credit to other projects and developers that 
   provided us with their valuable software.
   
   
   
-  OMERO.insightLicense
-  ------------------
+  OMERO.insight License
+  ---------------------
   
   Our software is licensed under the terms of the GNU General Public License
   (GPL), a copy of which may be found in the 'gpl.txt' file within this
@@ -49,7 +51,7 @@
   -----------------------------
   
   We are in debt with many open-source projects for providing us with valuable
-  artifacts, ranging from application libraries to graphics files.  This section
+  artifacts, ranging from application libraries to graphics files. This section
   lists all the third-party software that is used by OMERO.insight.  
   Software artifacts are grouped according to the project of provenience and 
   using the following format:
@@ -62,7 +64,7 @@
   		This shall mean 'all the files whose name starts with S'.  For example, 
   		'ant-*' means all the files whose name starts with 'ant-'.
   		Unless otherwise specified, directory pathnames are given relative to 
-  		the root of the OMERO.insight SVN module.
+  		the root of the Shoola SVN module.
   License: The type of license that applies to the files listed in 'Artifacts'.
   License File: The file, within this directory, that contains the license.
   
@@ -70,7 +72,7 @@
   
 
   Project: The Apache Ant Project.  Ant is a Java-based build tool.  It supports
-  		the build system in OMEROClient.
+  		the build system in OMERO.insight.
   Web Site: http://ant.apache.org/
   Artifacts: The ant-*, junit-frames.xsl, and junit-noframes.xsl files under 
   		build/tools/
@@ -140,7 +142,7 @@
   License: Common Public License (CPL) v1.0
   License File: cpl-v10.html
   
-  Project: The Log4j Project.  The logging framework used by OMEROClient.
+  Project: The Log4j Project.  The logging framework used by OMERO.insight.
   Web Site: http://logging.apache.org/log4j/
   Artifacts: The log4j-* file under LIB/
   License: Apache License, Version 2.0
@@ -160,9 +162,9 @@
   License: Common Public License (CPL) v1.0
   License File: cpl-v10.html
 
-  Project: The Nuvola icon theme.  It provides most of the icons in OMEROClient.
+  Project: The Nuvola icon theme.  It provides most of the icons in OMERO.insight.
   Web Site: http://www.icon-king.com/
-  Artifacts: All the nuvola_* graphics files contained the OMEROClient SVN
+  Artifacts: All the nuvola_* graphics files contained the Shoola SVN
   			 module.
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
@@ -170,25 +172,19 @@
   Project: Ximian.  We're using a few of their icons that they designed for
   		Open Office.
   Web Site: http://www.novell.com/linux/ximian.html
-  Artifacts: All the openOffice_* graphics files contained the OMEROClient SVN 
+  Artifacts: All the openOffice_* graphics files contained the Shoola SVN 
   		module.
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
 
-  Project: The Hibernate project. An object/relational persistence and query 
-           service for Java. We use it to retrieve data using OMERO.
-  Web Site: www.hibernate.org
-  Artifacts: The hiberbate-* file under LIB/
-  License:  Lesser General Public License (LGPL)
-  License File: lgpl.txt
-  
   Project: The JBOSS project.  A J2EE based application server
   Web Site: www.jboss.org
   Artifacts: The jboss-* files under LIB/
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
   
-  Project: The Spring project.
+  Project: The Spring project. 
+  This library provides configuration for OMERO.insight.
   Web Site: www.springframework.org
   Artifacts: The spring-* file under LIB/
   License: Lesser General Public License (LGPL)

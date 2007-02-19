@@ -71,9 +71,7 @@ public class NavMenuApplet
     /** The name of the applet's target parameter. */
     private static final String     DISPLAY_WINDOW = "target";
     
-    /**
-     * Parses the 'doc.xml' file and builds the navigation menu.
-     */
+    /** Parses the 'doc.xml' file and builds the navigation menu. */
     public void init()
     {
         try {

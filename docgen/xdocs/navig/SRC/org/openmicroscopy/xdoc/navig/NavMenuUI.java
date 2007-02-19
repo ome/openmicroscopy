@@ -56,22 +56,7 @@ public class NavMenuUI
 
     /** The widget to navigate through the table of contents. */
     JTree   navTree;
-    
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param toc The tree model representing the table of contents.
-     *              Mustn't be <code>null</code>.
-     */
-    public NavMenuUI(DefaultMutableTreeNode toc)
-    {
-        super();
-        if (toc == null) throw new NullPointerException("No toc.");
-        navTree = new JTree(toc);
-        buildGUI();
-    }
-    
+   
     /** Builds and lay out the GUI. */
     private void buildGUI()
     {
@@ -82,6 +67,21 @@ public class NavMenuUI
                                     TreeSelectionModel.SINGLE_TREE_SELECTION);
         setViewportView(navTree);
     }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param toc 	The tree model representing the table of contents.
+     *              Mustn't be <code>null</code>.
+     */
+    public NavMenuUI(DefaultMutableTreeNode toc)
+    {
+        super();
+        if (toc == null) throw new NullPointerException("No toc.");
+        navTree = new JTree(toc);
+        buildGUI();
+    }
+   
     /**
      * Adds the specified listener to the tree.
      * 

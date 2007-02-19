@@ -67,7 +67,6 @@ public class TOCParser
     /** The <i>Q-Name</i> of the href attribute. */
     private static final String     HREF = "href";
     
-    
     /** Points to the 'doc.xml' file to parse. */
     private URL     xdoc;
     
@@ -88,7 +87,6 @@ public class TOCParser
      * instances of {@link SectionDescriptor} and are stored as user objects.
      */
     private DefaultMutableTreeNode  parsedTree;
-    
     
     /**
      * Creates a new node to add to the {@link #parsedTree}.
@@ -149,7 +147,6 @@ public class TOCParser
      * If the current element is the toc or a section, then make a new node
      * and push it on the stack.  If the stack is not empty, then the top of
      * the stack is this node's parent, so link them.
-     * 
      * @see ParserObserver#onStartElement(Element)
      */
     public void onStartElement(Element which)
@@ -172,7 +169,6 @@ public class TOCParser
      * Catches end element events.
      * If the current element is the toc or a section, then we're done with
      * the current toc/section node.  So pop it from the stack.
-     * 
      * @see ParserObserver#onEndElement(Element)
      */
     public void onEndElement(Element which)

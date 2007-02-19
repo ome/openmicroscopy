@@ -34,7 +34,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -220,16 +219,12 @@ public class MessengerDialog
 		cancelButton = new JButton("Cancel");
 		formatButton(cancelButton, 'C', CANCEL_TOOLTIP);
 		cancelButton.addActionListener(new ActionListener() {
-		
 			public void actionPerformed(ActionEvent e) { close(); }
-		
 		});
 		sendButton = new JButton("Send");
 		formatButton(sendButton, 'S', SEND_TOOLTIP);
 		sendButton.addActionListener(new ActionListener() {
-			
 			public void actionPerformed(ActionEvent e) { send(); }
-		
 		});
 		
         emailArea = new JTextField(20);
@@ -242,10 +237,8 @@ public class MessengerDialog
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");
         	formatButton(copyButton, 'C', COPY_TOOLTIP);
-        	copyButton.addActionListener(new ActionListener() {
-        		
+        	copyButton.addActionListener(new ActionListener() {	
     			public void actionPerformed(ActionEvent e) { copy(); }
-    		
     		});
         }
         getRootPane().setDefaultButton(sendButton);
@@ -474,9 +467,8 @@ public class MessengerDialog
             if (icon == null)
             	icon = UIManager.getIcon("OptionPane.questionIcon");
         	component = buildCommentPanel(MESSAGE, COMMENT_FIELD, icon);
-        } else {
-        	component = buildExceptionPane();
-        }
+        } else component = buildExceptionPane();
+        
         mainPanel.add(component, "0, 0, 4, 0");
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 	}
