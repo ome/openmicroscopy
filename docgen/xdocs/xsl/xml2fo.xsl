@@ -595,15 +595,15 @@ This template is responsible for creating an anchor/link.
 			<fo:basic-link>
 				<xsl:choose>
 					<!-- href starts with # that means it is an internal link. -->
-					<xsl:when test="starts-with(@href,  '#')">
+					<xsl:when test="contains(@href,  '#')">
 						<xsl:attribute name="internal-destination"><xsl:value-of select="substring-after(@href,  '#')"/>
 						</xsl:attribute>
 					</xsl:when>
 					<!-- else it is an external link. -->
 					<xsl:otherwise>
-						<xsl:attribute name="external-destination">
-						<xsl:value-of select="@href"/>
-						</xsl:attribute>
+					     <xsl:attribute name="external-destination">
+						     <xsl:value-of select="@href"/>
+						    </xsl:attribute>
 					</xsl:otherwise>
 				</xsl:choose>
 				<xsl:apply-templates/>
