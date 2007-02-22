@@ -56,7 +56,7 @@ public class AnnotationsLoader
 {
 	
 	/** Collection of <code>DataObject</code>s id. */
-	private Set				nodeIds;
+	private Set<Long>		nodeIds;
 	
 	/** The type of annotation. */
 	private Class			type;
@@ -81,11 +81,11 @@ public class AnnotationsLoader
 			throw new IllegalArgumentException("Type not supported: "+type);
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No data objects specifed.");
-		nodeIds = new HashSet(objects.size());
+		nodeIds = new HashSet<Long>(objects.size());
 		Iterator i = objects.iterator();
-		while (i.hasNext()) {
+		while (i.hasNext()) 
 			nodeIds.add(new Long(((DataObject) i.next()).getId()));
-		}
+		
 		this.type = type;
 	}
 	

@@ -585,7 +585,7 @@ class ImViewerModel
      */
     List getActiveChannels()
     {
-        ArrayList active = new ArrayList();
+        ArrayList<Integer> active = new ArrayList<Integer>();
         for (int i = 0; i < getMaxC(); i++) {
             if (rndControl.isActive(i)) active.add(new Integer(i));
         }

@@ -187,7 +187,9 @@ public interface Browser
 	 * Scrolls to the location.
 	 * 
 	 * @param bounds The bounds of the node.
+	 * @param blockIncrement	Pass <code>true</code> to consider block
+	 * 							increment, <code>false</code> otherwise. 
 	 */
-	public void scrollTo(Rectangle bounds);
+	public void scrollTo(Rectangle bounds, boolean blockIncrement);
     
 }

@@ -438,7 +438,7 @@ class TwoKnobsSliderUI
             if( model.isPaintEndLabels() )
             	trackRect.setBounds(x, EXTRA, size.width-2*x, h);
             else
-            	trackRect.setBounds(w/2, EXTRA, size.width-w, h);
+            	trackRect.setBounds(w/2, EXTRA, size.width-2*w, h);
             	
             if (model.isPaintTicks())
                 tickRect = new Rectangle(trackRect.x,

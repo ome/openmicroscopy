@@ -110,7 +110,6 @@ class BrowserCanvas
             width = x+viewRect.width;
             height = y+viewRect.height;
         }
-        
         if (viewRect.width >= size)
         	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
         							height-10, size, value, 

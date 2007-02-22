@@ -171,7 +171,7 @@ class ServerDialog
 	/** Removes the selected server from the list. */
 	private void remove()
 	{
-		DefaultTableModel model= ((DefaultTableModel) table.getModel());
+		DefaultTableModel model= (DefaultTableModel) table.getModel();
 		int n = table.getSelectedRow();
 		if (n < 0) return;
 		if (model.getColumnCount() < 2) return; 

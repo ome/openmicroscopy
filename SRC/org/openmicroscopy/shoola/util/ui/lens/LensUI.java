@@ -319,6 +319,7 @@ public class LensUI
 	void mouseMoved(int x, int y)
 	{
 		lensController.lensMouseMoved(x, y);
+		lensComponent.updateLensLocation();
 	}
 	
 	/**
@@ -339,11 +340,13 @@ public class LensUI
 	 * 
 	 * @param x x mouse position.
 	 * @param y y mouse position.
-	 * @param shift true if the shift key is pressed. 
+	 * @param shift Pass <code>true</true> if the shift key is pressed, 
+	 * 				<code>false</true> otherwise.
 	 */
 	void mouseDrag(int x, int y, boolean shift)
 	{
 		lensController.lensMouseDrag(x, y, shift);
+		lensComponent.updateLensLocation();
 	}
 	
 	/**
@@ -360,7 +363,7 @@ public class LensUI
 	/**
 	 * MouseWheel moved by tick units. 
 	 * 
-	 * @param tick
+	 * @param tick The tick unit
 	 */
 	void mouseWheelMoved(int tick)
 	{     

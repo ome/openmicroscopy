@@ -63,7 +63,7 @@ class BrowserControl
      * after to link this Controller to the other MVC components.
      */
     BrowserControl() {}
-
+    
     /**
      * Links this Controller to its Model and its View.
      * 

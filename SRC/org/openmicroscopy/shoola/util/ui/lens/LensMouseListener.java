@@ -98,7 +98,7 @@ class LensMouseListener
 	 */
 	public void mouseDragged(MouseEvent incomingEvent)
     {
-			changeview.mouseDrag(incomingEvent.getX(), incomingEvent.getY(), 
+		changeview.mouseDrag(incomingEvent.getX(), incomingEvent.getY(), 
 					incomingEvent.isShiftDown());
 	}
 
@@ -106,7 +106,8 @@ class LensMouseListener
      * Calls the views {@link LensUI#mouseMoved(int, int)} event.
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
-	public void mouseMoved(MouseEvent incomingEvent) {
+	public void mouseMoved(MouseEvent incomingEvent)
+	{
 		changeview.mouseMoved(incomingEvent.getX(), incomingEvent.getY());
 	}
 

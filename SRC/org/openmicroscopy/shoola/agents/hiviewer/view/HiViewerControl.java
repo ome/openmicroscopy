@@ -187,16 +187,16 @@ class HiViewerControl
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
      */
-    private HiViewer        model;
+    private HiViewer        		model;
     
     /** Reference to the View. */
-    private HiViewerWin     view;
+    private HiViewerWin     		view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map             actionsMap;
+    private Map<Integer, Action>	actionsMap;
     
     /** Keep track of the old state.*/
-    private int             historyState;
+    private int             		historyState;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -361,7 +361,7 @@ class HiViewerControl
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, Action>();
         createActions();
     }
     
@@ -388,7 +388,7 @@ class HiViewerControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    Action getAction(Integer id) { return (Action) actionsMap.get(id); }
+    Action getAction(Integer id) { return actionsMap.get(id); }
 
     /**
      * Brings up on screen the specified {@link ImageDisplay node} if not

@@ -72,13 +72,13 @@ class AnnotatorControl
 	 * Reference to the {@link Annotator} component, which, in this context,
 	 * is regarded as the Model.
   	 */
-	private Annotator      	model;
+	private Annotator      					model;
   
 	/** Reference to the View. */
-	private AnnotatorView	view;
+	private AnnotatorView					view;
   
 	/** Maps actions ids onto actual <code>Action</code> object. */
-	private Map             actionsMap;
+	private Map<Integer, AnnotatorAction>	actionsMap;
   
 	/** Helper method to create all the UI actions. */
 	private void createActions()
@@ -111,7 +111,7 @@ class AnnotatorControl
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
-		actionsMap = new HashMap();
+		actionsMap = new HashMap<Integer, AnnotatorAction>();
 	}
 	
 	/**
@@ -133,10 +133,7 @@ class AnnotatorControl
 	 * @param id One of the flags defined by this class.
 	 * @return The specified action.
 	 */
-	AnnotatorAction getAction(Integer id)
-	{
-		return (AnnotatorAction) actionsMap.get(id);
-	}
+	AnnotatorAction getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
 	 * Reacts to state changes.
@@ -160,7 +157,6 @@ class AnnotatorControl
 				view.setStatus(SAVING_MSG, false);
 				break;
 		}
-		
 	}
 	
 }

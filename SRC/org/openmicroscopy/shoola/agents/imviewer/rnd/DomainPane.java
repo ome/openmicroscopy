@@ -125,7 +125,7 @@ class DomainPane
     private static final Dimension 	VBOX = new Dimension(1, 10);
        
     /** Box to select the family used in the mapping process. */
-    private JComboBox       	familyBox;
+    private JComboBox       			familyBox;
 
     /** 
      * A collection of ColourButtons which represent the channel selected 

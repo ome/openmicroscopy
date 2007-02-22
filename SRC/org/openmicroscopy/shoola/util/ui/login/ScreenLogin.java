@@ -249,7 +249,7 @@ public class ScreenLogin
     	List<String> servers = getServers();
     	if (servers == null || servers.size() == 0)
     		serverName = DEFAULT_SERVER;
-    	else serverName = servers.get(0);
+    	else serverName = servers.get(servers.size()-1);
         serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
     }
     
@@ -369,7 +369,7 @@ public class ScreenLogin
     private String getServerName()
     {
     	String s = serverText.getText();
-    	if (s == null) return "";
+    	if (s == null) return null;
     	return s.trim();
     }
     
@@ -452,10 +452,20 @@ public class ScreenLogin
 			prefs.put(OMERO_SERVER, "");
 			return;
 		}
-		String list = "";
+		ArrayList<String> servers = new ArrayList<String>(l.size());
 		Iterator i = l.iterator();
-		int n = l.size()-1;
+		String serverName = getServerName();
+		String name;
+		while (i.hasNext()) {
+			name = (String) i.next();
+			if (!name.equals(serverName)) servers.add(name);
+		}
+		if (serverName != null && serverName.length() != 0)
+			servers.add(serverName);
+		i = servers.iterator();
+		int n = servers.size()-1;
 		int index = 0;
+		String list = "";
 		while (i.hasNext()) {
 			list += (String) i.next();
 			if (index != n)  list += SERVER_NAME_SEPARATOR;

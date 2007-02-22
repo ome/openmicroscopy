@@ -94,40 +94,40 @@ class ControlPane
     private static final Dimension VBOX = new Dimension(1, 10);
     
     /** Reference to the Control. */
-    private ImViewerControl controller;
+    private ImViewerControl 		controller;
     
     /** Reference to the Model. */
-    private ImViewerModel   model;
+    private ImViewerModel   		model;
     
     /** Reference to the View. */
-    private ImViewerUI      view;
+    private ImViewerUI      		view;
     
     /** The box displaying the supported rating level. */
-    private JComboBox       ratingBox;
+    private JComboBox       		ratingBox;
     
     /** The box displaying the supported zooming level. */
-    private JComboBox       zoomingBox;
+    private JComboBox       		zoomingBox;
     
     /** Slider to select the z-section. */
-    private OneKnobSlider	zSlider;
+    private OneKnobSlider			zSlider;
     
     /** Slider to select the timepoint. */
-    private OneKnobSlider	tSlider;
+    private OneKnobSlider			tSlider;
     
     /** One  {@link ChannelButton} per channel. */
-    private HashSet         channelButtons;
+    private HashSet<ChannelButton>	channelButtons;
     
     /** Button to play movie across channel. */
-    private JButton         channelMovieButton;
+    private JButton         		channelMovieButton;
     
     /** Button to select the color model. */
-    private JButton         colorModelButton;
+    private JButton         		colorModelButton;
     
     /** Button to bring up the color picker. */
-    private JButton         colorPickerButton;
+    private JButton         		colorPickerButton;
     
     /** Helper reference. */
-    private IconManager     icons;
+    private IconManager     		icons;
     
     /**
      * Handles the event when the wheel is moved over the {@link #zSlider}.
@@ -437,7 +437,7 @@ class ControlPane
         this.controller = controller;
         this.model = model;
         this.view = view;
-        channelButtons = new HashSet();
+        channelButtons = new HashSet<ChannelButton>();
         icons = IconManager.getInstance();
         initComponents();
     }

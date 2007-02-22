@@ -54,7 +54,10 @@ public class LensComponent
 	extends AbstractComponent
 {
 
-	/** Event fired when the zoomwindow is closed. */
+	/** Bound property indicating that the location of the lens has changed. */
+	public static String	LENS_LOCATION_PROPERTY = "lensLocation";
+	
+	/** Bound property indicating to close the zoom Window. */
 	final static String		ZOOM_WINDOW_CLOSED_PROPERTY = "zoomWindowClosed";
     
 	/** Default width of a lens */
@@ -138,6 +141,16 @@ public class LensComponent
              default:
                  throw new IllegalArgumentException("Index not supported.");
 	     }
+	}
+	
+	/**
+	 * Indicates the location of the lens. Fires a property change to notify 
+	 * listeners of the new bounds.
+	 */
+	void updateLensLocation()
+	{
+		Rectangle bounds = lensModel.getLensScaledBounds();
+		firePropertyChange(LENS_LOCATION_PROPERTY, null, bounds);
 	}
 	
 	/**
@@ -355,5 +368,7 @@ public class LensComponent
 	{
 		zoomWindow.setLocation(x, y);
 	}
-    
+
+
+
 }

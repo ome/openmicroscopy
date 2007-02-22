@@ -94,7 +94,7 @@ public class ChannelButton
     {
         Boolean value =  Boolean.TRUE;
         if (isSelected()) value = Boolean.FALSE;
-        HashMap map = new HashMap(1);
+        HashMap<Integer, Boolean> map = new HashMap<Integer, Boolean>(1);
         map.put(new Integer(index), value);
         firePropertyChange(CHANNEL_SELECTED_PROPERTY, null, map);
     }

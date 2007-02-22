@@ -31,8 +31,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 
 //Third-party libraries
 
@@ -40,6 +40,7 @@ import javax.swing.JViewport;
 
 /** 
  * Hosts the UI components displaying the rendered image.
+ * Note that the layout manager of the viewport is set to <code>null</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,6 +85,8 @@ class BrowserUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	getViewport().setLayout(null);
+    	getViewport().setBackground(getBackground());
         getViewport().add(layeredPane);
     }
     
@@ -148,6 +151,7 @@ class BrowserUI
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
         setComponentsSize(img.getWidth(), img.getHeight());
+        /*
         JViewport currentView = getViewport();
         int h = img.getHeight();
         int w = img.getWidth();
@@ -157,9 +161,11 @@ class BrowserUI
         if (x < 0) x = 0;
         int y = h/2-viewportH/2;
         if (y < 0) y = 0;
-
-        currentView.setViewPosition(new Point(x, y));
+        //currentView.setViewPosition(new Point(x, y));
+         * */
+        getViewport().setViewPosition(new Point(-1, -1));
         browserCanvas.repaint();
+        setBounds(getBounds());
     }
       
     /**
@@ -188,15 +194,50 @@ class BrowserUI
 	/**
 	 * Scrolls to the location.
 	 * 
-	 * @param bounds The bounds of the node.
+	 * @param bounds 			The bounds of the node.
+	 * @param blockIncrement	Pass <code>true</code> to consider block
+	 * 							increment, <code>false</code> otherwise.
+	 * 						
 	 */
-	void scrollTo(Rectangle bounds)
+	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
 		Rectangle viewRect = getViewport().getViewRect();
 		if (!viewRect.contains(bounds)) {
-            getVerticalScrollBar().setValue(bounds.y);
-            getHorizontalScrollBar().setValue(bounds.x);
+			JScrollBar hBar = getHorizontalScrollBar();
+			JScrollBar vBar = getVerticalScrollBar();
+			if (viewRect.x-bounds.x < 0 && blockIncrement)
+				hBar.setValue(hBar.getValue()+hBar.getBlockIncrement());
+			else hBar.setValue(bounds.x);
+			if (viewRect.y-bounds.y < 0 && blockIncrement)
+				vBar.setValue(vBar.getValue()+vBar.getBlockIncrement());
+			else vBar.setValue(bounds.y);
         }
 	}
-    
+	
+	/**
+	 * 
+	 * Overridden to center the image.
+	 * @see JComponent#setBounds(Rectangle)
+	 */
+	public void setBounds(Rectangle r)
+	{
+		setBounds(r.x, r.y, r.width, r.height);
+	}
+	
+	/**
+	 * Overridden to center the image.
+	 * @see JComponent#setBounds(int, int, int, int)
+	 */
+	public void setBounds(int x, int y, int width, int height)
+	{
+		super.setBounds(x, y, width, height);
+		Rectangle r = getViewport().getViewRect();
+		Dimension d = layeredPane.getPreferredSize();
+		int xLoc = ((r.width-d.width)/2);
+		int yLoc = ((r.height-d.height)/2);
+		if (xLoc < 0) xLoc = 0;
+		if (yLoc < 0) yLoc = 0;
+		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+	}
+	
 }

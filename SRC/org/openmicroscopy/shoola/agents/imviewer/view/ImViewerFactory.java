@@ -123,7 +123,7 @@ public class ImViewerFactory
     }
 
     /** All the tracked components. */
-    private Set     viewers;
+    private Set<ImViewer>     viewers;
 
     /** The windows menu. */
     private JMenu   windowMenu;
@@ -137,11 +137,9 @@ public class ImViewerFactory
     /** Creates a new instance. */
     private ImViewerFactory()
     {
-        viewers = new HashSet();
+        viewers = new HashSet<ImViewer>();
         isAttached = false;
         windowMenu = new JMenu("Viewers");
-        //TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
-        //tb.addToMenu(TaskBar.WINDOW_MENU, windowMenu);
     }
     
     /**

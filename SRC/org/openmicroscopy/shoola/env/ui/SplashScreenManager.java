@@ -76,13 +76,13 @@ class SplashScreenManager
 	static final String				TITLE = "Open Microscopy Environment";
 	
     /** The client's version. */
-    private static final String     VERSION = "3.0_M3_Beta1/OMERO M3";
+    private static final String     VERSION = "3.0_Beta1";
     
 	/** The component's UI. */
 	private ScreenLogin			view;
 	
 	/** The component's UI. */
-	private ScreenLogo	viewTop;
+	private ScreenLogo			viewTop;
 	
 	/** Tells whether or not the splash screen window is open. */
 	private boolean				isOpen;

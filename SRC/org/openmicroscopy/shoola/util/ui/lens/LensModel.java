@@ -208,14 +208,14 @@ class LensModel
 	 * @return the height
 	 */
 	
-	int getScaledHeight() { return (int)Math.ceil(height*imageZoomFactor); }
+	int getScaledHeight() { return (int) Math.ceil(height*imageZoomFactor); }
 	
 	/**
 	 * Gets the width of the lens. 
 	 * 
 	 * @return the width
 	 */
-	int getScaledWidth() { return (int)Math.ceil(width*imageZoomFactor); }
+	int getScaledWidth() { return (int) Math.ceil(width*imageZoomFactor); }
 
 	/**
 	 * Gets the x coordinate of the lens.

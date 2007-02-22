@@ -153,30 +153,40 @@ class GraphicsPane
     private void buildGUI()
     {
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        JPanel p = new JPanel();
-        p.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 8;
-        p.add(codomainSlider,gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 60;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        p.add(uiDelegate, gbc);
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        p.add(domainSlider, gbc);
-        gbc.gridy = 2;
-        gbc.gridx = 1;
-        p.add(preview,gbc);
-        add(p);
-        
+        add(buildGraphicsPane());
         add(buildFieldsControls());
+    }
+    
+    /** 
+     * Builds the UI component hosting the controls used to determine th
+     * input and output windows, and the histogram.
+     * 
+     * @return See above.
+     */
+    private JPanel buildGraphicsPane()
+    {
+    	 JPanel p = new JPanel();
+         p.setLayout(new GridBagLayout());
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.anchor = GridBagConstraints.WEST;
+         gbc.fill = GridBagConstraints.BOTH;
+         gbc.gridx = 0;
+         gbc.gridy = 0;
+         gbc.weightx = 8;
+         p.add(codomainSlider, gbc);
+         gbc.gridx = 1;
+         gbc.weightx = 60;
+         gbc.fill = GridBagConstraints.BOTH;
+         gbc.anchor = GridBagConstraints.EAST;
+         gbc.insets = new Insets(0, 0, 0, 0);
+         p.add(uiDelegate, gbc);
+         gbc.gridy = 1;
+         gbc.fill = GridBagConstraints.HORIZONTAL;
+         p.add(domainSlider, gbc);
+         gbc.gridy = 2;
+         gbc.gridx = 1;
+         p.add(preview, gbc);
+         return p;
     }
     
     /**

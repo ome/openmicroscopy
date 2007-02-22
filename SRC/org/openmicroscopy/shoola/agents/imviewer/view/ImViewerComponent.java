@@ -725,7 +725,7 @@ class ImViewerComponent
         if (l.size() < 2) return null;
         Iterator i = l.iterator();
         int index;
-        ArrayList images = new ArrayList(l.size());
+        ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
         try {
         	while (i.hasNext()) {
                 index = ((Integer) i.next()).intValue();

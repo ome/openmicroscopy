@@ -73,7 +73,8 @@ class EditorUtil
      */
     static Map transformChannelData(ChannelMetadata data)
     {
-        LinkedHashMap details = new LinkedHashMap(4);
+        LinkedHashMap<String, String> 
+        		details = new LinkedHashMap<String, String>(4);
         if (data == null) {
             details.put(EM_WAVE, "");
             details.put(EX_WAVE, "");

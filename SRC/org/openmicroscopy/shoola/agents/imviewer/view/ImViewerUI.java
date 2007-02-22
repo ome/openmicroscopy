@@ -32,6 +32,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,10 +90,10 @@ class ImViewerUI
 {
 
     /** The available colors for the unit bar. */
-    private static Map	colors;
+    private static Map<Color, String>	colors;
     
     static {
-    	colors = new LinkedHashMap();
+    	colors = new LinkedHashMap<Color, String>();
     	colors.put(ImagePaintingFactory.UNIT_BAR_COLOR, 
     				ImagePaintingFactory.UNIT_BAR_COLOR_NAME);
     	colors.put(Color.ORANGE, "Orange");
@@ -171,7 +172,7 @@ class ImViewerUI
     	while (i.hasNext()) {
 			c = (Color) i.next();
 			item = new ColorCheckBoxMenuItem(c);
-			item.setText((String) colors.get(c)); 
+			item.setText(colors.get(c)); 
 			item.setSelected(c.equals(ImagePaintingFactory.UNIT_BAR_COLOR));
 			group.add(item);
 	    	menu.add(item);
@@ -509,7 +510,7 @@ class ImViewerUI
         toolBar = new ToolBar(controller, model);
         controlPane = new ControlPane(controller, model, this); 
         statusBar = new StatusBar();
-        this.addComponentListener(controller);
+        addComponentListener(controller);
     }
     
     /** 
@@ -686,7 +687,7 @@ class ImViewerUI
     void scrollLens()
     {
     	if (lens == null) return;
-    	model.getBrowser().scrollTo(lens.getLensScaledBounds());
+    	model.getBrowser().scrollTo(lens.getLensScaledBounds(), false);
     }
     
     /**
@@ -698,7 +699,11 @@ class ImViewerUI
      */
     void setLensVisible(boolean b)
     {
-        if (lens == null) lens = new LensComponent(this);
+        if (lens == null) {
+        	lens = new LensComponent(this);
+        	lens.addPropertyChangeListener(
+        			LensComponent.LENS_LOCATION_PROPERTY, controller);
+        }
         if (b) {
             if (model.getMaxX() < lens.getLensUI().getWidth() || 
                 model.getMaxY() < lens.getLensUI().getHeight())
@@ -786,6 +791,18 @@ class ImViewerUI
         }
 		menu.show(source, location.x, location.y);
 	}
+
+	/**
+	 * Scrolls to display the lens when the user drags the lens.
+	 * 
+	 * @param bounds The lens' bounds.
+	 */
+	void scrollToNode(Rectangle bounds)
+	{
+		if (lens == null) return;
+		if (!lens.isVisible()) return;
+		model.getBrowser().scrollTo(bounds, true);
+	}
 	
     /** 
      * Overridden to the set the location of the {@link ImViewer}.
@@ -811,5 +828,7 @@ class ImViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+
+
 	
 }

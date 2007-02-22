@@ -398,7 +398,8 @@ class LensController
 	 * 
 	 * @param x x mouse position.
 	 * @param y y mouse position.
-	 * @param isShiftDown true if the shift key is pressed. 
+	 * @param isShiftDown Pass <code>true</true> if the shift key is pressed, 
+	 * 				<code>false</true> otherwise.
 	 */
 	void lensMouseDrag(int x, int y, boolean isShiftDown)
 	{
@@ -584,7 +585,6 @@ class LensController
 				break;
 			}
 			setLensBounds(deltaX, deltaY, deltaW, deltaH, isShiftDown);
-				
 		}
 		if (lensDrag)
 		{

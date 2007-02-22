@@ -115,7 +115,7 @@ class AnnotatorUI
 	private DefaultListModel	listModel;
   
 	/** Map of annotated <code>DataObject</code>s. */
-	private Map					annotatedMap;
+	private Map<Integer, Long>	annotatedMap;
   
 	/** Reference to the <code>Model</code>. */
 	private AnnotatorModel 		model;
@@ -143,7 +143,7 @@ class AnnotatorUI
 		messageComponent.add(new JLabel(MESSAGE));
 		messageComponent.add(new JLabel(BODY));
 		messageComponent.setVisible(false);
-		annotatedMap = new HashMap();
+		annotatedMap = new HashMap<Integer, Long>();
 		annotationArea = new MultilineLabel();
 		annotationArea.setBorder(new TitledBorder("Annotation"));
 		annotationArea.setEditable(true);
@@ -266,7 +266,7 @@ class AnnotatorUI
 	private List getDataObjectAnnotation(int index)
 	{ 
 		Map annotations = model.getAnnotations();
-		Long ownerID = (Long) annotatedMap.get(new Integer(index));
+		Long ownerID = annotatedMap.get(new Integer(index));
 		if (ownerID == null) return new ArrayList();    //empty list
 		return (List) annotations.get(ownerID);
 	}
@@ -317,28 +317,28 @@ class AnnotatorUI
 	void showAnnotations()
 	{
 		Map annotations = model.getAnnotations();
-      if (annotations == null) return;
-      String[] objects = new String[annotations.size()];
-      Iterator i = annotations.keySet().iterator();
-      Long id;
-      List list;
-      DataObject data;
-      int index = 0;
-      while (i.hasNext()) {
-          id = (Long) i.next();
-          list = (List) annotations.get(id);
-          if (list != null || list.size() > 0) {
-              data = ((AnnotationData) list.get(0)).getAnnotatedObject();
-              objects[index] = model.getDataObjectName(data);
-              annotatedMap.put(new Integer(index), id);
-              index++;
-          } 
-      }
-      formatList(objects);
-      annotatedList.setSelectedIndex(0);
-      showSingleAnnotation();
-      listComponent.setVisible(true);
-      messageComponent.setVisible(true);
+		if (annotations == null) return;
+		String[] objects = new String[annotations.size()];
+		Iterator i = annotations.keySet().iterator();
+		Long id;
+		List list;
+		DataObject data;
+		int index = 0;
+		while (i.hasNext()) {
+			id = (Long) i.next();
+			list = (List) annotations.get(id);
+			if (list != null || list.size() > 0) {
+				data = ((AnnotationData) list.get(0)).getAnnotatedObject();
+				objects[index] = model.getDataObjectName(data);
+				annotatedMap.put(new Integer(index), id);
+				index++;
+			} 
+		}
+		formatList(objects);
+		annotatedList.setSelectedIndex(0);
+		showSingleAnnotation();
+		listComponent.setVisible(true);
+		messageComponent.setVisible(true);
 	}
 	
 	/**

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
@@ -72,6 +73,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
 /** 
  * The ImViewer's Controller.
@@ -228,22 +230,19 @@ class ImViewerControl
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
      */
-    private ImViewer    model;
+    private ImViewer    				model;
     
     /** Reference to the View. */
-    private ImViewerUI  view;
+    private ImViewerUI  				view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map         actionsMap;
+    private Map<Integer, ViewerAction>	actionsMap;
     
     /** Keep track of the old state.*/
-    private int         historyState;
+    private int         				historyState;
     
     /** Index of the channel invoking the color picker. */
-    private int         colorPickerIndex;
-    
-    /** Timer used to delay update of lens when new image loads. */
-    //private Timer 		timer;
+    private int         				colorPickerIndex;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -445,7 +444,7 @@ class ImViewerControl
         this.view = view;
         historyState = -1;
         colorPickerIndex = -1;
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, ViewerAction>();
         createActions();
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
@@ -461,10 +460,7 @@ class ImViewerControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    ViewerAction getAction(Integer id)
-    {
-        return (ViewerAction) actionsMap.get(id);
-    }
+    ViewerAction getAction(Integer id) { return actionsMap.get(id); }
     
     /**
      * Renders the specified XY-Plane.
@@ -601,6 +597,8 @@ class ImViewerControl
             //TODO: implement method
         } else if (ImViewer.ICONIFIED_PROPERTY.equals(propName)) {
         	view.onIconified();
+        } else if (LensComponent.LENS_LOCATION_PROPERTY.equals(propName)) {
+        	view.scrollToNode((Rectangle) pce.getNewValue());
         }
     }
 

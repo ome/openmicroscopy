@@ -60,10 +60,13 @@ class ServerTable
 {
 
 	/** The default color of the grid. */
-	private static final Color LINE_COLOR = Color.LIGHT_GRAY;
+	private static final Color	LINE_COLOR = Color.LIGHT_GRAY;
 	
 	/** The height and width added to the icon. */
 	private static final int	INDENT = 4;
+	
+	/** Index of the previously selected row. */
+	private int		previousRow;
 	
 	/**
 	 * Creates a new instance.
@@ -73,6 +76,7 @@ class ServerTable
 	 */
 	ServerTable(List servers, Icon icon)
 	{	
+		previousRow = -1;
 		String[] columnNames = {"", ""};
 		final Object[][] objects;
 		if (servers == null || servers.size() == 0) {
@@ -116,13 +120,12 @@ class ServerTable
 				TableCellEditor editor = getCellEditor();
 				if (editor != null) editor.stopCellEditing();
 				if (e.getClickCount() == 2) {
-					int r = getSelectedRow();
-					int c = getSelectedColumn();
-					editCellAt(r, c);
+					
+					editCellAt(getSelectedRow(), getSelectedColumn());
 					//setEditingRow(r);
 					//setEditingColumn(c);
 					repaint();
-				}
+				} 
 			}
 		});
 	}
@@ -136,6 +139,16 @@ class ServerTable
 	{
 		super.changeSelection(row, column, toggle, extend);
 	 
+		if (row != previousRow && row >= 0 && previousRow != -1) {
+			DefaultTableModel model= ((DefaultTableModel) getModel());
+			if (model.getColumnCount() < 2) return; 
+			String v = (String) model.getValueAt(previousRow, 1);
+			TableCellEditor editor = getCellEditor();
+			if (editor != null) editor.stopCellEditing();
+			if (v == null || v.trim().length() == 0)
+			model.removeRow(previousRow);
+		}
+		previousRow = row;
 		if (editCellAt(row, column)) {
 			getEditorComponent().requestFocusInWindow();
 		}

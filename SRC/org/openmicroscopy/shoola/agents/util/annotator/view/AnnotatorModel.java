@@ -76,10 +76,10 @@ class AnnotatorModel
 	private int				state;
   
 	/** Collection of <code>DataObject</code>s to annotate. */
-	private Set 			toAnnotate;
+	private Set<DataObject>	toAnnotate;
 	
 	/** Collection of <code>DataObject</code>s already annotated. */
-	private Set				annotated;
+	private Set<DataObject>	annotated;
 	
 	/** The type of <code>DataObject</code>s to annotate. */
 	private Class			type;
@@ -197,7 +197,8 @@ class AnnotatorModel
 	 */
 	private Map getAnnotatedObjects(AnnotationData data)
 	{
-		Map m = new HashMap(annotated.size());
+		Map<DataObject, AnnotationData>
+			m = new HashMap<DataObject, AnnotationData>(annotated.size());
 		Iterator i = annotated.iterator();
 		DataObject object;
 		List l;
@@ -220,8 +221,8 @@ class AnnotatorModel
 	AnnotatorModel(Set objects)
 	{
 		maxObjects = objects.size();
-		annotated = new HashSet();
-		toAnnotate  = new HashSet();
+		annotated = new HashSet<DataObject>();
+		toAnnotate  = new HashSet<DataObject>();
 		state = DataHandler.NEW;
 		Iterator i = objects.iterator();
 		DataObject data;

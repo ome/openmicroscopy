@@ -278,12 +278,12 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#scrollTo(Rectangle)
+     * @see Browser#scrollTo(Rectangle, boolean)
      */
-	public void scrollTo(Rectangle bounds)
+	public void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
 		if (bounds == null) return;
-		view.scrollTo(bounds);
+		view.scrollTo(bounds, blockIncrement);
 	}
-    
+
 }

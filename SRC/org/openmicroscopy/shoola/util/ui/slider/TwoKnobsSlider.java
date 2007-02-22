@@ -271,17 +271,19 @@ public class TwoKnobsSlider
         }
         
         if (knobControl == LEFT) { //left knob moved.
-            if (left < xmin) left = xmin;
-            else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
+            if (left < xmin) {
+            	left = xmin;
+            } else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
             else {
+
                 if (left > (right-knobWidth) && right < xmax) {
                     //push right
                     pushKnobControl = RIGHT_KNOB_PUSHED;
                     right = left+knobWidth;  
-                    model.setEndValue(uiDelegate.xValueForPosition(right+1));
+                    model.setEndValue(uiDelegate.xValueForPosition(right));
                 }   
             }
-            model.setStartValue(uiDelegate.xValueForPosition(left+1));
+            model.setStartValue(uiDelegate.xValueForPosition(left));
         } else if (knobControl == RIGHT) { //right knob moved.
             if (right > xmax) right = xmax;
             else if (right < (xmin+knobWidth)) right = xmin+knobWidth;
@@ -290,10 +292,10 @@ public class TwoKnobsSlider
                     //push left
                     pushKnobControl = LEFT_KNOB_PUSHED;
                     left = right-knobWidth;    
-                    model.setStartValue(uiDelegate.xValueForPosition(left+1));
+                    model.setStartValue(uiDelegate.xValueForPosition(left));
                 }
             }
-            model.setEndValue(uiDelegate.xValueForPosition(right+1));
+            model.setEndValue(uiDelegate.xValueForPosition(right));
         }
         repaint();
     }

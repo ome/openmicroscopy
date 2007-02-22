@@ -57,11 +57,11 @@ class GraphicsPaneUI
     /** The color used to grey out the non selected area. */
     private final static Color       GREYCOLOUR = new Color(196, 196, 196, 128);
     
-    /** The color of the filled bacground area. */
-    private final static Color       FILLCOLOUR = new Color(255,255,255,255);
+    /** The color of the filled background area. */
+    private final static Color       FILLCOLOUR = new Color(255, 255, 255);
 
     /** The color of the border of the histogram. */
-    private final static Color       BORDERCOLOUR = new Color(224,209,207,255);
+    private final static Color       BORDERCOLOUR = new Color(224, 209, 207);
         
     /** The curve's stroke. */
     private final static BasicStroke STROKE1_5 = new BasicStroke(1.5f);
