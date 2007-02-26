@@ -723,7 +723,8 @@ class ImViewerUI
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
-                lens.setZoomWindowLocation(getX()+getWidth(), getY());
+                UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+                //lens.setZoomWindowLocation(getX()+getWidth(), getY());
             }
 
             lens.setImageZoomFactor((float) model.getZoomFactor());

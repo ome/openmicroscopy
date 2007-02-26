@@ -143,7 +143,21 @@ public class UIUtilities
 		window.setVisible(true);
 	}
     
-
+    /**
+     * Sets the location of the specified child relative to the location
+     * of the specified parent and then makes it visible.
+     * This method is mainly useful for windows, frames and dialogs. 
+     * 
+     * @param parent    The visible parent.
+     * @param child     The child to display.
+     */
+    public static void setLocationRelativeToAndShow(Component parent, 
+                                                Component child)
+    {
+        setLocationRelativeTo(parent, child);
+        child.setVisible(true);
+    }
+    
     /**
      * Sets the lcoation of the specified child relative to the location
      * of the specified parent and then makes it visible.
@@ -152,7 +166,7 @@ public class UIUtilities
      * @param parent    The visible parent.
      * @param child     The child to display.
      */
-    public static void setLocationRelativeToAndShow(Component parent, 
+    public static void setLocationRelativeTo(Component parent, 
                                                 Component child)
     {
         int x = parent.getX()+parent.getWidth();

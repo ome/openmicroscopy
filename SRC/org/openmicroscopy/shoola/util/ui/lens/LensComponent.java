@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui.lens;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -357,18 +358,15 @@ public class LensComponent
 	{
 		return lensModel.getLensLocation();
 	}
-
+	
 	/**
-	 * Sets the location of the zoomWindowUI. 
+	 * Returns the view of the zoom window.
 	 * 
-	 * @param x x co-ordinate of the window location.
-	 * @param y y co-ordinate of the window location.
+	 * @return See above.
 	 */
-	public void setZoomWindowLocation(int x, int y)
+	public Component getZoomWindowUI()
 	{
-		zoomWindow.setLocation(x, y);
+		return zoomWindow.getUI();
 	}
-
-
-
+	
 }

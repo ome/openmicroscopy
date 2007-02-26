@@ -203,13 +203,5 @@ class ZoomWindow
 	 * @return See above.
 	 */
 	boolean isVisible() { return zoomWindowUI.isVisible(); }
-
-	/**
-	 * Sets the location of the zoomWindowUI. 
-	 * 
-	 * @param x x co-ordinate of the window location.
-	 * @param y y co-ordinate of the window location.
-	 */
-	void setLocation(int x, int y) { zoomWindowUI.setLocation(x, y); }
 	
 }
