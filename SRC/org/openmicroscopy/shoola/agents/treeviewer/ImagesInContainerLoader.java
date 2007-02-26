@@ -61,7 +61,7 @@ public class ImagesInContainerLoader
     public static final int CATEGORY = 1;
     
     /** Collection of the ID of the selected nodes. */
-    private Set             nodeIDs;
+    private Set<Long>		nodeIDs;
     
     /** The type of the node. */
     private Class           nodeType;
@@ -106,7 +106,7 @@ public class ImagesInContainerLoader
             throw new IllegalArgumentException("RootId not valid");
         this.nodeType = nodeType;
         this.parent = parent;
-        nodeIDs = new HashSet(1);
+        nodeIDs = new HashSet<Long>(1);
         nodeIDs.add(new Long(nodeID));
         
     }
@@ -121,8 +121,8 @@ public class ImagesInContainerLoader
      * @param parent        The parent of the nodes. If <code>null</code>, the 
      *                      nodes are added to the root.
      */
-    public ImagesInContainerLoader(Browser viewer, Class nodeType, Set nodeIDs, 
-                                    TreeImageSet parent)
+    public ImagesInContainerLoader(Browser viewer, Class nodeType, 
+    							Set<Long> nodeIDs, TreeImageSet parent)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -141,7 +141,7 @@ public class ImagesInContainerLoader
     public void load()
     { 
         handle = dmView.getImages(nodeType, nodeIDs, convertRootLevel(),
-                				  getRootID(), this); 
+                				  viewer.getRootID(), this); 
     }
 
     /** 

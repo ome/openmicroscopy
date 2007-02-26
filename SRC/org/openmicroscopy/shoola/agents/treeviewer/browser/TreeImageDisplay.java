@@ -46,6 +46,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -420,6 +421,10 @@ public abstract class TreeImageDisplay
             return ((CategoryGroupData) obj).getName();
         else if (obj instanceof CategoryData) 
             return ((CategoryData) obj).getName();
+        else if (obj instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) obj;
+        	return exp.getFirstName()+" "+exp.getLastName();
+        }
         else if (obj instanceof String) return (String) obj;
         return "";
     }

@@ -180,11 +180,11 @@ class ClassifierModel
     void fireClassificationLoading()
     {
         state = Classifier.LOADING_CLASSIFICATION;
-        Set ids = new HashSet(images.length);
+        Set<Long> ids = new HashSet<Long>(images.length);
         for (int i = 0; i < images.length; i++)
             ids.add(new Long(images[i].getId()));
         currentLoader = new ClassifierPathsLoader(component, ids, mode, 
-                    parentModel.getRootLevel(), parentModel.getRootGroupID());
+                    parentModel.getRootLevel(), parentModel.getRootID());
         currentLoader.load();
     }
     

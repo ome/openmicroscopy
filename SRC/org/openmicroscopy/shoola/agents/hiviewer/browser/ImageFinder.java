@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ImageData;
 
 /** 
  * Initializes two sets: one containing the imageNodes displayed
@@ -52,16 +53,16 @@ public class ImageFinder
 {
 
     /** Set of <code>ImageNode</code>s */
-    private Set imageNodes;
+    private Set<ImageNode>	imageNodes;
     
     /** Set of corresponding <code>DataObject</code>s */
-    private Set images;
+    private Set<ImageData>	images;
     
     /** Creates a new instance. */
     public ImageFinder()
     {
-        images = new HashSet();
-        imageNodes = new HashSet();
+        images = new HashSet<ImageData>();
+        imageNodes = new HashSet<ImageNode>();
     }
     
     /** 
@@ -69,14 +70,14 @@ public class ImageFinder
      * 
      * @return See above.
      */
-    public Set getImageNodes() { return imageNodes; }
+    public Set<ImageNode> getImageNodes() { return imageNodes; }
     
     /** 
      * Returns the set of corresponding <code>DataObject</code>s. 
      * 
      * @return See above.
      */
-    public Set getImages() { return images; }
+    public Set<ImageData> getImages() { return images; }
     
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
@@ -85,7 +86,7 @@ public class ImageFinder
     public void visit(ImageNode node)
     {
         imageNodes.add(node);
-        images.add(node.getHierarchyObject());
+        images.add((ImageData) node.getHierarchyObject());
     }
 
     /** 

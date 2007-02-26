@@ -233,7 +233,8 @@ public class FilterWindow
     }
     
     /**
-     * Builds the tool bar hosting the {@link #selectAll} and {@link #clearAll}.
+     * Builds the tool bar hosting the {@link #selectAll} and {@link #clearAll}
+     * buttons.
      * 
      * @return See above;
      */

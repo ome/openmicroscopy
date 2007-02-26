@@ -743,7 +743,7 @@ class HiViewerComponent
 			throw new IllegalArgumentException("No images to save.");
 		List l = model.getSorter().sort(thumbnails);
 		Iterator i = l.iterator();
-		List thumbs = new ArrayList(l.size());
+		List<BufferedImage> thumbs = new ArrayList<BufferedImage>(l.size());
 		while (i.hasNext()) {
 			thumbs.add(
 					((ImageNode) i.next()).getThumbnail().getDisplayedImage());
@@ -751,6 +751,18 @@ class HiViewerComponent
 		ContainerSaver saver = new ContainerSaver(view, thumbs);
         saver.pack();
         UIUtilities.centerAndShow(saver);
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getUserGroupID()
+     */
+	public long getUserGroupID()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		return model.getUserGroupID();
 	}
 
 }

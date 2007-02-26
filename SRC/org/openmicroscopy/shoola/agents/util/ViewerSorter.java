@@ -41,6 +41,8 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -256,6 +258,10 @@ public class ViewerSorter
             return ((CategoryGroupData) obj).getName();
         else if (obj instanceof CategoryData) 
             return ((CategoryData) obj).getName();
+        else if (obj instanceof ExperimenterData)
+        	return ((ExperimenterData) obj).getLastName();
+        else if (obj instanceof GroupData) 
+            return ((GroupData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -445,4 +451,41 @@ public class ViewerSorter
         return results;
     }
 
+    /**
+     * Sorts the specified collection.
+     * 
+     * @param collection The collection to sort.
+     * @return An array of ordered values.
+     */
+    public Object[] sortArray(Collection collection)
+    {
+    	if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        this.collection = collection;
+        return sortArray();
+    }
+    
+    /**
+     * Sorts the collection previously set.
+     * 
+     * @return An array of ordered values.
+     */
+    public Object[] sortArray()
+    {
+    	if (collection == null) 
+            throw new NullPointerException("No collection to sort.");
+        Iterator i = collection.iterator();
+        Object[]  array = new Object[collection.size()];
+        Object[]  clone = new Object[collection.size()];
+        int index = 0;
+        Object obj;
+        while (i.hasNext()) {
+            obj = i.next();
+            array[index] = obj;
+            clone[index] = obj;
+            index++;
+        }
+        shuttlesort(clone, array, 0, array.length);
+        return array;
+    }
 }

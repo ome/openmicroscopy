@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.ImageData;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting
@@ -285,7 +286,7 @@ class BrowserModel
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getImages()
      */
-    public Set getImages()
+    public Set<ImageData> getImages()
     { 
         //Note: avoid caching b/c we don't know yet what we are going
         //to do with updates

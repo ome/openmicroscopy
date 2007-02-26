@@ -342,6 +342,10 @@ class EditorModel
             return ((CategoryGroupData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ImageData)
             return ((ImageData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) hierarchyObject;
+        	return exp.getFirstName()+" "+exp.getLastName();
+        }
         return null;
     }
     
@@ -441,14 +445,14 @@ class EditorModel
     {
         ViewerSorter sorter = new ViewerSorter();
         sorter.setAscending(false);
-        HashMap sortedAnnotations = new HashMap();
+        HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
         Set set;
         Long index;
         Iterator i = map.keySet().iterator();
         Iterator j;
         AnnotationData annotation;
         Long ownerID;
-        List userAnnos;
+        List<AnnotationData> userAnnos;
         while (i.hasNext()) {
             index = (Long) i.next();
             set = (Set) map.get(index);
@@ -458,23 +462,25 @@ class EditorModel
                 ownerID = new Long(annotation.getOwner().getId());
                 userAnnos = (List) sortedAnnotations.get(ownerID);
                 if (userAnnos == null) {
-                    userAnnos = new ArrayList();
+                    userAnnos = new ArrayList<AnnotationData>();
                     sortedAnnotations.put(ownerID, userAnnos);
                 }
                 userAnnos.add(annotation);
             }
         }
         i = sortedAnnotations.keySet().iterator();
-        List timestamps, annotations, results, list;
-        HashMap m;
+        List annotations, results;
+        List<AnnotationData> list;
+        List<Timestamp> timestamps;
+        HashMap<Timestamp, AnnotationData> m;
         Iterator k, l;
         AnnotationData data;
         while (i.hasNext()) {
             ownerID = (Long) i.next();
-            annotations = (List) sortedAnnotations.get(ownerID);
+            annotations = sortedAnnotations.get(ownerID);
             k = annotations.iterator();
-            m = new HashMap(annotations.size());
-            timestamps = new ArrayList(annotations.size());
+            m = new HashMap<Timestamp, AnnotationData>(annotations.size());
+            timestamps = new ArrayList<Timestamp>(annotations.size());
             while (k.hasNext()) {
                 data = (AnnotationData) k.next();
                 m.put(data.getLastModified(), data);
@@ -482,7 +488,7 @@ class EditorModel
             }
             results = sorter.sort(timestamps);
             l = results.iterator();
-            list = new ArrayList(results.size());
+            list = new ArrayList<AnnotationData>(results.size());
             while (l.hasNext())
                 list.add(m.get(l.next()));
             sortedAnnotations.put(ownerID, list);
@@ -562,10 +568,10 @@ class EditorModel
     {
         state = Editor.LOADING_CLASSIFICATION;
         long imageID = ((ImageData) hierarchyObject).getId();
-        Set ids = new HashSet(1);
+        Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         currentLoader = new ClassificationPathsLoader(component, ids,
-                parentModel.getRootLevel(), parentModel.getRootGroupID());
+                parentModel.getRootLevel(), parentModel.getRootID());
         currentLoader.load();
     }
 

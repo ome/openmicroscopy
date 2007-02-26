@@ -56,7 +56,7 @@ public class ContainerLoader
 {
  
     /** The set of node IDs. */
-    private Set         nodeIDs;
+    private Set<Long>	nodeIDs;
     
     /** The type of the node. */
     private Class       nodeType;
@@ -89,7 +89,7 @@ public class ContainerLoader
         super(viewer);
         checkClassType(type);
         nodeType = type;
-        nodeIDs = new HashSet(1);
+        nodeIDs = new HashSet<Long>(1);
         nodeIDs.add(new Long(nodeID));
     }
 
@@ -100,7 +100,7 @@ public class ContainerLoader
     public void load()
     {
         handle = dmView.loadContainerHierarchy(nodeType, nodeIDs, false, 
-                		convertRootLevel(), getRootID(), this);
+                		convertRootLevel(), viewer.getRootID(), this);
     }
 
     /**

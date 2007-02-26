@@ -95,10 +95,10 @@ public class ExistingObjectsLoader
      */
     public void load()
     {
-        Set nodes = new HashSet(1);
+        Set<Long> nodes = new HashSet<Long>(1);
         nodes.add(new Long(ho.getId()));
         handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
-                convertRootLevel(), viewer.getRootGroupID(), this);
+                convertRootLevel(), viewer.getRootID(), this);
         
     }
 

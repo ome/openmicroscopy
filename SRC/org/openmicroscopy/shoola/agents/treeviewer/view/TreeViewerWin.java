@@ -37,14 +37,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -54,7 +51,6 @@ import javax.swing.JViewport;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -62,8 +58,6 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
@@ -107,15 +101,11 @@ class TreeViewerWin
 
     /** The loading window. */
     private LoadingWindow 		loadingWin;
-
-    /** The menu hosting the root levels. */
-    private JMenu 				rootLevelMenu;
-    
     /** 
      * Collections of menu items to update when a node is selected
      * or when a tabbed pane is selected.
      */
-    private List				menuItems;
+    private List<JMenuItem>		menuItems;
     
     /** The tool bar hosting the controls displaying by the popup menu. */
     private ToolBar             toolBar;
@@ -235,7 +225,11 @@ class TreeViewerWin
         menu.add(item);
         item.setText(a.getActionName());
         menuItems.add(item);
-        createRootMenu();
+        //createRootMenu();
+        a = controller.getAction(TreeViewerControl.SWITCH_USER);
+        item = new JMenuItem(a);
+        menu.add(item);
+        item.setText(a.getActionName());
         //menu.add(createRootMenu());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.VIEW);
@@ -291,39 +285,6 @@ class TreeViewerWin
         menu.add(item);
         return menu;
     }
-    
-    /**
-     * Helper method to create the Hierarchy root menu.
-     * 
-     * @return See above.
-     */
-    private JMenu createRootMenu()
-    {
-        rootLevelMenu = new JMenu("Select Hierarchy root");
-        IconManager im = IconManager.getInstance();
-        rootLevelMenu.setIcon(im.getIcon(IconManager.TRANSPARENT));
-        ButtonGroup bGroup = new ButtonGroup();
-        JRadioButtonMenuItem item;
-        ExperimenterData details = model.getUserDetails();
-        Set groups = details.getGroups();
-        Iterator i = groups.iterator();
-        GroupData group;
-        JMenu groupMenu = new JMenu("Group");
-        while (i.hasNext()) {
-            group = (GroupData) i.next();
-            item = new JRadioButtonMenuItem(
-                    controller.getGroupLevelAction(new Long(group.getId())));
-            bGroup.add(item);
-            groupMenu.add(item);
-        }
-        rootLevelMenu.add(groupMenu);
-        item = new JRadioButtonMenuItem(
-                controller.getAction(TreeViewerControl.USER_ROOT_LEVEL));
-        bGroup.add(item);
-        rootLevelMenu.add(item);
-        item.setSelected(true);
-        return rootLevelMenu;
-    }
 
     /** Initializes the UI components. */
     private void initComponents()
@@ -358,7 +319,7 @@ class TreeViewerWin
     TreeViewerWin()
     {
         super(TITLE);
-        menuItems = new ArrayList();
+        menuItems = new ArrayList<JMenuItem>();
     }
 
     /**
@@ -598,7 +559,7 @@ class TreeViewerWin
 			item.setToolTipText(a.getActionDescription());
 		}
     }
-    
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
@@ -608,5 +569,7 @@ class TreeViewerWin
         setSize(width, height);
         UIUtilities.centerAndShow(this);
     }
+
+
 
 }

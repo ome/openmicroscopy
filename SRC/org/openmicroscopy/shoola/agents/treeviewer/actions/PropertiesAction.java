@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Brings up the property widget.
@@ -81,7 +82,11 @@ public class PropertiesAction
             }
         }
         Object ho = selectedDisplay.getUserObject();
-        setEnabled(!((ho == null) || !(ho instanceof DataObject)));
+        //tmp 
+        if (ho instanceof ExperimenterData)
+        	setEnabled(false);
+        else 
+        	setEnabled(!((ho == null) || !(ho instanceof DataObject)));
     }
     
     /**

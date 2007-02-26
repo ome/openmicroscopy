@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * The Browser's View.
@@ -121,7 +122,7 @@ class BrowserUI
     private JScrollPane             scrollPane;
 
     /** Collections of nodes whose <code>enabled</code> flag has to be reset. */
-    private Set						nodesToReset;
+    private Set<TreeImageDisplay>	nodesToReset;
     
     /** Button indicating if the partial name is displayed or not. */
     private JToggleButton			partialButton;
@@ -235,13 +236,14 @@ class BrowserUI
         //treeDisplay.putClientProperty("JTree.lineStyle", "Angled");
         treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        
         TreeImageSet root = new TreeImageSet("");
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
                                 root.getChildCount());
         treeDisplay.setModel(new DefaultTreeModel(root));
         treeDisplay.collapsePath(new TreePath(root.getPath()));
-        treeDisplay.setRootVisible(false);
+        //treeDisplay.setRootVisible(false);
         //Add Listeners
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
@@ -434,7 +436,7 @@ class BrowserUI
     BrowserUI()
     {
         sorter = new ViewerSorter();
-        nodesToReset = new HashSet();
+        nodesToReset = new HashSet<TreeImageDisplay>();
         listener = new TreeExpansionListener() {
             public void treeCollapsed(TreeExpansionEvent e) {
                 onNodeNavigation(e, false);
@@ -792,7 +794,8 @@ class BrowserUI
         expandNode(parentNode);
         if (!model.isMainTree()) {
             i = nodes.iterator();
-            List copies = new ArrayList(nodes.size());
+            List<TreeImageDisplay> 
+            	copies = new ArrayList<TreeImageDisplay>(nodes.size());
             while (i.hasNext()) {
                 copies.add(((TreeImageDisplay) i.next()).copy());
             }
@@ -910,6 +913,18 @@ class BrowserUI
         	treeDisplay.removeSelectionPath((TreePath) j.next());
 
         treeDisplay.addTreeSelectionListener(selectionListener);
+    }
+    
+    /**
+     * Sets the user object of the root node.
+     * 
+     * @param experimenter The user object to set.
+     */
+    void setRootNode(ExperimenterData experimenter)
+    {
+    	if (experimenter == null)
+    		getTreeRoot().setUserObject("");
+    	else getTreeRoot().setUserObject(experimenter);
     }
     
 }

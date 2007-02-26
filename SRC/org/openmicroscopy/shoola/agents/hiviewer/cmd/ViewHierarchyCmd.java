@@ -37,6 +37,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewerFactory;
 
+import pojos.ImageData;
+
 /** 
  * Views the selected images in the specified hierarchy type
  * i.e. Project-Dataset or CategoryGroup-Category.
@@ -108,7 +110,7 @@ public class ViewHierarchyCmd
     		selectedDisplay = browser.getLastSelectedDisplay();
     	}
          
-        Set images;
+        Set<ImageData> images;
         if (selectedDisplay == null && browser != null) 
         	images = browser.getImages();  
         else {
@@ -122,11 +124,13 @@ public class ViewHierarchyCmd
         switch (index) {
             case IN_CGCI:
                 viewer = HiViewerFactory.getCGCIViewer(images,
-                                model.getRootLevel(), model.getRootID()); 
+                                model.getRootLevel(), model.getRootID(),
+                                model.getUserGroupID()); 
             break;
             case IN_PDI:
                 viewer = HiViewerFactory.getPDIViewer(images, 
-                                model.getRootLevel(), model.getRootID()); 
+                                model.getRootLevel(), model.getRootID(), 
+                                model.getUserGroupID()); 
         }
         if (viewer != null) viewer.activate(model.getUI().getBounds());
     }

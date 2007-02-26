@@ -34,6 +34,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -135,7 +136,7 @@ class ThumbWin
     private void setNodeDecoration()
     {
     	if (!(node instanceof ImageNode)) return;
-    	List nodes = new ArrayList();
+    	List<JButton> nodes = new ArrayList<JButton>();
     	if (isAnnotated()) 
     		nodes.add(new AnnotatedButton((ImageNode) node, false));
         if (isClassified()) 

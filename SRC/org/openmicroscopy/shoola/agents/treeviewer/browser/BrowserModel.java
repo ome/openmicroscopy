@@ -201,7 +201,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    long getRootGroupID() { return parent.getRootGroupID(); }
+    long getRootID() { return parent.getRootID(); }
     
     /**
      * Returns the currently selected node.
@@ -547,6 +547,13 @@ class BrowserModel
      */
     long getUserID() { return parent.getUserDetails().getId(); }
 
+    /** 
+     * Returns the id to the group selected for the current user.
+     * 
+     * @return See above.
+     */
+    long getUserGroupID() { return parent.getUserGroupID(); }
+    
     /**
      * Brings up the viewer if the last selected data object 
      * is an <code>Image</code>.

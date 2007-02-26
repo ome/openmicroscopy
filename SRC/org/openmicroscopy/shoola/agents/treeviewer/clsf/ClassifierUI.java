@@ -153,12 +153,13 @@ class ClassifierUI
             un.notifyInfo("Categorisation", "No category selected."); 
             return; 
         }
-        Set paths = new HashSet(nodes.size()); 
+        Set<CategoryData> paths = new HashSet<CategoryData>(nodes.size()); 
         Iterator i = nodes.iterator();
         Object object; 
         while (i.hasNext()) { 
             object = ((TreeCheckNode) i.next()).getUserObject(); 
-            if (object instanceof CategoryData) paths.add(object); 
+            if (object instanceof CategoryData) 
+            	paths.add((CategoryData) object); 
         } 
         controller.classifyImages(paths);
     }

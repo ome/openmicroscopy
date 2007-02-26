@@ -89,11 +89,23 @@ class EditorUtil
     /** Identifies the <code>Name</code> field. */
     private static final String NAME = "Owner";
     
+    /** Identifies the <code>First name</code> field. */
+    private static final String FIRST_NAME = "First Name";
+    
+    /** Identifies the <code>Middle name</code> field. */
+    private static final String MIDDLE_NAME = "Middle Name";
+    
+    /** Identifies the <code>Last name</code> field. */
+    private static final String LAST_NAME = "Last Name";
+    
+    /** Identifies the <code>Last name</code> field. */
+    private static final String INSTITUTION = "Institution";
+   
     /** Identifies the <code>Leader</code> field. */
     private static final String LEADER = "Leader";
     
     /** Identifies the <code>Email</code> field. */
-    private static final String EMAIL = "Email";
+    private static final String EMAIL = "E-mail";
     
     /**
      * Transforms the specified {@link ExperimenterData} object into 
@@ -122,6 +134,48 @@ class EditorUtil
             }
             
             //details.put(INSTITUTION, data.getInstitution());
+        }
+        return details;
+    }
+    
+    /**
+     * Transforms the specified {@link ExperimenterData} object into 
+     * a visualization form.
+     * 
+     * @param data The {@link ExperimenterData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
+     */
+    static Map<String, String> manageExperimenterData(ExperimenterData data)
+    {
+        LinkedHashMap<String, String> details = 
+        							new LinkedHashMap<String, String>(3);
+        if (data == null) {
+            details.put(FIRST_NAME, "");
+            details.put(LAST_NAME, "");
+            details.put(EMAIL, "");
+            details.put(INSTITUTION, "");
+        } else {
+            try {
+                details.put(FIRST_NAME, data.getFirstName());
+            } catch (Exception e) {
+            	details.put(FIRST_NAME, "");
+            }
+            try {
+                details.put(LAST_NAME, data.getLastName());
+            } catch (Exception e) {
+            	details.put(LAST_NAME, "");
+            }
+            try {
+                details.put(EMAIL, data.getEmail());
+            } catch (Exception e) {
+            	details.put(EMAIL, "");
+            }
+            try {
+                details.put(INSTITUTION, data.getInstitution());
+            } catch (Exception e) {
+            	details.put(INSTITUTION, "");
+            }
         }
         return details;
     }

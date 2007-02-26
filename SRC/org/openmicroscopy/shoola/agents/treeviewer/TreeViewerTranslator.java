@@ -47,6 +47,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
@@ -361,7 +362,8 @@ public class TreeViewerTranslator
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(dataObjects.size());
+        Set<TreeImageDisplay> results = 
+        		new HashSet<TreeImageDisplay>(dataObjects.size());
         Iterator i = dataObjects.iterator();
         DataObject ho;
         while (i.hasNext()) {
@@ -398,7 +400,8 @@ public class TreeViewerTranslator
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(dataObjects.size());
+        Set<TreeImageDisplay> results = 
+        			new HashSet<TreeImageDisplay>(dataObjects.size());
         Iterator i = dataObjects.iterator();
         DataObject ho, child;
         Iterator j;
@@ -441,7 +444,8 @@ public class TreeViewerTranslator
     {
         if (nodes == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(nodes.size());
+        Set<TreeImageDisplay> results = 
+        						new HashSet<TreeImageDisplay>(nodes.size());
         Iterator i = nodes.keySet().iterator();
         DataObject ho;
         TreeImageDisplay display;
@@ -520,7 +524,8 @@ public class TreeViewerTranslator
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet(dataObjects.size());
+        Set<TreeCheckNode> results = 
+        		new HashSet<TreeCheckNode>(dataObjects.size());
         Iterator i = dataObjects.iterator();
         DataObject ho;
         while (i.hasNext()) {
@@ -556,7 +561,7 @@ public class TreeViewerTranslator
     {
         if (paths == null)
             throw new IllegalArgumentException("No objects.");
-        Set results = new HashSet();
+        Set<TreeCheckNode> results = new HashSet<TreeCheckNode>();
         Iterator i = paths.iterator();
         DataObject ho;
         while (i.hasNext()) {
@@ -585,6 +590,8 @@ public class TreeViewerTranslator
      */
     public static boolean isReadable(DataObject ho, long userID, long groupID)
     {
+    	if (ho == null || ho instanceof ExperimenterData)
+    		return false;
         PermissionData permissions = ho.getPermissions();
         if (userID == ho.getOwner().getId())
             return permissions.isUserRead();
@@ -618,6 +625,8 @@ public class TreeViewerTranslator
      */
     public static boolean isWritable(DataObject ho, long userID, long groupID)
     {
+    	if (ho == null || ho instanceof ExperimenterData)
+    		return false;
         PermissionData permissions = ho.getPermissions();
         if (userID == ho.getOwner().getId())
             return permissions.isUserWrite();

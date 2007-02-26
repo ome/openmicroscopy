@@ -42,6 +42,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
@@ -130,7 +131,7 @@ public class CreateAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof String) { // root
+        if (ho instanceof String || ho instanceof ExperimenterData) { // root
                 setEnabled(false);
                 name = NAME;  
                 putValue(Action.SHORT_DESCRIPTION, 

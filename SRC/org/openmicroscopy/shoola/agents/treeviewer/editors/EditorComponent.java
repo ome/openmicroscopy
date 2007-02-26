@@ -85,7 +85,6 @@ class EditorComponent
             case UPDATE_ANNOTATION:
             case DELETE_ANNOTATION:    
                 break;
-
             default:
                 throw new IllegalArgumentException("Annotation operation not " +
                         "supported");
@@ -228,9 +227,9 @@ class EditorComponent
         if (paths == null)
             throw new IllegalArgumentException("No paths to set.");
         long userID = model.getUserDetails().getId();
-        long groupID = model.getParentModel().getRootGroupID();
+        //long groupID = model.getParentModel().getRootGroupID();
         Set set = TreeViewerTranslator.transformHierarchy(paths, userID,
-                                                        groupID);
+                                                        -1);
         model.setClassifications(set);
         view.showClassifications();
         retrieveThumbnail();

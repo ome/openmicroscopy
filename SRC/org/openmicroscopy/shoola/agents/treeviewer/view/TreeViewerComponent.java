@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -62,7 +63,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -131,15 +131,9 @@ class TreeViewerComponent
     void initialize()
     {
         ExperimenterData user = model.getUserDetails();
-        //TMP
-        Set sets = user.getGroups();
-        Iterator i = sets.iterator();
-        long id = -1;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-        }
-        //model.setHierarchyRoot(USER_ROOT, user.getDefaultGroup().getId());
-        model.setHierarchyRoot(USER_ROOT, id);
+        long id = user.getDefaultGroup().getId();
+        model.setHierarchyRoot(USER_ROOT, user.getId(), id);
+        model.setExperimenter(user);
         controller.initialize(view);
         view.initialize(controller, model);
     }
@@ -264,6 +258,8 @@ class TreeViewerComponent
                         "supports the PROPERTIES_EDITOR and CREATE_EDITOR.");
         }
         removeEditor();
+        //tmp solution
+        if (object == null || object instanceof ExperimenterData) return;
         model.setEditorType(editorType);
         Editor editor = EditorFactory.getEditor(this, object, editorType, 
                                                 parent);
@@ -665,27 +661,29 @@ class TreeViewerComponent
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
-     * @see TreeViewer#getRootGroupID()
+     * @see TreeViewer#getRootID()
      */
-    public long getRootGroupID()
+    public long getRootID()
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
-        return model.getRootGroupID();
+        return model.getRootID();
     }
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#setHierarchyRoot(int, int)
+     * @see TreeViewer#setHierarchyRoot(long, ExperimenterData)
      */
-    public void setHierarchyRoot(int rootLevel, long rootID)
+    public void setHierarchyRoot(long userGroupID, 
+    							ExperimenterData experimenter)
     {
-        int oldLevel = model.getRootLevel();
-        model.setHierarchyRoot(rootLevel, rootID);
+        model.setExperimenter(experimenter);
+        model.setHierarchyRoot(USER_ROOT, experimenter.getId(), userGroupID);
+        
         if (model.getState() == READY)
-            firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(oldLevel), 
-                               new Integer(rootLevel));
+            firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(-1), 
+                               new Integer(USER_ROOT));
     }
 
     /**
@@ -709,8 +707,10 @@ class TreeViewerComponent
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
             "This method cannot be invoked in the DISCARDED state.");
-        return TreeViewerTranslator.isWritable(ho, getUserDetails().getId(), 
-                                                getRootGroupID()); 
+        //Check if current user can write in object
+        long id = model.getUserDetails().getId();
+        long groupId = model.getUserDetails().getDefaultGroup().getId();
+        return TreeViewerTranslator.isWritable(ho, id, groupId);
     }
 
     /**
@@ -742,8 +742,8 @@ class TreeViewerComponent
             throw new IllegalArgumentException("Nodes cannot be null.");
         view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         Set n = TreeViewerTranslator.transformIntoCheckNodes(nodes, 
-                getUserDetails().getId(), getRootGroupID());
-        model.setState(DIALOG_SELECTION);
+                getUserDetails().getId(), model.getUserGroupID());
+        model.setState(LOADING_SELECTION);
         AddExistingObjectsDialog 
              dialog = new AddExistingObjectsDialog(view, n);
         dialog.addPropertyChangeListener(controller);
@@ -756,7 +756,7 @@ class TreeViewerComponent
      */
     public void addExistingObjects(Set set)
     {
-        if (model.getState() != DIALOG_SELECTION)
+        if (model.getState() != LOADING_SELECTION)
             throw new IllegalStateException(
             "This method cannot be invoked in the LOADING_DATA state.");
         view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -983,6 +983,57 @@ class TreeViewerComponent
 				 EditorSaverDialog.SAVING_DATA_EDITOR_PROPERTY, 
 				 controller);
 		 UIUtilities.centerAndShow(saverDialog);
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getUserGroupID()
+     */
+	public long getUserGroupID()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		return model.getUserGroupID();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setAvailableGroups(Map)
+     */
+	public void setAvailableGroups(Map map)
+	{
+		if (model.getState() != LOADING_DATA) return;
+		model.setUserGroups(map);
+		fireStateChange();
+		UserManagerDialog d = new UserManagerDialog(view, 
+								model.getUserDetails(), map, model.getRootID());
+		d.addPropertyChangeListener(controller);
+		d.pack();
+		UIUtilities.centerAndShow(d);
+		
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#retrieveUserGroups()
+     */
+	public void retrieveUserGroups()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		Map m = model.getAvailableUserGroups();
+		if (m == null) {
+			model.fireUserGroupsRetrieval();
+			fireStateChange();
+		} else {
+			UserManagerDialog d = new UserManagerDialog(view, 
+					model.getUserDetails(), m, model.getRootID());
+			d.addPropertyChangeListener(controller);
+			d.pack();
+			UIUtilities.centerAndShow(d);
+		}
 	}
     
 }

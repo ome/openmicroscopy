@@ -137,7 +137,7 @@ class ThumbWinManager
     }
     
     /** Maps image ids onto on-screen windows. */
-    private static Map  		windows;
+    private static Map<Long, TinyDialog>  		windows;
     
     /** The dialog displaying the magnified thumbnail. */
     private static RollOverWin 	rollOverDialog;
@@ -145,7 +145,7 @@ class ThumbWinManager
     /** Creates a new instance. */
     private ThumbWinManager()
     {
-        windows = new HashMap();
+        windows = new HashMap<Long, TinyDialog>();
         rollOverDialog = null;
     }
     
@@ -162,7 +162,7 @@ class ThumbWinManager
     {
         ImageData ho = (ImageData) node.getHierarchyObject();
         final Long id = new Long(ho.getId());
-        TinyDialog w = (TinyDialog) windows.get(id);
+        TinyDialog w = windows.get(id);
         if (w == null) {
             Thumbnail prv = node.getThumbnail();
             BufferedImage full = prv.getFullScaleThumb();

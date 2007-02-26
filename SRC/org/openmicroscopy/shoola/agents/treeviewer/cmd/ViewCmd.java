@@ -133,54 +133,54 @@ public class ViewCmd
             if (nodes.length > 1) {
                 TreeImageDisplay n = nodes[0];
                 if (n.getUserObject() instanceof ImageData) {
-                    Set ids = new HashSet(nodes.length);
+                    Set<Long> ids = new HashSet<Long>(nodes.length);
                     ImageData data;
                     for (int i = 0; i < nodes.length; i++) {
                         data = (ImageData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.IMAGES, root, 
-                            model.getRootGroupID(), bounds));   
+                            model.getRootID(), model.getUserGroupID(), bounds));   
                     return;
                 } else if (n.getUserObject() instanceof DatasetData) {
-                    Set ids = new HashSet(nodes.length);
+                    Set<Long> ids = new HashSet<Long>(nodes.length);
                     DatasetData data;
                     for (int i = 0; i < nodes.length; i++) {
                         data = (DatasetData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.DATASETS, root, 
-                            model.getRootGroupID(), bounds));   
+                            model.getRootID(), model.getUserGroupID(), bounds));   
                     return;
                 } else if (n.getUserObject() instanceof CategoryData) {
-                    Set ids = new HashSet(nodes.length);
+                    Set<Long> ids = new HashSet<Long>(nodes.length);
                     CategoryData data;
                     for (int i = 0; i < nodes.length; i++) {
                         data = (CategoryData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.CATEGORIES, root, 
-                            model.getRootGroupID(), bounds));   
+                            model.getRootID(), model.getUserGroupID(), bounds));   
                     return;
                 } else if (n.getUserObject() instanceof ProjectData) {
-                    Set ids = new HashSet(nodes.length);
+                    Set<Long> ids = new HashSet<Long>(nodes.length);
                     ProjectData data;
                     for (int i = 0; i < nodes.length; i++) {
                         data = (ProjectData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.PROJECTS, root, 
-                            model.getRootGroupID(), bounds));   
+                            model.getRootID(), model.getUserGroupID(), bounds));   
                     return;
                 } else if (n.getUserObject() instanceof CategoryGroupData) {
-                    Set ids = new HashSet(nodes.length);
+                    Set<Long> ids = new HashSet<Long>(nodes.length);
                     CategoryGroupData data;
                     for (int i = 0; i < nodes.length; i++) {
                         data = (CategoryGroupData) nodes[i].getUserObject();
                         ids.add(new Long(data.getId()));
                     }
                     bus.post(new Browse(ids, Browse.CATEGORY_GROUPS, root, 
-                            model.getRootGroupID(), bounds));   
+                            model.getRootID(), model.getUserGroupID(), bounds));   
                     return;
                 }
             } else {
@@ -189,7 +189,8 @@ public class ViewCmd
                 if (display.getParentDisplay() == null &&
                     browser.getBrowserType() == Browser.IMAGES_EXPLORER) {
                     bus.post(new Browse(browser.getLeaves(), Browse.IMAGES, 
-                            root, model.getRootGroupID(), bounds));   
+                            root, model.getRootID(), model.getUserGroupID(), 
+                            bounds));   
                     return;
                 }
                 ho = display.getUserObject(); 
@@ -202,17 +203,17 @@ public class ViewCmd
                     data.getDefaultPixels().getId() , data.getName(), bounds));
         } else if (ho instanceof DatasetData)
             bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
-                     root, model.getRootGroupID(), bounds)); 
+                     root, model.getRootID(), model.getUserGroupID(), bounds)); 
         else if (ho instanceof ProjectData)
             bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-                    root, model.getRootGroupID(), bounds)); 
+                    root, model.getRootID(), model.getUserGroupID(), bounds)); 
         else if (ho instanceof CategoryData)
             bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
-                    root, model.getRootGroupID(), bounds)); 
+                    root, model.getRootID(), model.getUserGroupID(), bounds)); 
         else if (ho instanceof CategoryGroupData)
             bus.post(new Browse(((CategoryGroupData) ho).getId(),
                           Browse.CATEGORY_GROUP, root, 
-                          model.getRootGroupID(), bounds)); 
+                          model.getRootID(), model.getUserGroupID(), bounds)); 
     }
     
 }

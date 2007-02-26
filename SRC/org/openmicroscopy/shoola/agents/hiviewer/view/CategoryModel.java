@@ -58,7 +58,7 @@ class CategoryModel
      * The id of the Categores that is the root of the CG/C/I tree
      * that this Model handles. 
      */
-    private Set     categoriesID;
+    private Set<Long>     categoriesID;
     
     /**
      * Creates a new instance.
@@ -69,7 +69,7 @@ class CategoryModel
     CategoryModel(long categoryID) 
     {
         super();
-        categoriesID = new HashSet(1);
+        categoriesID = new HashSet<Long>(1);
         categoriesID.add(new Long(categoryID)); 
     }
     
@@ -79,7 +79,7 @@ class CategoryModel
      * @param categoriesID The id of the Categories that is the root of the C/I
      *                   	tree that this Model will handle. 
      */
-    CategoryModel(Set categoriesID) 
+    CategoryModel(Set<Long> categoriesID) 
     {
         super(); 
         this.categoriesID = categoriesID;
@@ -130,7 +130,7 @@ class CategoryModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new CategoryModel(categoriesID);
-        model.setRootLevel(getRootLevel(), getRootID());
+        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
         return model;
     }
     

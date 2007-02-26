@@ -466,5 +466,12 @@ public interface HiViewer
 	 * @param thumbnails The images to save. Mustn't be <code>null</code>.
 	 */
 	public void saveThumbnails(Set thumbnails);
+
+    /**
+     * Returns the id to the group selected for the current user.
+     * 
+     * @return See above.
+     */
+	public long getUserGroupID();
     
 }

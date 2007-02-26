@@ -84,7 +84,7 @@ public class Browse
     private long        hierarchyObjectID;
     
     /** List of IDs object to browse. */
-    private Set         objectsIDs;
+    private Set<Long>	objectsIDs;
     
     /** 
      * Index of the top element in the hierarchy e.g.
@@ -99,8 +99,11 @@ public class Browse
      */
     private Class       rootLevel;
     
-    /** The Id of the root. */
+    /** The ID of the root. */
     private long        rootID;
+    
+    /** The ID of the selected group for the current user. */
+    private long		userGroupID;
     
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
@@ -164,13 +167,13 @@ public class Browse
      * @param rootLevel         The level of the hierarchy either 
      *                          <code>GroupData</code> or 
      *                          <code>ExperimenterData</code>.
-     * @param rootID            The id of the root level. The value is taken
-     *                          into account if only if the root level is a 
-     *                          group.
+     * @param rootID            The ID of the root level. 
+     * @param userGroupID		The ID of the selected group for the current 
+     * 							user.		
      * @param bounds            The bounds of the component posting the event.
      */
     public Browse(long hierarchyObjectID, int index, Class rootLevel,
-                  long rootID, Rectangle bounds)
+                  long rootID, long userGroupID, Rectangle bounds)
     {
         checkEventIndex(index); 
         checkRootLevel(rootLevel);
@@ -178,6 +181,7 @@ public class Browse
         eventIndex = index;
         this.rootLevel = rootLevel;
         this.rootID = rootID;
+        this.userGroupID = userGroupID;
         requesterBounds = bounds;
     }
 
@@ -185,25 +189,26 @@ public class Browse
      * Creates a new instance. This contructor should only be invoked to 
      * browse a list of images.
      * 
-     * @param ids       The list of objects ids.
-     * @param index     The index of the browser. One of the constants
-     *                  defined by this class.
-     * @param rootLevel The level of the hierarchy either 
-     *                  <code>GroupData</code> or 
-     *                  <code>ExperimenterData</code>.
-     * @param rootID    The id of the root level. The value is taken
-     *                  into account if only if the root level is a 
-     *                  group.
-     * @param bounds    The bounds of the component posting the event.                 
+     * @param ids       	The list of objects ids.
+     * @param index     	The index of the browser. One of the constants
+     *                  	defined by this class.
+     * @param rootLevel 	The level of the hierarchy either 
+     *                  	<code>GroupData</code> or 
+     *                  	<code>ExperimenterData</code>.
+     * @param rootID    	The ID of the root level.
+     * @param userGroupID	The ID of the selected group for the current 
+     * 						user.                 
+     * @param bounds    	The bounds of the component posting the event.                 
      */
-    public Browse(Set ids, int index, Class rootLevel, long rootID, 
-                    Rectangle bounds)
+    public Browse(Set<Long> ids, int index, Class rootLevel, long rootID, 
+    			 long userGroupID, Rectangle bounds)
     {
     	checkMultiNodesIndex(index); 
         checkRootLevel(rootLevel);
         eventIndex = index;
         this.rootLevel = rootLevel;
         this.rootID = rootID;
+        this.userGroupID = userGroupID;
         objectsIDs = ids;
         requesterBounds = bounds;
     }
@@ -230,18 +235,25 @@ public class Browse
     public Class getRootLevel() { return rootLevel; }
     
     /**
-     * Returns the root Id.
+     * Returns the root ID.
      * 
      * @return See above.
      */
     public long getRootID() { return rootID; }
     
     /**
+     * Returns the ID of the selected group for the current user.
+     * 
+     * @return See above.
+     */
+    public long getUserGroupID() { return userGroupID; }
+    
+    /**
      * Returns the list of the objects to browse.
      * 
      * @return See above.
      */
-    public Set getObjectIDs() { return objectsIDs; }
+    public Set<Long> getObjectIDs() { return objectsIDs; }
     
     /**
      * Returns the bounds of the component posting the event. 

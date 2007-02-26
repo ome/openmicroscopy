@@ -60,13 +60,13 @@ class HierarchyModel
      * trees that this Model handles.  Every Image is represented by
      * an {@link ImageData} object.  
      */
-    private Set     images;
+    private Set<ImageData>		images;
     
     /**
      * The type of the model either {@link HiViewer#PDI_HIERARCHY}
      * or {@link HiViewer#CGCI_HIERARCHY}.
      */
-    private int     type;
+    private int     			type;
     
     /**
      * Checks if the type passed is valid.
@@ -93,7 +93,7 @@ class HierarchyModel
      *               Don't pass <code>null</code>.
      * @param type   The hierarchy type. 
      */
-    HierarchyModel(Set images, int type)
+    HierarchyModel(Set<ImageData> images, int type)
     {
         super();
         if (images == null) throw new NullPointerException("No images.");
@@ -120,7 +120,8 @@ class HierarchyModel
         HierarchyModel hm = (HierarchyModel) other;
         if (images.size() != hm.images.size()) return false;
         ImageData data;
-        Map myImgs = new HashMap(), otherImgs = new HashMap();
+        Map<Long, ImageData> myImgs = new HashMap<Long, ImageData>(), 
+        		otherImgs = new HashMap<Long, ImageData>();
         Iterator i = images.iterator(), j = hm.images.iterator();
         while (i.hasNext()) {
             data = (ImageData) i.next();
@@ -142,7 +143,7 @@ class HierarchyModel
      */
     protected DataLoader createHierarchyLoader(boolean refresh)
     {
-        Set ids = new HashSet(images.size());
+        Set<Long> ids = new HashSet<Long>(images.size());
         Iterator i = images.iterator();
         while (i.hasNext())
             ids.add(new Long(((ImageData) i.next()).getId()));
@@ -162,7 +163,7 @@ class HierarchyModel
      */
     protected HiViewerModel reinstantiate()
     {
-        HashSet copy = new HashSet(images);
+        HashSet<ImageData> copy = new HashSet<ImageData>(images);
         return new HierarchyModel(copy, type);
     }
     

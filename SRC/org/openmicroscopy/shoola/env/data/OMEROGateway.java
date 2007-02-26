@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,8 @@ import javax.ejb.EJBException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
+import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
@@ -54,6 +57,8 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.Server;
@@ -62,8 +67,10 @@ import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -268,7 +275,7 @@ class OMEROGateway
     {
         try {
             IPojos service = getIPojosService();
-            Set set = new HashSet(1);
+            Set<String> set = new HashSet<String>(1);
             set.add(name);
             Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
                     (new PojoOptions()).map()));
@@ -304,6 +311,13 @@ class OMEROGateway
      * @return See above.
      */
     private IUpdate getIUpdateService() { return entry.getUpdateService(); }
+    
+    /**
+     * Returns the {@link IAdmin} service.
+     * 
+     * @return See above.
+     */
+    private IAdmin getIAdmin() { return entry.getAdminService(); }
     
     /**
      * Returns the {@link ThumbnailStore} service.
@@ -348,6 +362,19 @@ class OMEROGateway
 				re.lookupRenderingDef(pixelsID);
             }
     	}
+    }
+    
+    /**
+     * Returns <code>true</code> if the passed group is an experimenter group
+     * internal to OMERO, <code>false</code> otherwise.
+     * 
+     * @param group The experimenter group to handle.
+     * @return See above.
+     */
+    private boolean isSystemGroup(ExperimenterGroup group)
+    {
+    	String n = group.getName();
+    	return ("system".equals(n) || "user".equals(n) || "default".equals(n));
     }
     
     /**
@@ -1001,5 +1028,41 @@ class OMEROGateway
          }
          return null;
     } 
-
+    
+    /**
+     * Retrieves the available experimenter groups.
+     * 
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    Map<GroupData, Set> getAvailableGroups()
+    	throws DSOutOfServiceException, DSAccessException
+    {
+    	try {
+			IAdmin service = getIAdmin();
+			List<ExperimenterGroup> groups = service.lookupGroups();
+			Iterator i = groups.iterator();
+			ExperimenterGroup group;
+			Experimenter[] experimenters;
+			Map<GroupData, Set> pojos = new HashMap<GroupData, Set>();
+			DataObject pojoGroup;
+			while (i.hasNext()) {
+				group = (ExperimenterGroup) i.next();
+				if (!isSystemGroup(group)) {
+					pojoGroup = PojoMapper.asDataObject(group);
+					experimenters = service.containedExperimenters(
+							group.getId());
+					pojos.put((GroupData) pojoGroup, 
+							PojoMapper.asDataObjects(experimenters));
+				}
+				
+			}
+			return pojos;
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the available groups ");
+		}
+		return null;
+    }
 }

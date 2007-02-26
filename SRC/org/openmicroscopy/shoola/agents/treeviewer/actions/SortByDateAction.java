@@ -58,7 +58,7 @@ public class SortByDateAction
      */
     protected void onStateChange()
     {
-    	setEnabled(model.getState() == Browser.READY );
+    	setEnabled(model.getState() == Browser.READY);
     }
     
     /**

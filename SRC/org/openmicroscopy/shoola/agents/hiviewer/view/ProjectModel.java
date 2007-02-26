@@ -59,7 +59,7 @@ class ProjectModel
      * The id of the Projects that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private Set     projectsID;
+    private Set<Long>     projectsID;
     
     /**
      * Creates a new instance.
@@ -70,7 +70,7 @@ class ProjectModel
     ProjectModel(long projectID) 
     {
         super();
-        projectsID = new HashSet(1);
+        projectsID = new HashSet<Long>(1);
         projectsID.add(new Long(projectID)); 
     }
     
@@ -80,7 +80,7 @@ class ProjectModel
      * @param projectsID 	The id of the Projects that is the root of the P/D/I
      *                  	tree that this Model will handle. 
      */
-    ProjectModel(Set projectsID) 
+    ProjectModel(Set<Long> projectsID) 
     {
         super();
         this.projectsID = projectsID; 
@@ -131,7 +131,7 @@ class ProjectModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new ProjectModel(projectsID);
-        model.setRootLevel(getRootLevel(), getRootID());
+        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
         return model;
     }
 

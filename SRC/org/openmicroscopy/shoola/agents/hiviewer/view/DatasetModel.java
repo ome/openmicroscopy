@@ -58,7 +58,7 @@ class DatasetModel
      * The id of the Datasets that is the root of the P/D/I tree that this 
      * Model handles.
      */
-    private Set 		datasetsID;
+    private Set<Long> 		datasetsID;
     
     /**
      * Creates a new instance.
@@ -69,7 +69,7 @@ class DatasetModel
     DatasetModel(long datasetID) 
     {
         super();
-        datasetsID = new HashSet(1);
+        datasetsID = new HashSet<Long>(1);
         datasetsID.add(new Long(datasetID)); 
     }
     
@@ -79,7 +79,7 @@ class DatasetModel
      * @param datasetsID The id of the Datasets that is the root of the P/D/I
      *                   tree that this Model will handle. 
      */
-    DatasetModel(Set datasetsID)
+    DatasetModel(Set<Long> datasetsID)
     {
     	super();
         this.datasetsID = datasetsID; 
@@ -130,7 +130,7 @@ class DatasetModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new DatasetModel(datasetsID);
-        model.setRootLevel(getRootLevel(), getRootID());
+        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
         return model;
     }
 

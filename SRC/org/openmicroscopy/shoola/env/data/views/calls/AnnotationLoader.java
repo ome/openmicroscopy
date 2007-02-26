@@ -143,7 +143,7 @@ public class AnnotationLoader
      */
     public AnnotationLoader(Class nodeType, long nodeID, boolean forUser)
     {
-        HashSet set = new HashSet(1);
+        HashSet<Long> set = new HashSet<Long>(1);
         set.add(new Long(nodeID));
         validate(nodeType, set, forUser);
     }

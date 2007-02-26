@@ -223,11 +223,18 @@ public class IconManager
     
     /** The <code>Partial name</code> icon. */
     public static int           IMAGE_48 = 56;
+    
+    /** The <code>User Group</code> icon. */
+    public static int           USER_GROUP = 57;
+    
+    /** The <code>User Group</code> icon. */
+    public static int           OWNER_48 = 58;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 56;
+    private static int          MAX_ID = 58;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -292,6 +299,8 @@ public class IconManager
         relPaths[MANAGER_48] = "nuvola_file-manager48.png";
         relPaths[PARTIAL_NAME] = "nuvola_kmessedwords16.png";
         relPaths[IMAGE_48] = "nuvola_thumbnail48.png";
+        relPaths[USER_GROUP] = "nuvola_kgpg_photo16.png";
+        relPaths[OWNER_48] = "nuvola_kdmconfig48.png";
     }
     
     /** The sole instance. */

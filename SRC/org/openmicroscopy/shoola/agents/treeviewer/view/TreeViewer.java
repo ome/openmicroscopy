@@ -101,8 +101,8 @@ public interface TreeViewer
     /** Flag to denote the <i>Loading Data</i> state. */
     public static final int         LOADING_DATA = 5;
     
-    /** Flag to denote the <i>Loading Data</i> state. */
-    public static final int         DIALOG_SELECTION = 6;
+    /** Flag to denote the <i>Loading Selection</i> state. */
+    public static final int         LOADING_SELECTION = 6;
     
     /** Flag to denote the <i>Ready</i> state. */
     public static final int         READY = 7;
@@ -390,14 +390,11 @@ public interface TreeViewer
     public void moveToFront();
     
     /**
-     * Returns the id of the group, the current user is using as the logging
-     * group. By default, the method returns the default group. If the
-     * user belongs to more than one group, the method returns the 
-     * currently selected group.
+     * Returns the id of the user who is root of the tree.
      * 
      * @return See above.
      */
-    public long getRootGroupID();
+    public long getRootID();
 
     /**
      * Returns of the following constants: 
@@ -409,14 +406,12 @@ public interface TreeViewer
     
     /**
      * Sets the root of the retrieved hierarchies. 
-     * The rootID is taken into account if and only if the passed 
-     * <code>rootLevel</code> is {@link #GROUP_ROOT}.
      * 
-     * @param rootLevel The level of the root. One of the following constants:
-     *                  {@link #GROUP_ROOT} and {@link #USER_ROOT}.
-     * @param rootID    The Id of the root.
+     * @param rootID    	The Id of the root.
+     * @param experimenter	The experimenter or <code>null</code> if 
+     * 						the level is {@link #GROUP_ROOT}.
      */
-    public void setHierarchyRoot(int rootLevel, long rootID);
+    public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
     
     /**
      * Returns <code>true</code> if the specified data object is readable,
@@ -552,5 +547,22 @@ public interface TreeViewer
 	 * another object.
 	 */
 	public void showPreSavingDialog();
+
+    /** 
+     * Returns the id to the group selected for the current user.
+     * 
+     * @return See above.
+     */
+	public long getUserGroupID();
+
+	/**
+	 * Sets the available experimenter groups.
+	 * 
+	 * @param map The value to set.
+	 */
+	public void setAvailableGroups(Map map);
+
+	/** Retrieves the user groups. */
+	public void retrieveUserGroups();
     
 }

@@ -175,9 +175,9 @@ class ClassifierComponent
             return;
         }
         long userID = model.getUserID();
-        long groupID = model.getParentModel().getRootGroupID();
+        //long groupID = model.getParentModel().getRootGroupID();
         Set nodes = TreeViewerTranslator.transformDataObjectsCheckNode(paths,
-                                                    userID, groupID);
+                                                    userID, -1);
         model.setPaths(nodes);
         view.showClassifications();
         fireStateChange();

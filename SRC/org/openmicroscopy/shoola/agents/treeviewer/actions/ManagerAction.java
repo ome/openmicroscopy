@@ -43,6 +43,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
@@ -101,7 +102,7 @@ public class ManagerAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof String) { // root
+        if (ho instanceof String || ho instanceof ExperimenterData) { // root
             setEnabled(false);
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable((DataObject) ho));

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -77,7 +78,7 @@ public class TreeCellRenderer
      */
     private void setIcon(Object usrObject)
     {
-        Icon icon = null;
+        Icon icon = icons.getIcon(IconManager.OWNER);
         if (usrObject instanceof ProjectData)
             icon = icons.getIcon(IconManager.PROJECT);
         else if (usrObject instanceof DatasetData) {
@@ -135,9 +136,16 @@ public class TreeCellRenderer
         
         if (!(value instanceof TreeImageDisplay)) return this;
         TreeImageDisplay  node = (TreeImageDisplay) value;
-        
+        int w = 0;
+        FontMetrics fm = getFontMetrics(getFont());
         if (node.getLevel() == 0) {
-            setIcon(icons.getIcon(IconManager.ROOT));
+        	if (node.getUserObject() instanceof ExperimenterData)
+        		setIcon(icons.getIcon(IconManager.OWNER));
+        	else setIcon(icons.getIcon(IconManager.ROOT));
+            if (getIcon() != null) w += getIcon().getIconWidth();
+            w += getIconTextGap();
+            w += fm.stringWidth(getText());
+            setPreferredSize(new Dimension(w, fm.getHeight()));
             return this;
         }
         if (numberChildrenVisible) setText(node.getNodeText());
@@ -148,10 +156,9 @@ public class TreeCellRenderer
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
-        int w = 0;
+       
         if (getIcon() != null) w += getIcon().getIconWidth();
         w += getIconTextGap();
-        FontMetrics fm = getFontMetrics(getFont());
         if (node.getUserObject() instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else w += fm.stringWidth(getText());

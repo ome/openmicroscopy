@@ -113,7 +113,7 @@ public class DataObjectEditor
         if (operation == TreeViewer.UPDATE_OBJECT)
             handle = dmView.updateDataObject(userObject, this);
         else if (operation == TreeViewer.DELETE_OBJECT) {
-            Set l = new HashSet(1);
+            Set<DataObject> l = new HashSet<DataObject>(1);
             l.add(userObject);
             handle = dmView.removeDataObjects(l, parent, this);
         }     

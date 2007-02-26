@@ -112,7 +112,7 @@ class ImagesModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new ImagesModel(imagesID);
-        model.setRootLevel(getRootLevel(), getRootID());
+        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
         return model;
     }
 

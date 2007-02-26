@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
@@ -340,5 +341,15 @@ class DataManagerViewImpl
         BatchCallTree cmd = new ChannelMetadataLoader(pixelsID);
         return cmd.exec(observer);
     }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#loadAvailableGroups(AgentEventListener)
+     */
+	public CallHandle loadAvailableGroups(AgentEventListener observer)
+	{
+		 BatchCallTree cmd = new AdminLoader();
+	     return cmd.exec(observer);
+	}
     
 }

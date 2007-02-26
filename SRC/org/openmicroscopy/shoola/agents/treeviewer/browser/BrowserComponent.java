@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -270,7 +271,7 @@ class BrowserComponent
                     "state.");
         if (nodes == null) throw new NullPointerException("No nodes.");
         long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
+        long groupID = model.getUserGroupID();
         Set visNodes = TreeViewerTranslator.transformHierarchy(nodes, userID,
                                                             groupID);
         
@@ -375,7 +376,7 @@ class BrowserComponent
                     "state.");
         if (leaves == null) throw new NullPointerException("No leaves.");
         long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
+        long groupID = model.getUserGroupID();
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
 
@@ -405,9 +406,12 @@ class BrowserComponent
         }
         hasDataToSave(display);
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
-        //if (oldDisplay != null && oldDisplay.equals(display)) return;
-        if (display != null && display.getUserObject() instanceof String) 
-            display = null;
+        //if (oldDisplay != null && oldDisplay.equals(display)) return; 
+        if (display != null) {
+        	Object ho = display.getUserObject();
+        	if ((ho instanceof String) || (ho instanceof ExperimenterData))
+        		display = null;
+        }
         model.setSelectedDisplay(display);
         if (display == null) view.setNullSelectedNode();
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
@@ -565,7 +569,7 @@ class BrowserComponent
         fireStateChange();
         JFrame frame = getViewParent(view.getParent());
         long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
+        long groupID = model.getUserGroupID();
         Set n = TreeViewerTranslator.transformDataObjectsCheckNode(nodes, 
                                             userID, groupID);
         FilterWindow window = new FilterWindow(this, frame, index, n);
@@ -658,7 +662,7 @@ class BrowserComponent
         if (nodes == null) throw new NullPointerException("No nodes.");
         TreeImageDisplay parentDisplay = model.getLastSelectedDisplay();
         long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
+        long groupID = model.getUserGroupID();
         if (parent == null) { //root
             view.setViews(TreeViewerTranslator.transformHierarchy(nodes, userID,
                                                             groupID));
@@ -695,7 +699,7 @@ class BrowserComponent
 		    throw new IllegalStateException(
                     "This method can't only be invoked in the DISCARDED " +
                     "state.");
-        return model.getRootGroupID();
+        return model.getRootID();
     }
 
     /**
@@ -875,7 +879,7 @@ class BrowserComponent
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
-            long groupID = model.getRootGroupID();
+            long groupID = model.getUserGroupID();
             if (parentDisplay == null)
                 parentDisplay = getLastSelectedDisplay();
             createNodes(nodes, 
@@ -1060,7 +1064,7 @@ class BrowserComponent
             throw new IllegalStateException("This method cannot be invoked "+
                 "in the LOADING_DATA state.");
         long userID = model.getUserID();
-        long groupID = model.getRootGroupID();
+        long groupID = model.getUserGroupID();
         view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
                     expandedTopNodes, userID, groupID)); 
         model.fireContainerCountLoading();
@@ -1091,6 +1095,18 @@ class BrowserComponent
 		 PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
 		 view.repaint();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setRootNode(ExperimenterData)
+     */
+	public void setRootNode(ExperimenterData experimenter)
+	{
+		 if (model.getState() == DISCARDED)
+			 throw new IllegalStateException("This method cannot be invoked "+
+	                "in the DISCARDED state.");
+		 view.setRootNode(experimenter);
 	}
     
 }

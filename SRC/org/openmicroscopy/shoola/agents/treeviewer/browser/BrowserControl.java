@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 
 /** 
  * The Browser's Controller.
@@ -97,13 +98,13 @@ class BrowserControl
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
      */
-    private Browser     model;
+    private Browser     			model;
     
     /** Reference to the View. */
-    private BrowserUI   view;
+    private BrowserUI   			view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map			actionsMap;
+    private Map<Integer, Action>	actionsMap;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -148,7 +149,7 @@ class BrowserControl
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, Action>();
         createActions();
     }
     
@@ -219,21 +220,27 @@ class BrowserControl
         //Check if alls node are of the same type.
         if (!(pathComponent instanceof TreeImageDisplay)) return;
         TreeImageDisplay node = (TreeImageDisplay) pathComponent;
+        ArrayList<TreePath> pathsToRemove = new ArrayList<TreePath>();
         TreeImageDisplay no;
         Object o;
-        ArrayList l = new ArrayList();
+        ArrayList<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
         l.add(node);
-        ArrayList pathsToRemove = new ArrayList();
+       
+        Object uo;
+        Class nodeClass = node.getUserObject().getClass();
         for (int i = 1; i < n; i++) {
             o = paths[i].getLastPathComponent();
             if (o instanceof TreeImageDisplay) {
                 no = (TreeImageDisplay) o;
-                if (no.getUserObject().getClass().equals(
-                        node.getUserObject().getClass())) {
-                    l.add(no);
-                } else {
+                uo = no.getUserObject();
+                if (uo instanceof ExperimenterData) {
                 	pathsToRemove.add(paths[i]);
-                
+                } else {
+                	 if (uo.getClass().equals(nodeClass)) {
+                         l.add(no);
+                     } else {
+                     	pathsToRemove.add(paths[i]);
+                     }
                 }
             }
         }
@@ -261,7 +268,7 @@ class BrowserControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    Action getAction(Integer id) { return (Action) actionsMap.get(id); }
+    Action getAction(Integer id) { return actionsMap.get(id); }
     
     /** Forwards event to the {@link Browser} to load the leaves. */
     void loadLeaves() { model.loadLeaves(); }

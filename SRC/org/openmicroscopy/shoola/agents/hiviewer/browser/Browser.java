@@ -35,6 +35,8 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.ImageData;
+
 /** 
  * Defines the interface provided by the browser component.
  * The browser provides a <code>JComponent</code> to host and display one or
@@ -175,7 +177,7 @@ public interface Browser
      * 
      * @return A set of <code>Object</code>s.
      */
-    public Set getImages();
+    public Set<ImageData> getImages();
     
     /**
      * Returns all the {@link ImageNode}s in the visualization trees hosted

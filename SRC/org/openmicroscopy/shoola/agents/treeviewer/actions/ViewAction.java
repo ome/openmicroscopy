@@ -82,8 +82,11 @@ public class ViewAction
         }
         if (selectedDisplay.getParentDisplay() == null) { //root
             name = BROWSE;
+            setEnabled(false);
+            /*
             setEnabled(model.getSelectedBrowser().getBrowserType() == 
                 Browser.IMAGES_EXPLORER);
+                */
             return;
         }
         Object ho = selectedDisplay.getUserObject();

@@ -114,10 +114,10 @@ public class RefreshDataLoader
     {
     	if (expandedNodes == null || expandedNodes.size() == 0) {
             handle = dmView.loadContainerHierarchy(rootNodeType, null, false,
-                    convertRootLevel(), getRootID(), this);
+                    convertRootLevel(), viewer.getRootID(), this);
         } else {
             handle = dmView.refreshHierarchy(rootNodeType, expandedNodes, 
-                    convertRootLevel(), getRootID(), this);
+                    convertRootLevel(), viewer.getRootID(), this);
         }
     }
 
@@ -134,11 +134,11 @@ public class RefreshDataLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        Map map;
+        Map<DataObject, Set> map;
         if (expandedNodes == null || expandedNodes.size() == 0) {
             Set set = (Set) result;
             Iterator j = set.iterator();
-            map = new HashMap();
+            map = new HashMap<DataObject, Set>();
             DataObject parent;
             Set children = null;
             while (j.hasNext()) {

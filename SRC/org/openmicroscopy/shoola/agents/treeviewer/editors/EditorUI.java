@@ -150,6 +150,8 @@ class EditorUI
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
     
+    private static final String		USER_MSG = "User";
+    
     /**
      * The message displayed when the name of the <code>DataObject</code> is 
      * null or of length 0.
@@ -161,6 +163,12 @@ class EditorUI
      * is edited.
      */
     private static final String     PROPERTIES_TITLE = "Properties";
+    
+    /** 
+     * The title of the main tabbed pane when the <code>DataObject</code>
+     * is an instance of <code>ExperimenterData</code>.
+     */
+    private static final String     USER_PROFILE_TITLE = "User profile";
     
     /** 
      * The title of the tabbed pane hosting the details of the owner of the
@@ -242,7 +250,7 @@ class EditorUI
     
     /** 
      * Sets the {@link #message} corresponding to 
-     * the <code>Dataobject</code>. 
+     * the <code>DataObject</code>. 
      */
     private void getMessage()
     {
@@ -269,7 +277,8 @@ class EditorUI
                     messageParent = CATEGORY_PARENT_MSG;
             }
             message = IMAGE_MSG;
-        }   
+        } else if (nodeType.equals(ExperimenterData.class))
+        	message = USER_MSG;
     }
     
     /**
@@ -352,22 +361,32 @@ class EditorUI
                 tabs = new JTabbedPane(JTabbedPane.TOP, 
                                                    JTabbedPane.WRAP_TAB_LAYOUT);
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
-                tabs.addTab(PROPERTIES_TITLE, 
+                boolean b = 
+                	(model.getHierarchyObject() instanceof ExperimenterData);
+                if (b)
+                	tabs.addTab(USER_PROFILE_TITLE, 
                             im.getIcon(IconManager.PROPERTIES), doBasic);
-                ExperimenterData exp = model.getExperimenterData();
-                Map details = EditorUtil.transformExperimenterData(exp);
-                DOInfo info = new DOInfo(this, model, details, true, 
-                                    DOInfo.OWNER_TYPE);
-                
-                tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), info);
-                DataObject hierarchyObject = model.getHierarchyObject();
-                if (hierarchyObject instanceof ImageData) {
-                    details = EditorUtil.transformPixelsData(
-                            ((ImageData) hierarchyObject).getDefaultPixels());
-                    info = new DOInfo(this, model, details, false, 
-                            DOInfo.INFO_TYPE);
-                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
-                    			info);  
+                else tabs.addTab(PROPERTIES_TITLE, 
+                        im.getIcon(IconManager.PROPERTIES), doBasic);
+                if (b) {
+                	
+                } else { //TODO: modify
+                	ExperimenterData exp = model.getExperimenterData();
+                    Map details = EditorUtil.transformExperimenterData(exp);
+                    DOInfo info = new DOInfo(this, model, details, true, 
+                                        DOInfo.OWNER_TYPE);
+                    
+                    tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), 
+                    			info);
+                    DataObject hierarchyObject = model.getHierarchyObject();
+                    if (hierarchyObject instanceof ImageData) {
+                        details = EditorUtil.transformPixelsData(
+                              ((ImageData) hierarchyObject).getDefaultPixels());
+                        info = new DOInfo(this, model, details, false, 
+                                DOInfo.INFO_TYPE);
+                        tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
+                        			info);  
+                    }
                 }
                 //Add a tab listeners to the info
                 tabs.addChangeListener(controller);
@@ -577,6 +596,7 @@ class EditorUI
      */
     void handleDescriptionAreaInsert()
     {
+    	if (doBasic == null) return;
     	if (doBasic.hasDataToSave()) {
     		finishButton.setEnabled(true);
             edit = true;
@@ -703,7 +723,6 @@ class EditorUI
             case Editor.PROPERTIES_EDITOR:
                 finishEdit();
         }
-        
     }
     
     /** Sets the emission wavelengths values. */
@@ -782,7 +801,5 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
-
-
 
 }

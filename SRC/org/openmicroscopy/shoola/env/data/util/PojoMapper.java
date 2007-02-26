@@ -145,10 +145,29 @@ public class PojoMapper
             throw new IllegalArgumentException("The set only contains " +
                     "IObject.");
         }  
-        HashSet set = new HashSet(objects.size());
+        HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
         while (i.hasNext())
             set.add(asDataObject((IObject) i.next()));
+        return set;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the array into its 
+     * corresponding {@link DataObject}.
+     * 
+     * @param objects   The set of objects to convert.
+     * @return          A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static Set asDataObjects(IObject[] objects)
+    {
+    	if (objects == null) 
+            throw new IllegalArgumentException("The array cannot be null.");
+    	HashSet<DataObject> set = new HashSet<DataObject>(objects.length);
+        for (int i = 0; i < objects.length; i++)
+        	set.add(asDataObject(objects[i]));
         return set;
     }
     

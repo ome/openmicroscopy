@@ -100,6 +100,9 @@ abstract class HiViewerModel
     /** The id of the group the user selects before data retrieval. */
     private long                groupID;
 
+    /** The id of the selected group of the current user. */
+    private long				userGroupID;
+    
     /** Holds one of the state flags defined by {@link HiViewer}. */
     private int                 state;
     
@@ -163,15 +166,17 @@ abstract class HiViewerModel
     /**
      * Sets the root level and its id.
      * 
-     * @param rootLevel The level of the hierarchy either 
-     *                  <code>GroupData</code> or 
-     *                  <code>ExperimenterData</code>.
-     * @param rootID    The root ID.
+     * @param rootLevel 	The level of the hierarchy either 
+     *                  	<code>GroupData</code> or 
+     *                  	<code>ExperimenterData</code>.
+     * @param rootID    	The root ID.
+     * @param userGroupID 	The id to the group selected for the current user.
      */
-    void setRootLevel(Class rootLevel, long rootID)
+    void setRootLevel(Class rootLevel, long rootID, long userGroupID)
     {
         this.rootLevel = rootLevel;
         this.groupID = rootID;
+        this.userGroupID = userGroupID;
     }
     
     /**
@@ -187,6 +192,13 @@ abstract class HiViewerModel
      * @return See above.
      */
     long getRootID() { return groupID; }
+    
+    /**
+     * Returns the id to the group selected for the current user.
+     * 
+     * @return See above.
+     */
+    long getUserGroupID() { return userGroupID; }
     
     /**
      * Returns the current user's details.
@@ -353,9 +365,9 @@ abstract class HiViewerModel
         Iterator i = nodes.iterator();
         ImageDisplay node, parent;
         Object ho;
-        Set toRemove = null;  
-        Map map = null;
-        Set l;
+        Set<DataObject> toRemove = null;  
+        Map<DataObject, Set> map = null;
+        Set<DataObject> l;
         while (i.hasNext()) {
             node = (ImageDisplay) i.next();
             parent = node.getParentDisplay();
@@ -364,13 +376,13 @@ abstract class HiViewerModel
                 object  = (DataObject) ho;
                 if ((object instanceof ProjectData) || 
                         (object instanceof CategoryGroupData)) {
-                    if (toRemove == null) toRemove = new HashSet();
+                    if (toRemove == null) toRemove = new HashSet<DataObject>();
                     toRemove.add(object);
                 } else {
                     po = (DataObject) parent.getHierarchyObject();
-                    if (map == null) map = new HashMap();
+                    if (map == null) map = new HashMap<DataObject, Set>();
                     l = (Set) map.get(po);
-                    if (l == null) l = new HashSet();
+                    if (l == null) l = new HashSet<DataObject>();
                     l.add(object);
                     map.put(po, l);
                 }

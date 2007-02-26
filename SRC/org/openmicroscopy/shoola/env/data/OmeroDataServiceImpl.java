@@ -99,7 +99,7 @@ class OmeroDataServiceImpl
         if (rootLevel.equals(GroupData.class))
             po.grp(new Long(rootID));
         else if (rootLevel.equals(ExperimenterData.class))
-            po.exp(new Long(getUserDetails().getId()));
+            po.exp(new Long(rootID));
     }
     
     /**
@@ -133,7 +133,7 @@ class OmeroDataServiceImpl
     {
         IObject mParent = parent.asIObject();
         Iterator i = children.iterator();
-        List ids = new ArrayList(children.size());
+        List<Long> ids = new ArrayList<Long>(children.size());
         while (i.hasNext()) {  
             ids.add(new Long(((DataObject) i.next()).getId())); 
         }
@@ -740,6 +740,16 @@ class OmeroDataServiceImpl
 			}
 		}
 		return results;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getAvailableGroups()
+     */
+	public Map<GroupData, Set> getAvailableGroups() 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getAvailableGroups();
 	}
     
 }

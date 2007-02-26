@@ -42,6 +42,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -524,5 +525,12 @@ public interface Browser
 
     /** Shows the truncated name of the images or the full path. */
 	public void displaysImagesName();
+
+	/** 
+	 * Replaces the root node object.
+	 * 
+	 * @param experimenter The object to set.
+	 */
+	public void setRootNode(ExperimenterData experimenter);
 	
 }

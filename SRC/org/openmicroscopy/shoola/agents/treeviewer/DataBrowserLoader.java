@@ -31,11 +31,9 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -82,25 +80,6 @@ public abstract class DataBrowserLoader
 	        case TreeViewer.GROUP_ROOT: return GroupData.class;
 	        default:
 	            throw new IllegalArgumentException("Level not supported");
-        }
-    }
-    
-    /**
-     * Determines the rootID depending on the rootLevel.
-     *     
-     * @return See above.
-     */
-    protected long getRootID()
-    {
-        switch (viewer.getRootLevel()) {
-            case TreeViewer.USER_ROOT:
-                ExperimenterData exp = (ExperimenterData) 
-                registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-                return exp.getId();  
-            case TreeViewer.GROUP_ROOT:
-                return viewer.getRootID();
-            default:
-                throw new IllegalArgumentException("Level not supported");
         }
     }
     

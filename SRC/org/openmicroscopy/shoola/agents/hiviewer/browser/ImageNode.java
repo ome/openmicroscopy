@@ -31,6 +31,8 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -140,7 +142,7 @@ public class ImageNode
     public void setNodeDecoration()
     {
         if (hierarchyObject instanceof ImageData) { 
-            List nodes = new ArrayList();
+            List<JButton> nodes = new ArrayList<JButton>();
             nodes.add(new PinButton(this));
             if (isAnnotated()) nodes.add(new AnnotatedButton(this));
             if (isClassified()) nodes.add(new ClassifiedButton(this));

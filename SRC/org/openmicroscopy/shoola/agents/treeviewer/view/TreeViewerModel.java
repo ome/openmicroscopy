@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.AdminLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
@@ -93,7 +94,7 @@ class TreeViewerModel
     private DataTreeViewerLoader	currentLoader;
     
     /** The browsers controlled by the model. */
-    private Map                 	browsers;
+    private Map<Integer, Browser>	browsers;
     
     /** The currently selected {@link Browser}. */
     private Browser             	selectedBrowser;
@@ -111,11 +112,20 @@ class TreeViewerModel
      */
     private int                     rootLevel;
     
+    /** The ID of the root. */
+    private long                    rootID;
+    
+    /** The id of the selected group of the current user. */
+    private long					userGroupID;
+    
+    /** The currently selected experimenter. */
+    private ExperimenterData		experimenter;
+    
     /** 
-     * The ID of the root. This parameter will be used only when the 
-     * {@link #rootLevel} is {@link TreeViewer#GROUP_ROOT}.
+     * The available user groups, we store this information
+     * b/c not likely to change during session.
      */
-    private long                    rootGroupID;
+    private Map						availableUserGroups;
     
     /**
      * The component to find a given phrase in the currently selected
@@ -188,16 +198,16 @@ class TreeViewerModel
     private Map buildCutMap(TreeImageDisplay[] nodes)
     {
         TreeImageDisplay parent, child;
-        Map map = new HashMap();
+        Map<Object, Set> map = new HashMap<Object, Set>();
         Object po;
-        Set children;
+        Set<Object> children;
         for (int i = 0; i < nodes.length; i++) {
             child = nodes[i];
             parent = child.getParentDisplay();
             po = parent.getUserObject();
             children = (Set) map.get(po);
             if (children == null) {
-                children = new HashSet();   
+                children = new HashSet<Object>();   
                 map.put(po, children);
             }
             children.add(nodes[i].getUserObject());   
@@ -230,7 +240,7 @@ class TreeViewerModel
         state = TreeViewer.NEW;
         editorType = TreeViewer.PROPERTIES_EDITOR;
         rootLevel = TreeViewer.USER_ROOT;
-        browsers = new HashMap();
+        browsers = new HashMap<Integer, Browser>();
     }
     
     /**
@@ -250,16 +260,27 @@ class TreeViewerModel
      * The rootID is taken into account if and only if 
      * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
      * 
-     * @param rootLevel The level of the root. One of the following constants:
-     *                  {@link TreeViewer#GROUP_ROOT} or
-     *                  {@link TreeViewer#USER_ROOT}.
-     * @param rootID    The Id of the root.
+     * @param rootLevel 	The level of the root. One of the following 
+     * 						constants:
+     *                  	{@link TreeViewer#GROUP_ROOT} or
+     *                  	{@link TreeViewer#USER_ROOT}.
+     * @param rootID    	The Id of the root. By default it is the 
+     * 						id of the current user.
+     * @param userGroupID 	The id to the group selected for the current user.
      */
-    void setHierarchyRoot(int rootLevel, long rootID)
+    void setHierarchyRoot(int rootLevel, long rootID, long userGroupID)
     {
         this.rootLevel = rootLevel;
-        this.rootGroupID = rootID;
+        this.rootID = rootID;
+        this.userGroupID = userGroupID;
     }
+    
+    /** 
+     * Returns the id to the group selected for the current user.
+     * 
+     * @return See above.
+     */
+    long getUserGroupID() { return userGroupID; }
     
     /**
      * Returns the level of the root. 
@@ -275,7 +296,7 @@ class TreeViewerModel
      * 
      * @return See above.
      */
-    long getRootGroupID() { return rootGroupID; }
+    long getRootID() { return rootID; }
     
     /**
      * Sets the currently selected {@link Browser}.
@@ -364,9 +385,9 @@ class TreeViewerModel
        DataObject object, po;
        Iterator i = nodes.iterator();
        TreeImageDisplay n, parent;
-       Map map = null;
-       Set toRemove = null;  
-       Set l;
+       Map<DataObject, Set> map = null;
+       Set<DataObject> toRemove = null;  
+       Set<DataObject> l;
        while (i.hasNext()) {
            n = (TreeImageDisplay) i.next();
            parent = n.getParentDisplay();
@@ -374,14 +395,14 @@ class TreeViewerModel
                object = (DataObject) n.getUserObject();
                if ((object instanceof ProjectData) || 
                        (object instanceof CategoryGroupData)) {
-                   if (toRemove == null) toRemove = new HashSet();
+                   if (toRemove == null) toRemove = new HashSet<DataObject>();
                    toRemove.add(object);
                } else {
                    
                    po = (DataObject) parent.getUserObject();
-                   if (map == null) map = new HashMap();
+                   if (map == null) map = new HashMap<DataObject, Set>();
                    l = (Set) map.get(po);
-                   if (l == null) l = new HashSet();
+                   if (l == null) l = new HashSet<DataObject>();
                    l.add(object);
                    map.put(po, l);
                }
@@ -589,12 +610,12 @@ class TreeViewerModel
     */
    DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
    {
-		Set images = new HashSet(nodes.length);
+		Set<ImageData> images = new HashSet<ImageData>(nodes.length);
 		for (int i = 0; i < nodes.length; i++) 
 			images.add(nodes[i]);
 		
 		dataHandler = ClassifierFactory.getClassifier(owner, images, 
-									getRootType(), getRootGroupID(), mode,
+									getRootType(), rootID, mode,
 									TreeViewerAgent.getRegistry());
 		return dataHandler;
    }
@@ -628,5 +649,48 @@ class TreeViewerModel
 			default:return GroupData.class;
 		}
    }
+
+   /**
+    * Sets the value of the currently selected experimenter.
+    * 
+    * @param experimenter The value to set.
+    */
+   void setExperimenter(ExperimenterData experimenter)
+   {
+	   this.experimenter = experimenter;
+	   Set<Integer> keys = browsers.keySet();
+	   Iterator i = keys.iterator();
+	   Browser browser;
+	   while (i.hasNext()) {
+		   browser = browsers.get(i.next());
+		   browser.setRootNode(experimenter);
+	   }
+   }
+   
+   /** Fires an asynchronous call to retrieve the user groups. */
+   void fireUserGroupsRetrieval()
+   {
+	   state = TreeViewer.LOADING_DATA;
+	   currentLoader = new AdminLoader(component);
+       currentLoader.load();
+   }
+   
+   /**
+    * Sets the available user groups.
+    * 
+    * @param groups The value to set.
+    */
+   void setUserGroups(Map groups)
+   { 
+	   state = TreeViewer.READY;
+	   availableUserGroups = groups; 
+   }
+   
+   /**
+    * Returns the available user groups.
+    * 
+    * @return See above.
+    */
+   Map getAvailableUserGroups() { return availableUserGroups; }
    
 }

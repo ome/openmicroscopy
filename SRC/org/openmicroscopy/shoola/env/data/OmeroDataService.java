@@ -34,6 +34,7 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.GroupData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -496,5 +497,18 @@ public interface OmeroDataService
      */
     public List updateAnnotationFor(Map toUpdate)
         throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Returns a map whose keys are the <code>GroupData</code> objetcs
+     * and the values are the <code>ExperimenterData</code>s contained
+     * in the group.
+     * 
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    public Map<GroupData, Set> getAvailableGroups()
+    	throws DSOutOfServiceException, DSAccessException;
     
 }

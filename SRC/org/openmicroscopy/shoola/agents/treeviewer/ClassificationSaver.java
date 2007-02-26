@@ -145,7 +145,7 @@ public class ClassificationSaver
      */
     public void load()
     {
-        Set objects = new HashSet(images.length);
+        Set<ImageData> objects = new HashSet<ImageData>(images.length);
         for (int i = 0; i < images.length; i++)
             objects.add(images[i]);
         switch (mode) {

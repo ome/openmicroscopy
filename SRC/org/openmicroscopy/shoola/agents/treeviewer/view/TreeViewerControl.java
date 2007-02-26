@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.Action;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -61,7 +60,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.RootLevelAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -71,8 +70,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
-import pojos.GroupData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 
@@ -122,83 +122,83 @@ class TreeViewerControl
     /** Identifies the <code>Images Explorer</code> action in the View menu. */
     static final Integer	IMAGES_EXPLORER = new Integer(9);
     
-    /** Identifies the <code>User root level</code> action in the File menu. */
-    static final Integer	USER_ROOT_LEVEL = new Integer(10);
-    
     /** Identifies the <code>Find action </code>in the Edit menu. */
-    static final Integer	FIND = new Integer(11);
+    static final Integer	FIND = new Integer(10);
     
     /** Identifies the <code>Classify action</code> in the Edit menu. */
-    static final Integer    CLASSIFY = new Integer(12);
+    static final Integer    CLASSIFY = new Integer(11);
     
     /** Identifies the <code>Declassify action</code> in the Edit menu. */
-    static final Integer    DECLASSIFY = new Integer(13);
+    static final Integer    DECLASSIFY = new Integer(12);
     
     /** Identifies the <code>Annotate action</code> in the Edit menu. */
-    static final Integer    ANNOTATE = new Integer(14);
+    static final Integer    ANNOTATE = new Integer(13);
     
     /** Identifies the <code>Exit action</code> in the File menu. */
-    static final Integer    EXIT = new Integer(15);
+    static final Integer    EXIT = new Integer(14);
     
     /** Identifies the <code>Clear action</code> in the Edit menu. */
-    static final Integer    CLEAR = new Integer(16);
+    static final Integer    CLEAR = new Integer(15);
     
     /** Identifies the <code>Add action</code> in the Edit menu. */
-    static final Integer    ADD_OBJECT = new Integer(17);
+    static final Integer    ADD_OBJECT = new Integer(16);
     
     /** 
      * Identifies the <code>Create top container action</code> in the 
      * File menu.
      */
-    static final Integer    CREATE_TOP_CONTAINER = new Integer(18);
+    static final Integer    CREATE_TOP_CONTAINER = new Integer(17);
     
     /** 
      * Identifies the <code>Refresh tree action</code> in the 
      * File menu.
      */
-    static final Integer    REFRESH_TREE = new Integer(19);
+    static final Integer    REFRESH_TREE = new Integer(18);
     
     /** 
      * Identifies the <code>Manager</code> in the 
      * File menu.
      */
-    static final Integer    MANAGER = new Integer(20);
+    static final Integer    MANAGER = new Integer(19);
     
     /** 
      * Identifies the <code>Classifier action</code> in the 
      * File menu.
      */
-    static final Integer    CLASSIFIER = new Integer(21);
+    static final Integer    CLASSIFIER = new Integer(20);
     
     /** 
      * Identifies the <code>Cut action</code> in the 
      * Edit menu.
      */
-    static final Integer    CUT_OBJECT = new Integer(22);
+    static final Integer    CUT_OBJECT = new Integer(21);
     
     /** 
      * Identifies the <code>Activation action</code> in the 
      * Edit menu.
      */
-    static final Integer    ACTIVATION = new Integer(23);
+    static final Integer    ACTIVATION = new Integer(22);
+    
+    /** 
+     * Identifies the <code>Switch user action</code> in the 
+     * File menu.
+     */
+    static final Integer    SWITCH_USER = new Integer(23);
     
     /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
      */
-    private TreeViewer      model;
+    private TreeViewer      				model;
     
     /** Reference to the View. */
-    private TreeViewerWin   view;
+    private TreeViewerWin   				view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map             actionsMap;
-    
-    /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map				groupLevelActionsMap;
-    
+    private Map<Integer, TreeViewerAction>	actionsMap;
+   
     /** The tabbed pane listener. */
-    private ChangeListener  tabsListener;
+    private ChangeListener  				tabsListener;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -215,7 +215,6 @@ class TreeViewerControl
                 new BrowserSelectionAction(model, Browser.CATEGORY_EXPLORER));
         actionsMap.put(IMAGES_EXPLORER, 
                 new BrowserSelectionAction(model, Browser.IMAGES_EXPLORER));
-        actionsMap.put(USER_ROOT_LEVEL, new RootLevelAction(model));
         actionsMap.put(FIND,  new FinderAction(model));
         actionsMap.put(CLASSIFY, new ClassifyAction(model,
                                 ClassifyAction.CLASSIFY));
@@ -232,20 +231,7 @@ class TreeViewerControl
         actionsMap.put(MANAGER, new ManagerAction(model));
         actionsMap.put(CUT_OBJECT, new CutAction(model));
         actionsMap.put(ACTIVATION, new ActivationAction(model));
-    }
-    
-    /** Helper method to create the actions for the group level hierarchy. */
-    private void createGroupLevelActions()
-    {
-        Set groups = model.getUserDetails().getGroups();
-        Iterator i = groups.iterator();
-        GroupData group;
-        while (i.hasNext()) {
-            group = (GroupData) i.next();
-            groupLevelActionsMap.put(new Long(group.getId()), 
-                    new RootLevelAction(model, TreeViewer.GROUP_ROOT, 
-                            group.getId(), group.getName()));
-        }
+        actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
     }
     
     /** 
@@ -297,8 +283,7 @@ class TreeViewerControl
     {
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
-        actionsMap = new HashMap();
-        groupLevelActionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, TreeViewerAction>();
     }
     
     /**
@@ -311,7 +296,6 @@ class TreeViewerControl
         if (view == null) throw new NullPointerException("No view.");
         this.view = view;
         createActions();
-        createGroupLevelActions();
         model.addChangeListener(this);
         attachListeners();
     }
@@ -371,21 +355,7 @@ class TreeViewerControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-    TreeViewerAction getAction(Integer id)
-    { 
-        return (TreeViewerAction) actionsMap.get(id);
-    }
-    
-    /**
-     * Returns the action corresponding to the specified id.
-     * 
-     * @param id One of the group id.
-     * @return The specified action.
-     */
-    Action getGroupLevelAction(Long id) 
-    { 
-        return (Action) groupLevelActionsMap.get(id);
-    }
+    TreeViewerAction getAction(Integer id) { return actionsMap.get(id); }
     
     /** Forwards call to the {@link TreeViewer}. */
     void cancel() { model.cancel(); }
@@ -476,6 +446,17 @@ class TreeViewerControl
             Iterator i = browsers.values().iterator();
             while (i.hasNext())
                 ((Browser) i.next()).refreshTree();
+        } else if (name.equals(UserManagerDialog.USER_SWITCH_PROPERTY)) {
+        	Map m = (Map) pce.getNewValue();
+        	Iterator i = m.keySet().iterator();
+        	Long groupID;
+        	ExperimenterData d;
+        	while (i.hasNext()) {
+        		groupID = (Long) i.next();
+				d = (ExperimenterData) m.get(groupID);
+				model.setHierarchyRoot(groupID, d);
+        		break;
+			}
         }
     }
 
@@ -501,7 +482,7 @@ class TreeViewerControl
                 view.onStateChanged(false);
                 break;
             case TreeViewer.READY:
-            case TreeViewer.DIALOG_SELECTION:
+            case TreeViewer.LOADING_SELECTION:
                 view.setStatus(null, true);
                 view.setStatusIcon(false);
                 view.onStateChanged(true);

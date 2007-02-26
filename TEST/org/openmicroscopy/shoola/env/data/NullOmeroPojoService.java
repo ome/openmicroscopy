@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.GroupData;
 
 /** 
  * 
@@ -266,6 +267,16 @@ public class NullOmeroPojoService
 	public List updateAnnotationFor(Map toUpdate) 
 		throws DSOutOfServiceException, DSAccessException
     {
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getAvailableGroups()
+     */
+	public Map<GroupData, Set> getAvailableGroups() 
+		throws DSOutOfServiceException, DSAccessException 
+	{
 		return null;
 	}
 

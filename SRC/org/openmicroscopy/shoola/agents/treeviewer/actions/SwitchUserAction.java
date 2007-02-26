@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
-
-
 
 
 //Java imports
@@ -35,33 +32,40 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to sort the nodes by alphabetical order.
+ * Action to bring up the Switch user dialog.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class SortAction
-    extends BrowserAction
+public class SwitchUserAction 
+	extends TreeViewerAction
 {
-    
-    /** Description of the action. */
-    private static final String DESCRIPTION = "Sort by name";
-    
+
+	/** The name of the action. */
+	private static final String NAME = "Switch user";
+	
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Select another and view data";
+	
     /** 
-     * Reacts to {@link Browser}'s state change.
-     *  @see BrowserAction#onStateChange()
+     * Enables the action if the browser is not ready.
+     * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
-    protected void onStateChange()
+    protected void onBrowserStateChange(Browser browser)
     {
-    	setEnabled(model.getState() == Browser.READY);
+    	if (browser == null) return;
+    	setEnabled(browser.getState() == Browser.READY);
     }
     
     /**
@@ -69,22 +73,23 @@ public class SortAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public SortAction(Browser model)
-    {
-        super(model);
-        putValue(Action.SHORT_DESCRIPTION, 
+	public SwitchUserAction(TreeViewer model)
+	{
+		super(model);
+		name = NAME;
+		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.SORT));  
-    }
-    
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER));
+	}
+	
     /**
-     * Sorts the nodes of the currently selected <code>Browser</code> by name.
+     * Brings up the swicth user dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
-    { 
-        model.sortTreeNodes(Browser.SORT_NODES_BY_NAME);
+    {
+        model.retrieveUserGroups();
     }
     
 }
