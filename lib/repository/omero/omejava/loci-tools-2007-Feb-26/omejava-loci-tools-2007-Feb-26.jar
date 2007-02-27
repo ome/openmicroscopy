@@ -1,0 +1,125 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+ <title>/tags/loci-tools-2007-Feb-26/jar/ome-java.jar - LOCI Software - Trac</title><link rel="start" href="/trac/java/wiki" /><link rel="search" href="/trac/java/search" /><link rel="help" href="/trac/java/wiki/TracGuide" /><link rel="stylesheet" href="/trac/java/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/trac/java/chrome/common/css/code.css" type="text/css" /><link rel="stylesheet" href="/trac/java/chrome/common/css/browser.css" type="text/css" /><link rel="icon" href="/trac/java/chrome/common/trac.ico" type="image/x-icon" /><link rel="shortcut icon" href="/trac/java/chrome/common/trac.ico" type="image/x-icon" /><link rel="up" href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar" title="Parent directory" /><link rel="alternate" href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar/ome-java.jar?format=raw" title="Original Format" type="application/java-archive; charset=iso-8859-15" /><style type="text/css">
+</style>
+ <script type="text/javascript" src="/trac/java/chrome/common/js/trac.js"></script>
+</head>
+<body>
+
+
+<div id="banner">
+
+<div id="header"><a id="logo" href="http://trac.edgewall.com/"><img src="/trac/java/chrome/common/trac_banner.png" width="236" height="73" alt="Trac" /></a><hr /></div>
+
+<form id="search" action="/trac/java/search" method="get">
+ <div>
+  <label for="proj-search">Search:</label>
+  <input type="text" id="proj-search" name="q" size="10" accesskey="f" value="" />
+  <input type="submit" value="Search" />
+  <input type="hidden" name="wiki" value="on" />
+  <input type="hidden" name="changeset" value="on" />
+  <input type="hidden" name="ticket" value="on" />
+ </div>
+</form>
+
+
+
+<div id="metanav" class="nav"><ul><li class="first"><a href="/trac/java/login">Login</a></li><li><a href="/trac/java/settings">Settings</a></li><li><a accesskey="6" href="/trac/java/wiki/TracGuide">Help/Guide</a></li><li class="last"><a href="/trac/java/about">About Trac</a></li></ul></div>
+</div>
+
+<div id="mainnav" class="nav"><ul><li class="first"><a accesskey="1" href="/trac/java/wiki">Wiki</a></li><li><a accesskey="2" href="/trac/java/timeline">Timeline</a></li><li><a accesskey="3" href="/trac/java/roadmap">Roadmap</a></li><li class="active"><a href="/trac/java/browser">Browse Source</a></li><li><a href="/trac/java/report">View Tickets</a></li><li class="last"><a accesskey="4" href="/trac/java/search">Search</a></li></ul></div>
+<div id="main">
+
+
+
+
+<div id="ctxtnav" class="nav">
+ <ul>
+  <li class="first"><a href="/trac/java/changeset/2266/trunk/jar/ome-java.jar">
+   Last Change</a></li>
+  <li class="last"><a href="/trac/java/log/tags/loci-tools-2007-Feb-26/jar/ome-java.jar">
+   Revision Log</a></li>
+ </ul>
+</div>
+
+
+<div id="searchable">
+<div id="content" class="browser">
+ <h1><a class="first" title="Go to root directory" href="/trac/java/browser">root</a><span class="sep">/</span><a title="View tags" href="/trac/java/browser/tags">tags</a><span class="sep">/</span><a title="View loci-tools-2007-Feb-26" href="/trac/java/browser/tags/loci-tools-2007-Feb-26">loci-tools-2007-Feb-26</a><span class="sep">/</span><a title="View jar" href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar">jar</a><span class="sep">/</span><a title="View ome-java.jar" href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar/ome-java.jar">ome-java.jar</a></h1>
+
+ <div id="jumprev">
+  <form action="" method="get">
+   <div>
+    <label for="rev">View revision:</label>
+    <input type="text" id="rev" name="rev" value="" size="4" />
+   </div>
+  </form>
+ </div>
+
+ 
+
+ 
+  <table id="info" summary="Revision info"><tr>
+    <th scope="col">
+     Revision <a href="/trac/java/changeset/2266">2266</a>, 414.8 kB
+     (checked in by curtis, 2 weeks ago)
+    </th></tr><tr>
+    <td class="message"><p>
+Change method signatures from OMEXMLNode.getChildren to <br />
+OMEXMLNode.getChildNodes, to avoid compile issue with <a class="missing wiki" href="/trac/java/wiki/FeatureNode" rel="nofollow">FeatureNode?</a>. <br />
+</p>
+</td>
+   </tr><tr>
+    <td colspan="2"><ul class="props">
+      <li>Property <strong>svn:mime-type</strong> set to <em><code>application/octet-stream</code></em></li>
+    </ul></td></tr>
+  </table>
+  <div id="preview">
+    <strong>HTML preview not available</strong>, since the file size exceeds
+    262144 bytes. Try <a href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar/ome-java.jar?format=raw">downloading</a> the file instead.
+  </div>
+
+ <div id="help">
+  <strong>Note:</strong> See <a href="/trac/java/wiki/TracBrowser">TracBrowser</a> for help on using the browser.
+ </div>
+
+  <div id="anydiff">
+   <form action="/trac/java/anydiff" method="get">
+    <div class="buttons">
+     <input type="hidden" name="new_path" value="/tags/loci-tools-2007-Feb-26/jar/ome-java.jar" />
+     <input type="hidden" name="old_path" value="/tags/loci-tools-2007-Feb-26/jar/ome-java.jar" />
+     <input type="hidden" name="new_rev" value="" />
+     <input type="hidden" name="old_rev" value="" />
+     <input type="submit" value="View changes..." title="Prepare an Arbitrary Diff" />
+    </div>
+   </form>
+  </div>
+
+</div>
+</div>
+<script type="text/javascript">searchHighlight()</script>
+<div id="altlinks"><h3>Download in other formats:</h3><ul><li class="first last"><a href="/trac/java/browser/tags/loci-tools-2007-Feb-26/jar/ome-java.jar?format=raw">Original Format</a></li></ul></div>
+
+</div>
+
+<div id="footer">
+ <hr />
+ <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/trac/java/chrome/common/trac_logo_mini.png" height="30" width="107"
+   alt="Trac Powered"/></a>
+ <p class="left">
+  Powered by <a href="/trac/java/about"><strong>Trac 0.10.3</strong></a><br />
+  By <a href="http://www.edgewall.org/">Edgewall Software</a>.
+ </p>
+ <p class="right">
+  Visit the Trac open source project at<br /><a href="http://trac.edgewall.com/">http://trac.edgewall.com/</a>
+ </p>
+</div>
+
+
+
+ </body>
+</html>
+

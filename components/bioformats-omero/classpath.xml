@@ -31,7 +31,7 @@ importing this file.
 	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<file name="omero/omejava/unknown/omejava-unknown.jar"/>
+	<file name="omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
@@ -52,7 +52,7 @@ importing this file.
 	<include name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<include name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<include name="omero/omejava/unknown/omejava-unknown.jar"/>
+	<include name="omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
@@ -75,7 +75,7 @@ importing this file.
 	<file name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<file name="omero/omejava/unknown/omejava-unknown.jar"/>
+	<file name="omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
@@ -101,7 +101,7 @@ importing this file.
 	<include name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<include name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
-	<include name="omero/omejava/unknown/omejava-unknown.jar"/>
+	<include name="omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/client/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
