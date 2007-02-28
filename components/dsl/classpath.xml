@@ -29,7 +29,7 @@ importing this file.
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<file name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
 	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<file name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -41,7 +41,7 @@ importing this file.
 	<include name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<include name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
 	<include name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<include name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<include name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
@@ -53,7 +53,7 @@ importing this file.
 	<file name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<file name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
 	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<file name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<file name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
 	<file name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
@@ -70,7 +70,7 @@ importing this file.
 	<include name="ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<include name="commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
 	<include name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
-	<include name="groovy/groovy-all-1.0-jsr/05/groovy-all-1.0-jsr-05.jar"/>
+	<include name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
 	<include name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<include name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
