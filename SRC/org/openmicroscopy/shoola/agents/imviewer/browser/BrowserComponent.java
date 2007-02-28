@@ -286,4 +286,15 @@ class BrowserComponent
 		view.scrollTo(bounds, blockIncrement);
 	}
 
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setBackgroundColor(Color)
+     */
+	public void setBackgroundColor(Color color)
+	{
+		if (model.getBackgroundColor().equals(color)) return;
+		model.setBackgroundColor(color);
+		view.getViewport().setBackground(color);
+	}
+
 }

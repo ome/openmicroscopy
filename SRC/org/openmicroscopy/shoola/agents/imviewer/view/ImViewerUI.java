@@ -92,6 +92,9 @@ class ImViewerUI
     /** The available colors for the unit bar. */
     private static Map<Color, String>	colors;
     
+    /** The available colors for the background color of the canvas. */
+    private static Map<Color, String>	backgrounds;
+    
     static {
     	colors = new LinkedHashMap<Color, String>();
     	colors.put(ImagePaintingFactory.UNIT_BAR_COLOR, 
@@ -104,6 +107,14 @@ class ImViewerUI
     	colors.put(Color.RED, "Red");
     	colors.put(Color.GREEN, "Green");
     	colors.put(Color.BLUE, "Blue");
+    	
+    	backgrounds = new LinkedHashMap<Color, String>();
+    	backgrounds.put(ImagePaintingFactory.DEFAULT_BACKGROUND, 
+    			ImagePaintingFactory.DEFAULT_BACKGROUND_NAME);
+    	backgrounds.put(Color.WHITE, "White");
+    	backgrounds.put(Color.BLACK, "Black");
+    	backgrounds.put(Color.GRAY, "Grey");
+    	backgrounds.put(Color.LIGHT_GRAY, "Light Grey");
     }
     
     /** Reference to the Control. */
@@ -158,6 +169,38 @@ class ImViewerUI
     }
     
     /**
+     * Helper method to create the background color sub-menu.
+     * 
+     * @return See above.
+     */
+    private JMenuItem createBackgroundColorSubMenu()
+    {
+    	JMenu menu = new JMenu("Background color");
+    	ButtonGroup group = new ButtonGroup();
+    	Iterator i = backgrounds.keySet().iterator();
+    	ColorCheckBoxMenuItem item;
+    	Color c;
+    	while (i.hasNext()) {
+			c = (Color) i.next();
+			item = new ColorCheckBoxMenuItem(c);
+			item.setText(backgrounds.get(c)); 
+			item.setSelected(c.equals(ImagePaintingFactory.DEFAULT_BACKGROUND));
+			group.add(item);
+	    	menu.add(item);
+	    	item.addActionListener(new ActionListener() {
+			
+				public void actionPerformed(ActionEvent e) {
+					ColorCheckBoxMenuItem src = 
+								(ColorCheckBoxMenuItem) e.getSource();
+					if (src.isSelected())
+						model.getBrowser().setBackgroundColor(src.getColor());
+				}
+			});
+		}
+    	return menu;
+    }
+    
+    /**
      * Helper method to create the unit bar color sub-menu.
      * 
      * @return See above.
@@ -171,6 +214,7 @@ class ImViewerUI
     	Color c;
     	while (i.hasNext()) {
 			c = (Color) i.next();
+			
 			item = new ColorCheckBoxMenuItem(c);
 			item.setText(colors.get(c)); 
 			item.setSelected(c.equals(ImagePaintingFactory.UNIT_BAR_COLOR));
@@ -272,6 +316,8 @@ class ImViewerUI
         menu.add(item);
         menu.add(createScaleBarLenghtSubMenu());
         menu.add(createScaleBarColorSubMenu());
+        menu.add(new JSeparator(JSeparator.HORIZONTAL));
+        menu.add(createBackgroundColorSubMenu());
         return menu;
     }
     

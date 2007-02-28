@@ -53,6 +53,14 @@ import java.awt.RenderingHints;
 public class ImagePaintingFactory
 {
     
+	/** The default color of the background. */
+	public static final Color			DEFAULT_BACKGROUND = 
+											new Color(200, 200, 200);
+	
+	/** Name of the default default color of the background. */
+	public static final String			DEFAULT_BACKGROUND_NAME = 
+													"Default background";
+	
 	/** Color of the scale bar. */
     public static final Color          	UNIT_BAR_COLOR = Color.GRAY;
     

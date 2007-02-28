@@ -92,6 +92,9 @@ class BrowserModel
     /** The default color of the unit bar. */
     private Color			unitBarColor;
     
+    /** The bacground color of the canvas. */
+    private Color			backgroundColor;
+    
     /** 
      * Creates a new instance.
      * 
@@ -107,6 +110,7 @@ class BrowserModel
         unitBar = true;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
+        backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
     }
     
     /**
@@ -255,13 +259,26 @@ class BrowserModel
      * @return See above.
      */
     Color getUnitBarColor() { return unitBarColor; }
-    
-    
+
     /**
      * Sets the color of the unit bar.
      * 
      * @param c  The color to set.
      */
     void setUnitBarColor(Color c) { unitBarColor = c; }
-    
+
+    /**
+     * Returns the background color of the canvas.
+     * 
+     * @return See above.
+     */
+	Color getBackgroundColor() { return backgroundColor; }
+	
+    /**
+     * Set the background color of the canvas.
+     * 
+     * @param c  The color to set.
+     */
+	void setBackgroundColor(Color c) { backgroundColor = c; }
+	
 }

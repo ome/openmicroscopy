@@ -86,7 +86,7 @@ class BrowserUI
     private void buildGUI()
     {
     	getViewport().setLayout(null);
-    	getViewport().setBackground(getBackground());
+    	getViewport().setBackground(model.getBackgroundColor());
         getViewport().add(layeredPane);
     }
     
