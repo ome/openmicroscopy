@@ -150,7 +150,6 @@ class EditorUI
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
     
-    private static final String		USER_MSG = "User";
     
     /**
      * The message displayed when the name of the <code>DataObject</code> is 
@@ -277,8 +276,7 @@ class EditorUI
                     messageParent = CATEGORY_PARENT_MSG;
             }
             message = IMAGE_MSG;
-        } else if (nodeType.equals(ExperimenterData.class))
-        	message = USER_MSG;
+        } 
     }
     
     /**
@@ -371,7 +369,8 @@ class EditorUI
                 if (b) {
                 	
                 } else { //TODO: modify
-                	ExperimenterData exp = model.getExperimenterData();
+                	ExperimenterData exp = model.getDataObjectOwner();
+                	
                     Map details = EditorUtil.transformExperimenterData(exp);
                     DOInfo info = new DOInfo(this, model, details, true, 
                                         DOInfo.OWNER_TYPE);

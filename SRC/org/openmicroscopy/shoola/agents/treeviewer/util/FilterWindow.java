@@ -186,34 +186,16 @@ public class FilterWindow
         selectAll = new JButton("Select All");
         selectAll.setToolTipText(
                 UIUtilities.formatToolTipText("Select all items."));
-        selectAll.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            { 
-                tree.selectAllNodes(); 
-            }
-        });
         clearAll = new JButton("Deselect All");
         clearAll.setToolTipText(
                 UIUtilities.formatToolTipText("Clear selection."));
-        clearAll.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                tree.deselectAllNodes();
-            }
-        });
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText(
                 UIUtilities.formatToolTipText("Close the window."));
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { close(); }
-        });
         setButton = new JButton("Apply");
         setButton.setEnabled(false);
         setButton.setToolTipText(
                 UIUtilities.formatToolTipText("Apply the selection."));
-        setButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { setValues(); }
-        });
     }
     
     /**
@@ -319,6 +301,24 @@ public class FilterWindow
     {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent we) { close(); }
+        });
+        selectAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                tree.selectAllNodes(); 
+            }
+        });
+        clearAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                tree.deselectAllNodes();
+            }
+        });
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { close(); }
+        });
+        setButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) { setValues(); }
         });
     }
     

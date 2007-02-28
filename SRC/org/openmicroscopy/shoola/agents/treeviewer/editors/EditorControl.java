@@ -187,6 +187,12 @@ public class EditorControl
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }
     
+    /** Downloads the archived files. */
+    void download()
+    {
+    	
+    }
+    
     /**
      * Reacts to state changes in the {@link Editor}.
      * @see ChangeListener#stateChanged(ChangeEvent)

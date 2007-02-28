@@ -104,6 +104,8 @@ public class TreeCellRenderer
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)
             icon = icons.getIcon(IconManager.CATEGORY);
+        else if (usrObject instanceof String)
+        	icon = icons.getIcon(IconManager.ROOT);
         setIcon(icon);
     }
 

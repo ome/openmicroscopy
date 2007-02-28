@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
@@ -105,13 +104,13 @@ public class ManagerAction
         if (ho instanceof String || ho instanceof ExperimenterData) { // root
             setEnabled(false);
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else if (ho instanceof CategoryGroupData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else if (ho instanceof CategoryData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else if (ho instanceof DatasetData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else {
             setEnabled(false);
         }

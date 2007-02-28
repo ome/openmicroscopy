@@ -312,14 +312,6 @@ public interface HiViewer
     public TreeView createTreeView();
     
     /**
-     * Returns the level of the root, <code>GroupData</code> or 
-     * <code>ExperimenterData</code>.
-     * 
-     * @return See above.
-     */
-    public Class getRootLevel();
-    
-    /**
      * Returns the ID of the root. 
      * 
      * @return See above.
@@ -473,5 +465,12 @@ public interface HiViewer
      * @return See above.
      */
 	public long getUserGroupID();
+
+	/**
+	 * Returns the selected experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getExperimenter();
     
 }

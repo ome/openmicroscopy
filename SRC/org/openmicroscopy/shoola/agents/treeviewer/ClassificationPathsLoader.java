@@ -31,12 +31,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Loads the CategoryGroup/Category paths containing the specified image. 
@@ -62,48 +59,8 @@ public class ClassificationPathsLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** 
-     * The level of the root node. One of the following constants.
-     * {@link TreeViewer#USER_ROOT} or {@link TreeViewer#GROUP_ROOT}.
-     */
-    private int         rootLevel;
-    
     /** The id of the root node. */
-    private long        rootNodeID;
-    
-    /**
-     * Converts the UI rootLevel into its corresponding class.
-     *
-     * @return See above.
-     */
-    private Class convertRootLevel()
-    {
-        switch (rootLevel) {
-            case TreeViewer.USER_ROOT: return ExperimenterData.class;
-            case TreeViewer.GROUP_ROOT: return GroupData.class;
-            default:
-                throw new IllegalArgumentException("Level not supported");
-        }
-    }
-    
-    /**
-     * Determines the rootID depending on the rootLevel.
-     *     
-     * @return See above.
-     */
-    private long getRootID()
-    {
-        switch (rootLevel) {
-            case TreeViewer.USER_ROOT:
-                ExperimenterData exp = (ExperimenterData) 
-                registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-                return exp.getId();  
-            case TreeViewer.GROUP_ROOT:
-                return rootNodeID;
-            default:
-                throw new IllegalArgumentException("Level not supported");
-        }
-    }
+    private long        rootID;
     
     /**
      * Creates a new instance. 
@@ -111,11 +68,9 @@ public class ClassificationPathsLoader
      * @param viewer        The Editor this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param imageIDs      The collection of image's id. 
-     * @param rootLevel     The level of the root.
-     * @param rootNodeID    The id of the root.   
+     * @param rootID    	The id of the root.   
      */
-    public ClassificationPathsLoader(Editor viewer, Set imageIDs, int rootLevel,
-            long rootNodeID)
+    public ClassificationPathsLoader(Editor viewer, Set imageIDs, long rootID)
     {
         super(viewer);
         if (imageIDs == null) 
@@ -123,8 +78,7 @@ public class ClassificationPathsLoader
         if (imageIDs.size() == 0) 
             throw new IllegalArgumentException("No image.");
         this.imageIDs = imageIDs;
-        this.rootLevel = rootLevel;
-        this.rootNodeID = rootNodeID;
+        this.rootID = rootID;
     }
 
     /** 
@@ -135,7 +89,7 @@ public class ClassificationPathsLoader
     {
         handle = dmView.loadClassificationPaths(imageIDs,
                                     OmeroDataService.DECLASSIFICATION, 
-                                    convertRootLevel(),  getRootID(), this);
+                                    ExperimenterData.class, rootID, this);
     }
 
     /** 

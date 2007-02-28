@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
+import pojos.ExperimenterData;
+
 /** 
  * Loads, asynchronously, the CategoryGroup/Categgory nodes
  * containing the the specified image.
@@ -59,9 +61,6 @@ public class ClassificationsLoader
     /** The id of the image. */
     private long        imageID;
     
-    /** The level of the root node. */
-    private Class       rootLevel;
-    
     /** The id of the root node. */
     private long        rootID;
     
@@ -74,16 +73,13 @@ public class ClassificationsLoader
      * @param clipBoard     The {@link ClipBoard} this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param imageID       The id of the image.
-     * @param rootLevel     The level of the root.
      * @param rootID        The id of the root.    
      */
-    public ClassificationsLoader(ClipBoard clipBoard, long imageID, 
-            Class rootLevel, long rootID)
+    public ClassificationsLoader(ClipBoard clipBoard, long imageID, long rootID)
     {
         super(clipBoard);
         this.imageID = imageID;
         this.rootID = rootID;
-        this.rootLevel = rootLevel;
     }
     
     /**
@@ -92,11 +88,11 @@ public class ClassificationsLoader
      */
     public void load()
     {
-        Set ids = new HashSet(1);
+        Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         handle = hiBrwView.loadClassificationPaths(ids,
-                        HierarchyBrowsingView.DECLASSIFICATION, rootLevel,
-                        rootID, this);
+                        HierarchyBrowsingView.DECLASSIFICATION, 
+                        ExperimenterData.class, rootID, this);
     }
 
     /** 

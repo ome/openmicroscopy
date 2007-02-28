@@ -31,12 +31,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Loads the CategoryGroup/Category paths containing the specified image
@@ -64,14 +61,8 @@ public class ClassifierPathsLoader
     /** The type of classifier. */
     private int         mode;
     
-    /** 
-     * The level of the root node. One of the following constants.
-     * {@link TreeViewer#USER_ROOT} or {@link TreeViewer#GROUP_ROOT}.
-     */
-    private int         rootLevel;
-    
     /** The id of the root node. */
-    private long        rootNodeID;
+    private long        rootID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -93,40 +84,6 @@ public class ClassifierPathsLoader
     }
     
     /**
-     * Converts the UI rootLevel into its corresponding class.
-     * 
-     * @return See above.
-     */
-    private Class convertRootLevel()
-    {
-        switch (rootLevel) {
-            case TreeViewer.USER_ROOT: return ExperimenterData.class;
-            case TreeViewer.GROUP_ROOT: return GroupData.class;
-            default:
-                throw new IllegalArgumentException("Level not supported");
-        }
-    }
-    
-    /**
-     * Determines the rootID depending on the rootLevel.
-     *     
-     * @return See above.
-     */
-    private long getRootID()
-    {
-        switch (rootLevel) {
-            case TreeViewer.USER_ROOT:
-                ExperimenterData exp = (ExperimenterData) 
-                registry.lookup(LookupNames.CURRENT_USER_DETAILS);
-                return exp.getId();  
-            case TreeViewer.GROUP_ROOT:
-                return rootNodeID;
-            default:
-                throw new IllegalArgumentException("Level not supported");
-        }
-    }
-    
-    /**
      * Creates a new instance. 
      * 
      * @param viewer        The TreeViewer this data loader is for.
@@ -136,11 +93,10 @@ public class ClassifierPathsLoader
      *                      constants:
      *                      {@link Classifier#DECLASSIFY_MODE} or 
      *                      {@link Classifier#CLASSIFY_MODE}.
-     * @param rootLevel     The level of the root.
-     * @param rootNodeID    The id of the root.    
+     * @param rootID    	The id of the root.    
      */
     public ClassifierPathsLoader(Classifier viewer, Set imageIDs, int mode,
-                                int rootLevel, long rootNodeID)
+                                long rootID)
     {
         super(viewer);
         if (imageIDs == null) 
@@ -148,8 +104,7 @@ public class ClassifierPathsLoader
         if (imageIDs.size() == 0) 
             throw new IllegalArgumentException("No images.");
         checkMode(mode);
-        this.rootLevel = rootLevel;
-        this.rootNodeID = rootNodeID;
+        this.rootID = rootID;
         this.imageIDs = imageIDs;
         this.mode = mode;
     }
@@ -167,12 +122,12 @@ public class ClassifierPathsLoader
             case Classifier.DECLASSIFY_MODE:
                 handle = dmView.loadClassificationPaths(imageIDs,
                         DataManagerView.DECLASSIFICATION, 
-                        convertRootLevel(), getRootID(), this);
+                        ExperimenterData.class, rootID, this);
                 break;
             case Classifier.CLASSIFY_MODE:
                handle = dmView.loadClassificationPaths(imageIDs,
-                        DataManagerView.CLASSIFICATION_NME, convertRootLevel(), 
-                        getRootID(), this);
+                        DataManagerView.CLASSIFICATION_NME, 
+                        ExperimenterData.class, rootID, this);
         } 
     }
 

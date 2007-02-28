@@ -130,7 +130,7 @@ class CategoryModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new CategoryModel(categoriesID);
-        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
+        model.setRootLevel(getExperimenter(), getUserGroupID());
         return model;
     }
     

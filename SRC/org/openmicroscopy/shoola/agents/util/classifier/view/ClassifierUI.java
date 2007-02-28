@@ -32,8 +32,10 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -65,7 +67,7 @@ class ClassifierUI
 
     /** Message displayed if the image is unclassified. */
     private static final String     ADD_UNCLASSIFIED_TEXT = "The image " +
-            "cannot be categorised. Please first create a category.";
+            "cannot be categorised. Please create a category first.";
 
     /** Message displayed if the image is unclassified. */
     private static final String     REMOVE_UNCLASSIFIED_TEXT = "The selected " +
@@ -133,9 +135,10 @@ class ClassifierUI
         if (paths.size() == 0) {
             JPanel p = new JPanel();
             p.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 10));
-            p.add(UIUtilities.setTextFont(getUnclassifiedNote()), 
-                   BorderLayout.CENTER);
-            return p;
+            JLabel label = UIUtilities.setTextFont(getUnclassifiedNote());
+            label.setHorizontalAlignment(SwingConstants.LEFT);
+            p.add(label, BorderLayout.CENTER);
+            return UIUtilities.buildComponentPanel(p);
         }
         //populates the tree
         DefaultTreeModel dtm = (DefaultTreeModel) tree.getModel();
@@ -192,8 +195,9 @@ class ClassifierUI
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model 	 Reference to the model. Mustn't be <code>null</code>.
-	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param model			Reference to the model. Mustn't be <code>null</code>.
+	 * @param controller	Reference to the control. 
+	 * 						Mustn't be <code>null</code>.
 	 */
     ClassifierUI(ClassifierModel model, ClassifierControl controller)
 	{

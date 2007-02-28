@@ -308,21 +308,16 @@ class EditorModel
      * 
      * @return See above.
      */
-    ExperimenterData getExperimenterData()
+    ExperimenterData getDataObjectOwner()
     {
-        if (hierarchyObject == null) return null;
-        else if (hierarchyObject instanceof DatasetData)
-            return ((DatasetData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof ProjectData)
-            return ((ProjectData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof CategoryData)
-            return ((CategoryData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof CategoryGroupData)
-            return ((CategoryGroupData) hierarchyObject).getOwner();
-        else if (hierarchyObject instanceof ImageData)
-            return ((ImageData) hierarchyObject).getOwner();
-        return null;
-    }
+    	if (hierarchyObject == null) return null;
+    	ExperimenterData exp =  hierarchyObject.getOwner();
+    	if (exp == null) return null;
+    	if (exp.isLoaded()) return exp;
+    	ExperimenterData selectedExp = parentModel.getSelectedExperimenter();
+    	if (exp.getId() == selectedExp.getId()) return selectedExp;
+    	return exp;
+     }
     
     /** 
      * Returns the name of the currenlty edited <code>DataObject</code>.
@@ -571,7 +566,7 @@ class EditorModel
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
         currentLoader = new ClassificationPathsLoader(component, ids,
-                parentModel.getRootLevel(), parentModel.getRootID());
+                								parentModel.getRootID());
         currentLoader.load();
     }
 

@@ -57,8 +57,6 @@ public class ClassifierFactory
      * 
      * @param parent	The owner of the dialog.
      * @param objects 	Collections of <code>Image</code>s to classify.
-     * @param rootType	The type of the root node, either <code>Group</code>
-     * 					or <code>Experimenter</code>.
      * @param rootID	The Id of the root node.
      * @param m         The type of classifier. One of the following constants:
      *                  {@link Classifier#CLASSIFY_MODE}, 
@@ -67,12 +65,12 @@ public class ClassifierFactory
      * @return See above.
      */
     public static Classifier getClassifier(JFrame parent, 
-    			Set objects, Class rootType, long rootID, int m, Registry ctx)
+    			Set objects, long rootID, int m, Registry ctx)
     {
     	if (registry == null) registry = ctx;
     	if (owner == null) owner = parent;
     	if (objects == null || objects.size() == 0) return null;
-    	 return singleton.createClassifier(objects, rootType, rootID, m);
+    	 return singleton.createClassifier(objects, rootID, m);
     }
 
     /**
@@ -102,19 +100,15 @@ public class ClassifierFactory
      * Creates a classifier component for the specified <code>model</code>.
      * 
      * @param objects 	The <code>Image</code>s to classify.
-     * @param rootType	The type of the root node, either <code>Group</code>
-     * 					or <code>Experimenter</code>.
      * @param rootID	The Id of the root node.
      * @param m         The type of classifier. One of the following constants:
      *                  {@link Classifier#CLASSIFY_MODE}, 
      *                  {@link Classifier#DECLASSIFY_MODE}.
      * @return A {@link Classifier}.
      */
-    private Classifier createClassifier(Set objects, Class rootType, 
-										long rootID, int m)
+    private Classifier createClassifier(Set objects, long rootID, int m)
     {
-    	ClassifierModel model = new ClassifierModel(objects, rootType, 
-    												rootID, m);
+    	ClassifierModel model = new ClassifierModel(objects, rootID, m);
     	ClassifierComponent component = new ClassifierComponent(model);
     	model.initialize(component);
     	component.initialize();

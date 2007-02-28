@@ -171,6 +171,7 @@ class BrowserControl
             view.setTitle(model.currentPathString(newNode));
         } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
             ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
+            if (newNode == null) return;
             view.setTitle(model.currentPathString(newNode));
             //paint the nodes
             

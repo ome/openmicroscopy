@@ -96,18 +96,20 @@ public class HierarchyLoader
      *                      {@link CategoryGroupData}, {@link CategoryData}.
      * @param rootNodeIDs   Collection of root node ids.
      */
-    private void validate(Class rootNodeType, Set rootNodeIDs)
+    private void validate(Class rootNodeType, Set<Long> rootNodeIDs)
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");
         if (rootNodeIDs == null && rootNodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
+        /*
         try {
             rootNodeIDs.toArray(new Long[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException("rootNodeIDs only contain " +
                                                 "Long.");
         }  
+        */
         if (rootNodeType.equals(ProjectData.class) ||
             rootNodeType.equals(DatasetData.class) ||
             rootNodeType.equals(CategoryGroupData.class) ||
@@ -187,7 +189,7 @@ public class HierarchyLoader
         checkRootLevel(rootLevel);
         this.rootLevel = rootLevel;
         this.rootLevelID = rootLevelID;
-        HashSet set = new HashSet(1);
+        HashSet<Long> set = new HashSet<Long>(1);
         set.add(new Long(rootNodeID));
         validate(rootNodeType, set);
     }
@@ -207,8 +209,8 @@ public class HierarchyLoader
      *                      <code>ExperimenterData</code>.
      * @param rootLevelID   The id of the root's level.
      */
-    public HierarchyLoader(Class rootNodeType, Set rootNodeIDs, Class rootLevel,
-                            long rootLevelID)
+    public HierarchyLoader(Class rootNodeType, Set<Long> rootNodeIDs, 
+    						Class rootLevel, long rootLevelID)
     {
         checkRootLevel(rootLevel);
         this.rootLevel = rootLevel;

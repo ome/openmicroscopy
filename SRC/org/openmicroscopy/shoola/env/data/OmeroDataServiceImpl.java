@@ -176,7 +176,9 @@ class OmeroDataServiceImpl
         setRootOptions(po, rootLevel, rootLevelID);
         if (withLeaves) po.leaves();
         else po.noLeaves();
-        po.countsFor(new Long(getUserDetails().getId()));
+        if (rootLevel.equals(GroupData.class))
+        	po.countsFor(new Long(getUserDetails().getId()));
+        else po.countsFor(new Long(rootLevelID));
         return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
                                             po.map());                              
     }
@@ -194,7 +196,9 @@ class OmeroDataServiceImpl
             PojoOptions po = new PojoOptions();
             po.leaves();
             setRootOptions(po, rootLevel, rootLevelID);
-            po.countsFor(new Long(getUserDetails().getId()));
+            if (rootLevel.equals(GroupData.class))
+            	po.countsFor(new Long(getUserDetails().getId()));
+            else po.countsFor(new Long(rootLevelID));
             return gateway.findContainerHierarchy(rootNodeType, leavesIDs,
                             po.map());
         } catch (Exception e) {
@@ -246,20 +250,22 @@ class OmeroDataServiceImpl
         PojoOptions po = new PojoOptions();
         po.allCounts();
         setRootOptions(po, rootLevel, rootLevelID);
-        po.countsFor(new Long(getUserDetails().getId()));
+        if (rootLevel.equals(GroupData.class))
+        	po.countsFor(new Long(getUserDetails().getId()));
+        else po.countsFor(new Long(rootLevelID));
         return gateway.getContainerImages(nodeType, nodeIDs, po.map());
     }
     
     /** 
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#getUserImages()
+     * @see OmeroDataService#getImagesFor(long)
      */
-    public Set getUserImages()
+    public Set getImagesFor(long userID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
         po.noCounts();
-        po.exp(new Long(getUserDetails().getId()));
+        po.exp(new Long(userID));
         return gateway.getUserImages(po.map());
     }
   
@@ -501,10 +507,10 @@ class OmeroDataServiceImpl
         while (category.hasNext())
             cut((DataObject) category.next(), images);
         Iterator i = images.iterator();
-        Set ids = new HashSet(images.size());
-        while (i.hasNext()) {
+        Set<Long> ids = new HashSet<Long>(images.size());
+        while (i.hasNext()) 
         	ids.add(new Long(((DataObject) i.next()).getId()));
-		}
+		
         return getImages(ImageData.class, ids, ExperimenterData.class, -1);
     }
 
@@ -517,7 +523,7 @@ class OmeroDataServiceImpl
             throws DSOutOfServiceException, DSAccessException
     {
         Set all = null;
-        Set objects = new HashSet();
+        Set<Long> objects = new HashSet<Long>();
         if (nodeType.equals(ProjectData.class)) {
             Set in = loadContainerHierarchy(nodeType, nodeIDs, true, rootLevel, 
                                             rootID);
@@ -547,7 +553,7 @@ class OmeroDataServiceImpl
         } else if ((nodeType.equals(DatasetData.class)) || 
                     (nodeType.equals(CategoryData.class))) {
             Set in = getImages(nodeType, nodeIDs, rootLevel, rootID);
-            all = getUserImages();
+            all = getImagesFor(rootID);
             Iterator i = in.iterator();
             while (i.hasNext()) {
                 objects.add(new Long(((ImageData) i.next()).getId()));
@@ -556,7 +562,7 @@ class OmeroDataServiceImpl
         }
         if (all == null) return new HashSet(1);
         Iterator k = all.iterator();
-        Set toRemove = new HashSet();
+        Set<DataObject> toRemove = new HashSet<DataObject>();
         DataObject ho;
         Long id;
         while (k.hasNext()) {
@@ -752,4 +758,56 @@ class OmeroDataServiceImpl
 		return gateway.getAvailableGroups();
 	}
     
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getAvailableGroups()
+     */
+	public Set getOrphanContainers(Class nodeType, boolean withLeaves, 
+									Class rootLevel, long rootID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (nodeType == null) return null;
+		if (!(nodeType.equals(DatasetData.class) || 
+				nodeType.equals(CategoryData.class)))
+			return null;
+		Set r = loadContainerHierarchy(nodeType, null, withLeaves, rootLevel, 
+										rootID);
+		Set parents = null;
+		if (nodeType.equals(DatasetData.class)) {
+			parents = loadContainerHierarchy(ProjectData.class, null, false, 
+											rootLevel, rootID);
+		} else if (nodeType.equals(CategoryData.class)) {
+			parents = loadContainerHierarchy(CategoryGroupData.class, null, 
+											false, rootLevel, rootID);
+		}
+		if (parents == null) return null;
+		Iterator i = parents.iterator();
+    	DataObject parent;
+    	Set children = new HashSet();
+    	while (i.hasNext()) {
+    		parent = (DataObject) i.next();
+    		if (nodeType.equals(DatasetData.class))
+    			children.addAll(((ProjectData) parent).getDatasets());
+    		else 
+    			children.addAll(((CategoryGroupData) parent).getCategories());
+    	}
+    	Set childrenIds = new HashSet();
+
+    	Iterator j = children.iterator();
+    	DataObject child;
+    	while (j.hasNext()) {
+    		child = (DataObject) j.next();
+    		childrenIds.add(new Long(child.getId()));
+    	}
+    	Set orphans = new HashSet();
+    	orphans.addAll(r);
+    	j = r.iterator();
+    	while (j.hasNext()) {
+    		child = (DataObject) j.next();
+    		if (childrenIds.contains(new Long(child.getId())))
+    			orphans.remove(child);
+    	}
+		return orphans;
+	}
+	
 }

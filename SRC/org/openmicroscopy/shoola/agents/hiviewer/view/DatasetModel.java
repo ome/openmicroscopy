@@ -130,7 +130,7 @@ class DatasetModel
     protected HiViewerModel reinstantiate()
     {
         HiViewerModel model = new DatasetModel(datasetsID);
-        model.setRootLevel(getRootLevel(), getRootID(), getUserGroupID());
+        model.setRootLevel(getExperimenter(), getUserGroupID());
         return model;
     }
 

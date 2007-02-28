@@ -256,14 +256,15 @@ public interface OmeroDataService
         throws DSOutOfServiceException, DSAccessException;
     
     /**
-     * Retrieves the images imported by the current user.
+     * Retrieves the images imported by the specified user.
      * 
+     * @param userID The id of the user.
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set getUserImages()
+    public Set getImagesFor(long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -510,5 +511,26 @@ public interface OmeroDataService
      */
     public Map<GroupData, Set> getAvailableGroups()
     	throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Retrieves the oprhans datasets or categories.
+     * 
+     * @param nodeType		The type of the rootNodes. It can either be
+     *                      <code>Dataset</code> or <code>Image</code>.
+     *                      Mustn't be <code>null</code>. 
+     * @param b				Pass <code>true</code> to retrieve the images,
+     * 						<code>false</code> otherwise.
+     * @param rootLevel		The level of the hierarchy either 
+     *                      <code>GroupData</code> or 
+     *                      <code>ExperimenterData</code>.
+     * @param rootLevelID	The Id of the root.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
+									long rootLevelID)
+		throws DSOutOfServiceException, DSAccessException;
     
 }

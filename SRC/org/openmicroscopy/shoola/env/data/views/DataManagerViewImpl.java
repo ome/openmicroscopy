@@ -74,7 +74,7 @@ class DataManagerViewImpl
      * 						Class, long, AgentEventListener)
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
-                                            Set rootNodeIDs,
+                                            Set<Long> rootNodeIDs,
                                             boolean withLeaves,
                                             Class rootLevel,
                                             long rootLevelID,
@@ -89,9 +89,9 @@ class DataManagerViewImpl
      * Implemented as specified by the view interface.
      * @see DataManagerView#loadImages(AgentEventListener)
      */
-    public CallHandle loadImages(AgentEventListener observer)
+    public CallHandle loadImages(long userID, AgentEventListener observer)
     {
-        BatchCallTree cmd = new ImagesLoader();
+        BatchCallTree cmd = new ImagesLoader(userID);
         return cmd.exec(observer);
     }
 

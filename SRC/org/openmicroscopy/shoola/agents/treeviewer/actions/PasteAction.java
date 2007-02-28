@@ -36,7 +36,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -91,7 +90,7 @@ public class PasteAction
         }
         Object ho = selectedDisplay.getUserObject(); 
         if (!(ho instanceof ImageData))
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
     }
     

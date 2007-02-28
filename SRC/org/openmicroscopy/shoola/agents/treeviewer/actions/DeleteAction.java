@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -191,28 +190,35 @@ public class DeleteAction
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
+        
         if (ho instanceof ProjectData) {
         	name = NAME_ROOT_P;
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_ROOT_P));
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else if (ho instanceof CategoryGroupData) {
             name = NAME_ROOT_CG;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_ROOT_CG));
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else if (ho instanceof DatasetData) {
             name = NAME_PROJECT;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            Object p = selectedDisplay.getParentDisplay().getUserObject();
+            if (p instanceof ProjectData)
+            	setEnabled(model.isObjectWritable(ho));
+            else setEnabled(false);
         } else if (ho instanceof CategoryData) {
             name = NAME_CATEGORYGROUP;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_CATEGORYGROUP));
-            setEnabled(model.isObjectWritable((DataObject) ho));
-        } else if (ho instanceof ImageData) {
             Object p = selectedDisplay.getParentDisplay().getUserObject();
+            if (p instanceof CategoryGroupData)
+            	setEnabled(model.isObjectWritable(ho));
+            else setEnabled(false);
+        } else if (ho instanceof ImageData) {
+        	Object p = selectedDisplay.getParentDisplay().getUserObject();
             if (p instanceof DatasetData) {
             	name = NAME_DATASET;
             	putValue(Action.SHORT_DESCRIPTION, 
@@ -222,7 +228,7 @@ public class DeleteAction
             	putValue(Action.SHORT_DESCRIPTION, 
                         UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
             }
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         } else {
         	setEnabled(false);
         	putValue(Action.SHORT_DESCRIPTION, 

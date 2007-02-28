@@ -111,10 +111,22 @@ public class DMRefreshLoader
                 OmeroDataService os = context.getDataService();
                 Set set = os.loadContainerHierarchy(rootNodeType, null, 
                         false, rootLevel, rootLevelID);
-
-                Set ids;
+                //Retrieve the orphans objects.
+                Class nodeType = null;
+            	if (rootNodeType.equals(ProjectData.class))
+            		nodeType = DatasetData.class;
+            	else if (rootNodeType.equals(CategoryGroupData.class))
+            		nodeType = CategoryData.class;
+            	if (nodeType != null) {
+            		Set orphans = os.getOrphanContainers(nodeType, false, 
+            				rootLevel, rootLevelID);
+            		if (orphans != null && orphans.size() > 0)
+            			set.addAll(orphans);
+            	}
+            	//
+                Set<Long> ids;
                 Iterator i = containerWithImages.iterator();
-                ids = new HashSet(containerWithImages.size());
+                ids = new HashSet<Long>(containerWithImages.size());
                 while (i.hasNext()) {
                     ids.add(new Long(((DataObject) i.next()).getId()));
                 }
@@ -136,6 +148,14 @@ public class DMRefreshLoader
                     } else if (parent instanceof CategoryGroupData) {
                         klass = CategoryData.class;
                         children = ((CategoryGroupData) parent).getCategories();
+                    } else if (parent instanceof DatasetData) {
+                    	children = new HashSet(1);
+                    	children.add(parent);
+                    	klass = DatasetData.class;
+                    } else if (parent instanceof CategoryData) {
+                    	children = new HashSet(1);
+                    	children.add(parent);
+                    	klass = CategoryData.class;
                     }
                     topNodes.put(parent, newChildren);
                     c = children.iterator();
@@ -153,15 +173,7 @@ public class DMRefreshLoader
                             }
                         } else newChildren.add(child);
                     }
-                    /*
-                    if (parent instanceof ProjectData) {
-                        ((ProjectData) parent).setDatasets(newChildren);
-                    } else if (parent instanceof CategoryGroupData) {
-                        ((CategoryGroupData) parent).setCategories(newChildren);
-                    } 
-                    */
                 }
-                //results = set;
                 results = topNodes;
             }
         };

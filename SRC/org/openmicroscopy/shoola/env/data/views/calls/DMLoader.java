@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
@@ -36,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -104,6 +107,19 @@ public class DMLoader
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(rootNodeType, rootNodeIDs, 
                         		withLeaves, rootLevel, rootLevelID);
+                if (rootNodeIDs == null) {
+                	Class klass = null;
+                	if (rootNodeType.equals(ProjectData.class))
+                		klass = DatasetData.class;
+                	else if (rootNodeType.equals(CategoryGroupData.class))
+                		klass = CategoryData.class;
+                	if (klass != null) {
+                		Set orphans = os.getOrphanContainers(klass, false, 
+                				rootLevel, rootLevelID);
+                		if (orphans != null && orphans.size() > 0)
+                    	results.addAll(orphans);
+                	}
+                }
             }
         };
     }
@@ -138,7 +154,8 @@ public class DMLoader
      *                      <code>ExperimenterData</code>.
      * @param rootLevelID	The Id of the root. 
      */
-    public DMLoader(Class rootNodeType, Set rootNodeIDs, boolean withLeaves,
+    public DMLoader(Class rootNodeType, Set<Long> rootNodeIDs, 
+    				boolean withLeaves,
                     Class rootLevel, long rootLevelID)
     {
         if (rootNodeType == null) 
@@ -146,12 +163,14 @@ public class DMLoader
         checkRootLevel(rootLevel);
         if (rootLevelID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
+        /*
         try {
             if (rootNodeIDs != null) rootNodeIDs.toArray(new Long[] {});
         } catch (ArrayStoreException ase) {
             throw new IllegalArgumentException("rootNodeIDs only contains " +
                                                 "Long.");
         }  
+        */
         if (rootNodeType.equals(ProjectData.class) ||
                 rootNodeType.equals(DatasetData.class) ||
                 rootNodeType.equals(CategoryGroupData.class) ||

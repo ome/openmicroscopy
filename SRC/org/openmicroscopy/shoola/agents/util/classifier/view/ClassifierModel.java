@@ -67,12 +67,6 @@ class ClassifierModel
 	/** Collection of <code>Image</code>s to classify. */
 	private Set 				toClassified;
 	
-	/** 
-	 * The type of the root node, either <code>Group</code>
-     * 	or <code>Experimenter</code>.
-     */
-	private Class				rootType;
-	
 	/** The Id of the root node. */
 	private long				rootID;
 	
@@ -98,18 +92,15 @@ class ClassifierModel
 	 * Creates a new instance.
 	 * 
 	 * @param objects 	Collection of <code>Image</code>s to classify.
-     * @param rootType	The type of the root node, either <code>Group</code>
-     * 					or <code>Experimenter</code>.
      * @param rootID	The Id of the root node.
      * @param m         The type of classifier. One of the following constants:
      *                  {@link Classifier#CLASSIFY_MODE}, 
      *                  {@link Classifier#DECLASSIFY_MODE}.
 	 */
-    ClassifierModel(Set objects, Class rootType, long rootID, int m)
+    ClassifierModel(Set objects, long rootID, int m)
 	{
 		this.toClassified = objects;
 		this.rootID = rootID;
-		this.rootType = rootType;
 		mode = m;
 		state = DataHandler.NEW;
 	}
@@ -156,15 +147,14 @@ class ClassifierModel
 	void fireClassificationPathsLoading()
 	{
 		Iterator i = toClassified.iterator();
-		Set ids = new HashSet(toClassified.size());
+		Set<Long> ids = new HashSet<Long>(toClassified.size());
 		Object object;
 		while (i.hasNext()) {
 			object = i.next();
 			if (object instanceof ImageData)
 				ids.add(new Long(((ImageData) object).getId()));
 		}
-		currentLoader = new ClassificationsLoader(component, ids, rootType, 
-												rootID, mode);
+		currentLoader = new ClassificationsLoader(component, ids, rootID, mode);
 		currentLoader.load();
 		state = DataHandler.LOADING;
 	}

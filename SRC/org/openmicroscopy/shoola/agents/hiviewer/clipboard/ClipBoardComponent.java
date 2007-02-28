@@ -488,5 +488,14 @@ class ClipBoardComponent
     	firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, 
     						Boolean.TRUE);
     }
+
+    /**
+     * Implemented as specified by the {@link ClipBoard} interface.
+     * @see ClipBoard#getExperimenter()
+     */
+	public ExperimenterData getExperimenter()
+	{
+		return model.getParentModel().getExperimenter();
+	}
     
 }

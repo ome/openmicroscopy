@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
+import pojos.ExperimenterData;
+
 /** 
  * The HiViewer agent. This agent manages and presents a <code>DataObject</code>
  * and its children.
@@ -81,37 +83,33 @@ public class HiViewerAgent
         switch (evt.getEventIndex()) {
 			case Browse.IMAGES:
 	            viewer = HiViewerFactory.getImagesViewer(evt.getObjectIDs(), 
-	                evt.getRootLevel(), evt.getRootID(), evt.getUserGroupID());
+	                evt.getExperimenter(), evt.getUserGroupID());
 	            if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.DATASETS:
 				viewer = HiViewerFactory.getDatasetsViewer(evt.getObjectIDs(), 
-		                evt.getRootLevel(), evt.getRootID(), 
-		                evt.getUserGroupID());
+						evt.getExperimenter(), evt.getUserGroupID());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORIES:
 				viewer = HiViewerFactory.getCategoriesViewer(evt.getObjectIDs(), 
-		                evt.getRootLevel(), evt.getRootID(), 
-		                evt.getUserGroupID());
+						evt.getExperimenter(), evt.getUserGroupID());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.PROJECTS:
 				viewer = HiViewerFactory.getProjectsViewer(evt.getObjectIDs(), 
-		                evt.getRootLevel(), evt.getRootID(), 
-		                evt.getUserGroupID());
+						evt.getExperimenter(), evt.getUserGroupID());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			case Browse.CATEGORY_GROUPS:
 				viewer = HiViewerFactory.getCategoryGroupsViewer(
-									evt.getObjectIDs(), evt.getRootLevel(), 
-									evt.getRootID(), evt.getUserGroupID());
+									evt.getObjectIDs(),evt.getExperimenter(),
+									evt.getUserGroupID());
 		        if (viewer != null) viewer.activate(evt.getRequesterBounds());
 				break;
 			default:
 				browse(evt.getEventIndex(), evt.getHierarchyObjectID(),
-						evt.getRootLevel(), evt.getRootID(), 
-						evt.getUserGroupID(),
+						evt.getExperimenter(), evt.getUserGroupID(),
 						evt.getRequesterBounds());
 				break;
 		}
@@ -167,33 +165,28 @@ public class HiViewerAgent
      * @param eventIndex 	One of the constant defined by the {@link Browser}
      * 						class event.
      * @param id    		The ID of the dataObject to browse.
-     * @param rootLevel     The level of the root either 
-     *                      <code>GroupData</code> or 
-     *                      <code>ExperimenterData</code>.
-     * @param rootID        The ID of the root.
+     * @param exp			The selected experimenter.
      * @param userGroupID 	The ID of the selected group for the current user.  
      * @param bounds        The bounds of the component invoking this method.
      */
-    public static void browse(int eventIndex, long id, Class rootLevel,
-                                long rootID, long userGroupID, Rectangle bounds)
+    public static void browse(int eventIndex, long id, ExperimenterData exp,
+                              long userGroupID, Rectangle bounds)
     {
         HiViewer viewer = null;
         switch (eventIndex) {
             case Browse.PROJECT:
-                viewer = HiViewerFactory.getProjectViewer(id, rootLevel, 
-                                                         rootID, userGroupID);
+                viewer = HiViewerFactory.getProjectViewer(id, exp, userGroupID);
                 break;
             case Browse.DATASET:
-                viewer = HiViewerFactory.getDatasetViewer(id, rootLevel, 
-                                                        rootID, userGroupID);
+                viewer = HiViewerFactory.getDatasetViewer(id, exp, userGroupID);
                 break;
             case Browse.CATEGORY_GROUP:
-                viewer = HiViewerFactory.getCategoryGroupViewer(id, rootLevel, 
-                                                           rootID, userGroupID);
+                viewer = HiViewerFactory.getCategoryGroupViewer(id, exp, 
+                										userGroupID);
                 break;
             case Browse.CATEGORY:
-                viewer = HiViewerFactory.getCategoryViewer(id, rootLevel, 
-                                                          rootID, userGroupID);  
+                viewer = HiViewerFactory.getCategoryViewer(id, exp, 
+                											userGroupID);  
         }
         if (viewer != null) viewer.activate(bounds);
     }

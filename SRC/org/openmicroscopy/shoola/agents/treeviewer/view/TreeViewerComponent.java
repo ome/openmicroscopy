@@ -132,7 +132,7 @@ class TreeViewerComponent
     {
         ExperimenterData user = model.getUserDetails();
         long id = user.getDefaultGroup().getId();
-        model.setHierarchyRoot(USER_ROOT, user.getId(), id);
+        model.setHierarchyRoot(user.getId(), id);
         model.setExperimenter(user);
         controller.initialize(view);
         view.initialize(controller, model);
@@ -678,31 +678,24 @@ class TreeViewerComponent
     public void setHierarchyRoot(long userGroupID, 
     							ExperimenterData experimenter)
     {
+    	if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+    	if (experimenter == null) return;
+    	removeEditor();
         model.setExperimenter(experimenter);
-        model.setHierarchyRoot(USER_ROOT, experimenter.getId(), userGroupID);
+        model.setHierarchyRoot(experimenter.getId(), userGroupID);
         
         if (model.getState() == READY)
-            firePropertyChange(HIERARCHY_ROOT_PROPERTY, new Integer(-1), 
-                               new Integer(USER_ROOT));
+            firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
+            					Boolean.TRUE);
     }
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#getRootLevel()
+     * @see TreeViewer#isObjectWritable(Object)
      */
-    public int getRootLevel()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-            "This method cannot be invoked in the DISCARDED state.");
-        return model.getRootLevel();
-    }
-    
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see TreeViewer#isObjectWritable(DataObject)
-     */
-    public boolean isObjectWritable(DataObject ho)
+    public boolean isObjectWritable(Object ho)
     {
         if (model.getState() == DISCARDED)
             throw new IllegalStateException(
@@ -1011,7 +1004,6 @@ class TreeViewerComponent
 		d.addPropertyChangeListener(controller);
 		d.pack();
 		UIUtilities.centerAndShow(d);
-		
 	}
 
     /**
@@ -1034,6 +1026,30 @@ class TreeViewerComponent
 			d.pack();
 			UIUtilities.centerAndShow(d);
 		}
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getExperimenterNames()
+     */
+	public String getExperimenterNames()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		return model.getExperimenterNames();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#getSelectedExperimenter()
+     */
+	public ExperimenterData getSelectedExperimenter()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		return model.getExperimenter();
 	}
     
 }

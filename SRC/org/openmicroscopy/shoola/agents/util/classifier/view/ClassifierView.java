@@ -119,6 +119,12 @@ class ClassifierView
     /** Button to deselect all nodes. */
     private JButton				deselectAll;
     
+    /** 
+     * Flag indicating to invoke the {@link #pack()} method or the 
+     * {@link #setSize(Dimension)} method.
+     */
+    private boolean				pack;
+    
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -206,7 +212,7 @@ class ClassifierView
     						icons.getIcon(IconManager.CLASSIFICATION_48));
     	
     	Container c = getContentPane();
-    	c.setLayout(new BorderLayout(0, 0));
+    	//c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
         c.add(buildBody(), BorderLayout.CENTER);
         c.add(statusBar, BorderLayout.SOUTH);
@@ -306,7 +312,10 @@ class ClassifierView
 	{
 		Set paths = model.getClassificationPaths();
 		boolean b = true;
-		if (paths == null || paths.size() == 0) b = false;
+		if (paths == null || paths.size() == 0) {
+			b = false;
+			pack = true;
+		}
 		selectAll.setEnabled(b);
 		deselectAll.setEnabled(b);
 		classifierUI.showClassifications();
@@ -333,10 +342,9 @@ class ClassifierView
 	/** Sets the window on screen. */
 	void setOnScreen()
 	{
-		setSize(DEFAULT_SIZE);
+		if (pack) pack();
+		else setSize(DEFAULT_SIZE);
 		UIUtilities.centerAndShow(this);
 	}
-
-
 	
 }

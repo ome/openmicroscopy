@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,7 +34,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.PixelsData;
 
 /** 
@@ -92,17 +90,11 @@ class EditorUtil
     /** Identifies the <code>First name</code> field. */
     private static final String FIRST_NAME = "First Name";
     
-    /** Identifies the <code>Middle name</code> field. */
-    private static final String MIDDLE_NAME = "Middle Name";
-    
     /** Identifies the <code>Last name</code> field. */
     private static final String LAST_NAME = "Last Name";
     
     /** Identifies the <code>Last name</code> field. */
     private static final String INSTITUTION = "Institution";
-   
-    /** Identifies the <code>Leader</code> field. */
-    private static final String LEADER = "Leader";
     
     /** Identifies the <code>Email</code> field. */
     private static final String EMAIL = "E-mail";
@@ -118,12 +110,10 @@ class EditorUtil
     static Map<String, String> transformExperimenterData(ExperimenterData data)
     {
         LinkedHashMap<String, String> details = 
-        							new LinkedHashMap<String, String>(3);
+        							new LinkedHashMap<String, String>(2);
         if (data == null) {
             details.put(NAME, "");
             details.put(EMAIL, "");
-            //details.put(INSTITUTION, "");
-            
         } else {
             try {
                 details.put(NAME, data.getFirstName()+" "+data.getLastName());
@@ -132,8 +122,6 @@ class EditorUtil
                 details.put(NAME, "");
                 details.put(EMAIL, "");
             }
-            
-            //details.put(INSTITUTION, data.getInstitution());
         }
         return details;
     }
@@ -220,35 +208,6 @@ class EditorUtil
             }
         }
         details.put(WAVELENGTHS, "");  
-        return details;
-    }
-    
-    /**
-     * Transforms the specified {@link GroupData} object into 
-     * a visualization form.
-     * 
-     * @param data The {@link GroupData} object to transform.
-     * @return The map whose keys are the field names, and the values 
-     * 			the corresponding fields' values.
-     */
-    static Map<String, String> transformGroup(GroupData data)
-    {
-        HashMap<String, String> details = new HashMap<String, String>(2);
-        if (data == null) {
-            details.put(NAME, "");
-            details.put(LEADER, "");
-        } else {
-            details.put(NAME, data.getName());
-            ExperimenterData exp = data.getOwner();
-            try {
-                if (exp != null) 
-                    details.put(LEADER, 
-                                exp.getFirstName()+" "+exp.getLastName());
-                else details.put(LEADER, "");
-            } catch (Exception e) {
-                details.put(LEADER, "");
-            }
-        }
         return details;
     }
       

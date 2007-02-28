@@ -38,12 +38,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
-import pojos.DataObject;
+import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
- * Action to copy the selected element, a {@link CopyCmd} is executed.
+ * Action to copy the selected elements, a {@link CopyCmd} is executed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -93,9 +94,18 @@ public class CopyAction
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
-        if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-             (ho instanceof CategoryData))
-            setEnabled(model.isObjectWritable((DataObject) ho));
+        if (ho instanceof DatasetData) {
+        	Object parent = selectedDisplay.getParentDisplay().getUserObject();
+        	if (parent instanceof ProjectData)
+            	setEnabled(model.isObjectWritable(ho));
+            else setEnabled(false);
+        } else if (ho instanceof CategoryData) {
+        	Object parent = selectedDisplay.getParentDisplay().getUserObject();
+        	if (parent instanceof CategoryGroupData)
+            	setEnabled(model.isObjectWritable(ho));
+            else setEnabled(false);
+        } else if (ho instanceof ImageData) 
+            setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
     }
     

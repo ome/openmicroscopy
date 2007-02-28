@@ -35,6 +35,8 @@ import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 
+import pojos.ExperimenterData;
+
 /** 
  * Loads the classification paths for declassifying or classifying the images
  * depending on the specified mode.
@@ -61,12 +63,6 @@ public class ClassificationsLoader
      */
 	private int				mode;
 	
-	/** 
-	 * The type of the root node, either <code>Group</code>
-     * 	or <code>Experimenter</code>.
-     */
-	private Class			rootType;
-	
 	/** The Id of the root node. */
 	private long			rootID;
 	
@@ -81,15 +77,13 @@ public class ClassificationsLoader
      * 
      * @param viewer	The Annotator this loader is for.
      * @param images	Collection of image's IDs to classify.
-     * @param rootType	The type of the root node, either <code>Group</code>
-     * 					or <code>Experimenter</code>.
      * @param rootID	The Id of the root node.
      * @param mode		One of the following constants:
      * 					{@link Classifier#CLASSIFY_MODE} or
      * 					{@link Classifier#DECLASSIFY_MODE}.
      */
-	public ClassificationsLoader(Classifier viewer, Set images, Class rootType, 
-								long rootID, int mode)
+	public ClassificationsLoader(Classifier viewer, Set images, long rootID, 
+								int mode)
 	{
 		super(viewer);
 		if (images == null || images.size() == 0)
@@ -98,7 +92,6 @@ public class ClassificationsLoader
 		this.mode = mode;
 		this.images = images;
 		this.rootID = rootID;
-		this.rootType = rootType;
 	}
 	
 	/** 
@@ -108,10 +101,12 @@ public class ClassificationsLoader
 	public void load()
 	{
 		if (mode == Classifier.CLASSIFY_MODE)
-			handle = dhView.loadClassificationPaths(images, rootType, rootID, 
+			handle = dhView.loadClassificationPaths(images, 
+							ExperimenterData.class, rootID, 
 							DataHandlerView.CLASSIFICATION_NME, this);
-		else handle = dhView.loadClassificationPaths(images, rootType, rootID, 
-				DataHandlerView.DECLASSIFICATION, this);
+		else handle = dhView.loadClassificationPaths(images, 
+					ExperimenterData.class, rootID, 
+					DataHandlerView.DECLASSIFICATION, this);
 	}
 	
 	/** 

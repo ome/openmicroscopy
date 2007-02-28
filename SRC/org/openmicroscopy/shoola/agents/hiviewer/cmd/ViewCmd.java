@@ -133,23 +133,19 @@ public class ViewCmd
         if (hierarchyObject instanceof DatasetData)
         	HiViewerAgent.browse(Browse.DATASET, 
                     ((DatasetData) hierarchyObject).getId(), 
-                    model.getRootLevel(), model.getRootID(), 
-                    model.getUserGroupID(), bounds);
+                    model.getExperimenter(), model.getUserGroupID(), bounds);
         else if (hierarchyObject instanceof ProjectData)
             HiViewerAgent.browse(Browse.PROJECT, 
                     ((ProjectData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID(), 
-                    model.getUserGroupID(), bounds);
+                    model.getExperimenter(), model.getUserGroupID(), bounds);
         else if (hierarchyObject instanceof CategoryGroupData)
             HiViewerAgent.browse(Browse.CATEGORY_GROUP, 
                     ((CategoryGroupData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID(), 
-                    model.getUserGroupID(), bounds);
+                    model.getExperimenter(), model.getUserGroupID(), bounds);
         else if (hierarchyObject instanceof CategoryData)
             HiViewerAgent.browse(Browse.CATEGORY, 
                     ((CategoryData) hierarchyObject).getId(),
-                    model.getRootLevel(), model.getRootID(), 
-                    model.getUserGroupID(), bounds);
+                    model.getExperimenter(), model.getUserGroupID(), bounds);
         else if (hierarchyObject instanceof ImageData) {
             EventBus eventBus = HiViewerAgent.getRegistry().getEventBus();
             ImageData is = (ImageData) hierarchyObject;

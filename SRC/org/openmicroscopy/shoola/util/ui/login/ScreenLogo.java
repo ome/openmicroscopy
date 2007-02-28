@@ -127,7 +127,7 @@ public class ScreenLogo
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 	}
 	
 	/**

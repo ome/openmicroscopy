@@ -91,14 +91,9 @@ import pojos.ProjectData;
 abstract class HiViewerModel
 {
     
-    /** 
-     * The level of the root either <code>GroupData</code> or 
-     * <code>ExperimenterData</code>.
-     */
-    private Class               rootLevel;
+    /** The currently selected experimenter. */
+    private ExperimenterData	experimenter;
     
-    /** The id of the group the user selects before data retrieval. */
-    private long                groupID;
 
     /** The id of the selected group of the current user. */
     private long				userGroupID;
@@ -166,32 +161,21 @@ abstract class HiViewerModel
     /**
      * Sets the root level and its id.
      * 
-     * @param rootLevel 	The level of the hierarchy either 
-     *                  	<code>GroupData</code> or 
-     *                  	<code>ExperimenterData</code>.
-     * @param rootID    	The root ID.
+     * @param experimenter	The currently selected experimenter.
      * @param userGroupID 	The id to the group selected for the current user.
      */
-    void setRootLevel(Class rootLevel, long rootID, long userGroupID)
+    void setRootLevel(ExperimenterData experimenter, long userGroupID)
     {
-        this.rootLevel = rootLevel;
-        this.groupID = rootID;
+        this.experimenter = experimenter;
         this.userGroupID = userGroupID;
     }
-    
-    /**
-     * Returns the level of the root. 
-     * 
-     * @return See above.
-     */
-    Class getRootLevel() { return rootLevel; }
     
     /**
      * Returns the ID of the root. 
      * 
      * @return See above.
      */
-    long getRootID() { return groupID; }
+    long getRootID() { return experimenter.getId(); }
     
     /**
      * Returns the id to the group selected for the current user.
@@ -210,6 +194,13 @@ abstract class HiViewerModel
     	return (ExperimenterData) HiViewerAgent.getRegistry().lookup(
     			        LookupNames.CURRENT_USER_DETAILS);
     }
+    
+    /**
+     * Returns the selected experimenter.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getExperimenter() { return experimenter; }
     
     /**
      * Returns the current state.
@@ -244,9 +235,11 @@ abstract class HiViewerModel
     	Set visTrees; 
     	//Check if the objects are readable.
     	long userID = getUserDetails().getId();
-    	if (flat) visTrees = HiTranslator.transformImages(roots, userID, 
-    			groupID);
-    	else visTrees = HiTranslator.transformHierarchy(roots, userID, groupID);
+    	if (flat) 
+    		visTrees = HiTranslator.transformImages(roots, userID, userGroupID);
+    	else 
+    		visTrees = HiTranslator.transformHierarchy(roots, userID, 
+    					userGroupID);
     	int layoutIndex = browser.getSelectedLayout();
     	browser = BrowserFactory.createBrowser(visTrees);
     	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
@@ -271,9 +264,11 @@ abstract class HiViewerModel
         Set visTrees; 
         //Check if the objects are readable.
         long userID = getUserDetails().getId();
-        if (flat) visTrees = HiTranslator.transformImages(roots, userID, 
-                                                        groupID);
-        else visTrees = HiTranslator.transformHierarchy(roots, userID, groupID);
+        if (flat) 
+        	visTrees = HiTranslator.transformImages(roots, userID, userGroupID);
+        else 
+        	visTrees = HiTranslator.transformHierarchy(roots, userID, 
+        											userGroupID);
         //Make the browser.
         browser = BrowserFactory.createBrowser(visTrees);
         
@@ -508,12 +503,11 @@ abstract class HiViewerModel
 	 */
 	DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
 	{
-		Set images = new HashSet(nodes.length);
+		Set<ImageData> images = new HashSet<ImageData>(nodes.length);
 		for (int i = 0; i < nodes.length; i++) 
 			images.add(nodes[i]);
 		dataHandler = ClassifierFactory.getClassifier(owner, images, 
-								getRootLevel(), getRootID(), mode, 
-								HiViewerAgent.getRegistry());
+								getRootID(), mode, HiViewerAgent.getRegistry());
 		return dataHandler;
 	}
 	   

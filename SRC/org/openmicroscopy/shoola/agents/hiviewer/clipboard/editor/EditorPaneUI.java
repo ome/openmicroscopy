@@ -382,6 +382,7 @@ class EditorPaneUI
                         descriptionAreaListener);
         tabs.setVisible(!(name.equals("")));
         finishButton.setEnabled(!(name.equals("")));
+        if (!isWritable) finishButton.setEnabled(false);
         titleLabel.setText(title);
         //repaint();
     }

@@ -64,13 +64,19 @@ class EditorPaneUtil
      */
     static Map transformExperimenterData(ExperimenterData data)
     {
-        LinkedHashMap details = new LinkedHashMap(3);
+        LinkedHashMap<String, String> details = 
+        	new LinkedHashMap<String, String>(2);
         if (data == null) {
             details.put(NAME, "");
             details.put(EMAIL, "");  
         } else {
-            details.put(NAME, data.getFirstName()+" "+data.getLastName());
-            details.put(EMAIL, data.getEmail());
+        	try {
+        		details.put(NAME, data.getFirstName()+" "+data.getLastName());
+                details.put(EMAIL, data.getEmail());
+			} catch (Exception e) {
+				details.put(NAME, "");
+	            details.put(EMAIL, "");  
+			}
         }
         return details;
     }

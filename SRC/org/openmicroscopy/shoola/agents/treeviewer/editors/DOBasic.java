@@ -25,9 +25,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -70,11 +74,21 @@ class DOBasic
     /** Title of the classification pane. */
     static final String     CLASSIFICATION = "Categorisation";   
     
+    /** Text of the {@link #download} button. */
+    private final String	DOWNLOAD = "Download";
+    
+    /** Description of the {@link #download} button. */
+    private final String	DOWNLOAD_DESCRIPTION = "Download the " +
+    												"archived files";
+    
     /** Area where to enter the name of the <code>DataObject</code>. */
     JTextField                  nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     JTextArea                   descriptionArea;
+    
+    /** Button to download the archived files. */
+    private JButton				download;
     
     /** The tabbed pane hosting the annotation pane or classified pane. */
     private JTabbedPane         tabbedPane;
@@ -146,12 +160,21 @@ class DOBasic
                             im.getIcon(IconManager.ANNOTATION), annotator);
             }
             if (model.getHierarchyObject() instanceof ImageData) {
+            	download = new JButton(DOWNLOAD);
+            	download.setToolTipText(DOWNLOAD_DESCRIPTION);
+            	download.setEnabled(model.isWritable());
+            	download.addActionListener(new ActionListener() {
+            		public void actionPerformed(ActionEvent e)
+            		{ 
+            			controller.download(); 
+            		}
+				});
                 classifier = new DOClassification(model, controller);
                 tabbedPane.addTab(CLASSIFICATION, 
                 			im.getIcon(IconManager.CATEGORY), classifier);
                 tabbedPane.setSelectedIndex(EditorFactory.getSubSelectedPane());
             }
-        }
+        } //end if editor type
         nameAreaListener = new DocumentListener() {
             
             /** 
@@ -270,7 +293,14 @@ class DOBasic
     private void buildGUI()
     {
         setLayout(new BorderLayout());
-        add(buildContentPanel(), BorderLayout.NORTH);
+        if (download != null) {
+        	JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+            p.add(buildContentPanel());
+            p.add(UIUtilities.buildComponentPanel(download));
+            add(p, BorderLayout.NORTH);
+        } else add(buildContentPanel(), BorderLayout.NORTH);
+
         if (model.isAnnotatable() && 
         		model.getEditorType() == Editor.PROPERTIES_EDITOR) 
             add(tabbedPane, BorderLayout.CENTER);
@@ -416,9 +446,7 @@ class DOBasic
     	String d = getDescriptionText();
     	String description = model.getDataObjectDescription();
     	
-    	if (d == null) {
-    		return (description != null);
-    	}
+    	if (d == null) return (description != null);
     	return (!(d.equals(description)));
     }
     

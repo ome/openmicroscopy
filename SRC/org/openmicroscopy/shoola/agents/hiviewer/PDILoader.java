@@ -34,6 +34,8 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ExperimenterData;
+
 /** 
  * Loads the data trees in the Project/Dataset/Image hierarchy that 
  * contain the specified images.
@@ -90,8 +92,8 @@ public class PDILoader
      */
     public void load()
     {
-        handle = hiBrwView.findPDIHierarchies(images, viewer.getRootLevel(),
-                                                getRootID(), this);
+        handle = hiBrwView.findPDIHierarchies(images, ExperimenterData.class,
+        									viewer.getRootID(), this);
     }
     
     /** 

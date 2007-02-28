@@ -27,12 +27,15 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -62,11 +65,11 @@ public class RefreshVisitor
      * Collection of expanded {@link TreeImageSet}s corresponding
      * to a container whose children are images.
      */
-    private List 	foundNodes;
+    private List<DataObject>		foundNodes;
     
     
     /** Contains the expanded top container nodes ID. */
-    private List     expandedTopNodes;
+    private Map<Class, List>     expandedTopNodes;
     
     /**
      * Creates a new instance.
@@ -77,8 +80,8 @@ public class RefreshVisitor
     public RefreshVisitor(Browser model)
     {
         super(model);
-        foundNodes = new ArrayList();
-        expandedTopNodes = new ArrayList();
+        foundNodes = new ArrayList<DataObject>();
+        expandedTopNodes = new HashMap<Class, List>();
     }
 
     /**
@@ -93,7 +96,7 @@ public class RefreshVisitor
      * 
      * @return See above.
      */
-    public List getExpandedTopNodes() { return expandedTopNodes; }
+    public Map getExpandedTopNodes() { return expandedTopNodes; }
     
     /**
      * Retrieves the expanded nodes. Only the nodes containing images
@@ -103,18 +106,62 @@ public class RefreshVisitor
     public void visit(TreeImageSet node)
     {
         Object userObject = node.getUserObject();
-        if ((userObject instanceof DatasetData) || 
-                (userObject instanceof CategoryData)) {
-        	if (node.isChildrenLoaded() && node.isExpanded() &&
-        			node.getParentDisplay().isExpanded()) 
-                foundNodes.add(userObject);
-        } else if ((userObject instanceof ProjectData) || 
-                    (userObject instanceof CategoryGroupData)){
+        TreeImageDisplay parent;
+        if (userObject instanceof DatasetData) {
+        	if (node.isChildrenLoaded() && node.isExpanded()) {
+        		parent = node.getParentDisplay();
+        		if (parent.isExpanded()) 
+        			foundNodes.add((DataObject) userObject);
+        		if (!(parent.getUserObject() instanceof ProjectData)) {
+        			long id = ((DataObject) userObject).getId();
+                    List<Long> l = (List) expandedTopNodes.get(
+                    						DatasetData.class);
+                    if (l == null) {
+                    	l = new ArrayList<Long>();
+                    	expandedTopNodes.put(DatasetData.class, l);
+                    }
+                    l.add(new Long(id));
+        		}
+        	}
+        } else if (userObject instanceof CategoryData) {
+        	if (node.isChildrenLoaded() && node.isExpanded()) {
+        		parent = node.getParentDisplay();
+        		if (parent.isExpanded()) 
+        			foundNodes.add((DataObject) userObject);
+        		if (!(parent.getUserObject() instanceof CategoryGroupData)) {
+        			long id = ((DataObject) userObject).getId();
+                    List<Long> l = (List) expandedTopNodes.get(
+                    						CategoryData.class);
+                    if (l == null) {
+                    	l = new ArrayList<Long>();
+                    	expandedTopNodes.put(CategoryData.class, l);
+                    }
+                    l.add(new Long(id));
+        		}
+        	}
+        		
+        } else if (userObject instanceof CategoryGroupData) {
             if (node.isExpanded()) {
                 long id = ((DataObject) userObject).getId();
-                expandedTopNodes.add(new Long(id));
+                List<Long> l = (List) expandedTopNodes.get(
+                						CategoryGroupData.class);
+                if (l == null) {
+                	l = new ArrayList<Long>();
+                	expandedTopNodes.put(CategoryGroupData.class, l);
+                }
+                l.add(new Long(id));
             }
-        }     
+        } else if ((userObject instanceof ProjectData)) {
+        	if (node.isExpanded()) {
+        		long id = ((DataObject) userObject).getId();
+                List<Long> l = (List) expandedTopNodes.get(ProjectData.class);
+                if (l == null) {
+                	l = new ArrayList<Long>();
+                	expandedTopNodes.put(ProjectData.class, l);
+                }
+                l.add(new Long(id));
+            }
+        }
     }
     
 }

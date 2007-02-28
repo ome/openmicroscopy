@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +37,11 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
@@ -67,7 +71,7 @@ public class RefreshDataLoader
     private List        expandedNodes;
     
     /** Contains the expanded top container nodes ID. */
-    private List        expandedTopNodes;
+    private Map         expandedTopNodes;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -94,10 +98,10 @@ public class RefreshDataLoader
      *                      	<code>CategoryGroup</code>
      * @param expandedNodes 	The collection of expanded nodes containing 
      * 							images.
-     * @param expandedTopNodes  The list of expanded top nodes IDs.
+     * @param expandedTopNodes  The expanded top nodes IDs.
      */
     public RefreshDataLoader(Browser viewer, Class rootNodeType,
-                            List expandedNodes, List expandedTopNodes)
+                            List expandedNodes, Map expandedTopNodes)
     {
         super(viewer);
         checkClass(rootNodeType);
@@ -147,6 +151,12 @@ public class RefreshDataLoader
                     children = ((ProjectData) parent).getDatasets();
                 } else if (parent instanceof CategoryGroupData) {
                     children = ((CategoryGroupData) parent).getCategories();
+                } else if (parent instanceof DatasetData) {
+                	children = new HashSet(1);
+                	children.add(parent);
+                } else if (parent instanceof CategoryData) {
+                	children = new HashSet(1);
+                	children.add(parent);
                 }
                 map.put(parent, children);
             }

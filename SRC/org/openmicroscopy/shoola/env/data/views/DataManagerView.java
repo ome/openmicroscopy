@@ -115,17 +115,19 @@ public interface DataManagerView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadContainerHierarchy(Class rootNodeType,
-                                            Set rootNodeIDs, boolean withLeaves,
+                                            Set<Long> rootNodeIDs, 
+                                            boolean withLeaves,
             								Class rootLevel, long rootLevelID,
                                             AgentEventListener observer);
     
     /**
-     * Retrieves the images specified by the parameters.
+     * Retrieves the images for the specified user.
      * 
+     * @param userID		The ID of the user.
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadImages(AgentEventListener observer);
+    public CallHandle loadImages(long userID, AgentEventListener observer);
     
     /**
      * Retrieves the images container in the specified root nodes.

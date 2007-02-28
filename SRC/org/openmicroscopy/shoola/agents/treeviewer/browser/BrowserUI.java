@@ -103,9 +103,6 @@ class BrowserUI
     /** The model. */
     private BrowserModel    		model;
     
-    /** The popup menu. */
-    private FilterMenu      		filterMenu;
-    
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
@@ -603,11 +600,11 @@ class BrowserUI
      */
     void showFilterMenu(Component c, Point p)
     {
-        if (filterMenu == null) {
-            filterMenu = new FilterMenu(model);
-            filterMenu.addPropertyChangeListener(
-                    FilterMenu.FILTER_SELECTED_PROPERTY, controller);
-        }
+        //if (filterMenu == null) {
+    	FilterMenu   filterMenu = new FilterMenu(model);
+    	filterMenu.addPropertyChangeListener(
+    			FilterMenu.FILTER_SELECTED_PROPERTY, controller);
+        //}
         filterMenu.show(c, p.x, p.y);
     }
     

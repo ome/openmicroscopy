@@ -33,6 +33,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ExperimenterData;
+
 /** 
  * Loads asynchronously a collection of images specified by a given set of ids.
  * This class calls the <code>loadImages</code> method in the
@@ -86,8 +88,8 @@ public class ImagesLoader
      */
     public void load()
     {
-        handle = hiBrwView.loadImages(imagesID, viewer.getRootLevel(),
-                                        getRootID(), this);
+        handle = hiBrwView.loadImages(imagesID, ExperimenterData.class,
+        							viewer.getRootID(), this);
     }
     
     /** 

@@ -354,6 +354,13 @@ public interface ClipBoard
      * @param set Collection of <code>ImageNode</code> to update.
      */
     public void onClassificationChange(List set);
+
+	/**
+	 * Returns the selected experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getExperimenter();
     
 }
 

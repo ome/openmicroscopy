@@ -301,10 +301,9 @@ class BrowserControl
             model.setFilterType(((Integer) pce.getNewValue()).intValue());  
         else if (name.equals(FilterWindow.CLOSE_PROPERTY)) {
             view.onStateChanged(true);
-            model.collapse(model.getLastSelectedDisplay());
+            view.collapsePath(view.getTreeRoot());
+            //model.collapse(model.getLastSelectedDisplay());
         }
     }
 
-
-    
 }

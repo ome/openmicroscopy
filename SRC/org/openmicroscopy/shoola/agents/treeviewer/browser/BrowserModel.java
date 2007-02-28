@@ -29,6 +29,7 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JTree;
 
@@ -186,15 +187,6 @@ class BrowserModel
      *              One of the state constants defined by the {@link Browser}.
      */
     void setState(int state) { this.state = state; }
-    
-    /**
-     * Returns the level of the root. 
-     * One of the following constants: 
-     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
-     * 
-     * @return See above.
-     */
-    int getRootLevel() { return parent.getRootLevel(); }
     
     /** 
      * Returns the root ID.
@@ -375,7 +367,7 @@ class BrowserModel
         else if (filterType == Browser.IN_CATEGORY_FILTER)
             currentLoader = new HierarchyLoader(component,
                                     HierarchyLoader.CATEGORY, false, true);
-        else currentLoader = new ImagesLoader(component);
+        else currentLoader = new ImagesLoader(component, parent.getRootID());
         currentLoader.load();
         state = Browser.LOADING_DATA;
     }
@@ -624,9 +616,9 @@ class BrowserModel
      * Loads the data to refresh the tree.
      * 
      * @param nodes             The Collection of expanded nodes.
-     * @param expandedTopNodes  The list of expanded top nodes IDs.
+     * @param expandedTopNodes  The expanded top nodes IDs.
      */
-    void loadRefreshedData(List nodes, List expandedTopNodes)
+    void loadRefreshedData(List nodes, Map expandedTopNodes)
     {
         Class klass = null;
         if (browserType == Browser.PROJECT_EXPLORER) klass = ProjectData.class;
@@ -638,5 +630,13 @@ class BrowserModel
                                             expandedTopNodes);
         currentLoader.load();   
     }
+
+    /**
+     * Returns the first name and the last name of the currently 
+     * selected experimenter as a String.
+     * 
+     * @return See above.
+     */
+	String getExperimenterNames() { return parent.getExperimenterNames(); }
 	
 }

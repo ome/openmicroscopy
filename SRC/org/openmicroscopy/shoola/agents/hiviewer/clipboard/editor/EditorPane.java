@@ -111,6 +111,21 @@ public class EditorPane
     }
     
     /**
+     * Returns the owner of specified object.
+     * 
+     * @param data The object.
+     * @return Ee above.
+     */
+    private ExperimenterData getDataObjectOwner(DataObject data)
+    {
+    	ExperimenterData exp = data.getOwner();
+    	if (exp == null) return null;
+    	if (exp.isLoaded()) return exp;
+    	ExperimenterData selectedExp = model.getExperimenter();
+    	if (exp.getId() == selectedExp.getId()) return selectedExp;
+    	return exp;
+    }
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -147,7 +162,7 @@ public class EditorPane
             ImageData data = (ImageData) ho;
             uiDelegate.setAreas(data.getName(), data.getDescription(), 
                     uiDelegate.getMessage(data), model.isObjectWritable(data));
-            ExperimenterData owner =  data.getOwner();
+            ExperimenterData owner =  getDataObjectOwner(data);
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions());
@@ -155,7 +170,7 @@ public class EditorPane
             DatasetData data = (DatasetData) ho;
             uiDelegate.setAreas(data.getName(), data.getDescription(), 
                     uiDelegate.getMessage(data), model.isObjectWritable(data));
-            ExperimenterData owner =  data.getOwner();
+            ExperimenterData owner =  getDataObjectOwner(data);
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions());
@@ -163,7 +178,7 @@ public class EditorPane
             ProjectData data = (ProjectData) ho;
             uiDelegate.setAreas(data.getName(), data.getDescription(), 
                     uiDelegate.getMessage(data), model.isObjectWritable(data));
-            ExperimenterData owner =  data.getOwner();
+            ExperimenterData owner =  getDataObjectOwner(data);
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions());
@@ -171,7 +186,7 @@ public class EditorPane
             CategoryGroupData data = (CategoryGroupData) ho;
             uiDelegate.setAreas(data.getName(), data.getDescription(), 
                     uiDelegate.getMessage(data), model.isObjectWritable(data));
-            ExperimenterData owner =  data.getOwner();
+            ExperimenterData owner =  getDataObjectOwner(data);
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions()); 
@@ -179,7 +194,7 @@ public class EditorPane
             CategoryData data = (CategoryData) ho;
             uiDelegate.setAreas(data.getName(), data.getDescription(), 
                     uiDelegate.getMessage(data), model.isObjectWritable(data));
-            ExperimenterData owner =  data.getOwner();
+            ExperimenterData owner =  getDataObjectOwner(data);
             Map details = EditorPaneUtil.transformExperimenterData(owner);
             objectOwner = (owner.getId() == user.getId());
             uiDelegate.displayDetails(details, data.getPermissions());

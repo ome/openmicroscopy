@@ -78,18 +78,9 @@ public class RefreshAction
     }
 
     /**
-     * Reloads the viewer. 
+     * Reloads the thumbnails. 
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent ae) 
-    { 
-    	model.refresh();
-    	/*
-        Rectangle oldBounds = model.getUI().getBounds();
-        HiViewer newOne = HiViewerFactory.reinstantiate(model);
-        model.discard();
-        newOne.activate(oldBounds);
-        */
-    }
+    public void actionPerformed(ActionEvent ae) { model.refresh(); }
     
 }

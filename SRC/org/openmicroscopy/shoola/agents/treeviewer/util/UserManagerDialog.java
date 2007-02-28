@@ -245,8 +245,8 @@ public class UserManagerDialog
 				UIUtilities.formatToolTipText(APPLY_DESCRIPTION));
 		getRootPane().setDefaultButton(apply);
 		mySelf = new JButton("Myself");
-		IconManager im = IconManager.getInstance();
-		mySelf.setIcon(im.getIcon(IconManager.OWNER));
+		//IconManager im = IconManager.getInstance();
+		//mySelf.setIcon(im.getIcon(IconManager.OWNER));
 		mySelf.setToolTipText(
 				UIUtilities.formatToolTipText(MYSELF_DESCRIPTION));
 		mySelf.setEnabled(userID != loggedUser.getId());

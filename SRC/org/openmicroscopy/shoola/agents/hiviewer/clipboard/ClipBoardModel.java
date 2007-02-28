@@ -82,44 +82,44 @@ class ClipBoardModel
 {
     
     /** Holds one of the state flags defined by {@link ClipBoard}. */
-    private int                     state;
+    private int                     		state;
     
     /** Reference to the {@link HiViewer}. */
-    private HiViewer                parentModel;
+    private HiViewer                		parentModel;
     
     /** The index of the selected pane. */
-    private int                     paneIndex;
+    private int                     		paneIndex;
     
     /** The classifications retrieved for an image. */
-    private Set                     classifications;
+    private Set                     		classifications;
     
     /** Retrieved annotations for a specified image or dataset.*/
-    private Map                     annotations;
+    private Map                     		annotations;
     
     /** The {@link ViewerSorter} used to sort the annotations. */
-    private ViewerSorter            sorter;
+    private ViewerSorter            		sorter;
     
     /** 
      * Will either be a hierarchy loader, a thumbnail loader, or 
      * <code>null</code> depending on the current state. 
      */
-    private CBDataLoader            currentLoader;
+    private CBDataLoader            		currentLoader;
     
     /** The map holding the {@link ClipBoardPane}s. */
-    private HashMap                 cbPanes;
+    private HashMap<Integer, ClipBoardPane>	cbPanes;
     
     /** Flag indicating if the clipBoard is shown or hidden. */
-    private boolean                 display;
+    private boolean                 		display;
     
     /** Reference to the component that embeds this model. */
-    protected ClipBoardComponent    component;
+    protected ClipBoardComponent    		component;
     
 
     /** Initializes the default values. */
     private void init()
     {
         setPaneIndex(ClipBoard.FIND_PANE);
-        cbPanes = new HashMap();
+        cbPanes = new HashMap<Integer, ClipBoardPane>();
         sorter = new ViewerSorter();
         sorter.setAscending(false);
     }
@@ -345,7 +345,7 @@ class ClipBoardModel
     void fireClassificationsLoading(ImageData ho)
     {
         currentLoader = new ClassificationsLoader(component, ho.getId(), 
-                parentModel.getRootLevel(), parentModel.getRootID());  
+                							parentModel.getRootID());  
         currentLoader.load();
         state = ClipBoard.LOADING_CLASSIFICATIONS;
     }

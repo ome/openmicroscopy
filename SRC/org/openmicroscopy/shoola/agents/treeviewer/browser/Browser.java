@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
@@ -39,7 +38,6 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -377,14 +375,6 @@ public interface Browser
     public void setContainerNodes(Set nodes, TreeImageDisplay parent);
     
     /**
-     * Returns the level of the root. One of the following constants:
-     * {@link TreeViewer#GROUP_ROOT} and {@link TreeViewer#USER_ROOT}. 
-     * 
-     * @return See above.
-     */
-    public int getRootLevel();
-    
-    /**
      * The id of the root level.
      * 
      * @return See above.
@@ -511,9 +501,9 @@ public interface Browser
      * Rebuilds the hierarchy tree.
      * 
      * @param set               The nodes to set.
-     * @param expandedTopNodes  The list of expanded top nodes IDs.
+     * @param expandedTopNodes  The expanded top nodes IDs.
      */
-    public void setRefreshedHierarchy(Map set, List expandedTopNodes);
+    public void setRefreshedHierarchy(Map set, Map expandedTopNodes);
     
     /**
      * Returns <code>true</code> if the main tree is currently displayed
@@ -532,5 +522,11 @@ public interface Browser
 	 * @param experimenter The object to set.
 	 */
 	public void setRootNode(ExperimenterData experimenter);
+	
+	/**
+	 * Sets the filtered nodes to <code>null</code> when a new user is
+	 * selected.
+	 */
+	public void cleanFilteredNodes();
 	
 }

@@ -40,12 +40,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Action to cut the selected elements, a {@link CutCmd} is executed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -99,7 +98,7 @@ public class CutAction
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
              (ho instanceof CategoryData))
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
     }
     

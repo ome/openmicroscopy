@@ -140,13 +140,16 @@ class BrowserModel
      * node in the visualization tree.
      * Sets it to <code>null</code> to indicate no node is currently selected.
      *  
-     * @param node           The node to become the currently selected node.
-     * @param multiSelection Pass <code>false</code>  to indicate that only one
-     *                       node is selected, <code>true</code> otherwise.
+     * @param node           	The node to become the currently selected node.
+     * 						 	Pass <code>null</code> only when refreshing the
+     * 						 	display.
+     * @param multiSelection	Pass <code>false</code> to indicate that only 
+     * 							one node is selected, <code>true</code> 
+     * 							otherwise.
      */
     void setSelectedDisplay(ImageDisplay node, boolean multiSelection)
     {
-    	if (node == null) return;
+    	//if (node == null) return;
         thumbSelected = false;
         popupPoint = null;
         this.multiSelection = multiSelection;
@@ -159,6 +162,7 @@ class BrowserModel
         if (!multiSelection)
             selectedDisplays.removeAll(selectedDisplays);
         selectedDisplays.add(node);
+        
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
     }
     

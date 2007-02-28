@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -59,7 +58,6 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -105,12 +103,6 @@ class TreeViewerModel
      * or {@link TreeViewer#NO_EDITOR}.
      */
     private int                 	editorType; 
-    
-    /** 
-     * The level of the hierarchy root. One of the following constants:
-     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
-     */
-    private int                     rootLevel;
     
     /** The ID of the root. */
     private long                    rootID;
@@ -239,7 +231,6 @@ class TreeViewerModel
     {
         state = TreeViewer.NEW;
         editorType = TreeViewer.PROPERTIES_EDITOR;
-        rootLevel = TreeViewer.USER_ROOT;
         browsers = new HashMap<Integer, Browser>();
     }
     
@@ -260,17 +251,12 @@ class TreeViewerModel
      * The rootID is taken into account if and only if 
      * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
      * 
-     * @param rootLevel 	The level of the root. One of the following 
-     * 						constants:
-     *                  	{@link TreeViewer#GROUP_ROOT} or
-     *                  	{@link TreeViewer#USER_ROOT}.
      * @param rootID    	The Id of the root. By default it is the 
      * 						id of the current user.
      * @param userGroupID 	The id to the group selected for the current user.
      */
-    void setHierarchyRoot(int rootLevel, long rootID, long userGroupID)
+    void setHierarchyRoot(long rootID, long userGroupID)
     {
-        this.rootLevel = rootLevel;
         this.rootID = rootID;
         this.userGroupID = userGroupID;
     }
@@ -281,15 +267,6 @@ class TreeViewerModel
      * @return See above.
      */
     long getUserGroupID() { return userGroupID; }
-    
-    /**
-     * Returns the level of the root. 
-     * One of the following constants: 
-     * {@link TreeViewer#GROUP_ROOT} or {@link TreeViewer#USER_ROOT}.
-     * 
-     * @return See above.
-     */
-    int getRootLevel() { return rootLevel; }
     
     /** 
      * Returns the root ID.
@@ -614,9 +591,8 @@ class TreeViewerModel
 		for (int i = 0; i < nodes.length; i++) 
 			images.add(nodes[i]);
 		
-		dataHandler = ClassifierFactory.getClassifier(owner, images, 
-									getRootType(), rootID, mode,
-									TreeViewerAgent.getRegistry());
+		dataHandler = ClassifierFactory.getClassifier(owner, images, rootID, 
+										mode, TreeViewerAgent.getRegistry());
 		return dataHandler;
    }
    
@@ -635,20 +611,6 @@ class TreeViewerModel
     * @return See above.
     */
    DataHandler getDataHandler() { return dataHandler; }
-   
-   /**
-    * Returns the <code>class</code> corresponding to the 
-    * the {@link #rootLevel}.
-    * 
-    * @return See above.
-    */
-   Class getRootType()
-   {
-	   switch (getRootLevel()) {
-			case TreeViewer.USER_ROOT: return ExperimenterData.class;
-			default:return GroupData.class;
-		}
-   }
 
    /**
     * Sets the value of the currently selected experimenter.
@@ -692,5 +654,28 @@ class TreeViewerModel
     * @return See above.
     */
    Map getAvailableUserGroups() { return availableUserGroups; }
+
+   /**
+    * Returns the first name and the last name of the currently 
+    * selected experimenter as a String.
+    * 
+    * @return See above.
+    */
+   String getExperimenterNames()
+   {
+	   ExperimenterData exp = getExperimenter();
+	   return exp.getFirstName()+" "+exp.getLastName();
+   }
+
+   /**
+    * Returns the selected experimenter.
+    * 
+    * @return See above.
+    */
+   ExperimenterData getExperimenter()
+   {
+	   if (experimenter == null) experimenter = getUserDetails();
+	   return experimenter;
+   }
    
 }

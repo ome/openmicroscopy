@@ -68,16 +68,6 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#getUserImages()
-     */
-    public Set getUserImages()
-    	throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroDataService#getCollectionCount(Class, String, Set)
      */
     public Map getCollectionCount(Class rootNodeType, String property,
@@ -277,6 +267,28 @@ public class NullOmeroPojoService
 	public Map<GroupData, Set> getAvailableGroups() 
 		throws DSOutOfServiceException, DSAccessException 
 	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getOrphanContainers(Class, boolean, Class, long)
+     */
+	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
+			long rootLevelID) 
+	throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getImagesFor(long)
+     */
+	public Set getImagesFor(long userID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		// TODO Auto-generated method stub
 		return null;
 	}
 

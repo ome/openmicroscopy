@@ -55,22 +55,27 @@ public class ImagesLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
+    /** The ID of the user the images belong to. */
+    private long		userID;
+    
     /**
      * Creates a new instance. 
      * 
+     * @param userID	The ID of the user.
      * @param viewer    The viewer this data loader is for.
      *                  Mustn't be <code>null</code>.
      */
-    public ImagesLoader(Browser viewer)
+    public ImagesLoader(Browser viewer, long userID)
     { 
         super(viewer);
+        this.userID = userID;
     }
     
     /**
      * Retrieves the data.
      * @see DataBrowserLoader#load()
      */
-    public void load() { handle = dmView.loadImages(this); }
+    public void load() { handle = dmView.loadImages(userID, this); }
 
     /**
      * Cancels the ongoing data retrieval.

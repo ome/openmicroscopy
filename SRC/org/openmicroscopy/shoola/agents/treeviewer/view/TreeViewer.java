@@ -119,18 +119,6 @@ public interface TreeViewer
     /** Identifies the <code>No Editor</code> type for the editor. */
     public static final int         NO_EDITOR = 103;
     
-    /** 
-     * Indicates that the root of the retrieved hierarchy is an OME 
-     * <code>Group</code>.
-     */
-    public static final int			GROUP_ROOT = 200;
-    
-    /** 
-     * Indicates that the root of the retrieved hierarchy is a
-     * <code>User</code>. 
-     */
-    public static final int			USER_ROOT = 201;
-    
     /** Identifies the <code>Delete Object</code> operation. */
     public static final int         REMOVE_OBJECT = 302;
     
@@ -395,14 +383,6 @@ public interface TreeViewer
      * @return See above.
      */
     public long getRootID();
-
-    /**
-     * Returns of the following constants: 
-     * {@link #GROUP_ROOT} or {@link #USER_ROOT}.
-     * 
-     * @return See above.
-     */
-    public int getRootLevel();
     
     /**
      * Sets the root of the retrieved hierarchies. 
@@ -414,13 +394,13 @@ public interface TreeViewer
     public void setHierarchyRoot(long rootID, ExperimenterData experimenter);
     
     /**
-     * Returns <code>true</code> if the specified data object is readable,
+     * Returns <code>true</code> if the specified object is writable,
      * <code>false</code> otherwise, depending on the permission.
      * 
      * @param ho    The data object to check.
      * @return See above.
      */
-    public boolean isObjectWritable(DataObject ho);
+    public boolean isObjectWritable(Object ho);
     
     /** 
      * Adds existing objects to the currently selected node. 
@@ -564,5 +544,19 @@ public interface TreeViewer
 
 	/** Retrieves the user groups. */
 	public void retrieveUserGroups();
+
+    /**
+     * Returns the first name and the last name of the currently 
+     * selected experimenter as a String.
+     * 
+     * @return See above.
+     */
+	public String getExperimenterNames();
     
+	/**
+	 * Returns the currently selected experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getSelectedExperimenter();
 }

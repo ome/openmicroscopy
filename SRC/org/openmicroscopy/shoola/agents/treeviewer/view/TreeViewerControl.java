@@ -430,8 +430,12 @@ class TreeViewerControl
         } else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
             Map browsers = model.getBrowsers();
             Iterator i = browsers.values().iterator();
-            while (i.hasNext())
-                ((Browser) i.next()).refreshTree();
+            Browser browser;
+            while (i.hasNext()) {
+            	browser = (Browser) i.next();
+            	browser.cleanFilteredNodes();
+            	browser.refreshTree();
+            }
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
             model.addExistingObjects((Set) pce.getNewValue());
@@ -444,8 +448,10 @@ class TreeViewerControl
         	view.discardDataHandler();
         	Map browsers = model.getBrowsers();
             Iterator i = browsers.values().iterator();
-            while (i.hasNext())
-                ((Browser) i.next()).refreshTree();
+
+            while (i.hasNext()) 
+            	((Browser) i.next()).refreshTree();
+            
         } else if (name.equals(UserManagerDialog.USER_SWITCH_PROPERTY)) {
         	Map m = (Map) pce.getNewValue();
         	Iterator i = m.keySet().iterator();

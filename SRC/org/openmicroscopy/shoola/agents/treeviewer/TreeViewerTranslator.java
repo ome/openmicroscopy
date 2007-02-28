@@ -71,6 +71,12 @@ import pojos.ProjectData;
 public class TreeViewerTranslator
 {
     
+	/** Text of the dummy TreeImageSet containing the orphaned datasets. */
+	public static final String ORPHANED_DATASETS = "Orphaned Datasets";
+	
+	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
+	public static final String ORPHANED_CATEGORIES = "Orphaned Categories";
+	
     /**
      * Formats the toolTip of the specified {@link TreeImageDisplay} node.
      * 
@@ -202,17 +208,22 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet dataset =  new TreeImageSet(data);
         Set images = data.getImages();
-        if (images == null) { dataset.setNumberItems(0);
-        } else {
+        if (images == null) dataset.setNumberItems(0);
+        else {
             dataset.setChildrenLoaded(Boolean.TRUE);
             dataset.setNumberItems(images.size());
             Iterator i = images.iterator();
+            DataObject tmp;
             ImageData child;
             while (i.hasNext()) {
-                child = (ImageData) i.next();
-                if (isReadable(child, userID, groupID))
-                    dataset.addChildDisplay(transformImage(child));
-                
+            	tmp = (DataObject) i.next();
+               System.err.println(tmp);
+                if (tmp instanceof ImageData) {
+                	 child = (ImageData) tmp;
+                	 if (isReadable(child, userID, groupID))
+                         dataset.addChildDisplay(transformImage(child));
+                }
+               
             }
         }
         
@@ -227,7 +238,7 @@ public class TreeViewerTranslator
      * 
      * @param data      The {@link ProjectData} to transform.
      *                  Mustn't be <code>null</code>.
-     * @param datasets  The list of datasets to add.
+     * @param datasets  Collection of datasets to add.
      * @param userID    The id of the current user.
      * @param groupID   The id of the group the current user selects when 
      *                      retrieving the data.             
@@ -366,6 +377,8 @@ public class TreeViewerTranslator
         		new HashSet<TreeImageDisplay>(dataObjects.size());
         Iterator i = dataObjects.iterator();
         DataObject ho;
+        TreeImageSet orphan = null;
+        TreeImageDisplay child;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID)) {
@@ -377,8 +390,24 @@ public class TreeViewerTranslator
                     results.add(transformCategoryGroup((CategoryGroupData) ho, 
                             ((CategoryGroupData) ho).getCategories(),
                             userID, groupID));
-                else if (ho instanceof ImageData)
-                    results.add(transformImage((ImageData) ho));
+                else if (ho instanceof ImageData) 
+                    results.add(transformImage((ImageData) ho));	
+                else if (ho instanceof DatasetData) {
+                	if (orphan == null) {
+                		orphan = new TreeImageSet(ORPHANED_DATASETS);
+                		results.add(orphan);
+                	}
+                	child = transformDataset((DatasetData) ho, userID, groupID);
+                	orphan.addChildDisplay(child);
+                } else if (ho instanceof CategoryData) {
+                	if (orphan == null) {
+                		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
+                		results.add(orphan);
+                	}
+                	child = transformCategory((CategoryData) ho, userID, 
+                								groupID);
+                	orphan.addChildDisplay(child);
+                }	
             }   
         }
         return results;
@@ -423,6 +452,14 @@ public class TreeViewerTranslator
                         results.add(transformCategory((CategoryData) child, 
                                                     userID, groupID));
                 }   
+            } else if (ho instanceof DatasetData) {
+            	if (isReadable(ho, userID, groupID))
+                    results.add(transformDataset((DatasetData) ho, 
+                                                userID, groupID));
+            } else if (ho instanceof CategoryData) {
+            	if (isReadable(ho, userID, groupID))
+            		results.add(transformCategory((CategoryData) ho, 
+                            userID, groupID));
             }
         }
         return results;
@@ -432,14 +469,14 @@ public class TreeViewerTranslator
      * Transforms the data objects into their corresponding 
      * visualization objects.
      * 
-     * @param nodes                 The nodes to transform.
-     * @param expandedTopNodes     The list of expanded top nodes IDs.
+     * @param nodes					The nodes to transform.
+     * @param expandedTopNodes     	The list of expanded top nodes IDs.
      * @param userID                The id of the current user.
      * @param groupID               The id of the group the current user 
      *                              selects when retrieving the data.    
      * @return A set of visualization objects.
      */
-    public static Set refreshHierarchy(Map nodes, List expandedTopNodes, 
+    public static Set refreshHierarchy(Map nodes, Map expandedTopNodes, 
                                         long userID, long groupID)
     {
         if (nodes == null)
@@ -449,23 +486,67 @@ public class TreeViewerTranslator
         Iterator i = nodes.keySet().iterator();
         DataObject ho;
         TreeImageDisplay display;
+        List expanded;
+        TreeImageSet orphan = null;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
+                	expanded = (List) expandedTopNodes.get(ProjectData.class);
                     display = transformProject((ProjectData) ho, 
                                                 (Set) nodes.get(ho), 
                                                 userID, groupID);
-                    display.setExpanded(
-                            (expandedTopNodes.contains(new Long(ho.getId()))));
+                    if (expanded != null)
+	                    display.setExpanded(
+	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display);
                 } else if (ho instanceof CategoryGroupData) {
+                	expanded = (List) 
+                			expandedTopNodes.get(CategoryGroupData.class);
                     display = transformCategoryGroup((CategoryGroupData) ho, 
                                                     (Set) nodes.get(ho), 
                                                     userID, groupID);
-                    display.setExpanded(
-                            (expandedTopNodes.contains(new Long(ho.getId()))));
+                    if (expanded != null)
+	                    display.setExpanded(
+	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display); 
+                } else if (ho instanceof DatasetData) {
+                	if (orphan == null) {
+                		orphan = new TreeImageSet(ORPHANED_DATASETS);
+                		results.add(orphan); 
+                	}
+                	expanded = (List) expandedTopNodes.get(DatasetData.class);
+                	Set r = (Set) nodes.get(ho); //should only have one element
+                	Iterator k = r.iterator();
+                	while (k.hasNext()) {
+                		DatasetData element = (DatasetData) k.next();
+                		display = transformDataset(element, userID, groupID);
+                		if (expanded != null)
+                			display.setExpanded(
+                					expanded.contains(new Long(ho.getId())));
+                		orphan.addChildDisplay(display);
+                		//results.add(display); 
+                	}
+                	
+                } else if (ho instanceof CategoryData) {
+                	if (orphan == null) {
+                		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
+                		results.add(orphan); 
+                	}
+                	expanded = (List) expandedTopNodes.get(CategoryData.class);
+                	Set r = (Set) nodes.get(ho); //should only have one element
+                	if (r != null) {  //shouldn't happen
+                		Iterator k = r.iterator();
+                    	while (k.hasNext()) {
+                    		CategoryData element = (CategoryData) k.next();
+    						display = transformCategory(element, userID, 
+    													groupID);
+    						if (expanded != null)
+    		                    display.setExpanded(
+    		                    	expanded.contains(new Long(ho.getId())));
+    						orphan.addChildDisplay(display);
+    					}
+                	}
                 }
             }
         }
@@ -588,12 +669,15 @@ public class TreeViewerTranslator
      *                      retrieving the data.
      * @return See above.
      */
-    public static boolean isReadable(DataObject ho, long userID, long groupID)
+    public static boolean isReadable(Object ho, long userID, long groupID)
     {
-    	if (ho == null || ho instanceof ExperimenterData)
-    		return false;
-        PermissionData permissions = ho.getPermissions();
-        if (userID == ho.getOwner().getId())
+    	if (ho == null || ho instanceof ExperimenterData || 
+        		ho instanceof String)
+        		return false;
+    	if (!(ho instanceof DataObject)) return false;
+    	DataObject data = (DataObject) ho;
+        PermissionData permissions = data.getPermissions();
+        if (userID == data.getOwner().getId())
             return permissions.isUserRead();
         /*
         Set groups = ho.getOwner().getGroups();
@@ -623,12 +707,15 @@ public class TreeViewerTranslator
      *                      retrieving the data.
      * @return See above.
      */
-    public static boolean isWritable(DataObject ho, long userID, long groupID)
+    public static boolean isWritable(Object ho, long userID, long groupID)
     {
-    	if (ho == null || ho instanceof ExperimenterData)
+    	if (ho == null || ho instanceof ExperimenterData || 
+    		ho instanceof String)
     		return false;
-        PermissionData permissions = ho.getPermissions();
-        if (userID == ho.getOwner().getId())
+    	if (!(ho instanceof DataObject)) return false;
+    	DataObject data = (DataObject) ho;
+        PermissionData permissions = data.getPermissions();
+        if (userID == data.getOwner().getId())
             return permissions.isUserWrite();
         /*
         Set groups = ho.getOwner().getGroups();

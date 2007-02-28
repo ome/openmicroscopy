@@ -81,44 +81,26 @@ public class Browse
     public static final int CATEGORY_GROUPS = 8;
     
     /** ID of the top element in the hierarchy. */
-    private long        hierarchyObjectID;
+    private long        		hierarchyObjectID;
     
     /** List of IDs object to browse. */
-    private Set<Long>	objectsIDs;
+    private Set<Long>			objectsIDs;
     
     /** 
      * Index of the top element in the hierarchy e.g.
      * if eventIndex = PROJECT, this means that we want to browse the selected
      * project.
      */
-    private int         eventIndex;
-    
-    /** 
-     * The level of the root, either {@link ExperimenterData} or
-     * {@link  GroupData}.
-     */
-    private Class       rootLevel;
-    
-    /** The ID of the root. */
-    private long        rootID;
+    private int         		eventIndex;
     
     /** The ID of the selected group for the current user. */
-    private long		userGroupID;
+    private long				userGroupID;
     
     /** The bounds of the component posting the event. */
-    private Rectangle   requesterBounds;
+    private Rectangle   		requesterBounds;
     
-    /**
-     * Checks if the specified level is supported.
-     * 
-     * @param level The level to control.
-     */
-    private void checkRootLevel(Class level)
-    {
-        if (level.equals(ExperimenterData.class) ||
-                level.equals(GroupData.class)) return;
-        throw new IllegalArgumentException("Root level not supported");
-    }
+    /** The currently selected user. */
+    private ExperimenterData	experimenter;
     
     /**
      * Controls if the specified index is supported.
@@ -164,23 +146,22 @@ public class Browse
      *                          browse.
      * @param index             The index of the browser. One of the constants
      *                          defined by this class.
-     * @param rootLevel         The level of the hierarchy either 
-     *                          <code>GroupData</code> or 
-     *                          <code>ExperimenterData</code>.
-     * @param rootID            The ID of the root level. 
+     * @param experimenter		The currently selected experimenter. 
+     * 							Mustn't be <code>null</code>.
      * @param userGroupID		The ID of the selected group for the current 
      * 							user.		
      * @param bounds            The bounds of the component posting the event.
      */
-    public Browse(long hierarchyObjectID, int index, Class rootLevel,
-                  long rootID, long userGroupID, Rectangle bounds)
+    public Browse(long hierarchyObjectID, int index, 
+    			ExperimenterData experimenter, long userGroupID, 
+    			Rectangle bounds)
     {
-        checkEventIndex(index); 
-        checkRootLevel(rootLevel);
+        checkEventIndex(index);
+        if (experimenter == null) 
+        	throw new IllegalArgumentException("No experimenter.");
         this.hierarchyObjectID = hierarchyObjectID;
         eventIndex = index;
-        this.rootLevel = rootLevel;
-        this.rootID = rootID;
+        this.experimenter = experimenter;
         this.userGroupID = userGroupID;
         requesterBounds = bounds;
     }
@@ -192,22 +173,20 @@ public class Browse
      * @param ids       	The list of objects ids.
      * @param index     	The index of the browser. One of the constants
      *                  	defined by this class.
-     * @param rootLevel 	The level of the hierarchy either 
-     *                  	<code>GroupData</code> or 
-     *                  	<code>ExperimenterData</code>.
-     * @param rootID    	The ID of the root level.
+     * @param experimenter	The currently selected experimenter. 
+     * 						Mustn't be <code>null</code>.
      * @param userGroupID	The ID of the selected group for the current 
      * 						user.                 
      * @param bounds    	The bounds of the component posting the event.                 
      */
-    public Browse(Set<Long> ids, int index, Class rootLevel, long rootID, 
-    			 long userGroupID, Rectangle bounds)
+    public Browse(Set<Long> ids, int index, ExperimenterData experimenter, 
+    			long userGroupID, Rectangle bounds)
     {
     	checkMultiNodesIndex(index); 
-        checkRootLevel(rootLevel);
+    	 if (experimenter == null) 
+         	throw new IllegalArgumentException("No experimenter.");
         eventIndex = index;
-        this.rootLevel = rootLevel;
-        this.rootID = rootID;
+        this.experimenter = experimenter;
         this.userGroupID = userGroupID;
         objectsIDs = ids;
         requesterBounds = bounds;
@@ -232,14 +211,7 @@ public class Browse
      * 
      * @return See above.
      */
-    public Class getRootLevel() { return rootLevel; }
-    
-    /**
-     * Returns the root ID.
-     * 
-     * @return See above.
-     */
-    public long getRootID() { return rootID; }
+    public ExperimenterData getExperimenter() { return experimenter; }
     
     /**
      * Returns the ID of the selected group for the current user.

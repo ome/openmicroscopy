@@ -33,6 +33,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
@@ -90,7 +92,7 @@ public class ProjectLoader
     public void load()
     {
         handle = hiBrwView.loadHierarchy(ProjectData.class, projectsID,
-                            viewer.getRootLevel(), getRootID(), this);
+        		ExperimenterData.class, viewer.getRootID(), this);
     }
     
     /** 

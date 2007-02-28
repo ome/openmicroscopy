@@ -197,6 +197,7 @@ class HiViewerComponent
             	setStatus("Done", -1);
             else setStatus(HiViewer.PAINTING_TEXT, -1);
             fireStateChange();
+            model.getBrowser().setSelectedDisplay(null);
             TreeView tv = model.getTreeView();
         	if (tv != null) {
         		model.createTreeView();
@@ -401,18 +402,6 @@ class HiViewerComponent
 		}
 		return treeView;
 	}
-	
-    /**
-     * Implemented as specified by the {@link HiViewer} interface.
-     * @see HiViewer#getRootLevel()
-     */
-    public Class getRootLevel()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException(
-                    "This method cannot be invoked in the DISCARDED state.");
-        return model.getRootLevel();
-    }
 
     /**
      * Implemented as specified by the {@link HiViewer} interface.
@@ -763,6 +752,18 @@ class HiViewerComponent
             throw new IllegalStateException("This method cannot be invoked " +
                     "in the DISCARDED state.");
 		return model.getUserGroupID();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#getExperimenter()
+     */
+	public ExperimenterData getExperimenter()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		return model.getExperimenter();
 	}
 
 }

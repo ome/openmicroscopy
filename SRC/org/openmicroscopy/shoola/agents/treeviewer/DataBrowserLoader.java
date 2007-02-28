@@ -30,12 +30,10 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Parent of all classes that load data asynchronously for a {@link Browser}.
@@ -73,15 +71,7 @@ public abstract class DataBrowserLoader
      * Converts the UI rootLevel into its corresponding class.
      * @return See above.
      */
-    protected Class convertRootLevel()
-    {
-        switch (viewer.getRootLevel()) {
-	        case TreeViewer.USER_ROOT: return ExperimenterData.class;
-	        case TreeViewer.GROUP_ROOT: return GroupData.class;
-	        default:
-	            throw new IllegalArgumentException("Level not supported");
-        }
-    }
+    protected Class convertRootLevel() { return ExperimenterData.class; }
     
     /**
      * Creates a new instance.

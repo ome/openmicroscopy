@@ -341,8 +341,8 @@ class BrowserComponent
         if (model.getBrowserType() != Browser.IMAGES_EXPLORER)
             throw new IllegalArgumentException("Method should only be invoked" +
                     " by the Images Explorer.");
-        if (model.getFilterType() == NO_IMAGES_FILTER) 
-            view.loadAction(view.getTreeRoot());
+        //if (model.getFilterType() == NO_IMAGES_FILTER) 
+        view.loadAction(view.getTreeRoot());
         model.fireFilterDataLoading();
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
@@ -568,7 +568,7 @@ class BrowserComponent
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
         JFrame frame = getViewParent(view.getParent());
-        long userID = model.getUserID();
+        long userID = model.getRootID();
         long groupID = model.getUserGroupID();
         Set n = TreeViewerTranslator.transformDataObjectsCheckNode(nodes, 
                                             userID, groupID);
@@ -635,6 +635,7 @@ class BrowserComponent
         if (model.getBrowserType() == IMAGES_EXPLORER) {
             root.removeAllChildrenDisplay();
             model.setSelectedDisplay(root);
+            
             Set nodes = model.getFilteredNodes();
             if (nodes != null) loadFilteredImageData(nodes);
             else loadFilteredImagesForHierarchy();
@@ -675,20 +676,7 @@ class BrowserComponent
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getRootLevel()
-     */
-    public int getRootLevel()
-    {
-        if (model.getState() == DISCARDED)
-		    throw new IllegalStateException(
-                    "This method can't only be invoked in the DISCARDED " +
-                    "state.");
-        return model.getRootLevel();
-    }
-
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getRootID()
@@ -1056,9 +1044,9 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setRefreshedHierarchy(Map, List)
+     * @see Browser#setRefreshedHierarchy(Map, Map)
      */
-    public void setRefreshedHierarchy(Map nodes, List expandedTopNodes)
+    public void setRefreshedHierarchy(Map nodes, Map expandedTopNodes)
     {
         if (model.getState() != LOADING_DATA)
             throw new IllegalStateException("This method cannot be invoked "+
@@ -1070,7 +1058,7 @@ class BrowserComponent
         model.fireContainerCountLoading();
         model.getParentModel().setStatus(false, "", true);
         PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
-		 accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         fireStateChange(); 
     }
 
@@ -1107,6 +1095,19 @@ class BrowserComponent
 			 throw new IllegalStateException("This method cannot be invoked "+
 	                "in the DISCARDED state.");
 		 view.setRootNode(experimenter);
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#cleanFilteredNodes()
+     */
+	public void cleanFilteredNodes()
+	{
+		 if (model.getState() == DISCARDED)
+			 throw new IllegalStateException("This method cannot be invoked "+
+	                "in the DISCARDED state.");
+		if (model.getBrowserType() == IMAGES_EXPLORER)
+			model.setFilterType(model.getFilterType());
 	}
     
 }
