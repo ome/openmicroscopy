@@ -347,7 +347,7 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setPixels(Integer sizeX, Integer sizeY, Integer sizeZ,
             Integer sizeC, Integer sizeT, Integer pixelType, Boolean bigEndian,
-            String dimensionOrder, Integer i)
+            String dimensionOrder, Integer imageIndex, Integer pixelsIndex)
     {
         log
                 .debug(String
@@ -700,4 +700,151 @@ public class OMEROMetadataStore implements MetadataStore
         }
            
     }
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setArc(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setArc(String type, Float power, Integer lightNdx,
+	                   Integer arcNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setDetector(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setDetector(String manufacturer, String model,
+	                        String serialNumber, String type, Float gain,
+	                        Float voltage, Float offset, Integer instrumentNdx,
+	                        Integer detectorNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setDichroic(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	public void setDichroic(String manufacturer, String model, String lotNumber,
+	                        Integer dichroicNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setDisplayChannel(java.lang.Integer, java.lang.Double, java.lang.Double, java.lang.Float, java.lang.Integer)
+	 */
+	public void setDisplayChannel(Integer channelNumber, Double blackLevel,
+			                      Double whiteLevel, Float gamma, Integer i)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setDisplayOptions(java.lang.Float, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setDisplayOptions(Float zoom, Boolean redChannelOn,
+	                              Boolean greenChannelOn, Boolean blueChannelOn,
+	                              Boolean displayRGB, String colorMap,
+	                              Integer zstart, Integer zstop, Integer tstart,
+	                              Integer tstop, Integer imageNdx,
+	                              Integer pixelsNdx, Integer redChannel,
+	                              Integer greenChannel, Integer blueChannel,
+	                              Integer grayChannel)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setEmissionFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	public void setEmissionFilter(String manufacturer, String model,
+			                      String lotNumber, String type,
+			                      Integer filterNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setExcitationFilter(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer)
+	 */
+	public void setExcitationFilter(String manufacturer, String model,
+			                        String lotNumber, String type,
+			                        Integer filterNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setFilament(java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setFilament(String type, Float power, Integer lightNdx,
+			                Integer filamentNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setFilterSet(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setFilterSet(String manufacturer, String model,
+			                 String lotNumber, Integer filterSetNdx,
+			                 Integer filterNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setImagingEnvironment(java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Float, java.lang.Integer)
+	 */
+	public void setImagingEnvironment(Float temperature, Float airPressure,
+			                          Float humidity, Float co2Percent,
+			                          Integer i)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setLaser(java.lang.String, java.lang.String, java.lang.Integer, java.lang.Boolean, java.lang.Boolean, java.lang.String, java.lang.Float, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setLaser(String type, String medium, Integer wavelength,
+			             Boolean frequencyDoubled, Boolean tunable,
+			             String pulse, Float power, Integer instrumentNdx,
+			             Integer lightNdx, Integer pumpNdx, Integer laserNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setLightSource(java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setLightSource(String manufacturer, String model,
+			                   String serialNumber, Integer instrumentIndex,
+			                   Integer lightIndex)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setOTF(java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setOTF(Integer sizeX, Integer sizeY, String pixelType,
+			           String path, Boolean opticalAxisAverage,
+			           Integer instrumentNdx, Integer otfNdx, Integer filterNdx,
+			           Integer objectiveNdx)
+	{
+		// TODO: Unsupported.
+	}
+
+	/* (non-Javadoc)
+	 * @see loci.formats.MetadataStore#setObjective(java.lang.String, java.lang.String, java.lang.String, java.lang.Float, java.lang.Float, java.lang.Integer, java.lang.Integer)
+	 */
+	public void setObjective(String manufacturer, String model,
+			                 String serialNumber, Float lensNA,
+			                 Float magnification, Integer instrumentNdx,
+			                 Integer objectiveNdx)
+	{
+		// TODO: Unsupported.
+	}
 }
