@@ -117,14 +117,22 @@ public class LoginDialog extends JDialog
         setUndecorated(true);
                 
         // Get the preference file options
-        username = userPrefs.get("username", username).trim();
+        username = userPrefs.get("username", username);
+        if (username != null)
+            username = username.trim();
         // password = userPrefs.get("password", password);
         
-        currentServer = userPrefs.get("server", currentServer).trim();
+        currentServer = userPrefs.get("server", currentServer);
+        if (currentServer != null)
+            currentServer = currentServer.trim();
+        
         serverList = getServerList();
         
-        port = userPrefs.get("port", port).trim();
-        if (port == null) port = "1099";
+        port = userPrefs.get("port", port);
+        if (port != null)
+            port = port.trim();
+        else  
+            port = "1099";
                 
         gui = new GuiCommonElements();
         

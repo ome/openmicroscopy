@@ -44,6 +44,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -63,7 +64,14 @@ import layout.TableLayout;
  */
 public class GuiCommonElements
 {
-    
+    public boolean lafOpaque = true;
+    public GuiCommonElements()
+    {
+        String laf = UIManager.getSystemLookAndFeelClassName();
+        if (laf.equals("apple.laf.AquaLookAndFeel")) 
+            lafOpaque = false;
+    }
+
     public JPanel addMainPanel(Container container, double tableSize[][], 
             int margin_top, int margin_left, int margin_bottom, int margin_right,
             boolean debug)
@@ -385,7 +393,7 @@ public class GuiCommonElements
     {
         JButton button = new JButton(label);
         button.setMnemonic(mnemonic);
-        button.setOpaque(false);
+        button.setOpaque(lafOpaque);
         container.add(button, placement);
         
         if (debug == true)

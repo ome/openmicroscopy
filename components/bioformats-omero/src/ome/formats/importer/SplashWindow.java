@@ -13,9 +13,6 @@ package ome.formats.importer;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
-import java.io.*;
-
-import javax.swing.JDialog;
 
 /**
  * A Splash window.
