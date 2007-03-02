@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.AdminLoader 
+ * org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -32,8 +32,9 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
+
 /** 
- * Retrieves the available user groups other than system.
+ * Command to load the archived files for a given set of pixels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,48 +46,55 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since OME3.0
  */
-public class AdminLoader 
+public class ArchivedFilesLoader
 	extends BatchCallTree
 {
 
+	/** Loads the specified annotations. */
+    private BatchCall   loadCall;
+    
     /** The result of the call. */
     private Object		result;
     
-    /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
-    
     /**
-     * Creates a {@link BatchCall} to retrieve the experimenter groups
+     * Creates a {@link BatchCall} to retrieve the archived files.
      * 
+     * @param location		The location where to save the file.
+     * @param pixelsID 		The ID of the pixels set.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall()
+    private BatchCall makeBatchCall(final String location, final long pixelsID)
     {
-        return new BatchCall("Loading experimenter groups") {
+        return new BatchCall("Loading annotation") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.getAvailableGroups();
+                result = os.getArchivedFiles(location, pixelsID);
             }
         };
     }
     
-	 /**
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree() { add(loadCall); }
 
     /**
-     * Returns, in a <code>Set</code>, the root nodes of the found trees.
+     * Returns the collection of archives files.
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
     
-    /** Creates a new instance. */
-    public AdminLoader()
+    /**
+     * Creates a new instance.
+     * 
+     * @param location	The location where to save the file.
+     * @param pixelsID	The ID of the pixels set.
+     */
+    public ArchivedFilesLoader(String location, long pixelsID)
     {
-    	loadCall = makeBatchCall();
+    	loadCall = makeBatchCall(location, pixelsID);
     }
-
+    
 }

@@ -532,5 +532,20 @@ public interface OmeroDataService
 	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
 									long rootLevelID)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves and saves the archived files.
+	 * Returns a map whose keys are the number of archived files retrieves
+	 * and the values are the number of files actually saved.
+	 * 
+	 * @param location	The location where to save the files.
+	 * @param pixelsID	The ID of the pixels set.
+	 * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+	 */
+	public Map getArchivedFiles(String location, long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
     
 }

@@ -76,7 +76,7 @@ class FilterMenu
     private static final String NAME = "'s Images";
     
     /** The description of the {@link #allImages} item. */
-    private static final String DESCRIPTION = "Retrieve all my images."; 
+    private static final String DESCRIPTION = "Retrieve all "; 
     
     /** Button to retrieve the images in datasets. */
     private JRadioButtonMenuItem    dataset;
@@ -101,7 +101,7 @@ class FilterMenu
         category.setToolTipText(DESCRIPTION_CATEGORY);
         category.setSelected(type == Browser.IN_CATEGORY_FILTER);
         allImages = new JRadioButtonMenuItem(model.getExperimenterNames()+NAME);
-        allImages.setToolTipText(DESCRIPTION);
+        allImages.setToolTipText(DESCRIPTION+NAME);
         allImages.setSelected(type == Browser.NO_IMAGES_FILTER);
         //Attach listener.
         dataset.addChangeListener(new ChangeListener() {

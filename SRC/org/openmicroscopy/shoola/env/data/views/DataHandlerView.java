@@ -80,7 +80,7 @@ public interface DataHandlerView
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadAnnotations(Class nodeType, Set nodeIDs,
+    public CallHandle loadAnnotations(Class nodeType, Set<Long> nodeIDs,
                                         AgentEventListener observer);
     
     /** 
@@ -158,5 +158,16 @@ public interface DataHandlerView
      */
     public CallHandle declassify(Set images, Set categories, 
                                 AgentEventListener observer);
+    
+    /**
+     * Loads the original archived files if any linked to the set of pixels.
+     * 
+     * @param location	The location where to save the file.
+     * @param pixelsID	The pixels set ID.
+     * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadArchivedFiles(String location, long pixelsID, 
+    									AgentEventListener observer);
     
 }

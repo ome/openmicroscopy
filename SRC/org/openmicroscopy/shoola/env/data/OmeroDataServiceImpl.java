@@ -25,7 +25,10 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +40,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.IObject;
 import ome.model.core.Channel;
+import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -73,6 +77,29 @@ class OmeroDataServiceImpl
     
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway            gateway;
+    
+    /**
+     * Creates a <code>File</code> from the passed array of bytes.
+     * 
+     * @param name		The name of the file.
+     * @param values    The array of bytes.
+     * @return See above.
+     * @throws DSAccessException If we cannot create the file.
+     */
+    private File createFile(String name, byte[] values) 
+        throws DSAccessException
+    {
+    	File f = new File(name);
+    	try {
+    		FileOutputStream stream = new FileOutputStream(f);
+    		stream.write(values);
+    		stream.close();
+    		return f;
+    	} catch (Exception e) {
+    		f.delete();
+    		throw new DSAccessException("Cannot create the file", e);
+    	}
+    }
     
     /**
      * Helper method to return the user's details.
@@ -646,18 +673,21 @@ class OmeroDataServiceImpl
             throw new IllegalArgumentException("No data to cut and Paste.");
         }
         Iterator i;
-        DataObject parent;
+        Object parent;
         i = toCut.keySet().iterator();
         while (i.hasNext()) {
-            parent = (DataObject) i.next();
-            cut(parent, (Set) toCut.get(parent));
+            parent = i.next();
+            if (parent instanceof DataObject) //b/c of orphaned container
+            	cut((DataObject) parent, (Set) toCut.get(parent));
         }
         
         i = toPaste.keySet().iterator();
         
         while (i.hasNext()) {
-            parent = (DataObject) i.next();
-            addExistingObjects(parent, (Set) toPaste.get(parent));
+            parent = i.next();
+            if (parent instanceof DataObject)
+            	addExistingObjects((DataObject) parent, 
+            						(Set) toPaste.get(parent));
         }
     }
 
@@ -808,6 +838,31 @@ class OmeroDataServiceImpl
     			orphans.remove(child);
     	}
 		return orphans;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getArchivedFiles(String, long)
+     */
+	public Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Map<OriginalFile, byte[]> map = gateway.getOriginalFiles(pixelsID);
+		Map<Integer, List> result = new HashMap<Integer, List>();
+		if (map == null || map.size() == 0) return result;
+		Iterator i = map.keySet().iterator();
+		OriginalFile of;
+		List<String> l = new ArrayList<String>();
+		while (i.hasNext()) {
+			of = (OriginalFile) i.next();
+			try {
+				createFile(path+of.getName(), map.get(of));
+			} catch (Exception e) {
+				l.add(of.getName());
+			}
+		}
+		result.put(new Integer(map.size()), l);
+		return result;
 	}
 	
 }

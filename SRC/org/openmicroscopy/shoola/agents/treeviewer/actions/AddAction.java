@@ -94,16 +94,16 @@ public class AddAction
             setEnabled(false);
             putValue(Action.NAME, NAME); 
         } else if (ho instanceof ProjectData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_DATASET); 
         } else if (ho instanceof CategoryGroupData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_CATEGORY);
         } else if (ho instanceof CategoryData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_IMAGE);
         } else if (ho instanceof DatasetData) {
-            setEnabled(model.isObjectWritable((DataObject) ho));
+            setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_IMAGE);
         } else {
             setEnabled(false);

@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -308,6 +309,9 @@ class HiViewerWin
     private JMenu createHelpMenu()
     {
         JMenu file = new JMenu("Help");
+        TaskBar bar = TreeViewerAgent.getRegistry().getTaskBar();
+        JMenuItem item = bar.getCopyMenuItem(TaskBar.COMMENT);
+        if (item != null) file.add(item);
         return file;
     }
     

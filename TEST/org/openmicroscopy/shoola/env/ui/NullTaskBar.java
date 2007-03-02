@@ -90,10 +90,14 @@ public class NullTaskBar
      */
     public JMenuBar getTaskBarMenu() { return null; }
 
-    public JMenu getWindowsMenu()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    /**
+     * @see TaskBar#getWindowsMenu()
+     */
+    public JMenu getWindowsMenu() { return null; }
+
+    /**
+     * @see TaskBar#getCopyMenuItem(int)
+     */
+	public JMenuItem getCopyMenuItem(int index) { return null; }
 
 }

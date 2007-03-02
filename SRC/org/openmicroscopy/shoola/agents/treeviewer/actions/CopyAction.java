@@ -95,15 +95,23 @@ public class CopyAction
         }
         Object ho = selectedDisplay.getUserObject(); 
         if (ho instanceof DatasetData) {
-        	Object parent = selectedDisplay.getParentDisplay().getUserObject();
-        	if (parent instanceof ProjectData)
-            	setEnabled(model.isObjectWritable(ho));
-            else setEnabled(false);
+        	TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+        	if (parentDisplay == null) setEnabled(false);
+        	else {
+        		Object parent = parentDisplay.getUserObject();
+            	if (parent instanceof ProjectData)
+                	setEnabled(model.isObjectWritable(ho));
+                else setEnabled(false);
+        	}
+        	
         } else if (ho instanceof CategoryData) {
-        	Object parent = selectedDisplay.getParentDisplay().getUserObject();
-        	if (parent instanceof CategoryGroupData)
-            	setEnabled(model.isObjectWritable(ho));
-            else setEnabled(false);
+        	TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+        	if (parentDisplay == null) setEnabled(false);
+        	else {
+            	if (parentDisplay.getUserObject() instanceof CategoryGroupData)
+                	setEnabled(model.isObjectWritable(ho));
+                else setEnabled(false);
+        	}
         } else if (ho instanceof ImageData) 
             setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);

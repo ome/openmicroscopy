@@ -74,7 +74,7 @@ public class DeleteCmd
         if (browser == null) return;
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
         if (nodes.length == 0) return;
-        List objects = new ArrayList();
+        List<TreeImageDisplay> objects = new ArrayList<TreeImageDisplay>();
         TreeImageDisplay n;
         for (int i = 0; i < nodes.length; i++) {
             n = nodes[i];

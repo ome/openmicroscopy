@@ -30,6 +30,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +58,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -255,12 +257,33 @@ public class UserManagerDialog
 		long groupID = defaultGroup.getId();
 		//Build the array for box.
 		Iterator i = map.keySet().iterator();
+		//Remove not visible group
 		GroupData g;
-		GroupData[] objects = new GroupData[map.size()];
+		HashMap<GroupData, Set> newMap = new HashMap<GroupData, Set>();
+		Set<ExperimenterData> newSet;
+		Set<ExperimenterData> oldSet;
+		Iterator j;
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (TreeViewerTranslator.isVisible(g, loggedUser)) {
+				newSet = new HashSet<ExperimenterData>();
+				oldSet = (Set) map.get(g);
+				j = oldSet.iterator();
+				while (j.hasNext()) {
+					exp = (ExperimenterData) j.next();
+					if (TreeViewerTranslator.isVisible(exp, loggedUser))
+						newSet.add(exp);
+				}
+				newMap.put(g, newSet);
+			}
+		}
+		GroupData[] objects = new GroupData[newMap.size()];
 		int selectedIndex = 0;
 		int index = 0;
 		Object[] children;
 		GroupData selectedGroup = defaultGroup;
+		i = newMap.keySet().iterator();
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
 			objects[index] = g;
@@ -268,7 +291,7 @@ public class UserManagerDialog
 				selectedIndex = index;
 				selectedGroup = g;
 			}
-			children = sorter.sortArray((Set) map.get(g));
+			children = sorter.sortArray((Set) newMap.get(g));
 			orderedMap.put(g, children);
 			index++;
 		}

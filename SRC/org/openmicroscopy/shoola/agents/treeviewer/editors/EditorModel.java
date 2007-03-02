@@ -43,6 +43,7 @@ import javax.swing.JDialog;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
@@ -789,6 +790,15 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean isThumbnailLoaded() { return thumbnailLoaded; }
+
+	void fireDownloadArchives(String directory)
+	{
+		ImageData img = (ImageData) hierarchyObject;
+		long id = img.getDefaultPixels().getId();
+		state = Editor.LOADING_ARCHIVED;
+		currentLoader = new ArchivedFilesLoader(component, directory, id);
+		currentLoader.load();
+	}
     
 }
  

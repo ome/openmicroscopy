@@ -205,30 +205,39 @@ public class DeleteAction
             name = NAME_PROJECT;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
-            Object p = selectedDisplay.getParentDisplay().getUserObject();
-            if (p instanceof ProjectData)
-            	setEnabled(model.isObjectWritable(ho));
-            else setEnabled(false);
+            TreeImageDisplay parent = selectedDisplay.getParentDisplay();
+            if (parent == null) setEnabled(false);
+            else {
+                if (parent.getUserObject() instanceof ProjectData)
+                	setEnabled(model.isObjectWritable(ho));
+                else setEnabled(false);
+            }
         } else if (ho instanceof CategoryData) {
             name = NAME_CATEGORYGROUP;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_CATEGORYGROUP));
-            Object p = selectedDisplay.getParentDisplay().getUserObject();
-            if (p instanceof CategoryGroupData)
-            	setEnabled(model.isObjectWritable(ho));
-            else setEnabled(false);
-        } else if (ho instanceof ImageData) {
-        	Object p = selectedDisplay.getParentDisplay().getUserObject();
-            if (p instanceof DatasetData) {
-            	name = NAME_DATASET;
-            	putValue(Action.SHORT_DESCRIPTION, 
-                        UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
-            } else {
-            	name = NAME_CATEGORY;
-            	putValue(Action.SHORT_DESCRIPTION, 
-                        UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
+            TreeImageDisplay parent = selectedDisplay.getParentDisplay();
+            if (parent == null) setEnabled(false);
+            else {
+                if (parent.getUserObject() instanceof CategoryGroupData)
+                	setEnabled(model.isObjectWritable(ho));
+                else setEnabled(false);
             }
-            setEnabled(model.isObjectWritable(ho));
+        } else if (ho instanceof ImageData) {
+        	TreeImageDisplay parent = selectedDisplay.getParentDisplay();
+        	if (parent == null) setEnabled(false);
+        	else {
+                if (parent.getUserObject() instanceof DatasetData) {
+                	name = NAME_DATASET;
+                	putValue(Action.SHORT_DESCRIPTION, 
+                            UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+                } else {
+                	name = NAME_CATEGORY;
+                	putValue(Action.SHORT_DESCRIPTION, 
+                            UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
+                }
+                setEnabled(model.isObjectWritable(ho));
+        	}
         } else {
         	setEnabled(false);
         	putValue(Action.SHORT_DESCRIPTION, 

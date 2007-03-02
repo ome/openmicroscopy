@@ -54,13 +54,13 @@ public class EditVisitor
 {
 
     /** The ID of original node. */
-    private long                originalNodeID;
+    private long                	originalNodeID;
     
     /** The original node. */
-    private Object              originalNode;
+    private Object              	originalNode;
     
     /** The collection of found {@link TreeImageDisplay nodes}. */
-    private List                foundNodes;
+    private List<TreeImageDisplay>	foundNodes;
     
     /**
      * Returns the id of the specified object, <code>-1</code> if it's the 
@@ -105,7 +105,7 @@ public class EditVisitor
             throw new IllegalArgumentException("No node.");
         this.originalNode = originalNode;
         originalNodeID = getNodeID(originalNode);
-        foundNodes = new ArrayList();
+        foundNodes = new ArrayList<TreeImageDisplay>();
     }
     
     /**

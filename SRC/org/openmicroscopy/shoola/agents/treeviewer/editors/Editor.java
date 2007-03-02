@@ -77,8 +77,11 @@ public interface Editor
     /** Flag to denote the <i>Save Edition</i> state. */
     public static final int         SAVE_EDITION = 6;
     
+    /** Flag to denote the <i>Loading Archived</i> state. */
+    public static final int         LOADING_ARCHIVED = 7;
+    
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int         READY = 7;
+    public static final int         READY = 8;
     
     /** Identifies the <code>Create</code> type for the editor. */
     public static final int         CREATE_EDITOR = TreeViewer.CREATE_EDITOR;
@@ -157,6 +160,13 @@ public interface Editor
     /** Retrieves the emission wavelengths for the set of pixels. */
     void retrieveChannelsData();   
     
+    /** 
+     * Downloads the archived files. 
+     * 
+     * @param directory The directory where to save the files.
+     * */
+	void download(String directory);
+	
     /**
      * Queries the current state.
      * 
@@ -272,5 +282,13 @@ public interface Editor
 	 * @param rootPane The root pane of the frame hosting the editor.
 	 */
 	public void setDefaultButton(JRootPane rootPane);
+
+	/**
+	 * Sets the archived files.
+	 * 
+	 * @param map 	Map whose keys are the number of files retrieved
+	 * 				and values the number of files saved locally.
+	 */
+	public void setArchivedFiles(Map map);
     
 }

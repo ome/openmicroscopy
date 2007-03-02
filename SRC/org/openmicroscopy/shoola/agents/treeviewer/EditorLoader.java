@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 
 /** 
@@ -68,6 +69,9 @@ public abstract class EditorLoader
     /** Convenience reference for subclasses. */
     protected final DataManagerView     dmView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataHandlerView     dhView;
+    
     /**
      * Creates a new instance.
      * 
@@ -81,6 +85,8 @@ public abstract class EditorLoader
         registry = TreeViewerAgent.getRegistry();
         dmView = (DataManagerView) 
                 registry.getDataServicesView(DataManagerView.class);
+        dhView = (DataHandlerView) 
+        		registry.getDataServicesView(DataHandlerView.class);
     }
     
     /** Notifies the {@link #viewer} that the data retrieval is finished. */

@@ -45,6 +45,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -162,12 +163,6 @@ class EditorUI
      * is edited.
      */
     private static final String     PROPERTIES_TITLE = "Properties";
-    
-    /** 
-     * The title of the main tabbed pane when the <code>DataObject</code>
-     * is an instance of <code>ExperimenterData</code>.
-     */
-    private static final String     USER_PROFILE_TITLE = "User profile";
     
     /** 
      * The title of the tabbed pane hosting the details of the owner of the
@@ -359,33 +354,24 @@ class EditorUI
                 tabs = new JTabbedPane(JTabbedPane.TOP, 
                                                    JTabbedPane.WRAP_TAB_LAYOUT);
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
-                boolean b = 
-                	(model.getHierarchyObject() instanceof ExperimenterData);
-                if (b)
-                	tabs.addTab(USER_PROFILE_TITLE, 
-                            im.getIcon(IconManager.PROPERTIES), doBasic);
-                else tabs.addTab(PROPERTIES_TITLE, 
+                tabs.addTab(PROPERTIES_TITLE, 
                         im.getIcon(IconManager.PROPERTIES), doBasic);
-                if (b) {
-                	
-                } else { //TODO: modify
-                	ExperimenterData exp = model.getDataObjectOwner();
-                	
-                    Map details = EditorUtil.transformExperimenterData(exp);
-                    DOInfo info = new DOInfo(this, model, details, true, 
-                                        DOInfo.OWNER_TYPE);
-                    
-                    tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), 
-                    			info);
-                    DataObject hierarchyObject = model.getHierarchyObject();
-                    if (hierarchyObject instanceof ImageData) {
-                        details = EditorUtil.transformPixelsData(
-                              ((ImageData) hierarchyObject).getDefaultPixels());
-                        info = new DOInfo(this, model, details, false, 
-                                DOInfo.INFO_TYPE);
-                        tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
-                        			info);  
-                    }
+                ExperimenterData exp = model.getDataObjectOwner();
+            	
+                Map details = EditorUtil.transformExperimenterData(exp);
+                DOInfo info = new DOInfo(this, model, details, true, 
+                                    DOInfo.OWNER_TYPE);
+                
+                tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), 
+                			info);
+                DataObject hierarchyObject = model.getHierarchyObject();
+                if (hierarchyObject instanceof ImageData) {
+                    details = EditorUtil.transformPixelsData(
+                          ((ImageData) hierarchyObject).getDefaultPixels());
+                    info = new DOInfo(this, model, details, false, 
+                            DOInfo.INFO_TYPE);
+                    tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
+                    			info);  
                 }
                 //Add a tab listeners to the info
                 tabs.addChangeListener(controller);
@@ -781,6 +767,13 @@ class EditorUI
 		rootPane.setDefaultButton(finishButton);
 	}
 
+	/**
+	 * Returns the window containing the editor.
+	 * 
+	 * @return See above.
+	 */
+	JFrame getParentUI() { return model.getParentModel().getUI(); }
+	
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)

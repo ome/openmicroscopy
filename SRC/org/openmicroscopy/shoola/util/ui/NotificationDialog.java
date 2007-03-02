@@ -40,6 +40,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import layout.TableLayout;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -143,10 +145,24 @@ public class NotificationDialog
 	 * if any.
 	 * 
 	 * @param msg		The notification message.
-	 * @param msgIcon	The icon to display by the message.
+	 * @param icon		The icon to display by the message.
 	 */
-	private void buildMessagePanel(String msg, Icon msgIcon)
+	private void buildMessagePanel(String msg, Icon icon)
 	{
+		 int iconSpace = 0;
+		 if (icon != null) iconSpace = icon.getIconWidth()+20;
+
+		 double tableSize[][] =  
+		 {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
+		 {TableLayout.FILL}}; // rows
+		 TableLayout layout = new TableLayout(tableSize);
+		 messagePanel.setLayout(layout);  
+		 messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		 if (icon != null)
+			 messagePanel.add(new JLabel(icon), "0, 0, l, c");
+		 messagePanel.add(UIUtilities.buildTextPane(msg), "1, 0, 2, 0");
+		 /*
 		messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
 		if (msgIcon != null) {
 			JLabel iconLabel = new JLabel(msgIcon);
@@ -158,6 +174,7 @@ public class NotificationDialog
 		message.setPreferredSize(MSG_AREA_SIZE);
 		message.setAlignmentY(TOP_ALIGNMENT);
 		messagePanel.add(message);
+		*/
 	}
 	
 	/**

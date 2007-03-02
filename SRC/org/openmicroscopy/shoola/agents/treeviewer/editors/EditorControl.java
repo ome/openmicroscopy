@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -34,7 +37,10 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.util.FolderChooserDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -51,7 +57,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class EditorControl
-    implements ChangeListener
+    implements ChangeListener, PropertyChangeListener
 {
     
     /** 
@@ -189,8 +195,11 @@ public class EditorControl
     
     /** Downloads the archived files. */
     void download()
-    {
-    	
+    { 
+    	FolderChooserDialog d = new FolderChooserDialog(view.getParentUI()); 
+    	d.addPropertyChangeListener(FolderChooserDialog.LOCATION_PROPERTY, 
+    								this);
+    	UIUtilities.centerAndShow(d);
     }
     
     /**
@@ -226,5 +235,17 @@ public class EditorControl
         	view.onStateChanged(model.getState() == Editor.READY);
         }
     }
+
+    /**
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (FolderChooserDialog.LOCATION_PROPERTY.equals(name)) {
+			String dir = (String) evt.getNewValue();
+			model.download(dir);
+		}
+	}
 
 }

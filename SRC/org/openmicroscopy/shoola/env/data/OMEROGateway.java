@@ -41,11 +41,11 @@ import javax.ejb.EJBException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
 import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.api.RawFileStore;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
@@ -55,6 +55,7 @@ import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.meta.Experimenter;
@@ -99,6 +100,9 @@ class OMEROGateway
     
     /** The thumbnail service. */
     private ThumbnailStore          thumbnailService;
+    
+    /** The raw file store. */
+    private RawFileStore			fileStore;
     
     /**
      * Tells whether we're currently connected and logged into <i>OMERO</i>.
@@ -331,6 +335,18 @@ class OMEROGateway
         return thumbnailService; 
     }
 
+    /**
+     * Returns the {@link RawFileStore} service.
+     *  
+     * @return See above.
+     */
+    private RawFileStore getRawFileService()
+    {
+    	//if (fileStore == null) fileStore = entry.createRawFileStore();
+    	//return fileStore;
+    	return entry.createRawFileStore();
+    }
+    
     /**
      * Returns the {@link RenderingEngine Rendering service}.
      * 
@@ -930,13 +946,6 @@ class OMEROGateway
             RenderingEngine service = getRenderingService();
             service.lookupPixels(pixelsID);
             needDefault(pixelsID, service);
-           
-            /*
-            if (!(service.lookupRenderingDef(pixelsID))) {
-            	service.resetDefaults();
-				service.lookupRenderingDef(pixelsID);
-            }
-            */
             service.load();
             return service;
         } catch (Exception e) {
@@ -1065,4 +1074,41 @@ class OMEROGateway
 		}
 		return null;
     }
+
+    /**
+     * Retrieves the archived files if any for the specified set of pixels.
+     * 
+     * @param pixelsID The ID of the pixels set.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+     */
+    Map<OriginalFile, byte[]> getOriginalFiles(long pixelsID) 
+    	throws DSOutOfServiceException, DSAccessException
+    {
+    	IQuery service = getIQueryService();
+    	List files = service.findAllByQuery(
+    			"select ofile from OriginalFile as ofile left join " +
+                "ofile.pixelsFileMaps as pfm left join pfm.child as child " +
+                "where child.id = :id",
+                new Parameters().addId(new Long(pixelsID)));
+    	if (files == null || files.size() == 0) return null;
+    	RawFileStore store = getRawFileService();
+    	Iterator i = files.iterator();
+    	OriginalFile of;
+    	Map<OriginalFile, byte[]> map = 
+    					new HashMap<OriginalFile, byte[]>(files.size());
+    	while (i.hasNext()) {
+			of = (OriginalFile) i.next();
+			store.setFileId(of.getId()); 
+			try {
+				map.put(of, store.read(0, of.getSize()));
+			} catch (Exception e) {
+				//Original file exists but not been archived.
+			}
+		}
+        return map;
+	}
+    
 }

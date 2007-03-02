@@ -47,6 +47,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
@@ -232,7 +233,10 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
-        commentArea.setOpaque(false);
+        commentArea.setBorder(
+        		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        commentArea.setBackground(Color.WHITE);
+        commentArea.setOpaque(true);
         if (exception != null) {
         	debugArea = buildExceptionArea();
         	copyButton = new JButton("Copy to Clipboard");

@@ -56,13 +56,13 @@ public class ClassificationVisitor
 {
 
     /** The classified or declassified image. */
-    private ImageData       image;
+    private ImageData       		image;
     
     /** 
      * Collection of {@link CategoryData}s the image was added to or removed
      * from.
      */
-    private List            dataObjects;
+    private List<Long>				dataObjects;
     
     /** 
      * The parent hosting the {@link #image} if the parent is a 
@@ -70,7 +70,7 @@ public class ClassificationVisitor
      * same type and with the same id than the one hosting by the 
      * {@link #image}.
      */
-    private List            foundNodes;
+    private List<TreeImageDisplay>	foundNodes;
         
     /**
      * Creates a new instance.
@@ -91,13 +91,13 @@ public class ClassificationVisitor
             throw new IllegalArgumentException("Categories cannot be null");
         this.image = image;
         Iterator i = categories.iterator();
-        dataObjects = new ArrayList(categories.size());
+        dataObjects = new ArrayList<Long>(categories.size());
         CategoryData element;
         while (i.hasNext()) {
             element = (CategoryData) i.next();
             dataObjects.add(new Long(element.getId()));
         }
-        foundNodes = new ArrayList();
+        foundNodes = new ArrayList<TreeImageDisplay>();
     }
     
     /**

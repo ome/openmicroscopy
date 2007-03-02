@@ -162,7 +162,7 @@ class ImgSaverFileChooser
         File file = getSelectedFile();
         if (file != null) {
             String format = getFormat(getFileFilter());
-            String  fileName = file.getAbsolutePath();
+            String fileName = file.getAbsolutePath();
             String message = MSG_DIR+""+getCurrentDirectory();
             setSelection(format, fileName, message, 
                                 getCurrentDirectory().listFiles());

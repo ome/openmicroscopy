@@ -330,6 +330,9 @@ class ImViewerUI
     {
         JMenu menu = new JMenu("Help");
         menu.setMnemonic(KeyEvent.VK_H);
+        TaskBar bar = ImViewerAgent.getRegistry().getTaskBar();
+        JMenuItem item = bar.getCopyMenuItem(TaskBar.COMMENT);
+        if (item != null) menu.add(item);
         return menu;
     }
     

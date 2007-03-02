@@ -48,6 +48,7 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
@@ -733,6 +734,42 @@ public class TreeViewerTranslator
         return permissions.isWorldWrite();
         */
         return permissions.isGroupWrite();
+    }
+    
+    /**
+     * Returns <code>true</code> if the specified data object is visible,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param data			The <code>DataObject</code>. 
+     * 						Mustn't be <code>null</code>.
+     * @param loggedUser	The currently logged in user.
+     * @return See above.
+     */
+    public static boolean isVisible(DataObject data, 
+    								ExperimenterData loggedUser)
+    {
+    	if (data == null) return false;
+    	if (!((data instanceof ExperimenterData) || 
+    		(data instanceof GroupData)))
+    		return false;
+    	
+    	return true;
+    	/*
+    	PermissionData permissions = data.getPermissions();
+    	if (permissions.isWorldRead()) return true;
+    	if (permissions.isGroupRead()) { //check if logged user can view it
+    		Set groups = loggedUser.getGroups();
+    		if (groups == null || groups.size() == 0) return false;
+    		Iterator i = groups.iterator();
+    		GroupData group;
+    		while (i.hasNext()) {
+    			group = (GroupData) i.next();
+				if (group.getId() == data.getId()) return true;
+			}
+    		return false;
+    	}
+    	return false;
+    	*/
     }
     
     /**

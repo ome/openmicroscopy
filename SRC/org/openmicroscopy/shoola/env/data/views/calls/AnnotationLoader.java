@@ -73,17 +73,12 @@ public class AnnotationLoader
      * 						for the current user, <code>false</code>
      * 						otherwise. 
      */
-    private void validate(Class nodeType, Set nodeIDs, boolean forUser)
+    private void validate(Class nodeType, Set<Long> nodeIDs, boolean forUser)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
         if (nodeIDs == null || nodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
-        try {
-            nodeIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("nodeIDs only contains Long.");
-        }  
         if (nodeType.equals(DatasetData.class) ||
             nodeType.equals(ImageData.class))
             loadCall = makeAnnotationBatchCall(nodeType, nodeIDs, forUser);
@@ -162,7 +157,7 @@ public class AnnotationLoader
      * 						for the current user, <code>false</code>
      * 						otherwise. 
      */
-    public AnnotationLoader(Class nodeType, Set nodeIDs, boolean forUser)
+    public AnnotationLoader(Class nodeType, Set<Long> nodeIDs, boolean forUser)
     {
         validate(nodeType, nodeIDs, forUser);
     }

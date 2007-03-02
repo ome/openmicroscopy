@@ -236,6 +236,7 @@ class TaskBarView
     private JMenuItem copyItem(JMenuItem original)
     {
         JMenuItem item = new JMenuItem(original.getAction());
+        item.setIcon(original.getIcon());
         item.setText(original.getText());
         item.setToolTipText(original.getToolTipText());
         ActionListener[] al = original.getActionListeners();
@@ -598,6 +599,20 @@ class TaskBarView
         windowMenus.add(menu);
         return menu;
     }
+
+    /**
+     * Implemented as specifed by {@link TaskBar}.
+     * @see TaskBar#getCopyMenuItem(int)
+     */
+	public JMenuItem getCopyMenuItem(int index)
+	{
+		switch (index) {
+			case TaskBar.COMMENT:
+				return copyItem((JMenuItem) buttons[COMMENT_MI]);
+			default:
+				return null;
+		}
+	}
 
     /**
      * Implemented as specifed by {@link TaskBar}.

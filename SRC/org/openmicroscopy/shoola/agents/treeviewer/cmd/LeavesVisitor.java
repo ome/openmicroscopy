@@ -35,6 +35,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.ImageData;
@@ -57,10 +58,10 @@ public class LeavesVisitor
 {
 
     /** Set of nodes */
-    private Set nodes;
+    private Set<TreeImageDisplay> 	nodes;
     
     /** Set of corresponding <code>DataObject</code>s IDs*/
-    private Set objects;
+    private Set<Long> 				objects;
     
     /**
      * Creates a new instance.
@@ -71,8 +72,8 @@ public class LeavesVisitor
     public LeavesVisitor(Browser model)
     {
         super(model);
-        nodes = new HashSet();
-        objects = new HashSet();
+        nodes = new HashSet<TreeImageDisplay>();
+        objects = new HashSet<Long>();
     }
 
     /**

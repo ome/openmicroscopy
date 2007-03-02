@@ -32,6 +32,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -70,7 +71,7 @@ public class DataHandlerViewImpl
      * Implemented as specified by the view interface.
      * @see DataHandlerView#loadAnnotations(Class, Set, AgentEventListener)
      */
-	public CallHandle loadAnnotations(Class nodeType, Set nodeIDs, 
+	public CallHandle loadAnnotations(Class nodeType, Set<Long> nodeIDs, 
 							AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new AnnotationLoader(nodeType, nodeIDs, true);
@@ -134,5 +135,16 @@ public class DataHandlerViewImpl
         BatchCallTree cmd = new ClassificationSaver(images, categories, false);
         return cmd.exec(observer);
     }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#loadArchivedFiles(String, long, AgentEventListener)
+     */
+	public CallHandle loadArchivedFiles(String location, long pixelsID, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ArchivedFilesLoader(location, pixelsID);
+        return cmd.exec(observer);
+	}
     
 }

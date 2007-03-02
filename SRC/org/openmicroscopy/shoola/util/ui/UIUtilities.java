@@ -485,7 +485,6 @@ public class UIUtilities
     					JComponent.WHEN_FOCUSED);
     }
     
-    
     /**
      * Returns the pathname string of the default folder.
      * 

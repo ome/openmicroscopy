@@ -109,6 +109,22 @@ class TreeViewerComponent
      */
     private  EditorSaverDialog	saverDialog;
     
+	/** 
+	 * Displays the user groups.
+	 * 
+	 * @param map 	The map whose key is a <code>GroupData</code>s
+	 * 				and the value a collection of 
+	 * 				<code>ExperimenterData</code>s.
+	 */
+	private void displayUserGroups(Map map)
+	{
+		UserManagerDialog d = new UserManagerDialog(view, 
+				model.getUserDetails(), map, model.getRootID());
+		d.addPropertyChangeListener(controller);
+		d.pack();
+		UIUtilities.centerAndShow(d);
+	}
+	
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -999,13 +1015,8 @@ class TreeViewerComponent
 		if (model.getState() != LOADING_DATA) return;
 		model.setUserGroups(map);
 		fireStateChange();
-		UserManagerDialog d = new UserManagerDialog(view, 
-								model.getUserDetails(), map, model.getRootID());
-		d.addPropertyChangeListener(controller);
-		d.pack();
-		UIUtilities.centerAndShow(d);
 	}
-
+	
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see TreeViewer#retrieveUserGroups()
@@ -1019,13 +1030,7 @@ class TreeViewerComponent
 		if (m == null) {
 			model.fireUserGroupsRetrieval();
 			fireStateChange();
-		} else {
-			UserManagerDialog d = new UserManagerDialog(view, 
-					model.getUserDetails(), m, model.getRootID());
-			d.addPropertyChangeListener(controller);
-			d.pack();
-			UIUtilities.centerAndShow(d);
-		}
+		} else displayUserGroups(m);
 	}
 
     /**

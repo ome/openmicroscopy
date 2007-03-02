@@ -288,7 +288,16 @@ public class NullOmeroPojoService
 	public Set getImagesFor(long userID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		// TODO Auto-generated method stub
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getArchivedFiles(String, long)
+     */
+	public Map getArchivedFiles(String location, long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
 		return null;
 	}
 

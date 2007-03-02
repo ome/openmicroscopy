@@ -100,6 +100,9 @@ public interface TaskBar
 	/** Identifies the help menu within the menu bar. */
 	public static final int		HELP_MENU = 1;
 	
+	/** Identifies the <code>Comment</code> menu item. */
+	public static final int		COMMENT = 100;
+	
 	/**
 	 * Identifies the tasks toolbar.
 	 * Icon buttons in this toolbar trigger actions related to the application
@@ -200,5 +203,15 @@ public interface TaskBar
      * @return See above.
      */
     public JMenu getWindowsMenu();
+    
+    /**
+     * Builds and returns a copy of the menu item specified by the passed index.
+     * If the passed value is not supported, a <code>null</code> value
+     * is returned.
+     * 
+     * @param index	The index of the item to copy.
+     * @return See above.
+     */
+    public JMenuItem getCopyMenuItem(int index);
 
 }
