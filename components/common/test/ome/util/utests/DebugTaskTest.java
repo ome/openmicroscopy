@@ -20,7 +20,7 @@ public class DebugTaskTest extends TestCase {
 
     @Test
     public void testOutput() throws Exception {
-        Run.main(new String[]{"a=b"});
+        Run.main(new String[]{"task=DebugTask","a=b"});
     }
     // ~ Helpers
     // =========================================================================

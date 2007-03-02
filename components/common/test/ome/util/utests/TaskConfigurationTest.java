@@ -27,12 +27,14 @@ public class TaskConfigurationTest extends TestCase {
         fails(null);
         fails(new Properties());
         fails(pairs("task", "unknown class"));
-        fails(pairs("task", "admin.AddUserTask", "host", "forgotport"));
-        fails(pairs("task", "admin.AddUserTask", "port", "forgothost"));
-        fails(pairs("task", "admin.AddUserTask", "user", "forgotlots"));
-        fails(pairs("task", "admin.AddUserTask", "pass", "forgotlots"));
-        fails(pairs("task", "admin.AddUserTask", "type", "forgotlots"));
-        fails(pairs("task", "admin.AddUserTask", "group", "forgotlots"));
+//      No longer required:
+//        fails(pairs("task", "admin.AddUserTask", "user", "forgotlots"));
+//        fails(pairs("task", "admin.AddUserTask", "pass", "forgotlots"));
+//        fails(pairs("task", "admin.AddUserTask", "type", "forgotlots"));
+//        fails(pairs("task", "admin.AddUserTask", "group", "forgotlots"));
+//        fails(pairs("task", "admin.AddUserTask", "host", "forgotport"));
+//        fails(pairs("task", "admin.AddUserTask", "port", "forgothost"));
+
     }
 
     @Test
