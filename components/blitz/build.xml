@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="omero-ice" default="slice-all" basedir=".">
+<project name="omero-ice" default="install" basedir=".">
 
     <property name="classpath.file" value="classpath.xml"/>
     <property name="main.class" value="ome.services.icy.Main"/>
@@ -27,6 +27,14 @@
 
 	<target name="generate" depends="lifecycle.generate,icegen,slice"/>
 
+	<target name="compile" depends="slice-init" unless="no.ice">
+	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.compile"/>
+	</target>
+
+	<target name="test" depends="slice-init" unless="no.ice">
+	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.test"/>
+	</target>
+
 	<target name="install" depends="lifecycle.install,standalone"/>
 
     <!-- TODO Be sure to remove the warning messages and macros -->
@@ -34,7 +42,18 @@
 	<target name="prepare" depends="lifecycle.prepare,load-groovy">
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
-		<fail unless="slice2java-exists" message="${msg.macro.missing_fail} slice2java"/>	
+		<fail message="${msg.macro.missing_fail} slice2java">
+		  <condition><and>
+		    <not><isset property="no.ice"/></not>
+		    <not><isset property="slice2java-exists"/></not>
+		  </and></condition>
+		</fail>
+		<fail message="${msg.prepare.bad.ice.home}">
+		  <condition><and>
+		    <not><isset property="no.ice"/></not>
+		    <not><available file="${ice.home}" type="dir"/></not>
+		  </and></condition>
+		</fail>
 	</target>
 		
     <!-- = = = = = = = = = = = = = = = = =
@@ -78,9 +97,15 @@
 		</fileset>
 		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
 		<is-done name="slice2java" srcdir="${basedir}" includes="${ice.pat}" />
+		<condition property="no.ice.or.no.slice2java">
+		    <or>
+			<isset property="slice2java.not.required"/>
+			<isset property="no.ice"/>
+		    </or>
+		</condition>
 	</target>
 
-	<target name="slice" depends="slice-init" if="slice2java-exists" unless="slice2java.not.required">
+	<target name="slice" depends="slice-init" if="slice2java-exists" unless="no.ice.or.no.slice2java">
 			<slice lang="java" files="${slice.files}" output="${src.dest}"/>
 	</target>
 	
