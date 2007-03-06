@@ -32,7 +32,7 @@ no.ice=true
 # Used in server/build.xml to specify the
 # functionality that will be compiled in
 # via server/src/ome/logic/AbstractBean.java
-omero.hard-wired.interceptors=""
+omero.hard-wired.interceptors=
 
 # Used by tools/licences/build.xml to define
 # which class should be compiled into 
