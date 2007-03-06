@@ -64,8 +64,11 @@ public interface Classifier
     /** Identifies the classify model. */
     public static final int     CLASSIFY_MODE = 0;
     
-    /** Identifies the classify panel. */
+    /** Identifies the declassify model. */
     public static final int     DECLASSIFY_MODE = 1;
+    
+    /** Identifies the bulk classify model. */
+    public static final int     BULK_CLASSIFY_MODE = 2;
     
     /**
      * Queries the current state.

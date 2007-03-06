@@ -1056,5 +1056,37 @@ class TreeViewerComponent
                     "This method cannot be invoked in the DISCARDED state.");
 		return model.getExperimenter();
 	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#annotateChildren(TreeImageDisplay)
+     */
+	public void annotateChildren(TreeImageDisplay node)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		if (node == null)
+			throw new IllegalArgumentException("No specified container.");
+		DataHandler dh = model.annotateChildren(view, node);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#classifyChildren(TreeImageDisplay)
+     */
+	public void classifyChildren(TreeImageDisplay node)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		if (node == null)
+			throw new IllegalArgumentException("No specified container.");
+		DataHandler dh = model.classifyChildren(view, node);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+	}
     
 }

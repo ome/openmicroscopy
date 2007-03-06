@@ -20,14 +20,13 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.io.File;
-
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -39,12 +38,11 @@ import javax.swing.UIManager;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Dialog use to select where to store the downloaded files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,8 +67,8 @@ public class FolderChooserDialog
 	private static final String TITLE = "Download archived files";
 	
 	/** The window's text. */
-	private static final String TEXT = "Select a directory where to save " +
-											"the files";
+	private static final String TEXT = "Select a directory where to download " +
+											"the files.";
 	
 	/** Box to save the current directory as default. */
     private JCheckBox		settings;
@@ -154,6 +152,5 @@ public class FolderChooserDialog
 		buildGUI();
 		pack();
 	}
-	
-	
+
 }

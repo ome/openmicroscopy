@@ -45,9 +45,11 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateChildrenAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifyChildrenAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CopyAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
@@ -186,6 +188,16 @@ class TreeViewerControl
     static final Integer    SWITCH_USER = new Integer(23);
     
     /** 
+     * Identifies the <code>Annotate children action</code>.
+     */
+    static final Integer    ANNOTATE_CHILDREN = new Integer(24);
+    
+    /** 
+     * Identifies the <code>Classify children action</code>.
+     */
+    static final Integer    CLASSIFY_CHILDREN = new Integer(25);
+    
+    /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
      */
@@ -232,6 +244,8 @@ class TreeViewerControl
         actionsMap.put(CUT_OBJECT, new CutAction(model));
         actionsMap.put(ACTIVATION, new ActivationAction(model));
         actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
+        actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
+        actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
     }
     
     /** 

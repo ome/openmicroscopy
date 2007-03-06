@@ -62,6 +62,12 @@ public interface Annotator
 	extends DataHandler
 {
 
+    /** Identifies the annotate model. */
+    public static final int     ANNOTATE_MODE = 0;
+    
+    /** Identifies the bulk annotate model. */
+    public static final int     BULK_ANNOTATE_MODE = 1;
+       
    /**
     * Queries the current state.
     * 

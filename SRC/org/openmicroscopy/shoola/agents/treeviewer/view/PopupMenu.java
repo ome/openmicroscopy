@@ -96,6 +96,12 @@ class PopupMenu
     /** Button to classify the selected elements. */
     private JMenuItem          declassifyElement;
     
+    /** Button to classify the images contained in the selected element. */
+    private JMenuItem          classifyChildrenElement;
+    
+    /** Button to annotate the images contained in the selected element. */
+    private JMenuItem          annotateChildrenElement;
+    
     /** Reference to the Control. */
     private TreeViewerControl   controller;
     
@@ -150,6 +156,12 @@ class PopupMenu
         a = controller.getAction(TreeViewerControl.DECLASSIFY);
         declassifyElement = new JMenuItem(a);
         initMenuItem(declassifyElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.ANNOTATE_CHILDREN);
+        annotateChildrenElement = new JMenuItem(a);
+        initMenuItem(annotateChildrenElement, a.getActionName());
+        a = controller.getAction(TreeViewerControl.CLASSIFY_CHILDREN);
+        classifyChildrenElement = new JMenuItem(a);
+        initMenuItem(classifyChildrenElement, a.getActionName());
     }
     
     /**
@@ -180,7 +192,10 @@ class PopupMenu
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(classifyElement);
         add(declassifyElement);
+        add(classifyChildrenElement);
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(annotate);
+        add(annotateChildrenElement);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
     }

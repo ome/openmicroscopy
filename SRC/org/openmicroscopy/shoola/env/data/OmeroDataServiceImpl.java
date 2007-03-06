@@ -38,6 +38,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.OriginalFile;
@@ -285,9 +286,9 @@ class OmeroDataServiceImpl
     
     /** 
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#getImagesFor(long)
+     * @see OmeroDataService#getExperimenterImages(long)
      */
-    public Set getImagesFor(long userID)
+    public Set getExperimenterImages(long userID)
         throws DSOutOfServiceException, DSAccessException
     {
         PojoOptions po = new PojoOptions();
@@ -465,25 +466,16 @@ class OmeroDataServiceImpl
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#classify(Set, Set)
      */
-    public Set classify(Set images, Set categories)
+    public Set classify(Set<ImageData> images, Set<CategoryData> categories)
             throws DSOutOfServiceException, DSAccessException
     {
-        try {
-            images.toArray(new ImageData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "images only contains ImageData elements.");
-        }
-        try {
-            categories.toArray(new CategoryData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "categories only contains CategoryData elements.");
-        }
-        
+    	if (images == null)
+    		throw new IllegalArgumentException("No images to classify.");
+    	if (categories == null)
+    		throw new IllegalArgumentException("No categories specified.");
         Iterator category = categories.iterator();
         Iterator image;
-        List objects = new ArrayList();
+        List<ILink> objects = new ArrayList<ILink>();
         IObject ioParent, ioChild;
         while (category.hasNext()) {
             ioParent = ((DataObject) category.next()).asIObject();
@@ -504,7 +496,7 @@ class OmeroDataServiceImpl
             gateway.createObjects(array, (new PojoOptions()).map());
         }
         Iterator i = images.iterator();
-        Set ids = new HashSet(images.size());
+        Set<Long> ids = new HashSet<Long>(images.size());
         while (i.hasNext()) {
         	ids.add(new Long(((DataObject) i.next()).getId()));
 		}
@@ -515,21 +507,13 @@ class OmeroDataServiceImpl
      * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#declassify(Set, Set)
      */
-    public Set declassify(Set images, Set categories)
+    public Set declassify(Set<ImageData> images, Set<CategoryData> categories)
             throws DSOutOfServiceException, DSAccessException
     {
-        try {
-            images.toArray(new ImageData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "The images set only contains ImageData elements.");
-        }
-        try {
-            categories.toArray(new CategoryData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "The categories set only contains CategoryData elements.");
-        }
+    	if (images == null)
+    		throw new IllegalArgumentException("No images to classify.");
+    	if (categories == null)
+    		throw new IllegalArgumentException("No categories specified.");
         Iterator category = categories.iterator();
         while (category.hasNext())
             cut((DataObject) category.next(), images);
@@ -580,7 +564,7 @@ class OmeroDataServiceImpl
         } else if ((nodeType.equals(DatasetData.class)) || 
                     (nodeType.equals(CategoryData.class))) {
             Set in = getImages(nodeType, nodeIDs, rootLevel, rootID);
-            all = getImagesFor(rootID);
+            all = getExperimenterImages(rootID);
             Iterator i = in.iterator();
             while (i.hasNext()) {
                 objects.add(new Long(((ImageData) i.next()).getId()));
@@ -639,7 +623,7 @@ class OmeroDataServiceImpl
         } else
             throw new IllegalArgumentException("parent object not supported");
         
-        List objects = new ArrayList();
+        List<ILink> objects = new ArrayList<ILink>();
         IObject ioParent = parent.asIObject();
         IObject ioChild;
         Iterator child = children.iterator();
@@ -700,7 +684,8 @@ class OmeroDataServiceImpl
     {
         List l = gateway.getChannelsData(pixelsID);
         Iterator i = l.iterator();
-        List metadata = new ArrayList(l.size());
+        List<ChannelMetadata> 
+        	metadata = new ArrayList<ChannelMetadata>(l.size());
         int index = 0;
         while (i.hasNext()) {
             metadata.add(new ChannelMetadata(index, (Channel) i.next()));
@@ -737,9 +722,7 @@ class OmeroDataServiceImpl
         	}
         	
 		}
-        //IObject[] objects = gateway.createObjects(toCreate, 
-        //					(new PojoOptions()).map());
-        List results = new ArrayList(objects.length);
+        List<DataObject> results = new ArrayList<DataObject>(objects.length);
         for (int j = 0; j < objects.length; j++) {
         	results.add(PojoMapper.asDataObject(
         			ModelMapper.getAnnotatedObject(objects[j])));
@@ -761,7 +744,7 @@ class OmeroDataServiceImpl
 		Iterator i = nodes.keySet().iterator();
 		DataObject annotatedObject;
 		IObject object, updated, toUpdate;
-		List results = new ArrayList(nodes.size());
+		List<DataObject> results = new ArrayList<DataObject>(nodes.size());
 		while (i.hasNext()) {
 			annotatedObject = (DataObject) i.next();
 			object = gateway.findIObject(annotatedObject.asIObject());
@@ -790,7 +773,7 @@ class OmeroDataServiceImpl
     
     /**
      * Implemented as specified by {@link OmeroDataService}.
-     * @see OmeroDataService#getAvailableGroups()
+     * @see OmeroDataService#getOrphanContainers(Class, boolean, Class, long)
      */
 	public Set getOrphanContainers(Class nodeType, boolean withLeaves, 
 									Class rootLevel, long rootID)
@@ -821,7 +804,7 @@ class OmeroDataServiceImpl
     		else 
     			children.addAll(((CategoryGroupData) parent).getCategories());
     	}
-    	Set childrenIds = new HashSet();
+    	Set<Long> childrenIds = new HashSet<Long>();
 
     	Iterator j = children.iterator();
     	DataObject child;
@@ -863,6 +846,87 @@ class OmeroDataServiceImpl
 		}
 		result.put(new Integer(map.size()), l);
 		return result;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#classifyChildren(Set, Set)
+     */
+	public Set classifyChildren(Set containers, Set categories) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (containers == null || containers.size() == 0)
+			throw new IllegalArgumentException("No containers specified."); 
+		if (categories == null)
+			throw new IllegalArgumentException("No categories specified."); 
+//		Tmp solution
+		ExperimenterData exp = getUserDetails();
+		Iterator i = containers.iterator();
+		Set images = null;
+		DataObject object;
+		Class klass = null;
+		Set<Long> ids;
+		Set<DataObject> results = new HashSet<DataObject>();
+		while (i.hasNext()) {
+			object = (DataObject) i.next();
+			ids = new HashSet<Long>(1);
+			ids.add(new Long(object.getId()));
+			if (object instanceof DatasetData) {
+				klass = DatasetData.class;
+			} else if (object instanceof CategoryData) {
+				klass = CategoryData.class;
+			}
+			if (klass != null)
+				images = getImages(klass, ids, ExperimenterData.class, 
+            						exp.getId());
+			if (images != null) {
+				results.addAll(classify(images, categories));
+			}
+		}
+		return results;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#annotateChildren(Set, AnnotationData)
+     */
+	public List annotateChildren(Set folders, AnnotationData data) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (folders == null || folders.size() == 0)
+			throw new IllegalArgumentException("No DataObject to annotate."); 
+		if (data == null)
+			throw new IllegalArgumentException("No annotation."); 
+		Iterator i = folders.iterator(), j;
+		DataObject object;
+		//Tmp solution
+		ExperimenterData exp = getUserDetails();
+		Set images = null;
+		Class klass = null;
+		Set<Long> ids;
+		DataObject image;
+		List<DataObject> results = new ArrayList<DataObject>();
+		while (i.hasNext()) {
+			object = (DataObject) i.next();
+			ids = new HashSet<Long>(1);
+			ids.add(new Long(object.getId()));
+			if (object instanceof DatasetData) {
+				klass = DatasetData.class;
+			} else if (object instanceof CategoryData) {
+				klass = CategoryData.class;
+			}
+			if (klass != null)
+				images = getImages(klass, ids, ExperimenterData.class, 
+            						exp.getId());
+			if (images != null) {
+				j = images.iterator();
+				while (j.hasNext()) {
+					image = createAnnotationFor((DataObject) j.next(), data);
+					results.add(image);
+				}
+			}
+		}
+		return results;
 	}
 	
 }

@@ -65,7 +65,7 @@ class ClassifierModel
     private int					state;
     
 	/** Collection of <code>Image</code>s to classify. */
-	private Set 				toClassified;
+	private Set 				toClassify;
 	
 	/** The Id of the root node. */
 	private long				rootID;
@@ -75,7 +75,8 @@ class ClassifierModel
 	
 	/** 
 	 * The classification mode, either {@link Classifier#CLASSIFY_MODE}
-	 * or {@link Classifier#DECLASSIFY_MODE}.
+	 * {@link Classifier#DECLASSIFY_MODE} or
+	 * {@link Classifier#BULK_CLASSIFY_MODE}
 	 */
 	private int					mode;
 	
@@ -99,12 +100,27 @@ class ClassifierModel
 	 */
     ClassifierModel(Set objects, long rootID, int m)
 	{
-		this.toClassified = objects;
+		toClassify = objects;
 		this.rootID = rootID;
 		mode = m;
 		state = DataHandler.NEW;
 	}
 	
+    /** 
+	 * Creates a new instance.
+	 * 
+	 * @param objects 	Collection of <code>DataObject</code>s
+	 * 					containing the images to classify.
+     * @param rootID	The Id of the root node.
+	 */
+    ClassifierModel(Set objects, long rootID)
+	{
+		toClassify = objects;
+		this.rootID = rootID;
+		mode = Classifier.BULK_CLASSIFY_MODE;
+		state = DataHandler.NEW;
+	}
+    
 	/**
      * Called by the <code>Classifier</code> after creation to allow this
      * object to store a back reference to the embedding component.
@@ -146,16 +162,22 @@ class ClassifierModel
 	/** Loads asynchronously the classifications paths. */
 	void fireClassificationPathsLoading()
 	{
-		Iterator i = toClassified.iterator();
-		Set<Long> ids = new HashSet<Long>(toClassified.size());
-		Object object;
-		while (i.hasNext()) {
-			object = i.next();
-			if (object instanceof ImageData)
-				ids.add(new Long(((ImageData) object).getId()));
+		if (mode == Classifier.BULK_CLASSIFY_MODE) {
+			currentLoader = new ClassificationsLoader(component, rootID);
+			currentLoader.load();
+		} else {
+			Iterator i = toClassify.iterator();
+			Set<Long> ids = new HashSet<Long>(toClassify.size());
+			Object object;
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof ImageData)
+					ids.add(new Long(((ImageData) object).getId()));
+			}
+			currentLoader = new ClassificationsLoader(component, ids, rootID, 
+													mode);
+			currentLoader.load();
 		}
-		currentLoader = new ClassificationsLoader(component, ids, rootID, mode);
-		currentLoader.load();
 		state = DataHandler.LOADING;
 	}
 	
@@ -166,7 +188,7 @@ class ClassifierModel
 	 */
 	void fireClassificationsSaving(Set categories)
 	{
-		currentLoader = new ClassificationsSaver(component, toClassified, 
+		currentLoader = new ClassificationsSaver(component, toClassify, 
 												categories, mode);
 		currentLoader.load();
 		state = DataHandler.SAVING;

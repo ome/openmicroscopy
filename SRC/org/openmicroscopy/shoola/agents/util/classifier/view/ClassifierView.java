@@ -42,7 +42,6 @@ import javax.swing.JSeparator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -83,7 +82,7 @@ class ClassifierView
     
     /** Text displayed in the text panel. */
     private static final String     ADD_PANEL_TEXT = "Categorise the " +
-    										"selected images "; 
+    										"selected images."; 
     
     /** Text displayed in the title panel. */
     private static final String     REMOVE_PANEL_TITLE = "Decategorise";
@@ -91,6 +90,11 @@ class ClassifierView
     /** Text displayed in the text panel. */
     private static final String     REMOVE_PANEL_TEXT = "Decategorise the " +
                                                         "following image: ";
+    
+    /** Text displayed in the text panel. */
+    private static final String     BULK_PANEL_TEXT = "Categorise the " +
+    									"images  contained in the selected " +
+    										"folders."; 
     
 	/** The default size of the window. */
 	private static final Dimension DEFAULT_SIZE = new Dimension(700, 500);
@@ -226,7 +230,9 @@ class ClassifierView
     private String getWindowTitle()
     {
         switch (model.getMode()) {
-            case Classifier.CLASSIFY_MODE: return ADD_PANEL_TITLE;
+            case Classifier.CLASSIFY_MODE: 
+            case Classifier.BULK_CLASSIFY_MODE:
+            	return ADD_PANEL_TITLE;
             case Classifier.DECLASSIFY_MODE: return REMOVE_PANEL_TITLE;
         }
         return "";
@@ -242,6 +248,7 @@ class ClassifierView
         switch (model.getMode()) {
             case Classifier.CLASSIFY_MODE: return ADD_PANEL_TEXT;
             case Classifier.DECLASSIFY_MODE: return REMOVE_PANEL_TEXT;
+            case Classifier.BULK_CLASSIFY_MODE: return BULK_PANEL_TEXT;
         }
         return "";
     }
@@ -254,7 +261,9 @@ class ClassifierView
     private String getWindowNote()
     {
         switch (model.getMode()) {
-            case Classifier.CLASSIFY_MODE: return PANEL_NOTE;
+            case Classifier.CLASSIFY_MODE: 
+            case Classifier.BULK_CLASSIFY_MODE:
+            	return PANEL_NOTE;
             case Classifier.DECLASSIFY_MODE: return REMOVE_PANEL_NOTE;
         }
         return "";

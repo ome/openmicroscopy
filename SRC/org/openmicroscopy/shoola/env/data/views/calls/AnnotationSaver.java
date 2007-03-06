@@ -195,6 +195,27 @@ public class AnnotationSaver
     }
     
     /**
+     * Creates a {@link BatchCall} to annotate the images contained
+     * in the passed folders.
+     * 
+     * @param objects   Collection of folders containing the objects to 
+     * 					annotate.
+     * @param data      The annotation to create.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall annotateChildren(final Set objects,
+                                       final AnnotationData data)
+    {
+        return new BatchCall("Create dataset annotation.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.annotateChildren(objects, data);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #saveCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -248,16 +269,20 @@ public class AnnotationSaver
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param toCreate	Collections of <code>DataObject</code>s to 
-     * 					annotate. Mustn't be <code>null</code>.
+     * @param set		Collections of <code>DataObject</code>s to 
+     * 					annotate or collection of <code>DataObject</code>s
+     * 					containing the objetcs to annotate. 
+     * 					Mustn't be <code>null</code>.
      * @param data		The Annotation object. Mustn't be <code>null</code>.
+     * @param children	Pass <code>true</code> to annotate
      */
-    public AnnotationSaver(Set toCreate, AnnotationData data)
+    public AnnotationSaver(Set set, AnnotationData data, boolean children)
     {
         if (data == null) throw new IllegalArgumentException("No annotation.");
-        if (toCreate == null || toCreate.size() == 0) 
+        if (set == null || set.size() == 0) 
             throw new IllegalArgumentException("No DataObject to annotate.");
-        saveCall = createAnnotation(toCreate, data);
+        if (children) saveCall = annotateChildren(set, data);
+        else saveCall = createAnnotation(set, data);
     }
     
     /**

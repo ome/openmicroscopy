@@ -58,7 +58,7 @@ public class AnnotatorFactory
 	 * Returns the {@link Annotator}.
 	 * 
 	 * @param parent	The owner of the dialog.
-	 * @param objects 	Collections of <code>DataObject</code>s to annotate.
+	 * @param objects 	Collection of <code>DataObject</code>s to annotate.
 	 * @param ctx 		A reference to the {@link Registry}.
 	 * @return See above.
 	 */
@@ -68,9 +68,27 @@ public class AnnotatorFactory
 		if (registry == null) registry = ctx;
 		if (parent == null) owner = parent;
 		if (objects == null || objects.size() == 0) return null;
-		return singleton.createAnnotator(objects);
+		return singleton.createAnnotator(objects, Annotator.ANNOTATE_MODE);
 	}
 	  
+	/**
+	 * Returns the {@link Annotator}.
+	 * 
+	 * @param parent	The owner of the dialog.
+	 * @param objects 	Collection of <code>DataObject</code>s containing the
+	 * 					objects to annotate.
+	 * @param ctx 		A reference to the {@link Registry}.
+	 * @return See above.
+	 */
+	public static Annotator getChildrenAnnotator(JFrame parent, Set objects, 
+										Registry ctx)
+	{
+		if (registry == null) registry = ctx;
+		if (parent == null) owner = parent;
+		if (objects == null || objects.size() == 0) return null;
+		return singleton.createAnnotator(objects, Annotator.BULK_ANNOTATE_MODE);
+	}
+	
 	/**
 	 * Helper method. 
 	 * 
@@ -98,16 +116,19 @@ public class AnnotatorFactory
 	 * Creates or recycles an annotator component for the specified 
 	 * <code>model</code>.
 	 * 
-	 * @param objects The <code>DataObject</code>s to annotate.
+	 * @param objects	The <code>DataObject</code>s to annotate.
+	 * @param mode		One of the following contants:
+	 * 					{@link Annotator#BULK_ANNOTATE_MODE} or
+	 * 					{@link Annotator#ANNOTATE_MODE}.
 	 * @return A {@link Annotator}.
 	 */
-	private Annotator createAnnotator(Set objects)
+	private Annotator createAnnotator(Set objects, int mode)
 	{
-		AnnotatorModel model = new AnnotatorModel(objects);
+		AnnotatorModel model = new AnnotatorModel(objects, mode);
 	  	AnnotatorComponent component = new AnnotatorComponent(model);
 	  	model.initialize(component);
 	  	component.initialize();
-	      return component;
+	    return component;
 	}
   
 }

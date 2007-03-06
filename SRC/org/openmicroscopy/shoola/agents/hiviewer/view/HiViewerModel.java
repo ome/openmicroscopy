@@ -61,8 +61,10 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
+import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -509,6 +511,48 @@ abstract class HiViewerModel
 		dataHandler = ClassifierFactory.getClassifier(owner, images, 
 								getRootID(), mode, HiViewerAgent.getRegistry());
 		return dataHandler;
+	}
+	   
+	 /**
+	  * Creates the <code>DataHandler</code> to annotate the images
+	  * of the specified node.
+	  * 
+	  * @param owner	The parent of the frame.
+	  * @param node 	The nodes containing the images to annotate.
+	  * @return See above.
+	  */
+	DataHandler annotateChildren(JFrame owner, ImageDisplay node)
+	{
+		Object uo = node.getHierarchyObject();
+		Set toAnnotate = new HashSet();
+		if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+			toAnnotate.add(uo);
+			dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
+					toAnnotate, HiViewerAgent.getRegistry());
+			return dataHandler;
+		}	
+		return null;
+	}
+	   
+	 /**
+	  * Creates the <code>DataHandler</code> to classify the images contained
+	  * in the passed container.
+	  * 
+	  * @param owner	The parent of the frame.
+	  * @param node 	The folder containing the images to classify.
+	  * @return See above.
+	  */
+	DataHandler classifyChildren(JFrame owner, ImageDisplay node)
+	{
+		Object uo = node.getHierarchyObject();
+		if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+			Set<DataObject> folders = new HashSet<DataObject>(1);
+			folders.add((DataObject) uo);
+			dataHandler = ClassifierFactory.getChildrenClassifier(owner, 
+							folders, getRootID(), HiViewerAgent.getRegistry());
+			return dataHandler;
+		}
+		return null;
 	}
 	   
 	/** Discards the <code>DataHandler</code>. */

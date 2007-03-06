@@ -283,9 +283,9 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#getImagesFor(long)
+     * @see OmeroDataService#getExperimenterImages(long)
      */
-	public Set getImagesFor(long userID) 
+	public Set getExperimenterImages(long userID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		return null;
@@ -296,6 +296,26 @@ public class NullOmeroPojoService
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
 	public Map getArchivedFiles(String location, long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#annotateChildren(Set, AnnotationData)
+     */
+	public List annotateChildren(Set objects, AnnotationData data) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#classifyChildren(Set, Set)
+     */
+	public Set classifyChildren(Set containers, Set categories) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

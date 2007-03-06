@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
@@ -31,7 +31,6 @@ import javax.swing.JFileChooser;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -61,6 +60,7 @@ class FolderChooser
 		setDialogType(SAVE_DIALOG);
         setFileSelectionMode(DIRECTORIES_ONLY);
         setApproveButtonText("Download");
+        setApproveButtonToolTipText("Dowload the archived files.");
         String s = UIUtilities.getDefaultFolderAsString();
         if (s == null) return;
         String last;

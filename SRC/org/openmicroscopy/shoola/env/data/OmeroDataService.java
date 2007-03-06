@@ -33,8 +33,10 @@ import java.util.Set;
 
 //Application-internal dependencies
 import pojos.AnnotationData;
+import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.GroupData;
+import pojos.ImageData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -264,7 +266,7 @@ public interface OmeroDataService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set getImagesFor(long userID)
+    public Set getExperimenterImages(long userID)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -395,7 +397,7 @@ public interface OmeroDataService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set classify(Set images, Set categories)
+    public Set classify(Set<ImageData> images, Set<CategoryData> categories)
         throws DSOutOfServiceException, DSAccessException;
     
     /**
@@ -408,7 +410,7 @@ public interface OmeroDataService
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    public Set declassify(Set images, Set categories)
+    public Set declassify(Set<ImageData> images, Set<CategoryData> categories)
         throws DSOutOfServiceException, DSAccessException;
 
     /**
@@ -547,5 +549,34 @@ public interface OmeroDataService
 	 */
 	public Map getArchivedFiles(String location, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Classifies the images contained in the specified folders.
+     * 
+     * @param containers	The folders containing the images to classify.
+     * 						Mustn't be <code>null</code>.
+     * @param categories	Collection of <code>CategoryData</code>.
+	 * @return The classified images.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+	 */
+	public Set classifyChildren(Set containers, Set categories)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Annotates the images contained in the passed folders i.e. 
+	 * datasets categories.
+	 * 
+	 * @param folders	The folders containing the images to annotate.
+	 * 					Mustn't be <code>null</code>.
+	 * @param data		The annotation. Mustn't be <code>null</code>.
+	 * @return The annotated images.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMEDS service. 
+	 */
+	public List annotateChildren(Set folders, AnnotationData data)
+		throws DSOutOfServiceException, DSAccessException;	
     
 }

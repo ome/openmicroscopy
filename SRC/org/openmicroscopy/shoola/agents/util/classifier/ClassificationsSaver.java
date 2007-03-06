@@ -62,7 +62,7 @@ public class ClassificationsSaver
 	private int				mode;
 	
 	/** The images to classify. */
-	private Set				images;
+	private Set				toClassify;
 	
 	/** The categories to classify the images into. */
 	private Set				categories;
@@ -70,28 +70,28 @@ public class ClassificationsSaver
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  	handle;
 
-    
     /**
      * Creates a new instance.
      * 
      * @param viewer		The Annotator this loader is for.
-     * @param images		The images to classify.
+     * @param toClassify	Collection of objects to classify.
      * @param categories	The categories to classify the images into.
      * @param mode			One of the following constants:
      * 						{@link Classifier#CLASSIFY_MODE} or
      * 						{@link Classifier#DECLASSIFY_MODE}.
      */
-	public ClassificationsSaver(Classifier viewer, Set images, Set categories, 
+	public ClassificationsSaver(Classifier viewer, Set toClassify, 
+								Set categories, 
 								int  mode)
 	{
 		super(viewer);
 		if (categories == null || categories.size() == 0)
 			throw new IllegalArgumentException("No category selected.");
-		if (images == null || images.size() == 0)
+		if (toClassify == null || toClassify.size() == 0)
 			throw new IllegalArgumentException("No images to classify.");
 		controlMode(mode);
 		this.mode = mode;
-		this.images = images;
+		this.toClassify = toClassify;
 		this.categories = categories;
 	}
 	
@@ -101,10 +101,14 @@ public class ClassificationsSaver
      */
 	public void load()
 	{
-		if (mode == Classifier.CLASSIFY_MODE)
-			handle = dhView.classify(images, categories, this);
-		else 
-			handle = dhView.declassify(images, categories, this);
+		switch (mode) {
+			case Classifier.CLASSIFY_MODE:
+				handle = dhView.classify(toClassify, categories, this);
+			case Classifier.DECLASSIFY_MODE:
+				handle = dhView.declassify(toClassify, categories, this);
+			case Classifier.BULK_CLASSIFY_MODE:
+				handle = dhView.classifyChildren(toClassify, categories, this);
+		}
 	}
 	
 	/** 

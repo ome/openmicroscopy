@@ -31,6 +31,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver;
+import org.openmicroscopy.shoola.agents.util.classifier.ClassificationsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -169,5 +171,28 @@ public interface DataHandlerView
      */
     public CallHandle loadArchivedFiles(String location, long pixelsID, 
     									AgentEventListener observer);
-    
+
+    /**
+     * Classifies the images contained in the specified folders.
+     * 
+     * @param containers	The folders containing the images to classify.
+     * @param categories	Collection of <code>CategoryData</code>.
+     * @param observer      Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+	public CallHandle classifyChildren(Set containers, Set categories, 
+			 							AgentEventListener observer);
+
+	/**
+	 * Annotates the images contained in the passed folder.
+	 * 
+	 * @param folders		Collection of folders containing the images
+	 * 						to annotate.
+	 * @param annotation	The annotation.
+	 * @param observer		Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle annotateChildren(Set folders, 
+					AnnotationData annotation, AgentEventListener observer);
+	 
 }

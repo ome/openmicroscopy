@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -79,7 +80,26 @@ public class ClassificationSaver
             {
                 OmeroDataService os = context.getDataService();
                 result = os.classify(images, categories);
-                //result = categories;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to add the specified image to the
+     * given categories.
+     * 
+     * @param containers    The folder containing the images to classify.
+     * @param categories    The categories to add to. 
+     * @return              The {@link BatchCall}.
+     */
+    private BatchCall classifyChildren(final Set containers, 
+    								final Set categories)
+    {
+        return new BatchCall("Saving classification tree.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.classifyChildren(containers, categories);
             }
         };
     }
@@ -99,7 +119,6 @@ public class ClassificationSaver
             {
                 OmeroDataService os = context.getDataService();
                 result = os.declassify(images, categories);
-                //result = categories;
             }
         };
     }
@@ -128,7 +147,8 @@ public class ClassificationSaver
      * @param classify      Passed <code>true</code> to classify, 
      *                      <code>false</code> to declassify.
      */
-    public ClassificationSaver(Set images, Set categories,
+    public ClassificationSaver(Set<ImageData> images, 
+    							Set<CategoryData> categories,
                                 boolean classify)
     {
         if (images == null)
@@ -137,20 +157,31 @@ public class ClassificationSaver
         if (categories == null)
             throw new NullPointerException("No category to add to or remove " +
                     "from.");
-        try {
-            categories.toArray(new CategoryData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "categories only contains CategoryData elements.");
-        }
-        try {
-            images.toArray(new ImageData[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException(
-                    "images only contains ImageData elements.");
-        }
         if (classify) saveCall = classify(images, categories);
         else saveCall = declassify(images, categories);
+    }
+    
+    /**
+     * Classifies the images contained in the specified folders.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param containers        The images to handle.
+     * @param categories    The categories to add the image to or remove the
+     *                      image from.
+     * @param classify      Passed <code>true</code> to classify, 
+     *                      <code>false</code> to declassify.
+     */
+    public ClassificationSaver(Set<DataObject> containers, 
+    							Set<CategoryData> categories)
+    {
+        if (containers == null)
+            throw new IllegalArgumentException("No images to classify or " +
+                    "declassify.");
+        if (categories == null)
+            throw new NullPointerException("No category to add to or remove " +
+                    "from.");
+        saveCall = classifyChildren(containers, categories);
     }
     
 }

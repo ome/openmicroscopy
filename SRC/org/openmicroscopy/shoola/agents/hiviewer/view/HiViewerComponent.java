@@ -766,4 +766,37 @@ class HiViewerComponent
 		return model.getExperimenter();
 	}
 
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#annotateChildren(ImageDisplay)
+     */
+	public void annotateChildren(ImageDisplay node)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		if (node == null)
+			throw new IllegalArgumentException("No specified container.");
+		DataHandler dh = model.annotateChildren(view, node);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+	}
+
+    /**
+     * Implemented as specified by the {@link HiViewer} interface.
+     * @see HiViewer#classifyChildren(ImageDisplay)
+     */
+	public void classifyChildren(ImageDisplay node)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException("This method cannot be invoked " +
+                    "in the DISCARDED state.");
+		if (node == null)
+			throw new IllegalArgumentException("No specified container.");
+		DataHandler dh = model.classifyChildren(view, node);
+		dh.addPropertyChangeListener(controller);
+		dh.activate();
+		
+	}
+	
 }

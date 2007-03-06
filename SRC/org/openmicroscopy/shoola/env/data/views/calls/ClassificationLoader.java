@@ -176,7 +176,7 @@ public class ClassificationLoader
             throw new IllegalArgumentException("image ID not valid ");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
-        Set set = new HashSet(1);
+        Set<Long> set = new HashSet<Long>(1);
         set.add(new Long(imageID));
         loadCall  = loadCGCPaths(set, algorithm, rootLevel, rootLevelID);
     }
@@ -200,16 +200,12 @@ public class ClassificationLoader
     public ClassificationLoader(Set imageIDs, int algorithm, Class rootLevel, 
                                 long rootLevelID)
     {
-        if (imageIDs == null || imageIDs.size() == 0) 
+        if ((imageIDs == null || imageIDs.size() == 0) && 
+        		algorithm == DECLASSIFICATION)
             throw new IllegalArgumentException("The collection of ids" +
                     "cannot be null or of size 0.");
         if (!checkAlgorithmIndex(algorithm))
             throw new IllegalArgumentException("Algorithm not supported.");
-        try {
-            imageIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("imageIDs only contains Long.");
-        }  
         loadCall  = loadCGCPaths(imageIDs, algorithm, rootLevel, rootLevelID);
     }
     

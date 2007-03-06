@@ -78,6 +78,7 @@ public abstract class ClassifierLoader
     	switch (index) {
 			case Classifier.CLASSIFY_MODE:
 			case Classifier.DECLASSIFY_MODE:
+			case Classifier.BULK_CLASSIFY_MODE:
 				return;
 			default:
 				throw new IllegalArgumentException("Mode not supported.");

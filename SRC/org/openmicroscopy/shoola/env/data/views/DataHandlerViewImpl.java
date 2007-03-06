@@ -63,7 +63,7 @@ public class DataHandlerViewImpl
 	public CallHandle createAnnotation(Set annotatedObjects, 
 							AnnotationData d, AgentEventListener observer) 
 	{
-		BatchCallTree cmd = new AnnotationSaver(annotatedObjects, d);
+		BatchCallTree cmd = new AnnotationSaver(annotatedObjects, d, false);
 		return cmd.exec(observer);
 	}
 
@@ -145,6 +145,29 @@ public class DataHandlerViewImpl
 	{
 		BatchCallTree cmd = new ArchivedFilesLoader(location, pixelsID);
         return cmd.exec(observer);
+	}
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#classifyChildren(Set, Set, AgentEventListener)
+     */
+	public CallHandle classifyChildren(Set containers, Set categories, 
+									AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new ClassificationSaver(containers, categories);
+        return cmd.exec(observer);
+	}
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#annotateChildren(Set, AnnotationData, 
+     * 										AgentEventListener)
+     */
+	public CallHandle annotateChildren(Set set, AnnotationData annotation, 
+									AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AnnotationSaver(set, annotation, true);
+		return cmd.exec(observer);
 	}
     
 }

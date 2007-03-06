@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,10 +36,9 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.util.FolderChooserDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.util.ui.FolderChooserDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 

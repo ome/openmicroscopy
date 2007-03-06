@@ -56,7 +56,9 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.AnnotateChildrenAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ClassifyChildrenAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.DeclassifyAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
@@ -183,6 +185,12 @@ class HiViewerControl
     /** Identifies the <code>Sort by Date</code> action. */
     static final Integer     SORT_BY_DATE = new Integer(26);
     
+    /** Identifies the <code>Annotate children</code> action. */
+    static final Integer     ANNOTATE_CHILDREN = new Integer(27);
+    
+    /** Identifies the <code>Classify children</code> action. */
+    static final Integer     CLASSIFY_CHILDREN = new Integer(28);
+       
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
      * is regarded as the Model.
@@ -228,6 +236,8 @@ class HiViewerControl
                                         SortByAction.BY_DATE));
         actionsMap.put(SORT_BY_NAME, new SortByAction(model, 
                                         SortByAction.BY_NAME));
+        actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
+        actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
     }
   
     /** 

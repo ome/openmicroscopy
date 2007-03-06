@@ -71,7 +71,13 @@ import pojos.ImageData;
 */
 class AnnotatorModel
 {
-
+	
+	/** 
+	 * The classification mode, either {@link Annotator#BULK_ANNOTATE_MODE} or
+	 * {@link Annotator#ANNOTATE_MODE}.
+	 */
+	private int					mode;
+	
 	/** Holds one of the state flags defined by {@link Annotator}. */
 	private int				state;
   
@@ -213,28 +219,56 @@ class AnnotatorModel
 		return m;
 	}
 	
+	/**
+	 * Checks if the passed mode is supported.
+	 * 
+	 * @param m The value to check.
+	 */
+	private void checkMode(int m)
+	{
+		switch (m) {
+			case Annotator.ANNOTATE_MODE:
+			case Annotator.BULK_ANNOTATE_MODE:
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Annotate mode not " +
+						"supported.");
+		}
+	}
+	
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param objects Collection of <code>DataObject</code>s to annotate.
+	 * @param objects	Collection of <code>DataObject</code>s to annotate.
+	 * @param mode		One of the following contants:
+	 * 					{@link Annotator#BULK_ANNOTATE_MODE} or
+	 * 					{@link Annotator#ANNOTATE_MODE}.
 	 */
-	AnnotatorModel(Set objects)
+	AnnotatorModel(Set objects, int mode)
 	{
+		checkMode(mode);
+		this.mode = mode;
 		maxObjects = objects.size();
 		annotated = new HashSet<DataObject>();
 		toAnnotate  = new HashSet<DataObject>();
 		state = DataHandler.NEW;
 		Iterator i = objects.iterator();
 		DataObject data;
-		while (i.hasNext()) {
-			data = (DataObject) i.next();
-			if (isObjectAnnotated(data)) annotated.add(data);
-			else {
-				if (isAnnotatable(data)) toAnnotate.add(data);
+		if (mode == Annotator.ANNOTATE_MODE) {
+			while (i.hasNext()) {
+				data = (DataObject) i.next();
+				if (isObjectAnnotated(data)) annotated.add(data);
+				else {
+					if (isAnnotatable(data)) toAnnotate.add(data);
+				}
 			}
+		} else {
+			while (i.hasNext()) 
+				toAnnotate.add((DataObject) i.next());
 		}
 	}
-	
+
 	/**
 	 * Called by the <code>Annotator</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
@@ -294,12 +328,13 @@ class AnnotatorModel
 	 */
 	void fireAnnotationsRetrieval()
 	{
-		if (annotated.size() == 0) state = DataHandler.READY;
-		else {
-			currentLoader = new AnnotationsLoader(component, annotated, type);
-			currentLoader.load();
-			state = DataHandler.LOADING;
+		if (mode == Annotator.BULK_ANNOTATE_MODE || annotated.size() == 0) {
+			state = DataHandler.READY;
+			return;
 		}
+		currentLoader = new AnnotationsLoader(component, annotated, type);
+		currentLoader.load();
+		state = DataHandler.LOADING;
 	}
 	
 	/** 
@@ -309,14 +344,21 @@ class AnnotatorModel
 	 */
 	void fireAnnotationSaving(AnnotationData data)
 	{ 
-		if (annotated.size() == maxObjects)
-			currentLoader = new AnnotationsSaver(component,  
-											getAnnotatedObjects(data));
-		else if (toAnnotate.size() == maxObjects) 
-			currentLoader = new AnnotationsSaver(component, toAnnotate, data);
-		else 
-			currentLoader = new AnnotationsSaver(component, 
-								 getAnnotatedObjects(data), toAnnotate, data);
+		if (mode == Annotator.ANNOTATE_MODE) {
+			if (annotated.size() == maxObjects)
+				currentLoader = new AnnotationsSaver(component,  
+										getAnnotatedObjects(data), mode);
+			else if (toAnnotate.size() == maxObjects) 
+				currentLoader = new AnnotationsSaver(component, toAnnotate, 
+													data, mode);
+			else 
+				currentLoader = new AnnotationsSaver(component, 
+									 getAnnotatedObjects(data), toAnnotate, 
+									 data, mode);
+		} else {
+			currentLoader = new AnnotationsSaver(component, toAnnotate, data,
+												mode);
+		}
 		currentLoader.load();
 		state = DataHandler.SAVING;
 	}
@@ -330,20 +372,22 @@ class AnnotatorModel
 	{
 		ViewerSorter sorter = new ViewerSorter();
 		sorter.setAscending(false);
-		HashMap sortedAnnotations = new HashMap();
+		HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
 		Set set;
 		Long index;
 		Iterator i = map.keySet().iterator(), l;
 		Iterator j;
 		AnnotationData data;
-		HashMap m;
-		List timestamps, results, list;
+		HashMap<Timestamp, AnnotationData> m;
+		List<Timestamp> timestamps;
+		List results;
+		List<AnnotationData> list;
 		while (i.hasNext()) {
 			index = (Long) i.next();
 			set = (Set) map.get(index);
 			j = set.iterator();
-			m = new HashMap(set.size());
-			timestamps = new ArrayList(set.size());
+			m = new HashMap<Timestamp, AnnotationData>(set.size());
+			timestamps = new ArrayList<Timestamp>(set.size());
 			while (j.hasNext()) {
 				data = (AnnotationData) j.next();
 				m.put(data.getLastModified(), data);
@@ -351,7 +395,7 @@ class AnnotatorModel
 			}
 			results = sorter.sort(timestamps);
 			l = results.iterator();
-			list = new ArrayList(results.size());
+			list = new ArrayList<AnnotationData>(results.size());
 			while (l.hasNext())
 				list.add(m.get(l.next()));
 			sortedAnnotations.put(index, list);
@@ -376,9 +420,21 @@ class AnnotatorModel
 	 */
 	AnnotationData getAnnotationType()
 	{ 
+		if (mode == Annotator.BULK_ANNOTATE_MODE)
+			return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
 		if (type.equals(DatasetData.class))
 			return new AnnotationData(AnnotationData.DATASET_ANNOTATION); 
-		return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
+		if (type.equals(ImageData.class))
+			return new AnnotationData(AnnotationData.IMAGE_ANNOTATION); 
+		return null;
 	}
 	
+	/**
+	 * Returns the annotation mode. One of the following values:
+	 * {@link Annotator#BULK_ANNOTATE_MODE} or
+	 * {@link Annotator#ANNOTATE_MODE}.
+	 * 
+	 * @return See above.
+	 */
+	int getAnnotationMode() { return mode; }
 }

@@ -559,4 +559,23 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public ExperimenterData getSelectedExperimenter();
+
+	/**
+	 * Annotates the images contained in the specified folder.
+	 * 
+	 * @param node 	The node hosting the container.
+	 * 				Can either be a <code>Dataset</code> or a 
+	 * 				<code>Category</code>.
+	 */
+	public void annotateChildren(TreeImageDisplay node);
+	
+	/**
+	 * Classifies the images contained in the specified folder.
+	 * 
+	 * @param node 	The node hosting the container.
+	 * 				Can either be a <code>Dataset</code> or a 
+	 * 				<code>Category</code>.
+	 */
+	public void classifyChildren(TreeImageDisplay node);
+	
 }

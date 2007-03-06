@@ -67,6 +67,12 @@ public class AnnotationsSaver
 	 */
 	private static final int	UPDATE_AND_CREATE = 2;
 	
+	/** 
+	 * The annotation mode, one of the following constants:
+	 * {@link Annotator#BULK_ANNOTATE_MODE} or {@link Annotator#ANNOTATE_MODE}.
+	 */
+	private int				mode;
+	
 	/** Collection of <code>DataObject</code>s. */
 	private Map				toUpdate;
 	
@@ -83,18 +89,41 @@ public class AnnotationsSaver
 	private CallHandle  	handle;
 	
 	/**
+	 * Checks if the passed mode is supported.
+	 * 
+	 * @param m The value to check.
+	 */
+	private void checkMode(int m)
+	{
+		switch (m) {
+			case Annotator.ANNOTATE_MODE:
+			case Annotator.BULK_ANNOTATE_MODE:
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Annotate mode not " +
+						"supported.");
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer		The Annotator this loader is for. 
 	 * 						Mustn't be <code>null</code>.
 	 * @param toUpdate		Collection of <code>DataObject</code> to update
 	 * 						the annotation for. Mustn't be <code>null</code>.
+	 * @param mode			One of the following constants:
+	 * 						{@link Annotator#BULK_ANNOTATE_MODE} or
+	 * 						{@link Annotator#ANNOTATE_MODE}.
 	 */
-	public AnnotationsSaver(Annotator viewer, Map toUpdate)
+	public AnnotationsSaver(Annotator viewer, Map toUpdate, int  mode)
 	{
 		super(viewer);
 		if (toUpdate == null && toUpdate.size() == 0)
 				throw new IllegalArgumentException("No data to save.");
+		checkMode(mode);
+		this.mode = mode;
 		index = UPDATE;
 		this.toUpdate = toUpdate;
 	}
@@ -109,9 +138,12 @@ public class AnnotationsSaver
 	 * @param toAnnotate	Collection of <code>DataObject</code>s to annotate.
 	 * 						Mustn't be <code>null</code>.
 	 * @param annotation	The annotation. Mustn't be <code>null</code>.
+	 * @param mode			One of the following constants:
+	 * 						{@link Annotator#BULK_ANNOTATE_MODE} or
+	 * 						{@link Annotator#ANNOTATE_MODE}.
 	 */
 	public AnnotationsSaver(Annotator viewer, Map toUpdate,
-							Set toAnnotate, AnnotationData annotation)
+							Set toAnnotate, AnnotationData annotation, int mode)
 	{
 		super(viewer);
 		if (toUpdate == null && toUpdate.size() == 0)
@@ -120,6 +152,9 @@ public class AnnotationsSaver
 			throw new IllegalArgumentException("No annotation.");
 		if (toAnnotate == null && toAnnotate.size() == 0)
 			throw new IllegalArgumentException("No data to save.");
+		checkMode(mode);
+		this.mode = mode;
+		
 		index = UPDATE_AND_CREATE;
 		this.toUpdate = toUpdate;
 		this.annotation = annotation;
@@ -134,15 +169,20 @@ public class AnnotationsSaver
 	 * @param toAnnotate	Collection of <code>DataObject</code>s to annotate.
 	 * 						Mustn't be <code>null</code>.
 	 * @param annotation	The annotation. Mustn't be <code>null</code>.
+	 * @param mode			One of the following constants:
+	 * 						{@link Annotator#BULK_ANNOTATE_MODE} or
+	 * 						{@link Annotator#ANNOTATE_MODE}. 
 	 */
 	public AnnotationsSaver(Annotator viewer, Set toAnnotate, 
-							AnnotationData annotation)
+							AnnotationData annotation, int mode)
 	{
 		super(viewer);
 		if (annotation == null)
 			throw new IllegalArgumentException("No annotation.");
 		if (toAnnotate == null && toAnnotate.size() == 0)
 			throw new IllegalArgumentException("No data to save.");
+		checkMode(mode);
+		this.mode = mode;
 		index = CREATE;	
 		this.annotation = annotation;
 		this.toAnnotate = toAnnotate;
@@ -154,17 +194,23 @@ public class AnnotationsSaver
 	 */
 	public void load()
 	{
-		switch (index) {
-			case CREATE:
-				handle = aView.createAnnotation(toAnnotate, annotation, this);
-				break;
-			case UPDATE:
-				handle = aView.updateAnnotation(toUpdate, this);
-				break;
-			case UPDATE_AND_CREATE:
-				handle = aView.updateAndCreateAnnotation(toUpdate, 
-										toAnnotate, annotation, this);
+		if (mode == Annotator.ANNOTATE_MODE) {
+			switch (index) {
+				case CREATE:
+					handle = aView.createAnnotation(toAnnotate, annotation, 
+													this);
+					break;
+				case UPDATE:
+					handle = aView.updateAnnotation(toUpdate, this);
+					break;
+				case UPDATE_AND_CREATE:
+					handle = aView.updateAndCreateAnnotation(toUpdate, 
+											toAnnotate, annotation, this);
+			}
+		} else {
+			handle = aView.annotateChildren(toAnnotate, annotation, this);
 		}
+		
 	}
 	
 	/** 

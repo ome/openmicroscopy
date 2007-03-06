@@ -472,5 +472,23 @@ public interface HiViewer
 	 * @return See above.
 	 */
 	public ExperimenterData getExperimenter();
+	
+	/**
+	 * Annotates the images contained in the specified folder.
+	 * 
+	 * @param node 	The node hosting the container.
+	 * 				Can either be a <code>Dataset</code> or a 
+	 * 				<code>Category</code>.
+	 */
+	public void annotateChildren(ImageDisplay node);
+	
+	/**
+	 * Classifies the images contained in the specified folder.
+	 * 
+	 * @param node 	The node hosting the container.
+	 * 				Can either be a <code>Dataset</code> or a 
+	 * 				<code>Category</code>.
+	 */
+	public void classifyChildren(ImageDisplay node);
     
 }

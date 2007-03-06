@@ -67,7 +67,14 @@ class AnnotatorView
 	private static final String 	TITLE = "Annotate";
 	
 	/** The subtitle of the window. */
-	private static final String		NOTE = "Annotate the selected items";
+	private static final String		NOTE = "Annotate the selected items.";
+  
+	/** 
+	 * The subtitle of the window when the annotation mode
+	 * is {@link Annotator#BULK_ANNOTATE_MODE}.
+	 */
+	private static final String		NOTE_CHILDREN = "Annotate the images " +
+			"contained in the selected folder.";
   
 	/** 
 	 * The size of the invisible components used to separate buttons
@@ -75,8 +82,11 @@ class AnnotatorView
 	 */
 	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
-	/** The Controller. */
+	/** Reference to the Controller. */
 	private AnnotatorControl	controller;
+  
+	/** Reference to the Model. */
+	private AnnotatorModel		model;
   
 	/** The status bar. */
 	private StatusBar			statusBar;
@@ -121,7 +131,10 @@ class AnnotatorView
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, NOTE, 
+		String note = NOTE;
+		if (model.getAnnotationMode() == Annotator.BULK_ANNOTATE_MODE)
+			note = NOTE_CHILDREN;
+		TitlePanel tp = new TitlePanel(TITLE, note, 
   						icons.getIcon(IconManager.ANNOTATION_48));
   	
 		Container c = getContentPane();
@@ -157,6 +170,7 @@ class AnnotatorView
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
+		this.model = model;
 		statusBar = new StatusBar();
 		annotatorUI = new AnnotatorUI(model, controller);
 		buildGUI();

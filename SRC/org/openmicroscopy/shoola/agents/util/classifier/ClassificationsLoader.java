@@ -75,7 +75,7 @@ public class ClassificationsLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The Annotator this loader is for.
+     * @param viewer	The Classifier this loader is for.
      * @param images	Collection of image's IDs to classify.
      * @param rootID	The Id of the root node.
      * @param mode		One of the following constants:
@@ -94,19 +94,39 @@ public class ClassificationsLoader
 		this.rootID = rootID;
 	}
 	
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The Classifier this loader is for.
+     * @param images	Collection of image's IDs to classify.
+     * @param rootID	The Id of the root node..
+     */
+	public ClassificationsLoader(Classifier viewer, long rootID)
+	{
+		super(viewer);
+		this.mode = Classifier.BULK_CLASSIFY_MODE;
+		this.rootID = rootID;
+		images = null;
+	}
+	
 	/** 
      * Loads the classifications paths.
      * @see ClassifierLoader#load()
      */
 	public void load()
 	{
-		if (mode == Classifier.CLASSIFY_MODE)
-			handle = dhView.loadClassificationPaths(images, 
-							ExperimenterData.class, rootID, 
-							DataHandlerView.CLASSIFICATION_NME, this);
-		else handle = dhView.loadClassificationPaths(images, 
-					ExperimenterData.class, rootID, 
-					DataHandlerView.DECLASSIFICATION, this);
+		switch (mode) {
+			case Classifier.CLASSIFY_MODE:
+			case Classifier.BULK_CLASSIFY_MODE:
+				handle = dhView.loadClassificationPaths(images, 
+						ExperimenterData.class, rootID, 
+						DataHandlerView.CLASSIFICATION_NME, this);
+				break;
+			case Classifier.DECLASSIFY_MODE:	
+				handle = dhView.loadClassificationPaths(images, 
+						ExperimenterData.class, rootID, 
+						DataHandlerView.DECLASSIFICATION, this);
+		}
 	}
 	
 	/** 

@@ -577,6 +577,28 @@ class TreeViewerModel
    }
    
    /**
+    * Creates the <code>DataHandler</code> to annotate the images
+    * of the specified node.
+    * 
+    * @param owner	The parent of the frame.
+    * @param node 	The nodes containing the images to annotate.
+    * @return See above.
+    */
+   DataHandler annotateChildren(JFrame owner, TreeImageDisplay node)
+   {
+		Object uo = node.getUserObject();
+		Set toAnnotate = new HashSet();
+		if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+			toAnnotate.add(uo);
+			dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
+					toAnnotate, TreeViewerAgent.getRegistry());
+			return dataHandler;
+		}	
+		return null;
+		
+   }
+   
+   /**
     * Creates the <code>DataHandler</code> to classify or declassify the 
     * specified images depending on the passed mode.
     * 
@@ -594,6 +616,27 @@ class TreeViewerModel
 		dataHandler = ClassifierFactory.getClassifier(owner, images, rootID, 
 										mode, TreeViewerAgent.getRegistry());
 		return dataHandler;
+   }
+   
+   /**
+    * Creates the <code>DataHandler</code> to classify the images contained
+    * in the passed container.
+    * 
+    * @param owner	The parent of the frame.
+    * @param node 	The folder containing the images to classify.
+    * @return See above.
+    */
+   DataHandler classifyChildren(JFrame owner, TreeImageDisplay node)
+   {
+	   Object uo = node.getUserObject();
+	   if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+		   Set<DataObject> folders = new HashSet<DataObject>(1);
+		   folders.add((DataObject) uo);
+		   dataHandler = ClassifierFactory.getChildrenClassifier(owner, folders,
+				   		rootID, TreeViewerAgent.getRegistry());
+		   return dataHandler;
+	   }
+	   return null;
    }
    
    /** Discards the <code>DataHandler</code>. */

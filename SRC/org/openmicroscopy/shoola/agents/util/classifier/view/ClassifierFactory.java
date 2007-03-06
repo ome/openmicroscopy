@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util.classifier.view;
 
 //Java imports
 import java.util.Set;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -56,7 +55,7 @@ public class ClassifierFactory
      * Returns the {@link Classifier}.
      * 
      * @param parent	The owner of the dialog.
-     * @param objects 	Collections of <code>Image</code>s to classify.
+     * @param objects 	Collection of <code>Image</code>s to classify.
      * @param rootID	The Id of the root node.
      * @param m         The type of classifier. One of the following constants:
      *                  {@link Classifier#CLASSIFY_MODE}, 
@@ -70,9 +69,29 @@ public class ClassifierFactory
     	if (registry == null) registry = ctx;
     	if (owner == null) owner = parent;
     	if (objects == null || objects.size() == 0) return null;
-    	 return singleton.createClassifier(objects, rootID, m);
+    	return singleton.createClassifier(objects, rootID, m);
     }
 
+    /**
+     * Returns the {@link Classifier}.
+     * 
+     * @param parent	The owner of the dialog.
+     * @param objects 	Collection of <code>DataObject</code>s containing the 
+     * 					images to classify.
+     * @param rootID	The ID of the root node.
+     * @param ctx 		A reference to the {@link Registry}.
+     * @return See above.
+     */
+    public static Classifier getChildrenClassifier(JFrame parent, 
+    			Set objects, long rootID, Registry ctx)
+    {
+    	if (registry == null) registry = ctx;
+    	if (owner == null) owner = parent;
+    	if (objects == null || objects.size() == 0) return null;
+    	return singleton.createClassifier(objects, rootID, 
+    			Classifier.BULK_CLASSIFY_MODE);
+    }
+    
     /**
      * Helper method. 
      * 
@@ -103,7 +122,8 @@ public class ClassifierFactory
      * @param rootID	The Id of the root node.
      * @param m         The type of classifier. One of the following constants:
      *                  {@link Classifier#CLASSIFY_MODE}, 
-     *                  {@link Classifier#DECLASSIFY_MODE}.
+     *                  {@link Classifier#DECLASSIFY_MODE} or 
+     *                  {@link Classifier#BULK_CLASSIFY_MODE}.
      * @return A {@link Classifier}.
      */
     private Classifier createClassifier(Set objects, long rootID, int m)

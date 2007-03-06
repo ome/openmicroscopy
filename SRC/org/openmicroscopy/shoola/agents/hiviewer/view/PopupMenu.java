@@ -74,6 +74,12 @@ class PopupMenu
     /** Button to remove items from a container. */
     private JMenuItem   remove;
     
+    /** Button to classify the images contained in the selected element. */
+    private JMenuItem	classifyChildren;
+    
+    /** Button to annotate the images contained in the selected element. */
+    private JMenuItem	annotateChildren;
+    
     /**
      * Creates the menu items with the given actions.
      * 
@@ -91,6 +97,10 @@ class PopupMenu
                 controller.getAction(HiViewerControl.DECLASSIFY));
         view = new JMenuItem(controller.getAction(HiViewerControl.VIEW));
         remove = new JMenuItem(controller.getAction(HiViewerControl.REMOVE));
+        classifyChildren = new JMenuItem(
+        		controller.getAction(HiViewerControl.CLASSIFY_CHILDREN));
+        annotateChildren = new JMenuItem(
+        		controller.getAction(HiViewerControl.ANNOTATE_CHILDREN));
     }
     
     /** Builds and lays out the GUI. */
@@ -102,7 +112,10 @@ class PopupMenu
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(classify);
         add(declassify);
+        add(classifyChildren);
+        add(new JSeparator(JSeparator.HORIZONTAL));
         add(annotate);
+        add(annotateChildren);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
     }

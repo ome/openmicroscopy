@@ -88,7 +88,7 @@ public class ImagesLoader
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getImagesFor(userID);
+                results = os.getExperimenterImages(userID);
             }
         };
     }
