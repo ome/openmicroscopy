@@ -151,6 +151,13 @@
                         tofile="${dist.dir}/build.xml"
                         overwrite="true"
                 />
+		<!--
+		        OMERO.blitz
+		-->
+		<copy todir="${dist.dir}/etc">
+			<fileset dir="${blitz.comp}/resources" includes="*.config"/>
+			<flattenmapper/>
+		</copy>
 		<copy todir="${dist.dir}/include">
 			<fileset dir="${blitz.comp}" includes="**/*.h,**/*.ice"/>
 			<flattenmapper/>
@@ -158,6 +165,9 @@
 		<copy todir="${dist.dir}/lib">
 			<fileset dir="${blitz.comp}" includes="**/*.la"/>
 			<flattenmapper/>
+		</copy>
+		<copy todir="${dist.dir}/blitz">
+			<fileset dir="${blitz.comp}/target/standalone" includes="**/*"/>
 		</copy>
 		<copy todir="${dist.dir}/client">
 			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>

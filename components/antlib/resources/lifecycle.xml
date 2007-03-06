@@ -231,8 +231,16 @@
 		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
 	</target>
 
-  <target name="standalone" depends="install">
+  <target name="standalone">
     <copy todir="${target.dir}/standalone">
+      <fileset dir="${omero.repo.local}">
+        <patternset refid="generated.compile.patternset"/>
+        <patternset refid="generated.test.patternset"/>
+        <include name="${artifact.path}"/>
+      </fileset>
+      <flattenmapper/>
+    </copy>
+    <jar update="true" destfile="${target.dir}/standalone/${artifact.final.name}">
       <fileset dir="${resrc.dir}">
         <include name="**/config.*"/>
         <include name="**/*.config"/>
@@ -241,13 +249,7 @@
       <fileset dir="${resrc.dest}">
         <include name="**/*.properties"/>
       </fileset>
-      <fileset dir="${omero.repo.local}">
-        <patternset refid="generated.compile.patternset"/>
-        <patternset refid="generated.test.patternset"/>
-        <include name="${artifact.path}"/>
-      </fileset>
-      <flattenmapper/>
-    </copy>
+    </jar>
   </target>
   
 </project>

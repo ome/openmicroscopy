@@ -27,6 +27,8 @@
 
 	<target name="generate" depends="lifecycle.generate,icegen,slice"/>
 
+	<target name="install" depends="lifecycle.install,standalone"/>
+
     <!-- TODO Be sure to remove the warning messages and macros -->
 	      		
 	<target name="prepare" depends="lifecycle.prepare,load-groovy">
