@@ -24,6 +24,8 @@ lib_LTLIBRARIES     	= libOMERO_model.la libOMERO_client.la
 libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/AberrationCorrection.cpp \
 	./generated/AberrationCorrectionI.cpp \
+	./generated/AcquisitionContext.cpp \
+	./generated/AcquisitionContextI.cpp \
 	./generated/AcquisitionMode.cpp \
 	./generated/AcquisitionModeI.cpp \
 	./generated/API.cpp \
@@ -74,6 +76,8 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/ContrastMethodI.cpp \
 	./generated/ContrastStretchingContext.cpp \
 	./generated/ContrastStretchingContextI.cpp \
+	./generated/CorrectionCollar.cpp \
+	./generated/CorrectionCollarI.cpp \
 	./generated/CustomizedFilterSet.cpp \
 	./generated/CustomizedFilterSetI.cpp \
 	./generated/DatasetAnnotation.cpp \
@@ -95,6 +99,10 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/DimensionOrderI.cpp \
 	./generated/DummyStatistics.cpp \
 	./generated/DummyStatisticsI.cpp \
+	./generated/DyeLaser.cpp \
+	./generated/DyeLaserI.cpp \
+	./generated/DyeLaserMedia.cpp \
+	./generated/DyeLaserMediaI.cpp \
 	./generated/EmissionFilter.cpp \
 	./generated/EmissionFilterI.cpp \
 	./generated/Error.cpp \
@@ -104,6 +112,10 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/EventLogI.cpp \
 	./generated/EventType.cpp \
 	./generated/EventTypeI.cpp \
+	./generated/ExcimerLaser.cpp \
+	./generated/ExcimerLaserI.cpp \
+	./generated/ExcimerLaserMedia.cpp \
+	./generated/ExcimerLaserMediaI.cpp \
 	./generated/ExcitationFilter.cpp \
 	./generated/ExcitationFilterI.cpp \
 	./generated/Experiment.cpp \
@@ -130,8 +142,16 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/FilterTypeI.cpp \
 	./generated/Format.cpp \
 	./generated/FormatI.cpp \
+	./generated/FreeElectronLaser.cpp \
+	./generated/FreeElectronLaserI.cpp \
+	./generated/FreeElectronLaserMedia.cpp \
+	./generated/FreeElectronLaserMediaI.cpp \
 	./generated/FrequencyMultiplication.cpp \
 	./generated/FrequencyMultiplicationI.cpp \
+	./generated/GasLaser.cpp \
+	./generated/GasLaserI.cpp \
+	./generated/GasLaserMedia.cpp \
+	./generated/GasLaserMediaI.cpp \
 	./generated/GroupExperimenterMap.cpp \
 	./generated/GroupExperimenterMapI.cpp \
 	./generated/Illumination.cpp \
@@ -148,6 +168,8 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/ImagingEnvironmentI.cpp \
 	./generated/Immersion.cpp \
 	./generated/ImmersionI.cpp \
+	./generated/ImmersionMedium.cpp \
+	./generated/ImmersionMediumI.cpp \
 	./generated/Instrument.cpp \
 	./generated/InstrumentI.cpp \
 	./generated/IObject.cpp \
@@ -171,6 +193,10 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/MediumI.cpp \
 	./generated/Metadata.cpp \
 	./generated/MetadataI.cpp \
+	./generated/MetalVaporLaser.cpp \
+	./generated/MetalVaporLaserI.cpp \
+	./generated/MetalVaporLaserMedia.cpp \
+	./generated/MetalVaporLaserMediaI.cpp \
 	./generated/Microscope.cpp \
 	./generated/MicroscopeI.cpp \
 	./generated/MicroscopeType.cpp \
@@ -191,6 +217,7 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/NucleusPositionI.cpp \
 	./generated/NucleusSolidity.cpp \
 	./generated/NucleusSolidityI.cpp \
+	./generated/ObjectFactoryRegistrar.cpp \
 	./generated/Objective.cpp \
 	./generated/ObjectiveI.cpp \
 	./generated/ObjectiveSettings.cpp \
@@ -249,6 +276,10 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/RoiSetI.cpp \
 	./generated/ROMIO.cpp \
 	./generated/RTypes.cpp \
+	./generated/SemiConductorLaser.cpp \
+	./generated/SemiConductorLaserI.cpp \
+	./generated/SemiConductorLaserMedia.cpp \
+	./generated/SemiConductorLaserMediaI.cpp \
 	./generated/ShapeArea.cpp \
 	./generated/ShapeAreaI.cpp \
 	./generated/Specification.cpp \
@@ -312,6 +343,7 @@ libOMERO_model_la_SOURCES = ./DetailsI.cpp ./PermissionsI.cpp \
 	./generated/XYZTtoXYTLinkI.cpp \
 	./generated/XYZTtoXYZLink.cpp \
 	./generated/XYZTtoXYZLinkI.cpp
+
 #libOMERO_model_a_LDFLAGS = -no-undefined -version-info 0:0:0
 
 libOMERO_client_la_SOURCES= ./OMERO/client.cpp ./generated/ObjectFactoryRegistrar.cpp
