@@ -158,17 +158,30 @@
 			<fileset dir="${blitz.comp}/resources" includes="*.config"/>
 			<flattenmapper/>
 		</copy>
+
 		<copy todir="${dist.dir}/include">
-			<fileset dir="${blitz.comp}" includes="**/*.h,**/*.ice"/>
-			<flattenmapper/>
+			<fileset dir="${blitz.comp}/src/cpp" includes="**/*.h"/>
+			<fileset dir="${blitz.comp}/src/cpp/generated" includes="**/*.h"/>
+			<fileset dir="${blitz.comp}/resources/slice" includes="**/*.ice"/>
+			<fileset dir="${blitz.comp}/target/generated/resources" includes="**/*.ice"/>
 		</copy>
+
+		<symlink action="record" linkfilename=".library.links">
+		        <fileset dir="${blitz.comp}/src/cpp/.libs" includes="*.so*"/>
+		</symlink>
 		<copy todir="${dist.dir}/lib">
-			<fileset dir="${blitz.comp}" includes="**/*.la"/>
+			<fileset dir="${blitz.comp}/src/cpp/.libs" includes="**/*.so*" followsymlinks="false"/>
+			<fileset dir="${blitz.comp}/src/cpp/.libs" includes="**/*.links" followsymlinks="false"/>
 			<flattenmapper/>
 		</copy>
+		<symlink action="recreate">
+		        <fileset dir="${dist.dir}/lib" includes="*.links"/>
+		</symlink>
+
 		<copy todir="${dist.dir}/blitz">
 			<fileset dir="${blitz.comp}/target/standalone" includes="**/*"/>
 		</copy>
+
 		<copy todir="${dist.dir}/client">
 			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
