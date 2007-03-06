@@ -20,7 +20,7 @@ AC_ARG_WITH(ice,
                 [--with-ice=PREFIX],
                 [location of the Ice PREFIX. (ex. /opt/Ice-3.1)]),
             [CPPFLAGS="$CPPFLAGS -I$withval/include"
-              LDFLAGS="$LDFLAGS -L$withval/lib"
+              LDFLAGS="$LDFLAGS -L$withval/lib -L$withval/lib64"
 	     AC_SUBST(SLICE_DIR,"$withval/slice")
              AC_MSG_NOTICE(using Ice include directory... $withval/include)
              AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
