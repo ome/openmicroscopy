@@ -64,7 +64,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         curr = new Ice.Current();
     }
     
-    protected Object invoke(Object...args) {
+    protected Object invoke(Object...args) throws omero.ServerError {
         Object rv = invoker.invoke(srv, curr, mapper, args);
         return rv;
     }
