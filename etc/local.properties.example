@@ -19,6 +19,12 @@ javac.source=1.5
 javac.target=1.5
 javac.debug=on
 javac.debuglevel=lines,vars,source
+javac.maxmem=100m
+
+############################################
+# libraries
+############################################
+ice.home=/opt/Ice-3.1.1
 
 # Used in server/build.xml to specify the
 # functionality that will be compiled in

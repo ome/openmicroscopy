@@ -3,13 +3,27 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-aop-jdk50-client/4.0.4.GA/jboss-aop-jdk50-client-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-aspect-library-jdk50/4.0.4.GA/jboss-aspect-library-jdk50-4.0.4.GA.jar"/>
+	<classpathentry sourcepath="/USER_HOME/code/jboss-4.0.x" kind="var" path="M2_REPO/omero/jboss-ejb3/4.0.4.GA/jboss-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jboss-ejb3x/4.0.4.GA/jboss-ejb3x-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
+	<classpathentry sourcepath="/SPRING_HOME" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
 	<classpathentry kind="src" path="resources"/>
-	<classpathentry kind="lib" path="lib/TableLayout.jar">
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/testng/testng/4.7-jdk15/testng-4.7-jdk15.jar"/>
+	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
+	<classpathentry kind="lib" path="lib/quaqua-filechooser-only.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="OMERO Import/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/spring-2.0-m3.jar"/>
 	<classpathentry kind="lib" path="lib/quaqua-filechooser-only.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/jboss-ejb3x-4.0.4.GA.jar"/>

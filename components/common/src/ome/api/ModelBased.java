@@ -33,9 +33,7 @@ import ome.util.ReverseModelMapper;
  * @see ome.util.ReverseModelMapper
  */
 public interface ModelBased {
-    public void copy(IObject model, ModelMapper mapper);
-
-    public IObject newIObject();
-
-    public IObject fillIObject(IObject model, ReverseModelMapper mapper);
+    
+    public void copyObject(ome.util.Filterable model, ModelMapper mapper);
+    public ome.util.Filterable fillObject(ReverseModelMapper mapper);
 }

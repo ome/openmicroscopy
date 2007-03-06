@@ -8,6 +8,7 @@
 package ome.util;
 
 // Java imports
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -25,30 +26,9 @@ import ome.model.IObject;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 1.0
  */
-public class ReverseModelMapper { // extends ContextFilter {
+public interface ReverseModelMapper { // extends ContextFilter {
 
-    protected static Log log = LogFactory.getLog(ModelMapper.class);
-
-    protected Map target2model = new IdentityHashMap();
-
-    public IObject map(ModelBased source) {
-
-        if (source == null) {
-
-            return null;
-
-        } else if (target2model.containsKey(source)) {
-
-            return (IObject) target2model.get(source);
-
-        } else {
-
-            IObject model = source.newIObject();
-            target2model.put(source, model);
-            source.fillIObject(model, this);
-            return model;
-
-        }
-    }
-
+    public Filterable reverse(ModelBased source);
+    public Collection reverse(Collection source);
+    
 }

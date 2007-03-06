@@ -10,6 +10,10 @@
       <ejb>server-3.0-TRUNK.jar</ejb>
     </module>
 
+    <module>
+      <ejb>blitz-3.0-TRUNK.jar</ejb>
+    </module>
+
     <!-- The services.jar is automatically produced by the apps/
     component build system from the tools/target directory. It is
     necessary to "turn on" the build for particular tools. See

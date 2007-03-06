@@ -66,6 +66,7 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.security.ACLVoter;
 import ome.security.AdminAction;
+import ome.security.PasswordUtil;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
@@ -759,14 +760,34 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     @RolesAllowed("user")
     public void changePassword(String newPassword) {
-        internalChangeUserPasswordById(getSecuritySystem().getEventContext()
+        PasswordUtil.changeUserPasswordById(jdbc, getSecuritySystem().getEventContext()
                 .getCurrentUserId(), newPassword);
+        synchronizeLoginCache();
     }
 
     @RolesAllowed("system")
     public void changeUserPassword(String omeName, String newPassword) {
         Experimenter e = lookupExperimenter(omeName);
-        internalChangeUserPasswordById(e.getId(), newPassword);
+        PasswordUtil.changeUserPasswordById(jdbc, e.getId(), newPassword);
+        synchronizeLoginCache();
+    }
+
+    /**
+     * Jumps through some hurdles (see
+     * {@link PasswordUtil#userId(SimpleJdbcTemplate, String)} to not have to
+     * use Hibernate in order to prevent unauthorized access to Hibernate.
+     */
+    public boolean checkPassword(String name, String password) {
+        Long id = PasswordUtil.userId(jdbc, name);
+        if (null == id) {
+            return false; // Unknown user. TODO Guest?
+        }
+        String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
+        if (hash == null) {
+            return true; // Password is turned off.
+        }
+        String digest = PasswordUtil.preparePassword(password);
+        return hash.equals(digest);
     }
 
     // ~ Security context
@@ -781,7 +802,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public EventContext getEventContext() {
         return new SimpleEventContext(getSecuritySystem().getEventContext());
     }
-
+    
     // ~ Helpers
     // =========================================================================
 
@@ -820,40 +841,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     // ~ Password access
     // =========================================================================
 
-    protected void internalChangeUserPasswordById(Long id, String password) {
-        int results = jdbc.update("update password set hash = ? "
-                + "where experimenter_id = ? ", preparePassword(password), id);
-        if (results < 1) {
-            results = jdbc.update("insert into password values (?,?) ", id,
-                    preparePassword(password));
-        }
-        synchronizeLoginCache();
-    }
 
-    protected String preparePassword(String newPassword) {
-        // This allows setting passwords to "null" - locked account.
-        return newPassword == null ? null
-        // This allows empty passwords to be considered "open-access"
-                : newPassword.trim().length() == 0 ? newPassword
-                // Regular MD5 digest.
-                        : passwordDigest(newPassword);
-    }
 
-    protected String passwordDigest(String clearText) {
-        if (clearText == null) {
-            throw new ApiUsageException("Value for digesting may not be null");
-        }
-
-        // These constants are also defined in app/resources/jboss-login.xml
-        // and this method is called from {@link JBossLoginModule}
-        String hashedText = Util.createPasswordHash("MD5", "base64",
-                "ISO-8859-1", null, clearText, null);
-
-        if (hashedText == null) {
-            throw new InternalException("Failed to obtain digest.");
-        }
-        return hashedText;
-    }
 
     // ~ Queries for pulling full experimenter/experimenter group graphs
     // =========================================================================

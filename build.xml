@@ -151,11 +151,20 @@
                         tofile="${dist.dir}/build.xml"
                         overwrite="true"
                 />
+		<copy todir="${dist.dir}/include">
+			<fileset dir="${blitz.comp}" includes="**/*.h,**/*.ice"/>
+			<flattenmapper/>
+		</copy>
+		<copy todir="${dist.dir}/lib">
+			<fileset dir="${blitz.comp}" includes="**/*.la"/>
+			<flattenmapper/>
+		</copy>
 		<copy todir="${dist.dir}/client">
 			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${import.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${server.comp}/${target.rel}" includes="*.jar"/>
+			<fileset dir="${blitz.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${tools.jars}/" includes="*.jar"/>
 			<fileset dir="${lib.dir}/repository">
 				<include name="omero/jboss*/**/*.jar"/>
@@ -163,6 +172,8 @@
 				<include name="commons-logging/commons-logging/**/*.jar"/>
 				<include name="log4j/**/*.jar"/>
 				<include name="omero/omejava/**/*.jar"/>
+				<include name="omero/ice/**/*.jar"/>
+				<include name="omero/client/**/*.jar"/>
 			</fileset>
 			<flattenmapper/>
 		</copy>

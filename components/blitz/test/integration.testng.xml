@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+  
+<suite name="blitz.integration" >
+  
+  <test name="blitz.integration.active">
+    <groups>
+      <run>
+        <exclude name="broken"/>
+        <exclude name="ignore"/>
+      </run>        
+    </groups>
+    <packages>
+      <package name="ome.*"/>
+    </packages>
+  </test>
+
+</suite>

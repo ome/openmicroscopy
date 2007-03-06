@@ -44,6 +44,11 @@
 	<target name="install">
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
+			<property name="test.with.fail" value="${test.with.fail}"/>
+			<property name="test.skip" value="${test.skip}"/>
+			<property name="generate.skip" value="${generate.skip}"/>
+			<property name="checks.skip" value="${checks.skip}"/>
+			<property name="classpath.file" value="${classpath.file}"/>
 			<target name="install"/>
 		</ant>
 	</target>

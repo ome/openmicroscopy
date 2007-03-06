@@ -79,4 +79,9 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * @see Details#getOwner()
      */
     List<Long> getMemberOfGroupIds(Experimenter e);
+    
+    /**
+     * Checks password for given user.
+     */
+    boolean checkPassword(String user, String password);
 }

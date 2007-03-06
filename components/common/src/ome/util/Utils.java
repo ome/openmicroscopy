@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.model.IObject;
+import ome.model.internal.Permissions;
 
 // Third-party libraries
 
@@ -108,7 +109,38 @@ public class Utils {
 
         return (String[]) set.toArray(new String[set.size()]);
     }
-
+    
+    /**
+     * Returns the internal representation of a {@link Permissions} object.
+     * Should be used with caution!
+     */
+    public static Object internalForm(Permissions p) {
+        P pp = new P(p);
+        return new Long(pp.toLong());
+    }
+    
+    /**
+     * Returns a {@link Permissions} instance from its internal representation.
+     * Should be used with caution!
+     */
+    public static Permissions toPermissions(Object o) {
+        P pp = new P((Long)o);
+        return new Permissions(pp);
+    }
+    
+    private static class P extends Permissions {
+        private static final long serialVersionUID = -18133057809465999L;
+        protected P(Permissions p) {
+            revokeAll(p);
+            grantAll(p);
+        }
+        protected P(Long l) {
+            this.setPerm1(l.longValue());
+        }
+        long toLong() {
+            return super.getPerm1();
+        }
+    }
     /**
      * Returns a {@link String} which can be used to correlate log messages.
      */

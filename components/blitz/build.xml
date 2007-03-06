@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="omero-ice" default="slice-all" basedir=".">
+
+    <property name="classpath.file" value="classpath.xml"/>
+    <property name="main.class" value="ome.services.icy.Main"/>
+    <import file="${classpath.file}"/>
+
+    <!-- Local properties -->
+    <property name="ice.file" value="omero.ice"/>
+
+
+<target name="grv" depends="lifecycle.prepare,load-groovy">
+
+  <taskdef classname="ome.dsl.GroovyTask" classpathref="omero.classpath" name="grv"/>
+
+  <grv destdir="${resrc.dest}/">
+    <fileset dir="${common.comp}/resources/">
+      <include name="${dsl.pat}"/>
+    </fileset>
+  </grv>
+
+  <groovy src="${resrc.dir}/boo.groovy"/>
+
+</target>
+
+	<target name="clean" depends="lifecycle.clean"/>
+
+	<target name="generate" depends="lifecycle.generate,icegen,slice"/>
+
+    <!-- TODO Be sure to remove the warning messages and macros -->
+	      		
+	<target name="prepare" depends="lifecycle.prepare,load-groovy">
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
+		<fail unless="slice2java-exists" message="${msg.macro.missing_fail} slice2java"/>	
+	</target>
+		
+    <!-- = = = = = = = = = = = = = = = = =
+          generate slice   
+         = = = = = = = = = = = = = = = = = -->
+	
+	<target name="icegen-init" depends="prepare">
+		<is-done name="icegen" srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
+	</target>
+	
+	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
+		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
+			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
+			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice" />
+			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
+			<hbmtemplate template="templates/java_objects.vm" filepattern="src/omero/model/{class-name}I.java" />
+			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
+			<hbmtemplate template="templates/cpp_headers.vm"  filepattern="../../src/cpp/generated/{class-name}I.h" />
+			<hbmtemplate template="templates/cpp_objects.vm"  filepattern="../../src/cpp/generated/{class-name}I.cpp" />
+			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp" />
+		</hibernate>
+		<delete>
+			<fileset dir="${src.dest}" includes="**/*.java">
+				<present present="both" targetdir="${src.dir}"/>
+			</fileset>
+			<fileset dir="${resrc.dest}" includes="*.ice">
+				<present present="both" targetdir="${resrc.dir}/slice"/>
+			</fileset>
+			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp,**/*.h">
+				<present present="both" targetdir="${src.dir}/cpp"/>
+			</fileset>
+		</delete>
+		<done name="icegen"/>
+	</target>
+
+
+	<target name="slice-init" depends="prepare">
+		<fileset dir="${basedir}" id="slice.generated">
+			<include name="resources/slice/${ice.pat}"/>
+			<include name="target/generated/resources/${ice.pat}"/>
+		</fileset>
+		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
+		<is-done name="slice2java" srcdir="${basedir}" includes="${ice.pat}" />
+	</target>
+
+	<target name="slice" depends="slice-init" if="slice2java-exists" unless="slice2java.not.required">
+			<slice lang="java" files="${slice.files}" output="${src.dest}"/>
+	</target>
+	
+</project>

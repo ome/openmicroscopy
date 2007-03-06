@@ -167,7 +167,7 @@ public abstract class ModelMapper extends ContextFilter {
 
     private void fillTarget(Filterable source, ModelBased target) {
         if (source != null && target != null) {
-            target.copy(((IObject) source), this);
+            target.copyObject((source), this);
         }
     }
 

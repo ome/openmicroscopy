@@ -31,8 +31,8 @@ public class LicenseStoreTest extends TestCase {
 
         store = new Store();
 
-        assertTrue("Should be 0", store.getAvailableLicenseCount() == 0);
-        assertTrue("Should be 0", store.getTotalLicenseCount() == 0);
+        assertTrue("Should be 1", store.getAvailableLicenseCount() == 1);
+        assertTrue("Should be 1", store.getTotalLicenseCount() == 1);
         expectLicenseException(store, LicenseStore.class
                 .getMethod("acquireLicense"));
         assertFalse(store.releaseLicense(null));
@@ -143,31 +143,6 @@ public class LicenseStoreTest extends TestCase {
 
         assertTrue(store.getAvailableLicenseCount() == 10);
         assertFalse(store.hasLicense(token));
-    }
-
-    @Test
-    public void testInvalidStore() throws Exception {
-        store = new InvalidStore();
-        Method[] methods = LicenseStore.class.getMethods();
-        assertTrue("Haven't implemented all methods", methods.length == 8);
-
-        expectLicenseException(store, LicenseStore.class
-                .getMethod("acquireLicense"));
-        expectLicenseException(store, LicenseStore.class.getMethod(
-                "releaseLicense", byte[].class), dummy);
-        expectLicenseException(store, LicenseStore.class
-                .getMethod("getAvailableLicenseCount"));
-        expectLicenseException(store, LicenseStore.class
-                .getMethod("getTotalLicenseCount"));
-        expectLicenseException(store, LicenseStore.class.getMethod(
-                "enterMethod", byte[].class), dummy);
-        expectLicenseException(store, LicenseStore.class.getMethod(
-                "exitMethod", byte[].class), dummy);
-        expectLicenseException(store, LicenseStore.class.getMethod(
-                "isValid", byte[].class), dummy);
-        expectLicenseException(store, LicenseStore.class.getMethod(
-                "resetLicenses"));
-
     }
 
     // ~ Helpers

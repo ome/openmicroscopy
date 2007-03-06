@@ -1,0 +1,70 @@
+#*
+ *   $Id$
+ * 
+ *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ * 
+ *#
+/*
+ *   \$Id\$
+ * 
+ *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ * 
+ */
+
+package omero.util;
+
+//Java imports
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+//Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//Application-internal dependencies
+import ome.util.Filterable;
+
+/** 
+ * Code-generated
+ */
+public class IceMap {
+	
+	private final static Map<Class, Class> _ome2omero = new HashMap<Class, Class>(); 
+	private final static Map<Class, Class> _omero2ome = new HashMap<Class, Class>(); 
+	
+	/**
+	 * Unmodifiable map of ome.model.* classes to omero.model.* classes.
+	 */
+	public final static Map<Class, Class> OMEtoOMERO;
+
+	/**
+	 * Unmodifiable map of omero.model.* classes to ome.model.* classes.
+	 */
+	public final static Map<Class, Class> OMEROtoOME;
+
+	static {
+#macro(put $longtype $shorttype)
+#if(!$pojo.classModifiers.contains("abstract"))
+
+		_ome2omero.put(${longtype}.class,omero.model.${shorttype}I.class);
+		_omero2ome.put(omero.model.${shorttype}.class,${longtype}.class);
+		_omero2ome.put(omero.model.${shorttype}I.class,${longtype}.class);
+#end
+#end
+#foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
+#put($pojo.qualifiedDeclarationName $pojo.declarationName)
+#foreach($property in $pojo.allPropertiesIterator)
+#if($c2j.isComponent($property))
+#set($component = $c2j.getPOJOClass($property.getValue()))
+#put($component.qualifiedDeclarationName $component.declarationName)
+#end
+#end 
+#end
+		OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);
+		OMEROtoOME = Collections.unmodifiableMap(_omero2ome);
+	}
+
+}

@@ -1,0 +1,98 @@
+#include <OMERO/client.h>
+#include <ObjectFactoryRegistrar.h>
+
+using namespace std;
+
+namespace OMERO {
+  
+  client::client(int& argc, char* argv[]) {
+    ic = Ice::initialize(argc, argv);
+    ObjectFactoryPtr of = new ObjectFactory();
+    of->registerObjectFactory(ic);
+  }
+  
+  client::~client(){
+    if (ic) {
+      ic->destroy();
+    }
+  }
+  
+  
+  void client::createSession() {
+    
+    string username = ic->getProperties()->getProperty("OMERO.username");
+    string password = ic->getProperties()->getProperty("OMERO.password");
+    cout << "Logging in as " << username << endl;
+
+    Ice::RouterPrx prx = ic->getDefaultRouter();
+    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
+    Glacier2::SessionPrx session;
+    try
+      {
+	session = router->createSession(username, password);
+      }
+    catch(const Glacier2::PermissionDeniedException& ex)
+      {
+	cout << "permission denied:\n" << ex.reason << endl;
+      }
+    catch(const Glacier2::CannotCreateSessionException& ex)
+      {
+	cout << "cannot create session:\n" << ex.reason << endl;
+      }
+    sf = omero::api::ServiceFactoryPrx::checkedCast(session);
+    
+  }
+  
+  omero::api::IAdminPrx client::getAdminService(const ::Ice::Context& ctx) {
+    return sf->getAdminService(ctx);
+  }
+  
+  omero::api::IConfigPrx client::getConfigService(const ::Ice::Context& ctx) {
+    return sf->getConfigService(ctx);
+  }
+  
+  omero::api::IPixelsPrx client::getPixelsService(const ::Ice::Context& ctx) {
+    return sf->getPixelsService(ctx);
+  }
+  
+  omero::api::IPojosPrx client::getPojosService(const ::Ice::Context& ctx) {
+    return sf->getPojosService(ctx);
+  }
+  
+  omero::api::IQueryPrx client::getQueryService(const ::Ice::Context& ctx) {
+    return sf->getQueryService(ctx);
+  }
+  
+  omero::api::ITypesPrx client::getTypesService(const ::Ice::Context& ctx) {
+    return sf->getTypesService(ctx);
+  }
+  
+  omero::api::IUpdatePrx client::getUpdateService(const ::Ice::Context& ctx) {
+    return sf->getUpdateService(ctx);
+  }
+  
+  omero::api::RawFileStorePrx client::createRawFileStore(const ::Ice::Context& ctx) {
+    return sf->createRawFileStore(ctx);
+  }
+  
+  omero::api::RawPixelsStorePrx client::createRawPixelsStore(const ::Ice::Context& ctx) {
+    return sf->createRawPixelsStore(ctx);
+  }
+  
+  omero::api::RenderingEnginePrx client::createRenderingEngine(const ::Ice::Context& ctx) {
+    return sf->createRenderingEngine(ctx);
+  }
+  
+  omero::api::ThumbnailStorePrx client::createThumbnailStore(const ::Ice::Context& ctx) {
+    return sf->createThumbnailStore(ctx);
+  }
+
+  void client::setCallback(const ::omero::api::SimpleCallbackPrx& cb, const ::Ice::Context& ctx) {
+    sf->setCallback(cb, ctx);
+  }
+ 
+  void client::close(const ::Ice::Context& ctx) {
+    sf->close(ctx);
+  }
+
+}

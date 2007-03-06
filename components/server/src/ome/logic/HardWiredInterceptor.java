@@ -22,6 +22,7 @@ import org.springframework.aop.framework.ReflectiveMethodInvocation;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 /**
@@ -42,8 +43,8 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
     /** Unique string for the current ServiceFactory instance */
     private final static String SF = "ome.hard-wired.service-factory";
 
-    /** Unique string for the current SessionContext instance */
-    private final static String SC = "ome.hard-wired.session-context";
+    /** Unique string for the current {@link Principal} instance */
+    private final static String PR = "ome.hard-wired.principal";
 
     /** 
      * Produces a {@link List} of instantiated interceptors from
@@ -71,10 +72,10 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
      * {@link java.util.Map} for lookup in subclasses
      */
     public static void initializeUserAttributes(MethodInvocation mi,
-            ServiceFactory sf, SessionContext sc) {
+            ServiceFactory sf, Principal pr) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
         rmi.getUserAttributes().put(SF, sf);
-        rmi.getUserAttributes().put(SC, sc);
+        rmi.getUserAttributes().put(PR, pr);
     }
 
     protected ServiceFactory getServiceFactory(MethodInvocation mi) {
@@ -82,9 +83,9 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
         return (ServiceFactory) rmi.getUserAttribute(SF);
     }
 
-    protected SessionContext getSessionContext(MethodInvocation mi) {
+    protected Principal getPrincipal(MethodInvocation mi) {
         ReflectiveMethodInvocation rmi = (ReflectiveMethodInvocation) mi;
-        return (SessionContext) rmi.getUserAttribute(SC);
+        return (Principal) rmi.getUserAttribute(PR);
     }
 
 }

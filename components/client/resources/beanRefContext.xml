@@ -42,7 +42,7 @@
         <value>ome/client/spring.xml</value>
       </list>
     </constructor-arg>      
-    <constructor-arg index="1" value="false"/>
+    <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" ref="ome.client.internal"/>      
   </bean>
 

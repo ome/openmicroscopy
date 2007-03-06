@@ -139,8 +139,15 @@ public abstract class AbstractBean implements SelfConfigurableService {
                 (ProxyFactoryBean) applicationContext.getBean(factoryName),
                 context, CPTORS);
 
+        Object o = sessionContext.getCallerPrincipal();
+        if (!(o instanceof ome.system.Principal)) {
+            throw new ApiUsageException("Callers must provide an instance "
+                    + "of ome.system.Principal for login.");
+        }
+
         HardWiredInterceptor.initializeUserAttributes(adapter,
-                getServiceFactory(), sessionContext);
+                getServiceFactory(), (Principal) sessionContext
+                        .getCallerPrincipal());
 
         return adapter.proceed();
     }

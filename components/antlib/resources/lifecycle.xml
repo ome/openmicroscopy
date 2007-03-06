@@ -63,6 +63,7 @@
 			target="${javac.target}"
 			debug="${javac.debug}"
 			debuglevel="${javac.debuglevel}"
+			memoryMaximumSize="${javac.maxmem}"
 		>
 		        <srcelements/>
 		</javac>

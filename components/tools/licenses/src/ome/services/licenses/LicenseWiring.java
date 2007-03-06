@@ -57,7 +57,7 @@ public class LicenseWiring extends HardWiredInterceptor {
 
         // Since this isn't the license service, they have to use the proper
         // principal
-        Principal p = getSessionContext(mi).getCallerPrincipal();
+        Principal p = getPrincipal(mi);
         if (!LicensedPrincipal.class.isAssignableFrom(p.getClass())) {
             throw new LicenseException("Client sent non-licensed Principal.");
         }

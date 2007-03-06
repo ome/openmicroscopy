@@ -165,7 +165,7 @@
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 <!-- TODO -->
-#if(!$type.immutable)
+#if(!$type.immutable && !$type.superclass)
 <property name="version" type="java.lang.Integer">
   <meta attribute="default-value">new Integer(0)</meta>
   <column name="version" default="0"/>

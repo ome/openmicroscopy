@@ -54,6 +54,8 @@ importing this file.
 	<file name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<file name="omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
+	<file name="omero/blitz/3.0-TRUNK/blitz-3.0-TRUNK.jar"/>
+	<file name="omero/ice/3.1.1/ice-3.1.1.jar"/>
 	<file name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<file name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
@@ -91,6 +93,8 @@ importing this file.
 	<include name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<include name="omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
+	<include name="omero/blitz/3.0-TRUNK/blitz-3.0-TRUNK.jar"/>
+	<include name="omero/ice/3.1.1/ice-3.1.1.jar"/>
 	<include name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<include name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
@@ -130,6 +134,8 @@ importing this file.
 	<file name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<file name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<file name="omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
+	<file name="omero/blitz/3.0-TRUNK/blitz-3.0-TRUNK.jar"/>
+	<file name="omero/ice/3.1.1/ice-3.1.1.jar"/>
 	<file name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<file name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<file name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
@@ -171,6 +177,8 @@ importing this file.
 	<include name="omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<include name="omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<include name="omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
+	<include name="omero/blitz/3.0-TRUNK/blitz-3.0-TRUNK.jar"/>
+	<include name="omero/ice/3.1.1/ice-3.1.1.jar"/>
 	<include name="org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<include name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<include name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>

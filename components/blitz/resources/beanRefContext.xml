@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <description>
+	Defines the contexts for the Omero ICE Server. Other beanRefFactory.xmls may define
+  other contexts.  
+  </description>
+
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true"/>
+		<property name="locations">
+		<list>
+			<value>hibernate.properties</value>            
+			<value>omero.properties</value>      
+			<value>ejb.properties</value>
+		</list>
+		</property>
+	</bean>
+  
+  <bean    id="OMERO.ice"
+    	  class="ome.system.OmeroContext"
+    	  lazy-init="true">
+	<constructor-arg index="0">
+      <list>
+        <value>classpath:omero/server.xml</value>
+        <value>classpath:omero/constants.xml</value>
+        <value>classpath:ome/services/config-local.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="ome.server"/>
+  </bean>
+
+  <bean    id="OMERO.client"
+    	  class="ome.system.OmeroContext"
+    	  lazy-init="true">
+	<constructor-arg index="0">
+      <list>
+        <value>classpath:omero/client.xml</value>
+        <value>classpath:omero/constants.xml</value>
+      </list>
+    </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="ome.client"/>
+  </bean>
+  
+</beans>
