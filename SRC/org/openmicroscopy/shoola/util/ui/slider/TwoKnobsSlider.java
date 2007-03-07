@@ -115,11 +115,7 @@ public class TwoKnobsSlider
     /** The preferred dimension of a vertical slider. */
     protected static final Dimension    PREFERRED_HORIZONTAL =
                                                     new Dimension(200, 21);
-    /** The default width of a knob. */
-    public static final int             KNOB_WIDTH = 16;
-    
-    /** The default height of the knob. */
-    public static final int             KNOB_HEIGHT = 16;
+
 
     /** The default width of the horizontal slider. */
     private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
@@ -186,8 +182,8 @@ public class TwoKnobsSlider
         fontHeight = getFontMetrics(getFont()).getHeight();
         knobControl = INITIAL;
         pushKnobControl = INITIAL;
-        knobWidth = KNOB_WIDTH;
-        knobHeight = KNOB_HEIGHT;
+        knobWidth = uiDelegate.getKnobWidth();
+        knobHeight = uiDelegate.getKnobHeight();
         calculatePreferredSize();
     }
     
@@ -407,7 +403,7 @@ public class TwoKnobsSlider
         model = new TwoKnobsSliderModel(max, min, start, end);
         uiDelegate = new TwoKnobsSliderUI(this, model);
         attachListeners();
-        setDefault(); 
+        setDefault();
     }
     
     /** 
@@ -415,14 +411,14 @@ public class TwoKnobsSlider
      * 
      * @return See above.
      */
-    int getKnobHeight() { return knobHeight; }
+    public int getKnobHeight() { return knobHeight; }
     
     /** 
      * Returns the width of the knob.
      * 
      * @return See above.
      */
-    int getKnobWidth() { return knobWidth; }
+    public int getKnobWidth() { return knobWidth; }
     
     /**
      * Sets the color of the font.
@@ -434,29 +430,7 @@ public class TwoKnobsSlider
         if (c == null) return;
         uiDelegate.setFontColor(c);
     }
-    
-    /**
-     * Sets the color of the knob controlling the end value.
-     * 
-     * @param c The color of the knob.
-     */
-    public void setEndKnobColor(Color c)
-    {
-        if (c == null) return;
-        uiDelegate.setEndKnobColor(c);
-    }
-    
-    /**
-     * Sets the color of the knob controlling the end value.
-     * 
-     * @param c The color of the knob.
-     */
-    public void setStartKnobColor(Color c)
-    {
-        if (c == null) return;
-        uiDelegate.setStartKnobColor(c);
-    }
-    
+   
     /**
      * Returns the value of the start knob i.e. value between
      * {@link #getMinimum()} and {@link #getEndValue()}.

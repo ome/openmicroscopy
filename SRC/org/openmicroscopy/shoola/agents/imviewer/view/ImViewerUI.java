@@ -49,7 +49,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 
 //Third-party libraries
@@ -377,14 +376,14 @@ class ImViewerUI
         colorModelGroup = new ButtonGroup();
         ViewerAction action = controller.getAction(
                         ImViewerControl.GREY_SCALE_MODEL);
-        JRadioButtonMenuItem item = new JRadioButtonMenuItem();
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         String cm = model.getColorModel();
         item.setSelected(cm.equals(ImViewer.GREY_SCALE_MODEL));
         item.setAction(action);
         colorModelGroup.add(item);
         menu.add(item);
         action = controller.getAction(ImViewerControl.RGB_MODEL);
-        item = new JRadioButtonMenuItem();
+        item = new JCheckBoxMenuItem();
         item.setAction(action);
         item.setSelected(cm.equals(ImViewer.RGB_MODEL) || 
                         cm.equals(ImViewer.HSB_MODEL));

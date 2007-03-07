@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,6 +42,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import layout.TableLayout;
 
 
 //Third-party libraries
@@ -166,26 +170,18 @@ class GraphicsPane
     private JPanel buildGraphicsPane()
     {
     	 JPanel p = new JPanel();
-         p.setLayout(new GridBagLayout());
-         GridBagConstraints gbc = new GridBagConstraints();
-         gbc.anchor = GridBagConstraints.WEST;
-         gbc.fill = GridBagConstraints.BOTH;
-         gbc.gridx = 0;
-         gbc.gridy = 0;
-         gbc.weightx = 8;
-         p.add(codomainSlider, gbc);
-         gbc.gridx = 1;
-         gbc.weightx = 60;
-         gbc.fill = GridBagConstraints.BOTH;
-         gbc.anchor = GridBagConstraints.EAST;
-         gbc.insets = new Insets(0, 0, 0, 0);
-         p.add(uiDelegate, gbc);
-         gbc.gridy = 1;
-         gbc.fill = GridBagConstraints.HORIZONTAL;
-         p.add(domainSlider, gbc);
-         gbc.gridy = 2;
-         gbc.gridx = 1;
-         p.add(preview, gbc);
+    	 int knobWidth = domainSlider.getKnobWidth();
+    	 int knobHeight = domainSlider.getKnobHeight();
+    	 int width = codomainSlider.getPreferredSize().width;
+    	 double size[][] =
+         {{width, knobWidth/2, TableLayout.FILL, knobWidth/2},  // Columns
+          {knobHeight/2, TableLayout.FILL, knobHeight/2, knobHeight+2, 
+        	 TableLayout.PREFERRED}}; // Rows
+    	 p.setLayout(new TableLayout(size));
+    	 p.add(codomainSlider, "0, 0, 0, 2");
+    	 p.add(uiDelegate, "2, 1");
+    	 p.add(domainSlider, "1, 3, 3, 3");
+    	 p.add(preview, "0, 4, 3, 4");
          return p;
     }
     

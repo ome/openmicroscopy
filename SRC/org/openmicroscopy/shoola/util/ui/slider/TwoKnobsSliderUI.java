@@ -69,9 +69,6 @@ class TwoKnobsSliderUI
     /** Space added to paint the label. */
     static final int            BUFFER = 1;
     
-    /** The default color of a knob. */
-    private static final Color  KNOB_COLOR = new Color(54,131,210,255);
-    
     /** The starting color of the gradient used in the track. */
     private static final Color 	TRACK_GRADIENT_START = 
     									new Color(76, 76, 76, 255);
@@ -104,12 +101,6 @@ class TwoKnobsSliderUI
     /** The color the track. */
     private Color                   shadowColor;
     
-    /** The color of the end knob. */
-    private Color                   endKnobColor;
-    
-    /** The color of the start knob. */
-    private Color                   startKnobColor;
-    
     /** The color of the font. */
     private Color                   fontColor;
     
@@ -123,8 +114,6 @@ class TwoKnobsSliderUI
         tickRect = new Rectangle();
         labelRect = new Rectangle();
         shadowColor = UIManager.getColor("Slider.shadow");
-        endKnobColor = KNOB_COLOR;
-        startKnobColor = KNOB_COLOR;
         fontColor = LINE_COLOR;
     }
 
@@ -379,10 +368,10 @@ class TwoKnobsSliderUI
 				trackRect.height-12, trackRect.height/3, trackRect.height/3);
 	
 		//Draw the knobs
-        g2D.drawImage(knobImage, l-TwoKnobsSlider.KNOB_WIDTH/2, 1, 
-        		TwoKnobsSlider.KNOB_WIDTH, TwoKnobsSlider.KNOB_HEIGHT, null);
-        g2D.drawImage(knobImage, r-TwoKnobsSlider.KNOB_WIDTH/2, 1,
-        		TwoKnobsSlider.KNOB_WIDTH, TwoKnobsSlider.KNOB_HEIGHT, null);
+		int w  = component.getKnobWidth();
+		int h = component.getKnobHeight();
+		g2D.drawImage(knobImage, l-w/2, 1, w, h, null);
+        g2D.drawImage(knobImage, r-w/2, 1, w, h, null);
      }
     
     /**
@@ -410,13 +399,11 @@ class TwoKnobsSliderUI
                 trackRect.height, trackRect.width/3, trackRect.width/3);
 
 		//Draw the knobs
-        g2D.setColor(startKnobColor);
-        g2D.drawImage(knobImage, x, up, TwoKnobsSlider.KNOB_WIDTH, 
-        		TwoKnobsSlider.KNOB_HEIGHT, null);
+        //g2D.setColor(startKnobColor);
+		g2D.drawImage(knobImage, x, up, w, h, null);
      
-        g2D.setColor(endKnobColor);
-        g2D.drawImage(knobImage,x, down, TwoKnobsSlider.KNOB_WIDTH, 
-        		TwoKnobsSlider.KNOB_HEIGHT, null);
+        //g2D.setColor(endKnobColor);
+        g2D.drawImage(knobImage, x, down, w, h, null);
      }
     
     /**
@@ -432,13 +419,15 @@ class TwoKnobsSliderUI
         int h = component.getKnobHeight();
         int fontWidth = 
             fontMetrics.stringWidth(model.render(model.getMaximum()));
-        int x = fontWidth/2;
+        int x = 0;
         if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
-            x += w;
+        	x = fontWidth/2;
+            //x += w; //06-03
             if( model.isPaintEndLabels() )
             	trackRect.setBounds(x, EXTRA, size.width-2*x, h);
             else
-            	trackRect.setBounds(w/2, EXTRA, size.width-2*w, h);
+            	//trackRect.setBounds(w/2, EXTRA, size.width-2*w, h);
+            	trackRect.setBounds(w/2, EXTRA, size.width-w, h);
             	
             if (model.isPaintTicks())
                 tickRect = new Rectangle(trackRect.x,
@@ -451,10 +440,11 @@ class TwoKnobsSliderUI
         } else {
             int y = fontMetrics.getHeight()/2+h;
             if( model.isPaintEndLabels())
-            	trackRect.setBounds(x+w-EXTRA, y, w+2*EXTRA, size.height-2*y);
+            	trackRect.setBounds(w/2, y, w+2*EXTRA, size.height-2*y);
             else
-            	trackRect.setBounds(x+w-EXTRA, h/2, w+2*EXTRA, 
-                                    size.height-h-h/2);
+            	//trackRect.setBounds(x+w-EXTRA, h/2, w+2*EXTRA, 
+                //                    size.height-h-h/2);
+            	trackRect.setBounds(w/2, 0, w+2*EXTRA, size.height-h);
             if (model.isPaintTicks()) 
                 tickRect = new Rectangle(trackRect.x+trackRect.width,
                                         trackRect.y-h, trackRect.width,
@@ -483,25 +473,25 @@ class TwoKnobsSliderUI
     }
     
     /**
-     * Sets the color of the end knob.
+     * Returns the width of the image knob.
      * 
-     * @param c The color to set.
+     * @return See above.
      */
-    void setEndKnobColor(Color c)
-    { 
-        if (c == null) return;
-        endKnobColor = c;
+    int getKnobWidth()
+    {
+    	if (knobImage == null) return 16;
+    	return knobImage.getWidth(null);
     }
     
     /**
-     * Sets the color of the start knob.
+     * Returns the height of the image knob.
      * 
-     * @param c The color to set.
+     * @return See above.
      */
-    void setStartKnobColor(Color c)
-    { 
-        if (c == null) return;
-        startKnobColor = c;
+    int getKnobHeight()
+    {
+    	if (knobImage == null) return 16;
+    	return knobImage.getHeight(null);
     }
     
     /**
