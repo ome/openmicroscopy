@@ -45,15 +45,17 @@
 		</fail>
 	</target>
 
-	<target name="compile" depends="icegen,slice" unless="skip.ice">
+	<target name="generate" depends="lifecycle.generate,icegen,slice"/>
+
+	<target name="compile" depends="generate" unless="skip.ice">
 	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.compile"/>
 	</target>
 
-	<target name="test" depends="slice-init" unless="skip.ice">
+	<target name="test" depends="compile" unless="skip.ice">
 	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.test"/>
 	</target>
 
-	<target name="install" depends="lifecycle.install,standalone"/>
+	<target name="install" depends="test,lifecycle.install,standalone"/>
 
 	<target name="clean" depends="lifecycle.clean"/>
 		
