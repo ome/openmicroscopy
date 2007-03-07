@@ -14,6 +14,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 /**
  * A Splash window.
  *  <p>
@@ -36,7 +38,12 @@ import java.net.*;
  * @author  Werner Randelshofer
  * @version 2.2.1 2006-05-27 Abort when splash image can not be loaded.
  */
-public class SplashWindow extends Window {
+public class SplashWindow extends JFrame {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     /**
      * The current instance of the splash window.
      * (Singleton design pattern).
@@ -68,11 +75,15 @@ public class SplashWindow extends Window {
      * @param parent the parent of the window.
      * @param image the splash image.
      */
-    private SplashWindow(Frame parent, Image image) {
-        super(parent);
+    private SplashWindow(Frame parent, Image image, boolean clickable) {
+
         this.image = image;
         
-
+        //toFront();
+        setResizable(false);
+        setUndecorated(true);
+        setTitle(Main.TITLE);
+        setIconImage(getImageIcon(Main.ICON).getImage());
         // Load the image
         MediaTracker mt = new MediaTracker(this);
         mt.addImage(image,0);
@@ -105,21 +116,24 @@ public class SplashWindow extends Window {
         // Users shall be able to close the splash window by
         // clicking on its display area. This mouse listener
         // listens for mouse clicks and disposes the splash window.
-        MouseAdapter disposeOnClick = new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                // Note: To avoid that method splash hangs, we
-                // must set paintCalled to true and call notifyAll.
-                // This is necessary because the mouse click may
-                // occur before the contents of the window
-                // has been painted.
-                synchronized(SplashWindow.this) {
-                    SplashWindow.this.paintCalled = true;
-                    SplashWindow.this.notifyAll();
+        if (clickable == true)
+        {
+            MouseAdapter disposeOnClick = new MouseAdapter() {
+                public void mouseClicked(MouseEvent evt) {
+                    // Note: To avoid that method splash hangs, we
+                    // must set paintCalled to true and call notifyAll.
+                    // This is necessary because the mouse click may
+                    // occur before the contents of the window
+                    // has been painted.
+                    synchronized(this) {
+                        paintCalled = true;
+                        notifyAll();
+                    }
+                    dispose();
                 }
-                dispose();
-            }
-        };
-        addMouseListener(disposeOnClick);
+            };
+            addMouseListener(disposeOnClick);
+        }
     }
     
     /**
@@ -154,13 +168,13 @@ public class SplashWindow extends Window {
      */
     public static void splash(Image image) {
         if (instance == null && image != null) {
-            Frame f = new Frame();
+           JFrame f = new JFrame();
             
             // Create the splash image
-            instance = new SplashWindow(f, image);
+            instance = new SplashWindow(f, image, false);
             
             // Show the window.
-            instance.show();
+            instance.setVisible(true);
             
             // Note: To make sure the user gets a chance to see the
             // splash window we wait until its paint method has been
@@ -192,7 +206,8 @@ public class SplashWindow extends Window {
      */
     public static void disposeSplash() {
         if (instance != null) {
-            instance.getOwner().dispose();
+            instance.setVisible(false);
+            instance.dispose();
             instance = null;
         }
     }
@@ -203,11 +218,19 @@ public class SplashWindow extends Window {
      */
     public static void invokeMain(String className, String[] args) {
         try {
-            Class.forName(className)
+           Class.forName(className)
             .getMethod("main", new Class[] {String[].class})
             .invoke(null, new Object[] {args});
         } catch (Exception e) {
             new DebugMessenger(null, "Error Dialog", true, e);
         }
+    }
+    
+    private ImageIcon getImageIcon(String path)
+    {
+        java.net.URL imgURL = Main.class.getResource(path);
+        if (imgURL != null) { return new ImageIcon(imgURL); } 
+        else { System.err.println("Couldn't find icon: " + imgURL); }
+        return null;
     }
 }

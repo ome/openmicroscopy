@@ -103,6 +103,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
     ImportDialog(JFrame owner, String title, boolean modal, OMEROMetadataStore store)
     {
+        super(owner);
         this.store = store;
         
         if (store != null)
@@ -170,7 +171,7 @@ public class ImportDialog extends JDialog implements ActionListener
         
         archiveImage = addCheckBox(this, "Also archive the original image file(s)", c);
         archiveImage.setSelected(false);
-        archiveImage.setVisible(false);
+        archiveImage.setVisible(true);
         
         cancelBtn = addButton(this, "Cancel", c, 1, 1, 1.0f, null);
         importBtn = addButton(this, "Add", c, 2, 1, 1.0f, null);

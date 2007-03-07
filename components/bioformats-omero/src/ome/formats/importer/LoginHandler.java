@@ -13,14 +13,18 @@
 
 package ome.formats.importer;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.prefs.Preferences;
 
 import javax.ejb.EJBAccessException;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStore;
+import ome.formats.importer.util.Actions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,8 +40,11 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class LoginHandler
+public class LoginHandler implements PropertyChangeListener
 {
+    
+    public volatile JFrame      f;
+    
     private boolean            center;
     
     private String             username;
@@ -48,7 +55,7 @@ public class LoginHandler
 
     private String             server;
 
-    private Main         viewer;
+    private Main               viewer;
 
     private static Log         log       = LogFactory
                                                  .getLog(LoginHandler.class);
@@ -57,93 +64,143 @@ public class LoginHandler
                                                  .userNodeForPackage(LoginHandler.class);
 
     private OMEROMetadataStore store;
+    
+    public LoginDialog         dialog;
+    
+    public LoginFrame          frame;
 
-    LoginHandler(Main viewer, boolean center)
+    private boolean modal;
+    
+
+    LoginHandler(Main viewer, boolean modal, boolean center)
     {
+        this.viewer = viewer;
         this.center = center;
-        tryLogin(viewer);
-        viewer.setVisible(true);
+        this.modal = modal;
+        
+        viewer.enableMenus(false);
+        boolean cancelled = displayLoginDialog(viewer, modal);
+        
+        if (modal == true && cancelled == true)
+        {
+            loginCancelled();
+        }
+        
+        if (modal == true && cancelled == false)
+        {
+            tryLogin();
+        }
+        
     }
 
-    public void tryLogin(Main v)
+    public void tryLogin()
     {
-        this.viewer = v;
-        viewer.enableMenus(false);
-
-        // Display the initial login dialog
-        boolean cancelled = displayLoginDialog(viewer);
-        if (cancelled == true) 
-            {
-                viewer.loggedIn = false;
-                viewer.enableMenus(true);
-                return;
-            }
-                
-        viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
-        "Trying to connect.");
-        try
+        new Thread()
         {
-            if (!isValidLogin())
+            public void run()
             {
-                viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
-                        "Incorrect username/password. Server login failed, please try to "
+                SplashWindow.disposeSplash();
+                viewer.setVisible(true);
+
+                if (!modal)
+                {
+                    username = frame.username;
+                    password = frame.password;
+                    server = frame.currentServer;
+                    port = frame.port;
+                    frame.updateServerList(server);                    
+                } else
+                {
+                    username = dialog.username;
+                    password = dialog.password;
+                    server = dialog.currentServer;
+                    port = dialog.port;
+                    dialog.updateServerList(server);                    
+                }
+
+
+                userPrefs.put("username", username);
+                // userPrefs.put("password", password); // save the password
+                userPrefs.put("server", server);
+                userPrefs.put("port", port);
+
+                viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
+                "Trying to connect to " + server);
+                viewer.statusBar.setProgress(true, -1, "connecting....");
+                try
+                {
+                    if (!isValidLogin())
+                    {
+                        viewer.statusBar.setProgress(false, 0, "");
+                        viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
+                                "Incorrect username/password. Server login failed, please try to "
                                 + "log in again.");
 
-                JOptionPane.showMessageDialog(viewer,
-                        "Incorrect username/password. Server login \nfailed, please "
+                        JOptionPane.showMessageDialog(viewer,
+                                "Incorrect username/password. Server login \nfailed, please "
                                 + "try to log in again.");
-                viewer.appendToOutput("> Login failed. Try to relog.\n");
-                viewer.enableMenus(true);
-                viewer.loggedIn = false;
-                return;
-            }
-        } catch (Exception e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
+                        viewer.appendToOutput("> Login failed. Try to relog.\n");
+                        viewer.enableMenus(true);
+                        viewer.loggedIn = false;
+                        return;
+                    }
+                } catch (Exception e)
+                {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    log.info(sw);
 
-            viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
-                    "Server connection failure. Please try to login again.");
+                    viewer.statusBar.setProgress(false, 0, "");
+                    viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
+                    "Server connection to " + server +" failed. " +
+                            "Please try again.");
 
-            JOptionPane
+                    JOptionPane
                     .showMessageDialog(
                             viewer,
-                            "The application failed to log in. The server " 
-                            + "\nhostname or port may be wrong or the server "
-                            + "\nmay be offline.\n\nPlease try again.");
-            viewer.appendToOutput("> Login failed. Try to relog.\n");
-            viewer.enableMenus(true);
-            viewer.loggedIn = false;
-            return;
-        }
+                            "\nThe application failed to log in. The hostname may be wrong or " +
+                            "\nthe server may be offline." +
+                            "\n\nPlease try again.");
+                    viewer.appendToOutput("> Login failed. Try to relog.\n");
+                    viewer.enableMenus(true);
+                    viewer.loggedIn = false;
+                    return;
+                }
 
-        viewer.appendToOutput("> Login Successful.\n");
-        viewer.enableMenus(true);
-        viewer.setImportEnabled(true);
-        viewer.loggedIn = true;
-        viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                "Server connected.");
+                viewer.statusBar.setProgress(false, 0, "");
+                viewer.appendToOutput("> Login Successful.\n");
+                viewer.enableMenus(true);
+                viewer.setImportEnabled(true);
+                viewer.loggedIn = true;
+                viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
+                "Connected to " + server);
 
+            }
+        }.start();
     }
 
-    private boolean displayLoginDialog(Main viewer)
+    void loginCancelled() {
+        viewer.loggedIn = false;
+        viewer.enableMenus(true);
+        SplashWindow.disposeSplash();
+        viewer.setVisible(true);
+    }
+    
+    private boolean displayLoginDialog(Main viewer, boolean modal)
     {
-        LoginDialog dialog = new LoginDialog(viewer, "Login", true, center);
-        if (dialog.cancelled == true) return true;
+        if (modal == true)
+        {
+            dialog = new LoginDialog(viewer, viewer, "Login", modal, center);
+            dialog.setAlwaysOnTop(true);
+            if (dialog.cancelled == true) return true;
+        } else {
 
-        username = dialog.username;
-        password = dialog.password;
-        server = dialog.currentServer;
-        port = dialog.port;
-        dialog.updateServerList(server);
+            frame = new LoginFrame(viewer, viewer, "Login", modal, center);
+            frame.addPropertyChangeListener(this);    
+            
+        }
 
-        userPrefs.put("username", username);
-        // userPrefs.put("password", password); // save the password
-        userPrefs.put("server", server);
-        userPrefs.put("port", port);
-        
         return false;
     }
 
@@ -165,5 +222,18 @@ public class LoginHandler
     public OMEROMetadataStore getMetadataStore()
     {
         return store;
+    }
+
+    public void propertyChange(PropertyChangeEvent ev)
+    {
+        String prop = ev.getPropertyName();
+        if (prop.equals(Actions.LOGIN))
+        {
+            tryLogin();
+        }
+        if (prop.equals(Actions.LOGIN_CANCELLED))
+        {
+            loginCancelled();
+        }
     }
 }

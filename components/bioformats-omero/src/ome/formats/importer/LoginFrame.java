@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -50,7 +51,7 @@ import ome.formats.importer.util.GuiCommonElements;
 
 import layout.TableLayout;
 
-public class LoginDialog extends JDialog 
+public class LoginFrame extends JFrame 
     implements ActionListener, PropertyChangeListener
 {
     /**
@@ -109,17 +110,18 @@ public class LoginDialog extends JDialog
     public boolean          cancelled = true;
 
     private Preferences    userPrefs = Preferences
-                                             .userNodeForPackage(LoginDialog.class);
+                                             .userNodeForPackage(LoginFrame.class);
     
-    LoginDialog (JFrame owner, JFrame main, String title, boolean modal, boolean center)
+    LoginFrame (JFrame owner, JFrame main, String title, boolean modal, boolean center)
     {   
-        super(owner);
         this.main = main;
         
         ImageIcon top = getImageIcon(Main.splash);
               
+        setTitle("Login");
+        setIconImage(getImageIcon(Main.ICON).getImage());
+
         setLocation(200, 200);
-        setModal(modal);
         setResizable(false);
         toFront();
         setSize(new Dimension(loginWidth, loginHeight));
@@ -422,7 +424,7 @@ public class LoginDialog extends JDialog
         }
         
         JFrame f = new JFrame();   
-        new LoginDialog(f, f, "", false, true); 
+        new LoginFrame(f, f, "", false, true); 
         f.setVisible(false);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();

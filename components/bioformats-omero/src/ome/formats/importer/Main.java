@@ -24,8 +24,8 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -53,9 +52,11 @@ public class Main extends JFrame implements ActionListener, WindowListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
+    public static String        versionText = "Beta 1.1";
+    
     /** The data of the last release date. */
     public static String        releaseDate      
-         = "2006-12-20 11:36:25 +0000 (Wed, 20 Dec 2006)";
+         = "2007-02-28 11:02:43 +0000 (Wed, 28 Feb 2007";
 
     /** The repository revision. */
     public static String        revision  = "$LastChangedRevision$";
@@ -64,6 +65,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public static String        revisionDate     
          = "$LastChangedDate$";
 
+    
     
     /** Logger for this class. */
     @SuppressWarnings("unused")
@@ -77,6 +79,8 @@ public class Main extends JFrame implements ActionListener, WindowListener
      
     private final static int width = 980;
     private final static int height = 580;
+
+    public static final String ICON = "gfx/icon.png";
     
     public LoginHandler        loginHandler;
 
@@ -120,6 +124,9 @@ public class Main extends JFrame implements ActionListener, WindowListener
         pack();
         setLocationRelativeTo(null);
         addWindowListener(this);
+        
+        setTitle(TITLE);
+        setIconImage(getImageIcon(Main.ICON).getImage());
 
         // menu bar
         JMenuBar menubar = new JMenuBar();
@@ -233,7 +240,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
         
-        loginHandler = new LoginHandler(this, false);
+        loginHandler = new LoginHandler(this, false, false);
     }
 
     /**
@@ -303,7 +310,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
                 loginHandler = null;
             } else 
             {                
-                loginHandler = new LoginHandler(this, true);
+                loginHandler = new LoginHandler(this, true, true);
                 //store = loginHandler.getMetadataStore();
                 //loginHandler.tryLogin(this);
                 //store = loginHandler.getMetadataStore();
@@ -429,6 +436,15 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public void windowIconified(WindowEvent e)  {}
     public void windowOpened(WindowEvent e) {}
 
+    
+    private ImageIcon getImageIcon(String path)
+    {
+        java.net.URL imgURL = Main.class.getResource(path);
+        if (imgURL != null) { return new ImageIcon(imgURL); } 
+        else { System.err.println("Couldn't find icon: " + imgURL); }
+        return null;
+    }
+    
     /**
      * @param args Start up the application, display the main window and the
      *            login dialog.
@@ -457,25 +473,37 @@ public class Main extends JFrame implements ActionListener, WindowListener
             try {
                 UIManager.setLookAndFeel(laf);
             } catch (Exception e) 
-            { System.err.println(laf + " not supported."); }
+           { System.err.println(laf + " not supported."); }
         }
-        
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    new Main();
-                }
-            });
-        } catch (InterruptedException e) {
-            // Ignore: If this exception occurs, we return too early, which
-            // makes the splash window go away too early.
-            // Nothing to worry about. Maybe we should write a log message.
-        } catch (InvocationTargetException e) {
-            // Error: Startup has failed badly. 
-            // We can not continue running our application.
-            InternalError error = new InternalError();
-            error.initCause(e);
-            throw error;
+        new Main();
+    }
+
+    public static Main returnMain(String[] args)
+    {  
+
+        String laf = UIManager.getSystemLookAndFeelClassName() ;
+
+        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+
+        if (laf.equals("apple.laf.AquaLookAndFeel"))
+        {
+            System.setProperty("Quaqua.design", "panther");
+            
+            try {
+                UIManager.setLookAndFeel(
+                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
+                );
+           } catch (Exception e) { System.err.println(laf + " not supported.");}
+        } else {
+            try {
+                UIManager.setLookAndFeel(laf);
+            } catch (Exception e) 
+           { System.err.println(laf + " not supported."); }
         }
+        return new Main();
     }
 }

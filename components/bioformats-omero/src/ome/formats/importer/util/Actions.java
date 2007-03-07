@@ -13,4 +13,6 @@ public class Actions
     public static final String ADD = "add";
     public static final String REMOVE = "remove";
     public static final String IMPORT = "import";
+    public static final String LOGIN = "login";
+    public static final String LOGIN_CANCELLED = "login_cancelled";
 }

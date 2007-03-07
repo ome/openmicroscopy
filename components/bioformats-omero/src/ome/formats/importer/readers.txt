@@ -59,7 +59,7 @@ loci.formats.in.MetamorphReader   # stk [TIFF]
 #loci.formats.in.GelReader         # gel [TIFF]
 
 # TIFF-based readers with slow isThisType
-#loci.formats.in.LeicaReader       # lei, tif [TIFF+companion; slow isThisType]
+loci.formats.in.LeicaReader       # lei, tif [TIFF+companion; slow isThisType]
 #loci.formats.in.NikonReader       # nef, tif [TIFF; slow isThisType]
 #loci.formats.in.FluoviewReader    # tif [TIFF; slow isThisType]
 #loci.formats.in.AndorReader       # tif [TIFF; slow isThisType]

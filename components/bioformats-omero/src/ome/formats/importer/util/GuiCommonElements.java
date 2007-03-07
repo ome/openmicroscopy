@@ -34,6 +34,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -53,6 +54,8 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
+
+import ome.formats.importer.Main;
 
 import layout.TableLayout;
 
@@ -419,5 +422,13 @@ public class GuiCommonElements
                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), 
                 JComponent.WHEN_FOCUSED);
 
+    }
+    
+    public ImageIcon getImageIcon(String path)
+    {
+        java.net.URL imgURL = Main.class.getResource(path);
+        if (imgURL != null) { return new ImageIcon(imgURL); } 
+        else { System.err.println("Couldn't find icon: " + imgURL); }
+        return null;
     }
 }

@@ -20,8 +20,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.Border;
 
-import ome.model.containers.Dataset;
-
 // Third-party libraries
 
 /**
@@ -108,18 +106,18 @@ public class StatusBar extends JPanel
     public void setProgress(boolean visible, int perc, String string)
     {
         progressBar.setVisible(visible);
+        progressBar.setFont(getFont().deriveFont(11.0f));
+        progressBar.setPreferredSize(new Dimension(220, 20));
         if (perc < 0) progressBar.setIndeterminate(true);
         else
         {
-            progressBar.setFont(getFont().deriveFont(11.0f));
-            progressBar.setPreferredSize(new Dimension(220, 20));
-            progressBar.setStringPainted(true);
+            progressBar.setIndeterminate(false);
             progressBar.setValue(perc);
-            if (string.length() > 0) 
-            {
-                progressBar.setStringPainted(true);
-                progressBar.setString("   " + string + "   ");
-            }
+        }
+        if (string.length() > 0) 
+        {
+            progressBar.setStringPainted(true);
+            progressBar.setString("   " + string + "   ");
         }
     }
 
