@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import loci.formats.FormatReader;
-import loci.formats.ReaderWrapper;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
@@ -42,6 +41,7 @@ public class ImportFixture
 
     Log                        log = LogFactory.getLog(ImportFixture.class);
 
+    @SuppressWarnings("unused")
     private String             user, pass, host, port;
 
     private OMEROMetadataStore store;

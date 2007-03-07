@@ -43,6 +43,7 @@ public class ImportHandler
     
     private FileQueueTable  qTable;
 
+    @SuppressWarnings("unused")
     private static Log      log = LogFactory.getLog(ImportHandler.class);
     
     private OMEROMetadataStore store;

@@ -18,6 +18,10 @@ import javax.swing.table.*;
  * @author Elliott Hughes
  */
 public class ETable extends JTable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private static final Color MAC_FOCUSED_SELECTED_CELL_HORIZONTAL_LINE_COLOR = new Color(0x7daaea);
     private static final Color MAC_UNFOCUSED_SELECTED_CELL_HORIZONTAL_LINE_COLOR = new Color(0xe0e0e0);
     

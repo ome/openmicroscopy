@@ -29,8 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
-import loci.formats.ReaderWrapper;
-
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.model.containers.Dataset;
@@ -299,6 +297,7 @@ public class FileQueueHandler
     {
         //viewer.appendToDebugLn(path);
         String[] fields = path.split("/");
+        @SuppressWarnings("unused")
         Integer length = fields.length;
         //viewer.appendToDebugLn(length.toString());
        

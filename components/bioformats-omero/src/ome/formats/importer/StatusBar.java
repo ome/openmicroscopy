@@ -30,16 +30,18 @@ import javax.swing.border.Border;
  * @author <br>
  *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
-<<<<<<< .working
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1167 $ $Date:
-=======
- * @version 2.2 <small> (<b>Internal version:</b> $Revision: 2986 $ $Date:
->>>>>>> .merge-right.r1194
- *          2005-11-25 10:31:00 +0000 (Fri, 25 Nov 2005) $) </small>
- * @since OME2.2
+ * @author <br>
+ *         Brian Loranger &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:brian.loranger@lifesci.dundee.ac.uk"> 
+ *         brian.loranger@lifesci.dundee.ac.uk</a> *         
  */
 public class StatusBar extends JPanel
 {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     /** The bar notifying the user for the data retrieval progress. */
     private JProgressBar progressBar;

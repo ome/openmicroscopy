@@ -63,6 +63,7 @@ import ome.model.containers.Project;
 @SuppressWarnings("serial")
 public class ImportDialog extends JDialog implements ActionListener
 {
+    @SuppressWarnings("unused")
     private JTextPane instructions;
     
     private JRadioButton fullPathButton;
@@ -390,6 +391,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         JPanel namedPanel = new JPanel();
         GridBagLayout gridbag = new GridBagLayout();
+        @SuppressWarnings("unused")
         GridBagConstraints g = new GridBagConstraints();
         
         namedPanel.setLayout(gridbag);
@@ -412,6 +414,7 @@ public class ImportDialog extends JDialog implements ActionListener
 
         JPanel panel = new JPanel();
         GridBagLayout gridbag = new GridBagLayout();
+        @SuppressWarnings("unused")
         GridBagConstraints g = new GridBagConstraints();
         panel.setLayout(gridbag);
         

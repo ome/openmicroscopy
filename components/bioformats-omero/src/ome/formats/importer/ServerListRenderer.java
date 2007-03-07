@@ -58,7 +58,12 @@ class ServerListRenderer
 	implements ListCellRenderer 
 {
 
-	/** Border colour of the cell when the icon is selected. */
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /** Border colour of the cell when the icon is selected. */
 	private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
 	
 	/** Border colour of the cell when the icon is not selected. */

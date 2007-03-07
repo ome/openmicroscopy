@@ -48,7 +48,8 @@ public class Plane2D {
   private int sizeX;
 
   /** Number of pixels along the <i>Y</i>-axis. */
-  private int sizeY;
+  @SuppressWarnings("unused")
+private int sizeY;
 
   /**
    * Default constructor.

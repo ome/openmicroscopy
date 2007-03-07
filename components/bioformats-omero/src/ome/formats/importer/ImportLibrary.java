@@ -24,9 +24,6 @@ import java.nio.ShortBuffer;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.formats.IFormatReader;
-import loci.formats.ReaderWrapper;
-import loci.formats.TiffTools;
 import loci.formats.in.Bits;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
