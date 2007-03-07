@@ -8,6 +8,9 @@ package ome.services.icy;
 
 import java.util.Scanner;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.system.OmeroContext;
 
 /**
@@ -16,6 +19,8 @@ import ome.system.OmeroContext;
  * @author josh
  */
 public class Main {
+    
+    private final static Log log = LogFactory.getLog("OMERO.blitz");
     
     /**
      * 
@@ -31,13 +36,17 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(root, "OMERO.destroy") {
             @Override
             public void run() {
+                log.info("Running shutdown hook.");
                 OmeroContext.getInstance("OMERO.ice").close();
+                log.info("Shutdown hook finished.");
             }
         });
         
         Runnable r = new Runnable() {
             public void run() {
+                log.info("Creating OmeroContext.");
                 OmeroContext ctx = OmeroContext.getInstance("OMERO.ice");
+                log.info("OMERO.blitz now accepting connections.");
             }
         };
 
@@ -53,6 +62,8 @@ public class Main {
     }
 
     protected static void waitForQuit() {
+        log.info("Waiting for user input:");
+        log.info("Enter q[uit] to stop server or use Ctrl-C");
         Scanner s = new Scanner(System.in);
         while (true) {
             String line = s.nextLine().toLowerCase();
