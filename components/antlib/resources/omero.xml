@@ -54,17 +54,28 @@
 
 		<jar update="true"
 		  destfile="${artifact.final.name}">
-			<fileset dir="${basedir}">
-				<include name="etc/local.properties"/>
-				<include name="etc/local.properties.example"/>
-				<include name="etc/omero.properties"/>
-				<include name="etc/hibernate.properties"/>
+			<fileset dir="${basedir}/etc">
+				<include name="local.properties"/>
+				<include name="local.properties.example"/>
+				<include name="omero.properties"/>
+				<include name="hibernate.properties"/>
 			</fileset>
 			<fileset dir="${temp.dir}">
 				<include name="omero-ds.xml"/>
 			</fileset>
 		</jar>
 		<delete dir="${temp.dir}"/>
+
+		<jar update="true" 
+		  destfile="blitz/blitz-${omero.version}.jar">
+			<fileset dir="${basedir}/etc">
+				<include name="local.properties"/>
+				<include name="local.properties.example"/>
+				<include name="omero.properties"/>
+				<include name="hibernate.properties"/>
+			</fileset>
+		</jar>
+
 	</target>
 
 	<target name="setup-db" depends="classpath-define">
