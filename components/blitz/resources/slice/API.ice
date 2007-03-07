@@ -94,7 +94,7 @@ module omero {
       nonmutating omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
       idempotent void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
       nonmutating int getBitDeptch(omero::model::PixelsType type) throws ServerError;
-      nonmutating omero::RObject getEnumeration(string enumClass) throws ServerError;
+      nonmutating omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
       nonmutating IObjectList getAllEnumerations(string enumClass) throws ServerError;
     };
 
@@ -104,7 +104,7 @@ module omero {
 
     interface IPojos
     {
-      nonmutating IObjectList loadContainerHierarchies(string rootType, Ice::LongSeq rootIds, omero::sys::ParamMap options) throws ServerError;
+      nonmutating IObjectList loadContainerHierarchy(string rootType, Ice::LongSeq rootIds, omero::sys::ParamMap options) throws ServerError;
       nonmutating IObjectList findContainerHierarchies(string rootType, Ice::LongSeq imageIds, omero::sys::ParamMap options) throws ServerError;
       nonmutating AnnotationMap findAnnotations(string rootType, Ice::LongSeq rootIds, Ice::LongSeq annotatorIds, omero::sys::ParamMap options) throws ServerError;
       nonmutating IObjectList findCGCPaths(Ice::LongSeq imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
