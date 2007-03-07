@@ -202,15 +202,34 @@ class BrowserUI
 	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
 		Rectangle viewRect = getViewport().getViewRect();
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
 		if (!viewRect.contains(bounds)) {
-			JScrollBar hBar = getHorizontalScrollBar();
-			JScrollBar vBar = getVerticalScrollBar();
-			if (viewRect.x-bounds.x < 0 && blockIncrement)
+			
+			int deltaX = viewRect.x-bounds.x;
+			int deltaY = viewRect.y-bounds.y;
+			if (deltaX < 0 && blockIncrement)
 				hBar.setValue(hBar.getValue()+hBar.getBlockIncrement());
-			else hBar.setValue(bounds.x);
-			if (viewRect.y-bounds.y < 0 && blockIncrement)
+			else {
+				int w = viewRect.width-bounds.width;
+				if (w < 0) w = -w;
+				hBar.setValue(bounds.x-w/2);
+			}
+			if (deltaY  < 0 && blockIncrement)
 				vBar.setValue(vBar.getValue()+vBar.getBlockIncrement());
-			else vBar.setValue(bounds.y);
+			else {
+				int h = viewRect.height-bounds.height;
+				if (h < 0) h = -h;
+				vBar.setValue(bounds.y-h/2);
+			}
+        } else {
+        	//lens not centered
+        	int w = viewRect.width-bounds.width;
+			if (w < 0) w = -w;
+			hBar.setValue(bounds.x-w/2);
+			int h = viewRect.height-bounds.height;
+			if (h < 0) h = -h;
+			vBar.setValue(bounds.y-h/2);
         }
 	}
 	

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
-import java.util.prefs.Preferences;
 
 //Third-party libraries
 
@@ -119,39 +118,6 @@ public class LoginServiceImpl
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
             
-            Preferences userPrefs = 
-                    Preferences.userNodeForPackage(LoginConfig.class);
-            String servers = null;
-            servers = userPrefs.get(LoginConfig.OMERO_SERVER, servers);
-            String listOfServers = null;
-            if (servers == null) {
-                listOfServers = uc.getHostName();
-            } else {
-                String[] l = 
-                        servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
-                if (l == null || l.length == 0) {
-                    listOfServers = uc.getHostName();
-                } else {
-                    int n = l.length-1;
-                    String name = uc.getHostName();
-                    String host;
-                    String list = "";
-                    for (int index = 0; index < l.length; index++) {
-                        host = l[index].trim();
-                        list.trim();
-                        if (!name.equals(host)) {
-                            list += host;
-                            if (index != n) 
-                                list += LoginConfig.SERVER_NAME_SEPARATOR;
-                        }
-                    }
-                    listOfServers = uc.getHostName()+
-                        LoginConfig.SERVER_NAME_SEPARATOR+list;
-                }
-            }
-            if (listOfServers != null)
-                userPrefs.put(LoginConfig.OMERO_SERVER, listOfServers);
-
             return true;
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();
@@ -233,8 +199,9 @@ public class LoginServiceImpl
         if (!succeeded) {
             UserNotifier un = container.getRegistry().getUserNotifier();
             un.notifyError("Login Failure", 
-                           "Failed to log onto OMERO. Please check your user "+
-                           "name and/or password or try again later.");
+                           "Failed to log onto OMERO.\n" +
+                           "Please check your user name\n"+
+                           "and/or password or try again later.");
         }
         state = IDLE;
         return succeeded;

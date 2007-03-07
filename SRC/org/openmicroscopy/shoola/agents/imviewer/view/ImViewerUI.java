@@ -389,12 +389,6 @@ class ImViewerUI
                         cm.equals(ImViewer.HSB_MODEL));
         colorModelGroup.add(item);
         menu.add(item);
-        //action = controller.getAction(ImViewerControl.HSB_MODEL);
-        //item = new JRadioButtonMenuItem();
-        //item.setAction(action);
-        //item.setSelected(cm.equals(ImViewer.HSB_MODEL));
-        //colorModelGroup.add(item);
-        //menu.add(item);
         return menu;
     }
     
@@ -772,12 +766,11 @@ class ImViewerUI
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
                 UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
-                //lens.setZoomWindowLocation(getX()+getWidth(), getY());
             }
-
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getOriginalImage());
-            lens.setLensPreferredColour();
+            //lens.setLensPreferredColour();
+            if (!firstTimeLensShown) scrollLens();
         }
         lens.setVisible(b);
         repaint();

@@ -94,9 +94,9 @@ class LoginOMEDSManager
      */
     private void handleServerSelection()
     {
-        view.server.setEditable(
-                (view.server.getSelectedItem().equals(
-                        LoginConfig.DEFAULT_SERVER)));
+        //view.server.setEditable(
+        //        (view.server.getSelectedItem().equals(
+         //               LoginConfig.DEFAULT_SERVER)));
     }
     
 	/** 

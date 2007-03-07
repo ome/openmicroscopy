@@ -79,28 +79,7 @@ class OmeroDataServiceImpl
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway            gateway;
     
-    /**
-     * Creates a <code>File</code> from the passed array of bytes.
-     * 
-     * @param name		The name of the file.
-     * @param values    The array of bytes.
-     * @return See above.
-     * @throws DSAccessException If we cannot create the file.
-     */
-    private File createFile(String name, byte[] values) 
-        throws DSAccessException
-    {
-    	File f = new File(name);
-    	try {
-    		FileOutputStream stream = new FileOutputStream(f);
-    		stream.write(values);
-    		stream.close();
-    		return f;
-    	} catch (Exception e) {
-    		f.delete();
-    		throw new DSAccessException("Cannot create the file", e);
-    	}
-    }
+
     
     /**
      * Helper method to return the user's details.
@@ -830,9 +809,17 @@ class OmeroDataServiceImpl
 	public Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+
+		return gateway.getArchivedFiles(path, pixelsID);
+		/*
 		Map<OriginalFile, byte[]> map = gateway.getOriginalFiles(pixelsID);
 		Map<Integer, List> result = new HashMap<Integer, List>();
 		if (map == null || map.size() == 0) return result;
+		
+		
+		
+		
+		
 		Iterator i = map.keySet().iterator();
 		OriginalFile of;
 		List<String> l = new ArrayList<String>();
@@ -846,6 +833,7 @@ class OmeroDataServiceImpl
 		}
 		result.put(new Integer(map.size()), l);
 		return result;
+		*/
 	}
 
     /**

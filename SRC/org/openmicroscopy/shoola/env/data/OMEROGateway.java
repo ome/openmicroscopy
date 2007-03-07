@@ -25,8 +25,12 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1078,13 +1082,14 @@ class OMEROGateway
     /**
      * Retrieves the archived files if any for the specified set of pixels.
      * 
-     * @param pixelsID The ID of the pixels set.
+     * @param path		The location where to save the files.
+     * @param pixelsID 	The ID of the pixels set.
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMEDS service. 
      */
-    Map<OriginalFile, byte[]> getOriginalFiles(long pixelsID) 
+    Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
     	throws DSOutOfServiceException, DSAccessException
     {
     	IQuery service = getIQueryService();
@@ -1093,22 +1098,47 @@ class OMEROGateway
                 "ofile.pixelsFileMaps as pfm left join pfm.child as child " +
                 "where child.id = :id",
                 new Parameters().addId(new Long(pixelsID)));
-    	if (files == null || files.size() == 0) return null;
+    	Map<Integer, List> result = new HashMap<Integer, List>();
+    	if (files == null || files.size() == 0) return result;
     	RawFileStore store = getRawFileService();
     	Iterator i = files.iterator();
     	OriginalFile of;
-    	Map<OriginalFile, byte[]> map = 
-    					new HashMap<OriginalFile, byte[]>(files.size());
+    	
+    	int size;	
+    	FileOutputStream stream;
+    	int offset = 0;
+    	int inc = 256000;
+    	File f;
+    	List<String> notDownloaded = new ArrayList<String>();
     	while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			store.setFileId(of.getId()); 
+			f = new File(path+of.getName());
 			try {
-				map.put(of, store.read(0, of.getSize()));
-			} catch (Exception e) {
-				//Original file exists but not been archived.
+				stream = new FileOutputStream(f);
+				size = of.getSize().intValue();
+				try {
+					try {
+						for (offset = 0; (offset+inc) < size;) {
+							stream.write(store.read(offset, inc));
+							offset += inc;
+						}	
+					} finally {
+						stream.write(store.read(offset, size-offset)); 
+					}
+				} catch (Exception e) {
+					stream.close();
+					f.delete();
+					notDownloaded.add(of.getName());
+				}
+			} catch (IOException e) {
+				f.delete();
+				notDownloaded.add(of.getName());
+				throw new DSAccessException("Cannot create the file", e);
 			}
 		}
-        return map;
+    	result.put(files.size(), notDownloaded);
+        return result;
 	}
     
 }

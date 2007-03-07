@@ -329,13 +329,14 @@ public class LensComponent
 	}
 	
 	/**
-	 * Set the colour of the lens border to a the colour specified. 
+	 * Sets the colour of the lens border to the colour specified. 
 	 * 
-	 * @param col new colour of the lens.
+	 * @param color The color to set.
 	 */
-	public void setLensColour(Color col)
+	public void setLensColour(Color color)
 	{
-		lens.setLensColour(col);
+		if (color == null) return;
+		lens.setLensColour(color);
 	}
 	
 	/**

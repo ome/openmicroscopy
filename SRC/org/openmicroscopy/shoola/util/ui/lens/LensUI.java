@@ -172,7 +172,6 @@ public class LensUI
 	/** lens popupMenu. */
 	private JPopupMenu			menu;
     
-    
     /**
      * Sets the pick border area when the lens resizes and also change the size
      * of the crosshairs. 
@@ -226,7 +225,7 @@ public class LensUI
 	}
 
 	/**
-	 * Set the prefered size of the lens to (w, h) and if needed shrink the 
+	 * Sets the prefered size of the lens to (w, h) and if needed shrink the 
 	 * lens crosshairs. 
 	 * 
 	 * @param w see above. 
@@ -264,7 +263,7 @@ public class LensUI
 	}
 
 	/**
-	 * Set the image zoom factor. The image in the viewer has been zoomed by
+	 * Sets the image zoom factor. The image in the viewer has been zoomed by
 	 * this number.
 	 */
 	void setImageZoomFactor()
@@ -275,8 +274,8 @@ public class LensUI
 	}
 	
 	/**
-	 * Returns <code>true</code> if the mouse event at x,y is inside the border.
-	 *  
+	 * Returns <code>true</code> if the mouse event at the passed lcoation
+	 * (x,y) is inside the border, <code>false</code> otherwise.
 	 * +--------+
 	 * | Border |
 	 * | +----+ |
@@ -301,7 +300,7 @@ public class LensUI
 	}
 	
 	/**
-	 * Show or hide the cross hairs in the lens. 
+	 * Shows or hides the cross hairs in the lens. 
 	 * 
 	 * @param show see above.
 	 */
@@ -456,13 +455,11 @@ public class LensUI
 	 */
 	void setLensColour(Color c)
 	{
-		if (c != null) 
-		{
-			this.lensBorderColour = c;
-			this.lensCrossHairColour = c;
-			invalidate();
-			repaint();
-		}
+		if (c == null) return;
+		this.lensBorderColour = c;
+		this.lensCrossHairColour = c;
+		invalidate();
+		repaint();
 	}
 	
     /**
