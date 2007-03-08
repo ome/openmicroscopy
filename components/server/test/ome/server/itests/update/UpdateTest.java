@@ -45,8 +45,8 @@ public class UpdateTest extends AbstractUpdateTest {
 
         assertTrue("channel ids differ", equalCollections(p.getChannels(),
                 check.getChannels()));
-        assertTrue("acq ctx differ", p.getAcquisitionContext().getId().equals(
-                check.getAcquisitionContext().getId()));
+        assertTrue("pixels dims differ", p.getPixelsDimensions().getId().equals(
+                check.getPixelsDimensions().getId()));
     }
 
     @Test

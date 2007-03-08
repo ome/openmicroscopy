@@ -7,6 +7,7 @@
 
 package ome.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
@@ -177,6 +178,7 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
      * @see ome.api.RawFileStore#setFileId(long)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = true)
     public void setFileId(long fileId) {
         if (id == null || id.longValue() != fileId) {
             id = new Long(fileId);
@@ -194,6 +196,25 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
             file = iQuery.get(OriginalFile.class, id);
             buffer = ioService.getFileBuffer(file);
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see ome.api.RawFileStore#exists()
+     */
+    @RolesAllowed("user")
+    public boolean exists() {
+    	File f = new File(file.getPath());
+    	if (f.exists())
+    	{
+    		if (f.canRead() && f.canWrite())
+    			return true;
+    		else
+    			throw new ResourceError("Cannot read or write to file.");
+    	}
+    	else
+    	{
+    		return false;
+    	}
     }
 
     @RolesAllowed("user")

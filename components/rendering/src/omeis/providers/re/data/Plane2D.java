@@ -8,7 +8,6 @@
 package omeis.providers.re.data;
 
 // Java imports
-import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
 // Third-party libraries

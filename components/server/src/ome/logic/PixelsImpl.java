@@ -79,8 +79,11 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
                 + "left outer join fetch p.pixelsType as pt "
                 + "left outer join fetch p.channels as c "
                 + "left outer join fetch p.pixelsDimensions "
+                + "left outer join fetch c.colorComponent "
                 + "left outer join fetch c.logicalChannel as lc "
-                + "left outer join fetch c.statsInfo where p.id = :id",
+                + "left outer join fetch c.statsInfo "
+                + "left outer join fetch lc.photometricInterpretation "
+                + "where p.id = :id",
                 new Parameters().addId(pixId));
         return p;
     }

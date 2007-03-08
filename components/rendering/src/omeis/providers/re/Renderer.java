@@ -90,7 +90,7 @@ public class Renderer {
     public static final String MODEL_RGB = "rgb";
 
     /** Identifies the type used to store photometric interpretation values. */
-    public static final String PHOTOMETRIC_RGB = "RGB";
+    public static final String PHOTOMETRIC_MONOCHROME = "Monochrome";
 
     static final String RGB_COLOR_DOMAIN = "RGB";
 

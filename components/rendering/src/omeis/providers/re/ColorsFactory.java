@@ -13,7 +13,9 @@ package omeis.providers.re;
 
 // Application-internal dependencies
 import ome.model.core.Channel;
+import ome.model.core.LogicalChannel;
 import ome.model.display.Color;
+import ome.model.enums.PhotometricInterpretation;
 
 /**
  * Utility class to determine the color usually associated to a specified
@@ -106,25 +108,50 @@ public class ColorsFactory {
 
     /**
      * Determines the color usually associated to the specified emission
-     * wavelength.
+     * wavelength or explicitly defined for a particular channel.
      * 
-     * @param channel
-     *            The channel to determine the color for.
+     * @param channel The channel to determine the color for.
      * @return A color.
      */
     private static Color getColor(Channel channel) {
-        Integer emWave = channel.getLogicalChannel().getEmissionWave();
-        if (emWave == null) {
-            return null;
+    	LogicalChannel lc = channel.getLogicalChannel();
+        Integer emWave = lc.getEmissionWave();
+        Color explicitColor = channel.getColorComponent();
+        String pi = null;
+        if (lc.getPhotometricInterpretation() != null)
+        	pi = lc.getPhotometricInterpretation().getValue();
+        
+        // Handle the pixel data as a set of monochrome (greyscale) channels.
+        if (pi != null && pi.equals(Renderer.PHOTOMETRIC_MONOCHROME))
+        {
+            if (emWave == null)
+            {
+                return null;
+            }
+            if (rangeBlue(emWave))
+            {
+                return newBlueColor();
+            }
+            if (rangeGreen(emWave))
+            {
+                return newGreenColor();
+            }
+            if (rangeRed(emWave))
+            {
+                return newRedColor();
+            }
         }
-        if (rangeBlue(emWave)) {
-            return newBlueColor();
-        }
-        if (rangeGreen(emWave)) {
-            return newGreenColor();
-        }
-        if (rangeRed(emWave)) {
-            return newRedColor();
+        else if (explicitColor != null)
+        {
+        	// We've got a color image of some type that has explicitly
+        	// specified which channel is Red, Green, Blue or some other wacky
+        	// color.
+        	Color c = new Color();
+        	c.setRed(explicitColor.getRed());
+        	c.setGreen(explicitColor.getGreen());
+        	c.setBlue(explicitColor.getBlue());
+        	c.setAlpha(explicitColor.getAlpha());
+        	return c;
         }
         return null;
     }
@@ -146,11 +173,11 @@ public class ColorsFactory {
         }
         switch (index) {
             case 0:
-                return newBlueColor();
+            	return newRedColor();
             case 1:
-                return newGreenColor();
+            	return newBlueColor();
             default:
-                return newRedColor();
+            	return newGreenColor();
         }
     }
 

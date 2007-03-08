@@ -24,6 +24,17 @@ public interface RawFileStore extends StatefulServiceInterface {
      *            an {@link ome.model.core.OriginalFile} id.
      */
     public void setFileId(long fileId);
+    
+    /**
+     * Checks to see if a raw file exists with the file ID that the service was
+     * initialized with.
+     * @return <code>true</code> if there is an accessible file within the
+     * original file repository with the correct ID. Otherwise
+     * <code>false</code>.
+     * @throws ResourceError if there is a problem accessing the file due to
+     * permissions errors within the repository or any other I/O error.
+     */
+    public boolean exists();
 
     /**
      * Delegates to {@link ome.io.nio.FileBuffer}

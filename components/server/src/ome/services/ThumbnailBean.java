@@ -415,14 +415,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private void sanityCheckThumbnailSizes(int sizeX, int sizeY) {
         // Sanity checks
-        if (sizeX > pixels.getSizeX()) {
-            throw new ApiUsageException("sizeX > pixels.sizeX");
-        }
         if (sizeX < 0) {
             throw new ApiUsageException("sizeX is negative");
-        }
-        if (sizeY > pixels.getSizeY()) {
-            throw new ApiUsageException("sizeY > pixels.sizeY");
         }
         if (sizeY < 0) {
             throw new ApiUsageException("sizeY is negative");

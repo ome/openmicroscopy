@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ome.model.acquisition.AcquisitionContext;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -37,7 +36,7 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
         example = ObjectFactory.createPixelGraph(null);
         assertNotNull("need to start off with acq. ctx", example
-                .getAcquisitionContext());
+                .getPixelsDimensions());
         example = iUpdate.saveAndReturnObject(example);
 
         p = ObjectFactory.createPixelGraph(example);
@@ -106,16 +105,16 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
     public void testUnloadedEntityFieldOnDetachedPixels() throws Exception {
         // PREPARE -------------------------------------------------
         // TODO or bool flag?
-        AcquisitionContext ac = new AcquisitionContext(example
-                .getAcquisitionContext().getId());
-        ac.unload();
+        PixelsDimensions dims = new PixelsDimensions(example
+                .getPixelsDimensions().getId());
+        dims.unload();
 
-        p.setAcquisitionContext(ac);
+        p.setPixelsDimensions(dims);
         p = iUpdate.saveAndReturnObject(p);
 
         // TEST -------------------------------------------------
-        assertNotNull("should be back.", p.getAcquisitionContext());
-        assertTrue("and it should have a valid id.", p.getAcquisitionContext()
+        assertNotNull("should be back.", p.getPixelsDimensions());
+        assertTrue("and it should have a valid id.", p.getPixelsDimensions()
                 .getId().longValue() > 0);
     }
 
