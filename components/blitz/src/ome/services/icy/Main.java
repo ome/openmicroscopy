@@ -44,7 +44,7 @@ public class Main {
         
         Runnable r = new Runnable() {
             public void run() {
-                log.info("Creating OmeroContext.");
+                log.info("Creating OmeroContext. Please wait...");
                 OmeroContext ctx = OmeroContext.getInstance("OMERO.ice");
                 log.info("OMERO.blitz now accepting connections.");
             }
