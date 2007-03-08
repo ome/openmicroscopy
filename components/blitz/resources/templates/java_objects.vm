@@ -186,6 +186,7 @@ public class ${pojo.declarationName}I
 	$pojo.qualifiedDeclarationName target = new ${pojo.qualifiedDeclarationName}();
         mapper.store(this, target);
         if (!this.loaded) {
+          target.setId( id == null ? null : id._null ? null : id.val );
           target.unload();
         } else {
 ###
