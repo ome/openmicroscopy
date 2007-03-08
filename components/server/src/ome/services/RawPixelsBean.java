@@ -69,6 +69,8 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
     private static final long serialVersionUID = -6640632220587930165L;
 
     private Long id;
+    
+    private transient Long reset = null;
 
     private transient Pixels pixelsInstance;
 
@@ -101,10 +103,11 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
     @PostActivate
     public void create() {
         super.create();
+        // no longer trying to recreate here because of transactional 
+        // difficulties. instead we'll set reset, and let errorIfNotLoaded()
+        // do the work.
         if (id != null) {
-            long reset = id.longValue();
-            id = null;
-            setPixelsId(reset);
+            reset = id;
         }
     }
 
@@ -131,6 +134,7 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
             id = new Long(pixelsId);
             pixelsInstance = null;
             buffer = null;
+            reset = null;
 
             pixelsInstance = metadataService.retrievePixDescription(id);
             buffer = dataService.getPixelBuffer(pixelsInstance);
@@ -142,7 +146,13 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
         return new SimpleEventContext(getSecuritySystem().getEventContext());
     };
 
-    private void errorIfNotLoaded() {
+    private synchronized void errorIfNotLoaded() {
+        // If we're not loaded because of passivation, then load.
+        if (reset != null) {
+            id = null;
+            setPixelsId(reset.longValue());
+            reset = null;
+        }
         if (buffer == null) {
             throw new ApiUsageException(
                     "This RawPixelsStore has not been properly initialized.\n"
