@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import Ice.RouterPrx;
 
+@Test( groups = {"integration", "blitz"} )
 public abstract class IceTest extends TestCase {
 
     protected OmeroContext context;
