@@ -12,17 +12,28 @@ namespace OMERO {
   }
   
   client::~client(){
+    if (sf) {
+      try {
+	sf->close();
+      } catch (const Ice::Exception& ex) {
+	cerr << "Caught Ice exception while closing session." << endl;
+	cerr << ex << endl;
+      }
+    }
     if (ic) {
-      ic->destroy();
+      try {
+	ic->destroy();
+      } catch (const Ice::Exception& ex) {
+	cerr << "Caught Ice exception while destroying communicator." << endl;
+	cerr << ex << endl;
+      }	
     }
   }
   
-  
   void client::createSession() {
     
-    string username = ic->getProperties()->getProperty("OMERO.username");
-    string password = ic->getProperties()->getProperty("OMERO.password");
-    cout << "Logging in as " << username << endl;
+    string username = getProperty("OMERO.username");
+    string password = getProperty("OMERO.password");
 
     Ice::RouterPrx prx = ic->getDefaultRouter();
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
