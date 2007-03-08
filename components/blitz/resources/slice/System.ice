@@ -34,7 +34,7 @@ module omero {
 
     class Filter
     {
-      bool      unique;
+      bool          unique;
       omero::RLong  ownerId;
       omero::RLong  groupId;
       omero::RInt   offset;
@@ -42,13 +42,12 @@ module omero {
     };
 
     enum Type { 
-      longType, intType, boolType, floatType, 
-      doubleType, stringType, classType, objectType 
+      longType, intType, boolType, floatType,
+      doubleType, stringType, classType, objectType, timeType
     };
 
     class QueryParam
     {
- 
       string name;
       Type   paramType;
       long   longVal;
@@ -58,6 +57,8 @@ module omero {
       double doubleVal;
       string stringVal;
       string classVal;
+      omero::RObject objectVal;
+      omero::RTime timeVal;
     };
 
     ["java:type:java.util.HashMap"] 
@@ -65,8 +66,8 @@ module omero {
 
     class Parameters 
     {
-      Filter f;
-      ParamMap p;
+      Filter filt;
+      ParamMap map;
     };
 
     class Roles

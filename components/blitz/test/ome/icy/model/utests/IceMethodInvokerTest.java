@@ -36,6 +36,8 @@ import omero.model.ExperimenterI;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.romio.XY;
+import omero.sys.QueryParam;
+import omero.sys.Type;
 import omero.util.IceMapper;
 
 import org.jmock.Mock;
@@ -350,12 +352,25 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
 
         IPojos p;
 
+        QueryParam qp = new QueryParam();
+        qp.name = "foo";
+        qp.paramType = Type.boolType;
+        qp.boolVal = true;
+        Map<String, QueryParam> paramMap = new HashMap<String, QueryParam>();
+        paramMap.put(qp.name, qp);
+        
         init(IPojos.class, "getUserDetails");
         method().will(returnValue(new HashMap()));
-        Object rv = invoke(new HashSet(Arrays.asList("u1","u2")), new PojoOptions().map());
+        Object rv = invoke(Arrays.asList("u1","u2"), paramMap);
         ServantHelper.throwIfNecessary(rv);
         Map map = (Map)rv;
         assertNotNull(map);
+        
+        init(IPojos.class, "loadContainerHierarchy");
+        method().will(returnValue(new HashSet()));
+        rv = invoke("Project", Arrays.asList(1L),paramMap);
+        ServantHelper.throwIfNecessary(rv);
+        
     
     }
     

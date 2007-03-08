@@ -111,14 +111,14 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getQueryService(null);
         String str = "select e from Experimenter e where e.omeName = :name";
         Parameters p = new Parameters();
-        p.f = new Filter();
-        p.f.limit = new JInt(1);
-        p.p = new HashMap();
+        p.filt = new Filter();
+        p.filt.limit = new JInt(1);
+        p.map = new HashMap();
         QueryParam name = new QueryParam();
         name.name = "name";
         name.stringVal = "root";
         name.paramType = Type.stringType;
-        p.p.put("name", name);
+        p.map.put("name", name);
         List<ExperimenterI> l = qu.findAllByQuery(str,p);
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));

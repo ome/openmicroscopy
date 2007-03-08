@@ -32,6 +32,9 @@ module omero {
     sequence<omero::model::Image> ImageList;
 
     ["java:type:java.util.ArrayList"] 
+    sequence<long> LongList;
+
+    ["java:type:java.util.ArrayList"] 
     sequence<string> StringSet;
 
     interface IAdmin
@@ -104,14 +107,14 @@ module omero {
 
     interface IPojos
     {
-      nonmutating IObjectList loadContainerHierarchy(string rootType, Ice::LongSeq rootIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating IObjectList findContainerHierarchies(string rootType, Ice::LongSeq imageIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating AnnotationMap findAnnotations(string rootType, Ice::LongSeq rootIds, Ice::LongSeq annotatorIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating IObjectList findCGCPaths(Ice::LongSeq imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
-      nonmutating ImageList findImages(string rootType, Ice::LongSeq rootIds, omero::sys::ParamMap options) throws ServerError;
+      nonmutating IObjectList loadContainerHierarchy(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+      nonmutating IObjectList findContainerHierarchies(string rootType, omero::api::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
+      nonmutating AnnotationMap findAnnotations(string rootType, omero::api::LongList rootIds, omero::api::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
+      nonmutating IObjectList findCGCPaths(omero::api::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
+      nonmutating ImageList findImages(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
       nonmutating ImageList findUserImages(omero::sys::ParamMap options) throws ServerError;
       nonmutating UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
-      nonmutating CountMap getCollectionCount(string type, string property, Ice::LongSeq ids, omero::sys::ParamMap options) throws ServerError;
+      nonmutating CountMap getCollectionCount(string type, string property, omero::api::LongList ids, omero::sys::ParamMap options) throws ServerError;
       nonmutating IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
       omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
       IObjectList createDataObjects(IObjectList dataObjects, omero::sys::ParamMap options) throws ServerError;
