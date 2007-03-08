@@ -73,10 +73,10 @@ class FindResultsPane
     private static final String     EMPTY = "Empty";
     
     /** Reference to the parent of this frame. */
-    private FindPane                model;
+    private FindPane                					model;
 
     /** The map where the tree nodes are stored. */
-    private Map                     identityMap;
+    private Map<ImageDisplay, DefaultMutableTreeNode>	identityMap;
     
     /** Initializes the component. */
     private void initialize()
@@ -145,7 +145,7 @@ class FindResultsPane
     {
         DefaultMutableTreeNode dtn;
         DefaultTreeModel tm = (DefaultTreeModel) getModel();
-        dtn = (DefaultMutableTreeNode) identityMap.get(node);
+        dtn = identityMap.get(node);
         if (dtn == null) { // create a tree node
             dtn = new DefaultMutableTreeNode(node);
             identityMap.put(node, dtn);
@@ -211,7 +211,7 @@ class FindResultsPane
         if (nodes == null) 
             throw new IllegalArgumentException("No nodes to display.");
         this.model = model;
-        identityMap = new HashMap();
+        identityMap = new HashMap<ImageDisplay, DefaultMutableTreeNode>();
         initialize();
         buildTree(nodes);
     }

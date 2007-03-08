@@ -43,6 +43,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -59,10 +60,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
+import layout.TableLayout;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The UI delegate for the {@link FindPane}.
@@ -138,13 +143,21 @@ class FindPaneUI
     /** The owner of this UI delegate. */
     private FindPane            model;
     
+    /** The scrollPane hosting the results. */
+    private JScrollPane			scrollPane;
+    
+    /** The results message. */
+    private JLabel				resultMessage;
+    
     /** Initializes the UI components composing the display. */
     private void initComponents()
     {
     	findNextButton = new JButton(new FindNextAction(model));
     	findPreviousButton = new JButton(new FindPreviousAction(model));
         titleLabel = new JLabel(FIND_MSG+DEFAULT);
+        scrollPane = new JScrollPane();
         treeHolderPanel = new JPanel();
+        resultMessage = new JLabel(RESULTS_MSG);
         treeHolderPanel.setBorder(new TitledBorder(RESULTS_MSG));
         //treeHolderPanel.setLayout(new BorderLayout()); 
         caseSensitive = new JCheckBox("Match case");
@@ -230,7 +243,6 @@ class FindPaneUI
         FilterMenuAction action = new FilterMenuAction(model);
         JButton button = new JButton(action);
         button.addMouseListener(action);
-        //UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
@@ -247,13 +259,12 @@ class FindPaneUI
         controlsBar.setRollover(true);
         controlsBar.setFloatable(false);
         JButton button = new JButton(new ClearAction(model));
-        //UIUtilities.unifiedButtonLookAndFeel(button);
         controlsBar.add(button);
         return controlsBar;
     }
     
-    /** Builds and lays out the GUI. */
-    private void buildGUI()
+    /** Builds and lays out the UI if the clipBoard is horizontal. */
+    private void buildGUIHorizontalSplit()
     {
     	GridBagConstraints c = new GridBagConstraints();      
 
@@ -318,6 +329,89 @@ class FindPaneUI
         add(treeHolderPanel, c);
     }
     
+    /** Builds and lays out the UI if the clipBoard is vertical. */
+    private void buildGUIVerticalSplit()
+    {
+    	JPanel rowOne = new JPanel();
+    	rowOne.add(createLeftMenuBar());
+    	rowOne.add(Box.createRigidArea(H_SPACE_DIM));
+    	rowOne.add(new JLabel("Find: "));
+    	rowOne.add(findArea);
+        
+        JPanel rowTwo = new JPanel();
+        rowTwo.add(createRightMenuBar());
+        rowTwo.add(caseSensitive);
+        
+        JPanel rows = new JPanel();
+        rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
+        rows.add(UIUtilities.buildComponentPanel(rowOne));
+        rows.add(rowTwo);
+        //title label is the search results status bar which will be displayed 
+        // at top of findpane 
+        titleLabel = new JLabel(FIND_MSG+DEFAULT);
+        
+//      controls panel is the container for all search criterion and title
+        // label. It will use a gridbaglayout and have title followed by
+        // separator then find text box and match case on the same line follow-
+        // -ing it. 
+        /*
+        controlsPanel.setLayout(new GridBagLayout());
+        
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;
+        c.gridy = 1;
+        controlsPanel.add(titleLabel, c);
+        
+        c.gridy = 2;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(5, 0, 5, 10);
+        
+        controlsPanel.add(new JSeparator(), c);
+        c.ipadx = 0; // reset ipadx = 20;
+        
+        c.gridy = 3;
+        controlsPanel.add(UIUtilities.buildComponentPanel(rows), c);
+        c.insets = new Insets(0, 0, 0, 0);
+        // the find pane itself has a gridbag layout and will incorporate the
+        // controlsPanel on the left and search results (treeHolder) on the 
+        // right
+         * */
+        /*
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();  
+        // griddy constraints
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.1;
+        c.weighty = 0.5;
+        c.gridy = 0;
+        add(controlsPanel, c);
+        c.gridy = 1;
+        // add tree panel
+        c.weightx = 100;
+        c.fill = GridBagConstraints.BOTH;
+        add(treeHolderPanel, c);
+        */
+        double[][] tl = {{TableLayout.FILL}, 
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
+        		TableLayout.PREFERRED, 5, 300}}; 
+        setLayout(new TableLayout(tl));
+        add(UIUtilities.buildComponentPanel(titleLabel), "0, 0, f, t");
+        add(new JSeparator(), "0, 1, f, t");
+        add(UIUtilities.buildComponentPanel(rows), "0, 2, f, t");
+        add(UIUtilities.buildComponentPanel(resultMessage), "0, 3, f, t");
+        add(new JSeparator(), "0, 4, f, t");
+        add(scrollPane, "0, 5");
+    }
+    
+    /** Builds and lays out the GUI. */
+    private void buildGUI()
+    {
+    	if (ClipBoard.HORIZONTAL_SPLIT) buildGUIHorizontalSplit();
+    	else buildGUIVerticalSplit();
+    }
+    
     /**
      * Displays a message depending on the value of the specified parameter.
      * 
@@ -331,6 +425,7 @@ class FindPaneUI
             if (n > 1) s += n+OCCURENCES_MSG;
             else s += n+OCCURENCE_MSG;
         }
+        resultMessage.setText(s);
         treeHolderPanel.setBorder(new TitledBorder(s));
     }
     
@@ -383,9 +478,13 @@ class FindPaneUI
     	onFoundOccurences(results.size());
     	resultsPane = new FindResultsPane(model, results);
         setMessage(resultsPane.getSizeResults());
-        treeHolderPanel.removeAll();
-        treeHolderPanel.add(new JScrollPane(resultsPane), BorderLayout.CENTER);
-        treeHolderPanel.revalidate();
+       
+        scrollPane.getViewport().add(resultsPane);
+        if (ClipBoard.HORIZONTAL_SPLIT) {
+        	 treeHolderPanel.removeAll();
+             treeHolderPanel.add(scrollPane, BorderLayout.CENTER);
+             treeHolderPanel.revalidate();
+        }
     }
 
     /** Finds the next occurence. */

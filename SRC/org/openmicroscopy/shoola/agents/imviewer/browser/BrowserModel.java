@@ -28,9 +28,12 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import javax.swing.Icon;
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
@@ -56,6 +59,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class BrowserModel
 {
 
+	/** The title of the browser. */
+	private static final String TITLE = "View";
+	
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
     
@@ -73,9 +79,6 @@ class BrowserModel
     
     /** The zoom factor. */
     private double          zoomFactor;
-    
-    /** The title of the {@link Browser}. */
-    private String          title;
     
     /** Reference to the {@link ImViewer}. */
     private ImViewer        parent;
@@ -98,15 +101,13 @@ class BrowserModel
     /** 
      * Creates a new instance.
      * 
-     * @param title The title of the  {@link Browser}.
      * @param parent    The parent of this component.
      *                  Mustn't be <code>null</code>.
      */
-    BrowserModel(String title, ImViewer parent)
+    BrowserModel(ImViewer parent)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
         this.parent = parent;
-        this.title = title;
         unitBar = true;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
@@ -167,7 +168,18 @@ class BrowserModel
      * 
      * @return See above.
      */
-    String getTitle() { return title; }
+    String getTitle() { return TITLE; }
+    
+    /**
+     * Returns the icon of the {@link Browser}.
+     * 
+     * @return See above.
+     */
+    Icon getIcon()
+    { 
+    	IconManager icons = IconManager.getInstance();
+    	return icons.getIcon(IconManager.VIEWER); 
+    }
     
     /**
      * Creates the {@link #displayedImage}. The method should be invoked

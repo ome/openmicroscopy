@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -123,6 +125,13 @@ public interface Browser
     public String getTitle();
     
     /**
+     *  Returns the icon associated to the browser.
+     *  
+     * @return See above.
+     */
+    public Icon getIcon();
+    
+    /**
      * Sets the size of the components composing the display.
      * 
      * @param w The width to set.
@@ -198,5 +207,5 @@ public interface Browser
      * @param color The value to set.
      */
 	public void setBackgroundColor(Color color);
-	
+
 }

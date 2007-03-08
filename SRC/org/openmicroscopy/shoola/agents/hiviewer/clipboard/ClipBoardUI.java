@@ -147,8 +147,11 @@ class ClipBoardUI
         tabPane.setSelectedIndex(model.getPaneIndex());
         
         setViewportView(tabPane);
-        getViewport().setPreferredSize(
-        		new Dimension(getViewportBorderBounds().width, h+5));
+        Dimension d;
+        if (ClipBoard.HORIZONTAL_SPLIT)
+        	d = new Dimension(getViewportBorderBounds().width, h+5);
+        else d = new Dimension(5, getViewportBorderBounds().height);
+        getViewport().setPreferredSize(d);
     }
     
     /**

@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomFitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomOutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
@@ -150,8 +151,10 @@ class HiViewerWin
     private JSplitPane createSplitPane(JComponent browserUI,
                                         JComponent clipBoardUI)
     {
-        mainPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, browserUI, 
-                                    clipBoardUI);
+    	int orientation = JSplitPane.HORIZONTAL_SPLIT;
+    	if (ClipBoard.HORIZONTAL_SPLIT)
+    		orientation = JSplitPane.VERTICAL_SPLIT;
+        mainPane = new JSplitPane(orientation, browserUI, clipBoardUI);
         mainPane.setOneTouchExpandable(true);
         mainPane.setContinuousLayout(true);
         mainPane.setResizeWeight(1); //before we remove items.

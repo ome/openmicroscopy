@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard.info;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -70,22 +72,22 @@ class InfoPaneUI
     private static String   DEFAULT_MSG = "No information available";
     
     /** Reference to the Model. */
-    private InfoPane    model;
+    private InfoPane    			model;
     
     /** 
      * The panel hosting the image information if the edited object is an
      * image.
      */
-    private JPanel      contentPanel;
+    private JPanel      			contentPanel;
     
     /** The label presenting the edition context. */
-    private JLabel      titleLabel;
+    private JLabel      			titleLabel;
     
     /** The panel hosting the {@link #titleLabel} and a separator. */
-    private JPanel      titlePanel;
+    private JPanel      			titlePanel;
     
     /** The fields displaying the values. */
-    private Map			fields;
+    private Map<String, JTextField>	fields;
     
     /** Initializes the UI components. */
     private void initComponents()
@@ -108,6 +110,7 @@ class InfoPaneUI
     private JPanel buildContentPanel(Map details)
     {
         JPanel content = new JPanel();
+       
         content.setLayout(new GridBagLayout());
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
@@ -118,7 +121,10 @@ class InfoPaneUI
         JLabel label;
         JTextField area;
         String key, value;
-        fields = new HashMap(details.size());
+        fields = new HashMap<String, JTextField>(details.size());
+        FontMetrics fm = getFontMetrics(getFont());
+        int h = fm.getHeight();
+        Dimension d = new Dimension(60, h+4);
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
@@ -135,10 +141,15 @@ class InfoPaneUI
             label.setLabelFor(area);
             fields.put(key, area);
             c.gridx = 1;
+            area.setPreferredSize(d);
+            //c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 0.5;//1.0;
+            content.add(area, c);  
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            content.add(area, c);  
+            content.add(new JLabel(), c); 
         }
         return content;
     }
@@ -156,9 +167,8 @@ class InfoPaneUI
     	JTextField field;
     	while (i.hasNext()) {
 			key = (String) i.next();
-			if (details != null)
-				text = (String) details.get(key);
-			field = ((JTextField) fields.get(key));
+			if (details != null) text = (String) details.get(key);
+			field = fields.get(key);
 			field.setText(text);
 		}
     }

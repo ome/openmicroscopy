@@ -76,7 +76,7 @@ class AnnotatorModel
 	 * The classification mode, either {@link Annotator#BULK_ANNOTATE_MODE} or
 	 * {@link Annotator#ANNOTATE_MODE}.
 	 */
-	private int					mode;
+	private int				mode;
 	
 	/** Holds one of the state flags defined by {@link Annotator}. */
 	private int				state;

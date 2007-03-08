@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 
 //Java imports
@@ -31,6 +30,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 
 /** 
  * Factory to create {@link Browser} objects.
@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
  */
 public class BrowserFactory
 {
- 
+
     /**
      * Creates a new {@link Browser}.
      * 
@@ -59,7 +59,7 @@ public class BrowserFactory
     public static Browser createBrowser(ImViewer parent)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
-        BrowserModel model = new BrowserModel("View Image", parent);
+        BrowserModel model = new BrowserModel(parent);
         BrowserComponent browser = new BrowserComponent(model);
         browser.initialize();
         return browser;

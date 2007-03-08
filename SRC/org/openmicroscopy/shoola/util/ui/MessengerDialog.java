@@ -376,7 +376,7 @@ public class MessengerDialog
         panel.add(emailArea, "1, 0, f, c");
 
         if (EMAIL_SUFFIX.length() != 0)
-            panel.add(new JLabel(EMAIL_SUFFIX), "2,0, l, c");
+            panel.add(new JLabel(EMAIL_SUFFIX), "2, 0, l, c");
 
 		return panel;
 	}

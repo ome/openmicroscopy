@@ -55,10 +55,10 @@ public class ClipBoardViewAction
 {
 
     /** The name of the action. */
-    public static final String NAME = "Show Clip Board";
+    public static final String NAME = "Show Working Area";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Display the clip board.";
+    private static final String DESCRIPTION = "Display the working area.";
     
     /** 
      * Sets the action enabled depending on the <code>Browser</code> state

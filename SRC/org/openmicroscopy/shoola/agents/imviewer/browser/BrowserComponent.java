@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 
 
@@ -200,6 +202,12 @@ class BrowserComponent
      */
     public String getTitle() { return model.getTitle(); }
 
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getIcon()
+     */
+    public Icon getIcon() { return model.getIcon(); }
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setComponentsSize(int, int)

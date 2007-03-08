@@ -50,6 +50,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 
 //Third-party libraries
 
@@ -509,10 +510,13 @@ class ImViewerUI
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
-        //tabbedPane =  new JTabbedPane();
-        Browser browser = model.getBrowser();
+    	Browser browser = model.getBrowser();
         browser.setComponentsSize(model.getMaxX(), model.getMaxY());
-        //tabbedPane.addTab(browser.getTitle(), browser.getUI());
+    	JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+    							JTabbedPane.WRAP_TAB_LAYOUT);
+    	tabs.setAlignmentX(LEFT_ALIGNMENT);
+    	tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+    	//if tabs auto scrolling issue to fix. Why??
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
@@ -770,7 +774,7 @@ class ImViewerUI
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getOriginalImage());
             //lens.setLensPreferredColour();
-            if (!firstTimeLensShown) scrollLens();
+            scrollLens();
         }
         lens.setVisible(b);
         repaint();

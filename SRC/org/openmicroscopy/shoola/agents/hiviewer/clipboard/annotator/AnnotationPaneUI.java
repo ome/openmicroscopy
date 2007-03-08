@@ -61,6 +61,7 @@ import layout.TableLayout;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.clipboard.ClipBoard;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
@@ -225,15 +226,27 @@ class AnnotationPaneUI
     private JPanel buildAnnotationPanel()
     {
         JPanel p = new JPanel();
-        double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
-				{0, 150} }; //rows
-		p.setLayout(new TableLayout(tl));
-		p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
-		JPanel empty = new JPanel();
-		empty.setOpaque(true);
-		p.add(empty, "1, 0, f, t");
-		p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");       
-		return p;
+        if (ClipBoard.HORIZONTAL_SPLIT) {
+        	double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
+    				{0, 150} }; //rows
+    		p.setLayout(new TableLayout(tl));
+    		p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
+    		JPanel empty = new JPanel();
+    		empty.setOpaque(true);
+    		p.add(empty, "1, 0, f, t");
+    		p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");    
+        } else {
+        	double[][] tl = {{TableLayout.PREFERRED}, //columns
+    				{150,  5, 150} }; //rows
+    		p.setLayout(new TableLayout(tl));
+    		p.add(new JScrollPane(annotationArea), "0, 0");
+    		JPanel empty = new JPanel();
+    		empty.setOpaque(true);
+    		p.add(empty, "0, 1");
+    		p.add(new JScrollPane(annotatedByList), "0, 2");  
+        }
+        
+        return p;
     }
     
     /**
