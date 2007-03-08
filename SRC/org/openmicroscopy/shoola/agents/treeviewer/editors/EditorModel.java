@@ -43,7 +43,6 @@ import javax.swing.JDialog;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.AnnotationLoader;
-import org.openmicroscopy.shoola.agents.treeviewer.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
@@ -791,13 +790,20 @@ class EditorModel
 	 */
 	boolean isThumbnailLoaded() { return thumbnailLoaded; }
 
-	void fireDownloadArchives(String directory)
+	/**
+	 * Returns the ID of the default set of pixels if the 
+	 * <code>DataObject</code> is an <code>Image</code>, returns <code>-1</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	long getPixelsID()
 	{
-		ImageData img = (ImageData) hierarchyObject;
-		long id = img.getDefaultPixels().getId();
-		state = Editor.LOADING_ARCHIVED;
-		currentLoader = new ArchivedFilesLoader(component, directory, id);
-		currentLoader.load();
+		if (hierarchyObject instanceof ImageData) {
+			ImageData img = (ImageData) hierarchyObject;
+			return img.getDefaultPixels().getId();
+		}
+		return -1;
 	}
     
 }

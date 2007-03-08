@@ -441,6 +441,7 @@ public class ScreenLogin
         int index;
         for (index = 0; index < l.length; index++)
         	listOfServers.add(l[index].trim());
+        	
         return listOfServers; 
 	}
 	
@@ -474,9 +475,11 @@ public class ScreenLogin
 		String name;
 		while (i.hasNext()) {
 			name = (String) i.next();
-			if (!name.equals(serverName)) servers.add(name);
+			if (!name.equals(serverName) && !name.equals(DEFAULT_SERVER)) 
+				servers.add(name);
 		}
-		if (serverName != null && serverName.length() != 0)
+		if (serverName != null && serverName.length() != 0 && 
+			!serverName.equals(DEFAULT_SERVER))
 			servers.add(serverName);
 		i = servers.iterator();
 		int n = servers.size()-1;

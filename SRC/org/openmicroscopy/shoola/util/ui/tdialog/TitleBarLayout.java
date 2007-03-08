@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.tdialog.TitleBarLayout
+ * org.openmicroscopy.shoola.util.ui.tdialog.TitleBarLayout
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.ui.tdialog;
+package org.openmicroscopy.shoola.util.ui.tdialog;
 
 
 
@@ -53,7 +53,7 @@ import java.awt.LayoutManager;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4724 $ $Date: 2007-01-17 08:46:48 +0000 (Wed, 17 Jan 2007) $)
  * </small>
  * @since OME2.2
  */

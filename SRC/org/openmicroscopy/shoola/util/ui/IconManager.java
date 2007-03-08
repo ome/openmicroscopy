@@ -146,11 +146,29 @@ public class IconManager
     /** ID of the <code>Download 48</code> icon. */
     public static final int DOWNLOAD_48 = 30;
     
+    /** ID of the <code>Minus</code> icon. */
+    public static final int MINUS = 31;
+    
+    /** ID of the <code>Minus over</code> icon. */
+    public static final int MINUS_OVER = 32;
+    
+    /** ID of the <code>Plus</code> icon. */
+    public static final int PLUS = 33;
+    
+    /** ID of the <code>Plus over</code> icon. */
+    public static final int PLUS_OVER = 34;
+    
+    /** ID of the <code>Cross</code> icon. */
+    public static final int CROSS = 35;
+    
+    /** ID of the <code>Cross over</code> icon. */
+    public static final int CROSS_OVER = 36;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 30;
+    private static int      MAX_ID = 36;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -189,6 +207,12 @@ public class IconManager
     	relPaths[ADD] = "nuvola_edit_add16.png";
     	relPaths[INFO_32] = "nuvola_messagebox_info32.png";
     	relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
+    	relPaths[MINUS] = "minus.png";
+    	relPaths[MINUS_OVER] = "minus_over.png";
+    	relPaths[PLUS] = "plus.png";
+    	relPaths[PLUS_OVER] = "plus_over.png";
+    	relPaths[CROSS] = "cross.png";
+    	relPaths[CROSS_OVER] = "cross_over.png";
     }
     
     /** 

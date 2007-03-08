@@ -496,5 +496,8 @@ public interface ImViewer
      * @param e The exception to handle.
      */
 	public void reload(Exception e);
+
+	/** Downloads the archived files. */
+	public void download();
     
 }

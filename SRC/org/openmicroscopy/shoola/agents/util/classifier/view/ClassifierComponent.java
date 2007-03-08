@@ -61,7 +61,7 @@ class ClassifierComponent
 	implements Classifier
 {
 
-	 /** The Model sub-component. */
+	/** The Model sub-component. */
     private ClassifierModel     model;
     
     /** The Controller sub-component. */

@@ -47,7 +47,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -173,6 +172,7 @@ public class UserManagerDialog
 	 */
 	private void fillList(Object[] data)
 	{
+		if (data == null) return;
 		DefaultListModel model = (DefaultListModel) users.getModel();
 		ExperimenterData d;
 		int index = 0;
@@ -291,14 +291,15 @@ public class UserManagerDialog
 				selectedIndex = index;
 				selectedGroup = g;
 			}
-			children = sorter.sortArray((Set) newMap.get(g));
+			children = sorter.sortArray(newMap.get(g));
 			orderedMap.put(g, children);
 			index++;
 		}
 		//sort by name
 		groups = new JComboBox(objects);
 		groups.setRenderer(new GroupsRenderer());
-		groups.setSelectedIndex(selectedIndex);
+		if (objects.length != 0)
+			groups.setSelectedIndex(selectedIndex);
 		
 		DefaultListModel model = new DefaultListModel();
 		users = new JList(model);
@@ -319,17 +320,16 @@ public class UserManagerDialog
  				{TableLayout.PREFERRED, 5,
 			 	TableLayout.PREFERRED, 150}}; //rows
 		JPanel content = new JPanel();
-		content.setBorder(BorderFactory.createEtchedBorder());
-		TableLayout layout = new TableLayout(tl);
-        content.setLayout(layout);
+		content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        content.setLayout(new TableLayout(tl));
 		//content.add(currentUser, "1, 0");
         JLabel label = UIUtilities.setTextFont("Groups");
-        label.setBorder(new EmptyBorder(5, 5, 5, 5));
+        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 0, l, c");
 		content.add(groups, "1, 0, f, c");
 		content.add(new JLabel(), "0, 1, 1, 1");
 		label = UIUtilities.setTextFont("Users");
-        label.setBorder(new EmptyBorder(5, 5, 5, 5));
+        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		content.add(label, "0, 2, l, c");
 		content.add(new JScrollPane(users), "1, 2, 1, 3");
 		return content;

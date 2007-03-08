@@ -33,7 +33,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
@@ -45,7 +44,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ClassifiedButton;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.DataObject;
 import pojos.ImageData;
 

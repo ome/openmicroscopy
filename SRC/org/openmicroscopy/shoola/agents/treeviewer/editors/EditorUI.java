@@ -397,7 +397,6 @@ class EditorUI
         c.setPreferredSize(pane.getViewport().getExtentSize());
         add(pane, BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
-        p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);
         add(p, BorderLayout.SOUTH);
     }

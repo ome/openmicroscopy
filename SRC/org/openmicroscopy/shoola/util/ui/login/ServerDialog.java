@@ -178,7 +178,8 @@ class ServerDialog
 		String oldValue = (String) model.getValueAt(n, 1);
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
-		model.removeRow(n);
+		table.removeRow(n);
+		//model.removeRow(n);
 		int m = model.getRowCount()-1;
 		String newValue = null;
 		if (m > -1 && table.getColumnCount() > 1) {
@@ -195,6 +196,7 @@ class ServerDialog
 	/** Adds a new server to the list. */
 	private void add()
 	{
+		table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		//First check if we already have
 		finishButton.setEnabled(true);
@@ -213,6 +215,7 @@ class ServerDialog
 			}
 		}
 		if (added) {
+			
 			//requesFocusOnEditedCell(m);
 			requestFocusInWindow();
 			return;
@@ -235,9 +238,10 @@ class ServerDialog
 		if (table.getColumnCount() > 1) {
 			TableCellEditor editor = table.getCellEditor();
 			if (editor != null) editor.stopCellEditing();
-			table.editCellAt(m, 1);
+			
 			//table.setEditingRow(m);
 			//table.setEditingColumn(1);
+			table.editCellAt(m, 1);
 			table.changeSelection(m, 1, false, false);
 		}
 	}
@@ -277,8 +281,10 @@ class ServerDialog
         {
         	public void windowClosing(WindowEvent e) { close(); }
         	public void windowOpened(WindowEvent e) {
-        		if (n == 0)
+        		//table.requestFocus();
+        		if (n == 0) {
         			requesFocusOnEditedCell(table.getRowCount()-1);
+        		}
         	} 
         });
 	}
@@ -356,7 +362,6 @@ class ServerDialog
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
         JPanel p = UIUtilities.buildComponentPanelRight(bar);
-        p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);
         return p;
 	}

@@ -52,6 +52,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -223,8 +224,8 @@ class ImViewerControl
     /** Identifies the <code>color Picker</code> action. */
     static final Integer     COLOR_PICKER = new Integer(36);
     
-    /** Delay before updating lens after new image loads. */
-    static final int		 LENS_UPDATE_DELAY = 200;
+    /** Identifies the <code>download archived files</code> action. */
+    static final Integer     DOWNLOAD = new Integer(37);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -330,6 +331,7 @@ class ImViewerControl
         actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model, 
                 UnitBarSizeAction.CUSTOMIZED));
         actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
+        actionsMap.put(DOWNLOAD, new ArchivedAction(model));
     }
     
     /** 
@@ -448,7 +450,6 @@ class ImViewerControl
         createActions();
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
-        //if (!(ImViewerFactory.isWindowMenuAttachedToTaskBar())) {
         attachWindowListeners();
         ImViewerFactory.attachWindowMenuToTaskBar();
     }

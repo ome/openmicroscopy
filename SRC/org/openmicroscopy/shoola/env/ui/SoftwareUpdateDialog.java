@@ -263,7 +263,6 @@ class SoftwareUpdateDialog
     	c.add(buildAbout(aboutMessage), BorderLayout.NORTH);
         c.add(buildContentPanel(), BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
-        p.setBorder(BorderFactory.createEtchedBorder());
         p.setOpaque(true);
         c.add(p, BorderLayout.SOUTH);
     }

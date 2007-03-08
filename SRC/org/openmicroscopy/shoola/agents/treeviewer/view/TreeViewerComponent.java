@@ -1014,6 +1014,7 @@ class TreeViewerComponent
 	{
 		if (model.getState() != LOADING_DATA) return;
 		model.setUserGroups(map);
+		displayUserGroups(map);
 		fireStateChange();
 	}
 	

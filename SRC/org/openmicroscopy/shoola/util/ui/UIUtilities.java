@@ -155,7 +155,7 @@ public class UIUtilities
                                                 Component child)
     {
         setLocationRelativeTo(parent, child);
-        child.setVisible(true);
+        //child.setVisible(true);
     }
     
     /**

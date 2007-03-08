@@ -51,6 +51,8 @@ import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import layout.TableLayout;
+
 
 
 //Third-party libraries
@@ -242,7 +244,7 @@ public class FilterWindow
         if (nodes.size() == 0) {
             setButton.setEnabled(false);
             JPanel p = new JPanel();
-            p.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 10));
+            p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
             p.add(UIUtilities.setTextFont(MESSAGE), BorderLayout.CENTER);
             return p;
         }
@@ -264,7 +266,13 @@ public class FilterWindow
            
         dtm.reload();
         tree.expandPath(new TreePath(r.getPath()));
-        return new JScrollPane(tree);
+        JPanel content = new JPanel();
+        double[][] tl = {{TableLayout.FILL}, //columns
+ 							{400}};
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        content.setLayout(new TableLayout(tl));
+        content.add(new JScrollPane(tree), "0, 0");
+        return content;
     }
     
     /** 
@@ -275,9 +283,7 @@ public class FilterWindow
     private void buildGUI(JComponent filterComponent)
     {
         JPanel contentPanel = new JPanel();
-        contentPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEtchedBorder(),
-                BorderFactory.createEmptyBorder(5, 5, 15, 10)));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         IconManager im = IconManager.getInstance();
         TitlePanel tp = new TitlePanel(TITLE, NOTE, getContainerString(), 
@@ -289,7 +295,6 @@ public class FilterWindow
         c.add(filterComponent, BorderLayout.CENTER);
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.setBorder(BorderFactory.createEtchedBorder());
         p.add(UIUtilities.buildComponentPanel(buildLeftToolBar()));
         p.add(UIUtilities.buildComponentPanelRight(buildRightToolBar()));
         p.setOpaque(true);

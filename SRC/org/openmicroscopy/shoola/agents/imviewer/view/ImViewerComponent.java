@@ -45,6 +45,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
+import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
+import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -1043,6 +1045,17 @@ class ImViewerComponent
     		}
     		// Question to user 
     	}
+	}
+
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#download()
+     */
+	public void download()
+	{
+		Downloader dl = DownloaderFactory.getDownloader(view, 
+						ImViewerAgent.getRegistry(), model.getPixelsID());
+		dl.activate();
 	}
     
 }

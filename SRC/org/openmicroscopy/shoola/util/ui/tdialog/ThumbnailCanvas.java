@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.clsf.LoadingWin
+ * org.openmicroscopy.shoola.util.ui.tdialog.ThumbnailCanvas
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,22 +21,24 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.hiviewer.util;
+package org.openmicroscopy.shoola.util.ui.tdialog;
+
+
 
 
 //Java imports
-import java.awt.Dimension;
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Loading window brought on screen during data retrieval.
+ * Custom <code>JComponent</code> to paint the thumbnail.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,45 +47,48 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4695 $ $Date: 2006-12-15 17:08:05 +0000 (Fri, 15 Dec 2006) $)
  * </small>
  * @since OME2.2
  */
-public class LoadingWin
-    extends TinyDialog
+class ThumbnailCanvas
+    extends JComponent
 {
 
-    /** Dimension of the loading window. */
-    private static final Dimension WIN_DIMENSION = new Dimension(200, 30);
-
-    
-    /** Builds and lays out the GUI. */
-    private void buildGUI()
-    {
-        JProgressBar progressBar = new JProgressBar();
-        progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
-        setCanvas(progressBar);
-    }
+    /** The {@link BufferedImage} to paint. */
+    private BufferedImage   	image;
     
     /**
-     * Creates a new instance.
+     * Creates a new instance. 
      * 
-     * @param owner The owner of this frame.
+     * @param image The {@link BufferedImage} to paint. 
      */
-    public LoadingWin(JFrame owner)
+    ThumbnailCanvas(BufferedImage image)
     {
-        super(owner, "Loading...", false);
-        setModal(true);
-        buildGUI();
+        setOpaque(false);
+        this.image = image;
     }
     
-    /** Brings up the window on screen and centers it. */
-    public void setOnScreen()
+    /** 
+     * Sets the image to paint.
+     * 
+     * @param image The {@link BufferedImage} to paint. 
+     */
+    void setImage(BufferedImage image) { this.image = image; }
+	
+    /**
+     * Overridden to paint the thumbnail.
+     * @see JComponent#paintComponent(Graphics)
+     */
+    public void paintComponent(Graphics g)
     {
-        setSize(WIN_DIMENSION);
-        setClosed(false);
-        UIUtilities.centerAndShow(this);
+        Graphics2D g2D = (Graphics2D) g;
+        if (image != null) {
+            Insets i = getInsets();
+            g2D.drawImage(image, null, i.left+TinyDialogUI.INNER_PADDING, 
+                            i.top+TinyDialogUI.INNER_PADDING);
+        }  
     }
 
+    
 }

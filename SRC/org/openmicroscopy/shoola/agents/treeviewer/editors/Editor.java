@@ -160,13 +160,6 @@ public interface Editor
     /** Retrieves the emission wavelengths for the set of pixels. */
     void retrieveChannelsData();   
     
-    /** 
-     * Downloads the archived files. 
-     * 
-     * @param directory The directory where to save the files.
-     * */
-	void download(String directory);
-	
     /**
      * Queries the current state.
      * 
@@ -282,13 +275,5 @@ public interface Editor
 	 * @param rootPane The root pane of the frame hosting the editor.
 	 */
 	public void setDefaultButton(JRootPane rootPane);
-
-	/**
-	 * Sets the archived files.
-	 * 
-	 * @param map 	Map whose keys are the number of files retrieved
-	 * 				and values the number of files saved locally.
-	 */
-	public void setArchivedFiles(Map map);
     
 }

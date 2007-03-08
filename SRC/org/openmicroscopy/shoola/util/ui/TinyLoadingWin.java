@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.LoadingWin
+ * org.openmicroscopy.shoola.utils.ui.TinyLoadingWin
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.ui;
+package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Dimension;
@@ -31,8 +31,8 @@ import javax.swing.JProgressBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
 /** 
  * Tiny window displayed during data loading.
@@ -44,11 +44,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  *                  a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4724 $ $Date: 2007-01-17 08:46:48 +0000 (Wed, 17 Jan 2007) $)
  * </small>
  * @since OME2.2
  */
-public class LoadingWin
+public class TinyLoadingWin
     extends TinyDialog
 {
 
@@ -69,10 +69,11 @@ public class LoadingWin
      * 
      * @param owner The owner of this frame.
      */
-    public LoadingWin(JFrame owner)
+    public TinyLoadingWin(JFrame owner)
     {
         super(owner, "Loading...", true);
         setModal(true);
+        setAlwaysOnTop(true);
         buildGUI();
     }
 

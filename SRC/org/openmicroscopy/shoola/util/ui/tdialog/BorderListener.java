@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.tdialog.BorderListener
+ * org.openmicroscopy.shoola.util.ui.tdialog.BorderListener
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.ui.tdialog;
+package org.openmicroscopy.shoola.util.ui.tdialog;
 
 
 //Java imports
@@ -47,7 +47,7 @@ import javax.swing.SwingUtilities;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4698 $ $Date: 2006-12-18 11:46:06 +0000 (Mon, 18 Dec 2006) $)
  * </small>
  * @since OME2.2
  */

@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,8 +35,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.util.ui.FolderChooserDialog;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
 
@@ -55,7 +51,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class EditorControl
-    implements ChangeListener, PropertyChangeListener
+    implements ChangeListener
 {
     
     /** 
@@ -171,7 +167,7 @@ public class EditorControl
     
     /**
      * Updates the specified <code>DataObject</code> and removes the specified 
-     * annotation..
+     * annotation.
      * 
      * @param data      The object to update.
      * @param object    The annotation to remove.
@@ -190,15 +186,6 @@ public class EditorControl
     
     /** Retrieves the annotations. */
     void retrieveAnnotations() { model.retrieveAnnotations(); }
-    
-    /** Downloads the archived files. */
-    void download()
-    { 
-    	FolderChooserDialog d = new FolderChooserDialog(view.getParentUI()); 
-    	d.addPropertyChangeListener(FolderChooserDialog.LOCATION_PROPERTY, 
-    								this);
-    	UIUtilities.centerAndShow(d);
-    }
     
     /**
      * Reacts to state changes in the {@link Editor}.
@@ -233,17 +220,5 @@ public class EditorControl
         	view.onStateChanged(model.getState() == Editor.READY);
         }
     }
-
-    /**
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (FolderChooserDialog.LOCATION_PROPERTY.equals(name)) {
-			String dir = (String) evt.getNewValue();
-			model.download(dir);
-		}
-	}
 
 }

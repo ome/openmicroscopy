@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.tdialog.ScreenControl
+ * org.openmicroscopy.shoola.util.ui.tdialog.ScreenControl
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.ui.tdialog;
+package org.openmicroscopy.shoola.util.ui.tdialog;
 
 
 
@@ -50,7 +50,7 @@ import javax.swing.SwingUtilities;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4695 $ $Date: 2006-12-15 17:08:05 +0000 (Fri, 15 Dec 2006) $)
  * </small>
  * @since OME2.2
  */

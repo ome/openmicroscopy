@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.hiviewer.util.RollOverWin;
-import org.openmicroscopy.shoola.env.ui.tdialog.TinyDialog;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ImageData;
 
 /** 

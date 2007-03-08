@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ArchivedFilesLoader 
+ * org.openmicroscopy.shoola.agents.util.archived.ArchivedLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,26 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer;
-
-
+package org.openmicroscopy.shoola.agents.util.archived;
 
 
 //Java imports
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
+import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 
 /** 
  * Loads the archived files linked to the specified set of pixels.
- * This class calls the <code>loadAnnotations</code> method in the
- * <code>DataManagerView</code>.
+ * This class calls the <code>loadArchivedFiles</code> method in the
+ * <code>DataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,8 +47,8 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class ArchivedFilesLoader
-	extends EditorLoader
+public class ArchivedFilesLoader 
+	extends DownloaderLoader
 {
 
 	/** The pixels set ID. */
@@ -67,12 +63,13 @@ public class ArchivedFilesLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The Editor this data loader is for.
+     * @param viewer	The Downloader this data loader is for.
      * 					Mustn't be <code>null</code>.
      * @param location	The location where to save the file.
      * @param pixelsID	The pixels set ID.
      */
-	public ArchivedFilesLoader(Editor viewer, String location, long pixelsID)
+	public ArchivedFilesLoader(Downloader viewer, String location, 
+								long pixelsID)
 	{
 		super(viewer);
 		this.pixelsID = pixelsID;
@@ -81,7 +78,7 @@ public class ArchivedFilesLoader
 	
 	/**
      * Retrieves the archived files.
-     * @see EditorLoader#load()
+     * @see DownloaderLoader#load()
      */
     public void load()
     {
@@ -89,18 +86,18 @@ public class ArchivedFilesLoader
     }
     
 	/** 
-     * Cancels the data loading
-     * @see EditorLoader#cancel()
+     * Cancels the data loading.
+     * @see DownloaderLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /** 
      * Feeds the result back to the viewer.
-     * @see EditorLoader#handleResult(Object)
+     * @see DownloaderLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == Downloader.DISCARDED) return;  //Async cancel.
         viewer.setArchivedFiles((Map) result);
     }
     

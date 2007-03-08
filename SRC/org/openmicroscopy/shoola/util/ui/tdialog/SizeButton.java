@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.tdialog.SizeButton
+ * org.openmicroscopy.shoola.util.ui.tdialog.SizeButton
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.ui.tdialog;
+package org.openmicroscopy.shoola.util.ui.tdialog;
 
 
 
@@ -31,10 +31,11 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 
+import org.openmicroscopy.shoola.util.ui.IconManager;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.ui.IconManager;
 
 
 /** 
@@ -47,7 +48,7 @@ import org.openmicroscopy.shoola.env.ui.IconManager;
  * 					a.falconi@dundee.ac.uk</a>
  * @version 2.2
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: 4695 $ $Date: 2006-12-15 17:08:05 +0000 (Fri, 15 Dec 2006) $)
  * </small>
  * @since OME2.2
  */
@@ -91,15 +92,16 @@ class SizeButton
      */
     void setActionType(int type)
     {
+    	IconManager icons = IconManager.getInstance();
         switch (type) {
             case COLLAPSE:
-                setIcon(IconManager.getDefaultMinusIcon());
-                setRolloverIcon(IconManager.getDefaultMinusOverIcon());
+                setIcon(icons.getIcon(IconManager.MINUS));
+                setRolloverIcon(icons.getIcon(IconManager.MINUS_OVER));
                 setToolTipText(COLLAPSE_TOOLTIP);
                 break;
             case EXPAND:
-                setIcon(IconManager.getDefaultPlusIcon());
-                setRolloverIcon(IconManager.getDefaultPlusOverIcon());
+                setIcon(icons.getIcon(IconManager.PLUS));
+                setRolloverIcon(icons.getIcon(IconManager.PLUS_OVER));
                 setToolTipText(EXPAND_TOOLTIP);
         }
     }

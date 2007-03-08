@@ -709,4 +709,11 @@ class ImViewerModel
      */
     Rectangle getRequesterBounds() { return requesterBounds; }
     
+    /**
+     * Returns the ID of the pixels set.
+     * 
+     * @return See above.
+     */
+    long getPixelsID() { return pixelsID; }
+    
 }

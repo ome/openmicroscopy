@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 //Java imports
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,14 +36,11 @@ import javax.swing.JRootPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.ImageData;
 
 
 /** 
@@ -491,66 +487,5 @@ class EditorComponent
 		if (rootPane == null) return;
 		view.setDefaultButton(rootPane);
 	}
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#download(String)
-     */
-	public void download(String directory)
-	{
-		if (model.getEditorType() == CREATE_EDITOR) return;
-		if (!(model.getHierarchyObject() instanceof ImageData)) return;
-		model.fireDownloadArchives(directory);
-		fireStateChange();
-	}
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#setArchivedFiles(Map)
-     */
-	public void setArchivedFiles(Map files)
-	{
-		if (model.getState() != LOADING_ARCHIVED) return;
-		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		if (files == null || files.size() == 0) {
-			un.notifyInfo("Download Archived files", "No archived file stored" +
-					" for the specified set of pixels.");
-			return;
-		} 
-		Iterator i = files.keySet().iterator();
-		Integer original;
-		List unsaved;
-		String f, message;
-		int n;
-		Iterator j;
-		int index;
-		while (i.hasNext()) {
-			original = (Integer) i.next();
-			unsaved = (List) files.get(original);
-			if (unsaved == null || unsaved.size() == 0) {
-				f = "file has";
-				n = original.intValue();
-				if (n > 1) f +="files have";
-				message = "The archived "+f+" been successfully downloaded.";
-			} else {
-				f = "file was";
-				n = original.intValue();
-				if (n > 1) f +="files were";
-				message = n+" archived "+f+" found but the " +
-						"following couldn't be downloaded: \n";
-				j = unsaved.iterator();
-				index = 0;
-				n = unsaved.size()-1;
-				while (j.hasNext()) {
-					message += (String) j.next();
-					if (index != n) message += "\n";
-					else message += ".";
-					index++;
-				}
-			}
-			un.notifyInfo("Download Archived files", message);
-			break;
-		}
-	}  
-    
+	
 }

@@ -48,6 +48,9 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
+import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -117,6 +120,15 @@ class DOBasic
     /** Reference to the Control. */
     private EditorControl       controller;
 
+    /** Downloads the archived files. */
+    void download()
+    { 
+    	Downloader dl = DownloaderFactory.getDownloader(
+				model.getParentModel().getUI(), TreeViewerAgent.getRegistry(), 
+				model.getPixelsID());
+		dl.activate();
+    }
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -166,7 +178,7 @@ class DOBasic
             	download.addActionListener(new ActionListener() {
             		public void actionPerformed(ActionEvent e)
             		{ 
-            			controller.download(); 
+            			download(); 
             		}
 				});
                 classifier = new DOClassification(model, controller);

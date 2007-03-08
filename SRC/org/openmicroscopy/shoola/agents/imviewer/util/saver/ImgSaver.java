@@ -146,7 +146,7 @@ public class ImgSaver
                 WriterImage.saveImage(encoder);
             } else WriterImage.saveImage(f, image, format);
             un.notifyInfo("Image Saved", saveMessage);
-            setClosed(true);
+            close();
         } catch (Exception e) {
         	ImViewerAgent.getRegistry().getLogger().error(this, e.getMessage());
             f.delete();
@@ -159,7 +159,7 @@ public class ImgSaver
     {
     	setTitle(TITLE);
         setModal(true);
-        setAlwaysOnTop(true);
+        //setAlwaysOnTop(true);
     }
     
     /**
@@ -216,18 +216,11 @@ public class ImgSaver
         } else showPreview(uiDelegate.getSavingType());
     }
     
-    /**
-     * Sets the window visible depending on the specified flag.
-     * 
-     * @param b Pass <code>true</code> to close the window, <code>false</code>
-     *          otherwise.
-     */
-    void setClosed(boolean b)
+    /** Closes the window and disposes. */
+    void close()
     {
-       if (b) {
-           setVisible(false);
-           dispose();
-       }
+    	setVisible(false);
+        dispose();
     }
     
     /** Saves the displayed image. */

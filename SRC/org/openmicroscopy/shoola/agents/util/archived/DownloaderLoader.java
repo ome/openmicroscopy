@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.classifier.ClassifierLoader 
+ * org.openmicroscopy.shoola.agents.util.archived.DownloaderLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.classifier;
+package org.openmicroscopy.shoola.agents.util.archived;
 
 
 //Java imports
@@ -28,23 +28,15 @@ package org.openmicroscopy.shoola.agents.util.classifier;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
-import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
+import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
+import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 
 /** 
- * Parent of all classes that load data asynchronously for a {@link Classifier}.
- * All these classes invoke methods of the {@link DataHandlerView},
- * which this class makes available through a <code>protected</code> field.
- * Also, this class extends {@link DSCallAdapter} so that subclasses
- * automatically become observers to an asynchronous call. This class provides
- * default implementations of some of the callbacks to notify the 
- * {@link Classifier} of the progress and the user in the case of errors. 
- * Subclasses should at least implement the <code>handleResult</code> method 
- * to feed the {@link Classifier} back with the results.
  * 
+ *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -55,47 +47,30 @@ import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
  * </small>
  * @since OME3.0
  */
-public abstract class ClassifierLoader
+public abstract class DownloaderLoader 
 	extends DSCallAdapter
 {
 
-	/** The Classifier this data loader is for. */
-    protected final Classifier			viewer;
+	/** The Downloader this data loader is for. */
+    protected final Downloader			viewer;
     
-    /** Convenience reference for subclasses. */
+	 /** Convenience reference for subclasses. */
     protected final Registry            registry;
     
     /** Convenience reference for subclasses. */
     protected final DataHandlerView		dhView;
-    
-    /**
-     * Controls if the specified mode is supported by this class.
-     * 
-     * @param index The value to control.
-     */
-    protected void controlMode(int index)
-    {
-    	switch (index) {
-			case Classifier.CLASSIFY_MODE:
-			case Classifier.DECLASSIFY_MODE:
-			case Classifier.BULK_CLASSIFY_MODE:
-				return;
-			default:
-				throw new IllegalArgumentException("Mode not supported.");
-		}
-    }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param viewer The Classifier this data loader is for.
+     * @param viewer The Downloader this data loader is for.
      *               Mustn't be <code>null</code>.
      */
-    protected ClassifierLoader(Classifier viewer)
+    protected DownloaderLoader(Downloader viewer)
     {
         if (viewer == null) throw new NullPointerException("No viewer.");
         this.viewer = viewer;
-        registry = ClassifierFactory.getRegistry();
+        registry = DownloaderFactory.getRegistry();
         dhView = (DataHandlerView) 
         		registry.getDataServicesView(DataHandlerView.class);
     }

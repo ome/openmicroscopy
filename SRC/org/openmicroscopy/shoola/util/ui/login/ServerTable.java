@@ -69,6 +69,18 @@ class ServerTable
 	private int		previousRow;
 	
 	/**
+	 * Removes the specified row.
+	 * 
+	 * @param row The row to remove.
+	 */
+	void removeRow(int row)
+	{
+		DefaultTableModel model= (DefaultTableModel) getModel();
+		model.removeRow(row);
+		previousRow = row-1;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param servers 	Collection of servers.
@@ -79,10 +91,13 @@ class ServerTable
 		previousRow = -1;
 		String[] columnNames = {"", ""};
 		final Object[][] objects;
+		Boolean focus = Boolean.TRUE;
 		if (servers == null || servers.size() == 0) {
 			objects = new Object[1][2];
 			objects[0][0] = icon;
 			objects[0][1] = "";
+			//editCellAt(0, 1);
+			focus = Boolean.FALSE;
 		} else {
 			objects = new Object[servers.size()][2];
 			Iterator i = servers.iterator();
@@ -93,7 +108,8 @@ class ServerTable
 				j++;
 			}
 		}
-		putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+		
+		putClientProperty("terminateEditOnFocusLost", focus);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setModel(new ServerTableModel(objects, columnNames));
 		setDefaultRenderer(Object.class, new ServerListRenderer());
@@ -108,6 +124,8 @@ class ServerTable
 		int n = icon.getIconWidth()+INDENT;
 		column.setMaxWidth(n);
 		column.setMinWidth(n);
+		TableColumn col = getColumnModel().getColumn(1);
+	    col.setCellEditor(new ServerListEditor());
 		addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -138,7 +156,6 @@ class ServerTable
 								boolean extend)
 	{
 		super.changeSelection(row, column, toggle, extend);
-	 
 		if (row != previousRow && row >= 0 && previousRow != -1) {
 			DefaultTableModel model= ((DefaultTableModel) getModel());
 			if (model.getColumnCount() < 2) return; 
