@@ -297,19 +297,19 @@ public class OMEROMetadataStore implements MetadataStore
                 pixelSizeX, pixelSizeY, pixelSizeZ, pixelSizeC, pixelSizeT));
         PixelsDimensions dimensions = new PixelsDimensions();
         
-        if (pixelSizeX <= 0)
+        if (pixelSizeX == null || pixelSizeX <= 0)
         {
             log.warn("pixelSizeX is <= 0.0f, setting to 1.0f");
             pixelSizeX = 1.0f;
         }
 
-        if (pixelSizeY <= 0)
+        if (pixelSizeY == null || pixelSizeY <= 0)
         {
             log.warn("pixelSizeY is <= 0.0f, setting to 1.0f");
             pixelSizeY = 1.0f;
         }
         
-        if (pixelSizeZ <= 0)
+        if (pixelSizeZ == null || pixelSizeZ <= 0)
         {
             log.warn("pixelSizeZ is <= 0.0f, setting to 1.0f");
             pixelSizeZ = 1.0f;
