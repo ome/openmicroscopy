@@ -107,7 +107,13 @@ public class ThumbnailBean extends AbstractLevel2Service implements
 
     /** The id of the pixels instance. */
     private Long pixelsId;
+    
+    /** Only set after a passivated bean is activated. */
+    private transient Long resetPix = null;
 
+    /** Currently unused. */
+    private transient Long resetRE = null;
+    
     /** The id of the rendering definition instance. */
     private Long renderingDefId;
 
@@ -144,16 +150,10 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void create() {
         super.create();
         if (pixelsId != null) {
-            long reset = pixelsId.longValue();
+            resetPix = pixelsId;
             pixelsId = null;
-            setPixelsId(reset);
         }
-
-        if (renderingDefId != null) {
-            long reset = renderingDefId.longValue();
-            renderingDefId = null;
-            setPixelsId(reset);
-        }
+        // FIXME resetRE will need to be managed here too.
     }
 
     /*
@@ -201,6 +201,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public boolean setPixelsId(long id) {
         if (pixelsId == null || pixelsId.longValue() != id) {
             pixelsId = new Long(id);
+            resetPix = null;
+            // FIXME resetRE will need to be managed here too.
             pixels = iQuery.get(Pixels.class, pixelsId);
 
             if (pixels == null) {
@@ -222,6 +224,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void setRenderingDefId(Long id) {
         // FIXME: This currently is useless as the rendering engine does
         // not accept arbitrary rendering definitions.
+        // FIXME resetRE will need to be managed here too.
         return;
     }
 
@@ -455,10 +458,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
 
     protected void errorIfInvalidState() {
         errorIfNullPixels();
+        // FIXME resetRE will need to be managed here too.
     }
 
     protected void errorIfNullPixels() {
-        if (pixelsId == null) {
+        if (resetPix != null) {
+            long reset = resetPix.longValue();
+            setPixelsId(reset);
+        } else if (pixelsId == null) {
             throw new ApiUsageException(
                     "Thumbnail service not ready: Pixels object not set.");
         }

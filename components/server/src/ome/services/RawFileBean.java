@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
@@ -67,6 +68,9 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
     /** The id of the original files instance. */
     private Long id;
 
+    /** Only set after a passivated bean is activated. */
+    private transient Long reset = null;
+    
     /** The original file this service is currently working on. */
     private transient OriginalFile file;
 
@@ -122,9 +126,8 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
     public void create() {
         super.create();
         if (id != null) {
-            long reset = id.longValue();
+            reset = id;
             id = null;
-            setFileId(reset);
         }
     }
 
@@ -198,11 +201,26 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
         }
     }
     
+    private synchronized void errorIfNotLoaded() {
+        // If we're not loaded because of passivation, then load.
+        if (reset != null) {
+            id = null;
+            setFileId(reset.longValue());
+            reset = null;
+        }
+        if (buffer == null) {
+            throw new ApiUsageException(
+                    "This RawFileStore has not been properly initialized.\n"
+                            + "Please set the file id before executing any other methods.\n");
+        }
+    }
+    
     /* (non-Javadoc)
      * @see ome.api.RawFileStore#exists()
      */
     @RolesAllowed("user")
     public boolean exists() {
+        errorIfNotLoaded();
     	File f = new File(file.getPath());
     	if (f.exists())
     	{
@@ -219,6 +237,7 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
 
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
+        errorIfNotLoaded();
         byte[] rawBuf = new byte[length];
         ByteBuffer buf = ByteBuffer.wrap(rawBuf);
 
@@ -233,6 +252,7 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
 
     @RolesAllowed("user")
     public void write(byte[] buf, long position, int length) {
+        errorIfNotLoaded();
         ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
         nioBuffer.limit(length);
 

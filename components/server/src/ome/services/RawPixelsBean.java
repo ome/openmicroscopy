@@ -108,6 +108,7 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
         // do the work.
         if (id != null) {
             reset = id;
+            id = null;
         }
     }
 
