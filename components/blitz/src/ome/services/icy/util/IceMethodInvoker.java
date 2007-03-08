@@ -2,7 +2,9 @@ package ome.services.icy.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -150,11 +152,12 @@ public class IceMethodInvoker {
             Class p = params[i];
             Object arg = args[i];
             objs[i] = handleInput(mapper, p, arg);
-            if (null != objs[i] && !isPrimitive(p) && // FIXME need way to check autoboxing.
-                    !p.isAssignableFrom(objs[i].getClass())) {
-                throw new IllegalStateException(String.format(
-                        "Cannot assign %s to %s",objs[i],p));
-            }
+// This check duplicates what should be in handleInput
+//            if (null != objs[i] && !isPrimitive(p) && // FIXME need way to check autoboxing.
+//                    !p.isAssignableFrom(objs[i].getClass())) {
+//                throw new IllegalStateException(String.format(
+//                        "Cannot assign %s to %s",objs[i],p));
+//            }
         }
 
         Class retType = info.retType;
@@ -214,9 +217,9 @@ public class IceMethodInvoker {
         } else if (p.equals(Parameters.class)) {
             return mapper.convert((omero.sys.Parameters) arg);
         } else if (List.class.isAssignableFrom(p)) {
-            return mapper.reverse(new HashSet((List) arg)); // Necessary since Ice doesn't support Sets.
-        } else if (Set.class.isAssignableFrom(p)) {
             return mapper.reverse((Collection) arg);
+        } else if (Set.class.isAssignableFrom(p)) {
+            return mapper.reverse(new HashSet((Collection) arg)); // Necessary since Ice doesn't support Sets.
         } else if (Map.class.isAssignableFrom(p)) {
             return mapper.reverse((Map) arg);
         } else if (PlaneDef.class.isAssignableFrom(p)) {
@@ -240,6 +243,8 @@ public class IceMethodInvoker {
             return mapper.convert((Date)o);
         } else if (EventContext.class.isAssignableFrom(type)) {
             return mapper.convert((EventContext)o);
+        } else if (Set.class.isAssignableFrom(type)) {
+            return mapper.map(new ArrayList((Set)o)); // Necessary since Ice doesn't support Sets.
         } else if (Collection.class.isAssignableFrom(type)) {
             return mapper.map((Collection) o);
         } else if (IObject.class.isAssignableFrom(type)) {
@@ -253,10 +258,15 @@ public class IceMethodInvoker {
 
     protected Ice.UserException handleException(Throwable t) {
 
+        // Getting rid of the reflection wrapper.
+        if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
+            t = t.getCause();
+        }
+
         if (log.isInfoEnabled()) {
             log.info("Handling:", t);
         }
-
+        
         Class c = t.getClass();
         if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();

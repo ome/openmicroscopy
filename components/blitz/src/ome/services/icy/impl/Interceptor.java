@@ -102,14 +102,20 @@ public class Interceptor implements MethodInterceptor {
     }
 
     public Object invoke(MethodInvocation mi) throws Throwable {
+
+        Object retVal = null;
+        try {
+            Object[] args = mi.getArguments();
+            Ice.Current __current = (Ice.Current) args[args.length-1];
+            Object[] strippedArgs = strip(args);
         
-        Object[] args = mi.getArguments();
-        Ice.Current __current = (Ice.Current) args[args.length-1];
-        Object[] strippedArgs = strip(args);
-        
-        IceMapper mapper = new IceMapper();
-        ServiceInterface service = servantHelper.getService(key,__current);
-        Object retVal = invoker.invoke(service, __current, mapper, strippedArgs);
+            IceMapper mapper = new IceMapper();
+            ServiceInterface service = servantHelper.getService(key,__current);
+            retVal = invoker.invoke(service, __current, mapper, strippedArgs);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw t;
+        }
         servantHelper.throwIfNecessary(retVal);
         return retVal;
     }

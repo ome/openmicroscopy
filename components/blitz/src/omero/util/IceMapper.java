@@ -12,6 +12,7 @@ package omero.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -175,22 +176,25 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return t;
     }
     
-    public static ome.parameters.Parameters convert(Parameters params) 
+    public ome.parameters.Parameters convert(Parameters params) 
     throws ApiUsageException {
         
         if (params == null) return null;
         
         ome.parameters.Parameters p = new ome.parameters.Parameters();
-        if (params.p != null) {
-            for (Object obj : params.p.values()) {
+        if (params.map != null) {
+            for (Object obj : params.map.values()) {
                 QueryParam qp = (QueryParam) obj;
                 p.add(convert(qp));
             }
         }
+        if (params.filt != null) {
+            p.setFilter(convert(params.filt));
+        }
         return p;
     }
 
-    public static ome.parameters.QueryParameter convert(QueryParam qParam) 
+    public ome.parameters.QueryParameter convert(QueryParam qParam) 
     throws ApiUsageException {
         
         if (qParam == null) return null;
@@ -228,7 +232,16 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
                 value = IceMapper.omeroClass(qParam.classVal, true);
                 klass = Class.class;
                 break;
-            case Type._objectType: // Not currently supported
+            case Type._timeType:
+                omero.RTime rt = qParam.timeVal;
+                value = (rt == null ? null : rt._null ? null : new Timestamp(rt.val.val));
+                klass = Timestamp.class;
+                break;
+            case Type._objectType:
+                omero.RObject ro = qParam.objectVal;
+                value = (ro == null ? null : ro._null ? null : reverse(ro.val));
+                klass = IObject.class;
+                break;
             default:
                 throw new IllegalArgumentException("Unknown type code:" + t);
         }
@@ -283,7 +296,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return false;
     }
     
-    public Object reverse(Object source) {
+    public Object reverse(Object source) throws ApiUsageException {
         if (source == null) {
             return null;
         } else if (Collection.class.isAssignableFrom(source.getClass())) {
@@ -292,6 +305,8 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             return reverse((ModelBased) source);
         } else if (isImmutable(source)) {
             return source;
+        } else if (QueryParam.class.isAssignableFrom(source.getClass())) {
+            return convert((QueryParam)source);
         } else {
             throw new IllegalArgumentException("Don't know how to reverse "+source);
         }
@@ -324,20 +339,29 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
                         + source.getClass());
             }
             target2model.put(source, target);
-            for (Object object : source) {
-                target.add(reverse(object));
+            try {
+                for (Object object : source) {
+                    target.add(reverse(object));
+                } 
+            } catch (ApiUsageException aue) { // FIXME reverse can't throw ServerErrors!
+                convertAndThrow(aue);
             }
         }
         return target;
     }
-    
+
     public Map reverse(Map map) {
+        if (map == null) return null;
         Map<Object, Object> target = new HashMap<Object, Object>();
-        for (Object key : map.keySet()) {
-            Object value = map.get(key);
-            Object targetKey = reverse(key);
-            Object targetValue = reverse(value);
-            target.put(targetKey, targetValue);
+        try {
+            for (Object key : map.keySet()) {
+                Object value = map.get(key);
+                Object targetKey = reverse(key);
+                Object targetValue = reverse(value);
+                target.put(targetKey, targetValue);
+            }
+        } catch (ApiUsageException aue) {
+            convertAndThrow(aue);
         }
         return target;
     }
@@ -404,4 +428,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return o == null ? false : super.hasntSeen(o);
     }
 
+    private void convertAndThrow(ApiUsageException aue) {
+        InternalException ie = new InternalException(aue.getMessage());
+        ie.setStackTrace(aue.getStackTrace());
+    }
+    
 }
