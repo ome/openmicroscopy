@@ -231,6 +231,8 @@ class BrowserUI
 			if (h < 0) h = -h;
 			vBar.setValue(bounds.y-h/2);
         }
+		//layeredPane.validate();
+		//layeredPane.repaint();
 	}
 	
 	/**

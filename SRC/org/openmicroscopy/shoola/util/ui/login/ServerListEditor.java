@@ -25,9 +25,16 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellEditor;
 
 //Third-party libraries
@@ -50,16 +57,41 @@ import javax.swing.table.TableCellEditor;
  */
 public class ServerListEditor 
 	extends AbstractCellEditor 
-	implements TableCellEditor
+	implements ActionListener, DocumentListener, TableCellEditor
 {
 
 	/** The component handling the editing of the cell value. */
-	private JTextField component;
+	private JTextField 		component;
 
-	/** Creates a new instance. */
-	public ServerListEditor()
+	/** The table this editor is for. */
+	private ServerTable		table;
+	
+	/**
+	 * Returns the text of the textfield.
+	 * 
+	 * @return See above.
+	 */
+	private String getComponentValue()
 	{
+		String s = component.getText();
+		if (s == null) s = "";
+		else s = s.trim();
+		return s;
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param table The table this editor is for. Mustn't be <code>null</code>.
+	 */
+	public ServerListEditor(ServerTable table)
+	{
+		if (table == null)
+			throw new IllegalArgumentException("No table.");
+		this.table = table;
 		component = new JTextField();
+		component.addActionListener(this);
+		component.getDocument().addDocumentListener(this);
 	}
 	
     /**
@@ -75,16 +107,54 @@ public class ServerListEditor
         	String v = (String) value;
         	if (v == null || v.trim().length() == 0) v = " ";
         	component.setText(v);
+        	//component.requestFocus();
         }
         return component;
     }
 
+    
     /**
-     * returns the edited text. This method is invoked when the editing is
+     * Returns the edited text. This method is invoked when the editing is
      * completed
      * 
      * @return The edited text. 
      */
-    public Object getCellEditorValue() { return component.getText(); }
+    public Object getCellEditorValue() { return getComponentValue(); }
+
+    /**
+     * Handles text insert only when the selected table cell is edited.
+     * @see DocumentListener#insertUpdate(DocumentEvent)
+     */
+	public void insertUpdate(DocumentEvent e)
+	{
+		table.handleTextModification(getComponentValue());
+	}
+
+    /**
+ 	 * Required by {@link DocumentListener} interface but no-op implementation 
+     * in our case.
+     * @see DocumentListener#removeUpdate(DocumentEvent)
+     */
+	public void removeUpdate(DocumentEvent e)
+	{
+		table.handleTextModification(getComponentValue());
+	}
     
+	/** 
+     * Required by {@link DocumentListener} interface but no-op implementation 
+     * in our case. 
+     * @see DocumentListener#changedUpdate(DocumentEvent)
+     */
+	public void changedUpdate(DocumentEvent e) {}
+
+	/**
+	 * Stops the edition when the user entered the pressed key.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) 
+	{
+		table.finishEdition(getComponentValue());
+		stopCellEditing();
+	}
+
 }

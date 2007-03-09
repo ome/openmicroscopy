@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.view.LoadingWindow
+ * org.openmicroscopy.shoola.util.ui.LoadingWindow
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.agents.imviewer.view;
+package org.openmicroscopy.shoola.util.ui;
 
 
 
@@ -59,12 +59,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME2.2
  */
-class LoadingWindow
+public class LoadingWindow
     extends JDialog
 {
 
     /** Bounds property indicating that the window is closed. */
-    static final String         	CLOSED_PROPERTY = "closed";
+    public static final String         	CLOSED_PROPERTY = "closed";
     
     /** The title of the window. */
     private static final String 	TITLE = "Loading window";
@@ -128,7 +128,7 @@ class LoadingWindow
      * 
      * @param owner The owner of this frame.
      */
-    LoadingWindow(JFrame owner)
+    public LoadingWindow(JFrame owner)
     {
         super(owner);
         setWindowProperties();
@@ -145,14 +145,14 @@ class LoadingWindow
      * 
      * @param s The message to display.
      */
-    void setStatus(String s) { status.setText(LOADING_TXT+s); }
+    public void setStatus(String s) { status.setText(LOADING_TXT+s); }
     
     /**
      * Sets the value of the progress bar.
      * 
      * @param perc  The value to set.
      */
-    void setProgress(int perc)
+    public void setProgress(int perc)
     {
         if (perc < 0) progressBar.setIndeterminate(true);
         else {

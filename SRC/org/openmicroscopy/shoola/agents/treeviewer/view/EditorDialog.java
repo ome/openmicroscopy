@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
@@ -56,6 +58,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
  */
 class EditorDialog
     extends JDialog
+    implements ComponentListener
 {
 
     /** The default size of the dialog. */
@@ -64,15 +67,21 @@ class EditorDialog
     /** The default title of the window. */
     private static final String		TITLE = "Create new element";
    
+    /** The editor displayed. */
+    private Editor	editor;
+    
     /**
      * Creates a new instance.
      * 
      * @param owner 	The owner of the frame.
-     * @param editor 	The editor to display.
+     * @param editor 	The editor to display. Mustn't be <code>null</code>.
      */
     EditorDialog(JFrame owner, final Editor editor)
     {
         super(owner);
+        if (editor == null)
+        	throw new IllegalArgumentException("No editor.");
+        this.editor = editor;
         setTitle(TITLE);
         setModal(true);
         getContentPane().add(editor.getUI(), BorderLayout.CENTER);
@@ -85,6 +94,7 @@ class EditorDialog
         		editor.setFocusOnName();
         	} 
         });
+        addComponentListener(this);
         editor.setDefaultButton(getRootPane());
     }
     
@@ -94,5 +104,35 @@ class EditorDialog
         setVisible(false);
         dispose();
     }
+
+	/** 
+     * Resizes the editor when the window is resized.
+     * @see ComponentListener#componentResized(ComponentEvent)
+     */
+	public void componentResized(ComponentEvent e) 
+	{
+		editor.setSize(getSize());
+	}
+
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentHidden(ComponentEvent)
+     */
+	public void componentHidden(ComponentEvent e) {}
+
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentMoved(ComponentEvent)
+     */
+	public void componentMoved(ComponentEvent e) {}
+	
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentShown(ComponentEvent)
+     */
+	public void componentShown(ComponentEvent e) {}
 
 }

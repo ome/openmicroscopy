@@ -151,7 +151,6 @@ class EditorUI
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
     
-    
     /**
      * The message displayed when the name of the <code>DataObject</code> is 
      * null or of length 0.

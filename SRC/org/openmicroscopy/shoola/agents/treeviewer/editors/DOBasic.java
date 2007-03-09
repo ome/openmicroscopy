@@ -146,13 +146,19 @@ class DOBasic
             descriptionArea.getDocument().addDocumentListener(
                     new DocumentListener() {
 
-                /** Handles text insertion. */
+                /** 
+                 * Handles text insert. 
+                 * @see DocumentListener#insertUpdate(DocumentEvent)
+                 */
                 public void insertUpdate(DocumentEvent de)
                 {
                     view.handleDescriptionAreaInsert();
                 }
                 
-                /** Handles text insertion. */
+                /** 
+                 * Handles text removal. 
+                 * @see DocumentListener#removeUpdate(DocumentEvent)
+                 */
                 public void removeUpdate(DocumentEvent de)
                 {
                     view.handleDescriptionAreaInsert();
@@ -160,7 +166,7 @@ class DOBasic
 
                 /** 
                  * Required by I/F but no-op implementation in our case. 
-                 * @see DocumentListener#removeUpdate(DocumentEvent)
+                 * @see DocumentListener#changedUpdate(DocumentEvent)
                  */
                 public void changedUpdate(DocumentEvent de) {}
                 

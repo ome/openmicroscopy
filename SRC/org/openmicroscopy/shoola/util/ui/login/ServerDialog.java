@@ -26,11 +26,16 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
@@ -42,6 +47,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
@@ -70,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ServerDialog 
 	extends JDialog
+	implements ComponentListener
 {
 
 	/** Bound property indicating that a new server is selected. */
@@ -81,6 +88,9 @@ class ServerDialog
 	/** Bound property indicating that the window is closed. */
 	static final String 				REMOVE_PROPERTY = "remove";
 
+    /** The default height of the <code>TitlePanel</code>. */
+    public static final int    	    	TITLE_HEIGHT = 70;
+    
 	/** The default size of the window. */
 	private static final Dimension		WINDOW_DIM = new Dimension(400, 450);
 	
@@ -111,24 +121,45 @@ class ServerDialog
     private static final String			EXAMPLE = "e.g. " +
     											"test.openmicroscopy.org";
 	
-	
+    /** The message displayed when the entered server address already exists. */
+    private static final String     	EMPTY_MSG = "Server address already " +
+    												"exists.";
+    
 	/** Button to close and dispose of the window. */
-	private JButton		cancelButton;
+	private JButton			cancelButton;
 	
 	/** Button to select a new server. */
-	private JButton		finishButton;
+	private JButton			finishButton;
+	
 	/** Button to remove server from the list. */
-	private JButton		removeButton;
+	private JButton			removeButton;
 	
 	/** Button to add new server to the list. */
-	private JButton		addButton;
+	private JButton			addButton;
 	
 	/** Component displaying the collection of available servers. */
-	private ServerTable	table;
+	private ServerTable		table;
 	
 	/** Helper reference to the icons manager. */
-	private IconManager	icons;
+	private IconManager		icons;
 	
+    /** The panel displaying the message when no name is entered. */
+    private JPanel          emptyMessagePanel;
+    
+    /** The component hosting the title and the warning messages if required. */
+    private JLayeredPane    titleLayer;
+    
+    /** The UI component hosting the title. */
+    private TitlePanel      titlePanel;
+    
+    /** 
+     * Sets to <code>true</code> if the message is displayed, 
+     * <code>false</code> otherwise.
+     */
+    private boolean			warning;
+    
+    private boolean			editing;
+    
 	/** Closes and disposes. */
 	private void close()
 	{
@@ -168,18 +199,23 @@ class ServerDialog
 		close();
 	}
 	
-	/** Removes the selected server from the list. */
-	private void remove()
+	/** 
+	 * Removes the selected server from the list. 
+	 * 
+	 * @param row The row to remove.
+	 * */
+	private void removeRow(int row)
 	{
 		DefaultTableModel model= (DefaultTableModel) table.getModel();
-		int n = table.getSelectedRow();
-		if (n < 0) return;
+		//int row = table.getSelectedRow();
+		if (row < 0) return;
+		//DefaultTableModel model= (DefaultTableModel) table.getModel();
 		if (model.getColumnCount() < 2) return; 
-		String oldValue = (String) model.getValueAt(n, 1);
+		String oldValue = (String) model.getValueAt(row, 1);
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
-		table.removeRow(n);
-		//model.removeRow(n);
+		table.removeRow(row);
+		//model.removeRow(row);
 		int m = model.getRowCount()-1;
 		String newValue = null;
 		if (m > -1 && table.getColumnCount() > 1) {
@@ -194,14 +230,16 @@ class ServerDialog
 	}
 
 	/** Adds a new server to the list. */
-	private void add()
+	private void addRow()
 	{
-		table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+		if (editing) return;
+		addButton.setEnabled(false);
+		//table.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
 		DefaultTableModel model= ((DefaultTableModel) table.getModel());
 		//First check if we already have
-		finishButton.setEnabled(true);
+		//finishButton.setEnabled(true);
 		int m = model.getRowCount();
-		//
+		/*
 		String v, trim;
 		boolean added = false;
 		for (int i = 0; i < m; i++) {
@@ -214,45 +252,28 @@ class ServerDialog
 				}
 			}
 		}
+		System.err.println()
 		if (added) {
-			
-			//requesFocusOnEditedCell(m);
 			requestFocusInWindow();
 			return;
 		}
+		*/
 		Object[] newRow = new Object[2];
 		newRow[0] = icons.getIcon(IconManager.SERVER);
 		newRow[1] = "";
 		model.insertRow(m, newRow);
 		model.fireTableDataChanged();
 		requesFocusOnEditedCell(m);
+		setEditing(true);
+		//table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 	}
-	
-	/**
-	 * Requests the focus on the edited cell.
-	 * 
-	 * @param m The row of the edited cell.
-	 */
-	private void requesFocusOnEditedCell(int m)
-	{
-		if (table.getColumnCount() > 1) {
-			TableCellEditor editor = table.getCellEditor();
-			if (editor != null) editor.stopCellEditing();
-			
-			//table.setEditingRow(m);
-			//table.setEditingColumn(1);
-			table.editCellAt(m, 1);
-			table.changeSelection(m, 1, false, false);
-		}
-	}
-	
+
 	/** Sets the window's properties. */
 	private void setProperties()
 	{
 		setTitle(TITLE);
 		setModal(true);
 		setAlwaysOnTop(true);
-		//setResizable(false);
 	}
 	
 	/** 
@@ -271,49 +292,81 @@ class ServerDialog
 
 		});
 		removeButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { remove(); }
+			public void actionPerformed(ActionEvent e) 
+			{ 
+				removeRow(table.getSelectedRow()); 
+			}
 		});
 		addButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { add(); }
+			public void actionPerformed(ActionEvent e) { addRow(); }
 		});
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter()
         {
         	public void windowClosing(WindowEvent e) { close(); }
         	public void windowOpened(WindowEvent e) {
-        		//table.requestFocus();
         		if (n == 0) {
         			requesFocusOnEditedCell(table.getRowCount()-1);
         		}
         	} 
         });
+		addComponentListener(this);
 	}
 	
 	/** 
 	 * Initializes the UI components. 
 	 * 
-	 * @param servers Collection of servers. Can be <code>null</code>.
+	 * @param servers 	Collection of servers. Can be <code>null</code>.
+	 * @param n			The number of servers, <code>0</code> if none.
 	 */
-	private void initComponents(List servers)
+	private void initComponents(List servers, int n)
 	{
-		table = new ServerTable(servers, 
+		table = new ServerTable(this, servers, 
 								icons.getIcon(IconManager.SERVER));
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the window.");
 		
 		finishButton =  new JButton("Apply");
+		finishButton.setEnabled(false);
 		getRootPane().setDefaultButton(finishButton);
-		IconManager icons = IconManager.getInstance();
 		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list of servers.");
 		addButton = new JButton(icons.getIcon(IconManager.ADD));
 		addButton.setToolTipText("Add a new server to the list of servers.");
-		//if (servers == null || servers.size() == 0) {
-		//	requesFocusOnEditedCell(table.getRowCount()-1);
-		//}
+		//addButton.setEnabled(n != 0);
+		//removeButton.setEnabled(n != 0);
+		//layer hosting title and empty message
+		titleLayer = new JLayeredPane();
+		titlePanel = new TitlePanel(TITLE, TEXT, 
+									icons.getIcon(IconManager.CONFIG_48));
+		titleLayer.add(titlePanel, new Integer(0));
 	}
 	
+	 /** Creates the {@link #emptyMessagePanel} if required. */
+    private void buildEmptyPanel()
+    {
+        if (emptyMessagePanel != null) return;
+        emptyMessagePanel = new JPanel();
+        emptyMessagePanel.setOpaque(true);
+        emptyMessagePanel.setBorder(
+                            BorderFactory.createLineBorder(Color.BLACK));
+        Rectangle r = titlePanel.getBounds();
+        
+        emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,
+                                                BoxLayout.X_AXIS));
+        JLabel label = new JLabel(icons.getIcon(IconManager.ERROR));
+        emptyMessagePanel.add(label);
+        int w = label.getWidth();
+        label = new JLabel(EMPTY_MSG);
+        int h = label.getFontMetrics(label.getFont()).getHeight();
+        w += getFontMetrics(getFont()).stringWidth(EMPTY_MSG);
+        emptyMessagePanel.add(label);
+        Insets i = emptyMessagePanel.getInsets();
+        h += i.top+i.bottom;
+        emptyMessagePanel.setBounds(0, r.height-h-1, 3*w/2, h);
+    }
+    
 	/**
 	 * Builds the main UI component.
 	 * 
@@ -369,14 +422,24 @@ class ServerDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		IconManager icons = IconManager.getInstance();
-		TitlePanel titlePanel = new TitlePanel(TITLE, 
-                				TEXT, icons.getIcon(IconManager.CONFIG_48));
         Container c = getContentPane();
         setLayout(new BorderLayout(0, 0));
-        c.add(titlePanel, BorderLayout.NORTH);
+        c.add(titleLayer, BorderLayout.NORTH);
         c.add(buildBody(), BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
+	}
+	
+	/**
+	 * Sets the <code>enabled</code> flag of the {@link #finishButton},
+	 * {@link #addButton} and {@link #removeButton}.
+	 * 
+	 * @param b The value to set.
+	 */
+	private void enabledButtons(boolean b)
+	{
+		finishButton.setEnabled(b);
+		addButton.setEnabled(b);
+		removeButton.setEnabled(b);
 	}
 	
 	/**
@@ -389,12 +452,130 @@ class ServerDialog
 		super();
 		icons = IconManager.getInstance();
 		setProperties();
-		initComponents(servers);
 		int n = 0;
 		if (servers !=  null) n = servers.size();
+		initComponents(servers, n);
 		initListeners(n);
 		buildGUI();
 		setSize(WINDOW_DIM);
 	}
+
+	void setEditing(boolean b) { editing = b; }
 	
+	boolean isEditing() { return editing; }
+	
+	/**
+	 * Requests the focus on the edited cell.
+	 * 
+	 * @param m The row of the edited cell.
+	 */
+	void requesFocusOnEditedCell(int m)
+	{
+		if (table.getColumnCount() > 1) {
+			//editing = true;
+			TableCellEditor editor = table.getCellEditor();
+			if (editor != null) editor.stopCellEditing();
+			table.editCellAt(m, 1);
+			table.changeSelection(m, 1, false, false);
+		}
+	}
+	
+	/**
+	 * Enables or not the {@link #finishButton}.
+	 * 
+	 * @param row			The selected row.
+	 * @param previousRow 	The previously selected row.
+	 * @param text			The text of the previously selected row.
+	 */
+	void changeSelection(int row, int previousRow, String text)
+	{
+		finishButton.setEnabled((row != -1));
+		if (previousRow == -1 || previousRow == row) return;
+		if (!editing) return;
+		editing = false;
+		if (warning || text == null) {
+			removeRow(previousRow);
+			showMessagePanel(false);
+		}
+	}
+	
+	/**
+	 * Shows the warning message if the passed value is <code>true</code>,
+	 * hides it otherwise.
+	 * 
+	 * @param warning 	Pass <code>true</code> to show the message, 
+	 * 					<code>false</code> otherwise.			
+	 */
+	void showMessagePanel(boolean warning)
+	{
+		this.warning = warning;
+		enabledButtons(!warning);
+		if (warning) {
+			if (emptyMessagePanel != null) return;
+			buildEmptyPanel();
+            titleLayer.add(emptyMessagePanel, new Integer(1));
+            titleLayer.validate();
+            titleLayer.repaint();
+        } else {
+        	if (emptyMessagePanel == null) return;
+        	titleLayer.remove(emptyMessagePanel);
+            titleLayer.repaint();
+            emptyMessagePanel = null;
+        }
+	}
+
+	/**
+	 * Removes the row if the text entered is <code>null</code> or of length
+	 * <code>zero</code> and also if the warning message is displayed.
+	 * 
+	 * @param text
+	 */
+	void finishEdition(String text)
+	{
+		if (!editing) return;
+		editing = false;
+		if (warning || text == null || text.length() == 0) {
+			removeRow(table.getSelectedRow());
+			showMessagePanel(false);
+		}
+	}
+	
+	/** 
+     * Resizes the layered pane hosting the title when the window is resized.
+     * @see ComponentListener#componentResized(ComponentEvent)
+     */
+	public void componentResized(ComponentEvent e) 
+	{
+		Rectangle r = getBounds();
+		if (titleLayer == null) return;
+		Dimension d  = new Dimension(r.width, TITLE_HEIGHT);
+	    titlePanel.setSize(d);
+	    titlePanel.setPreferredSize(d);
+	    titleLayer.setSize(d);
+	    titleLayer.setPreferredSize(d);
+	    titleLayer.validate();
+	    titleLayer.repaint();
+	}
+
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentShown(ComponentEvent)
+     */
+	public void componentShown(ComponentEvent e) {}
+	
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentHidden(ComponentEvent)
+     */
+	public void componentHidden(ComponentEvent e) {}
+
+	/** 
+     * Required by {@link ComponentListener} interface but no-op implementation 
+     * in our case. 
+     * @see ComponentListener#componentMoved(ComponentEvent)
+     */
+	public void componentMoved(ComponentEvent e) {}
+    
 }

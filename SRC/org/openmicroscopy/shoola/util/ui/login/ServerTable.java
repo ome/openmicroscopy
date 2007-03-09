@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Icon;
@@ -66,28 +67,40 @@ class ServerTable
 	private static final int	INDENT = 4;
 	
 	/** Index of the previously selected row. */
-	private int		previousRow;
+	private int				previousRow;
+	
+	/** Reference to the parent. */
+	private ServerDialog 	parent;
 	
 	/**
-	 * Removes the specified row.
+	 * Handles the mouse pressed event.
 	 * 
-	 * @param row The row to remove.
+	 * @param clickCount The number of click.
 	 */
-	void removeRow(int row)
+	private void handleClickCount(int clickCount)
 	{
-		DefaultTableModel model= (DefaultTableModel) getModel();
-		model.removeRow(row);
-		previousRow = row-1;
+		TableCellEditor editor = getCellEditor();
+		if (editor != null) editor.stopCellEditing();
+		if (clickCount == 2) {
+			parent.requesFocusOnEditedCell(getSelectedRow());
+			parent.setEditing(true);
+			//editCellAt(getSelectedRow(), getSelectedColumn());
+			//repaint();
+		} 
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param parent	Reference to the model. Mustn't be <code>null</code>.
 	 * @param servers 	Collection of servers.
 	 * @param icon		The icon to display netx to the server's name.
 	 */
-	ServerTable(List servers, Icon icon)
+	ServerTable(ServerDialog parent, List servers, Icon icon)
 	{	
+		if (parent == null)
+			throw new IllegalArgumentException("No model");
+		this.parent = parent;
 		previousRow = -1;
 		String[] columnNames = {"", ""};
 		final Object[][] objects;
@@ -108,7 +121,7 @@ class ServerTable
 				j++;
 			}
 		}
-		
+		focus = Boolean.FALSE;
 		putClientProperty("terminateEditOnFocusLost", focus);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setModel(new ServerTableModel(objects, columnNames));
@@ -125,7 +138,7 @@ class ServerTable
 		column.setMaxWidth(n);
 		column.setMinWidth(n);
 		TableColumn col = getColumnModel().getColumn(1);
-	    col.setCellEditor(new ServerListEditor());
+	    col.setCellEditor(new ServerListEditor(this));
 		addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -135,17 +148,55 @@ class ServerTable
 			 */
 			public void mousePressed(MouseEvent e)
 			{
-				TableCellEditor editor = getCellEditor();
-				if (editor != null) editor.stopCellEditing();
-				if (e.getClickCount() == 2) {
-					
-					editCellAt(getSelectedRow(), getSelectedColumn());
-					//setEditingRow(r);
-					//setEditingColumn(c);
-					repaint();
-				} 
+				handleClickCount(e.getClickCount());
 			}
 		});
+	}
+	
+	/**
+	 * Handles the text modification in the edited cell.
+	 * 
+	 * @param text The textual value to handle.
+	 */
+	void handleTextModification(String text)
+	{
+		if (!parent.isEditing()) return;
+		int m = getSelectedRow();
+		List<String> values = new ArrayList<String>();
+		for (int i = 0; i < getRowCount(); i++) {
+			if (i != m) values.add((String) getValueAt(i, 1)); 
+		}
+		Iterator j = values.iterator();
+		String name;
+		boolean found = false; 
+		while (j.hasNext()) {
+			name = (String) j.next();
+			if (name.equals(text)) {
+				found = true;
+				break;
+			}
+		}
+		parent.showMessagePanel(found);
+	}
+	
+	/**
+	 * Forwards call to the parent.
+	 * 
+	 * @param text T
+	 * he entered text.
+	 */
+	void finishEdition(String text) { parent.finishEdition(text); }
+	
+	/**
+	 * Removes the specified row.
+	 * 
+	 * @param row The row to remove.
+	 */
+	void removeRow(int row)
+	{
+		DefaultTableModel model= (DefaultTableModel) getModel();
+		model.removeRow(row);
+		previousRow = row-1;
 	}
 	
 	/** 
@@ -156,15 +207,19 @@ class ServerTable
 								boolean extend)
 	{
 		super.changeSelection(row, column, toggle, extend);
+		String v = null;
+		DefaultTableModel model= ((DefaultTableModel) getModel());
 		if (row != previousRow && row >= 0 && previousRow != -1) {
-			DefaultTableModel model= ((DefaultTableModel) getModel());
+			
 			if (model.getColumnCount() < 2) return; 
-			String v = (String) model.getValueAt(previousRow, 1);
+			v = (String) model.getValueAt(previousRow, 1);
 			TableCellEditor editor = getCellEditor();
 			if (editor != null) editor.stopCellEditing();
-			if (v == null || v.trim().length() == 0)
-			model.removeRow(previousRow);
+			if (v == null || v.trim().length() == 0) v = null;
 		}
+		if (row >= 0 && model.getColumnCount() == 2)
+			handleTextModification((String) model.getValueAt(row, 1));
+		parent.changeSelection(row, previousRow, v);
 		previousRow = row;
 		if (editCellAt(row, column)) {
 			getEditorComponent().requestFocusInWindow();

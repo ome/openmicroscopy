@@ -48,6 +48,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
@@ -65,6 +66,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
+import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
@@ -149,6 +151,8 @@ class ImViewerUI
     
     /** First time the lens has been shown then variable <code>true</code>. */
     private boolean 		firstTimeLensShown = true;
+    
+    private JTabbedPane		tabs;
     
     /** 
      * Creates the menu bar.
@@ -516,8 +520,8 @@ class ImViewerUI
     {
     	Browser browser = model.getBrowser();
         browser.setComponentsSize(model.getMaxX(), model.getMaxY());
-    	JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
-    							JTabbedPane.WRAP_TAB_LAYOUT);
+    	tabs = new JTabbedPane(JTabbedPane.TOP, 
+    							JTabbedPane.SCROLL_TAB_LAYOUT);
     	tabs.setAlignmentX(LEFT_ALIGNMENT);
     	tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     	//if tabs auto scrolling issue to fix. Why??
@@ -525,7 +529,8 @@ class ImViewerUI
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
         container.add(controlPane, BorderLayout.WEST);
-        container.add(browser.getUI(), BorderLayout.CENTER);
+        //container.add(browser.getUI(), BorderLayout.CENTER);
+        container.add(tabs, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
     }
     
@@ -773,12 +778,13 @@ class ImViewerUI
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
-                UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+                //UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
             }
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getOriginalImage());
             //lens.setLensPreferredColour();
             scrollLens();
+            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
         }
         lens.setVisible(b);
         repaint();
