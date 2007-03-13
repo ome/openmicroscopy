@@ -144,6 +144,41 @@
 			<touch file="${done.dir}/@{name}.done"/>
 		</sequential>
 	</macrodef>
+
+      <macrodef name="makeManifest">
+          <attribute name="property"/>
+	  <sequential>
+	  <pathconvert property="mf.classpath"
+	      refid="omero.classpath" 
+	      pathsep=" " dirsep="/">
+	      <flattenmapper/>
+          </pathconvert>
+	  </sequential>
+      </macrodef>
+
+      <!-- Gather all compiled services together into a single
+      services.jar.  Also, make all application jars available to the
+      services.jar via the MANIFEST file *AND* add one additional
+      (possibly non-extant) extensions.jar which can be created by 3rd
+      parties and added to the EAR file (top-level) for runtime class
+      lookups.
+
+      services.jar is placed in the specified directory. Optionally, a
+      manifest string can be specified. It defaults to the empty
+      string, but a manifest can be generated via makeManifest if
+      omero.classpath has been defined.-->
+
+      <macrodef name="useServices">
+          <attribute name="dir"/>
+	  <attribute name="manifest" default=""/>
+	  <sequential>
+          <jar destfile="@{dir}/services.jar" basedir="${tools.unjar}">
+            <manifest>
+              <attribute name="Class-Path" value="@{manifest} extensions.jar"/>
+    	    </manifest>
+          </jar>
+	  </sequential>
+      </macrodef>
 	
     <!-- = = = = = = = = = = = = = = = = =
           hibernate code-gen          
@@ -167,32 +202,5 @@
     		</hibernatetool>
         </sequential>
     </macrodef>	
-	
-    <!-- = = = = = = = = = = = = = = = = =
-          slice code-gen   
-         = = = = = = = = = = = = = = = = = -->
-
-	<macrodef name="slice">
-	   <attribute name="lang"/>
-	   <attribute name="files"/>
-	   <attribute name="suffix" default=""/>
-	   <attribute name="ice.slice" default="${ice.home}/slice"/>
-	   <attribute name="output" default="${src.dest}/@{exec}/@{suffix}"/>
-	   <sequential>
-		 <mkdir dir="@{output}"/>
-		 <exec executable="slice2@{lang}" 
-		    failonerror="true" failifexecutionfails="true"
-		    output="@{output}/.output.log">
-		        <arg value="--tie"/>
-		 	<arg value="--output-dir"/>
-			<arg value="@{output}"/>
-			<arg value="-I${resrc.dest}"/>
-			<arg value="-I${resrc.dir}/slice"/>
-			<arg value="-I@{ice.slice}"/>
-			<arg line="@{files}"/>
-		 </exec>
-	   	<done name="slice2@{lang}"/>
-	   </sequential>
-	</macrodef>
 
 </project>

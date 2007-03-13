@@ -32,22 +32,7 @@
         <fileset dir="${target.dir}/libs" includes="geronimo*"/>
       </delete>
 
-      <!-- Gather all compiled services together into a single services.jar. 
-      Also, make all application jars available to the services.jar via the
-      MANIFEST file *AND* add one additional (possibly non-extant) extensions.jar
-      which can be created by 3rd parties and added to the EAR file (top-level)
-      for runtime class lookups. -->
-
-      <pathconvert property="mf.classpath"
-	      refid="omero.classpath" 
-	      pathsep=" " dirsep="/">
-	      <flattenmapper/>
-      </pathconvert>
-      <jar destfile="${target.dir}/libs/services.jar" basedir="${tools.unjar}">
-        <manifest>
-          <attribute name="Class-Path" value="${mf.classpath} extensions.jar"/>
-	</manifest>
-      </jar>
+      <useServices dir="${target.dir}/libs"/>
       
       <!-- DataSource with replacement. -->
       <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" />

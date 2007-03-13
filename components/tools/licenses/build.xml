@@ -7,6 +7,7 @@
 	License tokens. 
 	</description>    
 
+	<property name="uses.ice" value="true"/>
 	<property name="classpath.file" value="classpath.xml"/>
 	<dirname property="up-two" file="${basedir}"/>
 	<dirname property="up-one" file="${up-two}"/>

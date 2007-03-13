@@ -7,9 +7,10 @@
 
     <!-- Local properties -->
     <property name="ice.file" value="omero.ice"/>
+    <property name="uses.ice" value="true"/>
 
 
-<target name="grv" depends="lifecycle.prepare,load-groovy">
+<target name="grv" depends="prepare,load-groovy">
 
   <taskdef classname="ome.dsl.GroovyTask" classpathref="omero.classpath" name="grv"/>
 
@@ -25,35 +26,7 @@
 
     <!-- TODO Be sure to remove the warning messages and macros -->
 	      		
-	<target name="prepare" depends="lifecycle.prepare,load-groovy">
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
-		<condition property="skip.ice">
-		   <equals arg1="${no.ice}" arg2="true" trim="true"/>
-		</condition>
-		<fail message="${msg.macro.missing_fail} slice2java">
-		  <condition><and>
-		    <not><isset property="skip.ice"/></not>
-		    <not><isset property="slice2java-exists"/></not>
-		  </and></condition>
-		</fail>
-		<fail message="${msg.prepare.bad.ice.home}">
-		  <condition><and>
-		    <not><isset property="skip.ice"/></not>
-		    <not><available file="${ice.home}" type="dir"/></not>
-		  </and></condition>
-		</fail>
-	</target>
-
-	<target name="generate" depends="lifecycle.generate,icegen,slice"/>
-
-	<target name="compile" depends="generate" unless="skip.ice">
-	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.compile"/>
-	</target>
-
-	<target name="test" depends="compile" unless="skip.ice">
-	  <antcall inheritAll="true" inheritRefs="true" target="lifecycle.test"/>
-	</target>
+	<target name="generate" depends="prepare,icegen,lifecycle.generate"/>
 
 	<target name="install" depends="test,lifecycle.install,standalone"/>
 
@@ -92,24 +65,4 @@
 		<done name="icegen"/>
 	</target>
 
-
-	<target name="slice-init" depends="prepare">
-		<fileset dir="${basedir}" id="slice.generated">
-			<include name="resources/slice/${ice.pat}"/>
-			<include name="target/generated/resources/${ice.pat}"/>
-		</fileset>
-		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
-		<is-done name="slice2java" srcdir="${basedir}" includes="${ice.pat}" />
-		<condition property="skip.ice.or.no.slice2java">
-		    <or>
-			<isset property="slice2java.not.required"/>
-			<isset property="skip.ice"/>
-		    </or>
-		</condition>
-	</target>
-
-	<target name="slice" depends="slice-init" if="slice2java-exists" unless="skip.ice.or.no.slice2java">
-			<slice lang="java" files="${slice.files}" output="${src.dest}"/>
-	</target>
-	
 </project>

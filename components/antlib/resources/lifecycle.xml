@@ -37,10 +37,80 @@
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.properties"/>
 		<copyResource file="${root.dir}/etc/jndi.properties"/>
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
+		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
+		<condition property="skip.ice">
+		   <equals arg1="${no.ice}" arg2="true" trim="true"/>
+		</condition>
+		<fail message="${msg.macro.missing_fail} slice2java">
+		  <condition><and>
+		    <not><isset property="skip.ice"/></not>
+		    <not><isset property="slice2java-exists"/></not>
+		  </and></condition>
+		</fail>
+		<fail message="${msg.prepare.bad.ice.home}">
+		  <condition><and>
+		    <not><isset property="skip.ice"/></not>
+		    <not><available file="${ice.home}" type="dir"/></not>
+		  </and></condition>
+		</fail>
 	</target>
 
 
-	<target name="generate" depends="prepare">
+	<target name="slice-init" depends="prepare">
+		<fileset dir="${basedir}" id="slice.generated">
+			<include name="resources/slice/${ice.pat}"/>
+			<include name="target/generated/resources/${ice.pat}"/>
+		</fileset>
+		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
+		<is-done name="slice2java" srcdir="${basedir}" includes="${ice.pat}" />
+		<condition property="skip.ice.or.no.slice2java">
+		    <or>
+			<isset property="slice2java.not.required"/>
+			<isset property="skip.ice"/>
+		    </or>
+		</condition>
+		<condition property="test.skip">
+		    <isset property="skip.ice"/>
+		</condition>
+		<condition property="skip.compile">
+		    <and>
+		    <isset property="uses.ice"/>
+		    <isset property="skip.ice"/>
+		    </and>
+		</condition>
+	</target>
+
+	<macrodef name="slice-macro">
+	   <attribute name="lang"/>
+	   <attribute name="files"/>
+	   <attribute name="suffix" default=""/>
+	   <attribute name="ice.slice" default="${ice.home}/slice"/>
+	   <attribute name="output" default="${src.dest}/@{exec}/@{suffix}"/>
+	   <sequential>
+		 <mkdir dir="@{output}"/>
+		 <exec executable="slice2@{lang}" 
+		    failonerror="true" failifexecutionfails="true"
+		    output="@{output}/.output.log">
+		        <arg value="--tie"/>
+		 	<arg value="--output-dir"/>
+			<arg value="@{output}"/>
+			<arg value="-I${resrc.dest}"/>
+			<arg value="-I${resrc.dir}/slice"/>
+			<arg value="-I${blitz.comp}/resources/slice"/>
+			<arg value="-I${blitz.comp}target/generated/resources"/>
+			<arg value="-I@{ice.slice}"/>
+			<arg line="@{files}"/>
+		 </exec>
+	   	<done name="slice2@{lang}"/>
+	   </sequential>
+	</macrodef>
+
+	<target name="slice" depends="slice-init" if="slice2java-exists" unless="skip.ice.or.no.slice2java">
+		<slice-macro lang="java" files="${slice.files}" output="${src.dest}"/>
+	</target>
+
+	<target name="generate" depends="prepare,slice">
                 <echo file="${resrc.dest}/Classpath.sh">
                   export CLASSPATH=${omero.path}
                 </echo>
@@ -70,7 +140,7 @@
 		</sequential>
 	</macrodef>
 
-	<target name="compile" depends="generate">
+	<target name="compile" depends="generate" unless="skip.compile">
 		<myjavac>
 		  <src path="${src.dir}"/>
 		  <src path="${src.dest}"/>
@@ -161,7 +231,7 @@
 		</pathconvert>
 		<jar destfile="${target.dir}/${artifact.final.name}">
 			<manifest>
-				<attribute name="Class-Path" value="${mf.classpath} extensions.jar"/>
+				<attribute name="Class-Path" value="${mf.classpath} services.jar extensions.jar"/>
 				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
 			<fileset dir="${classes.dir}">	

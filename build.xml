@@ -175,6 +175,8 @@
 			<fileset dir="${blitz.comp}/target/standalone" includes="**/*"/>
 		</copy>
 
+		<useServices dir="${dist.dir}/blitz/"/>
+
 		<copy todir="${dist.dir}/client">
 			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${client.comp}/${target.rel}" includes="*.jar"/>
