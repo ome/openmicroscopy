@@ -37,15 +37,15 @@ public class Main {
             @Override
             public void run() {
                 log.info("Running shutdown hook.");
-                OmeroContext.getInstance("OMERO.ice").close();
+                OmeroContext.getInstance("OMERO.blitz").close();
                 log.info("Shutdown hook finished.");
             }
         });
         
         Runnable r = new Runnable() {
             public void run() {
-                log.info("Creating OmeroContext. Please wait...");
-                OmeroContext ctx = OmeroContext.getInstance("OMERO.ice");
+                log.info("Creating OMERO.blitz. Please wait...");
+                OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
                 log.info("OMERO.blitz now accepting connections.");
             }
         };
@@ -62,8 +62,13 @@ public class Main {
     }
 
     protected static void waitForQuit() {
-        log.info("Waiting for user input:");
-        log.info("Enter q[uit] to stop server or use Ctrl-C");
+        System.out.println("");
+        System.out.println("**********************************************");
+        System.out.println(" OMERO.blitz console:");
+        System.out.println(" Waiting for user input; log output may follow.");
+        System.out.println(" Enter q[uit] to stop server or use Ctrl-C");
+        System.out.println("**********************************************");
+        System.out.println("");
         Scanner s = new Scanner(System.in);
         while (true) {
             String line = s.nextLine().toLowerCase();

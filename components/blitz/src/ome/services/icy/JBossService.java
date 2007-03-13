@@ -43,15 +43,15 @@ public class JBossService implements StartupAndShutdown {
 
     public void start() throws Exception {
         log.info("Starting.");
-        log.debug("Acquiring OMERO.ice context.");
-        OmeroContext ctx = OmeroContext.getInstance("OMERO.ice");
+        log.debug("Acquiring OMERO.blitz context.");
+        OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
         
     }
 
     public void stop() throws Exception {
         log.info("Stopping.");
-        log.debug("Destroying OMERO.ice context.");
-        OmeroContext.getInstance("OMERO.ice").destroy();
+        log.debug("Destroying OMERO.blitz context.");
+        OmeroContext.getInstance("OMERO.blitz").destroy();
     }
 
 }
