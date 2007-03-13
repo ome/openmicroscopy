@@ -64,6 +64,9 @@ AC_SYS_LARGEFILE
 dnl Set the correct language (C++)
 AC_LANG(C++)
 
+dnl Check for CPPUnit
+AM_PATH_CPPUNIT(1.9.6)
+
 dnl Check for slice2cpp
 AC_PATH_PROG(SLICE2CPP, slice2cpp)
 if test -z $SLICE2CPP; then
@@ -89,6 +92,7 @@ AC_CHECK_HEADER(IceUtil/UUID.h, LIBICEUTIL='yes', AC_MSG_ERROR([
 *** OMERO.blitz for C++ requires libIceUtil; (Required Ice headers not found) ***]))
 
 AC_CONFIG_FILES([Makefile
-		 src/cpp/Makefile])
+		 src/cpp/Makefile
+		 test/cpp/Makefile])
                  
 AC_OUTPUT
