@@ -19,7 +19,7 @@
 		</property>
 	</bean>
   
-  <bean    id="OMERO.ice"
+  <bean    id="OMERO.blitz"
     	  class="ome.system.OmeroContext"
     	  lazy-init="true">
 	<constructor-arg index="0">
@@ -27,6 +27,7 @@
         <value>classpath:omero/server.xml</value>
         <value>classpath:omero/constants.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
+        <value>classpath*:ome/services/blitz-*.xml</value>   
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
