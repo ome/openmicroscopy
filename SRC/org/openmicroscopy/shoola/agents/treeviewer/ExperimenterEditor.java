@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.AdminLoader 
+ * org.openmicroscopy.shoola.agents.treeviewer.ExperimenterEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,20 +23,21 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
+
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ExperimenterData;
 
 /** 
- * Retrieves the available groups.
- * This class calls the <code>loadAvailableGroups</code> in the
+ * Edits the logged-in user.
+ * This class calls the <code>updateExperimenter</code> in the
  * <code>DataManagerView</code>.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,47 +49,54 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class AdminLoader
-	extends DataTreeViewerLoader
+public class ExperimenterEditor 
+	extends ProfileEditorLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  		handle;
+    
+    /** The experimenter to update. */
+    private ExperimenterData 	exp;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer	The viewer this data loader is for.
+     *                  Mustn't be <code>null</code>.
+     * @param exp The experimenter data object to update.
      */
-	public AdminLoader(TreeViewer viewer)
+	public ExperimenterEditor(ProfileEditor viewer, ExperimenterData exp)
 	{
 		super(viewer);
+		if (exp == null)
+			throw new IllegalArgumentException("No experimenter to update.");
+		this.exp = exp;
 	}
-	
-    /** 
-     * Retrieves the available experimenter groups. 
-     * @see DataTreeViewerLoader#load()
+
+    /**
+     * Updates the experimenter.
+     * @see ProfileEditorLoader#load()
      */
 	public void load()
 	{
-		handle = dmView.loadAvailableGroups(this);
+		handle = dmView.updateExperimenter(exp, this);
 	}
 	
-	/** 
-     * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+    /**
+     * Cancels the ongoing data retrieval.
+     * @see ProfileEditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataTreeViewerLoader#handleResult(Object)
+     * @see ProfileEditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setAvailableGroups((Map) result);
+        if (viewer.getState() == ProfileEditor.DISCARDED) return;  //Async cancel.
+        viewer.experimenterChanged((ExperimenterData) result);
     }
-
+    
 }

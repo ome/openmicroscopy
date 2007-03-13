@@ -53,6 +53,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
+import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
+import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
@@ -275,7 +277,17 @@ class TreeViewerComponent
         }
         removeEditor();
         //tmp solution
-        if (object == null || object instanceof ExperimenterData) return;
+        if (object == null) return;
+        if (object instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) object;
+        	if (exp.getId() != model.getUserDetails().getId()) return;
+        	ProfileEditor pEditor = ProfileEditorFactory.getEditor(exp);
+        	pEditor.addPropertyChangeListener(controller);
+        	pEditor.activate();
+        	view.addComponent(pEditor.getUI());
+        	
+        	return;
+        }
         model.setEditorType(editorType);
         Editor editor = EditorFactory.getEditor(this, object, editorType, 
                                                 parent);

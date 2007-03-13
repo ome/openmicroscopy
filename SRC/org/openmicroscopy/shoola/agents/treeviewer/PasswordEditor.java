@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.AdminLoader 
+ * org.openmicroscopy.shoola.agents.treeviewer.PasswordEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,19 +23,18 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
+
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * Retrieves the available groups.
- * This class calls the <code>loadAvailableGroups</code> in the
+ * Modifies the password of the logged-in user.
+ * This class calls the <code>changePassword</code> in the
  * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -48,47 +47,62 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class AdminLoader
-	extends DataTreeViewerLoader
+public class PasswordEditor 
+	extends ProfileEditorLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+    /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
+    
+    /** The password used to log in. */
+    private String		oldPassword;
+    
+    /** The new password. */
+    private String		newPassword;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer The TreeViewer this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer		The viewer this data loader is for.
+     *                  	Mustn't be <code>null</code>.
+     * @param oldPassword	The logged in password. 
+     * 						Mustn't be <code>null</code>.
+     * @param newPassword	The new password. Mustn't be <code>null</code>.
      */
-	public AdminLoader(TreeViewer viewer)
+	public PasswordEditor(ProfileEditor viewer, String oldPassword, 
+			String newPassword)
 	{
 		super(viewer);
+		if (oldPassword == null)
+			throw new IllegalArgumentException("Password not valid.");
+		if (newPassword == null)
+			throw new IllegalArgumentException("Password not valid.");
+		this.oldPassword = oldPassword;
+		this.newPassword = newPassword;
 	}
-	
-    /** 
-     * Retrieves the available experimenter groups. 
-     * @see DataTreeViewerLoader#load()
+
+    /**
+     * Modifies the password.
+     * @see ProfileEditorLoader#load()
      */
 	public void load()
 	{
-		handle = dmView.loadAvailableGroups(this);
+		handle = dmView.changePassword(oldPassword, newPassword, this);
 	}
 	
-	/** 
-     * Cancels the data loading. 
-     * @see DataTreeViewerLoader#cancel()
+    /**
+     * Cancels the ongoing data retrieval.
+     * @see ProfileEditorLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
     
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataTreeViewerLoader#handleResult(Object)
+     * @see ProfileEditorLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setAvailableGroups((Map) result);
+        if (viewer.getState() == ProfileEditor.DISCARDED) return;  //Async cancel.
+        viewer.passwordChanged((Boolean) result);
     }
-
 }

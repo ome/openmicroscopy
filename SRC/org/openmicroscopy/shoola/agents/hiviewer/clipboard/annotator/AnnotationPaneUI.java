@@ -125,7 +125,7 @@ class AnnotationPaneUI
     private DefaultListModel    listModel;
     
     /** Maps of users who annotated the data object. */
-    private Map                 ownersMap;
+    private Map<Integer, Long>	ownersMap;
     
     /** The index of the current user.*/
     private int                 userIndex;
@@ -207,6 +207,7 @@ class AnnotationPaneUI
                 	annotationArea.getDocument().removeDocumentListener(
                             annotationAreaListener);
                     annotationArea.setText("");
+                    setComponentsEnabled(true);
                     annotationArea.getDocument().addDocumentListener(
                             annotationAreaListener);
                 }
@@ -228,7 +229,7 @@ class AnnotationPaneUI
         JPanel p = new JPanel();
         if (ClipBoard.HORIZONTAL_SPLIT) {
         	double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
-    				{0, 150} }; //rows
+    				{0, TableLayout.FILL} }; //rows
     		p.setLayout(new TableLayout(tl));
     		p.add(new JScrollPane(annotationArea), "0, 0, 0, 1");
     		JPanel empty = new JPanel();
@@ -236,8 +237,8 @@ class AnnotationPaneUI
     		p.add(empty, "1, 0, f, t");
     		p.add(new JScrollPane(annotatedByList), "2, 0, 2, 1");    
         } else {
-        	double[][] tl = {{TableLayout.PREFERRED}, //columns
-    				{150,  5, 150} }; //rows
+        	double[][] tl = {{TableLayout.FILL}, //columns
+    				{200,  5, 200} }; //rows
     		p.setLayout(new TableLayout(tl));
     		p.add(new JScrollPane(annotationArea), "0, 0");
     		JPanel empty = new JPanel();
@@ -313,7 +314,7 @@ class AnnotationPaneUI
     private List getOwnerAnnotation(int index)
     { 
         Map annotations = model.getAnnotations();
-        Long ownerID = (Long) ownersMap.get(new Integer(index));
+        Long ownerID = ownersMap.get(new Integer(index));
         if (ownerID == null) return new ArrayList();    //empty list
         return (List) annotations.get(ownerID);
     }
@@ -380,7 +381,7 @@ class AnnotationPaneUI
         Iterator i = annotations.keySet().iterator();
         Long id;
         int index = 0;
-        ownersMap = new HashMap();
+        ownersMap = new HashMap<Integer, Long>();
         List list;
         ExperimenterData data;
         while (i.hasNext()) {

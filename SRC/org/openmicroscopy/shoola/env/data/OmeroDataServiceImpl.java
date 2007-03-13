@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,10 +38,14 @@ import java.util.Set;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.core.Channel;
-import ome.model.core.OriginalFile;
+import ome.model.meta.Experimenter;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.login.LoginConfig;
+import org.openmicroscopy.shoola.env.data.login.LoginService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -78,8 +79,6 @@ class OmeroDataServiceImpl
     
     /** Reference to the entry point to access the <i>OMERO</i> services. */
     private OMEROGateway            gateway;
-    
-
     
     /**
      * Helper method to return the user's details.
@@ -915,6 +914,55 @@ class OmeroDataServiceImpl
 			}
 		}
 		return results;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#changePassword(String, String)
+     */
+	public Boolean changePassword(String oldPassword, String newPassword) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		if (newPassword == null || newPassword.trim().length() == 0)
+			throw new IllegalArgumentException("Password not valid.");
+		UserCredentials uc = (UserCredentials) 
+				context.lookup(LookupNames.USER_CREDENTIALS);
+		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
+		gateway.changePassword(newPassword);
+		uc.resetPassword(newPassword);
+		return Boolean.TRUE;
+	}
+
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#updateExperimenter(ExperimenterData)
+     */
+	public ExperimenterData updateExperimenter(ExperimenterData exp) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		//ADD control
+		if (exp == null) 
+            throw new DSAccessException("No object to update.");
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+        Experimenter oldObject = exp.asExperimenter();
+        oldObject.setOmeName(uc.getUserName());
+        //DEfault group issue.
+        //TODO invoke server when method is updated server side.
+        //PojoMapper.asDataObject(updated);
+        ExperimenterData data = gateway.getUserDetails(uc.getUserName());
+        context.bind(LookupNames.CURRENT_USER_DETAILS, exp);
+//      Bind user details to all agents' registry.
+        List agents = (List) context.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			agentInfo.getRegistry().bind(
+			        LookupNames.CURRENT_USER_DETAILS, exp);
+		}
+		System.err.println(data.getLastName());
+		return data;
 	}
 	
 }

@@ -89,6 +89,18 @@ public class UserCredentials
     }
     
     /**
+     * Resets the password.
+     * 
+     * @param password The <i>OMERO</i> login password of the user.
+     */
+    public void resetPassword(String password)
+    {
+    	 if (password == null || password.length() == 0)
+             throw new IllegalArgumentException("Please specify a password.");
+    	 this.password = password;
+    }
+    
+    /**
      * Returns the name of the <i>OMERO</i> server.
      * 
      * @return See above.

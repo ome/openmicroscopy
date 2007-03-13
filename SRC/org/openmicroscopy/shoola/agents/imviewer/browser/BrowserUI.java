@@ -224,6 +224,7 @@ class BrowserUI
 			}
         } else {
         	//lens not centered
+        	if (blockIncrement) return;
         	int w = viewRect.width-bounds.width;
 			if (w < 0) w = -w;
 			hBar.setValue(bounds.x-w/2);

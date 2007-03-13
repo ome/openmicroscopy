@@ -183,7 +183,8 @@ class BrowserControl
                 ImageDisplay n;
                 while (i.hasNext()) {
                     n = (ImageDisplay) i.next();
-                        n.setHighlight(colors.getDeselectedHighLight(n));
+                    if (n != null)
+                    	n.setHighlight(colors.getDeselectedHighLight(n));
                 }
             }
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {

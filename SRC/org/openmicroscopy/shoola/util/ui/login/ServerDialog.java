@@ -38,7 +38,9 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BorderFactory;
@@ -60,6 +62,7 @@ import javax.swing.table.TableCellEditor;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.PartialLineBorder;
 
 /** 
  * Modal dialog used to manage servers.
@@ -158,6 +161,7 @@ class ServerDialog
      */
     private boolean			warning;
     
+    /** Flag indicating if we are in the editing mode. */
     private boolean			editing;
     
 	/** Closes and disposes. */
@@ -203,10 +207,10 @@ class ServerDialog
 	 * Removes the selected server from the list. 
 	 * 
 	 * @param row The row to remove.
-	 * */
+	 */
 	private void removeRow(int row)
 	{
-		DefaultTableModel model= (DefaultTableModel) table.getModel();
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		//int row = table.getSelectedRow();
 		if (row < 0) return;
 		//DefaultTableModel model= (DefaultTableModel) table.getModel();
@@ -214,6 +218,7 @@ class ServerDialog
 		String oldValue = (String) model.getValueAt(row, 1);
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
+			
 		table.removeRow(row);
 		//model.removeRow(row);
 		int m = model.getRowCount()-1;
@@ -223,7 +228,13 @@ class ServerDialog
 			newValue = (String) model.getValueAt(m, 1);
 			requestFocusInWindow();
 		}
+		editor = table.getCellEditor();
 		
+		if (editor != null) {
+			editor.stopCellEditing();
+		}
+		if (model.getRowCount() == 0) setEditing(false);
+		editing = false;
 		finishButton.setEnabled(model.getRowCount() != 0);
 		//table.requestFocusInWindow();
 		firePropertyChange(REMOVE_PROPERTY, oldValue, newValue);
@@ -341,16 +352,16 @@ class ServerDialog
 		titlePanel = new TitlePanel(TITLE, TEXT, 
 									icons.getIcon(IconManager.CONFIG_48));
 		titleLayer.add(titlePanel, new Integer(0));
+		setEditing(n == 0);
 	}
 	
-	 /** Creates the {@link #emptyMessagePanel} if required. */
+	/** Creates the {@link #emptyMessagePanel} if required. */
     private void buildEmptyPanel()
     {
         if (emptyMessagePanel != null) return;
         emptyMessagePanel = new JPanel();
-        emptyMessagePanel.setOpaque(true);
-        emptyMessagePanel.setBorder(
-                            BorderFactory.createLineBorder(Color.BLACK));
+        emptyMessagePanel.setOpaque(false);
+        emptyMessagePanel.setBorder(new PartialLineBorder(Color.BLACK));
         Rectangle r = titlePanel.getBounds();
         
         emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,
@@ -364,7 +375,7 @@ class ServerDialog
         emptyMessagePanel.add(label);
         Insets i = emptyMessagePanel.getInsets();
         h += i.top+i.bottom;
-        emptyMessagePanel.setBounds(0, r.height-h-1, 3*w/2, h);
+        emptyMessagePanel.setBounds(2, r.height-h-1, 3*w/2, h);
     }
     
 	/**
@@ -435,7 +446,7 @@ class ServerDialog
 	 * 
 	 * @param b The value to set.
 	 */
-	private void enabledButtons(boolean b)
+	private void setButtonsEnabled(boolean b)
 	{
 		finishButton.setEnabled(b);
 		addButton.setEnabled(b);
@@ -460,8 +471,24 @@ class ServerDialog
 		setSize(WINDOW_DIM);
 	}
 
-	void setEditing(boolean b) { editing = b; }
+	/**
+	 * Sets the editing mode.
+	 * 
+	 * @param b Pass <code>true</code> if the editing mode is turned on,
+	 * 			<code>false</code> otherwise.
+	 */
+	void setEditing(boolean b)
+	{
+		addButton.setEnabled(!b);
+		editing = b; 
+	}
 	
+	/**
+	 * Returns <code>true</code> if we are in the editing mode,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
 	boolean isEditing() { return editing; }
 	
 	/**
@@ -489,14 +516,30 @@ class ServerDialog
 	 */
 	void changeSelection(int row, int previousRow, String text)
 	{
-		finishButton.setEnabled((row != -1));
+		finishButton.setEnabled(row != -1);
 		if (previousRow == -1 || previousRow == row) return;
 		if (!editing) return;
 		editing = false;
-		if (warning || text == null) {
+		List<String> values = new ArrayList<String>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			if (i != previousRow) values.add((String) table.getValueAt(i, 1)); 
+		}
+		Iterator j = values.iterator();
+		String name;
+		boolean found = false; 
+		while (j.hasNext()) {
+			name = (String) j.next();
+			if (name.equals(text)) {
+				found = true;
+				break;
+			}
+		}
+		if (found || text == null) {
 			removeRow(previousRow);
 			showMessagePanel(false);
 		}
+		TableCellEditor editor = table.getCellEditor();
+		if (editor != null) editor.stopCellEditing();
 	}
 	
 	/**
@@ -509,7 +552,7 @@ class ServerDialog
 	void showMessagePanel(boolean warning)
 	{
 		this.warning = warning;
-		enabledButtons(!warning);
+		setButtonsEnabled(!warning);
 		if (warning) {
 			if (emptyMessagePanel != null) return;
 			buildEmptyPanel();
@@ -538,6 +581,7 @@ class ServerDialog
 			removeRow(table.getSelectedRow());
 			showMessagePanel(false);
 		}
+		setButtonsEnabled(true);
 	}
 	
 	/** 

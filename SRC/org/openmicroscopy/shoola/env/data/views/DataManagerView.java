@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -424,4 +425,26 @@ public interface DataManagerView
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle loadAvailableGroups(AgentEventListener observer);
+
+    /**
+     * Modifies the password of the user currently logged in
+     * 
+     * @param oldPassword 	The password used to log in.  
+     * @param newPassword	The new password value.
+     * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+	public CallHandle changePassword(String oldPassword, String newPassword, 
+									AgentEventListener observer);
+
+	/**
+	 * Updates the specified experimenter.
+	 * 
+	 * @param exp The experimenter to update. Mustn't be <code>null</code>.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle updateExperimenter(ExperimenterData exp, 
+										AgentEventListener observer);
+	
 }

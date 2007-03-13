@@ -523,14 +523,14 @@ class ImViewerUI
     	tabs = new JTabbedPane(JTabbedPane.TOP, 
     							JTabbedPane.SCROLL_TAB_LAYOUT);
     	tabs.setAlignmentX(LEFT_ALIGNMENT);
-    	tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+    	//tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
     	//if tabs auto scrolling issue to fix. Why??
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
         container.add(controlPane, BorderLayout.WEST);
-        //container.add(browser.getUI(), BorderLayout.CENTER);
-        container.add(tabs, BorderLayout.CENTER);
+        container.add(browser.getUI(), BorderLayout.CENTER);
+        //container.add(tabs, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
     }
     

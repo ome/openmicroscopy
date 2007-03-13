@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorSaverDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.UserManagerDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
@@ -393,6 +394,9 @@ class TreeViewerControl
         } else if (name.equals(Browser.CLOSE_PROPERTY)) {
             Browser browser = (Browser) pce.getNewValue();
             if (browser != null) view.removeBrowser(browser);
+        } else if (name.equals(ProfileEditor.CLOSE_PROFILE_EDITOR_PROPERTY)) {
+        	model.removeEditor();
+            model.onComponentStateChange(true);
         } else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY)) {
         	Browser b = model.getSelectedBrowser(); 
         	TreeImageDisplay d = null;

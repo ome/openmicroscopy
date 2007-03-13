@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.GroupsRenderer 
+ * org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,23 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.util;
+package org.openmicroscopy.shoola.agents.treeviewer.profile;
 
+import pojos.ExperimenterData;
 
 //Java imports
-import java.awt.Component;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
-import pojos.GroupData;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Customized list renderer displaying the users groups. 
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,37 +43,51 @@ import pojos.GroupData;
  * </small>
  * @since OME3.0
  */
-public class GroupsRenderer 
-	extends JLabel implements ListCellRenderer
+public class ProfileEditorFactory 
 {
 
-	/** Creates a new instance. */
-	public GroupsRenderer()
-	{
-		setOpaque(true);
-	}
-	
-	/**
-	 * Overridden to set boder and color.
-	 * 
-	 * @see javax.swing.ListCellRenderer#getListCellRendererComponent
-	 *      (javax.swing.JList, java.lang.Object, int, boolean, boolean)
-	 */
-    public Component getListCellRendererComponent(JList list, Object value,
-            int index, boolean isSelected, boolean hasFocus) 
+	 /** The sole instance. */
+    private static final ProfileEditorFactory singleton = 
+    						new ProfileEditorFactory();
+    
+    /**
+     * Returns an editor for the passed experimenter.
+     * 
+     * @param exp The experimenter to edit.
+     * @return See above.
+     */
+    public static ProfileEditor getEditor(ExperimenterData exp)
     {
-    	setVerticalAlignment(SwingConstants.CENTER);
-    	if (value instanceof String) setText((String) value);
-    	else if (value instanceof GroupData)
-    		setText(((GroupData) value).getName());
-    	if (isSelected) {
-    		setForeground(list.getSelectionForeground());
-            setBackground(list.getSelectionBackground());
-    	} else {
-    		 setForeground(list.getForeground());
-    		 setBackground(list.getBackground());
-    	}
-    	return this;
+    	if (exp == null)
+    		throw new IllegalArgumentException("No experimenter sepcified.");
+    	return singleton.createEditor(exp);
+    }
+    
+    
+    /** The tracked component. */
+    private ProfileEditor  editor;
+    
+    /** Creates a new instance. */
+    private ProfileEditorFactory()
+    {
+    	editor = null;
     }
 
+    /**
+     * Creates or recycles the editor for the specified experimenter.
+     * 
+     * @param exp The experimenter to edit.
+     * @return See above.
+     */
+    private ProfileEditor createEditor(ExperimenterData exp)
+    {
+    	if (editor != null) return editor;
+    	ProfileEditorModel model = new ProfileEditorModel(exp);
+    	ProfileEditorComponent c = new ProfileEditorComponent(model);
+    	model.initialize(c);
+    	c.initialize();
+    	editor = c;
+    	return c;
+    }
+    
 }

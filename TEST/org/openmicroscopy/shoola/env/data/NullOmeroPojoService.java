@@ -34,8 +34,11 @@ import java.util.Set;
 
 //Application-internal dependencies
 import pojos.AnnotationData;
+import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 
 /** 
  * 
@@ -140,26 +143,6 @@ public class NullOmeroPojoService
             throws DSOutOfServiceException, DSAccessException
     {
         return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#classify(Set, Set)
-     */
-    public Set classify(Set images, Set categories)
-            throws DSOutOfServiceException, DSAccessException
-    {
-    	return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#declassify(Set, Set)
-     */
-    public Set declassify(Set images, Set categories)
-            throws DSOutOfServiceException, DSAccessException
-    {
-    	return null;
     }
 
     /**
@@ -316,6 +299,46 @@ public class NullOmeroPojoService
      * @see OmeroDataService#classifyChildren(Set, Set)
      */
 	public Set classifyChildren(Set containers, Set categories) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#changePassword(String, String)
+     */
+	public Boolean changePassword(String oldPassword, String newPassword) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#classify(Set, Set)
+     */
+	public Set classify(Set<ImageData> images, Set<CategoryData> categories) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#declassify(Set, Set)
+     */
+	public Set declassify(Set<ImageData> images, Set<CategoryData> categories) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
+
+    /**
+     * No-op implementation
+     * @see OmeroDataService#updateExperimenter(ExperimenterData)
+     */
+	public ExperimenterData updateExperimenter(ExperimenterData exp) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

@@ -96,7 +96,7 @@ class DOAnnotation
     private DefaultListModel    listModel;
     
     /** Maps of users who annotated the data object. */
-    private Map                 ownersMap;
+    private Map<Integer, Long>	ownersMap;
     
     /** The index of the current user.*/
     private int                 userIndex;
@@ -184,6 +184,7 @@ class DOAnnotation
                     annotationArea.getDocument().removeDocumentListener(
                             annotationAreaListener);
                     annotationArea.setText("");
+                    setComponentsEnabled(true);
                     annotationArea.getDocument().addDocumentListener(
                             annotationAreaListener);
                 }
@@ -282,7 +283,7 @@ class DOAnnotation
     private List getOwnerAnnotation(int index)
     { 
         Map annotations = model.getAnnotations();
-        Long ownerID = (Long) ownersMap.get(new Integer(index));
+        Long ownerID = ownersMap.get(new Integer(index));
         if (ownerID == null) return new ArrayList();    //empty list
         return (List) annotations.get(ownerID);
     }
@@ -349,7 +350,7 @@ class DOAnnotation
         Iterator i = annotations.keySet().iterator();
         Long id;
         int index = 0;
-        ownersMap = new HashMap();
+        ownersMap = new HashMap<Integer, Long>();
         List list;
         ExperimenterData data;
         while (i.hasNext()) {

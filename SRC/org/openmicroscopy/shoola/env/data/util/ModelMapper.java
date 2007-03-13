@@ -47,6 +47,7 @@ import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
+import ome.model.meta.Experimenter;
 import ome.util.Filter;
 import ome.util.Filterable;
 import pojos.AnnotationData;
@@ -54,6 +55,7 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -517,6 +519,14 @@ public class ModelMapper
     		DatasetAnnotation o = (DatasetAnnotation) oldObject;
     		n.setContent(o.getContent());
     		n.setDataset(o.getDataset()); 
+    	} else if (oldObject instanceof Experimenter) {
+    		Experimenter n = (Experimenter) newObject;
+    		Experimenter o = (Experimenter) oldObject;
+    		n.setEmail(o.getEmail());
+    		n.setFirstName(o.getFirstName());
+    		n.setLastName(o.getLastName());
+    		n.setInstitution(o.getInstitution());
+    		//n.setDefaultGroup(o.getDefaultGroup());
     	}
     }
     

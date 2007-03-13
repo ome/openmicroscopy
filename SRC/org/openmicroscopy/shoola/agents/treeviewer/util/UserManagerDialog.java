@@ -128,7 +128,7 @@ public class UserManagerDialog
 	/** The current user. */
 	private ExperimenterData			loggedUser;
 	
-	/** Use to sort elements. */
+	/** Helper class uses to sort elements. */
 	private ViewerSorter				sorter;
 	
 	/** Map of ordered elements. */
@@ -259,31 +259,11 @@ public class UserManagerDialog
 		Iterator i = map.keySet().iterator();
 		//Remove not visible group
 		GroupData g;
-		HashMap<GroupData, Set> newMap = new HashMap<GroupData, Set>();
-		Set<ExperimenterData> newSet;
-		Set<ExperimenterData> oldSet;
-		Iterator j;
-		ExperimenterData exp;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (TreeViewerTranslator.isVisible(g, loggedUser)) {
-				newSet = new HashSet<ExperimenterData>();
-				oldSet = (Set) map.get(g);
-				j = oldSet.iterator();
-				while (j.hasNext()) {
-					exp = (ExperimenterData) j.next();
-					if (TreeViewerTranslator.isVisible(exp, loggedUser))
-						newSet.add(exp);
-				}
-				newMap.put(g, newSet);
-			}
-		}
-		GroupData[] objects = new GroupData[newMap.size()];
+		GroupData[] objects = new GroupData[map.size()];
 		int selectedIndex = 0;
 		int index = 0;
 		Object[] children;
 		GroupData selectedGroup = defaultGroup;
-		i = newMap.keySet().iterator();
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
 			objects[index] = g;
@@ -291,7 +271,7 @@ public class UserManagerDialog
 				selectedIndex = index;
 				selectedGroup = g;
 			}
-			children = sorter.sortArray(newMap.get(g));
+			children = sorter.sortArray((Set) map.get(g));
 			orderedMap.put(g, children);
 			index++;
 		}

@@ -62,6 +62,8 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.PartialLineBorder;
+
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -319,8 +321,7 @@ class EditorUI
         if (emptyMessagePanel != null) return;
         emptyMessagePanel = new JPanel();
         emptyMessagePanel.setOpaque(true);
-        emptyMessagePanel.setBorder(
-                            BorderFactory.createLineBorder(Color.BLACK));
+        emptyMessagePanel.setBorder(new PartialLineBorder(Color.BLACK));
         Rectangle r = titlePanel.getBounds();
         
         emptyMessagePanel.setLayout(new BoxLayout(emptyMessagePanel,

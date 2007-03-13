@@ -35,6 +35,7 @@ import java.util.Set;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 
@@ -92,7 +93,7 @@ public interface OmeroDataService
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
                                     boolean withLeaves, Class rootLevel, 
@@ -160,7 +161,7 @@ public interface OmeroDataService
      * @return A <code>Set</code> with all root nodes that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
             						Class rootLevel, long rootLevelID)
@@ -191,7 +192,7 @@ public interface OmeroDataService
      *         all annotations for that node or <code>null</code>.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
     							boolean forUser)
@@ -231,7 +232,7 @@ public interface OmeroDataService
      * that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set findCGCPaths(Set imgIDs, int algorithm, Class rootLevel, 
                             long rootLevelID)
@@ -251,7 +252,7 @@ public interface OmeroDataService
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set getImages(Class nodeType, Set nodeIDs, Class rootLevel, 
             			long rootLevelID)
@@ -264,7 +265,7 @@ public interface OmeroDataService
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set getExperimenterImages(long userID)
         throws DSOutOfServiceException, DSAccessException;
@@ -281,7 +282,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Map getCollectionCount(Class rootNodeType, String property,
             						Set rootNodeIDs)
@@ -299,7 +300,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public DataObject createAnnotationFor(DataObject annotatedObject,
                                             AnnotationData data)
@@ -317,7 +318,7 @@ public interface OmeroDataService
      * @return See above.                  
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public DataObject removeAnnotationFrom(DataObject annotatedObject, 
                                             AnnotationData data)
@@ -334,7 +335,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public DataObject updateAnnotationFor(DataObject annotatedObject, 
                                         AnnotationData data)
@@ -355,7 +356,7 @@ public interface OmeroDataService
      * @return          The newly created <code>DataObject</code>
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public DataObject createDataObject(DataObject newObject, DataObject parent)
         throws DSOutOfServiceException, DSAccessException;
@@ -370,7 +371,7 @@ public interface OmeroDataService
      * @return          The updated parent.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set removeDataObjects(Set children, DataObject parent)
         throws DSOutOfServiceException, DSAccessException;
@@ -382,7 +383,7 @@ public interface OmeroDataService
      * @return          The updated object.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public DataObject updateDataObject(DataObject object)
         throws DSOutOfServiceException, DSAccessException;
@@ -408,7 +409,7 @@ public interface OmeroDataService
      * @return The declassified images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set declassify(Set<ImageData> images, Set<CategoryData> categories)
         throws DSOutOfServiceException, DSAccessException;
@@ -428,7 +429,7 @@ public interface OmeroDataService
      * @return  A set of existing nodes.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Set loadExistingObjects(Class nodeType, Set nodeIDs, Class rootLevel, 
                                 long rootID)
@@ -442,7 +443,7 @@ public interface OmeroDataService
      * @param children  The collection of objects to add.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public void addExistingObjects(DataObject parent, Set children)
         throws DSOutOfServiceException, DSAccessException;
@@ -454,7 +455,7 @@ public interface OmeroDataService
      * @param toCut     The nodes to cut.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public void cutAndPaste(Map toPaste, Map toCut)
         throws DSOutOfServiceException, DSAccessException;
@@ -466,7 +467,7 @@ public interface OmeroDataService
      * @return A list of metadata.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public List getChannelsMetadata(long pixelsID)
         throws DSOutOfServiceException, DSAccessException;
@@ -482,7 +483,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public List createAnnotationFor(Set toAnnotate, AnnotationData data)
         throws DSOutOfServiceException, DSAccessException;
@@ -496,7 +497,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public List updateAnnotationFor(Map toUpdate)
         throws DSOutOfServiceException, DSAccessException;
@@ -509,7 +510,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     public Map<GroupData, Set> getAvailableGroups()
     	throws DSOutOfServiceException, DSAccessException;
@@ -529,7 +530,7 @@ public interface OmeroDataService
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
 	public Set getOrphanContainers(Class nodeType, boolean b, Class rootLevel, 
 									long rootLevelID)
@@ -545,7 +546,7 @@ public interface OmeroDataService
 	 * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
 	 */
 	public Map getArchivedFiles(String location, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
@@ -559,7 +560,7 @@ public interface OmeroDataService
 	 * @return The classified images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
 	 */
 	public Set classifyChildren(Set containers, Set categories)
 		throws DSOutOfServiceException, DSAccessException;
@@ -574,9 +575,35 @@ public interface OmeroDataService
 	 * @return The annotated images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
 	 */
 	public List annotateChildren(Set folders, AnnotationData data)
 		throws DSOutOfServiceException, DSAccessException;	
+	
+	/**
+	 * Changes the password of the user currently logged in.
+	 * 
+	 * @param oldPassword	The password used to log in.
+	 * @param newPassword	The new password.
+	 * @return 	<code>Boolean.TRUE</code> if successfully modified,
+	 * 			<code>Boolean.FALSE</code> otherwise.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+	 */
+	public Boolean changePassword(String oldPassword, String newPassword)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Updates the specified experimenter.
+	 * 
+	 * @param exp	The experimenter to update.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+	 */
+	public ExperimenterData updateExperimenter(ExperimenterData exp)
+		throws DSOutOfServiceException, DSAccessException;
     
 }

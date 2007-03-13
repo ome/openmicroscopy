@@ -161,7 +161,7 @@ class BrowserModel
         
         if (!multiSelection)
             selectedDisplays.removeAll(selectedDisplays);
-        selectedDisplays.add(node);
+        if (node != null) selectedDisplays.add(node);
         
         firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
     }
@@ -238,7 +238,7 @@ class BrowserModel
      */
     public ImageDisplay getLastSelectedDisplay()
     { 
-        Iterator  i = selectedDisplays.iterator();
+        Iterator i = selectedDisplays.iterator();
         int index = 0;
         while (i.hasNext()) {
             if (index == (selectedDisplays.size()-1)) 

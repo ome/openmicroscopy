@@ -269,37 +269,6 @@ class OMEROGateway
     }
     
     /**
-     * Retrieves the details on the current user and maps the result calling
-     * {@link PojoMapper#asDataObjects(Map)}.
-     * 
-     * @param name  The user's name.
-     * @return The {@link ExperimenterData} of the current user.
-     * @throws DSOutOfServiceException If the connection is broken, or
-     * logged in.
-     * @see IPojos#getUserDetails(Set, Map)
-     */
-    private ExperimenterData getUserDetails(String name)
-        throws DSOutOfServiceException
-    {
-        try {
-            IPojos service = getIPojosService();
-            Set<String> set = new HashSet<String>(1);
-            set.add(name);
-            Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
-                    (new PojoOptions()).map()));
-            ExperimenterData data = (ExperimenterData) m.get(name);
-            if (data == null) {
-                throw new DSOutOfServiceException("Cannot retrieve user's " +
-                "data");
-            }
-            return data;
-        } catch (Exception e) {
-            throw new DSOutOfServiceException("Cannot retrieve user's data " +
-                    						printErrorText(e));
-        }
-    }
-    
-    /**
      * Returns the {@link IPojos} service.
      * 
      * @return See above.
@@ -425,6 +394,37 @@ class OMEROGateway
     boolean isConnected() { return connected; }
     
     /**
+     * Retrieves the details on the current user and maps the result calling
+     * {@link PojoMapper#asDataObjects(Map)}.
+     * 
+     * @param name  The user's name.
+     * @return The {@link ExperimenterData} of the current user.
+     * @throws DSOutOfServiceException If the connection is broken, or
+     * logged in.
+     * @see IPojos#getUserDetails(Set, Map)
+     */
+    ExperimenterData getUserDetails(String name)
+        throws DSOutOfServiceException
+    {
+        try {
+            IPojos service = getIPojosService();
+            Set<String> set = new HashSet<String>(1);
+            set.add(name);
+            Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
+                    (new PojoOptions()).map()));
+            ExperimenterData data = (ExperimenterData) m.get(name);
+            if (data == null) {
+                throw new DSOutOfServiceException("Cannot retrieve user's " +
+                "data");
+            }
+            return data;
+        } catch (Exception e) {
+            throw new DSOutOfServiceException("Cannot retrieve user's data " +
+                    						printErrorText(e));
+        }
+    }
+    
+    /**
      * Tries to connect to <i>OMERO</i> and log in by using the supplied
      * credentials.
      * 
@@ -480,7 +480,7 @@ class OMEROGateway
      * @return  A set of hierarchy trees.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#loadContainerHierarchy(Class, Set, Map)
      */
     Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, Map options)
@@ -515,7 +515,7 @@ class OMEROGateway
      * @return A <code>Set</code> with all root nodes that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#findContainerHierarchies(Class, Set, Map)
      */
     Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, Map options)
@@ -557,7 +557,7 @@ class OMEROGateway
      *         all annotations for that node or <code>null</code>.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#findAnnotations(Class, Set, Set, Map)
      */
     Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
@@ -606,7 +606,7 @@ class OMEROGateway
      * that were found.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#findCGCPaths(Set, String, Map)
      */
     Set findCGCPaths(Set imgIDs, int algorithm, Map options)
@@ -636,7 +636,7 @@ class OMEROGateway
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#getImages(Class, Set, Map)
      */
     Set getContainerImages(Class nodeType, Set nodeIDs, Map options)
@@ -661,7 +661,7 @@ class OMEROGateway
      * @return A <code>Set</code> of retrieved images.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#getUserImages(Map)
      */
     Set getUserImages(Map options)
@@ -690,7 +690,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#getCollectionCount(String, String, Set, Map)
      */
     Map getCollectionCount(Class rootNodeType, String property, Set rootNodeIDs,
@@ -718,7 +718,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#createDataObject(IObject, Map)
      */
     IObject createObject(IObject object, Map options)
@@ -741,7 +741,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#createDataObjects(IObject[], Map)
      */
     IObject[] createObjects(IObject[] objects, Map options)
@@ -763,7 +763,7 @@ class OMEROGateway
      * @param object    The object to delete.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IUpdate#deleteObject(IObject)
      */
     void deleteObject(IObject object)
@@ -783,7 +783,7 @@ class OMEROGateway
      * @param objects                  The objects to delete.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException       If an error occured while trying to 
-     *                                 retrieve data from OMEDS service. 
+     *                                 retrieve data from OMERO service. 
      * @see IUpdate#deleteObject(IObject) 
      */
     void deleteObjects(IObject[] objects)
@@ -808,7 +808,7 @@ class OMEROGateway
      * @return          The updated object.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      * @see IPojos#updateDataObject(IObject, Map)
      */
     IObject updateObject(IObject object, Map options)
@@ -832,7 +832,7 @@ class OMEROGateway
      * @return  See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service.
+     * retrieve data from OMERO service.
      * @see IPojos#updateDataObjects(IObject[], Map) 
      */
     IObject[] updateObjects(IObject[] objects, Map options)
@@ -854,14 +854,14 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     PixelsDimensions getPixelsDimensions(long pixelsID)
         throws DSOutOfServiceException, DSAccessException
     {
         try {
             IQuery service = getIQueryService();
-            Pixels pixs = (Pixels) service.get(Pixels.class, pixelsID);
+            Pixels pixs = service.get(Pixels.class, pixelsID);
             return (PixelsDimensions) service.get(PixelsDimensions.class,
                     pixs.getPixelsDimensions().getId().longValue());
         } catch (Exception e) {
@@ -878,7 +878,7 @@ class OMEROGateway
      * @return A list of <code>Channel</code> Objects.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     List getChannelsData(long pixelsID)
         throws DSOutOfServiceException, DSAccessException
@@ -941,7 +941,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     synchronized RenderingEngine createRenderingEngine(long pixelsID)
         throws DSOutOfServiceException, DSAccessException
@@ -966,7 +966,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     IObject findLink(IObject parent, IObject child)
         throws DSOutOfServiceException, DSAccessException
@@ -997,7 +997,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     List findLinks(IObject parent, List children)
         throws DSOutOfServiceException, DSAccessException
@@ -1027,7 +1027,7 @@ class OMEROGateway
      * @return The last version of the object.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     IObject findIObject(IObject o)
     	throws DSOutOfServiceException, DSAccessException
@@ -1048,7 +1048,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     Map<GroupData, Set> getAvailableGroups()
     	throws DSOutOfServiceException, DSAccessException
@@ -1087,7 +1087,7 @@ class OMEROGateway
      * @return See above.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
-     * retrieve data from OMEDS service. 
+     * retrieve data from OMERO service. 
      */
     Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
     	throws DSOutOfServiceException, DSAccessException
@@ -1139,6 +1139,36 @@ class OMEROGateway
 		}
     	result.put(files.size(), notDownloaded);
         return result;
+	}
+
+    /**
+     * Modifies the password of the currently logged in user.
+     * 
+     * @param password	The new password.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+	void changePassword(String password)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IAdmin service = getIAdmin();
+		try {
+			service.changePassword(password);
+		} catch (Exception e) {
+			handleException(e, "Cannot modify password. ");
+		}
+	}
+
+	void updateExperimenter(Experimenter exp) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		IAdmin service = getIAdmin();
+		try {
+			service.updateExperimenter(exp);
+		} catch (Exception e) {
+			handleException(e, "Cannot update the user. ");
+		}
 	}
     
 }

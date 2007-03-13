@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -350,6 +351,28 @@ class DataManagerViewImpl
 	{
 		 BatchCallTree cmd = new AdminLoader();
 	     return cmd.exec(observer);
+	}
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#changePassword(String, String, AgentEventListener)
+     */
+	public CallHandle changePassword(String oldPassword, String newPassword, 
+									AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminLoader(oldPassword, newPassword);
+	    return cmd.exec(observer);
+	}
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataManagerView#updateExperimenter(ExperimenterData, 
+     * 										AgentEventListener)
+     */
+	public CallHandle updateExperimenter(ExperimenterData exp, 
+							AgentEventListener observer) {
+		BatchCallTree cmd = new AdminLoader(exp);
+	    return cmd.exec(observer);
 	}
     
 }

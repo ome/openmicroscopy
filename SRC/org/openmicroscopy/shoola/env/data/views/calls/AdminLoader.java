@@ -32,6 +32,8 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
+import pojos.ExperimenterData;
+
 /** 
  * Retrieves the available user groups other than system.
  *
@@ -56,7 +58,7 @@ public class AdminLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the experimenter groups
+     * Creates a {@link BatchCall} to retrieve the experimenter groups.
      * 
      * @return The {@link BatchCall}.
      */
@@ -67,6 +69,43 @@ public class AdminLoader
             {
                 OmeroDataService os = context.getDataService();
                 result = os.getAvailableGroups();
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to change the password
+     * of the user currently logged in.
+     * 
+	 * @param oldPassword 	The password used to log in.  
+     * @param newPassword	The new password value.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall changePassword(final String oldPassword, 
+    								final String newPassword)
+    {
+        return new BatchCall("Change password") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.changePassword(oldPassword, newPassword);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to update the specified experimenter.
+     * 
+	 * @param exp 	The experimenter to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall updateExperimenter(final ExperimenterData exp)
+    {
+        return new BatchCall("Update experimenter") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.updateExperimenter(exp);
             }
         };
     }
@@ -89,4 +128,31 @@ public class AdminLoader
     	loadCall = makeBatchCall();
     }
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param oldPassword 	The password used to log in.  
+     * @param newPassword	The new password value.
+     */
+    public AdminLoader(String oldPassword, String newPassword)
+    {
+    	if (newPassword == null || newPassword.trim().length() == 0)
+    		throw new IllegalArgumentException("Password not valid.");
+    	if (oldPassword == null || oldPassword.trim().length() == 0)
+    		throw new IllegalArgumentException("Password not valid.");
+    	loadCall = changePassword(oldPassword, newPassword);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param exp The experimenter to update. Mustn't be <code>null</code>.
+     */
+    public AdminLoader(ExperimenterData exp)
+    {
+    	if (exp == null)
+    		throw new IllegalArgumentException("Experimenter not valid.");
+    	loadCall = updateExperimenter(exp);
+    }
+    
 }
