@@ -27,6 +27,8 @@ import org.springframework.context.support.StaticApplicationContext;
 // Application-internal dependencies
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
+import ome.util.messages.InternalMessage;
+import ome.util.messages.MessageException;
 
 /**
  * Provides static access for the creation of singleton and non-singleton
@@ -112,7 +114,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     /**
      * initialize a new client OmeroContext (named {@link #CLIENT_CONTEXT}),
      * using the {@link #getContext(Properties, String)} method.
-     *
+     * 
      * @see #getContext(Properties, String)
      * @see #CLIENT_CONTEXT
      * @see ServiceFactory#ServiceFactory(Login)
@@ -125,15 +127,15 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
 
     /**
      * initialize a new client OmeroContext using the {@link Properties}
-     * provided as values for property (e.g. ${name}) replacement in Spring.
-     * Two calls to this method with the same argument will return different ( =! )
+     * provided as values for property (e.g. ${name}) replacement in Spring. Two
+     * calls to this method with the same argument will return different ( =! )
      * contexts.
      * 
      * @param props
      *            Non-null properties for replacement.
      * @param context
      *            Non-null name of context to find in beanRefContext.xml
-     *
+     * 
      * @see ServiceFactory#ServiceFactory(Login)
      * @see ServiceFactory#ServiceFactory(Server)
      * @see ServiceFactory#ServiceFactory(Properties)
@@ -245,7 +247,24 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     }
 
     public String getProperty(String propertyName) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Convenience method around
+     * {@link #publishEvent(org.springframework.context.ApplicationEvent)}
+     * which catches all {@link MessageException} and unwraps the contained
+     * {@link Throwable} instance and rethrows.  
+     * 
+     * @param msg
+     * @throws Throwable 
+     */
+    public void publishMessage(InternalMessage msg) throws Throwable {
+        try {
+            publishEvent(msg);
+        } catch (MessageException me) {
+            throw me.getException();
+        }
     }
 
     // ~ Non-singleton locator
