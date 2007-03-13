@@ -50,6 +50,7 @@
 		<myjavac>
 		  <src path="${src.dest}"/>
 		</myjavac>
+		<delete file="${src.dest}/ome/logic/AbstractBean.java"/>
 	</target>
 
 </project>

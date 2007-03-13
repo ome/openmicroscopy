@@ -42,6 +42,7 @@
 		<myjavac>
 		  <src path="${src.dest}"/>
 		</myjavac>
+		<delete file="${src.dest}/ome/services/licenses/LicenseBean.java"/>
 	</target>
 
 
