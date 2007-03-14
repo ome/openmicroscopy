@@ -4,13 +4,10 @@
 	<property name="classpath.file" value="classpath.xml"/>
 	<import file="${classpath.file}"/>
 
-        <target name="reload-db" depends="prepare,load-groovy">
-                <groovy>
-		        import ome.security.PasswordUtil
-                        rootpass=properties["omero.rootpass"]
-                        rootpass=PasswordUtil.preparePassword(rootpass)
-                        properties["ROOTPASS"]=rootpass
-                </groovy>
+        <target name="reload-db" depends="prepare">
+                <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
+		    <arg value="${omero.rootpass}"/>
+		</java>
 		<copy file="${sql.dir}/ddl.sql" todir="${target.dir}"/>
 		<copy file="${sql.dir}/data.sql" todir="${target.dir}"/>
                 <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
@@ -20,29 +17,8 @@
                 </sql_run>
         </target>
 
-        <target name="generate" depends="lifecycle.generate,hard-wire"/>
-
-	<!-- The hard-wiring target allows certain method interceptors to
-	be hard-wired around method exception *before* any of the "soft" 
-	spring-wired interceptors (see resources/ome/services/services.xml)
-	
-	The values hard-wired in are the class names of subclasses of 
-	ome.logic.HardWireInterceptor with a no-arg constructor. This allows
-	classes unknown to the server at compile time (like those under tools/)
-	to become a part of a distribution. -->
-	<target name="hard-wire">
-	        <!-- FORMAT: &quot;CLASS1&quot;,&quot1;CLASS2&quot;,... -->
-		<property name="replace.pkg"  value="ome/logic"/>
-		<property name="replace.file" value="${replace.pkg}/AbstractBean.java"/>
-	        <property name="omero.hard-wired.interceptors" value=""/>
-                <delete file="${src.dest}/${replace.file}"/>
-                <copy file="${src.dir}/${replace.file}" todir="${src.dest}/${replace.pkg}" />
-                <replace file="${src.dest}/${replace.file}">
-                        <replacefilter token="@REPLACE@" value="REPLACED BY server/build.xml-->*/${omero.hard-wired.interceptors}/*"/>
-                </replace>
-	</target>
-
 	<target name="compile" depends="generate">
+		<hard-wire file="ome/logic/AbstractBean.java"/>
 		<myjavac>
 		  <src path="${src.dir}"/>
 		</myjavac>

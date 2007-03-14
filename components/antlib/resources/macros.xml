@@ -179,7 +179,52 @@
           </jar>
 	  </sequential>
       </macrodef>
+
+	<!-- The hard-wiring macro is used to allowcertain method interceptors to
+	be hard-wired around method exception *before* any of the "soft" 
+	spring-wired interceptors (see resources/ome/services/services.xml)
 	
+	The values hard-wired in are the class names of subclasses of 
+	ome.logic.HardWireInterceptor with a no-arg constructor. This allows
+	classes unknown to the server at compile time (like those under tools/)
+	to become a part of a distribution. 
+	-->
+	<macrodef name="hard-wire">
+		<attribute name="fromdir" default="${src.dir}"/>
+		<attribute name="todir" default="${src.dest}"/>
+		<attribute name="file"/>
+		<sequential>
+	        <!-- FORMAT: &quot;CLASS1&quot;,&quot1;CLASS2&quot;,... -->
+		<!-- Just in case it's been omitted -->
+	        <property name="omero.hard-wired.interceptors" value=""/>
+                <delete file="@{todir}/@{file}"/>
+                <copy todir="@{todir}">
+			<fileset dir="@{fromdir}">
+				<include name="@{file}"/>
+			</fileset>
+		</copy>
+                <replace file="@{todir}/@{file}">
+                        <replacefilter token="@REPLACE@" value="REPLACED BY hard-wire macro-->*/${omero.hard-wired.interceptors}/*"/>
+                </replace>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="hardWireCompile">
+		<attribute name="fromdir" default="${src.dir}"/>
+		<attribute name="todir" default="${src.dest}"/>
+		<attribute name="file"/>
+		<sequential>
+		<hard-wire file="ome/.../YourFileHere.java"/>
+		<myjavac>
+		  <src path="${src.dir}"/>
+		</myjavac>
+		<delete file="${classes.dir}/ome/.../YourFileHere.class"/>
+		<myjavac>
+		  <src path="${src.dest}"/>
+		</myjavac>
+		<delete file="${src.dest}/ome/.../YourFileHere.java"/>
+		</sequential>
+	</macrodef>
     <!-- = = = = = = = = = = = = = = = = =
           hibernate code-gen          
          = = = = = = = = = = = = = = = = = -->

@@ -30,6 +30,19 @@ import ome.conditions.InternalException;
  */
 public abstract class PasswordUtil {
 
+    /**
+     * Main method which takes exactly one argument, passes it to 
+     * {@link #preparePassword(String)} and prints the results on 
+     * {@link System#out}. This is used by the build system to define the
+     * "@ROOTPASS@" placeholder in data.sql.
+     */
+    public static void main(String args[]) {
+        if (args == null || args.length != 1) {
+            throw new IllegalArgumentException("PasswordUtil.main takes 1 arg.");
+        }
+        System.out.println(preparePassword(args[0]));
+    }
+    
     public static void changeUserPasswordById(SimpleJdbcTemplate jdbc, Long id,
             String password) {
         int results = jdbc.update("update password set hash = ? "
