@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.formats.MetadataStore;
 import loci.formats.MetadataStoreException;
 import ome.api.IQuery;
@@ -361,28 +361,28 @@ public class OMEROMetadataStore implements MetadataStore
         PixelsType type = null;
         switch(pixelType)
         {
-            case FormatReader.INT8:
+            case FormatTools.INT8:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int8");
                 break;
-            case FormatReader.UINT8:
+            case FormatTools.UINT8:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint8");
                 break;
-            case FormatReader.INT16:
+            case FormatTools.INT16:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int16");
                 break;
-            case FormatReader.UINT16:
+            case FormatTools.UINT16:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint16");
                 break;
-            case FormatReader.INT32:
+            case FormatTools.INT32:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int32");
                 break;
-            case FormatReader.UINT32:
+            case FormatTools.UINT32:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint32");
                 break;
-            case FormatReader.FLOAT:
+            case FormatTools.FLOAT:
                 type = (PixelsType) getEnumeration(PixelsType.class, "float");
                 break;
-            case FormatReader.DOUBLE:
+            case FormatTools.DOUBLE:
                 type = (PixelsType) getEnumeration(PixelsType.class, "double");
                 break;
             default: new RuntimeException("Unknown pixelType enumeration: " 
