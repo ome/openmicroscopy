@@ -59,22 +59,22 @@ public class PixelBuffer extends AbstractBuffer {
             throws DimensionsOutOfBoundsException {
         if (y != null && (y > getSizeY() - 1 || y < 0)) {
             throw new DimensionsOutOfBoundsException("Y '" + y
-                    + "' greater than height '" + getSizeY() + "'.");
+                    + "' greater than sizeY '" + getSizeY() + "'.");
         }
 
         if (z != null && (z > getSizeZ() - 1 || z < 0)) {
             throw new DimensionsOutOfBoundsException("Z '" + z
-                    + "' greater than height '" + getSizeZ() + "'.");
+                    + "' greater than sizeZ '" + getSizeZ() + "'.");
         }
 
         if (c != null && (c > getSizeC() - 1 || c < 0)) {
             throw new DimensionsOutOfBoundsException("C '" + c
-                    + "' greater than height '" + getSizeC() + "'.");
+                    + "' greater than sizeC '" + getSizeC() + "'.");
         }
 
         if (t != null && (t > getSizeT() - 1 || t < 0)) {
             throw new DimensionsOutOfBoundsException("T '" + t
-                    + "' greater than height '" + getSizeT() + "'.");
+                    + "' greater than sizeT '" + getSizeT() + "'.");
         }
     }
 
