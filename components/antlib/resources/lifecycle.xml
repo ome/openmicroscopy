@@ -40,7 +40,8 @@
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
 		<condition property="skip.ice">
-		   <equals arg1="${no.ice}" arg2="true" trim="true"/>
+		   <or><not><isset property="uses.ice"/></not>
+		   <equals arg1="${no.ice}" arg2="true" trim="true"/></or>
 		</condition>
 		<fail message="${msg.macro.missing_fail} slice2java">
 		  <condition><and>
