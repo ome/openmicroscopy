@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 import loci.formats.ChannelSeparator;
 import loci.formats.FormatException;
-import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.formats.ImageReader;
 import loci.formats.ReaderWrapper;
 
@@ -63,7 +63,7 @@ public class OMEROWrapper extends ReaderWrapper
 		throws FormatException, IOException
 	{
 		int planeSize = getSizeX(id) * getSizeY(id) *
-		FormatReader.getBytesPerPixel(getPixelType(id));
+		FormatTools.getBytesPerPixel(getPixelType(id));
 		
 		byte[] buf = new byte[planeSize];
 		for (int c = 0; c < getSizeC(id); c++) {

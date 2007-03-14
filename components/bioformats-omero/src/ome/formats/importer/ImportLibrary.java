@@ -23,7 +23,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import loci.formats.FormatException;
-import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 import loci.formats.in.Bits;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
@@ -391,7 +391,7 @@ public class ImportLibrary
 
       // We've got nothing to do if the samples are only 8-bits wide or if they
       // are floating point.
-      if (pixelType == FormatReader.FLOAT || pixelType == FormatReader.DOUBLE
+      if (pixelType == FormatTools.FLOAT || pixelType == FormatTools.DOUBLE
                   || bytesPerPixel == 1) 
           return buffer.array();
 

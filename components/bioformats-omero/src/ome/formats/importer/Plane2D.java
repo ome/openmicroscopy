@@ -26,7 +26,7 @@ package ome.formats.importer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import loci.formats.FormatReader;
+import loci.formats.FormatTools;
 
 /**
  * A class which represents an entire 2D plane.
@@ -70,7 +70,7 @@ private int sizeY;
     this.data.order(isLittleEndian ?
       ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
 
-    this.bytesPerPixel = FormatReader.getBytesPerPixel(type);
+    this.bytesPerPixel = FormatTools.getBytesPerPixel(type);
   }
 
   /**
@@ -84,21 +84,21 @@ private int sizeY;
     int offset = ((sizeX * y) + x) * bytesPerPixel;
 
     switch (type) {
-      case FormatReader.INT8:
+      case FormatTools.INT8:
         return data.get(offset);
-      case FormatReader.INT16:
+      case FormatTools.INT16:
         return data.getShort(offset);
-      case FormatReader.INT32:
+      case FormatTools.INT32:
         return data.getInt(offset);
-      case FormatReader.FLOAT:
+      case FormatTools.FLOAT:
         return data.getFloat(offset);
-      case FormatReader.DOUBLE:
+      case FormatTools.DOUBLE:
         return data.getDouble(offset);
-      case FormatReader.UINT8:
+      case FormatTools.UINT8:
         return (short) (data.get(offset) & 0xFF);
-      case FormatReader.UINT16:
+      case FormatTools.UINT16:
         return (int) (data.getShort(offset) & 0xFFFF);
-      case FormatReader.UINT32:
+      case FormatTools.UINT32:
         return (long) (data.getInt(offset) & 0xFFFFFFFFL);
     }
     // This should never happen.
