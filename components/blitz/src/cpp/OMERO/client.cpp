@@ -38,20 +38,9 @@ namespace OMERO {
     Ice::RouterPrx prx = ic->getDefaultRouter();
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
     Glacier2::SessionPrx session;
-    try
-      {
-	session = router->createSession(username, password);
-      }
-    catch(const Glacier2::PermissionDeniedException& ex)
-      {
-	cout << "permission denied:\n" << ex.reason << endl;
-      }
-    catch(const Glacier2::CannotCreateSessionException& ex)
-      {
-	cout << "cannot create session:\n" << ex.reason << endl;
-      }
+    session = router->createSession(username, password);
     sf = omero::api::ServiceFactoryPrx::checkedCast(session);
-    
+
   }
   
   omero::api::IAdminPrx client::getAdminService(const ::Ice::Context& ctx) {
@@ -96,6 +85,10 @@ namespace OMERO {
   
   omero::api::ThumbnailStorePrx client::createThumbnailStore(const ::Ice::Context& ctx) {
     return sf->createThumbnailStore(ctx);
+  }
+
+  Ice::ObjectPrx client::getByName(const string& name, const ::Ice::Context& ctx) {
+    return sf->getByName(name, ctx);
   }
 
   void client::setCallback(const ::omero::api::SimpleCallbackPrx& cb, const ::Ice::Context& ctx) {

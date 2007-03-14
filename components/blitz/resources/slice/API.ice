@@ -37,7 +37,11 @@ module omero {
     ["java:type:java.util.ArrayList"] 
     sequence<string> StringSet;
 
-    interface IAdmin
+    interface ServiceInterface
+    {
+    };
+
+    interface IAdmin extends ServiceInterface
     {
     
       // Getters
@@ -81,7 +85,7 @@ module omero {
       nonmutating omero::sys::EventContext getEventContext() throws ServerError;            
     };  
 
-    interface IConfig
+    interface IConfig extends ServiceInterface
     {
       nonmutating string getVersion() throws ServerError;
       nonmutating string getConfigValue(string key) throws ServerError;
@@ -91,7 +95,7 @@ module omero {
     };
 
 
-    interface IPixels
+    interface IPixels extends ServiceInterface
     {
       nonmutating omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
       nonmutating omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
@@ -105,7 +109,7 @@ module omero {
     dictionary<string, omero::model::Experimenter> UserMap;
     dictionary<int, int> CountMap;
 
-    interface IPojos
+    interface IPojos extends ServiceInterface
     {
       nonmutating IObjectList loadContainerHierarchy(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
       nonmutating IObjectList findContainerHierarchies(string rootType, omero::api::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
@@ -126,7 +130,7 @@ module omero {
       void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
     };
 
-    interface IQuery
+    interface IQuery extends ServiceInterface
     {
       nonmutating omero::model::IObject get(string klass, long id) throws ServerError;
       nonmutating omero::model::IObject find(string klass, long id) throws ServerError;
@@ -140,14 +144,14 @@ module omero {
       nonmutating omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
     };
 
-    interface ITypes
+    interface ITypes extends ServiceInterface
     {
       omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
       nonmutating omero::model::IObject getEnumeration(string type, string value) throws ServerError;
       nonmutating IObjectList allEnumerations(string type) throws ServerError;      
     };
 
-    interface IUpdate
+    interface IUpdate extends ServiceInterface
     { 
       void saveObject(omero::model::IObject obj) throws ServerError;
       void saveCollection(IObjectList objs) throws ServerError;     
@@ -156,14 +160,14 @@ module omero {
       void deleteObject(omero::model::IObject row) throws ServerError;
     };
 
-    interface RawFileStore
+    interface RawFileStore extends ServiceInterface
     {
       void setFileId(long fileId) throws ServerError;
       nonmutating Ice::ByteSeq read(long position, int length) throws ServerError;
       idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
     };
 
-    interface RawPixelsStore
+    interface RawPixelsStore extends ServiceInterface
     {
       void setPixelsId(long pixelsId) throws ServerError;
       nonmutating int getPlaneSize() throws ServerError;
@@ -188,7 +192,7 @@ module omero {
       nonmutating Ice::ByteSeq calculateMessageDigest() throws ServerError;
     };
 
-    interface RenderingEngine
+    interface RenderingEngine extends ServiceInterface
     {
       omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
       Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
@@ -226,7 +230,7 @@ module omero {
       void resetDefaults() throws ServerError;      
     };
 
-    interface ThumbnailStore 
+    interface ThumbnailStore extends ServiceInterface
     {
       void setPixelsId(long pixelsId) throws ServerError;
       void setRenderingDefId(long renderingDefId) throws ServerError;
@@ -239,7 +243,8 @@ module omero {
       void resetDefaults() throws ServerError;
     };
 
-    interface SimpleCallback {
+    interface SimpleCallback 
+    {
       void call();
     };
 
@@ -259,6 +264,7 @@ module omero {
       RenderingEngine* createRenderingEngine();
       ThumbnailStore* createThumbnailStore();
 
+      ServiceInterface* getByName(string name) throws ServerError;
       void setCallback(SimpleCallback* callback);
       void close();
     };

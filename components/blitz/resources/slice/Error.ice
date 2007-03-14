@@ -9,6 +9,8 @@
 #ifndef OMERO_ERROR_ICE
 #define OMERO_ERROR_ICE
 
+#include <Glacier2/Session.ice>
+
 module omero
 {
     exception ServerError
@@ -16,6 +18,10 @@ module omero
         string serverStackTrace;
         string serverExceptionClass;
         string message;
+    };
+
+    exception SessionCreationException extends Glacier2::CannotCreateSessionException
+    {
     };
     
     exception InternalException extends ServerError

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# $Id: service-ome.api.IPixels.xml 1167 2006-12-15 10:39:34Z jmoore $
+# 
+# Copyright 2006 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore <josh.moore@gmx.de>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>	
+
+  <bean id="licenseSessionListener" class="ome.services.licenses.LicenseSessionListener">
+	<property name="service" ref="managed:ome.services.licenses.ILicense"/>
+	<property name="securitySystem" ref="securitySystem"/>
+  </bean>
+  
+  <bean id="licenseDefinition" class="ome.services.icy.util.ServantDefinition">
+    <property name="operationsClass" value="omero.licenses._ILicenseOperations"/>
+    <property name="serviceClass" value="ome.services.licenses.ILicense"/>
+    <property name="tieClass" value="omero.licenses._ILicenseTie"/>
+  </bean>
+  
+</beans>

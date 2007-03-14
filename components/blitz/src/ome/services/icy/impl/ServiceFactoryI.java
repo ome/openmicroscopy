@@ -7,6 +7,8 @@
 
 package ome.services.icy.impl;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -25,15 +27,19 @@ import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.icy.fire.AopContextInitializer;
 import ome.services.icy.fire.Session;
+import ome.services.icy.util.DestroySessionMessage;
+import ome.services.icy.util.ServantDefinition;
 import ome.services.icy.util.ServantHelper;
 import ome.services.icy.util.UnregisterServantMessage;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
+import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
@@ -52,6 +58,8 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RawPixelsStorePrxHelper;
 import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
+import omero.api.ServiceInterfacePrx;
+import omero.api.ServiceInterfacePrxHelper;
 import omero.api.SimpleCallbackPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
@@ -84,10 +92,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+
+import Ice.Current;
+import Ice.ObjectPrx;
 
 /**
  * Responsible for maintaining all servants for a single session.
@@ -324,6 +336,31 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     // ~ Other interface methods
     // =========================================================================
 
+    public ServiceInterfacePrx getByName(String name, Current current) throws ServerError {
+        Ice.Identity id = getIdentity(current, name);
+        String key = Ice.Util.identityToString(id);
+
+        Ice.ObjectPrx prx = servantProxy(id, current);
+        if (prx == null) {
+            ServantDefinition sd = (ServantDefinition) context.getBean(name);
+            Object servant;
+            try {
+                Object ops = createServantDelegate(sd.getOperationsClass(), sd
+                        .getServiceClass(), key);
+                Constructor ctor = sd.getTieClass().getConstructor(
+                        sd.getOperationsClass());
+                servant = ctor.newInstance(ops);
+                prx = registerServant(sd.getOperationsClass().cast(servant), current, id);
+            } catch (Exception e) {
+                // FIXME
+                omero.InternalException ie = new omero.InternalException();
+                ie.message = e.getMessage();
+                throw ie;
+            }            
+        }
+        return ServiceInterfacePrxHelper.uncheckedCast(prx);
+    }
+    
     public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {
         throw new UnsupportedOperationException();
     }
@@ -343,6 +380,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
             log.info(String.format("Destroying %s session", this));
         }
         close(current);
+        DestroySessionMessage msg = new DestroySessionMessage(this,current.id.name,principal);
+        try {
+            context.publishMessage(msg);
+        } catch (Throwable t) {
+            // FIXME
+            InternalException ie = new InternalException(t.getMessage());
+            ie.setStackTrace(t.getStackTrace());
+        }
     }
 
     // ~ Helpers

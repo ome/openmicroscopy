@@ -1,3 +1,10 @@
+/*
+ *   $Id$
+ *
+ *   Copyright (c) 2007 Glencoe Software Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.services.icy.util;
 
 import java.util.Collection;
@@ -12,6 +19,7 @@ import net.sf.ehcache.Element;
 import ome.api.ServiceInterface;
 import ome.system.OmeroContext;
 import ome.util.Filterable;
+import ome.util.messages.InternalMessage;
 import omero.RType;
 import omero.ServerError;
 import omero.Time;
@@ -19,20 +27,19 @@ import omero.model.IObject;
 import omero.util.IceMapper;
 
 /**
- * Provides helper methods so that servant implementations need not extend a
- * particular {@link Class}.
- * 
  * @author josh
  * 
  */
-public class UnregisterServantMessage extends ApplicationEvent {
+public class UnregisterServantMessage extends InternalMessage {
+
+    private static final long serialVersionUID = 3409582093802L;
 
     String key;
     Ice.Current curr;
     
     public UnregisterServantMessage(Object source, String serviceKey, Ice.Current current) {
         super(source);
-        this.key = key;
+        this.key = serviceKey;
         this.curr = current;
     }
     

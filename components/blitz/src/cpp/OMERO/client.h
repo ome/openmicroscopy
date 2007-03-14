@@ -73,6 +73,8 @@ namespace OMERO {
     omero::api::RawPixelsStorePrx createRawPixelsStore(const ::Ice::Context& ctx);
     omero::api::RenderingEnginePrx createRenderingEngine(const ::Ice::Context& ctx);
     omero::api::ThumbnailStorePrx createThumbnailStore(const ::Ice::Context& ctx);
+    Ice::ObjectPrx getByName(const std::string& name, const ::Ice::Context& ctx);
+
     /*
      * Closes the session AND all proxies created by it.
      */
