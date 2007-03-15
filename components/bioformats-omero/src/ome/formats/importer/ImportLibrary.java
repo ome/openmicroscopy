@@ -24,7 +24,7 @@ import java.nio.ShortBuffer;
 
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
-import loci.formats.in.Bits;
+import loci.formats.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
@@ -401,7 +401,7 @@ public class ImportLibrary
           ShortBuffer buf = buffer.asShortBuffer();
           for (int i = 0; i < (buffer.capacity() / 2); i++) {
           //short tmp = buf.get(i);
-            buf.put(i, Bits.swap(buf.get(i)));
+            buf.put(i, DataTools.swap(buf.get(i)));
           //if (tmp == 21253 || buf.get(i) == 21253) 
           //  {
                 //System.err.println(tmp + " -> " + buf.get(i));
@@ -410,7 +410,7 @@ public class ImportLibrary
         } else if (bytesPerPixel == 4) { // int/uint
             IntBuffer buf = buffer.asIntBuffer();
             for (int i = 0; i < (buffer.capacity() / 4); i++) {
-              buf.put(i, Bits.swap(buf.get(i)));
+              buf.put(i, DataTools.swap(buf.get(i)));
             }
         } else {
           throw new FormatException(
