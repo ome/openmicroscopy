@@ -35,7 +35,7 @@
 	</target>
 
 	<!-- Must compile the files in two steps to prevent duplicate class errors -->
-	<target name="compile" depends="generate">
+	<target name="compile" depends="generate" unless="skip.compile">
 		<myjavac>
 		  <src path="${src.dir}"/>
 		</myjavac>

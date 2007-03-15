@@ -72,7 +72,10 @@
 		    </or>
 		</condition>
 		<condition property="test.skip">
+		    <and>
+		    <isset property="uses.ice"/>
 		    <isset property="skip.ice"/>
+		    </and>
 		</condition>
 		<condition property="skip.compile">
 		    <and>
@@ -257,7 +260,7 @@
 		/>
 	</target>
 
-	<target name="integration" depends="install">
+	<target name="integration" depends="install" unless="test.skip">
 		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite>
 			<xmlfileset dir="${test.dir}">
