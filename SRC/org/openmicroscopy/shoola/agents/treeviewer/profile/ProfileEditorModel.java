@@ -32,6 +32,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.profile;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.PasswordEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.ProfileEditorLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -202,6 +205,16 @@ class ProfileEditorModel
 	{
 		this.experimenter = experimenter;
 		state = ProfileEditor.READY;
+	}
+
+	/**
+	 * Returns the address of the server the user is currently connected to.
+	 * 
+	 * @return See above.
+	 */
+	String getHostName()
+	{
+		return TreeViewerAgent.getRegistry().getDataService().getServerName();
 	}
 
 }

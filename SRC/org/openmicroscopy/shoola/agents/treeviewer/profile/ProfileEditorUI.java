@@ -30,8 +30,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
@@ -40,6 +44,7 @@ import javax.swing.JTabbedPane;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.login.ServerEditor;
 
 /** 
  * The {@link ProfileEditor}'s View.
@@ -71,6 +76,9 @@ class ProfileEditorUI
 	/** Title of the paned hosting the user details. */
 	private static final String		USER_TITLE = "My Profile";
 	
+	/** Title of the paned hosting the details of the servers used by user. */
+	private static final String		SERVER_TITLE = "My Servers";
+	
     /** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -95,9 +103,18 @@ class ProfileEditorUI
      */
     private JTabbedPane     		tabs;
     
+    /** The component hosting the title and the messages. */
+    private JLayeredPane    		titleLayer;
+    
+    /** The UI component hosting the title. */
+    private TitlePanel      		titlePanel;
+    
     /** Component hosting the user details. */
     private UserProfile				userProfile;
 
+    /** Component hosting the server details. */
+    private ServerEditor			serverProfile;
+    
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -116,6 +133,30 @@ class ProfileEditorUI
             }
         });
         userProfile = new UserProfile(model, controller);
+        serverProfile = new ServerEditor(model.getHostName());
+        serverProfile.initFocus();
+        IconManager im = IconManager.getInstance();
+		titlePanel = new TitlePanel(TITLE, NOTE, 
+									im.getIcon(IconManager.OWNER_48));
+		titleLayer = new JLayeredPane();
+		titleLayer.add(titlePanel, new Integer(0));
+        tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+        tabs.setAlignmentX(LEFT_ALIGNMENT);
+        tabs.addTab(USER_TITLE, im.getIcon(IconManager.OWNER), userProfile);
+        tabs.addTab(SERVER_TITLE, im.getIcon(IconManager.SERVER), 
+        			serverProfile);
+        tabs.addChangeListener(new ChangeListener() {
+		
+			public void stateChanged(ChangeEvent e) {
+				int index = tabs.getSelectedIndex();
+				if (index == 1) {
+					serverProfile.setVisible(true);
+					serverProfile.initFocus();
+					//serverProfile.requestFocus();
+				}
+			}
+		
+		});
 	}
 	
 	/**
@@ -134,26 +175,12 @@ class ProfileEditorUI
         return bar;
     }
     
-    /** Builds and lays out the tabbed pane. */
-    private void buildTabbedPane()
-    {
-    	IconManager icons = IconManager.getInstance();
-        tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
-        tabs.setAlignmentX(LEFT_ALIGNMENT);
-        tabs.addTab(USER_TITLE, icons.getIcon(IconManager.OWNER), userProfile);
-    }
-    
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		buildTabbedPane();
 		setLayout(new BorderLayout(0, 0));
 		setOpaque(true);
-		IconManager im = IconManager.getInstance();
-		TitlePanel titlePanel = new TitlePanel(TITLE, NOTE, 
-				im.getIcon(IconManager.OWNER_48));
-		add(titlePanel, BorderLayout.NORTH);
-
+		add(titleLayer, BorderLayout.NORTH);
 		add(tabs, BorderLayout.CENTER);
 		JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
 		p.setOpaque(true);
@@ -161,10 +188,7 @@ class ProfileEditorUI
 	}
 	
 	/** Creates a new instance. */
-	ProfileEditorUI()
-	{
-		
-	}
+	ProfileEditorUI() {}
 	
     /**
      * Links MVC.
@@ -181,6 +205,7 @@ class ProfileEditorUI
         this.controller = controller;
         this.model = model;
         initComponents();
+        serverProfile.addPropertyChangeListener(controller);
         buildGUI();
 	}
 
@@ -189,5 +214,48 @@ class ProfileEditorUI
 	 * successfully updated. 
 	 */
 	void passwordChanged() { userProfile.passwordChanged(); }
+	
+	/**
+	 * Adds the passed component to the title layer if the passed flag
+	 * is <code>true</code>, removes it otherwise.
+	 * 
+	 * @param b			Pass <code>true</code> to add the component, 
+	 * 					<code>false</code> to remove it.
+	 * @param component	The component to add.
+	 */
+	void showMessage(boolean b, JComponent component) 
+	{
+		if (b) {
+            titleLayer.add(component, new Integer(1));
+            titleLayer.validate();
+            titleLayer.repaint();
+        } else {
+        	if (component == null) return;
+        	titleLayer.remove(component);
+            titleLayer.repaint();
+        }
+	}
+	
+    /**
+     * Overridden to set the size of the title panel.
+     * @see JPanel#setSize(int, int)
+     */
+    public void setSize(int width, int height)
+    {
+        super.setSize(width, height);
+        Dimension d  = new Dimension(width, ServerEditor.TITLE_HEIGHT);
+        titlePanel.setSize(d);
+        titlePanel.setPreferredSize(d);
+        titleLayer.setSize(d);
+        titleLayer.setPreferredSize(d);
+    }
+
+    /**
+     * Overridden to set the size of the title panel.
+     * @see JPanel#setSize(Dimension)
+     */
+    public void setSize(Dimension d) { setSize(d.width, d.height); }
+
+
 
 }

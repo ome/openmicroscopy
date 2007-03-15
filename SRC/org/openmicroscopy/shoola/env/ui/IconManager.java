@@ -165,6 +165,12 @@ public class IconManager
     private static final String     DEFAULT_PLUS_OVER_PATH = 
                                         "graphx/plus_over.png";
     	
+    /** 
+     * The pathname, relative to this class, of the logo icon to
+     * use for the about software dialog.
+     */  
+    private static final String		LOGO_ABOUT ="graphx/omeabout-bk.png";
+    
 	/** ID of the <code>help</code> icon. */
 	static final int		HELP = 0;
 	
@@ -328,6 +334,13 @@ public class IconManager
 	}
 	
 	/**
+	 * Returns the icon to use for the software update dialog.
+	 * 
+	 * @return See above.
+	 */
+	static Icon getLogoAbout() { return createIcon(LOGO_ABOUT); }
+	
+	/**
 	 * Returns the default warning icon to use for notification dialogs.
 	 * 
 	 * @return See above.
@@ -428,5 +441,7 @@ public class IconManager
     {
         super(registry, LookupNames.ICONS_FACTORY, relPaths);
     }
+
+	
 	
 }

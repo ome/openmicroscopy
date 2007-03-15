@@ -36,6 +36,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
+
 import pojos.ImageData;
 
 /** 
@@ -70,10 +72,10 @@ public class ThumbnailsManager
 {
     
     /** How many different Images we have. */
-    private int     totalIDs;
+    private int     			totalIDs;
     
     /** Ids of the images whose thumbnails have already been set. */
-    private Set     processedIDs;
+    private Set<Long>     		processedIDs;
     
     /** 
      * Maps an Image id onto all the {@link ThumbnailProvider}s in the
@@ -81,9 +83,8 @@ public class ThumbnailsManager
      * Note that {@link ThumbnailProvider}s are not shared, so there's one
      * for each {@link ImageNode} that represents the given Image. 
      */
-    private Map     thumbProviders;
-    
-    
+    private Map<Long, Set>     	thumbProviders;
+
     /**
      * Creates a new instance.
      * 
@@ -95,21 +96,21 @@ public class ThumbnailsManager
         if (imageNodes == null) 
             throw new NullPointerException("No image nodes.");
         totalIDs = 0;
-        processedIDs = new HashSet();
-        thumbProviders = new HashMap();
+        processedIDs = new HashSet<Long>();
+        thumbProviders = new HashMap<Long, Set>();
         Iterator i = imageNodes.iterator();
         ImageNode node;
         ImageData is;
         Long id;
-        Set providers;
+        Set<Thumbnail> providers;
         while (i.hasNext()) {
             node = (ImageNode) i.next();
             is = (ImageData) node.getHierarchyObject();
             id = new Long(is.getId());
-            providers = (Set) thumbProviders.get(id);
+            providers = thumbProviders.get(id);
             if (providers == null) {
                 totalIDs++;
-                providers = new HashSet();
+                providers = new HashSet<Thumbnail>();
                 thumbProviders.put(id, providers);
             }
             providers.add(node.getThumbnail());
@@ -126,7 +127,7 @@ public class ThumbnailsManager
     {
         if (thumb == null) throw new NullPointerException("No thumbnail.");
         Long id = new Long(imageID);
-        Set providers = (Set) thumbProviders.get(id);
+        Set providers = thumbProviders.get(id);
         if (providers != null) {
             Iterator p = providers.iterator();
             while (p.hasNext())

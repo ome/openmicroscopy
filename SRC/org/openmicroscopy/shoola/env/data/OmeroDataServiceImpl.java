@@ -43,8 +43,6 @@ import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.login.LoginConfig;
-import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -963,6 +961,17 @@ class OmeroDataServiceImpl
 		}
 		System.err.println(data.getLastName());
 		return data;
+	}
+	
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#getServerName()
+     */
+	public String getServerName() 
+	{
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+		return uc.getHostName();
 	}
 	
 }

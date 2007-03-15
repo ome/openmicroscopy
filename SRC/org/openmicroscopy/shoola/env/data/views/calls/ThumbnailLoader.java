@@ -93,20 +93,26 @@ public class ThumbnailLoader
     private void loadThumbail(int index) 
     {
         PixelsData pxd = images[index].getDefaultPixels();
-        int sizeX = maxWidth, sizeY = maxHeight;
-        double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-        if (ratio < 1) sizeX *= ratio;
-        else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-        OmeroImageService rds = context.getImageService();
         BufferedImage thumbPix = null;
-        try {
-            thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
-        } catch (RenderingServiceException e) {
-            context.getLogger().error(this, 
-                    "Cannot retrieve thumbnail: "+e.getExtendedMessage());
+        if (pxd == null) {
+        	System.err.println("img: "+images[index].getName());
+        	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
+        } else {
+             int sizeX = maxWidth, sizeY = maxHeight;
+             double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+             if (ratio < 1) sizeX *= ratio;
+             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+             OmeroImageService rds = context.getImageService();
+             
+             try {
+                 thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
+             } catch (RenderingServiceException e) {
+                 context.getLogger().error(this, 
+                         "Cannot retrieve thumbnail: "+e.getExtendedMessage());
+             }
+             if (thumbPix == null) 
+                 thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         }
-        if (thumbPix == null) 
-            thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
     

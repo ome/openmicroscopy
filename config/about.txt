@@ -1,4 +1,20 @@
-For further information about copyright and version information,
-see the text files accompanying this software.
-
-This software is covered by the GPL license.
+<html>
+<body bgcolor="white">
+<p>
+OMERO.insight
+</p>
+<p>
+Version: 3_0_Beta2<br>
+Build: 2007-03-14<br>
+</p>
+<p>
+<br>
+(c) Copyright 2006, 2007.University of Dundee. All rights reserved.
+</p>
+<p>
+This software is covered by the GPL license. <br>
+For more information, visit 
+<html><body>
+<a href="http://openmicroscopy.org">http://openmicroscopy.org</a>
+</p>
+</body></html>

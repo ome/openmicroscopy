@@ -26,27 +26,28 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
 
+
+
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -71,24 +72,9 @@ class SoftwareUpdateDialog
 	/** The window's title. */
 	private static final String		TITLE = "About Software...";
 	
-    /** The text displayed before the version and revision values. */
-    private static final String     CLIENT_NAME = "Client:";
-    
-    /** The client's version. */
-    private static final String     CLIENT_VERSION = "3.0_Beta1.1 ";
-   
-    /** The text displayed before the revision date. */
-    private static final String     REVISION_NAME = "Revision Date:";
-    
-    /** The text displayed before the release date. */
-    private static final String     RELEASE_NAME = "Release Date:";
-    
-    /** Default text message. */
-    private static final String		ABOUT_TITLE = "About Software";
-    
     /** The close button. */
     private JButton closeButton;
-    
+   
     /** Closes and disposes. */
     private void close()
     {
@@ -107,7 +93,7 @@ class SoftwareUpdateDialog
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-        closeButton = new JButton("Close");
+        closeButton = new JButton("OK");
         closeButton.addActionListener(new ActionListener() {
         
             public void actionPerformed(ActionEvent e) { close(); }
@@ -119,95 +105,7 @@ class SoftwareUpdateDialog
         });
         getRootPane().setDefaultButton(closeButton);
     }
-    
-    /** 
-     * Returns the version and the revision.
-     * 
-     * @return See above.
-     */
-    private String getVersion()
-    {
-        String version = "$Rev$";
-        Pattern p = Pattern.compile("\\d{1,9}");
-        Matcher m = p.matcher(version);
-        m.find();
-        String s = CLIENT_VERSION;
-        s += "(revision "+m.group()+")";
-        return s;
-    }
-    
-    /**
-     * Returns the last time the software has been updated.
-     * 
-     * @return See above.
-     */
-    private String getLastChangedDate()
-    {
-        String d = "$LastChangedDate$";
-        Pattern p = Pattern.compile("([0-9-]+)");
-        Matcher m = p.matcher(d);
-        m.find();
-        return m.group();
-    }
-    
-    /**
-     * Builds the panel hosting the various values.
-     * 
-     * @return See above.
-     */
-    private JPanel buildContentPanel()
-    {
-        JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        JLabel name = UIUtilities.setTextFont(CLIENT_NAME);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(name, c);
-        
-        JLabel value = new JLabel(getVersion());
-        name.setLabelFor(value);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(value, c);  
-        c.gridx = 0;
-        c.gridy = 1;
-        name = UIUtilities.setTextFont(REVISION_NAME);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(name, c);
-        value = new JLabel(getLastChangedDate());
-        name.setLabelFor(value);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(value, c); 
-        c.gridx = 0;
-        c.gridy = 2;
-        name = UIUtilities.setTextFont(RELEASE_NAME);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(name, c);
-        value = new JLabel(getLastChangedDate());
-        name.setLabelFor(value);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        content.add(value, c); 
-        return content;
-    }
-    
+   
     /**
      * Builds the tool bar hosting the {@link #closeButton}.
      * 
@@ -230,26 +128,23 @@ class SoftwareUpdateDialog
     private JPanel buildAbout(String aboutMessage)
     {
     	JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        JLabel name = UIUtilities.setTextFont(ABOUT_TITLE);
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
-        content.add(name, c);
-        c.gridy = 1;
-
-        content.add(UIUtilities.buildTextPane(aboutMessage), c);
-        c.gridy = 2;
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(content);
-        p.add(new JSeparator());
-    	return UIUtilities.buildComponentPanel(p);
+    	double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
+    						{TableLayout.FILL}}; 
+        content.setLayout(new TableLayout(size));
+        Icon icon = IconManager.getLogoAbout();
+        JEditorPane p = UIUtilities.buildTextEditorPane(aboutMessage);
+        p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        p.setBackground(Color.WHITE);
+        p.setOpaque(true);
+        content.add(new JLabel(icon), "0, 0");
+        content.add(p, "1, 0, 2, 0");
+       
+        JPanel c = new JPanel();
+        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
+        c.add(content);
+        c.add(new JSeparator());
+        c.setOpaque(true);
+    	return c;
     }
     
     /** 
@@ -261,7 +156,6 @@ class SoftwareUpdateDialog
     {
     	Container c = getContentPane();
     	c.add(buildAbout(aboutMessage), BorderLayout.NORTH);
-        c.add(buildContentPanel(), BorderLayout.CENTER);
         JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
         p.setOpaque(true);
         c.add(p, BorderLayout.SOUTH);

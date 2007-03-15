@@ -606,4 +606,11 @@ public interface OmeroDataService
 	public ExperimenterData updateExperimenter(ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException;
     
+	/**
+	 * Returns the address of the server the user is currently connected to.
+	 * 
+	 * @return See above.
+	 */
+	public String getServerName();
+	
 }

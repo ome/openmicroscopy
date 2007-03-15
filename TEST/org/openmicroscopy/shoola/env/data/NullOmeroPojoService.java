@@ -344,4 +344,10 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+    /**
+     * No-op implementation
+     * @see OmeroDataService#getServerName()
+     */
+	public String getServerName() { return null; }
+
 }

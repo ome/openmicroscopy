@@ -24,8 +24,14 @@ package org.openmicroscopy.shoola.agents.treeviewer.profile;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.util.ui.login.ServerEditor;
 
 //Third-party libraries
 
@@ -46,7 +52,7 @@ import pojos.ExperimenterData;
  * @since OME3.0
  */
 class ProfileEditorControl
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
     /** 
@@ -125,6 +131,20 @@ class ProfileEditorControl
 			case ProfileEditor.SAVE_EDITION:
 				break;
 			}
+	}
+	
+	/**
+	 * Reacts to property changed fire by the {@link ServerEditor}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ServerEditor.REMOVE_MESSAGE_PROPERTY.equals(name)) {
+			view.showMessage(false, (JComponent) evt.getNewValue());
+		} else if (ServerEditor.ADD_MESSAGE_PROPERTY.equals(name)) {
+			view.showMessage(true, (JComponent) evt.getNewValue());
+		}
 	}
 
 	

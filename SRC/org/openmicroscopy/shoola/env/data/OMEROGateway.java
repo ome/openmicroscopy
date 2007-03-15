@@ -1160,6 +1160,14 @@ class OMEROGateway
 		}
 	}
 
+	/**
+	 * Updates the profile of the specified experimenter.
+	 * 
+	 * @param exp	The experimenter to handle.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+	 */
 	void updateExperimenter(Experimenter exp) 
 		throws DSOutOfServiceException, DSAccessException
 	{

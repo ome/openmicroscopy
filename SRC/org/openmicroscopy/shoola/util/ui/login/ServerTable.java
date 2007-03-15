@@ -70,7 +70,7 @@ class ServerTable
 	private int				previousRow;
 	
 	/** Reference to the parent. */
-	private ServerDialog 	parent;
+	private ServerEditor 	parent;
 	
 	/**
 	 * Handles the mouse pressed event.
@@ -96,7 +96,7 @@ class ServerTable
 	 * @param servers 	Collection of servers.
 	 * @param icon		The icon to display netx to the server's name.
 	 */
-	ServerTable(ServerDialog parent, List servers, Icon icon)
+	ServerTable(ServerEditor parent, List servers, Icon icon)
 	{	
 		if (parent == null)
 			throw new IllegalArgumentException("No model");
@@ -166,6 +166,9 @@ class ServerTable
 		for (int i = 0; i < getRowCount(); i++) {
 			if (i != m) values.add((String) getValueAt(i, 1)); 
 		}
+		String server = parent.getActiveServer();
+		if (server != null && !values.contains(server))
+			values.add(server);
 		Iterator j = values.iterator();
 		String name;
 		boolean found = false; 
@@ -182,8 +185,7 @@ class ServerTable
 	/**
 	 * Forwards call to the parent.
 	 * 
-	 * @param text T
-	 * he entered text.
+	 * @param text The entered text.
 	 */
 	void finishEdition(String text) { parent.finishEdition(text); }
 	

@@ -46,6 +46,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -437,6 +438,23 @@ public class UIUtilities
     	return buildTextPane(text, null);
     }
     
+    /**
+     * Formats the text and displays it in a {@link JEditorPane}.
+     * 
+     * @param text 			The text to display.
+     * @return See above.
+     */
+    public static JEditorPane buildTextEditorPane(String text)
+    {
+        JEditorPane textPane = new JEditorPane();
+        textPane.setContentType("text/html");
+        textPane.setText(text);
+        textPane.setOpaque(false);
+        textPane.setEditable(false);
+        textPane.setFocusable(false);
+        
+        return textPane;
+    }
     /**
      * Formats the text and displays it in a {@link JTextPane}.
      * 

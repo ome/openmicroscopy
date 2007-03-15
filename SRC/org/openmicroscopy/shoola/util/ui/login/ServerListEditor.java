@@ -27,12 +27,9 @@ package org.openmicroscopy.shoola.util.ui.login;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableCellEditor;
@@ -153,8 +150,8 @@ public class ServerListEditor
 	 */
 	public void actionPerformed(ActionEvent e) 
 	{
-		table.finishEdition(getComponentValue());
 		stopCellEditing();
+		table.finishEdition(getComponentValue());
 	}
 
 }

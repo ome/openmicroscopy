@@ -227,14 +227,17 @@ public class IconManager
     /** The <code>User Group</code> icon. */
     public static int           USER_GROUP = 57;
     
-    /** The <code>User Group</code> icon. */
+    /** The <code>Owner 48</code> icon. */
     public static int           OWNER_48 = 58;
+    
+    /** The <code>Server</code> icon. */
+    public static int           SERVER = 59;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 58;
+    private static int          MAX_ID = 59;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -301,6 +304,7 @@ public class IconManager
         relPaths[IMAGE_48] = "nuvola_thumbnail48.png";
         relPaths[USER_GROUP] = "nuvola_kgpg_photo16.png";
         relPaths[OWNER_48] = "nuvola_kdmconfig48.png";
+        relPaths[SERVER] = "nuvola_server16.png";
     }
     
     /** The sole instance. */

@@ -38,10 +38,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -96,12 +93,6 @@ public class ScreenLogin
 	 /** Default text if no server. */
     public static final String		DEFAULT_SERVER = "Add a new server ->";
     
-    /** Separator used when storing various servers. */
-    private static final String  	SERVER_NAME_SEPARATOR = ",";
-    
-    /** The property name for the host to connect to <i>OMERO</i>. */
-    private static final String  	OMERO_SERVER = "omeroServer";
-    
     /** The property name for the user who connects to <i>OMERO</i>. */
     private static final String  	OMERO_USER= "omeroUser";
      
@@ -147,6 +138,9 @@ public class ScreenLogin
     /** UI component hosting the version of the sotfware. */
     private JTextPane 			versionInfo;
     
+    /** Reference to the editor hosting the table. */
+	private ServerEditor		editor;
+    
     /** Quits the application. */
     private void quit()
     {
@@ -173,7 +167,7 @@ public class ScreenLogin
      */
     private void config()
     {
-    	ServerDialog d = new ServerDialog(getServers());
+    	ServerDialog d = new ServerDialog(editor);
     	d.addPropertyChangeListener(this);
     	UIUtilities.centerAndShow(d);
     }
@@ -206,7 +200,6 @@ public class ScreenLogin
 				if (user.getText() != null) {
 					user.selectAll();
 				}
-		
 			}
 		});
     }
@@ -262,7 +255,7 @@ public class ScreenLogin
     	user.setToolTipText("Enter your username.");
     	pass = new JPasswordField();
     	pass.setToolTipText("Enter your password.");
-    	List<String> servers = getServers();
+    	List<String> servers = editor.getServers();
     	if (servers == null || servers.size() == 0)
     		serverName = DEFAULT_SERVER;
     	else serverName = servers.get(servers.size()-1);
@@ -425,26 +418,6 @@ public class ScreenLogin
         return prefs.get(OMERO_USER, null);
 	}
 	
-	/**
-	 * Returns the list of existing servers.
-	 * 
-	 * @return See above.
-	 */
-	private List<String> getServers()
-	{
-    	Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
-        String servers = prefs.get(OMERO_SERVER, null);
-        if (servers == null || servers.length() == 0)  return null;
-        String[] l = servers.split(SERVER_NAME_SEPARATOR, 0);
-        if (l == null) return null;
-        List<String> listOfServers = new ArrayList<String>(l.length);
-        int index;
-        for (index = 0; index < l.length; index++)
-        	listOfServers.add(l[index].trim());
-        	
-        return listOfServers; 
-	}
-	
 	/** 
 	 * Sets the focus on the username field if no user name entered
 	 * otherwise, sets the focus on the password field.
@@ -456,43 +429,7 @@ public class ScreenLogin
 			user.requestFocus();
 		else pass.requestFocus();
 	}
-	
-	/**
-	 * Saves the collection of servers.
-	 * 
-	 * @param l The collection to save.
-	 */
-	private void handleServers(Set l)
-	{
-		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
-		if (l == null || l.size() == 0) {
-			prefs.put(OMERO_SERVER, "");
-			return;
-		}
-		ArrayList<String> servers = new ArrayList<String>(l.size());
-		Iterator i = l.iterator();
-		String serverName = getServerName();
-		String name;
-		while (i.hasNext()) {
-			name = (String) i.next();
-			if (!name.equals(serverName) && !name.equals(DEFAULT_SERVER)) 
-				servers.add(name);
-		}
-		if (serverName != null && serverName.length() != 0 && 
-			!serverName.equals(DEFAULT_SERVER))
-			servers.add(serverName);
-		i = servers.iterator();
-		int n = servers.size()-1;
-		int index = 0;
-		String list = "";
-		while (i.hasNext()) {
-			list += (String) i.next();
-			if (index != n)  list += SERVER_NAME_SEPARATOR;
-			index++;
-		}
-		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
-	}
-	
+
     /**
      * Creates a new instance.
      * 
@@ -511,6 +448,8 @@ public class ScreenLogin
     	Dimension d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
 		setSize(d);
 		setPreferredSize(d);
+		editor = new ServerEditor();
+		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		initFields(getUserName());
 		initButtons();
 		initListeners();
@@ -626,15 +565,10 @@ public class ScreenLogin
 			String trim = s.trim();
 			if (v.equals(trim)) return;
 			setNewServer(trim);
-			//addServer(trim);
-		} else if (ServerDialog.CLOSE_PROPERTY.equals(name)) {
-			requestFocusOnField();
-			handleServers((Set) evt.getNewValue());
-		} else if (ServerDialog.REMOVE_PROPERTY.equals(name)) {
+		} else if (ServerEditor.REMOVE_PROPERTY.equals(name)) {
 			requestFocusOnField();
 			String v = getServerName();
 			String oldValue = (String) evt.getOldValue();
-			//removeServer(oldValue);
 			if (v.equals(oldValue)) 
 				setNewServer((String) evt.getNewValue());
 		} 
