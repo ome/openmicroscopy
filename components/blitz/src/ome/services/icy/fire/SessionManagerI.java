@@ -13,7 +13,6 @@ import java.util.Map;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
-import ome.services.icy.config.IceFacetFactoryBean;
 import ome.services.icy.util.CreateSessionMessage;
 import ome.system.OmeroContext;
 import ome.system.Principal;
