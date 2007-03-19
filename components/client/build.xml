@@ -39,10 +39,10 @@
 			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
 				<arg value="task=admin.AddGroupTask"/>
 				<!-- login properties -->
-				<arg value="user=root"/>
-				<arg value="pass=${omero.rootpass}"/>
-				<arg value="type=Task"/>
-				<arg value="group=system"/>
+				<arg value="omero.user=root"/>
+				<arg value="omero.pass=${omero.rootpass}"/>
+				<arg value="omero.type=Task"/>
+				<arg value="omero.group=system"/>
 				<!-- task properties -->
 				<arg value="name=${newgroup.name}"/>
 				<arg value="description=${newgroup.description}"/>
@@ -87,10 +87,10 @@ Not functional: See https://trac.openmicroscopy.org.uk/omero/ticket/464
 			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
 				<arg value="task=admin.AddUserTask"/>
 				<!-- login properties -->
-				<arg value="user=root"/>
-				<arg value="pass=${omero.rootpass}"/>
-				<arg value="type=Task"/>
-				<arg value="group=system"/>
+				<arg value="omero.user=root"/>
+				<arg value="omero.pass=${omero.rootpass}"/>
+				<arg value="omero.type=Task"/>
+				<arg value="omero.group=system"/>
 				<!-- task properties -->
 				<arg value="omename=${newuser.omename}"/>
 				<arg value="firstname=${newuser.firstname}"/>
