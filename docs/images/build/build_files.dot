@@ -1,0 +1,17 @@
+digraph build {
+
+	"java omero.class" -> "build.xml" [label="uses"];
+
+	"build.xml" -> "global.xml";
+	"build.xml" -> "<components>/build.xml" -> "global.xml";
+
+	"global.xml" -> "directories.xml" ;
+	"global.xml" -> "server.xml";
+	"global.xml" -> "setup.xml";
+	"global.xml" -> "lifecycle.xml";
+	"global.xml" -> "message.properties";	
+
+	"build.xml" -> "maven.xml" -> "global.xml";
+	"build.xml" -> "release.xml";
+
+}
