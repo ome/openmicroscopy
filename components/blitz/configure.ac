@@ -26,6 +26,12 @@ AC_ARG_WITH(ice,
              AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
              AC_MSG_NOTICE(using Ice library directory... $withval/lib)])
 
+dnl Check for CPPUnit
+ifdef([AM_PATH_CPPUNIT], [
+			 AM_PATH_CPPUNIT(1.9.6)
+			 AM_CONDITIONAL(CPPUNIT, true)], 
+			 [AM_CONDITIONAL(CPPUNIT, false)])
+
 dnl Automake time
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
@@ -63,9 +69,6 @@ AC_SYS_LARGEFILE
 
 dnl Set the correct language (C++)
 AC_LANG(C++)
-
-dnl Check for CPPUnit
-AM_PATH_CPPUNIT(1.9.6)
 
 dnl Check for slice2cpp
 AC_PATH_PROG(SLICE2CPP, slice2cpp)
