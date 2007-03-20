@@ -447,9 +447,8 @@ public class PojosServiceTest extends TestCase {
             }
         }
 
-        if (targetPath == null) {
-            fail("No valid category group found for classification test.");
-        }
+        assert targetPath != null :     
+            "No valid category group found for classification test.";
 
         Set single = Collections.singleton(targetPath[Paths.I.intValue()]);
         Set me = iPojos.findCGCPaths(single, IPojos.CLASSIFICATION_ME, null);

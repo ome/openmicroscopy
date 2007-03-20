@@ -15,6 +15,7 @@ import org.aopalliance.intercept.MethodInvocation;
 
 // Application-internal dependencies
 import ome.logic.HardWiredInterceptor;
+import ome.services.icy.fire.SessionPrincipal;
 
 /**
  * Responsible for enforcing a generic licensing policy:
@@ -43,6 +44,17 @@ public class LicenseWiring extends HardWiredInterceptor {
      */
     LicenseStore store = new LicenseBean();
 
+    LicenseSessionListener sessionListener;
+    
+    @Override
+    public String getName() {
+        return "licenseWiring";
+    }
+    
+    public void setLicenseSessionListener(LicenseSessionListener sessions) {
+        this.sessionListener = sessions;
+    }
+    
     /**
      * Interceptor method which enforces the {@link LicenseWiring} policy.
      */
@@ -58,19 +70,36 @@ public class LicenseWiring extends HardWiredInterceptor {
         // Since this isn't the license service, they have to use the proper
         // principal
         Principal p = getPrincipal(mi);
-        if (!LicensedPrincipal.class.isAssignableFrom(p.getClass())) {
-            throw new LicenseException("Client sent non-licensed Principal.");
+        LicensedPrincipal lp;
+        byte[] token;
+        if (LicensedPrincipal.class.isAssignableFrom(p.getClass())) {
+
+            // It is a LicensedPrincipal, but does it have a license?
+            lp = (LicensedPrincipal) p;
+            token = lp.getLicenseToken();
+            
+        } else if (SessionPrincipal.class.isAssignableFrom(p.getClass())) {
+            
+            // It is a SessionPrincipal from blitz, let's see if there's a 
+            // current session.
+            SessionPrincipal sp = (SessionPrincipal) p;
+            String session = sp.getSession();
+            token = sessionListener.getToken(session);
+            lp = new LicensedPrincipal(sp.getName(),sp.getGroup(),sp.getEventType());
+            lp.setLicenseToken(token);
+        } else {
+        
+            throw new LicenseException("No valid principal found:"+p);
+        
         }
 
-        // It is a LicensedPrincipal, but does it have a license?
-        LicensedPrincipal lp = (LicensedPrincipal) p;
-        byte[] token = lp.getLicenseToken();
+        // Was there really a token?
         if (token == null) {
             throw new LicenseException("Method requires a license. Please use "
                     + "ILicense.acquireLicense().");
         }
 
-        // Yes, then allow them to continue, but mark their method bounaries.
+        // Yes, then allow them to continue, but mark their method boundaries.
         // Within enterMethod() the license validity will be checked.
         try {
             store.enterMethod(token, lp);

@@ -39,7 +39,6 @@ public class UpdateTest extends AbstractUpdateTest {
         // assertTrue(logs.size() > 0);
 
         Pixels check = (Pixels) iQuery.findByQuery("select p from Pixels p "
-                + " left outer join fetch p.acquisitionContext "
                 + " left outer join fetch p.channels " + "  where p.id = :id",
                 new Parameters().addId(p.getId()));
 

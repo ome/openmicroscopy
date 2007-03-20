@@ -40,6 +40,10 @@ public class LicenseSessionListener implements ApplicationListener {
         this.lic = service;
     }
 
+    public byte[] getToken(String sessionName) {
+        return tokensBySession.get(sessionName);
+    }
+    
     public void onApplicationEvent(ApplicationEvent event) {
             if (event instanceof CreateSessionMessage) {
                 CreateSessionMessage create = (CreateSessionMessage) event;

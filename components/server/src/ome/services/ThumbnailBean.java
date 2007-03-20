@@ -1,5 +1,5 @@
 /*
- * ome.logic.QueryImpl
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -39,6 +39,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import javax.interceptor.Interceptors;
 // Third-party libraries
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,9 +56,11 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.ThumbnailService;
 import ome.logic.AbstractLevel2Service;
+import ome.logic.SimpleLifecycle;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
 import ome.parameters.Parameters;
+import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import omeis.providers.re.RenderingEngine;
@@ -82,6 +85,7 @@ import sun.awt.image.IntegerInterleavedRaster;
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.ThumbnailStore")
 @Local(ThumbnailStore.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.ThumbnailStore")
+@Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
 public class ThumbnailBean extends AbstractLevel2Service implements
         ThumbnailStore, Serializable {
@@ -129,26 +133,14 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The default MIME type. */
     public static final String DEFAULT_MIME_TYPE = "image/jpeg";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#getServiceInterface()
-     */
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return ThumbnailStore.class;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#create()
-     */
-    @Override
     @PostConstruct
     @PostActivate
     public void create() {
-        super.create();
+        selfConfigure();
         if (pixelsId != null) {
             resetPix = pixelsId;
             pixelsId = null;
@@ -156,16 +148,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         // FIXME resetRE will need to be managed here too.
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#destroy()
-     */
-    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
-        super.destroy();
         // id is the only thing passivated.
         re = null;
         iScale = null;
@@ -235,7 +220,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            a <code>RenderingEngine</code>.
      */
     public void setRenderingEngine(RenderingEngine re) {
-        throwIfAlreadySet(this.re, re);
+        beanHelper.throwIfAlreadySet(this.re, re);
         this.re = re;
     }
 
@@ -246,7 +231,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            an <code>IScale</code>.
      */
     public void setScaleService(IScale iScale) {
-        throwIfAlreadySet(this.iScale, iScale);
+        beanHelper.throwIfAlreadySet(this.iScale, iScale);
         this.iScale = iScale;
     }
 
@@ -257,7 +242,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            a <code>ThumbnailService</code>.
      */
     public void setIoService(ThumbnailService ioService) {
-        throwIfAlreadySet(this.ioService, ioService);
+        beanHelper.throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
     }
 

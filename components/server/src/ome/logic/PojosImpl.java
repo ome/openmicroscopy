@@ -60,6 +60,7 @@ import ome.services.query.PojosGetUserImagesQueryDefinition;
 import ome.services.query.PojosLoadHierarchyQueryDefinition;
 import ome.services.query.Query;
 import ome.services.util.CountCollector;
+import ome.services.util.OmeroAroundInvoke;
 import ome.tools.AnnotationTransformations;
 import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
@@ -81,11 +82,10 @@ import ome.util.builders.PojoOptions;
 @Local(IPojos.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPojos")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
-    @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface() {
+    public final Class<? extends ServiceInterface> getServiceInterface() {
         return IPojos.class;
     }
 
@@ -502,7 +502,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
                 if (key == null || c.getIds(key) == null
                         || c.getIds(key).size() == 0) {
-                    getLogger().warn(
+                    beanHelper.getLogger().warn(
                             " Skipping " + key + " in collection counts.");
                     continue;
                 }

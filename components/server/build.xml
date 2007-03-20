@@ -18,15 +18,7 @@
         </target>
 
 	<target name="compile" depends="generate">
-		<hard-wire file="ome/logic/AbstractBean.java"/>
-		<myjavac>
-		  <src path="${src.dir}"/>
-		</myjavac>
-		<delete file="${classes.dir}/ome/logic/AbstractBean.class"/>
-		<myjavac>
-		  <src path="${src.dest}"/>
-		</myjavac>
-		<delete file="${src.dest}/ome/logic/AbstractBean.java"/>
+		<hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"/>
 	</target>
 
 </project>

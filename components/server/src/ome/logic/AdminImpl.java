@@ -74,6 +74,7 @@ import ome.security.basic.UpdateEventListener;
 import ome.services.query.Definitions;
 import ome.services.query.Query;
 import ome.services.query.QueryParameterDef;
+import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.Roles;
 import ome.system.SimpleEventContext;
@@ -104,7 +105,7 @@ import ome.util.Utils;
 @Local(IAdmin.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IAdmin")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     protected transient SimpleJdbcTemplate jdbc;
@@ -115,24 +116,25 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        throwIfAlreadySet(this.jdbc, jdbcTemplate);
+        beanHelper.throwIfAlreadySet(this.jdbc, jdbcTemplate);
         jdbc = jdbcTemplate;
     }
 
     /** injector for usage by the container. Not for general use */
     public final void setExtendedMetadata(ExtendedMetadata extMetadata) {
-        throwIfAlreadySet(this.em, extMetadata);
+        beanHelper.throwIfAlreadySet(this.em, extMetadata);
         em = extMetadata;
     }
-
+    
     /** injector for usage by the container. Not for general use */
-    public final void setSessionFactory(SessionFactory sessionFactory) {
-        throwIfAlreadySet(this.sf, sessionFactory);
-        sf = sessionFactory;
+    public final void setSessionFactory(SessionFactory sessions) {
+        beanHelper.throwIfAlreadySet(this.sf, sessions);
+        sf = sessions;
     }
-
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    
+    
+    
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return IAdmin.class;
     }
 
@@ -317,16 +319,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         String string = "omero:service=LoginConfig";
         // using Spring utilities to get MBeanServer
         MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        getLogger().debug("Acquired MBeanServer.");
+        beanHelper.getLogger().debug("Acquired MBeanServer.");
         ObjectName name;
         try {
             // defined in app/resources/jboss-service.xml
             name = new ObjectName(string);
             mbeanServer.invoke(name, "flushAuthenticationCaches",
                     new Object[] {}, new String[] {});
-            getLogger().debug("Flushed authentication caches.");
+            beanHelper.getLogger().debug("Flushed authentication caches.");
         } catch (InstanceNotFoundException infe) {
-            getLogger().warn(
+            beanHelper.getLogger().warn(
                     string + " not found. Won't synchronize login cache.");
         } catch (Exception e) {
             InternalException ie = new InternalException(e.getMessage());
@@ -464,12 +466,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
         for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
                 .collectGroupExperimenterMap(null)) {
-            if (toRemove.contains(map.parent().getId())) {
-                map.child().removeGroupExperimenterMap(map, false);
-                map.parent().removeGroupExperimenterMap(map, false);
-                getSecuritySystem().doAction(map, new SecureAction() {
+            Long pId = map.parent().getId();
+            Long cId = map.child().getId();
+            if (toRemove.contains(pId)) {
+                ExperimenterGroup p = iQuery.get(ExperimenterGroup.class, pId);
+                Experimenter c = iQuery.get(Experimenter.class, cId);
+                p.unlinkExperimenter(c);
+                getSecuritySystem().doAction(p, new SecureAction() {
                     public <T extends IObject> T updateObject(T obj) {
-                        iUpdate.deleteObject(obj);
+                        iUpdate.saveObject(obj);
                         return null;
                     }
                 });
@@ -561,7 +566,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 "delete from password where experimenter_id = ?", e.getId());
 
         if (count == 0) {
-            getLogger().info(
+            beanHelper.getLogger().info(
                     "No password found for user " + e.getOmeName()
                             + ". Cannot delete.");
         }
@@ -651,7 +656,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     @RolesAllowed("system")
     public boolean[] unlock(final IObject... iObjects) {
         // do nothing if possible
-        if (iObjects == null | iObjects.length < 1) {
+        if (iObjects == null || iObjects.length < 1) {
             return new boolean[] {};
         }
 
@@ -725,8 +730,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                     }
 
                     // reporting
-                    if (getLogger().isDebugEnabled()) {
-                        getLogger().debug(counts);
+                    if (beanHelper.getLogger().isDebugEnabled()) {
+                        beanHelper.getLogger().debug(counts);
                     }
 
                     // if there are no links, the we can unlock

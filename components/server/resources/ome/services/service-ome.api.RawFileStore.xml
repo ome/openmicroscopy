@@ -19,15 +19,9 @@
 
 <beans>	
 
-  <bean singleton="false" parent="bean"
+  <bean singleton="false" parent="stateful"
         id="internal:ome.api.RawFileStore" 
      class="ome.services.RawFileBean">
-    <!--  
-      Copied from id="binary" parent (no multiple inheritance). This is needed
-      so long there isn't a wrapper instance around the RawFileStore as in
-      service-omeis.providers.re.RenderingEngine.xml
-    -->
-    <property name="queryService" ref="internal:ome.api.IQuery"/>
     <property name="originalFilesService" ref="/OMERO/Files"/>
   </bean>
 

@@ -15,6 +15,7 @@ import javax.interceptor.InvocationContext;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.system.SelfConfigurableService;
 
 /**
  * abstract base class for creating
@@ -27,12 +28,13 @@ import ome.annotations.RevisionNumber;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public class SimpleLifecycle {
+    
     @PostConstruct
     public void postConstruct(InvocationContext ctx) {
         try {
-            if (ctx.getBean() instanceof AbstractBean) {
-                AbstractBean bean = (AbstractBean) ctx.getBean();
-                bean.create();
+            if (ctx.getBean() instanceof SelfConfigurableService) {
+                SelfConfigurableService bean = (SelfConfigurableService) ctx.getBean();
+                bean.selfConfigure();
             }
             ctx.proceed();
         } catch (Exception e) {
@@ -43,10 +45,7 @@ public class SimpleLifecycle {
     @PreDestroy
     public void preDestroy(InvocationContext ctx) {
         try {
-            if (ctx.getBean() instanceof AbstractBean) {
-                AbstractBean bean = (AbstractBean) ctx.getBean();
-                bean.destroy();
-            }
+            // currently doing nothing. All state is transient.
             ctx.proceed();
         } catch (Exception e) {
             throw new RuntimeException(e);

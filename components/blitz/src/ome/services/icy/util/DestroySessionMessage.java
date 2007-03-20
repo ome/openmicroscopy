@@ -1,24 +1,6 @@
 package ome.services.icy.util;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.context.ApplicationEvent;
-
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-
-import ome.api.ServiceInterface;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.util.Filterable;
-import ome.util.messages.InternalMessage;
-import omero.RType;
-import omero.ServerError;
-import omero.Time;
-import omero.model.IObject;
-import omero.util.IceMapper;
+import ome.services.icy.fire.SessionPrincipal;
 
 /**
  * @author josh
@@ -29,7 +11,7 @@ public class DestroySessionMessage extends AbstractSessionMessage {
     private static final long serialVersionUID = 7132548299119420025L;
 
     public DestroySessionMessage(Object source, String sessionId,
-            Principal principal) {
+            SessionPrincipal principal) {
         super(source, sessionId, principal);
     }
 

@@ -49,6 +49,7 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.dao.Dao;
 import ome.services.query.Query;
+import ome.services.util.OmeroAroundInvoke;
 
 /**
  * Provides methods for directly querying object graphs.
@@ -67,11 +68,10 @@ import ome.services.query.Query;
 @Local(LocalQuery.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return IQuery.class;
     }
 

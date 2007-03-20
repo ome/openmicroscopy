@@ -43,8 +43,7 @@ import ome.parameters.Parameters;
 @Transactional(readOnly = true)
 public class AnalysisImpl extends AbstractLevel2Service implements IAnalysis {
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return IAnalysis.class;
     }
 

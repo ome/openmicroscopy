@@ -218,8 +218,9 @@ public class MockedCall {
      *         call arguments.
      */
     public boolean isSameCall(MockedCall mc) {
-        boolean b = mc != null && signature.equals(mc.signature);
-        if (b) {
+        boolean b = false;
+        if (mc != null && signature.equals(mc.signature)) {
+            b = true;
             // B/c of setArgs and constructor implementations, we know that the
             // args array always have the same number of elements as specified
             // by the signature object (this number may also be 0: no params).

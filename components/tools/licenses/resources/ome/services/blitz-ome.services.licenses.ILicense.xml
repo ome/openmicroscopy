@@ -24,10 +24,14 @@
 	<property name="securitySystem" ref="securitySystem"/>
   </bean>
   
-  <bean id="licenseDefinition" class="ome.services.icy.util.ServantDefinition">
+  <bean id="omero.licenses.ILicense" class="ome.services.icy.util.ServantDefinition">
     <property name="operationsClass" value="omero.licenses._ILicenseOperations"/>
     <property name="serviceClass" value="ome.services.licenses.ILicense"/>
     <property name="tieClass" value="omero.licenses._ILicenseTie"/>
   </bean>
+
+  <bean id="licenseWiring" class="ome.services.licenses.LicenseWiring">
+  	<property name="licenseSessionListener" ref="licenseSessionListener"/>
+  </bean> 
   
 </beans>

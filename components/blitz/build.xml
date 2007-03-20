@@ -28,10 +28,26 @@
 	      		
 	<target name="generate" depends="prepare,icegen,lifecycle.generate"/>
 
-	<target name="install" depends="test,lifecycle.install,standalone"/>
+	<target name="compile" depends="generate" unless="skip.compile">
+		<hard-wire file="ome/services/icy/fire/SessionManagerI.java"
+		    value="&quot;ome.services.icy.fire.BasicSecurityWiring&quot;,${omero.hard-wired.interceptors}"/>
+		<tempfile property="src.tmp" prefix="omero"/>
+		<mkdir dir="${src.tmp}"/>
+  		<copy todir="${src.tmp}">
+    		  <fileset dir="${src.dir}">
+      		    <exclude name="ome/services/icy/fire/SessionManagerI.java"/>
+    		  </fileset>
+  		</copy>
+		<myjavac>
+		    <src path="${src.dest}"/>
+		    <src path="${src.tmp}"/>
+		</myjavac>
+		<delete dir="${src.tmp}"/>
+		<delete file="${src.dest}/ome/services/icy/fire/SessionManagerI.java"/>
+	</target>
 
-	<target name="clean" depends="lifecycle.clean"/>
-		
+	<target name="install" depends="lifecycle.install,standalone"/>
+
     <!-- = = = = = = = = = = = = = = = = =
           generate slice   
          = = = = = = = = = = = = = = = = = -->

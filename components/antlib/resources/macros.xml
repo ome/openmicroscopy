@@ -193,10 +193,11 @@
 		<attribute name="fromdir" default="${src.dir}"/>
 		<attribute name="todir" default="${src.dest}"/>
 		<attribute name="file"/>
+		<attribute name="token" default="@REPLACE@"/>
+		<attribute name="prefix" default="REPLACE BY hardWireCompile*/"/>
+		<attribute name="suffix" default="/*"/>
+		<attribute name="value" default="${omero.hard-wired.interceptors}"/>
 		<sequential>
-	        <!-- FORMAT: &quot;CLASS1&quot;,&quot1;CLASS2&quot;,... -->
-		<!-- Just in case it's been omitted -->
-	        <property name="omero.hard-wired.interceptors" value=""/>
                 <delete file="@{todir}/@{file}"/>
                 <copy todir="@{todir}">
 			<fileset dir="@{fromdir}">
@@ -204,25 +205,38 @@
 			</fileset>
 		</copy>
                 <replace file="@{todir}/@{file}">
-                        <replacefilter token="@REPLACE@" value="REPLACED BY hard-wire macro-->*/${omero.hard-wired.interceptors}/*"/>
+                        <replacefilter token="@{token}" value="@{prefix}@{value}@{suffix}"/>
                 </replace>
 		</sequential>
 	</macrodef>
 
+	<!-- Because this is such a common metaphor, we're writing a simple 
+	hard-wiring compile macro which can be used if only one file needs to 
+	be hard-wired. Otherwise, use the hard-wire macro.
+	
+	Must compile the files in two steps to prevent duplicate class errors 
+	-->
 	<macrodef name="hardWireCompile">
 		<attribute name="fromdir" default="${src.dir}"/>
 		<attribute name="todir" default="${src.dest}"/>
-		<attribute name="file"/>
+		<attribute name="pattern"/>
+		<attribute name="token" default="@REPLACE@"/>
+		<attribute name="value" default="${omero.hard-wired.interceptors}"/>
+		<attribute name="prefix" default="REPLACE BY hardWireCompile*/"/>
+		<attribute name="suffix" default="/*"/>
 		<sequential>
-		<hard-wire file="ome/.../YourFileHere.java"/>
+		<hard-wire file="@{pattern}.java" 
+		    prefix="@{prefix}" suffix="@{suffix}"
+		    token="@{token}" value="@{value}" 
+		    fromdir="@{fromdir}" todir="@{todir}"/>
 		<myjavac>
-		  <src path="${src.dir}"/>
+		  <src path="@{fromdir}"/>
 		</myjavac>
-		<delete file="${classes.dir}/ome/.../YourFileHere.class"/>
+		<delete file="${classes.dir}/@{pattern}.class"/>
 		<myjavac>
-		  <src path="${src.dest}"/>
+		  <src path="@{todir}"/>
 		</myjavac>
-		<delete file="${src.dest}/ome/.../YourFileHere.java"/>
+		<delete file="${src.dest}/@{pattern}.java"/>
 		</sequential>
 	</macrodef>
     <!-- = = = = = = = = = = = = = = = = =

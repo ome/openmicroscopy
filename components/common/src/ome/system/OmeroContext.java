@@ -203,8 +203,20 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     // =========================================================================
 
     /**
-     * uses the methods of this context's {@link BeanFactory} to autowire any
-     * Object based on the given beanName. This is used by
+     * Uses the methods of this context's {@link BeanFactory} to autowire any
+     * Object based on the given beanName. 
+     * 
+     * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#applyBeanPropertyValues(java.lang.Object,
+     *      java.lang.String)
+     */
+    public void applyBeanPropertyValues(Object target, String beanName) {
+        this.getAutowireCapableBeanFactory().applyBeanPropertyValues(target,
+                beanName);
+    }
+    
+    /**
+     * Uses the methods of this context's {@link BeanFactory} to autowire any
+     * Object based on the service class. This is used by
      * {@link SelfConfigurableService} instances to acquire dependencies.
      * 
      * @see SelfConfigurableService
@@ -217,8 +229,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         // SelfConfigurableService>
         // but there are issues because of the ApplicationContextAware. Perhaps
         // we can combine them later.
-        this.getAutowireCapableBeanFactory().applyBeanPropertyValues(target,
-                "internal:" + beanInterface.getName());
+        applyBeanPropertyValues(target, "internal:" + beanInterface.getName());
     }
 
     /**

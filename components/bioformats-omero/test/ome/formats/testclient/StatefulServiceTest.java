@@ -93,6 +93,7 @@ public class StatefulServiceTest extends TestCase {
 		p = i.getDefaultPixels();
 		
 		assertNotNull( p );
+                assertNotNull( p.getId() );
 	}
 
 	@Override
@@ -164,7 +165,10 @@ public class StatefulServiceTest extends TestCase {
 	private RenderingEngine newRE() {
 		RenderingEngine re = sf.createRenderingEngine();
 		re.lookupPixels( p.getId() );
-		re.lookupRenderingDef( p.getId() );
+		if (!re.lookupRenderingDef( p.getId() )) {
+		    re.resetDefaults();
+                    re.lookupRenderingDef(p.getId());
+                }
 		re.load();
 		return re;
 	}

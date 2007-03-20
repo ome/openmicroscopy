@@ -41,8 +41,10 @@ public class UpdateTest extends IceTest {
         cat = (omero.model.CategoryI) link.parent;
         
         assertTrue("foo".equals(obj.name));
-        assertTrue(cat != null);
-        assertTrue("bar".equals(cat.name));
+        if (cat == null) 
+            fail("Cat is null");
+        else
+            assertTrue("bar".equals(cat.name));
     }
 
     @Test

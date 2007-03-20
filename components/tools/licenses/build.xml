@@ -13,46 +13,25 @@
 	<dirname property="up-one" file="${up-two}"/>
 	<import file="${classpath.file}"/>
 
-        <target name="generate" depends="lifecycle.generate,hard-wire"/>
-
-	<!-- The hard-wiring target allows a specific Store implementation to
+	<!-- The hard-wiring allows a specific Store implementation to
 	be hard-wired into the LicenseBean.
 
 	The value is the class names of a LicenseStore implementation with a 
 	a no-arg constructor. This allows classes unknown to the server at 
 	compile time to become a part of a distribution. -->
-	<target name="hard-wire">
-	        <!-- FORMAT: ome...ClassName  -->
-		<property name="replace.pkg"  value="ome/services/licenses"/>
-		<property name="replace.file" value="${replace.pkg}/LicenseBean.java"/>
-                <delete file="${src.dest}/${replace.file}"/>
-                <copy file="${src.dir}/${replace.file}" todir="${src.dest}/${replace.pkg}" />
-                <replace file="${src.dest}/${replace.file}">
-                        <replacefilter 
-			token="ome.services.licenses.Store" 
-			value="${ome.services.licenses.Store_class}"/>
-                </replace>
-	</target>
-
-	<!-- Must compile the files in two steps to prevent duplicate class errors -->
 	<target name="compile" depends="generate" unless="skip.compile">
-		<myjavac>
-		  <src path="${src.dir}"/>
-		</myjavac>
-		<delete file="${classes.dir}/ome/services/licenses/LicenseBean.class"/>
-		<myjavac>
-		  <src path="${src.dest}"/>
-		</myjavac>
-		<delete file="${src.dest}/ome/services/licenses/LicenseBean.java"/>
+		<hardWireCompile pattern="ome/services/licenses/LicenseBean"
+		   token="&quot;ome.services.licenses.Store&quot;"
+		   value="${ome.services.licenses.Store_class}"
+		   prefix="" suffix=""/>
 	</target>
-
 
 	<!-- Additional functionality for the lifecycle.package target.
 	Unjars the final contents of the service jar to a top-level tools/
 	directory so that they can be bundled together for the final EAR.
 	This is necessary since otherwise the jar listed here would have to
 	be manually added to app/resources/application.xml -->
-	<target name="package" depends="lifecycle.package">
+	<target name="package" depends="lifecycle.package" unless="skip.compile">
 	        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.unjar}"/>
 	</target>
 

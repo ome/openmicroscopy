@@ -211,6 +211,7 @@ public class PojosTest extends TestCase {
                 break;
             }
         }
+        assert dd != null;
         assertTrue(dd.getAnnotations().size() == 1);
         assertTrue(dd.getImages().size() == 1);
 
@@ -229,6 +230,8 @@ public class PojosTest extends TestCase {
                 break;
             }
         }
+        
+        assert dd != null;
         id = (ImageData) dd.getImages().iterator().next();
         assertTrue(id.getCategories().size() == 1);
 

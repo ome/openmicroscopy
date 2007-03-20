@@ -43,6 +43,7 @@ import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
+import ome.services.util.OmeroAroundInvoke;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
@@ -61,17 +62,16 @@ import ome.util.Utils;
 @Local(LocalUpdate.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalUpdate")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     protected transient LocalQuery localQuery;
 
     public final void setQueryService(LocalQuery query) {
-        throwIfAlreadySet(this.localQuery, query);
+        beanHelper.throwIfAlreadySet(this.localQuery, query);
         this.localQuery = query;
     }
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return IUpdate.class;
     };
 
@@ -220,8 +220,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
                     "Argument to save cannot be null.");
         }
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(" Saving event before merge. ");
+        if (beanHelper.getLogger().isDebugEnabled()) {
+            beanHelper.getLogger().debug(" Saving event before merge. ");
         }
 
     }
@@ -232,8 +232,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link UpdateFilter} or to another event listener.
      */
     protected IObject internalSave(IObject obj, UpdateFilter filter) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(" Internal save. ");
+        if (beanHelper.getLogger().isDebugEnabled()) {
+            beanHelper.getLogger().debug(" Internal save. ");
         }
 
         IObject result = (IObject) filter.filter(null, obj);
@@ -242,8 +242,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     protected void internalDelete(IObject obj, UpdateFilter filter) {
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(" Internal delete. ");
+        if (beanHelper.getLogger().isDebugEnabled()) {
+            beanHelper.getLogger().debug(" Internal delete. ");
         }
 
         getHibernateTemplate().delete(
@@ -253,8 +253,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     private void afterUpdate(UpdateFilter filter) {
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug(" Post-save cleanup. ");
+        if (beanHelper.getLogger().isDebugEnabled()) {
+            beanHelper.getLogger().debug(" Post-save cleanup. ");
         }
 
         // Clean up

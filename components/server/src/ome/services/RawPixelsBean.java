@@ -1,5 +1,5 @@
 /*
- * ome.services.RawPixelsBean
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -24,6 +24,7 @@ import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
 
 // Third-party libraries
 import org.jboss.annotation.ejb.LocalBinding;
@@ -40,10 +41,8 @@ import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.logic.AbstractBean;
 import ome.model.core.Pixels;
-import ome.system.EventContext;
-import ome.system.SimpleEventContext;
+import ome.services.util.OmeroAroundInvoke;
 
 import omeis.providers.re.RenderingEngine;
 
@@ -62,9 +61,9 @@ import omeis.providers.re.RenderingEngine;
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.RawPixelsStore")
 @Local(RenderingEngine.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.RawPixelsStore")
+@Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
-public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
-        Serializable {
+public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStore {
 
     private static final long serialVersionUID = -6640632220587930165L;
 
@@ -80,29 +79,27 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
 
     private transient IPixels metadataService;
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return RawPixelsStore.class;
     }
 
     public final void setPixelsMetadata(IPixels metaService) {
-        throwIfAlreadySet(this.metadataService, metaService);
+        beanHelper.throwIfAlreadySet(this.metadataService, metaService);
         metadataService = metaService;
     }
 
     public final void setPixelsData(PixelsService dataService) {
-        throwIfAlreadySet(this.dataService, dataService);
+        beanHelper.throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
     }
 
     // ~ Lifecycle methods
     // =========================================================================
 
-    @Override
     @PostConstruct
     @PostActivate
     public void create() {
-        super.create();
+        selfConfigure();
         // no longer trying to recreate here because of transactional 
         // difficulties. instead we'll set reset, and let errorIfNotLoaded()
         // do the work.
@@ -112,11 +109,9 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
         }
     }
 
-    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
-        super.destroy();
         // id is the only thing passivated.
         dataService = null;
         pixelsInstance = null;
@@ -141,11 +136,6 @@ public class RawPixelsBean extends AbstractBean implements RawPixelsStore,
             buffer = dataService.getPixelBuffer(pixelsInstance);
         }
     }
-
-    @RolesAllowed("user")
-    public EventContext getCurrentEventContext() {
-        return new SimpleEventContext(getSecuritySystem().getEventContext());
-    };
 
     private synchronized void errorIfNotLoaded() {
         // If we're not loaded because of passivation, then load.

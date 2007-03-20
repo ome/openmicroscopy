@@ -92,6 +92,11 @@
     <property name="pixelsService"  ref="internal:ome.api.IPixels"/>
     <property name="pojosService" 	ref="internal:ome.api.IPojos"/>
   </bean>
+ 
+  <bean id="stateful" abstract="true" class="ome.services.AbstractStatefulBean">
+  	<property name="queryService" ref="internal:ome.api.IQuery"/>
+  	<property name="securitySystem" ref="securitySystem"/>
+  </bean>
 
   <bean name="binary" abstract="true">
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
@@ -113,6 +118,14 @@
         <bean class="ome.services.query.StringQuerySource"/>
       </list>
     </constructor-arg>
+  </bean>
+  
+  <!-- internal: prefix because the definition is used for self-configuration.
+  see BeanHelper.configure and OmeroContext.applyBeanPropertyValues. -->
+  <bean id="internal:ome.services.util.OmeroAroundInvokeName" lazy-init="true"
+     class="ome.services.util.OmeroAroundInvoke">
+  	<property name="queryFactory" ref="queryFactory"/>
+  	<property name="securitySystem" ref="securitySystem"/>
   </bean>
   
 </beans>

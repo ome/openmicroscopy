@@ -37,6 +37,7 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IConfig;
 import ome.api.ServiceInterface;
+import ome.services.util.OmeroAroundInvoke;
 import ome.system.Version;
 
 /**
@@ -151,8 +152,13 @@ import ome.system.Version;
  * achieved by inheritance (i.e. AbstractBean.create() could be marked
  * @PostConstruct); however, only one class in an inheritance hierarchy can be
  * marked with callbacks, and this is overly restrictive for us.
+ * 
+ * OmeroAroundInvoke applies the OMERO security model to every method
+ * invocation as well as applying the list of compile-time determined 
+ * HardWiredInterceptors. All of this functionality should be trangential
+ * to the functioning of the services *server-side*.
  */
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 /*
  * Stateful differences: -------------------- @Cache(NoPassivationCache.class) --
  * JBoss-specific Purpose: can be used to turn off passivation
@@ -173,7 +179,7 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
      * {@link SimpleJdbcTemplate} setter for dependency injection.
      * 
      * @param jdbcTemplate
-     * @see #throwIfAlreadySet(Object, Object)
+     * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     /*
      * Developer notes: --------------- Because of the complicated lifecycle of
@@ -186,7 +192,7 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
      * to be set.
      */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        throwIfAlreadySet(jdbc, jdbcTemplate);
+        beanHelper.throwIfAlreadySet(jdbc, jdbcTemplate);
         this.jdbc = jdbcTemplate;
     }
 
@@ -196,8 +202,7 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
      * the value which is to be returned can be found in the file
      * "ome/services/service-<class name>.xml"
      */
-    @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface() {
+    public final Class<? extends ServiceInterface> getServiceInterface() {
         return IConfig.class;
     }
 

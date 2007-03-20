@@ -6,10 +6,11 @@
  */
 package ome.system;
 
-import org.springframework.context.ApplicationContextAware;
+import ome.api.ServiceInterface;
 
-public interface SelfConfigurableService extends ApplicationContextAware {
+public interface SelfConfigurableService {
 
     void selfConfigure();
-
+    Class<? extends ServiceInterface> getServiceInterface();
+    
 }

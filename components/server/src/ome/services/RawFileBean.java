@@ -1,5 +1,5 @@
 /*
- * ome.services.RawFileBean
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -9,7 +9,6 @@ package ome.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 
 import javax.annotation.PostConstruct;
@@ -23,23 +22,21 @@ import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
 
-import org.jboss.annotation.ejb.LocalBinding;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.security.SecurityDomain;
-import org.springframework.transaction.annotation.Transactional;
-
-import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
-import ome.logic.AbstractBean;
 import ome.model.core.OriginalFile;
-import ome.system.EventContext;
-import ome.system.SimpleEventContext;
+import ome.services.util.OmeroAroundInvoke;
+
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.security.SecurityDomain;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Raw file gateway which provides access to the OMERO file repository.
@@ -57,9 +54,9 @@ import ome.system.SimpleEventContext;
 @RemoteBinding(jndiBinding = "omero/remote/ome.api.RawFileStore")
 @Local(RawFileStore.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.RawFileStore")
+@Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
-public class RawFileBean extends AbstractBean implements RawFileStore,
-        Serializable {
+public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /**
      * 
      */
@@ -77,31 +74,11 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
     /** The file buffer for the service's original file. */
     private transient FileBuffer buffer;
 
-    /** OMERO query service. */
-    private transient IQuery iQuery;
-
     /** ROMIO I/O service for files. */
     private transient OriginalFilesService ioService;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#getServiceInterface()
-     */
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return RawFileStore.class;
-    }
-
-    /**
-     * Query service Bean injector.
-     * 
-     * @param iQuery
-     *            an <code>IQuery</code> service.
-     */
-    public final void setQueryService(IQuery iQuery) {
-        throwIfAlreadySet(this.iQuery, iQuery);
-        this.iQuery = iQuery;
     }
 
     /**
@@ -111,36 +88,23 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
      *            an <code>OriginalFileService</code>.
      */
     public final void setOriginalFilesService(OriginalFilesService ioService) {
-        throwIfAlreadySet(this.ioService, ioService);
+        beanHelper.throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#create()
-     */
-    @Override
+    
     @PostConstruct
     @PostActivate
     public void create() {
-        super.create();
+        selfConfigure();
         if (id != null) {
             reset = id;
             id = null;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.logic.AbstractBean#destroy()
-     */
-    @Override
     @PrePassivate
     @PreDestroy
     public void destroy() {
-        super.destroy();
         // id is the only thing passivated.
         ioService = null;
         file = null;
@@ -164,15 +128,6 @@ public class RawFileBean extends AbstractBean implements RawFileStore,
     @Transactional(readOnly = true)
     public void close() {
         // don't need to do anything.
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ome.api.StatefulServiceInterface#getCurrentEventContext()
-     */
-    public EventContext getCurrentEventContext() {
-        return new SimpleEventContext(getSecuritySystem().getEventContext());
     }
 
     /*

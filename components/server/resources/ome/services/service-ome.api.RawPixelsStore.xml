@@ -19,7 +19,7 @@
 
 <beans>	
 
-  <bean singleton="false" parent="bean"
+  <bean singleton="false" parent="stateful"
         id="internal:ome.api.RawPixelsStore" 
      class="ome.services.RawPixelsBean">
     <!--  

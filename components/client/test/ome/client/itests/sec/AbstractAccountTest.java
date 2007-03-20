@@ -37,7 +37,7 @@ public class AbstractAccountTest extends AbstractSecurityTest {
     // ~ Testng Adapter
     // =========================================================================
     @Configuration(beforeTestClass = true)
-    public void rootCanLoginWith_ome() throws Exception {
+    public void sudoCanLoginWith_ome() throws Exception {
         init();
         root = rootQuery.get(Experimenter.class, 0L);
         sudo = createNewSystemUser(rootAdmin);
@@ -50,14 +50,21 @@ public class AbstractAccountTest extends AbstractSecurityTest {
     // =========================================================================
 
     protected Experimenter createNewUser(IUpdate iUpdate) {
-
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(GUID.asString());
+        g = iUpdate.saveAndReturnObject(g);
+        g.unload();
         Experimenter e = new Experimenter();
         e.setOmeName(new GUID().asString());
         e.setFirstName("ticket:181");
         e.setLastName("ticket:181");
         GroupExperimenterMap map = new GroupExperimenterMap();
         map.link(userGrp, e);
+        GroupExperimenterMap def = new GroupExperimenterMap();
+        def.link(g, e);
+        def.setDefaultGroupLink(true);
         e.addGroupExperimenterMap(map, false);
+        e.addGroupExperimenterMap(def, false);
         return iUpdate.saveAndReturnObject(e);
     }
 

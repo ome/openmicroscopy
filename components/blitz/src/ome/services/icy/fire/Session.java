@@ -14,6 +14,6 @@ import ome.system.Principal;
 
 public interface Session extends Glacier2.Session {
 
-    void setPrincipal(Principal principal);
+    void setPrincipal(SessionPrincipal principal);
     void setInterceptors(List<HardWiredInterceptor> cptors);
 }

@@ -254,6 +254,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
         LinkedList<Object> l = map.get(key);
         if (l == null) {
             put(key, null);
+            l = map.get(key);
         }
         if (objs == null) {
             return;

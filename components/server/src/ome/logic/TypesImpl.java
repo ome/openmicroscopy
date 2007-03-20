@@ -41,6 +41,8 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.security.SecureAction;
+import ome.security.SecuritySystem;
+import ome.services.util.OmeroAroundInvoke;
 
 /**
  * implementation of the ITypes service interface.
@@ -57,11 +59,10 @@ import ome.security.SecureAction;
 @Local(ITypes.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.ITypes")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class TypesImpl extends AbstractLevel2Service implements ITypes {
 
-    @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface() {
+    public final Class<? extends ServiceInterface> getServiceInterface() {
         return ITypes.class;
     }
 

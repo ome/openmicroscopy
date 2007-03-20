@@ -78,7 +78,7 @@ public class AccountCreationTest extends AbstractAccountTest {
         e.setFirstName("ticket:181");
         e.setLastName("ticket:199");
         e = getSudoAdmin("ome").getExperimenter(
-                getSudoAdmin("ome").createExperimenter(e, userGrp, null));
+                getSudoAdmin("ome").createUser(e, "default"));
         assertCanLogin(e.getOmeName(), "");
         assertCanLogin(e.getOmeName(), "ome");
         assertCanLogin(e.getOmeName(), "bob");
@@ -100,8 +100,7 @@ public class AccountCreationTest extends AbstractAccountTest {
         e.setFirstName("ticket:181");
         e.setLastName("ticket:199");
         e = getSudoAdmin("ome").getExperimenter(
-                getSudoAdmin("ome").createExperimenter(e, userGrp,
-                        new ExperimenterGroup[] { sysGrp }));
+                getSudoAdmin("ome").createSystemUser(e));
         assertCanLogin(e.getOmeName(), "");
         assertCanLogin(e.getOmeName(), "ome");
         assertCanLogin(e.getOmeName(), "bob");

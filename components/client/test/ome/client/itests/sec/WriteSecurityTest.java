@@ -827,6 +827,8 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
             }
         }
 
+        assert tI != null;
+        
         try {
             // done for recursive delete.
             tI.setMicroscope(null);
@@ -1056,6 +1058,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
      * 
      * @DEV.TODO Need to move to common helper
      */
+    @Test(enabled = false)
     public static void deleteRecurisvely(ServiceFactory sf, IObject target) {
         // Deleting all links to target
         Set<String> fields = target.fields();

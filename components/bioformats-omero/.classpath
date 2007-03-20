@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="target/generated/resources"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="resources"/>
@@ -19,5 +20,8 @@
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/common-3.0-TRUNK.jar"/>
 	<classpathentry kind="lib" path="lib/client-3.0-TRUNK.jar"/>
+	<classpathentry kind="var" path="M2_REPO/omero/omejava/loci-tools-2007-Feb-26/omejava-loci-tools-2007-Feb-26.jar"/>
+	<classpathentry kind="var" path="M2_REPO/testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

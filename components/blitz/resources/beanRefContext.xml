@@ -39,12 +39,15 @@
     	  lazy-init="true">
 	<constructor-arg index="0">
       <list>
+        <!-- Initialization issues with having ome.client as a parent;
+        instead we're copying it's configuration file and it's parent. -->
+        <value>classpath:ome/client/spring.xml</value>
         <value>classpath:omero/client.xml</value>
         <value>classpath:omero/constants.xml</value>
       </list>
     </constructor-arg>
-    <constructor-arg index="1" value="true"/>
-    <constructor-arg index="2" ref="ome.client"/>
+    <constructor-arg index="1" value="false"/>
+    <constructor-arg index="2" ref="ome.client.internal"/>
   </bean>
   
 </beans>

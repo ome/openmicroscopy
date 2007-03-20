@@ -34,6 +34,7 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 import ome.parameters.Parameters;
+import ome.services.util.OmeroAroundInvoke;
 
 /**
  * 
@@ -55,18 +56,17 @@ import ome.parameters.Parameters;
 @Local(IPixels.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
     protected transient PixelsService pixelsData;
 
     public final void setPixelsData(PixelsService pixelsData) {
-        throwIfAlreadySet(this.pixelsData, pixelsData);
+        beanHelper.throwIfAlreadySet(this.pixelsData, pixelsData);
         this.pixelsData = pixelsData;
     }
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return IPixels.class;
     }
 

@@ -72,4 +72,9 @@
   
   <bean id="CacheManager" class="ome.services.icy.util.ShutdownSafeEhcacheManagerFactoryBean"/>
   
+  <bean id="securityWiring" class="ome.services.icy.fire.BasicSecurityWiring"
+  	lazy-init="true">
+  	<property name="securitySystem" ref="securitySystem"/> 
+  </bean>
+  
 </beans>

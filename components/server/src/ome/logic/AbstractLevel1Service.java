@@ -14,23 +14,66 @@
 
 package ome.logic;
 
-// Java imports
+import javax.annotation.PostConstruct;
 
-// Third-party libraries
+import ome.security.SecuritySystem;
+import ome.services.query.QueryFactory;
+import ome.services.util.BeanHelper;
+import ome.system.OmeroContext;
+import ome.system.SelfConfigurableService;
+
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-// Application-internal dependencies
 
 /**
  * service level 1
  * 
  * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date:
+ *          2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $) </small>
  * @since OMERO 3.0
  */
-public abstract class AbstractLevel1Service extends AbstractBean {
+public abstract class AbstractLevel1Service implements SelfConfigurableService {
+
+    protected transient QueryFactory queryFactory;
+    
+    protected transient SecuritySystem securitySystem;
+
+    /**
+     * Performs the necessary {@link OmeroContext} lookup and calls
+     * {@link OmeroContext#applyBeanPropertyValues(Object, Class)} when
+     * necessary.
+     */
+    protected transient BeanHelper beanHelper = new BeanHelper(this.getClass());
+
+    public final void setQueryFactory(QueryFactory factory) {
+        beanHelper.throwIfAlreadySet(this.queryFactory, factory);
+        this.queryFactory = factory;
+    }
+    
+    public QueryFactory getQueryFactory() {
+        return this.queryFactory;
+    }
+
+    public final void setSecuritySystem(SecuritySystem security) {
+        beanHelper.throwIfAlreadySet(this.securitySystem, security);
+        this.securitySystem = security;
+    }
+    
+    public SecuritySystem getSecuritySystem() {
+        return this.securitySystem;
+    }
+    
+    /**
+     * This method will be called in a container via a {@link PostConstruct}
+     * action. If this bean is not being used as an EJB, then
+     * {@link #selfConfigure()} will not be called, rather the context will
+     * perform the configuration.
+     */
+    public void selfConfigure() {
+        beanHelper.configure(this);
+    }
 
     // ~ HibernateDaoSupport methods
     // =========================================================================

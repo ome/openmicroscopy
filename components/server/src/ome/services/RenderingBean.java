@@ -25,6 +25,7 @@ import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
 
 // Third-party libraries
 import org.apache.commons.logging.Log;
@@ -48,6 +49,7 @@ import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.logic.AbstractLevel2Service;
+import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -56,6 +58,7 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ShallowCopy;
@@ -103,6 +106,7 @@ import omeis.providers.re.quantum.QuantizationException;
 @Cache(NoPassivationCache.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @Transactional(readOnly = true)
+@Interceptors( { OmeroAroundInvoke.class })
 // TODO previously not here. examine the difference.
 public class RenderingBean extends AbstractLevel2Service implements
         RenderingEngine, Serializable {
@@ -111,8 +115,7 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     private static final Log log = LogFactory.getLog(RenderingBean.class);
 
-    @Override
-    protected Class<? extends ServiceInterface> getServiceInterface() {
+    public Class<? extends ServiceInterface> getServiceInterface() {
         return RenderingEngine.class;
     }
 
@@ -153,13 +156,13 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsMetadata(IPixels metaService) {
-        this.throwIfAlreadySet(this.pixMetaSrv, metaService);
+        beanHelper.throwIfAlreadySet(this.pixMetaSrv, metaService);
         pixMetaSrv = metaService;
     }
 
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsData(PixelsService dataService) {
-        throwIfAlreadySet(this.pixDataSrv, dataService);
+        beanHelper.throwIfAlreadySet(this.pixDataSrv, dataService);
         pixDataSrv = dataService;
     }
 
@@ -172,15 +175,14 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @PostActivate
     @PostConstruct
-    @Override
     public void create() {
-        super.create();
+        selfConfigure();
     }
 
     /** lifecycle method -- {@link PrePassivate}. Disallows all passivation. */
     @PrePassivate
     public void passivate() {
-        super.passivationNotAllowed();
+        beanHelper.passivationNotAllowed();
     }
 
     /**
@@ -189,14 +191,12 @@ public class RenderingBean extends AbstractLevel2Service implements
      * {@link ReentrantReadWriteLock write lock}
      */
     @PreDestroy
-    @Override
     public void destroy() {
         rwl.writeLock().lock();
 
         try {
         	// Mark us unready. All other state is marked transient.
             renderer = null; 
-            super.destroy();
         } finally {
             rwl.writeLock().unlock();
         }

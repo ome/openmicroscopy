@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.security.SecuritySystem;
 
 // Third-party libraries
@@ -28,11 +31,13 @@ import ome.security.SecuritySystem;
  */
 public class Store implements LicenseStore {
 
+    private final static Log log = LogFactory.getLog(Store.class);
+    
     // Initialized variables.
 
     Random random = new Random();
 
-    long totalLicenses = 1L;
+    long totalLicenses = Long.MAX_VALUE;
 
     // Managed by resetLicenses()
 
@@ -112,6 +117,7 @@ public class Store implements LicenseStore {
             tokenInfo.time = System.currentTimeMillis();
             tokenInfos.put(token, tokenInfo);
             usedLicenses++;
+            log.info("Acquired license from example license store.");
             return token;
         }
         throw new NoAvailableLicensesException("Pool exhausted.");
@@ -140,6 +146,7 @@ public class Store implements LicenseStore {
         if (hasLicense(token)) {
             tokenInfos.remove(token);
             usedLicenses--;
+            log.info("Released license to example license store.");
         }
         return valid;
     }

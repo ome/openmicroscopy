@@ -34,9 +34,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         implements ApplicationContextAware {
 
     private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
-            .parse(new String[] { 
-            BasicSecurityWiring.class.getName()
-            /* @REPLACE@ */});
+            .parse(new String[] {/* @REPLACE@ */});
 
     private final static Log log = LogFactory.getLog(SessionManagerI.class);
 
@@ -46,13 +44,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     public SessionManagerI(SecuritySystem secSys) {
         this.securitySystem = secSys;
-        for (HardWiredInterceptor hwi : CPTORS) {
-            // HACK
-            if (hwi instanceof BasicSecurityWiring) {
-                ((BasicSecurityWiring)hwi).setSecuritySystem(secSys);
-            }
-        }
-        
+        HardWiredInterceptor.configure(CPTORS, context);
     }
     
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -75,14 +67,15 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             event = "User"; // FIXME This should be in Roles as well.
         }
 
-        Principal principal = new Principal(userId, group, event);
+        String sessionName = Ice.Util.generateUUID();
+        SessionPrincipal principal = new SessionPrincipal(userId, group, event, sessionName);
         Session session = (Session) context.getBean("Session");
         session.setPrincipal(principal);
         session.setInterceptors(CPTORS);
 
         Ice.Identity id = new Ice.Identity();
         id.category = "";
-        id.name = Ice.Util.generateUUID();
+        id.name = sessionName;
         Ice.ObjectPrx _prx = current.adapter.add(session,id);
         Glacier2.SessionPrx prx = Glacier2.SessionPrxHelper.uncheckedCast(_prx);
         

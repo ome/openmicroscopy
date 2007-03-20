@@ -1,7 +1,7 @@
 /*
- *   $Id: Server.java 1201 2007-01-18 21:54:35Z jmoore $
+ *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -9,6 +9,7 @@ package ome.services.icy.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.icy.fire.AopContextInitializer;
 import ome.services.icy.fire.Session;
+import ome.services.icy.fire.SessionPrincipal;
 import ome.services.icy.util.DestroySessionMessage;
 import ome.services.icy.util.ServantDefinition;
 import ome.services.icy.util.ServantHelper;
@@ -118,7 +120,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     Ehcache cache;
 
-    Principal principal;
+    SessionPrincipal principal;
 
     List<HardWiredInterceptor> cptors;
 
@@ -146,7 +148,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     /**
      * {@link Session} interface.
      */
-    public void setPrincipal(Principal p) {
+    public void setPrincipal(SessionPrincipal p) {
         this.principal = p;
     }
 
@@ -293,8 +295,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     // ~ Stateful
     // =========================================================================
 
+    // For symmetry
+    String re = "RenderingEngine", fs = "RawFileStore", ps = "RawPixelStore",
+            tb = "ThumbnailStore";
+    
     public RenderingEnginePrx createRenderingEngine(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID());
+        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+re);
         String key = Ice.Util.identityToString(id);
         _RenderingEngineOperations ops = createServantDelegate(
                 _RenderingEngineOperations.class, RenderingEngine.class, key);
@@ -304,7 +310,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     }
 
     public omero.api.RawFileStorePrx createRawFileStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID());
+        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+fs);
         String key = Ice.Util.identityToString(id);
         _RawFileStoreOperations ops = createServantDelegate(
                 _RawFileStoreOperations.class, RawFileStore.class, key);
@@ -314,7 +320,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     }
 
     public RawPixelsStorePrx createRawPixelsStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID());
+        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+ps);
         String key = Ice.Util.identityToString(id);
         _RawPixelsStoreOperations ops = createServantDelegate(
                 _RawPixelsStoreOperations.class, RawPixelsStore.class, key);
@@ -324,7 +330,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     }
 
     public ThumbnailStorePrx createThumbnailStore(Ice.Current current) {
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID());
+        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+tb);
         String key = Ice.Util.identityToString(id);
         _ThumbnailStoreOperations ops = createServantDelegate(
                 _ThumbnailStoreOperations.class, ThumbnailStore.class, key);
@@ -494,4 +500,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         return sb.toString();
     }
     
+    /**
+     * For Testing.
+     */
+    public List<String> getIds() {
+        List<String> stringIds = new ArrayList<String>();
+        synchronized (ids) {
+            for (Ice.Identity id : ids) {
+                stringIds.add(Ice.Util.identityToString(id));
+            }
+        }
+        return stringIds;
+    }
 }

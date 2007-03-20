@@ -42,6 +42,7 @@
 	<target name="package"/>
 
 	<target name="install">
+	  	<mkdir dir="${tools.unjar}"/>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
 			<property name="test.with.fail" value="${test.with.fail}"/>

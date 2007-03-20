@@ -614,8 +614,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         if (previous == null) {
             // do we allow a change?
             newDetails.setExternalInfo(current);
-            altered |= newDetails.getExternalInfo() != currentDetails
-                    .getExternalInfo();
+            altered |= newDetails.getExternalInfo() != current;
         }
 
         // The ExternalInfo was previously set. We do not allow it to be

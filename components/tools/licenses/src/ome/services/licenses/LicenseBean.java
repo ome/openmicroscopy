@@ -37,6 +37,7 @@ import ome.conditions.InternalException;
 import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
 import ome.security.SecuritySystem;
+import ome.services.util.OmeroAroundInvoke;
 
 /**
  * Implementation of the {@link ILicense} service interface. {@link LicenseBean}
@@ -58,11 +59,10 @@ import ome.security.SecuritySystem;
 @Local(ILicense.class)
 @LocalBinding(jndiBinding = "omero/local/ome.services.licenses.ILicense")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
 
-    @Override
-    protected final Class<? extends ServiceInterface> getServiceInterface() {
+    public final Class<? extends ServiceInterface> getServiceInterface() {
         return ILicense.class;
     }
 

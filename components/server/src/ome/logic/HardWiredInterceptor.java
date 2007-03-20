@@ -22,6 +22,7 @@ import org.springframework.aop.framework.ReflectiveMethodInvocation;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
@@ -45,7 +46,33 @@ public abstract class HardWiredInterceptor implements MethodInterceptor {
 
     /** Unique string for the current {@link Principal} instance */
     private final static String PR = "ome.hard-wired.principal";
-
+    
+    public static void configure(List<HardWiredInterceptor> hwi, OmeroContext ctx) {
+        for (HardWiredInterceptor interceptor : hwi) {
+            interceptor.selfConfigure(ctx);
+        }
+    }
+    
+    /**
+     * Can be implemented by all subclasses, so that they can configure themselves
+     * in {@link #selfConfigure(OmeroContext)}. If the method returns null,
+     * {@link #selfConfigure(OmeroContext)} will not run.
+     */
+    public String getName() {
+        return null;
+    }
+    
+    /**
+     * Calls {@link OmeroContext#applyBeanPropertyValues(Object, String)} to 
+     * have properties injected.
+     */
+    public void selfConfigure(OmeroContext context) {
+        String name = getName();
+        if (name != null) {
+            context.applyBeanPropertyValues(this, getName());
+        }
+    }
+    
     /** 
      * Produces a {@link List} of instantiated interceptors from
      * a list of {@link HardWiredInterceptor} subclass names.

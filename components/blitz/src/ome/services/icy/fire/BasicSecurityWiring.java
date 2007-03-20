@@ -10,6 +10,7 @@ package ome.services.icy.fire;
 import ome.conditions.ApiUsageException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -21,6 +22,11 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     private final static Log log = LogFactory.getLog(BasicSecurityWiring.class);
 
     protected SecuritySystem securitySystem;
+    
+    @Override
+    public String getName() {
+        return "securityWiring";
+    }
     
     public void setSecuritySystem(SecuritySystem secSys) {
         this.securitySystem = secSys;
