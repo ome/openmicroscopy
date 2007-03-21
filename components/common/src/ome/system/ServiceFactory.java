@@ -19,6 +19,7 @@ import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.IRepositoryInfo;
 import ome.api.ThumbnailStore;
 import ome.api.ITypes;
 import ome.api.IUpdate;
@@ -199,6 +200,10 @@ public class ServiceFactory {
         return getServiceByClass(IUpdate.class);
     }
 
+    public IRepositoryInfo getRepositoryInfoService() {
+        return getServiceByClass(IRepositoryInfo.class);
+    }
+    
     // ~ Stateful services
     // =========================================================================
 

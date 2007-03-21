@@ -38,6 +38,7 @@ importing this file.
 	<file name="commons-dbcp/commons-dbcp/1.2.1/commons-dbcp-1.2.1.jar"/>
 	<file name="commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
 	<file name="commons-pool/commons-pool/1.2/commons-pool-1.2.jar"/>
+	<file name="commons-io/commons-io/1.1/commons-io-1.1.jar"/>
 	<file name="dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
 	<file name="drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<file name="eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>

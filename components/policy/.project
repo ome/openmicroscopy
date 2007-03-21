@@ -77,14 +77,14 @@
 			<locationURI>OMERO_COMPONENTS/rendering/src</locationURI>
 		</link>
 		<link>
-			<name>server_src</name>
-			<type>2</type>
-			<locationURI>OMERO_COMPONENTS/server/src</locationURI>
-		</link>
-		<link>
 			<name>resurrect_src</name>
 			<type>2</type>
 			<locationURI>OMERO_COMPONENTS/resurrect/src</locationURI>
+		</link>
+		<link>
+			<name>server_src</name>
+			<type>2</type>
+			<locationURI>OMERO_COMPONENTS/server/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

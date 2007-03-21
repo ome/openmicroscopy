@@ -135,6 +135,11 @@
     <property name="proxyInterface" value="ome.api.IUpdate"/>
   </bean>
 
+  <bean id="managed:ome.api.IRepositoryInfo" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.IRepositoryInfo"/>
+    <property name="proxyInterface" value="ome.api.IRepositoryInfo"/>
+  </bean>
+
   <!--
       STATEFUL SERVICES
   -->
