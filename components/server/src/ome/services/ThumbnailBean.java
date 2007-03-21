@@ -49,6 +49,7 @@ import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
 
+import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ThumbnailStore;
 import ome.api.ServiceInterface;
@@ -106,6 +107,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The ROMIO thumbnail service. */
     private transient ThumbnailService ioService;
 
+    /** the disk space checking service */
+    private transient IRepositoryInfo iRepositoryInfo;
+
+    /** is file service checking for disk overflow */
+    private transient boolean diskSpaceChecking;
+
     /** The pixels instance that the service is currently working on. */
     private Pixels pixels;
 
@@ -133,6 +140,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     /** The default MIME type. */
     public static final String DEFAULT_MIME_TYPE = "image/jpeg";
 
+    /** default constructor */
+    public ThumbnailBean() {}
+    
+    /**
+     * overriden to allow Spring to set boolean
+     * @param checking
+     */
+    public ThumbnailBean(boolean checking) {
+    	this.diskSpaceChecking = checking;
+    }
+    
     public Class<? extends ServiceInterface> getServiceInterface() {
         return ThumbnailStore.class;
     }
@@ -247,6 +265,15 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
 
     /**
+     * Disk Space Usage service Bean injector
+     * @param iRepositoryInfo
+     *   		  	an <code>IRepositoryInfo</code>
+     */
+    public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
+        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        this.iRepositoryInfo = iRepositoryInfo;
+    }
+    /**
      * Creates a buffered image from a rendering engine RGB buffer without data
      * copying.
      * 
@@ -330,6 +357,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      */
     private void compressThumbnailToDisk(Thumbnail thumb, BufferedImage image)
             throws IOException {
+
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+
         FileOutputStream stream = ioService.getThumbnailOutputStream(thumb);
         compressThumbnailToStream(image, stream);
         stream.close();
@@ -657,4 +689,12 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     public void resetDefaults() {
     	re.resetDefaults();
     }
+
+	public boolean isDiskSpaceChecking() {
+		return diskSpaceChecking;
+	}
+
+	public void setDiskSpaceChecking(boolean diskSpaceChecking) {
+		this.diskSpaceChecking = diskSpaceChecking;
+	}
 }

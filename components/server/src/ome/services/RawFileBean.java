@@ -24,6 +24,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
+import ome.api.IRepositoryInfo;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -73,10 +74,28 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     /** The file buffer for the service's original file. */
     private transient FileBuffer buffer;
-
+    
     /** ROMIO I/O service for files. */
     private transient OriginalFilesService ioService;
 
+    /** the disk space checking service */
+    private transient IRepositoryInfo iRepositoryInfo;
+
+    /** is file service checking for disk overflow */
+    private transient boolean diskSpaceChecking;
+    
+    /**
+     * default constructor
+     */
+    public RawFileBean() {}
+    
+    /**
+     * overriden to allow Spring to set boolean
+     * @param checking
+     */
+    public RawFileBean(boolean checking) {
+    	this.diskSpaceChecking = checking;
+    }
     public Class<? extends ServiceInterface> getServiceInterface() {
         return RawFileStore.class;
     }
@@ -90,6 +109,16 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     public final void setOriginalFilesService(OriginalFilesService ioService) {
         beanHelper.throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
+    }
+    
+    /**
+     * Disk Space Usage service Bean injector
+     * @param iRepositoryInfo
+     *   		  	an <code>IRepositoryInfo</code>
+     */
+    public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
+        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        this.iRepositoryInfo = iRepositoryInfo;
     }
     
     @PostConstruct
@@ -211,6 +240,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
         nioBuffer.limit(length);
 
+        if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             buffer.write(nioBuffer, position);
         } catch (IOException e) {
@@ -218,4 +251,21 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             throw new ResourceError(e.getMessage());
         }
     }
+
+    /**
+     * getter disk overflow checking
+     * @return
+     */
+	public boolean isDiskSpaceChecking() {
+		return diskSpaceChecking;
+	}
+
+	/**
+	 * setter disk overflow checking
+	 * @param diskSpaceChecking
+	 *   a <code>boolean</code>
+	 */
+	public void setDiskSpaceChecking(boolean diskSpaceChecking) {
+		this.diskSpaceChecking = diskSpaceChecking;
+	}
 }

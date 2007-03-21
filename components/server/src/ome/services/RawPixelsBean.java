@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 // Application-internal dependencies
 import ome.api.IPixels;
+import ome.api.IRepositoryInfo;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -79,6 +80,25 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
 
     private transient IPixels metadataService;
 
+    /** the disk space checking service */
+    private transient IRepositoryInfo iRepositoryInfo;
+
+    /** is file service checking for disk overflow */
+    private transient boolean diskSpaceChecking;
+
+    /**
+     * default constructor
+     */
+    public RawPixelsBean() {}
+    
+    /**
+     * overriden to allow Spring to set boolean
+     * @param checking
+     */
+    public RawPixelsBean(boolean checking) {
+    	this.diskSpaceChecking = checking;
+    }
+    
     public Class<? extends ServiceInterface> getServiceInterface() {
         return RawPixelsStore.class;
     }
@@ -93,6 +113,16 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         this.dataService = dataService;
     }
 
+    /**
+     * Disk Space Usage service Bean injector
+     * @param iRepositoryInfo
+     *   		  	an <code>IRepositoryInfo</code>
+     */
+    public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
+        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        this.iRepositoryInfo = iRepositoryInfo;
+    }
+    
     // ~ Lifecycle methods
     // =========================================================================
 
@@ -321,6 +351,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public void setPlane(byte[] arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
 
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             buffer.setPlane(arg0, arg1, arg2, arg3);
         } catch (Exception e) {
@@ -332,6 +366,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public void setRegion(Integer arg0, Long arg1, byte[] arg2) {
         errorIfNotLoaded();
 
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             buffer.setRegion(arg0, arg1, arg2);
         } catch (Exception e) {
@@ -344,6 +382,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
             Integer arg4) {
         errorIfNotLoaded();
 
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             ByteBuffer buf = ByteBuffer.wrap(arg0);
             buffer.setRow(buf, arg1, arg2, arg3, arg4);
@@ -356,6 +398,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public void setStack(byte[] arg0, Integer arg1, Integer arg2, Integer arg3) {
         errorIfNotLoaded();
 
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             buffer.setStack(arg0, arg1, arg2, arg3);
         } catch (Exception e) {
@@ -367,6 +413,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     public void setTimepoint(byte[] arg0, Integer arg1) {
         errorIfNotLoaded();
 
+    	if (diskSpaceChecking) {
+        	iRepositoryInfo.sanityCheckRepository();
+        }
+        
         try {
             buffer.setTimepoint(arg0, arg1);
         } catch (Exception e) {
@@ -399,4 +449,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         // Fallthrough
         throw new RuntimeException(e);
     }
+
+	public boolean isDiskSpaceChecking() {
+		return diskSpaceChecking;
+	}
+
+	public void setDiskSpaceChecking(boolean diskSpaceChecking) {
+		this.diskSpaceChecking = diskSpaceChecking;
+	}
 }

@@ -33,7 +33,7 @@ public class RepositoryInfoTest extends TestCase{
     @Configuration(beforeTestClass = true)
     protected void setUp() throws Exception {
 
-    	ServiceFactory sf = new ServiceFactory(new Login("omerouser","omerouser"));
+    	ServiceFactory sf = new ServiceFactory();
         iRepositoryInfo = sf.getRepositoryInfoService();
         
     }

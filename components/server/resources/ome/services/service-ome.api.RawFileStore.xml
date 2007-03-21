@@ -22,7 +22,9 @@
   <bean singleton="false" parent="stateful"
         id="internal:ome.api.RawFileStore" 
      class="ome.services.RawFileBean">
+    <constructor-arg><value>true</value></constructor-arg>
     <property name="originalFilesService" ref="/OMERO/Files"/>
+    <property name="repositoryInfoService" ref="internal:ome.api.IRepositoryInfo"/>
   </bean>
 
   <bean id="managed:ome.api.RawFileStore" parent="managedStatefulService">
