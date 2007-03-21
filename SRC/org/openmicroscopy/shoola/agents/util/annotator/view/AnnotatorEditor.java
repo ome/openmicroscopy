@@ -114,9 +114,6 @@ public interface AnnotatorEditor
 	 */
 	public JComponent getUI();
 
-	/** Displays the history of the annotation or the main panel. */
-	public void history();
-
 	/**
 	 * Returns <code>true</code> if the current user has an annotation 
 	 * to delete, <code>false</code> otherwise.
@@ -125,14 +122,6 @@ public interface AnnotatorEditor
 	 */
 	public boolean hasAnnotation();
 	
-	/** 
-	 * Returns <code>true</code> if the annotation has an history list, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasHistory();
-		
 	/** 
 	 * Returns <code>true</code> if there is an annotation to save. 
 	 * <code>false</code> otherwise.

@@ -201,7 +201,7 @@ class AnnotatorEditorComponent
 			throw new IllegalStateException("This method can only be invoked "+
 			"in the READY state.");
 		AnnotationData data = model.getAnnotationData();
-		if (!view.isAnnotatable()) return;
+		//if (!view.isAnnotatable()) return;
 		if (!model.isAnnotated()) return;
 		if (data == null) {
 			DataObject ho = model.getDataObject();
@@ -227,34 +227,12 @@ class AnnotatorEditorComponent
 
     /**
      * Implemented as specified by the {@link Annotator} interface.
-     * @see AnnotatorEditor#history()
-     */
-	public void history() 
-	{
-		if (model.getState() != READY)
-			throw new IllegalStateException("This method can only be invoked "+
-			"in the READY state.");
-		view.history();
-	}
-
-    /**
-     * Implemented as specified by the {@link Annotator} interface.
      * @see AnnotatorEditor#hasAnnotation()
      */
 	public boolean hasAnnotation() 
 	{
 		if (model.getState() != READY) return false;
 		return view.hasAnnotation();
-	}
-
-    /**
-     * Implemented as specified by the {@link Annotator} interface.
-     * @see AnnotatorEditor#hasHistory()
-     */
-	public boolean hasHistory() 
-	{
-		if (model.getState() != READY) return false;
-		return view.hasHistory();
 	}
 	
     /**
@@ -285,4 +263,5 @@ class AnnotatorEditorComponent
 			view.onSelectedDisplay(false);
 		else model.fireAnnotationsRetrieval(object);
 	}
+	
 }

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
@@ -35,24 +34,26 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
-import javax.swing.JToggleButton;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTree;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 
 //Third-party libraries
@@ -93,39 +94,12 @@ class AnnotatorEditorView
     /** Button to finish the operation. */
     private JButton             	saveButton;
     
-    /** Button to display the annotation history. */
-    private JToggleButton			historyButton;
-    
-    /** Button to display the annotation per user. */
-    //private JButton					backwardButton;
-    
     /** Area where to annotate the <code>DataObject</code>. */
-    private JTextArea           	annotationArea;
-    
-    /** Hosts a list of users who annotated the selected object. */
-    private JList               	annotatedByList;
-    
-    /** Hosts a list of annotation date. */
-    private JList					historyList;
+    private JTextArea           	annotationArea; 
     
     /** Component delete the annotation. */
     private JButton           		deleteButton;
-    
-    /** The model keeping track of the users who annotated a data object. */
-    private DefaultListModel    	listModel;
-    
-    /** The model keeping track of the dates the annotation was made. */
-    private DefaultListModel    	historyListModel;
-    
-    /** Maps of users who annotated the data object. */
-    private Map<Integer, Long>		ownersMap;
-    
-    /** The index of the current user.*/
-    private int                 	userIndex;
-    
-    /** Indicates if the history is visible or not. */
-    private boolean					history;
-    
+
     /** 
      * Flag indicating that the default text is displayed for the 
      * current user.
@@ -141,83 +115,62 @@ class AnnotatorEditorView
 	/** The layout, one of the constants defined by {@link AnnotatorFactory}. */
 	private int						layout;
 	
+	/** 
+	 * Tree hosting the user who annotates the object and the 
+	 * date of annotation. 
+	 */
+	private JTree					treeDisplay;
+	
+	/** Convenience reference. */
+	private DateFormat 				df; 
+	
 	/** Reference to the model. */
 	private AnnotatorEditorModel	model;
 	
 	/** Reference to the control. */
 	private AnnotatorEditorControl controller;
 	
-	/** Displays the previous annotation. */
-    private void displayHistory()
+    /** Handles the selection of a node in the tree. */
+    private void handleNodeSelection()
     {
-    	history = true;
-    	int ownerIndex = annotatedByList.getSelectedIndex();
-    	if (ownerIndex == -1) return;
-    	List l = getOwnerAnnotations(ownerIndex);
-    	if (l == null) return;
-    	formatDateList(l);
-    	int n = 0;//historyListModel.getSize()-1;
-    	historyList.setSelectedIndex(n);
-    	if (pane != null) remove(pane);
-    	pane = buildHistoryPane();
-    	add(pane, BorderLayout.CENTER);
-    	validate();
-    	repaint();
-    }
-    
-    /** Displays the main panel. */
-    private void backWard()
-    {
-    	history = false;
-    	if (pane != null) remove(pane);
-    	pane = buildAnnotationPanel();
-    	annotatedByList.setSelectedIndex(annotatedByList.getSelectedIndex());
-    	//reset the value of the text area
-    	showSingleAnnotation();
-    	add(pane, BorderLayout.CENTER);
-    	validate();
-    	repaint();
+    	Object o = treeDisplay.getLastSelectedPathComponent();
+		if (o instanceof OwnerNode) {
+			showSingleAnnotation(((OwnerNode) o).getOwnerID());
+		} else if (o instanceof TimeNode) {
+			TimeNode tm = (TimeNode) o;
+			showDateAnnotation(tm.getOwnerID(), tm.getIndex());
+		}
     }
     
     /** Initializes the UI components. */
     private void initComponents()
     {
-    	historyButton = new JToggleButton(
-    			controller.getAction(AnnotatorEditorControl.HISTORY));
-    	historyButton.setToolTipText("Shows History List.");
-    	//UIUtilities.unifiedButtonLookAndFeel(historyButton);
+    	treeDisplay = new JTree();
+    	DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
+        treeDisplay.setModel(new DefaultTreeModel(root));
+    	treeDisplay.setRootVisible(false);
+        treeDisplay.setVisible(true);
+        treeDisplay.setShowsRootHandles(true);
+        treeDisplay.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
+        treeDisplay.setCellRenderer(new EditorTreeCellRenderer());
+        
+        treeDisplay.addTreeSelectionListener(new TreeSelectionListener() {
+		
+			public void valueChanged(TreeSelectionEvent e) {
+				handleNodeSelection();
+			}
+		
+		});
+    	
         saveButton = new JButton(
         			controller.getAction(AnnotatorEditorControl.SAVE));
-        historyListModel = new DefaultListModel();
-        historyList = new JList(historyListModel);
-        historyList.setBackground(getBackground());
-        historyList.setBorder(new TitledBorder("Annotated"));
-        historyList.setSelectionMode(
-                ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        historyList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1)
-                    showDateAnnotation();
-            }
-        });
-        
         annotationArea = new MultilineLabel();
         annotationArea.setBackground(Color.WHITE);
         annotationArea.setBorder(new TitledBorder("Annotation"));
         deleteButton = new JButton(
     			controller.getAction(AnnotatorEditorControl.DELETE));
-        listModel = new DefaultListModel();
-        annotatedByList = new JList(listModel);
-        annotatedByList.setBackground(getBackground());
-        annotatedByList.setBorder(new TitledBorder("Annotated by"));
-        annotatedByList.setSelectionMode(
-                ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        annotatedByList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1)
-                    showSingleAnnotation();
-            }
-        });
+        
         annotationAreaListener = new DocumentListener() {
             
             /** 
@@ -258,6 +211,7 @@ class AnnotatorEditorView
                             annotationAreaListener);
                     annotationArea.setText("");
                     setComponentsEnabled(true);
+                    deleteButton.setEnabled(false);
                     annotationArea.getDocument().addDocumentListener(
                             annotationAreaListener);
                 }
@@ -284,7 +238,7 @@ class AnnotatorEditorView
 				double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
 	    				{0, TableLayout.FILL} }; //rows
 	    		p.setLayout(new TableLayout(tl));
-	    		p.add(new JScrollPane(annotatedByList), "0, 0, 0, 1");
+	    		p.add(new JScrollPane(treeDisplay), "0, 0, 0, 1");
 	    		p.add(empty, "1, 0, f, t");
 	    		p.add(new JScrollPane(annotationArea), "2, 0, 2, 1");   
 				break;
@@ -293,45 +247,10 @@ class AnnotatorEditorView
 				double[][] tl2 = {{TableLayout.FILL}, //columns
 	    				{200, 5, 200} }; //rows
 	    		p.setLayout(new TableLayout(tl2));
-	    		p.add(new JScrollPane(annotatedByList), "0, 0");
+	    		p.add(new JScrollPane(treeDisplay), "0, 0");
 	    		p.add(empty, "0, 1");
 	    		p.add(new JScrollPane(annotationArea), "0, 2"); 
 		}
-        return p;
-    }
-    
-    /** 
-     * Builds the UI component displaying the history.
-     * 
-     * @return See above.
-     */
-    private JPanel buildHistoryPane()
-    {
-    	//Set panel layout and border
-        JPanel p = new JPanel();
-        JPanel empty = new JPanel();
-	    empty.setOpaque(true);
-	    switch (layout) {
-			case AnnotatorEditor.HORIZONTAL_LAYOUT:
-			default:
-				double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
-	    				{0, TableLayout.FILL} }; //rows
-			    p.setLayout(new TableLayout(tl));
-			    p.add(new JScrollPane(historyList), "0, 0, 0, 1");
-			    
-			    p.add(empty, "1, 0, f, t");
-			    p.add(new JScrollPane(annotationArea), "2, 0, 2, 1");    
-				break;
-
-			case AnnotatorEditor.VERTICAL_LAYOUT:
-				double[][] tl2 = {{TableLayout.FILL}, //columns
-	    				{200,  5, 200} }; //rows
-	    		p.setLayout(new TableLayout(tl2));
-	    		p.add(new JScrollPane(historyList), "0, 0");
-	    		p.add(empty, "0, 1");
-	    		p.add(new JScrollPane(annotationArea), "0, 2");  
-	    }
-
         return p;
     }
     
@@ -357,50 +276,64 @@ class AnnotatorEditorView
         JPanel p = new JPanel();
         p.add(deleteButton);
         p.add(saveButton);
-        p.add(new JSeparator(JSeparator.HORIZONTAL));
-        p.add(historyButton);
         add(UIUtilities.buildComponentPanel(p));
         add(new JSeparator());
         add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
         pane = buildAnnotationPanel();
         add(pane);
     }
-    
+
     /**
-     * Displays the users' name in a list box.
+     * Shows the last annotation for the passed experimenter.
      * 
-     * @param owners Array of users who annotated the selected item.
+     * @param ownerID The experimenter's id.
      */
-    private void formatUsersList(String[] owners)
+    private void showSingleAnnotation(long ownerID)
     {
-        // remove all users from list before adding new
-        listModel.removeAllElements();
-        
-        // add each user to list
-        Timestamp date;
-        DateFormat df = DateFormat.getDateInstance();
-        AnnotationData data;
-        for (int i = 0; i < owners.length; i++) {
-            data = getOwnerLastAnnotation(i);
-            date = data.getLastModified();
-            if (date == null) date = new Timestamp(new Date().getTime());;
-            listModel.addElement(owners[i]+" ("+df.format(date)+")");  
-        }
+    	AnnotationData data = model.getLastAnnotationFor(ownerID);
+    	if (data == null) {
+    		ExperimenterData details = model.getUserDetails();
+    		String n = "Name not available"; //TODO: REMOVE ASAP
+            try {
+            	n = details.getFirstName()+" "+details.getLastName();
+            } catch (Exception e) {}
+    		addAnnotationText(DEFAULT_TEXT+n);
+    	} else {
+    		addAnnotationText(data.getText());
+        	setComponentsEnabled(ownerID == model.getUserDetails().getId());
+    	}
     }
     
     /**
-     * Formats the list by date.
+     * Shows the specified annotation for the passed experimenter.
      * 
-     * @param annotations Collections of annotations.
+     * @param ownerID	The experimenter's id.
+     * @param index		The annotation index in the list of annotation.
      */
-    private void formatDateList(List annotations)
+    private void showDateAnnotation(long ownerID, int index)
     {
-    	//remove all users from list before adding new
-        historyListModel.removeAllElements();
-        
-        // add each user to list
+    	Map annotations = model.getAnnotations();
+    	List list = (List) annotations.get(ownerID);
+    	int size = list.size();
+        if (size > 0) {
+            AnnotationData data = (AnnotationData) list.get(index);
+            addAnnotationText(data.getText());  
+        }
+        ExperimenterData details = model.getUserDetails();
+        setComponentsEnabled(index == size-1 && (ownerID == details.getId()));
+    }
+    
+    /**
+     * Creates child nodes and adds to the passed parent.
+     * 
+     * @param parent		The parent's node.
+     * @param annotations	The annotations to convert.
+     * @param dtm			The default tree model.
+     */
+    private void buildTreeNode(OwnerNode parent, List annotations, 
+    							DefaultTreeModel dtm)
+    {
         Timestamp date;
-        DateFormat df = DateFormat.getDateInstance();
         AnnotationData data;
         Iterator i = annotations.iterator();
         List<Timestamp> 
@@ -409,87 +342,18 @@ class AnnotatorEditorView
         	data = (AnnotationData) i.next();
         	date = data.getLastModified();
         	if (date == null) date = new Timestamp(new Date().getTime());
-        	//historyListModel.addElement(df.format(date)); 
         	timestamps.add(date);
 		}
         i = model.sortByDate(timestamps).iterator();
-        while (i.hasNext()) 
-        	historyListModel.addElement(df.format((Timestamp) i.next())); 
-		
-    }
-    
-    /**
-     * Returns the last annotation made by the selected user.
-     * 
-     * @param index The index of the selected user.
-     * @return See below.
-     */
-    private AnnotationData getOwnerLastAnnotation(int index)
-    { 
-        //Map annotations = model.getAnnotations();
-        Long ownerID = ownersMap.get(new Integer(index));
-        if (ownerID == null) return null;    //empty list
-        return model.getLastAnnotationFor(ownerID.longValue());
-    }
-    
-    /**
-     * Returns the list of annotations made by the selected user.
-     * 
-     * @param index The index of the selected user.
-     * @return See below.
-     */
-    private List getOwnerAnnotations(int index)
-    { 
-        Map annotations = model.getAnnotations();
-        Long ownerID = ownersMap.get(new Integer(index));
-        if (ownerID == null) return new ArrayList();    //empty list
-        return (List) annotations.get(ownerID);
-    }
-    
-    //private AnnotationD
-    /** Shows a single annotation. */
-    private void showSingleAnnotation()
-    {
-        int index = annotatedByList.getSelectedIndex();
-        if (index == -1) {
-            ExperimenterData details = model.getUserDetails();
-            addAnnotationText(DEFAULT_TEXT+details.getFirstName()+" "+
-                                details.getLastName());
-            defaultText = true;
-            setComponentsEnabled(true);
-            deleteButton.setEnabled(false);
-            return;
+        int n = timestamps.size()-1;
+        int index = 0;
+        TimeNode node;
+        long ownerID = parent.getOwnerID();
+        while (i.hasNext()) {
+        	node = new TimeNode(ownerID, n-index, (Timestamp) i.next());
+        	dtm.insertNodeInto(node, parent, parent.getChildCount());; 
+        	index++;
         }
-        AnnotationData data = getOwnerLastAnnotation(index);
-        if (data != null) {
-            System.err.println(data.getText());
-            addAnnotationText(data.getText());  
-        }
-        setComponentsEnabled(index == userIndex);
-    }
-    
-    /** Shows a single annotation. */
-    private void showDateAnnotation()
-    {
-    	int count = 0;//historyListModel.getSize()-1;
-        int index = historyList.getSelectedIndex();
-        if (index == -1) {
-        	ExperimenterData details = model.getUserDetails();
-            addAnnotationText(DEFAULT_TEXT+details.getFirstName()+" "+
-                                details.getLastName());
-            defaultText = true;
-            setComponentsEnabled(true);
-            deleteButton.setEnabled(false);
-            return;
-        }
-        int ownerIndex = annotatedByList.getSelectedIndex();
-        List list = getOwnerAnnotations(ownerIndex);
-        if (list.size() > 0) {
-        	int n = list.size()-1-index; //index;
-            AnnotationData data = (AnnotationData) list.get(n);
-            addAnnotationText(data.getText());  
-        }
-        setComponentsEnabled(index == count && (ownerIndex == userIndex));
     }
     
     /**
@@ -500,6 +364,7 @@ class AnnotatorEditorView
 	AnnotatorEditorView(int layout)
 	{
 		this.layout = layout;
+		df = DateFormat.getDateInstance();
 	}
 	
 	/**
@@ -516,7 +381,6 @@ class AnnotatorEditorView
 			throw new IllegalArgumentException("No control.");
 		this.controller = controller;
 		this.model = model;
-		userIndex = -1;
 		initComponents();
 		buildGUI();
 	}
@@ -540,53 +404,56 @@ class AnnotatorEditorView
     /** Shows the annotations. */
     void showAnnotations()
     {
-        deleteButton.setSelected(false);
-        ExperimenterData userDetails = model.getUserDetails();
+    	DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+    	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
+    	root.removeAllChildren();
+    	
+    	deleteButton.setSelected(false);
+    	ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
         Map annotations = model.getAnnotations();
-        String[] owners = new String[annotations.size()];
         Iterator i = annotations.keySet().iterator();
         Long id;
         int index = 0;
-        ownersMap = new HashMap<Integer, Long>();
         List list;
         ExperimenterData data;
+        OwnerNode owner;
+        OwnerNode currentUser = null;
         while (i.hasNext()) {
             id = (Long) i.next();
             list = (List) annotations.get(id);
             data = ((AnnotationData) list.get(0)).getOwner();
-            if (userDetails.getId() == id.intValue()) userIndex = index;
-            String n = "Name not available"; //TODO: REMOVE ASAP
-            try {
-            	n = data.getFirstName()+" "+data.getLastName();
-            } catch (Exception e) {}
-            owners[index] = n;
-            ownersMap.put(new Integer(index), id);
+            owner = new OwnerNode(data);
+            dtm.insertNodeInto(owner, root, root.getChildCount());
+            buildTreeNode(owner, list, dtm);
+            if (userDetails.getId() == id.intValue()) currentUser = owner;
             index++;
         }
-        //No annotation for the current user, so allow creation.
-        
+        //No annotation for the current user so we add a node
+        if (currentUser == null) { 
+        	currentUser = new OwnerNode(userDetails);
+        	dtm.insertNodeInto(currentUser, root, root.getChildCount());
+        	addAnnotationText(DEFAULT_TEXT+currentUser.toString());
+        	defaultText = true;
+        }
+        //treeDisplay.expandPath(new TreePath(root.getPath()));
+        treeDisplay.setSelectionPath(new TreePath(currentUser.getPath()));
         setComponentsEnabled(true);
-        formatUsersList(owners);
-        //annotatedByList.clearSelection();
-        if (userIndex != -1) annotatedByList.setSelectedIndex(userIndex);
-        showSingleAnnotation();
-        if (history) displayHistory();
     }
    
     /**
      * Reacts to a new selection in the browser.
      * 
-     * @param b     Passed <code>true</code> to enable the controls,
-     *              <code>true</code> otherwise.
+     * @param b Passed <code>true</code> to enable the controls,
+     *          <code>true</code> otherwise.
      */
     void onSelectedDisplay(boolean b)
     {
         setComponentsEnabled(b);
-        userIndex = -1;
         addAnnotationText("");
-        listModel.clear();
-        historyListModel.clear();
+        DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+    	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
+    	root.removeAllChildren();
         repaint();
     }
     
@@ -598,8 +465,18 @@ class AnnotatorEditorView
      */
     boolean isAnnotatable()
     { 
-        if (userIndex == -1) return true;//no annotation for current user
-        return (annotatedByList.getSelectedIndex() == userIndex); 
+    	Object o = treeDisplay.getLastSelectedPathComponent();
+    	if (o instanceof OwnerNode) {
+    		ExperimenterData details = model.getUserDetails();
+    		return (details.getId() == ((OwnerNode) o).getOwnerID());
+    	} else if (o instanceof TimeNode) {
+    		TimeNode tm = (TimeNode) o;
+    		int index = tm.getIndex();
+    		Map annotations = model.getAnnotations();
+        	List list = (List) annotations.get(tm.getOwnerID());
+        	return (index == list.size()-1);
+    	}
+    	return false;
     }
     
     /** 
@@ -614,12 +491,6 @@ class AnnotatorEditorView
     	return s.trim(); 
     }
 
-    /** Shows the history list or the main panel. */
-	void history()
-	{
-		if (history) backWard();
-		else displayHistory(); 
-	}
 
 	/**
 	 * Returns <code>true</code> if the current user has annotation,
@@ -631,13 +502,7 @@ class AnnotatorEditorView
 	{
 		AnnotationData data = model.getAnnotationData();
 		if (data == null) return false;
-		int index = annotatedByList.getSelectedIndex();
-		return (userIndex == index && index != -1);
-	}
-
-	boolean hasHistory() 
-	{
-		return (annotatedByList.getSelectedIndex() != -1);
+		return true;
 	}
 
 	/**
@@ -653,4 +518,98 @@ class AnnotatorEditorView
 		return (isAnnotatable() && !defaultText && b);
 	}
     
+	/** Inner class hosting the experimenter details. */
+	class OwnerNode 
+		extends DefaultMutableTreeNode
+	{
+		
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param ho The original object. Never pass <code>null</code>. 
+		 */
+		OwnerNode(ExperimenterData ho)
+		{
+			super();
+			if (ho == null)
+				throw new NullPointerException("No experimenter.");
+			setUserObject(ho);
+		}
+		
+		/**
+		 * Returns the id of the experimenter.
+		 * 
+		 * @return See above.
+		 */
+		long getOwnerID()
+		{
+			return ((ExperimenterData) getUserObject()).getId();
+		}
+		
+		/**
+		 * Overridden to return the first and last name of the experimenter.
+		 * @see Object#toString()
+		 */
+		public String toString()
+		{ 
+			ExperimenterData data = (ExperimenterData) getUserObject();
+			String n = "Name not available"; //TODO: REMOVE ASAP
+            try {
+            	n = data.getFirstName()+" "+data.getLastName();
+            } catch (Exception e) {}
+			return n; 
+		}
+	}
+	
+	/** Inner class hosting the annotation time. */
+	class TimeNode
+		extends DefaultMutableTreeNode
+	{
+		
+		/** The index in the annotation list. */
+		private int index;
+		
+		/** The id of the experimenter who entered the annotation. */
+		private long ownerID;
+		
+		/**
+		 * Creates a new instance.
+		 *
+		 * @param ownerID	The id of the experimenter who entered the 
+		 * 					annotation.
+		 * @param index		The index in the annotation list.
+		 * @param date		The timestamp.
+		 */
+		TimeNode(long ownerID, int index, Timestamp date)
+		{
+			super();
+			setUserObject(date);
+			this.index = index;
+			this.ownerID = ownerID;
+		}
+		
+		/**
+		 * Returns the id of the experimenter.
+		 * 
+		 * @return See above.
+		 */
+		long getOwnerID() { return ownerID; }
+		
+		/**
+		 * Returns the index.
+		 * 
+		 * @return See above.
+		 */
+		int getIndex() { return index; }
+		
+		/**
+		 * Overridden to return a formatted date
+		 * @see Object#toString()
+		 */
+		public String toString()
+		{ 
+			return df.format((Timestamp) getUserObject()) ;
+		}
+	}
+	
 }

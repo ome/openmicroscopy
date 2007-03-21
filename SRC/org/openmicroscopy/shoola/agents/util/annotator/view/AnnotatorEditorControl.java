@@ -37,7 +37,6 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorEditorAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.DeleteAction;
-import org.openmicroscopy.shoola.agents.util.annotator.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.util.annotator.actions.SaveAction;
 
 /** 
@@ -63,8 +62,6 @@ class AnnotatorEditorControl
 	/** Identifies the <code>Save action</code> in the Edit menu. */
 	static final Integer	SAVE = new Integer(1);
   
-	/** Identifies the <code>History action</code> in the Edit menu. */
-	static final Integer	HISTORY = new Integer(2);
 	
 	/** Maps actions ids onto actual <code>Action</code> object. */
 	private Map<Integer, AnnotatorEditorAction>	actionsMap;
@@ -74,7 +71,6 @@ class AnnotatorEditorControl
 	{
 		actionsMap.put(DELETE, new DeleteAction(model));
 		actionsMap.put(SAVE, new SaveAction(model));
-		actionsMap.put(HISTORY, new HistoryAction(model));
 	}
   
 	/** 

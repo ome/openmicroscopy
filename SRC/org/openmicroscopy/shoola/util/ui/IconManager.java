@@ -239,8 +239,8 @@ public class IconManager
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
         relPaths[TRASH_CAN] = "nuvola_trashcan_full16.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
-        relPaths[OWNER] = "nuvola_filesaveas16.png";
-        relPaths[CALENDAR] = "nuvola_filesaveas16.png";
+        relPaths[OWNER] = "nuvola_kdmconfig16.png";
+        relPaths[CALENDAR] = "nuvola_date16.png";
     }
     
     /** 
