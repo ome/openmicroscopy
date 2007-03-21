@@ -24,11 +24,8 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -44,9 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.cmd.ClearCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.FindRegExCmd;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -112,49 +107,9 @@ class ClipBoardComponent
     
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#retrieveAnnotations(DataObject)
-     */
-    public void retrieveAnnotations(DataObject object)
-    {
-        //TODO: Check state
-        if ((object instanceof ImageData) || (object instanceof DatasetData)) {
-            model.fireAnnotationsLoading(object);
-            fireStateChange();
-        }
-    }
-    
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#getUI()
      */
     public JComponent getUI() { return view; }
-    
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setAnnotations(Map)
-     */
-    public void setAnnotations(Map map)
-    {
-        if (model.getState() != ClipBoard.LOADING_ANNOTATIONS) return;
-           // throw new IllegalStateException(
-           //         "This method can only be invoked in the " +
-           //         "LOADING_ANNOTATIONS state.");
-        model.setAnnotations(map);
-        view.showAnnotations();
-        fireStateChange();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#discardAnnotation()
-     */
-    public void discardAnnotation()
-    {
-        if (model.getState() != ClipBoard.DISCARDED_ANNOTATIONS) {
-            model.discardAnnotation();
-            fireStateChange();
-        }
-    }
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
@@ -171,28 +126,8 @@ class ClipBoardComponent
      */
     public void discard()
     {
-        discardAnnotation();
     }
     
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#setAnnotationEdition(DataObject)
-     */
-    public void setAnnotationEdition(DataObject object)
-    {
-        if (model.getState() != ClipBoard.EDIT_ANNOTATIONS)
-            throw new IllegalStateException("This method can only be invoked " +
-                    "in the EDIT_ANNOTATIONS state.");
-        if (object == null) retrieveAnnotations(object);
-        view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        
-        List l = new ArrayList(1);
-        l.add(object);
-        model.getParentModel().onDataObjectSave(l);
-        retrieveAnnotations(object);
-        //model.getParentModel().setAnnotationEdition(object);
-    }
-
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#setSelectedPane(int, ImageDisplay)
@@ -239,16 +174,6 @@ class ClipBoardComponent
 
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#getAnnotations()
-     */
-    public Map getAnnotations()
-    {
-        // TODO: check state.
-        return model.getAnnotations();
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#getSelectedPaneIndex()
      */
     public int getSelectedPaneIndex()
@@ -291,42 +216,7 @@ class ClipBoardComponent
         FindRegExCmd cmd = new FindRegExCmd(model.getParentModel(), p, context);
         cmd.execute();
     }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#editAnnotation(AnnotationData, int)
-     */
-    public void editAnnotation(AnnotationData data, int index)
-    {
-        if (data == null) throw new IllegalArgumentException("No annotation.");
-        switch (index) {
-            case CREATE_ANNOTATION:
-                model.fireCreateAnnotation(data);
-                break;
-            case UPDATE_ANNOTATION:  
-                model.fireUpdateAnnotation(data);
-                break;
-            case DELETE_ANNOTATION:
-                model.fireDeleteAnnotation(data);
-                break;
-            default:
-                throw new IllegalArgumentException("Annotation index not " +
-                                                    "supported");
-        }
-        fireStateChange();
-        view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    }
-
-    /**
-     * Implemented as specified by the {@link ClipBoard} interface.
-     * @see ClipBoard#getUserAnnotationData()
-     */
-    public AnnotationData getUserAnnotationData()
-    {
-        // TODO Auto-generated method stub
-        return model.getUserAnnotationData();
-    }
-
+    
     /**
      * Implemented as specified by the {@link ClipBoard} interface.
      * @see ClipBoard#getHierarchyObject()

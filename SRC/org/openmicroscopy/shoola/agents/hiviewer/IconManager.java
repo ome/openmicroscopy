@@ -260,14 +260,21 @@ public class IconManager
     /** The <code>Flat Layout</code> icon. */
     public static int           FLAT_LAYOUT = 67;
     
-    /** The <code>Flat Layout</code> icon. */
+    /** The <code>Hierarchy Layout</code> icon. */
     public static int           HIERARCHICAL_LAYOUT = 68;
+
+    /** The <code>History</code> icon. */
+    public static int           HISTORY = 69;
+
+    
+    /** The <code>Backward nav</code> icon. */
+    public static int           BACKWARD_NAV = 70;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 68;
+    private static int          MAX_ID = 70;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -344,6 +351,8 @@ public class IconManager
         relPaths[PARTIAL_NAME] = "nuvola_kmessedwords16.png";
         relPaths[FLAT_LAYOUT] = "eclipse_flatLayout16.png";
         relPaths[HIERARCHICAL_LAYOUT] = "eclipse_hierarchicalLayout16.png";
+        relPaths[HISTORY] = "eclipse_history_list16.png";
+        relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
     }
     
     /** The sole instance. */

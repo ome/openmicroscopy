@@ -49,6 +49,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
@@ -100,7 +101,7 @@ class DOBasic
      * The component hosting the annotation, <code>null</code> if the data 
      * object is not annotable.
      */
-    private DOAnnotation        annotator;
+    private AnnotatorEditor		annotator;
     
     /** 
      * The component hosting the classification. <code>null</code> if the data 
@@ -173,9 +174,12 @@ class DOBasic
             });
             IconManager im = IconManager.getInstance();
             if (model.isAnnotatable()) {	
-                annotator = new DOAnnotation(view, model);
+                //annotator = new DOAnnotation(view, model);
+            	annotator = model.createAnnotator();
+            	annotator.addPropertyChangeListener(controller);
                 tabbedPane.addTab(ANNOTATION, 
-                            im.getIcon(IconManager.ANNOTATION), annotator);
+                            im.getIcon(IconManager.ANNOTATION), 
+                            annotator.getUI());
             }
             if (model.getHierarchyObject() instanceof ImageData) {
             	download = new JButton(DOWNLOAD);
@@ -348,54 +352,6 @@ class DOBasic
     }   
 
     /**
-     * Returns <code>true</code> if the data object can be annotated,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isAnnotable()
-    { 
-        if (annotator == null) return false;
-        return annotator.isAnnotable();
-    }
-    
-    /**
-     * Returns <code>true</code> if the data object has to be deleted,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isAnnotationDeleted()
-    {  
-        if (annotator == null) return false;
-        return annotator.isAnnotationDeleted();
-    }
-    
-    /** 
-     * Returns <code>true</code> if the user modifies the current annotation
-     * or creates an annotation.
-     * 
-     * @return See above.
-     */
-    boolean isAnnotationModified()
-    {
-        if (annotator == null) return false;
-        if (isAnnotationDeleted()) return true;
-        return model.isAnnotated();
-    }
-    
-    /** 
-     * Returns the text of the annotation. 
-     * 
-     * @return See above. 
-     */
-    String getAnnotationText()
-    { 
-        if (annotator == null) return null;
-        return annotator.getAnnotationText().trim();
-    }
-    
-    /**
      * Returns the value of the {@link #nameArea}.
      * 
      * @return See above.
@@ -420,13 +376,6 @@ class DOBasic
         nameArea.getDocument().removeDocumentListener(nameAreaListener);
         nameArea.setText(null);
         nameArea.getDocument().addDocumentListener(nameAreaListener);
-    }
-    
-    /** Displays the annotations. */
-    void showAnnotations()
-    { 
-        if (annotator == null) return;
-        annotator.showAnnotations();
     }
 
     /** Shows the classifications. */

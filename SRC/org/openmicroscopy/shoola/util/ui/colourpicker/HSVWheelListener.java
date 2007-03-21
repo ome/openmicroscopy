@@ -57,6 +57,7 @@ class HSVWheelListener
 	/**
 	 * Constructor which creates a reference to the UI ipon which the mouse 
 	 * events are to act.
+	 * 
 	 * @param view current view to which the mouselistner will be attached.
 	 */
 	HSVWheelListener(HSVWheel view)

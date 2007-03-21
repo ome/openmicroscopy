@@ -78,10 +78,10 @@ class ClassifierControl
     private Classifier      	model;
     
     /** Reference to the View. */
-    private ClassifierView	view;
+    private ClassifierView					view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map             actionsMap;
+    private Map<Integer, ClassifierAction>	actionsMap;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -114,7 +114,7 @@ class ClassifierControl
 	{
 		if (model == null) throw new NullPointerException("No model.");
         this.model = model;
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, ClassifierAction>();
 	}
 	
 	/**
@@ -136,10 +136,7 @@ class ClassifierControl
      * @param id One of the flags defined by this class.
      * @return The specified action.
      */
-	ClassifierAction getAction(Integer id)
-	{
-		return (ClassifierAction) actionsMap.get(id);
-	}
+	ClassifierAction getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
 	 * Reacts to state changes.

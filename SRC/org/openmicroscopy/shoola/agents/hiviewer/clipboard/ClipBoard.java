@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 //Java imports
 import java.awt.Point;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -37,7 +36,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindData;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -99,41 +97,14 @@ public interface ClipBoard
     /** Identifies the <i>Loading channels metadata</i> state. */
     public static final int     LOADING_CHANNELS_METADATA = 199;
     
-    /** Identifies the <i>Loading annotations</i> state. */
-    public static final int     LOADING_ANNOTATIONS = 200;
-    
-    /** Identifies the <i>Edit annotations</i> state. */
-    public static final int     EDIT_ANNOTATIONS = 201;
-    
-    /** Identifies the <i>Ready</i> state. */
-    public static final int     ANNOTATIONS_READY = 202;
-    
-    /** Identifies the <i>Discarded annotations</i> state. */
-    public static final int     DISCARDED_ANNOTATIONS = 203;
-    
     /** Identifies the <i>Loading classifications</i> state. */
-    public static final int     LOADING_CLASSIFICATIONS = 204;
+    public static final int     LOADING_CLASSIFICATIONS = 200;
     
     /** Identifies the <i>Classification ready</i> state. */
-    public static final int     CLASSIFICATIONS_READY = 205;
+    public static final int     CLASSIFICATIONS_READY = 201;
     
     /** Identifies the <i>Declassification</i> state. */
-    public static final int     DECLASSIFICATION = 206;
-    
-    /** Indicates to retrieve the image annotations. */
-    public static final int     IMAGE_ANNOTATIONS = 300;
-    
-    /** Indicates to retrieve the dataset annotations. */
-    public static final int     DATASET_ANNOTATIONS = 301;
-    
-    /** Identifies to create a new annotation. */
-    public static final int     CREATE_ANNOTATION = 100;
-    
-    /** Identifies to update the currently edited annotation. */
-    public static final int     UPDATE_ANNOTATION = 101;
-    
-    /** Identifies to delete the currently edited annotation. */
-    public static final int     DELETE_ANNOTATION = 102;
+    public static final int     DECLASSIFICATION = 202;
     
     /** Removes the magnified node from the display. */
     void removeRollOver();
@@ -154,43 +125,6 @@ public interface ClipBoard
      * @param foundNodes The set of found nodes.
      */
     public void setFoundResults(List foundNodes);
-    
-    /**
-     * Sets the annotations retrieved.
-     * 
-     * @param map The annotations.
-     */
-    public void setAnnotations(Map map);
-    
-    /**
-     * Retrieves the annotations for the specified object.
-     * 
-     * @param object    The annotated <code>DataObject</code>.
-     *                  Mustn't be <code>null</code>.
-     */
-    public void retrieveAnnotations(DataObject object);
-
-    /**
-     * Creates, updates or deletes the annotation depending on the specified
-     * index. 
-     * @param data  The annotation to edit. Mustn't be <code>null</code>.
-     * @param index One of the following constants: {@link #CREATE_ANNOTATION},
-     *              {@link #UPDATE_ANNOTATION} or {@link #DELETE_ANNOTATION}.
-     */
-    public void editAnnotation(AnnotationData data, int index);
-    
-    /**
-     * Transitions the viewer to the {@link #DISCARDED_ANNOTATIONS} state.
-     * Any ongoing data loading is cancelled.
-     */
-    public void discardAnnotation();
-    
-    /**
-     * Sets the result of the annotation edition.
-     * 
-     * @param object The annotated object. Mustn't be <code>null</code>.
-     */
-    public void setAnnotationEdition(DataObject object);
 
     /**
      * Sets the selected {@link ClipBoardPane}.
@@ -226,20 +160,6 @@ public interface ClipBoard
      * @return See above.
      */
     public ExperimenterData getUserDetails();
-    
-    /**
-     * Returns the ordered retrieved annotations.
-     * 
-     * @return See above.
-     */
-    public Map getAnnotations();
-    
-    /**
-     * Returns the annotation <code>DataObject</code> for the current user.
-     * 
-     * @return See above.
-     */
-    public AnnotationData getUserAnnotationData();
     
     /**
      * Returns the index of the currently selected {@link ClipBoardPane}. 

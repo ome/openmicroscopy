@@ -25,8 +25,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -37,6 +41,9 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
+
+import pojos.DataObject;
 
 /** 
  * The {@link ClipBoard}'s controller.
@@ -57,9 +64,6 @@ import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 class ClipBoardControl
     implements ChangeListener, PropertyChangeListener
 {
-
-    /** Message displayed when the annotation is sent back to the server. */
-    private static final String EDIT_MSG = "Save the annotation.";
     
     /** Message displayed when the annotation is sent back to the server. */
     private static final String LOADING_MSG = "Loading...";
@@ -100,6 +104,9 @@ class ClipBoardControl
         component.addChangeListener(this);
         view.initListeners();
         model.getParentModel().addChangeListener(this);
+        AnnotationPane pane = (AnnotationPane) 
+        			model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+        pane.registerListener(this);
     }
     
     /**
@@ -109,11 +116,6 @@ class ClipBoardControl
      * @param index The index of the selected pane.
      */
     void setSelectedPane(int index) { component.setSelectedPane(index, null); }
-    
-    /**
-     * Discards any on-going annotation retrieval.
-     */
-    void discardAnnotation() { component.discardAnnotation(); }
     
     /**
      * Reacts to a specific property change fired by the browser.
@@ -143,6 +145,17 @@ class ClipBoardControl
         	if (n instanceof ImageDisplay)
         		view.onDisplayChange((ImageDisplay) n);
         	else view.onDisplayChange(null);
+        } else if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
+        	DataObject object = (DataObject) pce.getNewValue();
+        	AnnotationPane p = ((AnnotationPane) 
+            		model.getClipboardPane(ClipBoard.ANNOTATION_PANE));
+        	if (object == null) p.retrieveAnnotation(object);
+            view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+             
+            List<DataObject> l = new ArrayList<DataObject>(1);
+            l.add(object);
+            model.getParentModel().onDataObjectSave(l);
+            p.retrieveAnnotation(object);
         }
     }
 
@@ -166,18 +179,12 @@ class ClipBoardControl
             switch (model.getState()) {
                 //We don't know how long the call is going to take so set to
                 // indeterminate
-                case ClipBoard.EDIT_ANNOTATIONS:
-                    model.getParentModel().setStatus(EDIT_MSG, -1);
-                    break;
                 case ClipBoard.LOADING_CLASSIFICATIONS:
-                case ClipBoard.LOADING_ANNOTATIONS:
                 case ClipBoard.LOADING_CHANNELS_METADATA:
                     model.getParentModel().setStatus(LOADING_MSG, -1);
                     break;
                 case ClipBoard.READY:
-                case ClipBoard.ANNOTATIONS_READY:
                 case ClipBoard.CLASSIFICATIONS_READY:
-                case ClipBoard.DISCARDED_ANNOTATIONS:
                     model.getParentModel().setStatus("", -1);
                     break;
             }

@@ -26,35 +26,26 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.AnnotationEditor;
-import org.openmicroscopy.shoola.agents.treeviewer.AnnotationLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ClassificationPathsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.EditorLoader;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-
-import pojos.AnnotationData;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -111,15 +102,8 @@ class EditorModel
      */
     private EditorLoader        currentLoader;
     
-    
-    /** The annotations related to the currently edited {@link DataObject}. */ 
-    private Map                 annotations;
-    
     /** The set of retrieved classifications */
     private Set                 classifications;
-    
-    /** Flag to indicate if the object is annotated. */
-    private boolean             annotated;
     
     /** The emissions wavelengths for the edited image. */
     private List               	emissionWaves;
@@ -127,36 +111,11 @@ class EditorModel
     /** Flag indicating if the thumbnail is loade or not */
     private boolean				thumbnailLoaded;
     
+    /** Reference to the annotator. */
+    private AnnotatorEditor		annotator;
+    
     /** Reference to the component that embeds this model. */
     protected Editor            component;
-    
-    /** 
-     * Returns the last annotation.
-     * 
-     * @param annotations   Collection of {@link AnnotationData} linked to 
-     *                      the currently edited <code>Dataset</code> or
-     *                      <code>Image</code>.
-     * @return See above.
-     */
-    private AnnotationData getLastAnnotation(List annotations)
-    {
-        if (annotations == null || annotations.size() == 0) return null;
-        Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-                          t2 = ((AnnotationData) o2).getLastModified();
-                long n1 = t1.getTime();
-                long n2 = t2.getTime();
-                int v = 0;
-                if (n1 < n2) v = -1;
-                else if (n1 > n2) v = 1;
-                return v;
-            }
-        };
-        Collections.sort(annotations, c);
-        return (AnnotationData) annotations.get(annotations.size()-1);
-    }
     
     /**
      * Creates a new instance and sets the state to {@link Editor#NEW}.
@@ -187,7 +146,6 @@ class EditorModel
         this.hierarchyObject = hierarchyObject;
         if (editorType == Editor.CREATE_EDITOR) this.parent = parent;
         else this.parent = null;
-        annotated = false;
         thumbnailLoaded = false;
     }
     
@@ -198,6 +156,21 @@ class EditorModel
      * @param component The embedding component.
      */
     void initialize(Editor component) { this.component = component; }
+    
+    /**
+     * Creates the annotator.
+     * 
+     * @return See above.
+     */
+    AnnotatorEditor createAnnotator() 
+    {
+    	if (annotator == null && isAnnotatable()) {
+    		annotator = AnnotatorFactory.getEditor(
+    						TreeViewerAgent.getRegistry(), hierarchyObject,
+    						AnnotatorEditor.HORIZONTAL_LAYOUT);
+    	}
+    	return annotator;
+    }
     
     /**
      * Returns the name of the parent if the {@link #editorType}
@@ -378,21 +351,6 @@ class EditorModel
     }
     
     /**
-     * Returns the annotation of the currently edited <code>DataObject</code>.
-     *  
-     * @return See above.
-     */
-    AnnotationData getAnnotationData()
-    {
-        long id = getUserDetails().getId();
-        if (hierarchyObject == null) return null;
-        else if ((hierarchyObject instanceof ImageData) || 
-                (hierarchyObject instanceof DatasetData))
-            return getLastAnnotation(getAnnotations(id));
-        return null;
-    }
-    
-    /**
      * Sets the object in the {@link Editor#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
      */
@@ -410,85 +368,6 @@ class EditorModel
             currentLoader = null;
         }
         state = Editor.READY;
-    }
-    
-    /**
-     * Returns the sorted annotations.
-     * 
-     * @return See above.
-     */
-    Map getAnnotations() { return annotations; }
-    
-    /**
-     * Returns the annotations made by the specified owner.
-     * 
-     * @param ownerID   The id of the owner.
-     * @return See above.
-     */
-    List getAnnotations(long ownerID)
-    {
-    	if (annotations == null) return null;
-        return (List) annotations.get(new Long(ownerID));
-    }
-    
-    /**
-     * Sorts and sets the retrieved annotations.
-     * 
-     * @param map The annotations to set.
-     */
-    void setAnnotations(Map map)
-    {
-        ViewerSorter sorter = new ViewerSorter();
-        sorter.setAscending(false);
-        HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
-        Set set;
-        Long index;
-        Iterator i = map.keySet().iterator();
-        Iterator j;
-        AnnotationData annotation;
-        Long ownerID;
-        List<AnnotationData> userAnnos;
-        while (i.hasNext()) {
-            index = (Long) i.next();
-            set = (Set) map.get(index);
-            j = set.iterator();
-            while (j.hasNext()) {
-                annotation = (AnnotationData) j.next();;
-                ownerID = new Long(annotation.getOwner().getId());
-                userAnnos = (List) sortedAnnotations.get(ownerID);
-                if (userAnnos == null) {
-                    userAnnos = new ArrayList<AnnotationData>();
-                    sortedAnnotations.put(ownerID, userAnnos);
-                }
-                userAnnos.add(annotation);
-            }
-        }
-        i = sortedAnnotations.keySet().iterator();
-        List annotations, results;
-        List<AnnotationData> list;
-        List<Timestamp> timestamps;
-        HashMap<Timestamp, AnnotationData> m;
-        Iterator k, l;
-        AnnotationData data;
-        while (i.hasNext()) {
-            ownerID = (Long) i.next();
-            annotations = sortedAnnotations.get(ownerID);
-            k = annotations.iterator();
-            m = new HashMap<Timestamp, AnnotationData>(annotations.size());
-            timestamps = new ArrayList<Timestamp>(annotations.size());
-            while (k.hasNext()) {
-                data = (AnnotationData) k.next();
-                m.put(data.getLastModified(), data);
-                timestamps.add(data.getLastModified());
-            }
-            results = sorter.sort(timestamps);
-            l = results.iterator();
-            list = new ArrayList<AnnotationData>(results.size());
-            while (l.hasNext())
-                list.add(m.get(l.next()));
-            sortedAnnotations.put(ownerID, list);
-        }
-        this.annotations = sortedAnnotations;
     }
     
     /** 
@@ -550,9 +429,11 @@ class EditorModel
      */
     void fireAnnotationsLoading()
     {
-        state = Editor.LOADING_ANNOTATION;
-        currentLoader = new AnnotationLoader(component, hierarchyObject);
-        currentLoader.load();
+        //state = Editor.LOADING_ANNOTATION;
+        //currentLoader = new AnnotationLoader(component, hierarchyObject);
+        //currentLoader.load();
+    	if (annotator != null)
+    		annotator.activate();
     }
     
     /**
@@ -605,51 +486,7 @@ class EditorModel
         currentLoader.load();
     }
     
-    /**
-     * Starts the asynchronous update of the specifed object and the creation 
-     * of the annotation.
-     * 
-     * @param object    The object to update.
-     * @param data      The annotation to create. 
-     */
-    void fireAnnotationCreate(DataObject object, AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, object, data, 
-                                        AnnotationEditor.CREATE);
-        currentLoader.load();
-    }
-    
-    /**
-     * Starts the asynchronous update of the specifed object and the deletion 
-     * of the annotation.
-     * 
-     * @param object    The object to update.
-     * @param data      The annotation to delete. 
-     */
-    void fireAnnotationDelete(DataObject object, AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, object, data, 
-                                            AnnotationEditor.DELETE);
-        currentLoader.load();
-    }
-    
-    /**
-     * Starts the asynchronous update of the specifed object and the update 
-     * of the annotation.
-     * 
-     * @param object    The object to update.
-     * @param data      The annotation to update. 
-     */
-    void fireAnnotationUpdate(DataObject object, AnnotationData data)
-    {
-        state = Editor.SAVE_EDITION;
-        currentLoader = new AnnotationEditor(component, object, data, 
-                                            AnnotationEditor.UPDATE);
-        currentLoader.load();
-    }
-
+   
     /**
      * Notifies the parent model that the {@link DataObject object} has been 
      * saved. 
@@ -662,23 +499,6 @@ class EditorModel
         state = Editor.READY;
         parentModel.onDataObjectSave(object, operation);
     }
-    
-    /**
-     * Sets to <code>true</code> if the object is annotated, <code>false</code>
-     * otherwise;
-     * 
-     * @param annotated Passed <code>true</code> if the object is annotated,
-     *                  <code>false</code> otherwise.
-     */
-    void setAnnotated(boolean annotated) { this.annotated = annotated; }
-    
-    /**
-     * Returns <code>true</code> if the object is annotated, <code>false</code>
-     * otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isAnnotated() { return annotated; }
     
     /**
      * Returns <code>true</code> if the current user is the owner of the

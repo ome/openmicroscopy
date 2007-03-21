@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 //Java imports
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,7 +37,7 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import pojos.AnnotationData;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 import pojos.DataObject;
 
 
@@ -51,7 +53,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class EditorControl
-    implements ChangeListener
+    implements ChangeListener, PropertyChangeListener
 {
     
     /** 
@@ -132,54 +134,6 @@ public class EditorControl
             throw new IllegalArgumentException("No Data object to update.");
         model.saveObject(object, TreeViewer.UPDATE_OBJECT);
     }
-  
-    /**
-     * Updates the specified <code>DataObject</code> and creates a annotation 
-     * for this object.
-     * 
-     * @param data      The object to update.
-     * @param object    The annotation to create.
-     */
-    void createAnnotation(DataObject data, AnnotationData object)
-    {
-        if (data == null) 
-            throw new IllegalArgumentException("No Data object to update.");
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to create.");
-        model.saveObjectAndAnnotation(data, object, Editor.CREATE_ANNOTATION);
-    }
-    
-    /**
-     * Updates the specified <code>DataObject</code> and updates the specified 
-     * annotation..
-     * 
-     * @param data      The object to update.
-     * @param object    The annotation to update.
-     */
-    void updateAnnotation(DataObject data, AnnotationData object)
-    {
-        if (data == null) 
-            throw new IllegalArgumentException("No Data object to update.");
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to update.");
-        model.saveObjectAndAnnotation(data, object, Editor.UPDATE_ANNOTATION);
-    }
-    
-    /**
-     * Updates the specified <code>DataObject</code> and removes the specified 
-     * annotation.
-     * 
-     * @param data      The object to update.
-     * @param object    The annotation to remove.
-     */
-    void deleteAnnotation(DataObject data, AnnotationData object)
-    {
-        if (data == null) 
-            throw new IllegalArgumentException("No Data object to update.");
-        if (object == null) 
-            throw new IllegalArgumentException("No annotation to remove.");
-        model.saveObjectAndAnnotation(data, object, Editor.DELETE_ANNOTATION);
-    }
     
     /** Reloads the classifications. */
     void loadClassifications() { model.loadClassifications(); }
@@ -220,5 +174,14 @@ public class EditorControl
         	view.onStateChanged(model.getState() == Editor.READY);
         }
     }
+
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		String name = evt.getPropertyName();
+		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
+			DataObject r = (DataObject) evt.getNewValue();
+			model.setSaveResult(r, TreeViewer.UPDATE_OBJECT); 
+		} 
+	}
 
 }

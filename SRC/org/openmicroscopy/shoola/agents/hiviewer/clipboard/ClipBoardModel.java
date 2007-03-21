@@ -24,36 +24,27 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.AnnotationEditor;
 import org.openmicroscopy.shoola.agents.hiviewer.CBDataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.ClassificationsLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.DatasetAnnotationLoader;
 import org.openmicroscopy.shoola.agents.hiviewer.Declassifier;
-import org.openmicroscopy.shoola.agents.hiviewer.ImageAnnotationLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.editor.EditorPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import pojos.AnnotationData;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -93,9 +84,6 @@ class ClipBoardModel
     /** The classifications retrieved for an image. */
     private Set                     		classifications;
     
-    /** Retrieved annotations for a specified image or dataset.*/
-    private Map                     		annotations;
-    
     /** The {@link ViewerSorter} used to sort the annotations. */
     private ViewerSorter            		sorter;
     
@@ -128,42 +116,19 @@ class ClipBoardModel
     private void createClipBoardPanes()
     {
         cbPanes.put(new Integer(ClipBoard.FIND_PANE), new FindPane(component));
+        int layout = AnnotatorEditor.HORIZONTAL_LAYOUT;
+        if (!ClipBoard.HORIZONTAL_SPLIT)
+        	layout = AnnotatorEditor.VERTICAL_LAYOUT;
+        AnnotatorEditor annotator = AnnotatorFactory.getEditor(
+        					HiViewerAgent.getRegistry(), null, layout);
         cbPanes.put(new Integer(ClipBoard.ANNOTATION_PANE), 
-                    new AnnotationPane(component));
+                    new AnnotationPane(component, annotator));
         cbPanes.put(new Integer(ClipBoard.INFO_PANE), 
                     new InfoPane(component));
         cbPanes.put(new Integer(ClipBoard.EDITOR_PANE), 
                 new EditorPane(component));
         cbPanes.put(new Integer(ClipBoard.CLASSIFICATION_PANE), 
                 new ClassificationPane(component));
-    }
-    
-    /** 
-     * Returns the last annotation.
-     * 
-     * @param annotations   Collection of {@link AnnotationData} linked to 
-     *                      the currently edited <code>Dataset</code> or
-     *                      <code>Image</code>.
-     * @return See above.
-     */
-    private AnnotationData getLastAnnotation(List annotations)
-    {
-        if (annotations == null || annotations.size() == 0) return null;
-        Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-                          t2 = ((AnnotationData) o2).getLastModified();
-                long n1 = t1.getTime();
-                long n2 = t2.getTime();
-                int v = 0;
-                if (n1 < n2) v = -1;
-                else if (n1 > n2) v = 1;
-                return v;
-            }
-        };
-        Collections.sort(annotations, c);
-        return (AnnotationData) annotations.get(annotations.size()-1);
     }
     
     /**
@@ -202,7 +167,7 @@ class ClipBoardModel
      */
     ClipBoardPane getClipboardPane(int index) 
     {
-        return (ClipBoardPane) cbPanes.get(new Integer(index));
+        return cbPanes.get(new Integer(index));
     }
     
     /**
@@ -248,85 +213,6 @@ class ClipBoardModel
     void setPaneIndex(int i)  { paneIndex = i; }
     
     /**
-     * Returns the retrieved annotations.
-     * 
-     * @return See above.
-     */
-    Map getAnnotations() { return annotations; }
-    
-    /**
-     * Sets the retrieved annotations.
-     * 
-     * @param map The map with the annotations.
-     */
-    void setAnnotations(Map map) 
-    {
-        if (map == null) throw new NullPointerException("No annotations");
-        HashMap sortedAnnotations = new HashMap();
-        Set set;
-        Long index;
-        Iterator i = map.keySet().iterator();
-        Iterator j;
-        AnnotationData annotation;
-        Long ownerID;
-        List userAnnos;
-        while (i.hasNext()) {
-            index = (Long) i.next();
-            set = (Set) map.get(index);
-            j = set.iterator();
-            while (j.hasNext()) {
-                annotation = (AnnotationData) j.next();;
-                ownerID = new Long(annotation.getOwner().getId());
-                userAnnos = (List) sortedAnnotations.get(ownerID);
-                if (userAnnos == null) {
-                    userAnnos = new ArrayList();
-                    sortedAnnotations.put(ownerID, userAnnos);
-                }
-                userAnnos.add(annotation);
-            }
-        }
-        i = sortedAnnotations.keySet().iterator();
-        List timestamps, annotations, results, list;
-        HashMap m;
-        Iterator k, l;
-        AnnotationData data;
-        while (i.hasNext()) {
-            ownerID = (Long) i.next();
-            annotations = (List) sortedAnnotations.get(ownerID);
-            k = annotations.iterator();
-            m = new HashMap(annotations.size());
-            timestamps = new ArrayList(annotations.size());
-            while (k.hasNext()) {
-                data = (AnnotationData) k.next();
-                m.put(data.getLastModified(), data);
-                timestamps.add(data.getLastModified());
-            }
-            results = sorter.sort(timestamps);
-            l = results.iterator();
-            list = new ArrayList(results.size());
-            while (l.hasNext())
-                list.add(m.get(l.next()));
-            sortedAnnotations.put(ownerID, list);
-        }
-        this.annotations = sortedAnnotations;
-        state = ClipBoard.ANNOTATIONS_READY;
-    }
-    
-    
-    /**
-     * Sets the object in the {@link HiViewer#DISCARDED} state.
-     * Any ongoing data loading will be cancelled.
-     */
-    void discardAnnotation()
-    {
-        if (currentLoader != null) {
-            currentLoader.cancel();
-            currentLoader = null;
-        }
-        state = ClipBoard.DISCARDED_ANNOTATIONS;
-    }
-    
-    /**
      * Returns the current user's details. Helper method
      * 
      * @return See above.
@@ -358,72 +244,6 @@ class ClipBoardModel
      */
     void fireAnnotationsLoading(DataObject ho)
     {
-        if (ho instanceof ImageData)
-            currentLoader = new ImageAnnotationLoader(component, ho.getId());
-        else if (ho instanceof DatasetData)
-            currentLoader = new DatasetAnnotationLoader(component, ho.getId());    
-        currentLoader.load();
-        state = ClipBoard.LOADING_ANNOTATIONS;
-    }
-    
-    /**
-     * Starts the asynchronous creation of an annotation.
-     * 
-     * @param data The annotation.
-     */
-    void fireCreateAnnotation(AnnotationData data)
-    {
-        Object ho = component.getHierarchyObject();
-        currentLoader = new AnnotationEditor(component, (DataObject) ho, data,
-                                        AnnotationEditor.CREATE);
-        currentLoader.load();
-        state = ClipBoard.EDIT_ANNOTATIONS;
-    }
-    
-    /**
-     * Starts the asynchronous update of the currently selected annotation.
-     * 
-     * @param data The selected annotation.
-     */
-    void fireUpdateAnnotation(AnnotationData data)
-    {
-        Object ho = component.getHierarchyObject();
-        currentLoader = new AnnotationEditor(component, (DataObject) ho, data,
-                                        AnnotationEditor.UPDATE);
-        currentLoader.load();
-        state = ClipBoard.EDIT_ANNOTATIONS;
-    }
-
-    /**
-     * Starts the asynchronous deletion of the currently selected annotation.
-     * 
-     * @param data The selected annotation.
-     */
-    void fireDeleteAnnotation(AnnotationData data)
-    {
-        Object ho = component.getHierarchyObject();
-        currentLoader = new AnnotationEditor(component, (DataObject) ho, data,
-                                        AnnotationEditor.DELETE);
-        currentLoader.load();
-        state = ClipBoard.EDIT_ANNOTATIONS;
-    }
-
-    /**
-     * Returns the annotation of the currently edited <code>DataObject</code>.
-     *  
-     * @return See above.
-     */
-    AnnotationData getUserAnnotationData()
-    {
-        long id = getUserDetails().getId();
-        Object ho = component.getHierarchyObject();
-        if (ho == null) return null;
-        else if ((ho instanceof ImageData) || 
-                (ho instanceof DatasetData)) {
-            List l = (List) annotations.get(new Long(id));
-            return getLastAnnotation(l);
-        }
-        return null;
     }
     
     /** 

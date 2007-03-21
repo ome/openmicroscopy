@@ -60,7 +60,7 @@ class AnnotatorComponent
 	implements Annotator
 {
 
-	 /** The Model sub-component. */
+	/** The Model sub-component. */
     private AnnotatorModel     model;
     
     /** The Controller sub-component. */

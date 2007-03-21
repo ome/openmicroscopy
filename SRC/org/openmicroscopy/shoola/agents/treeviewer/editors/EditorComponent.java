@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
@@ -39,7 +38,6 @@ import javax.swing.JRootPane;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 
@@ -72,25 +70,7 @@ class EditorComponent
     
     /** The View sub-component. */
     private EditorUI        view;
-    
-    /**
-     * Controls if the specified annotation operation is supported.
-     * 
-     * @param i The index to control.
-     */
-    private void checkAnnotationOperation(int i)
-    {
-        switch (i) {
-            case CREATE_ANNOTATION:
-            case UPDATE_ANNOTATION:
-            case DELETE_ANNOTATION:    
-                break;
-            default:
-                throw new IllegalArgumentException("Annotation operation not " +
-                        "supported");
-        }
-    }
-    
+   
     /**
      * Controls if the specified data object operation is supported.
      * 
@@ -185,24 +165,6 @@ class EditorComponent
 
     /**
      * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#setAnnotations(Map)
-     */
-    public void setAnnotations(Map map)
-    {
-        if (model.getState() == LOADING_ANNOTATION) {
-            if (map != null) {
-                model.setAnnotations(map);
-                view.showAnnotations();
-                retrieveThumbnail();
-            }
-            model.setState(READY);
-            model.getParentModel().setStatus(false, "", true);
-            fireStateChange();
-        }
-    }
-
-    /**
-     * Implemented as specified by the {@link Editor} interface.
      * @see Editor#setThumbnail(BufferedImage)
      */
     public void setThumbnail(BufferedImage thumbnail)
@@ -279,7 +241,7 @@ class EditorComponent
      */
     public void setSaveResult(DataObject object, int operation)
     {
-        if (model.getState() != SAVE_EDITION) return;
+        //if (model.getState() != SAVE_EDITION) return;
         checkDataObjectOperation(operation);
         if (object == null)
             throw new IllegalArgumentException("No DataObject to save.");
@@ -294,8 +256,7 @@ class EditorComponent
     public void saveObject(DataObject object, int operation)
     {
         switch (model.getState()) {
-            case DISCARDED:
-            case LOADING_ANNOTATION:   
+            case DISCARDED:  
             case LOADING_CLASSIFICATION:  
                 throw new IllegalStateException(
                 "This method cannot be invoked in the DISCARDED, " +
@@ -315,39 +276,6 @@ class EditorComponent
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
-    /**
-     * Implemented as specified by the {@link Editor} interface.
-     * @see Editor#saveObjectAndAnnotation(DataObject, AnnotationData, int)
-     */
-    public void saveObjectAndAnnotation(DataObject data, AnnotationData object,
-            int operation)
-    {
-        switch (model.getState()) {
-            case DISCARDED:
-            case LOADING_ANNOTATION:   
-            case LOADING_CLASSIFICATION:  
-                throw new IllegalStateException(
-                "This method cannot be invoked in the DISCARDED, " +
-                "LOADING_ANNOTATION or LOADING_CLASSIFICATION state.");
-        }
-        if (object == null)
-            throw new IllegalArgumentException("No annotation.");
-        if (data == null)
-            throw new IllegalArgumentException("No DataObject.");
-        checkAnnotationOperation(operation);
-        switch (operation) {
-            case CREATE_ANNOTATION:
-                model.fireAnnotationCreate(data, object);
-                break;
-            case UPDATE_ANNOTATION:
-                model.fireAnnotationUpdate(data, object);
-                break;
-            case DELETE_ANNOTATION:
-                model.fireAnnotationDelete(data, object);
-        }
-        model.getParentModel().setStatus(false, "", true);
-        fireStateChange();
-    }
 
     /**
      * Implemented as specified by the {@link Editor} interface.
@@ -357,7 +285,6 @@ class EditorComponent
     {
         switch (model.getState()) {
             case DISCARDED:
-            case LOADING_ANNOTATION: 
             	//return;
         }
         if (!(model.isClassified())) return;
@@ -429,13 +356,11 @@ class EditorComponent
 		if (model.getEditorType() != PROPERTIES_EDITOR) return;
 		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
         			EditorUI.PROPERTIES_INDEX) {
-			if (model.getAnnotations() == null) {
-				model.fireAnnotationsLoading();
-	            model.getParentModel().setStatus(true, 
-	                    TreeViewer.LOADING_TITLE, false);
-	            fireStateChange();
-			}
+			model.fireAnnotationsLoading();
+	        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
+	        								false);
         }  
+		retrieveThumbnail();
 	}
 
     /**

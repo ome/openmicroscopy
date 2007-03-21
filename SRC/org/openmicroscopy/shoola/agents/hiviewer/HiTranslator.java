@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -679,4 +681,15 @@ public class HiTranslator
         return permissions.isGroupWrite();
         //return permissions.isWorldWrite();
     }
+    
+    /**
+     * Creates a default timestamp.
+     * 
+     * @return See above.
+     */
+    public static Timestamp getDefaultTimestamp()
+    {
+        return new Timestamp(new Date().getTime());
+    }
+    
 }

@@ -99,7 +99,7 @@ public class ChannelMetadataLoader
      */
     public void handleResult(Object result) 
     {
-        if (clipBoard.getState() == ClipBoard.DISCARDED_ANNOTATIONS) return;
+        //if (clipBoard.getState() == ClipBoard.D) return;
         clipBoard.setChannelsMetadata((List) result, image);
     }
     

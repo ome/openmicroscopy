@@ -204,36 +204,38 @@ class BrowserUI
 		Rectangle viewRect = getViewport().getViewRect();
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
+		int x = 0;
+		int y = 0;
 		if (!viewRect.contains(bounds)) {
-			
 			int deltaX = viewRect.x-bounds.x;
 			int deltaY = viewRect.y-bounds.y;
 			if (deltaX < 0 && blockIncrement)
-				hBar.setValue(hBar.getValue()+hBar.getBlockIncrement());
+				x = hBar.getValue()+hBar.getBlockIncrement();
 			else {
 				int w = viewRect.width-bounds.width;
 				if (w < 0) w = -w;
-				hBar.setValue(bounds.x-w/2);
+				x = bounds.x-w/2;
 			}
 			if (deltaY  < 0 && blockIncrement)
-				vBar.setValue(vBar.getValue()+vBar.getBlockIncrement());
+				y = vBar.getValue()+vBar.getBlockIncrement();
 			else {
 				int h = viewRect.height-bounds.height;
 				if (h < 0) h = -h;
-				vBar.setValue(bounds.y-h/2);
+				y = bounds.y-h/2;
 			}
+			
         } else {
         	//lens not centered
         	if (blockIncrement) return;
         	int w = viewRect.width-bounds.width;
 			if (w < 0) w = -w;
-			hBar.setValue(bounds.x-w/2);
+			x = bounds.x-w/2;
 			int h = viewRect.height-bounds.height;
 			if (h < 0) h = -h;
-			vBar.setValue(bounds.y-h/2);
+			y = bounds.y-h/2;
         }
-		//layeredPane.validate();
-		//layeredPane.repaint();
+		vBar.setValue(y);
+		hBar.setValue(x);
 	}
 	
 	/**
@@ -257,9 +259,10 @@ class BrowserUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		if (xLoc < 0) xLoc = 0;
-		if (yLoc < 0) yLoc = 0;
+		//if (xLoc < 0) xLoc = 0; if added to a tabbed pane.
+		//if (yLoc < 0) yLoc = 0; if added to a tabbed pane.
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		
 	}
 	
 }

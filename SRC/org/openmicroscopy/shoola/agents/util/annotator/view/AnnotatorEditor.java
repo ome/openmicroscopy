@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.annotator.view.Annotator 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,19 +24,21 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.util.List;
 import java.util.Map;
+
+import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import pojos.DataObject;
 
 /** 
- * Defines the interface provided by the annotator component.
- * The annotator provides a top-level window to host annotations 
+ * Defines the interface provided by the annotator editor component.
+ * The annotator provides a top-level window to host annotation 
  * and let the user interact with it.
- * <p>The typical life-cycle of an annotator is as follows.The object
+ * <p>The typical life-cycle of an annotator editor is as follows.The object
  * is first created using the {@link AnnotatorFactory}. After
  * creation the object is in the {@link #NEW} state and is waiting for the
  * {@link #activate() activate} method to be called.
@@ -47,7 +49,7 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
  * garbage collection.
  * 
  * </p>
- *
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -58,26 +60,29 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
  * </small>
  * @since OME3.0
  */
-public interface Annotator
+public interface AnnotatorEditor 
 	extends DataHandler
 {
 
-    /** Identifies the annotate model. */
-    public static final int     ANNOTATE_MODE = 0;
-    
-    /** Identifies the bulk annotate model. */
-    public static final int     BULK_ANNOTATE_MODE = 1;
-       
-   /**
-    * Queries the current state.
-    * 
-    * @return One of the state flags defined by this interface.
-	*/
+	/** Bounds property indicating to save the annotation. */
+	public static final String		SAVE_PROPERTY = "Save";
+	
+	/** Bounds property indicating that an image has been annotated. */
+	public static final String		ANNOTATED_PROPERTY = "Annotated";
+
+	/** Indicates to layout the component horizontally. */
+	public static final int	HORIZONTAL_LAYOUT = 0;
+	
+	/** Indicates to layout the component horizontally. */
+	public static final int VERTICAL_LAYOUT = 1;
+	
+	/**
+	 * Queries the current state.
+	 * 
+	 * @return One of the state flags defined by this interface.
+	 */
 	public int getState();
-
-	/** Saves the annotations. */
-	public void finish();
-
+	
 	/** Cancels any ongoing data loading. */
 	public void cancel();
 	
@@ -92,9 +97,55 @@ public interface Annotator
 	/** 
 	 * Indicates that the annotation has been saved. 
 	 * 
-	 * @param results The updated <code>DataObject</code>s.
+	 * @param result The updated <code>DataObject</code>s.
 	 */
-	public void saveAnnotations(List results);
+	public void saveAnnotation(DataObject result);
 
+	/** Creates or updates the annotation for the edited data object. */
+	public void save();
+
+	/** Removes the annotation. */
+	public void delete();
+	
+	/** 
+	 * Returns the view
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getUI();
+
+	/** Displays the history of the annotation or the main panel. */
+	public void history();
+
+	/**
+	 * Returns <code>true</code> if the current user has an annotation 
+	 * to delete, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasAnnotation();
+	
+	/** 
+	 * Returns <code>true</code> if the annotation has an history list, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasHistory();
+		
+	/** 
+	 * Returns <code>true</code> if there is an annotation to save. 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDataToSave();
+	
+	/**
+	 * Retrieves the annotation for the passed object.
+	 * 
+	 * @param object The object to handle.
+	 */
+	public void retrieveAnnotations(DataObject object);
 	
 }

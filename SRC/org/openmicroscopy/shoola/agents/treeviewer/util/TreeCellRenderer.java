@@ -165,7 +165,6 @@ public class TreeCellRenderer
         	w += fm.stringWidth(node.getNodeName());
         else w += fm.stringWidth(getText());
         setPreferredSize(new Dimension(w, fm.getHeight()));
-        
         return this;
     }
   

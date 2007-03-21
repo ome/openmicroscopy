@@ -164,14 +164,32 @@ public class IconManager
     /** ID of the <code>Cross over</code> icon. */
     public static final int CROSS_OVER = 36;
     
-    /** ID of the <code>ERROR</code> icon. */
+    /** ID of the <code>Error</code> icon. */
     public static final int ERROR = 37;
+    
+    /** ID of the <code>History</code> icon. */
+    public static final int HISTORY = 38;
+    
+    /** ID of the <code>Backward navigation</code> icon. */
+    public static final int BACKWARD_NAV = 39;
+    
+    /** ID of the <code>Trashcan full</code> icon. */
+    public static final int TRASH_CAN = 40;
+    
+    /** ID of the <code>Save</code> icon. */
+    public static final int SAVE = 41;
+    
+    /** ID of the <code>Owner</code> icon. */
+    public static final int OWNER = 42;
+    
+    /** ID of the <code>Calendar</code> icon. */
+    public static final int CALENDAR = 43;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 37;
+    private static int      MAX_ID = 43;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -217,6 +235,12 @@ public class IconManager
     	relPaths[CROSS] = "cross.png";
     	relPaths[CROSS_OVER] = "cross_over.png";
     	relPaths[ERROR] = "eclipse_error_tsk16.png";
+    	relPaths[HISTORY] = "eclipse_history_list16.png";
+        relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
+        relPaths[TRASH_CAN] = "nuvola_trashcan_full16.png";
+        relPaths[SAVE] = "nuvola_filesaveas16.png";
+        relPaths[OWNER] = "nuvola_filesaveas16.png";
+        relPaths[CALENDAR] = "nuvola_filesaveas16.png";
     }
     
     /** 

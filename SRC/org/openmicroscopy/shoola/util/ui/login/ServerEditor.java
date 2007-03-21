@@ -137,9 +137,6 @@ public class ServerEditor
 	 */
 	private String			activeServer;
 	
-	/** The name of the selected server. */
-	private String			serverName;
-	
 	/** 
 	 * Removes the selected server from the list. 
 	 * 
@@ -549,12 +546,8 @@ public class ServerEditor
 		icons = IconManager.getInstance();
 		this.activeServer = activeServer;
 		int n = 0; 
-		serverName = null;
 		List servers = getServers();
-		if (servers != null) {
-			n = servers.size();
-			serverName = (String) servers.get(n-1);
-		}
+		if (servers != null) n = servers.size();
 		initComponents(servers);
 		setEditing(n == 0);
 		buildGUI();

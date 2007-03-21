@@ -64,19 +64,19 @@ import pojos.DataObject;
 
 
 /** 
-* Displays the list of annotations if some of the <code>DataObject</code>s
-* have already been annotated and a text area to enter the annotation.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * Displays the list of annotations if some of the <code>DataObject</code>s
+ * have already been annotated and a text area to enter the annotation.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 class AnnotatorUI
 	extends JPanel
 {

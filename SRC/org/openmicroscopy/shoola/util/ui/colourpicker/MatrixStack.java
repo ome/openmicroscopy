@@ -59,25 +59,21 @@ class MatrixStack
 	/** Stack containing affinetransform. */
 	private Stack stack;
 	
-	/** Creates a new instance and constructs the matrix stack.
-	 */
+	/** Creates a new instance and constructs the matrix stack. */
 	MatrixStack()
 	{
 		stack = new Stack();
 	}
 	
 	/**
-	 * Push affinetransform saveMatrix onto the stack.
+	 * Pushes the passed transformation onto the stack.
      * 
-	 * @param saveMatrix The transformation to push
+	 * @param saveMatrix The transformation to push.
 	 */
-	void push(AffineTransform saveMatrix)
-	{
-		stack.push(saveMatrix);
-	}
+	void push(AffineTransform saveMatrix) { stack.push(saveMatrix); }
 
 	/**
- 	 * Push the current affinestransform of the Graphics context onto the stack.
+ 	 * Pushes the current trasformation of the Graphics context onto the stack.
      * 
  	 * @param saveMatrix The transformation to push.
 	 */
@@ -91,13 +87,10 @@ class MatrixStack
      * 
 	 * @return See above. 
 	 */
-	AffineTransform pop()
-	{
-		return (AffineTransform) stack.pop();
-	}
+	AffineTransform pop() { return (AffineTransform) stack.pop(); }
 	
 	/**
-	 * Retrieves the top transform from stack and put it onto the current 
+	 * Retrieves the top transform from stack and puts it onto the current 
 	 * graphics context.
      * 
 	 * @param g The graphic context.

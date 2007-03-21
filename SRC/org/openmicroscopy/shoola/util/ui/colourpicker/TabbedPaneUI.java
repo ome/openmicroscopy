@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -80,79 +79,61 @@ class TabbedPaneUI
 	 * Toolbar contains the buttons to select the HSVWheelUI, RGB Selector
 	 * or Colour Swatch.
 	 */
-	private JToolBar 		toolbar;
+	private JToolBar 			toolbar;
 	
 	/**
 	 * Actionbar contains the buttons to accept, cancel or revert to the 
 	 * original colour selection.
 	 */
-	private JPanel 			userActionPanel;
+	private JPanel 				userActionPanel;
 	
 	/** Button to choose HSVColourWheelPanel. */
-	private JToggleButton 	colourWheelButton;
+	private JToggleButton 		colourWheelButton;
 	
 	/** Button to choose RGB Sliders panel. */
-	private JToggleButton	RGBSlidersButton;
+	private JToggleButton		RGBSlidersButton;
 	
 	/** Button to choose colour swatch panel. */
-	private JToggleButton	colourSwatchButton;
+	private JToggleButton		colourSwatchButton;
 	
 	/** Accept the current colour choice. */
-	private JButton			acceptButton;
+	private JButton				acceptButton;
 
 	/** Revert to the original colour chosen by the user. */
-	private JButton			revertButton;
+	private JButton				revertButton;
 	
 	/** Cancel the colour panel. */
-	private JButton			cancelButton;
-	
-	/** Colourwheel button action when clicked will make colourwheel visible. */
-	private Action 			colourWheelAction;
-	
-	/** Sliders button action when clicked will make RGBsliders visible. */
-	private Action 			RGBSlidersAction;
-	
-	/** Swatch button action when clicked will make ColourSwatch visible. */
-	private Action 			colourSwatchAction;
-	
-	/** Cancel icon displayed on button.  */
-	private Action			cancelButtonAction;
-	
-	/** Accept icon displayed on button. */
-	private Action			acceptButtonAction;
-	
-	/** Revert icon displayed on button. */
-	private Action			revertButtonAction;
+	private JButton				cancelButton;
 	
 	/** ColourWheel panel, containing the HSVPickerUI. */
-	private HSVColourWheelUI colourWheelPane;
+	private HSVColourWheelUI	colourWheelPane;
 	
 	/** RGBPanel containing the ColourSlider UI. */
-	private RGBSliderUI 	RGBSliderPane;
+	private RGBSliderUI 		RGBSliderPane;
 	
 	/** Containing the Swatch UI. */
-	private ColourSwatchUI 	swatchPane;
+	private ColourSwatchUI 		swatchPane;
 	
 	/** Layout manager for the colourwheel, slider and swatch panels. */
-	private CardLayout 		tabPaneLayout;
+	private CardLayout 			tabPaneLayout;
 	
 	/** 
 	 * Container for the layout manager above. Containers colourwheel, slider 
 	 * and swatch panels.
 	 */
-	private JPanel			tabPanel;
+	private JPanel				tabPanel;
 	
 	/**
 	 * Paintpot pane will be displayed at the top of the window, above selected
 	 * pane and below toolbar.
 	 */
-	private PaintPotUI  	paintPotPane;
+	private PaintPotUI  		paintPotPane;
 
     /** Model which will be changed when user adjusts sliders/textfield. */
-    private RGBControl      control;
+    private RGBControl      	control;
     
     /** The owner of this component. */
-    private ColourPicker    parent;
+    private ColourPicker    	parent;
     
     /** 
      * The toolbar controls which panel is active, the user has the choice
@@ -170,7 +151,7 @@ class TabbedPaneUI
         colourWheelButton.setBorderPainted(true);
         colourWheelButton.setToolTipText("Show HSV Colour Wheel");
         
-        colourWheelAction = new AbstractAction("HSV Wheel Colour Button") {
+        AbstractAction action = new AbstractAction("HSV Wheel Colour Button") {
             public void actionPerformed(ActionEvent evt) 
             {
                 clearToggleButtons();
@@ -178,15 +159,14 @@ class TabbedPaneUI
             }
         };
         
-        colourWheelButton.addActionListener(colourWheelAction);
+        colourWheelButton.addActionListener(action);
         RGBSlidersButton = new JToggleButton(
         icons.getIcon(IconManager.COLOUR_SLIDER));
         UIUtilities.unifiedButtonLookAndFeel(RGBSlidersButton);
         RGBSlidersButton.setBorderPainted(true);
         RGBSlidersButton.setToolTipText("Show RGB Colour Sliders");
         
-    
-        RGBSlidersAction = new AbstractAction("RGB Slider Button") 
+        action = new AbstractAction("RGB Slider Button") 
         {
             public void actionPerformed(ActionEvent evt) 
             {
@@ -194,14 +174,14 @@ class TabbedPaneUI
                 pickRGBSliderPane();
             }
         };
-        RGBSlidersButton.addActionListener(RGBSlidersAction);
+        RGBSlidersButton.addActionListener(action);
         colourSwatchButton = new JToggleButton(
         icons.getIcon(IconManager.COLOUR_SWATCH));
         colourSwatchButton.setToolTipText("Show Colour List");
         UIUtilities.unifiedButtonLookAndFeel(colourSwatchButton);
         colourSwatchButton.setBorderPainted(true);
         
-        colourSwatchAction = new AbstractAction("Colour Swatch Button")
+        action = new AbstractAction("Colour Swatch Button")
         {
             public void actionPerformed(ActionEvent evt) 
             {
@@ -209,7 +189,7 @@ class TabbedPaneUI
                 pickSwatchPane();
             }
         };
-        colourSwatchButton.addActionListener(colourSwatchAction);
+        colourSwatchButton.addActionListener(action);
         toolbar.setFloatable(false);
         toolbar.setRollover(true);
         toolbar.add(colourWheelButton);
@@ -235,32 +215,32 @@ class TabbedPaneUI
         //UIUtilities.unifiedButtonLookAndFeel(acceptButton);
         //acceptButton.setBorderPainted(true);
         //acceptButton.setFocusPainted(true);
-        acceptButtonAction = new AbstractAction("Accept Button Action") 
+        AbstractAction action = new AbstractAction("Accept Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.accept(); }
         };
         parent.getRootPane().setDefaultButton(acceptButton);
-        acceptButton.addActionListener(acceptButtonAction);
+        acceptButton.addActionListener(action);
         
         revertButton = new JButton("Revert");
         revertButton.setToolTipText("Revert to Original Colour");
         //UIUtilities.unifiedButtonLookAndFeel(revertButton);
         //revertButton.setBorderPainted(true);
-        revertButtonAction = new AbstractAction("Revert Button Action") 
+        action = new AbstractAction("Revert Button Action") 
         {
             public void actionPerformed(ActionEvent evt)  { revertAction(); }
         };
-        revertButton.addActionListener(revertButtonAction);
+        revertButton.addActionListener(action);
         
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText("Cancel Selection and Close Colour Picker");
         //UIUtilities.unifiedButtonLookAndFeel(cancelButton);
         //cancelButton.setBorderPainted(true);
-        cancelButtonAction = new AbstractAction("Cancel Button Action") 
+        action = new AbstractAction("Cancel Button Action") 
         {
             public void actionPerformed(ActionEvent evt) { parent.cancel(); }
         };
-        cancelButton.addActionListener(cancelButtonAction);
+        cancelButton.addActionListener(action);
         
         userActionPanel.add(acceptButton);
         userActionPanel.add(revertButton);

@@ -25,35 +25,50 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 //Java imports
 import java.util.Set;
-
 import javax.swing.JFrame;
-
-import org.openmicroscopy.shoola.env.config.Registry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import pojos.DataObject;
 
 /** 
-* Factory to create {@link Annotator} component.
-*
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * Factory to create {@link Annotator} and {@link AnnotatorEditor} components.
+ *
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class AnnotatorFactory
 {
-
+	
 	/** The sole instance. */
 	private static final AnnotatorFactory  singleton = new AnnotatorFactory();
 
+	/**
+	 * Returns the {@link AnnotatorEditor}.
+	 * @param ctx		A reference to the {@link Registry}.
+	 * @param object 	The <code>DataObject</code> to annotate.
+	 * @param layout	One of the following constants:
+	 * 					{@link #HORIZONTAL_LAYOUT} or 
+	 * 						{@link #VERTICAL_LAYOUT}.
+	 * @return See above
+	 */
+	public static AnnotatorEditor getEditor(Registry ctx, DataObject object, 
+											int layout)
+	{
+		if (registry == null) registry = ctx;
+		return singleton.createEditor(object, layout);
+	}
+	
 	/**
 	 * Returns the {@link Annotator}.
 	 * 
@@ -131,4 +146,24 @@ public class AnnotatorFactory
 	    return component;
 	}
   
+	/**
+	 * Creates an editor for the passed object.
+	 * 
+	 * @param object	The object to edit, or <code>null</code> if no 
+	 * 					oject yet selected.
+	 * @param layout	The layout, one out of the following constants
+	 * 					{@link AnnotatorEditor#HORIZONTAL_LAYOUT}
+	 * 					or {@link AnnotatorEditor#VERTICAL_LAYOUT}.
+	 * @return See above.
+	 */
+	private AnnotatorEditor createEditor(DataObject object, int layout)
+	{
+		AnnotatorEditorModel model = new AnnotatorEditorModel(object);
+		AnnotatorEditorComponent 
+			component = new AnnotatorEditorComponent(model, layout);
+	  	model.initialize(component);
+	  	component.initialize();
+	    return component;
+	}
+	
 }

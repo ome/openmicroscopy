@@ -51,24 +51,24 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
-* The Model component in the <code>Annotator</code> MVC triad.
-* This class tracks the <code>Annotator</code>'s state and knows how to
-* initiate data retrievals. It also knows how to store and manipulate
-* the results. This class  provide  a suitable data loader. 
-* The {@link AnnotatorComponent} intercepts the 
-* results of data loadings, feeds them back to this class and fires state
-* transitions as appropriate.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * The Model component in the <code>Annotator</code> MVC triad.
+ * This class tracks the <code>Annotator</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. This class  provide  a suitable data loader. 
+ * The {@link AnnotatorComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 class AnnotatorModel
 {
 	
@@ -268,7 +268,7 @@ class AnnotatorModel
 				toAnnotate.add((DataObject) i.next());
 		}
 	}
-
+	
 	/**
 	 * Called by the <code>Annotator</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
@@ -437,4 +437,5 @@ class AnnotatorModel
 	 * @return See above.
 	 */
 	int getAnnotationMode() { return mode; }
+	
 }

@@ -29,11 +29,11 @@ import java.awt.Graphics;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
 
-import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.colour.HSV;
 
 /** 
  * ColourSlider is a derived class of JSlider which replaces the track with a 
@@ -93,10 +93,26 @@ public class ColourSlider
 	final static int		HSV_CHANNEL_VALUE = 2;
 	
 	/**
+	 * Initializes the slider.
+	 * 
+	 * @param min	The minimum value allowed.
+	 * @param max	The maximum value allowed.
+	 */
+	private void initialize(int min, int max) 
+	{
+		setPaintTrack(true);
+		setPaintTicks(true);
+		setMinimum(min);
+		setMaximum(max);
+		setUI(ui);
+		setFocusable(false);
+	}
+	
+	/**
 	 * Constructor of the ColourSlider. This will set the min and max values of
 	 * the slider, as well as the start and end colours for the gradient fill 
 	 * of the {@link ColourSliderUI#paintTrack(Graphics g)}. This method takes 
-	 * RGB colours and so specifies RGB_COLOURSPACE in the constructor.  
+	 * RGB colours and so specifies {@link #RGB_COLOURSPACE} in the constructor.  
 	 * 
 	 * @param min minimum value allowed.
 	 * @param max maximum value allowed.
@@ -105,20 +121,17 @@ public class ColourSlider
 	 */
 	ColourSlider(int min, int max, Color s, Color e)
 	{
-		ui = new ColourSliderUI(this,s,e);
-		ui.setColourSpace(RGB_COLOURSPACE);
-		this.setPaintTrack(true);
-		this.setPaintTicks(true);
-		this.setMinimum(min);
-		this.setMaximum(max);
-		this.setUI(ui);
+		ui = new ColourSliderUI(this, s, e);
+		//ui.setColourSpace(RGB_COLOURSPACE);
+		initialize(min, max);
 	}
 	
 	/**
 	 * Constructor of the ColourSlider. This sets the min and max values of
 	 * the slider, as well as the start and end colours for the gradient fill 
 	 * of the {@link ColourSliderUI#paintTrack(Graphics g)}. This method 
-	 * takes HSV colours and so specifies HSV_COLOURSPACE in the constructor.  
+	 * takes HSV colours and so specifies {@link #HSV_COLOURSPACE}
+	 * in the constructor.  
 	 * 
 	 * @param min minimum value allowed.
 	 * @param max maximum value allowed.
@@ -128,12 +141,8 @@ public class ColourSlider
 	ColourSlider(int min, int max, HSV s, HSV e)
 	{
 		ui = new ColourSliderUI(this, s, e);
-		ui.setColourSpace(HSV_COLOURSPACE);
-		this.setPaintTrack(true);
-		this.setPaintTicks(true);
-		this.setMinimum(min);
-		this.setMaximum(max);
-		this.setUI(ui);
+		//ui.setColourSpace(HSV_COLOURSPACE);
+		initialize(min, max);
 	}
 	
 	/**

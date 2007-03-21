@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorControl 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditorControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,10 +24,10 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 
+
 //Java imports
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -35,56 +35,46 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataHandler;
-import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorAction;
-import org.openmicroscopy.shoola.agents.util.annotator.actions.CloseAction;
-import org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.AnnotatorEditorAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.DeleteAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.HistoryAction;
+import org.openmicroscopy.shoola.agents.util.annotator.actions.SaveAction;
 
 /** 
-* The {@link Annotator}'s controller. 
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
-class AnnotatorControl
+ * The {@link AnnotatorEditor}'s controller. 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+class AnnotatorEditorControl 
 	implements ChangeListener
 {
+
+	/** Identifies the <code>Delete action</code> in the Edit menu. */
+	static final Integer	DELETE = new Integer(0);
+  
+	/** Identifies the <code>Save action</code> in the Edit menu. */
+	static final Integer	SAVE = new Integer(1);
+  
+	/** Identifies the <code>History action</code> in the Edit menu. */
+	static final Integer	HISTORY = new Integer(2);
 	
-	/** Identifies the <code>Cancel action</code> in the Edit menu. */
-	static final Integer	CANCEL = new Integer(0);
-  
-	/** Identifies the <code>Properties action</code> in the Edit menu. */
-	static final Integer	FINISH = new Integer(1);
-  
-	/** The default loading message.  */
-	private static final String LOADING_MSG = "Loading...";
-  
-	/** The default saving message.  */
-	private static final String SAVING_MSG = "Saving data...";
-  
-	/** 
-	 * Reference to the {@link Annotator} component, which, in this context,
-	 * is regarded as the Model.
-  	 */
-	private Annotator      					model;
-  
-	/** Reference to the View. */
-	private AnnotatorView					view;
-  
 	/** Maps actions ids onto actual <code>Action</code> object. */
-	private Map<Integer, AnnotatorAction>	actionsMap;
-  
+	private Map<Integer, AnnotatorEditorAction>	actionsMap;
+	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
-		actionsMap.put(CANCEL, new CloseAction(model));
-		actionsMap.put(FINISH, new FinishAction(model));
+		actionsMap.put(DELETE, new DeleteAction(model));
+		actionsMap.put(SAVE, new SaveAction(model));
+		actionsMap.put(HISTORY, new HistoryAction(model));
 	}
   
 	/** 
@@ -94,24 +84,32 @@ class AnnotatorControl
 	private void attachListeners()
 	{
 		model.addChangeListener(this);
-		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 	}
+	
+	/** 
+	 * Reference to the {@link Annotator} component, which, in this context,
+	 * is regarded as the Model.
+  	 */
+	private AnnotatorEditor		model;
   
+	/** Reference to the View. */
+	private AnnotatorEditorView	view;
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(AnnotatorView) initialize} method 
 	 * should be called straight 
 	 * after to link this Controller to the other MVC components.
 	 * 
-	 * @param model  Reference to the {@link Annotator} component, which, in 
-	 *               this context, is regarded as the Model.
+	 * @param model  Reference to the {@link AnnotatorEditor} component, which
+	 * 				 in this context, is regarded as the Model.
 	 *               Mustn't be <code>null</code>.
 	 */
-	AnnotatorControl(Annotator model)
+	AnnotatorEditorControl(AnnotatorEditor model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
-		actionsMap = new HashMap<Integer, AnnotatorAction>();
+		actionsMap = new HashMap<Integer, AnnotatorEditorAction>();
 	}
 	
 	/**
@@ -119,7 +117,7 @@ class AnnotatorControl
 	 * 
 	 * @param view   Reference to the View. Mustn't be <code>null</code>.
 	 */
-	void initialize(AnnotatorView view)
+	void initialize(AnnotatorEditorView view)
 	{
 		if (view == null) throw new NullPointerException("No view.");
 		this.view = view;
@@ -133,7 +131,7 @@ class AnnotatorControl
 	 * @param id One of the flags defined by this class.
 	 * @return The specified action.
 	 */
-	AnnotatorAction getAction(Integer id) { return actionsMap.get(id); }
+	AnnotatorEditorAction getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
 	 * Reacts to state changes.
@@ -142,21 +140,13 @@ class AnnotatorControl
 	public void stateChanged(ChangeEvent e)
 	{
 		switch (model.getState()) {
-			case DataHandler.READY:
-				view.setStatus("", true);
-				view.setOnScreen();	
-				break;
-			case DataHandler.LOADING:
-				view.setStatus(LOADING_MSG, false);
-				break;
 			case DataHandler.DISCARDED:
-				view.setVisible(false);
-				view.dispose();
-				break;
+			case DataHandler.LOADING:
 			case DataHandler.SAVING:
-				view.setStatus(SAVING_MSG, false);
+				break;
+			default:
 				break;
 		}
 	}
-	
+
 }

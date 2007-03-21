@@ -44,7 +44,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.hiviewer.clipboard.annotator.AnnotationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.clsf.ClassificationPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.FindPane;
 import org.openmicroscopy.shoola.agents.hiviewer.clipboard.info.InfoPane;
@@ -212,14 +211,6 @@ class ClipBoardUI
 	            	controller.removeRollOver(); }
 	        });
 		}
-    }
-
-    /** Displays the retrieved annotations. */
-    void showAnnotations()
-    { 
-        AnnotationPane pane = (AnnotationPane) 
-                    model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
-        pane.showAnnotations();
     }
     
     /**

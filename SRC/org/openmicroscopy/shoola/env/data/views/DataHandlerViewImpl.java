@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
+import pojos.DataObject;
 
 /** 
  * Implementation of the {@link DataHandlerView} implementation.
@@ -55,6 +56,60 @@ public class DataHandlerViewImpl
 	implements DataHandlerView
 {
 
+	/**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#createAnnotation(DataObject, AnnotationData,
+     *                                      AgentEventListener)
+     */
+    public CallHandle createAnnotation(DataObject annotatedObject, 
+                                       AnnotationData data,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                    AnnotationSaver.CREATE);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#updateAnnotation(DataObject, AnnotationData,
+     *                                      AgentEventListener)
+     */
+    public CallHandle updateAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                                AnnotationSaver.UPDATE);
+        return cmd.exec(observer);
+    }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#deleteAnnotation(DataObject, AnnotationData,
+     *                                       AgentEventListener)
+     */
+    public CallHandle deleteAnnotation(DataObject annotatedObject,
+                                        AnnotationData data,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                                AnnotationSaver.DELETE);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#loadAnnotations(Class, int, 
+     *                                          AgentEventListener)
+     */
+    public CallHandle loadAnnotations(Class nodeType, long nodeID,
+                                       AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID, false);
+        return cmd.exec(observer);
+    }
+    
     /**
      * Implemented as specified by the view interface.
      * @see DataHandlerView#createAnnotation(Set, AnnotationData, 

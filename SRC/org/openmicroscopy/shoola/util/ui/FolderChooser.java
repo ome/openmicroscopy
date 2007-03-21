@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 
 //Third-party libraries
@@ -57,12 +58,18 @@ class FolderChooser
 	private void initialize()
 	{
 		setAcceptAllFileFilterUsed(false);
-		setDialogType(SAVE_DIALOG);
+		//setControlButtonsAreShown(false);
+		setDialogType(CUSTOM_DIALOG);
         setFileSelectionMode(DIRECTORIES_ONLY);
         setApproveButtonText("Download");
         setApproveButtonToolTipText("Dowload the archived files.");
         String s = UIUtilities.getDefaultFolderAsString();
         if (s == null) return;
+        if (s == null || s.equals("") || !(new File(s).exists()))
+            setCurrentDirectory(getFileSystemView().getHomeDirectory());
+        else setCurrentDirectory(new File(s));   
+
+        /*
         String last;
         String separator = File.separator;
         String[] elements = s.split(separator);
@@ -79,11 +86,10 @@ class FolderChooser
         	}
         	File f = new File(path);
         	if (f != null) setCurrentDirectory(f);
-        	File selectedFile = new File(last);
-        	if (selectedFile != null) setSelectedFile(selectedFile);
-
+        	//File selectedFile = new File(last);
+        	//if (selectedFile != null) setSelectedFile(selectedFile);
         }
-        
+        */
 	}
 	
 	/**

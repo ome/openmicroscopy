@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
@@ -40,7 +39,6 @@ import javax.swing.JRootPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 
@@ -64,9 +62,6 @@ public interface Editor
     
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int         DISCARDED = 2;
-    
-    /** Flag to denote the <i>Loading Annotation</i> state. */
-    public static final int         LOADING_ANNOTATION = 3;
     
     /** Flag to denote the <i>Loading Classification</i> state. */
     public static final int         LOADING_CLASSIFICATION = 4;
@@ -140,19 +135,6 @@ public interface Editor
      * @param operation The type of operation. 
      */
     void saveObject(DataObject object, int operation);
-    
-    /**
-     * Updates the specified <code>DataObject</code> and creates, updates or
-     * deletes the specified annotation depending on the specified operation.
-     * 
-     * @param data      The object to update.
-     * @param object    The annotation to handle.
-     * @param operation The type of operation. One of the following constants:
-     *                  {@link #CREATE_ANNOTATION}, {@link #UPDATE_ANNOTATION}
-     *                  or {@link #DELETE_ANNOTATION}.
-     */
-    void saveObjectAndAnnotation(DataObject data, AnnotationData object, 
-                                int operation);
 
     /** Reloads the classifications. */
     void loadClassifications();
@@ -180,13 +162,6 @@ public interface Editor
      * Any ongoing data loading is cancelled.
      */
     public void discard();
-    
-    /**
-     * Sets the annotations retrieved.
-     * 
-     * @param map The annotations.
-     */
-    public void setAnnotations(Map map);
     
     /**
      * Sets the thumbnail associated to the currently edited Image.

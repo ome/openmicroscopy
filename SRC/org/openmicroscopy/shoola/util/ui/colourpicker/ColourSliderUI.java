@@ -56,43 +56,14 @@ import org.openmicroscopy.shoola.util.ui.colour.HSV;
 class ColourSliderUI 
     extends BasicSliderUI
 {
-	/**
-	 * Static variable used to determine which colourspace the user wishes to 
-	 * use for the  slider. 
-	 */
-	private final static int		HSV_COLOURSPACE = 1;
-
-	/**
-	 * Static variable used to determine which colourspace the user wishes to 
-	 * use for the  slider.
-	 */ 
-	private final static int		RGB_COLOURSPACE = 0;	
-	
-	/**
-	 * Static variable used to determine which channel the user wishes to 
-	 * use for the  gradient of the HSV slider. 
-	 */
-	private final static int		HSV_CHANNEL_HUE = 0;
-	
-	/**
-	 * Static variable used to determine which channel the user wishes to 
-	 * use for the  gradient of the HSV slider. 
-	 */
-	private final static int		HSV_CHANNEL_SATURATION = 1;
-	
-	/**
-	 * Static variable used to determine which channel the user wishes to 
-	 * use for the  gradient of the HSV slider. 
-	 */
-	private final static int		HSV_CHANNEL_VALUE = 2;
 	
 	/** Static variable holdng the colour of the track border. */
-	private final static Color		TRACK_BORDER_COLOUR = 
-									new Color(128, 128, 128, 255);
+	private final static Color	TRACK_BORDER_COLOUR = new Color(128, 128, 128);
 	
 	/**
 	 * The Colourspace of the gradient used to fill track either 
-	 * {@link #RGB_COLOURSPACE} or {@link #HSV_COLOURSPACE}.
+	 * {@link ColourSlider#RGB_COLOURSPACE} or 
+	 * {@link ColourSlider#HSV_COLOURSPACE}.
 	 */
 	private int				colourSpace;
 	
@@ -141,7 +112,7 @@ class ColourSliderUI
 	ColourSliderUI(JSlider slider, Color s, Color e)
 	{
 		super(slider);
-		setColourSpace(RGB_COLOURSPACE);
+		setColourSpace(ColourSlider.RGB_COLOURSPACE);
 		RGBStart = s;
 		RGBEnd = e;
 		trackBorderColour = TRACK_BORDER_COLOUR;
@@ -158,26 +129,26 @@ class ColourSliderUI
 	ColourSliderUI(JSlider slider, HSV s, HSV e)
 	{
 		super(slider);
-		setColourSpace(HSV_COLOURSPACE);
+		setColourSpace(ColourSlider.HSV_COLOURSPACE);
 		HSVStart = s;
 		HSVEnd = e;
-		channel = HSV_CHANNEL_VALUE;
+		channel = ColourSlider.HSV_CHANNEL_VALUE;
 		trackBorderColour = TRACK_BORDER_COLOUR;
 	}
 	
 	/**
 	 * Sets the current colourspace of the Slider. 
      * 
-	 * @param CS Colourspace, should be either {@link #RGB_COLOURSPACE} or
-	 * {@link #HSV_COLOURSPACE}.
+	 * @param colourSpace 	The selected color space, should either be
+	 * 						{@link ColourSlider#RGB_COLOURSPACE} or
+	 * 						{@link ColourSlider#HSV_COLOURSPACE}.
 	 */
-	void setColourSpace(int CS) { colourSpace = CS; }
+	void setColourSpace(int colourSpace) { this.colourSpace = colourSpace; }
 
 	/**
-	 * Returns the current colourspace of the Slider. 
+	 * Returns the current colour space of the Slider. 
 	 * 
-	 * @return Colourspace, should be either {@link #RGB_COLOURSPACE} or
-	 * {@link #HSV_COLOURSPACE}.
+	 * @return See above.
 	 */
 	int getColourSpace() { return colourSpace; }
 		
@@ -288,7 +259,7 @@ class ColourSliderUI
 			g.setPaint(trackBorderColour);
 			g.draw(smallTrack);
 		
-			if (colourSpace == RGB_COLOURSPACE)
+			if (colourSpace == ColourSlider.RGB_COLOURSPACE)
 			{	
 				gp = new GradientPaint((int) smallTrackFilled.getX(),
 					 (int) smallTrackFilled.getY(),  RGBStart,
@@ -311,13 +282,13 @@ class ColourSliderUI
 				
 				
 				float steps = (float) (smallTrackFilled.getWidth()/255.0f);
-				for( int x = 0 ; x < 255 ; x++)
+				for (int x = 0 ; x < 255 ; x++)
 				{
-					if (channel == HSV_CHANNEL_HUE)
+					if (channel == ColourSlider.HSV_CHANNEL_HUE)
 						HSVStart.setHue(start+((float) x/255)*range);
-					if (channel == HSV_CHANNEL_SATURATION)
+					if (channel == ColourSlider.HSV_CHANNEL_SATURATION)
 						HSVStart.setSaturation(start+((float) x/255)*range);
-					if (channel == HSV_CHANNEL_VALUE)
+					if (channel == ColourSlider.HSV_CHANNEL_VALUE)
 						HSVStart.setValue(start+((float) x/255)*range);				
 					g.setPaint(HSVStart.toColor());
 					g.fillRect((int) (smallTrackFilled.getX()+x*steps),
@@ -336,7 +307,7 @@ class ColourSliderUI
 			smallTrackFilled.height -=1;
 			smallTrackFilled.width -=1;
 			
-			if (colourSpace == RGB_COLOURSPACE)
+			if (colourSpace == ColourSlider.RGB_COLOURSPACE)
 			{
 				gp = new GradientPaint((int) smallTrackFilled.getX(),
 					 (int) smallTrackFilled.getY(),  RGBEnd,
@@ -360,11 +331,11 @@ class ColourSliderUI
 				float steps = (float) (smallTrackFilled.getHeight()/255.0f);
 				for (int x = 0 ; x < 255 ; x++)
 				{
-					if(channel == HSV_CHANNEL_HUE)
+					if(channel == ColourSlider.HSV_CHANNEL_HUE)
 						HSVStart.setHue(end-((float) x/255)*range);
-					if(channel == HSV_CHANNEL_SATURATION)
+					if(channel == ColourSlider.HSV_CHANNEL_SATURATION)
 						HSVStart.setSaturation(end-((float) x/255)*range);
-					if(channel == HSV_CHANNEL_VALUE)
+					if(channel == ColourSlider.HSV_CHANNEL_VALUE)
 						HSVStart.setValue(end-((float) x/255)*range);
 					g.setPaint(HSVStart.toColor());
 					

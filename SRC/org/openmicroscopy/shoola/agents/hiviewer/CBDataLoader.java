@@ -115,7 +115,7 @@ public abstract class CBDataLoader
         registry.getLogger().error(this, s+exc);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        clipBoard.discardAnnotation();
+        clipBoard.discard();
         //TODO: Change this.  What to do in the case of failure is up to
         //the classifier.  So we need to refactor this b/c the decision is
         //made in the wrong place!

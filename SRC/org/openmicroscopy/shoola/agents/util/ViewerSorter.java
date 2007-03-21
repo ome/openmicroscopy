@@ -156,6 +156,22 @@ public class ViewerSorter
     }
     
     /**
+     * Compares two {@link Timestamp}s.
+     * 
+     * @param t1 The first object to compare.
+     * @param t2 The second object to compare.
+     * @return See below.
+     */
+    private int compareTimestamps(Timestamp t1, Timestamp t2)
+    {
+    	int v = 0;
+        int r = t1.compareTo(t2);
+        if (r < 0) v = -1;
+        else if (r > 0) v = 1;
+        return v;
+    }
+    
+    /**
      * Compares two {@link DataObject}s.
      * 
      * @param o1 The first object to compare.
@@ -165,13 +181,7 @@ public class ViewerSorter
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
         if (!byDate) return compareStrings(getNameFor(o1), getNameFor(o2));
-        Timestamp t1 = getTimeFor(o1);
-        Timestamp t2 = getTimeFor(o2);
-        int v = 0;
-        int r = t1.compareTo(t2);
-        if (r < 0) v = -1;
-        else if (r > 0) v = 1;
-        return v;
+        return compareTimestamps(getTimeFor(o1), getTimeFor(o2));
     }
 
     /**
@@ -299,6 +309,8 @@ public class ViewerSorter
             result = compareImageDisplays((ImageDisplay) o1, (ImageDisplay) o2);
         else if (o1 instanceof TreeViewNode)
             result = compareTreeViewNodes((TreeViewNode) o1, (TreeViewNode) o2);
+        else if (o1 instanceof Timestamp)
+        	result = compareTimestamps((Timestamp) o1, (Timestamp) o2);
         else result = compareObjects(o1, o2);
            
         if (result != 0) return ascending ? result : -result;

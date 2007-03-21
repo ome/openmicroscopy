@@ -31,6 +31,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -45,13 +46,18 @@ import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
 
@@ -521,16 +527,21 @@ class ImViewerUI
     	Browser browser = model.getBrowser();
         browser.setComponentsSize(model.getMaxX(), model.getMaxY());
     	tabs = new JTabbedPane(JTabbedPane.TOP, 
-    							JTabbedPane.SCROLL_TAB_LAYOUT);
+    							JTabbedPane.WRAP_TAB_LAYOUT);
+    	
     	tabs.setAlignmentX(LEFT_ALIGNMENT);
-    	//tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+    	JPanel p = new JPanel();
+    	p.setLayout(new BorderLayout(0, 0));
+    	p.add(controlPane, BorderLayout.WEST);
+        p.add(browser.getUI(), BorderLayout.CENTER);
+    	tabs.addTab(browser.getTitle(), browser.getIcon(), p);
     	//if tabs auto scrolling issue to fix. Why??
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
-        container.add(controlPane, BorderLayout.WEST);
-        container.add(browser.getUI(), BorderLayout.CENTER);
-        //container.add(tabs, BorderLayout.CENTER);
+        //container.add(controlPane, BorderLayout.WEST);
+        //container.add(browser.getUI(), BorderLayout.CENTER);
+        container.add(tabs, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
     }
     
@@ -578,7 +589,6 @@ class ImViewerUI
         toolBar.buildComponent();
         controlPane.buildComponent();
         buildGUI();
-        //pack();
     }
     
     /**
@@ -738,13 +748,6 @@ class ImViewerUI
         return false;
     }
     
-    /** Displays the lens on screen when the image is zoomed. */
-    void scrollLens()
-    {
-    	if (lens == null) return;
-    	model.getBrowser().scrollTo(lens.getLensScaledBounds(), false);
-    }
-    
     /**
      * Sets the lens's visibility. If the lens hasn't previously created, 
      * we first create the lens.
@@ -778,11 +781,9 @@ class ImViewerUI
                 lens.setXYPixelMicron(model.getPixelsSizeX(), 
                                     model.getPixelsSizeY());
                 model.getBrowser().addComponent(lens.getLensUI());
-                //UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
             }
             lens.setImageZoomFactor((float) model.getZoomFactor());
             lens.setPlaneImage(model.getOriginalImage());
-            //lens.setLensPreferredColour();
             scrollLens();
             UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
         }
@@ -860,6 +861,13 @@ class ImViewerUI
 		model.getBrowser().scrollTo(bounds, true);
 	}
 	
+    /** Displays the lens on screen when the image is zoomed. */
+    void scrollLens()
+    {
+    	if (lens == null) return;
+    	model.getBrowser().scrollTo(lens.getLensScaledBounds(), false);
+    }
+    
     /** 
      * Overridden to the set the location of the {@link ImViewer}.
      * @see TopWindow#setOnScreen() 
@@ -885,6 +893,4 @@ class ImViewerUI
         }
     }
 
-
-	
 }

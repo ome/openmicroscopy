@@ -233,11 +233,13 @@ public class IconManager
     /** The <code>Server</code> icon. */
     public static int           SERVER = 59;
     
+    /** The <code>history</code> icon. */
+    public static int           HISTORY = 60;
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 59;
+    private static int          MAX_ID = 60;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -305,6 +307,7 @@ public class IconManager
         relPaths[USER_GROUP] = "nuvola_kgpg_photo16.png";
         relPaths[OWNER_48] = "nuvola_kdmconfig48.png";
         relPaths[SERVER] = "nuvola_server16.png";
+        relPaths[HISTORY] = "eclipse_history_list16.png";
     }
     
     /** The sole instance. */

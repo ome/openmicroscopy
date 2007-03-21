@@ -6,6 +6,26 @@
   client for the visualization and manipulation of both image data and metadata
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
+  
+ Last update: 15/03/2007 (revision 4773)
+ Version: Beta 2
+ 
+ Changes:
+ - DataManager: Allows user to view other people data.
+ - DataManager: Added orphaned containers to the list in hierarchy i.e.
+ datasets (resp. categories) not linked to a project (resp. category group)
+ - DataManager: Allow user to manage his/her profile and add/remove servers when 
+ logged in.
+ - DataManager/HiViewer: Allows user to annotate all images in a container by 
+ selecting the container (Need to implement call server side)
+ - HiViewer: Modified layout. Work area (used to be clipBoard) is vertical.
+ - DataManager/HiViewer: Fixed annotation bug i.e. if image or dataset annotated
+ by another user, couldn't annotate the image (dataset) if we first view 
+ the annotation.
+ - Viewer: Center the image.
+ - Viewer: Improve location of the lens/autoscrolling
+ - Viewer: Renderer window, fixed sliders/histogram layout issue.
+ - Screen login: Improve Server selection component.
 --------------------------------------------------------------------------------
 Last updated: 09/02/2007
 Version: Beta 1.1

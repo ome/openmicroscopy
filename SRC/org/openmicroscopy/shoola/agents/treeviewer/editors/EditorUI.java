@@ -63,8 +63,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.PartialLineBorder;
-
-import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -400,40 +398,6 @@ class EditorUI
         p.setOpaque(true);
         add(p, BorderLayout.SOUTH);
     }
-    
-    /** Removes the annotation. */
-    private void removeAnnotate()
-    {
-        AnnotationData data = model.getAnnotationData();
-        if (doBasic.isAnnotationDeleted()) {
-            if (data != null) 
-                controller.deleteAnnotation(fillDataObject(), data);
-        }
-    }
-    
-    /** Edits and annotates the object. */
-    private void editAndAnnotate()
-    {
-        AnnotationData data = model.getAnnotationData();
-        if (doBasic.isAnnotationDeleted()) {
-            if (data != null) 
-                controller.deleteAnnotation(fillDataObject(), data);
-        } else {  
-            if (data == null) { 
-                DataObject ho = model.getHierarchyObject();
-                if (ho instanceof ImageData)
-                    data = new AnnotationData(AnnotationData.IMAGE_ANNOTATION);
-                else 
-                    data = new AnnotationData(
-                            AnnotationData.DATASET_ANNOTATION); 
-                data.setText(doBasic.getAnnotationText());
-                controller.createAnnotation(fillDataObject(), data);
-            } else {
-                data.setText(doBasic.getAnnotationText());
-                controller.updateAnnotation(fillDataObject(), data);
-            }
-        }  
-    }
 
     /** 
      * Handles the <code>finish</code> action for the 
@@ -441,25 +405,7 @@ class EditorUI
      */
     private void finishEdit()
     {
-        if (edit) {
-            if (doBasic.isAnnotable()) {
-                if (model.isAnnotated()) editAndAnnotate();
-                else {
-                    AnnotationData data = model.getAnnotationData();
-                    if (doBasic.isAnnotationDeleted()) {
-                        if (data != null) 
-                            controller.deleteAnnotation(fillDataObject(), data);
-                    } else {
-                        controller.updateObject(fillDataObject());
-                    }
-                }
-            } else controller.updateObject(fillDataObject());
-        } else {
-            if (doBasic.isAnnotable()) {
-                if (model.isAnnotated()) editAndAnnotate();
-                else removeAnnotate();
-            }
-        }
+        if (edit) controller.updateObject(fillDataObject());
     } 
     
     /**
@@ -622,13 +568,7 @@ class EditorUI
             }
         });
         titlePanel.setIconComponent(label);
-    }
-    
-    /** Shows the retrieved annotations.  */
-    void showAnnotations()
-    {
-        if (doBasic != null) doBasic.showAnnotations();
-    }
+    } 
     
     /**
      * Sets the value of the {@link #edit} flag.
@@ -677,7 +617,6 @@ class EditorUI
             return true;
         }
         if (edit && doBasic.hasDataToSave()) return true;
-        if (doBasic.isAnnotationModified()) return true;
         return false;
     }
     
@@ -712,30 +651,29 @@ class EditorUI
     /** Sets the emission wavelengths values. */
     void setChannelsData()
     {
-        if (tabs != null) {
-            Component c;
-            for (int i = 0; i < tabs.getComponentCount(); i++) {
-                c = tabs.getComponentAt(i);
-                Object ho = model.getHierarchyObject();
-                if (c instanceof DOInfo && ho instanceof ImageData) {
-                    ImageData img = (ImageData) ho;
-                    Map<String, String> details = 
-                    	 EditorUtil.transformPixelsData(img.getDefaultPixels());
-                    List waves = model.getChannelsData();
-                    if (waves == null) return;
-                    String s = "";
-                    Iterator k = waves.iterator();
-                    int j = 0;
-                    while (k.hasNext()) {
-                        s += 
-                           ((ChannelMetadata) k.next()).getEmissionWavelength();
-                        if (j != waves.size()-1) s +=", ";
-                        j++;
-                    }
-                    details.put(EditorUtil.WAVELENGTHS, s);
-                    ((DOInfo) c).setChannelsData(details);
-                } 
-            }
+    	if (tabs == null) return;
+    	Component c;
+        for (int i = 0; i < tabs.getComponentCount(); i++) {
+            c = tabs.getComponentAt(i);
+            Object ho = model.getHierarchyObject();
+            if (c instanceof DOInfo && ho instanceof ImageData) {
+                ImageData img = (ImageData) ho;
+                Map<String, String> details = 
+                	 EditorUtil.transformPixelsData(img.getDefaultPixels());
+                List waves = model.getChannelsData();
+                if (waves == null) return;
+                String s = "";
+                Iterator k = waves.iterator();
+                int j = 0;
+                while (k.hasNext()) {
+                    s += 
+                       ((ChannelMetadata) k.next()).getEmissionWavelength();
+                    if (j != waves.size()-1) s +=", ";
+                    j++;
+                }
+                details.put(EditorUtil.WAVELENGTHS, s);
+                ((DOInfo) c).setChannelsData(details);
+            } 
         }
     }
     
@@ -792,5 +730,7 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
+
+
 
 }
