@@ -262,7 +262,6 @@ class BrowserUI
 		//if (xLoc < 0) xLoc = 0; if added to a tabbed pane.
 		//if (yLoc < 0) yLoc = 0; if added to a tabbed pane.
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		
 	}
 	
 }

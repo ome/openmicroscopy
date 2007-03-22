@@ -148,11 +148,15 @@ class AnnotatorEditorComponent
      */
 	public void setAnnotations(Map annotations)
 	{
-		if (model.getState() != LOADING)
-			throw new IllegalStateException("This method can only be invoked "+
-					"in the LOADING state.");
+		if (model.getState() != LOADING) {
+			firePropertyChange(ANNOTATION_LOADED_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
+			return;
+		}
 		model.setAnnotations(annotations);
 		view.showAnnotations();
+		firePropertyChange(ANNOTATION_LOADED_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
 		fireStateChange();
 	}
 
@@ -259,9 +263,11 @@ class AnnotatorEditorComponent
 				model.cancel();
 		}
 		model.setDataObject(object);
-		if (object == null)
-			view.onSelectedDisplay(false);
-		else model.fireAnnotationsRetrieval(object);
+		view.onSelectedDisplay(false);
+		//if (object == null)
+		//	view.onSelectedDisplay(false);
+		//else
+		if (object != null)	model.fireAnnotationsRetrieval(object);
 	}
 	
 }

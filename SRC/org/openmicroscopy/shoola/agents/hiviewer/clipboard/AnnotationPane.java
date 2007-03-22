@@ -141,7 +141,7 @@ class AnnotationPane
         }
         if (ho instanceof ImageData || ho instanceof DatasetData) {
             annotator.retrieveAnnotations((DataObject) ho);
-        } else annotator.retrieveAnnotations(null);   
+        } else annotator.retrieveAnnotations(null);  
     }
     
 }

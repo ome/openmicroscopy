@@ -28,26 +28,32 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Rectangle;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -62,6 +68,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 
@@ -82,20 +89,29 @@ class AnnotatorEditorView
 	extends JPanel
 {
 	
-	 /** The default annotation text. */
-    private static final String		DEFAULT_TEXT = "No annotation for ";
-    
+	/** Background color of the hightlighted node. */
+	private static final Color		HIGHLIGHT = new Color(204, 255, 204);
+	
+	/** Background color of the even rows. */
+	private static final Color		BACKGROUND = Color.WHITE;
+	
+	/** Background color of the add rows. */
+	private static final Color		BACKGROUND_ONE = new Color(236, 243, 254);
+
     /**
      * A reduced size for the invisible components used to separate widgets
      * vertically.
      */
     private static final Dimension	SMALL_V_SPACER_SIZE = new Dimension(1, 6);
     
+    /** The preferred size of the annotation area. */
+    private static final Dimension	AREA_SIZE = new Dimension(200, 150);
+    
     /** Button to finish the operation. */
     private JButton             	saveButton;
     
     /** Area where to annotate the <code>DataObject</code>. */
-    private JTextArea           	annotationArea; 
+    private MultilineLabel           annotationArea; 
     
     /** Component delete the annotation. */
     private JButton           		deleteButton;
@@ -108,12 +124,12 @@ class AnnotatorEditorView
     
     /** The UI component hosting the display. */
     private JPanel					pane;
-    
-    /** A {@link DocumentListener} for the {@link #annotationArea}. */
-    private DocumentListener    	annotationAreaListener;
-	
+
 	/** The layout, one of the constants defined by {@link AnnotatorFactory}. */
 	private int						layout;
+	
+	/** The id of the selected experimenter. */
+	private long					selectedOwnerID;
 	
 	/** 
 	 * Tree hosting the user who annotates the object and the 
@@ -128,23 +144,70 @@ class AnnotatorEditorView
 	private AnnotatorEditorModel	model;
 	
 	/** Reference to the control. */
-	private AnnotatorEditorControl controller;
+	private AnnotatorEditorControl	controller;
+	
+	/** 
+	 * (Key, Value) pairs where key is the user id and the value 
+	 * the collection of UI component hosting the annotations.
+	 */
+	private Map<Long, List> 		areas;
+	
+	/** Panel hosting the UI components displaying the annotations. */
+	private JPanel					listAnnotations;
+	
+	/** ScrollPane hosting the UI component displaying the annotations. */
+	private JScrollPane				scrollAnnotations;
+	
+	/** The currently selected node if any. */
+	private JComponent				selectedNode;
 	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
     {
     	Object o = treeDisplay.getLastSelectedPathComponent();
 		if (o instanceof OwnerNode) {
-			showSingleAnnotation(((OwnerNode) o).getOwnerID());
+			long ownerID = ((OwnerNode) o).getOwnerID();
+			showSingleAnnotation(ownerID);
+			selectedOwnerID = ownerID;
+			if (ownerID == model.getUserDetails().getId())
+				selectedNode = annotationArea;
 		} else if (o instanceof TimeNode) {
 			TimeNode tm = (TimeNode) o;
-			showDateAnnotation(tm.getOwnerID(), tm.getIndex());
+			long ownerID = tm.getOwnerID();
+			if (ownerID != selectedOwnerID)
+				showSingleAnnotation(ownerID);
+			selectedOwnerID = ownerID;
+			showDateAnnotation(ownerID, tm.getIndex());
 		}
+		validate();
+		repaint();
+    }
+    
+    /**
+     * Sets the default values of the {@link #annotationArea}.
+     * 
+     * @param title The title to set.
+     */
+    private void setAnnotationAreaDefault(String title)
+    {
+    	CompoundBorder border = BorderFactory.createCompoundBorder(
+    			new TitledLineBorder(title), 
+    			BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+    	annotationArea.setBorder(border);
+    	annotationArea.setOriginalBackground(BACKGROUND);
+    	annotationArea.setOpaque(true);
+    	annotationArea.setEditable(true);
+    	annotationArea.setPreferredSize(AREA_SIZE);
     }
     
     /** Initializes the UI components. */
     private void initComponents()
     {
+    	listAnnotations = new JPanel();
+    	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
+    							BoxLayout.Y_AXIS));
+    	scrollAnnotations = new JScrollPane(listAnnotations);
+    	//listAnnotations.
     	treeDisplay = new JTree();
     	DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
         treeDisplay.setModel(new DefaultTreeModel(root));
@@ -156,68 +219,57 @@ class AnnotatorEditorView
         treeDisplay.setCellRenderer(new EditorTreeCellRenderer());
         
         treeDisplay.addTreeSelectionListener(new TreeSelectionListener() {
-		
 			public void valueChanged(TreeSelectionEvent e) {
 				handleNodeSelection();
 			}
-		
 		});
-    	
+        treeDisplay.addTreeExpansionListener(new TreeExpansionListener() {
+            public void treeCollapsed(TreeExpansionEvent e) {
+            	treeDisplay.setSelectionPath(
+            			new TreePath(e.getPath().getLastPathComponent()));
+            }
+            public void treeExpanded(TreeExpansionEvent e) {
+            	treeDisplay.setSelectionPath(
+            			new TreePath(e.getPath().getLastPathComponent()));
+            }
+        });
+            
         saveButton = new JButton(
         			controller.getAction(AnnotatorEditorControl.SAVE));
         annotationArea = new MultilineLabel();
-        annotationArea.setBackground(Color.WHITE);
-        annotationArea.setBorder(new TitledBorder("Annotation"));
         deleteButton = new JButton(
     			controller.getAction(AnnotatorEditorControl.DELETE));
-        
-        annotationAreaListener = new DocumentListener() {
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#insertUpdate(DocumentEvent)
-             */
-            public void insertUpdate(DocumentEvent de)
-            {
-            	defaultText = false;
-            	model.setAnnotated(true);
-            }
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#removeUpdate(DocumentEvent)
-             */
-            public void removeUpdate(DocumentEvent de)
-            {
-            	defaultText = false;
-                model.setAnnotated(true);
-            }
 
-            /** 
-             * Required by I/F but no-op implementation in our case. 
-             * @see DocumentListener#changedUpdate(DocumentEvent)
-             */
-            public void changedUpdate(DocumentEvent de) {}
-            
-        };
         annotationArea.getDocument().addDocumentListener(
-                            annotationAreaListener);
-        annotationArea.addMouseListener(new MouseAdapter() {
-            //Removes default message.
-            public void mouseClicked(MouseEvent e)
-            {
-                if (isAnnotatable() && defaultText) {
-                	annotationArea.getDocument().removeDocumentListener(
-                            annotationAreaListener);
-                    annotationArea.setText("");
-                    setComponentsEnabled(true);
-                    deleteButton.setEnabled(false);
-                    annotationArea.getDocument().addDocumentListener(
-                            annotationAreaListener);
-                }
-            }
-        
-        });
+        		new DocumentListener() {
+                    
+                    /** 
+                     * Indicates that the object is annotated. 
+                     * @see DocumentListener#insertUpdate(DocumentEvent)
+                     */
+                    public void insertUpdate(DocumentEvent de)
+                    {
+                    	//defaultText = false;
+                    	model.setAnnotated(true);
+                    }
+                    
+                    /** 
+                     * Indicates that the object is annotated. 
+                     * @see DocumentListener#removeUpdate(DocumentEvent)
+                     */
+                    public void removeUpdate(DocumentEvent de)
+                    {
+                    	//defaultText = false;
+                        model.setAnnotated(true);
+                    }
+
+                    /** 
+                     * Required by I/F but no-op implementation in our case. 
+                     * @see DocumentListener#changedUpdate(DocumentEvent)
+                     */
+                    public void changedUpdate(DocumentEvent de) {}
+                    
+                });
         setComponentsEnabled(false);
     }
     
@@ -235,39 +287,23 @@ class AnnotatorEditorView
         switch (layout) {
 			case AnnotatorEditor.HORIZONTAL_LAYOUT:
 			default:
-				double[][] tl = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
+				double[][] tl = {{200, 5, TableLayout.FILL}, //columns
 	    				{0, TableLayout.FILL} }; //rows
 	    		p.setLayout(new TableLayout(tl));
 	    		p.add(new JScrollPane(treeDisplay), "0, 0, 0, 1");
 	    		p.add(empty, "1, 0, f, t");
-	    		p.add(new JScrollPane(annotationArea), "2, 0, 2, 1");   
+	    		p.add(scrollAnnotations , "2, 0, 2, 1");  
 				break;
-
 			case AnnotatorEditor.VERTICAL_LAYOUT:
-				double[][] tl2 = {{TableLayout.FILL}, //columns
-	    				{200, 5, 200} }; //rows
+				double[][] tl2 = {{450}, //columns
+	    				{200, 5, 300} }; //rows
 	    		p.setLayout(new TableLayout(tl2));
 	    		p.add(new JScrollPane(treeDisplay), "0, 0");
 	    		p.add(empty, "0, 1");
-	    		p.add(new JScrollPane(annotationArea), "0, 2"); 
+	    		p.add(scrollAnnotations, "0, 2"); 
 		}
         return p;
     }
-    
-    /**
-     * Sets the specified text to the {@link #annotationArea}.
-     * 
-     * @param text  The text to set.
-     */
-    private void addAnnotationText(String text)
-    {
-        annotationArea.getDocument().removeDocumentListener(
-                                        annotationAreaListener);
-        annotationArea.setText(text);
-        annotationArea.getDocument().addDocumentListener(
-                                        annotationAreaListener);
-    }
-    
 
     /** Builds and lays out the GUI. */
     private void buildGUI()
@@ -290,18 +326,17 @@ class AnnotatorEditorView
      */
     private void showSingleAnnotation(long ownerID)
     {
-    	AnnotationData data = model.getLastAnnotationFor(ownerID);
-    	if (data == null) {
-    		ExperimenterData details = model.getUserDetails();
-    		String n = "Name not available"; //TODO: REMOVE ASAP
-            try {
-            	n = details.getFirstName()+" "+details.getLastName();
-            } catch (Exception e) {}
-    		addAnnotationText(DEFAULT_TEXT+n);
-    	} else {
-    		addAnnotationText(data.getText());
-        	setComponentsEnabled(ownerID == model.getUserDetails().getId());
-    	}
+		listAnnotations.removeAll();
+		List l = areas.get(new Long(ownerID));
+		Iterator i = l.iterator();
+		MultilineLabel c;
+		while (i.hasNext()) {
+			c = (MultilineLabel) i.next();
+			if (c != annotationArea)
+				c.setBackground(c.getOriginalBackground());
+			listAnnotations.add(c);
+		}
+    	setComponentsEnabled(ownerID == model.getUserDetails().getId());
     }
     
     /**
@@ -312,15 +347,51 @@ class AnnotatorEditorView
      */
     private void showDateAnnotation(long ownerID, int index)
     {
-    	Map annotations = model.getAnnotations();
-    	List list = (List) annotations.get(ownerID);
-    	int size = list.size();
-        if (size > 0) {
-            AnnotationData data = (AnnotationData) list.get(index);
-            addAnnotationText(data.getText());  
-        }
-        ExperimenterData details = model.getUserDetails();
-        setComponentsEnabled(index == size-1 && (ownerID == details.getId()));
+    	List l = areas.get(new Long(ownerID));
+    	MultilineLabel c;
+    	int j = index; 
+    	long userID = model.getUserDetails().getId();
+    	if (ownerID == userID) j++;
+    	for (int i = 0; i < l.size(); i++) {
+			c = (MultilineLabel) l.get(i);
+			c.setBackground(c.getOriginalBackground());
+			if (j == i && c != annotationArea) 
+				c.setBackground(HIGHLIGHT);
+		}
+    	c = (MultilineLabel) l.get(j);
+    	scrollToNode(c);
+    	setComponentsEnabled(index == -1 && (ownerID == userID));
+    }
+    
+    /** 
+     * Scrolls to the passed node.
+     * 
+     * @param c The component to handle.
+     */
+    private void scrollToNode(JComponent c)
+    {
+    	if (c == null) return;
+    	Rectangle bounds = c.getBounds();
+    	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
+    	selectedNode = c;
+		if (!viewRect.contains(bounds)) {
+			int x = 0;
+			int y = 0;
+			int w = viewRect.width-bounds.width;
+			if (w < 0) w = -w;
+			x = bounds.x-w/2;
+			int h = viewRect.height-bounds.height;
+			if (h < 0) h = -h;
+			y = bounds.y-h/2;
+			JScrollBar hBar = scrollAnnotations.getHorizontalScrollBar();
+			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+			vBar.setValue(y);
+			hBar.setValue(x);
+        } 
+		if (c == annotationArea) {
+			c.setVisible(true);
+			c.requestFocus();
+		}
     }
     
     /**
@@ -333,27 +404,53 @@ class AnnotatorEditorView
     private void buildTreeNode(OwnerNode parent, List annotations, 
     							DefaultTreeModel dtm)
     {
+    	long ownerID = parent.getOwnerID();
+    	Long id = new Long(ownerID);
+    	boolean user = model.getUserDetails().getId() == ownerID;
+    	TimeNode node = new TimeNode(ownerID, -1, null);
+    	if (user) {
+    		dtm.insertNodeInto(node, parent, parent.getChildCount());
+    		setAnnotationAreaDefault(node.toString());
+    	}
+    	if ((annotations == null || annotations.size() == 0) && user) {
+    		List<JTextArea> l = new ArrayList<JTextArea>(1);
+    		l.add(annotationArea);
+    		areas.put(id, l);
+    		return;
+    	}
+
+        List<JComponent> l;
+        int row = 0;
+        if (user) {
+        	l = new ArrayList<JComponent>(annotations.size()+1);
+        	l.add(annotationArea);
+        	row = 1;
+        } else {
+        	l = new ArrayList<JComponent>(annotations.size());
+        }
+        Iterator i = annotations.iterator();
+        int index = 0;
+        MultilineLabel area;
         Timestamp date;
         AnnotationData data;
-        Iterator i = annotations.iterator();
-        List<Timestamp> 
-        	timestamps = new ArrayList<Timestamp>(annotations.size());
         while (i.hasNext()) {
         	data = (AnnotationData) i.next();
         	date = data.getLastModified();
         	if (date == null) date = new Timestamp(new Date().getTime());
-        	timestamps.add(date);
-		}
-        i = model.sortByDate(timestamps).iterator();
-        int n = timestamps.size()-1;
-        int index = 0;
-        TimeNode node;
-        long ownerID = parent.getOwnerID();
-        while (i.hasNext()) {
-        	node = new TimeNode(ownerID, n-index, (Timestamp) i.next());
-        	dtm.insertNodeInto(node, parent, parent.getChildCount());; 
+        	node = new TimeNode(ownerID, index, date);
+        	data = (AnnotationData) annotations.get(index);
+        	dtm.insertNodeInto(node, parent, parent.getChildCount());
+        	area = new MultilineLabel();
+            area.setEditable(false);
+            area.setOpaque(true);
+        	area.setBorder(new TitledLineBorder(node.toString()));
+        	area.setText(data.getText());
+        	if (index%2 == row) area.setOriginalBackground(BACKGROUND);
+            else area.setOriginalBackground(BACKGROUND_ONE);
+        	l.add(area);
         	index++;
-        }
+		}
+        areas.put(id, l);
     }
     
     /**
@@ -365,6 +462,8 @@ class AnnotatorEditorView
 	{
 		this.layout = layout;
 		df = DateFormat.getDateInstance();
+		areas = new HashMap<Long, List>();
+		selectedOwnerID = -1;
 	}
 	
 	/**
@@ -394,11 +493,11 @@ class AnnotatorEditorView
     {
         saveButton.setEnabled(b);
         deleteButton.setEnabled(b);
-        annotationArea.setEditable(b);
-        if (b) {
-            annotationArea.requestFocus();
-            annotationArea.selectAll();
-        }
+        //annotationArea.setEditable(b);
+        //if (b) {
+        //    annotationArea.requestFocus();
+        //    annotationArea.selectAll();
+        //}
     }
 	
     /** Shows the annotations. */
@@ -407,7 +506,9 @@ class AnnotatorEditorView
     	DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
     	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
     	root.removeAllChildren();
-    	
+    	dtm.reload(root);
+    	listAnnotations.removeAll();
+    	areas.clear();
     	deleteButton.setSelected(false);
     	ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
@@ -433,10 +534,8 @@ class AnnotatorEditorView
         if (currentUser == null) { 
         	currentUser = new OwnerNode(userDetails);
         	dtm.insertNodeInto(currentUser, root, root.getChildCount());
-        	addAnnotationText(DEFAULT_TEXT+currentUser.toString());
-        	defaultText = true;
+        	buildTreeNode(currentUser, null, dtm);
         }
-        //treeDisplay.expandPath(new TreePath(root.getPath()));
         treeDisplay.setSelectionPath(new TreePath(currentUser.getPath()));
         setComponentsEnabled(true);
     }
@@ -450,10 +549,12 @@ class AnnotatorEditorView
     void onSelectedDisplay(boolean b)
     {
         setComponentsEnabled(b);
-        addAnnotationText("");
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
     	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
     	root.removeAllChildren();
+    	dtm.reload(root);
+    	listAnnotations.removeAll();
+    	areas.clear();
         repaint();
     }
     
@@ -491,7 +592,6 @@ class AnnotatorEditorView
     	return s.trim(); 
     }
 
-
 	/**
 	 * Returns <code>true</code> if the current user has annotation,
 	 * <code>false</code> otherwise.
@@ -518,6 +618,46 @@ class AnnotatorEditorView
 		return (isAnnotatable() && !defaultText && b);
 	}
     
+	/**
+	 * Overridden to set the location of the scroll bar.
+	 * @see JComponent#setSize(Dimension)
+	 */
+	public void setSize(Dimension d)
+	{
+		super.setSize(d);
+		scrollToNode(selectedNode);
+	}
+	
+	/**
+	 * Overridden to set the location of the scroll bar.
+	 * @see JComponent#setSize(int, int)
+	 */
+	public void setSize(int width, int height)
+	{
+		super.setSize(width, height);
+		scrollToNode(selectedNode);
+	}
+	
+	/**
+	 * Overridden to set the location of the scroll bar.
+	 * @see JComponent#setBounds(Rectangle)
+	 */
+	public void setBounds(Rectangle r)
+	{
+		super.setBounds(r);
+		scrollToNode(selectedNode);
+	}
+	
+	/**
+	 * Overridden to set the location of the scroll bar.
+	 * @see JComponent#setBounds(int, int, int, int)
+	 */
+	public void setBounds(int x, int y, int width, int height)
+	{
+		super.setBounds(x, y, width, height);
+		scrollToNode(selectedNode);
+	}
+	
 	/** Inner class hosting the experimenter details. */
 	class OwnerNode 
 		extends DefaultMutableTreeNode
@@ -608,6 +748,7 @@ class AnnotatorEditorView
 		 */
 		public String toString()
 		{ 
+			if (getUserObject() == null) return "New Annotation";
 			return df.format((Timestamp) getUserObject()) ;
 		}
 	}

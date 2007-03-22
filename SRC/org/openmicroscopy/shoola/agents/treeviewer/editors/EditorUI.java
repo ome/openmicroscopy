@@ -711,6 +711,21 @@ class EditorUI
 	 */
 	JFrame getParentUI() { return model.getParentModel().getUI(); }
 	
+	/**
+	 * Forwards all to the model.
+	 * 
+	 * @param b    	Pass <code>true</code> to allow cancellation, 
+     *              <code>false</code> otherwise.
+     * @param text	The text to display.
+     * @param hide  Pass <code>true</code> to hide the progress bar.
+     *              <code>false</code> otherwise.
+	 */
+	void setStatus(boolean b, String text, boolean hide) 
+	{
+		model.getParentModel().setStatus(b, text, hide);
+	}
+
+	 
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)
@@ -731,6 +746,7 @@ class EditorUI
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
 
+   
 
 
 }

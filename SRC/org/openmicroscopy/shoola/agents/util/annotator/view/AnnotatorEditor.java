@@ -68,8 +68,15 @@ public interface AnnotatorEditor
 	public static final String		SAVE_PROPERTY = "Save";
 	
 	/** Bounds property indicating that an image has been annotated. */
-	public static final String		ANNOTATED_PROPERTY = "Annotated";
+	public static final String		ANNOTATED_PROPERTY = "annotated";
 
+	/** 
+	 * Bounds property indicating that the annotations linked 
+	 * to a given data object are loaded.
+	 */
+	public static final String		ANNOTATION_LOADED_PROPERTY = 
+										"annotationLoaded";
+	
 	/** Indicates to layout the component horizontally. */
 	public static final int	HORIZONTAL_LAYOUT = 0;
 	

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
+
 import javax.swing.JTextArea;
 import javax.swing.LookAndFeel;
 
@@ -49,6 +51,9 @@ import javax.swing.LookAndFeel;
 public class MultilineLabel
 	extends JTextArea
 {
+	
+	/** Color of the background before any modification. */
+	private Color originalBackground;
 
     /** Creates a new instance. */
     public MultilineLabel() { this(""); }
@@ -62,8 +67,29 @@ public class MultilineLabel
 	{
 		super(text == null ? "" : text);
 	}
+
+	/** 
+	 * Returns the color of the background before highlighting.
+	 * 
+	 * @return See above.
+	 */
+	public Color getOriginalBackground() { return originalBackground; }
 	
-	/** Plugs into <i>Swing</i>. */
+	/**
+	 * Sets the original background.
+	 * 
+	 * @param c The color to set.
+	 */
+	public void setOriginalBackground(Color c)
+	{
+		if (originalBackground == null) originalBackground = c;
+		setBackground(c);
+	}
+	
+	/** 
+	 * Overridden to plug into <i>Swing</i>.
+	 * @see javax.swing.JComponent#updateUI()
+	 */
 	public void updateUI()
 	{
 		super.updateUI();

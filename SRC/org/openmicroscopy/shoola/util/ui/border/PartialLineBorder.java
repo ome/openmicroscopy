@@ -106,12 +106,12 @@ public class PartialLineBorder
     	g.setColor(c.getBackground());
     	switch (removeIndex) {
 			case TOP_REMOVE:
-				for(i = 0; i < thickness; i++) 
+				for (i = 0; i < thickness; i++) 
 				    g.drawLine(x+i, y+i, x+width-i-1, y+i);
 				break;
 			case BOTTOM_REMOVE:
 			default:
-				 for(i = 0; i < thickness; i++) 
+				 for (i = 0; i < thickness; i++) 
 					 g.drawLine(x+width-i-1, y+height-i-1, x+i+1, y+height-i-1);
 		}
     }

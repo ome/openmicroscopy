@@ -175,13 +175,19 @@ public class EditorControl
         }
     }
 
+    /**
+     * Reacts to property changes fired by the {@link AnnotatorEditor}.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
 	public void propertyChange(PropertyChangeEvent evt) 
 	{
 		String name = evt.getPropertyName();
 		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
 			DataObject r = (DataObject) evt.getNewValue();
 			model.setSaveResult(r, TreeViewer.UPDATE_OBJECT); 
-		} 
+		} else if (AnnotatorEditor.ANNOTATION_LOADED_PROPERTY.equals(name)) {
+			view.setStatus(false, null, true);
+		}
 	}
 
 }

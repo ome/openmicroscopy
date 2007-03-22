@@ -98,16 +98,16 @@ class AnnotatorEditorModel
 	protected AnnotatorEditor		component;
 	
     /** 
-     * Returns the last annotation.
+     * Sorts the passed collection of annotations by date starting with the
+     * most recent.
      * 
      * @param annotations   Collection of {@link AnnotationData} linked to 
      *                      the currently edited <code>Dataset</code> or
      *                      <code>Image</code>.
-     * @return See above.
      */
-    private AnnotationData getLastAnnotation(List annotations)
+    private void sortAnnotationByDate(List annotations)
     {
-        if (annotations == null || annotations.size() == 0) return null;
+        if (annotations == null || annotations.size() == 0) return;
         Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
             {
@@ -118,11 +118,10 @@ class AnnotatorEditorModel
                 int v = 0;
                 if (n1 < n2) v = -1;
                 else if (n1 > n2) v = 1;
-                return v;
+                return -v;
             }
         };
         Collections.sort(annotations, c);
-        return (AnnotationData) annotations.get(annotations.size()-1);
     }
     
     /**
@@ -226,39 +225,23 @@ class AnnotatorEditorModel
             }
         }
         i = sortedAnnotations.keySet().iterator();
-        List annotations, results;
-        List<AnnotationData> list;
-        List<Timestamp> timestamps;
-        HashMap<Timestamp, AnnotationData> m;
-        Iterator k, l;
-        AnnotationData data;
+        List annotations;
         while (i.hasNext()) {
             ownerID = (Long) i.next();
             annotations = sortedAnnotations.get(ownerID);
-            k = annotations.iterator();
-            m = new HashMap<Timestamp, AnnotationData>(annotations.size());
-            timestamps = new ArrayList<Timestamp>(annotations.size());
-            while (k.hasNext()) {
-                data = (AnnotationData) k.next();
-                m.put(data.getLastModified(), data);
-                timestamps.add(data.getLastModified());
-            }
-            results = sorter.sort(timestamps);
-            l = results.iterator();
-            list = new ArrayList<AnnotationData>(results.size());
-            while (l.hasNext())
-                list.add(m.get(l.next()));
-            sortedAnnotations.put(ownerID, list);
+            sortAnnotationByDate(annotations);
         }
         this.annotations = sortedAnnotations;
         state = DataHandler.READY;
     }
 
+    /*
     List sortByDate(List timestamps)
     {
         sorter.setAscending(false);
     	return sorter.sort(timestamps);
     }
+    */
     
     /**
 	 * Loads asynchronously the annotations for the annotated 
@@ -324,7 +307,8 @@ class AnnotatorEditorModel
     }
 	
 	 /**
-     * Returns the annotation of the currently edited <code>DataObject</code>.
+     * Returns the most recent annotation of the currently edited 
+     * <code>DataObject</code>.
      *  
      * @return See above.
      */
@@ -333,14 +317,25 @@ class AnnotatorEditorModel
         long id = getUserDetails().getId();
         if (dataObject == null) return null;
         else if ((dataObject instanceof ImageData) || 
-                (dataObject instanceof DatasetData))
-            return getLastAnnotation(getAnnotations(id));
+                (dataObject instanceof DatasetData)) {
+        	List l = getAnnotations(id);
+        	if (l == null || l.size() == 0) return null;
+        	return (AnnotationData) l.get(0);
+        }
         return null;
     }
     
+    /**
+     * Returns the most recent annotation done by the passed user.
+     * 
+     * @param ownerID The id of the experimenter.
+     * @return See above.
+     */
     AnnotationData getLastAnnotationFor(long ownerID)
     {
-    	return getLastAnnotation(getAnnotations(ownerID));
+    	List l = getAnnotations(ownerID);
+    	if (l == null || l.size() == 0) return null;
+    	return (AnnotationData) l.get(0);
     }
     
     /**
