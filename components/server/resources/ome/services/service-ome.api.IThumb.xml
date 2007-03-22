@@ -27,7 +27,7 @@
     <property name="renderingEngine"
     	ref="internal:omeis.providers.re.RenderingEngine"/>
     <property name="scaleService" ref="internal:ome.api.IScale"/>
-    <property name="repositoryInfoService" ref="internal:ome.api.IRepositoryInfo"/>
+    <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
   </bean>
   
   <bean id="managed:ome.api.ThumbnailStore" parent="managedStatefulService">
