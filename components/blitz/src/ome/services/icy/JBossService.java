@@ -36,7 +36,7 @@ import ome.system.ServiceFactory;
 @RevisionDate("$Date: 2006-12-15 12:28:54 +0100 (Fri, 15 Dec 2006) $")
 @RevisionNumber("$Revision: 1175 $")
 //@Service(objectName = "omero:service=JBossService")
-@Management(StartupAndShutdown.class)
+//@Management(StartupAndShutdown.class)
 public class JBossService implements StartupAndShutdown {
 
     private final static Log log = LogFactory.getLog(JBossService.class);
