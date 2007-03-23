@@ -19,7 +19,7 @@
    deployment descriptors and thirdparty libraries.
    =======================================================================
    -->
-   <target name="package" depends="prepare"
+   <target name="package" depends="generate"
            description="Packages the EAR by assembling all modules and deployment descriptors">
       
       <!-- Jars; provided jars removed. -->
@@ -35,7 +35,7 @@
       <useServices dir="${target.dir}/libs"/>
       
       <!-- DataSource with replacement. -->
-      <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" />
+      <copy file="${etc.dir}/omero-ds.xml" todir="${target.dir}" overwrite="true"/>
       <replace file="${target.dir}/omero-ds.xml">
          <replacefilter token="@@@JDBC.URL@@@" value="${hibernate.connection.url}"/>
          <replacefilter token="@@@JDBC.DRIVER@@@" value="${hibernate.connection.driver_class}"/>
