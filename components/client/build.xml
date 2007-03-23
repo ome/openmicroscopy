@@ -36,7 +36,7 @@
 				defaultvalue=""/>
 			<input message="Please enter name of the group owner: (optional)" addproperty="newgroup.owner"
 				defaultvalue="root"/>
-			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
+			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes" failonerror="true">
 				<arg value="task=admin.AddGroupTask"/>
 				<!-- login properties -->
 				<arg value="omero.user=root"/>
@@ -84,7 +84,7 @@ Not functional: See https://trac.openmicroscopy.org.uk/omero/ticket/464
 				defaultvalue=""/>
 			<input message="Please enter user's institution: (optional)" addproperty="newuser.institution"
 				defaultvalue=""/>
-			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes">
+			<java classpathref="omero.classpath" classname="ome.util.tasks.Run" fork="yes" failonerror="true">
 				<arg value="task=admin.AddUserTask"/>
 				<!-- login properties -->
 				<arg value="omero.user=root"/>
