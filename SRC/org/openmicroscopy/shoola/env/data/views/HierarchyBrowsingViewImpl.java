@@ -31,8 +31,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
@@ -42,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.AnnotationData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -155,60 +152,6 @@ class HierarchyBrowsingViewImpl
                                 AgentEventListener observer)
     {
         BatchCallTree cmd = new ClassificationSaver(images, categories, false);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadAnnotations(Class, long, 
-     *                                          AgentEventListener)
-     */
-    public CallHandle loadAnnotations(Class nodeType, long nodeID,
-                                       AgentEventListener observer)
-    {
-        BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID, false);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#createAnnotation(DataObject, AnnotationData,
-     *                                              AgentEventListener)
-     */
-    public CallHandle createAnnotation(DataObject annotatedObject,
-                               AnnotationData data, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
-                                                AnnotationSaver.CREATE);
-        return cmd.exec(observer);
-    }
-    
-    
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#updateAnnotation(DataObject, AnnotationData,
-     *                                              AgentEventListener)
-     */
-    public CallHandle updateAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                        AgentEventListener observer)
-    {
-        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data,
-                                                AnnotationSaver.UPDATE);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#deleteAnnotation(DataObject, AnnotationData,
-     *                                              AgentEventListener)
-     */
-    public CallHandle deleteAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                    AgentEventListener observer)
-    {
-        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data,
-                                                AnnotationSaver.DELETE);
         return cmd.exec(observer);
     }
 

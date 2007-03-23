@@ -217,7 +217,7 @@ class ImViewerModel
     void initialize(ImViewer component)
     { 
         this.component = component;
-        browser = BrowserFactory.createBrowser(component);
+        browser = BrowserFactory.createBrowser(component, imageID);
     }
     
     /**
@@ -673,19 +673,26 @@ class ImViewerModel
     BufferedImage getOriginalImage() { return browser.getRenderedImage(); }
     
     /**
-     * The size in microns of a pixel along the X-axis.
+     * Returns the size in microns of a pixel along the X-axis.
      * 
      * @return See above.
      */
     float getPixelsSizeX() { return rndControl.getPixelsSizeX(); }
 
     /**
-     * The size in microns of a pixel along the Y-axis.
+     * Returns the size in microns of a pixel along the Y-axis.
      * 
      * @return See above.
      */
     float getPixelsSizeY() { return rndControl.getPixelsSizeY(); }
 
+    /**
+     * Returns the size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeZ() { return rndControl.getPixelsSizeZ(); }
+    
     /**
      * Returns <code>true</code> if the unit bar is painted on top of 
      * the displayed image, <code>false</code> otherwise.

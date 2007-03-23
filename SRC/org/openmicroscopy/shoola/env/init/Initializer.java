@@ -73,7 +73,7 @@ public class Initializer
      * with tasks that provide service stubs to remove problematic 
      * dependencies on external resources.
      */
-    protected static final List     initList = new ArrayList();
+    protected static final List<Class>     initList = new ArrayList<Class>();
     static {
         //This must be the first task to run b/c it will bring up
         //the splash screen.
@@ -139,19 +139,19 @@ public class Initializer
     
     
 	/** Queue to order the tasks to be executed. */
-	private List				processingQueue;
+	private List<InitializationTask>	processingQueue;
 	
 	/** The task that is currently processed. */
-	private InitializationTask	currentTask;
+	private InitializationTask			currentTask;
 	
 	/** The tasks that have currently been executed. */
-	private Stack				doneTasks;
+	private Stack<InitializationTask>	doneTasks;
 	
 	/** The notification set for initialization progress. */
-	private Set					initListeners;
+	private Set<InitializationListener>	initListeners;
 	
 	/** A reference to the singleton {@link Container}. */
-	private Container			container;
+	private Container					container;
 	 
     /**
      * Calls the <code>onStart</code> method of each subscriber in the
@@ -215,9 +215,9 @@ public class Initializer
 	public Initializer(Container c)
 	{
 		if (c == null) throw new NullPointerException();
-		processingQueue = new ArrayList();
-		doneTasks = new Stack(); 
-		initListeners = new HashSet();
+		processingQueue = new ArrayList<InitializationTask>();
+		doneTasks = new Stack<InitializationTask>(); 
+		initListeners = new HashSet<InitializationListener>();
 		container = c;
 	}
 	
@@ -303,6 +303,5 @@ public class Initializer
 		if (subscriber == null) throw new NullPointerException();
 		return initListeners.add(subscriber);
 	}
-
 	
 }

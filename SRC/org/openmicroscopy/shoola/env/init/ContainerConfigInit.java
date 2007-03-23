@@ -61,10 +61,7 @@ public final class ContainerConfigInit
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName() 
-	{
-		return "Loading Container configuration";
-	}
+	String getName() { return "Loading Container configuration"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.

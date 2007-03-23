@@ -365,11 +365,25 @@ public interface ImViewer
     public int getDefaultT();
 
     /**
-     * The size in microns of a pixel along the X-axis.
+     * Returns the size in microns of a pixel along the X-axis.
      * 
      * @return See above.
      */
     public float getPixelsSizeX();
+    
+    /**
+     * Returns the size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    public float getPixelsSizeY();
+    
+    /**
+     * Returns the size in microns of a pixel along the X-axis.
+     * 
+     * @return See above.
+     */
+    public float getPixelsSizeZ();
 
     /**
      * Returns the title of the viewer.
@@ -499,5 +513,19 @@ public interface ImViewer
 
 	/** Downloads the archived files. */
 	public void download();
+
+	/**
+     * Returns the number of pixels along the X-axis.
+     * 
+     * @return See above.
+     */
+	public int getMaxX();
+	
+	/**
+     * Returns the number of pixels along the X-axis.
+     * 
+     * @return See above.
+     */
+	public int getMaxY();
     
 }

@@ -55,7 +55,6 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 

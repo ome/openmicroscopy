@@ -67,6 +67,7 @@ public abstract class Template
 	extends BaseClass	
 	implements Interface
 {
+
 	/** One-line description may have this style. */
 	public static final int A_CONSTANT = 1;
 	
@@ -81,9 +82,9 @@ public abstract class Template
 	 * Put method description here.
 	 * Method signature is described following the order below:
 	 * 
-	 * @param param1	A tab before description
-	 * @param param2	A tab before description
-	 * @return Object	A tab before description
+	 * @param param1	A tab before description.
+	 * @param param2	A tab before description.
+	 * @return Object	A tab before description.
 	 * @throws MyException	A tab before description
 	 */
 	public Object aMethod(String param1, int param2)	//a space after commas

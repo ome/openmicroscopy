@@ -62,7 +62,7 @@ class EventBusImpl
 	private static final int	DISPATCHING = 1;
 	
 	/** Sequence of events to be dispatched. */
-    private LinkedList		eventQueue;
+    private LinkedList<AgentEvent>	eventQueue;
     
     /**
      * Keeps track of what events have to be dispatched to which subscribers. 
@@ -70,18 +70,18 @@ class EventBusImpl
      * value is a linked lists containing all the subscribers for that event
      * type.
      */
-    private Map             deMultiplexTable;
+    private Map<Class, LinkedList>	deMultiplexTable;
     
     /** Marks the current state. */
-    private int             state;
+    private int             		state;
     
     /** Dispatches the next event. */
     private void dispatch()
     {
         //Grab the oldest event on the queue.
-        AgentEvent e = (AgentEvent) eventQueue.removeLast();
+        AgentEvent e = eventQueue.removeLast();
         Class eventType = e.getClass();
-        LinkedList evNotifList = (LinkedList) deMultiplexTable.get(eventType);
+        LinkedList evNotifList = deMultiplexTable.get(eventType);
         if (evNotifList != null) {
             Iterator i = evNotifList.iterator();
             AgentEventListener listener;
@@ -117,8 +117,8 @@ class EventBusImpl
 	/** Creates a new instance. */
     EventBusImpl()
     {
-        eventQueue = new LinkedList();
-        deMultiplexTable = new HashMap();
+        eventQueue = new LinkedList<AgentEvent>();
+        deMultiplexTable = new HashMap<Class, LinkedList>();
         state = IDLE;
     }    
     
@@ -145,13 +145,13 @@ class EventBusImpl
     	if (eventType == null)
 			throw new NullPointerException("No event type.");
     	if (verifyInheritance(eventType)) { 
-        	LinkedList evNotifList = 
-        						(LinkedList) deMultiplexTable.get(eventType);
+        	LinkedList evNotifList = deMultiplexTable.get(eventType);
             if (evNotifList == null) {	
-            	evNotifList = new LinkedList();
+            	evNotifList = new LinkedList<AgentEventListener>();
 				deMultiplexTable.put(eventType, evNotifList);
             } 
-            if (!evNotifList.contains(subscriber))	evNotifList.add(subscriber);
+            if (!evNotifList.contains(subscriber))	
+            	evNotifList.add(subscriber);
         }     
     } 
     
@@ -165,7 +165,7 @@ class EventBusImpl
 			throw new NullPointerException("No subscriber.");
 		if (eventType == null)
 			throw new NullPointerException("No event type.");
-		LinkedList evNotifList = (LinkedList) deMultiplexTable.get(eventType);
+		LinkedList evNotifList = deMultiplexTable.get(eventType);
 		if (evNotifList != null) {
 			evNotifList.remove(subscriber);
 			if (evNotifList.isEmpty())	deMultiplexTable.remove(eventType);

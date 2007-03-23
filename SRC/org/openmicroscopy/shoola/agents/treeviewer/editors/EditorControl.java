@@ -161,11 +161,11 @@ public class EditorControl
                 view.setEditorSelectedPane(index);
             } else {
             	view.setEditorSelectedPane(index);
-                 if (index == EditorUI.PROPERTIES_INDEX) {
+                 if (index == Editor.PROPERTIES_INDEX) {
                  	int subIndex = model.getSelectedSubPane();
-                 	if (subIndex == EditorUI.ANNOTATION_SUB_INDEX) 
+                 	if (subIndex == Editor.ANNOTATION_INDEX) 
                  		retrieveAnnotations();
-                 	else if (subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
+                 	else if (subIndex == Editor.CLASSIFICATION_INDEX)
                  		loadClassifications();
                  }
             }

@@ -96,23 +96,8 @@ class EditorUI
     static final Dimension          SMALL_V_SPACER_SIZE = 
                                                 new Dimension(1, 6);
     
-    /** The UI index of the <code>Properties</code> tabbed pane. */
-    static final int				PROPERTIES_INDEX = 0;
-    
-    /** The UI index of the <code>Permissions</code> tabbed pane. */
-    static final int				PERMISSIONS_INDEX = 1;
-    
-    /** The UI index of the <code>Info</code> tabbed pane. */
-    static final int				INFO_INDEX = 2;
-    
     /** The maximum number of UI indexes for the tabbed panes. */
     static final int				MAX_INDEX = 3;
-    
-    /** The UI index of the <code>Annotation</code> tabbed pane. */
-    static final int				ANNOTATION_SUB_INDEX = 0;
-    
-    /** The UI index of the <code>Classification</code> tabbed pane. */
-    static final int				CLASSIFICATION_SUB_INDEX = 1;
     
     /** 
      * The size of the invisible components used to separate buttons
@@ -745,8 +730,5 @@ class EditorUI
      * @see JPanel#setSize(Dimension)
      */
     public void setSize(Dimension d) { setSize(d.width, d.height); }
-
-   
-
 
 }

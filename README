@@ -14,7 +14,7 @@
 
 
   OMERO.insight Project
-  ------------------
+  ---------------------
   
   The OMERO.insight Project is a sub-project of the Open Microscopy Environment
   Project (OME, http://www.openmicroscopy.org/) that focuses on delivering a
@@ -45,10 +45,10 @@
           default application distribution file.  Its sub-dirs contain further
           resources to build platform-specific distributions.
     + legal: Terms and conditions under which the various artifacts in this
-    			repository are released.  A README file specifies which license
-    			applies to which artifact.
+    		repository are released.  A README file specifies which license
+    		applies to which artifact.
     + LIB: All library files required by the application.  Its test sub-dir
-          contains additional libraries required by the test code.
+           contains additional libraries required by the test code.
     + SRC: Contains the application source files.
     + TEST: The test code.
     + CodeTemplate: This file describes the coding style that all source files
@@ -62,21 +62,21 @@
   
   The compilation, testing, launch, and delivery of the application are
   automated by means of an Ant (http://ant.apache.org/) build file, located
-  under the build directory.  In order to perform a build, all you need is
-  a JDK -- version 1.5 or later.  Move to the build directory and, from the 
+  under the build directory. In order to perform a build, all you need is
+  a JDK -- version 1.5 or later. Move to the build directory and, from the 
   command line, enter:
   
       java build
   
   This will display the available targets to compile, run, test, and create a
-  distribution bundle.  Use the target you wish, for example:
+  distribution bundle. Use the target you wish, for example:
   
      java build all
   
   Because all the tools needed to build the software are already included in
   the build directory, you don't need to have Ant on your machine.
   If you wish to use Ant instead, you can still do it by using the build.xml
-  file under the build directory.  However, there are some dependencies to
+  file under the build directory. However, there are some dependencies to
   satisfy before; these are clearly documented in the build.xml file itself.  
 
   Licensing
@@ -84,7 +84,7 @@
 
   This software is licensed under the terms of the GNU General Public 
   License (GPL), a copy of which may be found in the gpl.txt file under the
-  'legal' directory.  The README file in that directory states which other
+  'legal' directory. The README file in that directory states which other
   licenses apply to third-party artifacts used by our software.
   
 

@@ -126,19 +126,14 @@ public final class AgentsInit
 		return agentReg;
 	}
 	
-	/**
-	 * Constructor required by superclass.
-	 */
+	/** Constructor required by superclass. */
 	public AgentsInit() {}
 
 	/**
 	 * Returns the name of this task.
 	 * @see InitializationTask#getName()
 	 */
-	String getName()
-	{
-		return "Loading Agents";
-	}
+	String getName() { return "Loading Agents"; }
 
 	/** 
 	 * Does nothing, as this task requires no set up.
@@ -165,6 +160,5 @@ public final class AgentsInit
 	 * @see InitializationTask#rollback()
 	 */
 	void rollback() {}
-
 
 }

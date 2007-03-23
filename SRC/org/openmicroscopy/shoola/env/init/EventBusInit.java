@@ -76,9 +76,8 @@ public final class EventBusInit
 	void execute() 
 		throws StartupException
 	{
-		EventBus eb = EventBusFactory.makeNew();
 		Registry reg = container.getRegistry();
-		RegistryFactory.linkEventBus(eb, reg);
+		RegistryFactory.linkEventBus(EventBusFactory.makeNew(), reg);
 	}
 	
 	/** 

@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.env.data.login;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.OMEROInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
@@ -62,13 +61,6 @@ public class LoginConfig
      * invalid link to <i>OMERO</i>. 
      */
     public static final int     DEFAULT_RETRY_INTERVAL = 500;
-    
-    /** 
-     * The address to use for connecting to <i>OMERO</i>.
-     * This field is read from the Container's configuration file.
-     * It may not be <code>null</code>.
-     */
-    private String          omeroAddress;
     
     /** 
      * The current user's credentials for logging onto <i>OMERO</i>.
@@ -104,8 +96,6 @@ public class LoginConfig
      */
     private void readConfig(Registry reg)
     {
-        OMEROInfo info = (OMEROInfo) reg.lookup(LookupNames.OMERODS);
-        if (info != null) omeroAddress = info.getHostName();
         Integer x = (Integer) reg.lookup(LookupNames.LOGIN_MAX_RETRY);
         maxRetry = (x == null ? -1 : x.intValue());
         x = (Integer) reg.lookup(LookupNames.LOGIN_RETRY_INTV);
@@ -131,22 +121,9 @@ public class LoginConfig
     {
         if (reg == null) throw new NullPointerException("No registry.");
         readConfig(reg);
-        if (omeroAddress == null)
-            throw new IllegalArgumentException(
-                    "No OMERO address was found in the configuration.");
-        //TODO: Get rid of this check when we have an XML schema for config.
-        
         if (maxRetry <= 0) maxRetry = DEFAULT_MAX_RETRY;
         if (retryInterval <= 0) retryInterval = DEFAULT_RETRY_INTERVAL;
     }
-    
-    /**
-     * Returns the address to use for connecting to <i>OMERO</i>.
-     * This field is never <code>null</code>.
-     * 
-     * @return See above.
-     */
-    public String getOmedsAddress() { return omeroAddress; }
     
     /**
      * Returns the current user's credentials for logging onto <i>OMERO</i>.

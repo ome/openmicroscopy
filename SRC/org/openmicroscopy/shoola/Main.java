@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.Container;
  */
 public class Main 
 {
+	
 	/**
 	 * Main method.
 	 * 
@@ -61,7 +62,7 @@ public class Main
 	public static void main(String[] args) 
 	{
 		String homeDir = "";
-		if (0 < args.length)	homeDir = args[0];
+		if (0 < args.length) homeDir = args[0];
 		Container.startup(homeDir);
 	}
 	

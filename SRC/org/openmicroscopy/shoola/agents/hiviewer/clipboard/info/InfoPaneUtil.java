@@ -94,7 +94,8 @@ class InfoPaneUtil
      */
     static Map transformPixelsData(PixelsData data)
     {
-        LinkedHashMap details = new LinkedHashMap(9);
+        LinkedHashMap<String, String> 
+        	details = new LinkedHashMap<String, String>(9);
         if (data == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");

@@ -155,7 +155,6 @@ class UserNotifierManager
 		if (name.equals(MessengerDialog.SEND_PROPERTY)) {
 			if (container == null) return;
 			MessengerDialog source = (MessengerDialog) pce.getSource();
-			
 			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
 		}
 	}

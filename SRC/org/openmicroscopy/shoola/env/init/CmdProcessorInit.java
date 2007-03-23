@@ -53,19 +53,14 @@ public final class CmdProcessorInit
     extends InitializationTask
 {
     
-    /**
-     * Constructor required by superclass.
-     */
+    /** Constructor required by superclass. */
     CmdProcessorInit() {}
 
     /**
      * Returns the name of this task.
      * @see InitializationTask#getName()
      */
-    String getName()
-    {
-        return "Initializing Command Processor";
-    }
+    String getName() { return "Initializing Command Processor"; }
 
     /** 
      * Does nothing, as this task requires no set up.

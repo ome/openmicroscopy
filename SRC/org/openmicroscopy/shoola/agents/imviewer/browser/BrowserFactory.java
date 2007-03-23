@@ -54,12 +54,13 @@ public class BrowserFactory
      * Creates a new {@link Browser}.
      * 
      * @param parent    The component's parent. Mustn't be <code>null</code>.
+     * @param imageID	The id of the image.
      * @return See above.
      */
-    public static Browser createBrowser(ImViewer parent)
+    public static Browser createBrowser(ImViewer parent, long imageID)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
-        BrowserModel model = new BrowserModel(parent);
+        BrowserModel model = new BrowserModel(parent, imageID);
         BrowserComponent browser = new BrowserComponent(model);
         browser.initialize();
         return browser;

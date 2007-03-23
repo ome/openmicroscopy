@@ -255,11 +255,11 @@ class DOBasic
                 int index = pane.getSelectedIndex();
                 EditorFactory.setSubSelectedPane(index);
                 switch (index) {
-					case EditorUI.ANNOTATION_SUB_INDEX:
+					case Editor.ANNOTATION_INDEX:
 						if (model.isAnnotatable()) 
 	                        controller.retrieveAnnotations();
 						break;
-					case EditorUI.CLASSIFICATION_SUB_INDEX:
+					case Editor.CLASSIFICATION_INDEX:
 						if (model.isClassified()) {
 	                        if (!model.isClassificationLoaded())
 	                            controller.loadClassifications();

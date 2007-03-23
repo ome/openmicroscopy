@@ -60,9 +60,9 @@ class FontEntry
 	 * Maps the supported font styles to the corresponding constants defined
 	 * by the {@link Font} class.
 	 */
-	private static Map 		FONT_STYLES;
+	private static Map<String, Integer> 		FONT_STYLES;
 	static {
-		FONT_STYLES = new HashMap();
+		FONT_STYLES = new HashMap<String, Integer>();
 		FONT_STYLES.put("plain", new Integer(Font.PLAIN));
 		FONT_STYLES.put("italic", new Integer(Font.ITALIC));
 		FONT_STYLES.put("bold", new Integer(Font.BOLD));	
@@ -111,35 +111,7 @@ class FontEntry
     
 	/** The font built from the configuration information. */
     private Font value;
-    
-    
-	/** Creates a new instance. */
-    FontEntry() {}
-    
-	/** 
-	 * Returns a {@link Font} object, built from the configuration information.
-	 * 
-	 * @return	See above.
-	 */  
-	Object getValue() { return value; }
-	
-    /** 
-     * Implemented as specified by {@link Entry}. 
-     * @see Entry#setContent(Node)
-     * @throws ConfigException If the configuration entry couldn't be handled.
-     */   
-    protected void setContent(Node node)
-    	throws ConfigException 
-    { 
-		try {
-			Map tags = extractValues(node);
-			value = new Font((String) tags.get(FAMILY_TAG),
-								getStyle(tags), getSize(tags));
-		} catch (DOMException dex) { 
-			rethrow("Can't parse font entry.", dex);
-		} 
-    }
-	
+
 	/**
 	 * Figures out what font size to use from the configuration information.
 	 * This method tries to parse the value of the size tag into an integer.
@@ -175,7 +147,7 @@ class FontEntry
 	{
 		String value = (String) fontAttributes.get(STYLE_TAG);
 		int style = DEFAULT_STYLE;
-		Integer id = (Integer) FONT_STYLES.get(value);
+		Integer id = FONT_STYLES.get(value);
 		if (id != null) style = id.intValue();
 		return style;
 	}
@@ -194,7 +166,7 @@ class FontEntry
 	private Map extractValues(Node entry)
 		throws DOMException, ConfigException
 	{
-		Map tags = new HashMap();
+		Map<String, String> tags = new HashMap<String, String>();
 		if (entry.hasChildNodes()) {
 			NodeList children = entry.getChildNodes();
 			int n = children.getLength();
@@ -223,7 +195,7 @@ class FontEntry
 	 * @throws ConfigException If <code>tag</code> is not one of the tags that
 	 * 							we expect to be within an <i>font</i> tag.
 	 */
-	private void extractFontTag(Node tag, Map values) 
+	private void extractFontTag(Node tag, Map<String, String> values) 
 		throws DOMException, ConfigException
 	{
 		String tagName = tag.getNodeName(),
@@ -239,5 +211,33 @@ class FontEntry
 	}
 	//TODO: remove the checks (which are not complete anyway) and the
 	//ConfigException when we have an XML schema for config files.
+	
+	
+	/** Creates a new instance. */
+    FontEntry() {}
+    
+	/** 
+	 * Returns a {@link Font} object, built from the configuration information.
+	 * 
+	 * @return	See above.
+	 */  
+	Object getValue() { return value; }
+	
+    /** 
+     * Implemented as specified by {@link Entry}. 
+     * @see Entry#setContent(Node)
+     * @throws ConfigException If the configuration entry couldn't be handled.
+     */   
+    protected void setContent(Node node)
+    	throws ConfigException 
+    { 
+		try {
+			Map tags = extractValues(node);
+			value = new Font((String) tags.get(FAMILY_TAG),
+								getStyle(tags), getSize(tags));
+		} catch (DOMException dex) { 
+			rethrow("Can't parse font entry.", dex);
+		} 
+    }
 	
 }

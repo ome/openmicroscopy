@@ -53,7 +53,7 @@ public class SaveAction
 {
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Saves the annotations";
+	private static final String DESCRIPTION = "Saves the annotation.";
 	
     /**
      * Sets it enabled depending on the selected type.

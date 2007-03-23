@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -40,6 +39,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * The Model component in the <code>Browser</code> MVC triad.
@@ -59,8 +59,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class BrowserModel
 {
 
+	/** 
+	 * Factor use to determine the size of the annotate image
+	 * w.r.t the rendered image.
+	 */
+	static final double RATIO = 0.40;
+	
 	/** The title of the browser. */
 	private static final String TITLE = "View";
+	
+	/** The title of the annotator. */
+	private static final String TITLE_ANNOTATOR = "Annotation";
 	
     /** Reference to the component that embeds this model. */ 
     private Browser         component;
@@ -73,6 +82,9 @@ class BrowserModel
      * This image may have been transformed i.e. zoomed, sharpened etc.
      */
     private BufferedImage   displayedImage;
+    
+    /** A smaller version (40%) of the original image. */
+    private BufferedImage	annotateImage;
     
     /** The lens image created if requested. */
     private BufferedImage   lensImage;
@@ -98,15 +110,22 @@ class BrowserModel
     /** The bacground color of the canvas. */
     private Color			backgroundColor;
     
+    /** Unloaded image data. */
+    private ImageData		data;
+    
     /** 
      * Creates a new instance.
      * 
      * @param parent    The parent of this component.
      *                  Mustn't be <code>null</code>.
+     * @param imageID	The id of the image.
      */
-    BrowserModel(ImViewer parent)
+    BrowserModel(ImViewer parent, long imageID)
     {
         if (parent == null) throw new IllegalArgumentException("No parent.");
+        //unloaded image data
+        data = new ImageData();
+        data.setId(imageID);
         this.parent = parent;
         unitBar = true;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
@@ -130,6 +149,10 @@ class BrowserModel
     void setRenderedImage(BufferedImage image)
     {
         renderedImage = image;
+        //Create the annotate image.
+        if (renderedImage != null) {
+        	annotateImage = Factory.magnifyImage(renderedImage, RATIO, 0);
+        } else annotateImage = null;
         displayedImage = null;
     }
     
@@ -204,6 +227,20 @@ class BrowserModel
         if (lensImage == null)
             lensImage = Factory.magnifyImage(displayedImage, f, 0);
     }
+    
+    /** 
+     * Returns the number of z-sections. 
+     * 
+     * @return See above.
+     */
+    int getMaxZ() { return parent.getMaxZ(); }
+    
+    /** 
+     * Returns the number of timepoints. 
+     * 
+     * @return See above.
+     */
+    int getMaxT() { return parent.getMaxT(); }
     
     /**
      * The size in microns of a pixel along the X-axis.
@@ -292,5 +329,75 @@ class BrowserModel
      * @param c  The color to set.
      */
 	void setBackgroundColor(Color c) { backgroundColor = c; }
+	
+	/**
+	 * Returns the unloaded image data.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImageData() { return data; }
+	
+	/**
+     * Returns the title of the <code>Annotator</code>.
+     * 
+     * @return See above.
+     */
+    String getAnnotatorTitle() { return TITLE_ANNOTATOR; }
+    
+    /**
+     * Returns the icon of the <code>Annotator</code>.
+     * 
+     * @return See above.
+     */
+    Icon getAnnotatorIcon()
+    { 
+    	IconManager icons = IconManager.getInstance();
+    	return icons.getIcon(IconManager.ANNOTATION); 
+    }
+    
+    /**
+     * Returns a smaller version of the rendered image.
+     * 
+     * @return See above.
+     */
+    BufferedImage getAnnotateImage() { return annotateImage; }
+    
+    /**
+     * Sets the selected XY-plane. A new plane is then rendered.
+     * 
+     * @param z The selected z-section.
+     * @param t The selected timepoint.
+     */
+    void setSelectedXYPlane(int z, int t)
+    {
+    	if (z < 0) z = parent.getDefaultZ();
+    	if (t < 0) t = parent.getDefaultT();
+    	parent.setSelectedXYPlane(z, t);
+    }
+    
+    /**
+     * Returns the default z-section.
+     * 
+     * @return See above.
+     */
+	int getDefaultZ() { return parent.getDefaultZ(); }
+	
+	int getMaxX() { return parent.getMaxX(); }
+	
+	int getMaxY() { return parent.getMaxY(); }
+
+    /**
+     * Returns the size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeY() { return parent.getPixelsSizeY(); }
+
+    /**
+     * Returns the size in microns of a pixel along the Y-axis.
+     * 
+     * @return See above.
+     */
+    float getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
 	
 }

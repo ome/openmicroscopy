@@ -76,7 +76,7 @@ class Parser
     private String          	configFile;
     
     /** Collects all tags that we have to handle from the configuration file. */
-    private List	        	entriesTags;
+    private List<Node>			entriesTags;
     
     /** The registry that we have to fill up. */
     private RegistryImpl    	registry;
@@ -136,7 +136,7 @@ class Parser
 		validating = false;
         this.configFile = configFile;
         this.registry = registry;
-		entriesTags = new ArrayList();
+		entriesTags = new ArrayList<Node>();
     }
     
 	/** 

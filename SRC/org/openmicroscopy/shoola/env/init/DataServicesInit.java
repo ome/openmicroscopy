@@ -95,7 +95,7 @@ public final class DataServicesInit
             MonitorFactory mf = new MonitorFactory();
             reg.bind(LookupNames.MONITOR_FACTORY, mf);
 		} catch (DSOutOfServiceException e) {
-			throw new StartupException("Can't connect to OMEDS", e);
+			throw new StartupException("Can't connect to OMERO", e);
 		} 
 	}
 	

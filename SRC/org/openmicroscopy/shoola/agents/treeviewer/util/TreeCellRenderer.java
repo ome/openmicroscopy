@@ -164,7 +164,7 @@ public class TreeCellRenderer
         if (node.getUserObject() instanceof ImageData)
         	w += fm.stringWidth(node.getNodeName());
         else w += fm.stringWidth(getText());
-        setPreferredSize(new Dimension(w, fm.getHeight()));
+        setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         return this;
     }
   

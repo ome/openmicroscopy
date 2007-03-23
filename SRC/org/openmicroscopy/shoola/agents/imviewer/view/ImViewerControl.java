@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -339,7 +340,7 @@ class ImViewerControl
      * Attaches a window listener to the view to discard the model when 
      * the user closes the window.
      */
-    private void attachWindowListeners()
+    private void attachListeners()
     {
         JMenu menu = ImViewerFactory.getWindowMenu();
         menu.addMenuListener(new MenuListener() {
@@ -451,11 +452,10 @@ class ImViewerControl
         createActions();
         model.addChangeListener(this);   
         model.addPropertyChangeListener(this);
-        attachWindowListeners();
+        attachListeners();
         ImViewerFactory.attachWindowMenuToTaskBar();
     }
-
-    
+ 
     /**
      * Returns the action corresponding to the specified id.
      * 
@@ -492,6 +492,13 @@ class ImViewerControl
      */
     public void stateChanged(ChangeEvent e)
     {
+    	if (e.getSource() instanceof JTabbedPane) {
+    		JTabbedPane pane = (JTabbedPane) e.getSource();
+            
+            view.setSelectedPane(pane.getSelectedComponent());
+    		return;
+    	}
+    		
         int state = model.getState();
         switch (state) {
             case ImViewer.DISCARDED:

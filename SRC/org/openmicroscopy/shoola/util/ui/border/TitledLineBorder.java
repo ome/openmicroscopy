@@ -152,8 +152,9 @@ public class TitledLineBorder
                                               height - (EDGE_SPACING * 2));
          Font font = g.getFont();
          Color color = g.getColor();
-
-         g.setFont(getFont(c));
+         Font fontc = getFont(c);
+         if (fontc != null) fontc = fontc.deriveFont(Font.BOLD);
+         g.setFont(fontc);
 
          JComponent jc = (c instanceof JComponent) ? (JComponent) c : null;
          FontMetrics fm = SwingUtilities2.getFontMetrics(jc, g);

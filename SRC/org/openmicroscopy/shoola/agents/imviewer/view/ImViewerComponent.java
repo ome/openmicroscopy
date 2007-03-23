@@ -662,8 +662,9 @@ class ImViewerComponent
         switch (model.getState()) {
             case NEW:
             case DISCARDED:
-                throw new IllegalStateException(
-                "This method can't be invoked in the DISCARDED, NEW state.");
+                //throw new IllegalStateException(
+                //"This method can't be invoked in the DISCARDED, NEW state.");
+            	return;
         }
         Boolean newValue =  Boolean.FALSE;
         Boolean oldValue = Boolean.TRUE;
@@ -781,6 +782,40 @@ class ImViewerComponent
         return model.getPixelsSizeX();
     }
 
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getPixelsSizeY()
+     */
+    public float getPixelsSizeY()
+    {
+        switch (model.getState()) {
+            case NEW:
+            case LOADING_RENDERING_CONTROL:
+            case DISCARDED:
+                throw new IllegalStateException(
+                "This method can't be invoked in the DISCARDED, NEW or" +
+                "LOADING_RENDERING_CONTROL state.");
+        }
+        return model.getPixelsSizeY();
+    }
+    
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getPixelsSizeZ()
+     */
+    public float getPixelsSizeZ()
+    {
+        switch (model.getState()) {
+            case NEW:
+            case LOADING_RENDERING_CONTROL:
+            case DISCARDED:
+                throw new IllegalStateException(
+                "This method can't be invoked in the DISCARDED, NEW or" +
+                "LOADING_RENDERING_CONTROL state.");
+        }
+        return model.getPixelsSizeZ();
+    }
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getViewTitle()
@@ -1057,6 +1092,40 @@ class ImViewerComponent
 		Downloader dl = DownloaderFactory.getDownloader(view, 
 						ImViewerAgent.getRegistry(), model.getPixelsID());
 		dl.activate();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getMaxX()
+     */
+	public int getMaxX() 
+	{
+		switch (model.getState()) {
+	        case NEW:
+	        case LOADING_RENDERING_CONTROL:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	            "This method can't be invoked in the DISCARDED, NEW or" +
+	            "LOADING_RENDERING_CONTROL state.");
+		}
+		return model.getMaxX();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getMaxY()
+     */
+	public int getMaxY() 
+	{
+		switch (model.getState()) {
+	        case NEW:
+	        case LOADING_RENDERING_CONTROL:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	            "This method can't be invoked in the DISCARDED, NEW or" +
+	            "LOADING_RENDERING_CONTROL state.");
+		}
+		return model.getMaxY();
 	}
     
 }

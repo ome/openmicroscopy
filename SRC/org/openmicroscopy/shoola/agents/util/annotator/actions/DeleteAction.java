@@ -56,7 +56,7 @@ public class DeleteAction
 	//private static final String NAME = "Delete";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Saves the annotations";
+	private static final String DESCRIPTION = "Delete the annotation.";
 	 
     /**
      * Sets it enabled depending on the selected type.

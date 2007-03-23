@@ -159,7 +159,7 @@ public final class Container
 	private Registry	registry;
 	
 	/** All managed agents. */
-	private Set			agentsPool;
+	private Set<Agent>	agentsPool;
 	
 	
 	/** 
@@ -191,7 +191,7 @@ public final class Container
 		if (!f.exists() || !f.isDirectory())
 			throw new StartupException("Can't locate home dir: "+homeDir);
 		
-		agentsPool = new HashSet();
+		agentsPool = new HashSet<Agent>();
 		registry = RegistryFactory.makeNew();
 	}
 	 

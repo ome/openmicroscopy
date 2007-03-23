@@ -114,21 +114,21 @@ public class AgentInfo
 	public void setAgent(Agent agent) { this.agent = agent; }
 	
 	/** 
-	 * Setter for the {@link #name} field. 
+	 * Sets the {@link #name} field. 
 	 * 
 	 * @param name The field to set.
 	 */
 	void setName(String name) { this.name = name; }
 	
 	/** 
-	 * Setter for the {@link #agentClass} field.
+	 * Sets {@link #agentClass} field.
 	 * 
 	 * @param agentClass The field to set.
 	 */
 	void setAgentClass(String agentClass) { this.agentClass = agentClass; }
 
 	/** 
-	 * Setter for the {@link #configPath} field.
+	 * Sets the {@link #configPath} field.
 	 * 
 	 * @param configPath The field to set.
 	 */

@@ -51,9 +51,6 @@ public class OMEROInfo
     /** The value of the <code>port</code> sub-tag. */ 
     private int        port;
     
-    /** The value of the <code>hostName</code> sub-tag. */ 
-    private String      hostName;
-    
     /**
      * Parses the specified string into an integer.
      * 
@@ -77,16 +74,14 @@ public class OMEROInfo
      * This is the only constructor and should have package visibility because 
      * instances of this class can only be created (meaningfully) within this
      * package. However, we made it public to ease testing.
-     * 
-     * @param hostName The value of the <code>hostName</code> sub-tag.          
+     *     
      * @param port The value of the <code>port</code> sub-tag.
      * @throws ConfigException If <code>port</code> can't be parsed into an 
      *                          integer.
      */
-    public OMEROInfo(String hostName, String port)
+    public OMEROInfo(String port)
         throws ConfigException
     {
-        this.hostName = hostName;
         this.port = parseInt(port);
     }
     
@@ -97,11 +92,4 @@ public class OMEROInfo
      */
     public int getPort() { return port; }
     
-    /**
-     * Returns the value of the <code>hostName</code> sub-tag.
-     * 
-     * @return See above.
-     */
-    public String getHostName() { return hostName; }
-
 }

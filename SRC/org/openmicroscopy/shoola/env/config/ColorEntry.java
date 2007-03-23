@@ -109,32 +109,6 @@ class ColorEntry
     /** The color built from the configuration information. */
     private Color value;
     
-    /** Creates a new instance. */
-    ColorEntry() {}
-    
-    /** 
-     * Returns a {@link Color} object, built from the configuration information.
-     * 
-     * @return  See above.
-     */  
-    Object getValue() { return value; }
-    
-    /** 
-     * Implemented as specified by {@link Entry}. 
-     * @see Entry#setContent(Node)
-     * @throws ConfigException If the configuration entry couldn't be handled.
-     */   
-    protected void setContent(Node tag)
-            throws ConfigException
-    {
-        try {
-            Map tags = extractValues(tag);
-            value = new Color(getRedComponent(tags), getGreenComponent(tags), 
-                        getBlueComponent(tags));
-        } catch (DOMException dex) { 
-            rethrow("Can't parse font entry.", dex);
-        } 
-    }
     
     /**
      * Figures out what value for the specified red component to use from 
@@ -227,7 +201,7 @@ class ColorEntry
     private Map extractValues(Node entry)
         throws DOMException, ConfigException
     {
-        Map tags = new HashMap();
+        Map<String, String> tags = new HashMap<String, String>();
         if (entry.hasChildNodes()) {
             NodeList children = entry.getChildNodes();
             int n = children.getLength();
@@ -256,7 +230,7 @@ class ColorEntry
      * @throws ConfigException If <code>tag</code> is not one of the tags that
      *                          we expect to be within an <i>font</i> tag.
      */
-    private void extractColorTag(Node tag, Map values) 
+    private void extractColorTag(Node tag, Map<String, String> values) 
         throws DOMException, ConfigException
     {
         String tagName = tag.getNodeName(),
@@ -272,4 +246,31 @@ class ColorEntry
     //TODO: remove the checks (which are not complete anyway) and the
     //ConfigException when we have an XML schema for config files.
 
+    /** Creates a new instance. */
+    ColorEntry() {}
+    
+    /** 
+     * Returns a {@link Color} object, built from the configuration information.
+     * 
+     * @return  See above.
+     */  
+    Object getValue() { return value; }
+    
+    /** 
+     * Implemented as specified by {@link Entry}. 
+     * @see Entry#setContent(Node)
+     * @throws ConfigException If the configuration entry couldn't be handled.
+     */   
+    protected void setContent(Node tag)
+            throws ConfigException
+    {
+        try {
+            Map tags = extractValues(tag);
+            value = new Color(getRedComponent(tags), getGreenComponent(tags), 
+                        getBlueComponent(tags));
+        } catch (DOMException dex) { 
+            rethrow("Can't parse font entry.", dex);
+        } 
+    }
+   
 }

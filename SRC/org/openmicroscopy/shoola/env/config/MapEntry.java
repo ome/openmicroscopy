@@ -60,13 +60,13 @@ class MapEntry
 	 * The name of each contained tag is a key in the map and the tag's value
 	 * is the value associated to that key in the map.
 	 */
-    private Map     nameValuePairs;
+    private Map<String, String>     nameValuePairs;
     
     
 	/** Creates a new instance. */
     MapEntry()
     {
-		nameValuePairs = new HashMap();
+		nameValuePairs = new HashMap<String, String>();
     }
     
     /** 

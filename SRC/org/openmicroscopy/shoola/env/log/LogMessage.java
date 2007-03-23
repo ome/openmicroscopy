@@ -64,9 +64,7 @@ public class LogMessage
 	public static final String	NEW_LINE = System.getProperty("line.separator");
 	
 		
-	/**
-	 * Creates a new empty message.
-	 */
+	/** Creates a new empty message. */
 	public LogMessage() 
 	{
 		super(new StringWriter());
@@ -92,7 +90,7 @@ public class LogMessage
 	
 	/**
 	 * Returns the current content of the message.
-	 * After this call, the current content is flushed.  This means that all
+	 * After this call, the current content is flushed. This means that all
 	 * what has been written so far will be discarded.
 	 * 
 	 * @return	See above.

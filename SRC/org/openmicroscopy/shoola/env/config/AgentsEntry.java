@@ -80,19 +80,81 @@ class AgentsEntry
 	 */
 	private static final String		AGENT_CONFIG_TAG = "config";	
 		
-    
     /** 
      * The contents of the entry.
      * Each element is an {@link AgentInfo} object that stores the content of
      * an <i>agent</i> tag.
      */
-    private List    agentsList;
+    private List<AgentInfo>    agentsList;
     
+
+	/**
+	 * Extracts the values of the tags within an <i>agent</i> tag and puts them
+	 * in a map keyed by tag names.
+	 *  
+	 * @param agent	The <i>agent</i> tag.
+	 * @return The pairs <i>(tag-name, tag-value)</i> built from the tags
+	 * 			contained within the <i>agent</i> tag.
+	 * @throws DOMException If the entry contents couldn't be retrieved.
+	 * @throws ConfigException If the <i>agent</i> tag is not structured as
+	 * 							expected.
+	 */
+	private Map extractValues(Node agent)
+		throws DOMException, ConfigException
+	{
+		if (!AGENT_TAG.equals(agent.getNodeName()))
+			throw new ConfigException(
+				"Unrecognized tag within the agents tag: "+agent.getNodeName());
+		Map<String, String> tags = new HashMap<String, String>();
+		if (agent.hasChildNodes()) {
+			NodeList children = agent.getChildNodes();
+			int n = children.getLength();
+			Node child;
+			while (0 < n) {
+				child = children.item(--n);
+				if (child.getNodeType() == Node.ELEMENT_NODE)
+					extractAgentTag(child, tags); 
+			}
+		}
+		if (tags.keySet().size() != 3)
+			throw new ConfigException("Missing tags within agent tag.");
+		return tags;
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files. 
+	
+	/**
+	 * Adds the given tag name and value to the passed map.
+	 * 
+	 * @param tag		A tag within the <i>agent</i> tag.
+	 * @param values	The map containing the pairs 
+	 * 					<i>(tag-name, tag-value)</i> relative to the
+	 * 					<i>agent</i> tag that contains <code>tag</code>.
+	 * @throws ConfigException If <code>tag</code> is not one of the tags that
+	 * 							we expect to be within an <i>agent</i> tag.
+	 */
+	private void extractAgentTag(Node tag, Map<String, String> values) 
+		throws ConfigException
+	{
+		String tagName = tag.getNodeName(),
+				tagValue = tag.getFirstChild().getNodeValue();
+		if (AGENT_NAME_TAG.equals(tagName) || 
+			AGENT_CLASS_TAG.equals(tagName) ||
+			AGENT_CONFIG_TAG.equals(tagName)) {
+				values.put(tagName, tagValue);
+				return;
+			}
+		throw new ConfigException(
+			"Unrecognized tag within the agent tag: "+tagName);
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files.
     
+	
     /** Creates a new instance. */
     AgentsEntry()
     {
-		agentsList = new ArrayList();
+		agentsList = new ArrayList<AgentInfo>();
     }
     
 	/** 
@@ -136,67 +198,5 @@ class AgentsEntry
         	rethrow("Can't parse agents entry.", dex); 
         }
     }
-    
-	/**
-	 * Extracts the values of the tags within an <i>agent</i> tag and puts them
-	 * in a map keyed by tag names.
-	 *  
-	 * @param agent	The <i>agent</i> tag.
-	 * @return The pairs <i>(tag-name, tag-value)</i> built from the tags
-	 * 			contained within the <i>agent</i> tag.
-	 * @throws DOMException If the entry contents couldn't be retrieved.
-	 * @throws ConfigException If the <i>agent</i> tag is not structured as
-	 * 							expected.
-	 */
-	private Map extractValues(Node agent)
-		throws DOMException, ConfigException
-	{
-		if (!AGENT_TAG.equals(agent.getNodeName()))
-			throw new ConfigException(
-				"Unrecognized tag within the agents tag: "+agent.getNodeName());
-		Map tags = new HashMap();
-		if (agent.hasChildNodes()) {
-			NodeList children = agent.getChildNodes();
-			int n = children.getLength();
-			Node child;
-			while (0 < n) {
-				child = children.item(--n);
-				if (child.getNodeType() == Node.ELEMENT_NODE)
-					extractAgentTag(child, tags); 
-			}
-		}
-		if (tags.keySet().size() != 3)
-			throw new ConfigException("Missing tags within agent tag.");
-		return tags;
-	}
-	//TODO: remove the checks (which are not complete anyway) and the
-	//ConfigException when we have an XML schema for config files. 
-	
-	/**
-	 * Adds the given tag name and value to the passed map.
-	 * 
-	 * @param tag	A tag within the <i>agent</i> tag.
-	 * @param values	The map containing the pairs 
-	 * 					<i>(tag-name, tag-value)</i> relative to the
-	 * 					<i>agent</i> tag that contains <code>tag</code>.
-	 * @throws ConfigException If <code>tag</code> is not one of the tags that
-	 * 							we expect to be within an <i>agent</i> tag.
-	 */
-	private void extractAgentTag(Node tag, Map values) 
-		throws ConfigException
-	{
-		String tagName = tag.getNodeName(),
-				tagValue = tag.getFirstChild().getNodeValue();
-		if (AGENT_NAME_TAG.equals(tagName) || 
-			AGENT_CLASS_TAG.equals(tagName) ||
-			AGENT_CONFIG_TAG.equals(tagName)) {
-				values.put(tagName, tagValue);
-				return;
-			}
-		throw new ConfigException(
-			"Unrecognized tag within the agent tag: "+tagName);
-	}
-	//TODO: remove the checks (which are not complete anyway) and the
-	//ConfigException when we have an XML schema for config files.
     
 }

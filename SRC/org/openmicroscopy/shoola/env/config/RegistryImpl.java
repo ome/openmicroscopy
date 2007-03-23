@@ -64,7 +64,7 @@ class RegistryImpl
 {
     
     /** The name-value map. */
-    private HashMap             	entriesMap;
+    private HashMap<String, Object>	entriesMap;
     
     /** Reference to container's service. */
     private EventBus                eb;
@@ -84,10 +84,10 @@ class RegistryImpl
     /** Reference to the Omero service. */
     private OmeroDataService		os;
 
-    /** Just creates an empty map. */
+    /** Creates an empty map. */
     RegistryImpl()
     {
-        entriesMap = new HashMap();
+        entriesMap = new HashMap<String, Object>();
     }
     
 	/** 

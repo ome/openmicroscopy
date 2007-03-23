@@ -84,37 +84,21 @@ public interface Editor
     /** Identifies the <code>Edit</code> type for the editor. */
     public static final int         PROPERTIES_EDITOR = 
                                                 TreeViewer.PROPERTIES_EDITOR;
-      
-    /** 
-     * Indicates to create an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int         CREATE_ANNOTATION = 100;
-    
-    /** 
-     * Indicates to update an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int         UPDATE_ANNOTATION = 101;
-    
-    /** 
-     * Indicates to delete an annotation  when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int         DELETE_ANNOTATION = 102;
-    
-    /** 
-     * Indicates that no-operation for the annotation when editing the 
-     * <code>DataObject</code>.
-     */
-    public static final int         NO_ANNOTATION_OP = 103;
     
 	/** The index of the <code>Properties</code> pane. */
-	public static final int			PROPERTIES_INDEX = 
-											EditorUI.PROPERTIES_INDEX;
+	public static final int			PROPERTIES_INDEX = 0;
     
+	/** The index of the <code>Permissions</code> pane. */
+	public static final int			PERMISSIONS_INDEX = 1;
+	
 	/** The index of the <code>Info</code> pane. */
-	public static final int			INFO_INDEX = EditorUI.INFO_INDEX;
+	public static final int			INFO_INDEX = 2;
+	
+	/** The index of the <code>Annotation sub</code> pane. */
+	public static final int			ANNOTATION_INDEX = 0;
+	
+	/** The index of the <code>classification sub</code> pane. */
+	public static final int			CLASSIFICATION_INDEX = 1;
 	
     /** Bounds property to indicate to close the {@link Editor}. */
     public static final String      CLOSE_EDITOR_PROPERTY = "closeEditor";

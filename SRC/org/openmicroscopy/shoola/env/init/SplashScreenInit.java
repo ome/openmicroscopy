@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 //Third-party libraries
 
@@ -162,16 +160,6 @@ public final class SplashScreenInit
 
         //Now get rid of the Splash Screen.
         splashScreen.close();
-    }
-
-    /**
-     * Reacts to the <code>Cancel</code> action b/c the event might occur after 
-     * the end of the initialization sequence.
-     * @see ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-       
     }
     
 }

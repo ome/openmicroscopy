@@ -63,6 +63,16 @@ public class EditorFactory
      */
     public static void setEditorSelectedPane(int index)
     { 
+    	switch (index) {
+			case Editor.INFO_INDEX:
+			case Editor.PERMISSIONS_INDEX:
+			case Editor.PROPERTIES_INDEX:
+				break;
+	
+			default:
+				index = Editor.PROPERTIES_INDEX;
+				break;
+		}
         singleton.editorSelectedPane = index;
     }
     
@@ -98,6 +108,14 @@ public class EditorFactory
      */
     public static void setSubSelectedPane(int index)
     { 
+    	switch (index) {
+			case Editor.ANNOTATION_INDEX:
+			case Editor.CLASSIFICATION_INDEX:
+				break;
+			default:
+				index = Editor.ANNOTATION_INDEX;
+				break;
+    	}
         singleton.subSelectedPane = index;
     }
     

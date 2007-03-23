@@ -126,16 +126,16 @@ class EditorComponent
             case NEW:
                 if (model.getEditorType() == PROPERTIES_EDITOR) {
                 	switch (model.getSelectedTabbedIndex()) {
-						case EditorUI.PROPERTIES_INDEX:
+						case Editor.PROPERTIES_INDEX:
 							int subIndex = model.getSelectedSubPane();
 	                		if (model.isAnnotatable() && 
-	                			subIndex == EditorUI.ANNOTATION_SUB_INDEX) {
+	                			subIndex == Editor.ANNOTATION_INDEX) {
 	                			retrieveAnnotations();
 	                		} else if (model.isClassified() && 
-	                			subIndex == EditorUI.CLASSIFICATION_SUB_INDEX)
+	                			subIndex == Editor.CLASSIFICATION_INDEX)
 	                			loadClassifications();
 							break;
-						case EditorUI.PERMISSIONS_INDEX:
+						case Editor.PERMISSIONS_INDEX:
 							retrieveThumbnail();
 							break;
 						default:
@@ -355,7 +355,7 @@ class EditorComponent
 	{
 		if (model.getEditorType() != PROPERTIES_EDITOR) return;
 		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
-        			EditorUI.PROPERTIES_INDEX) {
+        			Editor.PROPERTIES_INDEX) {
 			model.fireAnnotationsLoading();
 	        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
 	        								false);

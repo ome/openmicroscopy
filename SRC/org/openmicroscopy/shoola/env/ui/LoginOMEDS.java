@@ -127,7 +127,7 @@ public class LoginOMEDS
     private void initBox()
     {
         Font font = (Font) registry.lookup("/resources/fonts/Titles");
-        List l = UIFactory.getServers();
+        List l = null;//UIFactory.getServers();
         String[] servers;
         if (l != null) {
         	servers = new String[l.size()];

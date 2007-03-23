@@ -37,7 +37,6 @@
          OMERO.
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
-      <hostName>yourhost</hostName>
       <port>1099</port>
     </structuredEntry>
     

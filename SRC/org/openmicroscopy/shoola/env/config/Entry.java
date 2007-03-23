@@ -97,9 +97,9 @@ abstract class Entry
      * Maps each predefined value of the <i>type</i> attribute onto the 
      * <i>FQN</i> of the hanlder class.
      */
-	static private Map	     	contentHandlers;
+	static private Map<String, Class>	contentHandlers;
     static {
-        contentHandlers = new HashMap();
+        contentHandlers = new HashMap<String, Class>();
         contentHandlers.put("map", MapEntry.class);
         contentHandlers.put("string", StringEntry.class);
         contentHandlers.put("integer", IntegerEntry.class);
@@ -149,7 +149,7 @@ abstract class Entry
         NameTypePair ntp = retrieveEntryAttributes(tag);
           
         //Retrieve the hanlder for type if it's a built-in type.   
-        Class handler = (Class) contentHandlers.get(ntp.type);
+        Class handler = contentHandlers.get(ntp.type);
         
         try {
             if (handler == null)
@@ -235,8 +235,7 @@ abstract class Entry
 
 	/** The content of the <i>name</i> attribute. */
 	private String      name;
-	
-    
+
 	/**
 	 * Wraps the original exception into a {@link ConfigException}, which is
 	 * then re-thrown with an error message.

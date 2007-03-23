@@ -60,7 +60,7 @@ class BrowserCanvas
     private BrowserModel    model;
     
     /** Reference to the View. */
-    private BrowserUI    view;
+    private BrowserUI    	view;
 
     /**
      * Creates a new instance.

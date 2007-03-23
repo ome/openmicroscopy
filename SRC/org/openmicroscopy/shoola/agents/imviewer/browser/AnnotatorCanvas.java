@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.annotator.AnnotatorCanvas 
+ * org.openmicroscopy.shoola.agents.imviewer.browser.AnnotatorCanvas 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.imviewer.annotator;
+package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * 
+ * UI component where the annotate image is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,11 +52,23 @@ class AnnotatorCanvas
 	extends JPanel
 {
 
-	AnnotatorCanvas()
-	{
-		setDoubleBuffered(true);
-	}
-	
+	/** Reference to the Model. */
+    private BrowserModel    model;
+    
+	/**
+     * Creates a new instance.
+     *
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+	AnnotatorCanvas(BrowserModel model)
+    {
+        if (model == null) throw new NullPointerException("No model.");
+        setLayout(null);
+        setBackground(model.getBackgroundColor());
+        this.model = model;
+        setDoubleBuffered(true);
+    }
+    
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -64,7 +76,8 @@ class AnnotatorCanvas
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        BufferedImage img = null;
+        
+        BufferedImage img = model.getAnnotateImage();
         if (img == null) return;
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);

@@ -24,17 +24,11 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.prefs.Preferences;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.data.login.LoginConfig;
 
 /** 
  * Factory for the various windows and widgets used within the container.
@@ -87,64 +81,5 @@ public class UIFactory
 	{
 		return new UserNotifierImpl(c);
 	}
-	
-	/**
-	 * Creates the {@link UserNotifier}.
-	 *
-	 * @return	The {@link UserNotifier}.
-	 */
-	//public static UserNotifier makeUserNotifier()
-	//{
-	//	return new UserNotifierImpl();
-	//}
-    
-    /**
-     * Removes the specified server from the list of existing servers.
-     * 
-     * @param server The server to remove.
-     */
-    public static void removeServer(String server)
-    {
-    	/*
-    	if (server == null || server.length() == 0) return;
-        List l = getServers();
-        if (l == null) return;
-        l.remove(server);
-        Iterator i = l.iterator();
-        String list = "";
-        int n = l.size()-1;
-        int index = 0;
-        while (i.hasNext()) {
-			list += (String) i.next();
-			if (index != n)
-				list += LoginConfig.SERVER_NAME_SEPARATOR;
-			index++;
-		}
-        Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
-        prefs.put(LoginConfig.OMERO_SERVER, list);
-        */
-    }
-    
-    /**
-     * Returns a collection of available servers.
-     * 
-     * @return See above.
-     */
-    public static List getServers()
-    {
-    	/*
-    	Preferences prefs = Preferences.userNodeForPackage(LoginConfig.class);
-        String servers = prefs.get(LoginConfig.OMERO_SERVER, null);
-        if (servers == null || servers.length() == 0)  return null;
-        String[] l = servers.split(LoginConfig.SERVER_NAME_SEPARATOR, 0);
-        if (l == null) return null;
-        List listOfServers = new ArrayList(l.length);
-        int index;
-        for (index = 0; index < l.length; index++)
-        	listOfServers.add(l[index].trim());
-        return listOfServers; 
-        */
-    	return null;
-    }
     
 }

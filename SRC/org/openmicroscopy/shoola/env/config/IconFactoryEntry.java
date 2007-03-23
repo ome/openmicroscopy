@@ -69,6 +69,44 @@ class IconFactoryEntry
 	/** The returned value built from {@link #location}. */
 	private IconFactory	factory;
 	
+
+	/**
+	 * Extracts the values of the tags within the entry tag and puts them in
+	 * a map keyed by tag names.
+	 *  
+	 * @param entry	The <i>icons</i> entry tag.
+	 * @return A map whose keys are names of the tags within the entry and
+	 * 			values are the corresponding tag contents.
+	 * @throws DOMException If the entry contents couldn't be retrieved.
+	 * @throws ConfigException If the entry is not structured as expected.
+	 */
+	private Map extractValues(Node entry)
+		throws DOMException, ConfigException
+	{
+		if (entry.hasChildNodes()) {
+			Map<String, String> tags = new HashMap<String, String>();
+			NodeList children = entry.getChildNodes();
+			int n = children.getLength();
+			Node child;
+			while (0 < n) {
+				child = children.item(--n);
+				if (child.getNodeType() == Node.ELEMENT_NODE && 
+					LOCATION_TAG.equals(child.getNodeName())) {
+						tags.put(LOCATION_TAG, 
+									child.getFirstChild().getNodeValue());
+						return tags;
+					}
+			}
+		}
+		throw new ConfigException(
+			"The content of the icons structured entry is not valid.");
+	}
+	//TODO: remove the checks (which are not complete anyway) and the
+	//ConfigException when we have an XML schema for config files. 
+    
+	//NOTE: the method above could just return a string.  However, for the
+	//time being we keep it like that b/c in future we might add some other
+	//tags other than location to the icons entry.
 	
 	/** Creates a new instance. */
 	IconFactoryEntry() {}
@@ -100,43 +138,5 @@ class IconFactoryEntry
 			rethrow("Can't parse icons entry.", dex);
 		}
 	}
-	
-	/**
-	 * Extracts the values of the tags within the entry tag and puts them in
-	 * a map keyed by tag names.
-	 *  
-	 * @param entry	The <i>icons</i> entry tag.
-	 * @return A map whose keys are names of the tags within the entry and
-	 * 			values are the corresponding tag contents.
-	 * @throws DOMException If the entry contents couldn't be retrieved.
-	 * @throws ConfigException If the entry is not structured as expected.
-	 */
-	private Map extractValues(Node entry)
-		throws DOMException, ConfigException
-	{
-		if (entry.hasChildNodes()) {
-			Map tags = new HashMap();
-			NodeList children = entry.getChildNodes();
-			int n = children.getLength();
-			Node child;
-			while (0 < n) {
-				child = children.item(--n);
-				if (child.getNodeType() == Node.ELEMENT_NODE && 
-					LOCATION_TAG.equals(child.getNodeName())) {
-						tags.put(LOCATION_TAG, 
-									child.getFirstChild().getNodeValue());
-						return tags;
-					}
-			}
-		}
-		throw new ConfigException(
-			"The content of the icons structured entry is not valid.");
-	}
-	//TODO: remove the checks (which are not complete anyway) and the
-	//ConfigException when we have an XML schema for config files. 
-    
-	//NOTE: the method above could just return a string.  However, for the
-	//time being we keep it like that b/c in future we might add some other
-	//tags other than location to the icons entry.
 	
 }

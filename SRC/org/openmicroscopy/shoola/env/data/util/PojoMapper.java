@@ -139,12 +139,6 @@ public class PojoMapper
     {
         if (objects == null) 
             throw new IllegalArgumentException("The set cannot be null.");
-        try {
-            objects.toArray(new IObject[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("The set only contains " +
-                    "IObject.");
-        }  
         HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
         Iterator i = objects.iterator();
         while (i.hasNext())

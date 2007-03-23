@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.env.config;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -54,13 +52,7 @@ import org.w3c.dom.NodeList;
 class OMEROEntry
     extends Entry
 {
-    
-    /** 
-     * The name of the tag, within this <i>structuredEntry</i>, that specifies
-     * the <i>HostName</i> to connect to <i>OMERO</i>.
-     */
-    private static final String     HOSTNAME_TAG = "hostName";
-    
+
     /** 
      * The name of the tag, within this <i>structuredEntry</i>, that specifies
      * the <i>port</i> to connect to <i>OMERO</i>.
@@ -81,7 +73,7 @@ class OMEROEntry
     private static OMEROInfo parseTag(Node tag)
         throws DOMException, ConfigException
     {
-        String hostName = null, port = null; 
+        String port = null; 
         NodeList children = tag.getChildNodes();
         int n = children.getLength();
         Node child;
@@ -91,21 +83,17 @@ class OMEROEntry
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 tagName = child.getNodeName();
                 tagValue = child.getFirstChild().getNodeValue();
-                if (HOSTNAME_TAG.equals(tagName)) hostName = tagValue;
-                else if (PORT_TAG.equals(tagName)) port = tagValue;
+                if (PORT_TAG.equals(tagName)) port = tagValue;
                 else
                     throw new ConfigException(
                             "Unrecognized tag within the ice-conf entry: "+
                             tagName+".");
             }
         }
-        if (hostName == null)
-            throw new ConfigException("Missing "+HOSTNAME_TAG+
-                                      " tag within omeds-conf entry.");
         if (port == null)
             throw new ConfigException("Missing "+PORT_TAG+
                                       " tag within omeds-conf entry.");
-        return new OMEROInfo(hostName, port);
+        return new OMEROInfo(port);
     }
     
     

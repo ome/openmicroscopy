@@ -33,7 +33,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.AnnotationData;
 import pojos.DataObject;
 
 /** 
@@ -260,69 +259,6 @@ public interface HierarchyBrowsingView
      */
     public CallHandle declassify(Set images, Set categories, 
                                 AgentEventListener observer);
-    
-    /**
-     * Retrieves all the annotations linked to the specified node type.
-     * 
-     * @param nodeType      The type of the node. One of the following types:
-     *                      <code>DatasetData</code>, <code>ImageData</code>.       
-     * @param nodeID        The id of the node.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadAnnotations(Class nodeType, long nodeID,
-                                        AgentEventListener observer);
-    
-    /** 
-     * Creates an annotation of the specified type for the specified node.
-     * 
-     * @param annotatedObject   The <code>DataObject</code> to annotate.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.  
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation to create.
-     *                          Mustn't be <code>null</code>.
-     * @param observer Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle createAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,  
-                                        AgentEventListener observer);
-    
-    /**
-     * Updates the specified annotation.
-     * 
-     * @param annotatedObject   The annotated <code>DataObject</code>.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation object to update. 
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle         that can be used to cancel the call.
-     */
-    public CallHandle updateAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                        AgentEventListener observer);
-    
-    /**
-     * Deletes the specified annotation.
-     * 
-     * @param annotatedObject   The annotated <code>DataObject</code>.
-     *                          One of the following type:
-     *                          <code>DatasetData</code>,
-     *                          <code>ImageData</code>.   
-     *                          Mustn't be <code>null</code>.
-     * @param data              The annotation object to update. 
-     *                          Mustn't be <code>null</code>.
-     * @param observer          Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle deleteAnnotation(DataObject annotatedObject,
-                                        AnnotationData data,
-                                        AgentEventListener observer);
     
     /**
      * Loads the images corresponding to the given collection of ids.

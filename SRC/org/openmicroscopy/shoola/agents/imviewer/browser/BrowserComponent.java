@@ -25,10 +25,10 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
@@ -80,6 +80,9 @@ class BrowserComponent
     /** The View sub-component. */
     private BrowserUI       view;
 
+    /** The annotator sub-component. */
+    private AnnotatorUI		annotator;
+    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -93,6 +96,7 @@ class BrowserComponent
         this.model = model;
         controller = new BrowserControl();
         view = new BrowserUI();
+        annotator = new AnnotatorUI();
     }
     
     /** Links up the MVC triad. */
@@ -101,16 +105,14 @@ class BrowserComponent
         model.initialize(this);
         controller.initialize(model, view);
         view.initialize(controller, model);
+        annotator.initialize(model);
     }
     
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getUI()
      */
-    public JComponent getUI()
-    {
-        return view;
-    }
+    public JComponent getUI() { return view; }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
@@ -122,6 +124,7 @@ class BrowserComponent
             throw new IllegalArgumentException("Image cannot be null.");
         model.setRenderedImage(image);
         view.paintImage();
+        annotator.paintImage();
     }
 
     /** 
@@ -303,6 +306,34 @@ class BrowserComponent
 		if (model.getBackgroundColor().equals(color)) return;
 		model.setBackgroundColor(color);
 		view.getViewport().setBackground(color);
+	}
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getAnnotator()
+     */
+	public JComponent getAnnotator() { return annotator; }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getAnnotatorIcon()
+     */
+	public Icon getAnnotatorIcon() { return model.getAnnotatorIcon(); }
+
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getAnnotatorTitle()
+     */
+	public String getAnnotatorTitle() { return model.getAnnotatorTitle(); }
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedPane(Component)
+     */
+	public void setSelectedPane(Component c)
+	{
+		if (c == null) return;
+		if (c.equals(annotator)) annotator.activateEditor();
 	}
 
 }

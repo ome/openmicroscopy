@@ -115,19 +115,19 @@ public abstract class TreeImageDisplay
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
-    private TreeImageDisplay    parentDisplay;
+    private TreeImageDisplay    	parentDisplay;
     
     /** 
      * The set of nodes that have been added to this node.
      * Will always be empty for a leaf node. 
      */
-    protected Set                 childrenDisplay;
+    protected Set<TreeImageDisplay>	childrenDisplay;
     
     /**
      * The tooltip: annotation if the <code>DataObject</code>
      * can be annotated and the inserted date if any.
      */
-    private String              tooltip;
+    private String              	tooltip;
     
     /** 
      * Tells if the node has to be highlighted.
@@ -135,19 +135,19 @@ public abstract class TreeImageDisplay
      * background. If a color is specified, the node will be highlighted
      * using the specified color. 
      */
-    private Color				highlight;
+    private Color					highlight;
     
     /** The font style used for the node. */
-    private int                 fontStyle;
+    private int                 	fontStyle;
     
     /** Indicates if the nodes is expanded or not. */
-    private boolean             expanded;
+    private boolean             	expanded;
     
     /** Indicates to display a truncated name. */
-    private boolean				partialName;
+    private boolean					partialName;
     
     /** The number of items. */
-    protected int				numberItems;
+    protected int					numberItems;
     
     /**
      * Returns the partial name of the image's name
@@ -204,7 +204,7 @@ public abstract class TreeImageDisplay
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         setUserObject(hierarchyObject);
-        childrenDisplay = new HashSet();
+        childrenDisplay = new HashSet<TreeImageDisplay>();
         numberItems = -1;
         partialName = true;
         fontStyle = FONT_PLAIN;
@@ -442,7 +442,7 @@ public abstract class TreeImageDisplay
         	if (partialName) return getPartialName(name);
         	return name;
         }
-        if (numberItems == -1) return (name+SPACE+"[...]");
+        if (numberItems < 0) return (name+SPACE+"[...]");
         return (name+SPACE+"["+numberItems+"]");
     }
     

@@ -713,7 +713,9 @@ class TreeViewerComponent
     	removeEditor();
         model.setExperimenter(experimenter);
         model.setHierarchyRoot(experimenter.getId(), userGroupID);
-        
+        //Reset editor selected pane
+        EditorFactory.setEditorSelectedPane(Editor.PROPERTIES_EDITOR);
+        EditorFactory.setSubSelectedPane(Editor.ANNOTATION_INDEX);
         if (model.getState() == READY)
             firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);

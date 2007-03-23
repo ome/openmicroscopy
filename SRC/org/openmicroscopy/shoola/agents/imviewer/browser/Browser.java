@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -207,5 +208,33 @@ public interface Browser
      * @param color The value to set.
      */
 	public void setBackgroundColor(Color color);
+	
+	/**
+	 * Returns the title associated to the annotator.
+	 * 
+	 * @return See above.
+	 */
+	public Icon getAnnotatorIcon();
+	
+	/**
+     * Returns the name of the annotator.
+     * 
+     * @return See above.
+     */
+	public String getAnnotatorTitle();
 
+	/**
+	 * Returns the annotator view.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getAnnotator();
+
+	/**
+	 * Sets the selected pane.
+	 * 
+	 * @param c The selected pane.
+	 */
+	public void setSelectedPane(Component c);
+	
 }

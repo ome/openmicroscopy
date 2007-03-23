@@ -31,8 +31,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver;
-import org.openmicroscopy.shoola.agents.util.classifier.ClassificationsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;

@@ -29,8 +29,9 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -115,12 +116,6 @@ class AnnotatorEditorView
     
     /** Component delete the annotation. */
     private JButton           		deleteButton;
-
-    /** 
-     * Flag indicating that the default text is displayed for the 
-     * current user.
-     */
-    private boolean             	defaultText;
     
     /** The UI component hosting the display. */
     private JPanel					pane;
@@ -136,9 +131,6 @@ class AnnotatorEditorView
 	 * date of annotation. 
 	 */
 	private JTree					treeDisplay;
-	
-	/** Convenience reference. */
-	private DateFormat 				df; 
 	
 	/** Reference to the model. */
 	private AnnotatorEditorModel	model;
@@ -158,8 +150,8 @@ class AnnotatorEditorView
 	/** ScrollPane hosting the UI component displaying the annotations. */
 	private JScrollPane				scrollAnnotations;
 	
-	/** The currently selected node if any. */
-	private JComponent				selectedNode;
+	/** Flag indicating if the node is brought up on screen programatically.*/
+	private boolean					autoScoll;
 	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
@@ -169,8 +161,6 @@ class AnnotatorEditorView
 			long ownerID = ((OwnerNode) o).getOwnerID();
 			showSingleAnnotation(ownerID);
 			selectedOwnerID = ownerID;
-			if (ownerID == model.getUserDetails().getId())
-				selectedNode = annotationArea;
 		} else if (o instanceof TimeNode) {
 			TimeNode tm = (TimeNode) o;
 			long ownerID = tm.getOwnerID();
@@ -181,6 +171,37 @@ class AnnotatorEditorView
 		}
 		validate();
 		repaint();
+    }
+
+    /** 
+     * Scrolls to the passed node.
+     * 
+     * @param c The component to handle.
+     */
+    private void scrollToNode(JComponent c)
+    {
+    	if (c == null) return;
+    	autoScoll = true;
+    	Rectangle bounds = c.getBounds();
+    	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
+		if (!viewRect.contains(bounds)) {
+			int x = 0;
+			int y = 0;
+			int w = viewRect.width-bounds.width;
+			if (w < 0) w = -w;
+			x = bounds.x-w/2;
+			int h = viewRect.height-bounds.height;
+			if (h < 0) h = -h;
+			y = bounds.y-h/2;
+			JScrollBar hBar = scrollAnnotations.getHorizontalScrollBar();
+			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+			vBar.setValue(y);
+			hBar.setValue(x);
+        } 
+		if (c == annotationArea) {
+			c.setVisible(true);
+			c.requestFocus();
+		}
     }
     
     /**
@@ -207,7 +228,17 @@ class AnnotatorEditorView
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
     							BoxLayout.Y_AXIS));
     	scrollAnnotations = new JScrollPane(listAnnotations);
-    	//listAnnotations.
+    	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+    	//necessary to set the location of the scrollbar when 
+    	// the component is embedded in another UI component. */
+    	vBar.addAdjustmentListener(new AdjustmentListener() {
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				if (!e.getValueIsAdjusting() && !autoScoll)
+				scrollAnnotations.getVerticalScrollBar().setValue(0);
+			}
+		});
+    	
+    	
     	treeDisplay = new JTree();
     	DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
         treeDisplay.setModel(new DefaultTreeModel(root));
@@ -249,7 +280,6 @@ class AnnotatorEditorView
                      */
                     public void insertUpdate(DocumentEvent de)
                     {
-                    	//defaultText = false;
                     	model.setAnnotated(true);
                     }
                     
@@ -259,7 +289,6 @@ class AnnotatorEditorView
                      */
                     public void removeUpdate(DocumentEvent de)
                     {
-                    	//defaultText = false;
                         model.setAnnotated(true);
                     }
 
@@ -363,37 +392,6 @@ class AnnotatorEditorView
     	setComponentsEnabled(index == -1 && (ownerID == userID));
     }
     
-    /** 
-     * Scrolls to the passed node.
-     * 
-     * @param c The component to handle.
-     */
-    private void scrollToNode(JComponent c)
-    {
-    	if (c == null) return;
-    	Rectangle bounds = c.getBounds();
-    	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
-    	selectedNode = c;
-		if (!viewRect.contains(bounds)) {
-			int x = 0;
-			int y = 0;
-			int w = viewRect.width-bounds.width;
-			if (w < 0) w = -w;
-			x = bounds.x-w/2;
-			int h = viewRect.height-bounds.height;
-			if (h < 0) h = -h;
-			y = bounds.y-h/2;
-			JScrollBar hBar = scrollAnnotations.getHorizontalScrollBar();
-			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
-			vBar.setValue(y);
-			hBar.setValue(x);
-        } 
-		if (c == annotationArea) {
-			c.setVisible(true);
-			c.requestFocus();
-		}
-    }
-    
     /**
      * Creates child nodes and adds to the passed parent.
      * 
@@ -461,7 +459,6 @@ class AnnotatorEditorView
 	AnnotatorEditorView(int layout)
 	{
 		this.layout = layout;
-		df = DateFormat.getDateInstance();
 		areas = new HashMap<Long, List>();
 		selectedOwnerID = -1;
 	}
@@ -615,49 +612,9 @@ class AnnotatorEditorView
 	{
 		boolean b = true;
 		if (getAnnotationText().length() == 0) b = false;
-		return (isAnnotatable() && !defaultText && b);
+		return (isAnnotatable() && b);
 	}
-    
-	/**
-	 * Overridden to set the location of the scroll bar.
-	 * @see JComponent#setSize(Dimension)
-	 */
-	public void setSize(Dimension d)
-	{
-		super.setSize(d);
-		scrollToNode(selectedNode);
-	}
-	
-	/**
-	 * Overridden to set the location of the scroll bar.
-	 * @see JComponent#setSize(int, int)
-	 */
-	public void setSize(int width, int height)
-	{
-		super.setSize(width, height);
-		scrollToNode(selectedNode);
-	}
-	
-	/**
-	 * Overridden to set the location of the scroll bar.
-	 * @see JComponent#setBounds(Rectangle)
-	 */
-	public void setBounds(Rectangle r)
-	{
-		super.setBounds(r);
-		scrollToNode(selectedNode);
-	}
-	
-	/**
-	 * Overridden to set the location of the scroll bar.
-	 * @see JComponent#setBounds(int, int, int, int)
-	 */
-	public void setBounds(int x, int y, int width, int height)
-	{
-		super.setBounds(x, y, width, height);
-		scrollToNode(selectedNode);
-	}
-	
+   
 	/** Inner class hosting the experimenter details. */
 	class OwnerNode 
 		extends DefaultMutableTreeNode
@@ -749,7 +706,8 @@ class AnnotatorEditorView
 		public String toString()
 		{ 
 			if (getUserObject() == null) return "New Annotation";
-			return df.format((Timestamp) getUserObject()) ;
+			String s = getUserObject().toString();
+			return s.substring(0, s.indexOf("."));//df.format((Timestamp) getUserObject()) ;
 		}
 	}
 	

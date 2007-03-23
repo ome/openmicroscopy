@@ -47,6 +47,7 @@ package org.openmicroscopy.shoola.env.init;
 
 public interface InitializationListener
 {
+	
 	/**
 	 * Called just before the initialization process starts.
 	 * No task has been executed yet.
