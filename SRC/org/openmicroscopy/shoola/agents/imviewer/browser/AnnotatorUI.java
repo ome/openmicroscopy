@@ -73,6 +73,9 @@ class AnnotatorUI
 	/** Reference to the Model. */
     private BrowserModel	model;
     
+    /** Reference to the Control. */
+    private BrowserControl	controller;
+    
     /** Reference to the editor. */
     private AnnotatorEditor editor;
 
@@ -112,12 +115,16 @@ class AnnotatorUI
 	/**
 	 * Links the components.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param controller    Reference to the Control.
+     *                      Mustn't be <code>null</code>.
+	 * @param model 		Reference to the model. 
+	 * 						Mustn't be <code>null</code>.
 	 */
-	void initialize(BrowserModel model)
+	void initialize(BrowserControl controller, BrowserModel model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
+		if (controller == null) throw new NullPointerException("No control.");
 		canvas = new AnnotatorCanvas(model);
 		editor = AnnotatorFactory.getEditor(ImViewerAgent.getRegistry(), 
 									model.getImageData(), 
@@ -126,6 +133,7 @@ class AnnotatorUI
 		canvas.addMouseListener(this);
 		canvas.addMouseMotionListener(this);
 		canvas.addMouseWheelListener(this);
+		editor.addPropertyChangeListener(controller);
 		buildGUI();
 	}
 

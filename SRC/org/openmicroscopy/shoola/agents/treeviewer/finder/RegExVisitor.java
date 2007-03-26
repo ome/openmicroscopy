@@ -61,16 +61,16 @@ public class RegExVisitor
 {
 
     /** The highlighted color. */
-    private Color	color = Color.RED;
+    private Color					color = Color.RED;
     
     /** Collection of found nodes. */
-    private Set 	foundNodes;
+    private Set<TreeImageDisplay>	foundNodes;
     
     /** The pattern to find. */
-    private Pattern pattern;
+    private Pattern 				pattern;
     
     /** Reference to {@link Finder}.*/
-    private Finder	model;
+    private Finder					model;
     
     /**
      * Returns the name of the specified object.
@@ -188,7 +188,7 @@ public class RegExVisitor
         if (pattern == null) throw new IllegalArgumentException("No pattern.");
         this.model = model;
         this.pattern = pattern;
-        foundNodes = new HashSet();
+        foundNodes = new HashSet<TreeImageDisplay>();
     }
     
     /**

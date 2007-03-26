@@ -23,6 +23,11 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
+
 
 
 //Java imports
@@ -48,10 +53,11 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
  * @since OME2.2
  */
 class BrowserControl
+	implements PropertyChangeListener
 {
 
     /** Reference to the Model. */
-    private BrowserModel    model;
+    private Browser    	model;
     
     /** The View controlled by this Controller.*/
     private BrowserUI       view;
@@ -71,12 +77,21 @@ class BrowserControl
      *              Mustn't be <code>null</code>.
      * @param view  Reference to the View.  Mustn't be <code>null</code>.
      */
-    void initialize(BrowserModel model, BrowserUI view)
+    void initialize(Browser model, BrowserUI view)
     {
         if (model == null) throw new NullPointerException("no model");
         if (view == null) throw new NullPointerException("no view");
         this.model = model;
         this.view = view;
     }
+
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
+			model.setSelectedPane(model.getAnnotator());
+		}
+		
+	}
     
 }

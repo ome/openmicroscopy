@@ -96,6 +96,9 @@ import pojos.ProjectData;
 class OMEROGateway
 {
 
+	/** Maximum size of pixels read at once. */
+	private static final int		INC = 256000;
+	
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
@@ -132,28 +135,34 @@ class OMEROGateway
      * This method is not supposed to be used in this class' constructor or in
      * the login/logout methods.
      *  
-     * @param e     	The exception.
+     * @param t     	The exception.
      * @param message	The context message.    
      * @throws DSOutOfServiceException  A connection problem.
      * @throws DSAccessException    A server-side error.
      */
-    private void handleException(Exception e, String message) 
+    private void handleException(Throwable t, String message) 
         throws DSOutOfServiceException, DSAccessException
     {
-    	if (e instanceof SecurityException) {
+    	Throwable cause = t.getCause();
+    	if (cause instanceof SecurityException) {
     		String s = "Cannot access data for security reasons \n"; 
-    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
-    	} else if (e instanceof EJBAccessException) {
+    		throw new DSAccessException(s+message+"\n\n"+
+    							printErrorText((Exception) cause));
+    	} else if (cause instanceof EJBAccessException) {
     		String s = "Cannot access data for security reasons \n"; 
-    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
-    	} else if (e instanceof ApiUsageException) {
+    		throw new DSAccessException(s+message+"\n\n"+
+    				printErrorText((Exception) cause));
+    	} else if (cause instanceof ApiUsageException) {
     		String s = "Cannot access data, specified parameters not valid \n"; 
-    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
-    	} else if (e instanceof ValidationException) {
+    		throw new DSAccessException(s+message+"\n\n"+
+    				printErrorText((Exception) cause));
+    	} else if (cause instanceof ValidationException) {
     		String s = "Cannot access data, specified parameters not valid \n"; 
-    		throw new DSAccessException(s+message+"\n\n"+printErrorText(e));
+    		throw new DSAccessException(s+message+"\n\n"+
+    					printErrorText((Exception) cause));
     	} else 
-    		throw new DSOutOfServiceException(message+"\n\n"+printErrorText(e));
+    		throw new DSOutOfServiceException(message+"\n\n"+
+    					printErrorText((Exception) cause));
     }
     
     /**
@@ -490,8 +499,8 @@ class OMEROGateway
             IPojos service = getIPojosService();
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
                     convertPojos(rootNodeType), rootNodeIDs, options));
-        } catch (Exception e) {
-            handleException(e, "Cannot load hierarchy for "+rootNodeType+".");
+        } catch (Throwable t) {
+            handleException(t, "Cannot load hierarchy for "+rootNodeType+".");
         }
         return new HashSet();
     }
@@ -525,8 +534,8 @@ class OMEROGateway
             IPojos service = getIPojosService();
             return PojoMapper.asDataObjects(service.findContainerHierarchies(
                             convertPojos(rootNodeType), leavesIDs, options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find hierarchy for "+rootNodeType+".");
+        } catch (Throwable t) {
+            handleException(t, "Cannot find hierarchy for "+rootNodeType+".");
         }
         return new HashSet();
     }
@@ -569,8 +578,8 @@ class OMEROGateway
             return PojoMapper.asDataObjects(
                     service.findAnnotations(convertPojos(nodeType), nodeIDs, 
                             annotatorIDs, options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find annotations for "+nodeType+".");
+        } catch (Throwable t) {
+            handleException(t, "Cannot find annotations for "+nodeType+".");
         }
         return new HashMap();
     }
@@ -617,8 +626,8 @@ class OMEROGateway
             return PojoMapper.asDataObjects(service.findCGCPaths(imgIDs, 
                                     mapAlgorithmToString(algorithm),
                                     options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find CGC paths.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot find CGC paths.");
         }
         return new HashSet();
     }
@@ -646,8 +655,8 @@ class OMEROGateway
             IPojos service = getIPojosService();
             return PojoMapper.asDataObjects(
                    service.getImages(convertPojos(nodeType), nodeIDs, options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find images for "+nodeType+".");
+        } catch (Throwable t) {
+            handleException(t, "Cannot find images for "+nodeType+".");
         }
         return new HashSet();
     }
@@ -670,8 +679,8 @@ class OMEROGateway
         try {
             IPojos service = getIPojosService();
             return PojoMapper.asDataObjects(service.getUserImages(options));
-        } catch (Exception e) {
-            handleException(e, "Cannot find user images.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot find user images.");
         }
         return new HashSet();
     }
@@ -704,8 +713,8 @@ class OMEROGateway
             return PojoMapper.asDataObjects(service.getCollectionCount(
                     convertPojosToString(rootNodeType), p, rootNodeIDs, 
                     options));
-        } catch (Exception e) {
-            handleException(e, "Cannot count the collection.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot count the collection.");
         }
         return new HashMap();
 	}
@@ -727,8 +736,8 @@ class OMEROGateway
         try {
             IPojos service = getIPojosService();
             return service.createDataObject(object, options);
-        } catch (Exception e) {
-            handleException(e, "Cannot update the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot update the object.");
         }
         return null;
     }
@@ -751,8 +760,8 @@ class OMEROGateway
             IPojos service = getIPojosService();
             IObject[] results = service.createDataObjects(objects, options);
             return results;
-        } catch (Exception e) {
-            handleException(e, "Cannot update the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot update the object.");
         }
         return null;
     }
@@ -772,8 +781,8 @@ class OMEROGateway
         try {
             IUpdate service = getIUpdateService();
             service.deleteObject(object);
-        } catch (Exception e) {
-            handleException(e, "Cannot delete the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot delete the object.");
         }
     }
 
@@ -795,8 +804,8 @@ class OMEROGateway
             for (int i = 0; i < objects.length; i++) {
                 service.deleteObject(objects[i]);
             }
-        } catch (Exception e) {
-            handleException(e, "Cannot delete the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot delete the object.");
         }
     }
     
@@ -817,8 +826,8 @@ class OMEROGateway
         try {
             IPojos service = getIPojosService();
             return service.updateDataObject(object, options);
-        } catch (Exception e) {
-            handleException(e, "Cannot update the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot update the object.");
         }
         return null;
     }
@@ -841,8 +850,8 @@ class OMEROGateway
         try {
             IPojos service = getIPojosService();
             return service.updateDataObjects(objects, options);
-        } catch (Exception e) {
-            handleException(e, "Cannot update the object.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot update the object.");
         }
         return null;
     }
@@ -864,8 +873,8 @@ class OMEROGateway
             Pixels pixs = service.get(Pixels.class, pixelsID);
             return (PixelsDimensions) service.get(PixelsDimensions.class,
                     pixs.getPixelsDimensions().getId().longValue());
-        } catch (Exception e) {
-            handleException(e, "Cannot retrieve the dimension of "+
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the dimension of "+
                                 "the pixels set.");
         }
         return null;
@@ -894,8 +903,8 @@ class OMEROGateway
                     "left outer join fetch c.statsInfo where p.id = :id",
                     new Parameters().addId(new Long(pixelsID)));
             return pixs.getChannels();
-        } catch (Exception e) {
-            handleException(e, "Cannot retrieve the channelsData for "+
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the channelsData for "+
                                 "the pixels set "+pixelsID);
         }
         return null;
@@ -952,8 +961,8 @@ class OMEROGateway
             needDefault(pixelsID, service);
             service.load();
             return service;
-        } catch (Exception e) {
-            handleException(e, "Cannot start the Rendering Engine.");
+        } catch (Throwable t) {
+            handleException(t, "Cannot start the Rendering Engine.");
         }
         return null;
     }
@@ -981,8 +990,8 @@ class OMEROGateway
             param.addLong("parentID", parent.getId());
             param.addLong("childID", child.getId());
             return service.findByQuery(sql, param);
-        } catch (Exception e) {
-            handleException(e, "Cannot retrieve the requested link for "+
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
             					"parent ID: "+parent.getId()+" and child " +
             					"ID: "+child.getId());
         }
@@ -1013,8 +1022,8 @@ class OMEROGateway
             param.addLong("parentID", parent.getId());
             param.addList("childIDs", children);
             return service.findAllByQuery(sql, param);
-        } catch (Exception e) {
-            handleException(e, "Cannot retrieve the requested link for "+
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the requested link for "+
             					"parent ID: "+parent.getId());
         }
         return null;
@@ -1035,13 +1044,35 @@ class OMEROGateway
     	 try {
              IQuery service = getIQueryService();
              return service.find(o.getClass(), o.getId().longValue());
-         } catch (Exception e) {
-             handleException(e, "Cannot retrieve the requested object with "+
+         } catch (Throwable t) {
+             handleException(t, "Cannot retrieve the requested object with "+
             		 			"object ID: "+o.getId());
          }
          return null;
     } 
     
+    /**
+     * Retrieves an updated version of the specified object.
+     * 
+     * @param klass	The type of object to retrieve.
+     * @param id 	The object's id.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+    IObject findIObject(Class klass, long id)
+    	throws DSOutOfServiceException, DSAccessException
+    {
+    	 try {
+             IQuery service = getIQueryService();
+             return service.find(klass, id);
+         } catch (Throwable t) {
+             handleException(t, "Cannot retrieve the requested object with "+
+            		 			"object ID: "+id);
+         }
+         return null;
+    } 
     /**
      * Retrieves the available experimenter groups.
      * 
@@ -1073,8 +1104,8 @@ class OMEROGateway
 				
 			}
 			return pojos;
-		} catch (Exception e) {
-			handleException(e, "Cannot retrieve the available groups ");
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the available groups ");
 		}
 		return null;
     }
@@ -1107,21 +1138,21 @@ class OMEROGateway
     	int size;	
     	FileOutputStream stream;
     	int offset = 0;
-    	int inc = 256000;
     	File f;
     	List<String> notDownloaded = new ArrayList<String>();
     	while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			store.setFileId(of.getId()); 
 			f = new File(path+of.getName());
+			//TODO: review that code
 			try {
 				stream = new FileOutputStream(f);
-				size = of.getSize().intValue();
+				size = of.getSize().intValue(); 
 				try {
 					try {
-						for (offset = 0; (offset+inc) < size;) {
-							stream.write(store.read(offset, inc));
-							offset += inc;
+						for (offset = 0; (offset+INC) < size;) {
+							stream.write(store.read(offset, INC));
+							offset += INC;
 						}	
 					} finally {
 						stream.write(store.read(offset, size-offset)); 
@@ -1155,8 +1186,8 @@ class OMEROGateway
 		IAdmin service = getIAdmin();
 		try {
 			service.changePassword(password);
-		} catch (Exception e) {
-			handleException(e, "Cannot modify password. ");
+		} catch (Throwable t) {
+			handleException(t, "Cannot modify password. ");
 		}
 	}
 
@@ -1174,8 +1205,8 @@ class OMEROGateway
 		IAdmin service = getIAdmin();
 		try {
 			service.updateExperimenter(exp);
-		} catch (Exception e) {
-			handleException(e, "Cannot update the user. ");
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the user. ");
 		}
 	}
     

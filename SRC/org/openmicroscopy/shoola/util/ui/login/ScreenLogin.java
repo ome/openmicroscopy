@@ -54,7 +54,6 @@ import javax.swing.JTextPane;
 
 //Third-party libraries
 import layout.TableLayout;
-import layout.TableLayoutConstants;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -78,6 +77,9 @@ public class ScreenLogin
 	implements ActionListener, PropertyChangeListener
 {
 
+	/** Bounds property indicating this window is moved to the front. */
+	public static final String		TO_FRONT_PROPERTY = "toFront";
+	
 	/** Bounds property indicating to log in. */
 	public static final String 		LOGIN_PROPERTY = "login";
 	
@@ -272,8 +274,8 @@ public class ScreenLogin
      */
     private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
     {
-    	double[][] size = new double[][]{{TableLayoutConstants.PREFERRED, 
-    									TableLayoutConstants.FILL}, {30}};
+    	double[][] size = new double[][]{{TableLayout.PREFERRED, 
+    									TableLayout.FILL}, {30}};
         
         JPanel panel = new JPanel();
         panel.setOpaque(false);
@@ -299,7 +301,7 @@ public class ScreenLogin
     private JPanel buildTopPanel()
     {
     	double topTable[][] =  {{245, 18, 220, 28}, // columns
-    							{32, TableLayoutConstants.FILL}}; // rows
+    							{32, TableLayout.FILL}}; // rows
     	JPanel topPanel = new JPanel();
     	topPanel.setOpaque(false);
         topPanel.setLayout(new TableLayout(topTable));   
@@ -328,8 +330,8 @@ public class ScreenLogin
     private JPanel buildMainPanel(String version)
     {
         double mainTable[][] =
-                {{TableLayoutConstants.FILL, 100, 5, 100}, // columns
-                {TableLayoutConstants.FILL, 30}}; // rows
+                {{TableLayout.FILL, 100, 5, 100}, // columns
+                {TableLayout.FILL, 30}}; // rows
     	JPanel mainPanel = new JPanel();
     	mainPanel.setLayout(new TableLayout(mainTable));       
     	mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -444,7 +446,6 @@ public class ScreenLogin
     	setTitle(title);
     	if (logo == null)
 			throw new NullPointerException("No Frame icon.");
-    	//availableServers = getServers();
     	Dimension d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
 		setSize(d);
 		setPreferredSize(d);
@@ -457,7 +458,14 @@ public class ScreenLogin
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
-		//setAlwaysOnTop(true);
+		toFront();
+		addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+		
+			}
+		});
     }
     
     /**

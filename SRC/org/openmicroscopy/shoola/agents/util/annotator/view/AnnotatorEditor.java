@@ -66,9 +66,6 @@ public interface AnnotatorEditor
 
 	/** Bounds property indicating to save the annotation. */
 	public static final String		SAVE_PROPERTY = "Save";
-	
-	/** Bounds property indicating that an image has been annotated. */
-	public static final String		ANNOTATED_PROPERTY = "annotated";
 
 	/** 
 	 * Bounds property indicating that the annotations linked 

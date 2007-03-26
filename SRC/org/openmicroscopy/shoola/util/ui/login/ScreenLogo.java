@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui.login;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -53,6 +55,9 @@ import javax.swing.JProgressBar;
 public class ScreenLogo 
 	extends JFrame
 {
+	
+	/** Bounds property indicating this window is moved to the front. */
+	public static final String			MOVE_FRONT_PROPERTY = "moveFront";
 	
 	/** 
 	 * The gap between the two splash windows i.e. <code>Screen Logo</code>
@@ -82,7 +87,6 @@ public class ScreenLogo
 		progressBar = new JProgressBar();
 		progressBar.setStringPainted(false);
 		progressBar.setFont(newFont);
-		//progressBar.setIndeterminate(true);
 	}
 	
 	/**
@@ -127,7 +131,13 @@ public class ScreenLogo
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
-		//setAlwaysOnTop(true);
+		toFront();
+		addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+			}
+		});
 	}
 	
 	/**
@@ -203,9 +213,6 @@ public class ScreenLogo
     public void setStatusVisible(boolean b)
     {
     	currentTask.setVisible(b);
-    	
-    	
-    	
     	progressBar.setVisible(b);
     }
     

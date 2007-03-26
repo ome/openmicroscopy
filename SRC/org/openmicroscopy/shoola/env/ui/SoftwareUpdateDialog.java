@@ -28,8 +28,11 @@ package org.openmicroscopy.shoola.env.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
@@ -69,6 +72,9 @@ class SoftwareUpdateDialog
     extends JDialog
 {
 
+	/** Bounds property indicating to launch the web site. */
+	static final String	OPEN_URL_PROPERTY = "openURL";
+	
 	/** The window's title. */
 	private static final String		TITLE = "About Software...";
 	
@@ -133,6 +139,19 @@ class SoftwareUpdateDialog
         content.setLayout(new TableLayout(size));
         Icon icon = IconManager.getLogoAbout();
         JEditorPane p = UIUtilities.buildTextEditorPane(aboutMessage);
+        p.addMouseListener(new MouseAdapter() {
+	
+			public void mouseClicked(MouseEvent e) {
+				JEditorPane c = (JEditorPane) e.getSource();
+				if (c.getCursor().equals(
+					Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) {
+					c.setCursor(Cursor.getDefaultCursor());
+					firePropertyChange(OPEN_URL_PROPERTY, 
+									Boolean.FALSE, Boolean.TRUE);
+				}
+			}
+		
+		});
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         p.setBackground(Color.WHITE);
         p.setOpaque(true);

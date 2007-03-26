@@ -103,9 +103,9 @@ class BrowserComponent
     void initialize()
     {
         model.initialize(this);
-        controller.initialize(model, view);
+        controller.initialize(this, view);
         view.initialize(controller, model);
-        annotator.initialize(model);
+        annotator.initialize(controller, model);
     }
     
     /** 

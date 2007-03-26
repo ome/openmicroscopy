@@ -106,6 +106,7 @@ class AnnotatorEditorComponent
 		switch (model.getState()) {
 	        case NEW:
 	        case READY:
+	        	view.onSelectedDisplay(true);
 	        	model.fireAnnotationsRetrieval();
 	        	fireStateChange();
 	            break;

@@ -28,14 +28,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -63,11 +67,24 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME2.2
  */
 class TaskBarManager
-	implements AgentEventListener
+	implements AgentEventListener, PropertyChangeListener
 {
 
 	/** The name of the about file in the config directory. */
 	private static final String		ABOUT_FILE = "about.txt";
+	
+	/** Array of supported browsers. */
+	private static final String[]	BROWSERS_UNIX;
+	
+	static {
+		BROWSERS_UNIX = new String[6];
+		BROWSERS_UNIX[0] = "firefox";
+		BROWSERS_UNIX[1] = "opera";
+		BROWSERS_UNIX[2] = "konqueror";
+		BROWSERS_UNIX[3] = "epiphany";
+		BROWSERS_UNIX[4] = "mozilla";
+		BROWSERS_UNIX[5] = "netscape";
+	}
 	
 	/** The view this controller is managing. */
 	private TaskBarView		view;
@@ -75,6 +92,43 @@ class TaskBarManager
 	/** Reference to the container. */
 	private Container		container;
 
+	/**
+	 * Opens the url. 
+	 * 
+	 * @param url The url to open.
+	 */
+	private void openURL(String url)
+	{
+		String osName = System.getProperty("os.name");
+		try {
+			if (osName.startsWith("Mac OS")) {
+				Class fileMgr = Class.forName("com.apple.eio.FileManager");
+				Method openURL = fileMgr.getDeclaredMethod("openURL",
+											new Class[] {String.class});
+				openURL.invoke(null, new Object[] {url});
+			}
+			else if (osName.startsWith("Windows"))
+				Runtime.getRuntime().exec(
+						"rundll32 url.dll,FileProtocolHandler "+url);
+			else { //assume Unix or Linux
+				String browser = null;
+				for (int count = 0; count < BROWSERS_UNIX.length && 
+					browser == null; count++)
+					if (Runtime.getRuntime().exec(
+							new String[] {"which", 
+										BROWSERS_UNIX[count]}).waitFor() == 0)
+						browser = BROWSERS_UNIX[count];
+				if (browser == null)
+					throw new Exception("Could not find web browser");
+				else
+					Runtime.getRuntime().exec(new String[] {browser, url});
+			}
+		} catch (Exception e) {
+			UserNotifier un = container.getRegistry().getUserNotifier();
+			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
+		}
+	}
+	
 	/**
 	 * Reads the content of the specified file and returns it as a string.
 	 * 
@@ -176,6 +230,8 @@ class TaskBarManager
     	//READ content of the about file.
     	String message = loadAbout(container.resolveConfigFile(ABOUT_FILE));
         SoftwareUpdateDialog d = new SoftwareUpdateDialog(view, message);
+        d.addPropertyChangeListener(SoftwareUpdateDialog.OPEN_URL_PROPERTY, 
+        							this);
         UIUtilities.centerAndShow(d);
     }
     
@@ -284,6 +340,19 @@ class TaskBarManager
 	{
 		if (e instanceof ServiceActivationResponse)	synchConnectionButtons();
         else if (e instanceof ExitApplication) doExit();
+	}
+
+	/**
+	 * Reacts to property change fired by the <code>SoftwareUpdateDialog</code>.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		if (SoftwareUpdateDialog.OPEN_URL_PROPERTY.equals(name)) {
+			String url = (String) container.getRegistry().lookup(
+											LookupNames.WEBSITE_URL);
+			openURL(url);
+		}
 	}
 
 }

@@ -28,8 +28,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -69,7 +67,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 
 class SplashScreenManager
-	implements ActionListener, PropertyChangeListener
+	implements PropertyChangeListener
 {
     
 	/** The title of the splash screens. */
@@ -128,30 +126,7 @@ class SplashScreenManager
 	    Rectangle r = viewTop.getBounds();
 		view.setBounds(r.x,  r.y+d.height, dlogin.width, dlogin.height);
 		view.addPropertyChangeListener(this);
-		
-	     
-		/*
-		view.user.addActionListener(this);
-		view.pass.addActionListener(this);
-		view.login.addActionListener(this);
-        view.cancel.addActionListener(listener);
-        view.configButton.addActionListener(new ActionListener() {
-        
-            public void actionPerformed(ActionEvent e)
-            {
-                handleServerSelection();
-            }
-        
-        });
-        view.addWindowListener(new WindowAdapter()
-        {
-        	public void windowOpened(WindowEvent e) {
-        		view.user.requestFocus();
-        	} 
-        });
-        view.setAlwaysOnTop(true);
-        viewTop.setAlwaysOnTop(true);
-        */
+		viewTop.addPropertyChangeListener(this);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -197,10 +172,7 @@ class SplashScreenManager
 		totalTasks = value;
 		//NB: Increment to show that the execution process is finished 
 		// i.e. all tasks executed.
-		totalTasks++;	
-		//viewTop.progressBar.setMinimum(0);
-		//viewTop.progressBar.setMaximum(value);
-		//viewTop.progressBar.setValue(0);
+		totalTasks++;
 		viewTop.initProgressBar(value);
 	}
 	
@@ -215,13 +187,10 @@ class SplashScreenManager
 	void updateProgress(String task)
 	{
 		if (!isOpen) return;
-		//viewTop.currentTask.setText(task);
 		int n = doneTasks++;
-		//viewTop.progressBar.setValue(n);
 		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
-			//viewTop.progressBar.setVisible(false);
 			view.setVisible(true);
 		}
 	}
@@ -237,18 +206,7 @@ class SplashScreenManager
     {
         userCredentials = future;
         view.setControlsEnabled(true);
-        /*
-        view.user.setEnabled(true);
-        view.pass.setEnabled(true);
-        view.login.setEnabled(true);
-        //view.cancel.setEnabled(true);
-        view.configButton.setEnabled(true);
-        if (!init) {
-            view.setCursor(Cursor.getDefaultCursor());
-            view.user.setText("");
-            view.pass.setText("");
-        }
-        */
+       
         if (!init) {
             view.setCursor(Cursor.getDefaultCursor());
             view.cleanField(ScreenLogin.PASSWORD_FIELD);
@@ -265,46 +223,8 @@ class SplashScreenManager
     {
         userCredentials = future;
         view.setControlsEnabled(true);
-        /*
-        view.user.setEnabled(true);
-        view.pass.setEnabled(true);
-        view.login.setEnabled(true);
-        view.configButton.setEnabled(true);
-        */
     }
     
-	/** 
-	 * Handles action events fired by the login fields and button.
-	 * Once user name and password have been entered, the login fields and
-	 * button will be disabled. 
-     * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{
-		/*
-        StringBuffer buf = new StringBuffer();
-        buf.append(view.pass.getPassword());
-        String usr = view.user.getText().trim(), psw = buf.toString();
-        String s = view.serverText.getText().trim();
-        try {
-            UserCredentials uc = new UserCredentials(usr, psw, s);
-            if (userCredentials != null) { 
-                userCredentials.set(uc);
-                view.user.setEnabled(false);
-                view.pass.setEnabled(false);
-                view.login.setEnabled(false);
-                //view.cancel.setEnabled(false);
-                view.configButton.setEnabled(false);
-                view.setCursor(
-                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            }
-        } catch (IllegalArgumentException iae) {
-            UserNotifier un = UIFactory.makeUserNotifier(container);
-            un.notifyError("Login Incomplete", iae.getMessage());
-        }
-        */
-	}
-
 	/**
 	 * Attempts to log onto <code>OMERO</code>.
 	 * 
@@ -333,10 +253,13 @@ class SplashScreenManager
 		if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 			if (userCredentials != null  && lc != null) login(lc);
-			
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
 			 container.exit();
 		     component.close();
+		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name)) {
+			viewTop.toFront();
+		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
+			view.toFront();
 		}
 	}
 

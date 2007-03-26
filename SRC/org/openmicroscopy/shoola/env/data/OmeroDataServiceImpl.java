@@ -334,8 +334,8 @@ class OmeroDataServiceImpl
         //First make sure the data object is current;
         IObject ho = gateway.findIObject(data.asIObject());
         if (ho != null) gateway.deleteObject(ho);
-        
-        return updateDataObject(annotatedObject);
+        ho = gateway.findIObject(annotatedObject.asIObject());
+        return PojoMapper.asDataObject(ho);
     }
 
     /**
@@ -428,8 +428,11 @@ class OmeroDataServiceImpl
     {
         if (object == null) 
             throw new DSAccessException("No object to update.");
-        IObject oldObject = object.asIObject();
-        IObject ho = gateway.findIObject(object.asIObject());
+        IObject ho = null;
+        IObject oldObject = null;
+        oldObject = object.asIObject();
+        ho = gateway.findIObject(oldObject);
+        
         if (ho == null) return null;
         ModelMapper.fillIObject(oldObject, ho);
         ModelMapper.unloadCollections(ho);

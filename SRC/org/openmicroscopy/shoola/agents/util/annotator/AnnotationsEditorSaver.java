@@ -155,6 +155,7 @@ public class AnnotationsEditorSaver
 	{
 	    if (viewer.getState() == DataHandler.DISCARDED) return; 
 	    DataObject object = (DataObject) ((List) result).get(0);
+	    System.err.println(object);
 	    viewer.saveAnnotation(object);
 	}
 

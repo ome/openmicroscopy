@@ -99,7 +99,7 @@ public class FindPane
     private FindPopupMenu           popupMenu;
     
     /** The previously searched value. */
-    private List                    history;
+    private List<String>            history;
     
     /** The currently selected node in the tree. */
     private DefaultMutableTreeNode  selectedNode;
@@ -117,7 +117,7 @@ public class FindPane
     {
         super(model);
         found = false;
-        history = new ArrayList();
+        history = new ArrayList<String>();
         findData = new FindData();
         uiDelegate = new FindPaneUI(this);
         popupMenu = new FindPopupMenu(this);
@@ -312,7 +312,7 @@ public class FindPane
      */
     String[] getHistory() 
     { 
-        return (String[]) history.toArray(new String[history.size()]);
+        return history.toArray(new String[history.size()]);
     }
     
     /**

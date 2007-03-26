@@ -234,14 +234,6 @@ class AnnotatorEditorModel
         this.annotations = sortedAnnotations;
         state = DataHandler.READY;
     }
-
-    /*
-    List sortByDate(List timestamps)
-    {
-        sorter.setAscending(false);
-    	return sorter.sort(timestamps);
-    }
-    */
     
     /**
 	 * Loads asynchronously the annotations for the annotated 

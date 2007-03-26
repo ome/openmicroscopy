@@ -153,6 +153,8 @@ class AnnotatorEditorView
 	/** Flag indicating if the node is brought up on screen programatically.*/
 	private boolean					autoScoll;
 	
+	private DocumentListener		listener;
+	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
     {
@@ -237,8 +239,6 @@ class AnnotatorEditorView
 				scrollAnnotations.getVerticalScrollBar().setValue(0);
 			}
 		});
-    	
-    	
     	treeDisplay = new JTree();
     	DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
         treeDisplay.setModel(new DefaultTreeModel(root));
@@ -271,34 +271,35 @@ class AnnotatorEditorView
         deleteButton = new JButton(
     			controller.getAction(AnnotatorEditorControl.DELETE));
 
-        annotationArea.getDocument().addDocumentListener(
-        		new DocumentListener() {
-                    
-                    /** 
-                     * Indicates that the object is annotated. 
-                     * @see DocumentListener#insertUpdate(DocumentEvent)
-                     */
-                    public void insertUpdate(DocumentEvent de)
-                    {
-                    	model.setAnnotated(true);
-                    }
-                    
-                    /** 
-                     * Indicates that the object is annotated. 
-                     * @see DocumentListener#removeUpdate(DocumentEvent)
-                     */
-                    public void removeUpdate(DocumentEvent de)
-                    {
-                        model.setAnnotated(true);
-                    }
+        listener = new DocumentListener() {
+            
+            /** 
+             * Indicates that the object is annotated. 
+             * @see DocumentListener#insertUpdate(DocumentEvent)
+             */
+            public void insertUpdate(DocumentEvent de)
+            {
+            	model.setAnnotated(true);
+            	saveButton.setEnabled(true);
+            }
+            
+            /** 
+             * Indicates that the object is annotated. 
+             * @see DocumentListener#removeUpdate(DocumentEvent)
+             */
+            public void removeUpdate(DocumentEvent de)
+            {
+                model.setAnnotated(true);
+            }
 
-                    /** 
-                     * Required by I/F but no-op implementation in our case. 
-                     * @see DocumentListener#changedUpdate(DocumentEvent)
-                     */
-                    public void changedUpdate(DocumentEvent de) {}
-                    
-                });
+            /** 
+             * Required by I/F but no-op implementation in our case. 
+             * @see DocumentListener#changedUpdate(DocumentEvent)
+             */
+            public void changedUpdate(DocumentEvent de) {}
+            
+        };
+        annotationArea.getDocument().addDocumentListener(listener);
         setComponentsEnabled(false);
     }
     
@@ -389,7 +390,7 @@ class AnnotatorEditorView
 		}
     	c = (MultilineLabel) l.get(j);
     	scrollToNode(c);
-    	setComponentsEnabled(index == -1 && (ownerID == userID));
+    	deleteButton.setEnabled(index != -1 && (ownerID == userID));
     }
     
     /**
@@ -489,7 +490,7 @@ class AnnotatorEditorView
     void setComponentsEnabled(boolean b)
     {
         saveButton.setEnabled(b);
-        deleteButton.setEnabled(b);
+        deleteButton.setEnabled(!b);
         //annotationArea.setEditable(b);
         //if (b) {
         //    annotationArea.requestFocus();
@@ -552,6 +553,11 @@ class AnnotatorEditorView
     	dtm.reload(root);
     	listAnnotations.removeAll();
     	areas.clear();
+    	annotationArea.getDocument().removeDocumentListener(listener);
+    	annotationArea.setText("");
+    	annotationArea.getDocument().addDocumentListener(listener);
+    	model.setAnnotated(false);
+    	
         repaint();
     }
     
@@ -572,6 +578,7 @@ class AnnotatorEditorView
     		int index = tm.getIndex();
     		Map annotations = model.getAnnotations();
         	List list = (List) annotations.get(tm.getOwnerID());
+        	if (list == null || list.size() == 0) return true;
         	return (index == list.size()-1);
     	}
     	return false;

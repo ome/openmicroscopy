@@ -1,11 +1,11 @@
 <html>
-<body bgcolor="white">
+<body>
 <p>
 OMERO.insight
 </p>
 <p>
 Version: 3_0_Beta2<br>
-Build: 15-03-2007<br>
+Build: 26-03-2007<br>
 </p>
 <p>
 <br>

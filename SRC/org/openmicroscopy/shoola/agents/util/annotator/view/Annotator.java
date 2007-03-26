@@ -95,6 +95,5 @@ public interface Annotator
 	 * @param results The updated <code>DataObject</code>s.
 	 */
 	public void saveAnnotations(List results);
-
 	
 }

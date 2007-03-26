@@ -64,7 +64,8 @@ public class DeleteAction
      */
 	protected void onStateChange()
 	{
-		setEnabled(model.hasAnnotation());
+		//setEnabled(model.hasAnnotation());
+		setEnabled(false);
 	}
 	
 	/**

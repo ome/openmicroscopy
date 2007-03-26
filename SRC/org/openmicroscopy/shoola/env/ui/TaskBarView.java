@@ -311,8 +311,8 @@ class TaskBarView
 		help.add(buttons[HELP_MI]);
 		help.add(buttons[HOWTO_MI]);
 		help.add(buttons[UPDATES_MI]);
-		help.add(new JSeparator());
-		help.add(buttons[ABOUT_MI]);
+		//help.add(new JSeparator());
+		//help.add(buttons[ABOUT_MI]);
 		return help;
 	}
 	
