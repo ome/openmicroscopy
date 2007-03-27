@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -30,16 +30,17 @@ public class LicenseStoreTest extends TestCase {
     public void testInitialValues() throws Exception {
 
         store = new Store();
-
-        assertTrue("Should be 1", store.getAvailableLicenseCount() == 1);
-        assertTrue("Should be 1", store.getTotalLicenseCount() == 1);
+        ((Store)store).setLicenseCount(0);
+        
+        assertTrue("Should be 0", store.getAvailableLicenseCount() == 0);
+        assertTrue("Should be 0", store.getTotalLicenseCount() == 0);
         expectLicenseException(store, LicenseStore.class
                 .getMethod("acquireLicense"));
         assertFalse(store.releaseLicense(null));
         expectLicenseException(store, LicenseStore.class.getMethod(
-                "enterMethod", byte[].class), dummy);
+                "enterMethod", byte[].class, LicensedPrincipal.class), dummy, null);
         expectLicenseException(store, LicenseStore.class.getMethod(
-                "exitMethod", byte[].class), dummy);
+                "exitMethod", byte[].class, LicensedPrincipal.class), dummy, null);
 
     }
 
@@ -106,7 +107,7 @@ public class LicenseStoreTest extends TestCase {
         store = new Store(1);
 
         byte[] token = store.acquireLicense();
-        TokenInfo info = ((Store) store).getTokens().get(token);
+        TokenInfo info = ((Store) store).getToken(token);
 
         store.enterMethod(token, p);
         assertTrue("Timeout should be disabled.", info.time == -1);

@@ -14,7 +14,6 @@
 + Setup	- targets to prepare the Omero build system	
 |
 | 	check-system    test for required libraries and variables
-| 	copy-examples   copy example property files to OMERO_HOME
 | 	reload-db      	creates DB tables/data for model
 | 
 + Build Lifecycle - targets dealing with artifacts
@@ -27,6 +26,11 @@
 | 	integration      run integration tests	
 | 	dist       	 prepare a distribution
 | 	clean      	 delete all generated artifacts
+|
++ Administation - targets which work against a running server
+| 
+|       addgroup         Adds a group as root (omero.rootpass must be set)
+|       adduser          Adds a user as root (omero.rootpass must be set)
 |  					
 + Testing - how to run unit and integration tests
 |
@@ -35,5 +39,4 @@
 |  	ant quick <target>      # No tests	
 |  	ant strict-test         # Re-compile tests.
 |  	ant fail-on-error test  # Stop build if fails. 
-|
 |_

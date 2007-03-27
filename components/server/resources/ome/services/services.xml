@@ -2,9 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
+#
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
@@ -21,22 +21,23 @@
 
 	Configuration for services.
 	TODO add log4j configuration (e.g. update intervals)
- 
+
 -->
 
 
-<beans>	
+<beans>
 
-<!--	
+<!--
   Aspects/Interceptors which catch "managed:" calls to our service methods
   =======================================================================
   Possibilities are: tracing, logging, security, transactions, etc.
 -->
-    
+
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames">
 			<list>
+				<value>profile</value>
 				<value>serviceHandler</value>
 				<value>proxyHandler</value>
 				<value>transactionHandler</value>
@@ -49,6 +50,7 @@
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames">
 			<list>
+				<value>profile</value>
 				<value>serviceHandler</value>
 				<value>proxyHandler</value>
 				<value>transactionHandler</value>
@@ -56,23 +58,26 @@
 				<value>eventHandler</value>
 			</list>
 		</property>
-	</bean>  
-	<bean 
-		       id="serviceHandler" 
-		    class="ome.services.util.ServiceHandler" 
+	</bean>
+	<bean
+		       id="serviceHandler"
+		    class="ome.services.util.ServiceHandler"
 		lazy-init="true">
 		<property name="sessionHandler" ref="sessionHandler"/>
-	</bean>    
+	</bean>
+
+	<bean id="profile"
+		class="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor"/>
 
 <!--
   Service Levels
   =======================================================================
   Abstract definitions of services which can be used when configuring
-  concrete beans. Note: these Spring definitions can have a possibly 
+  concrete beans. Note: these Spring definitions can have a possibly
   separate inheritance hierarchy to that defined in Java. When defining
   a parent bean for a concrete service, be sure that all required properties
   are (A) filled by the abstract Spring definition and (B) available on the
-  Java class.  
+  Java class.
 -->
   <bean id="bean" abstract="true">
     <property name="queryFactory"      ref="queryFactory"/>
@@ -85,14 +90,14 @@
 
   <bean id="level2" parent="bean"  abstract="true">
     <property name="updateService" 	ref="internal:ome.api.IUpdate"/>
-    <property name="queryService"	ref="internal:ome.api.IQuery"/>	
+    <property name="queryService"	ref="internal:ome.api.IQuery"/>
   </bean>
 
   <bean id="level3" parent="bean" abstract="true">
     <property name="pixelsService"  ref="internal:ome.api.IPixels"/>
     <property name="pojosService" 	ref="internal:ome.api.IPojos"/>
   </bean>
- 
+
   <bean id="stateful" abstract="true" class="ome.services.AbstractStatefulBean">
   	<property name="queryService" ref="internal:ome.api.IQuery"/>
   	<property name="securitySystem" ref="securitySystem"/>
@@ -104,13 +109,13 @@
   </bean>
 
   <bean name="filesystem"  abstract="true">
-    <constructor-arg value="${omero.data.dir}"/>			
+    <constructor-arg value="${omero.data.dir}"/>
   </bean>
-  
+
 <!--
   Shared resources
   =======================================================================
--->       
+-->
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
     <constructor-arg>
       <list>
@@ -119,7 +124,7 @@
       </list>
     </constructor-arg>
   </bean>
-  
+
   <!-- internal: prefix because the definition is used for self-configuration.
   see BeanHelper.configure and OmeroContext.applyBeanPropertyValues. -->
   <bean id="internal:ome.services.util.OmeroAroundInvokeName" lazy-init="true"
@@ -127,5 +132,5 @@
   	<property name="queryFactory" ref="queryFactory"/>
   	<property name="securitySystem" ref="securitySystem"/>
   </bean>
-  
+
 </beans>

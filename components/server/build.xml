@@ -18,7 +18,9 @@
         </target>
 
 	<target name="compile" depends="generate">
-		<hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"/>
+		<hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"
+		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
+
 	</target>
 
 </project>

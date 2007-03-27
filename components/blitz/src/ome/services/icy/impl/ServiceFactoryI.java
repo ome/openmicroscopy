@@ -10,6 +10,7 @@ package ome.services.icy.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -89,8 +90,11 @@ import omero.api._ServiceFactoryDisp;
 import omero.api._ThumbnailStoreOperations;
 import omero.api._ThumbnailStoreTie;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
@@ -105,13 +109,13 @@ import Ice.ObjectPrx;
 
 /**
  * Responsible for maintaining all servants for a single session.
- * 
+ *
  * In general, this implementation stores all services (ome.api.*) under the
  * {@link String} representation of the {@link Ice.Identity} and the actual
  * servants are only maintained by the {@link Ice.ObjectAdapter}.
- * 
- * @author josh
- * 
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since 3.0-Beta2
  */
 public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         Session, ApplicationContextAware, ApplicationListener {
@@ -127,6 +131,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     OmeroContext context;
 
     ServantHelper helper;
+
+    AopContextInitializer initializer;
 
     // ~ Synchronized state
     // =========================================================================
@@ -150,6 +156,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
      */
     public void setPrincipal(SessionPrincipal p) {
         this.principal = p;
+        initializer = new AopContextInitializer(new ServiceFactory(
+                this.context), this.principal);
     }
 
     public void setInterceptors(List<HardWiredInterceptor> interceptors) {
@@ -176,7 +184,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     // ~ Stateless
     // =========================================================================
- 
+
     public IAdminPrx getAdminService(Ice.Current current) {
         synchronized (adminKey) {
             Ice.Identity id = getIdentity(current, adminKey);
@@ -298,7 +306,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     // For symmetry
     String re = "RenderingEngine", fs = "RawFileStore", ps = "RawPixelStore",
             tb = "ThumbnailStore";
-    
+
     public RenderingEnginePrx createRenderingEngine(Ice.Current current) {
         Ice.Identity id = getIdentity(current, Ice.Util.generateUUID()+re);
         String key = Ice.Util.identityToString(id);
@@ -362,11 +370,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
                 omero.InternalException ie = new omero.InternalException();
                 ie.message = e.getMessage();
                 throw ie;
-            }            
+            }
         }
         return ServiceInterfacePrxHelper.uncheckedCast(prx);
     }
-    
+
     public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {
         throw new UnsupportedOperationException();
     }
@@ -474,24 +482,34 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         factory.addAdvice(new Interceptor(ome,key,helper));
         return ice.cast(factory.getProxy());
     }
-    
+
     /**
      * Creates an ome.api.* service (mostly managed by Spring), wraps it with
      * the {@link HardWiredInterceptor interceptors} which are in effect,
      * and stores the instance away in the cache.
+     *
+     * Note: Since {@link HardWiredInterceptor} implements {@link MethodInterceptor},
+     * all the {@link Advice} instances will be wrapped in {@link Advisor}
+     * instances and will be returned by {@link Advised#getAdvisors()}.
      */
     protected <T extends ServiceInterface> void createService(String key,
             Class<T> c) {
         Object srv = context.getBean("managed:" + c.getName());
-        Advised advised = (Advised) srv;
-        for (HardWiredInterceptor hwi : cptors) {
-            advised.addAdvice(0, hwi);
+        ProxyFactory factory = new ProxyFactory();
+        factory.setInterfaces(new Class[]{c});
+
+        List<HardWiredInterceptor> reversed =
+            new ArrayList<HardWiredInterceptor>(cptors);
+        Collections.reverse(reversed);
+        for (HardWiredInterceptor hwi : reversed) {
+            factory.addAdvice(0, hwi);
         }
-        advised.addAdvice(0, new AopContextInitializer(new ServiceFactory(
-                this.context), principal));
-        cache.put(new Element(key, srv));
+        factory.addAdvice(0, initializer);
+        factory.setTarget(srv);
+        cache.put(new Element(key, factory.getProxy()));
+
     }
-    
+
     private String servantString(Ice.Identity id, Object obj) {
         StringBuilder sb = new StringBuilder(Ice.Util.identityToString(id));
         sb.append("(");
@@ -499,7 +517,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
         sb.append(")");
         return sb.toString();
     }
-    
+
     /**
      * For Testing.
      */

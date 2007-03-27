@@ -22,6 +22,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/jamon/jamon/1.0/jamon-1.0.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/jmock/jmock/1.0.1/jmock-1.0.1.jar" sourcepath="/USER_HOME/lib/jmock-1.0.1-src.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/log4j/log4j/1.2.8/log4j-1.2.8.jar"/>

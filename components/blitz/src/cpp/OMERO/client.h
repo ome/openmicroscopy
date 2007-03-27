@@ -1,5 +1,12 @@
-#include <omero.h>
-#include <API.h>
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ */
+
+#include <OMERO/common.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 #include <string>

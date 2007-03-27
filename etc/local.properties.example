@@ -29,15 +29,16 @@ javac.maxmem=100m
 ice.home=/opt/Ice-3.1.1
 no.ice=true
 
-# Used in server/build.xml to specify the
-# functionality that will be compiled in
-# via server/src/ome/logic/AbstractBean.java
-omero.hard-wired.interceptors=
+# Used in server/build.xml and blitz/build.xml 
+# to specify the functionality that will be compiled 
+# in via server/src/ome/services/util/OmeroAroundInvoke.java
+# and blitz/src/ome/services/icy/fire/SessionManagerI.java
+omero.hard-wired.interceptors="ome.security.basic.BasicSecurityWiring"
 
 # Used by tools/licences/build.xml to define
 # which class should be compiled into 
 # ome.services.licenses.LicenseBean
-ome.services.licenses.Store_class=ome.services.licenses.Store
+ome.services.licenses.Store_class="ome.services.licenses.Store"
 
 ############################################
 # client connection

@@ -1,38 +1,33 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.licenses;
 
-// Java import
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import ome.security.SecuritySystem;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.security.SecuritySystem;
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
- * Example {@link LicenseStore} implementation. NOT INTENDED FOR 
- * PRODUCTION USE. 
- * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @since 3.0-RC1
+ * Example {@link LicenseStore} implementation. NOT INTENDED FOR
+ * PRODUCTION USE.
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since 3.0-Beta1
  */
 public class Store implements LicenseStore {
 
     private final static Log log = LogFactory.getLog(Store.class);
-    
+
     // Initialized variables.
 
     Random random = new Random();
@@ -44,8 +39,8 @@ public class Store implements LicenseStore {
     long usedLicenses;
 
     long timeout;
-    
-    Map<byte[], TokenInfo> tokenInfos;
+
+    Map<Bytes, TokenInfo> tokenInfos;
 
     // ~ Ctors
     // =========================================================================
@@ -64,7 +59,7 @@ public class Store implements LicenseStore {
         totalLicenses = total;
         this.usedLicenses = used;
     }
-    
+
 
     /** See {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} */
     public void setStaticSecuritySystem(SecuritySystem securitySystem) {
@@ -82,15 +77,15 @@ public class Store implements LicenseStore {
         usedLicenses = count;
     }
 
-    public Map<byte[], TokenInfo> getTokens() {
-        return tokenInfos;
+    public TokenInfo getToken(byte[] token) {
+        return tokenInfos.get(new Bytes(token));
     }
 
     // ~ Interface methods
     // =========================================================================
 
     public void enterMethod(byte[] token, LicensedPrincipal p) {
-        TokenInfo tokenInfo = tokenInfos.get(token);
+        TokenInfo tokenInfo = tokenInfos.get(new Bytes(token));
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't enter method.");
         }
@@ -99,7 +94,7 @@ public class Store implements LicenseStore {
     }
 
     public void exitMethod(byte[] token, LicensedPrincipal p) {
-        TokenInfo tokenInfo = tokenInfos.get(token);
+        TokenInfo tokenInfo = tokenInfos.get(new Bytes(token));
         if (tokenInfo == null) {
             throw new InvalidLicenseException("Can't exit method.");
         }
@@ -115,7 +110,7 @@ public class Store implements LicenseStore {
             random.nextBytes(token);
             TokenInfo tokenInfo = new TokenInfo();
             tokenInfo.time = System.currentTimeMillis();
-            tokenInfos.put(token, tokenInfo);
+            tokenInfos.put(new Bytes(token), tokenInfo);
             usedLicenses++;
             log.info("Acquired license from example license store.");
             return token;
@@ -130,21 +125,23 @@ public class Store implements LicenseStore {
     public long getTotalLicenseCount() {
         return totalLicenses;
     }
-    
+
     public long getLicenseTimeout() {
         return timeout;
     }
 
     public boolean hasLicense(byte[] token) {
         boolean found = false;
-        found = tokenInfos.containsKey(token);
+        if (token != null) {
+            found = tokenInfos.containsKey(new Bytes(token));
+        }
         return found;
     }
 
     public boolean releaseLicense(byte[] token) {
         boolean valid = hasLicense(token);
         if (hasLicense(token)) {
-            tokenInfos.remove(token);
+            tokenInfos.remove(new Bytes(token));
             usedLicenses--;
             log.info("Released license to example license store.");
         }
@@ -154,7 +151,45 @@ public class Store implements LicenseStore {
     public void resetLicenses() {
         usedLicenses = 0;
         timeout = -1L;
-        tokenInfos = new HashMap<byte[], TokenInfo>();
+        tokenInfos = new HashMap<Bytes, TokenInfo>();
     }
 
+    private static class Bytes {
+
+        private final byte[] b;
+        public Bytes(byte[] bytes) {
+            assert bytes != null;
+            b = bytes;
+        }
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Bytes)) {
+                return false;
+            } else if (obj == this) {
+                return true;
+            }
+
+            Bytes other = (Bytes) obj;
+            for (int i = 0; i < b.length; i++) {
+                if (b[i] != other.b[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        @Override
+        public int hashCode() {
+            int hash = 13;
+            for (int i = 0; i < b.length; i++) {
+                hash = 7 * b[i] + hash;
+            }
+            return hash;
+        }
+        @Override
+        public String toString() {
+            return Arrays.toString(b);
+        }
+
+    }
 }

@@ -20,17 +20,6 @@
 #set( $def = "CLASS_$pojo.declarationName.toUpperCase()" )
 #ifndef $def
 #define $def
-#set( $include = '\#include' )
-#set( $importModify = '.replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <$1.ice>") ' )
-$include <omero.ice>
-$include <IObject.ice>
-$include <RTypes.ice>
-#if( $pojo.isSubclass() )
-#set( $parent = $pojo.extendsDeclaration.replaceFirst("extends.*ome.model..+?[.]","<") )
-#set( $parent = "${parent}.ice>" )
-$include $parent
-$secondpassclassimports$importModify
-#end
 
 $moduleStart
 

@@ -43,6 +43,7 @@ importing this file.
 	<file name="drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<file name="eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<file name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
+	<file name="jamon/jamon/1.0/jamon-1.0.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<file name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
@@ -91,6 +92,7 @@ importing this file.
 	<include name="drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<include name="eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<include name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
+	<include name="jamon/jamon/1.0/jamon-1.0.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<include name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
@@ -140,6 +142,7 @@ importing this file.
 	<file name="drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<file name="eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<file name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
+	<file name="jamon/jamon/1.0/jamon-1.0.jar"/>
 	<file name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<file name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
@@ -193,6 +196,7 @@ importing this file.
 	<include name="drools/drools-all-jdk5/2.5-beta-2/drools-all-jdk5-2.5-beta-2.jar"/>
 	<include name="eclipse/jdtcore/3.1.0/jdtcore-3.1.0.jar"/>
 	<include name="groovy/groovy/all-1.0/groovy-all-1.0.jar"/>
+	<include name="jamon/jamon/1.0/jamon-1.0.jar"/>
 	<include name="jmock/jmock/1.0.1/jmock-1.0.1.jar"/>
 	<include name="junit/junit/3.8.1/junit-3.8.1.jar"/>
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>

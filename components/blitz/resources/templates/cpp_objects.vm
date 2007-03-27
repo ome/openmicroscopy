@@ -19,15 +19,13 @@
 
 #if(!$pojo.classModifiers.contains("abstract")) ####################### ONLY IF NOT ABSTRACT
 
-\\\#include <${pojo.declarationName}I.h>
-
 namespace omero { namespace model {
 
     ${pojo.declarationName}I::~${pojo.declarationName}I() {}
     ${pojo.declarationName}I::${pojo.declarationName}I() {
         loaded = true;
 ########################################################
-#foreach( $property in $pojo.getAllPropertiesIterator())
+#foreach( $property in $pojo.propertyClosureForFullConstructor())
 #set(     $name = $pojo.getPropertyName($property))
 #set(     $javaType = $c2j.getJavaTypeName($property,false))##generics
 #set(     $seqName = "${pojo.declarationName}${name.substring(0,1).toUpperCase()}${name.substring(1,$name.length())}Seq" )## seqName copied from ice_defs.vm
@@ -51,7 +49,7 @@ namespace omero { namespace model {
 
 
   void ${pojo.declarationName}I::unload(const Ice::Current& c) {
-#foreach($property in $pojo.getAllPropertiesIterator())
+#foreach($property in $pojo.propertyClosureForFullConstructor())
 #set( $field = "${property.name}")
 #set( $seqName = "${pojo.declarationName}${field.substring(0,1).toUpperCase()}${field.substring(1,$field.length())}Seq" )## seqName copied from ice_defs.vm
 #set( $name = $pojo.getPropertyName($property) )

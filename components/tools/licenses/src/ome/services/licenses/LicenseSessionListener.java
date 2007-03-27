@@ -20,6 +20,16 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
+ * Listens for {@link AbstractSessionMessages} sent by
+ * {@link ome.services.icy.fire.SesssionManagerI} and 
+ * {@link ome.services.icy.impl.ServiceFactoryI} and creates licenses
+ * when necessary for the user. The listener decouples the session 
+ * creation from the licensing logic.
+ *
+ * This is notably different from the process needed to acquire a
+ * license in the application server case, since there is no 
+ * central session.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
@@ -27,30 +37,28 @@ public class LicenseSessionListener implements ApplicationListener {
 
     private ILicense lic;
 
+    private LicenseWiring wiring;
+
     private SecuritySystem sec;
-    
-    private Map<String, byte[]> tokensBySession = Collections
-            .synchronizedMap(new HashMap<String, byte[]>());
 
     public void setSecuritySystem(SecuritySystem secSys) {
         this.sec = secSys;
     }
-    
+
+    public void setLicenseWiring(LicenseWiring licenseWiring) {
+        this.wiring = licenseWiring;
+    }
+
     public void setService(ILicense service) {
         this.lic = service;
     }
 
-    public byte[] getToken(String sessionName) {
-        return tokensBySession.get(sessionName);
-    }
-    
     public void onApplicationEvent(ApplicationEvent event) {
             if (event instanceof CreateSessionMessage) {
                 CreateSessionMessage create = (CreateSessionMessage) event;
                 login(create);
                 try {
                     byte[] token = lic.acquireLicense();
-                    tokensBySession.put(create.getSessionId(), token);
                 } finally {
                     logout();
                 }
@@ -58,14 +66,14 @@ public class LicenseSessionListener implements ApplicationListener {
                 DestroySessionMessage destroy = (DestroySessionMessage) event;
                 try {
                     login(destroy);
-                    byte[] token = tokensBySession.get(destroy.getSessionId());
+                    byte[] token = wiring.getToken(destroy.getSessionId());
                     lic.releaseLicense(token);
                 } finally {
                     logout();
             }
         }
     }
-    
+
     protected void login(AbstractSessionMessage event) {
         this.sec.login(event.getPrincipal());
     }

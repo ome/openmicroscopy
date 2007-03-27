@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="licenses" default="install" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	<description>
 	Add-on to the OMERO code base which allows custom implementations
 	of a LicenseStore which regulates access to the server based on 
 	License tokens. 
 	</description>    
-
+	
+	<property name="main.class" value="ome.services.licenses.tasks.Run"/>
 	<property name="uses.ice" value="true"/>
 	<property name="classpath.file" value="classpath.xml"/>
 	<dirname property="up-two" file="${basedir}"/>
@@ -22,8 +36,7 @@
 	<target name="compile" depends="generate" unless="skip.compile">
 		<hardWireCompile pattern="ome/services/licenses/LicenseBean"
 		   token="&quot;ome.services.licenses.Store&quot;"
-		   value="${ome.services.licenses.Store_class}"
-		   prefix="" suffix=""/>
+		   value="${ome.services.licenses.Store_class}"/>
 	</target>
 
 	<!-- Additional functionality for the lifecycle.package target.

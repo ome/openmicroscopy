@@ -15,6 +15,7 @@ import omero.licenses.ILicense;
 import omero.licenses.ILicensePrx;
 import omero.licenses.ILicensePrxHelper;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,20 +35,28 @@ public class BlitzLicenseTest extends TestCase{
         ice.createSession();
         ServiceInterfacePrx prx = ice.getProxy().getByName("omero.licenses.ILicense");
         licenseService = ILicensePrxHelper.uncheckedCast(prx);
-        licenseService.resetLicenses();
     }
-            
+     
+    @Override
+    @AfterClass
+    protected void tearDown() throws Exception {
+        licenseService.resetLicenses();
+        super.tearDown();
+    }
+    
     @Test
     public void testAcquireLicenseAutomatically() throws Exception {
         // should be done for us.
-        ice.getConfigService(null).getServerTime();
+        passes(true);
     }
-
+    
     @Test
     public void testAcquireLicenseManually() throws Exception {
-        token = licenseService.acquireLicense();
-        fail("NYI"); // sf.setLicenseToken(token);
+        passes(true);
         licenseService.releaseLicense(token);
+        passes(false);
+        token = licenseService.acquireLicense();
+        passes(true);
     }
     
     @Test
@@ -76,5 +85,21 @@ public class BlitzLicenseTest extends TestCase{
     public void testTimeouts() {
         fail("Not implemented.");
     }
-   
+
+    // // ~ Helpers
+    // =========================================================================
+    
+    protected void passes(boolean shouldpass) throws Exception {
+        try {
+            ice.getConfigService(null).getServerTime();
+            if (!shouldpass) {
+                fail("Shoudn't have passed.");
+            }
+        } catch (Exception ex) {
+            if (shouldpass) {
+                throw ex;
+            }
+        }
+
+    }
 }

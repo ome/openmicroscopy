@@ -30,7 +30,7 @@
 
 	<target name="compile" depends="generate" unless="skip.compile">
 		<hard-wire file="ome/services/icy/fire/SessionManagerI.java"
-		    value="&quot;ome.services.icy.fire.BasicSecurityWiring&quot;,${omero.hard-wired.interceptors}"/>
+		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
 		<tempfile property="src.tmp" prefix="omero"/>
 		<mkdir dir="${src.tmp}"/>
   		<copy todir="${src.tmp}">
@@ -59,25 +59,74 @@
 	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
 		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
 			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
-			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice" />
+			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice_common" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_objects.vm" filepattern="src/omero/model/{class-name}I.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
-			<hbmtemplate template="templates/cpp_headers.vm"  filepattern="../../src/cpp/generated/{class-name}I.h" />
-			<hbmtemplate template="templates/cpp_objects.vm"  filepattern="../../src/cpp/generated/{class-name}I.cpp" />
-			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp" />
+			<hbmtemplate template="templates/cpp_headers.vm"  filepattern="../../src/cpp/generated/{class-name}I.h_common" />
+			<hbmtemplate template="templates/cpp_objects.vm"  filepattern="../../src/cpp/generated/{class-name}I.cpp_common" />
+			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp_common" />
 		</hibernate>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
 			</fileset>
-			<fileset dir="${resrc.dest}" includes="*.ice">
+			<fileset dir="${resrc.dest}" includes="**/*.ice">
 				<present present="both" targetdir="${resrc.dir}/slice"/>
 			</fileset>
-			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp,**/*.h">
+			<fileset dir="${resrc.dest}" includes="**/*.ice_common">
+				<present present="both" targetdir="${resrc.dir}/slice"/>
+			</fileset>
+			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp_common,**/*.h_common">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
+		<concat destfile="${src.dir}/cpp/generated/OMERO/common.cpp">
+			<header>
+
+/* All *.cpp_common files concatenated by blitz/build.xml */
+#include &lt;OMERO/common.h&gt;
+
+			</header>
+			<fileset dir="${src.dir}/cpp" includes="**/*.cpp_common"/>
+		</concat>
+		<concat destfile="${src.dir}/cpp/generated/OMERO/common.h">
+			<header>
+
+/* All *.h_common files concatenated by blitz/build.xml */
+#include &lt;ice.h&gt;
+#include &lt;omero.h&gt;
+#include &lt;API.h&gt;
+#include &lt;System.h&gt;
+#include &lt;Ice/Ice.h&gt;
+
+
+			</header>
+			<fileset dir="${src.dir}/cpp" includes="**/*.h_common"/>
+		</concat>
+
+		<!-- Adding *ice_common files to OMERO/ice.ice. HOWEVER, we have to
+		add all superclasses first, and then the subclasses, otherwise we get
+		declared not defined errors -->
+		<concat destfile="${resrc.dest}/OMERO/ice.ice">
+			<header>
+
+/* All *.ice_common files concatenated by blitz/build.xml */
+
+#include &lt;omero.ice&gt;
+#include &lt;IObject.ice&gt;
+#include &lt;RTypes.ice&gt;
+
+			</header>
+			<fileset dir="${resrc.dir}/slice" includes="**/*.ice_common"/>
+			<fileset dir="${resrc.dest}" includes="**/*.ice_common">
+				<contains text="extends omero::model::IObject"/>
+			</fileset>
+			<fileset dir="${resrc.dest}" includes="**/*.ice_common">
+				<not><contains text="extends omero::model::IObject"/></not>
+			</fileset>
+		</concat>
+
 		<done name="icegen"/>
 	</target>
 

@@ -19,7 +19,6 @@
 
 #if(!$pojo.classModifiers.contains("abstract")) ####################### ONLY IF NOT ABSTRACT
 
-\\\#include <${pojo.declarationName}.h>
 \\\#include <Ice/Config.h>
 \\\#include <iostream>
 \\\#include <string>
@@ -53,7 +52,7 @@ public:
 ##  Ice doesn't use getters/setters. So we're bastardizing them
 ##  for our efforts.
 ##
-#foreach($property in $pojo.getAllPropertiesIterator())
+#foreach($property in $pojo.propertyClosureForFullConstructor())
 #set( $name = $pojo.getPropertyName($property))
 #set( $javaType = $c2j.getJavaTypeName($property,false))##generics
 #set( $shortType = $c2j.unqualify($javaType) )

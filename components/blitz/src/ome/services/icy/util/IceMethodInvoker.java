@@ -1,3 +1,11 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ */
+
 package ome.services.icy.util;
 
 import java.io.PrintWriter;
@@ -36,9 +44,9 @@ import org.apache.commons.logging.LogFactory;
  * or with a {@link Class} with generic type {@link ServiceInterface}. Actual
  * invocation happens via
  * {@link #invoke(Object, Ice.Current, IceMapper, Object[])}
- * 
+ *
  * No reference is held to the initial priming argument.
- * 
+ *
  * MAPPING RULES:
  * <ul>
  *  <li>Method names exact</li>
@@ -46,14 +54,14 @@ import org.apache.commons.logging.LogFactory;
  *  <li>Primitivies use Ice primitives (long, int, bool,...)</li>
  *  <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
  * </ul>
- * 
+ *
  * Future:
  * <ul>
  *  <li>Currently ignoring @NotNull</li>
  * </ul>
- * 
- * @author josh
- * 
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since 3.0-Beta2
  */
 public class IceMethodInvoker {
 
@@ -75,7 +83,7 @@ public class IceMethodInvoker {
      * Create an {@link IceMethodInvoker} instance using the {@link Class} of
      * the passed argument to call
      * {@link IceMethodInvoker#IceMethodInvoker(Class)}.
-     * 
+     *
      * @param srv
      *            A Non-null {@link ServiceInterface} instance.
      */
@@ -86,7 +94,7 @@ public class IceMethodInvoker {
     /**
      * Creates an {@link IceMethodInvoker} instance by using reflection on the
      * {@link Class} argument. All information is cached internally.
-     * 
+     *
      * @param <S>
      *            A type which subclasses {@link ServiceInterface}
      * @param c
@@ -111,7 +119,7 @@ public class IceMethodInvoker {
      * {@link ServantHelper#throwIfNecessary(Object)} does just this, but is
      * also called internally by {@link ServantHelper#checkVoid(Object)} and
      * {@link ServantHelper#returnValue(Class, Object)}.
-     * 
+     *
      * @param obj
      *            Instance for the call to
      *            {@link Method#invoke(Object, Object[])}. Can be null if this
@@ -191,7 +199,7 @@ public class IceMethodInvoker {
         return false;
     }
 
-    protected Object handleInput(IceMapper mapper, Class p, Object arg) 
+    protected Object handleInput(IceMapper mapper, Class p, Object arg)
     throws ServerError {
         if (arg instanceof RType) {
             RType rt = (RType) arg;
@@ -266,7 +274,7 @@ public class IceMethodInvoker {
         if (log.isInfoEnabled()) {
             log.info("Handling:", t);
         }
-        
+
         Class c = t.getClass();
         if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();
@@ -301,9 +309,15 @@ public class IceMethodInvoker {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);
+        Throwable cause = t.getCause();
+        while (cause != null && cause != t ) {
+            cause.printStackTrace(pw);
+            t = cause;
+            cause = t.getCause();
+        }
         pw.flush();
         pw.close();
-        
+
         return sw.getBuffer().toString();
     }
 

@@ -1,5 +1,13 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ */
+
 #include <OMERO/client.h>
-#include <ObjectFactoryRegistrar.h>
+#include <OMERO/common.h>
 
 using namespace std;
 
@@ -12,14 +20,6 @@ namespace OMERO {
   }
   
   client::~client(){
-    if (sf) {
-      try {
-	sf->close();
-      } catch (const Ice::Exception& ex) {
-	cerr << "Caught Ice exception while closing session." << endl;
-	cerr << ex << endl;
-      }
-    }
     if (ic) {
       try {
 	ic->destroy();

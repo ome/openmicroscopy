@@ -4,10 +4,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
@@ -18,11 +18,11 @@
 -->
 
 <!--
- 
+
   security.xml defines the interceptors for all methods which need
   authentication and authorization.
-	
-  TODO : refactor so security can be turned on or off by omitting this file. 
+
+  TODO : refactor so security can be turned on or off by omitting this file.
 	     currently services.xml shouldn't really have a dependency on this file.
 	     or a no-security.xml
 
@@ -37,7 +37,12 @@
   </bean>
 
   <!-- Scope: private -->
-  
+
+  <bean id="securityWiring" class="ome.services.icy.fire.BasicSecurityWiring"
+  	lazy-init="true">
+  	<property name="securitySystem" ref="securitySystem"/>
+  </bean>
+
   <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
     <description>
     Scope: private
@@ -53,7 +58,7 @@
   	<constructor-arg ref="securitySystem"/>
   	<constructor-arg ref="hibernateTemplate"/>
   </bean>
-  
+
   <bean id="omeroInterceptor" class="ome.security.basic.OmeroInterceptor">
     <description>
     Scope: private
@@ -66,7 +71,7 @@
     Scope: private
     </description>
   </bean>
- 
+
   <bean class="ome.tools.spring.PostProcessInjector">
     <description>
     Scope: private

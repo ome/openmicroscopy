@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -14,6 +14,7 @@ import java.util.Properties;
 import ome.system.Login;
 import ome.system.OmeroContext;
 import ome.system.Server;
+import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IConfigPrx;
 import omero.api.IPixelsPrx;
@@ -25,6 +26,7 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
+import omero.api.ServiceInterfacePrx;
 import omero.api.SimpleCallbackPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.PASSWORD;
@@ -35,12 +37,13 @@ import Glacier2.PermissionDeniedException;
 import Glacier2.SessionNotExistException;
 import Glacier2.SessionPrx;
 import Ice.ConnectionLostException;
+import Ice.ObjectNotFoundException;
 
 /**
  * Entry point for all Ice client calls. Provides methods to obtain proxies for
  * all remote facades.
- * 
- * @author Josh Moore, josh.moore at gmx.de
+ *
+ * @author Josh Moore, josh at glencoesoftware.com
  * @see OmeroContext
  * @see Ice.Communicator
  * @since 3.0-Beta2
@@ -62,7 +65,7 @@ public class IceServiceFactory {
     protected Glacier2.RouterPrx router;
 
     protected ServiceFactoryPrx sf;
-    
+
     /**
      * The {@link OmeroContext context instance} which this
      * {@link IceServiceFactory} uses to look up all of its state.
@@ -86,12 +89,12 @@ public class IceServiceFactory {
     public ServiceFactoryPrx getProxy() {
         return sf;
     }
-    
+
     /**
      * default constructor which obtains the global static
      * {@link #OMERO_CLIENT client context}. This can be done manually by
      * calling {@link ome.system.OmeroContext#getInstance(String)}
-     * 
+     *
      * @see #OMERO_CLIENT
      * @see OmeroContext#getInstance()
      */
@@ -105,7 +108,7 @@ public class IceServiceFactory {
      * {@link #OMERO_CLIENT client context}, passing in the merged
      * {@link Properties} representation of the {@link Login}, {@link Server},
      * and initial {@link Properties} instances for configuration.
-     * 
+     *
      * @see Login#asProperties()
      * @see Server#asProperties()
      * @see #IceServiceFactory(Properties)
@@ -137,13 +140,6 @@ public class IceServiceFactory {
     }
 
     public void destroy() {
-        try {
-            this.router.destroySession();
-        } catch (SessionNotExistException snee) {
-            // oh well.
-        } catch (ConnectionLostException cle) {
-            // that's what we wanted.
-        }
         this.ic.destroy();
         this.ctx.destroy();
     }
@@ -153,11 +149,25 @@ public class IceServiceFactory {
 
     public void createSession() throws CannotCreateSessionException,
             PermissionDeniedException {
-        
-        String name = getCommunicator().getDefaultContext().get(USERNAME.value); 
-        String pass = getCommunicator().getDefaultContext().get(PASSWORD.value); 
+
+        String name = getCommunicator().getDefaultContext().get(USERNAME.value);
+        String pass = getCommunicator().getDefaultContext().get(PASSWORD.value);
         SessionPrx prx = getRouter().createSession(name,pass);
         sf = ServiceFactoryPrxHelper.checkedCast(prx);
+    }
+
+    public String getSessionId() {
+        return ic.proxyToString(sf);
+    }
+
+    public void useSession(String sessionId) throws ObjectNotFoundException {
+        Ice.ObjectPrx obj = ic.stringToProxy(sessionId);
+        sf = ServiceFactoryPrxHelper.checkedCast(obj);
+        if (sf == null) {
+            ObjectNotFoundException onfe = new ObjectNotFoundException();
+            throw onfe;
+        }
+
     }
 
     public void setUmask() {
@@ -169,7 +179,7 @@ public class IceServiceFactory {
     /**
      * used when no {@link OmeroContext context} name is provided to the
      * constructor. Subclasses can override to allow for easier creation.
-     * 
+     *
      * @return name of default context as found in beanRefContext.xml.
      */
     protected String getDefaultContext() {
@@ -286,5 +296,23 @@ public class IceServiceFactory {
     public void setCallback(SimpleCallbackPrx callback, Map __ctx) {
         sf.setCallback(callback, __ctx);
     }
-        
+
+    /**
+     * @param __ctx
+     * @see omero.api.ServiceFactoryPrx#close()
+     */
+    public void close(Map __ctx) {
+        sf.close(__ctx);
+    }
+
+
+    /**
+     * @param name
+     * @param __ctx
+     * @see omero.api.ServiceFactoryPrx#getByName(String, Map)
+     */
+    public ServiceInterfacePrx getByName(String name, Map __ctx) throws ServerError {
+        return sf.getByName(name, __ctx);
+    }
+
 }

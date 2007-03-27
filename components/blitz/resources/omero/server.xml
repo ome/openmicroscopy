@@ -2,23 +2,23 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# 
-# $Id: services.xml 1167 2006-12-15 10:39:34Z jmoore $
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+#
+# $Id$
+#
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Written by:  Josh Moore <josh.moore@gmx.de>
+# Written by:  Josh Moore, josh at glencoesoftware.com
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
 <!-- Configuration for ICE services. -->
 
-<beans>	
-    
+<beans>
+
   <bean id="Ice.Communicator" class="ome.services.icy.config.IceCommunicatorFactoryBean">
     <property name="properties">
       <props>
@@ -45,11 +45,11 @@
       </map>
     </property>
   </bean>
-  
+
   <bean id="Manager" class="ome.services.icy.fire.SessionManagerI">
     <constructor-arg ref="securitySystem"/>
   </bean>
-  
+
   <bean id="Verifier" class="ome.services.icy.fire.PermissionsVerifierI">
     <constructor-arg ref="internal:ome.api.IAdmin"/>
   </bean>
@@ -69,12 +69,7 @@
       <bean class="ome.services.icy.lookup.ContextCacheEntryFactory"/>
     </property-->
   </bean>
-  
+
   <bean id="CacheManager" class="ome.services.icy.util.ShutdownSafeEhcacheManagerFactoryBean"/>
-  
-  <bean id="securityWiring" class="ome.services.icy.fire.BasicSecurityWiring"
-  	lazy-init="true">
-  	<property name="securitySystem" ref="securitySystem"/> 
-  </bean>
-  
+
 </beans>

@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationContextAware;
  * Used to configure this instance in Spring. This is the first non-service
  * component which has needed self-configuration. These needs to be cleaned up.
  * @DEV.TODO Should all make a ComponentInterface and SelfConfigurableComponent.
+ *           compare to {@link HardWiredInterceptor}
  */
 interface OmeroAroundInvokeName extends ServiceInterface {}
 
@@ -58,14 +59,14 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
     private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
     
     /** Interceptors that are determinined at compile time by server/build.xml
-     *  The REPLACE token will be replaced with a (possibly) empty comma-
+     *  The string "ome.security.basic.BasicSecurityWiring" may be replaced by a
      *  comma separated list of strings representing the class names of 
      *  HardWiredInterceptor subclasses which are prepended to the list of
      *  interceptors for each call. Note: these interceptors will NOT be applied
      *  to server internal calls.
      */
     private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
-            .parse(new String[] { /* @REPLACE@ */});
+            .parse(new String[] { "ome.security.basic.BasicSecurityWiring"});
 
     private transient Log logger = LogFactory.getLog(this.getClass());
 
@@ -114,33 +115,11 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
     protected final Object loginAndSpringWrap(InvocationContext context)
             throws Exception {
         try {
-            login();
             return call(context);
         } catch (Throwable t) {
             throw beanHelper.translateException(t);
-        } finally {
-            logout();
         }
 
-    }
-
-    private void login() {
-        Principal p;
-        if (sessionContext.getCallerPrincipal() instanceof Principal) {
-            p = (Principal) sessionContext.getCallerPrincipal();
-            securitySystem.login(p);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Running with user: " + p.getName());
-            }
-        } else {
-            throw new ApiUsageException(
-                    "ome.system.Principal instance must be provided on login.");
-        }
-
-    }
-
-    private void logout() {
-        securitySystem.logout();
     }
 
     private Object call(InvocationContext context) throws Throwable {

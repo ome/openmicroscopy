@@ -194,8 +194,6 @@
 		<attribute name="todir" default="${src.dest}"/>
 		<attribute name="file"/>
 		<attribute name="token" default="@REPLACE@"/>
-		<attribute name="prefix" default="REPLACE BY hardWireCompile*/"/>
-		<attribute name="suffix" default="/*"/>
 		<attribute name="value" default="${omero.hard-wired.interceptors}"/>
 		<sequential>
                 <delete file="@{todir}/@{file}"/>
@@ -205,7 +203,7 @@
 			</fileset>
 		</copy>
                 <replace file="@{todir}/@{file}">
-                        <replacefilter token="@{token}" value="@{prefix}@{value}@{suffix}"/>
+                        <replacefilter token="@{token}" value="@{value}"/>
                 </replace>
 		</sequential>
 	</macrodef>
@@ -222,11 +220,8 @@
 		<attribute name="pattern"/>
 		<attribute name="token" default="@REPLACE@"/>
 		<attribute name="value" default="${omero.hard-wired.interceptors}"/>
-		<attribute name="prefix" default="REPLACE BY hardWireCompile*/"/>
-		<attribute name="suffix" default="/*"/>
 		<sequential>
 		<hard-wire file="@{pattern}.java" 
-		    prefix="@{prefix}" suffix="@{suffix}"
 		    token="@{token}" value="@{value}" 
 		    fromdir="@{fromdir}" todir="@{todir}"/>
 		<myjavac>
