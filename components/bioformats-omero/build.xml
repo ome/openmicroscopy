@@ -45,6 +45,8 @@
 			<include name="**/TinyImportFixture*"/>
 			<include name="**/loci/**/*"/>
 			<exclude name="**/loci/**/*Test*"/>
+			<exclude name="**/loci/ome/old-*/**/*"/>
+			<include name="**/ij/**/*"/>
 		</javac>
 		<!-- END COPY-->
 	</target>
