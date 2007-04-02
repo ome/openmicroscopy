@@ -46,6 +46,8 @@
 			<include name="**/loci/**/*"/>
 			<exclude name="**/loci/**/*Test*"/>
 			<exclude name="**/loci/ome/old-*/**/*"/>
+			<exclude name="**/loci/ome/editor/**/*"/>
+			<exclude name="**/loci/ome/viewer/**/*"/>
 			<include name="**/ij/**/*"/>
 		</javac>
 		<!-- END COPY-->
