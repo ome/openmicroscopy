@@ -84,11 +84,11 @@ import ome.util.Utils;
 /**
  * Provides methods for administering user accounts, passwords, as well as
  * methods which require special privileges.
- *
+ * 
  * Developer note: As can be expected, to perform these privileged the Admin
  * service has access to several resources that should not be generally used
  * while developing services. Misuse could circumvent security or auditing.
- *
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @see SecuritySystem
@@ -125,15 +125,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         beanHelper.throwIfAlreadySet(this.em, extMetadata);
         em = extMetadata;
     }
-
+    
     /** injector for usage by the container. Not for general use */
     public final void setSessionFactory(SessionFactory sessions) {
         beanHelper.throwIfAlreadySet(this.sf, sessions);
         sf = sessions;
     }
-
-
-
+    
+    
+    
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IAdmin.class;
     }
@@ -616,10 +616,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
      * not. Therefore, we must manually check if the object belongs to this user
      * or is admin (before the call to
      * {@link SecuritySystem#runAsAdmin(AdminAction)}
-     *
+     * 
      * This logic is duplicated in
      * {@link BasicSecuritySystem#checkManagedDetails(IObject, ome.model.internal.Details)}.
-     *
+     * 
      * @see IAdmin#changePermissions(IObject, Permissions)
      * @see <a
      *      href="http://trac.openmicroscopy.org.uk/omero/ticket/293">ticket:293</a>
@@ -789,11 +789,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
         String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
         if (hash == null) {
-            return false; // Password is turned off.
-        } else if (hash.trim().length() == 0){
-            return true; // Password is blank. Open for all.
+            return true; // Password is turned off.
         }
-
         String digest = PasswordUtil.preparePassword(password);
         return hash.equals(digest);
     }
@@ -810,7 +807,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
     public EventContext getEventContext() {
         return new SimpleEventContext(getSecuritySystem().getEventContext());
     }
-
+    
     // ~ Helpers
     // =========================================================================
 

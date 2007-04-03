@@ -1,5 +1,5 @@
 /*
- *   $Id$
+ * ome.security.basic.CurrentDetails
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -39,14 +39,14 @@ import ome.system.EventContext;
  * user must be set (the creation of a new user is only allowed if the current
  * user is set to root; root always exists. QED.) The event must also be set.
  * Umask is optional.
- *
+ * 
  * This information is stored in a Details object, but unlike Details which
  * assumes that an empty value signifies increased security levels, empty values
  * here signifiy reduced security levels. E.g.,
- *
+ * 
  * Details: user == null ==> object belongs to root CurrentDetails: user == null
  * ==> current user is "nobody" (anonymous)
- *
+ * 
  */
 class CurrentDetails {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
@@ -106,9 +106,6 @@ class CurrentDetails {
         l.setEntityType(klass.getName()); // TODO could be id to Type entity
         l.setEntityId(id);
         l.setEvent(getCreationEvent());
-        Details d = new Details();
-        d.setPermissions(new Permissions());
-        l.setDetails(d);
         list.add(l);
     }
 

@@ -2,10 +2,10 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-# $Id$
-#
-# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# 
+# $Id: services.xml 1167 2006-12-15 10:39:34Z jmoore $
+# 
+# Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -13,17 +13,17 @@
 
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Written by:  Josh Moore, josh at glencoesoftware.com
+# Written by:  Josh Moore <josh.moore@gmx.de>
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
 <!--
 
 	Configuration for ICE clients.
-
+ 
 -->
 
-<beans>
+<beans>	
 
   <!-- property placeholder post-processor; copied from ome/client/spring.xml -->
 	<bean id="placeholderConfig"
@@ -35,13 +35,13 @@
 		<property name="locations">
 		<list>
 			<value>classpath:omero.properties</value>
- 			<value>classpath:hibernate.properties</value>
+ 			<value>classpath:hibernate.properties</value>      
  			<value>classpath:jndi.properties</value>
  			<value>classpath:local.properties</value>
 		</list>
 		</property>
 	</bean>
-
+    
   <bean id="Ice.Communicator" class="ome.services.icy.config.IceCommunicatorFactoryBean">
     <property name="properties">
       <props>
@@ -49,9 +49,8 @@
         <prop key="Ice.Default.Router">OMEROGlacier2/router:tcp -p 9998 -h 127.0.0.1</prop>
         <prop key="Ice.ACM.Client">0</prop>
         <prop key="Ice.MonitorConnections">60</prop>
-        <prop key="Ice.RetryIntervals">0 100 200</prop>
+        <prop key="Ice.RetryIntervals">-1</prop>
         <prop key="Ice.Warn.Connections">1</prop>
-        <prop key="Ice.Trace.Retry">2</prop>
       </props>
     </property>
     <property name="defaultContext">

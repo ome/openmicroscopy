@@ -26,10 +26,6 @@
   </description>
 
   <!--  Scope: private -->
-  
-  <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
-  	<constructor-arg value="false"/>
-  </bean>
 
   <bean id="hibernateProperties" class="java.util.Properties">
     <description>

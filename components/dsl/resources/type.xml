@@ -1,105 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	EXAMPLE TYPE FILE
+<!-- 
+EXAMPLE TYPE FILE
 -->
 
 <types>
 	<container id="ome.model.core.Test">
 		<properties>
-			<required name="ha" type="ome.model.core.Image" />
+			<required name="ha" type="ome.model.core.Image"/>
 		</properties>
 	</container>
-
+	
 	<abstract id="ome.model.core.AbstractThing">
 		<properties>
-			<required name="myBool" type="bool" />
-			<optional name="maybeAFloat" type="float" />
+			<required name="myBool" type="bool"/>
+			<optional name="maybeAFloat" type="float"/>
 		</properties>
 	</abstract>
-
-	<type id="ome.model.core.RealThing"
-		subclasses="ome.model.core.AbstractThing">
+	
+	<type id="ome.model.core.RealThing" subclasses="ome.model.core.AbstractThing">
 		<properties>
-			<onemany name="lotsOfOtherThings"
-				type="ome.model.somewhere.ElseHa" inverse="things" />
+			<onemany name="lotsOfOtherThings" type="ome.model.somewhere.ElseHa" inverse="things"/>
 		</properties>
 	</type>
+	
+	<type id="ome.model.somewhere.ElseHa"/>
+	
+	<link id="ome.model.links.RealThingOtherThingMap" 
+		to="ome.model.core.RealThing"
+		from="ome.model.somewhere.ElseHa"/>
 
-	<type id="ome.model.somewhere.ElseHa" />
-
-	<link id="ome.model.links.RealThingOtherThingMap"
-		to="ome.model.core.RealThing" from="ome.model.somewhere.ElseHa" />
-
-	<enum id="ome.model.enums.MyThingType"><!-- enums and *Type are conventions -->
+	<enum id="ome.model.enums.MyThingType"> <!-- enums and *Type are conventions -->
 		<properties>
-			<entry name="test1" />
+			<entry name="test1"/>
 		</properties>
 	</enum>
-
+	
 	<type id="ome.Pixels">
 		<properties>
-			<zeromany name="thumbnails" type="ome.Thumbnail"
-				inverse="pixels" />
+			<zeromany name="thumbnails" type="ome.Thumbnail" inverse="pixels"/>
 		</properties>
 	</type>
-
+	
 	<type id="ome.Thumbnail">
 		<properties>
-			<required name="pixels" type="ome.Pixels" />
+			<required name="pixels" type="ome.Pixels"/>
 		</properties>
 	</type>
-
-	<type id="Job">
-		<properties>
-			<child name="jobThingLink"
-				type="JobThingLink"
-				target="Thing" />
-			<child name="jobDoohickeyLink"
-				type="JobDoohickeyLink"
-				target="Doohickey" />
-		</properties>
-	</type>
-
-	<type id="Thing">
-		<properties />
-	</type>
-
-	<type id="Doohickey">
-		<properties>
-			<parent name="dooHickeyLinks"
-				type="JobDoohickeyLink"
-				target="Job" />
-		</properties>
-	</type>
-
-	<link id="JobThingLink">
-		<properties>
-			<from_parent type="Job" />
-			<to_child type="Thing" />
-		</properties>
-	</link>
-
-	<link id="JobDoohickeyLink">
-		<properties>
-			<from_parent type="Job" />
-			<to_child type="Doohickey" />
-		</properties>
-	</link>
-
-
+			
 	<!-- examples -->
 	<!--
-		<type id="listOfExamples"><properties>
+	<type id="listOfExamples"><properties>
 		<test_r/><test_1/><test/><required/>
-		<test_p/><test_1N/><onemany/>
-		<test_q/><test_01/><zeroone/><optional/>
-		<test_s/><test_0N/><zeromany/>
-		<test_ip/><test_N1/><manyone/>
-		<test_is/><test_N0/><manyzero/>
-		<fk_p/>
-		<fk_r/>
-		<int_p/>
-		<value_cardinality/>
-		</properties></type>
+    		<test_p/><test_1N/><onemany/>
+    		<test_q/><test_01/><zeroone/><optional/>
+    		<test_s/><test_0N/><zeromany/>
+    		<test_ip/><test_N1/><manyone/>
+    		<test_is/><test_N0/><manyzero/>
+    		<fk_p/>
+    		<fk_r/>
+    		<int_p/>
+    		<value_cardinality/>
+	</properties></type>
 	-->
 </types>

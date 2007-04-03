@@ -1,18 +1,18 @@
 
 	// Allow overriding of getter and setter logic.
-
+	
 	protected void preGetter( String field )
 	{
 		errorIfUnloaded();
 	}
-
+	
 	protected void postGetter( String field ) {}
-
+	
 	protected void preSetter( String field, Object value )
 	{
 		errorIfUnloaded();
 	}
-
+	
 	protected void postSetter( String field, Object value ) {}
 
 ## TODO could combine this with preSetter.
@@ -26,7 +26,7 @@
 			"in order to update this collection.\n"
 			);
 	}
-
+	
 	// Property accessors
 #foreach($property in $pojo.getAllPropertiesIterator())
 #set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
@@ -37,7 +37,7 @@
 #set( $FIELD = ${field.toUpperCase()} )
 #if( $c2j.hasMetaAttribute($property, "set-add-method") || $c2j.hasMetaAttribute($property, "link-add-method") )
 
-	/**
+	/** 
 	 * returns ${property.name} . You should not modify this Set unless you
 	 * know what you are doing. Use the iterate method instead.
 	 */
@@ -49,21 +49,21 @@
 		} finally {
 			postGetter( $FIELD );
 		}
-
+        
     }
-
-	/**
+	
+	/** 
 	 * setter for ${property.name} should be avoided. Does not fulfill normal semantics.
 	 */
     protected void set${PropertyName}($fieldtype ${property.name}) {
-
+		
 		try {
 			preSetter( $FIELD, ${property.name} );
 			this.${property.name} = ${property.name};
 		} finally {
 			postSetter( $FIELD, ${property.name});
 		}
-
+        
     }
 
 	/**
@@ -77,7 +77,7 @@
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
 	}
 
 	/**
@@ -85,13 +85,13 @@
 	 * This method will never return null, but rather will return an instance
 	 * of {@link ome.util.EmptyIterator}. To test for a null collection,
 	 * see of {@link #sizeOf${PropertyName}()} is less than zero.
-	 */
+	 */ 
 	public Iterator iterate${PropertyName}() {
-
+		
 		try {
-
+		
 			preGetter( $FIELD );
-
+		
     		if ( get${PropertyName}() == null )
     		{
     			return new ome.util.EmptyIterator();
@@ -101,21 +101,21 @@
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
 	}
 
 	/**
-	 * takes a CBlock and calls the block once for each $elementtype while
-	 * collecting the results. If <code>block == null</code>, then the
-	 * iterator values themselves are collected. This method uses
+	 * takes a CBlock and calls the block once for each $elementtype while 
+	 * collecting the results. If <code>block == null</code>, then the 
+	 * iterator values themselves are collected. This method uses 
 	 * {@link #iterate${PropertyName}} internally and so will return a value
 	 * even if the underlying collection is null.
-	 */
+	 */ 
 	public List collect${PropertyName}(ome.util.CBlock block) {
-
+		
 		try {
 			preGetter( $FIELD );
-
+		
     		List result = new ArrayList();
     		Iterator it = iterate${PropertyName}();
     		while ( it.hasNext() )
@@ -127,49 +127,49 @@
     			} else {
     				result.add( obj );
     			}
-
+    				
     		}
     		return result;
-
+			
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
 	}
-
+	
 #end
-##
+## 
 ## SETS: These methods represent our handling of Hibernate's "inverse" sets
 ##       which do not act as expected with regards to getters & setters.
 ##
 #if( $c2j.hasMetaAttribute($property, "set-add-method") )
 #set( $inverse = $pojo.beanCapitalize( $c2j.getMetaAsString($property, "set-add-method")))
-	/**
+	/** 
 	 * use instead of set${PropertyName} . Makes the necessary
 	 * call on $elementtype as well.
 	 */
 	public void add${Name}($elementtype target) {
-
+		
 		try {
 			preSetter( $FIELD, target );
-
+		
     		if ( get${PropertyName}() == null )
 				throwNullCollectionException("${PropertyName}");
-
+				
     		get${PropertyName}().add( target );
     		target.set${inverse} ( this );
-
+			
 		} finally {
 			postSetter( $FIELD, target );
 		}
-
+		
 	}
 
-	/**
-	 * use like add${Name}.
+	/** 
+	 * use like add${Name}. 
 	 */
 	public void add${Name}Set(Set targets) {
-
+		
 		try {
 			preSetter( $FIELD, targets );
 
@@ -183,18 +183,18 @@
     		  $elementtype target = ($elementtype) it.next();
     		  target.set${inverse} ( this );
     		}
-
+		
 		} finally {
 			postSetter( $FIELD, targets );
 		}
-
+		
 	}
-
+	
 	/**
-	 * removes a single element from this set and makes the inverse call on ${elementtype}
+	 * removes a single element from this set and makes the inverse call on ${elementtype} 
 	 */
 	public void remove${Name}(${elementtype} target) {
-
+		
 		try {
 			preSetter( $FIELD, target );
 
@@ -203,18 +203,18 @@
 
    			get${PropertyName}().remove( target );
     		target.set${inverse} ( null );
-
+			
 		} finally {
 			postSetter( $FIELD, target );
 		}
-
+		
 	}
 
 	/**
 	 * use like remove${Name}
 	 */
 	public void remove${Name}Set( Set targets ) {
-
+		
 		try {
 			preSetter( $FIELD, targets );
 
@@ -223,29 +223,29 @@
 
    			get${PropertyName}().removeAll( targets );
     		Iterator it = targets.iterator();
-    		while ( it.hasNext() )
+    		while ( it.hasNext() ) 
     		{
     			${elementtype} target = ($elementtype) it.next();
     			target.set${inverse} ( null );
     		}
-
+    			
 		} finally {
 			postSetter( $FIELD, targets );
 		}
-
+		
 	}
-
+	
 	/**
-	 * clears the set.
+	 * clears the set. 
 	 */
 	public void clear${PropertyName}() {
-
+	
 		try {
 			preSetter( $FIELD, null );
 
 			if ( get${PropertyName}() == null )
 				throwNullCollectionException("${PropertyName}");
-
+			
 			get${PropertyName}().clear();
     		Iterator it = iterate${PropertyName}();
     		while ( it.hasNext() )
@@ -253,14 +253,14 @@
     			$elementtype target = ($elementtype) it.next();
     			target.set${inverse} ( null );
     		}
-
+    		
 		} finally {
 			postSetter( $FIELD, null );
 		}
-
+			
 	}
-
-##
+	
+## 
 ## LINK: These methods are like the set methods above, but help to completely
 ##       hide the link implementations.
 ##
@@ -272,8 +272,7 @@
 #set( $order = $c2j.getMetaAsString($property, "link-add-order"))
 #set( $next = $c2j.getMetaAsString($property, "link-add-next"))
 #set( $other = $c2j.getMetaAsString($property, "link-add-other"))
-#set( $bidir = $c2j.getMetaAsBool($property, "link-add-bidir"))
-
+	
 	/**
 	 * adds a $elementtype to ${property.name} . This entails changing our ${property.name} Set,
 	 * creating a new $LinkType and calling link${pojo.declarationName} on the $elementtype
@@ -282,97 +281,95 @@
 
 		try {
 			preSetter( $FIELD, addition );
-
+    	
     		// Setup link
     		$LinkType link = new $LinkType();
     		link.link( $order );
-
+    		
     		// Add it to us and possibly the other side.
     		add${Link}( link, true );
 
 		} finally {
 			postSetter( $FIELD, addition );
-		}
+		}			
 
 	}
-
+	
 	/**
 	 * adds a $LinkType to ${property.name}, allowing for recursion -- whether
 	 * or not add${Name} will be called on the addition <b>if it is loaded</b>
-	 */
+	 */ 
 	public void add${Link} ($LinkType link, boolean bothSides) {
 
 		try {
 			preSetter( $FIELD, link );
-
+	
 			if ( get${PropertyName}() == null )
 				throwNullCollectionException("${PropertyName}");
-
+    
     		get${PropertyName}().add( link );
-
-#if($bidir)
+    
     		if ( bothSides && link.${other}().isLoaded() )
     			link.${other}().add${Link}( link, false );
-#end
-
+		
 		} finally {
 			postSetter( $FIELD, link );
 		}
-
+		
 	}
 
 	/**
 	 * provides an iterator over the $next values of the ${property.name}. Like
 	 * with most Collection iterators, modificiations to the underlying collection
 	 * while iterating will result in an {@link ConcurrentModificationException}.
-	 * Use {@link #linked${Name}List()} instead.
-	 */
+	 * Use {@link #linked${Name}List()} instead. 
+	 */ 
 	 public Iterator linked${Name}Iterator() {
 
 		try {
 			preGetter( $FIELD );
-
+	 
     		if ( get${PropertyName}() == null )
     			return new ome.util.EmptyIterator();
-
+    			
             final Iterator it = get${PropertyName}().iterator();
             return new Iterator() {
-
+    
                 public boolean hasNext()
                 {
                     return it == null ? false : it.hasNext();
                 }
-
+    
                 public Object next()
                 {
-                    if ( it == null ) throw new NoSuchElementException(
+                    if ( it == null ) throw new NoSuchElementException( 
     					"$property.name is null; no elements." );
-
+    					
                     $LinkType link = ($LinkType) it.next();
                     return link.${other}();
                 }
-
+    
                 public void remove()
                 {
                     throw new UnsupportedOperationException("Cannot call remove on this iterator.");
                 }
-
+                
             };
 
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
     }
 
-	/**
-	 * find all ${LinkType} which have the argument as their $other.
+	/** 
+	 * find all ${LinkType} which have the argument as their $other. 
 	 */
 	public Set find${Link}( $elementtype target ) {
 
 		try {
 			preGetter( $FIELD );
-
+		
             final Iterator it = iterate${PropertyName}();
             final Set result = new HashSet();
             while ( it.hasNext() )
@@ -387,43 +384,43 @@
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
     }
 
-	/** produces a {@link List}-copy of the underlying collection. Unlike,
+	/** produces a {@link List}-copy of the underlying collection. Unlike, 
 	 *  {@link #linked${Name}Iterator()}, while using the returned {@link List},
 	 * modifications can be made to the underlying collection without throwing
 	 * {@link ConcurrentModificationExceptions}
 	 */
 	public List linked${Name}List() {
-
+	
 		try {
 			preGetter( $FIELD );
-
+	
     		Iterator it = linked${Name}Iterator();
     		List list = new ArrayList();
-
+    		
     		while ( it.hasNext() )
     			list.add( it.next() );
-
+    
     		return list;
 
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
 	}
-
+	
 	/**
-	 * takes a CBlock and calls the block once for each $elementtype while
-	 * collecting the results. If <code>block == null</code>, then the
+	 * takes a CBlock and calls the block once for each $elementtype while 
+	 * collecting the results. If <code>block == null</code>, then the 
 	 * iterator values themselves are collected.
-	 */
+	 */ 
 	public List eachLinked${Name}(ome.util.CBlock block) {
-
+	
 		try {
 			preGetter( $FIELD );
-
+		
     		List result = new ArrayList();
     		Iterator it = linked${Name}Iterator();
     		while ( it.hasNext() )
@@ -435,82 +432,79 @@
     			} else {
     				result.add( obj );
     			}
-
+    				
     		}
     		return result;
 
 		} finally {
 			postGetter( $FIELD );
 		}
-
+			
 	}
-
+	
 	/**
-	 * unlinks all $elementtype instances from this instance.
+	 * unlinks all $elementtype instances from this instance. 
 	 */
 	public void unlink${Name} ($elementtype removal) {
 
 		try {
 			preSetter( $FIELD, removal );
-
+    	
     		Set toRemove = find${Link}( removal );
     		Iterator it = toRemove.iterator();
     		while ( it.hasNext() )
     		{
     			remove${Link}( ($LinkType) it.next(), true );
     		}
-
+			
 		} finally {
 			postSetter( $FIELD, removal);
 		}
-
+		
 	}
-
+	
 	/**
 	 * removes the given $Link from ${property.name}, allowing for recursion -- whether
-	 * or not the removal will call unlink${pojo.declarationName} again <b>if loaded</b>.
-	 */
+	 * or not the removal will call unlink${pojo.declarationName} again <b>if loaded</b>. 
+	 */ 
 	public void remove${Link} ($LinkType link, boolean bothSides) {
 
 		try {
 			preSetter( $FIELD, link );
-
+	
 			if ( get${PropertyName}() == null )
 				throwNullCollectionException("${PropertyName}");
-
-   			get${PropertyName}().remove( link );
-
-#if($bidir)
+				
+   			get${PropertyName}().remove( link );		
     		if ( bothSides && link.${other}().isLoaded() )
     			link.${other}().remove${Link}( link, false );
-#end
-
+			
 		} finally {
 			postSetter( $FIELD, link);
 		}
-
+		
 	}
-
+	
 	/**
-	 * clears the set.
+	 * clears the set. 
 	 */
 	public void clear${Name}Links() {
 
 		try {
 			preSetter( $FIELD, null );
-
+		
 			List list = new ArrayList( get${PropertyName}() );
     		for (Object object : list)
             {
-    			$LinkType link =
+    			$LinkType link = 
                     ($LinkType) object;
     			remove${Link}( link, true );
     		}
-
+			
 		} finally {
 			postSetter( $FIELD, null );
-		}
-
+		}			
+			
 	}
 
 ##
@@ -520,27 +514,27 @@
 ##
 #elseif($pojo.getMetaAttribAsBool($property, "gen-property", true))
 #if($pojo.hasFieldJavaDoc($property))
-    /**
+    /**       
      * $pojo.getFieldJavaDoc($property, 4)
      */
 #end
 $templates.Ejb3PropertyGetAnnotation
     $pojo.getPropertyGetModifiers($property) $pojo.getJavaTypeName($property, $jdk5) $pojo.getGetterSignature($property)() {
-#if($clazz.identifierProperty.equals($property)||$clazz.version.equals($property))
+#if($clazz.identifierProperty.equals($property)||$clazz.version.equals($property))	
 		return this.$property.name;
-#else
+#else			
 		try {
 			preGetter( $FIELD );
 			return this.$property.name;
 		} finally {
 			postGetter( $FIELD );
 		}
-
-#end
+			
+#end			
     }
-
+    
     $pojo.getPropertySetModifiers($property) void set$pojo.getPropertyName($property)($pojo.getJavaTypeName($property, $jdk5) $property.Name) {
-#if($clazz.identifierProperty.equals($property)||$clazz.version.equals($property))
+#if($clazz.identifierProperty.equals($property)||$clazz.version.equals($property))		
         this.$property.Name = $property.Name;
 #else
 		try {
@@ -548,10 +542,10 @@ $templates.Ejb3PropertyGetAnnotation
 	        this.$property.Name = $property.Name;
 		} finally {
 			postSetter( $FIELD, ${property.name});
-		}
-#end
+		}			
+#end		
     }
-
+	
 #end
 #end
 ################################################################################
@@ -560,7 +554,7 @@ $templates.Ejb3PropertyGetAnnotation
 ##
 ## Link Type
 ##
-#if( $c2j.hasMetaAttribute($clazz, "link-parent") )
+#if( $c2j.hasMetaAttribute($clazz, "link-parent") )	
 #set( $parent = $c2j.getMetaAsString($clazz, "link-parent"))
 #set( $child = $c2j.getMetaAsString($clazz, "link-child"))
 
@@ -568,34 +562,34 @@ $templates.Ejb3PropertyGetAnnotation
 
 		try {
 			preSetter( $FIELD, null );
-
-    		setParent( parent );
+    	
+    		setParent( parent ); 
     		setChild( child );
 		} finally {
 			postSetter( $FIELD, null );
-		}
-
+		}			
+			
 	}
-
+	
 	public $parent parent() {
-
+	
 		try {
 			preGetter( $FIELD );
 			return ($parent) getParent();
 		} finally {
 			postGetter( $FIELD );
 		}
-
+		
 	}
-
+	
 	public $child child() {
-
+	
 		try {
 			preGetter( $FIELD );
 			return ($child) getChild();
 		} finally {
 			postGetter( $FIELD );
 		}
-
+		
 	}
 #end
