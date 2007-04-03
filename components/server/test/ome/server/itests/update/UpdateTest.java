@@ -6,26 +6,32 @@
  */
 package ome.server.itests.update;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.testng.annotations.Test;
-
+import ome.api.ITypes;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
+import ome.model.enums.Format;
+import ome.model.jobs.ImportJob;
+import ome.model.jobs.JobStatus;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
+
+import org.testng.annotations.Test;
 
 public class UpdateTest extends AbstractUpdateTest {
 
@@ -286,6 +292,26 @@ public class UpdateTest extends AbstractUpdateTest {
         assertLink(link);
     }
 
+    @Test(groups = "jobs" )
+    public void testLinkingUnidirectionally() throws Exception {
+        ITypes t = this.factory.getTypesService();
+        ImportJob job = new ImportJob();
+        OriginalFile file = new OriginalFile();
+        file.setPath("");
+        file.setSha1("");
+        file.setName("");
+        file.setSize(0L);
+        file.setFormat(t.allEnumerations(Format.class).get(0));
+        job.linkOriginalFile(file);
+        job.setDescription("test");
+        job.setName("image name");
+        job.setSubmitted(new Timestamp(System.currentTimeMillis()));
+        job.setScheduledFor(new Timestamp(System.currentTimeMillis()));
+        job.setStatus(t.getEnumeration(JobStatus.class, "Submitted"));
+        iUpdate.saveObject(job);
+
+    }
+    
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
         ProjectDatasetLink copy = iQuery.get(test.getClass(), test.getId());

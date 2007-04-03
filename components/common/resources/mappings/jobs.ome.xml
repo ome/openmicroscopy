@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# $Id$
+# 
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<types>
+	
+  <!-- Job running -->
+  <enum id="ome.model.jobs.JobStatus">
+     <entry name="Submitted"/>
+     <entry name="Queued"/>
+     <entry name="Running"/>
+     <entry name="Finished"/>
+  </enum>
+
+  <type id="ome.model.jobs.Job">
+    <properties>
+      <required name="status" type="ome.model.jobs.JobStatus"/>
+      <required name="submitted" type="timestamp"/>
+      <required name="scheduledFor" type="timestamp"/>
+      <optional name="finished" type="timestamp"/>
+    </properties>
+  </type>
+  
+  <type id="ome.model.jobs.ImportJob" superclass="ome.model.jobs.Job">
+    <properties>
+      <required name="name" type="string"/>
+      <required name="description" type="string"/>
+      <child name="originalFileLinks" type="ome.model.jobs.JobOriginalFileLink"
+             target="ome.model.core.OriginalFile"/>
+    </properties>
+  </type>
+  
+  <link id="ome.model.jobs.JobOriginalFileLink">
+    <properties>
+      <from_parent type="ome.model.jobs.Job"/>
+      <to_child type="ome.model.core.OriginalFile"/>
+    </properties>
+  </link>	
+  
+</types>

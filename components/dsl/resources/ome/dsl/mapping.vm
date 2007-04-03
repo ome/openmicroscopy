@@ -10,12 +10,12 @@
 <!DOCTYPE hibernate-mapping PUBLIC
     "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
-    
+
 <hibernate-mapping>
 #if($type.superclass)<joined-subclass
 #else<class
 #end
-    name="${type.id}" 
+    name="${type.id}"
     table="${type.table}"
     abstract="$type.abstract"
     select-before-update="true"
@@ -32,7 +32,7 @@
           public final static String OWNER_FILTER = "${ofilter}";
           public final static String GROUP_FILTER = "${gfilter}";
           public final static String EVENT_FILTER = "${efilter}";
-          public final static String PERMS_FILTER = "${pfilter}";  
+          public final static String PERMS_FILTER = "${pfilter}";
 #foreach( $prop in $type.properties)
 #if($prop.one2Many)
 #set( $UC_NAME = "${prop.name.toUpperCase()}")
@@ -44,7 +44,7 @@
 #end
 	</meta>
 #end
-	<meta attribute="class-code"> 
+	<meta attribute="class-code">
 /* These values are defined in dsl/resources/ome/dsl/mapping.vm:
  * -------------------------------------------------------------
  * Explanation of serialVersionUID ex 0000000 03 00 00 01 03 01 L;
@@ -55,8 +55,8 @@
  * 14-15 : release type   (M)
  * 16-17 : release number (2)
  * 18-19 : increment per delta // any changes to the dsl or mapping files
- */ 
-          private static final long serialVersionUID = 0000000030000010301L;                     
+ */
+          private static final long serialVersionUID = 0000000030000010301L;
 	</meta>
 ##
 ## INTERFACES:
@@ -72,7 +72,7 @@
 #set( $name_idx = ${type.id.lastIndexOf(".")} )
 #set( $name_idx = ${name_idx} + 1 )
 #set( $name_max = ${type.id.length()} )
-#set( $name_end = ${type.id.substring($name_idx,$name_max)} ) 
+#set( $name_end = ${type.id.substring($name_idx,$name_max)} )
 	public $name_end (String value) {
 	  setValue(value);
 	}
@@ -85,8 +85,8 @@
 #foreach( $prop in $type.properties)
 #if($prop.class.name == "ome.dsl.LinkParent")
 	<meta attribute="link-parent">$prop.type</meta>
-#elseif($prop.class.name == "ome.dsl.LinkChild") 
-	<meta attribute="link-child">$prop.type</meta>	
+#elseif($prop.class.name == "ome.dsl.LinkChild")
+	<meta attribute="link-child">$prop.type</meta>
 #end
 #end
 #end
@@ -95,13 +95,13 @@
 	 COMMON
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 #####################################################################INHERITANCE
-#if(!$type.superclass) 
+#if(!$type.superclass)
         <id name="id" type="java.lang.Long" column="id">
-            <meta attribute="setter-scope">protected</meta>        
+            <meta attribute="setter-scope">protected</meta>
             <meta attribute="field-description">
               The DB unique identifier for this object. You are not responsible for
-              setting the id; however, it can be useful for creating "unloaded" 
-              versions of your objects.            
+              setting the id; however, it can be useful for creating "unloaded"
+              versions of your objects.
             </meta>
             <generator class="sequence">
                 <param name="sequence">seq_${type.table}</param>
@@ -110,55 +110,55 @@
 
 #*
 #if(!$type.immutable)
-        <version name="version" type="java.lang.Integer" 
+        <version name="version" type="java.lang.Integer"
                 column="version" unsaved-value="negative">
             <meta attribute="setter-scope">protected</meta>
             <meta attribute="field-description">
               This version number is controlled by the database for optimisitic
               locking.
             </meta>
-        </version>           
+        </version>
 #end
 *#
 
         <component name="details" class="ome.model.internal.Details">
             <meta attribute="field-description">
-              The details of this object correspond to low-level system 
-              information. Owner, permissions, 
-            </meta>        
+              The details of this object correspond to low-level system
+              information. Owner, permissions,
+            </meta>
             <meta attribute="default-value">new Details()</meta>
-#if(!$type.global)	
-            <many-to-one name="owner" class="ome.model.meta.Experimenter" 
+#if(!$type.global)
+            <many-to-one name="owner" class="ome.model.meta.Experimenter"
                 column="owner_id" not-null="true" cascade="$cascade_settings"/>
-            <many-to-one name="group" class="ome.model.meta.ExperimenterGroup" 
+            <many-to-one name="group" class="ome.model.meta.ExperimenterGroup"
                 column="group_id" not-null="true" cascade="$cascade_settings"/>
             <!-- creationEvent is not updateable -->
-            <many-to-one name="creationEvent" class="ome.model.meta.Event" 
+            <many-to-one name="creationEvent" class="ome.model.meta.Event"
                 column="creation_id" update="false"
-                not-null="true" cascade="$cascade_settings"/>		
+                not-null="true" cascade="$cascade_settings"/>
 #if(!$type.immutable)
-            <many-to-one name="updateEvent" class="ome.model.meta.Event" 
+            <many-to-one name="updateEvent" class="ome.model.meta.Event"
                 column="update_id" update="true"
-                not-null="true" cascade="$cascade_settings"/>			
+                not-null="true" cascade="$cascade_settings"/>
+#end
 #end
             <component name="permissions" class="ome.model.internal.Permissions">
                 <!-- meta is ignored. We control Details -->
 				<meta attribute="default-value">new Permissions(Permissions.DEFAULT)</meta>
-                <property name="perm1" not-null="true" 
-                    type="long" column="permissions"/> 
+                <property name="perm1" not-null="true"
+                    type="long" column="permissions"/>
                 <!-- TODO possibly just default CHMOD here -->
             </component>
-#end
 			<!-- Even global objects can have external info -->
             <many-to-one name="externalInfo" class="ome.model.meta.ExternalInfo"
             	column="external_id" not-null="false" unique="true"
             	cascade="$cascade_settings,delete"/>
         </component>
-        
+
 #else ###############################################################INHERITANCE
 #set($superId = ${type.typeToColumn($type.superclass)} )
 	<key column="${superId}_id"/>
-#end 
+#end
 #####################################################################INHERITANCE
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 INTERFACE-BASED
@@ -173,15 +173,15 @@
 #end
 
 #if($type.named)
-	<property name="name" type="java.lang.String" 
+	<property name="name" type="java.lang.String"
 		column="name" not-null="true" length="256"/>
 #end
 
 #if($type.described)
-	<property name="description" type="text" 
+	<property name="description" type="text"
 		column="description" length="256"/>
 #end
-	
+
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 SPECIFIC
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -191,7 +191,7 @@
 #if($prop.class.name == "ome.dsl.EntryField") #############################TYPE
 ## This is handled by ome/dsl/data.vm
 ###########################################################################TYPE
-#elseif($prop.one2Many && $prop.tag) 
+#elseif($prop.one2Many && $prop.tag)
 
     <one-to-one
         name="${prop.name}"
@@ -201,7 +201,7 @@
       	lazy="false"
       >
       <meta attribute="scope-set">protected</meta>
-      <formula>'true'</formula> 
+      <formula>'true'</formula>
       <formula>id</formula>
     </one-to-one>
 
@@ -234,19 +234,21 @@
         inverse="true"
 #if($prop.class.name == "ome.dsl.ChildLink" )
         cascade="all-delete-orphan">
-        <meta attribute="link-add-method">${prop.target}</meta>        
-        <meta attribute="link-add-order">this,addition</meta>                                
+        <meta attribute="link-add-method">${prop.target}</meta>
+        <meta attribute="link-add-order">this,addition</meta>
         <meta attribute="link-add-next">parent</meta>
-        <meta attribute="link-add-other">child</meta>        
-#elseif($prop.class.name == "ome.dsl.ParentLink")         
+        <meta attribute="link-add-other">child</meta>
+        <meta attribute="link-add-bidir">${prop.bidirectional}</meta>
+#elseif($prop.class.name == "ome.dsl.ParentLink")
         cascade="all-delete-orphan">
-        <meta attribute="link-add-method">${prop.target}</meta>        
+        <meta attribute="link-add-method">${prop.target}</meta>
         <meta attribute="link-add-order">addition,this</meta>
-        <meta attribute="link-add-next">child</meta>                  
-        <meta attribute="link-add-other">parent</meta>                      
+        <meta attribute="link-add-next">child</meta>
+        <meta attribute="link-add-other">parent</meta>
+        <meta attribute="link-add-bidir">${prop.bidirectional}</meta>
 #else
         cascade="$cascade_settings">
-        <meta attribute="set-add-method">${prop.inverse}</meta>        
+        <meta attribute="set-add-method">${prop.inverse}</meta>
 #end
         <key column="${prop.foreignKey}" not-null="${prop.required}"/>
         <one-to-many class="${prop.type}"/>
@@ -258,7 +260,7 @@
         <filter name="${pfilter}_${UC_NAME}" condition=":permsStr = permissions"/>
 #end
     </set>
-    
+
 #end ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ORDERED
 #elseif($prop.foreignKey) ## REGULAR M-1 ##################################TYPE
 
@@ -266,7 +268,7 @@
 #if($prop.tag)
     <properties name="${prop.tag}Tag">
     <property name="${prop.tag}" type="java.lang.Boolean"/>
-#end    
+#end
     <many-to-one
         name="${prop.name}"
         class="${prop.type}"
@@ -275,10 +277,10 @@
         unique="${prop.unique}"
         cascade="$cascade_settings"
         insert="${prop.insert}"
-        update="${prop.update}"        
+        update="${prop.update}"
      >
 
-#if($prop.class.name == "ome.dsl.LinkParent" || $prop.class.name == "ome.dsl.LinkChild") 
+#if($prop.class.name == "ome.dsl.LinkParent" || $prop.class.name == "ome.dsl.LinkChild")
 	   <meta attribute="property-type">IObject</meta>
 #elseif($prop.inverse && $prop.tag)
 	   <meta attribute="WORKAROUND">${prop.inverse}</meta>
@@ -292,8 +294,8 @@
 
 #else ## REGULAR PROPERTY #################################################TYPE
 
-    <property name="${prop.name}" type="${prop.type}" 
-        not-null="${prop.required}" unique="${prop.unique}" 
+    <property name="${prop.name}" type="${prop.type}"
+        not-null="${prop.required}" unique="${prop.unique}"
         update="${prop.update}"
      />
 
@@ -316,34 +318,34 @@
   <filter-def name="${ofilter}">
     <filter-param type="java.lang.Long" name="ownerId"/>
   </filter-def>
-  
+
   <filter-def name="${gfilter}">
     <filter-param type="java.lang.Long" name="groupId"/>
   </filter-def>
-  
+
   <filter-def name="${efilter}">
-  	<filter-param type="java.lang.Long" name="eventId"/>  
+  	<filter-param type="java.lang.Long" name="eventId"/>
   </filter-def>
-  
+
   <filter-def name="${pfilter}">
     <filter-param type="java.lang.String" name="permsStr"/>
   </filter-def>
-  
+
 #foreach( $prop in $type.properties )
 #if($prop.one2Many)
 #set( $UC_NAME = "${prop.name.toUpperCase()}")
   <filter-def name="${ofilter}_${UC_NAME}">
     <filter-param type="java.lang.Long" name="ownerId"/>
   </filter-def>
-  
+
   <filter-def name="${gfilter}_${UC_NAME}">
     <filter-param type="java.lang.Long" name="groupId"/>
   </filter-def>
-  
+
   <filter-def name="${efilter}_${UC_NAME}">
-  	<filter-param type="java.lang.Long" name="eventId"/>  
+  	<filter-param type="java.lang.Long" name="eventId"/>
   </filter-def>
-  
+
   <filter-def name="${pfilter}_${UC_NAME}">
     <filter-param type="java.lang.String" name="permsStr"/>
   </filter-def>
