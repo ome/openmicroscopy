@@ -106,29 +106,29 @@ public class ImportHandler
            	qTable.setProgressPending(i);
         }
         
-        for (int i = 0; i < fads.length; i++)
+        for (int j = 0; j < fads.length; j++)
         {
-            if (qTable.table.getValueAt(i, 2).equals("pending") 
+            if (qTable.table.getValueAt(j, 2).equals("pending") 
                     && qTable.cancel == false)
             {
-                String filename = fads[i].file.getAbsolutePath();
+                String filename = fads[j].file.getAbsolutePath();
                 
-                viewer.appendToOutputLn("> [" + i + "] Importing \"" + filename
+                viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                library.setDataset(fads[i].dataset);
+                library.setDataset(fads[j].dataset);
                 
                 try
                 {
-                	importImage(fads[i].file, i,
+                	importImage(fads[j].file, j,
                 			    library.getFilesAndDatasets().length,
-                			    fads[i].imageName,
-                			    fads[i].archive);
+                			    fads[j].imageName,
+                			    fads[j].archive);
                 }
                 catch (Exception e)
                 {
-                	qTable.setProgressFailed(i);
-                    viewer.appendToOutputLn("> [" + i + "] Failure importing.");
+                	qTable.setProgressFailed(j);
+                    viewer.appendToOutputLn("> [" + j + "] Failure importing.");
                     new DebugMessenger(null, "Error Dialog", true, e);
                 }
             }

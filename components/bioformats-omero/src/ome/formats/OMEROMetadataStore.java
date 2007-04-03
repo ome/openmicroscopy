@@ -461,15 +461,28 @@ public class OMEROMetadataStore implements MetadataStore
                 AcquisitionMode.class, mode);
 
         List<Channel> channels = pixels.getChannels();
-        Channel channel;
+        Channel channel = new Channel();
+
         if (channels.size() == 0)
         {
-            channels = new ArrayList<Channel>(pixels.getSizeC());
+            channels = initChannels();
+        } 
+        else if (channels.size() != pixels.getSizeC())
+        {
+            log.warn(String.format("channels.size() (%d) is not equal to " +
+                    "pixels.getChannels().size() (%d) Resetting channel array.", 
+                    channels.size(), pixels.getSizeC()));
+            channels = initChannels();
         }
+        
+//        try {
+//            channels.set(channelIdx, channel);
+//        } catch (IndexOutOfBoundsException e) {
+//            channels.add(channelIdx, channel);
+//        }
 
-        channel = new Channel();
-        channels.add(channelIdx, channel);
-
+        channels.set(channelIdx, channel);
+        
         LogicalChannel lchannel = new LogicalChannel();
         lchannel.setEmissionWave(emWave);
         lchannel.setExcitationWave(exWave);
@@ -481,6 +494,18 @@ public class OMEROMetadataStore implements MetadataStore
         channel.setLogicalChannel(lchannel);
         pixels.setChannels(channels);
     }
+
+    private List<Channel> initChannels()
+    {
+        List<Channel> channels = new ArrayList<Channel>(pixels.getSizeC());
+        for (int i = 0; i < pixels.getSizeC(); i++)
+        {
+            channels.add(null);
+        }
+        return channels;
+    }
+
+
 
     /*
      * (non-Javadoc)

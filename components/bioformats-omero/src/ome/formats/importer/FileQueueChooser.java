@@ -77,15 +77,15 @@ public class FileQueueChooser
         ff[readerFFSize + 5] = new D3DNPrjFileFilter();
 
         //ff = ComboFileFilter.sortFilters(ff);
-        FileFilter combo = null;
-        if (ff.length > 1)
-        {
-            combo = new ComboFileFilter(ff, "All supported file types");
-            addChoosableFileFilter(combo);
-        }
-        for (int i = 0; i < ff.length; i++)
-            this.addChoosableFileFilter(ff[i]);
-        if (combo != null) this.setFileFilter(combo);
+//        FileFilter combo = null;
+//        if (ff.length > 1)
+//        {
+//            combo = new ComboFileFilter(ff, "All supported file types");
+//            addChoosableFileFilter(combo);
+//        }
+//        for (int i = 0; i < ff.length; i++)
+//            this.addChoosableFileFilter(ff[i]);
+//        if (combo != null) this.setFileFilter(combo);
         
         // Retrieve all JLists and JTables from the fileChooser
         fileListObjects = getFileListObjects(this);

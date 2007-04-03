@@ -60,7 +60,7 @@ public class FileQueueHandler
         this.viewer = viewer;
         reader = new OMEROWrapper();
         reader.setChannelStatCalculationStatus(true);
-     
+        
         setLayout(new BorderLayout());
         fileChooser = new FileQueueChooser();
         fileChooser.addActionListener(this);

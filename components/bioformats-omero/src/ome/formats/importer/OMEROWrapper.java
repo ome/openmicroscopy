@@ -22,6 +22,7 @@ public class OMEROWrapper extends ReaderWrapper
 	public OMEROWrapper()
 	{
 		reader = separator = new ChannelSeparator(new ImageReader());
+        reader.setColorTableIgnored(true);
 	}
 	
 	/** 
@@ -75,6 +76,7 @@ public class OMEROWrapper extends ReaderWrapper
 					Plane2D plane = openPlane2D(id, index, buf);
 					for (int x = 0; x < getSizeX(id); x++) {
 						for (int y = 0; y < getSizeY(id); y++) {
+                            //System.err.println("x: " + x + " y: " + y + " z: " + z + " c: " + c + " t: " + t);
 							double pixelValue = plane.getPixelValue(x, y);
 							if (pixelValue < min) min = pixelValue;
 							if (pixelValue > max) max = pixelValue;

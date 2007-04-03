@@ -329,19 +329,23 @@ public class ImportLibrary
                 tSize = zSize * numZSections;
                 wSize = tSize * numTimes;
                 break;
-
             // WZT sequence
             case 1:
                 wSize = smallOffset;
                 zSize = wSize * numWaves;
                 tSize = zSize * numZSections;
                 break;
-
             // ZWT sequence
             case 2:
                 zSize = smallOffset;
                 wSize = zSize * numZSections;
                 tSize = wSize * numWaves;
+                break;
+            // TWZ sequence
+            case 3:
+                tSize = smallOffset;
+                wSize = tSize * numTimes;
+                zSize = wSize * numWaves;
                 break;
         }
     }
@@ -365,7 +369,9 @@ public class ImportLibrary
         if (dimOrder.equals("XYZTC")) return 0;
         if (dimOrder.equals("XYCZT")) return 1;
         if (dimOrder.equals("XYZCT")) return 2;
-        throw new RuntimeException();
+        if (dimOrder.equals("XYTCZ")) return 3;
+        throw new RuntimeException(dimOrder + " not represented in " +
+                "getSequenceNumber");
     }
     
     /** Return true if the data is in little-endian format. 
