@@ -10,10 +10,15 @@ package ome.security;
 // Java imports
 
 // Third-party libraries
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jboss.security.Util;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 // Application-internal dependencies
 import ome.conditions.ApiUsageException;
@@ -22,7 +27,7 @@ import ome.conditions.InternalException;
 /**
  * Static methods for dealing with password hashes and the "password" table.
  * Used primarily by {@link ome.logic.AdminImpl}
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @see SecuritySystem
  * @see ome.logic.AdminImpl
@@ -31,8 +36,8 @@ import ome.conditions.InternalException;
 public abstract class PasswordUtil {
 
     /**
-     * Main method which takes exactly one argument, passes it to 
-     * {@link #preparePassword(String)} and prints the results on 
+     * Main method which takes exactly one argument, passes it to
+     * {@link #preparePassword(String)} and prints the results on
      * {@link System#out}. This is used by the build system to define the
      * "@ROOTPASS@" placeholder in data.sql.
      */
@@ -42,8 +47,8 @@ public abstract class PasswordUtil {
         }
         System.out.println(preparePassword(args[0]));
     }
-    
-    public static void changeUserPasswordById(SimpleJdbcTemplate jdbc, Long id,
+
+    public static void changeUserPasswordById(SimpleJdbcOperations jdbc, Long id,
             String password) {
         int results = jdbc.update("update password set hash = ? "
                 + "where experimenter_id = ? ", preparePassword(password), id);
@@ -53,7 +58,7 @@ public abstract class PasswordUtil {
         }
     }
 
-    public static String getUserPasswordHash(SimpleJdbcTemplate jdbc, Long id) {
+    public static String getUserPasswordHash(SimpleJdbcOperations jdbc, Long id) {
         String stored;
         try {
             stored = jdbc.queryForObject("select hash "
@@ -64,7 +69,7 @@ public abstract class PasswordUtil {
         return stored;
     }
 
-    public static Long userId(SimpleJdbcTemplate jdbc, String name) {
+    public static Long userId(SimpleJdbcOperations jdbc, String name) {
         Long id;
         try {
             id = jdbc.queryForObject(
@@ -74,6 +79,28 @@ public abstract class PasswordUtil {
             id = null; // This means there's not one.
         }
         return id;
+    }
+
+    public static List<String> userGroups(SimpleJdbcOperations jdbc, String name) {
+        List<String> roles;
+        try {
+            roles = jdbc.query(
+                    "select g.name from experimentergroup g, " +
+                    "groupexperimentermap m, experimenter e " +
+                    "where omeName = ? and " +
+                    "e.id = m.child and " +
+                    "m.parent = g.id",
+                    new ParameterizedRowMapper<String>(){
+                      public String mapRow(ResultSet rs, int rowNum)
+                      throws SQLException {
+                            return rs.getString(1);
+                        }
+                    },
+                    name);
+        } catch (EmptyResultDataAccessException e) {
+            roles = null; // This means there's not one.
+        }
+        return roles == null ? new ArrayList<String>() : roles;
     }
 
     public static String preparePassword(String newPassword) {
