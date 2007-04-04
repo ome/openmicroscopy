@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# $Id$
+# 
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>	
+
+  <bean singleton="false" parent="stateful"
+        id="internal:ome.api.JobHandle"
+     class="ome.services.JobBean">
+    <property name="typesService" ref="internal:ome.api.ITypes"/>
+    <property name="updateService" ref="internal:ome.api.IUpdate"/>
+    <property name="processManager" ref="processManager"/>
+  </bean>
+
+  <bean id="managed:ome.api.JobHandle" parent="managedStatefulService">
+    <property name="proxyInterfaces" value="ome.api.JobHandle"/>
+    <property name="target" ref="internal:ome.api.JobHandle"/>
+  </bean>
+  
+  <bean id="processManager" class="ome.services.procs.ProcessManager">
+    <constructor-arg>
+      <list>
+        <bean class="ome.services.procs.ImportProcessor"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="processJobsDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="processManager" />
+    <property name="targetMethod" value="process" />
+    <property name="concurrent" value="false" />
+  </bean>
+
+  <bean id="processJobsTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="processJobsDetail" />
+    <!-- run every morning at 6 AM -->
+    <property name="cronExpression" value="0,30 * * * * ?" />
+  </bean>
+
+  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="triggers">
+      <list>
+        <ref bean="processJobsTrigger" />
+      </list>
+    </property>
+  </bean>
+
+
+</beans>

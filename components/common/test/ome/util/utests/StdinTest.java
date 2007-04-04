@@ -32,7 +32,7 @@ public class StdinTest extends TestCase {
             }
         };
         t.start();
-        Thread.sleep(1500);
+        Thread.sleep(2500);
         if (!finished[0]) {
             fail("Didn't return.");
         }

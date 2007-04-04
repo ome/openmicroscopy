@@ -41,6 +41,7 @@
 		<antRun component="common"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="romio"     file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="rendering" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="importer"  file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="server"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="blitz"     file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
 		<antRun component="client"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>

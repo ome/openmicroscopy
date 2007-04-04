@@ -149,7 +149,9 @@ public abstract class Property { // TODO need to define equality so that two
 
     // Mappings
     private Boolean one2Many;
-
+    
+    private Boolean bidirectional;
+    
     public void validate() {
         if (null == getName() || null == getType()) {
             throw new IllegalStateException(
@@ -304,6 +306,14 @@ public abstract class Property { // TODO need to define equality so that two
         return one2Many;
     }
 
+    public void setBidirectional(Boolean bdir) {
+        this.bidirectional = bdir;
+    }
+
+    public Boolean getBidirectional() {
+        return this.bidirectional;
+    }
+    
     /**
      * creates a Property and sets fields based on attributes USING DEFAULT
      * VALUES. Subclassees may override these values
@@ -316,7 +326,8 @@ public abstract class Property { // TODO need to define equality so that two
                                                             // way to use this!!
         setTag(attrs.getProperty("tag", null));
         setTarget(attrs.getProperty("target", null));
-        setInverse(attrs.getProperty("inverse", null));
+        setInverse(attrs.getProperty("inverse", null)); // see DslHandler.process()
+        setBidirectional(Boolean.TRUE);// will be handle by DslHandler.process()
         setRequired(Boolean.valueOf(attrs.getProperty("required", "false")));
         setUnique(Boolean.valueOf(attrs.getProperty("unique", "false"))); // TODO
                                                                             // wanted
@@ -325,7 +336,6 @@ public abstract class Property { // TODO need to define equality so that two
                                                                             // KEYS.put(id,field)
                                                                             // !!
         setOrdered(Boolean.valueOf(attrs.getProperty("ordered", "false")));
-
         // TODO Mutability
         setInsert(Boolean.TRUE);
         setUpdate(Boolean.valueOf(attrs.getProperty("mutable", "true")));
@@ -402,6 +412,7 @@ class OneManyField extends ZeroManyField {
 }
 
 abstract class AbstractLink extends ZeroManyField {
+    
     public AbstractLink(SemanticType st, Properties attrs) {
         super(st, attrs);
         setTarget(attrs.getProperty("target", null));

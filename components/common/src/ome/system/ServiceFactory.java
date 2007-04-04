@@ -23,6 +23,7 @@ import ome.api.IRepositoryInfo;
 import ome.api.ThumbnailStore;
 import ome.api.ITypes;
 import ome.api.IUpdate;
+import ome.api.JobHandle;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
@@ -206,6 +207,15 @@ public class ServiceFactory {
     
     // ~ Stateful services
     // =========================================================================
+
+    /**
+     * create a new {@link JobHandle} proxy. This proxy will have to be
+     * initialized using {@link JobHandle#attach(long)} or 
+     * {@link JobHandle#submit(ome.model.jobs.Job)}.
+     */
+    public JobHandle createJobHandle() {
+        return getServiceByClass(JobHandle.class);
+    }
 
     /**
      * create a new {@link RawPixelsStore} proxy. This proxy will have to be

@@ -1,9 +1,9 @@
 begin;
 set constraints all deferred;
 
-insert into experimenter (id,version,omename,firstname,lastname)
-        values (0,0,'root','root','root');
-insert into event (id,time,status,experimenter) values (0,now(),'BOOTSTRAP',0);
+insert into experimenter (id,permissions,version,omename,firstname,lastname)
+        values (0,0,0,'root','root','root');
+insert into event (id,permissions,time,status,experimenter) values (0,0,now(),'BOOTSTRAP',0);
 insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)
         values (0,-35,0,0,0,0,0,'system');
 insert into experimentergroup (id,permissions,version,owner_id,group_id,creation_id,update_id,name)

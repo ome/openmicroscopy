@@ -16,8 +16,12 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.display.Thumbnail;
+import ome.model.jobs.ImportJob;
+import ome.model.jobs.Job;
+import ome.model.jobs.JobOriginalFileLink;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -153,6 +157,22 @@ public class SetsAndLinksTest extends TestCase {
         assertNotNull(link.child());
         assertTrue(link.parent().sizeOfDatasetLinks() == 1);
         assertTrue(link.child().sizeOfProjectLinks() == 1);
+    }
+    
+    @Test( groups = "jobs" )
+    public void testUnidirectionalLinks() throws Exception {
+        ImportJob job = new ImportJob();
+        OriginalFile file = new OriginalFile();
+        job.linkOriginalFile(file);
+        assertTrue(job.sizeOfOriginalFileLinks() == 1);
+        job.unlinkOriginalFile(file);
+        assertTrue(job.sizeOfOriginalFileLinks() == 0);
+        JobOriginalFileLink link = new JobOriginalFileLink();
+        link.link(job, file);
+        job.addJobOriginalFileLink(link,true);
+        assertTrue(job.sizeOfOriginalFileLinks() == 1);
+        job.clearOriginalFileLinks();
+        assertTrue(job.sizeOfOriginalFileLinks() == 0);
     }
 
     // ~ Private helpers

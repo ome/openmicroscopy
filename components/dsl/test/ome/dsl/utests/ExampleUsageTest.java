@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ome.dsl.Property;
 import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
 import ome.dsl.VelocityHelper;
@@ -88,6 +89,23 @@ public class ExampleUsageTest extends TestCase {
         SemanticType thumbnail = map.get("ome.Thumbnail");
         assertTrue(thumbnail.getProperties().iterator().next().getInverse()
                 .equals("thumbnails"));
+    }
+
+    @Test
+    public void testPostProcessingBidirectional() throws Exception {
+        sr.parse();
+        Set<SemanticType> set = sr.process();
+        Map<String, SemanticType> map = setToMap(set);
+        SemanticType job = map.get("Job");
+        for (Property p : job.getProperties()) {
+            if (p.getName().equals("jobThingLink")) {
+                assertFalse(p.getBidirectional());
+            } else if (p.getName().equals("jobDoohickeyLink")) {
+                assertTrue(p.getBidirectional());
+            } else {
+                fail("Unknown property:"+p);
+            }
+        }
     }
 
     /** disabling; need proper logic to find common/ component FIXME */

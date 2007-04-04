@@ -200,13 +200,13 @@ class DSLHandler extends DefaultHandler {
 
     /**
      * Initial processing.
-     * 
+     *
      * Example: Pixels: <zeromany name="thumbnails"
      * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail: <required
      * name="pixels" type="ome.model.core.Pixels"/>
-     * 
+     *
      * We want Thumbail.pixels to be given the inverse "thumbnails"
-     * 
+     *
      */
     public Set<SemanticType> process() {
         for (String id : types.keySet()) { // "ome...Pixels"
@@ -222,6 +222,27 @@ class DSLHandler extends DefaultHandler {
                                 inverse.setInverse(p.getName());
                             }
                         }
+                    }
+                }
+            }
+        }
+        // Another post-processing step, which checks links for bidirectionality.
+        for (String id : types.keySet()) {
+            SemanticType t = types.get(id);
+            for (Property p : t.getProperties()) { // thumbnails
+                if (p instanceof AbstractLink) {
+                    AbstractLink link = (AbstractLink) p;
+                    String targetId = link.getTarget();
+                    SemanticType target = types.get(targetId);
+                    boolean found = false;
+                    for (Property p2 : target.getProperties()) {
+                        if (id.equals(p2.getTarget())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        link.setBidirectional(Boolean.FALSE);
                     }
                 }
             }

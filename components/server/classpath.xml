@@ -49,6 +49,7 @@ importing this file.
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<file name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
+	<file name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<file name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
@@ -63,6 +64,7 @@ importing this file.
 	<file name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<file name="quartz/quartz/1.5.2/quartz-1.5.2.jar"/>
 	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
 	<file name="xerces/xerces/2.0.2/xerces-2.0.2.jar"/>
@@ -94,6 +96,7 @@ importing this file.
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<include name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
+	<include name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<include name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
 	<include name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
@@ -107,6 +110,7 @@ importing this file.
 	<include name="org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<include name="quartz/quartz/1.5.2/quartz-1.5.2.jar"/>
 	<include name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<include name="velocity/velocity/1.4/velocity-1.4.jar"/>
 	<include name="xerces/xerces/2.0.2/xerces-2.0.2.jar"/>
@@ -140,6 +144,7 @@ importing this file.
 	<file name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<file name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<file name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
+	<file name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<file name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
@@ -155,6 +160,7 @@ importing this file.
 	<file name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<file name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<file name="quartz/quartz/1.5.2/quartz-1.5.2.jar"/>
 	<file name="testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
 	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
@@ -189,6 +195,7 @@ importing this file.
 	<include name="log4j/log4j/1.2.8/log4j-1.2.8.jar"/>
 	<include name="lucene/lucene/1.4.3/lucene-1.4.3.jar"/>
 	<include name="net/sf/ehcache/ehcache/1.2/ehcache-1.2.jar"/>
+	<include name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
 	<include name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
@@ -204,6 +211,7 @@ importing this file.
 	<include name="org/springframework/spring-mock/2.0/spring-mock-2.0.jar"/>
 	<include name="org/springframework/spring/2.0/spring-2.0.jar"/>
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
+	<include name="quartz/quartz/1.5.2/quartz-1.5.2.jar"/>
 	<include name="testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
 	<include name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<include name="velocity/velocity/1.4/velocity-1.4.jar"/>

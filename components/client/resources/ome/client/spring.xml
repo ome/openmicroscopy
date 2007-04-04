@@ -163,4 +163,10 @@
     <property name="jndiName" value="omero/remote/ome.api.ThumbnailStore"/>
     <property name="proxyInterface" value="ome.api.ThumbnailStore"/>
   </bean>
+
+  <bean id="managed:ome.api.JobHandle" parent="statefulJndi">
+    <property name="jndiName" value="omero/remote/ome.api.JobHandle"/>
+    <property name="proxyInterface" value="ome.api.JobHandle"/>
+  </bean>
+
 </beans>

@@ -37,6 +37,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/jboss-ejb3/4.0.4.GA/jboss-ejb3-4.0.4.GA.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar" sourcepath="/OMERO_COMMON"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
@@ -45,6 +46,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar" sourcepath="/SPRING_HOME"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar" sourcepath="/SPRING_HOME"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/quartz/quartz/1.5/quartz-1.5.2.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>

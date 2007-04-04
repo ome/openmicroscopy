@@ -119,7 +119,7 @@
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
     <constructor-arg>
       <list>
-		<bean class="ome.services.query.ClassQuerySource"/>
+        <bean class="ome.services.query.ClassQuerySource"/>
         <bean class="ome.services.query.StringQuerySource"/>
       </list>
     </constructor-arg>
