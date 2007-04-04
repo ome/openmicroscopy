@@ -202,7 +202,7 @@ public class AdminTest extends AbstractManagedContextTest {
         g1.setId(iAdmin.createGroup(g1));
         g2.setId(iAdmin.createGroup(g2));
 
-        login(e1.getOmeName(), g1.getName(), "Test");
+        login(e1.getOmeName(), g.getName(), "Test");
 
         Image i = new Image();
         i.setName("test");
