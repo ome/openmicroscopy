@@ -6,10 +6,14 @@
  */
 package ome.server.itests;
 
+import java.util.UUID;
+
 import org.testng.annotations.*;
 import ome.api.IQuery;
 import ome.api.IUpdate;
+import ome.model.core.Image;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -78,7 +82,7 @@ public class LoginTest extends TestCase {
         // TODO Otherexception
 
         try {
-            login("unknown", "baba9o38023984019", "Test");
+            login("root", "baba9o38023984019", "Test");
             q.find(Experimenter.class, 0l);
             fail("Login allowed with unknown group.");
         } catch (RuntimeException r) {
@@ -93,6 +97,34 @@ public class LoginTest extends TestCase {
         }
         // TODO Otherexception
 
+    }
+
+    @Test(groups = "ticket:666")
+    public void testLoginToNonMemberGroup() throws Exception {
+
+        login("root","system","Test");
+
+        String gname = UUID.randomUUID().toString();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(gname);
+        sf.getAdminService().createGroup(g);
+
+        String uname = UUID.randomUUID().toString();
+        Experimenter e = new Experimenter();
+        e.setOmeName(uname);
+        e.setFirstName("badgroup");
+        e.setLastName("login");
+        sf.getAdminService().createUser(e, "default");
+
+        try {
+            login(uname, gname, "Test");
+            q.find(Experimenter.class, 0l);
+            Image i = new Image();
+            i.setName("belongs to wrong group");
+            i = sf.getUpdateService().saveAndReturnObject(i);
+            fail("Login allowed for user in non-member group.");
+        } catch (RuntimeException r) {
+        }
     }
 
 }
