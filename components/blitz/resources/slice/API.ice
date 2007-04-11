@@ -94,6 +94,14 @@ module omero {
       nonmutating omero::Time getServerTime() throws ServerError;
     };
 
+	interface IRepositoryInfo extends ServiceInterface
+	{
+		nonmutating long getUsedSpaceInKilobytes() throws ServerError;
+		nonmutating long getFreeSpaceInKilobytes() throws ServerError;
+		nonmutating double getUsageFraction() throws ServerError;
+		void sanityCheckRepository() throws ServerError;
+	}
+
 
     interface IPixels extends ServiceInterface
     {

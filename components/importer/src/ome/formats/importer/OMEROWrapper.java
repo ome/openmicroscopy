@@ -23,7 +23,8 @@ public class OMEROWrapper extends MinMaxCalculator
 	public OMEROWrapper()
 	{
 	    reader = separator = new ChannelSeparator(new ImageReader());
-            reader.setColorTableIgnored(true);
+           // TODO - DLW ... commented only to pass build 
+		//reader.setColorTableIgnored(true);
 	}
 
 	/**
@@ -100,8 +101,9 @@ public class OMEROWrapper extends MinMaxCalculator
 		throws FormatException, IOException
 	{
 		// Make sure we have StatsInfo objects.
-		if (getChannelGlobalMinimum(id, 0) == null
-			|| getChannelGlobalMaximum(id, 0) == null)
+		// TODO - DLW ... fix when Josh back
+		if (getChannelGlobalMinimum(0) == null
+			|| getChannelGlobalMaximum(0) == null)
 			setChannelGlobalMinMax(id);
 	}
 }

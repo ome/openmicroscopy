@@ -44,6 +44,13 @@ importing this file.
 	<file name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<file name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<file name="velocity/velocity/1.4/velocity-1.4.jar"/>
+        <!-- this should be addressed (DLW)	
+        <file name="jgoodies/binding-1.3.2.jar"/>
+	<file name="jgoodies/forms-1.0.7.jar"/>
+	<file name="jgoodies/animation-1.2.0.jar"/>
+	<file name="jgoodies/looks-2.1.3.jar"/>
+	<file name="jgoodies/validation-1.4.0.jar"/>
+	-->
   </filelist>
 
   <patternset id="generated.compile.patternset">
@@ -65,6 +72,11 @@ importing this file.
 	<include name="qdox/qdox/1.5/qdox-1.5.jar"/>
 	<include name="velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<include name="velocity/velocity/1.4/velocity-1.4.jar"/>
+	<include name="jgoodies/binding-1.3.2.jar"/>
+	<include name="jgoodies/forms-1.0.7.jar"/>
+	<include name="jgoodies/animation-1.2.0.jar"/>
+	<include name="jgoodies/looks-2.1.3.jar"/>
+	<include name="jgoodies/validation-1.4.0.jar"/>
   </patternset>
 
   <filelist id="generated.test.filelist" dir="${omero.repo.local}">

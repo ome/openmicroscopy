@@ -30,7 +30,8 @@ module omero {
     const string RAWPIXELSSTORE   = "ome.api.RawPixelsStore";
     const string RENDERINGENGINE  = "omeis.providers.re.RenderingEngine";
     const string THUMBNAILSTORE   = "ome.api.ThumbnailStore";
-
+	const string REPOSITORYINFO   = "ome.api.IRepositoryInfo";
+	
     // User context
     const string USERNAME = "omero.sys.username";
     const string PASSWORD = "omero.sys.password";
