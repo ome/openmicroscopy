@@ -22,9 +22,7 @@ public class OMEROWrapper extends MinMaxCalculator
 
 	public OMEROWrapper()
 	{
-	    reader = separator = new ChannelSeparator(new ImageReader());
-        // TODO - DLW remove comment when Josh back
-	    //reader.setColorTableIgnored(true);
+	    separator = new ChannelSeparator(new ImageReader());
 	}
 
 	/**
