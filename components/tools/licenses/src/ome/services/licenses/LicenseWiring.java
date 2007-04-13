@@ -55,7 +55,7 @@ public class LicenseWiring extends HardWiredInterceptor {
      */
     LicenseStore store = new LicenseBean();
 
-    private Map<String, byte[]> tokensBySession = Collections
+    private static Map<String, byte[]> tokensBySession = Collections
             .synchronizedMap(new HashMap<String, byte[]>());
 
     // ~ For use by LicenseSessionListener
@@ -63,6 +63,10 @@ public class LicenseWiring extends HardWiredInterceptor {
 
     byte[] getToken(String sessionName) {
         return tokensBySession.get(sessionName);
+    }
+
+    void setToken(String sessionName, byte[] token) {
+        tokensBySession.put(sessionName, token);
     }
 
     @Override

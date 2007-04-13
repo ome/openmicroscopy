@@ -21,13 +21,13 @@ import org.springframework.context.ApplicationListener;
 
 /**
  * Listens for {@link AbstractSessionMessages} sent by
- * {@link ome.services.icy.fire.SesssionManagerI} and 
+ * {@link ome.services.icy.fire.SesssionManagerI} and
  * {@link ome.services.icy.impl.ServiceFactoryI} and creates licenses
- * when necessary for the user. The listener decouples the session 
+ * when necessary for the user. The listener decouples the session
  * creation from the licensing logic.
  *
  * This is notably different from the process needed to acquire a
- * license in the application server case, since there is no 
+ * license in the application server case, since there is no
  * central session.
  *
  * @author Josh Moore, josh at glencoesoftware.com
@@ -59,6 +59,7 @@ public class LicenseSessionListener implements ApplicationListener {
                 login(create);
                 try {
                     byte[] token = lic.acquireLicense();
+                    wiring.setToken(create.getSessionId(),token);
                 } finally {
                     logout();
                 }
