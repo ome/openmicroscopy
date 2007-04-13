@@ -1,11 +1,11 @@
 /*
- * ome.services.hooks.Startup
+ * ome.services.jboss.Startup
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.hooks;
+package ome.services.jboss;
 
 // Java imports
 
@@ -17,13 +17,13 @@ import ome.annotations.RevisionNumber;
 
 /**
  * JMX-Start method. This interface needs to be public for JMX to work properly.
- * Otherwise, this interface is unimportant. See {@link StartupHook} for more
+ * Otherwise, this interface is unimportant. See {@link OmeroContextHook} for more
  * information.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision$, $Date$
  * @since 3.0-Beta1
- * @see StartupHook
+ * @see OmeroContextHook
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
