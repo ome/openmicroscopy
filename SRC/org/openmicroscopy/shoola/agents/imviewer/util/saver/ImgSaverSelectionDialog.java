@@ -66,7 +66,12 @@ class ImgSaverSelectionDialog
      * Overridden to bring up the preview image widget.
      * @see OptionsDialog#onYesSelection()
      */
-    protected void onYesSelection() { model.previewImage(false); }
+    protected void onYesSelection()
+    { 
+    	setVisible(false);
+    	model.previewImage(false); 
+    	dispose();
+    }
     
     /**
      * Creates a new instance.

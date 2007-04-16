@@ -529,4 +529,7 @@ public interface Browser
 	 */
 	public void cleanFilteredNodes();
 	
+	/** Refreshes the tree when a new user is selected. */
+	public void switchUser();
+	
 }

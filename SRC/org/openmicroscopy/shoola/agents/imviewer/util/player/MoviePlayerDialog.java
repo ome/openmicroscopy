@@ -57,6 +57,9 @@ public class MoviePlayerDialog
     extends JDialog
 {
 
+	/** Bound property indicating that the dialog is closed. */
+	public static final String CLOSE_PROPERTY = "close";
+	
     /** Reference to the component controlling the timer. */
     private MoviePlayer     player;
     
@@ -80,6 +83,7 @@ public class MoviePlayerDialog
             public void windowClosing(WindowEvent e)
             { 
                player.setPlayerState(Player.STOP);
+               firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
             }});
     }
     

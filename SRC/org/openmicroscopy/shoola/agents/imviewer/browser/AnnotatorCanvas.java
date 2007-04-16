@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -36,7 +37,7 @@ import javax.swing.JPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * UI component where the annotate image is painted.
+ * UI component where a smaller (40%) version of the rendered image is painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,6 +56,12 @@ class AnnotatorCanvas
 	/** Reference to the Model. */
     private BrowserModel    model;
     
+    /** The string to paint on top of the image. */
+    private String			paintedString;
+    
+    /** The font's height. */
+    private int 			height;
+    
 	/**
      * Creates a new instance.
      *
@@ -63,12 +70,28 @@ class AnnotatorCanvas
 	AnnotatorCanvas(BrowserModel model)
     {
         if (model == null) throw new NullPointerException("No model.");
-        setLayout(null);
-        setBackground(model.getBackgroundColor());
         this.model = model;
+        //setLayout(null);
         setDoubleBuffered(true);
+        setFont(getFont().deriveFont(10f));
+        FontMetrics fm = getFontMetrics(getFont());
+        height = fm.getHeight();
+        paintedString = null;
     }
     
+	/**
+	 * Sets the value of the selected z-section and timepoint.
+	 * 
+	 * @param pressedZ	The selected z-section.
+	 * @param pressedT	The selected timepoint.
+	 */
+	void setPaintedString(int pressedZ, int pressedT)
+	{
+		if (pressedZ < 0 || pressedT < 0)  paintedString = null;
+		else paintedString = "z="+pressedZ+", t="+pressedT;
+		repaint();
+	}
+	
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -82,6 +105,11 @@ class AnnotatorCanvas
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         g2D.drawImage(img, null, 0, 0); 
+        if (paintedString != null) {
+        	g2D.setColor(getBackground());
+        	g2D.drawString(paintedString, 2, height);
+        }
+        	
     }
     
 }

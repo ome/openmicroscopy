@@ -254,4 +254,11 @@ class ImgSaverPreviewer
      */
     double getUnitBarSize() { return model.getUnitBarSize(); }
     
+    /**
+     * Returns the type of image to save.
+     * 
+     * @return See above.
+     */
+    int getType() { return model.getType(); }
+    
 }

@@ -38,6 +38,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -83,6 +84,9 @@ class BrowserComponent
     /** The annotator sub-component. */
     private AnnotatorUI		annotator;
     
+    /** The sub-component displaying the grid. */
+    private GridUI			gridView;
+    
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -97,6 +101,7 @@ class BrowserComponent
         controller = new BrowserControl();
         view = new BrowserUI();
         annotator = new AnnotatorUI();
+        gridView = new GridUI();
     }
     
     /** Links up the MVC triad. */
@@ -106,6 +111,7 @@ class BrowserComponent
         controller.initialize(this, view);
         view.initialize(controller, model);
         annotator.initialize(controller, model);
+        gridView.initialize(model);
     }
     
     /** 
@@ -123,8 +129,10 @@ class BrowserComponent
         if (image == null) 
             throw new IllegalArgumentException("Image cannot be null.");
         model.setRenderedImage(image);
+        //Paint only if selected.
         view.paintImage();
         annotator.paintImage();
+        viewSplitImages();
     }
 
     /** 
@@ -219,6 +227,7 @@ class BrowserComponent
     {
         view.setComponentsSize(w, h);
         view.setPreferredSize(new Dimension(w+5, h+5));
+        gridView.setGridSize();
     }
 
     /** 
@@ -306,6 +315,8 @@ class BrowserComponent
 		if (model.getBackgroundColor().equals(color)) return;
 		model.setBackgroundColor(color);
 		view.getViewport().setBackground(color);
+		if (model.getSelectedIndex() == ImViewer.GRID_INDEX)
+			gridView.getViewport().setBackground(color);
 	}
 
     /** 
@@ -326,6 +337,12 @@ class BrowserComponent
      */
 	public String getAnnotatorTitle() { return model.getAnnotatorTitle(); }
 
+    /** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridView()
+     */
+	public JComponent getGridView() { return gridView; }
+	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedPane(Component)
@@ -334,6 +351,40 @@ class BrowserComponent
 	{
 		if (c == null) return;
 		if (c.equals(annotator)) annotator.activateEditor();
+		else if (c.equals(gridView)) gridView.paintImage();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridViewIcon()
+     */
+	public Icon getGridViewIcon() { return model.getGridViewIcon(); }
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridViewTitle()
+     */
+	public String getGridViewTitle() { return model.getGridViewTitle(); }
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridViewTitle()
+     */
+	public void viewSplitImages()
+	{
+		if (model.getSelectedIndex() != ImViewer.GRID_INDEX) return;
+		model.setGridImages();
+		gridView.paintImage();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getGridImage()
+     */
+	public BufferedImage getGridImage()
+	{
+		// TODO Auto-generated method stub
+		return gridView.getGridImage();
 	}
 
 }

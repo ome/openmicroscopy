@@ -184,7 +184,7 @@ public class ColorModelAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        Map m = new HashMap(1);
+        Map<Integer, ViewerAction> m = new HashMap<Integer, ViewerAction>(1);
         m.put(new Integer(modelIndex), this);
         model.setColorModel(m);
     }

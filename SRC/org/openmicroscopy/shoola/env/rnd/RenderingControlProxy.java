@@ -151,14 +151,14 @@ class RenderingControlProxy
      */
     private BufferedImage createImage(int sizeX, int sizeY, int[] buf)
     {
-        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY, 0); 
+        DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
         SinglePixelPackedSampleModel sampleModel =
             new SinglePixelPackedSampleModel(
                       DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,                                                                                                      
                       new int[] {
                           0x00ff0000,    // Red
                           0x0000ff00,    // Green
-                          0x000000ff//,    // Blue
+                          0x000000ff    // Blue
                       });
         WritableRaster raster = 
             new IntegerInterleavedRaster(sampleModel, j2DBuf, new Point(0, 0));
@@ -166,7 +166,7 @@ class RenderingControlProxy
         ColorModel colorModel = new DirectColorModel(32,
                                         0x00ff0000,    // Red
                                         0x0000ff00,    // Green
-                                        0x000000ff//,    // Blue
+                                        0x000000ff     // Blue
                                        );
         return new BufferedImage(colorModel, raster, false, null);
     }
@@ -863,5 +863,56 @@ class RenderingControlProxy
      * @see RenderingControl#getBitResolution()
      */
     public int getBitResolution() { return rndDef.getBitResolution(); }
+
+    /** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#hasActiveChannelBlue()
+     */
+	public boolean hasActiveChannelBlue()
+	{
+		int[] rgba;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) {
+				rgba = rndDef.getChannel(i).getRGBA();
+				if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 255)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#hasActiveChannelGreen()
+     */
+	public boolean hasActiveChannelGreen()
+	{
+		int[] rgba;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) {
+				rgba = rndDef.getChannel(i).getRGBA();
+				if (rgba[0] == 0 && rgba[1] == 255 && rgba[2] == 0)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/** 
+     * Implemented as specified by {@link RenderingControl}. 
+     * @see RenderingControl#hasActiveChannelRed()
+     */
+	public boolean hasActiveChannelRed()
+	{
+		int[] rgba;
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) {
+				rgba = rndDef.getChannel(i).getRGBA();
+				if (rgba[0] == 255 && rgba[1] == 0 && rgba[2] == 0)
+					return true;
+			}
+		}
+		return false;
+	}
 
 }

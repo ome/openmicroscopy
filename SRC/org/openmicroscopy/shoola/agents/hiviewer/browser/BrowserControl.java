@@ -174,7 +174,6 @@ class BrowserControl
             if (newNode == null) return;
             view.setTitle(model.currentPathString(newNode));
             //paint the nodes
-            
             Colors colors = Colors.getInstance();
             newNode.setHighlight(colors.getSelectedHighLight(newNode));
             Set nodes = (Set) evt.getOldValue();

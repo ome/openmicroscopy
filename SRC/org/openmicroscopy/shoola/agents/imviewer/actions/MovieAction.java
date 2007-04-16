@@ -75,6 +75,7 @@ public class MovieAction
         moviePlayer.setVisible(false);
         moviePlayer.dispose();
         moviePlayer = null;
+        model.playMovie(false);
     }
     
     /**
@@ -87,6 +88,9 @@ public class MovieAction
     	switch (model.getState()) {
 			case ImViewer.DISCARDED:
 				discard();
+				break;
+			case ImViewer.CHANNEL_MOVIE:
+				setEnabled(false);
 				break;
 			case ImViewer.RENDERING_CONTROL_LOADED:
 			case ImViewer.READY:
@@ -117,8 +121,12 @@ public class MovieAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        if (moviePlayer == null) 
-            moviePlayer = new MoviePlayerDialog(model.getUI(), model);
+        if (moviePlayer == null) {
+        	moviePlayer = new MoviePlayerDialog(model.getUI(), model);
+        	moviePlayer.addPropertyChangeListener(
+        			MoviePlayerDialog.CLOSE_PROPERTY, this);
+        }
+        model.playMovie(true);
         UIUtilities.setLocationRelativeToAndShow(model.getUI(), moviePlayer);  
     }
 
@@ -130,7 +138,12 @@ public class MovieAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        if (((Boolean) evt.getNewValue()).booleanValue()) discard();
+    	String name = evt.getPropertyName();
+    	if (ImViewer.ICONIFIED_PROPERTY.equals(name)) {
+    		if (((Boolean) evt.getNewValue()).booleanValue()) discard();
+    	} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(name)) {
+    		model.playMovie(false);
+    	}
     }
     
 }

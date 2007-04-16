@@ -116,6 +116,7 @@ public class RefreshDataLoader
      */
     public void load()
     {
+    	
     	if (expandedNodes == null || expandedNodes.size() == 0) {
             handle = dmView.loadContainerHierarchy(rootNodeType, null, false,
                     convertRootLevel(), viewer.getRootID(), this);

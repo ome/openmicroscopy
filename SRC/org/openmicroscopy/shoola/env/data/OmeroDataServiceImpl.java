@@ -37,6 +37,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.containers.CategoryGroup;
 import ome.model.core.Channel;
 import ome.model.meta.Experimenter;
 import ome.util.builders.PojoOptions;
@@ -183,8 +184,55 @@ class OmeroDataServiceImpl
         if (rootLevel.equals(GroupData.class))
         	po.countsFor(new Long(getUserDetails().getId()));
         else po.countsFor(new Long(rootLevelID));
-        return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
-                                            po.map());                              
+        //If rootNodeIDs, returns the orphaned containers:
+        Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
+                									po.map()); 
+        if (rootNodeIDs == null && parents != null) {
+        	Class klass = null;
+        	if (rootNodeType.equals(ProjectData.class))
+        		klass = DatasetData.class;
+        	else if (rootNodeType.equals(CategoryGroupData.class))
+        		klass = CategoryData.class;
+        	if (klass != null) {
+        		PojoOptions options = new PojoOptions(); 
+        		setRootOptions(options, rootLevel, rootLevelID);
+        		//options.allCounts();
+        		options.noLeaves();
+        		Set r = gateway.loadContainerHierarchy(klass, null,
+        				options.map());
+        		Iterator i = parents.iterator();
+                DataObject parent;
+                Set children = new HashSet();
+                while (i.hasNext()) {
+                	parent = (DataObject) i.next();
+                	if (klass.equals(DatasetData.class))
+                		children.addAll(((ProjectData) parent).getDatasets());
+                	else 
+                		children.addAll(
+                				((CategoryGroupData) parent).getCategories());
+                }
+                Set<Long> childrenIds = new HashSet<Long>();
+
+                Iterator j = children.iterator();
+                DataObject child;
+                while (j.hasNext()) {
+                	child = (DataObject) j.next();
+                	childrenIds.add(new Long(child.getId()));
+                }
+                Set orphans = new HashSet();
+                orphans.addAll(r);
+                j = r.iterator();
+                while (j.hasNext()) {
+                	child = (DataObject) j.next();
+                	if (childrenIds.contains(new Long(child.getId())))
+                		orphans.remove(child);
+                }
+                if (orphans.size() > 0) parents.addAll(orphans);
+               
+        	}
+        }
+        
+        return parents;                            
     }
 
     /** 
@@ -257,6 +305,7 @@ class OmeroDataServiceImpl
         if (rootLevel.equals(GroupData.class))
         	po.countsFor(new Long(getUserDetails().getId()));
         else po.countsFor(new Long(rootLevelID));
+       
         return gateway.getContainerImages(nodeType, nodeIDs, po.map());
     }
     
@@ -947,10 +996,12 @@ class OmeroDataServiceImpl
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
         Experimenter oldObject = exp.asExperimenter();
-        oldObject.setOmeName(uc.getUserName());
+        //gateway.updateExperimenter(oldObject);
+        //oldObject.setOmeName(uc.getUserName());
         //DEfault group issue.
         //TODO invoke server when method is updated server side.
         //PojoMapper.asDataObject(updated);
+        /*
         ExperimenterData data = gateway.getUserDetails(uc.getUserName());
         context.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 //      Bind user details to all agents' registry.
@@ -962,8 +1013,9 @@ class OmeroDataServiceImpl
 			agentInfo.getRegistry().bind(
 			        LookupNames.CURRENT_USER_DETAILS, exp);
 		}
-		System.err.println(data.getLastName());
-		return data;
+		*/
+        return null;
+		//return data;
 	}
 	
     /**

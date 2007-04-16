@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -114,6 +115,12 @@ class ControlPane
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSlider;
     
+    /** Slider to select the z-section. */
+    private OneKnobSlider			zSliderGrid;
+    
+    /** Slider to select the timepoint. */
+    private OneKnobSlider			tSliderGrid;
+    
     /** One  {@link ChannelButton} per channel. */
     private HashSet<ChannelButton>	channelButtons;
     
@@ -126,11 +133,15 @@ class ControlPane
     /** Button to bring up the color picker. */
     private JButton         		colorPickerButton;
     
+    /** Button to split the displayed image into RGB components. */
+    private JToggleButton			rgbSplitButton;
+    
     /** Helper reference. */
     private IconManager     		icons;
     
     /**
-     * Handles the event when the wheel is moved over the {@link #zSlider}.
+     * Handles the event when the wheel is moved over the {@link #zSlider}
+     * or {@link #zSliderGrid}.
      * 
      * @param e The event to handle.
      */
@@ -153,7 +164,8 @@ class ControlPane
     }
     
     /**
-     * Handles the event when the wheel is moved over the {@link #tSlider}.
+     * Handles the event when the wheel is moved over the {@link #tSlider}
+     * or {@link #tSliderGrid}.
      * 
      * @param e The event to handle.
      */
@@ -240,6 +252,14 @@ class ControlPane
         zSlider.setEnabled(false);
         tSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         tSlider.setEnabled(false);
+        zSliderGrid = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        zSliderGrid.setEnabled(false);
+        tSliderGrid = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        tSliderGrid.setEnabled(false);
+        
+        
+        
+        
         //zSlider.addChangeListener(this);
         //tSlider.addChangeListener(this);
         channelMovieButton = new JButton(
@@ -267,6 +287,10 @@ class ControlPane
         colorPickerButton = new JButton(a);
         colorPickerButton.addMouseListener((ColorPickerAction) a);
         UIUtilities.unifiedButtonLookAndFeel(colorPickerButton);
+        rgbSplitButton = new JToggleButton(
+        					controller.getAction(ImViewerControl.CHANNEL_SPLIT));
+        
+        rgbSplitButton.setSelected(!model.getRGBSplit());
     }
     
     /**
@@ -299,20 +323,46 @@ class ControlPane
         zSlider.setValue(model.getDefaultZ());
         tSlider.setMaximum(model.getMaxT());
         tSlider.setValue(model.getDefaultT());
+        
+        zSliderGrid.setMaximum(model.getMaxZ());
+        zSliderGrid.setValue(model.getDefaultZ());
+        tSliderGrid.setMaximum(model.getMaxT());
+        tSliderGrid.setValue(model.getDefaultT());
+        
         zSlider.addChangeListener(this);
         tSlider.addChangeListener(this);
         zSlider.addMouseWheelListener(this);
         tSlider.addMouseWheelListener(this);
+        
+        zSliderGrid.addChangeListener(this);
+        tSliderGrid.addChangeListener(this);
+        zSliderGrid.addMouseWheelListener(this);
+        tSliderGrid.addMouseWheelListener(this);
+        
+        
         zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
         zSlider.setEndLabel(Z_SLIDER_TIPSTRING);
         zSlider.setShowEndLabel(true);
         zSlider.setShowTipLabel(true);
+        
+        zSliderGrid.setToolTipText(Z_SLIDER_DESCRIPTION);
+        zSliderGrid.setEndLabel(Z_SLIDER_TIPSTRING);
+        zSliderGrid.setShowEndLabel(true);
+        zSliderGrid.setShowTipLabel(true);
+        
         tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
         tSlider.setEndLabel(T_SLIDER_TIPSTRING);
         tSlider.setShowEndLabel(true);
         tSlider.setShowTipLabel(true);
+        
+        tSliderGrid.setToolTipText(T_SLIDER_DESCRIPTION);
+        tSliderGrid.setEndLabel(T_SLIDER_TIPSTRING);
+        tSliderGrid.setShowEndLabel(true);
+        tSliderGrid.setShowTipLabel(true);
+        
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
-        colorModelButton.setToolTipText(getColorModelDescription(model.getColorModel()));
+        colorModelButton.setToolTipText(
+        				getColorModelDescription(model.getColorModel()));
     }
     
     /**
@@ -359,6 +409,22 @@ class ControlPane
         bar.add(channelMovieButton);
         bar.add(Box.createRigidArea(VBOX));
         bar.add(colorPickerButton);
+        return bar;
+    }
+    
+    /** 
+     * Builds the tool bar displayed on the left side of the  grid view.
+     * 
+     * @return See above.
+     */
+    private JToolBar buildGridBar()
+    {
+    	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(rgbSplitButton);
+        bar.add(Box.createRigidArea(VBOX));
         return bar;
     }
     
@@ -453,18 +519,67 @@ class ControlPane
     }
     
     /**
+     * Builds the control panel displayed in the grid view.
+     * 
+     * @return See above.
+     */
+    JPanel buildGridComponent()
+    {
+    	JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(createSliderPane(zSliderGrid));
+        p.add(createSliderPane(tSliderGrid));
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+        ChannelMetadata[] data = model.getChannelData();
+        ChannelButton button;
+        ChannelMetadata d;
+        buttons.add(Box.createRigidArea(VBOX));
+        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+        for (int k = 0; k < data.length; k++) {
+            d = data[k];
+            button = new ChannelButton(""+d.getEmissionWavelength(), 
+                    model.getChannelColor(k), k, model.isChannelActive(k));
+            if (gs) button.setGrayedOut(gs);
+            button.addPropertyChangeListener(controller);
+            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
+            channelButtons.add(button);
+            buttons.add(button);
+            buttons.add(Box.createRigidArea(VBOX));
+        }
+        JPanel controls = new JPanel();
+        controls.setLayout(new BoxLayout(controls,BoxLayout.Y_AXIS));
+        controls.add(Box.createVerticalStrut(20));
+        controls.add(buildGridBar());
+        controls.add(buttons);
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.X_AXIS));
+        content.add(UIUtilities.buildComponentPanel(controls));
+        content.add(p);
+        return content;
+    }
+    
+    /**
      * Updates UI components when a new timepoint is selected.
      * 
      * @param t The selected timepoint.
      */
-    void setTimepoint(int t) { updateSlider(tSlider, t); }
+    void setTimepoint(int t)
+    { 
+    	updateSlider(tSlider, t);
+    	updateSlider(tSliderGrid, t);
+    }
     
     /**
      * Updates UI components when a new z-section is selected.
      * 
      * @param z The selected z-section.
      */
-    void setZSection(int z) { updateSlider(zSlider, z); }
+    void setZSection(int z)
+    { 
+    	updateSlider(zSlider, z); 
+    	updateSlider(zSliderGrid, z); 
+    }
     
     /**
      * Updates UI components when a zooming factor is selected.
@@ -562,6 +677,20 @@ class ControlPane
         setTimepoint(model.getDefaultT());
     }
     
+    /**
+     * Helper method to create a panel hosting the sliders.
+     * 
+     * @return See above.
+     */
+    JPanel createGridSliderPanes()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(createSliderPane(zSliderGrid));
+        p.add(createSliderPane(tSliderGrid));
+        return p;
+    }
+    
     /** 
      * Reacts to {@link ImViewer} change events.
      * 
@@ -573,9 +702,13 @@ class ControlPane
         if (b) {
             zSlider.setEnabled(model.getMaxZ() != 0);
             tSlider.setEnabled(model.getMaxT() != 0);
+            zSliderGrid.setEnabled(model.getMaxZ() != 0);
+            tSliderGrid.setEnabled(model.getMaxT() != 0);
         } else {
             zSlider.setEnabled(b);
             tSlider.setEnabled(b);
+            zSliderGrid.setEnabled(b);
+            tSliderGrid.setEnabled(b);
         } 
         zoomingBox.setEnabled(b);
         ratingBox.setEnabled(b);
@@ -605,14 +738,18 @@ class ControlPane
     {
         Object object = e.getSource();
         if (object instanceof JSlider) {
-            controller.setSelectedXYPlane(zSlider.getValue(), 
+        	if (object == zSlider || object == tSlider)
+        		controller.setSelectedXYPlane(zSlider.getValue(), 
                     tSlider.getValue());
+        	else 
+        		controller.setSelectedXYPlane(zSliderGrid.getValue(), 
+                        tSliderGrid.getValue());
         }
     }
     
     /**
-     * Reacts to wheels moved event related to the {@link #zSlider} and
-     * {@link #tSlider}.
+     * Reacts to wheels moved event related to the {@link #zSlider},
+     * {@link #tSlider}, {@link #zSliderGrid} and {@link #zSliderGrid}.
      * @see MouseWheelListener#mouseWheelMoved(MouseWheelEvent)
      */
     public void mouseWheelMoved(MouseWheelEvent e)
@@ -620,6 +757,10 @@ class ControlPane
         Object source = e.getSource();
         if (source == zSlider && zSlider.isEnabled()) mouseWheelMovedZ(e);
         else if (source == tSlider && tSlider.isEnabled())
+            mouseWheelMovedT(e);
+        else if (source == zSliderGrid && zSliderGrid.isEnabled()) 
+        	mouseWheelMovedZ(e);
+        else if (source == tSliderGrid && tSliderGrid.isEnabled())
             mouseWheelMovedT(e);
     }
     

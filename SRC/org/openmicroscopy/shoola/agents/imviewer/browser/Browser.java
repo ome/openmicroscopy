@@ -210,7 +210,7 @@ public interface Browser
 	public void setBackgroundColor(Color color);
 	
 	/**
-	 * Returns the title associated to the annotator.
+	 * Returns the icon associated to the annotator.
 	 * 
 	 * @return See above.
 	 */
@@ -229,6 +229,13 @@ public interface Browser
 	 * @return See above.
 	 */
 	public JComponent getAnnotator();
+	
+	/**
+	 * Returns the grid view.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getGridView();
 
 	/**
 	 * Sets the selected pane.
@@ -236,5 +243,36 @@ public interface Browser
 	 * @param c The selected pane.
 	 */
 	public void setSelectedPane(Component c);
+
+	/**
+     * Returns the name of the grid view.
+     * 
+     * @return See above.
+     */
+	public String getGridViewTitle();
+	
+	/**
+	 * Returns the icon associated to the grid view.
+	 * 
+	 * @return See above.
+	 */
+	public Icon getGridViewIcon();
+
+	/** 
+	 * Displays a grid of images.
+	 * If the rgb flag is turned on, the grid is composed of the 
+	 * red, green and blue component of the main image and the main image
+	 * itself. If the flag is turned off, the grid is composed of the images 
+	 * representing the active channels, one per channel and the main image
+	 * itself.
+	 */
+	public void viewSplitImages();
+
+	/**
+	 * Returns the grid image.
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getGridImage();
 	
 }

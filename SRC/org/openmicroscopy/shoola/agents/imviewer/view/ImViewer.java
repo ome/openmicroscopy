@@ -125,6 +125,15 @@ public interface ImViewer
     /** Identifies the <code>Color Picket</code> menu. */
     public static final int 	COLOR_PICKER_MENU = 0;
     
+    /** Identifies the index of the image viewer panel. */
+    public static final int		VIEW_INDEX = 0;
+    
+    /** Identifies the index of the annotator panel. */
+    public static final int		ANNOTATOR_INDEX = 1;
+    
+    /** Identifies the index of the grid viewer panel. */
+    public static final int		GRID_INDEX = 2;
+    
     /**
      * Sets the visiblity of the lens
      * 
@@ -527,5 +536,64 @@ public interface ImViewer
      * @return See above.
      */
 	public int getMaxY();
+	
+	/**
+	 * Returns the index of the selected tabbed pane.
+	 * One out of the following list: {@link #VIEW_INDEX}, 
+	 * {@link #ANNOTATOR_INDEX} or {@link #GRID_INDEX}.
+	 * 
+	 * @return See above.
+	 */
+	public int getSelectedIndex();
+
+	/**
+	 * Indicates that the movie player is visible if the passed value is
+	 * <code>true</code>, is hidden if the passed value is <code>false</code>.
+	 * 
+	 * @param b Pass <code>true</code> if the movie player is visible.
+	 */
+	public void playMovie(boolean b);
+
+	/**
+	 * Returns <code>true</code> if the displayed image is
+	 * split into its red, green and blue components. Returns <code>false</code>
+	 * if the selected channels are displayed independently.
+	 * 
+	 * @return See above.
+	 */
+	public boolean getRGBSplit();
+
+	/**
+	 * Sets to <code>true</code> to split the displayed image into its red, 
+	 * green and blue components. Sets to <code>false</code>
+	 * to display the selected channels independently.
+	 * 
+	 * @param b The value to set.
+	 */
+	public void setRGBSplit(boolean b);
+
+	/**
+	 * Returns the collection of images used to build the grid.
+	 * 
+	 * @return See above.
+	 */
+	public List getGridImages();
+	
+	/**
+	 * Returns a 3-dimensional array of boolean value, one per color band.
+	 * The first (resp. second, third) element is set to <code>true</code> 
+	 * if an active channel is mapped to <code>RED</code> (resp. 
+	 * <code>GREEN</code>, <code>BLUE</code>), to <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	public boolean[] hasRGB();
+
+	/**
+	 * Returns the grid image.
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getGridImage();
     
 }

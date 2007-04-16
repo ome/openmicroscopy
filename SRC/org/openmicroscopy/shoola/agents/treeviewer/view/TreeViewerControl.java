@@ -452,7 +452,7 @@ class TreeViewerControl
             while (i.hasNext()) {
             	browser = (Browser) i.next();
             	browser.cleanFilteredNodes();
-            	browser.refreshTree();
+            	browser.switchUser();
             }
         } else if (name.equals(
                 AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {

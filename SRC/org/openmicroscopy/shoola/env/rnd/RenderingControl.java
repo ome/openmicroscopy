@@ -475,5 +475,29 @@ public interface RenderingControl
      * @return See above.
      */
     public ChannelMetadata[] getChannelData();
+    
+    /**
+     * Returns <code>true</code> if one of the active channel is mapped
+     * to <code>RED</code>.
+     * 
+     * @return See above
+     */
+    public boolean hasActiveChannelRed();
+    
+    /**
+     * Returns <code>true</code> if one of the active channel is mapped
+     * to <code>GREEN</code>.
+     * 
+     * @return See above
+     */
+    public boolean hasActiveChannelGreen();
+    
+    /**
+     * Returns <code>true</code> if one of the active channel is mapped
+     * to <code>BLUE</code>.
+     * 
+     * @return See above
+     */
+    public boolean hasActiveChannelBlue();
 
 }

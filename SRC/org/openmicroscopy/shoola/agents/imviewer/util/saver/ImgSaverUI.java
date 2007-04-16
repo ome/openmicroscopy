@@ -63,15 +63,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ImgSaverUI
 {
     
-    /** Save the images. */
+    /** Save the main image. */
     static final int                    IMAGE = 0;
+    
+    /** Save the grid image. */
+    static final int                    GRID_IMAGE = 1;
     
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image. 
      */
-    static final int                    IMAGE_AND_COMPONENTS = 1;
-    
+    static final int                    IMAGE_AND_COMPONENTS = 2;
     
     /** Brief description of the action performed by this widget. */
     private static final String         NOTE = "Save the currrent image in " +
@@ -94,8 +96,9 @@ class ImgSaverUI
     
     /** Initializes the static fields. */
     static {
-        selections = new String[2];
+        selections = new String[3];
         selections[IMAGE] = "image";
+        selections[GRID_IMAGE] = "grid view";
         selections[IMAGE_AND_COMPONENTS] = "image and split channels";
     }
     

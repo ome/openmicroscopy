@@ -61,6 +61,9 @@ class HSVColourWheelUI
 	implements ChangeListener
 {
 	
+	/** The preferred size of the wheel. */
+	private static final Dimension WHEEL_SIZE = new Dimension(175, 175);
+	
 	/**
 	 * Wheel is an HSVWheel which will display the HSV Colourwheel as an image. 
 	 */
@@ -123,7 +126,7 @@ class HSVColourWheelUI
 	{
 		wheel = new HSVWheel(control);
 		wheel.addListener(this);
-		wheel.setPreferredSize(new Dimension(175, 175));
+		wheel.setPreferredSize(WHEEL_SIZE);
 	}
 	
 	/** 
@@ -141,7 +144,7 @@ class HSVColourWheelUI
 		HSVSlider.setColourSpace(ColourSlider.HSV_COLOURSPACE);
 		HSVSlider.setChannel(ColourSlider.HSV_CHANNEL_VALUE);
 		HSVSlider.setOrientation(ColourSlider.VERTICAL);
-		HSVSlider.setValue((int)(control.getValue()*255));
+		HSVSlider.setValue((int) (control.getValue()*255));
 		HSVListener = new ChangeListener() {
 			public void stateChanged(ChangeEvent changeEvent)
 			{
@@ -162,9 +165,9 @@ class HSVColourWheelUI
 	void createAlphaSlider()
 	{
 		Color s1 = control.getColour();
-		Color s = new Color(s1.getRed(),s1.getGreen(),s1.getBlue(),0);
-		Color e = new Color(s1.getRed(),s1.getGreen(),s1.getBlue(),255);
-		alphaSlider = new ColourSlider(0,255,s,e);
+		Color s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
+		Color e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
+		alphaSlider = new ColourSlider(0, 255, s, e);
 		alphaSlider.setColourSpace(ColourSlider.RGB_COLOURSPACE);
 		alphaSlider.setOrientation(ColourSlider.HORIZONTAL);
 		alphaSlider.setValue((int) (control.getAlpha()*255));
@@ -191,7 +194,7 @@ class HSVColourWheelUI
 				JTextField src = (JTextField) actionEvent.getSource();
 				try {
 					int value = Integer.parseInt(src.getText());
-					if (value >=0 && value <=255)
+					if (value >= 0 && value <= 255)
 						control.setHSVColour(wheel.getHue(), 
 											wheel.getSaturation(), 
 								            HSVSlider.getValue()/255.0f, 

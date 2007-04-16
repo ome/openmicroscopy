@@ -729,7 +729,7 @@ class ImViewerComponent
         if (l.size() < 2) return null;
         Iterator i = l.iterator();
         int index;
-        ArrayList<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
+        List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
         try {
         	while (i.hasNext()) {
                 index = ((Integer) i.next()).intValue();
@@ -748,6 +748,50 @@ class ImViewerComponent
         return images;
     }
 
+    /** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getGridImages()
+     */
+    public List getGridImages()
+    {
+    	switch (model.getState()) {
+        	case NEW:
+        	case LOADING_RENDERING_CONTROL:
+        	case DISCARDED:
+	            throw new IllegalStateException(
+	            "This method can't be invoked in the DISCARDED, NEW or" +
+	            "LOADING_RENDERING_CONTROL state.");
+    	}
+	    if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+	    int index;
+	    List active = model.getActiveChannels();
+	    int maxC = model.getMaxC();
+	    List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
+	    try {
+	    	Iterator i;
+	    	for (int j = 0; j < maxC; j++) {
+	    		if (model.isChannelActive(j)) {
+	    			for (int k = 0; k < maxC; k++) {
+	    				model.setChannelActive(k, k == j);
+					}
+	    			images.add(model.getSplitComponentImage());
+	    			i = active.iterator();
+		            while (i.hasNext()) { //reset values.
+		                index = ((Integer) i.next()).intValue();
+		                model.setChannelActive(index, true);
+		            }
+	    		} else {
+	    			images.add(null);
+	    		}
+	    		
+	    		
+			}
+		} catch (Exception ex) {
+			reload(ex);
+		}
+	    return images;
+    }
+    
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
      * @see ImViewer#getDisplayedImage()
@@ -1079,7 +1123,6 @@ class ImViewerComponent
     			logger.debug(this, e.getMessage());
     			discard();
     		}
-    		// Question to user 
     	}
 	}
 
@@ -1126,6 +1169,62 @@ class ImViewerComponent
 	            "LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxY();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getSelectedIndex()
+     */
+	public int getSelectedIndex()
+	{
+		return model.getTabbedIndex();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#playMovie(boolean)
+     */
+	public void playMovie(boolean b)
+	{
+		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getRGBSplit()
+     */
+	public boolean getRGBSplit() { return model.getRGBSplit(); }
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setRGBSplit(boolean)
+     */
+	public void setRGBSplit(boolean b)
+	{
+//		TODO:Check state
+		if (b == model.getRGBSplit()) return;
+		model.setRGBSplit(b);
+		model.getBrowser().viewSplitImages();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#hasRGB()
+     */
+	public boolean[] hasRGB()
+	{
+		//		TODO:Check state
+		return model.hasRGB();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getGridImage()
+     */
+	public BufferedImage getGridImage()
+	{
+		//TODO:Check state
+		return model.getBrowser().getGridImage();
 	}
     
 }

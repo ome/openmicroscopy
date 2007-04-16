@@ -31,15 +31,18 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -50,6 +53,9 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -71,7 +77,7 @@ class TaskBarManager
 {
 
 	/** The name of the about file in the config directory. */
-	private static final String		ABOUT_FILE = "about.txt";
+	private static final String		ABOUT_FILE = "about.xml";
 	
 	/** Array of supported browsers. */
 	private static final String[]	BROWSERS_UNIX;
@@ -86,12 +92,45 @@ class TaskBarManager
 		BROWSERS_UNIX[5] = "netscape";
 	}
 	
+	/** The value of the tag to find. */
+	private String			aTag = "a";
+	
 	/** The view this controller is managing. */
 	private TaskBarView		view;
 	
 	/** Reference to the container. */
 	private Container		container;
 
+	/** 
+	 * Parses the <code>about.xml</code> file to determine the value
+	 * of the url.
+	 * 
+	 * @return See above.
+	 */
+	private String parse()
+	{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(
+            		new File(container.resolveConfigFile(ABOUT_FILE)));
+            //parse 
+            
+            NodeList list = document.getElementsByTagName(aTag); //length one
+            Node n;
+            String url = null;
+            for (int i = 0; i < list.getLength(); ++i) {
+                n = list.item(i);
+                url = n.getFirstChild().getNodeValue();
+            }
+            return url;
+        } catch (Exception e) { 
+        	UserNotifier un = container.getRegistry().getUserNotifier();
+			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
+        }   
+        return null;
+	}
+	
 	/**
 	 * Opens the url. 
 	 * 
@@ -142,11 +181,14 @@ class TaskBarManager
 			FileInputStream fis = new FileInputStream(file);
 			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 			StringBuffer buffer = new StringBuffer();
+			int number = 0;
+			String line;
 			while (true) {
-                String line = in.readLine();
+                line = in.readLine();
                 if (line == null) break;
-                buffer.append("\n");
-                buffer.append(line);
+                //buffer.append("\n");
+                if (number != 0) buffer.append(line);
+                number++;
             }
 			in.close();
             message = buffer.toString();
@@ -164,9 +206,8 @@ class TaskBarManager
 	{
 		boolean connected = false;
 		try {
-			DataServicesFactory dsf = 
-									DataServicesFactory.getInstance(container);
-			 connected = dsf.isConnected();
+			DataServicesFactory f = DataServicesFactory.getInstance(container);
+			 connected = f.isConnected();
 		} catch (DSOutOfServiceException oose) {}
 		view.getButton(TaskBarView.CONNECT_BTN).setEnabled(!connected);
 		view.getButton(TaskBarView.CONNECT_MI).setEnabled(!connected);
@@ -178,10 +219,9 @@ class TaskBarManager
 	private void doManageConnection()
 	{
 		try {
-			DataServicesFactory dsf = 
-									DataServicesFactory.getInstance(container);
-			 if (dsf.isConnected()) {
-			 	dsf.shutdown();
+			DataServicesFactory f = DataServicesFactory.getInstance(container);
+			 if (f.isConnected()) {
+			 	f.shutdown();
 			 	synchConnectionButtons();
 			 } else {
 			 	EventBus bus = container.getRegistry().getEventBus();
@@ -229,6 +269,7 @@ class TaskBarManager
     {
     	//READ content of the about file.
     	String message = loadAbout(container.resolveConfigFile(ABOUT_FILE));
+    	
         SoftwareUpdateDialog d = new SoftwareUpdateDialog(view, message);
         d.addPropertyChangeListener(SoftwareUpdateDialog.OPEN_URL_PROPERTY, 
         							this);
@@ -349,9 +390,7 @@ class TaskBarManager
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
 		if (SoftwareUpdateDialog.OPEN_URL_PROPERTY.equals(name)) {
-			String url = (String) container.getRegistry().lookup(
-											LookupNames.WEBSITE_URL);
-			openURL(url);
+			openURL(parse());
 		}
 	}
 

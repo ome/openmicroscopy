@@ -181,6 +181,51 @@ class BrowserComponent
     }
     
     /**
+     * Refreshes the tree view.
+     * 
+     * @param visit	Pass <code>true</code> to visit the existing tree, 
+     * 				<code>false</code> otherwise.
+     */
+    private void refreshTree(boolean visit)
+    {
+    	switch (model.getState()) {
+	        case LOADING_DATA:
+	        case LOADING_LEAVES:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	                    "This method cannot be invoked in the LOADING_DATA, "+
+	                    " LOADING_LEAVES or DISCARDED state.");
+    	}
+	    TreeImageDisplay root = view.getTreeRoot();
+	    if (!root.isChildrenLoaded()) return;
+	    if (!model.isSelected()) {
+	        //view.clearTree();
+	        //return;
+	    }
+	    if (model.getBrowserType() == IMAGES_EXPLORER) {
+	        root.removeAllChildrenDisplay();
+	        model.setSelectedDisplay(root);
+	        
+	        Set nodes = model.getFilteredNodes();
+	        if (nodes != null) loadFilteredImageData(nodes);
+	        else loadFilteredImagesForHierarchy();
+	    } else {
+	    	if (visit) {
+	    		RefreshVisitor visitor = new RefreshVisitor(this);
+		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		        root.removeAllChildrenDisplay();
+		        model.setSelectedDisplay(root);
+		        model.loadRefreshedData(visitor.getFoundNodes(), 
+		                visitor.getExpandedTopNodes());
+	    	} else {
+	    		root.removeAllChildrenDisplay();
+		        model.setSelectedDisplay(root);
+		        model.loadRefreshedData(null, null);
+	    	}
+	    }
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
      * after to complete the MVC set up.
@@ -616,38 +661,13 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#refreshTree()
      */
-    public void refreshTree()
-    {
-        switch (model.getState()) {
-	        case LOADING_DATA:
-	        case LOADING_LEAVES:
-	        case DISCARDED:
-	            throw new IllegalStateException(
-	                    "This method cannot be invoked in the LOADING_DATA, "+
-	                    " LOADING_LEAVES or DISCARDED state.");
-        }
-        TreeImageDisplay root = view.getTreeRoot();
-        if (!root.isChildrenLoaded()) return;
-	    if (!model.isSelected()) {
-	        //view.clearTree();
-	        //return;
-	    }
-        if (model.getBrowserType() == IMAGES_EXPLORER) {
-            root.removeAllChildrenDisplay();
-            model.setSelectedDisplay(root);
-            
-            Set nodes = model.getFilteredNodes();
-            if (nodes != null) loadFilteredImageData(nodes);
-            else loadFilteredImagesForHierarchy();
-        } else {
-            RefreshVisitor visitor = new RefreshVisitor(this);
-            accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-            root.removeAllChildrenDisplay();
-            model.setSelectedDisplay(root);
-            model.loadRefreshedData(visitor.getFoundNodes(), 
-                    visitor.getExpandedTopNodes());
-        }
-    }
+    public void refreshTree() { refreshTree(true); }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#switchUser()
+     */
+    public void switchUser() { refreshTree(false); }
     
     /**
      * Implemented as specified by the {@link Browser} interface.

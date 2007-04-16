@@ -23,19 +23,15 @@
 
 package org.openmicroscopy.shoola.agents.imviewer.browser;
 
+//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
-
-
-
-//Java imports
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 
 /** 
  * The Browser's Controller.
@@ -85,6 +81,10 @@ class BrowserControl
         this.view = view;
     }
 
+    /**
+     * Reacts to property changes fired by the <code>AnntotorEditor</code>.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();

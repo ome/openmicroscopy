@@ -32,7 +32,6 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -43,7 +42,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
@@ -187,7 +185,7 @@ class TaskBarView
 									iconManager.getIcon(IconManager.HELP));
 		buttons[HOWTO_MI] = new JMenuItem("How To...",
 									iconManager.getIcon(IconManager.HOW_TO));
-		buttons[UPDATES_MI] = new JMenuItem("About Software",
+		buttons[UPDATES_MI] = new JMenuItem("About OMERO.insight...",
 								iconManager.getIcon(IconManager.SW_UPDATES));
 		buttons[ABOUT_MI] = new JMenuItem("About OME",
 												IconManager.getOMEIcon());

@@ -7,10 +7,19 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
   
+ --------------------------------------------------------------------------------
+ Last update: 16/04/2007 (revision 4773)
+ Version: Beta 2
+ 
+ Changes:
+ - TreeViewer: Fixed bug when switching user.
+ - Viewer: Added new tabbed pane. Grid view.
+ 
 --------------------------------------------------------------------------------
  Last update: 26/03/2007 (revision 4773)
  Version: Beta 2
  
+ Changes:
  - Annotator: Create a new component to centralize the annotation mechanism
  for a given image or dataset. New layout, allow user to view the annotation 
  history.

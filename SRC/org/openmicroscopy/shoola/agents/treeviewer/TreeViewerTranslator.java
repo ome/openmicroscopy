@@ -486,13 +486,15 @@ public class TreeViewerTranslator
         Iterator i = nodes.keySet().iterator();
         DataObject ho;
         TreeImageDisplay display;
-        List expanded;
+        List expanded = null;
         TreeImageSet orphan = null;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
-                	expanded = (List) expandedTopNodes.get(ProjectData.class);
+                	if (expandedTopNodes != null)
+                		expanded = (List) expandedTopNodes.get(
+                						ProjectData.class);
                     display = transformProject((ProjectData) ho, 
                                                 (Set) nodes.get(ho), 
                                                 userID, groupID);
@@ -501,8 +503,9 @@ public class TreeViewerTranslator
 	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display);
                 } else if (ho instanceof CategoryGroupData) {
-                	expanded = (List) 
-                			expandedTopNodes.get(CategoryGroupData.class);
+                	if (expandedTopNodes != null)
+	                	expanded = (List) 
+	                			expandedTopNodes.get(CategoryGroupData.class);
                     display = transformCategoryGroup((CategoryGroupData) ho, 
                                                     (Set) nodes.get(ho), 
                                                     userID, groupID);
@@ -515,7 +518,9 @@ public class TreeViewerTranslator
                 		orphan = new TreeImageSet(ORPHANED_DATASETS);
                 		results.add(orphan); 
                 	}
-                	expanded = (List) expandedTopNodes.get(DatasetData.class);
+                	if (expandedTopNodes != null)
+                		expanded = 
+                			(List) expandedTopNodes.get(DatasetData.class);
                 	Set r = (Set) nodes.get(ho); //should only have one element
                 	Iterator k = r.iterator();
                 	while (k.hasNext()) {
@@ -533,7 +538,9 @@ public class TreeViewerTranslator
                 		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
                 		results.add(orphan); 
                 	}
-                	expanded = (List) expandedTopNodes.get(CategoryData.class);
+                	if (expandedTopNodes != null)
+                		expanded = 
+                				(List) expandedTopNodes.get(CategoryData.class);
                 	Set r = (Set) nodes.get(ho); //should only have one element
                 	if (r != null) {  //shouldn't happen
                 		Iterator k = r.iterator();

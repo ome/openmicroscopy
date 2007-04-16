@@ -161,11 +161,17 @@ public class IconManager
     /** The <code>Annotation</code> icon. */
     public static int           ANNOTATION = 33;
     
+    /** The <code>Grid View</code> icon. */
+    public static int           GRIDVIEW = 34;
+    
+    /** The <code>Channel Split</code> icon. */
+    public static int           CHANNEL_SPLIT = 35;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 33;
+    private static int          MAX_ID = 35;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -206,6 +212,8 @@ public class IconManager
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
         relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
         relPaths[ANNOTATION] = "nuvola_kwrite16.png";
+        relPaths[GRIDVIEW] = "gridView16.png";
+        relPaths[CHANNEL_SPLIT] = "gridView16.png";
     }
     
     /** The sole instance. */

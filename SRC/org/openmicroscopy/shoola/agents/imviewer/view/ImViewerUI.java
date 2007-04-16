@@ -219,7 +219,6 @@ class ImViewerUI
     	Color c;
     	while (i.hasNext()) {
 			c = (Color) i.next();
-			
 			item = new ColorCheckBoxMenuItem(c);
 			item.setText(colors.get(c)); 
 			item.setSelected(c.equals(ImagePaintingFactory.UNIT_BAR_COLOR));
@@ -528,9 +527,17 @@ class ImViewerUI
     	p.setLayout(new BorderLayout(0, 0));
     	p.add(controlPane, BorderLayout.WEST);
         p.add(browser.getUI(), BorderLayout.CENTER);
-    	tabs.addTab(browser.getTitle(), browser.getIcon(), p);
-    	tabs.addTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
-    				browser.getAnnotator());
+    	tabs.insertTab(browser.getTitle(), browser.getIcon(), p, "", 
+    					ImViewer.VIEW_INDEX);
+    	tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
+    				browser.getAnnotator(), "", ImViewer.ANNOTATOR_INDEX);
+    	
+    	p = new JPanel();
+    	p.setLayout(new BorderLayout(0, 0));
+    	p.add(controlPane.buildGridComponent(), BorderLayout.WEST);
+        p.add(browser.getGridView(), BorderLayout.CENTER);
+    	tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), p, 
+    					"", ImViewer.GRID_INDEX);
         Container container = getContentPane();
         container.setLayout(new BorderLayout(0, 0));
         container.add(toolBar, BorderLayout.NORTH);
@@ -864,10 +871,12 @@ class ImViewerUI
     /** 
      * Sets the selected pane.
      * 
-     * @param c The selected component.
+     * @param index The index of the selected tabbed pane.
+     * @param c 	The selected component.
      */
-    void setSelectedPane(Component c)
+    void setSelectedPane(int index, Component c)
     {
+    	model.setTabbedIndex(index);
     	model.getBrowser().setSelectedPane(c);
     }
     

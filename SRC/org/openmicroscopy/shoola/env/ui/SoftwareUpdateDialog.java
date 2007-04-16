@@ -76,7 +76,7 @@ class SoftwareUpdateDialog
 	static final String	OPEN_URL_PROPERTY = "openURL";
 	
 	/** The window's title. */
-	private static final String		TITLE = "About Software...";
+	private static final String		TITLE = "About OMERO.insight...";
 	
     /** The close button. */
     private JButton closeButton;

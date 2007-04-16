@@ -84,7 +84,7 @@ public class ChannelPlayer
      */
     public List getChannels() { return activeChannels; }
     
-    /** Starts/Stops the timer. */
+    /** Starts or stops the timer depending on the state. */
     protected void onPlayerStateChange()
     {
         switch (state) {

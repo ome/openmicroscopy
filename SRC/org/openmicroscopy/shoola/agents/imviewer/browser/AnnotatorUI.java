@@ -34,11 +34,11 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -63,10 +63,7 @@ class AnnotatorUI
 	extends JPanel
 	implements MouseListener, MouseMotionListener, MouseWheelListener
 {
-	
-	 /** Size of the horizontal box. */
-    private static final Dimension HBOX = new Dimension(10, 5);
-    
+
 	/** Canvas displaying a smaller version of the rendered image. */
 	private AnnotatorCanvas canvas;
 	
@@ -95,16 +92,13 @@ class AnnotatorUI
     private void buildGUI()
     {
     	setLayout(new BorderLayout(0, 0));
-    	//JEditorPane pane = UIUtilities.buildTextEditorPane("test");
     	JPanel p = new JPanel();
-    	p.setLayout(new BorderLayout(0, 0));
-    	p.add(canvas, BorderLayout.WEST);
-        p.add(infoPane, BorderLayout.CENTER);
-        JPanel empty = new JPanel();
-        empty.setLayout(new BorderLayout(0, 0));
-        empty.add(Box.createRigidArea(HBOX));
-        empty.add(new JSeparator(), BorderLayout.SOUTH);
-        p.add(empty, BorderLayout.SOUTH);
+    	double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
+				{TableLayout.PREFERRED, 5, TableLayout.FILL}};
+        p.setLayout(new TableLayout(tl));
+        p.add(canvas, "0, 0");
+        p.add(infoPane, "2, 0");
+        p.add(new JSeparator(), "0, 2, 2, 2");
     	add(p, BorderLayout.NORTH);
     	add(editor.getUI(), BorderLayout.CENTER);
     }
@@ -176,8 +170,18 @@ class AnnotatorUI
 		if (pressedT < 0) return;
 		if (pressedT > model.getMaxT())  return;
 		model.setSelectedXYPlane(pressedZ, pressedT);
+		canvas.setPaintedString(pressedZ, pressedT);
 	}
 
+	/**
+	 * Removes the painted value.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e)
+	{
+		canvas.setPaintedString(-1, -1);
+	}
+	
 	/**
 	 * Determines the value of the z-section.
 	 * @see MouseWheelListener#mouseWheelMoved(MouseWheelEvent)
@@ -190,11 +194,17 @@ class AnnotatorUI
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             int v = model.getDefaultZ()-e.getWheelRotation();
             if (up) {
-                if (v <= model.getMaxZ())
+                if (v <= model.getMaxZ()) {
                 	model.setSelectedXYPlane(v,  -1);
+                	canvas.setPaintedString(v,  model.getDefaultT());
+                } else
+                	canvas.setPaintedString(-1,  -1);
             } else { //moving down
-                if (v >= 0)
+                if (v >= 0) {
                 	model.setSelectedXYPlane(v,  -1);
+                	canvas.setPaintedString(v,  model.getDefaultT());
+                } else
+                	canvas.setPaintedString(-1,  -1);
             }
         } else {
      
@@ -229,13 +239,6 @@ class AnnotatorUI
 	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseMotionListener} interface but no-op 
-	 * implementation in our case.
-	 * @see MouseListener#mouseReleased(MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent e) {}
 
 	/**
 	 * Required by the {@link MouseMotionListener} interface but no-op 

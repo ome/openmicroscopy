@@ -102,6 +102,9 @@ public class ImgSaver
      */
     private List            imageComponents;
     
+    /** The type of the image to save. */
+    private int				type;
+    
     /**
      * Displays the preview dialog with images depending on the 
      * saving type.
@@ -115,10 +118,17 @@ public class ImgSaver
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
+            	type = ImgSaverUI.IMAGE;
                 mainImage = model.getDisplayedImage();
                 imageComponents = null;
                 break;
+            case ImgSaverUI.GRID_IMAGE:
+            	type = ImgSaverUI.GRID_IMAGE;
+                mainImage = model.getGridImage();
+                imageComponents = null;
+                break;
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
+            	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage();
                 imageComponents = model.getImageComponents();
                 break;
@@ -179,6 +189,13 @@ public class ImgSaver
     }
     
     /**
+     * Returns the type of image to save.
+     * 
+     * @return See above.
+     */
+    int getType() { return type; }
+    
+    /**
      * Sets the name of the file to save.
      * 
      * @param name The name to set.
@@ -213,7 +230,8 @@ public class ImgSaver
             ImgSaverSelectionDialog d = new ImgSaverSelectionDialog(this, 
                     im.getIcon(IconManager.QUESTION));
             UIUtilities.centerAndShow(d);
-        } else showPreview(uiDelegate.getSavingType());
+        } else
+        	showPreview(uiDelegate.getSavingType());
     }
     
     /** Closes the window and disposes. */
@@ -242,7 +260,7 @@ public class ImgSaver
             //Paint the original image.
             g2.drawImage(mainImage, null, 0, 0); 
             
-            if (unitBar && v != null)
+            if (unitBar && v != null && s <width && type == ImgSaverUI.IMAGE)
                 ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
             writeImage(newImage, name);
         } else {

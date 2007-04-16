@@ -308,10 +308,10 @@ public class HiViewerFactory
     }
     
     /** All the tracked components. */
-    private Set<HiViewer>     viewers;
+    private Set<HiViewer>     	viewers;
      
     /** The windows menu. */
-    private JMenu   windowMenu;
+    private JMenu   			windowMenu;
     
     /** 
      * Indicates if the {@link #windowMenu} is attached to the 
@@ -340,7 +340,10 @@ public class HiViewerFactory
         HiViewerComponent comp;
         while (v.hasNext()) {
             comp = (HiViewerComponent) v.next();
-            if (model.isSameDisplay(comp.getModel())) return comp;
+            if (model.isSameDisplay(comp.getModel())) {
+            	comp.refresh(); //refresh the view.
+            	return comp;
+            }
         }
         comp = new HiViewerComponent(model);
         comp.initialize();

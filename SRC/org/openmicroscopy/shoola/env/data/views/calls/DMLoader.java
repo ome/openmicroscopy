@@ -107,6 +107,8 @@ public class DMLoader
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(rootNodeType, rootNodeIDs, 
                         		withLeaves, rootLevel, rootLevelID);
+                //TODO: Review that code to reduce calls to DB.
+                /*
                 if (rootNodeIDs == null) {
                 	Class klass = null;
                 	if (rootNodeType.equals(ProjectData.class))
@@ -120,6 +122,7 @@ public class DMLoader
                     	results.addAll(orphans);
                 	}
                 }
+                */
             }
         };
     }

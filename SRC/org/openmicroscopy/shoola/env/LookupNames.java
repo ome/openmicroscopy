@@ -125,8 +125,5 @@ public class LookupNames
     
     /** Field to access the e-mail address used to collect comments. */
     public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
-    
-    /** Field to access the website url. */
-    public static final String WEBSITE_URL = "/services/WEBSITE/hostname";
 	
 }

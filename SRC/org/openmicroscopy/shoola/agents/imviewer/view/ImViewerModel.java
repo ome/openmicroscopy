@@ -27,10 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 /** 
  * The Model component in the <code>ImViewer</code> MVC triad.
@@ -150,6 +148,15 @@ class ImViewerModel
     /** Fit the image to the size of window, on resize. */
     private boolean				zoomFitToWindow; 
     
+    /** The index of the selected tabbed. */
+    private int					tabbedIndex;
+    
+    /** 
+     * Flag inidcating to slit the displayed image into its red, green and
+     * blue components or to split into the selected channels.
+     */
+    private boolean				rgbSplit;
+    
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
     {
@@ -164,28 +171,6 @@ class ImViewerModel
             if (ratio < 1) sizeX *= ratio;
             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
         }
-    }
-    
-    /** 
-     * Magnifies the specified image.
-     * 
-     * @param f the magnification factor.
-     * @param img The image to magnify.
-     * 
-     * @return The magnified image.
-     */
-    private BufferedImage magnifyImage(double f, BufferedImage img)
-    {
-        if (img == null) return null;
-        int width = img.getWidth(), height = img.getHeight();
-        AffineTransform at = new AffineTransform();
-        at.scale(f, f);
-        BufferedImageOp biop = new AffineTransformOp(at, 
-            AffineTransformOp.TYPE_BILINEAR); 
-        BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
-                        (int) (height*f), img.getType());
-        biop.filter(img, rescaleBuff);
-        return rescaleBuff;
     }
     
     /**
@@ -206,6 +191,8 @@ class ImViewerModel
         state = ImViewer.NEW;
         sizeX = sizeY = -1;
         zoomFitToWindow = false; 
+        tabbedIndex = ImViewer.VIEW_INDEX;
+        rgbSplit = true;
     }
     
     /**
@@ -493,7 +480,7 @@ class ImViewerModel
         browser.setRenderedImage(image);
         //update image icon
         computeSizes();
-        imageIcon = magnifyImage(factor, image);
+        imageIcon = Factory.magnifyImage(factor, image);
     }
 
     /**
@@ -723,4 +710,53 @@ class ImViewerModel
      */
     long getPixelsID() { return pixelsID; }
     
+    /**
+     * Returns the index of the selected tabbed.
+     * 
+     * @return See above.
+     */
+    int getTabbedIndex() { return tabbedIndex; }
+    
+    /**
+     * Sets the tabbed index.
+     * 
+     * @param index The value to set.
+     */
+    void setTabbedIndex(int index) { tabbedIndex = index; }
+
+    /**
+     * Returns <code>true</code> if the displayed image is
+	 * split into its red, green and blue components. Returns <code>false</code>
+	 * if the selected channels are displayed independently.
+	 * 
+     * @return See above.
+     */
+	boolean getRGBSplit() { return rgbSplit; }
+
+	/**
+	 * Sets to <code>true</code> to split the displayed image into its red, 
+	 * green and blue components. Sets to <code>false</code>
+	 * to display the selected channels independently.
+	 * 
+	 * @param rgbSplit The value to set.
+	 */
+	void setRGBSplit(boolean rgbSplit) { this.rgbSplit = rgbSplit; }
+
+	/**
+	 * Returns a 3-dimensional array of boolean value, one per color band.
+	 * The first (resp. second, third) element is set to <code>true</code> 
+	 * if an active channel is mapped to <code>RED</code> (resp. 
+	 * <code>GREEN</code>, <code>BLUE</code>), to <code>false</code> otherwise.
+	 * 
+	 * @return See above
+	 */
+	boolean[] hasRGB()
+	{
+		boolean[] rgb = new boolean[3];
+		rgb[0] = rndControl.hasActiveChannelRed();
+		rgb[1] = rndControl.hasActiveChannelGreen();
+		rgb[2] = rndControl.hasActiveChannelBlue();
+		return rgb;
+	}
+	
 }

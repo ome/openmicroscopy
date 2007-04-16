@@ -237,7 +237,7 @@ class BrowserUI
 		vBar.setValue(y);
 		hBar.setValue(x);
 	}
-	
+
 	/**
 	 * 
 	 * Overridden to center the image.

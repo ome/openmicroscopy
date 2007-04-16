@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
@@ -229,6 +230,9 @@ class ImViewerControl
     /** Identifies the <code>download archived files</code> action. */
     static final Integer     DOWNLOAD = new Integer(37);
     
+    /** Identifies the <code>CHANNEL_SPLIT</code> action in the menu. */
+    static final Integer     CHANNEL_SPLIT = new Integer(38);
+    
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
@@ -334,6 +338,7 @@ class ImViewerControl
                 UnitBarSizeAction.CUSTOMIZED));
         actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
         actionsMap.put(DOWNLOAD, new ArchivedAction(model));
+        actionsMap.put(CHANNEL_SPLIT, new RGBSplitAction(model));
     }
     
     /** 
@@ -495,7 +500,8 @@ class ImViewerControl
     	if (e.getSource() instanceof JTabbedPane) {
     		JTabbedPane pane = (JTabbedPane) e.getSource();
             
-            view.setSelectedPane(pane.getSelectedComponent());
+            view.setSelectedPane(pane.getSelectedIndex(),
+            					pane.getSelectedComponent());
     		return;
     	}
     		

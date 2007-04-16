@@ -26,10 +26,21 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DirectColorModel;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.Icon;
 
 //Third-party libraries
+import sun.awt.image.IntegerInterleavedRaster;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -63,7 +74,37 @@ class BrowserModel
 	 * Factor use to determine the size of the annotate image
 	 * w.r.t the rendered image.
 	 */
-	static final double RATIO = 0.40;
+	static final double 		RATIO = 0.50;
+	
+	/** The red mask. */
+	private static final int	RED_MASK = 0x00ff0000;
+	
+	/** The green mask. */
+	private static final int	GREEN_MASK = 0x0000ff00;
+	
+	/** The blue mask. */
+	private static final int	BLUE_MASK = 0x000000ff;
+	
+	/** The blank mask. */
+	private static final int	BLANK_MASK = 0x00000000;
+	
+	/** The text above the red band image. */
+	private static final String	RED = "Red";
+	
+	/** The text above the green band image. */
+	private static final String	GREEN = "Green";
+	
+	/** The text above the blue band image. */
+	private static final String	BLUE = "Blue";
+	
+	/** The text above the combined image. */
+	private static final String	COMBINED = "Combined";
+	
+	/** Channel prefix. */
+	private static final String PREFIX ="w=";
+	
+	/** Gap between the images. */
+	static final int 	GAP = 2;
 	
 	/** The title of the browser. */
 	private static final String TITLE = "View";
@@ -71,48 +112,84 @@ class BrowserModel
 	/** The title of the annotator. */
 	private static final String TITLE_ANNOTATOR = "Annotation";
 	
+	/** The title of the grid view. */
+	private static final String TITLE_GRIDVIEW = "Split";
+	
     /** Reference to the component that embeds this model. */ 
-    private Browser         component;
+    private Browser         	component;
     
     /** The original image. */
-    private BufferedImage   renderedImage;
+    private BufferedImage   	renderedImage;
     
     /**
      * The image painted on screen.
      * This image may have been transformed i.e. zoomed, sharpened etc.
      */
-    private BufferedImage   displayedImage;
+    private BufferedImage   	displayedImage;
     
-    /** A smaller version (40%) of the original image. */
-    private BufferedImage	annotateImage;
-    
-    /** The lens image created if requested. */
-    private BufferedImage   lensImage;
+    /** A smaller version (50%) of the original image. */
+    private BufferedImage		annotateImage;
     
     /** The zoom factor. */
-    private double          zoomFactor;
+    private double          	zoomFactor;
     
     /** Reference to the {@link ImViewer}. */
-    private ImViewer        parent;
+    private ImViewer        	parent;
     
     /** 
      * Flag to indicate if the unit bar is painted or not on top of the
      * displayed image.
      */
-    private boolean         unitBar;
+    private boolean         	unitBar;
     
     /** The value of the unit bar in microns. */
-    private double          unitInMicrons;
+    private double          	unitInMicrons;
     
     /** The default color of the unit bar. */
-    private Color			unitBarColor;
+    private Color				unitBarColor;
     
     /** The bacground color of the canvas. */
-    private Color			backgroundColor;
+    private Color				backgroundColor;
     
     /** Unloaded image data. */
-    private ImageData		data;
+    private ImageData			data;
+
+    /** Collection of retrieved images composing the grid. */
+    private List<BufferedImage>	gridImages;
+
+    /** Collection of images composing the grid. */
+    private List<SplitImage>	splitImages;
     
+    /**
+     * Creates a buffered image.
+     * 
+     * @param buf		The buffer hosting the data.
+     * @param sizeX		The image's width.
+     * @param sizeY		The image's height.
+     * @param redMask	The mask applied on the red component.
+     * @param greenMask	The mask applied on the green component.
+     * @param blueMask	The mask applied on the blue component.
+     * @return See above.
+     */
+    private BufferedImage createBandImage(DataBuffer buf, int sizeX, int sizeY, 
+    							int redMask, int greenMask, int blueMask)
+    {
+    	SinglePixelPackedSampleModel sampleModel =
+            new SinglePixelPackedSampleModel(
+                      DataBuffer.TYPE_INT, sizeX, sizeY, sizeX,                                                                                                      
+                      new int[] {
+                    		  redMask,    // Red
+                    		  greenMask, //Green
+                    		  blueMask //Blue
+                      });
+        WritableRaster raster = 
+            new IntegerInterleavedRaster(sampleModel, buf, new Point(0, 0));
+      
+        ColorModel colorModel = new DirectColorModel(32, redMask, greenMask, 
+        											blueMask);
+        return new BufferedImage(colorModel, raster, false, null);
+    }
+   
     /** 
      * Creates a new instance.
      * 
@@ -131,6 +208,7 @@ class BrowserModel
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
+        gridImages = new ArrayList<BufferedImage>();
     }
     
     /**
@@ -151,9 +229,26 @@ class BrowserModel
         renderedImage = image;
         //Create the annotate image.
         if (renderedImage != null) {
-        	annotateImage = Factory.magnifyImage(renderedImage, RATIO, 0);
+        	annotateImage = Factory.magnifyImage(RATIO, renderedImage);
         } else annotateImage = null;
         displayedImage = null;
+        gridImages.clear();
+    }
+    
+    /** Sets the images composing the grid. */
+    void setGridImages()
+    {
+    	if (getRGBSplit()) return;
+    	if (gridImages.size() != 0) return;
+    	gridImages.clear();
+    	List images = parent.getGridImages();
+    	if (images != null) {
+    		Iterator i = images.iterator();
+        	while (i.hasNext()) {
+        		gridImages.add(Factory.magnifyImage(RATIO, 
+        						(BufferedImage) i.next()));
+    		}
+    	}
     }
     
     /**
@@ -215,19 +310,7 @@ class BrowserModel
             displayedImage = Factory.magnifyImage(renderedImage, zoomFactor, 0);
         else displayedImage = renderedImage;
     }
-    
-    /**
-     * Creates the lens image when requested. Then when the mouse is dragged,
-     * a subimage of the lens image is extracted and returned.
-     * 
-     * @param f The lens factor.
-     */
-    void createLensImage(double f)
-    {
-        if (lensImage == null)
-            lensImage = Factory.magnifyImage(displayedImage, f, 0);
-    }
-    
+   
     /** 
      * Returns the number of z-sections. 
      * 
@@ -345,6 +428,24 @@ class BrowserModel
     String getAnnotatorTitle() { return TITLE_ANNOTATOR; }
     
     /**
+     * Returns the title of the <code>Grid View</code>.
+     * 
+     * @return See above.
+     */
+    String getGridViewTitle() { return TITLE_GRIDVIEW; }
+    
+    /**
+     * Returns the icon of the <code>Annotator</code>.
+     * 
+     * @return See above.
+     */
+    Icon getGridViewIcon()
+    { 
+    	IconManager icons = IconManager.getInstance();
+    	return icons.getIcon(IconManager.GRIDVIEW); 
+    }
+    
+    /**
      * Returns the icon of the <code>Annotator</code>.
      * 
      * @return See above.
@@ -376,14 +477,31 @@ class BrowserModel
     }
     
     /**
+     * Returns the default timepoint.
+     * 
+     * @return See above.
+     */
+	int getDefaultT() { return parent.getDefaultT(); }
+	
+    /**
      * Returns the default z-section.
      * 
      * @return See above.
      */
 	int getDefaultZ() { return parent.getDefaultZ(); }
 	
+	/**
+	 * Returns the number of pixels along the X-axis.
+	 * 
+	 * @return See above.
+	 */
 	int getMaxX() { return parent.getMaxX(); }
 	
+	/**
+	 * Returns the number of pixels along the Y-axis.
+	 * 
+	 * @return See above.
+	 */
 	int getMaxY() { return parent.getMaxY(); }
 
     /**
@@ -399,5 +517,87 @@ class BrowserModel
      * @return See above.
      */
     float getPixelsSizeZ() { return parent.getPixelsSizeZ(); }
-	
+   
+    /**
+     * Returns the size of the grid.
+     * 
+     * @return See above.
+     */
+    Dimension getGridSize()
+    {
+    	int w = (int) (getMaxX()*RATIO);
+    	int h = (int) (getMaxY()*RATIO);
+    	int n = parent.getMaxC()+1; //add one for combined image.
+    	if (n <=3) n = 4;
+    	int index = 0;
+    	if (n%2 != 0) index = 1;
+    	int col = (int) Math.floor(Math.sqrt(n))+index; 
+    	int row = n/col+index;
+    	return new Dimension(col*w+(col-1)*GAP, row*h+(row-1)*GAP);
+    }
+    
+    /**
+     * Returns a collection of images composing the grid.
+     * 
+     * @return See above.
+     */
+    List getGridImages()
+    { 
+    	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
+    	else splitImages.clear();
+    	boolean c = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+    	if (getRGBSplit()) {	
+        	BufferedImage r = null, g = null, b = null;
+        	if (!c) {
+        		int w = annotateImage.getWidth();
+            	int h = annotateImage.getHeight();
+            	DataBuffer buf = annotateImage.getRaster().getDataBuffer();
+        		boolean[] rgb = parent.hasRGB();
+            	if (rgb[0])
+            		r = createBandImage(buf, w, h, RED_MASK, BLANK_MASK, 
+            							BLANK_MASK);
+            	if (rgb[1])
+            		g = createBandImage(buf, w, h, BLANK_MASK, GREEN_MASK, 
+            							BLANK_MASK);
+            	if (rgb[2])
+            		b = createBandImage(buf, w, h, BLANK_MASK, BLANK_MASK, 
+            							BLUE_MASK);
+        	}
+        	
+        	splitImages.add(new SplitImage(r, RED));
+        	splitImages.add(new SplitImage(g, GREEN));
+        	splitImages.add(new SplitImage(b, BLUE));
+    	} else { 
+	    	int index = 0;
+	    	Iterator i = gridImages.iterator();
+	    	BufferedImage img;
+	    	String n;
+	    	while (i.hasNext()) {
+	    		n = PREFIX+
+	    			parent.getChannelMetadata(index).getEmissionWavelength();
+	    		img = (BufferedImage) i.next();
+	    		splitImages.add(new SplitImage(img, n));
+	    		index++;
+			}
+    	}
+    	splitImages.add(new SplitImage(annotateImage, COMBINED));
+    	return splitImages;
+    }
+    
+    /**
+     * Returns the index of the selected pane. 
+     * 
+     * @return See above.
+     */
+    int getSelectedIndex() { return parent.getSelectedIndex(); }
+
+    /**
+     * Returns <code>true</code> if the displayed image is
+	 * split into its red, green and blue components. Returns <code>false</code>
+	 * if the selected channels are displayed independently.
+	 * 
+     * @return See above.
+     */
+	boolean getRGBSplit() { return parent.getRGBSplit(); }
+    
 }

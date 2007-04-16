@@ -36,6 +36,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.ConvolveOp;
@@ -111,7 +112,7 @@ public class Factory
      * @param text	The text to draw.
      * @return See above.
      */
-    private static BufferedImage createDefaultThumbnail(int sizeX, int sizeY, 
+    public static BufferedImage createDefaultThumbnail(int sizeX, int sizeY, 
     													String text)
     {
         BufferedImage thumbPix = new BufferedImage(sizeX, sizeY, 
@@ -119,12 +120,14 @@ public class Factory
         Graphics2D g = (Graphics2D) thumbPix.getGraphics();
         g.setColor(Color.BLACK);
         g.drawRect(0, 0, sizeX, sizeY);
-        FontMetrics fontMetrics = g.getFontMetrics();
-        int xTxt = BORDER;
-        int yTxt = sizeY/2-fontMetrics.getHeight();
-        g.setColor(Color.WHITE);
-        g.setFont(g.getFont().deriveFont(Font.BOLD));
-        g.drawString(text, xTxt, yTxt);
+        if (text != null && text.trim().length() != 0) {
+        	FontMetrics fontMetrics = g.getFontMetrics();
+            int xTxt = BORDER;
+            int yTxt = sizeY/2-fontMetrics.getHeight();
+            g.setColor(Color.WHITE);
+            g.setFont(g.getFont().deriveFont(Font.BOLD));
+            g.drawString(text, xTxt, yTxt);
+        }
         return thumbPix;
     }
 
@@ -199,12 +202,16 @@ public class Factory
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
         BufferedImageOp biop = new AffineTransformOp(at, 
-            AffineTransformOp.TYPE_BILINEAR); 
+        							AffineTransformOp.TYPE_BILINEAR); 
+        int type = img.getType();
+        if (type == BufferedImage.TYPE_CUSTOM)
+        	type = BufferedImage.TYPE_INT_RGB;
         BufferedImage rescaleBuff = new BufferedImage((int) (width*f), 
-                        (int) (height*f), img.getType());
+                        (int) (height*f), type); //img.getType()
         biop.filter(img, rescaleBuff);
         return rescaleBuff;
     }
+    
     
     /** 
      * Applies a sharpen filter or a low_pass filter. 
