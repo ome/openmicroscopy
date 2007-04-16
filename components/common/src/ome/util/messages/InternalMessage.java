@@ -24,7 +24,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
  * 
  * Since the the {@link OmeroContext#publishEvent(ApplicationEvent)} does not
  * allow for an exception, consumers of {@link InternalMessage} subclasses can
- * throw a {@link MessageException} which will properly handled byy the
+ * throw a {@link MessageException} which will properly handled by the
  * {@link OmeroContext#publishMessage(InternalMessage)} method. (Users of
  * {@link OmeroContext#publishEvent(ApplicationEvent)} will have to manually
  * unwrap the {@link MessageException}.

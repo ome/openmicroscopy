@@ -11,7 +11,7 @@ import ome.system.OmeroContext;
 /**
  * Message which wraps a {@link Throwable} instance since
  * {@link OmeroContext#publishEvent(org.springframework.context.ApplicationEvent)}
- * cannot throw a checed exception.
+ * cannot throw a checked exception.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
