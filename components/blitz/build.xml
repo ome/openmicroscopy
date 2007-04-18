@@ -56,17 +56,46 @@
 		<is-done name="icegen" srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
 	</target>
 	
+        <macrodef name="split-combined">
+            <attribute name="all" default="all"/>
+            <attribute name="prefix"/>
+            <element name="mappers" implicit="true"/>
+            <sequential>
+            <copy todir="${basedir}">
+                <fileset dir="${basedir}" includes="**/*.combined"/>
+                <filterchain>
+                    <linecontainsregexp>
+                        <regexp pattern="^\[@{all}\]|^\[@{prefix}\]"/>
+                    </linecontainsregexp>
+                    <tokenfilter>
+                        <replaceregex pattern="^\[@{all}\]\s?" replace=""/>
+                        <replaceregex pattern="^\[@{prefix}\]\s?" replace=""/>
+                    </tokenfilter>
+                </filterchain>
+                <mappers/>
+            </copy>
+            </sequential>
+        </macrodef>
+
 	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
 		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
+			<hbmtemplate template="templates/combined.vm"     filepattern="resources/{class-name}I.combined" />
 			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
 			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice_common" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
-			<hbmtemplate template="templates/java_objects.vm" filepattern="src/omero/model/{class-name}I.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
-			<hbmtemplate template="templates/cpp_headers.vm"  filepattern="../../src/cpp/generated/{class-name}I.h_common" />
-			<hbmtemplate template="templates/cpp_objects.vm"  filepattern="../../src/cpp/generated/{class-name}I.cpp_common" />
 			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp_common" />
 		</hibernate>
+		<split-combined prefix="hdr">
+			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h_common -->
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/\1I.h_common"/>
+		</split-combined>
+		<split-combined prefix="cpp">
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/\1I.cpp_common"/>
+		</split-combined>
+		<split-combined prefix="jav">
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
+		</split-combined>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
@@ -99,6 +128,9 @@
 #include &lt;API.h&gt;
 #include &lt;System.h&gt;
 #include &lt;Ice/Ice.h&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
 
 
 			</header>
@@ -129,5 +161,6 @@
 
 		<done name="icegen"/>
 	</target>
+
 
 </project>

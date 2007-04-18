@@ -1,4 +1,4 @@
-SUBDIR= src/cpp
+SUBDIR= src/cpp test/cpp
 DISTCLEANFILES = \
 	config.cache \
 	*.loT
@@ -15,3 +15,18 @@ MAINTAINERCLEANFILES = \
 	ltmain.sh \
 	missing \
 	mkinstalldirs
+
+all : src test
+
+src: force
+	@date
+	cd src/cpp ; $(MAKE) $(MFLAGS)
+	@date
+
+test: force
+	@date
+	cd test/cpp ; $(MAKE) $(MFLAGS)
+	@date
+
+force:
+	true

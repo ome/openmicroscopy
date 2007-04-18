@@ -7,10 +7,10 @@
  */
 
 #include <OMERO/common.h>
+#include <OMERO/types.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 #include <string>
-
 namespace OMERO {
 
   /*

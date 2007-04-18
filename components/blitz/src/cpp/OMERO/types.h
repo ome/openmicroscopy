@@ -10,6 +10,7 @@
 #define OMERO_types_h
 
 #include <RTypes.h>
+#include <string>
 
 /**
  * These helper classes are intended to make working with the
@@ -30,77 +31,77 @@
 namespace OMERO {
 
   // @CInt@
-  class CInt : omero::RInt {
+  class CInt : public omero::RInt {
   public:
     CInt() : omero::RInt(true,0){}
     CInt(int value) : omero::RInt(false,value){}
-    static Cint NULL; 
-  }
+    static CInt _NULL; 
+  };
   typedef IceUtil::Handle<CInt> CIntPtr;
 
   // @CBool@
-  class CBool : omero::RBool {
+  class CBool : public omero::RBool {
   public:
     CBool() : omero::RBool(true,false){}
     CBool(bool value) : omero::RBool(false,value){}
-    static CBool NULL;
-  }
+    static CBool _NULL;
+  };
   typedef IceUtil::Handle<CBool> CBoolPtr;
 
   // @CDouble@
-  class CDouble : omero::RDouble {
+  class CDouble : public omero::RDouble {
   public:
     CDouble() : omero::RDouble(true,0){}
     CDouble(double value) : omero::RDouble(false,value){}
-    static CDouble NULL;
-  }
+    static CDouble _NULL;
+  };
   typedef IceUtil::Handle<CDouble> CDoublePtr;
 
   // @CFloat@
-  class CFloat : omero::RFloat {
+  class CFloat : public omero::RFloat {
   public:
     CFloat() : omero::RFloat(true,0){}
     CFloat(float value) : omero::RFloat(false,value){}
-    static CFloat NULL;
-  }
+    static CFloat _NULL;
+  };
   typedef IceUtil::Handle<CFloat> CFloatPtr;
 
   // @CLong@
-  class CLong : omero::RLong {
+  class CLong : public omero::RLong {
   public:
     CLong() : omero::RLong(true,0){}
     CLong(long value) : omero::RLong(false,value){}
-    static CLong NULL;
-  }
+    static CLong _NULL;
+  };
   typedef IceUtil::Handle<CLong> CLongPtr;
 
   // @CTime@
-  class CTime : omero::RTime {
+  class CTime : public omero::RTime {
   public:
-    CTime() : omero::RTime(true,omero::Time()){}
-    CTime(omero::Time value) : omero::RTime(false,value){}
-    static CTime NULL;
-  }
+    CTime() : omero::RTime(true,new omero::Time()){}
+    CTime(omero::TimePtr value) : omero::RTime(false,value){}
+    static CTime _NULL;
+  };
   typedef IceUtil::Handle<CTime> CTimePtr;
 
   // @CString@
-  class CString : omero::RString {
+  class CString : public omero::RString {
   public:
     CString() : omero::RString(true,0){}
-    CString(string value) : omero::RString(false,value){}
-    static CString NULL;
-  }
+    CString(std::string value) : omero::RString(false,value){}
+    static CString _NULL;
+  };
   typedef IceUtil::Handle<CString> CStringPtr;
 
   // @CObject@
-  class CObject : omero::RObject {
+  class CObject : public omero::RObject {
   public:
     CObject() : omero::RObject(true,0){}
-    CObject(int value) : omero::RObject(false,value){}
-    static CObject NULL;
-  }
+    CObject(omero::model::IObjectPtr value) : omero::RObject(false,value){}
+    static CObject _NULL;
+  };
   typedef IceUtil::Handle<CObject> CObjectPtr;
  
 }
 
-#end // OMERO_types_h
+#endif // OMERO_types_h
