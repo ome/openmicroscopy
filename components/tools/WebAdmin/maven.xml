@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<project default="java:jar"
+  xmlns:j="jelly:core"
+  xmlns:u="jelly:util"
+  xmlns:ant="jelly:ant"
+  xmlns:maven="jelly:maven"
+  xmlns:deploy="deploy">
+
+  <postGoal name="clean">
+        <ant:echo>Arc-Mind: Know the Next!</ant:echo>
+        <ant:delete dir="src/webapp/WEB-INF/lib"/>
+        <ant:mkdir dir="src/webapp/WEB-INF/lib"/>
+        <ant:delete file="${arcmind.appserver.webapps}\${pom.name}.war"/>
+        <ant:delete dir="${arcmind.appserver.webapps}\${pom.name}"/>
+  </postGoal>
+  
+  <postGoal name="war:war">
+     <ant:copy todir="${arcmind.appserver.webapps}">
+     	<ant:fileset dir="target"  includes="*.war"/>
+     </ant:copy>
+     <ant:mkdir dir="src/webapp/WEB-INF/lib"/>
+  </postGoal>
+  
+  <postGoal name="war:webapp">
+      	<j:set var="webapp.build.webinf" value="${maven.war.webapp.dir}/WEB-INF"/>
+	<j:set var="webapp.build.webinf.src" value="${maven.war.webapp.dir}/WEB-INF/source"/>
+  	<echo>
+	webapp src = ${webapp.build.webinf.src}
+	source = ${pom.build.sourceDirectory}	
+	</echo>
+	
+        <ant:copy  
+            todir="${webapp.build.webinf.src}"
+            preservelastmodified="true"
+            verbose="false"
+          >
+	  <ant:fileset dir="${pom.build.sourceDirectory}"/>
+	</ant:copy>
+	
+  </postGoal>
+
+  <goal name="delWebJars">
+     <ant:delete dir="src/webapp/WEB-INF/lib" />
+     <ant:mkdir dir="src/webapp/WEB-INF/lib"/>
+  </goal>
+  
+  <goal name="getWebJars">
+
+    <ant:echo>
+    This far
+    </ant:echo>
+    <!-- Use local repo -->
+    <j:set var="repo">${maven.repo.local}/</j:set>
+
+    <ant:tstamp />
+    <property name="libdir" value="src/webapp/WEB-INF/lib" />
+
+    <j:forEach var="dep" items="${pom.dependencies}">
+      <j:choose>
+        <j:when test="${dep.type == 'jar' and dep.getProperty('war.bundle')=='true'}" >
+        
+          <j:set var="artifactSrc" value="${repo}${dep.artifactDirectory}/${dep.type}s/${dep.artifact}"/>
+          <j:set var="artifactDst" value="${libdir}/${dep.artifactId}.${dep.type}"/>
+	  <ant:echo>
+	   Copy ${artifactSrc} 
+	   to ${artifactDst}
+	  </ant:echo>
+          <ant:copy 
+            file="${artifactSrc}" 
+            tofile="${artifactDst}"
+            preservelastmodified="true"
+            verbose="false"
+          />  
+        </j:when>
+        <j:otherwise>
+        </j:otherwise>
+      </j:choose>
+    </j:forEach>  
+  </goal>
+  
+
+</project>

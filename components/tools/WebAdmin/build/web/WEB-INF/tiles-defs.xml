@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions>
+
+    <definition name=".mainLayout" path="/WEB-INF/layout/layout.jsp">
+        <put name="title"  value="Omero Admin Panel" />
+        <put name="header" value="/WEB-INF/layout/header.jsp"/>
+        <put name="footer" value="/WEB-INF/layout/footer.jsp"/>
+        <put name="content" value="/WEB-INF/layout/center.jsp"/>
+    </definition>
+    
+    <definition name=".myAccount" extends=".mainLayout">
+        <put name="title"  value="My Account" />    
+		<put name="content" type="page" value="/WEB-INF/pages/myAccount.jsp"/>
+    </definition>
+    
+    <definition name=".password" extends=".mainLayout">
+        <put name="title"  value="My Account" />    
+		<put name="content" type="page" value="/WEB-INF/pages/password.jsp"/>
+    </definition>
+    
+    <definition name=".groupForm" extends=".mainLayout">
+        <put name="title"  value="Group Form" />    
+		<put name="content" type="page" value="/WEB-INF/pages/groupForm.jsp"/>
+    </definition>
+    
+    <definition name=".experimenterForm" extends=".mainLayout">
+        <put name="title"  value="Experimenter Form" />    
+		<put name="content" type="page" value="/WEB-INF/pages/experimenterForm.jsp"/>
+    </definition>
+
+    <definition name=".main" extends=".mainLayout">
+        <put name="title"  value="Main page" />
+		<put name="content" type="page" value="/WEB-INF/pages/main.jsp"/>       
+    </definition>
+    
+    <definition name=".groups" extends=".mainLayout">
+        <put name="title"  value="Group Listing" />
+		<put name="content" type="page" value="/WEB-INF/pages/groups.jsp"/>
+    </definition>
+    
+    <definition name=".experimenters" extends=".mainLayout">
+        <put name="title"  value="Experimenter Listing" />
+		<put name="content" type="page" value="/WEB-INF/pages/experimenters.jsp"/>
+    </definition>
+
+</tiles-definitions>

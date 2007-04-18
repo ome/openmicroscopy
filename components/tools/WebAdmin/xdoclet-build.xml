@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="_generation_" name="XDoclet Generator">
+<path id="xdoclet.classpath"><pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/classes"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/rt.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/sunrsasign.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/jsse.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/jce.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/charsets.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/ext/dnsns.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/ext/ldapsec.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/ext/localedata.jar"/>
+<pathelement location="C:/Program Files/Java/j2re1.4.2_03/lib/ext/sunjce_provider.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/struts/jars/struts-1.1.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/struts/jars/struts-el-1.1.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/sun/jars/jsf-api-1.1.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/sun/jars/jsf-impl-1.1.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/jstl/jars/jstl-1.1.0.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/jstl/jars/standard-1.1.0.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/commons-beanutils/jars/commons-beanutils-1.6.1.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/commons-collections/jars/commons-collections-3.0.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/commons-logging/jars/commons-logging-1.0.2.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/commons-digester/jars/commons-digester-1.5.jar"/>
+<pathelement location="C:/arc-mind/maven-repo/commons-lang/jars/commons-lang-2.0.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/activation.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/javax.servlet.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/jboss-j2ee.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/jboss-jaas.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/jsse.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/jts.jar"/>
+<pathelement location="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.eclipse.j2eedt.core_3.7.101/data/libraryset/1.3/mail.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/commons-beanutils.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/commons-collections.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/commons-digester.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/commons-lang.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/commons-logging.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/jsf-api.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/jsf-impl.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/jstl.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/standard.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/struts-el.jar"/>
+<pathelement location="C:/article_code/jsf-example2/src/webapp/WEB-INF/lib/struts.jar"/>
+
+<fileset dir="C:/Program Files/MyEclipse6_18/eclipse/plugins/com.genuitec.jboss.ide.eclipse.xdoclet.core_3.7.101">
+<include name="*.jar"/>
+</fileset>
+</path>
+<target name="_generation_" depends=""/>
+</project>

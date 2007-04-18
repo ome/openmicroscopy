@@ -1,0 +1,1155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Rick Hightower (ArcMind) -->
+<?xml-stylesheet type="text/xsl" href="C:\developerWorks\xsl\dw-document-html-4.0.xsl"?>
+<dw-document xsi:noNamespaceSchemaLocation="dw-document-4.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<dw-article local-site="worldwide" ratings-form="auto" related-contents="auto" toc="auto" skill-level="1">
+		<id cma-id="" domino-uid="" content-id="" original="yes"/>
+		<keywords content="JavaServer Faces, JSF, JSP, JavaServer Pages, JavaBeans, EJBs,
+J2EE, Model-View-Controller, MVC, Struts, Spring, WebWork, Maven, UI, user interface,
+graphical, GUI, enterprise, event-driven, stateless, component-based, architecture, Rick,
+Richard, Hightower"/>
+		<meta-last-updated day="05" month="12" year="2004" initials="ao"/>
+		<content-area-primary name="autonomic"/>
+		<content-area-secondary name="db2"/>
+		<content-area-secondary name="eserver"/>
+		<series-title>JSF for nonbelievers</series-title>
+		<title>Clearing the FUD about JSF </title>
+		<subtitle>JavaServer Faces technology is easier than you think</subtitle>
+		<pdf url="" size="xx KB"/>
+		<author xmlns:dw="http://www.ibm.com/developerWorks/" jobtitle="CTO" email-cc="jaloi@us.ibm.com" email="rhightower@arc-mind.com" company="ArcMind">
+			<bio>Rick Hightower serves as chief technology officer for ArcMind Inc. 
+He is coauthor of the popular book <i>Java Tools for Extreme Programming</i>, about
+applying extreme programming to J2EE development, as well as co-author of 
+<i>Professional Struts</i>. Rick worked on
+<a href="http://www.arc-mind.com/courses/jsfCourse.html">JSF QuickStart</a> 
+with Warner Onstine and some of the material in this series is based on 
+examples in that course. The discussion of JSF lifecycle is based on Warner's
+discussion of it in the ArcMind course. 
+Contact Rick at <a href="mailto:rhightower@arc-mind.com">rhightower@arc-mind.com</a>.</bio>
+			<name>Rick Hightower</name>
+		</author>
+		<date-published day="15" month="12" year="2004"/>
+		<abstract>In this new series, popular dW contributor Rick Hightower
+separates the JavaServer Faces FUD from fact to show you that, actually,
+JSF can be easier to use than MVC Model 2 frameworks like
+Struts.
+In this article you will find out more info about the JSF lifecycles, 
+learn how to do immediate event handling, work with table models, and combine JSF
+and tiles.
+</abstract>
+		<abstract-extended>
+The second article will build on the first. The second article will cover the 
+major phases of the JSF request processing lifecycle. As we cover the lifecycle, 
+we will point out where the different parts of the sample application fits in the 
+lifecycle. The second article also introduces the concepts of immediate event 
+handling, a fuller understanding of the component event model, cover a lot of 
+the built in components that ship with JSF. As part of the immediate event 
+handling it will cover combining JavaScript with JSF.
+</abstract-extended>
+		<docbody>
+			<p>You could probably hobble along and write several JSF applications before
+fully understanding the lifecycle of a JSF application. However, I find that
+knowing the lifecycle can aid tremendously in developing an applicaiton effectively.
+Especially, when things start to go awry.</p>
+
+<heading refname="" type="major" toc="yes">Phases</heading>
+
+<p>
+There are five phases to the JSF lifecycle. The phases are as follows:
+	<ol>
+		<li>Restore view</li>
+		<li>Apply request values</li>
+		<li>process events</li>
+		<li>Process validations</li>
+		<li>process events</li>
+		<li>Update model values</li>
+		<li>process events</li>
+		<li>Invoke application</li>
+		<li>process events</li>
+		<li>Render response</li>
+	</ol>
+</p>
+
+<p>
+The above lists the likely order or execution. You can change the order of 
+execution a bit by skipping phases or leaving the life cycle altogether. 
+Also, if the request values copied to components are not valid, 
+the current view will be redisplayed and all of the phases will not be executed. 
+Developer can direct to a different page by issuing a 
+FacesContext.responseComplete method invocation, and then using the request 
+dispatcher (retrieved from the request object in the FacesContext) to forward 
+to whatever web resource they desire. Also, developers can skip to re-rendering 
+the current view by calling FacesContext.renderResponse (there is an example of 
+this in the sample code). 
+</p>
+
+<p> Don't be frightened by the many phases.  There is nothing to be alarmed 
+about.  Other Web frameworks have similar mechanisms, it is just that it's not 
+as well advertised.  The phases are quite logical.  For example, the form has to 
+be validated before any application logic can be executed. The field data has to
+ be converted before gets validated. The phases just state how JSF handles 
+ processing the form GUI. </p>
+
+<p>
+As an application developer you are mostly concerned with the following:
+	<ol>
+		<li>Apply Requests Values</li>
+		<li>Process Validations</li>
+		<li>Update Model Values</li>
+		<li>Invoke Application</li>
+	</ol>
+</p>
+
+<p>
+As a JSF component developer you are mostly concerned with the following:
+	<ol>
+		<li>Restore view</li>
+		<li>Render Response</li>
+	</ol>
+</p>
+
+<p> Figure 1 shows the JSF lifecycle diagram </p>
+			<figure>
+				<heading refname="figure1" toc="no" type="figure">JSF lifecycle</heading>
+				<img src="lifecycle.gif" width="209" height="216" alt="JSF Lifecycle"/>
+			</figure>
+
+
+<heading refname="" type="minor" toc="yes">Restore View</heading>
+
+<p>
+The "Restore View" phase is performed first. During the “Restore View” phase, 
+the request comes through the Faces Servlet controller. The controller then 
+examines the request and extracts the view id. The view id is determined by 
+the name of the JSP page.
+</p> 
+
+<p>The JSF uses the view id to look up the components for the current view. 
+If the view does not already exists, JSF creates it. If the view already exists, 
+then JSF uses it. The view contains all of the GUI components.</p>
+
+<p>If this is a new view, JSF builds the view of the Faces page and wires 
+the event handlers and validators to the components. The view gets saved in the 
+FacesContext. </p>
+
+<p>The FacesContext object contains all of the state information for the current
+ request in the current session that JSF needs to manage the GUI’s component’s 
+ state. The FacesContext stores the view in its view root property. The viewRoot
+  contains all of the JSF components for the current view id.</p>
+
+<p>If this is the first time the page has been loaded (initial view), JSF 
+creates an empty view. The empty view will get populated as the user causes 
+events to occur. If this is an initial view, then JSF advances directly to the 
+"Render Response" phase.</p>
+
+<p>If this is a postback (the user has performed an action on the same page and
+ it is being returned to), then the view corresponding to this page already 
+ exists so the view is restored and state information for that view is used to 
+ reconstruct it’s state. The next phase after a postback is "Apply Request 
+ Values".</p>
+
+<heading refname="" type="minor" toc="yes">Apply Request Values</heading>
+
+<p>The "Apply Request Values" Phase occurs after the "Restore View" Phase. 
+The purpose of this phase is for each component to retrieve their current state. 
+First the components must be retrieved or created from FacesContext. The values 
+for each component are then retrieved from the request parameters. The values 
+could also be retrieved from cookies, or headers, but typically are retrieved 
+from request parameters.</p>
+
+<p>If the component does <b>not</b> have its immediate event handling property set to 
+true, then the values are just converted.  Thus if the field is bound to an 
+Integer property, then the value is converted to an Integer. If the value 
+conversion fails an error message is generated and queued in the FacesContext 
+where it will be displayed during the "Render Response" phase along with any 
+validation errors.</p>
+
+<p>If the component has its immediate event handling property set to true, then 
+the values are converted to the proper type and then validated. The converted 
+value is then stored in the component. If the value conversion or value 
+validation fails an error message is generated and queued in the FacesContext 
+where it will be displayed during the "Render Response" phase along with any 
+other validation errors.</p>
+
+<sidebar>
+		<heading refname="sidebar1" type="sidebar" toc="no">Immediate Event Handling</heading>
+		<p>
+		The immediate event handling property is used to handle events that 
+		normally don't necessitate validating the entire form. For example, an 
+		employee form has a radio button to denote whether an employee is a 
+		manager or not. When the end user selects the radio button, the web 
+		application populates a list of perks for managers.  Since the radio 
+		button is just used to populate the list, you would not want the rest 
+		of the form validated as the end user may not have filled out the 
+		rest of the form.		
+		</p>
+</sidebar>
+
+<heading refname="" type="minor" toc="yes">Process Validations</heading>
+
+<p>
+The "Process Validation" phase happens after "Apply Request Values".  This phase 
+allows each component to have its values validated against validation rules. The
+ validation rules are pre-defined (ship with JSF) or developer-defined rules. 
+ User entered values are compared against validation rules. If the value is 
+ invalid, an error message is added to FacesContext, and the component is marked
+  as invalid. If any components are invalid, JSF advances to the "Render 
+  Response" phase.
+</p>
+
+<p>
+If there are no validation errors, the next phase to get called is 
+"Update Model Values".
+</p>
+
+<heading refname="" type="minor" toc="yes">Update Model Values</heading>
+
+<p>This phase updates the actual values of server-side model. This is the phase 
+where the properties of your backing beans (also known as managed beans) get 
+updated.  Only bean properties that are bound to a component’s value will be 
+updated. Notice that this phase happens after validation so your can be sure 
+that the values copied to your bean’s properties are valid (at least at the form
+ field level, they may still not be valid at the business rule level).</p>
+
+<p>The next phase is “Invoke Application”, which happens right after this 
+phase.</p>  
+
+<heading refname="" type="minor" toc="yes">Invoke Application</heading>
+
+<p>This phase handles the Form submission. By the time you reach this phase, the
+ values have been converted and validated. This is your chance to execute the 
+ business logic of the application.</p> 
+
+<p>You also get to specify which the next logical view is. You do this by 
+defining a specific outcome for a successful form submission, and then returning
+ that outcome. Thus, for example, on successful outcome, move the user to 
+ another page. Navigation configuration stored in faces-config.xml. After this 
+ phase, finally, control is passed on to the “Render Response” phase.
+</p>
+
+<heading refname="" type="minor" toc="yes">Render Response</heading>
+
+<p>The "Render Response" phase displays the view with all of its components in 
+their current state.</p>
+
+
+<heading refname="" type="major" toc="yes">Sample Application</heading>
+
+
+<p>The sample application for this article demonstrates a simple crud listing.  
+This simple crud listing manages inventory for an online CD store. </p>
+
+<p>The sample includes a form the so that the end user can enter a new CD into 
+the system. The form demonstrates using common JSF GUI components like radio 
+list, lists, text fields, labels, panels and more.  It also demonstrates using 
+immediate event handling.  Thus CD form allows the end user to select a 
+category. The simple act of selecting a category fires off some JavaScript that 
+posts the form back to the server.  With JSF we handle the component since the 
+category is using the immediate event handling, this allows us to populate a 
+subcategory list without validating the rest of the form.</p>  
+
+<p>This sample application also has a CD listing. The CD listing page 
+demonstrates how to work with a JSF data table. From the listing page, the end 
+user can sort the listing using the CD title or the CD artist.</p>
+
+<p>The sample application also uses Struts Tiles to manage the layout of the web
+ application. This gives us a consistent look and feel in all of the pages. 
+ Struts Tiles is not part of JSF per se, but it is common to use tiles when you 
+ are using JSF. You can find our more info about Tiles in the reference section
+ and by examining the sample code.</p>
+
+<p>There are four classes in this example shown in the figure 2.</p>
+
+			<figure>
+				<heading refname="figure2" toc="no" type="figure">Classes in sample application</heading>
+				<img src="classes.gif" width="209" height="216" alt="MVC Picture"/>
+			</figure>
+
+
+<p>The StoreManagerDelegate class is the business delegate. It represents the 
+main interface to the model. The CD class is a Data Transfer Object (DTO). If 
+this were a real application the StoreManagerDelegate class would implement all 
+of the business rules for adding, deleting, and editing CDs, and would delegate 
+storing CD to a persistent store with a Data Access Object (DAO). The 
+StoreManagerDelegate and the CD make up the Model in this MVC application.</p>
+
+<p>The StoreController class is the main backing bean for this example. The 
+StoreController class is the glue from the GUI world to the Model world. It 
+delegates a lot of its behavior to the StoreManagerDelegate. The StoreController
+ is the controller of this MVC application.</p>
+
+<p>The StoreController class demonstrates how to build a sortable CRUD listing. 
+It has the following CRUD related methods editCD, addNew, addCD, and updateCD. 
+It presents the current CD to the CD form using its cd property which is of type
+ CD. Therefore it presents the model object to the form. </p>
+
+<p>The best way to get a feel for this CRUD application is by walking through 
+the use cases.</p>
+
+<p>The use cases are as follows:
+	<ol>
+		<li>Add a new CD </li>
+		<li>Edit an existing CD</li> 
+		<li>Sort CDs on Title</li>
+		<li>Sort CDs on Artist</li>
+	</ol>
+</p>
+
+<sidebar>
+	<heading refname="sidebar2" type="sidebar" toc="no">Not quite CRUD</heading>
+	<p>Note the application is not an actual CRUD listing. It is really just a 
+	CRU listing. We left the D for you to implement. Actually, it is quite easy.
+	It is similar to the steps needed for the edit operation, which is already
+	implemented.
+	</p>
+</sidebar>
+
+<p> Figure 3 shows the CD listing page with its sortable columns. Figure 4 and 5
+shows the CD form with its category/subcategory components.</p>
+			<figure>
+				<heading refname="figure3" toc="no" type="figure">CD listing</heading>
+				<img src="listing.gif" width="209" height="216" alt="CD Listing"/>
+			</figure>
+
+			<figure>
+				<heading refname="figure4" toc="no" type="figure">CDForm.jsp no category selected</heading>
+				<img src="cdform1.gif" width="209" height="216" alt="CD Form"/>
+			</figure>
+
+			<figure>
+				<heading refname="figure5" toc="no" type="figure">CDForm.jsp category selected and subcategories showing</heading>
+				<img src="cdform2.gif" width="209" height="216" alt="CD Form"/>
+			</figure>
+
+
+<heading refname="" type="major" toc="yes">Use Case: Add a new CD</heading>
+
+ 
+<p>The user adds a new CD by going to the CD listing page and clicking the 
+"Add CD" link, which is defined on listing.jsp as follows:</p>
+
+<code type="section">
+
+    &lt;h:commandLink action="#{CDManagerBean.addNew}" >
+            	&lt;f:verbatim>Add CD&lt;/f:verbatim>
+    &lt;/h:commandLink> 
+    
+</code>
+
+
+
+
+<p>This link is bound to the CDManagerBean’s addNew method. The addNew method 
+gets invoked in the "Invoke Application" phase of the JSF lifecycle. The action 
+is bound to this method with the JSF binding expression #{CDManagerBean.addNew}.
+The CDManagerBean is an alias for our store controller. The CDManagerBean is the
+ logical name for the controller. The controller class is a managed bean that is
+  defined in faces-config.xml file as follows:</p>
+
+
+<code type="section">
+
+  &lt;managed-bean>
+    &lt;description>
+      The "backing file" bean that backs up the CD application
+    &lt;/description>
+    &lt;managed-bean-name>CDManagerBean&lt;/managed-bean-name>
+    &lt;managed-bean-class>
+      com.arcmind.jsfquickstart.controller.StoreController
+    &lt;/managed-bean-class>
+    &lt;managed-bean-scope>session&lt;/managed-bean-scope>
+  &lt;/managed-bean>
+    
+</code>
+
+
+
+<p>The addNew method prepares the form by creating an empty CD as follows:</p>
+
+<code type="section">
+
+[StoreController.java ]
+    /**
+     * Prepare the cdForm to add a new CD. 
+     * This gets executed before we prompt
+     * the user to add a new CD.
+     *
+     * @return success
+     */
+    public String addNew() {
+        if (subCategoryList == null) {
+            subCategoryList = new HtmlSelectOneListbox();
+        }
+
+        subCategoryList.setRendered(false);
+        this.cd = new CD();
+
+        return "success";
+    }
+
+</code>
+
+<p>The method blanks out the CD form fields by creating a new CD. The fields of 
+the CD form are bound the cd property’s properties. This method also blanks out 
+the list of subcategories being displayed.</p>
+
+
+<p>After this method gets invoked control get redirected to the cdForm.jsp 
+because the mapping for success is cdForm.jsp as defined in the 
+faces-config.xml file as follows:</p>
+
+
+<code type="section">
+
+  &lt;navigation-rule>
+    &lt;from-view-id>/listing.jsp&lt;/from-view-id>
+    ...
+    &lt;navigation-case>
+      &lt;from-action>#{CDManagerBean.addNew}&lt;/from-action>
+      &lt;from-outcome>success&lt;/from-outcome>
+      &lt;to-view-id>/cdForm.jsp&lt;/to-view-id>
+    &lt;/navigation-case>
+    
+  &lt;/navigation-rule>
+
+</code>
+
+<p>The above states that if the user went from the listing to the addNew 
+(#{CDManagerBean.addNew}) action, and the addNew action returned success, 
+then go to the cdForm.jsp. </p>
+
+<p>The cdForm.jsp is the form that contains the CD form. It has fields for id, 
+title, artist, price, category and subcategory. The fields are contained in a 
+container called a panel grid. JSF components like AWT components have 
+containers and components. A container is a component that contains other 
+components. This is the composite design pattern. The panelGrid has three 
+columns. Each field is laid out on its own row with a label an a message to 
+display error messages for the field. The cdForm is defined as follows:</p>
+
+<code type="section">
+    &lt;f:view>
+      &lt;h2>CD Form&lt;/h2>
+      
+      &lt;h:form id="cdForm">
+        
+        &lt;h:inputHidden id="cdid" value="#{CDManagerBean.cd.id}" />
+      	
+      	&lt;h:panelGrid columns="3" rowClasses="row1, row2" >
+      			    		
+      		<!-- Title                                   -->    	
+			&lt;h:outputLabel  for="title" styleClass="label" >
+				&lt;h:outputText value="Title" />
+			&lt;/h:outputLabel>
+
+			&lt;h:inputText id="title" 
+					 value="#{CDManagerBean.cd.title}"
+                               required="true"/>
+
+			&lt;h:message  for="title" styleClass="errorText"/>
+
+      		<!-- Artist                                   -->    		
+			&lt;h:outputLabel  for="artist" styleClass="label" >
+				&lt;h:outputText value="Artist" />
+			&lt;/h:outputLabel>
+
+			&lt;h:inputText id="artist"
+						 value="#{CDManagerBean.cd.artist}"
+						 required="true"/>
+
+            &lt;h:message  for="artist"  styleClass="errorText"/>
+
+      		<!-- Price                                   -->    		
+            &lt;h:outputLabel  for="price" styleClass="label" >
+                             &lt;h:outputText value="Price" />
+            &lt;/h:outputLabel>
+
+            &lt;h:inputText id="price" 
+                               value="#{CDManagerBean.cd.price}"
+                               required="true"/>
+
+            &lt;h:message  for="price"  
+                              styleClass="errorText"/>
+
+
+      		<!-- Category                                   -->    		
+			&lt;h:outputLabel  for="category" styleClass="label" >
+					&lt;h:outputText value="Category" />
+			&lt;/h:outputLabel>
+
+		    &lt;h:selectOneRadio id="category" 
+                                   value="#{CDManagerBean.cd.category}"
+		                       immediate="true"
+		                       onclick="submit()"
+                valueChangeListener="#{CDManagerBean.categorySelected}"
+                                   >
+                   &lt;f:selectItems value="#{CDManagerBean.categories}"/>
+		    &lt;/h:selectOneRadio>
+
+			&lt;h:message  for="category"  styleClass="errorText"/>
+
+      		<!-- SubCategory        -->    		
+            &lt;h:outputLabel  for="subcategory" styleClass="label" >
+                &lt;h:outputText value="Subcategory" />
+            &lt;/h:outputLabel>
+
+            &lt;h:selectOneListbox id="subcategory"
+                                   value="#{CDManagerBean.cd.subCategory}"
+		                           binding="#{CDManagerBean.subCategoryList}"
+		    												>
+		    &lt;f:selectItems value="#{CDManagerBean.subCategories}"/>		    		
+		    &lt;/h:selectOneListbox>
+
+	      &lt;h:message  for="subcategory"  styleClass="errorText"/>
+
+
+    &lt;/h:panelGrid>
+		    		
+
+		    		
+
+      	
+      	&lt;br />
+
+        &lt;h:commandButton id="submitAdd" 
+                         action="#{CDManagerBean.addCD}" 
+        			 value="Add CD" 
+                         rendered="#{not CDManagerBean.editMode}" 
+        								 />
+        								 
+        &lt;h:commandButton id="submitUpdate" 
+                         action="#{CDManagerBean.updateCD}" 
+                         value="Update CD" 
+                         rendered="#{CDManagerBean.editMode}" 
+        								 />
+
+      &lt;/h:form>
+        
+	 
+    &lt;/f:view>
+
+</code>
+
+<p>Each input field binds the field to a property of the controllers cd 
+property. For example the input text field for the title is bound to the cd 
+property with the following JSF binding expression 
+value="#{CDManagerBean.cd.title}". </p>
+
+<p>Notice there is hardly any HTML. This is because the panelGrid generates most 
+of the HMTL. Before you get on your purist high horse, note that the real look 
+and feel is determined by the style sheets associated with the panelGrid. 
+The attribute rowClasses="row1, row2" sets the CSS classes for alternating rows. 
+Row1 is white and Row2 is gray. You can also specify the CSS classes for 
+columns and much more. The panelGrid makes it really convenient to quickly 
+layout a form. If you want to do something that the panelGrid does not provide, 
+you don’t have to use it. You can lay your components out using HTML. If you 
+find that you use this custom HTML on many pages, you may consider writing your
+own custom component. The idea is to make the reusableness of your HTML as DRY 
+as possible. (DRY is don't repeat yourself.)</p>
+
+<p>The controller presents an editMode property, which is used by the cdForm.jsp
+ to selectively display either the submitAdd button or the submitUpdate button. 
+ The submitAdd button is displayed when the form is not in edit mode. The 
+ submitUpdate button is displayed when the form is in edit mode. 
+ (By default the form is not in edit mode). This magic is accomplished by the 
+ rendered expression on each button. For example, here is the rendered 
+ expression on the submitAdd button rendered="#{not CDManagerBean.editMode}". 
+ The submitAdd button is bound to the addCD method 
+ (action="#{CDManagerBean.addCD}") as follows:</p>
+
+<code type="section">
+
+    /**
+     * Add a cd to the store.
+     *
+     * @return outcome
+     */
+    public String addCD() {
+        store.addCD(this.cd);
+
+        return "success";
+    }
+</code>
+
+<p>Before the addCD method gets invoked, JSF has to validate the fields form the
+ GUI. This is actually fairly easy since we did not associate the fields with 
+ any validators per se. The values get copied from the request parameters to the 
+ components values (by the components themselves) in the Apply Request Value 
+ phase. It is at this point the price is converted from a string into a float. 
+ If you entered "abc" for the price, the conversion to float would fail and 
+ control would be redirect to the cdForm.jsp page for the end user to fix. 
+ The h:message associated with price would display a conversion error message. 
+ If all the values can be coverted an are present if required to be present, 
+ then we would advance to the Process Validations. We have not validators 
+ associated with the components (we do this in the next article), so we would 
+ advance to the next phase. The Update Model Phase is when the setter methods 
+ on the CD would get invoked with the converted, and validated values stored in 
+ the GUI components. Then the addCD() method would get invoked in the "Invoke 
+ Application" phase.</p>
+
+<p>The addCD() method would use its business delegate to perform its operation. 
+The store object is the business delegate. The addCD method uses it to store the 
+CD in the system. Since the addCD method returns success the listing will be 
+displayed next as defined by the following navigation rule in faces-config.xml:
+</p>
+
+<code type="section">
+
+  &lt;navigation-rule>
+    &lt;from-view-id>/cdForm.jsp&lt;/from-view-id>
+    &lt;navigation-case>
+      &lt;from-action>#{CDManagerBean.addCD}&lt;/from-action>
+      &lt;from-outcome>success&lt;/from-outcome>
+      &lt;to-view-id>/listing.jsp&lt;/to-view-id>
+    &lt;/navigation-case>
+    ...
+  &lt;/navigation-rule>
+
+</code>
+
+<heading refname="" type="major" toc="yes">Use Case: Edit an existing CD</heading>
+
+ 
+<p>This use case also starts at the listing page. The listing page uses a 
+dataTable to display a list of CDs. The dataTable’s value is bound to cds 
+property of the controller class (StoreController). The cds property is defined 
+as follows:</p>
+
+<code type="section">
+
+    /** List of cds for CD listing. */
+    private DataModel cdModel = new ListDataModel();    
+    {
+        cdModel.setWrappedData(store.findTitleAsc());
+    }
+    /**
+     * List of CDs in the system.
+     *
+     * @return Returns the cds.
+     */
+    public DataModel getCds() {
+        return cdModel;
+    }
+</code>
+
+
+<p>The cds are based on a java.util.List returned from the store object 
+(StoreManagerDelegate, which is the business delegate). The cdModel wraps this 
+list returned from the store in a DataModel. A DataModel is the model for a 
+dataTable.</p>
+
+<p>The dataTable is defined as follows:</p>
+
+<code type="section">
+
+    &lt;f:view>
+			&lt;h:form>	
+				&lt;h:dataTable id="items" 
+				             value="#{CDManagerBean.cds}" 
+				             var="cd"
+				             rowClasses="oddRow, evenRow" 
+	                               headerClass="tableHeader" 
+				             >
+</code>
+
+<p>Notice the value is bound to the controllers cds property. 
+The rowClasses and headerClass attributed are used to specify CSS classes 
+that will be used to define the look and feel of the dataTable. 
+As you may have noticed by now, JSF relies heavily on CSS to define the look 
+and feel of your GUI. If you don't know CSS 
+(you've been getting by with font tags and html tables), you may want to learn 
+it before taking the JSF leap. The title, artist and price fields are displayed 
+with the column component as follows:</p>
+
+<code type="section">
+
+	&lt;h:column>
+	   &lt;f:facet name="header">
+               ...
+		   &lt;h:outputText value="Title"/>
+						  
+         &lt;/f:facet>
+	   &lt;h:commandLink action="#{CDManagerBean.editCD}">
+		 &lt;h:outputText value="#{cd.title}"/>
+	   &lt;/h:commandLink>
+	&lt;/h:column>
+
+</code>
+
+<p>There would also be a column for artist and price as well. The column 
+component is part of the dataTable; it is a child component of the dataTable. 
+The column component takes a single child component and a facet. A facet is a 
+named subcomponent. A facet is not a child component. The column component has 
+a facet called header, which defines what gets displayed in the header. The 
+commandLink is the child component of this column component. The commandLink 
+displays the CD’s title in a link that is bound to the action 
+#{CDManagerBean.editCD}. This binds this link to the editCD method of the 
+controller class as follows:</p>
+
+<code type="section">
+
+    /**
+     * Edit the CD. This get executed before the edit cdForm page gets loaded.
+     *
+     * @return outcome
+     */
+    public String editCD() {
+        this.cd = (CD) cdModel.getRowData();
+        this.cd = (CD) store.getCDById(cd.getId());
+
+        if ((cd.getCategory() != null) || !"".equals(cd.getCategory())) {
+            this.subCategoryList.setRendered(true);
+
+            this.subCategories = getSubcategoriesList(cd.getCategory());
+        } else {
+            this.subCategoryList.setRendered(false);
+        }
+
+        this.editMode = true;
+
+        return "success";
+    }
+
+</code>
+
+<p>The editCD() method gets invoked in the "Invoke Application" Phase of the 
+JSF lifecycle. The editCD method prepares the controller to display the 
+cdForm.jsp page in editing mode. The edit does this by looking up the current 
+CD that was clicked by invoking the cdModel.getRowData() method. The DataModel 
+allows us to work with the data a higher level of abstraction than typical web 
+applications. You don’t have to inspect the request parameters. You just ask the 
+DataModel (cdModel), which CD was clicked by invoking the cdModel.getRowData() 
+method. </p>
+
+<p>Once we have the current CD, we use the business delegate to load the latest 
+copy of that CD (store.getCDById()). Next, this method turns on the subCategory 
+list if this CD has a category associated with it. Then this method set the 
+editMode to true. Remember the editMode property is used by cdForm to display 
+either the add or update buttons. Lastly, this method returns success. 
+Returning success advances us to the cdForm.jsp because of the following 
+navigation rule in the faces-config.xml file:</p>
+
+<code type="section">
+
+  &lt;navigation-rule>
+    &lt;from-view-id>/listing.jsp&lt;/from-view-id>
+    &lt;navigation-case>
+      &lt;from-action>#{CDManagerBean.editCD}&lt;/from-action>
+      &lt;from-outcome>success&lt;/from-outcome>
+      &lt;to-view-id>/cdForm.jsp&lt;/to-view-id>
+    &lt;/navigation-case>
+    &lt;navigation-case>
+      &lt;from-action>#{CDManagerBean.addNew}&lt;/from-action>
+      &lt;from-outcome>success&lt;/from-outcome>
+      &lt;to-view-id>/cdForm.jsp&lt;/to-view-id>
+    &lt;/navigation-case>
+  &lt;/navigation-rule>
+</code>
+
+<p>The CD form loads, and displays whatever the current value of the CD 
+property’s properties are set to. The end user would then edit the form as 
+needed and then hit the update button when they are finished editing the values 
+of the CD. The update button is the only button that shows up. It only shows 
+up when editMode is true as follows:</p>
+
+<code type="section">
+
+        &lt;h:commandButton id="submitUpdate" 
+                         action="#{CDManagerBean.updateCD}" 
+                         value="Update CD" 
+                         rendered="#{CDManagerBean.editMode}" 
+        								 />
+</code>
+
+<p>The update button is bound the updateCD method. Before the update method 
+gets invoked, JSF has to validate the fields from the GUI. The values get copied 
+from the request parameters to the components values (by the components 
+themselves) in the Apply Request Value phase. It is at this point the price is 
+converted from a string into a float. If all the values can be coverted an are 
+present if required to be present, then we would advance to the "Process 
+Validations". We have no validators associated with the components (we do this 
+in the next article), so we would advance to the next phase. The "Update Model" 
+Phase is when the setter methods on the CD would get invoked with the converted, 
+and validated values stored in the GUI components. Then the updateCD() method 
+would get invoked in the Invoke Application phase. The updateCD is as follows:</p>
+
+<code type="section">
+
+    /**
+     * Update the CD loaded on the form.
+     *
+     * @return success
+     */
+    public String updateCD() {
+        store.updateCD(this.cd);
+        this.editMode = false;
+
+        return "success";
+    }
+</code>
+
+<p>The updateCD delegates most of its responsibility to the business delegate. 
+It sets the editMode to false, which is the default, and then returns success. 
+The success outcome, redirects us back to the listing, where we can look at 
+our newly edited CD based on this navigation rule:</p>
+
+<code type="section">
+
+  &lt;navigation-rule>
+    &lt;from-view-id>/cdForm.jsp&lt;/from-view-id>
+    ...    
+    &lt;navigation-case>
+      &lt;from-action>#{CDManagerBean.updateCD}&lt;/from-action>
+      &lt;from-outcome>success&lt;/from-outcome>
+      &lt;to-view-id>/listing.jsp&lt;/to-view-id>	
+    &lt;/navigation-case>
+    
+  &lt;/navigation-rule>
+
+</code>
+
+<heading refname="" type="major" toc="yes">Use Case: Sort CDs based on Title</heading>
+
+
+<p>This use case also starts at the listing page. The listing page allows the 
+title and artist to be sorted ascending and descending. The header for both the 
+title and artist has links to sort methods on the controller. The title’s header 
+is listed as follows (listing.jsp):</p>
+
+<code type="section">
+
+&lt;h:column>
+    &lt;f:facet name="header">
+        &lt;h:panelGroup>
+		    &lt;h:outputText value="Title"/>
+	          &lt;f:verbatim>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;[&lt;/f:verbatim>	
+	          &lt;h:commandLink styleClass="smallLink"
+	                         action="#{CDManagerBean.sortTitleAsc}">
+	              &lt;h:outputText id="ascTitle" value="asc"/>											  					    
+	          &lt;/h:commandLink>
+				
+	          &lt;h:outputText value="," />
+	           <!-- Sort decsending -->
+		    &lt;h:commandLink 	styleClass="smallLink" 
+				action="#{CDManagerBean.sortTitleDec}">
+		            &lt;h:outputText id="decTitle" value="dec"/>											  
+	        &lt;/h:commandLink>
+	        &lt;f:verbatim>]&lt;/f:verbatim>					
+	    &lt;/h:panelGroup>  
+    &lt;/f:facet>
+	&lt;h:commandLink action="#{CDManagerBean.editCD}">
+            &lt;h:outputText value="#{cd.title}"/>
+	&lt;/h:commandLink>  
+&lt;/h:column>
+
+</code>
+
+
+<p>Notice that the links are defined inside of the header facet for the title 
+column. A facet only associates a single named component; therefore, to put 
+multiple link components insided of the header facet you need to use a 
+panelGroup. A panelGroup (similar to a panelGrid) is a single component that 
+contains a number of childer components. The panelGroup contains two links as 
+follows:</p>
+
+<code type="section">
+
+        &lt;h:commandLink styleClass="smallLink"
+                         action="#{CDManagerBean.sortTitleAsc}">
+              &lt;h:outputText id="ascTitle" value="asc"/>
+        &lt;/h:commandLink>
+          ...			
+           <!-- Sort decsending -->
+        &lt;h:commandLink 	styleClass="smallLink" 
+			            action="#{CDManagerBean.sortTitleDec}">
+	            &lt;h:outputText id="decTitle" value="dec"/>											  
+        &lt;/h:commandLink>
+</code>
+
+<p>The first link is bound to the controller method sortTitleAsc. While the 
+second link is bound to sortTitleDec. These methods are listed as follows:</p>
+
+<code type="section">
+
+    /**
+     * Uses the store delegate to return
+     * a sorted list of CDs by title (asceding).
+     *
+     * @return asc
+     */
+    public String sortTitleAsc() {
+        this.cdModel.setWrappedData(store.findTitleAsc());
+
+        return "asc";
+    }
+
+    /**
+     * Uses the store delegate to return
+     * a sorted list of CDs by title (decseding).
+     *
+     * @return dec
+     */
+    public String sortTitleDec() {
+        this.cdModel.setWrappedData(store.findTitleDec());
+
+        return "dec";
+    }
+
+</code>
+
+<p>Both of these methods rely on the business delegate to return a 
+java.util.List sorted in the correct manner. Notice that the methods return 
+the logical outcome "asc" and "dec". Neither of these outcomes have a mapping 
+in the faces-config.xml file. Outcomes that do not have mappings cause the 
+current view to be reloaded; thus, the listing.jsp would be reloaded when these 
+methods are called and the list would be redisplayed in the correct order. 
+Sorting by title is nearly identical so we won’t bother showing it. </p>
+
+<p>The beauty of this approach is it relies on the business delegate to do the 
+sorting. The business delegate may in turn rely on a DAO object that in turn 
+relies on a database query or OR mapping query that sorts the CDs very 
+efficiently. This is  a much better approach than having "smart" GUI components 
+that know how to sort random domain objects (CD is a domain object).</p>
+
+<heading refname="" type="major" toc="yes">Working with immediate events</heading>
+
+<p>This is not a major use case of our CRUD listing per se. But to demonstrate 
+the use of immediate event handling, we cooked up a little example. The 
+cdForm.jsp page display a list of Categories (list of radio buttons), and a 
+list of Subcategories. When a category gets selected by the end user, the 
+cdForm.jsp page uses JavaScript to post the form back so that we can display a 
+list of subcategories. The category list set its immediate event handling so the 
+whole form is not validated before the event handler gets invoked. The event 
+handler for the category list populates the subcategories and forces JSF to 
+skip to the "Render Response" phase. The event handler for components normal 
+execute in the "Invoke Applicaiton" phase. Event handlers for immediate event
+components execute in the "Apply Request Values" phase, which is before the 
+conversion and validation of the rest of the components.
+</p>
+
+<p>Let’s take a look at the category list on the cdForm.jsp page again:</p>
+
+<code type="section">
+
+
+      &lt;!-- Category                                   -->    		    	
+      &lt;h:selectOneRadio id="category" 
+                       value="#{CDManagerBean.cd.category}"
+                   	   immediate="true"
+                       onclick="submit()"
+                       valueChangeListener="#{CDManagerBean.categorySelected}">
+                  &lt;f:selectItems value="#{CDManagerBean.categories}"/>
+      &lt;/h:selectOneRadio>
+
+</code>
+
+<p>This field is bound to the cd’s category property 
+(value="#{CDManagerBean.cd.category}"). The immediate event handling is turned 
+on (immediate="true"). Immediate event handling means that this component's 
+events will be handled after the Apply Request Value Phase not in the "Invoke 
+Application" Phase. Also it means that this components value will be converted 
+and validated in the "Apply Request Value" phase. </p>
+
+<p>The category field is setup so that when the user makes a change, it will be 
+immediately submitted to the web application. This is done with a little 
+JavaScript magic (onclick="submit()").</p>
+
+<p>The available categories that show up in the listing are determined by the 
+f:selectItems tag’s value (value="#{CDManagerBean.categories}").
+The event handler for this component changing is the controller's 
+categroySelected method (valueChangeListener="#{CDManagerBean.categorySelected}"
+). The event handler is as follows:</p>
+
+<code type="section">
+
+    /**
+     * Event Handler for a category getting selected.
+     *
+     * @param event event data
+     */
+    public void categorySelected(ValueChangeEvent event) {
+        subCategoryList.setRendered(true);
+
+        String value = (String) event.getNewValue();
+
+        if (value != null) {
+            this.subCategories = this.getSubcategoriesList(value);
+        }
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.renderResponse();
+    }
+</code>
+
+<p>The first thing this method does is allow the subCatetoryList to render 
+itself. The subCategoryList is bound from the GUI; more on this later. It then 
+uses the selected category value to look up a list of subCategories. The 
+subCategories property is bound to the values of the subcategoryList. Next, 
+the event handler forces JSF to go to the render response phase by calling the 
+renderResponse on the current FacesContext. Thus, the GUI (cdForm.jsp) will 
+redisplay with the available subcategories for the current category displaying.
+</p>
+
+<p>The subCategoryList component is bound from the GUI. Just like you can bind 
+values to components, you can bind components into a controller. The subcategory 
+is defined in the cdForm.jsp page as follows:</p>
+
+<code type="section">
+
+    &lt;h:selectOneListbox 
+		id="subcategory"
+		value="#{CDManagerBean.cd.subCategory}"
+		binding="#{CDManagerBean.subCategoryList}"
+		>
+		    &lt;f:selectItems value="#{CDManagerBean.subCategories}"/>		    		
+    &lt;/h:selectOneListbox>
+</code>
+
+<p>The binding attribute allow you to bind components from the GUI into the 
+backing bean (controller). Thus, this above component is bound to 
+CDManagerBean.subCategoryList, which is a property in our controller defined as 
+follows:</p>
+
+<code type="section">
+
+    /** GUI Component that represents 
+       the Subcategory list on the CDForm. */
+    private UIInput subCategoryList;
+
+    {
+        subCategoryList = new HtmlSelectOneListbox();
+    }
+
+    /**
+     * Subcategory list component
+     *
+     * @param aSubCategoryList The subCategoryList to set.
+     *
+     * @uml.property name="subCategoryList"
+     */
+    public void setSubCategoryList(UIInput aSubCategoryList) {
+        this.subCategoryList = aSubCategoryList;
+    }
+
+    /**
+     * Subcategory list component
+     *
+     * @return Returns the subCategoryList.
+     *
+     * @uml.property name="subCategoryList"
+     */
+    public UIInput getSubCategoryList() {
+        return subCategoryList;
+    }
+</code>
+
+<heading refname="" type="major" toc="yes">Conclusion</heading>
+
+<p>This concludes the second article in the JSF series. The next article
+will pick up where I've left off here. The third article covers more advance 
+topics like conversion and validation. In this article, you will write a 
+custom converter and a custom validator as well as use the built in converters 
+and validators.
+</p>
+
+<p>
+JSF presents a bit of a learning curve. Understanding the lifecycle is part of 
+climbing that curve. Learning JSF is worth the effort. I've worked on several 
+JSF projects and was amazed how fastly we could crank things out as compared with
+JSP/Servlets directly or using Struts. The journey is worth the effort. 
+JSF ROCKS!
+</p>
+		</docbody>
+		<related-list>
+			<a href="http://www.ibm.com/developerworks/edu/j-dw-java-jsf-i.html">UI development with 
+JavaServer Faces</a>
+			<a href="http://www.ibm.com/developerworks/websphere/techjournal/
+0401_barcia/barcia.html">Developing JSF Applications using WebSphere
+Studio V5.1.1</a>
+			<a href="http://www.ibm.com/developerworks/java/jdk/index.html">IBM
+developer kits for the Java platform (downloads)</a>
+		</related-list>
+		<resource-list>
+			<ul>
+				<li>Click the <b>Code</b> icon at the top or bottom of this page to
+download the article source.<br/>
+					<br/>
+				</li>
+				<li><a href="http://www-106.ibm.com/developerworks/java/edu/j-dw-java-tiles-i.html">
+				The example uses Tiles to provide a consistent layout for the application.
+				For a quick tutorial on how to use Tiles check out this Tiles tutorial that I wrote for IBM.
+				</a>
+				</li>
+				
+				<li>Visit the <a href="http://java.sun.com/j2ee/javaserverfaces/download.html">JSF
+homepage</a> to download the JavaServer Faces APIs, custom tag library,
+and related documentation.<br/>
+					<br/>
+				</li>
+				<li>You can download Maven from the <a href="http://maven.apache.org/start/download.html">Apache Maven Project
+page</a>.<br/>
+					<br/>
+				</li>
+				<li>For detailed install and build instructions for Ant and Maven, see
+the <a href="http://www.arc-mind.com/jsf/resources/jsf-article1.html">JSF
+resources</a> for this series.<br/>
+					<br/>
+				</li>
+				<li>Learn more about Maven from the ground up, with Charles Chan's "<a href="http://www.ibm.com/developerworks/java/library/j-maven/">Project
+management: Maven makes it easy</a>" (<i>developerWorks</i>, April
+2003).<br/>
+					<br/>
+				</li>
+				<li>Jackwind Li Guojie's "<a href="http://www.ibm.com/developerworks/edu/j-dw-java-jsf-i.html">UI
+development with JavaServer Faces</a>" (<i>developerWorks</i>, September
+2003) is an early-bird's look at the technology.<br/>
+					<br/>
+				</li>
+				<li>Roland Barcia's five-part "<a href="http://www.ibm.com/developerworks/websphere/techjournal/
+0401_barcia/barcia.html">Developing JSF Applications using WebSphere
+Studio V5.1.1</a>" (<i>developerWorks</i>, January 2004) tutorial is a
+hands-on introduction to programming with JSF.<br/>
+					<br/>
+				</li>
+				<li>Srikanth Shenoy and Nithin Mallya show you how to integrate the
+features of Struts, Tiles, and JavaServer Faces in the advanced article,
+"<a href="http://www.ibm.com/developerworks/java/library/j-integrate/">
+Integrating Struts, Tiles, and JavaServer Faces</a>"
+(<i>developerWorks</i>, September 2003).<br/>
+					<br/>
+				</li>
+				<li>David Geary's <a href="http://devworks.krcinfo.com/WebForms/ProductDetails.aspx?ProductID=0131463055">Core JavaServer Faces</a>
+(Prentice Hall, June 2004) is the best possible book-length introduction to JavaServer Faces 
+technology.<br/>
+					<br/>
+				</li>
+				<li>You might also want to check out the <a href="http://java.sun.com/j2ee/1.4/docs/tutorial/doc/JSFIntro.html">detailed 
+JSF tutorial</a> from Sun Microsystems.<br/>
+					<br/>
+				</li>
+				<li>You'll find articles about every aspect of Java programming in
+the <i>developerWorks</i>
+					<a href="http://www.ibm.com/developerworks/java/">Java technology
+zone</a>.<br/>
+					<br/>
+				</li>
+				<li>Visit the <a href="http://devworks.krcinfo.com/">Developer
+Bookstore</a> for a comprehensive Listing of technical books,
+including hundreds of 
+<a href="http://devworks.krcinfo.com/WebForms/ProductList.aspx">Java-related titles</a>.
+<br/>
+					<br/>
+				</li>
+				<li>Also see the <a href="http://www.ibm.com/developerworks/views/java/tutorials.jsp">Java technology zone tutorials page</a> for a complete Listing of
+free Java-focused tutorials from <a href="http://www.ibm.com/developerWorks/">developerWorks</a>.<br/>
+					<br/>
+				</li>
+				<li>Interested in test driving IBM products without the typical high-cost
+entry point or short-term evaluation license? The <a href="
+http://www.ibm.com/developerworks/subscription/">developerWorks
+Subscription</a> provides a low-cost, 12-month, single-user license for
+WebSphere<reg/>, DB2<reg/>, Lotus<reg/>, Rational<reg/>, and Tivoli<reg/> products -- including the Eclipse-based WebSphere Studio IDE -- to
+develop, test, evaluate, and demonstrate your applications.</li>
+			</ul>
+		</resource-list>
+	</dw-article>
+</dw-document>

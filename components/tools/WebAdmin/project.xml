@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<project>
+  <pomVersion>3</pomVersion>
+  <name>jsf-example2</name>
+  <id>jsf-example2</id>
+  <groupId>arcmind</groupId>
+  <currentVersion>1.0</currentVersion>
+
+  <inceptionYear>2004</inceptionYear>
+  <package>com.arcmind</package>
+
+  <shortDescription>JavaServer Faces - Example2</shortDescription>
+
+  <description/>
+
+  <url>http://www.arc-mind.com/</url>
+
+  <versions>
+    <version>
+      <id>1</id>
+      <name>1.0</name>
+      <tag>HEAD</tag>
+    </version>
+  </versions>
+
+  <dependencies>
+  
+    <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/struts/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+    </dependency>
+    <dependency>
+            <groupId>struts</groupId>
+            <artifactId>struts-el</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
+            <url>http://jakarta.apache.org/struts/</url>
+            <properties>
+                <cactus.bundle>true</cactus.bundle>
+                <war.bundle>true</war.bundle>
+            </properties>
+    </dependency>
+    <dependency>
+      <groupId>sun</groupId>
+      <artifactId>jsf-api</artifactId>
+      <version>1.1</version>
+      <url>http://java.sun.com/j2ee/javaserverfaces/download.html</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sun</groupId>
+      <artifactId>jsf-impl</artifactId>
+      <version>1.1</version>
+      <url>http://java.sun.com/j2ee/javaserverfaces/download.html</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>jstl</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.0</version>
+      <url>http://jakarta.apache.org/taglibs/doc/standard-doc/intro.html</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>jstl</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.1.0</version>
+      <url>http://jakarta.apache.org/taglibs/doc/standard-doc/intro.html</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <!-- commons packages -->
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.6.1</version>
+      <url>http://jakarta.apache.org/commons/beanutils</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.0</version>
+      <url>http://jakarta.apache.org/commons/collections</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.2</version>
+      <url>http://jakarta.apache.org/commons/logging</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>1.5</version>
+      <url>http://jakarta.apache.org/commons/digester</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.0</version>
+      <url>http://jakarta.apache.org/commons/lang</url>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <url>http://www.junit.org/</url>
+    </dependency>
+
+  </dependencies>
+  <build>
+
+
+    <sourceDirectory>src/java</sourceDirectory>
+
+    <unitTestSourceDirectory>
+    	src/test
+    	</unitTestSourceDirectory>
+
+    <!--<aspectSourceDirectory/>-->
+
+    <!-- Unit test cases -->
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+    </unitTest>
+
+    <!--resources>
+        <resource>
+            <directory>target/classes</directory>
+            <targetpath>/</targetpath>
+            <includes>
+                <include>**/*.xml</include>
+            </includes>
+        </resource>
+    </resources-->
+
+  </build>
+</project>

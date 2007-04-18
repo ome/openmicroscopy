@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module context-root="/jsf-example2" name="jsf-example2"
+    archive="jsf-tables.war" type="WEB" id="myeclipse.1084749852312">
+    <attributes>
+        <attribute name="webrootdir" value="/src/webapp"/>
+    </attributes>
+</project-module>

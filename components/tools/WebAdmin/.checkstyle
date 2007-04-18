@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fileset-config file-format-version="1.0.0">
+    <fileset name="java" enabled="true" check-config-name="Sun Checks">
+        <file-match-pattern match-pattern=".java$" include-pattern="true"/>
+        <file-match-pattern match-pattern="[.]*Test.java$" include-pattern="false"/>
+        <file-match-pattern match-pattern="[.]*Delegate.java$" include-pattern="false"/>
+    </fileset>
+</fileset-config>
