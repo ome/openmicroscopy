@@ -1,3 +1,3 @@
-<%@ taglib prefix="t" uri="http://jakarta.apache.org/struts/tags-tiles" %>
+<%@ taglib prefix="t" uri="http://jakarta.apache.org/struts/tags-tiles"%>
 
-        <t:insert definition=".main" />
+<t:insert definition=".main" />

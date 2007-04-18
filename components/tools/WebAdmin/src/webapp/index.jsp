@@ -1,1 +1,1 @@
-<jsp:forward page="/main.faces"/>
+<jsp:forward page="/main.faces" />

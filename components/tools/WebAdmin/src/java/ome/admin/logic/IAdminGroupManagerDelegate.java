@@ -20,93 +20,95 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- *
+ * 
  * @author Ola
  */
 public class IAdminGroupManagerDelegate implements java.io.Serializable {
-    
-    /**
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	private List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-    private String sortByProperty = "name";
 
-    private transient final Comparator propertyAscendingComparator = new Comparator() {
-            public int compare(Object object1, Object object2) {
-                try {
-                    String property1 = BeanUtils.getProperty(object1,
-                            IAdminGroupManagerDelegate.this.sortByProperty
-                        );
-                    String property2 = BeanUtils.getProperty(object2,
-                            IAdminGroupManagerDelegate.this.sortByProperty
-                        );
+	private String sortByProperty = "name";
 
-                    return property1.toLowerCase().compareTo(property2.toLowerCase());
-                } catch (Exception e) {
-                    return 0;
-                }
-            }
-        };
+	private transient final Comparator propertyAscendingComparator = new Comparator() {
+		public int compare(Object object1, Object object2) {
+			try {
+				String property1 = BeanUtils.getProperty(object1,
+						IAdminGroupManagerDelegate.this.sortByProperty);
+				String property2 = BeanUtils.getProperty(object2,
+						IAdminGroupManagerDelegate.this.sortByProperty);
 
-    private transient final Comparator propertyDescendingComparator = new Comparator() {
-            public int compare(Object object1, Object object2) {
-                try {
-                    String property1 = BeanUtils.getProperty(object1,
-                            IAdminGroupManagerDelegate.this.sortByProperty
-                        );
-                    String property2 = BeanUtils.getProperty(object2,
-                            IAdminGroupManagerDelegate.this.sortByProperty
-                        );
+				return property1.toLowerCase().compareTo(
+						property2.toLowerCase());
+			} catch (Exception e) {
+				return 0;
+			}
+		}
+	};
 
-                    return property2.toLowerCase().compareTo(property1.toLowerCase());
-                } catch (Exception e) {
-                    return 0;
-                }
-            }
-        };
- 
-        ConnectionDB db = new ConnectionDB( );
-    {
-        getGroups();
-    }
-    
-    public ExperimenterGroup getGroupById(Long id) {
-        return (ExperimenterGroup) db.getGroup(id);
-    }
-        
-    public List<ExperimenterGroup> getGroups() {
-        this.groups = db.lookupGroups();
-        return this.groups;
-    }
-    
-    public void addGroup(ExperimenterGroup group) {
-        db.createGroup(group);
-    }
-    public List<ExperimenterGroup> sortItems(String sortItem, String sort) {
-        this.groups = getGroups();
-        sortByProperty = sortItem;
-        if(sort.equals("asc")) sort(propertyAscendingComparator);
-        else if(sort.equals("dsc")) sort(propertyDescendingComparator);
-        return groups;
-    }
+	private transient final Comparator propertyDescendingComparator = new Comparator() {
+		public int compare(Object object1, Object object2) {
+			try {
+				String property1 = BeanUtils.getProperty(object1,
+						IAdminGroupManagerDelegate.this.sortByProperty);
+				String property2 = BeanUtils.getProperty(object2,
+						IAdminGroupManagerDelegate.this.sortByProperty);
 
-    public ExperimenterGroup readGroup(int id) {
-        ExperimenterGroup group = (ExperimenterGroup) this.groups.get(id);
-        return group;
-    }
+				return property2.toLowerCase().compareTo(
+						property1.toLowerCase());
+			} catch (Exception e) {
+				return 0;
+			}
+		}
+	};
 
-    public void updateGroup(ExperimenterGroup group) {
-        db.updateGroup(group);
-    }
-    
-    public void deleteGroup(Long id) {
-        db.deleteGroup(id);
-    }
+	ConnectionDB db = new ConnectionDB();
+	{
+		getGroups();
+	}
 
-    private void sort(Comparator comparator) {
-        Collections.sort(groups, comparator);
-    }
-    
-    
+	public ExperimenterGroup getGroupById(Long id) {
+		return (ExperimenterGroup) db.getGroup(id);
+	}
+
+	public List<ExperimenterGroup> getGroups() {
+		this.groups = db.lookupGroups();
+		return this.groups;
+	}
+
+	public void addGroup(ExperimenterGroup group) {
+		db.createGroup(group);
+	}
+
+	public List<ExperimenterGroup> sortItems(String sortItem, String sort) {
+		this.groups = getGroups();
+		sortByProperty = sortItem;
+		if (sort.equals("asc"))
+			sort(propertyAscendingComparator);
+		else if (sort.equals("dsc"))
+			sort(propertyDescendingComparator);
+		return groups;
+	}
+
+	public ExperimenterGroup readGroup(int id) {
+		ExperimenterGroup group = (ExperimenterGroup) this.groups.get(id);
+		return group;
+	}
+
+	public void updateGroup(ExperimenterGroup group) {
+		db.updateGroup(group);
+	}
+
+	public void deleteGroup(Long id) {
+		db.deleteGroup(id);
+	}
+
+	private void sort(Comparator comparator) {
+		Collections.sort(groups, comparator);
+	}
+
 }
