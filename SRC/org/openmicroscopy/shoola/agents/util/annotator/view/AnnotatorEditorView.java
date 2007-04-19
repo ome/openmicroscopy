@@ -43,6 +43,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -105,8 +106,18 @@ class AnnotatorEditorView
      */
     private static final Dimension	SMALL_V_SPACER_SIZE = new Dimension(1, 6);
     
+    /**
+     * A reduced size for the invisible components used to separate widgets
+     * horizontally.
+     */
+    private static final Dimension	SMALL_H_SPACER_SIZE = new Dimension(6, 1);
+    
+    
     /** The preferred size of the annotation area. */
     private static final Dimension	AREA_SIZE = new Dimension(200, 150);
+    
+    /** Default text. */
+    private static final String		COMMENT = " annotation";
     
     /** Button to finish the operation. */
     private JButton             	saveButton;
@@ -151,8 +162,12 @@ class AnnotatorEditorView
 	private JScrollPane				scrollAnnotations;
 	
 	/** Flag indicating if the node is brought up on screen programatically.*/
-	private boolean					autoScoll;
+	private boolean					autoScroll;
 	
+	/** The component displaying the number of annotations. */
+	private JLabel					commentLabel;
+	
+	/** The listener attached to the text area. */
 	private DocumentListener		listener;
 	
     /** Handles the selection of a node in the tree. */
@@ -183,7 +198,7 @@ class AnnotatorEditorView
     private void scrollToNode(JComponent c)
     {
     	if (c == null) return;
-    	autoScoll = true;
+    	autoScroll = true;
     	Rectangle bounds = c.getBounds();
     	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
 		if (!viewRect.contains(bounds)) {
@@ -226,6 +241,7 @@ class AnnotatorEditorView
     /** Initializes the UI components. */
     private void initComponents()
     {
+    	commentLabel = new JLabel("0 "+COMMENT);
     	listAnnotations = new JPanel();
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
     							BoxLayout.Y_AXIS));
@@ -235,7 +251,7 @@ class AnnotatorEditorView
     	// the component is embedded in another UI component. */
     	vBar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (!e.getValueIsAdjusting() && !autoScoll)
+				if (!e.getValueIsAdjusting() && !autoScroll)
 				scrollAnnotations.getVerticalScrollBar().setValue(0);
 			}
 		});
@@ -342,6 +358,8 @@ class AnnotatorEditorView
         JPanel p = new JPanel();
         p.add(deleteButton);
         p.add(saveButton);
+        p.add(Box.createRigidArea(SMALL_H_SPACER_SIZE));
+        p.add(commentLabel);
         add(UIUtilities.buildComponentPanel(p));
         add(new JSeparator());
         add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
@@ -518,9 +536,11 @@ class AnnotatorEditorView
         ExperimenterData data;
         OwnerNode owner;
         OwnerNode currentUser = null;
+        int number = 0;
         while (i.hasNext()) {
             id = (Long) i.next();
             list = (List) annotations.get(id);
+            number += list.size();
             data = ((AnnotationData) list.get(0)).getOwner();
             owner = new OwnerNode(data);
             dtm.insertNodeInto(owner, root, root.getChildCount());
@@ -536,6 +556,9 @@ class AnnotatorEditorView
         }
         treeDisplay.setSelectionPath(new TreePath(currentUser.getPath()));
         setComponentsEnabled(true);
+        String text = number+COMMENT;
+        if (number > 1) text += "s";
+        commentLabel.setText(text);
     }
    
     /**

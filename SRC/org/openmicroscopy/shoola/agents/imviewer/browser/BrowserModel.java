@@ -528,6 +528,7 @@ class BrowserModel
     	int w = (int) (getMaxX()*RATIO);
     	int h = (int) (getMaxY()*RATIO);
     	int n = parent.getMaxC()+1; //add one for combined image.
+    	if (getRGBSplit()) n = 4;
     	if (n <=3) n = 4;
     	int index = 0;
     	if (n%2 != 0) index = 1;
@@ -599,5 +600,5 @@ class BrowserModel
      * @return See above.
      */
 	boolean getRGBSplit() { return parent.getRGBSplit(); }
-    
+
 }

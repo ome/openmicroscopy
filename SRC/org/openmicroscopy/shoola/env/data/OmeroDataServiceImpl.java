@@ -37,12 +37,10 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.containers.CategoryGroup;
 import ome.model.core.Channel;
 import ome.model.meta.Experimenter;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -228,10 +226,8 @@ class OmeroDataServiceImpl
                 		orphans.remove(child);
                 }
                 if (orphans.size() > 0) parents.addAll(orphans);
-               
         	}
         }
-        
         return parents;                            
     }
 
@@ -305,7 +301,6 @@ class OmeroDataServiceImpl
         if (rootLevel.equals(GroupData.class))
         	po.countsFor(new Long(getUserDetails().getId()));
         else po.countsFor(new Long(rootLevelID));
-       
         return gateway.getContainerImages(nodeType, nodeIDs, po.map());
     }
     

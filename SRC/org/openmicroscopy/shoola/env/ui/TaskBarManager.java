@@ -79,6 +79,12 @@ class TaskBarManager
 	/** The name of the about file in the config directory. */
 	private static final String		ABOUT_FILE = "about.xml";
 	
+	/** The name of the documentation file in the docs directory. */
+	private static final String		DOC_FILE = "insight_index.html";
+	
+	/** The value of the tag to find. */
+	private static final String		A_TAG = "a";
+	
 	/** Array of supported browsers. */
 	private static final String[]	BROWSERS_UNIX;
 	
@@ -92,15 +98,16 @@ class TaskBarManager
 		BROWSERS_UNIX[5] = "netscape";
 	}
 	
-	/** The value of the tag to find. */
-	private String			aTag = "a";
-	
+
 	/** The view this controller is managing. */
-	private TaskBarView		view;
+	private TaskBarView				view;
 	
 	/** Reference to the container. */
-	private Container		container;
+	private Container				container;
 
+	/** The software update dialog. */
+	private SoftwareUpdateDialog	suDialog;
+	
 	/** 
 	 * Parses the <code>about.xml</code> file to determine the value
 	 * of the url.
@@ -116,7 +123,7 @@ class TaskBarManager
             		new File(container.resolveConfigFile(ABOUT_FILE)));
             //parse 
             
-            NodeList list = document.getElementsByTagName(aTag); //length one
+            NodeList list = document.getElementsByTagName(A_TAG); //length one
             Node n;
             String url = null;
             for (int i = 0; i < list.getLength(); ++i) {
@@ -125,6 +132,7 @@ class TaskBarManager
             }
             return url;
         } catch (Exception e) { 
+        	if (suDialog != null) suDialog.close();
         	UserNotifier un = container.getRegistry().getUserNotifier();
 			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
         }   
@@ -145,6 +153,7 @@ class TaskBarManager
 				Method openURL = fileMgr.getDeclaredMethod("openURL",
 											new Class[] {String.class});
 				openURL.invoke(null, new Object[] {url});
+				if (suDialog != null) suDialog.close();
 			}
 			else if (osName.startsWith("Windows"))
 				Runtime.getRuntime().exec(
@@ -159,8 +168,10 @@ class TaskBarManager
 						browser = BROWSERS_UNIX[count];
 				if (browser == null)
 					throw new Exception("Could not find web browser");
-				else
+				else {
 					Runtime.getRuntime().exec(new String[] {browser, url});
+					if (suDialog != null) suDialog.close();
+				}
 			}
 		} catch (Exception e) {
 			UserNotifier un = container.getRegistry().getUserNotifier();
@@ -270,10 +281,17 @@ class TaskBarManager
     	//READ content of the about file.
     	String message = loadAbout(container.resolveConfigFile(ABOUT_FILE));
     	
-        SoftwareUpdateDialog d = new SoftwareUpdateDialog(view, message);
-        d.addPropertyChangeListener(SoftwareUpdateDialog.OPEN_URL_PROPERTY, 
-        							this);
-        UIUtilities.centerAndShow(d);
+        suDialog = new SoftwareUpdateDialog(view, message);
+        suDialog.addPropertyChangeListener(
+        		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
+        UIUtilities.centerAndShow(suDialog);
+    }
+    
+    /** Launches a browser with the documentation. */
+    private void help()
+    {
+    	String path = "file://"+container.resolveDocFile(DOC_FILE);
+    	openURL(path);
     }
     
 	/**
@@ -286,6 +304,10 @@ class TaskBarManager
 			public void actionPerformed(ActionEvent ae) { notAvailable(); }
 		};
 		view.getButton(TaskBarView.WELCOME_MI).addActionListener(noOp);
+		//view.getButton(TaskBarView.HELP_MI).addActionListener(
+		//		new ActionListener() {       
+        //    public void actionPerformed(ActionEvent ae) { help(); }
+        //});
 		view.getButton(TaskBarView.HELP_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.UPDATES_MI).addActionListener(

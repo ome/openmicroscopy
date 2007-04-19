@@ -174,6 +174,15 @@ class AnnotatorUI
 	}
 
 	/**
+	 * Displays on the image the currently selected z-section and timepoint.
+	 * @see MouseListener#mousePressed(MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e)
+	{
+		canvas.setPaintedString(model.getDefaultZ(), model.getDefaultT());
+	}
+	
+	/**
 	 * Removes the painted value.
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
@@ -239,12 +248,5 @@ class AnnotatorUI
 	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {}
-
-	/**
-	 * Required by the {@link MouseMotionListener} interface but no-op 
-	 * implementation in our case.
-	 * @see MouseListener#mousePressed(MouseEvent)
-	 */
-	public void mousePressed(MouseEvent e) {}
 
 }

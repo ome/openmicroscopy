@@ -175,13 +175,17 @@ class BrowserControl
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
+    	if (!expanded) {
+    		model.cancel();
+    		return;
+    	}
         int state = model.getState();
         if ((state == Browser.LOADING_DATA) ||
              (state == Browser.LOADING_LEAVES) || 
              (state == Browser.COUNTING_ITEMS)) return;
         Object ho = display.getUserObject();
         model.setSelectedDisplay(display); 
-        if (!expanded) return;
+        //if (!expanded) return;
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
             if (!display.isChildrenLoaded()) {
                 view.loadAction(display);

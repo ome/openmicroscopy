@@ -35,7 +35,6 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import com.sun.java.swing.SwingUtilities2;
 
 //Third-party libraries
 
@@ -67,6 +66,20 @@ public class TitledLineBorder
 	
 	/** The color of the line. */
 	private Color	lineColor;
+	
+	/**
+	 * Returns the FontMetrics for the specified component.
+	 * 
+	 * @param c The component to handlde. May be <code>null</code>.
+	 * @param g The graphics context, taken into account if the passed component
+	 * 			is <code>null</code>;
+	 * @return See above.
+	 */
+	private FontMetrics getFontMetrics(JComponent c, Graphics g)
+	{
+		if (c != null) return c.getFontMetrics(c.getFont());
+		return g.getFontMetrics(g.getFont());
+	}
 	
 	/**
 	 * Returns <code>true</code> if the passed rectangle intersects withe 
@@ -157,18 +170,18 @@ public class TitledLineBorder
          g.setFont(fontc);
 
          JComponent jc = (c instanceof JComponent) ? (JComponent) c : null;
-         FontMetrics fm = SwingUtilities2.getFontMetrics(jc, g);
+         
+         FontMetrics fm = getFontMetrics(jc, g);
          int fontHeight = fm.getHeight();
          int descent = fm.getDescent();
          int ascent = fm.getAscent();
          int diff;
-         int stringWidth = SwingUtilities2.stringWidth(jc, fm, getTitle());
+         int stringWidth = fm.stringWidth(getTitle());
          Insets insets;
 
          if (border != null) insets = border.getBorderInsets(c);
          else insets = new Insets(0, 0, 0, 0);
          
-
          int titlePos = getTitlePosition();
          switch (titlePos) {
              case ABOVE_TOP:
@@ -309,8 +322,7 @@ public class TitledLineBorder
          }
          
          g.setColor(getTitleColor());
-         SwingUtilities2.drawString(jc, g, getTitle(), textLoc.x, textLoc.y);
-
+         g.drawString(getTitle(), textLoc.x, textLoc.y);
          g.setFont(font);
          g.setColor(color);
     }

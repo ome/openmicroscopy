@@ -77,6 +77,12 @@ public final class Container
 	/** The name of the container's configuration file. */
 	public static final String		CONFIG_FILE = "container.xml";
 	
+	/** 
+	 * Points to the documentation directory.
+	 * The path is relative to the installation directory.
+	 */
+	public static final String		DOC_DIR = "docs";
+	
 	/**
 	 * The sole instance.
 	 * This object is passed around at initialization so that services'
@@ -225,6 +231,22 @@ public final class Container
 		return f.getAbsolutePath();
 	}
 
+	/**
+	 * Resolves <code>fileName</code> against the documentation directory.
+	 * 
+	 * @param fileName The name of a documentation file.
+	 * @return	Returns the absolute path to the specified file.
+	 */
+	public String resolveDocFile(String fileName)
+	{
+		if (fileName == null)	throw new NullPointerException();
+		StringBuffer relPath = new StringBuffer(DOC_DIR);
+		relPath.append(File.separatorChar);
+		relPath.append(fileName);
+		File f = new File(homeDir, relPath.toString());
+		return f.getAbsolutePath();
+	}
+	
 	/**
 	 * Returns the container's registry.
 	 * 

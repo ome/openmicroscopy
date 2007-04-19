@@ -89,7 +89,7 @@ public class RefreshTreeAction
     public RefreshTreeAction(TreeViewer model)
     {
         super(model);
-        putValue(Action.NAME, NAME);
+        name = NAME;
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
@@ -97,6 +97,7 @@ public class RefreshTreeAction
     }
     
     /**
+     * Refreshes the current tree.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

@@ -308,7 +308,7 @@ class ImViewerUI
     /**
      * Helper method to create the view menu.
      * 
-     * @return The controls submenu;
+     * @return The controls submenu.
      */
     private JMenu createViewMenu()
     {
@@ -328,7 +328,7 @@ class ImViewerUI
     /**
      * Helper method to create the help menu.
      * 
-     * @return The controls submenu;
+     * @return The controls submenu.
      */
     private JMenu createHelpMenu()
     {
@@ -343,7 +343,7 @@ class ImViewerUI
     /**
      * Helper method to create the controls menu.
      * 
-     * @return The controls submenu;
+     * @return The controls submenu.
      */
     private JMenu createControlsMenu()
     {

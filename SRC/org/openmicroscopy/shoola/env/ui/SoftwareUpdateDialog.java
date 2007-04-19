@@ -80,13 +80,6 @@ class SoftwareUpdateDialog
 	
     /** The close button. */
     private JButton closeButton;
-   
-    /** Closes and disposes. */
-    private void close()
-    {
-        setVisible(false);
-        dispose();
-    }
     
     /** Sets the propertie of thsi window. */
     private void setWindowProperties()
@@ -193,6 +186,13 @@ class SoftwareUpdateDialog
         initComponents();
         buildGUI(aboutMessage);
         pack();
+    }
+    
+    /** Closes and disposes. */
+    void close()
+    {
+        setVisible(false);
+        dispose();
     }
     
 }

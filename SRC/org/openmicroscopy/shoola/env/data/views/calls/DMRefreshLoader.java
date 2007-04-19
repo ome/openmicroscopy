@@ -112,17 +112,17 @@ public class DMRefreshLoader
                 Set set = os.loadContainerHierarchy(rootNodeType, null, 
                         false, rootLevel, rootLevelID);
                 //Retrieve the orphans objects.
-                Class nodeType = null;
-            	if (rootNodeType.equals(ProjectData.class))
-            		nodeType = DatasetData.class;
-            	else if (rootNodeType.equals(CategoryGroupData.class))
-            		nodeType = CategoryData.class;
-            	if (nodeType != null) {
-            		Set orphans = os.getOrphanContainers(nodeType, false, 
-            				rootLevel, rootLevelID);
-            		if (orphans != null && orphans.size() > 0)
-            			set.addAll(orphans);
-            	}
+               // Class nodeType = null;
+            	//if (rootNodeType.equals(ProjectData.class))
+            	//	nodeType = DatasetData.class;
+            	//else if (rootNodeType.equals(CategoryGroupData.class))
+            	//	nodeType = CategoryData.class;
+            	//if (nodeType != null) {
+            		//Set orphans = os.getOrphanContainers(nodeType, false, 
+            		//		rootLevel, rootLevelID);
+            		//if (orphans != null && orphans.size() > 0)
+            		//	set.addAll(orphans);
+            	//}
             	//
                 Set<Long> ids;
                 Iterator i = containerWithImages.iterator();

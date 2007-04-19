@@ -337,7 +337,7 @@ public class IconManager
         relPaths[PIN] = "nuvola_attach16.png";
         relPaths[DELETE] =  "eclipse_delete_edit16.png";
         relPaths[TREE_VIEW] =  "nuvola_view_tree16.png";
-        relPaths[CLIPBOARD_VIEW] =  "nuvola_editpaste16.png";
+        relPaths[CLIPBOARD_VIEW] =  "nuvola_tab_new16.png";
         relPaths[SORT_BY_NAME] =  "eclipse_alphab_sort_co16.png";
         relPaths[SORT_BY_DATE] =  "eclipse_trace_persp16.png";
         relPaths[LENS] =  "nuvola_viewmag16.png";

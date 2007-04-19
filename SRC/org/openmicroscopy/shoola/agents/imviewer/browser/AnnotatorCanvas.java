@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -53,6 +54,9 @@ class AnnotatorCanvas
 	extends JPanel
 {
 
+	/** The background color of the text area. */
+	private static final Color	BACKGROUND = Color.BLACK;
+	
 	/** Reference to the Model. */
     private BrowserModel    model;
     
@@ -106,6 +110,10 @@ class AnnotatorCanvas
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         g2D.drawImage(img, null, 0, 0); 
         if (paintedString != null) {
+        	FontMetrics fm = getFontMetrics(getFont());
+        	g2D.setColor(BACKGROUND);
+        	int w = fm.stringWidth(paintedString);
+        	g2D.fillRect(0, 0, w+4, 3*height/2);
         	g2D.setColor(getBackground());
         	g2D.drawString(paintedString, 2, height);
         }

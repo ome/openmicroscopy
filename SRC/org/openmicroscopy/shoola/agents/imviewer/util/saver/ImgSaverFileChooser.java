@@ -119,7 +119,8 @@ class ImgSaverFileChooser
      */
     private void setSelection(String format, String name, String msg, File[] l)
     {
-        String n = name + "." + format;
+    	//First check if name already contains the extension.
+    	String n = model.getExtendedName(name, format);
         boolean exist = false;
         for (int i = 0; i < l.length; i++) {
             if ((l[i].getAbsolutePath()).equals(n)) {

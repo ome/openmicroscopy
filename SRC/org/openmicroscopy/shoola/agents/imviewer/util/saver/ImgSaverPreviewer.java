@@ -142,12 +142,13 @@ class ImgSaverPreviewer
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-        saveButton = new JButton("Save As");
+        saveButton = new JButton("Save");
         saveButton.setToolTipText(
                 UIUtilities.formatToolTipText("Save the preview image."));
         cancelButton = new JButton("Cancel");
         cancelButton.setToolTipText(
                 UIUtilities.formatToolTipText("Close without saving."));
+        getRootPane().setDefaultButton(saveButton);
         canvas = new ImgSaverPreviewerCanvas(this);
         layeredPane = new JLayeredPane();
         layeredPane.add(canvas, new Integer(0));

@@ -607,6 +607,8 @@ class TaskBarView
 		switch (index) {
 			case TaskBar.COMMENT:
 				return copyItem((JMenuItem) buttons[COMMENT_MI]);
+			case TaskBar.HELP_CONTENTS:
+				return copyItem((JMenuItem) buttons[HELP_MI]);
 			default:
 				return null;
 		}

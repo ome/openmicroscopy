@@ -237,8 +237,10 @@ class TreeViewerWin
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.REFRESH_TREE)));
+        a = controller.getAction(TreeViewerControl.REFRESH_TREE);
+        item = new JMenuItem(a);
+        item.setText(a.getActionName());
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.EXIT)));

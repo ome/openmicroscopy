@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -51,6 +53,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.Encoder;
 import org.openmicroscopy.shoola.util.image.io.TIFFEncoder;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -147,8 +150,9 @@ public class ImgSaver
     private void writeImage(BufferedImage image, String n)
     {
         UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-        n += "."+format;
-        File f = new File(n);
+        //n += "."+format;
+        String extendedName = getExtendedName(n, format);
+        File f = new File(extendedName);
         try {
             if (format.equals(TIFFFilter.TIF)) {
                 Encoder encoder = new TIFFEncoder(Factory.createImage(image), 
@@ -186,6 +190,28 @@ public class ImgSaver
         setProperties();
         uiDelegate = new ImgSaverUI(this);
         pack();
+    }
+    
+    /**
+     * Adds the extension to the passed name if necessary.
+     * 
+     * @param name		The name to handle.
+     * @param format	The selected file format.
+     * @return See above.
+     */
+    String getExtendedName(String name, String format)
+    {
+    	String extension = "."+format;
+    	Pattern pattern = RegExFactory.createPattern(extension);
+    	String n;
+    	if (RegExFactory.find(pattern, name)) {
+    		n = name;
+    	} else {
+    		pattern = RegExFactory.createCaseInsensitivePattern(extension);
+    		if (RegExFactory.find(pattern, name)) n = name;
+    		else n = name + "." + format;
+    	}
+    	return n;
     }
     
     /**

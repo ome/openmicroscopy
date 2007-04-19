@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.env.data.login;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
@@ -39,9 +38,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
-import org.openmicroscopy.shoola.env.ui.LoginOMEDS;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Implements the Login Service's logic.
@@ -138,9 +135,9 @@ public class LoginServiceImpl
      */
     protected void askForCredentials()
     {
-        Registry reg = container.getRegistry();
-        LoginOMEDS dialog = new LoginOMEDS(reg.getTaskBar().getFrame(), reg);
-        UIUtilities.centerAndShow(dialog);
+        //Registry reg = container.getRegistry();
+        //LoginOMEDS dialog = new LoginOMEDS(reg.getTaskBar().getFrame(), reg);
+        //UIUtilities.centerAndShow(dialog);
     }
     //NOTE: This method is protected so that subclasses can get rid of the
     //dependencies on Swing.  This is useful in test mode.

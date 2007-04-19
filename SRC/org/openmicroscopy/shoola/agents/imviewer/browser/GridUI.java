@@ -112,8 +112,8 @@ class GridUI
 	/** Determines the size of the canvas. */
 	void paintImage()
 	{
-		//model.getGridImage();
-        canvas.repaint();
+		setGridSize();
+        repaint();
 	}
 	
 	/**
@@ -148,7 +148,6 @@ class GridUI
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		
 	}
 	
 }

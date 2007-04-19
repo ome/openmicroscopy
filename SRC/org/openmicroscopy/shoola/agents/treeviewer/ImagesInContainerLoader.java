@@ -108,7 +108,6 @@ public class ImagesInContainerLoader
         this.parent = parent;
         nodeIDs = new HashSet<Long>(1);
         nodeIDs.add(new Long(nodeID));
-        
     }
     
     /**

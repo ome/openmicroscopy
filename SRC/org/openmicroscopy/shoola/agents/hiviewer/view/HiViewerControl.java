@@ -461,7 +461,8 @@ class HiViewerControl
         	Browser browser = model.getBrowser();
             if (browser  == null) return;
         	ImageDisplay d = browser.getLastSelectedDisplay();
-        	treeView.accept(new SelectedNodeVisitor(treeView, d)); 
+        	if (d != null)
+        		treeView.accept(new SelectedNodeVisitor(treeView, d)); 
         } else if (TreeView.TREE_POPUP_POINT_PROPERTY.equals(propName))  {
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null

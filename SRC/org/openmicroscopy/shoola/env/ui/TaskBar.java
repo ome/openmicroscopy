@@ -100,8 +100,11 @@ public interface TaskBar
 	/** Identifies the help menu within the menu bar. */
 	public static final int		HELP_MENU = 1;
 	
-	/** Identifies the <code>Comment</code> menu item. */
+	/** Identifies the <code>Send Comment</code> menu item. */
 	public static final int		COMMENT = 100;
+	
+	/** Identifies the <code>Help content</code> menu item. */
+	public static final int		HELP_CONTENTS = 101;
 	
 	/**
 	 * Identifies the tasks toolbar.

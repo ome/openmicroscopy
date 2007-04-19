@@ -94,6 +94,8 @@ class GridCanvas
         String v = model.getUnitBarValue(); 
         int s = (int) (model.getUnitBarSize()*BrowserModel.RATIO);
         Color c = model.getUnitBarColor();
+        FontMetrics fm = getFontMetrics(getFont());
+        int textWidth;
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 if (!channels.hasNext()) return; //Done
@@ -103,6 +105,10 @@ class GridCanvas
                 if (image != null) {
                 	g2D.drawImage(image, null, x, y);
                 	//draw string.
+                	
+                	textWidth = fm.stringWidth(channel.getName());
+                	g2D.setColor(BORDER);
+                	g2D.fillRect(x, y, textWidth+4, 3*height/2);
                 	g2D.setColor(getBackground());
                     g2D.drawString(channel.getName(), x+2, y+height);
                     if (bar && v != null && s < w) 
@@ -171,11 +177,11 @@ class GridCanvas
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
     	BufferedImage original = model.getAnnotateImage();
-    	paintImage(g2D, original.getWidth(), original.getHeight(), false);
+    	paintImage(g2D, original.getWidth(), original.getHeight(), 
+    				model.isUnitBar());
     }
     
 }

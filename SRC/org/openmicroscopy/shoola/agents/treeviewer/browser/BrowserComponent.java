@@ -468,13 +468,12 @@ class BrowserComponent
      */
     public void showPopupMenu()
     {
-        int state = model.getState();
-        switch (state) {
+        switch (model.getState()) {
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
                 throw new IllegalStateException(
-                        "This method can only be invoked in the LOADING_DATA, "+
+                        "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
         firePropertyChange(POPUP_MENU_PROPERTY, null, view.getSelectedTree());

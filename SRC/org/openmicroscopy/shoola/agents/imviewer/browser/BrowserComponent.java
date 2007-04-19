@@ -239,6 +239,8 @@ class BrowserComponent
         if (b == model.isUnitBar()) return;
         model.setUnitBar(b);
         view.repaint();
+        if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+        	gridView.repaint();
     }
 
     /** 
@@ -253,8 +255,11 @@ class BrowserComponent
         Rectangle viewRect = view.getViewport().getBounds();
         if (viewRect.width >= model.getUnitBarSize()) {
         	view.repaint();
+        	if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+            	gridView.repaint();
         	return;
         }
+        
         UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
         un.notifyInfo("Scale bar size", "A scale bar of the selected size " +
         		"cannot be displayed on the image. Please select a new size.");
@@ -294,6 +299,8 @@ class BrowserComponent
 		if (model.getUnitBarColor().equals(color)) return;
 		model.setUnitBarColor(color);
 		view.repaint();
+		if (model.getSelectedIndex() == ImViewer.GRID_INDEX) 
+        	gridView.repaint();
 	}
 
     /** 

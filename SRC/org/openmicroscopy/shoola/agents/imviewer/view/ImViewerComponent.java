@@ -461,6 +461,11 @@ class ImViewerComponent
             throw new IllegalStateException(
             "This method can't be invoked in the LOADING_RENDERING_CONTROL.");
         model.setRenderingControl(result);
+        if (model.getMaxC() > 4) model.setRGBSplit(false);
+        else {
+        	boolean[] rgb = model.hasRGB();
+        	model.setRGBSplit(rgb[0] && rgb[1] && rgb[2]);
+        }
         fireStateChange();
         //Register the renderer
         model.getRenderer().addPropertyChangeListener(controller);
@@ -1201,7 +1206,6 @@ class ImViewerComponent
      */
 	public void setRGBSplit(boolean b)
 	{
-//		TODO:Check state
 		if (b == model.getRGBSplit()) return;
 		model.setRGBSplit(b);
 		model.getBrowser().viewSplitImages();

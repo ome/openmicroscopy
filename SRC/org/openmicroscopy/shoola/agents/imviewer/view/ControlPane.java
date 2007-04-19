@@ -287,10 +287,7 @@ class ControlPane
         colorPickerButton = new JButton(a);
         colorPickerButton.addMouseListener((ColorPickerAction) a);
         UIUtilities.unifiedButtonLookAndFeel(colorPickerButton);
-        rgbSplitButton = new JToggleButton(
-        					controller.getAction(ImViewerControl.CHANNEL_SPLIT));
-        
-        rgbSplitButton.setSelected(!model.getRGBSplit());
+        rgbSplitButton = new JToggleButton();
     }
     
     /**
@@ -363,6 +360,9 @@ class ControlPane
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
         				getColorModelDescription(model.getColorModel()));
+        rgbSplitButton.setSelected(!model.getRGBSplit());
+        rgbSplitButton.setAction(
+        		controller.getAction(ImViewerControl.CHANNEL_SPLIT));
     }
     
     /**
