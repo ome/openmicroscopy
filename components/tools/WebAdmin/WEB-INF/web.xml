@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee">
+
+	<!--
+		<context-param>
+		<param-name>javax.faces.CONFIG_FILES</param-name>
+		<param-value>/WEB-INF/examples-config.xml</param-value>
+		</context-param>
+	-->
+
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>server</param-value>
+	</context-param>
+	<context-param>
+		<param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>org.apache.myfaces.DETECT_JAVASCRIPT</param-name>
+		<param-value>false</param-value>
+	</context-param>
+	<context-param>
+		<param-name>org.apache.myfaces.PRETTY_HTML</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<!-- Login form params -->
+	<context-param>
+		<param-name>defaultServerHost</param-name>
+		<param-value>warlock.openmicroscopy.org.uk</param-value>
+	</context-param>
+	<context-param>
+		<param-name>defaultServerPort</param-name>
+		<param-value>1099</param-value>
+	</context-param>
+
+	<!-- Log4J path properties-->
+	<servlet>
+		<servlet-name>log4j-init</servlet-name>
+		<servlet-class>ome.init.Log4jInit</servlet-class>
+
+		<init-param>
+			<param-name>log4j-init-file</param-name>
+			<param-value>WEB-INF/classes/log4j.properties</param-value>
+		</init-param>
+
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>FacesServlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- Faces Servlet Mapping -->
+
+	<servlet-mapping>
+		<servlet-name>FacesServlet</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>tiles</servlet-name>
+		<servlet-class>
+			org.apache.struts.tiles.TilesServlet
+		</servlet-class>
+		<init-param>
+			<param-name>definitions-config</param-name>
+			<param-value>/WEB-INF/tiles-defs.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>definitions-parser-validate</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<taglib>
+		<taglib-uri>http://java.sun.com/jsf/html_mod</taglib-uri>
+		<taglib-location>/WEB-INF/html_basic_mod.tld</taglib-location>
+	</taglib>
+
+	<listener>
+		<listener-class>
+			org.apache.myfaces.webapp.StartupServletContextListener
+		</listener-class>
+	</listener>
+
+	<session-config>
+		<session-timeout>5</session-timeout>
+	</session-config>
+</web-app>

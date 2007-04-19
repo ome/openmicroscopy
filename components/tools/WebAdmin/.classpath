@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/struts-el.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/struts.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/standard.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/spring-2.0.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jstl.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jsf-impl.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jsf-api.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-ejb3x-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-aspect-library-jdk50-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-aop-jdk50-client-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jboss-annotations-ejb3-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jbossall-client-4.0.4.GA.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/j2ee.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-el-1.0.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-beanutils.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/common-3.0-TRUNK.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/client-3.0-TRUNK.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

@@ -1,0 +1,73 @@
+<project name="webadmin" default="main" basedir=".">
+  
+    <!--  Glencoe Software Inc. Template Web Application or WAR Build -->
+    <property environment="env"/>
+  
+    <property file="./build.properties"/>
+  
+      <property name="build.compiler"     value="modern"/>
+      <property name="build.dir"          value="${basedir}/WEB-INF/classes" />
+      <property name="src.dir"            value="${basedir}/src"/>
+      <property name="war.file"           value="IAdmin"/>
+      <property name="war.file.name"      value="${war.file}.war"/>
+      <property name="jboss.home"         value="/Users/Ola/J2EP/software/jboss-4.0.4.GA"/>
+      <property name="deploy.dir"         value="${jboss.home}/server/default/deploy"/>
+	  
+    <path id="project.class.path">
+        <fileset dir="${basedir}/WEB-INF/lib/">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${basedir}/WEB-INF">
+            <include name="**/*.properties"/>
+        </fileset>
+        <fileset dir="${basedir}">
+           <include name="**/*.properties"/>
+        </fileset>
+    	<pathelement path="${src.dir}"/>
+    </path>
+
+	
+      <target name="clean">
+          <delete dir="${build.dir}" includeEmptyDirs="true" />
+      </target>
+  
+      <target name="compile">
+      	<mkdir dir= "${basedir}/WEB-INF/classes" />
+        <javac   srcdir="${src.dir}"
+                    destdir="${build.dir}"
+                    debug="off"
+                deprecation="on">
+          <include name="**/*.java"/>
+          <classpath refid="project.class.path"/>
+        </javac>
+      	<copy todir="${build.dir}/ome/admin/bundle">
+      	   <fileset dir="${src.dir}/ome/admin/bundle" includes="**/*.properties"/>
+      	</copy>
+     	<copy todir="${build.dir}">
+          	   <fileset dir="${src.dir}" includes="**/*.properties"/>
+        </copy>
+      </target>
+  
+      <target name="cleanWebApp">
+        <delete file="${deploy.dir}/${war.file.name}" />
+          <delete  dir="${deploy.dir}/${war.file}" includeEmptyDirs="true" />
+      </target>
+  
+      <target name="war" depends="clean, compile">
+          <war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
+                 <fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath"/>
+                 <webinf  dir="${basedir}/WEB-INF"    includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class"/>
+                 <lib     dir="${basedir}/WEB-INF/lib" excludes="jsf-api.jar, jsf-impl.jar"/>
+                 <classes dir="${basedir}/WEB-INF/classes" />
+          </war>
+      </target>
+  
+      <target name="deploy">
+          <copy todir="${deploy.dir}">
+            <fileset dir="${basedir}" includes="${war.file.name}"/>
+          </copy>
+      </target>
+ 
+    <target name="main" depends="clean, cleanWebApp, compile, war, deploy"/>
+  
+  </project>
