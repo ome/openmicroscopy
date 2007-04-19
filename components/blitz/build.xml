@@ -91,7 +91,7 @@
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/\1I.h_common"/>
 		</split-combined>
 		<split-combined prefix="cpp">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/\1I.cpp_common"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/\1I.cpp"/>
 		</split-combined>
 		<split-combined prefix="jav">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
@@ -106,19 +106,13 @@
 			<fileset dir="${resrc.dest}" includes="**/*.ice_common">
 				<present present="both" targetdir="${resrc.dir}/slice"/>
 			</fileset>
-			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp_common,**/*.h_common">
+			<fileset dir="${src.dir}/cpp/generated" includes="**/*.h_common">
+				<present present="both" targetdir="${src.dir}/cpp"/>
+			</fileset>
+			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
-		<concat destfile="${src.dir}/cpp/generated/OMERO/common.cpp">
-			<header>
-
-/* All *.cpp_common files concatenated by blitz/build.xml */
-#include &lt;OMERO/common.h&gt;
-
-			</header>
-			<fileset dir="${src.dir}/cpp" includes="**/*.cpp_common"/>
-		</concat>
 		<concat destfile="${src.dir}/cpp/generated/OMERO/common.h">
 			<header>
 

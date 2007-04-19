@@ -6,6 +6,8 @@
  * 
  */
 
+#include <OMERO/common.h>
+
 namespace omero { namespace model {
 
     PermissionsI::PermissionsI() {}
