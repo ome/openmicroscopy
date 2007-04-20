@@ -29,6 +29,7 @@ import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.api.IRepositoryInfo;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.icy.fire.AopContextInitializer;
@@ -65,7 +66,9 @@ import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.SimpleCallbackPrx;
 import omero.api.ThumbnailStorePrx;
+import omero.api.IRepositoryInfoPrx;
 import omero.api.ThumbnailStorePrxHelper;
+import omero.api.IRepositoryInfoPrxHelper;
 import omero.api._IAdminOperations;
 import omero.api._IAdminTie;
 import omero.api._IConfigOperations;
@@ -89,6 +92,8 @@ import omero.api._RenderingEngineTie;
 import omero.api._ServiceFactoryDisp;
 import omero.api._ThumbnailStoreOperations;
 import omero.api._ThumbnailStoreTie;
+import omero.api._IRepositoryInfoOperations;
+import omero.api._IRepositoryInfoTie;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -297,6 +302,22 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
                 prx = registerServant(servant, current, id);
             }
             return IUpdatePrxHelper.uncheckedCast(prx);
+        }
+    }
+
+    public IRepositoryInfoPrx getRepositoryInfoService(Ice.Current current) {
+        synchronized (updateKey) {
+            Ice.Identity id = getIdentity(current, updateKey);
+            String key = Ice.Util.identityToString(id);
+
+            Ice.ObjectPrx prx = servantProxy(id, current);
+            if (prx == null) {
+                _IRepositoryInfoOperations ops = createServantDelegate(
+                        _IRepositoryInfoOperations.class, IRepositoryInfo.class, key);
+                _IRepositoryInfoTie servant = new _IRepositoryInfoTie(ops);
+                prx = registerServant(servant, current, id);
+            }
+            return IRepositoryInfoPrxHelper.uncheckedCast(prx);
         }
     }
 

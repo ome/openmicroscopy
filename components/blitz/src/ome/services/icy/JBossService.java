@@ -18,7 +18,7 @@ import org.jboss.annotation.ejb.Management;
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
-import ome.services.hooks.StartupAndShutdown;
+import ome.services.jboss.StartupAndShutdown;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 

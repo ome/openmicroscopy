@@ -166,7 +166,7 @@ module omero {
 	nonmutating long getFreeSpaceInKilobytes() throws ServerError;
 	nonmutating double getUsageFraction() throws ServerError;
 	void sanityCheckRepository() throws ServerError;
-    }
+    };
 	
     interface RawFileStore extends ServiceInterface
     {
