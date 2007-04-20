@@ -17,13 +17,9 @@ import org.apache.log4j.Logger;
 
 // Application-internal dependencies
 import ome.api.IAdmin;
+import ome.api.IQuery;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.system.Login;
-import ome.system.Server;
-import ome.system.ServiceFactory;
-import ome.system.EventContext;
-import ome.api.IQuery;
 import ome.admin.controller.LoginBean;
 
 /**
@@ -54,67 +50,22 @@ public class ConnectionDB {
      */
 	private String userid;
 
-	/**
-     * Creates a new instance of ConnectionDB for {@link ome.admin.controller.LoginBean}.
-     * @param username {@link ome.model.meta.Experimenter#getOmeName()}. Not null.
-     * @param password Not-null. Might must pass validation in the security sub-system.
-     * @param server Not null.
-     * @param port Not null.
-     */
-	public ConnectionDB(String username, String password, String server,
-			int port) {
-		logger.info("Login - Service Factory connection to " + server + ":"
-				+ port + " by " + username + " ...");
-		try {
-
-			Login l = new Login(username, password, "system", "User");
-			Server s = new Server(server, port);
-			ServiceFactory sf = new ServiceFactory(s, l);
-			adminService = sf.getAdminService();
-			queryService = sf.getQueryService();
-			logger.info("Admin role for user "
-					+ adminService.getEventContext().getCurrentUserId());
-
-		} catch (Exception e) {
-
-			Login l = new Login(username, password, "user", "User");
-			Server s = new Server(server, port);
-			ServiceFactory sf = new ServiceFactory(s, l);
-			adminService = sf.getAdminService();
-			queryService = sf.getQueryService();
-			logger.info("User role for user "
-					+ adminService.getEventContext().getCurrentUserId());
-
-		}
-	}
-
     /**
      * Creates a new instance of ConnectionDB.
      */
+	@SuppressWarnings("deprecation")
 	public ConnectionDB() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		LoginBean lb = (LoginBean) facesContext.getApplication()
 				.getVariableResolver().resolveVariable(facesContext,
 						"LoginBean");
-		String username = lb.getUsername();
-		String password = lb.getPassword();
-		String server = lb.getServer();
-		int port = lb.getPort();
-
+		
 		this.userid = lb.getId();
 
-		logger.info("Service Factory connection to " + server + ":" + port
-				+ " by " + username + " ...");
-		String role = "user";
-		if (lb.getRole())
-			role = "system";
-
 		try {
-			Login l = new Login(username, password, role, "User");
-			Server s = new Server(server, port);
-			ServiceFactory sf = new ServiceFactory(s, l);
-			adminService = sf.getAdminService();
-			queryService = sf.getQueryService();
+			
+			adminService = lb.getAdminServices();
+			queryService = lb.getQueryServices();
 		} catch (Exception e) {
 			e.printStackTrace();
 
@@ -128,14 +79,6 @@ public class ConnectionDB {
 	public void changeMyPassword(String password) {
 		logger.info("changeMyPassword by user ID: " + userid);
 		adminService.changePassword(password);
-	}
-
-    /**
-     * Gets current {@link ome.system.EventContext}.
-     * @return {@link ome.system.EventContext}.
-     */
-	public EventContext getCurrentEventContext() {
-		return adminService.getEventContext();
 	}
 
     /**

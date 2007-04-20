@@ -239,7 +239,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Gets default wrapped {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
      * @return {@link java.util.List} never-null.
      */
-	public List getdefaultGroups() {
+	public List<SelectItem> getdefaultGroups() {
 		List<ExperimenterGroup> groups = iadmin.getGroupsAdd();
 		return wrapAsGUIList(groups);
 	}
@@ -249,11 +249,11 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * @param originalList {@link java.util.List} never-null.
      * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
      */
-	private static synchronized List wrapAsGUIList(List originalList) {
+	private static synchronized List<SelectItem> wrapAsGUIList(List<ExperimenterGroup> originalList) {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
 				.size());
 		for (int i = 0, n = originalList.size(); i < n; i++) {
-			ExperimenterGroup bean = (ExperimenterGroup) originalList.get(i);
+			ExperimenterGroup bean = originalList.get(i);
 			SelectItem item = new SelectItem(bean.getId().toString(), bean
 					.getName());
 			items.add(item);
@@ -265,7 +265,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Gets wrapped {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
      * @return {@link java.util.List}
      */
-	public List getOtherGroups() {
+	public List<SelectItem> getOtherGroups() {
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 		try {
 			groups = iadmin.getGroups();
@@ -282,7 +282,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Sets {@link ome.admin.controller.IAdminExperimenterController#selectedGroup}
      * @param groups {@link java.util.List}<{@link java.lang.String}>
      */
-	public void setSelectedGroup(List groups) {
+	public void setSelectedGroup(List<String> groups) {
 		this.selectedGroup = groups;
 	}
 
@@ -290,7 +290,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Gets {@link java.util.ArrayList}<{@link java.lang.String}>
      * @return {@link ome.admin.controller.IAdminExperimenterController#selectedGroup}
      */
-	public List getSelectedGroup() {
+	public List<String> getSelectedGroup() {
 		if (this.editMode) {
 			ExperimenterGroup[] exg = iadmin.containedGroups(this.experimenter
 					.getId());

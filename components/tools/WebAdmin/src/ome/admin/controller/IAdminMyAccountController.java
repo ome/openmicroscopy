@@ -67,6 +67,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
     /**
      * Creates a new instance of IAdminMyAccountController
      */
+	@SuppressWarnings("deprecation")
 	public IAdminMyAccountController() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		LoginBean lb = (LoginBean) facesContext.getApplication()
@@ -109,6 +110,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
     /**
      * Provides action for navigation rule "updateMyPassword" what is described in the faces-config.xml file. Changes the password for current {@link ome.model.meta.Experimenter}.
      */
+	@SuppressWarnings("deprecation")
 	public void updateMyPassword() {
 		if (!password2.equals(this.password)) {
 			FacesContext context = FacesContext.getCurrentInstance();

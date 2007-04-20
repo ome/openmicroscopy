@@ -16,8 +16,12 @@ import org.apache.log4j.Logger;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.connection.ConnectionDB;
+import ome.api.IAdmin;
+import ome.api.IQuery;
 import ome.system.EventContext;
+import ome.system.Login;
+import ome.system.Server;
+import ome.system.ServiceFactory;
 
 /**
  * It's the Java bean with eight attributes and setter/getter and action methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
@@ -63,6 +67,16 @@ public class LoginBean {
      */
 	private int port;
 
+    /**
+     * IAdmin
+     */
+	private IAdmin adminService;
+	
+    /**
+     * IAdmin
+     */
+	private IQuery queryService;
+	
     /**
      * log4j logger
      */
@@ -185,6 +199,14 @@ public class LoginBean {
 	public boolean isMode() {
 		return mode;
 	}
+	
+	public IAdmin getAdminServices() {
+		return this.adminService;
+	}
+	
+	public IQuery getQueryServices() {
+		return this.queryService;
+	}
 
     /**
      * Provides action for navigation rule "login" what is described in the faces-config.xml file.
@@ -195,11 +217,35 @@ public class LoginBean {
 		logger.info("User " + this.username + " has started to log in to app.");
 
 		this.mode = false;
-
+		
+		logger.info("Login - Service Factory connection to " + server + ":"
+				+ port + " by " + username + " ...");
 		try {
-			ConnectionDB db = new ConnectionDB(this.username, this.password,
-					this.server, this.port);
-			EventContext ctx = db.getCurrentEventContext();
+
+			Login l = new Login(username, password, "system", "User");
+			Server s = new Server(server, port);
+			ServiceFactory sf = new ServiceFactory(s, l);
+			this.adminService = sf.getAdminService();
+			this.queryService = sf.getQueryService();
+			logger.info("Admin role for user "
+					+ adminService.getEventContext().getCurrentUserId());
+
+		} catch (Exception e) {
+
+			Login l = new Login(username, password, "user", "User");
+			Server s = new Server(server, port);
+			ServiceFactory sf = new ServiceFactory(s, l);
+			this.adminService = sf.getAdminService();
+			this.queryService = sf.getQueryService();
+			logger.info("User role for user "
+					+ adminService.getEventContext().getCurrentUserId());
+
+		}
+		
+		
+		try {
+			
+			EventContext ctx = this.adminService.getEventContext();
 			this.id = ctx.getCurrentUserId().toString();
 			this.role = ctx.isCurrentUserAdmin();
 			this.mode = true;
