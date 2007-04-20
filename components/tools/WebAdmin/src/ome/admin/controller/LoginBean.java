@@ -153,7 +153,8 @@ public class LoginBean {
 	public String getServer() {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		this.server = fc.getExternalContext().getInitParameter(
-				"defaultServerHost");
+					"defaultServerHost");
+		
 		return this.server;
 	}
 
@@ -170,9 +171,9 @@ public class LoginBean {
      * @return int
      */
 	public int getPort() {
-		FacesContext fc = FacesContext.getCurrentInstance();
-		this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
-				"defaultServerPort"));
+			FacesContext fc = FacesContext.getCurrentInstance();
+			this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
+					"defaultServerPort"));
 		return this.port;
 	}
 
@@ -220,30 +221,30 @@ public class LoginBean {
 		
 		logger.info("Login - Service Factory connection to " + server + ":"
 				+ port + " by " + username + " ...");
+				
 		try {
+			
+			try {
 
-			Login l = new Login(username, password, "system", "User");
-			Server s = new Server(server, port);
-			ServiceFactory sf = new ServiceFactory(s, l);
-			this.adminService = sf.getAdminService();
-			this.queryService = sf.getQueryService();
-			logger.info("Admin role for user "
-					+ adminService.getEventContext().getCurrentUserId());
+				Login l = new Login(username, password, "system", "User");
+				Server s = new Server(server, port);
+				ServiceFactory sf = new ServiceFactory(s, l);
+				this.adminService = sf.getAdminService();
+				this.queryService = sf.getQueryService();
+				logger.info("Admin role for user "
+						+ adminService.getEventContext().getCurrentUserId());
 
-		} catch (Exception e) {
+			} catch (Exception e) {
 
-			Login l = new Login(username, password, "user", "User");
-			Server s = new Server(server, port);
-			ServiceFactory sf = new ServiceFactory(s, l);
-			this.adminService = sf.getAdminService();
-			this.queryService = sf.getQueryService();
-			logger.info("User role for user "
-					+ adminService.getEventContext().getCurrentUserId());
+				Login l = new Login(username, password, "user", "User");
+				Server s = new Server(server, port);
+				ServiceFactory sf = new ServiceFactory(s, l);
+				this.adminService = sf.getAdminService();
+				this.queryService = sf.getQueryService();
+				logger.info("User role for user "
+						+ adminService.getEventContext().getCurrentUserId());
 
-		}
-		
-		
-		try {
+			}
 			
 			EventContext ctx = this.adminService.getEventContext();
 			this.id = ctx.getCurrentUserId().toString();
