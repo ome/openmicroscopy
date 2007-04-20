@@ -10,24 +10,21 @@ package ome.connection;
 // Java imports
 import java.util.ArrayList;
 import java.util.List;
+import javax.faces.context.FacesContext;
 
+// Third-party libraries
+import org.apache.log4j.Logger;
+
+// Application-internal dependencies
 import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
-import ome.api.IQuery;
 import ome.system.EventContext;
-
-import javax.faces.context.FacesContext;
+import ome.api.IQuery;
 import ome.admin.controller.LoginBean;
-
-import org.apache.log4j.Logger;
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * ConnectionDB providing access to user/admin-only functionality based server access by {@link ome.system.ServiceFactory} and selected user functions. Most methods require membership in privileged.

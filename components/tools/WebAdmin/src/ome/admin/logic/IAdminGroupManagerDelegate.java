@@ -8,19 +8,17 @@
 package ome.admin.logic;
 
 // Java imports
-import ome.connection.ConnectionDB;
-import ome.model.meta.ExperimenterGroup;
-
-import org.apache.commons.beanutils.BeanUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 // Third-party libraries
+import org.apache.commons.beanutils.BeanUtils;
 
 // Application-internal dependencies
+import ome.connection.ConnectionDB;
+import ome.model.meta.ExperimenterGroup;
 
 /**
  * Delegate of group mangement.

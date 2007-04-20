@@ -8,19 +8,17 @@
 package ome.admin.controller;
 
 // Java imports
-import ome.admin.logic.IAdminGroupManagerDelegate;
-
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import ome.model.meta.ExperimenterGroup;
-
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.admin.logic.IAdminGroupManagerDelegate;
+import ome.model.meta.ExperimenterGroup;
 
 /**
  * It's the Java bean with six attributes and setter/getter and actions methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.

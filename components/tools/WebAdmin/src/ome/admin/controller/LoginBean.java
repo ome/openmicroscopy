@@ -11,15 +11,13 @@ package ome.admin.controller;
 import javax.ejb.EJBAccessException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-
-import ome.connection.ConnectionDB;
-import ome.system.EventContext;
-
 import org.apache.log4j.Logger;
 
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.connection.ConnectionDB;
+import ome.system.EventContext;
 
 /**
  * It's the Java bean with eight attributes and setter/getter and action methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
