@@ -28,7 +28,7 @@
 	</c:if>
 	<c:if
 		test="${sessionScope.LoginBean.role && sessionScope.LoginBean.mode}">
-		<li><a href="./logout.html">${msg.headerLogout}</a></li>
+		<li><a href="./logout">${msg.headerLogout}</a></li>
 	</c:if>
 </ul>
 
