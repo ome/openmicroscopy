@@ -63,12 +63,24 @@
 	</servlet>
 
 	<!-- Faces Servlet Mapping -->
-
 	<servlet-mapping>
 		<servlet-name>FacesServlet</servlet-name>
 		<url-pattern>*.html</url-pattern>
 	</servlet-mapping>
 
+	<!-- Logout Servlet -->
+	<servlet>
+		<servlet-name>Logout</servlet-name>
+		<servlet-class>ome.admin.controller.Logout</servlet-class>
+	</servlet>
+
+	<!-- Logout Mapping -->
+	<servlet-mapping>
+		<servlet-name>Logout</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+
+	<!-- Tails Servlet -->
 	<servlet>
 		<servlet-name>tiles</servlet-name>
 		<servlet-class>
@@ -90,6 +102,7 @@
 		<taglib-location>/WEB-INF/html_basic_mod.tld</taglib-location>
 	</taglib>
 
+	<!-- Faces -->
 	<listener>
 		<listener-class>
 			org.apache.myfaces.webapp.StartupServletContextListener
