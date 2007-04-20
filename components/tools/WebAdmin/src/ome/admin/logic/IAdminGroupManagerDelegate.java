@@ -1,14 +1,13 @@
 /*
- * IAdminGroupManagerDelegate.java
- *
- * Created on March 14, 2007, 10:20 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
+* ome.admin.logic
+*
+*   Copyright 2007 University of Dundee. All rights reserved.
+*   Use is subject to license terms supplied in LICENSE.txt
+*/
 
 package ome.admin.logic;
 
+// Java imports
 import ome.connection.ConnectionDB;
 import ome.model.meta.ExperimenterGroup;
 
@@ -19,9 +18,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// Third-party libraries
+
+// Application-internal dependencies
+
 /**
- * 
- * @author Ola
+ * Delegate of group mangement.
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
  */
 public class IAdminGroupManagerDelegate implements java.io.Serializable {
 
@@ -30,10 +35,19 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+    /**
+     * {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}
+     */
 	private List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 
+    /**
+     * {@link java.lang.String} set by "name";
+     */
 	private String sortByProperty = "name";
 
+    /**
+     * {@link java.util.Comparator}
+     */
 	private transient final Comparator propertyAscendingComparator = new Comparator() {
 		public int compare(Object object1, Object object2) {
 			try {
@@ -50,6 +64,9 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 		}
 	};
 
+    /**
+     * {@link java.util.Comparator}
+     */
 	private transient final Comparator propertyDescendingComparator = new Comparator() {
 		public int compare(Object object1, Object object2) {
 			try {
@@ -66,24 +83,46 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 		}
 	};
 
+    /**
+     * {@link ome.connection.ConnectionDB}
+     */
 	ConnectionDB db = new ConnectionDB();
 	{
 		getGroups();
 	}
 
+    /**
+     * Gets {@link ome.model.meta.ExperimenterGroup} by {@link ome.model.meta.ExperimenterGroup#getId()}.
+     * @param id {@link ome.model.meta.ExperimenterGroup#getId()}.
+     * @return {@link ome.model.meta.ExperimenterGroup}.
+     */
 	public ExperimenterGroup getGroupById(Long id) {
 		return (ExperimenterGroup) db.getGroup(id);
 	}
 
+    /**
+     * Gets {@link java.util.List} of {@link ome.model.meta.ExperimenterGroup}.
+     * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+     */
 	public List<ExperimenterGroup> getGroups() {
 		this.groups = db.lookupGroups();
 		return this.groups;
 	}
 
+    /**
+     * Adds new {@link ome.model.meta.ExperimenterGroup}.
+     * @param group {@link ome.model.meta.ExperimenterGroup}.
+     */
 	public void addGroup(ExperimenterGroup group) {
 		db.createGroup(group);
 	}
 
+    /**
+     * {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+     * @param sortItem {@link java.lang.String}.
+     * @param sort {@link java.lang.String}.
+     * @return {@link java.util.List}<{@link ome.model.meta.ExperimenterGroup}>.
+     */
 	public List<ExperimenterGroup> sortItems(String sortItem, String sort) {
 		this.groups = getGroups();
 		sortByProperty = sortItem;
@@ -94,19 +133,27 @@ public class IAdminGroupManagerDelegate implements java.io.Serializable {
 		return groups;
 	}
 
-	public ExperimenterGroup readGroup(int id) {
-		ExperimenterGroup group = (ExperimenterGroup) this.groups.get(id);
-		return group;
-	}
 
+    /**
+     * Update {@link ome.model.meta.ExperimenterGroup}.
+     * @param group {@link ome.model.meta.ExperimenterGroup}.
+     */
 	public void updateGroup(ExperimenterGroup group) {
 		db.updateGroup(group);
 	}
 
+    /**
+     * Delete {@link ome.model.meta.ExperimenterGroup}.
+     * @param id {@link ome.model.meta.ExperimenterGroup#getId()}.
+     */
 	public void deleteGroup(Long id) {
 		db.deleteGroup(id);
 	}
 
+    /**
+     * Sort {@link ome.model.meta.ExperimenterGroup} by {@link java.util.Comparator}
+     * @param comparator {@link java.util.Comparator}.
+     */
 	private void sort(Comparator comparator) {
 		Collections.sort(groups, comparator);
 	}
