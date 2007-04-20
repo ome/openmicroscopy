@@ -94,14 +94,6 @@ module omero {
       nonmutating omero::Time getServerTime() throws ServerError;
     };
 
-    interface IRepositoryInfo extends ServiceInterface
-    {
-      nonmutating long getUsedSpaceInKilobytes() throws ServerError;
-      nonmutating long getFreeSpaceInKilobytes() throws ServerError;
-      nonmutating double getUsageFraction() throws ServerError;
-      void sanityCheckRepository() throws ServerError;
-    };
-
 
     interface IPixels extends ServiceInterface
     {
@@ -167,7 +159,15 @@ module omero {
       IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
       void deleteObject(omero::model::IObject row) throws ServerError;
     };
-
+	
+    interface IRepositoryInfo extends ServiceInterface
+    {
+	nonmutating long getUsedSpaceInKilobytes() throws ServerError;
+	nonmutating long getFreeSpaceInKilobytes() throws ServerError;
+	nonmutating double getUsageFraction() throws ServerError;
+	void sanityCheckRepository() throws ServerError;
+    }
+	
     interface RawFileStore extends ServiceInterface
     {
       void setFileId(long fileId) throws ServerError;
@@ -271,6 +271,7 @@ module omero {
       RawPixelsStore* createRawPixelsStore();
       RenderingEngine* createRenderingEngine();
       ThumbnailStore* createThumbnailStore();
+      IRepositoryInfo* getRepositoryInfoService();
 
       ServiceInterface* getByName(string name) throws ServerError;
       void setCallback(SimpleCallback* callback);
