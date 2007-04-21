@@ -19,40 +19,15 @@
 
 <beans>	
 
-  <description>
-
-  Service implementation ("internal:") and wrapper ("managed:") for the 
-  ome.api.IRepositoryInfo interface. 
-
-  managed:ome.api.IRepositoryInfo - This is for remoting and should only be apply 
-    interceptors to the "internal" version below. essentially ignore.
-  internal:ome.api.IRepositoryInfo - This is the bean that needs to have items 
-    injected. Used server side. If not available, everyone has to go 
-    through the levels of interception
-
-  </description>
-
-  <bean parent="level2" id="internal:ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
-
-    <description>
-
-    The implementation of our interface. Provided three methods, getUsedSpaceInKilobytes(),
-    getFreeSpaceInKilobytes(), and getUsageFraction()
-
-    </description>
+  <bean id="internal:ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
     <property name="datadir" value="${omero.data.dir}"/>
     <property name="rootdir" value="${omero.root.dir}"/>
-    
   </bean>
   
+  
   <bean id="managed:ome.api.IRepositoryInfo" parent="managedService">
-
-    <description>
-
-    An AOP-wrapped proxy for our implementation. Enforces all server policies.
-
-    </description>
-    <property name="proxyInterfaces" value="ome.api.IRepositoryInfo"/>
+	<property name="proxyInterfaces" value="ome.api.IRepositoryInfo"/>
     <property name="target" ref="internal:ome.api.IRepositoryInfo"/>
   </bean>
+
 </beans>

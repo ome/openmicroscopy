@@ -127,6 +127,11 @@
     <property name="proxyInterface" value="ome.services.licenses.ILicense"/>
   </bean>
 
+  <bean id="managed:ome.api.IRepositoryInfo" parent="statelessJndi">
+    <property name="jndiName" value="omero/remote/ome.api.IRepositoryInfo"/>
+    <property name="proxyInterface" value="ome.api.IRepositoryInfo"/>
+  </bean>
+
   <!--
       STATEFUL SERVICES
   -->

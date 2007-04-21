@@ -22,6 +22,7 @@ import omero.api.IPojosPrx;
 import omero.api.IQueryPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
+import omero.api.IRepositoryInfoPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
@@ -223,6 +224,15 @@ public class IceServiceFactory {
      */
     public ThumbnailStorePrx createThumbnailStore(Map __ctx) {
         return sf.createThumbnailStore(__ctx);
+    }
+
+    /**
+     * @param __ctx
+     * @return
+     * @see omero.api.ServiceFactoryPrx#getRepositoryInfoService(java.util.Map)
+     */
+    public IRepositoryInfoPrx getRepositoryInfoService(Map __ctx) {
+        return sf.getRepositoryInfoService(__ctx);
     }
 
     /**

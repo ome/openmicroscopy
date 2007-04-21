@@ -49,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Local(IRepositoryInfo.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IRepositoryInfo")
 @SecurityDomain("OmeroSecurity")
-@Interceptors( { SimpleLifecycle.class })
+@Interceptors({ SimpleLifecycle.class })
 public class RepositoryInfoImpl extends AbstractLevel2Service implements IRepositoryInfo {
 	
 	/* The logger for this class. */
@@ -135,7 +135,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements IReposi
 	 * Bean injection setter for data repository directory
 	 * @param datadir
 	 */
-	public final void setDatadir(String datadir) {
+	public void setDatadir(String datadir) {
 		this.datadir = datadir;
 	}
 
@@ -143,7 +143,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements IReposi
 	 * Bean injection setter for the root directory or mount of data repository
 	 * @param rootdir
 	 */
-	public final void setRootdir(String rootdir) {
+	public void setRootdir(String rootdir) {
 		this.rootdir = rootdir;
 	}
    
