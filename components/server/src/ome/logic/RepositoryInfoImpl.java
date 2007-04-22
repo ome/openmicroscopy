@@ -114,7 +114,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements IReposi
 
 		try {
 			if (getUsedSpaceInKilobytes() > 0) {
-				result = getUsedSpaceInKilobytes()/getFreeSpaceInKilobytes();
+				Double used = new Double(getUsedSpaceInKilobytes());
+				Double free = new Double(getFreeSpaceInKilobytes());
+				result = used / free;
 			}
 		}
 		catch (InternalException iex) {
