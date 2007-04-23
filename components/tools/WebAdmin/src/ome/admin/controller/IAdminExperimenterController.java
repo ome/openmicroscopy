@@ -308,7 +308,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Gets {@link ome.admin.controller.IAdminExperimenterController#adminRole}
      * @return boolean
      */
-	public boolean getAdminRole() {
+	public boolean isAdminRole() {
 		try {
 			if (this.editMode)
 				this.adminRole = iadmin.isAdmin(this.experimenter.getId());
@@ -333,7 +333,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Gets {@link ome.admin.controller.IAdminExperimenterController#userRole}
      * @return boolean
      */
-	public boolean getUserRole() {
+	public boolean isUserRole() {
 		try {
 			if (this.editMode)
 				this.userRole = iadmin.isUser(this.experimenter.getId());

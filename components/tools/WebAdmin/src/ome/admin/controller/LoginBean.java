@@ -30,9 +30,14 @@ import ome.system.ServiceFactory;
  * @since OME3.0
  */
 
-public class LoginBean {
+public class LoginBean implements java.io.Serializable{
 	
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * {@link ome.model.meta.Experimenter#getId()}
      */
 	private String username;
@@ -171,8 +176,8 @@ public class LoginBean {
      * @return int
      */
 	public int getPort() {
-			FacesContext fc = FacesContext.getCurrentInstance();
-			this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
+		FacesContext fc = FacesContext.getCurrentInstance();
+		this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
 					"defaultServerPort"));
 		return this.port;
 	}
