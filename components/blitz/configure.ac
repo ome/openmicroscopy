@@ -26,12 +26,6 @@ AC_ARG_WITH(ice,
              AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
              AC_MSG_NOTICE(using Ice library directory... $withval/lib)])
 
-dnl Check for CPPUnit
-ifdef([AM_PATH_CPPUNIT], [
-			 AM_PATH_CPPUNIT(1.9.6)
-			 AM_CONDITIONAL(CPPUNIT, true)], 
-			 [AM_CONDITIONAL(CPPUNIT, false)])
-
 dnl Automake time
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
@@ -40,7 +34,6 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 
 dnl Do it early just in case any weird checks require it...
@@ -93,6 +86,21 @@ AC_CHECK_LIB([IceUtil], [main], TESTLIBS="$TESTLIBS -lIceUtil", [
     AC_MSG_ERROR([*** blitz C++ requires libIceUtil; (library not found) ***])])
 AC_CHECK_HEADER(IceUtil/UUID.h, LIBICEUTIL='yes', AC_MSG_ERROR([
 *** OMERO.blitz for C++ requires libIceUtil; (Required Ice headers not found) ***]))
+
+dnl Check for -lboost_unit_test_framework
+AC_CHECK_HEADER([boost/test/auto_unit_test.hpp], 
+						  AM_CONDITIONAL(BOOST_TEST,true), 
+						  AM_CONDITIONAL(BOOST_TEST,false))
+dnl AC_CHECK_LIB([boost_unit_test_framework-gcc-d-1_33_1], [main],
+dnl 					      [TESTLIBS="$TESTLIBS -lboost_unit_test_framework-gcc-d-1_33_1"
+dnl					      AM_CONDITIONAL(BOOST_TEST, true)],
+dnl					      AM_CONDITIONAL(BOOST_TEST, false))
+
+dnl Check for CPPUnit
+ifdef([AM_PATH_CPPUNIT], [
+			 AM_PATH_CPPUNIT(1.9.6)
+			 AM_CONDITIONAL(CPPUNIT, true)], 
+			 [AM_CONDITIONAL(CPPUNIT, false)])
 
 AC_CONFIG_FILES([Makefile
 		 src/cpp/Makefile

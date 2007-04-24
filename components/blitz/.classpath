@@ -1,4 +1,4 @@
-p<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/.svn|cpp/**" kind="src" path="src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="resources"/>

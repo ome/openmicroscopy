@@ -7,7 +7,6 @@
  */
 
 #include <OMERO/client.h>
-#include <OMERO/common.h>
 
 using namespace std;
 

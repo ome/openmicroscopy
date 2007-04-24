@@ -6,6 +6,9 @@
  *
  */
 
+#ifndef OMERO_CLIENT_H
+#define OMERO_CLIENT_H
+
 #include <OMERO/common.h>
 #include <OMERO/types.h>
 #include <Ice/Ice.h>
@@ -96,3 +99,5 @@ namespace OMERO {
   };
 
 }
+
+#endif // OMERO_CLIENT_H

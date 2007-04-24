@@ -124,25 +124,42 @@ DEFAULT CONSTRUCTOR BLOCK:
 [hdr]     ${PojoI}();
 [cpp]     ${PojoI}::${PojoI}() {
 [cpp]         loaded = true;
+[cpp]         toggleCollectionsLoaded(true);
 [jav]         loaded = true;
+[jav]         toggleCollectionsLoaded(true);
+[jav]    }
+[cpp]    }
 
-#foreach( $property in $pojo.propertyClosureForFullConstructor())
+TOGGLE COLLECTIONS:
+
+[jav]    public void toggleCollectionsLoaded(boolean load) {
+[hdr]    void toggleCollectionsLoaded(bool load);
+[cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
+#foreach( $property in $pojo.propertyClosureForFullConstructor)
 #set(     $name = $pojo.getPropertyName($property))
 #set(     $javaType = $c2j.getJavaTypeName($property,false))##generics
 #set(     $seqName = "${Pojo}${name.substring(0,1).toUpperCase()}${name.substring(1,$name.length())}Seq" )## seqName copied from ice_defs.vm
-#if(      $javaType.startsWith("java.util.Set") )
 
-[jav]        set${name}(new java.util.HashSet());
-[cpp]        set${name}($seqName());
+Here we don't have to keep up with the type (set/list)
+since all collections are lists in ice.
 
-#elseif(  $javaType.startsWith("java.util.List") )
- 
-[jav]        set${name}(new java.util.ArrayList());
-[cpp]        set${name}($seqName());
-
+#if(      $javaType.startsWith("java.util.Set") || $javaType.startsWith("java.util.List"))
+[jav]        if (load) { 
+[jav]          ${property.name} = new ArrayList(); 
+[jav]          ${property.name}Loaded = false;
+[jav]        } else { 
+[jav]          ${property.name} = null; 
+[jav]          ${property.name}Loaded = false;
+[jav]        }
+[cpp]        if (load) { 
+[cpp]          ${property.name} = ${seqName}(); 
+[cpp]          ${property.name}Loaded = true;
+[cpp]        } else { 
+[cpp]          ${property.name} = (${seqName})0;
+[cpp]          ${property.name}Loaded = false; 
+[cpp]        }
 #end
 #end
-
 [jav]    }
 [cpp]    }
 
@@ -159,6 +176,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 [cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) {
 [cpp]      id = idPtr;
 [cpp]      loaded = isLoaded; 
+[cpp]      toggleCollectionsLoaded(isLoaded);
 [cpp]    }
 
 UNLOAD BLOCK:
@@ -168,49 +186,13 @@ UNLOAD BLOCK:
 [cpp]  void ${PojoI}::unload(const Ice::Current& c) {
 [jav]      loaded = false;
 [cpp]      loaded = false;
-#foreach($property in $pojo.propertyClosureForFullConstructor())
-#set( $field = "${property.name}")
-#set( $seqName = "${Pojo}${field.substring(0,1).toUpperCase()}${field.substring(1,$field.length())}Seq" )## seqName copied from ice_defs.vm
-#set( $name = $pojo.getPropertyName($property) )
-#set( $javaType = $c2j.getJavaTypeName($property,false))##generics
-#set( $shortType = $c2j.unqualify($javaType) )
+#foreach($property in $pojo.propertyClosureForFullConstructor)
 #if(!$clazz.identifierProperty.equals($property))
-## IF JAVA_TYPE (see copy() method below)
-#if( $javaType.startsWith("ome"))
-#set( $javaType = "omero::model::${shortType}Ptr" )
-#elseif( $javaType.startsWith("IObject"))
-#set( $javaType = "omero::model::IObjectPtr")
-#elseif( $javaType.startsWith("java.util.List"))
-#set( $javaType = "$seqName" )
-#set( $prefix = "${property.name} == 0 ? 0 /*FIXME*/ : " ) ## TODO or just null?
-#set( $unloadedstmt = "if (${property.name} > 0) { ${property.Name}Loaded = true; } else { ${property.Name}Loaded = false; }" )
-#elseif( $javaType.startsWith("java.util.Set"))
-#set( $javaType = "$seqName" )
-#set( $prefix = "${property.name} == 0 ? 0 /*FIXME*/ : " ) ## TODO or just null?
-#set( $unloadedstmt = "if (${property.name} > 0) { ${property.Name}Loaded = true; } else { ${property.Name}Loaded = false; }" )
-#elseif( $javaType.startsWith("java.lang.Boolean"))
-#set( $javaType   = "omero::RBoolPtr" )
-#elseif( $javaType.startsWith("java.lang.Integer"))
-#set( $javaType   = "omero::RIntPtr" )
-#elseif( $javaType.startsWith("java.lang.Long"))
-#set( $javaType   = "omero::RLongPtr" )
-#elseif( $javaType.startsWith("java.lang.Double"))
-#set( $javaType   = "omero::RDoublePtr" )
-#elseif( $javaType.startsWith("java.lang.Float"))
-#set( $javaType   = "omero::RFloatPtr" )
-#elseif( $javaType.startsWith("long")) ## for Permissions
-#set( $javaType = "long" )
-#elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
-#set( $javaType = "omero::RTimePtr" )
-#elseif( $javaType.startsWith("java.lang.String")) ## for Event
-#set( $javaType = "omero::RStringPtr" )
-#else
-ERROR ========> $property
-#end##JAVA_TYPE
-[jav]      set$name( null );
-[cpp]      set$name( ($cppType) 0 );
-#end##NON-ID
-#end##FOREACH
+#set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
+[jav]      unload${PropertyName}( );
+[cpp]      unload${PropertyName}( );
+#end
+#end
 [jav]    }
 [cpp]    }
 
@@ -219,7 +201,8 @@ ACCESSORS BLOCK:
 Copied from pojo/PropertyAccessors.vm.
 These mappings are from HibernateTypes-->IceTypes
 
-#foreach($property in $pojo.propertyClosureForFullConstructor)
+#foreach($property in $pojo.propertyClosureForFullConstructor)#############
+
 #set( $name = $pojo.getPropertyName($property))
 #set( $javaType = $c2j.getJavaTypeName($property,false))##generics
 #set( $shortType = $c2j.unqualify($javaType) )
@@ -310,18 +293,33 @@ JAVA_TYPE (see copy() method below)
 
 #end##JAVA_TYPE
 
+
 ASSOCIATION TYPES BLOCK:
 
 #set( $hasSet  = $c2j.hasMetaAttribute($property, "set-add-method"))
 #set( $hasLink = $c2j.hasMetaAttribute($property, "link-add-method") )
 
-Original accessors: will have their visibility reduced if
-the special set methods are added.
-
 #set( $access = "protected" )
+#set( $unloadIfIsSet = "${property.Name}Loaded = false;")
 #if( !$hasSet && !$hasLink)
 #set( $access = "public" )
+#set( $unloadIfIsSet = "");
 #end
+
+Unload
+
+[jav]    public void unload${PropertyName}() {
+[jav]      ${unloadIfIsSet}
+[jav]      ${property.name} = null;
+[jav]    }
+[hdr]    void unload${PropertyName}();
+[cpp]    void ${PojoI}::unload${PropertyName}() {
+[cpp]      ${unloadIfIsSet}
+[cpp]      ${property.name} = ($cppType) 0;
+[cpp]    }
+
+Original accessors: will have their visibility reduced if
+the special set methods are added.
 
 [jav]    $access $javaType $pojo.getGetterSignature($property)() {
 [jav]        errorIfUnloaded();
@@ -358,8 +356,8 @@ One-to-many extras:
 [jav]      errorIfUnloaded();
 [jav]      return ${propLoaded} ? ${property.name}.size() : -1;
 [jav]    }
-[hdr]    int sizeOf${PropertyName}();
-[cpp]    int ${PojoI}::sizeOf${PropertyName}() {
+[hdr]    ${cppType}::size_type sizeOf${PropertyName}();
+[cpp]    ${cppType}::size_type ${PojoI}::sizeOf${PropertyName}() {
 [cpp]      errorIfUnloaded();
 [cpp]      return ${propLoaded} ? ${property.name}.size() : -1;
 [cpp]    }
@@ -371,7 +369,22 @@ One-to-many extras:
 [jav]      }
 [jav]      return get${PropertyName}().iterator();
 [jav]    }
-[hdr]    // TODO c++ iterator (may have to be set<or>list specific)
+[hdr]    $cppType::iterator begin${PropertyName}();
+[hdr]    $cppType::iterator end${PropertyName}();
+[cpp]    $cppType::iterator ${PojoI}::begin${PropertyName}(){
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) {
+[cpp]        throwNullCollectionException("${property.name}");
+[cpp]      }
+[cpp]      return ${property.name}.begin();
+[cpp]    }
+[cpp]    $cppType::iterator ${PojoI}::end${PropertyName}(){
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) {
+[cpp]        throwNullCollectionException("${property.name}");
+[cpp]      }
+[cpp]      return ${property.name}.end();
+[cpp]    }
 
 [jav]    public List<$javaType> copy${PropertyName}() {
 [jav]      errorIfUnloaded();
@@ -393,15 +406,18 @@ One-to-many extras:
 #end
 
 
-[all] // Because of the ice inheritance hierarchy, we must use direct
-[all] // field access on several methods below.
-
+------------------------------------------------------------
+Because of the ice inheritance hierarchy, we must use direct
+field access on several methods below.
+------------------------------------------------------------
 
 Set modifications:
 
 #if( $hasSet )
 #set( $inverse = $c2j.getMetaAsString($property, "set-add-method"))
 #set( $Inverse = $pojo.beanCapitalize( $inverse) )
+
+add single
 
 [jav]    public void add${elementName}(${elementName} target) {
 [jav]      errorIfUnloaded();
@@ -416,6 +432,8 @@ Set modifications:
 [cpp]      get${PropertyName}().push_back( target );
 [cpp]      target->$inverse = this;
 [cpp]    }
+
+add set
 
 [jav]    public void add${elementName}Set(Collection<${elementName}> targets) {
 [jav]      errorIfUnloaded();
@@ -439,9 +457,208 @@ Set modifications:
 [cpp]      } 
 [cpp]    }
 
-#end
+remove single
 
-#end##FOREACH
+#set( $removePredicate = "testRemove${elementName}From${PojoI}" )
+[cpp] struct $removePredicate
+[cpp] {
+[cpp]     const ${elementName}Ptr t;
+[cpp]     ${removePredicate}(const ${elementName}Ptr n) : t(n) {}
+[cpp]     bool operator()(${elementName}Ptr const& o) {
+[cpp]         return o == t;
+[cpp]     }
+[cpp] 
+[cpp] };
+
+[jav]    public void remove${elementName}(${elementName} target) {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      get${PropertyName}().remove( target );
+[jav]      target.$inverse = null;
+[jav]    }
+[hdr]    void remove${elementName}(${elementName}Ptr target);
+[cpp]    void ${PojoI}::remove${elementName}(${elementName}Ptr target) {
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[cpp]      $cppType::iterator it = std::remove_if(
+[cpp]        ${property.name}.begin(),
+[cpp]        ${property.name}.end(),
+[cpp]        ${removePredicate}(target));
+[cpp]      ${property.name}.erase(it,${property.name}.end());
+[cpp]      target->$inverse = (${PojoI}Ptr)0;
+[cpp]    }
+
+remove multiple
+
+#set( $removeSetPredicate = "testRemove${elementName}SetFrom${PojoI}" )
+[cpp] struct ${removeSetPredicate}
+[cpp] {
+[cpp]     const ${cppType} t;
+[cpp]     ${removeSetPredicate}(const ${cppType} n) : t(n) {}
+[cpp]     bool operator()(${elementName}Ptr const& o) {
+[cpp]         return std::find(t.begin(), t.end(), o) != t.end();
+[cpp]     }
+[cpp] 
+[cpp] };
+
+
+[jav]    public void remove${elementName}Set(Collection<${elementName}> targets) {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      for( ${elementName} elt : targets) {
+[jav]        elt.$inverse = null;
+[jav]        ${property.name}.remove( elt );
+[jav]      }
+[jav]    }
+[hdr]    void remove${elementName}Set($cppType targets);
+[cpp]    void ${PojoI}::remove${elementName}Set($cppType targets) {
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[cpp]      ${cppType}::iterator end = ${property.name}.end(); 
+[cpp]      ${cppType}::iterator removed = std::remove_if(
+[cpp]        ${property.name}.begin(), end,
+[cpp]        $removeSetPredicate(targets));
+[cpp]      ${cppType}::iterator beg(removed);
+[cpp]      for(; beg != end; beg++) {
+[cpp]        (*beg)->$inverse = (${PojoI}Ptr)0; 
+[cpp]      }
+[cpp]      ${property.name}.erase(removed,end);
+[cpp]    }
+
+clear
+
+[jav]    public void clear${PropertyName}() {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      for( ${elementName} elt : (Collection<${elementName}>)${property.name}) {
+[jav]        elt.$inverse = null;
+[jav]      }
+[jav]      ${property.name}.clear();
+[jav]    }
+[hdr]    void clear${PropertyName}();
+[cpp]    void ${PojoI}::clear${PropertyName}() {
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[cpp]      $cppType::iterator beg = ${property.name}.begin();
+[cpp]      $cppType::iterator end = ${property.name}.end();
+[cpp]      for(; beg != end; beg++) {
+[cpp]        (*beg)->$inverse = (${PojoI}Ptr)0;
+[cpp]      }
+[cpp]      ${property.name}.clear();
+[cpp]    }
+
+Link Modifications
+
+#elseif( $hasLink )
+
+Here our "elements" from the above are the links which themselves
+have linked elements.
+
+#set( $linkedType = $c2j.getMetaAsString($property, "link-add-method"))
+#set( $linkedName = $c2j.unqualify( $linkedType ) )
+#set( $LinkType = $elementType )
+#set( $Link = $c2j.unqualify( $LinkType ) )
+#set( $order = $c2j.getMetaAsString($property, "link-add-order"))
+#set( $next = $c2j.getMetaAsString($property, "link-add-next"))
+#set( $other = $c2j.getMetaAsString($property, "link-add-other"))
+#set( $bidir = $c2j.getMetaAsBool($property, "link-add-bidir"))
+
+[jav]    public void link${linkedName}(${linkedName} addition) {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      ${Link}I link = new ${Link}I();
+[jav]      link.link( ${order} );
+[jav]      add${Link}( link, true );
+[jav]    }
+[hdr]    void link${linkedName}(${linkedName}Ptr addition);
+[cpp]    void ${PojoI}::link${linkedName}(${linkedName}Ptr addition) {
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[cpp]      ${Link}IPtr link = new ${Link}I();
+[cpp]      link->link( ${order} );
+[cpp]      add${Link}( link, true );
+[cpp]    }
+
+TODO: do we need to do link.parent = ...;
+
+[jav]    public void add${Link}(${Link} link, boolean bothSides) {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      ${property.name}.add( link );
+#if($bidir)
+TODO: Should we check for nulls in other?
+[jav]      if (bothSides && link.${other}.loaded ) {
+[jav]        ((${linkedName}I)link.${other}).add${Link}( link, false );
+[jav]      }
+#end
+[jav]    }
+[hdr]    void add${Link}(${Link}Ptr link, bool bothSides);
+[cpp]    void ${PojoI}::add${Link}(${Link}Ptr link, bool bothSides) {
+[cpp]      errorIfUnloaded();
+[cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[cpp]      ${property.name}.push_back( link );
+#if($bidir)
+[cpp]      if (bothSides && link->${other}->loaded ) {
+[cpp]        ${linkedName}IPtr::dynamicCast(link->${other})->add${Link}( link, false );
+[cpp]      }
+#end
+[cpp]    }
+
+[jav]    public Iterator<${linkedName}> linked${linkedName}Iterator() {
+[jav]      errorIfUnloaded();
+[jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
+[jav]      return null;
+[jav]    }
+[hdr]    std::vector<${linkedName}Ptr>::iterator linked${linkedName}();
+[cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}() {
+[cpp]      errorIfUnloaded();
+[cpp]      std::vector<${linkedName}Ptr>::iterator result;
+[cpp]      return result;
+	TODO------------
+[cpp]    }
+
+
+#end
+#end##FOREACH#####################################################
+
+CLASS-LEVEL EXTRA METHODS:
+
+#if( $c2j.hasMetaAttribute($clazz, "link-parent") )
+#set( $parent = $c2j.unqualify( $c2j.getMetaAsString($clazz, "link-parent")))
+#set( $child =  $c2j.unqualify( $c2j.getMetaAsString($clazz, "link-child" )))
+
+TODO: Should these be <>I or not?
+
+[jav] public void link(${parent} parent, ${child} child) {
+[jav]   errorIfUnloaded();
+[jav]   setParent( parent );
+[jav]   setChild( child );
+[jav] }
+[jav] public ${parent} parent() {
+[jav]   errorIfUnloaded();
+[jav]   return (${parent}) parent;
+[jav] }
+[jav] public ${child}I child() {
+[jav]   errorIfUnloaded();
+[jav]   return (${child}I) child;
+[jav] }
+[hdr] void link(${parent}Ptr parent, ${child}Ptr child);
+[hdr] ${parent}Ptr castParent();
+[hdr] ${child}Ptr castChild();
+[cpp] void ${PojoI}::link(${parent}Ptr parent, ${child}Ptr child) {
+[cpp]   errorIfUnloaded();
+[cpp]   setParent( parent );
+[cpp]   setChild(  child  );
+[cpp] }
+[cpp] ${parent}Ptr ${PojoI}::castParent() {
+[cpp]   errorIfUnloaded();
+[cpp]   return ${parent}Ptr::dynamicCast( getParent() );
+[cpp] }
+[cpp] ${child}Ptr ${PojoI}::castChild() {
+[cpp]   errorIfUnloaded();
+[cpp]   return ${child}Ptr::dynamicCast( getChild() );
+[cpp] }
+#end
 
 
 COPYOBJECT BLOCK:
@@ -548,3 +765,9 @@ NON-ABSTRACT BlOCK:
 #endif // ${pojo.declarationName.toUpperCase()}I_H
 #end
 #stop
+X-VM-v5-Data: ([t nil t nil nil nil nil nil nil]
+	["6393" "Tuesday" "24" "April" "2007" "03:08:21" "-0500" "NYTimes.com" "nytdirect@nytimes.com" nil "237" "Today's Headlines: Democrats Back Date for Start of Iraq Pullout" "^From:" nil nil "4" nil nil (number " " mark "D    NYTimes.com       Apr 24  237/6393  " thread-indent "\"Today's Headlines: Democrats Back Date for Start of Iraq Pullout\"    {}\n") nil nil nil nil nil nil]
+	nil)
+X-VM-v5-Data: ([nil nil nil nil nil nil nil nil nil]
+	["15400" "Tuesday" "24" "April" "2007" "06:04:28" "+0200" "planner-el-discuss-request@gna.org" "planner-el-discuss-request@gna.org" nil "471" "Planner-el-discuss Digest, Vol 12, Issue 12" "^From:" nil nil "4" nil nil (number " " mark "     planner-el-discus Apr 24  471/15400 " thread-indent "\"Planner-el-discuss Digest, Vol 12, Issue 12\"    {}\n") nil nil nil nil nil nil]
+	nil)

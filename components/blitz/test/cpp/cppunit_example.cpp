@@ -1,13 +1,26 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ */
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <vector>
 #include <stdexcept>
 #include <OMERO/client.h>
 
 using namespace omero::model;
+using namespace std;
 
+/**
+ * Example test which can be copied else where for
+ * a quick start. Be sure to add the name of the file
+ * to Makefile.am
+ */
 class MyTest : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE( MyTest );
-  CPPUNIT_TEST( testModel );
   CPPUNIT_TEST( testIterators );
   CPPUNIT_TEST_FAIL( testFails );
   CPPUNIT_TEST_EXCEPTION( testVectorAtThrow, std::out_of_range );
@@ -15,23 +28,6 @@ class MyTest : public CppUnit::TestFixture {
 
 
 public:
-
-  void testModel()
-  {
-    ExperimenterIPtr user = new ExperimenterI();
-    user->setFirstName(new OMERO::CString("test"));
-    user->setLastName(new OMERO::CString("user"));
-    user->setOmeName(new OMERO::CString("UUID"));
-
-    // possibly setOmeName() and setOmeName(string) ??
-    // and then don't need OMERO/types.h
-
-    ExperimenterGroupIPtr group = new ExperimenterGroupI();
-    // TODOuser->linkExperimenterGroup(group);
-    GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
-    map->parent = group;
-    map->child  = user;
-  }
 
   typedef std::vector<int> v_int;
   typedef v_int::iterator v_int_it;
@@ -47,6 +43,7 @@ public:
     v_int_it end = v.end();
 
     addTo.insert(loc,beg,end);
+
   }
 
   void testFails()

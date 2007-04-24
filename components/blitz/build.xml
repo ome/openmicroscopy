@@ -53,7 +53,14 @@
          = = = = = = = = = = = = = = = = = -->
 	
 	<target name="icegen-init" depends="prepare">
-		<is-done name="icegen" srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
+		<is-done name="icegen1"  srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
+		<is-done name="icegen2" srcdir="${resrc.dir}" includes="**/*.vm"/>
+		<condition property="icegen.not.required">
+			<and>
+				<isset property="icegen1.not.required"/>
+				<isset property="icegen2.not.required"/>
+			</and>
+		</condition>
 	</target>
 	
         <macrodef name="split-combined">
@@ -84,7 +91,7 @@
 			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice_common" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
-			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp_common" />
+			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp" />
 		</hibernate>
 		<split-combined prefix="hdr">
 			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h_common -->
@@ -121,6 +128,7 @@
 #include &lt;omero.h&gt;
 #include &lt;API.h&gt;
 #include &lt;System.h&gt;
+#include &lt;IObject.h&gt;
 #include &lt;Ice/Ice.h&gt;
 #include &lt;string&gt;
 #include &lt;vector&gt;
@@ -153,7 +161,8 @@
 			</fileset>
 		</concat>
 
-		<done name="icegen"/>
+		<done name="icegen1"/>
+		<done name="icegen2"/>
 	</target>
 
 
