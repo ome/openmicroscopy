@@ -34,10 +34,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
@@ -250,6 +256,20 @@ class TreeViewerControl
     }
     
     /** 
+     * Creates the windowsMenuItems. 
+     * 
+     * @param menu The menu to handle.
+     */
+    private void createWindowsMenuItems(JMenu menu)
+    {
+        Set viewers = TreeViewerFactory.getViewers();
+        Iterator i = viewers.iterator();
+        menu.removeAll();
+        while (i.hasNext()) 
+            menu.add(new JMenuItem(new ActivationAction((TreeViewer) i.next())));
+    }
+    
+    /** 
      * Attaches a window listener to the view to discard the model when 
      * the user closes the window. 
      */
@@ -267,6 +287,59 @@ class TreeViewerControl
         view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         view.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) { model.closeWindow(); }
+        });
+        
+        //
+        JMenu menu = TreeViewerFactory.getWindowMenu();
+        menu.addMenuListener(new MenuListener() {
+
+            public void menuSelected(MenuEvent e)
+            { 
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source);
+            }
+            
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no-op implementation.
+             * @see MenuListener#menuCanceled(MenuEvent)
+             */ 
+            public void menuCanceled(MenuEvent e) {}
+
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no-op implementation.
+             * @see MenuListener#menuDeselected(MenuEvent)
+             */ 
+            public void menuDeselected(MenuEvent e) {}
+            
+        });
+        
+        //Listen to keyboard selection
+        menu.addMenuKeyListener(new MenuKeyListener() {
+
+            public void menuKeyReleased(MenuKeyEvent e)
+            {
+                Object source = e.getSource();
+                if (source instanceof JMenu)
+                    createWindowsMenuItems((JMenu) source);
+            }
+            
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
+             */
+            public void menuKeyPressed(MenuKeyEvent e) {}
+  
+            /** 
+             * Required by I/F but not actually needed in our case, 
+             * no op implementation.
+             * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+             */
+            public void menuKeyTyped(MenuKeyEvent e) {}
+            
         });
     }
     
@@ -313,6 +386,7 @@ class TreeViewerControl
         createActions();
         model.addChangeListener(this);
         attachListeners();
+        TreeViewerFactory.attachWindowMenuToTaskBar();
     }
     
     /**

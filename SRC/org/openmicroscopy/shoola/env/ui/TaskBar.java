@@ -105,22 +105,6 @@ public interface TaskBar
 	
 	/** Identifies the <code>Help content</code> menu item. */
 	public static final int		HELP_CONTENTS = 101;
-	
-	/**
-	 * Identifies the tasks toolbar.
-	 * Icon buttons in this toolbar trigger actions related to the application
-	 * workflow and are usually a shortcut to the most commonly used entries
-	 * in the {@link #TASKS_MENU}.
-	 */
-	public static final int		TASKS_TOOLBAR = 0; 
-	
-	/**
-	 * Identifies the quick launch toolbar.
-	 * Icon buttons in this toolbar trigger actions to bring up top level
-	 * windows and are usually a shortcut to the most commonly used entries
-	 * in the {@link #WINDOW_MENU}.
-	 */
-	public static final int		QUICK_LAUNCH_TOOLBAR = 1; 
     
 	/**
 	 * Adds <code>entry</code> to the specified menu.
@@ -177,14 +161,6 @@ public interface TaskBar
      */
     public void addToMenuBar(JMenu[] menus, boolean before);
     
-	/**
-	 * Brings up the task bar window.
-	 */
-	//public void open();
-    
-    /** Iconifies the task bar window. */
-    //public void iconify();
-    
     /**
      * Returns a reference to the task bar window.
      * 
@@ -197,7 +173,7 @@ public interface TaskBar
      * 
      * @return See above.
      */
-    public JMenuBar getTaskBarMenu();
+    public JMenuBar getTaskBarMenuBar();
     
     /**
      * Returns a copy of <code>Windows</code> menu. New items should

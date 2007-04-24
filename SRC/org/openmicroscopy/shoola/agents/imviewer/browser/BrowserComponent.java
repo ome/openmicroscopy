@@ -155,24 +155,38 @@ class BrowserComponent
     
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#removeComponent(JComponent)
+     * @see Browser#removeComponent(JComponent, int)
      */
-    public void removeComponent(JComponent c)
+    public void removeComponent(JComponent c, int index)
     {
         if (c == null)
             throw new IllegalArgumentException("Component cannot be null.");
-        view.removeComponentFromLayer(c);
+        switch (index) {
+			case ImViewer.VIEW_INDEX:
+				view.removeComponentFromLayer(c);
+				break;
+			case ImViewer.GRID_INDEX:
+				gridView.removeComponentFromLayer(c);
+				break;
+		}
     }
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#addComponent(JComponent)
+     * @see Browser#addComponent(JComponent, int)
      */
-    public void addComponent(JComponent c)
+    public void addComponent(JComponent c, int index)
     {
         if (c == null)
             throw new IllegalArgumentException("Component cannot be null.");
-        view.addComponentToLayer(c);
+        switch (index) {
+			case ImViewer.VIEW_INDEX:
+				view.addComponentToLayer(c);
+				break;
+			case ImViewer.GRID_INDEX:
+				gridView.addComponentToLayer(c);
+				break;
+		}
     }
 
     /** 
@@ -352,15 +366,22 @@ class BrowserComponent
 	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSelectedPane(Component)
+     * @see Browser#setSelectedPane(int)
      */
-	public void setSelectedPane(Component c)
+	public void setSelectedPane(int index)
 	{
-		if (c == null) return;
-		if (c.equals(annotator)) annotator.activateEditor();
-		else if (c.equals(gridView)) gridView.paintImage();
+		switch (index) {
+			case ImViewer.ANNOTATOR_INDEX:
+				annotator.activateEditor();
+				break;
+			case ImViewer.GRID_INDEX:
+				if (model.hasNoGridImages() && !model.getRGBSplit()) {
+					model.setGridImages();
+				}
+				gridView.paintImage();
+			}
 	}
-
+	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getGridViewIcon()
@@ -390,7 +411,6 @@ class BrowserComponent
      */
 	public BufferedImage getGridImage()
 	{
-		// TODO Auto-generated method stub
 		return gridView.getGridImage();
 	}
 

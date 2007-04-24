@@ -94,7 +94,7 @@ public class PartialLineBorder
     }
     
     /**
-     * Overriden to remove on segment of the border, either the top or 
+     * Overriden to remove one segment of the border, either the top or 
      * bottom part.
      * @see LineBorder#paintBorder(Component, Graphics, int, int, int, int)
      */

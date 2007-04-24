@@ -165,10 +165,10 @@ class TreeViewerWin
         menus[1] = createEditMenu();
         menus[2] = createViewMenu();
         tb.addToMenuBar(menus, true);
-        JMenuItem item = new JMenuItem(
-                controller.getAction(TreeViewerControl.ACTIVATION));
-        tb.addToMenu(TaskBar.WINDOW_MENU, item);
-        return tb.getTaskBarMenu();
+        //JMenuItem item = new JMenuItem(
+        //        controller.getAction(TreeViewerControl.ACTIVATION));
+        //tb.addToMenu(TaskBar.WINDOW_MENU, item);
+        return tb.getTaskBarMenuBar();
     }
     
     /**
@@ -571,7 +571,5 @@ class TreeViewerWin
         setSize(width, height);
         UIUtilities.centerAndShow(this);
     }
-
-
 
 }

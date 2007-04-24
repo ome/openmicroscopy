@@ -113,12 +113,6 @@ class TreeViewerModel
     /** The currently selected experimenter. */
     private ExperimenterData		experimenter;
     
-    /** 
-     * The available user groups, we store this information
-     * b/c not likely to change during session.
-     */
-    private Map						availableUserGroups;
-    
     /**
      * The component to find a given phrase in the currently selected
      * {@link Browser}.
@@ -139,6 +133,9 @@ class TreeViewerModel
     
     /** Reference to the component handling data. */
     private DataHandler				dataHandler;
+    
+    /** Flag indicating if the {@link TreeViewer} is recycled or not. */
+    private boolean					recycled;
     
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
@@ -212,15 +209,15 @@ class TreeViewerModel
     {
         Browser browser = 
                 BrowserFactory.createBrowser(Browser.PROJECT_EXPLORER, 
-                        component);
+                        component, experimenter);
         selectedBrowser = browser;
         browser.setSelected(true);
         browsers.put(new Integer(Browser.PROJECT_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
-                                                component);
+                                                component, experimenter);
         browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
         browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER,
-                                                component);
+                                                component, experimenter);
         browsers.put(new Integer(Browser.IMAGES_EXPLORER), browser);
     }
     
@@ -232,6 +229,23 @@ class TreeViewerModel
         state = TreeViewer.NEW;
         editorType = TreeViewer.PROPERTIES_EDITOR;
         browsers = new HashMap<Integer, Browser>();
+        recycled = false;
+    }
+    
+    /**
+     * Creates a new instance and sets the state to {@link TreeViewer#NEW}.
+     * 
+     * @param exp			The experimenter this manager is for. 
+     * @param userGroupID 	The id to the group selected for the current user.
+     */
+    protected TreeViewerModel(ExperimenterData exp, long userGroupID)
+    {
+    	state = TreeViewer.NEW;
+        editorType = TreeViewer.PROPERTIES_EDITOR;
+        recycled = false;
+        this.experimenter = exp;
+        browsers = new HashMap<Integer, Browser>();
+        setHierarchyRoot(exp.getId(), userGroupID);
     }
     
     /**
@@ -244,12 +258,11 @@ class TreeViewerModel
     { 
         this.component = component; 
         createBrowsers();
+        //setExperimenter(getExperimenter());
     }
     
     /**
      * Sets the root of the retrieved hierarchies. 
-     * The rootID is taken into account if and only if 
-     * the passed <code>rootLevel</code> is {@link TreeViewer#GROUP_ROOT}.
      * 
      * @param rootID    	The Id of the root. By default it is the 
      * 						id of the current user.
@@ -260,6 +273,37 @@ class TreeViewerModel
         this.rootID = rootID;
         this.userGroupID = userGroupID;
     }
+    
+    /**
+     * Compares another model to this one to tell if they would result in
+     * having the same display.
+     *  
+     * @param other The other model to compare.
+     * @return <code>true</code> if <code>other</code> would lead to a viewer
+     *          with the same display as the one in which this model belongs;
+     *          <code>false</code> otherwise.
+     */
+    boolean isSameDisplay(TreeViewerModel other)
+    {
+    	if (other == null) return false;
+    	return ((other.rootID == rootID) && (other.userGroupID == userGroupID));
+    }
+   
+    /**
+     * Returns <code>true</code> if the {@link TreeViewer} is recycled,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isRecycled() { return recycled; }
+    
+    /**
+     * Sets to <code>true</code> if the {@link TreeViewer} is recycled,
+     * <code>false</code> otherwise.
+     * 
+     * @param b The value to set.
+     */
+    void setRecycled(boolean b) { recycled = b; }
     
     /** 
      * Returns the id to the group selected for the current user.
@@ -301,424 +345,427 @@ class TreeViewerModel
      * 
      * @return One of the flags defined by the {@link TreeViewer} interface.  
      */
-   int getState() { return state; }    
+    int getState() { return state; }    
    
-   /**
-    * Sets the object in the {@link TreeViewer#DISCARDED} state.
-    * Any ongoing data loading will be cancelled.
-    */
-   void discard()
-   {
-       cancel();
-       state = TreeViewer.DISCARDED;
-   }
-   
-   /**
-    * Sets the object in the {@link TreeViewer#READY} state.
-    * Any ongoing data loading will be cancelled.
-    */
-   void cancel()
-   {
-       if (currentLoader != null) {
-           currentLoader.cancel();
-           currentLoader = null;
-       }
-       state = TreeViewer.READY;
-   }
-   
-   /**
-    * Starts the asynchronous removal of the data 
-    * and sets the state to {@link TreeViewer#SAVE}.
-    * 
-    * @param node The node hosting the <code>DataObject</code> to remove.
-    */
-   void fireDataObjectsDeletion(TreeImageDisplay node)
-   {
-       state = TreeViewer.SAVE;
-       TreeImageDisplay parent = node.getParentDisplay();
-       DataObject object = (DataObject) node.getUserObject();
-       Object po = parent.getUserObject();
-       DataObject data = null;
-       if (!((object instanceof ProjectData) || 
-               (object instanceof CategoryGroupData)))//root.
-           data = ((DataObject) po);
-       Set l = new HashSet(1);
-       l.add(object);
-       currentLoader = new DataObjectRemover(component, l, data);
-       currentLoader.load();
-   }
-   
-   /**
-    * Starts the asynchronous removal of the data and sets the state to 
-    * {@link TreeViewer#SAVE}.
-    * This method should be invoked to remove a collection of nodes of the
-    * same type.
-    * 
-    * @param nodes The nodes to remove.
-    */
-   void fireDataObjectsDeletion(List nodes)
-   {
-       state = TreeViewer.SAVE;
-       DataObject object, po;
-       Iterator i = nodes.iterator();
-       TreeImageDisplay n, parent;
-       Map<DataObject, Set> map = null;
-       Set<DataObject> toRemove = null;  
-       Set<DataObject> l;
-       while (i.hasNext()) {
-           n = (TreeImageDisplay) i.next();
-           parent = n.getParentDisplay();
-           if (n.getUserObject() instanceof DataObject) {
-               object = (DataObject) n.getUserObject();
-               if ((object instanceof ProjectData) || 
-                       (object instanceof CategoryGroupData)) {
-                   if (toRemove == null) toRemove = new HashSet<DataObject>();
-                   toRemove.add(object);
-               } else {
-                   
-                   po = (DataObject) parent.getUserObject();
-                   if (map == null) map = new HashMap<DataObject, Set>();
-                   l = (Set) map.get(po);
-                   if (l == null) l = new HashSet<DataObject>();
-                   l.add(object);
-                   map.put(po, l);
-               }
-           }
-       }
+    /**
+     * Sets the object in the {@link TreeViewer#DISCARDED} state.
+     * Any ongoing data loading will be cancelled.
+     */
+    void discard()
+    {
+    	cancel();
+    	state = TreeViewer.DISCARDED;
+    }
 
-       if (toRemove != null) {
-           currentLoader = new DataObjectRemover(component, toRemove, null);
-           currentLoader.load();
-       } else { 
-           currentLoader = new DataObjectRemover(component, map);
-           currentLoader.load();
-       }
-   }
-   
-   /**
-    * Fires an asynchronous thumbnail retrieval for the specified image.
-    * 
-    * @param image The image the thumbnail is for.
-    */
-   void fireThumbnailLoading(ImageData image)
-   {
-       state = TreeViewer.LOADING_THUMBNAIL;
-       currentLoader = new ThumbnailLoader(component, image);
-       currentLoader.load();
-   }
-   
-   /**
-    * Sets the type of editor. One of the following constants 
-    * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
-    * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
-    * Sets the current editor to <code>null</code>.
-    * 
-    * @param editorType The type of the editor.
-    */
-   void setEditorType(int editorType)
-   { 
-       this.editorType = editorType; 
-       editor = null;
-   }
-   
-   /**
-    * Sets the current editor.
-    * 
-    * @param editor The value to set.
-    */
-   void setEditor(Editor editor) { this.editor = editor; }
-   
-   /**
-    * Returns the current editor, <code>null</code> if no editor.
-    * 
-    * @return See above.
-    */
-   Editor getEditor() { return editor; }
-   
-   /**
-    * Returns the type of editor.
-    * One of the following constants 
-    * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
-    * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
-    * 
-    * @return See above.
-    */
-   int getEditorType() { return editorType; }
+    /**
+     * Sets the object in the {@link TreeViewer#READY} state.
+     * Any ongoing data loading will be cancelled.
+     */
+    void cancel()
+    {
+    	if (currentLoader != null) {
+    		currentLoader.cancel();
+    		currentLoader = null;
+    	}
+    	state = TreeViewer.READY;
+    }
 
-   /** 
-    * Returns the {@link Finder} component.
-    * 
-    * @return See above.
-    */
-   Finder getFinder() { return finder; }
-   
-   /** 
-    * Sets the finder component.
-    * 
-    * @param finder The component to set.
-    */
-   void setFinder(Finder finder) { this.finder = finder; }
-   
-   /**
-    * Returns the current user's details.
-    * 
-    * @return See above.
-    */
-   ExperimenterData getUserDetails()
-   { 
-       return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
-   			        LookupNames.CURRENT_USER_DETAILS);
-   }
-   
-   /**
-    * Sets the current state.
-    * 
-    * @param state The state to set.
-    */
-   void setState(int state) { this.state = state; }
+    /**
+     * Starts the asynchronous removal of the data 
+     * and sets the state to {@link TreeViewer#SAVE}.
+     * 
+     * @param node The node hosting the <code>DataObject</code> to remove.
+     */
+    void fireDataObjectsDeletion(TreeImageDisplay node)
+    {
+    	state = TreeViewer.SAVE;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	DataObject object = (DataObject) node.getUserObject();
+    	Object po = parent.getUserObject();
+    	DataObject data = null;
+    	if (!((object instanceof ProjectData) || 
+    			(object instanceof CategoryGroupData)))//root.
+    		data = ((DataObject) po);
+    	Set l = new HashSet(1);
+    	l.add(object);
+    	currentLoader = new DataObjectRemover(component, l, data);
+    	currentLoader.load();
+    }
 
-   /**
-    * Loads existing objects that can be added to the specified 
-    * <code>DataObject</code>.
-    * 
-    * @param ho The node to add the objects to.
-    */
-   void fireDataExistingObjectsLoader(DataObject ho)
-   {
-       state = TreeViewer.LOADING_DATA;
-       currentLoader = new ExistingObjectsLoader(component, ho);
-       currentLoader.load();
-   }
+    /**
+     * Starts the asynchronous removal of the data and sets the state to 
+     * {@link TreeViewer#SAVE}.
+     * This method should be invoked to remove a collection of nodes of the
+     * same type.
+     * 
+     * @param nodes The nodes to remove.
+     */
+    void fireDataObjectsDeletion(List nodes)
+    {
+    	state = TreeViewer.SAVE;
+    	DataObject object, po;
+    	Iterator i = nodes.iterator();
+    	TreeImageDisplay n, parent;
+    	Map<DataObject, Set> map = null;
+    	Set<DataObject> toRemove = null;  
+    	Set<DataObject> l;
+    	while (i.hasNext()) {
+    		n = (TreeImageDisplay) i.next();
+    		parent = n.getParentDisplay();
+    		if (n.getUserObject() instanceof DataObject) {
+    			object = (DataObject) n.getUserObject();
+    			if ((object instanceof ProjectData) || 
+    					(object instanceof CategoryGroupData)) {
+    				if (toRemove == null) toRemove = new HashSet<DataObject>();
+    				toRemove.add(object);
+    			} else {
 
-   /**
-    * Fires an asynchronous call to add the specified children to the
-    * the currently selected parent.
-    * 
-    * @param children   The children to add.
-    */
-   void fireAddExistingObjects(Set children)
-   {
-       TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
-       if (parent == null) return;
-       Object po = parent.getUserObject();
-       if ((po instanceof ProjectData) || ((po instanceof DatasetData)) ||
-            (po instanceof CategoryGroupData)) {
-           currentLoader = new ExistingObjectsSaver(component, 
-                               (DataObject) po, children);
-           currentLoader.load();
-       }
-       state = TreeViewer.READY;
-   }
+    				po = (DataObject) parent.getUserObject();
+    				if (map == null) map = new HashMap<DataObject, Set>();
+    				l = (Set) map.get(po);
+    				if (l == null) l = new HashSet<DataObject>();
+    				l.add(object);
+    				map.put(po, l);
+    			}
+    		}
+    	}
 
-   /**
-    * Sets the collection of nodes to copy. 
-    * 
-    * @param nodes  The nodes to copy.
-    * @param index  The action index.
-    */
-   void setNodesToCopy(TreeImageDisplay[] nodes, int index)
-   {
-       copyIndex = index;
-       nodesToCopy  = nodes;
-   }
-   
-   /**
-    * Returns the nodes to copy.
-    * 
-    * @return See above.
-    */
-   TreeImageDisplay[] getNodesToCopy() { return nodesToCopy; }
-   
-   /**
-    * Copies and pastes the nodes. Returns <code>true</code> if we can perform
-    * the operation according to the selected nodes, <code>false</code>
-    * otherwise.
-    * 
-    * @param parents The parents of the nodes to copy.
-    * @return See above
-    */
-   boolean paste(TreeImageDisplay[] parents)
-   {
-       Map map = buildCopyMap(parents);
-       if (map == null) return false;
-       if (copyIndex == TreeViewer.COPY_AND_PASTE)
-           currentLoader = new DataObjectUpdater(component, map, 
-                       DataObjectUpdater.COPY_AND_PASTE);
-       else if (copyIndex == TreeViewer.CUT_AND_PASTE) {
-           Map toRemove = buildCutMap(nodesToCopy);
-           currentLoader = new DataObjectUpdater(component, map, toRemove,
-                   DataObjectUpdater.CUT_AND_PASTE);
-       }
-       
-       currentLoader.load();
-       state = TreeViewer.SAVE;
-       nodesToCopy = null;
-       return true;
-   }
+    	if (toRemove != null) {
+    		currentLoader = new DataObjectRemover(component, toRemove, null);
+    		currentLoader.load();
+    	} else { 
+    		currentLoader = new DataObjectRemover(component, map);
+    		currentLoader.load();
+    	}
+    }
 
-   /**
-    * Creates the <code>DataHandler</code> to annotate the specified nodes.
-    * 
-    * @param owner	The parent of the frame.
-    * @param nodes 	The nodes to annotate.
-    * @return See above.
-    */
-   DataHandler annotateDataObjects(JFrame owner, TreeImageDisplay[] nodes)
-   {
-		Object uo;
-		Set toAnnotate = new HashSet();
-		for (int i = 0; i < nodes.length; i++) {
-			uo = nodes[i].getUserObject();
-			if (uo instanceof DataObject) toAnnotate.add(uo);
-		}
-		dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
-									TreeViewerAgent.getRegistry());
-		return dataHandler;
-   }
-   
-   /**
-    * Creates the <code>DataHandler</code> to annotate the images
-    * of the specified node.
-    * 
-    * @param owner	The parent of the frame.
-    * @param node 	The nodes containing the images to annotate.
-    * @return See above.
-    */
-   DataHandler annotateChildren(JFrame owner, TreeImageDisplay node)
-   {
-		Object uo = node.getUserObject();
-		Set toAnnotate = new HashSet();
-		if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
-			toAnnotate.add(uo);
-			dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
-					toAnnotate, TreeViewerAgent.getRegistry());
-			return dataHandler;
-		}	
-		return null;
-		
-   }
-   
-   /**
-    * Creates the <code>DataHandler</code> to classify or declassify the 
-    * specified images depending on the passed mode.
-    * 
-    * @param owner	The parent of the frame.
-    * @param nodes 	The images to classify or declassify.
-    * @param mode	The mode indicating if we classify or declassify the images.
-    * @return See above.
-    */
-   DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
-   {
-		Set<ImageData> images = new HashSet<ImageData>(nodes.length);
-		for (int i = 0; i < nodes.length; i++) 
-			images.add(nodes[i]);
-		
-		dataHandler = ClassifierFactory.getClassifier(owner, images, rootID, 
-										mode, TreeViewerAgent.getRegistry());
-		return dataHandler;
-   }
-   
-   /**
-    * Creates the <code>DataHandler</code> to classify the images contained
-    * in the passed container.
-    * 
-    * @param owner	The parent of the frame.
-    * @param node 	The folder containing the images to classify.
-    * @return See above.
-    */
-   DataHandler classifyChildren(JFrame owner, TreeImageDisplay node)
-   {
-	   Object uo = node.getUserObject();
-	   if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
-		   Set<DataObject> folders = new HashSet<DataObject>(1);
-		   folders.add((DataObject) uo);
-		   dataHandler = ClassifierFactory.getChildrenClassifier(owner, folders,
-				   		rootID, TreeViewerAgent.getRegistry());
-		   return dataHandler;
-	   }
-	   return null;
-   }
-   
-   /** Discards the <code>DataHandler</code>. */
-   void discardDataHandler()
-   {
-	   if (dataHandler != null) {
-		   dataHandler.discard();
-		   dataHandler = null;
-	   }
-   }
-   
-   /**
-    * Returns the <code>DataHandler</code> or null if not initialized.
-    * 
-    * @return See above.
-    */
-   DataHandler getDataHandler() { return dataHandler; }
+    /**
+     * Fires an asynchronous thumbnail retrieval for the specified image.
+     * 
+     * @param image The image the thumbnail is for.
+     */
+    void fireThumbnailLoading(ImageData image)
+    {
+    	state = TreeViewer.LOADING_THUMBNAIL;
+    	currentLoader = new ThumbnailLoader(component, image);
+    	currentLoader.load();
+    }
 
-   /**
-    * Sets the value of the currently selected experimenter.
-    * 
-    * @param experimenter The value to set.
-    */
-   void setExperimenter(ExperimenterData experimenter)
-   {
-	   this.experimenter = experimenter;
-	   Set<Integer> keys = browsers.keySet();
-	   Iterator i = keys.iterator();
-	   Browser browser;
-	   while (i.hasNext()) {
-		   browser = browsers.get(i.next());
-		   browser.setRootNode(experimenter);
-	   }
-   }
-   
-   /** Fires an asynchronous call to retrieve the user groups. */
-   void fireUserGroupsRetrieval()
-   {
-	   state = TreeViewer.LOADING_DATA;
-	   currentLoader = new AdminLoader(component);
-       currentLoader.load();
-   }
-   
-   /**
-    * Sets the available user groups.
-    * 
-    * @param groups The value to set.
-    */
-   void setUserGroups(Map groups)
-   { 
-	   state = TreeViewer.READY;
-	   availableUserGroups = groups; 
-   }
-   
-   /**
-    * Returns the available user groups.
-    * 
-    * @return See above.
-    */
-   Map getAvailableUserGroups() { return availableUserGroups; }
+    /**
+     * Sets the type of editor. One of the following constants 
+     * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
+     * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
+     * Sets the current editor to <code>null</code>.
+     * 
+     * @param editorType The type of the editor.
+     */
+    void setEditorType(int editorType)
+    { 
+    	this.editorType = editorType; 
+    	editor = null;
+    }
 
-   /**
-    * Returns the first name and the last name of the currently 
-    * selected experimenter as a String.
-    * 
-    * @return See above.
-    */
-   String getExperimenterNames()
-   {
-	   ExperimenterData exp = getExperimenter();
-	   return exp.getFirstName()+" "+exp.getLastName();
-   }
+    /**
+     * Sets the current editor.
+     * 
+     * @param editor The value to set.
+     */
+    void setEditor(Editor editor) { this.editor = editor; }
 
-   /**
-    * Returns the selected experimenter.
-    * 
-    * @return See above.
-    */
-   ExperimenterData getExperimenter()
-   {
-	   if (experimenter == null) experimenter = getUserDetails();
-	   return experimenter;
-   }
-   
+    /**
+     * Returns the current editor, <code>null</code> if no editor.
+     * 
+     * @return See above.
+     */
+    Editor getEditor() { return editor; }
+
+    /**
+     * Returns the type of editor.
+     * One of the following constants 
+     * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
+     * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
+     * 
+     * @return See above.
+     */
+    int getEditorType() { return editorType; }
+
+    /** 
+     * Returns the {@link Finder} component.
+     * 
+     * @return See above.
+     */
+    Finder getFinder() { return finder; }
+
+    /** 
+     * Sets the finder component.
+     * 
+     * @param finder The component to set.
+     */
+    void setFinder(Finder finder) { this.finder = finder; }
+
+    /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getUserDetails()
+    { 
+    	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
+    			LookupNames.CURRENT_USER_DETAILS);
+    }
+
+    /**
+     * Sets the current state.
+     * 
+     * @param state The state to set.
+     */
+    void setState(int state) { this.state = state; }
+
+    /**
+     * Loads existing objects that can be added to the specified 
+     * <code>DataObject</code>.
+     * 
+     * @param ho The node to add the objects to.
+     */
+    void fireDataExistingObjectsLoader(DataObject ho)
+    {
+    	state = TreeViewer.LOADING_DATA;
+    	currentLoader = new ExistingObjectsLoader(component, ho);
+    	currentLoader.load();
+    }
+
+    /**
+     * Fires an asynchronous call to add the specified children to the
+     * the currently selected parent.
+     * 
+     * @param children   The children to add.
+     */
+    void fireAddExistingObjects(Set children)
+    {
+    	TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
+    	if (parent == null) return;
+    	Object po = parent.getUserObject();
+    	if ((po instanceof ProjectData) || ((po instanceof DatasetData)) ||
+    			(po instanceof CategoryGroupData)) {
+    		currentLoader = new ExistingObjectsSaver(component, 
+    				(DataObject) po, children);
+    		currentLoader.load();
+    	}
+    	state = TreeViewer.READY;
+    }
+
+    /**
+     * Sets the collection of nodes to copy. 
+     * 
+     * @param nodes  The nodes to copy.
+     * @param index  The action index.
+     */
+    void setNodesToCopy(TreeImageDisplay[] nodes, int index)
+    {
+    	copyIndex = index;
+    	nodesToCopy  = nodes;
+    }
+
+    /**
+     * Returns the nodes to copy.
+     * 
+     * @return See above.
+     */
+    TreeImageDisplay[] getNodesToCopy() { return nodesToCopy; }
+
+    /**
+     * Copies and pastes the nodes. Returns <code>true</code> if we can perform
+     * the operation according to the selected nodes, <code>false</code>
+     * otherwise.
+     * 
+     * @param parents The parents of the nodes to copy.
+     * @return See above
+     */
+    boolean paste(TreeImageDisplay[] parents)
+    {
+    	Map map = buildCopyMap(parents);
+    	if (map == null) return false;
+    	if (copyIndex == TreeViewer.COPY_AND_PASTE)
+    		currentLoader = new DataObjectUpdater(component, map, 
+    				DataObjectUpdater.COPY_AND_PASTE);
+    	else if (copyIndex == TreeViewer.CUT_AND_PASTE) {
+    		Map toRemove = buildCutMap(nodesToCopy);
+    		currentLoader = new DataObjectUpdater(component, map, toRemove,
+    				DataObjectUpdater.CUT_AND_PASTE);
+    	}
+
+    	currentLoader.load();
+    	state = TreeViewer.SAVE;
+    	nodesToCopy = null;
+    	return true;
+    }
+
+    /**
+     * Creates the <code>DataHandler</code> to annotate the specified nodes.
+     * 
+     * @param owner	The parent of the frame.
+     * @param nodes 	The nodes to annotate.
+     * @return See above.
+     */
+    DataHandler annotateDataObjects(JFrame owner, TreeImageDisplay[] nodes)
+    {
+    	Object uo;
+    	Set toAnnotate = new HashSet();
+    	for (int i = 0; i < nodes.length; i++) {
+    		uo = nodes[i].getUserObject();
+    		if (uo instanceof DataObject) toAnnotate.add(uo);
+    	}
+    	dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
+    			TreeViewerAgent.getRegistry());
+    	return dataHandler;
+    }
+
+    /**
+     * Creates the <code>DataHandler</code> to annotate the images
+     * of the specified node.
+     * 
+     * @param owner	The parent of the frame.
+     * @param node 	The nodes containing the images to annotate.
+     * @return See above.
+     */
+    DataHandler annotateChildren(JFrame owner, TreeImageDisplay node)
+    {
+    	Object uo = node.getUserObject();
+    	Set toAnnotate = new HashSet();
+    	if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+    		toAnnotate.add(uo);
+    		dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
+    				toAnnotate, TreeViewerAgent.getRegistry());
+    		return dataHandler;
+    	}	
+    	return null;
+
+    }
+
+    /**
+     * Creates the <code>DataHandler</code> to classify or declassify the 
+     * specified images depending on the passed mode.
+     * 
+     * @param owner	The parent of the frame.
+     * @param nodes 	The images to classify or declassify.
+     * @param mode	The mode indicating if we classify or declassify the images.
+     * @return See above.
+     */
+    DataHandler classifyImageObjects(JFrame owner, ImageData[] nodes, int mode)
+    {
+    	Set<ImageData> images = new HashSet<ImageData>(nodes.length);
+    	for (int i = 0; i < nodes.length; i++) 
+    		images.add(nodes[i]);
+
+    	dataHandler = ClassifierFactory.getClassifier(owner, images, rootID, 
+    			mode, TreeViewerAgent.getRegistry());
+    	return dataHandler;
+    }
+
+    /**
+     * Creates the <code>DataHandler</code> to classify the images contained
+     * in the passed container.
+     * 
+     * @param owner	The parent of the frame.
+     * @param node 	The folder containing the images to classify.
+     * @return See above.
+     */
+    DataHandler classifyChildren(JFrame owner, TreeImageDisplay node)
+    {
+    	Object uo = node.getUserObject();
+    	if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+    		Set<DataObject> folders = new HashSet<DataObject>(1);
+    		folders.add((DataObject) uo);
+    		dataHandler = ClassifierFactory.getChildrenClassifier(owner, folders,
+    				rootID, TreeViewerAgent.getRegistry());
+    		return dataHandler;
+    	}
+    	return null;
+    }
+
+    /** Discards the <code>DataHandler</code>. */
+    void discardDataHandler()
+    {
+    	if (dataHandler != null) {
+    		dataHandler.discard();
+    		dataHandler = null;
+    	}
+    }
+
+    /**
+     * Returns the <code>DataHandler</code> or null if not initialized.
+     * 
+     * @return See above.
+     */
+    DataHandler getDataHandler() { return dataHandler; }
+
+    /**
+     * Sets the value of the currently selected experimenter.
+     * 
+     * @param experimenter The value to set.
+     */
+    void setExperimenter(ExperimenterData experimenter)
+    {
+    	this.experimenter = experimenter;
+    	Set<Integer> keys = browsers.keySet();
+    	Iterator i = keys.iterator();
+    	Browser browser;
+    	while (i.hasNext()) {
+    		browser = browsers.get(i.next());
+    		browser.setRootNode(experimenter);
+    	}
+    }
+
+    /** Fires an asynchronous call to retrieve the user groups. */
+    void fireUserGroupsRetrieval()
+    {
+    	state = TreeViewer.LOADING_DATA;
+    	currentLoader = new AdminLoader(component);
+    	currentLoader.load();
+    }
+
+    /**
+     * Sets the available user groups.
+     * 
+     * @param groups The value to set.
+     */
+    void setUserGroups(Map groups)
+    { 
+    	state = TreeViewer.READY;
+    	TreeViewerFactory.setUserGroups(groups);
+    }
+
+    /**
+     * Returns the available user groups.
+     * 
+     * @return See above.
+     */
+    Map getAvailableUserGroups()
+    {
+    	return TreeViewerFactory.getAvailableUserGroups();
+    }
+
+    /**
+     * Returns the first name and the last name of the currently 
+     * selected experimenter as a String.
+     * 
+     * @return See above.
+     */
+    String getExperimenterNames()
+    {
+    	ExperimenterData exp = getExperimenter();
+    	return exp.getFirstName()+" "+exp.getLastName();
+    }
+
+    /**
+     * Returns the selected experimenter.
+     * 
+     * @return See above.
+     */
+    ExperimenterData getExperimenter()
+    {
+    	if (experimenter == null) experimenter = getUserDetails();
+    	return experimenter;
+    }
+
 }

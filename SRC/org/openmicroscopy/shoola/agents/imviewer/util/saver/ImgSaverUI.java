@@ -75,6 +75,15 @@ class ImgSaverUI
      */
     static final int                    IMAGE_AND_COMPONENTS = 2;
     
+    /** Save the lens image. */
+    static final int					LENS_IMAGE = 3;
+    
+    /** Save the lens image. */
+    static final int					LENS_IMAGE_AND_COMPONENTS = 4;
+    
+    /** The maximum number of save options. */
+    private static final int			MAX = 4;
+    
     /** Brief description of the action performed by this widget. */
     private static final String         NOTE = "Save the currrent image in " +
             "one of the following formats: TIFF, JPEG, PNG or BMP.";
@@ -96,10 +105,13 @@ class ImgSaverUI
     
     /** Initializes the static fields. */
     static {
-        selections = new String[3];
+        selections = new String[MAX+1];
         selections[IMAGE] = "image";
         selections[GRID_IMAGE] = "grid view";
         selections[IMAGE_AND_COMPONENTS] = "image and split channels";
+        selections[LENS_IMAGE] = "lens' image";
+        selections[LENS_IMAGE_AND_COMPONENTS] = 
+        						"lens' image and split channels";
     }
     
     /** Initializes the component composing the display. */

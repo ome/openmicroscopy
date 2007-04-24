@@ -86,9 +86,9 @@ public class NullTaskBar
     public void addToMenuBar(JMenu[] menus, boolean before) {}
 
     /**
-     * @see TaskBar#getTaskBarMenu()
+     * @see TaskBar#getTaskBarMenuBar()
      */
-    public JMenuBar getTaskBarMenu() { return null; }
+    public JMenuBar getTaskBarMenuBar() { return null; }
 
     /**
      * @see TaskBar#getWindowsMenu()

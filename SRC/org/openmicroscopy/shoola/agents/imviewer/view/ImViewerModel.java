@@ -646,18 +646,25 @@ class ImViewerModel
     }
 
     /**
-     * Returned the displayed image.
+     * Returns the displayed image.
      * 
      * @return See above.
      */
     BufferedImage getDisplayedImage() { return browser.getDisplayedImage(); }
 
     /**
-     * Returned the original image returned by the image service.
+     * Returns the original image returned by the image service.
      * 
      * @return See above.
      */
     BufferedImage getOriginalImage() { return browser.getRenderedImage(); }
+    
+    /**
+     * Returns the image displayed in the grid view.
+     * 
+     * @return See above.
+     */
+    BufferedImage getGridImage() { return browser.getGridImage(); }
     
     /**
      * Returns the size in microns of a pixel along the X-axis.

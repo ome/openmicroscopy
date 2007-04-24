@@ -108,24 +108,23 @@ class LensModel
 	 * will exceed the size of the current buffer. 
 	 */
 	private int            zoomedDataBufferSize = DEFAULT_SIZE;
-	
 
 	/**
 	 * Returns a writable raster to the {@link #scaleBufferedImage} method.
 	 * This method will allocate a new databuffer only if the new raster is
 	 * larger than the pre-allocated one. 
 	 * 
-	 * @param w width of new image
-	 * @param h height of new image
-	 * @return see above.
+	 * @param colorModel	The color model. 
+	 * @param w 			The width of new image.
+	 * @param h 			The height of new image
+	 * @return See above.
 	 */
-	private WritableRaster getZoomedRaster(int w, int h)
+	private WritableRaster getZoomedRaster(ColorModel colorModel, int w, int h)
 	{
 		if (zoomedDataBufferSize < height*zoomFactor*width*zoomFactor)
 			zoomedDataBuffer = 
 				new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
-		ColorModel colourModel = planeImage.getColorModel();
-		SampleModel sm = colourModel.createCompatibleSampleModel(w, h);
+		SampleModel sm = colorModel.createCompatibleSampleModel(w, h);
         return Raster.createWritableRaster(sm, zoomedDataBuffer, null);			
  	}
 	
@@ -147,7 +146,7 @@ class LensModel
     	// Create the required compatible (thumbnail) buffered image to  
     	// avoid potential errors from Java's ImagingLib.
     	ColorModel cm = image.getColorModel();
-    	WritableRaster r = getZoomedRaster(thumbWidth, thumbHeight);
+    	WritableRaster r = getZoomedRaster(cm, thumbWidth, thumbHeight);
     	BufferedImage thumbImage = new BufferedImage(cm, r, false, null);
  
     	// Do the actual scaling and return the result
@@ -158,9 +157,9 @@ class LensModel
     }
     
 	/**
-	 * Constructor of the lens Model.
+	 * Creates a new instance. 
 	 * 
-	 * @param planeImage 
+	 * @param planeImage The image to handle.
 	 *
 	 */
 	LensModel(BufferedImage planeImage)
@@ -169,61 +168,62 @@ class LensModel
 	}
 
 	/** 
-	 * Set the plane image to a new image.
+	 * Sets the plane image to a new image.
 	 *  
 	 * @param img new PlaneImage.
 	 */
 	void setPlaneImage(BufferedImage img) { planeImage = img; }
 	
 	/**
-	 * Gets the width of the plane Image.
+	 * Returns the width of the plane Image.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	int	getImageWidth()
 	{
-		if (planeImage != null ) return planeImage.getWidth();
+		if (planeImage != null) return planeImage.getWidth();
 		return 0;
 	}
 	
 	/**
-	 * Gets the width of the plane Image.
+	 * Returns the width of the plane Image.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	int	getImageScaledWidth()
 	{
 		if (planeImage != null )
-			return (int)(planeImage.getWidth()*imageZoomFactor);
+			return (int) (planeImage.getWidth()*imageZoomFactor);
 		return 0;
 	}
 
 	/**
-	 * Gets the height of the plane Image.
+	 * Returns the height of the plane Image.
 	 * 
-	 * @return height see above.
+	 * @return See above.
 	 */
 	int	getImageScaledHeight()
 	{
-		if (planeImage != null )
-			return (int)(planeImage.getHeight()*imageZoomFactor);
+		if (planeImage != null)
+			return (int) (planeImage.getHeight()*imageZoomFactor);
 		return 0;
 	}
+	
 	/**
-	 * Gets the height of the plane Image.
+	 * Returns the height of the plane Image.
 	 * 
-	 * @return height see above.
+	 * @return See above.
 	 */
 	int	getImageHeight()
 	{
-		if (planeImage != null ) return planeImage.getHeight();
+		if (planeImage != null) return planeImage.getHeight();
 		return 0;
 	}
 
 	/**
      * Returns the zoomedImage from the model. 
      * 
-     * @return zoomedImage. 
+     * @return See above. 
      */
 	BufferedImage getZoomedImage()
 	{
@@ -233,100 +233,137 @@ class LensModel
 				            getY(), getWidth(), getHeight(), 0, 0, null);
 		BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
 																	null);
-		return scaleBufferedImage(img, zoomFactor, zoomFactor); 
+		return scaleBufferedImage(img, zoomFactor, zoomFactor);
 	}
 	
 	/**
-	 * Gets the height of the lens. 
+	 * Creates a zoomed version of the passed image.
 	 * 
-	 * @return the height
+	 * @param image		The image to zoom.
+	 * @return See above.
+	 */
+	BufferedImage createZoomedImage(BufferedImage image)
+	{
+		if (image == null) return null;
+		ColorModel cm = image.getColorModel();
+		Raster r = image.getData().createChild(getX(), 
+				            getY(), getWidth(), getHeight(), 0, 0, null);
+		BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
+																	null);
+		int thumbHeight = (int) (img.getHeight()*zoomFactor);
+    	int thumbWidth  = (int) (img.getWidth()*zoomFactor);
+    	
+    	// Create the required compatible (thumbnail) buffered image to  
+    	// avoid potential errors from Java's ImagingLib.
+    	DataBufferInt buf = new DataBufferInt(DEFAULT_SIZE, 1);
+    	if (zoomedDataBufferSize < height*zoomFactor*width*zoomFactor)
+    		buf = new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
+		SampleModel sm = cm.createCompatibleSampleModel(thumbWidth, thumbHeight);
+		WritableRaster wr = Raster.createWritableRaster(sm, buf, null);
+    	BufferedImage thumbImage = new BufferedImage(img.getColorModel(), 
+    											wr, false, null);
+ 
+    	// Do the actual scaling and return the result
+        Graphics2D graphics2D = thumbImage.createGraphics();
+   
+        graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
+		
+        return thumbImage;
+	}
+	
+	/**
+	 * Returns the height of the lens. 
+	 * 
+	 * @return See above.
 	 */
 	int getHeight() { return height; }
 	
 	/**
-	 * Get the width of the lens. 
+	 * Returns the width of the lens. 
 	 * 
-	 * @return the width
+	 * @return See above.
 	 */
 	int getWidth() { return width; }	
     
     /**
-	 * Gets the height of the lens. 
+	 * Returns the height of the lens. 
 	 * 
-	 * @return the height
+	 * @return See above.
 	 */
 	
 	int getScaledHeight() { return (int) Math.ceil(height*imageZoomFactor); }
 	
 	/**
-	 * Gets the width of the lens. 
+	 * Returns the width of the lens. 
 	 * 
-	 * @return the width
+	 * @return See above.
 	 */
 	int getScaledWidth() { return (int) Math.ceil(width*imageZoomFactor); }
 
 	/**
-	 * Gets the x coordinate of the lens.
+	 * Returns the x-coordinate of the lens.
 	 * 
-	 * @return the x
+	 * @return See above.
 	 */
 	int getX() { return x; }
 
 	/**
-	 * Gets the y coordinate of the lens.
+	 * Returns the y-coordinate of the lens.
 
-	 * @return the y
+	 * @return See above.
 	 */
 	int getY() { return y; }
     
 	/**
-	 * Gets the x coordinate of the lens.
+	 * Returns the x-coordinate of the lens multipled by the magnification 
+	 * factor.
 	 * 
-	 * @return the x
+	 * @return See above.
 	 */
 
-	int getScaledX() { return (int)(x*imageZoomFactor); }
+	int getScaledX() { return (int) (x*imageZoomFactor); }
 
 	/**
-	 * Gets the y coordinate of the lens.
+	 * Returns the y-coordinate of the lens multipled by the magnification 
+	 * factor.
      * 
-	 * @return the y
+	 * @return See above.
 	 */
-	int getScaledY() { return (int)(y*imageZoomFactor); }
+	int getScaledY() { return (int) (y*imageZoomFactor); }
 
 	/**
 	 * Sets the height of the lens. 
 	 * 
-	 * @param height the height to set.
+	 * @param height The height to set.
 	 */
 	void setHeight(int height)  { this.height = height; }
 
 	/**
 	 * Sets the width of the lens. 
 	 * 
-	 * @param width the width to set.
+	 * @param width The width to set.
 	 */
 	void setWidth(int width) { this.width = width; }
 
 	/**
-	 * Sets the X coordinate of the lens. 
+	 * Sets the x-coordinate of the lens. 
 	 * 
-	 * @param x the x to set.
+	 * @param x The x-coordinate to set.
 	 */
 	void setX(int x) { this.x = x; }
 
 	/**
-	 * Sets the y-Coordinate of the lens. 
+	 * Sets the y-coordinate of the lens. 
 	 * 
-	 * @param y the y to set.
+	 * @param y The y-coordinate  to set.
 	 */
 	void setY(int y) { this.y = y; }
 
 	/**
 	 * Sets the location of the lens.
 	 * 
-	 * @param x x-coordinate
-	 * @param y y-coordinate
+	 * @param x The x-coordinate to set.
+	 * @param y The y-coordinate to set.
 	 */
 	void setLensLocation(int x, int y)
 	{
@@ -335,16 +372,16 @@ class LensModel
 	}
 	
 	/**
-	 * Gets the current Zoomfactor of the lens. 
+	 * Returns the current magnification factor of the lens. 
 	 * 
-	 * @return the zoomFactor
+	 * @return See above.
 	 */
 	float getZoomFactor() { return zoomFactor; }
 
 	/**
      * Sets the zoom factor.
      * 
-	 * @param zoomFactor the zoomFactor to set
+	 * @param zoomFactor The zoomFactor to set.
 	 */
 	void setZoomFactor(float zoomFactor) { this.zoomFactor = zoomFactor; }
 	
@@ -352,8 +389,8 @@ class LensModel
 	 * Sets the image zoom factor. The image in the viewer has been zoomed by
 	 * this number.
 	 * 
-	 * @param imageZoomFactor the amount of zooming that has occurred on the 
-	 * image. 
+	 * @param imageZoomFactor 	The amount of zooming that has occurred on the 
+	 * 							image. 
 	 */
 	void setImageZoomFactor(float imageZoomFactor)
 	{
@@ -364,14 +401,14 @@ class LensModel
 	 * Returns the image zoom factor. The image in the viewer has been zoomed by
 	 * this number.
 	 * 
-	 * @return see above.
+	 * @return See above.
 	 */
 	float getImageZoomFactor() { return imageZoomFactor; }
 	
     /**
      * Returns the scaled size of the lens, scaled by the imageZoomFactor.
      * 
-     * @return scaled lens size.
+     * @return See above.
      */
     Dimension getLensScaledSize()
     {
@@ -382,7 +419,7 @@ class LensModel
      * Returns the scaled location of the lens, scaled by the 
      * imageZoomFactor.
      * 
-     * @return scaled lens location.
+     * @return See above.
      */
     Point getLensScaledLocation()
     {
@@ -392,7 +429,7 @@ class LensModel
     /**
      * Returns the location of the lens.
      * 
-     * @return scaled lens location.
+     * @return See above.
      */
     Point getLensLocation() { return new Point(getX(), getY()); }
     	  
@@ -411,10 +448,10 @@ class LensModel
 	
     /** 
      * Depending on the sampled colour of the image; if the image is 
-     * predominantly dark return a light lens else return a dark lens 
-     * colour. 
+     * predominantly dark returns a light lens else returns a dark lens 
+     * colour. Returns <code>null</code> if the image is <code>null</code>.
      * 
-     * @return see above.
+     * @return See above.
      */
     Color getLensPreferredColour()
     {

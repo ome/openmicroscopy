@@ -543,6 +543,85 @@ class ImViewerUI
         container.add(toolBar, BorderLayout.NORTH);
         container.add(tabs, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
+        tabs.addChangeListener(controller);
+    }
+    
+    /**
+     * Sets the lens's visibility and displays the lens on the grid.
+     * The size of the grid cannot be modified i.e. magnified.
+     * 
+     * @param b Pass <code>true</code> to display the lens, <code>false</code>
+     * 			otherwise.
+     */
+    private void showLensOnGrid(boolean b)
+    {
+    	if (b) {
+            if (model.getMaxX() < lens.getLensUI().getWidth() || 
+                model.getMaxY() < lens.getLensUI().getHeight())
+                    return;
+            //if (firstTimeLensShown) {
+                firstTimeLensShown = false;
+                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
+                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
+                int lensX = diffX/2;
+                int lensY = diffY/2;
+                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
+                    lensX = diffX;
+                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
+                    lensY = diffY;
+                lens.setLensLocation(lensX, lensY);
+                lens.setXYPixelMicron(model.getPixelsSizeX(), 
+                                    model.getPixelsSizeY());
+            //}
+            model.getBrowser().addComponent(lens.getLensUI(), 
+            								ImViewer.GRID_INDEX);
+           // }
+            lens.setImageZoomFactor(1.0f);
+            lens.setPlaneImage(model.getGridImage());
+            //scrollLens();
+            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+        }
+        lens.setVisible(b);
+        repaint();
+    }
+    
+    /**
+     * Sets the lens's visibility and displays the lens on the main canvas.
+     * 
+     * @param b Pass <code>true</code> to display the lens, <code>false</code>
+     * 			otherwise.
+     */
+    private void showLens(boolean b)
+    {
+    	if (b) {
+            if (model.getMaxX() < lens.getLensUI().getWidth() || 
+                model.getMaxY() < lens.getLensUI().getHeight())
+                    return;
+            if (firstTimeLensShown) {
+                firstTimeLensShown = false;
+                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
+                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
+                int lensX = diffX/2;
+                int lensY = diffY/2;
+                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
+                    lensX = diffX;
+                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
+                    lensY = diffY;
+                //lens.setImageZoomFactor((float) model.getZoomFactor());
+                lens.setLensLocation(lensX, lensY);
+                lens.setXYPixelMicron(model.getPixelsSizeX(), 
+                                    model.getPixelsSizeY());
+            }
+            model.getBrowser().addComponent(lens.getLensUI(), 
+                								ImViewer.VIEW_INDEX);
+            //}
+            lens.setImageZoomFactor((float) model.getZoomFactor());
+            lens.setPlaneImage(model.getOriginalImage());
+            scrollLens();
+            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+        }
+        lens.setVisible(b);
+        repaint();
     }
     
     /**
@@ -737,6 +816,18 @@ class ImViewerUI
     }
     
     /**
+     * Creates a zoomed version of the passed image.
+     * 
+     * @param image The image to zoom.
+     * @return See above.
+     */
+    BufferedImage createZoomedLensImage(BufferedImage image)
+    {
+    	if (lens == null) return null;
+    	return lens.createZoomedImage(image);
+    }
+    
+    /**
      * Returns <code>true</code> if the lens is visible, <code>false</code>
      * otherwise.
      * 
@@ -747,6 +838,13 @@ class ImViewerUI
         if (lens != null) return lens.isVisible();
         return false;
     }
+
+    /**
+     * Returns <code>true</code> if the lens exists, <code>otherwise</code>.
+     * 
+     * @return See above
+     */
+    boolean hasLensImage() { return (lens != null); }
     
     /**
      * Sets the lens's visibility. If the lens hasn't previously created, 
@@ -762,33 +860,19 @@ class ImViewerUI
         	lens.addPropertyChangeListener(
         			LensComponent.LENS_LOCATION_PROPERTY, controller);
         }
-        if (b) {
-            if (model.getMaxX() < lens.getLensUI().getWidth() || 
-                model.getMaxY() < lens.getLensUI().getHeight())
-                    return;
-            if (firstTimeLensShown) {
-                firstTimeLensShown = false;
-                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
-                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
-                int lensX = diffX/2;
-                int lensY = diffY/2;
-                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
-                    lensX = diffX;
-                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
-                    lensY = diffY;
-                lens.setImageZoomFactor((float) model.getZoomFactor());
-                lens.setLensLocation(lensX, lensY);
-                lens.setXYPixelMicron(model.getPixelsSizeX(), 
-                                    model.getPixelsSizeY());
-                model.getBrowser().addComponent(lens.getLensUI());
-            }
-            lens.setImageZoomFactor((float) model.getZoomFactor());
-            lens.setPlaneImage(model.getOriginalImage());
-            scrollLens();
-            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+        if (!firstTimeLensShown) {
+        	Browser browser = model.getBrowser();
+        	browser.removeComponent(lens.getLensUI(), ImViewer.VIEW_INDEX);
+        	browser.removeComponent(lens.getLensUI(), ImViewer.GRID_INDEX);
         }
-        lens.setVisible(b);
-        repaint();
+        switch (model.getTabbedIndex()) {
+			case ImViewer.VIEW_INDEX:
+				showLens(b);
+				break;
+			case ImViewer.GRID_INDEX:
+				showLensOnGrid(b);
+				break;
+		}
     }
     
     /**
@@ -872,12 +956,12 @@ class ImViewerUI
      * Sets the selected pane.
      * 
      * @param index The index of the selected tabbed pane.
-     * @param c 	The selected component.
      */
-    void setSelectedPane(int index, Component c)
+    void setSelectedPane(int index)
     {
     	model.setTabbedIndex(index);
-    	model.getBrowser().setSelectedPane(c);
+    	model.getBrowser().setSelectedPane(index);
+    	setLensVisible(isLensVisible());
     }
     
     /** 

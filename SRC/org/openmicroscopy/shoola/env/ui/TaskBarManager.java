@@ -354,8 +354,8 @@ class TaskBarManager
 		ActionListener exit = new ActionListener() {		
 			public void actionPerformed(ActionEvent ae) { doExit(); }
 		};
-		view.getButton(TaskBarView.EXIT_MI).addActionListener(exit);
-		view.getButton(TaskBarView.EXIT_BTN).addActionListener(exit);
+		//view.getButton(TaskBarView.EXIT_MI).addActionListener(exit);
+		//view.getButton(TaskBarView.EXIT_BTN).addActionListener(exit);
 	}
 	
 	/**

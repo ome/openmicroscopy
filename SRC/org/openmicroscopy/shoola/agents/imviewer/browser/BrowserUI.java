@@ -73,6 +73,9 @@ class BrowserUI
     /** Reference to the Control. */
     private BrowserControl      controller;
     
+    /** Listens to the mouse moves on the Image canvas. */
+    private ImageCanvasListener	canvasListener;
+    
     /** Initializes the components composing the display. */
     private void initComponents()
     {
@@ -80,6 +83,7 @@ class BrowserUI
         browserCanvas = new BrowserCanvas(model, this);
         //The image canvas is always at the bottom of the pile.
         layeredPane.add(browserCanvas, new Integer(0));
+        canvasListener = new ImageCanvasListener(model, browserCanvas);
     }
     
     /** Builds and lays out the GUI. */
@@ -115,21 +119,21 @@ class BrowserUI
      * Adds the component to the {@link #layeredPane}. The component will
      * be added to the top of the pile
      * 
-     * @param c The component to add.
+     * @param c 	The component to add.
      */
     void addComponentToLayer(JComponent c)
     {
-        layeredPane.add(c, new Integer(1));
+    	layeredPane.add(c, new Integer(1));
     }
     
     /**
      * Removes the component from the {@link #layeredPane}.
      * 
-     * @param c The component to remove.
+     * @param c 	The component to remove.
      */
     void removeComponentFromLayer(JComponent c)
     {
-        layeredPane.remove(c);
+    	layeredPane.remove(c);
     }
 
     /**
@@ -141,6 +145,8 @@ class BrowserUI
     {
         if (model.getRenderedImage() == null) return;
         model.createDisplayedImage();
+        BufferedImage img = model.getDisplayedImage();
+        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         browserCanvas.repaint();
     }
     
@@ -151,6 +157,7 @@ class BrowserUI
         model.createDisplayedImage();
         BufferedImage img = model.getDisplayedImage();
         setComponentsSize(img.getWidth(), img.getHeight());
+        canvasListener.setAreaSize(img.getWidth(), img.getHeight());
         /*
         JViewport currentView = getViewport();
         int h = img.getHeight();

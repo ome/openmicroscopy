@@ -79,12 +79,10 @@ public class OneKnobSliderUI
 	private static final int 	TEXT_SPACE = 2;
 	
 	/** The starting color of the gradient used in the track. */
-    private static final Color 	TRACK_GRADIENT_START = 
-    									new Color(76, 76, 76, 255);
+    private static final Color 	TRACK_GRADIENT_START = new Color(76, 76, 76);
     
     /** The final color of the gradient used in the track. */
-    private static final Color 	TRACK_GRADIENT_END = 
-    									new Color(176, 176, 176, 255);
+    private static final Color 	TRACK_GRADIENT_END = new Color(176, 176, 176);
     
     /** Offset to the left of the mouse used for placing tooltip. */
     //private static final int 	TOOLTIP_OFFSET = 25;

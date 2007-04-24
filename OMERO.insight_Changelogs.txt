@@ -7,7 +7,16 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
   
- --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ Last update: 24/04/2007 (revision 4773)
+ Version: Beta 2
+ 
+ Changes:
+ - General: UI cleaning.
+ - Viewer: Smart selection of the split option.
+ - Viewer: Allow to save the magnified lens image and the lens+split channels.
+ 
+--------------------------------------------------------------------------------
  Last update: 16/04/2007 (revision 4773)
  Version: Beta 2
  

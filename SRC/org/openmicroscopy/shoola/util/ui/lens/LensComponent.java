@@ -217,7 +217,7 @@ public class LensComponent
 	}
 	
 	/**
-	 * Sets the plane image of the lens to a new Image. 
+	 * Sets the plane image of the lens to a new image. 
 	 * 
 	 * @param img new Image.
 	 */
@@ -355,19 +355,25 @@ public class LensComponent
 	 * 
 	 * @return The location of lens. 
 	 */
-	public Point getLensLocation()
-	{
-		return lensModel.getLensLocation();
-	}
+	public Point getLensLocation() { return lensModel.getLensLocation(); }
 	
 	/**
 	 * Returns the view of the zoom window.
 	 * 
 	 * @return See above.
 	 */
-	public Component getZoomWindowUI()
+	public Component getZoomWindowUI() { return zoomWindow.getUI(); }
+	
+	/**
+	 * Returns a zoomed image of the passed image.
+	 * 
+	 * @param image The image to zoom.
+	 * @return Se above.
+	 */
+	public BufferedImage createZoomedImage(BufferedImage image)
 	{
-		return zoomWindow.getUI();
+		if (image == null) return null;
+		return lensModel.createZoomedImage(image);
 	}
 	
 }

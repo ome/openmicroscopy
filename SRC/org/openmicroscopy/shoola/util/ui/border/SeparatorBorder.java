@@ -97,7 +97,7 @@ public class SeparatorBorder
     public boolean isBorderOpaque() { return false; }
     
     /**
-     * Paints the border for the specified component with the 
+     * Implemented to paint the border for the specified component with the 
      * specified position and size.
      * 
      * @param c         The component for which this border is being painted.

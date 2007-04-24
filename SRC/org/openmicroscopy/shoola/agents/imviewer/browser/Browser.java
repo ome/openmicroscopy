@@ -27,10 +27,8 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
@@ -92,17 +90,23 @@ public interface Browser
      * Removes the specified component from the layered pane hosting 
      * the image.
      * 
-     * @param c The component to remove.
+     * @param c 		The component to remove.
+     * @param viewIndex Identifies the index of the view i.e. 
+     * 					{@link ImViewer#VIEW_INDEX} or 
+     * 					{@link ImViewer#GRID_INDEX}.
      */
-    public void removeComponent(JComponent c);
+    public void removeComponent(JComponent c, int viewIndex);
     
     /**
      * Adds the specified component to the layered pane hosting
      * the image.
      * 
-     * @param c The component to add.
+     * @param c 		The component to add.
+     * @param viewIndex Identifies the index of the view i.e. 
+     * 					{@link ImViewer#VIEW_INDEX} or 
+     * 					{@link ImViewer#GRID_INDEX}.
      */
-    public void addComponent(JComponent c);
+    public void addComponent(JComponent c, int viewIndex);
     
     /**
      * Sets the zoom factor.
@@ -240,10 +244,10 @@ public interface Browser
 	/**
 	 * Sets the selected pane.
 	 * 
-	 * @param c The selected pane.
+	 * @param index The index of the selected pane.
 	 */
-	public void setSelectedPane(Component c);
-
+	public void setSelectedPane(int index);
+	
 	/**
      * Returns the name of the grid view.
      * 

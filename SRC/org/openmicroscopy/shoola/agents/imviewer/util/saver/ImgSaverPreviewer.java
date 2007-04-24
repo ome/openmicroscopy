@@ -199,13 +199,16 @@ class ImgSaverPreviewer
     {
         int w = SPACE;
         BufferedImage img = model.getImage();
-        List l = model.getImageComponents();
-        if (l != null) {
-            int n = l.size();
-            w += n*img.getWidth()+(n-1)*SPACE;
+        if (img != null) {
+        	List l = model.getImageComponents();
+            if (l != null) {
+                int n = l.size();
+                w += n*img.getWidth()+(n-1)*SPACE;
+            }
+            w += (img.getWidth()+SPACE);
+            setDimensions(w, img.getHeight()+2*SPACE);
         }
-        w += (img.getWidth()+SPACE);
-        setDimensions(w, img.getHeight()+2*SPACE);
+        
         canvas.repaint();
         buildGUI();
         pack();

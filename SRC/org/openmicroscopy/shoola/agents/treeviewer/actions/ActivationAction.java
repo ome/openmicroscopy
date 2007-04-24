@@ -56,10 +56,11 @@ public class ActivationAction
 {
 
     /** The name of the action. */
-    private static final String NAME = "DataManager";
+    //private static final String NAME = "DataManager";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "DataManager";
+    private static final String DESCRIPTION = "Brings up the DataManager for" +
+    		" the selected user.";
     
     /**
      * Creates a new instance.
@@ -70,7 +71,7 @@ public class ActivationAction
     {
         super(model);
         setEnabled(true);
-        putValue(Action.NAME, NAME);
+        putValue(Action.NAME, model.getExperimenterNames());
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
@@ -81,9 +82,6 @@ public class ActivationAction
      * Brings up on screen the {@link TreeViewer}.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-        model.moveToFront();
-    }
+    public void actionPerformed(ActionEvent e) { model.moveToFront(); }
     
 }

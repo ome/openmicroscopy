@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.browser.AnnotatorCanvas 
+ * org.openmicroscopy.shoola.agents.imviewer.browser.ImageCanvas 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,19 +24,17 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * UI component where a smaller (40%) version of the rendered image is painted.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,41 +46,50 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * </small>
  * @since OME3.0
  */
-class AnnotatorCanvas 
-	extends ImageCanvas
+class ImageCanvas
+	extends JPanel
 {
+
+	/** The background color of the text area. */
+	static final Color		BACKGROUND = Color.BLACK;
+	
+	/** Reference to the Model. */
+	protected BrowserModel	model;
+    
+    /** The string to paint on top of the image. */
+    protected String		paintedString;
+    
+    /** The font's height. */
+    protected int 			height;
     
 	/**
      * Creates a new instance.
      *
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-	AnnotatorCanvas(BrowserModel model)
+    ImageCanvas(BrowserModel model)
     {
-        super(model);
-    }
-
-	/**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        
-        BufferedImage img = model.getAnnotateImage();
-        if (img == null) return;
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(img, null, 0, 0); 
-        if (paintedString != null) {
-        	FontMetrics fm = getFontMetrics(getFont());
-        	g2D.setColor(BACKGROUND);
-        	int w = fm.stringWidth(paintedString);
-        	g2D.fillRect(0, 0, w+4, 3*height/2);
-        	g2D.setColor(getBackground());
-        	g2D.drawString(paintedString, 2, height);
-        }	
+    	if (model == null) throw new NullPointerException("No model.");
+        this.model = model;
+        setBackground(model.getBackgroundColor());
+        setDoubleBuffered(true);
+        setFont(getFont().deriveFont(10f));
+        FontMetrics fm = getFontMetrics(getFont());
+        height = fm.getHeight();
+        paintedString = null;
     }
     
+    /**
+	 * Sets the value of the selected z-section and timepoint.
+	 * 
+	 * @param pressedZ	The selected z-section.
+	 * @param pressedT	The selected timepoint.
+	 */
+	void setPaintedString(int pressedZ, int pressedT)
+	{
+		if (pressedZ < 0 || pressedT < 0)  paintedString = null;
+		else paintedString = "z="+pressedZ+", t="+pressedT;
+		repaint();
+	}
+	
 }

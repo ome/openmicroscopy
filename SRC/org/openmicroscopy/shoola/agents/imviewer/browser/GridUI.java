@@ -24,13 +24,11 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
@@ -62,16 +60,16 @@ class GridUI
 	private BrowserModel	model;
 	
 	/** The UI component hosting the {@link GridCanvas}. */
-    private JPanel			layeredPane;
+    private JLayeredPane	layeredPane;
     
 	/** Initializes the components composing the display. */
     private void initComponents()
     {
-        layeredPane = new JPanel();
+        layeredPane = new JLayeredPane();
         canvas = new GridCanvas(model);
         //The image canvas is always at the bottom of the pile.
-        layeredPane.setLayout(new BorderLayout(0, 0));
-        layeredPane.add(canvas, BorderLayout.CENTER);
+        //layeredPane.setLayout(new BorderLayout(0, 0));
+        layeredPane.add(canvas, new Integer(0));
     }
     
 	/** Builds and lays out the GUI. */
@@ -109,6 +107,27 @@ class GridUI
         canvas.setSize(d);
 	}
 	
+	/**
+     * Adds the component to the {@link #layeredPane}. The component will
+     * be added to the top of the pile
+     * 
+     * @param c The component to add.
+     */
+    void addComponentToLayer(JComponent c)
+    {
+        layeredPane.add(c, new Integer(1));
+    }
+    
+    /**
+     * Removes the component from the {@link #layeredPane}.
+     * 
+     * @param c The component to remove.
+     */
+    void removeComponentFromLayer(JComponent c)
+    {
+        layeredPane.remove(c);
+    }
+    
 	/** Determines the size of the canvas. */
 	void paintImage()
 	{
@@ -121,13 +140,9 @@ class GridUI
 	 * 
 	 * @return See above.
 	 */
-	BufferedImage getGridImage()
-	{
-		return canvas.getGridImage();
-	}
+	BufferedImage getGridImage() { return canvas.getGridImage(); }
 	
-	/**
-	 * 
+	/** 
 	 * Overridden to center the image.
 	 * @see JComponent#setBounds(Rectangle)
 	 */

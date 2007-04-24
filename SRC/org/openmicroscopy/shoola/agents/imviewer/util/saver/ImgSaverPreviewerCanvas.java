@@ -82,7 +82,8 @@ class ImgSaverPreviewerCanvas
             img = (BufferedImage) i.next();
             g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
             width = img.getWidth();
-            if (b && v != null && size < width) {
+            if (b && v != null && size < width && 
+            	model.getType() != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS) {
                 ImagePaintingFactory.paintScaleBar(g2D, w+width-size-10, 
                         ImgSaverPreviewer.SPACE+img.getHeight()-10, size, v,
                         model.getUnitBarColor());

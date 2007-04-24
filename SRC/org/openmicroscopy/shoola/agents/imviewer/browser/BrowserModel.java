@@ -537,6 +537,11 @@ class BrowserModel
     	return new Dimension(col*w+(col-1)*GAP, row*h+(row-1)*GAP);
     }
     
+    boolean hasNoGridImages()
+    {
+    	return (gridImages.size() == 0);
+    }
+    
     /**
      * Returns a collection of images composing the grid.
      * 

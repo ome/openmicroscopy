@@ -148,14 +148,25 @@ class TreeViewerComponent
     /** Links up the MVC triad. */
     void initialize()
     {
-        ExperimenterData user = model.getUserDetails();
-        long id = user.getDefaultGroup().getId();
-        model.setHierarchyRoot(user.getId(), id);
-        model.setExperimenter(user);
         controller.initialize(view);
         view.initialize(controller, model);
     }
-
+    
+    /**
+     * Returns the Model sub-component.
+     * 
+     * @return See above.
+     */
+	TreeViewerModel getModel() { return model; }
+	
+    /**
+     * Sets to <code>true</code> if the component is recycled, 
+     * to <code>false</code> otherwise.
+     * 
+     * @param b The value to set.
+     */
+    void setRecycled(boolean b) { model.setRecycled(b); }
+    
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#getState()
@@ -369,8 +380,12 @@ class TreeViewerComponent
     public void closeWindow()
     {
         cancel();
-        EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        bus.post(new ExitApplication());
+        if (TreeViewerFactory.isLastViewer()) {
+        	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+            bus.post(new ExitApplication());
+        } else {
+        	view.setVisible(false); //REVIEW THAT CODE
+        }
     }
 
     /**
@@ -710,6 +725,20 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
     	if (experimenter == null) return;
+    	/*
+    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(experimenter, userGroupID);
+    	EditorFactory.setEditorSelectedPane(Editor.PROPERTIES_EDITOR);
+        EditorFactory.setSubSelectedPane(Editor.ANNOTATION_INDEX);
+        if (viewer != null) {
+        	if (viewer.isRecycled()) viewer.moveToFront();
+        	else viewer.activate();
+        }
+        */
+        //if (model.getState() == READY)
+        //    firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
+        //    					Boolean.TRUE);
+    	//Creates a new 
+    	
     	removeEditor();
         model.setExperimenter(experimenter);
         model.setHierarchyRoot(experimenter.getId(), userGroupID);
@@ -719,6 +748,7 @@ class TreeViewerComponent
         if (model.getState() == READY)
             firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
+            					
     }
 
     /**
@@ -1103,5 +1133,11 @@ class TreeViewerComponent
 		dh.addPropertyChangeListener(controller);
 		dh.activate();
 	}
+
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#isRecycled()
+     */
+	public boolean isRecycled() { return model.isRecycled(); }
     
 }

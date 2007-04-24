@@ -222,8 +222,12 @@ class BrowserUI
         }
     }
     
-    /** Helper method to create the trees hosting the display. */
-    private void createTrees()
+    /** 
+     * Helper method to create the trees hosting the display. 
+     * 
+     * @param exp The logged in experimenter.
+     */
+    private void createTrees(ExperimenterData exp)
     {
         treeDisplay = new JTree();
         treeDisplay.setVisible(true);
@@ -235,6 +239,7 @@ class BrowserUI
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         
         TreeImageSet root = new TreeImageSet("");
+        if (exp != null) root.setUserObject(exp);
         DefaultTreeModel treeModel = (DefaultTreeModel) treeDisplay.getModel();
         treeModel.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), root, 
                                 root.getChildCount());
@@ -450,12 +455,13 @@ class BrowserUI
      * @param controller    The Controller.
      * @param model         The Model
      */
-    void initialize(BrowserControl controller, BrowserModel model)
+    void initialize(BrowserControl controller, BrowserModel model, 
+    						ExperimenterData exp)
     {
         this.controller = controller;
         this.model = model;
         createMenuBar();
-        createTrees();
+        createTrees(exp);
         buildGUI();
     }
 

@@ -123,16 +123,16 @@ public class ImViewerFactory
     }
 
     /** All the tracked components. */
-    private Set<ImViewer>     viewers;
+    private Set<ImViewer>     	viewers;
 
     /** The windows menu. */
-    private JMenu   windowMenu;
+    private JMenu   			windowMenu;
     
     /** 
      * Indicates if the {@link #windowMenu} is attached to the 
      * <code>TaskBar</code>.
      */
-    private boolean isAttached;
+    private boolean 			isAttached;
     
     /** Creates a new instance. */
     private ImViewerFactory()

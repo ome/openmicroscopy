@@ -162,10 +162,12 @@ class TaskBarView
 	private JToolBar[]		    toolbars;
 
 	/** Cached reference to the {@link IconManager} singleton.*/
-	private IconManager        iconManager;
+	private IconManager        	iconManager;
     
     /** Collection of the copy of the window menu. */
-    private Set                 windowMenus;
+    private Set<JMenu>         	windowMenus;
+    
+    private Set<JMenuBar>		menubars;
     
 	/**
 	 * Helper method to create all menu items for the various menus within
@@ -241,7 +243,6 @@ class TaskBarView
         for (int j = 0; j < al.length; j++)
             item.addActionListener(al[j]);
         return item;
-
     }
     
 	/**
@@ -362,7 +363,7 @@ class TaskBarView
 	{
 		JToolBar bar = new JToolBar();
 		bar.setBorder(BorderFactory.createEtchedBorder());
-		bar.setFloatable(true);
+		bar.setFloatable(false);
 		bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 		return bar;
 	}
@@ -388,8 +389,8 @@ class TaskBarView
 		bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
 		bars.add(file);
 		bars.add(connect);
-		bars.add(toolbars[TASKS_TOOLBAR]);
-		bars.add(toolbars[QUICK_LAUNCH_TOOLBAR]);
+		//bars.add(toolbars[TASKS_TOOLBAR]);
+		//bars.add(toolbars[QUICK_LAUNCH_TOOLBAR]);
 		bars.add(help);
 		outerPanel.setBorder(null);
 		outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
@@ -403,9 +404,32 @@ class TaskBarView
 	private void buildGUI()
 	{
 		setIconImage(IconManager.getOMEImageIcon());
-		setJMenuBar(createMenuBar());
+		JMenuBar bar = createMenuBar();
+		menubars.add(bar);
+		setJMenuBar(bar);
         createToolBarsPanel();
 		//getContentPane().add(createToolBarsPanel());
+	}
+	
+	/**
+	 * Creates and returns a copy of the original menu bar.
+	 * 
+	 * @return See above.
+	 */
+	private JMenuBar copyMenuBar()
+	{
+		JMenuBar original = getJMenuBar();
+		JMenuBar bar = new JMenuBar();
+		JMenu menu, copy;
+		for (int i = 0; i < original.getMenuCount(); i++) {
+			menu = original.getMenu(i);
+			copy = copyItemsFromMenu(menu);
+			bar.add(copy);
+			if (menu == menus[WINDOW_MENU])
+				windowMenus.add(copy);
+		}
+		
+		return bar;
 	}
 	
 	/**
@@ -419,11 +443,9 @@ class TaskBarView
 		super(TITLE);
 		buttons = new AbstractButton[MAX_ID+1];
 		menus = new JMenu[2];
-		toolbars = new JToolBar[2];
-		toolbars[QUICK_LAUNCH_TOOLBAR] = createToolBar();
-		toolbars[TASKS_TOOLBAR] = createToolBar();
 		iconManager = im;
-        windowMenus = new HashSet();
+        windowMenus = new HashSet<JMenu>();
+        menubars = new HashSet<JMenuBar>();
 		buildGUI();
 	}
 	
@@ -488,7 +510,6 @@ class TaskBarView
 							if (((JMenu) c).getText() == entry.getText()) {
 								menu.remove(c);
 							}
-								
 						} 
 					}
 	            }
@@ -526,24 +547,7 @@ class TaskBarView
      * Overriden so that the task bar is never brought up on screen.
      * @see JFrame#setVisible(boolean)
      */
-    public void setVisible(boolean b)
-    {
-        super.setVisible(false);
-    }
-    
-	/** 
-	 * Implemented as specifed by {@link TaskBar}.
-	 * @see TaskBar#open()
-	 */
-    /*
-	public void open() 
-	{
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		pack();
-        UIUtilities.centerAndShow(this);
-        iconify();
-	}
-*/
+    public void setVisible(boolean b) { super.setVisible(false); }
     
     /**
      * Implemented as specifed by {@link TaskBar}.
@@ -553,9 +557,9 @@ class TaskBarView
 
     /**
      * Implemented as specifed by {@link TaskBar}.
-     * @see TaskBar#getTaskBarMenu()
+     * @see TaskBar#getTaskBarMenuBar()
      */
-    public JMenuBar getTaskBarMenu() { return getJMenuBar(); }
+    public JMenuBar getTaskBarMenuBar() { return getJMenuBar(); }//copyMenuBar()
 
     /**
      * Implemented as specifed by {@link TaskBar}.
@@ -563,21 +567,29 @@ class TaskBarView
      */
     public void addToMenuBar(JMenu[] menus, boolean before)
     {
-        JMenuBar bar = getJMenuBar();
-        if (before) {
-            JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
-            for (int i = 0; i < existingMenus.length; i++) 
-                existingMenus[i] = bar.getMenu(i);
-            
-            bar.removeAll();
-            for (int j = 0; j < menus.length; j++) 
-                bar.add(menus[j]);
-            for (int i = 0; i < existingMenus.length; i++) 
-                bar.add(existingMenus[i]);
-        } else {
-            for (int j = 0; j < menus.length; j++) 
-                bar.add(menus[j]);
-        }
+    	Iterator k = menubars.iterator();
+    	JMenuBar bar;
+    	int i, j;
+    	JMenu[] existingMenus;
+    	while (k.hasNext()) {
+			bar = (JMenuBar) k.next();
+			if (before) {
+				existingMenus = new JMenu[bar.getMenuCount()];
+				for (i = 0; i < existingMenus.length; i++) 
+					existingMenus[i] = bar.getMenu(i);
+
+				bar.removeAll();
+				for (j = 0; j < menus.length; j++) 
+					bar.add(menus[j]);
+				for (i = 0; i < existingMenus.length; i++) 
+					bar.add(existingMenus[i]);
+			} else {
+				for (j = 0; j < menus.length; j++) 
+					bar.add(menus[j]);
+			}
+		}
+        //JMenuBar bar = getJMenuBar();
+       
     }
 
     /**

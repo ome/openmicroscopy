@@ -578,4 +578,12 @@ public interface TreeViewer
 	 */
 	public void classifyChildren(TreeImageDisplay node);
 	
+	/**
+	 * Returns <code>true</code> if the viewer is recycled, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRecycled();
+	
 }

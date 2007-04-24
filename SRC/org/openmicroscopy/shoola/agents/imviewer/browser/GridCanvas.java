@@ -32,7 +32,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -54,17 +53,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * @since OME3.0
  */
 class GridCanvas 
-	extends JPanel
+	extends ImageCanvas
 {
-	
-	/** The line color if no image. */
-	private static final Color	BORDER = Color.BLACK;
-	
-	/** Reference to the Model. */
-    private BrowserModel    model;
-    
-    /** The font's height. */
-    private int 			height;
     
     /** 
      * Paints the image.
@@ -107,7 +97,7 @@ class GridCanvas
                 	//draw string.
                 	
                 	textWidth = fm.stringWidth(channel.getName());
-                	g2D.setColor(BORDER);
+                	g2D.setColor(BACKGROUND);
                 	g2D.fillRect(x, y, textWidth+4, 3*height/2);
                 	g2D.setColor(getBackground());
                     g2D.drawString(channel.getName(), x+2, y+height);
@@ -116,7 +106,7 @@ class GridCanvas
                     							s, v, c);
                     
                 } else { //just paint rectangle.
-                	g2D.setColor(BORDER);
+                	g2D.setColor(BACKGROUND);
                 	g2D.drawRect(x, y, w-1, h-1);
                 }
             }
@@ -132,14 +122,7 @@ class GridCanvas
      */
 	GridCanvas(BrowserModel model)
 	{
-		if (model == null) throw new NullPointerException("No model.");
-        this.model = model;
-        //setLayout(null);
-        setBackground(model.getBackgroundColor());
-        setDoubleBuffered(true);
-        setFont(getFont().deriveFont(10f));
-        FontMetrics fm = getFontMetrics(getFont());
-        height = fm.getHeight();
+		super(model); 
 	}
 	
 	/**
@@ -167,7 +150,6 @@ class GridCanvas
 		ImagePaintingFactory.setGraphicRenderingSettings(g2D);
 		paintImage(g2D, w, h, model.isUnitBar());
 		return gridImage;
-		
 	}
 
 	/**
@@ -179,7 +161,7 @@ class GridCanvas
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-    	BufferedImage original = model.getAnnotateImage();
+        BufferedImage original = model.getAnnotateImage();
     	paintImage(g2D, original.getWidth(), original.getHeight(), 
     				model.isUnitBar());
     }

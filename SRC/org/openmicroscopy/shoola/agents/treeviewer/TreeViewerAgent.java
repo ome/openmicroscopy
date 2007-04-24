@@ -31,14 +31,12 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
+import pojos.ExperimenterData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
@@ -53,10 +51,10 @@ import org.openmicroscopy.shoola.env.event.EventBus;
  * @since OME2.2
  */
 public class TreeViewerAgent
-    implements Agent, AgentEventListener
+    implements Agent
 {
 
-    /** Reference to the registry. */
+	/** Reference to the registry. */
     private static Registry         registry;
     
     /**
@@ -67,36 +65,15 @@ public class TreeViewerAgent
     public static Registry getRegistry() { return registry; }
     
     /**
-     * Handles the {@link ShowProperties} event.
-     * 
-     * @param e The event to handle.
-     */
-    private void handleShowProperties(ShowProperties e)
-    {
-        int type = -1;
-        switch (e.getEditorType()) {
-            case ShowProperties.CREATE:
-                type = TreeViewer.CREATE_EDITOR;
-                break;
-            case ShowProperties.EDIT:
-                type = TreeViewer.PROPERTIES_EDITOR;
-        }
-        if (type == -1) //shouldn't happen
-            throw new IllegalArgumentException("Properties type not supported");
-        TreeViewer viewer = TreeViewerFactory.getViewer();
-        if (viewer != null) {
-            viewer.showProperties(e.getUserObject(), type);
-            viewer.moveToFront();
-        }
-    }
-    
-    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
     public void activate()
     {
-        TreeViewer viewer = TreeViewerFactory.getViewer();
+    	ExperimenterData exp =(ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	long id = exp.getDefaultGroup().getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null) viewer.activate();
     }
 
@@ -113,8 +90,6 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
-        EventBus bus = registry.getEventBus();
-        bus.register(this, ShowProperties.class);
     }
 
     /**
@@ -122,15 +97,5 @@ public class TreeViewerAgent
      * @see Agent#canTerminate()
      */
     public boolean canTerminate() { return true; }
-
-    /**
-     * Responds to an event fired trigger on the bus.
-     * @see AgentEventListener#eventFired(AgentEvent)
-     */
-    public void eventFired(AgentEvent ae)
-    {
-        if (ae instanceof ShowProperties)
-           handleShowProperties((ShowProperties) ae);   
-    }
 
 }

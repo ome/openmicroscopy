@@ -31,6 +31,7 @@ import java.beans.PropertyChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 
 /** 
@@ -89,9 +90,8 @@ class BrowserControl
 	{
 		String name = evt.getPropertyName();
 		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
-			model.setSelectedPane(model.getAnnotator());
+			model.setSelectedPane(ImViewer.ANNOTATOR_INDEX);
 		}
-		
 	}
     
 }

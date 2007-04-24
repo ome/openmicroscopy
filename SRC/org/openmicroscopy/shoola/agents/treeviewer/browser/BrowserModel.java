@@ -149,7 +149,8 @@ class BrowserModel
      * 
      * @param browserType   The browser's type. One of the type defined by
      *                      the {@link Browser}.
-     * @param parent        Reference to the parent.                  
+     * @param parent        Reference to the parent. 
+     * @param experimenter  The experimenter this browser is for.                  
      */
     protected BrowserModel(int browserType, TreeViewer parent)
     { 
@@ -163,6 +164,7 @@ class BrowserModel
         selectedNodes = new HashSet();
         mainTree = true;
         displayed = true;
+        
     }
 
     /**
@@ -310,7 +312,7 @@ class BrowserModel
     void fireFilteredImageDataLoading(Set nodes)
     {
     	filteredNodes = nodes;
-        Set ids = new HashSet(nodes.size());
+        Set<Long> ids = new HashSet<Long>(nodes.size());
         Iterator i = nodes.iterator();
         Class klass = null;
         if (filterType == Browser.IN_DATASET_FILTER) {

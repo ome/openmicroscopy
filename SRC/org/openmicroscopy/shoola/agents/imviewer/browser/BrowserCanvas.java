@@ -30,7 +30,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -53,11 +52,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * @since OME2.2
  */
 class BrowserCanvas
-    extends JPanel
+    extends ImageCanvas
 {
-
-	/** Reference to the Model. */
-    private BrowserModel    model;
     
     /** Reference to the View. */
     private BrowserUI    	view;
@@ -70,11 +66,9 @@ class BrowserCanvas
      */
     BrowserCanvas(BrowserModel model, BrowserUI view)
     {
-        if (model == null) throw new NullPointerException("No model.");
+        super(model);
         if (view == null) throw new NullPointerException("No view.");
-        this.model = model;
         this.view = view;
-        setDoubleBuffered(true);
     }
     
     /**

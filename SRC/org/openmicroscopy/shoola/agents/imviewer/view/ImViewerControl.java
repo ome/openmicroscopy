@@ -413,6 +413,7 @@ class ImViewerControl
         });
         view.getLoadingWindow().addPropertyChangeListener(
                 LoadingWindow.CLOSED_PROPERTY, this);
+        
     }
 
     /** 
@@ -499,9 +500,7 @@ class ImViewerControl
     {
     	if (e.getSource() instanceof JTabbedPane) {
     		JTabbedPane pane = (JTabbedPane) e.getSource();
-            
-            view.setSelectedPane(pane.getSelectedIndex(),
-            					pane.getSelectedComponent());
+            view.setSelectedPane(pane.getSelectedIndex());
     		return;
     	}
     		

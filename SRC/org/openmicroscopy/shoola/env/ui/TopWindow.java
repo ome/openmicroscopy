@@ -88,8 +88,8 @@ public abstract class TopWindow
 	/** Adds the display buttons to the task bar and enables them. */
 	private void configureButtons()
 	{
-		taskBar.addToMenu(TaskBar.WINDOW_MENU, winMenuEntry);
-		taskBar.addToToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
+		//taskBar.addToMenu(TaskBar.WINDOW_MENU, winMenuEntry);
+		//taskBar.addToToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 		enableButtons(true);
 	}
 	
@@ -196,8 +196,8 @@ public abstract class TopWindow
 	public void close()
 	{
 		dispose();
-		taskBar.removeFromMenu(TaskBar.WINDOW_MENU, winMenuEntry);
-		taskBar.removeFromToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
+		//taskBar.removeFromMenu(TaskBar.WINDOW_MENU, winMenuEntry);
+		//taskBar.removeFromToolBar(TaskBar.QUICK_LAUNCH_TOOLBAR, quickLaunchBtn);
 	}
 	
     /**

@@ -48,8 +48,9 @@ import javax.swing.Action;
 class ZoomAction 
 	extends AbstractAction
 {
+	
 	/** Number of options in action. */
-	final static int MAX = 10;
+	final static int 		MAX = 10;
 
 	/** Constant for zoom action to set the magnification of the lens to x1.*/
 	final static int		ZOOMx1 = 0;
@@ -88,7 +89,7 @@ class ZoomAction
 	private int				index;
 	
 	/** Names for each action associated with the change in magnification. */
-	private static String[]     names;
+	private static String[]	names;
 	   
 	static {
 	        names = new String[MAX];
@@ -104,7 +105,6 @@ class ZoomAction
 	        names[ZOOMx10] = "Set Magnification x10";
 	}
 
-    
 	/** 
      * Controls if the specified index is valid.
      * 

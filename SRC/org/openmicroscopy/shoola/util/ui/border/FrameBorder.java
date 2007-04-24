@@ -111,37 +111,6 @@ public class FrameBorder
         this.margin = margin;
         insets = new Insets(margin+1, margin+1, margin+1, margin+1);
     }
-    
-    /**
-     * Paints the border for the specified component with the 
-     * specified position and size.
-     * 
-     * @param c         The component for which this border is being painted.
-     * @param g         The paint graphics.
-     * @param x         The x position of the painted border.
-     * @param y         The y position of the painted border.
-     * @param width     The width of the painted border.
-     * @param height    The height of the painted border.
-     */
-    public void paintBorder(Component c, Graphics g, 
-                            int x, int y, int width, int height)
-    {
-        //Remember current attributes.
-        Color originalColor = g.getColor();
-        
-        //Paint the margin in the background color.  We paint a line at a
-        //time b/c we can't use fillRectangle -- it would erase the component.
-        g.setColor(backgroundColor);
-        for (int i = 0; i < margin; i++)
-            g.drawRect(x+i, y+i, width-2*i-1, height-2*i-1);
-        
-        //Now paint the line border.
-        g.setColor(lineColor);
-        g.drawRect(x+margin, y+margin, width-2*margin-1, height-2*margin-1);
-        
-        //Finally, restore attributes.
-        g.setColor(originalColor);
-    }
 
     /**
      * Returns the insets of the border.
@@ -185,4 +154,36 @@ public class FrameBorder
         else backgroundColor = c;
     }
     
+    
+    /**
+     * Implemented to paint the border for the specified component with the 
+     * specified position and size.
+     * 
+     * @param c         The component for which this border is being painted.
+     * @param g         The paint graphics.
+     * @param x         The x position of the painted border.
+     * @param y         The y position of the painted border.
+     * @param width     The width of the painted border.
+     * @param height    The height of the painted border.
+     */
+    public void paintBorder(Component c, Graphics g, 
+                            int x, int y, int width, int height)
+    {
+        //Remember current attributes.
+        Color originalColor = g.getColor();
+        
+        //Paint the margin in the background color.  We paint a line at a
+        //time b/c we can't use fillRectangle -- it would erase the component.
+        g.setColor(backgroundColor);
+        for (int i = 0; i < margin; i++)
+            g.drawRect(x+i, y+i, width-2*i-1, height-2*i-1);
+        
+        //Now paint the line border.
+        g.setColor(lineColor);
+        g.drawRect(x+margin, y+margin, width-2*margin-1, height-2*margin-1);
+        
+        //Finally, restore attributes.
+        g.setColor(originalColor);
+    }
+
 }

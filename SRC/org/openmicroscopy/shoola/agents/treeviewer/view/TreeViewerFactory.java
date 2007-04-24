@@ -26,13 +26,22 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.JDialog;
+import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
+import pojos.ExperimenterData;
 
 /** 
  * Factory to create {@link TreeViewer} component.
@@ -54,13 +63,69 @@ public class TreeViewerFactory
     /** The sole instance. */
     private static final TreeViewerFactory  singleton = new TreeViewerFactory();
     
+    /** 
+     * Returns the <code>window</code> menu. 
+     * 
+     * @return See above.
+     */
+    static JMenu getWindowMenu() { return singleton.windowMenu; }
+    
+    /**
+     * Returns <code>true</code> is the {@link #windowMenu} is attached 
+     * to the <code>TaskBar</code>, <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    static boolean isWindowMenuAttachedToTaskBar()
+    {
+        return singleton.isAttached;
+    }
+    
+    /** Attaches the {@link #windowMenu} to the <code>TaskBar</code>. */
+    static void attachWindowMenuToTaskBar()
+    {
+        if (isWindowMenuAttachedToTaskBar()) return;
+        TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+        tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+        singleton.isAttached = true;
+    }
+    
+    /**
+     * Returns the collection of active viewers.
+     * 
+     * @return See above.
+     */
+    static Set getViewers() { return singleton.viewers; }
+    
+    /**
+     * Returns <code>true</code> if there is only one {@link TreeViewer}
+     * available, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    static boolean isLastViewer() { return (singleton.viewers.size() <= 1); }
+    
     /**
      * Returns the {@link TreeViewer}.
      * 
      * @return See above.
      */
-    public static TreeViewer getViewer() { return singleton.getTreeViewer(); }
+    //public static TreeViewer getViewer() { return singleton.getTreeViewer(); }
 
+    /**
+     * Returns the {@link TreeViewer}.
+     * 
+     * @param exp	    	The experiment the TreeViewer is for.
+     * @param userGroupID 	The id to the group selected for the current user.
+     * @return See above.
+     */
+    public static TreeViewer getTreeViewer(ExperimenterData exp, 
+    										long userGroupID)
+    {
+    	TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+    	return singleton.getTreeViewer(model);
+    }
+    
     /**
      * Helper method to retrieve the {@link LoadingWindow}.
      * 
@@ -71,13 +136,55 @@ public class TreeViewerFactory
         return singleton.getTreeViewer().getLoadingWindow();
     }
     
+    /**
+     * Returns the available user groups.
+     * 
+     * @return See above.
+     */
+    static final Map getAvailableUserGroups()
+    { 
+    	return singleton.availableUserGroups; 
+    }
+    
+    /**
+     * Sets the available user groups.
+     * 
+     * @param groups The value to set.
+     */
+    static final void setUserGroups(Map groups)
+    { 
+    	if (singleton.availableUserGroups == null)
+    		singleton.availableUserGroups = groups; 
+    }
+    
     /** The tracked component. */
-    private TreeViewer  viewer;
+    private TreeViewer  	viewer;
+    
+    /** The tracked components. */
+    private Set<TreeViewer>	viewers;
+    
+    /** The windows menu. */
+    private JMenu   		windowMenu;
+    
+    /** 
+     * The available user groups, we store this information
+     * b/c not likely to change during session.
+     */
+    private Map				availableUserGroups;
+    
+    /** 
+     * Indicates if the {@link #windowMenu} is attached to the 
+     * <code>TaskBar</code>.
+     */
+    private boolean 		isAttached;
     
     /** Creates a new instance. */
     private TreeViewerFactory()
     {
         viewer = null;
+        viewers = new HashSet<TreeViewer>();
+        isAttached = false;
+        windowMenu = new JMenu("DataManagers");
     }
     
     /**
@@ -88,15 +195,43 @@ public class TreeViewerFactory
      */
     private TreeViewer getTreeViewer()
     {
-        if (viewer != null) return viewer;
+        //if (viewer != null) return viewer;
         TreeViewerModel model = new TreeViewerModel();
         TreeViewerComponent component = new TreeViewerComponent(model);
         model.initialize(component);
         component.initialize();
-        viewer = component;
+        //viewer = component;
+        viewers.add(component);
         return component;
     }
 
+    /**
+     * Creates or recycles a viewer component for the specified 
+     * <code>model</code>.
+     * 
+     * @param model The Model.
+     * @return A {@link TreeViewer}.
+     */
+    private TreeViewer getTreeViewer(TreeViewerModel model)
+    {
+    	Iterator v = viewers.iterator();
+    	TreeViewerComponent comp;
+        while (v.hasNext()) {
+            comp = (TreeViewerComponent) v.next();
+            if (model.isSameDisplay(comp.getModel())) {
+            	comp.setRecycled(true);
+            	return comp;
+            }
+        }
+        //if (viewer != null) return viewer;
+        comp = new TreeViewerComponent(model);
+        model.initialize(comp);
+        comp.initialize();
+        //viewer = component;
+        viewers.add(comp);
+        return comp;
+    }
+    
     /**
      * Sets the {@link #viewer} to <code>null</code> when it is
      * {@link TreeViewer#DISCARDED discarded}. 
@@ -105,7 +240,9 @@ public class TreeViewerFactory
     public void stateChanged(ChangeEvent ce)
     {
         TreeViewerComponent comp = (TreeViewerComponent) ce.getSource();
-        if (comp.getState() == TreeViewer.DISCARDED) viewer = null;
+        //if (comp.getState() == TreeViewer.DISCARDED) viewer = null;
+        if (comp.getState() == TreeViewer.DISCARDED) viewers.remove(comp);
+        //check the windows menu.
     }
     
 }

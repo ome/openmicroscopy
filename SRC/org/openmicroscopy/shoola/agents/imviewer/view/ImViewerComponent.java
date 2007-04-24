@@ -207,8 +207,8 @@ class ImViewerComponent
     				ZoomAction.MAX_ZOOM_FACTOR);
     	model.setZoomFitToWindow(factor == -1);
     	model.setZoomFactor(factor);
-
-    	if (view.isLensVisible()) {
+    	if (view.isLensVisible() && 
+    		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
     		view.setImageZoomFactor((float) model.getZoomFactor());
     		view.scrollLens();	
     	}	
@@ -461,7 +461,7 @@ class ImViewerComponent
             throw new IllegalStateException(
             "This method can't be invoked in the LOADING_RENDERING_CONTROL.");
         model.setRenderingControl(result);
-        if (model.getMaxC() > 4) model.setRGBSplit(false);
+        if (model.getMaxC() >= 4) model.setRGBSplit(false);
         else {
         	boolean[] rgb = model.hasRGB();
         	model.setRGBSplit(rgb[0] && rgb[1] && rgb[2]);
@@ -1217,7 +1217,7 @@ class ImViewerComponent
      */
 	public boolean[] hasRGB()
 	{
-		//		TODO:Check state
+		//TODO:Check state
 		return model.hasRGB();
 	}
 
@@ -1229,6 +1229,48 @@ class ImViewerComponent
 	{
 		//TODO:Check state
 		return model.getBrowser().getGridImage();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#getLensImageComponents()
+     */
+	public List getLensImageComponents()
+	{
+		if (!view.hasLensImage()) return null;
+		if (model.getTabbedIndex() != ImViewer.VIEW_INDEX) return null;
+		switch (model.getState()) {
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW or" +
+				"LOADING_RENDERING_CONTROL state.");
+		}
+		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+		List l = model.getActiveChannels();
+		if (l.size() < 2) return null;
+		Iterator i = l.iterator();
+		int index;
+		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
+		try {
+			while (i.hasNext()) {
+				index = ((Integer) i.next()).intValue();
+				for (int j = 0; j < model.getMaxC(); j++)
+					model.setChannelActive(j, j == index); 
+				images.add(view.createZoomedLensImage(
+						model.getSplitComponentImage()));
+			}
+			i = l.iterator();
+			while (i.hasNext()) { //reset values.
+				index = ((Integer) i.next()).intValue();
+				model.setChannelActive(index, true);
+			}
+			//view.setLensPlaneImage(model.getOriginalImage());
+		} catch (Exception ex) {
+			reload(ex);
+		}
+		return images;
 	}
     
 }

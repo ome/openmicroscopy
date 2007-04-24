@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
+import pojos.ExperimenterData;
+
 
 
 //Java imports
@@ -53,16 +55,18 @@ public class BrowserFactory
      * @param browserType   The browser's type to create.
      * @param parent        Reference to the parent. 
      *                      Mustn't be <code>null</code>.  
+     * @param experimenter  The experimenter this browser is for. 
      * @return See above.
      */
-    public static Browser createBrowser(int browserType, TreeViewer parent)
+    public static Browser createBrowser(int browserType, TreeViewer parent, 
+    								ExperimenterData experimenter)
     {
         if (parent == null)
             throw new IllegalArgumentException("No parent.");
         BrowserModel model = new BrowserModel(browserType, parent);
         BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
-        component.initialize();
+        component.initialize(experimenter);
         return component;
     }
     

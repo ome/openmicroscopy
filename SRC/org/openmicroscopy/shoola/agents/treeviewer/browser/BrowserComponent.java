@@ -44,9 +44,7 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.treeviewer.ShowProperties;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.clsf.Classifier;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassificationVisitor;
@@ -55,7 +53,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.FilterWindow;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.CategoryGroupData;
@@ -153,8 +150,8 @@ class BrowserComponent
         view.selectFoundNode(node);
         Object ho = node.getUserObject();
         if (ho instanceof DataObject) {
-            EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            bus.post(new ShowProperties((DataObject) ho, ShowProperties.EDIT));
+        	model.getParentModel().showProperties((DataObject) ho,
+        							TreeViewer.PROPERTIES_EDITOR);
         }
     }
     
@@ -240,12 +237,16 @@ class BrowserComponent
         view = new BrowserUI();
     }
     
-    /** Links up the MVC triad. */
-    void initialize()
+    /** 
+     * Links up the MVC triad. 
+     * 
+     * @param exp The logged in experimenter.
+     */
+    void initialize(ExperimenterData exp)
     {
         model.initialize(this);
         controller.initialize(view);
-        view.initialize(controller, model);
+        view.initialize(controller, model, exp);
     }
     
     /**
@@ -472,9 +473,12 @@ class BrowserComponent
             case LOADING_DATA:
             case LOADING_LEAVES:
             case DISCARDED:
+            	return;
+            	/*
                 throw new IllegalStateException(
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
+                        */
         }
         firePropertyChange(POPUP_MENU_PROPERTY, null, view.getSelectedTree());
     }

@@ -151,7 +151,7 @@ public interface ImViewer
     public boolean isLensVisible();
     
     /**
-     * Returnst the zoomed image from the lens component. 
+     * Returns the zoomed image from the lens component. 
      * 
      * @return See above..
      */
@@ -595,5 +595,15 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	public BufferedImage getGridImage();
+
+    /** 
+     * Returns a list of {@link BufferedImage}s composing the lens' image.
+     * Returns <code>null</code> if the the color model is
+     * {@link #GREY_SCALE_MODEL} or if the lens' image isn't the combination of 
+     * at least two channels.
+     * 
+     * @return See above.
+     */
+	public List getLensImageComponents();
     
 }

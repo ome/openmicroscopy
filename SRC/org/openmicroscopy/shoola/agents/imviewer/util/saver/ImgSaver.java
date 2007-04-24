@@ -57,14 +57,14 @@ import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * A modal dialog to save the currently rendered image
+ * A modal dialog to save the currently rendered image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $ $Date: $)
@@ -134,6 +134,16 @@ public class ImgSaver
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage();
                 imageComponents = model.getImageComponents();
+                break;
+            case ImgSaverUI.LENS_IMAGE:
+            	type = ImgSaverUI.LENS_IMAGE;
+            	mainImage = model.getZoomedLensImage();
+            	imageComponents = null;
+                break;
+            case ImgSaverUI.LENS_IMAGE_AND_COMPONENTS:
+            	type = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            	mainImage = model.getZoomedLensImage();
+            	imageComponents = model.getLensImageComponents();
                 break;
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -290,6 +300,7 @@ public class ImgSaver
                 ImagePaintingFactory.paintScaleBar(g2, width-s-10, h-10, s, v);
             writeImage(newImage, name);
         } else {
+        	if (mainImage == null) return;
             int width = mainImage.getWidth();
             int h = mainImage.getHeight();
             int n = imageComponents.size();
@@ -305,7 +316,8 @@ public class ImgSaver
             int x = 0;
             while (i.hasNext()) {
                 g2.drawImage((BufferedImage) i.next(), null, x, 0); 
-                if (unitBar && v != null)
+                if (unitBar && v != null && 
+                    	type != ImgSaverUI.LENS_IMAGE_AND_COMPONENTS)
                     ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, 
                     									s, v);
                 x += width;
@@ -313,7 +325,9 @@ public class ImgSaver
                 x += ImgSaverPreviewer.SPACE;
             }
             g2.drawImage(mainImage, null, x, 0); 
-            if (unitBar && v != null)
+            if (unitBar && v != null && 
+            	!(type == ImgSaverUI.LENS_IMAGE_AND_COMPONENTS ||
+            	 type == ImgSaverUI.LENS_IMAGE))
                 ImagePaintingFactory.paintScaleBar(g2, x+width-s-10, h-10, s, 
                 									v);
             writeImage(newImage, name);
