@@ -32,7 +32,7 @@ public class AdminMain {
      */
     public static void main(String[] args) {
         AdminWindow window = new AdminWindow();
-        window.setDefaultCloseOperation(window.EXIT_ON_CLOSE);
+        window.setDefaultCloseOperation(window.DISPOSE_ON_CLOSE);
         window.setVisible(true);
     }
 }

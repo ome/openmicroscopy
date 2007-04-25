@@ -230,7 +230,7 @@ public class DebugMessenger extends JDialog implements ActionListener {
         map.put("error", error);
         map.put("extra", extra);
 
-        map.put("type", "importer_bugs");
+        map.put("type", "admintool_bugs");
         map.put("java_version", System.getProperty("java.version"));
         map.put("java_class_path", System.getProperty("java.class.path"));
         map.put("os_name", System.getProperty("os.name"));

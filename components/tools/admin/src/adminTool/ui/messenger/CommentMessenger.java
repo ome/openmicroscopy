@@ -156,7 +156,7 @@ public class CommentMessenger extends JDialog implements ActionListener {
         map.put("comment", comment);
         map.put("extra", extra);
 
-        map.put("type", "importer_comments");
+        map.put("type", "admintool_comments");
         map.put("java_version", System.getProperty("java.version"));
         map.put("java_class_path", System.getProperty("java.class.path"));
         map.put("os_name", System.getProperty("os.name"));

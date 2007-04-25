@@ -117,7 +117,7 @@ class SplashScreenView
     private static final String		DEFAULT_SERVER = "Add a new server ->";
 	
     /** The client's version. */
-    private static final String     VERSION = "3.0_M3_Beta1/OMERO M3";
+    private static final String     VERSION = "3.0_M3_Beta1.2/OMERO M3";
     
 	/** Text field to enter the login user name. */
 	JTextField          user;
@@ -330,7 +330,7 @@ class SplashScreenView
 		initFields();
 		initButtons();
 		buildGUI();
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setUndecorated(true);
 	}
