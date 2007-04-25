@@ -11,6 +11,7 @@
 
 #include <RTypes.h>
 #include <string>
+#include <iosfwd>
 
 /**
  * These helper classes are intended to make working with the
@@ -103,5 +104,21 @@ namespace OMERO {
   typedef IceUtil::Handle<CObject> CObjectPtr;
  
 }
+
+#define toString(Type)                                          \
+std::ostream& operator<<(std::ostream& os, const Type type) {   \
+  if (type->null) os << "null";                                 \
+  else os << type->val ;                                        \
+  return os; }                                                  \
+// 
+toString(omero::RIntPtr);
+toString(omero::RBoolPtr);
+toString(omero::RDoublePtr);
+toString(omero::RFloatPtr);
+toString(omero::RLongPtr);
+toString(omero::RStringPtr);
+//These need more work
+//toString(omero::RObjectPtr);
+//toString(omero::RTimePtr);
 
 #endif // OMERO_types_h

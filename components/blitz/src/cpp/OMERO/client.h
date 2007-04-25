@@ -14,6 +14,8 @@
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 #include <string>
+#include <iosfwd>
+
 namespace OMERO {
 
   /*
@@ -99,5 +101,7 @@ namespace OMERO {
   };
 
 }
+
+std::ostream& operator<<(std::ostream& os, const omero::model::IObjectPtr ptr);
 
 #endif // OMERO_CLIENT_H

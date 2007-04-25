@@ -99,3 +99,8 @@ namespace OMERO {
   }
 
 }
+
+ostream& operator<<(ostream& os, const omero::model::IObjectPtr ptr) {
+  os << ptr->ice_staticId() << ":" << ptr->id;
+  return os;
+}
