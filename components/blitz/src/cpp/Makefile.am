@@ -32,7 +32,7 @@ libOMERO_common_la_SOURCES = OMERO/errors.cpp DetailsI.cpp PermissionsI.cpp gene
 
 #libOMERO_common_a_LDFLAGS = -no-undefined -version-info 0:0:0
 
-libOMERO_client_la_SOURCES= ./OMERO/client.cpp
+libOMERO_client_la_SOURCES= ./OMERO/client.cpp ./OMERO/types.cpp
 libOMERO_client_la_LIBADD = libOMERO_common.la
 #libOMERO_client_a_LDFLAGS= -no-undefined -version-info 0:0:0
 

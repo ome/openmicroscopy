@@ -34,8 +34,8 @@ namespace OMERO {
   // @CInt@
   class CInt : public omero::RInt {
   public:
-    CInt() : omero::RInt(true,0){}
-    CInt(int value) : omero::RInt(false,value){}
+    CInt();
+    CInt(int value);
     static CInt _NULL; 
   };
   typedef IceUtil::Handle<CInt> CIntPtr;
@@ -43,8 +43,8 @@ namespace OMERO {
   // @CBool@
   class CBool : public omero::RBool {
   public:
-    CBool() : omero::RBool(true,false){}
-    CBool(bool value) : omero::RBool(false,value){}
+    CBool();
+    CBool(bool value);
     static CBool _NULL;
   };
   typedef IceUtil::Handle<CBool> CBoolPtr;
@@ -52,8 +52,8 @@ namespace OMERO {
   // @CDouble@
   class CDouble : public omero::RDouble {
   public:
-    CDouble() : omero::RDouble(true,0){}
-    CDouble(double value) : omero::RDouble(false,value){}
+    CDouble();
+    CDouble(double value);
     static CDouble _NULL;
   };
   typedef IceUtil::Handle<CDouble> CDoublePtr;
@@ -61,8 +61,8 @@ namespace OMERO {
   // @CFloat@
   class CFloat : public omero::RFloat {
   public:
-    CFloat() : omero::RFloat(true,0){}
-    CFloat(float value) : omero::RFloat(false,value){}
+    CFloat();
+    CFloat(float value);
     static CFloat _NULL;
   };
   typedef IceUtil::Handle<CFloat> CFloatPtr;
@@ -70,8 +70,8 @@ namespace OMERO {
   // @CLong@
   class CLong : public omero::RLong {
   public:
-    CLong() : omero::RLong(true,0){}
-    CLong(long value) : omero::RLong(false,value){}
+    CLong();
+    CLong(long value);
     static CLong _NULL;
   };
   typedef IceUtil::Handle<CLong> CLongPtr;
@@ -79,8 +79,8 @@ namespace OMERO {
   // @CTime@
   class CTime : public omero::RTime {
   public:
-    CTime() : omero::RTime(true,new omero::Time()){}
-    CTime(omero::TimePtr value) : omero::RTime(false,value){}
+    CTime();
+    CTime(omero::TimePtr value);
     static CTime _NULL;
   };
   typedef IceUtil::Handle<CTime> CTimePtr;
@@ -88,8 +88,8 @@ namespace OMERO {
   // @CString@
   class CString : public omero::RString {
   public:
-    CString() : omero::RString(true,0){}
-    CString(std::string value) : omero::RString(false,value){}
+    CString();
+    CString(std::string value);
     static CString _NULL;
   };
   typedef IceUtil::Handle<CString> CStringPtr;
@@ -97,28 +97,25 @@ namespace OMERO {
   // @CObject@
   class CObject : public omero::RObject {
   public:
-    CObject() : omero::RObject(true,0){}
-    CObject(omero::model::IObjectPtr value) : omero::RObject(false,value){}
+    CObject();
+    CObject(omero::model::IObjectPtr value);
     static CObject _NULL;
   };
   typedef IceUtil::Handle<CObject> CObjectPtr;
  
 }
 
-#define toString(Type)                                          \
-std::ostream& operator<<(std::ostream& os, const Type type) {   \
-  if (type->null) os << "null";                                 \
-  else os << type->val ;                                        \
-  return os; }                                                  \
+#define TypetoStringDecl(Type)                                          \
+std::ostream& operator<<(std::ostream& os, const Type type);
 // 
-toString(omero::RIntPtr);
-toString(omero::RBoolPtr);
-toString(omero::RDoublePtr);
-toString(omero::RFloatPtr);
-toString(omero::RLongPtr);
-toString(omero::RStringPtr);
+TypetoStringDecl(omero::RIntPtr);
+TypetoStringDecl(omero::RBoolPtr);
+TypetoStringDecl(omero::RDoublePtr);
+TypetoStringDecl(omero::RFloatPtr);
+TypetoStringDecl(omero::RLongPtr);
+TypetoStringDecl(omero::RStringPtr);
 //These need more work
-//toString(omero::RObjectPtr);
-//toString(omero::RTimePtr);
+//TypetoStringDecl(omero::RObjectPtr);
+//TypetoStringDecl(omero::RTimePtr);
 
 #endif // OMERO_types_h
