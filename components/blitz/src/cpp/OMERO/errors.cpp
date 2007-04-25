@@ -10,13 +10,19 @@
 
 using namespace std;
 
-void omero::ClientError::ice_print(ostream& out) const
-{
-  Exception::ice_print(out);
-  out << ":\nClient Error";
-  if(!message.empty())
-    {
-      out << ":\n" << message;
-    }
-}; 
+#define ERROR(TYPE)                                          \
+void omero::TYPE::ice_print(ostream& out) const              \
+{                                                            \
+  Exception::ice_print(out);                                 \
+  out << ":\nTYPE";                                          \
+  if(!message.empty())                                       \
+    {                                                        \
+      out << ":\n" << message;                               \
+    }                                                        \
+};                                                           \
+//
+
+ERROR(ClientError)
+ERROR(UnloadedEntityException)
+ERROR(UnloadedCollectionException)
 
