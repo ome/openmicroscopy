@@ -1,3 +1,4 @@
+
 /*
  *   $Id$
  *
@@ -28,8 +29,8 @@ Fixture::Fixture()
   */
 
   // NOT WORKING AS IT SHOULD
-  boost::unit_test::unit_test_monitor.register_exception_translator<std::string>( &stringHandler );
-  boost::unit_test::unit_test_log.set_threshold_level( boost::unit_test::log_messages );
+  b_ut::unit_test_monitor.register_exception_translator<std::string>( &stringHandler );
+  b_ut::unit_test_log.set_threshold_level( b_ut::log_messages );
   //    set_unexpected(printUnexpected);
 }
 
@@ -62,22 +63,22 @@ void Fixture::printUnexpected()
   */
 }
 
-boost::unit_test::test_case const & Fixture::current() {
-  return boost::unit_test::framework::current_test_case();
+b_ut::test_case const & Fixture::current() {
+  return b_ut::framework::current_test_case();
 }
 
 
-boost::unit_test::unit_test_monitor_t& Fixture::monitor() {
-  return boost::unit_test::unit_test_monitor;
+b_ut::unit_test_monitor_t& Fixture::monitor() {
+  return b_ut::unit_test_monitor;
 }
 
-boost::unit_test::unit_test_log_t& Fixture::log() {
-  return boost::unit_test::unit_test_log;
+b_ut::unit_test_log_t& Fixture::log() {
+  return b_ut::unit_test_log;
 }
 
 // from : collector
 bool Fixture::passed() {
-  if ( boost::unit_test::results_collector.
+  if ( b_ut::results_collector.
        results(current().p_id ).
        passed() )
     {

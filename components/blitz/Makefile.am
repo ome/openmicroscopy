@@ -16,7 +16,12 @@ MAINTAINERCLEANFILES = \
 	missing \
 	mkinstalldirs
 
-all : src test
+all : slice src test
+
+slice: force
+	@date
+	cd src/cpp ; $(MAKE) $(MFLAGS) slice
+	@date
 
 src: force
 	@date

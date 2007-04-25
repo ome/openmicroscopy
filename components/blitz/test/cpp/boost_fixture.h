@@ -27,15 +27,17 @@
 
 // see first_failed_assertion dbg hook
 
+namespace b_ut = boost::unit_test;
+
 struct Fixture 
 {
   Fixture();
   ~Fixture();
   void show_stackframe();
   void printUnexpected();
-  boost::unit_test::test_case const & current();
-  boost::unit_test::unit_test_monitor_t& monitor();
-  boost::unit_test::unit_test_log_t& log();
+  b_ut::test_case const & current();
+  b_ut::unit_test_monitor_t& monitor();
+  b_ut::unit_test_log_t& log();
   bool passed();
 };
 

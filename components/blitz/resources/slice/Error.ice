@@ -56,6 +56,20 @@ module omero
     {
     };
 
+    
+    local exception ClientError
+    {
+      string message;
+    };
+
+    local exception UnloadedEntityException extends ClientError
+    {
+    };
+
+    local exception UnloadedCollectionException extends ClientError
+    {
+    };
+
 };
 
 #endif // OMERO_ERROR_ICE

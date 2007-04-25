@@ -88,7 +88,6 @@
 		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
 			<hbmtemplate template="templates/combined.vm"     filepattern="resources/{class-name}I.combined" />
 			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
-			<hbmtemplate template="templates/ice_defs.vm"     filepattern="resources/{class-name}.ice_common" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
 			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp" />
@@ -102,6 +101,9 @@
 		</split-combined>
 		<split-combined prefix="jav">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
+		</split-combined>
+		<split-combined prefix="ice">
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/\1.ice_common"/>
 		</split-combined>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">

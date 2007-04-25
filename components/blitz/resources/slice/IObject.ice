@@ -17,7 +17,8 @@ module omero { module model {
 
 class IObject
 {
-    omero::RLong id;
+    omero::RLong          id;
+    omero::model::Details details;
     bool loaded;
     void unload();
 };
