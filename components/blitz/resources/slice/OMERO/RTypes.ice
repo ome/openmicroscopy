@@ -9,7 +9,7 @@
 #ifndef OMERO_RTYPES_ICE
 #define OMERO_RTYPES_ICE
 
-#include <omero.ice>
+#include <OMERO/fwd.ice>
 
 module omero { 
 

@@ -9,7 +9,7 @@
 #ifndef OMERO_IO_ICE
 #define OMERO_IO_ICE
 
-#include <Error.ice>
+#include <OMERO/Error.ice>
 #include <Ice/BuiltinSequences.ice>
 
 module omero

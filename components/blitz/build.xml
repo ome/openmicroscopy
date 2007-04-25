@@ -6,7 +6,6 @@
     <import file="${classpath.file}"/>
 
     <!-- Local properties -->
-    <property name="ice.file" value="omero.ice"/>
     <property name="uses.ice" value="true"/>
 
 
@@ -87,7 +86,7 @@
 	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
 		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
 			<hbmtemplate template="templates/combined.vm"     filepattern="resources/{class-name}I.combined" />
-			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/${ice.file}" />
+			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/OMERO/fwd.ice" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
 			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/ObjectFactoryRegistrar.cpp" />
@@ -103,7 +102,7 @@
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
 		</split-combined>
 		<split-combined prefix="ice">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/\1.ice_common"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/OMERO/\1.ice_common"/>
 		</split-combined>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
@@ -122,15 +121,16 @@
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
-		<concat destfile="${src.dir}/cpp/generated/OMERO/common.h">
+		<concat destfile="${src.dir}/cpp/generated/OMERO/Model.h">
 			<header>
 
 /* All *.h_common files concatenated by blitz/build.xml */
-#include &lt;ice.h&gt;
-#include &lt;omero.h&gt;
-#include &lt;API.h&gt;
-#include &lt;System.h&gt;
-#include &lt;IObject.h&gt;
+#include &lt;OMERO/fwd.h&gt;
+#include &lt;OMERO/ice.h&gt;
+#include &lt;OMERO/API.h&gt;
+#include &lt;OMERO/System.h&gt;
+#include &lt;OMERO/IObject.h&gt;
+#include &lt;OMERO/Error.h&gt;
 #include &lt;Ice/Ice.h&gt;
 #include &lt;string&gt;
 #include &lt;vector&gt;
@@ -149,9 +149,9 @@
 
 /* All *.ice_common files concatenated by blitz/build.xml */
 
-#include &lt;omero.ice&gt;
-#include &lt;IObject.ice&gt;
-#include &lt;RTypes.ice&gt;
+#include &lt;OMERO/fwd.ice&gt;
+#include &lt;OMERO/IObject.ice&gt;
+#include &lt;OMERO/RTypes.ice&gt;
 
 			</header>
 			<fileset dir="${resrc.dir}/slice" includes="**/*.ice_common"/>

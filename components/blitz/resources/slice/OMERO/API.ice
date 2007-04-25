@@ -9,10 +9,10 @@
 #ifndef omero_API
 #define omero_API
 
-#include <omero.ice>
-#include <RTypes.ice>
-#include <System.ice>
-#include <ROMIO.ice>
+#include <OMERO/fwd.ice>
+#include <OMERO/ROMIO.ice>
+#include <OMERO/RTypes.ice>
+#include <OMERO/System.ice>
 #include <Glacier2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 

@@ -9,8 +9,8 @@
 #ifndef OMERO_SYSTEM_ICE
 #define OMERO_SYSTEM_ICE
 
-#include <omero.ice>
-#include <RTypes.ice>
+#include <OMERO/fwd.ice>
+#include <OMERO/RTypes.ice>
 
 module omero { 
   module sys {     
