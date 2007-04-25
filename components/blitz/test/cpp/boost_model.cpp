@@ -22,6 +22,20 @@ BOOST_AUTO_TEST_CASE( Toggle )
   BOOST_CHECK( pix->settingsLoaded );
 }
 
+BOOST_AUTO_TEST_CASE( SimpleCtor )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->loaded );
+  BOOST_CHECK( img->pixelsLoaded );
+}
+
+BOOST_AUTO_TEST_CASE( UnloadedCtor )
+{
+  Fixture f;
+  
+}
+
 BOOST_AUTO_TEST_CASE( Unload )
 {
   Fixture f;

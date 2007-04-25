@@ -9,7 +9,7 @@
 #ifndef OMERO_types_h
 #define OMERO_types_h
 
-#include <RTypes.h>
+#include <OMERO/RTypes.h>
 #include <string>
 #include <iosfwd>
 

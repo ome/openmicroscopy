@@ -9,7 +9,7 @@
 #ifndef OMERO_CLIENT_H
 #define OMERO_CLIENT_H
 
-#include <OMERO/common.h>
+#include <OMERO/Model.h>
 #include <OMERO/types.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>

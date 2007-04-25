@@ -6,7 +6,7 @@
  *
  */
 
-#include <Error.h>
+#include <OMERO/Error.h>
 
 using namespace std;
 

@@ -40,7 +40,7 @@ Copyright notice added to all files:
 [$jav] package omero.model;
 [$jav] import  java.util.*;
 [$jav] import  ome.conditions.*;
-[$cpp] \\\#include <OMERO/common.h>
+[$cpp] \\\#include <OMERO/Model.h>
 
 
 VARIABLES:
