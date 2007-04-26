@@ -17,6 +17,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.util.PathUtil;
 
 /**
  * @author callan
@@ -35,6 +36,8 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
     private String originalDigest;
 
+    private String ROOT = PathUtil.getInstance().getDataFilePath();
+    
     private byte[] getTestPlane() {
         if (testPlane == null) {
             Integer planeSize = pixbuf.getPlaneSize();
@@ -97,7 +100,7 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         pixels = baseFixture.setUp();
 
         // "Our" fixture which creates the planes needed for this test case.
-        service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        service = new PixelsService(ROOT);
         pixbuf = service.createPixelBuffer(pixels);
     }
 

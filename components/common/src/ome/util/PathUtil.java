@@ -1,4 +1,4 @@
-package ome.io.nio.utests;
+package ome.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;

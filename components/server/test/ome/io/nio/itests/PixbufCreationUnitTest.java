@@ -17,6 +17,8 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.util.PathUtil;
+
 
 /**
  * @author callan
@@ -26,7 +28,8 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
     Pixels pixels;
 
     PixbufIOFixture baseFixture;
-
+    String ROOT = PathUtil.getInstance().getDataFilePath();
+    
     PixelBuffer pixbuf;
 
     @Test
@@ -59,7 +62,7 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
         pixels = baseFixture.setUp();
 
         // "Our" fixture which creates the planes needed for this test case.
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         pixbuf = service.createPixelBuffer(pixels);
 
     }

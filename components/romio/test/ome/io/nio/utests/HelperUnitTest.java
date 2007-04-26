@@ -11,6 +11,7 @@ import java.io.File;
 import org.testng.annotations.*;
 import junit.framework.TestCase;
 import ome.io.nio.PixelsService;
+import ome.util.PathUtil;
 
 public class HelperUnitTest extends TestCase {
 
