@@ -31,6 +31,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -99,8 +100,6 @@ class TreeViewerWin
     /** The tabbed pane hosting the {@link Browser}s. */
     private JTabbedPane 		tabs;
 
-    /** The loading window. */
-    private LoadingWindow 		loadingWin;
     /** 
      * Collections of menu items to update when a node is selected
      * or when a tabbed pane is selected.
@@ -112,6 +111,9 @@ class TreeViewerWin
     
     /** The status bar. */
     private StatusBar           statusBar;
+    
+    /** The bounds of the component invoking the component. */
+    private Rectangle			invokerBounds;
     
     /**
      * Checks if the specified {@link Browser} is already visible.
@@ -164,11 +166,18 @@ class TreeViewerWin
         menus[0] = createFileMenu();
         menus[1] = createEditMenu();
         menus[2] = createViewMenu();
-        tb.addToMenuBar(menus, true);
-        //JMenuItem item = new JMenuItem(
-        //        controller.getAction(TreeViewerControl.ACTIVATION));
-        //tb.addToMenu(TaskBar.WINDOW_MENU, item);
-        return tb.getTaskBarMenuBar();
+        JMenuBar bar = tb.getTaskBarMenuBar();
+        JMenu[] existingMenus = new JMenu[bar.getMenuCount()];
+        
+		for (int i = 0; i < existingMenus.length; i++) 
+			existingMenus[i] = bar.getMenu(i);
+
+		bar.removeAll();
+		for (int j = 0; j < menus.length; j++) 
+			bar.add(menus[j]);
+		for (int i = 0; i < existingMenus.length; i++) 
+			bar.add(existingMenus[i]);
+        return bar;
     }
     
     /**
@@ -327,30 +336,27 @@ class TreeViewerWin
     /**
      * Links this View to its Controller.
      * 
-     * @param controller The Controller.
-     * @param model The Model.
+     * @param controller	The Controller.
+     * @param model 		The Model.
+     * @param bounds		The bounds of the component invoking a new 
+     * 						{@link TreeViewer}.
      */
-    void initialize(TreeViewerControl controller, TreeViewerModel model)
+    void initialize(TreeViewerControl controller, TreeViewerModel model, 
+    						Rectangle bounds)
     {
         this.controller = controller;
+        invokerBounds = bounds;
         this.model = model;
         statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
         toolBar = new ToolBar(controller);
-        loadingWin = new LoadingWindow(this);
-        loadingWin.addPropertyChangeListener(controller);
         initComponents();
         setJMenuBar(createMenuBar());
         buildGUI();
         controller.attachUIListeners(tabs);
+        String title = model.getExperimenterNames()+"'s ";
+        setTitle(title+TITLE);
     }
-
-    /**
-     * Returns the loading window.
-     * 
-     * @return See above.
-     */
-    LoadingWindow getLoadingWindow() { return loadingWin; }
 
     /** Closes and disposes of the window. */
     void closeViewer()
@@ -569,7 +575,8 @@ class TreeViewerWin
         int width = 8*(screenSize.width/10);
         int height = 8*(screenSize.height/10);
         setSize(width, height);
-        UIUtilities.centerAndShow(this);
+        UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
+        invokerBounds = null;//UIUtilities.centerAndShow(this);
     }
 
 }

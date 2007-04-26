@@ -167,11 +167,14 @@ public class IconManager
     /** The <code>Channel Split</code> icon. */
     public static int           CHANNEL_SPLIT = 35;
     
+    /** The <code>Channel Split</code> icon. */
+    public static int           TEXT = 36;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 35;
+    private static int          MAX_ID = 36;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -214,6 +217,7 @@ public class IconManager
         relPaths[ANNOTATION] = "nuvola_kwrite16.png";
         relPaths[GRIDVIEW] = "gridView16.png";
         relPaths[CHANNEL_SPLIT] = "gridView16.png";
+        relPaths[TEXT] = "nuvola_font_truetype16.png";
     }
     
     /** The sole instance. */

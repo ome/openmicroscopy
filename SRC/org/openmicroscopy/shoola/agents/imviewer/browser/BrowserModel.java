@@ -537,10 +537,13 @@ class BrowserModel
     	return new Dimension(col*w+(col-1)*GAP, row*h+(row-1)*GAP);
     }
     
-    boolean hasNoGridImages()
-    {
-    	return (gridImages.size() == 0);
-    }
+    /** 
+     * Returns <code>true</code> if there is no images retrieved for the
+     * grid view, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasNoGridImages() { return (gridImages.size() == 0); }
     
     /**
      * Returns a collection of images composing the grid.
@@ -605,5 +608,13 @@ class BrowserModel
      * @return See above.
      */
 	boolean getRGBSplit() { return parent.getRGBSplit(); }
+	
+	/**
+	 * Returns <code>true</code> if the textual information is painted on 
+	 * top of the grid image, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isTextVisible() { return parent.isTextVisible(); }
 
 }

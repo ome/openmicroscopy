@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -413,5 +412,20 @@ class BrowserComponent
 	{
 		return gridView.getGridImage();
 	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#hasAnnotationToSave()
+     */
+	public boolean hasAnnotationToSave()
+	{
+		return annotator.hasAnnotationToSave();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#saveAnnotation()
+     */
+	public void saveAnnotation() { annotator.saveAnnotation(); }
 
 }

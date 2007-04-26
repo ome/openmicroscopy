@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
@@ -131,8 +132,9 @@ class GridUI
 	/** Determines the size of the canvas. */
 	void paintImage()
 	{
-		setGridSize();
+		//setGridSize();
         repaint();
+        //setBounds(getBounds());
 	}
 	
 	/**
@@ -162,7 +164,10 @@ class GridUI
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
-		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		if (xLoc < 0) xLoc = 0;
+		if (yLoc < 0) yLoc = 0;
+		//layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
+		layeredPane.setLocation(xLoc, yLoc);
 	}
 	
 }

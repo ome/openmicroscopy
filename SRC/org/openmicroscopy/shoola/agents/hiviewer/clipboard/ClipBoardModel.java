@@ -106,7 +106,7 @@ class ClipBoardModel
     /** Initializes the default values. */
     private void init()
     {
-        setPaneIndex(ClipBoard.FIND_PANE);
+        setPaneIndex(ClipBoard.ANNOTATION_PANE);
         cbPanes = new HashMap<Integer, ClipBoardPane>();
         sorter = new ViewerSorter();
         sorter.setAscending(false);

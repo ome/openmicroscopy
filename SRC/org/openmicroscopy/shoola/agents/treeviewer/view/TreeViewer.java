@@ -31,7 +31,6 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -308,15 +307,6 @@ public interface TreeViewer
      *                  {@link Classifier#DECLASSIFY_MODE}.
      */
     public void showClassifier(ImageData[] images, int mode);
-
-    /**
-     * Returns the dialog indicating a data retrieval.
-     * 
-     * @return See above.
-     * @throws IllegalStateException If the current state is
-     *                               {@link #DISCARDED}.
-     */
-    public JDialog getLoadingWindow();
 
     /**
      * Sets the thumbnail associated to the currently edited Image.

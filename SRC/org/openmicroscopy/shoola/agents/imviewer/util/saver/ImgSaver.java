@@ -133,7 +133,14 @@ public class ImgSaver
             case ImgSaverUI.IMAGE_AND_COMPONENTS:
             	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
                 mainImage = model.getDisplayedImage();
-                imageComponents = model.getImageComponents();
+                imageComponents = model.getImageComponents(
+                						ImViewer.RGB_MODEL);
+                break;
+            case ImgSaverUI.IMAGE_AND_COMPONENTS_GREY:
+            	type = ImgSaverUI.IMAGE_AND_COMPONENTS;
+                mainImage = model.getDisplayedImage();
+                imageComponents = model.getImageComponents(
+                							ImViewer.GREY_SCALE_MODEL);
                 break;
             case ImgSaverUI.LENS_IMAGE:
             	type = ImgSaverUI.LENS_IMAGE;
@@ -143,7 +150,14 @@ public class ImgSaver
             case ImgSaverUI.LENS_IMAGE_AND_COMPONENTS:
             	type = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
             	mainImage = model.getZoomedLensImage();
-            	imageComponents = model.getLensImageComponents();
+            	imageComponents = model.getLensImageComponents(
+            								ImViewer.RGB_MODEL);
+                break;
+            case ImgSaverUI.LENS_IMAGE_AND_COMPONENTS_GREY:
+            	type = ImgSaverUI.LENS_IMAGE_AND_COMPONENTS;
+            	mainImage = model.getZoomedLensImage();
+            	imageComponents = model.getLensImageComponents(
+            								ImViewer.GREY_SCALE_MODEL);
                 break;
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

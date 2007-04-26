@@ -453,7 +453,8 @@ class BrowserUI
      * Links this View to its Controller and its Model.
      * 
      * @param controller    The Controller.
-     * @param model         The Model
+     * @param model         The Model.
+     * @param exp			The experimenter the tree view is for.
      */
     void initialize(BrowserControl controller, BrowserModel model, 
     						ExperimenterData exp)

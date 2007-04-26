@@ -136,6 +136,9 @@ class ControlPane
     /** Button to split the displayed image into RGB components. */
     private JToggleButton			rgbSplitButton;
     
+    /** Button to paint some textual information on top of the grid image. */
+    private JToggleButton			textVisibleButton;
+    
     /** Helper reference. */
     private IconManager     		icons;
     
@@ -288,6 +291,10 @@ class ControlPane
         colorPickerButton.addMouseListener((ColorPickerAction) a);
         UIUtilities.unifiedButtonLookAndFeel(colorPickerButton);
         rgbSplitButton = new JToggleButton();
+        textVisibleButton = new JToggleButton();
+        textVisibleButton.setSelected(model.isTextVisible());
+        textVisibleButton.setAction(
+        		controller.getAction(ImViewerControl.TEXT_VISIBLE));
     }
     
     /**
@@ -423,6 +430,8 @@ class ControlPane
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
+        bar.add(textVisibleButton);
+        bar.add(Box.createRigidArea(VBOX));
         bar.add(rgbSplitButton);
         bar.add(Box.createRigidArea(VBOX));
         return bar;

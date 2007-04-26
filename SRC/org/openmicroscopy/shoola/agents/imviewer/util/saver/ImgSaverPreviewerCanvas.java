@@ -104,6 +104,7 @@ class ImgSaverPreviewerCanvas
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
+        setFont(getFont().deriveFont(10f));
     }
     
     /**

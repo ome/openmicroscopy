@@ -261,8 +261,7 @@ class BrowserControl
         }
         if (l.size() == 0) return;
         //Pass TreeImageDisplay array
-        TreeImageDisplay[] nodes = (TreeImageDisplay[]) l.toArray(
-                                    new TreeImageDisplay[l.size()]);
+        TreeImageDisplay[] nodes = l.toArray(new TreeImageDisplay[l.size()]);
         model.setSelectedDisplays(nodes);
     }
     

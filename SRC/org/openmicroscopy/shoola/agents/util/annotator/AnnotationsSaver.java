@@ -210,7 +210,6 @@ public class AnnotationsSaver
 		} else {
 			handle = aView.annotateChildren(toAnnotate, annotation, this);
 		}
-		
 	}
 	
 	/** 

@@ -108,6 +108,9 @@ public class UIUtilities
     /** Maximum width of the table. */
     public static final int                 TABLE_WIDTH = 200;
     
+    /** The value of the increment factor. */
+    public static final int					INCREMENT = 15;
+    
     /** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
     
@@ -156,7 +159,6 @@ public class UIUtilities
                                                 Component child)
     {
         setLocationRelativeTo(parent, child);
-        //child.setVisible(true);
     }
     
     /**
@@ -196,7 +198,7 @@ public class UIUtilities
             UIUtilities.centerAndShow(child);
             return;
         }
-        child.setLocation(bounds.x+10, bounds.y+10);
+        child.setLocation(bounds.x+INCREMENT, bounds.y+INCREMENT);
         child.setVisible(true);
     }
     

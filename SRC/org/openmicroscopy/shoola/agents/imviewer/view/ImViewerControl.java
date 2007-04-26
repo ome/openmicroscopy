@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
@@ -230,8 +231,11 @@ class ImViewerControl
     /** Identifies the <code>download archived files</code> action. */
     static final Integer     DOWNLOAD = new Integer(37);
     
-    /** Identifies the <code>CHANNEL_SPLIT</code> action in the menu. */
+    /** Identifies the <code>channel split</code> action in the menu. */
     static final Integer     CHANNEL_SPLIT = new Integer(38);
+    
+    /** Identifies the <code>text visible</code> action in the menu. */
+    static final Integer     TEXT_VISIBLE = new Integer(39);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -339,6 +343,7 @@ class ImViewerControl
         actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
         actionsMap.put(DOWNLOAD, new ArchivedAction(model));
         actionsMap.put(CHANNEL_SPLIT, new RGBSplitAction(model));
+        actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
     }
     
     /** 

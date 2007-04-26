@@ -29,12 +29,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -145,11 +145,16 @@ class TreeViewerComponent
         f.addPropertyChangeListener(controller);
     }
     
-    /** Links up the MVC triad. */
-    void initialize()
+    /** 
+     * Links up the MVC triad. 
+     * 
+     * @param bounds	The bounds of the component invoking a new 
+     * 					{@link TreeViewer}.
+     */
+    void initialize(Rectangle bounds)
     {
         controller.initialize(view);
-        view.initialize(controller, model);
+        view.initialize(controller, model, bounds);
     }
     
     /**
@@ -207,6 +212,8 @@ class TreeViewerComponent
         Iterator i = browsers.values().iterator();
         while (i.hasNext())
             ((Browser) i.next()).discard();
+        model.discard();
+        fireStateChange();
     }
 
     /**
@@ -384,7 +391,7 @@ class TreeViewerComponent
         	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
             bus.post(new ExitApplication());
         } else {
-        	view.setVisible(false); //REVIEW THAT CODE
+        	discard();
         }
     }
 
@@ -466,18 +473,6 @@ class TreeViewerComponent
         classifier.activate();
         view.addComponent(classifier.getUI());
         */
-    }
-
-    /**
-     * Implemented as specified by the {@link TreeViewer} interface.
-     * @see TreeViewer#getLoadingWindow()
-     */
-    public JDialog getLoadingWindow()
-    {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException("This method should only be " +
-                "invoked in the DISCARDED state.");
-        return view.getLoadingWindow();
     }
 
     /**
@@ -725,20 +720,19 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
     	if (experimenter == null) return;
-    	/*
-    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(experimenter, userGroupID);
+    	TreeViewer viewer = TreeViewerFactory.getTreeViewer(experimenter, 
+    														userGroupID, 
+    														view.getBounds());
     	EditorFactory.setEditorSelectedPane(Editor.PROPERTIES_EDITOR);
         EditorFactory.setSubSelectedPane(Editor.ANNOTATION_INDEX);
         if (viewer != null) {
         	if (viewer.isRecycled()) viewer.moveToFront();
         	else viewer.activate();
         }
-        */
-        //if (model.getState() == READY)
-        //    firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
-        //    					Boolean.TRUE);
+        
+       
     	//Creates a new 
-    	
+    	/*
     	removeEditor();
         model.setExperimenter(experimenter);
         model.setHierarchyRoot(experimenter.getId(), userGroupID);
@@ -748,6 +742,7 @@ class TreeViewerComponent
         if (model.getState() == READY)
             firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
             					Boolean.TRUE);
+            					*/
             					
     }
 

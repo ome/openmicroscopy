@@ -522,7 +522,7 @@ class ImViewerUI
         browser.setComponentsSize(model.getMaxX(), model.getMaxY());
         tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
-        tabs.addChangeListener(controller);
+        
     	JPanel p = new JPanel();
     	p.setLayout(new BorderLayout(0, 0));
     	p.add(controlPane, BorderLayout.WEST);
@@ -545,46 +545,7 @@ class ImViewerUI
         container.add(statusBar, BorderLayout.SOUTH);
         tabs.addChangeListener(controller);
     }
-    
-    /**
-     * Sets the lens's visibility and displays the lens on the grid.
-     * The size of the grid cannot be modified i.e. magnified.
-     * 
-     * @param b Pass <code>true</code> to display the lens, <code>false</code>
-     * 			otherwise.
-     */
-    private void showLensOnGrid(boolean b)
-    {
-    	if (b) {
-            if (model.getMaxX() < lens.getLensUI().getWidth() || 
-                model.getMaxY() < lens.getLensUI().getHeight())
-                    return;
-            //if (firstTimeLensShown) {
-                firstTimeLensShown = false;
-                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
-                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
-                int lensX = diffX/2;
-                int lensY = diffY/2;
-                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
-                    lensX = diffX;
-                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
-                    lensY = diffY;
-                lens.setLensLocation(lensX, lensY);
-                lens.setXYPixelMicron(model.getPixelsSizeX(), 
-                                    model.getPixelsSizeY());
-            //}
-            model.getBrowser().addComponent(lens.getLensUI(), 
-            								ImViewer.GRID_INDEX);
-           // }
-            lens.setImageZoomFactor(1.0f);
-            lens.setPlaneImage(model.getGridImage());
-            //scrollLens();
-            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
-        }
-        lens.setVisible(b);
-        repaint();
-    }
-    
+ 
     /**
      * Sets the lens's visibility and displays the lens on the main canvas.
      * 
@@ -805,14 +766,20 @@ class ImViewerUI
     void resetDefaults() { controlPane.resetDefaults(); }
     
     /**
-     * Sets the image in the lens to the plane image shown on the screen.
-     * 
-     * @param img The value to set.
+     * Sets the image in the lens to the plane image shown on the screen
+     * depending on the selected tabbed pane.
      */
-    void setLensPlaneImage(BufferedImage img)
+    void setLensPlaneImage()
     {
     	if (lens == null) return;
-        lens.setPlaneImage(img);
+    	switch (model.getTabbedIndex()) {
+			case ImViewer.VIEW_INDEX:
+				lens.setPlaneImage(model.getOriginalImage());
+				break;
+			case ImViewer.GRID_INDEX:
+				lens.setPlaneImage(model.getGridImage());
+				break;
+    	}
     }
     
     /**
@@ -873,6 +840,45 @@ class ImViewerUI
 				showLensOnGrid(b);
 				break;
 		}
+    }
+    
+    /**
+     * Sets the lens's visibility and displays the lens on the grid.
+     * The size of the grid cannot be modified i.e. magnified.
+     * 
+     * @param b Pass <code>true</code> to display the lens, <code>false</code>
+     * 			otherwise.
+     */
+    private void showLensOnGrid(boolean b)
+    {
+    	if (b) {
+            if (model.getMaxX() < lens.getLensUI().getWidth() || 
+                model.getMaxY() < lens.getLensUI().getHeight())
+                    return;
+            //if (firstTimeLensShown) {
+                firstTimeLensShown = false;
+                int diffX = model.getMaxX()-lens.getLensUI().getWidth();
+                int diffY = model.getMaxY()-lens.getLensUI().getHeight();
+                int lensX = diffX/2;
+                int lensY = diffY/2;
+                if (lensX+lens.getLensUI().getWidth() > model.getMaxX())
+                    lensX = diffX;
+                if (lensY+lens.getLensUI().getHeight() > model.getMaxY())
+                    lensY = diffY;
+                lens.setLensLocation(lensX, lensY);
+                lens.setXYPixelMicron(model.getPixelsSizeX(), 
+                                    model.getPixelsSizeY());
+            //}
+            model.getBrowser().addComponent(lens.getLensUI(), 
+            								ImViewer.GRID_INDEX);
+           // }
+            lens.setImageZoomFactor(1.0f);
+            lens.setPlaneImage(model.getGridImage());
+            //scrollLens();
+            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+        }
+        lens.setVisible(b);
+        repaint();
     }
     
     /**

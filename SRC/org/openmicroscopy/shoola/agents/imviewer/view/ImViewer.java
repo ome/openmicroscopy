@@ -355,9 +355,11 @@ public interface ImViewer
      * {@link #GREY_SCALE_MODEL} or if the image isn't the combination of at 
      * least two channels.
      * 
+     * @param colorModel 	The index of the color model either 
+     * 						{@link #GREY_SCALE_MODEL} or {@link #RGB_MODEL}.
      * @return See above.
      */
-    public List getImageComponents();
+    public List getImageComponents(String colorModel);
     
     /**
      * Returns the image currently displayed.
@@ -602,8 +604,26 @@ public interface ImViewer
      * {@link #GREY_SCALE_MODEL} or if the lens' image isn't the combination of 
      * at least two channels.
      * 
+     * @param colorModel 	The index of the color model either 
+     * 						{@link #GREY_SCALE_MODEL} or {@link #RGB_MODEL}.
      * @return See above.
      */
-	public List getLensImageComponents();
+	public List getLensImageComponents(String colorModel);
+
+	/**
+	 * Returns <code>true</code> if the textual information is painted on 
+	 * top of the grid image, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isTextVisible();
+
+	/**
+	 * Returns to <code>true</code> if the textual information is painted on 
+	 * top of the grid image, to <code>false</code> otherwise.
+	 * 
+	 * @param b The value to set.
+	 */
+	public void setTextVisible(boolean b);
     
 }

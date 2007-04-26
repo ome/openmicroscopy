@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -133,6 +134,11 @@ public class ScreenLogo
 		setUndecorated(true);
 		toFront();
 		addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Fires a property to move the window to the front.
+			 * @see MouseListener#mouseClicked(MouseEvent)
+			 */
 			public void mouseClicked(MouseEvent e) {
 				firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);

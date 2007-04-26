@@ -580,7 +580,6 @@ class AnnotatorEditorView
     	annotationArea.setText("");
     	annotationArea.getDocument().addDocumentListener(listener);
     	model.setAnnotated(false);
-    	
         repaint();
     }
     
@@ -645,6 +644,17 @@ class AnnotatorEditorView
 		return (isAnnotatable() && b);
 	}
    
+	/**
+	 * Returns <code>true</code> if the user has entered some textual
+	 * annotation, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasTextEntered()
+	{
+		return (getAnnotationText().length() != 0);
+	}
+	
 	/** Inner class hosting the experimenter details. */
 	class OwnerNode 
 		extends DefaultMutableTreeNode

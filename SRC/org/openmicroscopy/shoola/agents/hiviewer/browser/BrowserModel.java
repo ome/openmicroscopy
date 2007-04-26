@@ -234,6 +234,19 @@ class BrowserModel
     
     /**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setSelectedDisplays(ImageDisplay[])
+     */
+    public void setSelectedDisplays(ImageDisplay[] nodes)
+    {
+    	
+        
+    	for (int i = 0; i < nodes.length; i++) {
+    		setSelectedDisplay(nodes[i], true);
+		}
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getLastSelectedDisplay()
      */
     public ImageDisplay getLastSelectedDisplay()

@@ -149,17 +149,6 @@ public interface TaskBar
 	 * @throws IllegalArgumentException	If <code>toolBarID</code> is not valid.
 	 */
 	public void removeFromToolBar(int toolBarID, AbstractButton entry);
-	
-    /** 
-     * Adds the specified menu to the menu bar, before the existing menus
-     * if passed flag is <code>true</code>, after otherwise.
-     * 
-     * @param menus      The menus to add.
-     * @param before    Pass <code>true</code> to add the menu before the 
-     *                  existing menus, pass <code>false</code> to add if after
-     *                  the existing ones.
-     */
-    public void addToMenuBar(JMenu[] menus, boolean before);
     
     /**
      * Returns a reference to the task bar window.

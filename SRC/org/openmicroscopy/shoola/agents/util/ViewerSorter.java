@@ -268,9 +268,10 @@ public class ViewerSorter
             return ((CategoryGroupData) obj).getName();
         else if (obj instanceof CategoryData) 
             return ((CategoryData) obj).getName();
-        else if (obj instanceof ExperimenterData)
-        	return ((ExperimenterData) obj).getLastName();
-        else if (obj instanceof GroupData) 
+        else if (obj instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) obj;
+        	return exp.getLastName()+" "+exp.getFirstName();
+        }  else if (obj instanceof GroupData) 
             return ((GroupData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";

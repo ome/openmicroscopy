@@ -69,13 +69,18 @@ class GridCanvas
 	{
 		List images = model.getGridImages();
     	if (images == null) return; 
+    	SplitImage combined = null;
 		g2D.setColor(model.getBackgroundColor());
     	Dimension d = getSize();
         g2D.fillRect(0, 0, d.width, d.height);
     	int n = images.size();
     	if (n <=3) n = 4;
     	int index = 0;
-    	if (n%2 != 0) index = 1;
+    	//if (n%2 != 0) index = 1;
+    	if (n > 4 && n%2 != 0) {
+    		combined = (SplitImage) images.get(images.size()-1);
+    		images.remove(images.size()-1);
+    	}
     	n = (int) Math.floor(Math.sqrt(n))+index;
         Iterator channels = images.iterator();
         BufferedImage image;
@@ -86,6 +91,7 @@ class GridCanvas
         Color c = model.getUnitBarColor();
         FontMetrics fm = getFontMetrics(getFont());
         int textWidth;
+        boolean text = model.isTextVisible();
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 if (!channels.hasNext()) return; //Done
@@ -95,12 +101,13 @@ class GridCanvas
                 if (image != null) {
                 	g2D.drawImage(image, null, x, y);
                 	//draw string.
-                	
-                	textWidth = fm.stringWidth(channel.getName());
-                	g2D.setColor(BACKGROUND);
-                	g2D.fillRect(x, y, textWidth+4, 3*height/2);
-                	g2D.setColor(getBackground());
-                    g2D.drawString(channel.getName(), x+2, y+height);
+                	if (text) {
+                		textWidth = fm.stringWidth(channel.getName());
+                    	g2D.setColor(BACKGROUND);
+                    	g2D.fillRect(x, y, textWidth+4, 3*height/2);
+                    	g2D.setColor(getBackground());
+                        g2D.drawString(channel.getName(), x+2, y+height);
+                	}
                     if (bar && v != null && s < w) 
                     	ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, y+h-5, 
                     							s, v, c);
@@ -113,8 +120,27 @@ class GridCanvas
             x = 0;
             y = (i+1)*(h+BrowserModel.GAP);
         }   
+        if (combined != null) {
+        	image = combined.getImage();
+        	y = 0;
+        	x = n*(w+BrowserModel.GAP);
+        	if (image != null) {
+        		g2D.drawImage(image, null, x, y);
+            	//draw string.
+            	if (text) {
+            		textWidth = fm.stringWidth(combined.getName());
+                	g2D.setColor(BACKGROUND);
+                	g2D.fillRect(x, y, textWidth+4, 3*height/2);
+                	g2D.setColor(getBackground());
+                    g2D.drawString(combined.getName(), x+2, y+height);
+            	}
+                if (bar && v != null && s < w) 
+                	ImagePaintingFactory.paintScaleBar(g2D, x+w-s-5, y+h-5, 
+                							s, v, c);
+        	}
+        }
 	}
-    
+
 	/**
      * Creates a new instance.
      *

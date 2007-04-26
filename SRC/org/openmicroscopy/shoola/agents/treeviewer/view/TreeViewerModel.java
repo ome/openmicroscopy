@@ -258,7 +258,6 @@ class TreeViewerModel
     { 
         this.component = component; 
         createBrowsers();
-        //setExperimenter(getExperimenter());
     }
     
     /**

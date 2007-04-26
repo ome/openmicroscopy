@@ -152,6 +152,10 @@ public class ScreenLogin
     /** Atempts to log in. */
     private void login()
     {
+    	firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
+		requestFocusOnField();
+		
     	StringBuffer buf = new StringBuffer();
         buf.append(pass.getPassword());
         String usr = user.getText().trim(), psw = buf.toString();
@@ -203,7 +207,31 @@ public class ScreenLogin
 					user.selectAll();
 				}
 			}
+			
+			/**
+			 * Fires a property to move the window to the front.
+			 * @see MouseListener#mouseClicked(MouseEvent)
+			 */
+			public void mouseClicked(MouseEvent e) {
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+				user.requestFocus();
+			}
+			
 		});
+		pass.addMouseListener(new MouseAdapter() {
+
+			/**
+			 * Fires a property to move the window to the front.
+			 * @see MouseListener#mouseClicked(MouseEvent)
+			 */
+			public void mouseClicked(MouseEvent e) {
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+				requestFocusOnField();
+			}
+		});
+		
     }
     
     /**
@@ -460,10 +488,15 @@ public class ScreenLogin
 		setUndecorated(true);
 		toFront();
 		addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Fires a property to move the window to the front.
+			 * @see MouseListener#mouseClicked(MouseEvent)
+			 */
 			public void mouseClicked(MouseEvent e) {
 				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
-		
+				requestFocusOnField();
 			}
 		});
     }

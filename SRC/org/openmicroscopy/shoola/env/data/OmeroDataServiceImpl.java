@@ -931,13 +931,15 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No annotation."); 
 		Iterator i = folders.iterator(), j;
 		DataObject object;
-		//Tmp solution
-		ExperimenterData exp = getUserDetails();
 		Set images = null;
 		Class klass = null;
 		Set<Long> ids;
 		DataObject image;
 		List<DataObject> results = new ArrayList<DataObject>();
+		PojoOptions po = new PojoOptions();
+        po.noCounts();
+        po.allExps();
+        Map map = po.map();
 		while (i.hasNext()) {
 			object = (DataObject) i.next();
 			ids = new HashSet<Long>(1);
@@ -947,9 +949,9 @@ class OmeroDataServiceImpl
 			} else if (object instanceof CategoryData) {
 				klass = CategoryData.class;
 			}
-			if (klass != null)
-				images = getImages(klass, ids, ExperimenterData.class, 
-            						exp.getId());
+			if (klass != null) 
+		        images = gateway.getContainerImages(klass, ids, map);
+			
 			if (images != null) {
 				j = images.iterator();
 				while (j.hasNext()) {

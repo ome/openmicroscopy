@@ -26,11 +26,11 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -104,13 +104,6 @@ public class TreeViewerFactory
      * @return See above.
      */
     static boolean isLastViewer() { return (singleton.viewers.size() <= 1); }
-    
-    /**
-     * Returns the {@link TreeViewer}.
-     * 
-     * @return See above.
-     */
-    //public static TreeViewer getViewer() { return singleton.getTreeViewer(); }
 
     /**
      * Returns the {@link TreeViewer}.
@@ -123,17 +116,23 @@ public class TreeViewerFactory
     										long userGroupID)
     {
     	TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
-    	return singleton.getTreeViewer(model);
+    	return singleton.getTreeViewer(model, null);
     }
     
     /**
-     * Helper method to retrieve the {@link LoadingWindow}.
+     * Returns the {@link TreeViewer}.
      * 
+     * @param exp	    	The experiment the TreeViewer is for.
+     * @param userGroupID 	The id to the group selected for the current user.
+     * @param bounds    	The bounds of the component invoking a new
+     * 						{@link TreeViewer}. 
      * @return See above.
      */
-    public static JDialog getLoadingWindow() 
+    public static TreeViewer getTreeViewer(ExperimenterData exp, 
+    										long userGroupID, Rectangle bounds)
     {
-        return singleton.getTreeViewer().getLoadingWindow();
+    	TreeViewerModel model = new TreeViewerModel(exp, userGroupID);
+    	return singleton.getTreeViewer(model, bounds);
     }
     
     /**
@@ -186,33 +185,17 @@ public class TreeViewerFactory
         isAttached = false;
         windowMenu = new JMenu("DataManagers");
     }
-    
-    /**
-     * Creates or recycles a viewer component for the specified 
-     * <code>model</code>.
-     * 
-     * @return A {@link TreeViewer}.
-     */
-    private TreeViewer getTreeViewer()
-    {
-        //if (viewer != null) return viewer;
-        TreeViewerModel model = new TreeViewerModel();
-        TreeViewerComponent component = new TreeViewerComponent(model);
-        model.initialize(component);
-        component.initialize();
-        //viewer = component;
-        viewers.add(component);
-        return component;
-    }
 
     /**
      * Creates or recycles a viewer component for the specified 
      * <code>model</code>.
      * 
-     * @param model The Model.
+     * @param model 	The Model.
+     * @param bounds	The bounds of the component invoking a new
+     * 						{@link TreeViewer}. 
      * @return A {@link TreeViewer}.
      */
-    private TreeViewer getTreeViewer(TreeViewerModel model)
+    private TreeViewer getTreeViewer(TreeViewerModel model, Rectangle bounds)
     {
     	Iterator v = viewers.iterator();
     	TreeViewerComponent comp;
@@ -226,8 +209,9 @@ public class TreeViewerFactory
         //if (viewer != null) return viewer;
         comp = new TreeViewerComponent(model);
         model.initialize(comp);
-        comp.initialize();
+        comp.initialize(bounds);
         //viewer = component;
+        comp.addChangeListener(this);
         viewers.add(comp);
         return comp;
     }
@@ -240,9 +224,7 @@ public class TreeViewerFactory
     public void stateChanged(ChangeEvent ce)
     {
         TreeViewerComponent comp = (TreeViewerComponent) ce.getSource();
-        //if (comp.getState() == TreeViewer.DISCARDED) viewer = null;
         if (comp.getState() == TreeViewer.DISCARDED) viewers.remove(comp);
-        //check the windows menu.
     }
     
 }

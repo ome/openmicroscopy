@@ -152,10 +152,16 @@ class ImViewerModel
     private int					tabbedIndex;
     
     /** 
-     * Flag inidcating to slit the displayed image into its red, green and
+     * Flag inidcating to split the displayed image into its red, green and
      * blue components or to split into the selected channels.
      */
     private boolean				rgbSplit;
+    
+    /** 
+     * Flag indicating to paint or not some textual information on top
+     * of the grid image.
+     */
+    private boolean				textVisible;
     
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
@@ -193,6 +199,7 @@ class ImViewerModel
         zoomFitToWindow = false; 
         tabbedIndex = ImViewer.VIEW_INDEX;
         rgbSplit = true;
+        textVisible = true;
     }
     
     /**
@@ -766,4 +773,19 @@ class ImViewerModel
 		return rgb;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the textual information is painted on 
+	 * top of the grid image, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isTextVisible() { return textVisible; }
+	
+	/**
+	 * Sets to <code>true</code> if the textual information is painted on 
+	 * top of the grid image, <code>false</code> otherwise.
+	 * 
+	 * @param textVisible The value to set.
+	 */
+	void setTextVisible(boolean textVisible) { this.textVisible = textVisible; }
 }

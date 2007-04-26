@@ -251,6 +251,16 @@ class AnnotatorEditorComponent
 		return view.hasDataToSave();
 	}
 
+	/**
+     * Implemented as specified by the {@link Annotator} interface.
+     * @see AnnotatorEditor#hasTextEntered()
+     */
+	public boolean hasTextEntered()
+	{
+		if (model.getState() != READY) return false;
+		return view.hasTextEntered();
+	}
+	
     /**
      * Implemented as specified by the {@link Annotator} interface.
      * @see AnnotatorEditor#retrieveAnnotations(DataObject)

@@ -292,7 +292,7 @@ class AnnotatorEditorModel
      */
     void fireAnnotationUpdate(AnnotationData data)
     {
-    	 state = DataHandler.SAVING;
+    	state = DataHandler.SAVING;
         currentLoader = new AnnotationsEditorSaver(component, dataObject, data, 
         									AnnotationsEditorSaver.UPDATE);
         currentLoader.load();
@@ -346,10 +346,7 @@ class AnnotatorEditorModel
 	 * 
 	 * @param b The value to set.
 	 */
-	void setAnnotated(boolean b) 
-	{
-		annotated = b;
-	}
+	void setAnnotated(boolean b) { annotated = b; }
 
 	/**
 	 * Returns <code>true</code> if the annotation has been modified,
@@ -364,10 +361,7 @@ class AnnotatorEditorModel
 	 * 
 	 * @return See above.
 	 */
-	DataObject getDataObject() 
-	{
-		return dataObject;
-	}
+	DataObject getDataObject() { return dataObject; }
 
 	/**
 	 * Sets the state to the specified value.

@@ -134,8 +134,31 @@ class AnnotatorUI
 	/** Retrieves the annotations linked to the viewed image. */
 	void activateEditor()
 	{
-		if (editor != null) editor.activate();
+		if (editor != null && !editor.hasTextEntered()) editor.activate();
 		if (infoPane != null) infoPane.buildGUI();
 	}
 
+	/**
+	 * Returns <code>true</code> if the current user entered some
+	 * textual annotation, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasAnnotationToSave()
+	{
+		if (editor == null) return false;
+		return editor.hasTextEntered();
+	}
+
+	/**
+	 * Forwards call to the {@link AnnotatorEditor} to save the annotation 
+	 * before closing the component.
+	 */
+	void saveAnnotation()
+	{
+		if (editor == null) return;
+		editor.save();
+		
+	}
+	
 }

@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
@@ -416,13 +415,6 @@ class EditorModel
      */
     Set getClassifications() { return classifications; }
 
-    /**
-     * Returns the loading window.
-     * 
-     * @return See above.
-     */
-    JDialog getLoadingWindow() { return parentModel.getLoadingWindow(); }
-    
     /**
      * Fires an asynchronous annotation retrieval for the currently edited 
      * <code>DataObject</code>.

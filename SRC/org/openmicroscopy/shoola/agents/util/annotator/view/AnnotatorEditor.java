@@ -134,6 +134,14 @@ public interface AnnotatorEditor
 	 */
 	public boolean hasDataToSave();
 	
+	/** 
+	 * Returns <code>true</code> if there is an annotation to save. 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasTextEntered();
+	
 	/**
 	 * Retrieves the annotation for the passed object.
 	 * 

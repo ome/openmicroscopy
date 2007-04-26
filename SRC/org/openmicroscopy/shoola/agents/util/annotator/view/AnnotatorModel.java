@@ -344,20 +344,23 @@ class AnnotatorModel
 	 */
 	void fireAnnotationSaving(AnnotationData data)
 	{ 
-		if (mode == Annotator.ANNOTATE_MODE) {
-			if (annotated.size() == maxObjects)
-				currentLoader = new AnnotationsSaver(component,  
-										getAnnotatedObjects(data), mode);
-			else if (toAnnotate.size() == maxObjects) 
+		switch (mode) {
+			case Annotator.ANNOTATE_MODE:
+				if (annotated.size() == maxObjects)
+					currentLoader = new AnnotationsSaver(component,  
+											getAnnotatedObjects(data), mode);
+				else if (toAnnotate.size() == maxObjects) 
+					currentLoader = new AnnotationsSaver(component, toAnnotate, 
+														data, mode);
+				else 
+					currentLoader = new AnnotationsSaver(component, 
+										 getAnnotatedObjects(data), toAnnotate, 
+										 data, mode);
+				break;
+	
+			case Annotator.BULK_ANNOTATE_MODE:
 				currentLoader = new AnnotationsSaver(component, toAnnotate, 
 													data, mode);
-			else 
-				currentLoader = new AnnotationsSaver(component, 
-									 getAnnotatedObjects(data), toAnnotate, 
-									 data, mode);
-		} else {
-			currentLoader = new AnnotationsSaver(component, toAnnotate, data,
-												mode);
 		}
 		currentLoader.load();
 		state = DataHandler.SAVING;

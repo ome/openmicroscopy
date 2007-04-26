@@ -77,13 +77,13 @@ public interface ClipBoard
     									"removeNodeRollOver";
     
     /** Identifies the index of the <code>Find</code> panel. */
-    public static final int     FIND_PANE = 0;
+    public static final int     FIND_PANE = 2;
     
     /** Identifies the index of the <code>Annotation</code> pane. */
-    public static final int     ANNOTATION_PANE = 1;
+    public static final int     ANNOTATION_PANE = 0;
     
     /** Identifies the index of the <code>Classification</code> pane. */
-    public static final int     CLASSIFICATION_PANE = 2;
+    public static final int     CLASSIFICATION_PANE = 1;
     
     /** Identifies the index of the <code>Information</code> pane. */
     public static final int     EDITOR_PANE = 3;

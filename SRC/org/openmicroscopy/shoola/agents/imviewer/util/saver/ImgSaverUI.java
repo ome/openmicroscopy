@@ -75,14 +75,24 @@ class ImgSaverUI
      */
     static final int                    IMAGE_AND_COMPONENTS = 2;
     
-    /** Save the lens image. */
-    static final int					LENS_IMAGE = 3;
+    /** 
+     * Save the images and an image of each channel composing the rendered 
+     * image.  Each channel rendered in grey scale mode.
+     */
+    static final int                    IMAGE_AND_COMPONENTS_GREY = 3;
     
     /** Save the lens image. */
-    static final int					LENS_IMAGE_AND_COMPONENTS = 4;
+    static final int					LENS_IMAGE = 4;
+    
+    /** Save the lens image and the split channels. */
+    static final int					LENS_IMAGE_AND_COMPONENTS = 5;
+    
+    
+    /** Save the lens image. */
+    static final int					LENS_IMAGE_AND_COMPONENTS_GREY = 6;
     
     /** The maximum number of save options. */
-    private static final int			MAX = 4;
+    private static final int			MAX = 6;
     
     /** Brief description of the action performed by this widget. */
     private static final String         NOTE = "Save the currrent image in " +
@@ -109,9 +119,13 @@ class ImgSaverUI
         selections[IMAGE] = "image";
         selections[GRID_IMAGE] = "grid view";
         selections[IMAGE_AND_COMPONENTS] = "image and split channels";
+        selections[IMAGE_AND_COMPONENTS_GREY] = 
+        					"image and split channels in grey";
         selections[LENS_IMAGE] = "lens' image";
         selections[LENS_IMAGE_AND_COMPONENTS] = 
         						"lens' image and split channels";
+        selections[LENS_IMAGE_AND_COMPONENTS_GREY] = 
+								"lens' image and split channels  in grey";
     }
     
     /** Initializes the component composing the display. */

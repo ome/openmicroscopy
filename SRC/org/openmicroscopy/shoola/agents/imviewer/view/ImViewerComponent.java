@@ -173,7 +173,15 @@ class ImViewerComponent
     public void discard()
     {
         if (model.getState() != DISCARDED) {
-            model.discard();
+        	//First make sure that we save the annotation.
+        	if (model.getBrowser().hasAnnotationToSave()) {
+        		MessageBox msg = new MessageBox(view, "Save Annotation", 
+    			"Do you want to save the annotation before closing?");
+        		if (msg.centerMsgBox() == MessageBox.YES_OPTION)
+        			model.getBrowser().saveAnnotation();
+        			
+        	}
+        	model.discard();
             fireStateChange();
         }
     }
@@ -353,8 +361,7 @@ class ImViewerComponent
         model.setImage(image);
         view.setStatus(getStatusText());
         view.setIconImage(model.getImageIcon());
-        if (view.isLensVisible())
-        	view.setLensPlaneImage(image);
+        if (view.isLensVisible()) view.setLensPlaneImage();
         fireStateChange();
     }
 
@@ -717,9 +724,9 @@ class ImViewerComponent
 
     /** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#getImageComponents()
+     * @see ImViewer#getImageComponents(String)
      */
-    public List getImageComponents()
+    public List getImageComponents(String colorModel)
     {
         switch (model.getState()) {
             case NEW:
@@ -734,14 +741,17 @@ class ImViewerComponent
         if (l.size() < 2) return null;
         Iterator i = l.iterator();
         int index;
+        String oldColorModel = model.getColorModel();
         List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
         try {
+        	model.setColorModel(colorModel);
         	while (i.hasNext()) {
                 index = ((Integer) i.next()).intValue();
                 for (int j = 0; j < model.getMaxC(); j++)
                     model.setChannelActive(j, j == index); 
                 images.add(model.getSplitComponentImage());
             }
+        	model.setColorModel(oldColorModel);
             i = l.iterator();
             while (i.hasNext()) { //reset values.
                 index = ((Integer) i.next()).intValue();
@@ -1233,9 +1243,9 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#getLensImageComponents()
+     * @see ImViewer#getLensImageComponents(String)
      */
-	public List getLensImageComponents()
+	public List getLensImageComponents(String colorModel)
 	{
 		if (!view.hasLensImage()) return null;
 		if (model.getTabbedIndex() != ImViewer.VIEW_INDEX) return null;
@@ -1244,16 +1254,18 @@ class ImViewerComponent
 			case LOADING_RENDERING_CONTROL:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW or" +
-				"LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED, " +
+						"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 		List l = model.getActiveChannels();
 		if (l.size() < 2) return null;
 		Iterator i = l.iterator();
 		int index;
+		String oldColorModel = model.getColorModel();
 		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
 		try {
+			model.setColorModel(colorModel);
 			while (i.hasNext()) {
 				index = ((Integer) i.next()).intValue();
 				for (int j = 0; j < model.getMaxC(); j++)
@@ -1261,6 +1273,7 @@ class ImViewerComponent
 				images.add(view.createZoomedLensImage(
 						model.getSplitComponentImage()));
 			}
+			model.setColorModel(oldColorModel);
 			i = l.iterator();
 			while (i.hasNext()) { //reset values.
 				index = ((Integer) i.next()).intValue();
@@ -1271,6 +1284,25 @@ class ImViewerComponent
 			reload(ex);
 		}
 		return images;
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#isTextVisible()
+     */
+	public boolean isTextVisible()
+	{
+		return model.isTextVisible();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#setTextVisible(boolean)
+     */
+	public void setTextVisible(boolean b)
+	{
+		model.setTextVisible(b);
+		model.getBrowser().viewSplitImages();
 	}
     
 }

@@ -167,7 +167,11 @@ class TaskBarView
     /** Collection of the copy of the window menu. */
     private Set<JMenu>         	windowMenus;
     
+    /** Collection of available menu bars. */
     private Set<JMenuBar>		menubars;
+    
+    /** The original menu bar. */
+    private JMenuBar			originalBar;
     
 	/**
 	 * Helper method to create all menu items for the various menus within
@@ -404,9 +408,9 @@ class TaskBarView
 	private void buildGUI()
 	{
 		setIconImage(IconManager.getOMEImageIcon());
-		JMenuBar bar = createMenuBar();
-		menubars.add(bar);
-		setJMenuBar(bar);
+		originalBar = createMenuBar();
+		menubars.add(originalBar);
+		//setJMenuBar(bar);
         createToolBarsPanel();
 		//getContentPane().add(createToolBarsPanel());
 	}
@@ -418,11 +422,10 @@ class TaskBarView
 	 */
 	private JMenuBar copyMenuBar()
 	{
-		JMenuBar original = getJMenuBar();
 		JMenuBar bar = new JMenuBar();
 		JMenu menu, copy;
-		for (int i = 0; i < original.getMenuCount(); i++) {
-			menu = original.getMenu(i);
+		for (int i = 0; i < originalBar.getMenuCount(); i++) {
+			menu = originalBar.getMenu(i);
 			copy = copyItemsFromMenu(menu);
 			bar.add(copy);
 			if (menu == menus[WINDOW_MENU])
@@ -559,38 +562,7 @@ class TaskBarView
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#getTaskBarMenuBar()
      */
-    public JMenuBar getTaskBarMenuBar() { return getJMenuBar(); }//copyMenuBar()
-
-    /**
-     * Implemented as specifed by {@link TaskBar}.
-     * @see TaskBar#addToMenuBar(JMenu[], boolean)
-     */
-    public void addToMenuBar(JMenu[] menus, boolean before)
-    {
-    	Iterator k = menubars.iterator();
-    	JMenuBar bar;
-    	int i, j;
-    	JMenu[] existingMenus;
-    	while (k.hasNext()) {
-			bar = (JMenuBar) k.next();
-			if (before) {
-				existingMenus = new JMenu[bar.getMenuCount()];
-				for (i = 0; i < existingMenus.length; i++) 
-					existingMenus[i] = bar.getMenu(i);
-
-				bar.removeAll();
-				for (j = 0; j < menus.length; j++) 
-					bar.add(menus[j]);
-				for (i = 0; i < existingMenus.length; i++) 
-					bar.add(existingMenus[i]);
-			} else {
-				for (j = 0; j < menus.length; j++) 
-					bar.add(menus[j]);
-			}
-		}
-        //JMenuBar bar = getJMenuBar();
-       
-    }
+    public JMenuBar getTaskBarMenuBar() { return copyMenuBar(); }
 
     /**
      * Implemented as specifed by {@link TaskBar}.

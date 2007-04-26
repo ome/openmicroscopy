@@ -70,21 +70,6 @@ class ClipBoardUI
     extends JScrollPane
 {
 
-    /** The position of the <code>Find</code> pane. */
-    private static final int    FIND_TAB = 0;
-    
-    /** The position of the <code>Annotate</code>  pane. */
-    private static final int    ANNOTATE_TAB = 1;
-    
-    /** The position of the <code>Classification</code>  pane. */
-    private static final int    CLASSIFICATION_TAB = 2;
-    
-    /** The position of the <code>Editor</code>  pane. */
-    private static final int    EDITOR_TAB = 3;
-    
-    /** The position of the <code>Info</code>  pane. */
-    private static final int    INFO_TAB = 4;
-
     /** Reference to the Control. */
     private ClipBoardControl    controller;
     
@@ -110,13 +95,8 @@ class ClipBoardUI
     private void buildUI()
     {
     	int h = 0;
-        ClipBoardPane pane = model.getClipboardPane(ClipBoard.FIND_PANE);
-        Icon icon = pane.getPaneIcon();
-        if (icon != null) h = icon.getIconHeight();
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-        				pane.getPaneDescription());
-        pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
-        icon = pane.getPaneIcon();
+    	ClipBoardPane pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
+    	Icon icon = pane.getPaneIcon();
         if (icon != null) {
         	if (icon.getIconHeight() > h) h = icon.getIconHeight();
         }
@@ -128,7 +108,14 @@ class ClipBoardUI
         	if (icon.getIconHeight() > h) h = icon.getIconHeight();
         }
         tabPane.addTab(pane.getPaneName(), icon, pane, 
-						pane.getPaneDescription());
+									pane.getPaneDescription());
+        pane = model.getClipboardPane(ClipBoard.FIND_PANE);
+        icon = pane.getPaneIcon();
+        if (icon != null) h = icon.getIconHeight();
+        tabPane.addTab(pane.getPaneName(), icon, pane, 
+        				pane.getPaneDescription());
+        
+        
         pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
         icon = pane.getPaneIcon();
         if (icon != null) {
@@ -180,19 +167,19 @@ class ClipBoardUI
             public void stateChanged(ChangeEvent e)
             {
                 switch (tabPane.getSelectedIndex()) {
-                    case FIND_TAB:
+                    case ClipBoard.FIND_PANE:
                         controller.setSelectedPane(ClipBoard.FIND_PANE);
                         break;
-                    case ANNOTATE_TAB:
+                    case ClipBoard.ANNOTATION_PANE:
                         controller.setSelectedPane(ClipBoard.ANNOTATION_PANE);
                         break;
-                    case INFO_TAB:
+                    case ClipBoard.INFO_PANE:
                         controller.setSelectedPane(ClipBoard.INFO_PANE);
                         break;
-                    case EDITOR_TAB:
+                    case ClipBoard.EDITOR_PANE:
                         controller.setSelectedPane(ClipBoard.EDITOR_PANE);
                         break;
-                    case CLASSIFICATION_TAB:
+                    case ClipBoard.CLASSIFICATION_PANE:
                         controller.setSelectedPane(
                                 ClipBoard.CLASSIFICATION_PANE);
                         break;

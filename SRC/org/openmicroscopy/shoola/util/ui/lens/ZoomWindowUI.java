@@ -106,14 +106,10 @@ class ZoomWindowUI
 		setTitle("Zoom Window");
 		setSize(DEFAULT_SIZE);
 		setLocation(DEFAULT_LOC);
-		setAlwaysOnTop(true);
+		//setAlwaysOnTop(true);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		addWindowListener( new WindowAdapter() 
-		{
-			public void windowClosing( WindowEvent e )
-			{
-				close();
-			}
+		addWindowListener( new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { close(); }
 		});
 		
 		zoomPanel = new ZoomPanel();
