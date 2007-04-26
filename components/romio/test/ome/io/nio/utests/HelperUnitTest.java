@@ -13,10 +13,12 @@ import junit.framework.TestCase;
 import ome.io.nio.PixelsService;
 
 public class HelperUnitTest extends TestCase {
-    /** Default root for testing "/OMERO/" */
-    private static String ROOT = File.separator + "OMERO" + File.separator;
 
-    private String p(String path) {
+
+    /** Default root for testing "/OMERO/" */
+	private static String ROOT = PathUtil.getInstance().getDataFilePath();
+
+	private String p(String path) {
         if (File.separator.equals("\\")) {
             return path.replace("/", "\\");
         }
@@ -29,25 +31,25 @@ public class HelperUnitTest extends TestCase {
     @Test
     public void testPixelsSingleDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(1));
-        assertEquals(p("/OMERO/Pixels/1"), path);
+        assertEquals(p(ROOT) + p("Pixels/1"), path);
     }
 
     @Test
     public void testFilesSingleDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(1));
-        assertEquals(p("/OMERO/Files/1"), path);
+        assertEquals(p(ROOT) + p("Files/1"), path);
     }
 
     @Test
     public void testPixelsSingleDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(999));
-        assertEquals(p("/OMERO/Pixels/999"), path);
+        assertEquals(p(ROOT) + p("Pixels/999"), path);
     }
 
     @Test
     public void testFilesSingleDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(999));
-        assertEquals(p("/OMERO/Files/999"), path);
+        assertEquals(p(ROOT) + p("Files/999"), path);
     }
 
     //
@@ -56,25 +58,25 @@ public class HelperUnitTest extends TestCase {
     @Test
     public void testPixelsTwoDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(1001));
-        assertEquals(p("/OMERO/Pixels/Dir-001/1001"), path);
+        assertEquals(p(ROOT) + p("Pixels/Dir-001/1001"), path);
     }
 
     @Test
     public void testFilesTwoDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(1001));
-        assertEquals(p("/OMERO/Files/Dir-001/1001"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-001/1001"), path);
     }
 
     @Test
     public void testPixelsTwoDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(999999));
-        assertEquals(p("/OMERO/Pixels/Dir-999/999999"), path);
+        assertEquals(p(ROOT) + p("Pixels/Dir-999/999999"), path);
     }
 
     @Test
     public void testFilesTwoDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(999999));
-        assertEquals(p("/OMERO/Files/Dir-999/999999"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-999/999999"), path);
     }
 
     //
@@ -83,26 +85,26 @@ public class HelperUnitTest extends TestCase {
     @Test
     public void testPixelsThreeDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getPixelsPath(new Long(1000001));
-        assertEquals(p("/OMERO/Pixels/Dir-001/Dir-000/1000001"), path);
+        assertEquals(p(ROOT) + p("Pixels/Dir-001/Dir-000/1000001"), path);
     }
 
     @Test
     public void testFilesThreeDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(1000001));
-        assertEquals(p("/OMERO/Files/Dir-001/Dir-000/1000001"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-001/Dir-000/1000001"), path);
     }
 
     @Test
     public void testPixelsThreeDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT)
                 .getPixelsPath(new Long(999999999));
-        assertEquals(p("/OMERO/Pixels/Dir-999/Dir-999/999999999"), path);
+        assertEquals(p(ROOT) + p("Pixels/Dir-999/Dir-999/999999999"), path);
     }
 
     @Test
     public void testFilesThreeDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT).getFilesPath(new Long(999999999));
-        assertEquals(p("/OMERO/Files/Dir-999/Dir-999/999999999"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-999/Dir-999/999999999"), path);
     }
 
     //
@@ -112,7 +114,7 @@ public class HelperUnitTest extends TestCase {
     public void testPixelsFourDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT)
                 .getPixelsPath(new Long(1000000001));
-        assertEquals(p("/OMERO/Pixels/Dir-001/Dir-000/Dir-000/1000000001"),
+        assertEquals(p(ROOT) + p("Pixels/Dir-001/Dir-000/Dir-000/1000000001"),
                 path);
     }
 
@@ -120,14 +122,14 @@ public class HelperUnitTest extends TestCase {
     public void testFilesFourDirectoryLowerBoundsPath() {
         String path = new PixelsService(ROOT)
                 .getFilesPath(new Long(1000000001));
-        assertEquals(p("/OMERO/Files/Dir-001/Dir-000/Dir-000/1000000001"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-001/Dir-000/Dir-000/1000000001"), path);
     }
 
     @Test
     public void testPixelsFourDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT)
                 .getPixelsPath((long) Integer.MAX_VALUE);
-        assertEquals(p("/OMERO/Pixels/Dir-002/Dir-147/Dir-483/2147483647"),
+        assertEquals(p(ROOT) + p("Pixels/Dir-002/Dir-147/Dir-483/2147483647"),
                 path);
     }
 
@@ -135,6 +137,6 @@ public class HelperUnitTest extends TestCase {
     public void testFilesFourDirectoryUpperBoundsPath() {
         String path = new PixelsService(ROOT)
                 .getFilesPath((long) Integer.MAX_VALUE);
-        assertEquals(p("/OMERO/Files/Dir-002/Dir-147/Dir-483/2147483647"), path);
+        assertEquals(p(ROOT) + p("Files/Dir-002/Dir-147/Dir-483/2147483647"), path);
     }
 }

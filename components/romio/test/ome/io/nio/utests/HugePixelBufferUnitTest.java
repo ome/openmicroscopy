@@ -26,6 +26,8 @@ public class HugePixelBufferUnitTest extends TestCase {
 
     private static final int timepointSize = stackSize * 3;
 
+	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
+	
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
@@ -42,7 +44,7 @@ public class HugePixelBufferUnitTest extends TestCase {
         type.setValue("uint16");
         pixels.setPixelsType(type);
 
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         pixelBuffer = service.getPixelBuffer(pixels);
     }
 

@@ -22,6 +22,8 @@ public class OutOfBoundsUnitTest extends TestCase {
     private Pixels pixels;
 
     private PixelBuffer pixelBuffer;
+	
+	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
 
     @Override
     @Configuration(beforeTestMethod = true)
@@ -38,7 +40,7 @@ public class OutOfBoundsUnitTest extends TestCase {
         PixelsType type = new PixelsType();
         pixels.setPixelsType(type); // FIXME
 
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         pixelBuffer = service.getPixelBuffer(pixels);
     }
 

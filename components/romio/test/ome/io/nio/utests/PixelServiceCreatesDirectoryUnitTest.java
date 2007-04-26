@@ -13,8 +13,6 @@ import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import java.util.Properties;
 import junit.framework.TestCase;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     private Pixels pixels;
@@ -23,9 +21,9 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
 
     private PixelsService service;
 	
-	private ApplicationContext testContext;
-
-    @Override
+	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
+    
+	@Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         pixels = new Pixels();
@@ -39,11 +37,7 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
         PixelsType type = new PixelsType();
         type.setValue("uint16");
         pixels.setPixelsType(type);
-		testContext = new FileSystemXmlApplicationContext(
-    			"components/romio/resources/beanRefContext.xml");
-		PropertiesUtil util = (PropertiesUtil) testContext.getBean("properties");
-		String path = util.getProperties().getProperty("omero.data.dir");		
-        service = new PixelsService(path);
+        service = new PixelsService(ROOT);
     }
 
     @Test
