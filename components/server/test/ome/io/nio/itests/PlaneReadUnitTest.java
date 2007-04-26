@@ -75,7 +75,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         int byteWidth = PixelBuffer.getBitDepth(pixels.getPixelsType()) / 8;
         planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
         planeSize = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
-        path = new PixelsService(PixelsService.ROOT_DEFAULT)
+        path = new PixelsService(ROOT)
                 .getPixelsPath(pixels.getId());
         originalDigests = new byte[planeCount][];
 
