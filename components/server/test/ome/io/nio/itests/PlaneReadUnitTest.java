@@ -18,6 +18,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.util.PathUtil;
 
 /**
  * @author callan
@@ -35,6 +36,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     private Pixels pixels;
 
     private PixbufIOFixture baseFixture;
+    
+    private String ROOT = PathUtil.getInstance().getDataFilePath();
 
     private int getDigestOffset(int z, int c, int t) {
         int planeCountT = pixels.getSizeZ().intValue()
@@ -100,7 +103,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     @Test
     public void testInitialPlane() throws IOException,
             DimensionsOutOfBoundsException {
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(0, 0, 0);
 
@@ -113,7 +116,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     @Test
     public void testLastPlane() throws IOException,
             DimensionsOutOfBoundsException {
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
         MappedByteBuffer plane = pixbuf.getPlane(pixels.getSizeZ() - 1, pixels
                 .getSizeC() - 1, pixels.getSizeT() - 1);
@@ -129,7 +132,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     @Test
     public void testAllPlanes() throws IOException,
             DimensionsOutOfBoundsException {
-        PixelsService service = new PixelsService(PixelsService.ROOT_DEFAULT);
+        PixelsService service = new PixelsService(ROOT);
         PixelBuffer pixbuf = service.getPixelBuffer(pixels);
 
         String newMessageDigest;
