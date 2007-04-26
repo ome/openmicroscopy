@@ -94,32 +94,33 @@ INTERNAL METHODS:
 [$cpp]       void ${PojoI}::postSetter(std::string field) {}
 [$jav]       protected void postSetter( String field, Object value ) {}
 
-[$hdr]       void errorIfUnloaded();
-[$cpp]       void ${PojoI}::errorIfUnloaded()
+[$hdr]       void errorIfUnloaded() throw(omero::UnloadedEntityException);
+[$cpp]       void ${PojoI}::errorIfUnloaded() throw(omero::UnloadedEntityException)
 [$cpp]       {
-[$cpp]         if (! loaded ) throw "Object unloaded";
+[$cpp]         if (! loaded ) throw omero::UnloadedEntityException(__FILE__,__LINE__,"Object unloaded");
 [$cpp]       }
-[$jav]       protected void errorIfUnloaded()
+[$jav]       protected void errorIfUnloaded() throws omero.UnloadedEntityException
 [$jav]       {
-[$jav]         if ( ! loaded ) throw new IllegalStateException("Object unloaded:"+this);
+[$jav]         if ( ! loaded ) throw new omero.UnloadedEntityException("Object unloaded:"+this);
 [$jav]       }
 
-[$hdr]       void throwNullCollectionException(std::string propertyName);
-[$cpp]       void ${PojoI}::throwNullCollectionException(std::string propertyName)
+[$hdr]       void throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException);
+[$cpp]       void ${PojoI}::throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException)
 [$cpp]       {
-[$cpp]         throw 
+[$cpp]         throw omero::UnloadedCollectionException(
+[$cpp]            __FILE__,__LINE__,
 [$cpp]            "Error updating collection:" + propertyName +"\n"+
 [$cpp]            "Collection is currently null. This can be seen\n"+
-[$cpp]            "by testing \"sizeOf"+ propertyName +" < 0\". This implies\n"+
+[$cpp]            "by testing \""+ propertyName +"Loaded\". This implies\n"+
 [$cpp]            "that this collection was unloaded. Please refresh this object\n"+
-[$cpp]            "in order to update this collection.\n";
+[$cpp]            "in order to update this collection.\n");
 [$cpp]       }
-[$jav]       protected void throwNullCollectionException(String propertyName)
+[$jav]       protected void throwNullCollectionException(String propertyName) throws omero.UnloadedCollectionException
 [$jav]       {
-[$jav]          throw new ApiUsageException(
+[$jav]          throw new omero.UnloadedCollectionException(
 [$jav]            "Error updating collection:" + propertyName +"\n"+
 [$jav]            "Collection is currently null. This can be seen\n"+
-[$jav]            "by testing \"sizeOf"+ propertyName +" < 0\". This implies\n"+
+[$jav]            "by testing \""+ propertyName +"Loaded\". This implies\n"+
 [$jav]            "that this collection was unloaded. Please refresh this object\n"+
 [$jav]            "in order to update this collection.\n"
 [$jav]            );
@@ -229,7 +230,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 UNLOAD BLOCK:
 
 [$jav]    public void unload(Ice.Current current) {
-[$hdr]    virtual void unload(const Ice::Current& current);
+[$hdr]    virtual void unload(const Ice::Current& current = Ice::Current() );
 [$cpp]  void ${PojoI}::unload(const Ice::Current& current) {
 [$jav]      loaded = false;
 [$cpp]      loaded = false;
@@ -428,12 +429,14 @@ Unload
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
-[$jav]    $access $javaType $pojo.getGetterSignature($property)() {
+[$jav]    $access $javaType $pojo.getGetterSignature($property)() 
+[$jav]    throws omero.UnloadedEntityException {
 [$jav]        errorIfUnloaded();
 [$jav]        return $getter;
 [$jav]    }
 [$jav]    
-[$jav]    $access void set$name($javaType $property.Name) {
+[$jav]    $access void set$name($javaType $property.Name)
+[$jav]    throws omero.UnloadedEntityException {
 [$jav]        errorIfUnloaded();
 [$jav]        this.$property.Name = $setter;
 [$jav]        $unloadedJava
@@ -459,14 +462,17 @@ One-to-many extras:
 
 #if( $hasSet || $hasLink )
 
-[$jav]    public int sizeOf${PropertyName}() {
+[$Ice]    long sizeOf${PropertyName}(); // throws omero::UnloadedEntityException 
+[$jav]    public long sizeOf${PropertyName}(Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]      errorIfUnloaded();
-[$jav]      return ${propLoaded} ? ${property.name}.size() : -1;
+[$jav]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$jav]      return ${property.name}.size();
 [$jav]    }
-[$hdr]    ${cppType}::size_type sizeOf${PropertyName}();
-[$cpp]    ${cppType}::size_type ${PojoI}::sizeOf${PropertyName}() {
+[$hdr]    long sizeOf${PropertyName}( const Ice::Current& current = Ice::Current() ) throw(omero::UnloadedEntityException);
+[$cpp]    long ${PojoI}::sizeOf${PropertyName}( const Ice::Current& current ) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
-[$cpp]      return ${propLoaded} ? ${property.name}.size() : -1;
+[$cpp]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$cpp]      return ${property.name}.size();
 [$cpp]    }
 
 [$jav]    public Iterator iterate${PropertyName}(){

@@ -6,23 +6,40 @@
  *
  */
 
-#include <OMERO/Error.h>
+#include <OMERO/errors.h>
 
-using namespace std;
+namespace omero {
 
-#define ERROR(TYPE)                                          \
-void omero::TYPE::ice_print(ostream& out) const              \
-{                                                            \
-  Exception::ice_print(out);                                 \
-  out << ":\nTYPE";                                          \
-  if(!message.empty())                                       \
-    {                                                        \
-      out << ":\n" << message;                               \
-    }                                                        \
-};                                                           \
-//
+  ClientError::ClientError(const char* file, int line, const char* msg) :
+    std::exception(), _line(line), _file(file), _msg(msg){}
 
-ERROR(ClientError)
-ERROR(UnloadedEntityException)
-ERROR(UnloadedCollectionException)
+  ClientError::~ClientError() throw(){}
 
+  const char* ClientError::name() const throw()
+  {
+    return "ClientError";
+  }
+
+  const char* ClientError::file() const throw()
+  {
+    return _file;
+  }
+
+  const char* ClientError::what() const throw()
+  {
+    return _msg;
+  }
+
+  int ClientError::line() const throw()
+  {
+    return _line;
+  }
+
+}
+
+std::ostream& operator<<(std::ostream& os, const omero::ClientError& ex) 
+{
+  os << ex.name() << " in File " << ex.file() << ", line " << ex.line();
+  os << std::endl << ex.what() << std::endl;
+  return os;
+}
