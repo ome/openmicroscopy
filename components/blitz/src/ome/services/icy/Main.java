@@ -28,25 +28,29 @@ public class Main {
      */
     public static void main(final String[] args) {
 
-        ThreadGroup root = new ThreadGroup("OMERO.root") {
+        final ThreadGroup root = new ThreadGroup("OMERO.root") {
             // could do exception handling.
         };
 
         
-        Runtime.getRuntime().addShutdownHook(new Thread(root, "OMERO.destroy") {
+        final Thread shutdown = new Thread(root, "OMERO.destroy") {
             @Override
             public void run() {
                 log.info("Running shutdown hook.");
                 OmeroContext.getInstance("OMERO.blitz").close();
                 log.info("Shutdown hook finished.");
             }
-        });
+        };
         
         Runnable r = new Runnable() {
             public void run() {
                 log.info("Creating OMERO.blitz. Please wait...");
                 OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
                 log.info("OMERO.blitz now accepting connections.");
+
+                // Now that we've successfully gotten the context
+                // add a shutdown hook.
+                Runtime.getRuntime().addShutdownHook( shutdown );
             }
         };
 
