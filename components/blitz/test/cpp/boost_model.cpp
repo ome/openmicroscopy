@@ -9,6 +9,8 @@
 #include <boost_fixture.h>
 
 using namespace omero::model;
+using namespace OMERO;
+using namespace omero;
 using namespace std;
 
 BOOST_AUTO_TEST_CASE( Toggle )
@@ -33,23 +35,50 @@ BOOST_AUTO_TEST_CASE( SimpleCtor )
 BOOST_AUTO_TEST_CASE( UnloadedCtor )
 {
   Fixture f;
-  
-}
-
-BOOST_AUTO_TEST_CASE( Unload )
-{
-  Fixture f;
   ImageIPtr img = new ImageI(new OMERO::CLong(1),false);
   BOOST_CHECK( !(img->loaded) );
   BOOST_CHECK( !(img->datasetLinksLoaded) );
 }
 
-BOOST_AUTO_TEST_CASE( UnloadedThrows )
+BOOST_AUTO_TEST_CASE( Unload )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->loaded );
+  BOOST_CHECK( img->details != (DetailsPtr)0 );
+  BOOST_CHECK( img->annotationsLoaded );
+  BOOST_CHECK( img->annotations != (ImageAnnotationsSeq)0 );
+  img->unload();
+  BOOST_CHECK( ! (img->loaded) );
+  BOOST_CHECK( ! (img->details != (DetailsPtr)0) );
+  BOOST_CHECK( ! (img->annotationsLoaded) );
+  BOOST_CHECK( ! (img->annotations != (ImageAnnotationsSeq)0) );
+}
+
+
+BOOST_AUTO_TEST_CASE( Accessors )
+{
+  Fixture f;
+  RStringPtr name = new CString("name");
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->name == (RStringPtr)0 );
+  img->name = name;
+  BOOST_CHECK( img->name != (RStringPtr)0 );
+  RStringPtr str = img->getName();
+  BOOST_CHECK( str->val == "name" );
+  BOOST_CHECK( str == name );
+
+  img->setName(new RString("name2",false));
+  BOOST_CHECK( img->getName()->val == "name2" );
+  BOOST_CHECK( ! img->getName()->null );
+  
+}
+
+BOOST_AUTO_TEST_CASE( UnloadedAccessThrows )
 {
   Fixture f;
   ImageIPtr unloaded = new ImageI(new OMERO::CLong(1),false);
-  BOOST_CHECK_THROW( unloaded->getName(), std::string );
-
+  BOOST_CHECK_THROW( unloaded->getName(), omero::UnloadedEntityException );
 }
 
 BOOST_AUTO_TEST_CASE( Iterators )

@@ -79,6 +79,7 @@ namespace OMERO {
     omero::api::IPixelsPrx getPixelsService(const ::Ice::Context& ctx);
     omero::api::IPojosPrx getPojosService(const ::Ice::Context& ctx);
     omero::api::IQueryPrx getQueryService(const ::Ice::Context& ctx);
+    omero::api::IRepositoryInfoPrx getRepositoryInfoService(const ::Ice::Context& ctx);
     omero::api::ITypesPrx getTypesService(const ::Ice::Context& ctx);
     omero::api::IUpdatePrx getUpdateService(const ::Ice::Context& ctx);
     omero::api::RawFileStorePrx createRawFileStore(const ::Ice::Context& ctx);

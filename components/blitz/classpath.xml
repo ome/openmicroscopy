@@ -50,7 +50,7 @@ importing this file.
 	<file name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/ice/3.1.1/ice-3.1.1.jar"/>
+	<file name="omero/ice/3.2.0/ice-3.2.0.jar"/>
 	<file name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
 	<file name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<file name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
@@ -101,7 +101,7 @@ importing this file.
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/ice/3.1.1/ice-3.1.1.jar"/>
+	<include name="omero/ice/3.2.0/ice-3.2.0.jar"/>
 	<include name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
 	<include name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<include name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
@@ -155,7 +155,7 @@ importing this file.
 	<file name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<file name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<file name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<file name="omero/ice/3.1.1/ice-3.1.1.jar"/>
+	<file name="omero/ice/3.2.0/ice-3.2.0.jar"/>
 	<file name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
 	<file name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<file name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>
@@ -211,7 +211,7 @@ importing this file.
 	<include name="omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<include name="omero/common/3.0-TRUNK/common-3.0-TRUNK.jar"/>
 	<include name="omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<include name="omero/ice/3.1.1/ice-3.1.1.jar"/>
+	<include name="omero/ice/3.2.0/ice-3.2.0.jar"/>
 	<include name="omero/jbossall-client/4.0.4.GA/jbossall-client-4.0.4.GA.jar"/>
 	<include name="omero/jbosssx/4.0.4.GA/jbosssx-4.0.4.GA.jar"/>
 	<include name="omero/jboss-annotations-ejb3/4.0.4.GA/jboss-annotations-ejb3-4.0.4.GA.jar"/>

@@ -27,8 +27,17 @@ namespace omero {
     virtual char const* what() const throw();
   };
 
-  class UnloadedEntityException : public ClientError {};
-  class UnloadedCollectionException : public ClientError {};
+  class UnloadedEntityException : public ClientError
+  {
+  public:
+    UnloadedEntityException(const char*, int, const char* message);
+  };
+
+  class UnloadedCollectionException : public ClientError
+  {
+  public:
+    UnloadedCollectionException(const char*, int, const char* message);
+  };
   
 }
 

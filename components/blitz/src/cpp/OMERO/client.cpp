@@ -61,6 +61,10 @@ namespace OMERO {
   omero::api::IQueryPrx client::getQueryService(const ::Ice::Context& ctx) {
     return sf->getQueryService(ctx);
   }
+
+  omero::api::IRepositoryInfoPrx client::getRepositoryInfoService(const ::Ice::Context& ctx) {
+    return sf->getRepositoryInfoService(ctx);
+  }
   
   omero::api::ITypesPrx client::getTypesService(const ::Ice::Context& ctx) {
     return sf->getTypesService(ctx);

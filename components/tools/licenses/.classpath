@@ -43,7 +43,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/romio/3.0-TRUNK/romio-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/server/3.0-TRUNK/server-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/blitz/3.0-TRUNK/blitz-3.0-TRUNK.jar" sourcepath="/OMERO_HOME/components/blitz"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/omero/ice/3.1.1/ice-3.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/omero/ice/3.2.0/ice-3.2.0.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/client/3.0-TRUNK/client-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/acegisecurity/acegi-security/1.0.0-RC1/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.2.GA/hibernate-3.2.2.GA.jar" sourcepath="/HIBERNATE_SVN/src"/>

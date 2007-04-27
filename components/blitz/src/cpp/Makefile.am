@@ -7,16 +7,16 @@
 #
 
 AUTOMAKE_OPTIONS = foreign
+#subdir-objects
 
 SLICE_DIR=@SLICE_DIR@
 SLICE_OME=../../resources/slice
 SLICE_GEN=../../target/generated/resources
-SLICE_INCLUDES=-I$(SLICE_DIR) -I$(SLICE_OME)  -I$(SLICE_GEN)
+SLICE_INCLUDES=-I$(SLICE_DIR) -I$(SLICE_OME) -I$(SLICE_GEN)
 
 CPP_SRC=.
 CPP_GEN=generated
 
-AM_CXXFLAGS=-O0 -Wall
 INCLUDES=-I$(CPP_GEN) -I$(CPP_SRC)
 LIBS=-lstdc++ -lIce -lIceUtil -lSlice -lGlacier2
 

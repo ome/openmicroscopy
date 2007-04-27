@@ -163,11 +163,13 @@ public class IceCommunicatorFactoryBean extends IceLocalObjectFactoryBean {
             id.logger = this.iceLogger;
         }
 
+        Ice.Communicator ic = Util.initialize(id);
+
+        // Using implicit context, starting at Ice 3.2.0
         if (this.defaultContext != null) {
-            id.defaultContext = defaultContext;
+            ic.getImplicitContext().setContext( defaultContext );
         }
 
-        Ice.Communicator ic = Util.initialize(id);
         ObjectFactoryRegistrar.registerObjectFactory(ic, 
                 ObjectFactoryRegistrar.INSTANCE);
         

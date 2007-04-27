@@ -18,13 +18,14 @@ dnl Configurable Ice locations
 AC_ARG_WITH(ice,
             AC_HELP_STRING(
                 [--with-ice=PREFIX],
-                [location of the Ice PREFIX. (ex. /opt/Ice-3.1)]),
-            [CPPFLAGS="$CPPFLAGS -I$withval/include"
-              LDFLAGS="$LDFLAGS -L$withval/lib -L$withval/lib64"
+                [location of the Ice PREFIX. (ex. /opt/Ice-3.2.0)]),
+            [CPPFLAGS="-I$withval/include $CPPFLAGS"
+              LDFLAGS="-L$withval/lib -L$withval/lib64 $LDFLAGS"
 	     AC_SUBST(SLICE_DIR,"$withval/slice")
              AC_MSG_NOTICE(using Ice include directory... $withval/include)
              AC_MSG_NOTICE(using Ice slice directory... $withval/slice)
-             AC_MSG_NOTICE(using Ice library directory... $withval/lib)])
+             AC_MSG_NOTICE(using Ice library directory... $withval/lib)],
+	     AC_SUBST(SLICE_DIR,"/usr/share/Ice/slice"))
 
 dnl Automake time
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)

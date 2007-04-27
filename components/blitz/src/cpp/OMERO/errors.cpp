@@ -35,6 +35,12 @@ namespace omero {
     return _line;
   }
 
+  UnloadedEntityException::UnloadedEntityException(const char* file, int line, const char* msg) :
+    ClientError(file,line,msg){}
+
+  UnloadedCollectionException::UnloadedCollectionException(const char* file, int line, const char* msg) :
+    ClientError(file,line,msg){}
+
 }
 
 std::ostream& operator<<(std::ostream& os, const omero::ClientError& ex) 

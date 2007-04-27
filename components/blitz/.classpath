@@ -41,7 +41,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/jboss-aspect-library-jdk50/4.0.4.GA/jboss-aspect-library-jdk50-4.0.4.GA.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/common/3.0-TRUNK/common-3.0-TRUNK.jar" sourcepath="/OMERO_COMMON"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/dsl/3.0-TRUNK/dsl-3.0-TRUNK.jar"/>
-	<classpathentry kind="var" path="M2_REPO/omero/ice/3.1.1/ice-3.1.1.jar" sourcepath="/USER_HOME/code/ice/IceJ-3.1.1-java5"/>
+	<classpathentry kind="var" path="M2_REPO/omero/ice/3.2.0/ice-3.2.0.jar" sourcepath="/USER_HOME/code/ice/IceJ-3.2.0-java5"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/importer/3.0-TRUNK/importer-3.0-TRUNK.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/postgresql/8.1-405.jdbc3/postgresql-8.1-405.jdbc3.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/omero/rendering/3.0-TRUNK/rendering-3.0-TRUNK.jar"/>

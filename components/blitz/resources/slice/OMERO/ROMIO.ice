@@ -20,7 +20,7 @@ module romio
     interface RawFileStore
     {
         // On I/O error throws ResourceError.
-        nonmutating Ice::ByteSeq read(long id, long position, int length)
+        idempotent Ice::ByteSeq read(long id, long position, int length)
             throws ServerError;
             
         // On I/O error throws ResourceError.

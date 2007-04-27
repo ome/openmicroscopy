@@ -131,6 +131,7 @@
 #include &lt;OMERO/System.h&gt;
 #include &lt;OMERO/IObject.h&gt;
 #include &lt;OMERO/Error.h&gt;
+#include &lt;OMERO/errors.h&gt;
 #include &lt;Ice/Ice.h&gt;
 #include &lt;string&gt;
 #include &lt;vector&gt;

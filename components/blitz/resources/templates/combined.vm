@@ -107,13 +107,13 @@ INTERNAL METHODS:
 [$hdr]       void throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException);
 [$cpp]       void ${PojoI}::throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException)
 [$cpp]       {
+[$cpp]         std::string s = "Error updating collection:" + propertyName +"\n"+
+[$cpp]         "Collection is currently null. This can be seen\n"+
+[$cpp]         "by testing \""+ propertyName +"Loaded\". This implies\n"+
+[$cpp]         "that this collection was unloaded. Please refresh this object\n"+
+[$cpp]         "in order to update this collection.\n";
 [$cpp]         throw omero::UnloadedCollectionException(
-[$cpp]            __FILE__,__LINE__,
-[$cpp]            "Error updating collection:" + propertyName +"\n"+
-[$cpp]            "Collection is currently null. This can be seen\n"+
-[$cpp]            "by testing \""+ propertyName +"Loaded\". This implies\n"+
-[$cpp]            "that this collection was unloaded. Please refresh this object\n"+
-[$cpp]            "in order to update this collection.\n");
+[$cpp]            __FILE__,__LINE__,s.c_str());
 [$cpp]       }
 [$jav]       protected void throwNullCollectionException(String propertyName) throws omero.UnloadedCollectionException
 [$jav]       {
@@ -468,8 +468,8 @@ One-to-many extras:
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
 [$jav]      return ${property.name}.size();
 [$jav]    }
-[$hdr]    long sizeOf${PropertyName}( const Ice::Current& current = Ice::Current() ) throw(omero::UnloadedEntityException);
-[$cpp]    long ${PojoI}::sizeOf${PropertyName}( const Ice::Current& current ) throw(omero::UnloadedEntityException) {
+[$hdr]    Ice::Long sizeOf${PropertyName}( const Ice::Current& current = Ice::Current() ) throw(omero::UnloadedEntityException);
+[$cpp]    Ice::Long ${PojoI}::sizeOf${PropertyName}( const Ice::Current& current ) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
 [$cpp]      return ${property.name}.size();

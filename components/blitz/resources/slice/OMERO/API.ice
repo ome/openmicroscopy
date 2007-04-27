@@ -45,20 +45,20 @@ module omero {
     {
     
       // Getters
-      nonmutating omero::model::Experimenter getExperimenter(long id) throws ServerError;
-      nonmutating omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
-      nonmutating ExperimenterList lookupExperimenters() throws ServerError;
-      nonmutating omero::model::ExperimenterGroup getGroup(long id) throws ServerError;
-      nonmutating omero::model::ExperimenterGroup lookupGroup(string name) throws ServerError ; 
-      nonmutating ExperimenterGroupList lookupGroups() throws ServerError;
-      nonmutating ExperimenterList containedExperimenters(long groupId) throws ServerError;
-      nonmutating ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
-      nonmutating omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
+      idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
+      idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
+      idempotent ExperimenterList lookupExperimenters() throws ServerError;
+      idempotent omero::model::ExperimenterGroup getGroup(long id) throws ServerError;
+      idempotent omero::model::ExperimenterGroup lookupGroup(string name) throws ServerError ; 
+      idempotent ExperimenterGroupList lookupGroups() throws ServerError;
+      idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
+      idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
+      idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
     
       // Mutators
     
-      idempotent void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
-      idempotent void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
+      void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
+      void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
       long createUser(omero::model::Experimenter experimenter, string group) throws ServerError;
       long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
       long createExperimenter(omero::model::Experimenter user, 
@@ -81,28 +81,28 @@ module omero {
       idempotent void synchronizeLoginCache() throws ServerError;
 
       // Security Context
-      nonmutating omero::sys::Roles getSecurityRoles() throws ServerError;
-      nonmutating omero::sys::EventContext getEventContext() throws ServerError;            
+      idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
+      idempotent omero::sys::EventContext getEventContext() throws ServerError;            
     };  
 
     interface IConfig extends ServiceInterface
     {
-      nonmutating string getVersion() throws ServerError;
-      nonmutating string getConfigValue(string key) throws ServerError;
+      idempotent string getVersion() throws ServerError;
+      idempotent string getConfigValue(string key) throws ServerError;
       idempotent void setConfigValue(string key, string value) throws ServerError;
-      nonmutating omero::Time getDatabaseTime() throws ServerError;
-      nonmutating omero::Time getServerTime() throws ServerError;
+      idempotent omero::Time getDatabaseTime() throws ServerError;
+      idempotent omero::Time getServerTime() throws ServerError;
     };
 
 
     interface IPixels extends ServiceInterface
     {
-      nonmutating omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
-      nonmutating omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
-      idempotent void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
-      nonmutating int getBitDeptch(omero::model::PixelsType type) throws ServerError;
-      nonmutating omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
-      nonmutating IObjectList getAllEnumerations(string enumClass) throws ServerError;
+      idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
+      idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
+      void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
+      idempotent int getBitDeptch(omero::model::PixelsType type) throws ServerError;
+      idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
+      idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
     };
 
     dictionary<long, IObjectList> AnnotationMap;
@@ -111,44 +111,44 @@ module omero {
 
     interface IPojos extends ServiceInterface
     {
-      nonmutating IObjectList loadContainerHierarchy(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating IObjectList findContainerHierarchies(string rootType, omero::api::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating AnnotationMap findAnnotations(string rootType, omero::api::LongList rootIds, omero::api::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating IObjectList findCGCPaths(omero::api::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
-      nonmutating ImageList findImages(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-      nonmutating ImageList findUserImages(omero::sys::ParamMap options) throws ServerError;
-      nonmutating UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
-      nonmutating CountMap getCollectionCount(string type, string property, omero::api::LongList ids, omero::sys::ParamMap options) throws ServerError;
-      nonmutating IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList loadContainerHierarchy(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList findContainerHierarchies(string rootType, omero::api::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent AnnotationMap findAnnotations(string rootType, omero::api::LongList rootIds, omero::api::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList findCGCPaths(omero::api::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
+      idempotent ImageList findImages(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent ImageList findUserImages(omero::sys::ParamMap options) throws ServerError;
+      idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
+      idempotent CountMap getCollectionCount(string type, string property, omero::api::LongList ids, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
       omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
       IObjectList createDataObjects(IObjectList dataObjects, omero::sys::ParamMap options) throws ServerError;
-      idempotent void unlink(IObjectList links, omero::sys::ParamMap options) throws ServerError;
+      void unlink(IObjectList links, omero::sys::ParamMap options) throws ServerError;
       IObjectList link(IObjectList links, omero::sys::ParamMap options) throws ServerError;
-      idempotent omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
-      idempotent IObjectList updateDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
+      omero::model::IObject updateDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
+      IObjectList updateDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
       void deleteDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
       void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
     };
 
     interface IQuery extends ServiceInterface
     {
-      nonmutating omero::model::IObject get(string klass, long id) throws ServerError;
-      nonmutating omero::model::IObject find(string klass, long id) throws ServerError;
-      nonmutating IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;          
-      nonmutating omero::model::IObject findByExample(omero::model::IObject example) throws ServerError;
-      nonmutating IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;    
-      nonmutating omero::model::IObject findByString(string klass, string field, string value) throws ServerError;
-      nonmutating IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
-      nonmutating omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
-      nonmutating IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
-      nonmutating omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
+      idempotent omero::model::IObject get(string klass, long id) throws ServerError;
+      idempotent omero::model::IObject find(string klass, long id) throws ServerError;
+      idempotent IObjectList           findAll(string klass, omero::sys::Filter filter) throws ServerError;          
+      idempotent omero::model::IObject findByExample(omero::model::IObject example) throws ServerError;
+      idempotent IObjectList           findAllByExample(omero::model::IObject example, omero::sys::Filter filter) throws ServerError;    
+      idempotent omero::model::IObject findByString(string klass, string field, string value) throws ServerError;
+      idempotent IObjectList           findAllByString(string klass, string field, string value, bool caseSensitive, omero::sys::Filter filter) throws ServerError;
+      idempotent omero::model::IObject findByQuery(string query, omero::sys::Parameters params) throws ServerError;
+      idempotent IObjectList           findAllByQuery(string query, omero::sys::Parameters params) throws ServerError;
+      idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
     };
 
     interface ITypes extends ServiceInterface
     {
       omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
-      nonmutating omero::model::IObject getEnumeration(string type, string value) throws ServerError;
-      nonmutating IObjectList allEnumerations(string type) throws ServerError;      
+      idempotent omero::model::IObject getEnumeration(string type, string value) throws ServerError;
+      idempotent IObjectList allEnumerations(string type) throws ServerError;      
     };
 
     interface IUpdate extends ServiceInterface
@@ -162,42 +162,42 @@ module omero {
 	
     interface IRepositoryInfo extends ServiceInterface
     {
-	nonmutating long getUsedSpaceInKilobytes() throws ServerError;
-	nonmutating long getFreeSpaceInKilobytes() throws ServerError;
-	nonmutating double getUsageFraction() throws ServerError;
+	idempotent long getUsedSpaceInKilobytes() throws ServerError;
+	idempotent long getFreeSpaceInKilobytes() throws ServerError;
+	idempotent double getUsageFraction() throws ServerError;
 	void sanityCheckRepository() throws ServerError;
     };
 	
     interface RawFileStore extends ServiceInterface
     {
       void setFileId(long fileId) throws ServerError;
-      nonmutating Ice::ByteSeq read(long position, int length) throws ServerError;
+      idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
       idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
     };
 
     interface RawPixelsStore extends ServiceInterface
     {
       void setPixelsId(long pixelsId) throws ServerError;
-      nonmutating int getPlaneSize() throws ServerError;
-      nonmutating int getRowSize() throws ServerError;
-      nonmutating int getStackSize() throws ServerError;
-      nonmutating int getTimepointSize() throws ServerError;
-      nonmutating int getTotalSize() throws ServerError;
-      nonmutating long getRowOffset(int y, int z, int c, int t) throws ServerError;
-      nonmutating long getPlaneOffset(int z, int c, int t) throws ServerError;
-      nonmutating long getStackOffset(int c, int t) throws ServerError;
-      nonmutating long getTimepointOffset(int t) throws ServerError;
-      nonmutating Ice::ByteSeq getRegion(int size, long offset) throws ServerError;
-      nonmutating Ice::ByteSeq getRow(int y, int z, int c, int t) throws ServerError;
-      nonmutating Ice::ByteSeq getPlane(int z, int c, int t) throws ServerError;
-      nonmutating Ice::ByteSeq getStack(int c, int t) throws ServerError;
-      nonmutating Ice::ByteSeq getTimepoint(int t) throws ServerError;
+      idempotent int getPlaneSize() throws ServerError;
+      idempotent int getRowSize() throws ServerError;
+      idempotent int getStackSize() throws ServerError;
+      idempotent int getTimepointSize() throws ServerError;
+      idempotent int getTotalSize() throws ServerError;
+      idempotent long getRowOffset(int y, int z, int c, int t) throws ServerError;
+      idempotent long getPlaneOffset(int z, int c, int t) throws ServerError;
+      idempotent long getStackOffset(int c, int t) throws ServerError;
+      idempotent long getTimepointOffset(int t) throws ServerError;
+      idempotent Ice::ByteSeq getRegion(int size, long offset) throws ServerError;
+      idempotent Ice::ByteSeq getRow(int y, int z, int c, int t) throws ServerError;
+      idempotent Ice::ByteSeq getPlane(int z, int c, int t) throws ServerError;
+      idempotent Ice::ByteSeq getStack(int c, int t) throws ServerError;
+      idempotent Ice::ByteSeq getTimepoint(int t) throws ServerError;
       idempotent void setRegion(int size, long offset, Ice::ByteSeq buffer) throws ServerError;
       idempotent void setRow(Ice::ByteSeq buf, int y, int z, int c, int t) throws ServerError;
       idempotent void setPlane(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
       idempotent void setStack(Ice::ByteSeq buf, int z, int c, int t) throws ServerError;
       idempotent void setTimepoint(Ice::ByteSeq buf, int t) throws ServerError;
-      nonmutating Ice::ByteSeq calculateMessageDigest() throws ServerError;
+      idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
     };
 
     interface RenderingEngine extends ServiceInterface
