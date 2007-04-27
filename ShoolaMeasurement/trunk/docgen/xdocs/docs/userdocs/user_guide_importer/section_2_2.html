@@ -1,0 +1,190 @@
+<html>
+<head>
+  <title>Importing Images</title>
+</head>
+<body>
+<p>
+Before importing any images using OMERO.importer you must create somewhere to 
+store the images. This means creating a project and one or more datasets 
+using the OMERO.insight application. The following steps briefly describe 
+the steps required to create a new project and dataset which you can use 
+while importing. A more detailed description of how to use OMERO.insight 
+can be found in its own user guide, which should be included when you 
+download OMERO.insight.
+<ol>
+<li>
+Log into OMERO using OMERO.insight
+<ul>
+<li>Typically, the administrator who set up OMERO can provide you with an 
+OMERO user account and an OMERO.server's address, which you can use to 
+log in with OMERO.insight and OMERO.importer. 
+</li>
+</ul>
+</li>
+
+<li>
+Create a project:
+<ul>
+<li>In OMERO.insight, open the <b><i>File</i></b> menu, select 
+<b><i>Create New Project</i></b>.</li>
+<li>In the window that appears, enter the Project name and, optionally, 
+a textual description of the project.</li>
+<li>Select <b><i>Save</i></b> to confirm.</li>
+</ul>
+</li>
+<li>
+Create a dataset for the newly created project:
+<ul>
+<li>In OMERO.insight, open the <b><i>File</i></b> menu, select <b><i>Add New Dataset</i></b>.</li>
+<li>In the window that appears, enter the dataset name and, optionally, a 
+textual description of the dataset.</li>
+<li>Select <b><i>Save</i></b> to confirm.</li>
+</ul>
+</li>
+<li>
+The dataset will now be listed under the parent project.
+</li>
+<li>
+Log into OMERO using OMERO.importer
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/log.jpg" 
+    alt="OMERO.importer Log-in"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="left"><a name="figure_1"><b>Figure 2.2-1</b></a>: 
+    OMERO.importer Log-in</td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+</li>
+<li>
+OMERO.importer is separated into three main sections represented by the 
+tabs at the top of the application. These are:
+<ul>
+<li>
+The <b><i>File Viewer</i></b> tab: From here you can <b>add</b> or <b>remove</b> images 
+from the left hand file display area to the queue on the right hand side.<br/>
+This is done by using the <img src="images/add.jpg" width="16" height="16"/> 
+and <img src="images/remove.jpg" width="16" height="16"/> buttons shown in the 
+middle of the display.
+</li>
+<li>The <b><i>Output Text</i></b> tab: Shows you a brief list of the current 
+import status as files are being imported.</li>
+<li>The <b><i>Debug Text</i></b> tab: Shows you more technical information 
+about the import status as files are being imported.
+</li>
+</ul>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/importer.jpg" 
+    alt="OMERO.importer"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="left"><a name="figure_2"><b>Figure 2.2-2</b></a>: 
+    OMERO.importer</td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+</li>
+<li>
+Select the local images you wish to import:
+<ul>
+<li>Once you are logged into the importer, 
+browse your local file system using the panel on the left hand side of the 
+<b><i>File Viewer</i></b> tab.
+</li>
+<li><b>Add</b> (resp. <b>Remove</b>) your images from the right hand import 
+queue using the 
+<img src="images/add.jpg" width="16" height="16"/> 
+(resp. <img src="images/remove.jpg" width="16" height="16"/>) button.
+</li>
+</ul>
+</li>
+<li>
+Select the project and dataset to import images into.
+<ul>
+<li>Once you click on the <img src="images/add.jpg" width="16" height="16"/> 
+button, a popup window will ask you to select the 
+project and dataset you wish to add your images to. 
+Select these at the top of the popup. 
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+ Note that you must have a project 
+and dataset already set up in OMERO.insight before you can import images 
+(see <b>Step 1 to 3</b> above).
+ </div>
+</div> 
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/import.jpg" 
+    alt="Import window"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="left"><a name="figure_3"><b>Figure 2.2-3</b></a>: 
+    Import window</td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+ </li>
+</ul>
+</li>
+
+<li>
+Select the filename to use for your imported image.
+<ul>
+<li>The bottom half of the import popup window also allows you to select the 
+file name your image will use in the OMERO database. </li>
+<li>The filename can either be the <b>short</b> path name  
+e.g. <code>myImage.dv</code>, the <b>full</b> path name 
+e.g. <code>c:/stuff/myImage.dv</code>,
+ or the short file name plus a number of leading directories.
+ For example, if you chose to add <code>1</code> directory to the directory 
+ <code>c:/stuff/myImage.dv</code>, your final imported image would be 
+ <code>stuff/myImage.dv</code>.
+</li>
+<li>
+Select <b><i>Add</i></b> to confirm.
+</li>
+</ul>
+</li>
+<li>
+Once images are added to the queue, click the <b><i>Import</i></b> button to 
+begin importing.
+<ul>
+<li>Each images' status will update as the image is processed and then uploaded 
+to the OMERO server.
+</li>
+<li>You may also add additional images to the import queue while an import is 
+already running. This will only add the images however. When you are ready 
+to import these new images, click the <b><i>Import</i></b> button again 
+to begin importing them.
+</li>
+</ul>
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+  If you cancel an already running import, the importer 
+  will stop after it finishes processing the currently importing image, 
+  which may take a few moments.
+ </div>
+</div> 
+</li>
+</ol>
+</p>
+</body>
+</html>
