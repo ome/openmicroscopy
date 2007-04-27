@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,6 +120,23 @@ public interface DataHandlerView
      */
     public CallHandle deleteAnnotation(DataObject annotatedObject,
                                         AnnotationData data,
+                                        AgentEventListener observer);
+    
+    /**
+     * Deletes the specified annotation.
+     * 
+     * @param annotatedObject   The annotated <code>DataObject</code>.
+     *                          One of the following type:
+     *                          <code>DatasetData</code>,
+     *                          <code>ImageData</code>.   
+     *                          Mustn't be <code>null</code>.
+     * @param data              Collection of annotation objects to delete. 
+     *                          Mustn't be <code>null</code>.
+     * @param observer          Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle deleteAnnotation(DataObject annotatedObject,
+                                        List data,
                                         AgentEventListener observer);
     
     /**

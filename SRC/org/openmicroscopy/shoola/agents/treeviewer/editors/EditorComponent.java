@@ -412,5 +412,15 @@ class EditorComponent
 		if (rootPane == null) return;
 		view.setDefaultButton(rootPane);
 	}
+
+	 /**
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#addSiblings(List)
+     */
+	public void addSiblings(List nodes)
+	{
+		// TODO ADD CONTROL
+		view.addSelectedNodes(nodes);
+	}
 	
 }

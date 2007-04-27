@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -103,11 +104,21 @@ public interface AnnotatorEditor
 	 * 
 	 * @param result The updated <code>DataObject</code>s.
 	 */
-	public void saveAnnotation(DataObject result);
+	public void setAnnotationSaved(List result);
 
 	/** Creates or updates the annotation for the edited data object. */
 	public void save();
 
+	/**
+	 * Saves the annotation for all displayed items if the passed 
+	 * index if {@link #SELECT_ALL} or saves the annotation for the
+	 * selected item if the passed index is {@link #SELECT_ONE}.
+	 * 
+	 * @param index One of the following constants: {@link #SELECT_ALL}
+	 * 				or {@link #SELECT_ONE}.
+	 */
+	public void save(int index);
+	
 	/** Removes the annotation. */
 	public void delete();
 	
@@ -148,5 +159,12 @@ public interface AnnotatorEditor
 	 * @param object The object to handle.
 	 */
 	public void retrieveAnnotations(DataObject object);
-	
+
+	/**
+	 * Adds the selected nodes along the annotated one.
+	 * 
+	 * @param nodes The nodes to add.
+	 */
+	public void addSelectedNodes(List nodes);
+
 }

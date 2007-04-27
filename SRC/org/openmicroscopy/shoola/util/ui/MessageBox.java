@@ -58,6 +58,16 @@ public class MessageBox
 	private int option; 
 	
 	/**
+     * Overridden to perform the action as the user has selected the yes option.
+     */
+    protected void onYesSelection() { option = YES_OPTION; }
+    
+    /**
+     * Overridden to perform the action as the user has selected the no option.
+     */
+    protected void onNoSelection() { option = NO_OPTION; }
+    
+	/**
 	 * Creates a new dialog.
 	 * You have to call {@link #setVisible(boolean)} method to actually
      * display it on screen.
@@ -86,17 +96,7 @@ public class MessageBox
 		super(owner, title, message, IconManager.getInstance().getIcon
 				(IconManager.QUESTION_ICON));
 	}
-	
-    /**
-     * Overridden, performs the action as the user has selected the yes option.
-     */
-    protected void onYesSelection() {	option = YES_OPTION; }
-    
-    /**
-     * Overridden, performs the action as the user has selected the no option.
-     */
-    protected void onNoSelection() {	option = NO_OPTION; }
-    
+
     /**
      * Shows the message box and returns the option selected by the user. 
      * 

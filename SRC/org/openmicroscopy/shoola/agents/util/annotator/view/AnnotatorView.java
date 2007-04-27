@@ -41,6 +41,8 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
+
 /** 
  * The {@link Annotator}'s View. Embeds the <code>AnnotatorUI</code>
  * to let users interact with annotations. Also provides statusBar
@@ -61,7 +63,7 @@ class AnnotatorView
 {
 
 	/** The default size of the window. */
-	private static final Dimension DEFAULT_SIZE = new Dimension(700, 500);
+	private static final Dimension	DEFAULT_SIZE = new Dimension(800, 500);
 	
 	/** The title of the window. */
 	private static final String 	TITLE = "Annotate";
@@ -75,12 +77,6 @@ class AnnotatorView
 	 */
 	private static final String		NOTE_CHILDREN = "Annotate the images " +
 			"contained in the selected folder.";
-  
-	/** 
-	 * The size of the invisible components used to separate buttons
-	 * horizontally.
-	 */
-	private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
 	/** Reference to the Controller. */
 	private AnnotatorControl	controller;
@@ -106,7 +102,7 @@ class AnnotatorView
 		JButton b = new JButton(controller.getAction(AnnotatorControl.FINISH));
 		bar.add(b);
 		getRootPane().setDefaultButton(b);
-		bar.add(Box.createRigidArea(H_SPACER_SIZE));
+		bar.add(Box.createRigidArea(AnnotatorUtil.H_SPACER_SIZE));
 		b = new JButton(controller.getAction(AnnotatorControl.CANCEL));
 		bar.add(b);
 		return UIUtilities.buildComponentPanelRight(bar);
@@ -176,7 +172,7 @@ class AnnotatorView
 		buildGUI();
 	}
 	
-	/** Builds the list of already annotated <code>DataObject</code>s. */
+	/** Displays the annotation for the selected images. */
 	void showAnnotations() { annotatorUI.showAnnotations(); }
 	
 	/**
@@ -199,11 +195,40 @@ class AnnotatorView
 	 */
 	String getAnnotationText () { return annotatorUI.getAnnotationText(); }
 	
+	/**
+	 * Returns <code>true</code> if the user has annotation to save.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave() { return annotatorUI.hasDataToSave(); }
+	
+	/**
+	 * Returns the name of the selected <code>Dataset</code> or
+	 * the partial name if the selected node is an <code>Image</code>.
+	 * 
+	 * @return See above.
+	 */
+	String getSelectedObjectName()
+	{
+		return annotatorUI.getSelectedObjectName();
+	}
+	
 	/** Sets the window on screen. */
 	void setOnScreen()
 	{
 		setSize(DEFAULT_SIZE);
 		UIUtilities.centerAndShow(this);
 	}
-	
+
+	/**
+	 * Returns the currently selected data object if any or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	DataObject getSelectedDataObject()
+	{
+		return annotatorUI.getSelectedDataObject();
+	}
+
 }

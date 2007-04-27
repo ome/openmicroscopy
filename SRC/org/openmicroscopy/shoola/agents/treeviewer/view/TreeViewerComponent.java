@@ -318,6 +318,8 @@ class TreeViewerComponent
             UIUtilities.centerAndShow(editorDialog);
             onComponentStateChange(false);
         } else {
+        	editor.addSiblings(
+        			model.getSelectedBrowser().getSelectedDataObjects());
         	view.addComponent(editor.getUI());
         	editor.setDefaultButton(view.getRootPane());
         }

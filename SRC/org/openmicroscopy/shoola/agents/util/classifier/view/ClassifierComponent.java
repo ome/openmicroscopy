@@ -32,6 +32,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataHandlerTranslator;
+import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -117,6 +118,16 @@ class ClassifierComponent
 	{
 		model.discard();
 		fireStateChange();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Annotator} interface.
+     * @see Classifier#close()
+     */
+	public void close()
+	{
+		//model.discard();
+		//fireStateChange();
 	}
 	
     /**

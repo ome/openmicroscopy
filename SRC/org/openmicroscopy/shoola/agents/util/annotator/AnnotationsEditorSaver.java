@@ -24,7 +24,10 @@ package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -71,11 +74,17 @@ public class AnnotationsEditorSaver
 	/** Handle to the async call so that we can cancel it. */
 	private CallHandle  	handle;
 	
-	 /** The object to annotate. */
-    private DataObject		annotatedObject;
+	/** The object to annotate. */
+    private Set				toAnnotate;
     
-    /** The annotation to create, update or delete. */
+    /** The annotation to create. */
     private AnnotationData  data;
+    
+    /** Collection of annotation to remove. */
+    private List			toRemove;
+    
+    /** The annotated object. */
+    private DataObject		annotatedObject;
     
     /**
      * Controls if the specified operation is supported.
@@ -94,6 +103,39 @@ public class AnnotationsEditorSaver
         }
     }
     
+    /**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The Annotator this loader is for. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param objects	The <code>DataObject</code>s to annotate.
+	 * 					Mustn't be <code>null</code>.
+	 * @param type		The type of <code>DataObject</code> 
+	 * 					that can be annotated.
+	 * @param data		The annotation for. Mustn't be <code>null</code>.
+	 * @param index		One of the constants defined by this class.
+	 */
+	public AnnotationsEditorSaver(AnnotatorEditor viewer, Set objects, 
+								Class type, AnnotationData data, int  index)
+	{
+		super(viewer);
+		if (objects == null)
+			throw new IllegalArgumentException("Object to annotate cannot be" +
+					"null.");
+		if (data == null)
+			throw new IllegalArgumentException("Annotation cannot be null.");
+		checkOperation(index);
+		if (!checkAnnotationType(type))
+			throw new IllegalArgumentException("Data object not supported.");
+		this.index = index;
+		this.data = data;
+		toAnnotate = objects;
+		if (index == DELETE) {
+			toRemove = new ArrayList(1);
+			toRemove.add(data);
+		}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -118,6 +160,39 @@ public class AnnotationsEditorSaver
 			throw new IllegalArgumentException("Data object not supported.");
 		this.index = index;
 		this.data = data;
+		toAnnotate = new HashSet(1);
+		toAnnotate.add(object);
+		if (index == DELETE) {
+			toRemove = new ArrayList(1);
+			toRemove.add(data);
+		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer	The Annotator this loader is for. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param object	The <code>DataObject</code> to annotate.
+	 * 					Mustn't be <code>null</code>.
+	 * @param data		Collection of annotations to remove. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param index		One of the constants defined by this class.
+	 */
+	public AnnotationsEditorSaver(AnnotatorEditor viewer, DataObject object, 
+								List data)
+	{
+		super(viewer);
+		if (object == null)
+			throw new IllegalArgumentException("Object to annotate cannot be" +
+					"null.");
+		if (data == null)
+			throw new IllegalArgumentException("Annotation cannot be null.");
+		checkOperation(index);
+		if (!checkAnnotationType(object.getClass()))
+			throw new IllegalArgumentException("Data object not supported.");
+		this.index = DELETE;
+		toRemove = data;
 		annotatedObject = object;
 	}
 	
@@ -131,13 +206,14 @@ public class AnnotationsEditorSaver
 		switch (index) {
 			case UPDATE:
 	        case CREATE:
-	            handle = dhView.createAnnotation(annotatedObject, data, this);
+	            handle = dhView.createAnnotation(toAnnotate, data, this);
 	            break;
 	        //case UPDATE:
 	         //   handle = dhView.updateAnnotation(annotatedObject, data, this);
 	         //   break;
 	        case DELETE:
-	            handle = dhView.deleteAnnotation(annotatedObject, data, this);
+	            handle = dhView.deleteAnnotation(annotatedObject, toRemove, 
+	            								this);
 		}
 	}
 	
@@ -154,9 +230,8 @@ public class AnnotationsEditorSaver
 	public void handleResult(Object result)
 	{
 	    if (viewer.getState() == DataHandler.DISCARDED) return; 
-	    DataObject object = (DataObject) ((List) result).get(0);
-	    System.err.println(object);
-	    viewer.saveAnnotation(object);
+	    //DataObject object = (DataObject) ((List) result).get(0);
+	    viewer.setAnnotationSaved((List) result);
 	}
 
 }

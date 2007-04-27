@@ -120,7 +120,7 @@ class ToolBar
         JButton b = new JButton(controller.getAction(
                                     TreeViewerControl.ANNOTATE));
         UIUtilities.unifiedButtonLookAndFeel(b);
-        //bar.add(b);
+        bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.CLASSIFIER);
         b = new JButton(a);
         b.addMouseListener((ClassifierAction) a);

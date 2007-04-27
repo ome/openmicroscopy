@@ -185,11 +185,17 @@ public class IconManager
     /** ID of the <code>Calendar</code> icon. */
     public static final int CALENDAR = 43;
     
+    /** ID of the <code>Image</code> icon. */
+    public static final int IMAGE = 44;
+    
+    /** ID of the <code>Dataset</code> icon. */
+    public static final int DATASET = 45;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 43;
+    private static int      MAX_ID = 45;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -241,6 +247,8 @@ public class IconManager
         relPaths[SAVE] = "nuvola_filesaveas16.png";
         relPaths[OWNER] = "nuvola_kdmconfig16.png";
         relPaths[CALENDAR] = "nuvola_date16.png";
+        relPaths[DATASET] = "nuvola_folder_image16.png";
+        relPaths[IMAGE] = "nuvola_image16.png";
     }
     
     /** 

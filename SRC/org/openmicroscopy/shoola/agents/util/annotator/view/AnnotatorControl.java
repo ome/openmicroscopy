@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.WindowConstants;
@@ -53,7 +57,7 @@ import org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction;
 * @since OME3.0
 */
 class AnnotatorControl
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 	
 	/** Identifies the <code>Cancel action</code> in the Edit menu. */
@@ -95,6 +99,9 @@ class AnnotatorControl
 	{
 		model.addChangeListener(this);
 		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		view.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) { model.close(); }
+        });
 	}
   
 	/**
@@ -157,6 +164,20 @@ class AnnotatorControl
 				view.setStatus(SAVING_MSG, false);
 				break;
 		}
+	}
+
+	/**
+	 * Reacts to property changes fired by {@link AnnotatorSavingDialog}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (AnnotatorSavingDialog.ANNOTATE_ONE_PROPERTY.equals(name)) {
+			model.save(Annotator.SELECT_ONE);
+		} else if (AnnotatorSavingDialog.ANNOTATE_ALL_PROPERTY.equals(name)) {
+			model.save(Annotator.SELECT_ALL);
+		} 	
 	}
 	
 }

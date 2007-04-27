@@ -77,6 +77,12 @@ public interface DataHandler
     /** Flag to denote the <i>Saving</i> state. */
     public static final int         SAVING = 5;
     
+    /** Indicates to select all items in the list. */
+    public static final int 		SELECT_ALL = 100;
+    
+    /** Indicates to select the selected item. */
+    public static final int 		SELECT_ONE = 101;
+    
     /**
      * Starts the initialization sequence when the current state is {@link #NEW} 
      * and puts the window on screen.
@@ -92,5 +98,8 @@ public interface DataHandler
      * Any ongoing data loading is cancelled.
      */
     public void discard();
+    
+    /** Closes the component. */
+    public void close();
     
 }

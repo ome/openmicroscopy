@@ -485,12 +485,19 @@ abstract class HiViewerModel
 		Object uo;
 		Set toAnnotate = new HashSet();
 		Iterator i = nodes.iterator();
+		Class type = null;
 		while (i.hasNext()) {
 			uo = ((ImageDisplay) i.next()).getHierarchyObject();
-			if (uo instanceof DataObject) toAnnotate.add(uo);	
+			if (uo instanceof ImageData) {
+				type = ImageData.class;
+				toAnnotate.add(uo);	
+			} else if (uo instanceof DatasetData) {
+				type = DatasetData.class;
+				toAnnotate.add(uo);	
+			}
 		}
 		dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
-								HiViewerAgent.getRegistry());
+								HiViewerAgent.getRegistry(), type);
 		return dataHandler;
 	}
 
@@ -525,12 +532,18 @@ abstract class HiViewerModel
 	{
 		Object uo = node.getHierarchyObject();
 		Set toAnnotate = new HashSet();
-		if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+		if (uo instanceof DatasetData) {
 			toAnnotate.add(uo);
 			dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
-					toAnnotate, HiViewerAgent.getRegistry());
+					toAnnotate, HiViewerAgent.getRegistry(), DatasetData.class);
 			return dataHandler;
-		}	
+		} else if (uo instanceof CategoryData) {
+			toAnnotate.add(uo);
+			dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
+					toAnnotate, HiViewerAgent.getRegistry(), 
+						CategoryData.class);
+			return dataHandler; 
+		}
 		return null;
 	}
 	   

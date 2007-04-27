@@ -25,10 +25,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +36,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataHandler;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsEditorLoader;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsEditorSaver;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotatorEditorLoader;
@@ -85,44 +81,17 @@ class AnnotatorEditorModel
     /** Flag to indicate if the object is annotated. */
     private boolean             	annotated;
     
+    /** Collection of nodes that have to be annotated with the dataObject. */
+    private Set<DataObject>			siblings;
+    
 	/** 
 	 * Will either be a data loader or
 	 * <code>null</code> depending on the current state. 
 	 */
 	private AnnotatorEditorLoader	currentLoader;
 	
-	/** Used to sort elements. */
-	private ViewerSorter 			sorter;
-	
 	/** Reference to the component that embeds this model. */
 	protected AnnotatorEditor		component;
-	
-    /** 
-     * Sorts the passed collection of annotations by date starting with the
-     * most recent.
-     * 
-     * @param annotations   Collection of {@link AnnotationData} linked to 
-     *                      the currently edited <code>Dataset</code> or
-     *                      <code>Image</code>.
-     */
-    private void sortAnnotationByDate(List annotations)
-    {
-        if (annotations == null || annotations.size() == 0) return;
-        Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-                          t2 = ((AnnotationData) o2).getLastModified();
-                long n1 = t1.getTime();
-                long n2 = t2.getTime();
-                int v = 0;
-                if (n1 < n2) v = -1;
-                else if (n1 > n2) v = 1;
-                return -v;
-            }
-        };
-        Collections.sort(annotations, c);
-    }
     
     /**
      * Creates a new instance.
@@ -132,7 +101,6 @@ class AnnotatorEditorModel
 	AnnotatorEditorModel(DataObject dataObject)
 	{
 		this.dataObject = dataObject;
-		sorter = new ViewerSorter();
 		state = DataHandler.NEW;
 	}
 
@@ -200,8 +168,7 @@ class AnnotatorEditorModel
      */
     void setAnnotations(Map map)
     {
-        sorter.setAscending(false);
-        HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
+    	HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
         Set set;
         Long index;
         Iterator i = map.keySet().iterator();
@@ -229,7 +196,7 @@ class AnnotatorEditorModel
         while (i.hasNext()) {
             ownerID = (Long) i.next();
             annotations = sortedAnnotations.get(ownerID);
-            sortAnnotationByDate(annotations);
+            AnnotatorUtil.sortAnnotationByDate(annotations);
         }
         this.annotations = sortedAnnotations;
         state = DataHandler.READY;
@@ -263,24 +230,41 @@ class AnnotatorEditorModel
      * 
      * @param data      The annotation to create. 
      */
-    void fireAnnotationCreate(AnnotationData data)
+    void fireAnnotationCreate(AnnotationData data, int index)
     {
         state = DataHandler.SAVING;
-        currentLoader = new AnnotationsEditorSaver(component, dataObject, data, 
-        								AnnotationsEditorSaver.CREATE);
+        switch (index) {
+			case AnnotatorEditor.SELECT_ONE:
+			default:
+				currentLoader = new AnnotationsEditorSaver(component, 
+								dataObject, data, 
+								AnnotationsEditorSaver.CREATE);
+				break;
+	
+			case AnnotatorEditor.SELECT_ALL:
+				if (siblings != null)
+					currentLoader = new AnnotationsEditorSaver(component, 
+							siblings, dataObject.getClass(), data, 
+							AnnotationsEditorSaver.CREATE);
+				else 
+					currentLoader = new AnnotationsEditorSaver(component, 
+							dataObject, data, 
+							AnnotationsEditorSaver.CREATE);
+				break;
+		}
+        
         currentLoader.load();
     }
     
     /**
      * Starts the asynchronous deletion of the annotation.
      * 
-     * @param data The annotation to delete.
+     * @param data Collection of annotations to delete.
      */
-    void fireAnnotationDelete(AnnotationData data)
+    void fireAnnotationDelete(List data)
     {
         state = DataHandler.SAVING;
-        currentLoader = new AnnotationsEditorSaver(component, dataObject, data, 
-        								AnnotationsEditorSaver.DELETE);
+        currentLoader = new AnnotationsEditorSaver(component, dataObject, data);
         currentLoader.load();
     }
     
@@ -302,9 +286,10 @@ class AnnotatorEditorModel
      * Returns the most recent annotation of the currently edited 
      * <code>DataObject</code>.
      *  
+     * @param index The index of the annotation.
      * @return See above.
      */
-    AnnotationData getAnnotationData()
+    AnnotationData getAnnotationData(int index)
     {
         long id = getUserDetails().getId();
         if (dataObject == null) return null;
@@ -312,7 +297,7 @@ class AnnotatorEditorModel
                 (dataObject instanceof DatasetData)) {
         	List l = getAnnotations(id);
         	if (l == null || l.size() == 0) return null;
-        	return (AnnotationData) l.get(0);
+        	return (AnnotationData) l.get(index);
         }
         return null;
     }
@@ -364,6 +349,21 @@ class AnnotatorEditorModel
 	DataObject getDataObject() { return dataObject; }
 
 	/**
+	 * Returns the name of the data object.
+	 * 
+	 * @return See above.
+	 */
+	String getDataObjectName()
+	{
+		if (dataObject instanceof ImageData)
+			return AnnotatorUtil.getPartialName(
+						((ImageData) dataObject).getName());
+		else if (dataObject instanceof ImageData)
+			return ((DatasetData) dataObject).getName();
+		return "";
+	}
+	
+	/**
 	 * Sets the state to the specified value.
 	 * 
 	 * @param state The value to set.
@@ -376,5 +376,21 @@ class AnnotatorEditorModel
 	 * @param object The object to set.
 	 */
 	void setDataObject(DataObject object) { dataObject = object; }
+
+	/**
+	 * Sets the <code>DataObject</code>s that can be annotated with
+	 * the edited one.
+	 * 
+	 * @param objects The value to set.
+	 */
+	void setSiblings(Set<DataObject> objects) { siblings = objects; }
+
+	/**
+	 * Returns the <code>DataObject</code>s that can be annotated with
+	 * the edited one or <code>null</code> if none.
+	 * 
+	 * @return See above.
+	 */
+	Set getSiblings() { return siblings; }
 	
 }

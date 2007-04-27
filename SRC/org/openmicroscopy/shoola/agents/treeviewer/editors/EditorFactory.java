@@ -68,7 +68,6 @@ public class EditorFactory
 			case Editor.PERMISSIONS_INDEX:
 			case Editor.PROPERTIES_INDEX:
 				break;
-	
 			default:
 				index = Editor.PROPERTIES_INDEX;
 				break;

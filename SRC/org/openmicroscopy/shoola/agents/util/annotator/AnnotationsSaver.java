@@ -99,7 +99,6 @@ public class AnnotationsSaver
 			case Annotator.ANNOTATE_MODE:
 			case Annotator.BULK_ANNOTATE_MODE:
 				break;
-	
 			default:
 				throw new IllegalArgumentException("Annotate mode not " +
 						"supported.");

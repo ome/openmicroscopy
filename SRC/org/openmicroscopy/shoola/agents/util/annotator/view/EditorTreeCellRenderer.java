@@ -32,9 +32,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditorView.OwnerNode;
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditorView.TimeNode;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
  * Determines and sets the icon corresponding to a data object.
@@ -78,6 +78,13 @@ class EditorTreeCellRenderer
         	setIcon(icons.getIcon(IconManager.OWNER));
         } else if (value instanceof TimeNode) {
         	setIcon(icons.getIcon(IconManager.CALENDAR));
+        } else if (value instanceof AnnotateNode) {
+        	AnnotateNode n = (AnnotateNode) value;
+        	Object o = n.getUserObject();
+        	if (o instanceof ImageData) 
+        		setIcon(icons.getIcon(IconManager.IMAGE));
+        	else if (o instanceof DatasetData)
+        		setIcon(icons.getIcon(IconManager.DATASET));
         }
         return this;
     }

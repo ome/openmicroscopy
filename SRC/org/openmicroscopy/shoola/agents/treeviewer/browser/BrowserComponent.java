@@ -999,6 +999,24 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getSelectedDataObjects()
+     */
+    public List getSelectedDataObjects()
+    {
+    	TreeImageDisplay[] nodes = getSelectedDisplays();
+    	if (nodes == null || nodes.length == 0) return null;
+    	List<DataObject> objects = new ArrayList<DataObject>();
+    	Object uo;
+    	for (int i = 0; i < nodes.length; i++) {
+			uo = nodes[i].getUserObject();
+			if (uo instanceof DataObject)
+				objects.add((DataObject) uo);
+		}
+    	return objects;
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedDisplays(TreeImageDisplay[])
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes)

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,6 +92,20 @@ public class DataHandlerViewImpl
      */
     public CallHandle deleteAnnotation(DataObject annotatedObject,
                                         AnnotationData data,
+                                        AgentEventListener observer)
+    {
+        BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+                                                AnnotationSaver.DELETE);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
+     * @see DataHandlerView#deleteAnnotation(DataObject, List,
+     *                                       AgentEventListener)
+     */
+    public CallHandle deleteAnnotation(DataObject annotatedObject,
+                                        List data,
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 

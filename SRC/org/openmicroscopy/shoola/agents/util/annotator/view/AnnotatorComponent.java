@@ -30,6 +30,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 
@@ -114,10 +116,27 @@ class AnnotatorComponent
      */
 	public void discard()
 	{
+		if (model.getState() != DISCARDED) {
+			model.discard();
+			fireStateChange();
+		}
+	}
+
+	/**
+     * Implemented as specified by the {@link Annotator} interface.
+     * @see Annotator#close()
+     */
+	public void close()
+	{
+		if (view.hasDataToSave()) {
+			MessageBox msg = new MessageBox(view, "Save Annotation", 
+			"Do you want to save the annotation before closing?");
+    		if (msg.centerMsgBox() == MessageBox.YES_OPTION) finish();
+		}
 		model.discard();
 		fireStateChange();
 	}
-
+	
     /**
      * Implemented as specified by the {@link Annotator} interface.
      * @see Annotator#getState()
@@ -133,11 +152,35 @@ class AnnotatorComponent
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be " +
 					"invoked in the READY state.");
+		AnnotatorSavingDialog dialog = new AnnotatorSavingDialog(view, 
+					AnnotatorSavingDialog.ANNOTATOR, 
+					view.getSelectedObjectName());
+		dialog.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(dialog);
+	}
+	
+	/**
+     * Implemented as specified by the {@link Annotator} interface.
+     * @see Annotator#save(int)
+     */
+	public void save(int index)
+	{
+		if (model.getState() != READY)
+			throw new IllegalStateException("This method can only be " +
+					"invoked in the READY state.");
 		AnnotationData d = model.getAnnotationType();
 		d.setText(view.getAnnotationText());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		controller.getAction(AnnotatorControl.FINISH).setEnabled(false);
-		model.fireAnnotationSaving(d);
+		switch (index) {
+			case SELECT_ONE:
+				model.fireAnnotationSaving(d, view.getSelectedDataObject());
+				break;
+			case SELECT_ALL:
+			default:
+				model.fireAnnotationSaving(d, null);
+				break;
+		}
 		fireStateChange();
 	}
 	
@@ -150,7 +193,8 @@ class AnnotatorComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalStateException("This method cannot be invoked "+
 					"in the DISCARDED state.");
-		discard();
+		model.discard();
+		fireStateChange();
 	}
 
     /**

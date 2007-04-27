@@ -155,6 +155,26 @@ public class AnnotationSaver
     }
     
     /**
+     * Creates a {@link BatchCall} to remove the specified annotation.
+     * 
+     * @param object    The annotated <code>DataObject</code>.
+     * @param data      The annotation to remove.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall removeAnnotation(final DataObject object,
+                                        final List data)
+    {
+        return new BatchCall("Remove dataset annotation.") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = new ArrayList(1);
+                result.add(os.removeAnnotationFrom(object, data));
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to update the specified annotation.
      * 
      * @param object    The annotated <code>DataObject</code>.
@@ -257,6 +277,37 @@ public class AnnotationSaver
                 break;
             case CREATE:
                 saveCall = createAnnotation(annotatedObject, data);
+                break;
+            default: 
+                throw new IllegalArgumentException("Constructor should only" +
+                        "be invoked to update or delete annotation.");
+        }
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 
+     * @param annotatedObject   The annotated <code>DataObject</code>.
+     *                          Mustn't be <code>null</code>.
+     * @param data              The Annotation object.
+     *                          Mustn't be <code>null</code>.
+     * @param algorithm         One of the constants defined by this class.
+     */
+    public AnnotationSaver(DataObject annotatedObject, List data, 
+                          int algorithm)
+    {
+        if (data == null) throw new IllegalArgumentException("No annotation.");
+        if (annotatedObject == null) 
+            throw new IllegalArgumentException("No DataObject to annotate.");
+        if (!(annotatedObject instanceof DatasetData) &&
+            !(annotatedObject instanceof ImageData))
+            throw new IllegalArgumentException("DataObject cannot be " +
+                                                "annotated.");
+        switch (algorithm) {
+            case DELETE:
+                saveCall = removeAnnotation(annotatedObject, data);
                 break;
             default: 
                 throw new IllegalArgumentException("Constructor should only" +

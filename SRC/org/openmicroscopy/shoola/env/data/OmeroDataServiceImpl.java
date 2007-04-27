@@ -384,6 +384,35 @@ class OmeroDataServiceImpl
 
     /**
      * Implemented as specified by {@link OmeroDataService}.
+     * @see OmeroDataService#removeAnnotationFrom(DataObject, List)
+     */
+    public DataObject removeAnnotationFrom(DataObject annotatedObject, 
+                                            List data)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        if (data == null) 
+            throw new IllegalArgumentException("No annotation to delete.");
+        if (annotatedObject == null) 
+            throw new IllegalArgumentException("No annotated DataObject."); 
+        if (!(annotatedObject instanceof ImageData) && 
+                !(annotatedObject instanceof DatasetData))
+            throw new IllegalArgumentException("This method only supports " +
+                    "ImageData and DatasetData objects.");
+        //First make sure the data object is current;
+        Iterator i = data.iterator();
+        IObject ho;
+        AnnotationData d;
+        while (i.hasNext()) {
+			d = (AnnotationData) i.next();
+			ho = gateway.findIObject(d.asIObject());
+			if (ho != null) gateway.deleteObject(ho);
+		}
+        ho = gateway.findIObject(annotatedObject.asIObject());
+        return PojoMapper.asDataObject(ho);
+    }
+    
+    /**
+     * Implemented as specified by {@link OmeroDataService}.
      * @see OmeroDataService#updateAnnotationFor(DataObject, AnnotationData)
      */
     public DataObject updateAnnotationFor(DataObject annotatedObject,

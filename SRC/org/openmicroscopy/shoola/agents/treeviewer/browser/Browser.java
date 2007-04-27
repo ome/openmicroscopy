@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
@@ -531,5 +532,13 @@ public interface Browser
 	
 	/** Refreshes the tree when a new user is selected. */
 	public void switchUser();
+	
+	/**
+	 * Returns a collection of <code>DataObject</code> hosted by the
+	 * selected nodes or <code>null</code> if no node selected.
+	 * 
+	 * @return See above.
+	 */ 
+	public List getSelectedDataObjects();
 	
 }

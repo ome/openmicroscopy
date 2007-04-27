@@ -67,7 +67,7 @@ public interface Annotator
     
     /** Identifies the bulk annotate model. */
     public static final int     BULK_ANNOTATE_MODE = 1;
-       
+    
    /**
     * Queries the current state.
     * 
@@ -95,5 +95,15 @@ public interface Annotator
 	 * @param results The updated <code>DataObject</code>s.
 	 */
 	public void saveAnnotations(List results);
+	
+	/**
+	 * Saves the annotation for all displayed items if the passed 
+	 * index if {@link #SELECT_ALL} or saves the annotation for the
+	 * selected item is the passed index is {@link #SELECT_ONE}.
+	 * 
+	 * @param index One of the following constants: {@link #SELECT_ALL}
+	 * 				or {@link #SELECT_ONE}.
+	 */
+	public void save(int index);
 	
 }

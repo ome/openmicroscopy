@@ -24,17 +24,13 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 //Third-party libraries
 
@@ -43,11 +39,11 @@ import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsLoader;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotationsSaver;
 import org.openmicroscopy.shoola.agents.util.annotator.AnnotatorLoader;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.env.LookupNames;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -93,9 +89,6 @@ class AnnotatorModel
 	/** The annotations retrieved for the annotated <code>DataObject</code>s. */
 	private Map				annotations;
 	
-	/** The number of objects to handle. */
-	private int				maxObjects;
-	
 	/** 
 	 * Will either be a data loader or
 	 * <code>null</code> depending on the current state. 
@@ -115,110 +108,14 @@ class AnnotatorModel
 	private boolean isObjectAnnotated(DataObject data)
 	{
 		Long n = null;
-		if (data instanceof ImageData)  {
-			type = ImageData.class;
+		if (data instanceof ImageData) 
 			n = ((ImageData) data).getAnnotationCount();
-		} else if (data instanceof DatasetData) {
-			type = DatasetData.class;
+		else if (data instanceof DatasetData) 
 			n = ((DatasetData) data).getAnnotationCount();
-		}
 		if (n == null) return false;
 		return (n.longValue() != 0);
 	}
   
-	/**
-	 * Returns <code>true</code> if the <code>DataObject</code> can be
-	 * annotated, <code>false</code> otherwise.
-	 * 
-	 * @param data The <code>DataObject</code> to handle. 
-	 * @return See above.
-	 */
-	private boolean isAnnotatable(DataObject data)
-	{
-		if ((data instanceof ImageData)) {
-			type = ImageData.class;
-			return true;
-		} else if (data instanceof DatasetData) {
-			type = DatasetData.class;
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Returns the partial name of the image's name
-	 * 
-	 * @param originalName The original name.
-	 * @return See above.
-	 */
-	private String getPartialName(String originalName)
-	{
-		if (Pattern.compile("/").matcher(originalName).find()) {
-			String[] l = originalName.split("/", 0);
-			int n = l.length;
-			if (n == 1) return l[0];
-			return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
-		} else if (Pattern.compile("\\\\").matcher(originalName).find()) {
-			String[] l = originalName.split("\\\\", 0);
-			int n = l.length;
-			if (n == 1) return l[0];
-			return UIUtilities.DOTS+l[n-2]+"\\"+l[n-1];
-		} 
-		return originalName;
-	}
-
-	/** 
-	 * Returns the last annotation.
-	 * 
-	 * @param list   Collection of {@link AnnotationData} linked to 
-	 *               a <code>Dataset</code> or an <code>Image</code>.
-	 * @return See above.
-	 */
-	private AnnotationData getLastAnnotation(List list)
-	{
-		if (list == null || list.size() == 0) return null;
-		Comparator c = new Comparator() {
-			public int compare(Object o1, Object o2)
-			{
-				Timestamp t1 = ((AnnotationData) o1).getLastModified(),
-				t2 = ((AnnotationData) o2).getLastModified();
-				long n1 = t1.getTime();
-				long n2 = t2.getTime();
-				int v = 0;
-				if (n1 < n2) v = -1;
-				else if (n1 > n2) v = 1;
-				return v;
-			}
-		};
-		Collections.sort(list, c);
-		return (AnnotationData) list.get(list.size()-1);
-	}
-  
-	/**
-	 * Builds the map whose key is the annotated object and value
-	 * the object to update.
-	 * 
-	 * @param data The annotation object.
-	 * @return See above.
-	 */
-	private Map getAnnotatedObjects(AnnotationData data)
-	{
-		Map<DataObject, AnnotationData>
-			m = new HashMap<DataObject, AnnotationData>(annotated.size());
-		Iterator i = annotated.iterator();
-		DataObject object;
-		List l;
-		AnnotationData d;
-		while (i.hasNext()) {
-			object = (DataObject) i.next();
-			l = (List) annotations.get(new Long(object.getId()));
-			d = getLastAnnotation(l);
-			d.setText(data.getText());
-			m.put(object, d);
-		}
-		return m;
-	}
-	
 	/**
 	 * Checks if the passed mode is supported.
 	 * 
@@ -230,7 +127,6 @@ class AnnotatorModel
 			case Annotator.ANNOTATE_MODE:
 			case Annotator.BULK_ANNOTATE_MODE:
 				break;
-	
 			default:
 				throw new IllegalArgumentException("Annotate mode not " +
 						"supported.");
@@ -244,29 +140,25 @@ class AnnotatorModel
 	 * @param mode		One of the following contants:
 	 * 					{@link Annotator#BULK_ANNOTATE_MODE} or
 	 * 					{@link Annotator#ANNOTATE_MODE}.
+	 * @param type		The type of node, either <code>ImageData</code> or
+	 * 					either <code>DatasetData</code>
 	 */
-	AnnotatorModel(Set objects, int mode)
+	AnnotatorModel(Set objects, int mode, Class type)
 	{
 		checkMode(mode);
 		this.mode = mode;
-		maxObjects = objects.size();
-		annotated = new HashSet<DataObject>();
-		toAnnotate  = new HashSet<DataObject>();
-		state = DataHandler.NEW;
-		Iterator i = objects.iterator();
-		DataObject data;
+		toAnnotate = objects;
 		if (mode == Annotator.ANNOTATE_MODE) {
+			annotated = new HashSet<DataObject>();
+			Iterator i = objects.iterator();
+			DataObject data;
 			while (i.hasNext()) {
 				data = (DataObject) i.next();
 				if (isObjectAnnotated(data)) annotated.add(data);
-				else {
-					if (isAnnotatable(data)) toAnnotate.add(data);
-				}
 			}
-		} else {
-			while (i.hasNext()) 
-				toAnnotate.add((DataObject) i.next());
 		}
+		state = DataHandler.NEW;
+		this.type = type;
 	}
 	
 	/**
@@ -308,21 +200,6 @@ class AnnotatorModel
 	}
 	
 	/**
-	 * Returns the name of the specified <code>DataObject</code>.
-	 * 
-	 * @param data The object to handle.
-	 * @return See above.
-	 */
-	String getDataObjectName(DataObject data)
-	{
-		if (data instanceof ImageData) {
-			return getPartialName(((ImageData) data).getName());
-		} else if (data instanceof DatasetData) 
-			return ((DatasetData) data).getName();
-		return null;
-	}
-	
-	/**
 	 * Loads asynchronously the annotations for the annotated 
 	 * <code>DataObject</code>s.
 	 */
@@ -340,22 +217,32 @@ class AnnotatorModel
 	/** 
 	 * Saves asynchronously the annotation. 
 	 * 
-	 * @param data The annotation.
+	 * @param data 		The annotation.
+	 * @param object	The object to annotate if single annotation,
+	 * 					or <code>null</code> if all displayed objects
+	 * 					are annotated. 
 	 */
-	void fireAnnotationSaving(AnnotationData data)
+	void fireAnnotationSaving(AnnotationData data, DataObject object)
 	{ 
 		switch (mode) {
 			case Annotator.ANNOTATE_MODE:
-				if (annotated.size() == maxObjects)
-					currentLoader = new AnnotationsSaver(component,  
-											getAnnotatedObjects(data), mode);
-				else if (toAnnotate.size() == maxObjects) 
+				//if (annotated.size() == maxObjects)
+				//	currentLoader = new AnnotationsSaver(component,  
+				//							getAnnotatedObjects(data), mode);
+				//else if (toAnnotate.size() == maxObjects) 
+				if (object == null)
 					currentLoader = new AnnotationsSaver(component, toAnnotate, 
 														data, mode);
-				else 
-					currentLoader = new AnnotationsSaver(component, 
-										 getAnnotatedObjects(data), toAnnotate, 
-										 data, mode);
+				else {
+					Set<DataObject> nodes = new HashSet<DataObject>(1);
+					nodes.add(object);
+					currentLoader = new AnnotationsSaver(component, nodes, 
+														data, mode);
+				}
+				//else 
+				//	currentLoader = new AnnotationsSaver(component, 
+				//						 getAnnotatedObjects(data), toAnnotate, 
+				//						 data, mode);
 				break;
 	
 			case Annotator.BULK_ANNOTATE_MODE:
@@ -367,54 +254,63 @@ class AnnotatorModel
 	}
 	
 	/**
-	 * Sets the annotations found to the annotated <code>DataObject</code>s
+	 * Sets the annotations found for the annotated <code>DataObject</code>s
 	 * 
 	 * @param map The value to set.
 	 */
 	void setAnnotations(Map map)
 	{
-		ViewerSorter sorter = new ViewerSorter();
-		sorter.setAscending(false);
-		HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
-		Set set;
-		Long index;
-		Iterator i = map.keySet().iterator(), l;
-		Iterator j;
-		AnnotationData data;
-		HashMap<Timestamp, AnnotationData> m;
-		List<Timestamp> timestamps;
-		List results;
-		List<AnnotationData> list;
-		while (i.hasNext()) {
-			index = (Long) i.next();
-			set = (Set) map.get(index);
-			j = set.iterator();
-			m = new HashMap<Timestamp, AnnotationData>(set.size());
-			timestamps = new ArrayList<Timestamp>(set.size());
-			while (j.hasNext()) {
-				data = (AnnotationData) j.next();
-				m.put(data.getLastModified(), data);
-				timestamps.add(data.getLastModified()); 
-			}
-			results = sorter.sort(timestamps);
-			l = results.iterator();
-			list = new ArrayList<AnnotationData>(results.size());
-			while (l.hasNext())
-				list.add(m.get(l.next()));
-			sortedAnnotations.put(index, list);
-		}
-
-		this.annotations = sortedAnnotations;
-		state = DataHandler.READY;
+		HashMap<Long, List> sortedAnnotations;
+		HashMap<Long, Map>	objectAnnotations = new HashMap<Long, Map>();
+        Set set;
+        Long index;
+        Iterator i = map.keySet().iterator();
+        Iterator j;
+        AnnotationData annotation;
+        Long ownerID;
+        List<AnnotationData> userAnnos;
+        while (i.hasNext()) {
+            index = (Long) i.next();
+            set = (Set) map.get(index);
+            j = set.iterator();
+            sortedAnnotations = new HashMap<Long, List>();
+            while (j.hasNext()) {
+                annotation = (AnnotationData) j.next();;
+                ownerID = new Long(annotation.getOwner().getId());
+                userAnnos = (List) sortedAnnotations.get(ownerID);
+                if (userAnnos == null) {
+                    userAnnos = new ArrayList<AnnotationData>();
+                    sortedAnnotations.put(ownerID, userAnnos);
+                }
+                userAnnos.add(annotation);
+            }
+            j = sortedAnnotations.keySet().iterator();
+            List annotations;
+            while (j.hasNext()) {
+                ownerID = (Long) j.next();
+                annotations = sortedAnnotations.get(ownerID);
+                AnnotatorUtil.sortAnnotationByDate(annotations);
+            }
+            objectAnnotations.put(index, sortedAnnotations);
+        }
+        
+        
+		this.annotations = objectAnnotations;
+        state = DataHandler.READY;
 	}
 	
-	/** 
-	 * Returns the annotations retrieved for the annotated 
-	 * <code>DataObject</code>s.
+	/**
+	 * Returns the list of annotations linked to the <code>DataObject</code>
+	 * identified by the passed ID.
+	 * 
+	 * @param annotateID The id of the <code>DataObject</code>.
 	 * 
 	 * @return See above.
 	 */
-	Map getAnnotations() { return annotations; }
+	Map getAnnotationsFor(long annotateID)
+	{
+		return (Map) annotations.get(new Long(annotateID));
+	}
 	
 	/**
 	 * Returns the type of annotations to handle.
@@ -440,5 +336,23 @@ class AnnotatorModel
 	 * @return See above.
 	 */
 	int getAnnotationMode() { return mode; }
+	
+	 /**
+     * Returns the current user's details.
+     * 
+     * @return See above.
+     */
+	ExperimenterData getUserDetails() 
+	{
+		return (ExperimenterData) AnnotatorFactory.getRegistry().lookup(
+		        LookupNames.CURRENT_USER_DETAILS);
+	}
+
+	/** 
+	 * Returns the collection of <code>DataObject</code>s to annotate.
+	 * 
+	 * @return See above.
+	 */
+	Set getSelectedObjects() { return toAnnotate; }
 	
 }

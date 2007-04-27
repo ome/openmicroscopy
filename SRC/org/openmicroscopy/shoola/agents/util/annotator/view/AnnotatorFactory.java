@@ -75,15 +75,17 @@ public class AnnotatorFactory
 	 * @param parent	The owner of the dialog.
 	 * @param objects 	Collection of <code>DataObject</code>s to annotate.
 	 * @param ctx 		A reference to the {@link Registry}.
+	 * @param type		The type of node, <code>ImageData</code>,
+	 * 					<code>DatasetData</code> or <code>CategoryData</code>
 	 * @return See above.
 	 */
 	public static Annotator getAnnotator(JFrame parent, Set objects, 
-										Registry ctx)
+										Registry ctx, Class type)
 	{
 		if (registry == null) registry = ctx;
 		if (parent == null) owner = parent;
 		if (objects == null || objects.size() == 0) return null;
-		return singleton.createAnnotator(objects, Annotator.ANNOTATE_MODE);
+		return singleton.createAnnotator(objects, Annotator.ANNOTATE_MODE, type);
 	}
 	  
 	/**
@@ -93,15 +95,18 @@ public class AnnotatorFactory
 	 * @param objects 	Collection of <code>DataObject</code>s containing the
 	 * 					objects to annotate.
 	 * @param ctx 		A reference to the {@link Registry}.
+	 * @param type		The type of node, either <code>ImageData</code> or
+	 * 					either <code>DatasetData</code>
 	 * @return See above.
 	 */
 	public static Annotator getChildrenAnnotator(JFrame parent, Set objects, 
-										Registry ctx)
+										Registry ctx, Class type)
 	{
 		if (registry == null) registry = ctx;
 		if (parent == null) owner = parent;
 		if (objects == null || objects.size() == 0) return null;
-		return singleton.createAnnotator(objects, Annotator.BULK_ANNOTATE_MODE);
+		return singleton.createAnnotator(objects, Annotator.BULK_ANNOTATE_MODE,
+										type);
 	}
 	
 	/**
@@ -135,11 +140,13 @@ public class AnnotatorFactory
 	 * @param mode		One of the following contants:
 	 * 					{@link Annotator#BULK_ANNOTATE_MODE} or
 	 * 					{@link Annotator#ANNOTATE_MODE}.
+	 * @param type		The type of node, either <code>ImageData</code> or
+	 * 					either <code>DatasetData</code>
 	 * @return A {@link Annotator}.
 	 */
-	private Annotator createAnnotator(Set objects, int mode)
+	private Annotator createAnnotator(Set objects, int mode, Class type)
 	{
-		AnnotatorModel model = new AnnotatorModel(objects, mode);
+		AnnotatorModel model = new AnnotatorModel(objects, mode, type);
 	  	AnnotatorComponent component = new AnnotatorComponent(model);
 	  	model.initialize(component);
 	  	component.initialize();

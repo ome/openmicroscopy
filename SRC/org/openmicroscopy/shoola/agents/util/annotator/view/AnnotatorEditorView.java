@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -38,7 +36,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -50,8 +47,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeExpansionEvent;
@@ -62,7 +57,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 
 //Third-party libraries
 import layout.TableLayout;
@@ -90,35 +84,7 @@ import pojos.ExperimenterData;
 class AnnotatorEditorView 
 	extends JPanel
 {
-	
-	/** Background color of the hightlighted node. */
-	private static final Color		HIGHLIGHT = new Color(204, 255, 204);
-	
-	/** Background color of the even rows. */
-	private static final Color		BACKGROUND = Color.WHITE;
-	
-	/** Background color of the add rows. */
-	private static final Color		BACKGROUND_ONE = new Color(236, 243, 254);
 
-    /**
-     * A reduced size for the invisible components used to separate widgets
-     * vertically.
-     */
-    private static final Dimension	SMALL_V_SPACER_SIZE = new Dimension(1, 6);
-    
-    /**
-     * A reduced size for the invisible components used to separate widgets
-     * horizontally.
-     */
-    private static final Dimension	SMALL_H_SPACER_SIZE = new Dimension(6, 1);
-    
-    
-    /** The preferred size of the annotation area. */
-    private static final Dimension	AREA_SIZE = new Dimension(200, 150);
-    
-    /** Default text. */
-    private static final String		COMMENT = " annotation";
-    
     /** Button to finish the operation. */
     private JButton             	saveButton;
     
@@ -169,6 +135,9 @@ class AnnotatorEditorView
 	
 	/** The listener attached to the text area. */
 	private DocumentListener		listener;
+	
+	/** The listener attached to the vertical scrollbar. */
+	private AdjustmentListener		scrollBarListener;
 	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
@@ -222,26 +191,25 @@ class AnnotatorEditorView
     }
     
     /**
-     * Sets the default values of the {@link #annotationArea}.
+     * Adjusts the vertical scrollbar value if necessary.
      * 
-     * @param title The title to set.
+     * @param isAdjusting 	Pass <code>true</code> of the scrollbar is adjusted 
+     * 						by the user, <code>false</code> otherwise.
      */
-    private void setAnnotationAreaDefault(String title)
+    private void adjust(boolean isAdjusting)
     {
-    	CompoundBorder border = BorderFactory.createCompoundBorder(
-    			new TitledLineBorder(title), 
-    			BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-    	annotationArea.setBorder(border);
-    	annotationArea.setOriginalBackground(BACKGROUND);
-    	annotationArea.setOpaque(true);
-    	annotationArea.setEditable(true);
-    	annotationArea.setPreferredSize(AREA_SIZE);
+    	if (!isAdjusting && !autoScroll) {
+    		JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+        	vBar.removeAdjustmentListener(scrollBarListener);
+        	scrollAnnotations.getVerticalScrollBar().setValue(0);
+        	vBar.addAdjustmentListener(scrollBarListener);
+    	}	
     }
     
     /** Initializes the UI components. */
     private void initComponents()
     {
-    	commentLabel = new JLabel("0 "+COMMENT);
+    	commentLabel = new JLabel("0 "+AnnotatorUtil.COMMENT);
     	listAnnotations = new JPanel();
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
     							BoxLayout.Y_AXIS));
@@ -249,20 +217,15 @@ class AnnotatorEditorView
     	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
     	//necessary to set the location of the scrollbar when 
     	// the component is embedded in another UI component. */
-    	vBar.addAdjustmentListener(new AdjustmentListener() {
+    	scrollBarListener = new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (!e.getValueIsAdjusting() && !autoScroll)
-				scrollAnnotations.getVerticalScrollBar().setValue(0);
+				adjust(e.getValueIsAdjusting());
 			}
-		});
-    	treeDisplay = new JTree();
-    	DefaultMutableTreeNode root = new DefaultMutableTreeNode("");
-        treeDisplay.setModel(new DefaultTreeModel(root));
-    	treeDisplay.setRootVisible(false);
-        treeDisplay.setVisible(true);
-        treeDisplay.setShowsRootHandles(true);
-        treeDisplay.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION);
+		};
+    	vBar.addAdjustmentListener(scrollBarListener);
+    	treeDisplay = AnnotatorUtil.initTree();
+    	treeDisplay.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         treeDisplay.setCellRenderer(new EditorTreeCellRenderer());
         
         treeDisplay.addTreeSelectionListener(new TreeSelectionListener() {
@@ -358,11 +321,11 @@ class AnnotatorEditorView
         JPanel p = new JPanel();
         p.add(deleteButton);
         p.add(saveButton);
-        p.add(Box.createRigidArea(SMALL_H_SPACER_SIZE));
+        p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
         p.add(commentLabel);
         add(UIUtilities.buildComponentPanel(p));
         add(new JSeparator());
-        add(Box.createRigidArea(SMALL_V_SPACER_SIZE));
+        add(Box.createRigidArea(AnnotatorUtil.SMALL_V_SPACER_SIZE));
         pane = buildAnnotationPanel();
         add(pane);
     }
@@ -404,7 +367,7 @@ class AnnotatorEditorView
 			c = (MultilineLabel) l.get(i);
 			c.setBackground(c.getOriginalBackground());
 			if (j == i && c != annotationArea) 
-				c.setBackground(HIGHLIGHT);
+				c.setBackground(AnnotatorUtil.HIGHLIGHT);
 		}
     	c = (MultilineLabel) l.get(j);
     	scrollToNode(c);
@@ -427,7 +390,8 @@ class AnnotatorEditorView
     	TimeNode node = new TimeNode(ownerID, -1, null);
     	if (user) {
     		dtm.insertNodeInto(node, parent, parent.getChildCount());
-    		setAnnotationAreaDefault(node.toString());
+    		AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
+    												node.toString());
     	}
     	if ((annotations == null || annotations.size() == 0) && user) {
     		List<JTextArea> l = new ArrayList<JTextArea>(1);
@@ -462,8 +426,9 @@ class AnnotatorEditorView
             area.setOpaque(true);
         	area.setBorder(new TitledLineBorder(node.toString()));
         	area.setText(data.getText());
-        	if (index%2 == row) area.setOriginalBackground(BACKGROUND);
-            else area.setOriginalBackground(BACKGROUND_ONE);
+        	if (index%2 == row) area.setOriginalBackground(
+        			AnnotatorUtil.BACKGROUND);
+            else area.setOriginalBackground(AnnotatorUtil.BACKGROUND_ONE);
         	l.add(area);
         	index++;
 		}
@@ -556,7 +521,7 @@ class AnnotatorEditorView
         }
         treeDisplay.setSelectionPath(new TreePath(currentUser.getPath()));
         setComponentsEnabled(true);
-        String text = number+COMMENT;
+        String text = number+AnnotatorUtil.COMMENT;
         if (number > 1) text += "s";
         commentLabel.setText(text);
     }
@@ -626,7 +591,7 @@ class AnnotatorEditorView
 	 */
 	boolean hasAnnotation() 
 	{
-		AnnotationData data = model.getAnnotationData();
+		AnnotationData data = model.getAnnotationData(0);
 		if (data == null) return false;
 		return true;
 	}
@@ -655,100 +620,34 @@ class AnnotatorEditorView
 		return (getAnnotationText().length() != 0);
 	}
 	
-	/** Inner class hosting the experimenter details. */
-	class OwnerNode 
-		extends DefaultMutableTreeNode
+	/**
+	 * Returns the collection of annotations to remove or <code>null</code>
+	 * if none to remove.
+	 * 
+	 * @return See above.
+	 */
+	List getSelectedAnnotations()
 	{
-		
-		/**
-		 * Creates a new instance.
-		 * 
-		 * @param ho The original object. Never pass <code>null</code>. 
-		 */
-		OwnerNode(ExperimenterData ho)
-		{
-			super();
-			if (ho == null)
-				throw new NullPointerException("No experimenter.");
-			setUserObject(ho);
+		TreePath[] paths = treeDisplay.getSelectionPaths();
+        if (paths == null) return null;
+        int n = paths.length;
+        if (n == 0) return null;
+        ArrayList<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+        Object pathComponent;
+        TimeNode node;
+        AnnotationData data;
+        long userID = model.getUserDetails().getId();
+        for (int i = 0; i < paths.length; i++) {
+        	pathComponent = paths[i].getLastPathComponent();
+        	if (pathComponent instanceof TimeNode) {
+        		node = (TimeNode) pathComponent;
+        		if (node.getUserObject() != null && 
+        			node.getOwnerID() == userID) {
+        			data = model.getAnnotationData(node.getIndex());
+        			if (data != null) toRemove.add(data);
+        		}
+        	}
 		}
-		
-		/**
-		 * Returns the id of the experimenter.
-		 * 
-		 * @return See above.
-		 */
-		long getOwnerID()
-		{
-			return ((ExperimenterData) getUserObject()).getId();
-		}
-		
-		/**
-		 * Overridden to return the first and last name of the experimenter.
-		 * @see Object#toString()
-		 */
-		public String toString()
-		{ 
-			ExperimenterData data = (ExperimenterData) getUserObject();
-			String n = "Name not available"; //TODO: REMOVE ASAP
-            try {
-            	n = data.getFirstName()+" "+data.getLastName();
-            } catch (Exception e) {}
-			return n; 
-		}
+        return toRemove;
 	}
-	
-	/** Inner class hosting the annotation time. */
-	class TimeNode
-		extends DefaultMutableTreeNode
-	{
-		
-		/** The index in the annotation list. */
-		private int index;
-		
-		/** The id of the experimenter who entered the annotation. */
-		private long ownerID;
-		
-		/**
-		 * Creates a new instance.
-		 *
-		 * @param ownerID	The id of the experimenter who entered the 
-		 * 					annotation.
-		 * @param index		The index in the annotation list.
-		 * @param date		The timestamp.
-		 */
-		TimeNode(long ownerID, int index, Timestamp date)
-		{
-			super();
-			setUserObject(date);
-			this.index = index;
-			this.ownerID = ownerID;
-		}
-		
-		/**
-		 * Returns the id of the experimenter.
-		 * 
-		 * @return See above.
-		 */
-		long getOwnerID() { return ownerID; }
-		
-		/**
-		 * Returns the index.
-		 * 
-		 * @return See above.
-		 */
-		int getIndex() { return index; }
-		
-		/**
-		 * Overridden to return a formatted date
-		 * @see Object#toString()
-		 */
-		public String toString()
-		{ 
-			if (getUserObject() == null) return "New Annotation";
-			String s = getUserObject().toString();
-			return s.substring(0, s.indexOf("."));//df.format((Timestamp) getUserObject()) ;
-		}
-	}
-	
 }

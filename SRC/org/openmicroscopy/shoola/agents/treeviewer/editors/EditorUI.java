@@ -710,7 +710,16 @@ class EditorUI
 		model.getParentModel().setStatus(b, text, hide);
 	}
 
-	 
+	 /**
+     * Adds the passed nodes for annotation.
+     * 
+     * @param nodes	The nodes to pass.
+     */
+	void addSelectedNodes(List nodes)
+	{
+		if (doBasic != null) doBasic.addSiblings(nodes);
+	}
+	
     /**
      * Overridden to set the size of the title panel.
      * @see JPanel#setSize(int, int)

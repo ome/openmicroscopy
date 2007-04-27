@@ -266,7 +266,8 @@ class TreeViewerControl
         Iterator i = viewers.iterator();
         menu.removeAll();
         while (i.hasNext()) 
-            menu.add(new JMenuItem(new ActivationAction((TreeViewer) i.next())));
+            menu.add(new JMenuItem(
+            		new ActivationAction((TreeViewer) i.next())));
     }
     
     /** 

@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.event.ChangeEvent;
@@ -53,7 +55,7 @@ import org.openmicroscopy.shoola.agents.util.annotator.actions.SaveAction;
  * @since OME3.0
  */
 class AnnotatorEditorControl 
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
 	/** Identifies the <code>Delete action</code> in the Edit menu. */
@@ -143,6 +145,20 @@ class AnnotatorEditorControl
 			default:
 				break;
 		}
+	}
+
+	/**
+	 * Reacts to property changes fired by {@link AnnotatorSavingDialog}.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (AnnotatorSavingDialog.ANNOTATE_ONE_PROPERTY.equals(name)) {
+			model.save(Annotator.SELECT_ONE);
+		} else if (AnnotatorSavingDialog.ANNOTATE_ALL_PROPERTY.equals(name)) {
+			model.save(Annotator.SELECT_ALL);
+		} 	
 	}
 
 }

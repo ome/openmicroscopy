@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -416,5 +418,15 @@ class DOBasic
     	if (d == null) return (description != null);
     	return (!(d.equals(description)));
     }
+
+    /**
+     * Adds the passed nodes for annotation.
+     * 
+     * @param nodes	The nodes to pass.
+     */
+	void addSiblings(List nodes)
+	{
+		if (annotator != null) annotator.addSelectedNodes(nodes);
+	}
     
 }

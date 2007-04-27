@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.annotator.actions.FinishAction 
+ * org.openmicroscopy.shoola.agents.util.annotator.view.OwnerNode 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,20 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.annotator.actions;
+package org.openmicroscopy.shoola.agents.util.annotator.view;
+
+
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.annotator.view.Annotator;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ExperimenterData;
 
 /** 
- * Saves the annotations.
+ * Utility class hosting information about the experimenter who annotates
+ * the data object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,33 +46,45 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class FinishAction
-	extends AnnotatorAction
+class OwnerNode 	
+	extends DefaultMutableTreeNode
 {
 	
-	 /** The name of the action. */
-	private static final String NAME = "Save";
-	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Save the annotation.";
-	 
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param ho The original object. Cannot be <code>null</code>. 
 	 */
-	public FinishAction(Annotator model)
+	OwnerNode(ExperimenterData ho)
 	{
-		super(model);
-		putValue(Action.NAME, NAME);
-	    putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION));
+		super();
+		if (ho == null)
+			throw new NullPointerException("No experimenter.");
+		setUserObject(ho);
 	}
 	
 	/**
-	 * Saves the annotations.
-	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 * Returns the id of the experimenter.
+	 * 
+	 * @return See above.
 	 */
-	public void actionPerformed(ActionEvent e) { model.finish(); }
-
+	long getOwnerID()
+	{
+		return ((ExperimenterData) getUserObject()).getId();
+	}
+	
+	/**
+	 * Overridden to return the first and last name of the experimenter.
+	 * @see Object#toString()
+	 */
+	public String toString()
+	{ 
+		ExperimenterData data = (ExperimenterData) getUserObject();
+		String n = "Name not available"; //TODO: REMOVE ASAP
+        try {
+        	n = data.getFirstName()+" "+data.getLastName();
+        } catch (Exception e) {}
+		return n; 
+	}
+	
 }

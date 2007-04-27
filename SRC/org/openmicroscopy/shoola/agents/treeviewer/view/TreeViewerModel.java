@@ -610,12 +610,19 @@ class TreeViewerModel
     {
     	Object uo;
     	Set toAnnotate = new HashSet();
+    	Class type = null;
     	for (int i = 0; i < nodes.length; i++) {
     		uo = nodes[i].getUserObject();
-    		if (uo instanceof DataObject) toAnnotate.add(uo);
+    		if (uo instanceof ImageData) {
+				type = ImageData.class;
+				toAnnotate.add(uo);	
+			} else if (uo instanceof DatasetData) {
+				type = DatasetData.class;
+				toAnnotate.add(uo);	
+			}
     	}
     	dataHandler = AnnotatorFactory.getAnnotator(owner, toAnnotate, 
-    			TreeViewerAgent.getRegistry());
+    			TreeViewerAgent.getRegistry(), type);
     	return dataHandler;
     }
 
@@ -631,10 +638,18 @@ class TreeViewerModel
     {
     	Object uo = node.getUserObject();
     	Set toAnnotate = new HashSet();
-    	if ((uo instanceof DatasetData) || (uo instanceof CategoryData)) {
+    	if (uo instanceof CategoryData) {
     		toAnnotate.add(uo);
     		dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
-    				toAnnotate, TreeViewerAgent.getRegistry());
+    				toAnnotate, TreeViewerAgent.getRegistry(), 
+    				CategoryData.class);
+    		return dataHandler;
+    	}	
+    	if (uo instanceof DatasetData) {
+    		toAnnotate.add(uo);
+    		dataHandler = AnnotatorFactory.getChildrenAnnotator(owner, 
+    				toAnnotate, TreeViewerAgent.getRegistry(),
+    				DatasetData.class);
     		return dataHandler;
     	}	
     	return null;

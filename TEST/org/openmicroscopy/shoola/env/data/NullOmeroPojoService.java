@@ -350,4 +350,15 @@ public class NullOmeroPojoService
      */
 	public String getServerName() { return null; }
 
+    /**
+     * No-op implementation
+     * @see OmeroDataService#removeAnnotationFrom(DataObject, List)
+     */
+	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
+					List data) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
 }

@@ -235,4 +235,11 @@ public interface Editor
 	 */
 	public void setDefaultButton(JRootPane rootPane);
     
+	/**
+	 * Adds the selected nodes along the edited one.
+	 * 
+	 * @param nodes The nodes to add.
+	 */
+	public void addSiblings(List nodes);
+	
 }
