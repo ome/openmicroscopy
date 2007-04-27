@@ -1,0 +1,44 @@
+<html>
+   <head>
+<title>Structure</title>
+   </head>
+   <body>
+<p>
+To make the above discussion a bit more concrete, we need add some more 
+detail. So here's an UML class diagram to uncover the 
+<code>AgentEvent</code>'s hierarchy and the use of the 
+Asynchronous Completion Token pattern:  
+</p>
+<p>
+As stated above, <code>StateChangeEvent</code> is an abstract 
+class from which agents derive concrete classes to represent state 
+change notifications. Its state field can be used to carry all 
+state-change information, as in the One Message Per Change 
+Request pattern <a href="biblio.html#plop_2">[PLoP2]</a>. Where multiple fields are preferable, a 
+subclass can add this extra functionality.
+</p>
+<p>
+The <code>RequestEvent</code> abstract class is a generic type to 
+represent a request to execute an asynchronous operation. A concrete 
+subclass encapsulates the actual request. We require that every 
+<code>RequestEvent</code> object be linked to the processing action 
+that has to be dispatched upon completion of the asynchronous operation.
+ The <code>RequestEvent</code> class factors out this association as 
+ well as the dispatching logic. A processing action is encapsulated by 
+ a class that implements the <code>CompletionHandler</code> interface.
+</p>
+<p>
+The <code>ResponseEvent</code> abstract class is a generic type to 
+represent the completion of an asynchronous operation. A concrete 
+subclass encapsulates the result of the operation, if any. Every 
+<code>ResponseEvent</code> object is required to be linked to the 
+<code>RequestEvent</code> object that originated it. Thus, whenever a 
+response is received, it's always possible to identify the corresponding 
+processing action by means of the linked request object -
+ therefore <code>RequestEvent</code> plays the role of an asynchronous 
+ completion token (ACT). The <code>ResponseEvent</code> class factors out 
+ the logic to activate the de-multiplexing of a completion event to the 
+ processing action.
+</p>
+   </body>
+</html>
