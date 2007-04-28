@@ -25,17 +25,16 @@ import org.testng.annotations.Test;
 import Ice.RouterPrx;
 
 public class LoginTest extends IceTest {
-        
+
     @Test
     public void testStart() throws Exception {
 
         Map<String, String> context = new HashMap<String, String>();
         context.put(USERNAME.value, "test");
-        
+
         int status = 0;
         ic = null;
         Ice.InitializationData id = new Ice.InitializationData();
-        id.defaultContext = context;
         id.properties = Ice.Util.createProperties();
         id.properties.setProperty("Ice.Default.Router","OMEROGlacier2/router:tcp -p 9998 -h 127.0.0.1");
         id.properties.setProperty("Ice.ACM.Client","0");
@@ -43,13 +42,14 @@ public class LoginTest extends IceTest {
         id.properties.setProperty("Ice.RetryIntervals","-1");
         id.properties.setProperty("Ice.Warn.Connections","1");
         ic = Ice.Util.initialize(id);
+        ic.getImplicitContext().setContext(context);
         getSession(ic);
         checkUpdateService(ic);
     }
 
     @Test
     public void testWithContext() throws Exception {
-        // Using non-static context to prevent "session exists" errors 
+        // Using non-static context to prevent "session exists" errors
         OmeroContext ctx = OmeroContext.getContext(new Properties(),"OMERO.client");
         ic = (Ice.Communicator) ctx.getBean("Ice.Communicator");
         getSession(ic);
@@ -66,5 +66,5 @@ public class LoginTest extends IceTest {
         IUpdatePrx prx = checkUpdateService(ice.getCommunicator());
         ice.getContext().destroy();
     }
-    
+
 }

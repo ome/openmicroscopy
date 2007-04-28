@@ -9,6 +9,8 @@
 package omero.util;
 
 // Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,6 +43,7 @@ import omero.ApiUsageException;
 import omero.RBool;
 import omero.RString;
 import omero.RType;
+import omero.ServerError;
 import omero.Time;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
@@ -60,6 +63,31 @@ import omero.sys.Type;
 public class IceMapper extends ome.util.ModelMapper implements ReverseModelMapper {
 
     private static Log log = LogFactory.getLog(IceMapper.class);
+
+    // Exception handling
+
+    public static ServerError fillServerError(ServerError se, Throwable t) {
+        se.message = t.getMessage();
+        se.serverExceptionClass = t.getClass().getName();
+        se.serverStackTrace = stackAsString(t);
+        return se;
+    }
+
+    public static String stackAsString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
+        Throwable cause = t.getCause();
+        while (cause != null && cause != t ) {
+            cause.printStackTrace(pw);
+            t = cause;
+            cause = t.getCause();
+        }
+        pw.flush();
+        pw.close();
+
+        return sw.getBuffer().toString();
+    }
 
     private static Class<? extends IObject> _class(String className) {
         Class k = null;

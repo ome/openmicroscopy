@@ -135,9 +135,9 @@ public class AdapterTest extends TestCase {
 
         ProjectI p_remote = new ProjectI();
         p_remote.datasetLinksLoaded = false;
-        
+
         Project p = (Project) mapper.reverse(p_remote);
-        
+
         assert (p.sizeOfDatasetLinks() < 0);
 
     }
@@ -146,26 +146,26 @@ public class AdapterTest extends TestCase {
     public void testUnloadedObjectisMappedUnloaded() throws Exception {
 
         IceMapper mapper = new IceMapper();
-     
+
         ProjectAnnotation pa = new ProjectAnnotation();
         pa.setProject(new Project(null,false));
-        
+
         ProjectAnnotationI pa_remote = (ProjectAnnotationI) mapper.map(pa);
         assertFalse(pa_remote.project.loaded);
-        
+
     }
     @Test
     public void testUnloadedObjectIsReversedUnloaded() throws Exception {
 
         IceMapper mapper = new IceMapper();
-        
+
         ProjectAnnotationI pa_remote = new ProjectAnnotationI();
         ProjectI p_remote = new ProjectI();
         p_remote.unload();
         pa_remote.project = p_remote;
-        
+
         ProjectAnnotation pa = (ProjectAnnotation) mapper.reverse(pa_remote);
         assertFalse(pa.getProject().isLoaded());
     }
-    
+
 }

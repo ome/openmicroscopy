@@ -17,7 +17,7 @@ public class ModelTest extends TestCase {
     @Test(groups = "ticket:636")
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
-        arcI.unload();
+        // arcI.unload();
         arcI.setPower(1.0f);
     }
     

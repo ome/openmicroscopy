@@ -23,6 +23,7 @@
     <property name="properties">
       <props>
         <prop key="OMEROObjectAdapter.Endpoints">tcp -p 9999</prop>
+        <prop key="Ice.ImplicitContext">Shared</prop>
       </props>
     </property>
     <property name="adapters" value="OMEROObjectAdapter"/>

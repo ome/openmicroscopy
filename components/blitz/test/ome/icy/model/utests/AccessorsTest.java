@@ -24,7 +24,7 @@ public class AccessorsTest extends TestCase {
         ProjectDatasetLinkI pdl_remote = new ProjectDatasetLinkI();
         p_remote.datasetLinks = new ArrayList<ProjectDatasetLink>();
         p_remote.datasetLinks.add(pdl_remote);
-        assertTrue(p_remote.getDatasetLinks().iterator().next() == pdl_remote);
+        assertTrue(p_remote.iterateDatasetLinks().next() == pdl_remote);
     }
 
 }

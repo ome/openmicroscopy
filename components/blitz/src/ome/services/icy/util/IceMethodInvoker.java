@@ -8,8 +8,6 @@
 
 package ome.services.icy.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -278,47 +276,24 @@ public class IceMethodInvoker {
         Class c = t.getClass();
         if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
             omero.ValidationException ve = new omero.ValidationException();
-            return fillServerError(ve, t);
+            return IceMapper.fillServerError(ve, t);
         } else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
             omero.ApiUsageException aue = new omero.ApiUsageException();
-            return fillServerError(aue, t);
+            return IceMapper.fillServerError(aue, t);
         } else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
             omero.SecurityViolation sv = new omero.SecurityViolation();
-            return fillServerError(sv, t);
+            return IceMapper.fillServerError(sv, t);
         } else if (ome.conditions.OptimisticLockException.class
                 .isAssignableFrom(c)) {
             omero.OptimisticLockException ole = new omero.OptimisticLockException();
-            return fillServerError(ole, t);
+            return IceMapper.fillServerError(ole, t);
         } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
-            return fillServerError(re, t);
+            return IceMapper.fillServerError(re, t);
         } else {
             omero.InternalException ie = new omero.InternalException();
-            return fillServerError(ie, t);
+            return IceMapper.fillServerError(ie, t);
         }
-    }
-
-    protected ServerError fillServerError(ServerError se, Throwable t) {
-        se.message = t.getMessage();
-        se.serverExceptionClass = t.getClass().getName();
-        se.serverStackTrace = stackAsString(t);
-        return se;
-    }
-
-    protected String stackAsString(Throwable t) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        t.printStackTrace(pw);
-        Throwable cause = t.getCause();
-        while (cause != null && cause != t ) {
-            cause.printStackTrace(pw);
-            t = cause;
-            cause = t.getCause();
-        }
-        pw.flush();
-        pw.close();
-
-        return sw.getBuffer().toString();
     }
 
 }

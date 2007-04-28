@@ -60,7 +60,7 @@ public class BlobjectTest extends IceTest {
             System.err.println(current.con._toString());
             System.err.println(current.mode);
             System.err.println(current.ctx);
-            
+
             if (current.operation.equals("find")) {
                 Ice.Communicator communicator = current.adapter
                         .getCommunicator();
@@ -124,13 +124,13 @@ public class BlobjectTest extends IceTest {
 
         int status = 0;
         Ice.InitializationData id = new Ice.InitializationData();
-        id.defaultContext = context;
         id.logger = new CommonsLoggingAdapter(LogFactory
                 .getLog("port" + s.port));
         id.properties = Ice.Util.createProperties();
         String endpoint = "tcp -p " + s.port + " -h 127.0.0.1";
         id.properties.setProperty("OA.EndPoints", endpoint);
         s.ic = Ice.Util.initialize(id);
+        s.ic.getImplicitContext().setContext( context );
         s.oa = s.ic.createObjectAdapterWithEndpoints("OA", endpoint);
         s.oa.add(obj, Util.stringToIdentity("B"));
         s.oa.activate();
@@ -140,28 +140,28 @@ public class BlobjectTest extends IceTest {
 
     S s1, s2;
     IQueryPrx query, aQuery;
-    
+
     @BeforeMethod
     public void setUp() throws Exception {
         s1 = s(new BA());
         s2 = s(new B());
-        
+
         String proxyStr = "B:tcp -p " + s2.port + " -h 127.0.0.1";
         String asyncProxyStr = "B:tcp -p " + s1.port + " -h 127.0.0.1";
-        
+
         Ice.ObjectPrx prx = s1.ic.stringToProxy(proxyStr);
         query = IQueryPrxHelper.uncheckedCast(prx);
 
         prx = s2.ic.stringToProxy(asyncProxyStr);
         aQuery = IQueryPrxHelper.uncheckedCast(prx);
-        
+
     }
 
     @Test
     public void testSync() throws Exception {
         query.find("Image", 1L);
     }
-    
+
     @Test
     public void testAsync() throws Exception {
         aQuery.find("Image", 1L);

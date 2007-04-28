@@ -26,6 +26,7 @@ import omero.constants.CONFIGSERVICE;
 import omero.constants.UPDATESERVICE;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
+import omero.model.IObject;
 import omero.model.ImageI;
 import omero.sys.Filter;
 import omero.sys.Parameters;
@@ -60,10 +61,10 @@ public class QueryTest extends IceTest {
             // ok
         }
     }
-    
-    @Test 
+
+    @Test
     public void testFind() throws Exception {
- 
+
         IUpdatePrx up = ice.getUpdateService(null);
         IQueryPrx qu = ice.getQueryService(null);
 
@@ -79,35 +80,39 @@ public class QueryTest extends IceTest {
         t = (ImageI) qu.find("Image", -1);
         assertNull(t);
     }
-    
+
     @Test
     public void testFindAll() throws Exception {
-        
+
         IQueryPrx qu = ice.getQueryService(null);
         Filter f = new Filter();
         f.limit = new JInt(1);
-        List<Experimenter> l = qu.findAll("Experimenter", f);
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAll("Experimenter", f));
         assertTrue(l.size()==1);
         assertNotNull(l.get(0).omeName);
 
     }
-    
+    @SuppressWarnings("unchecked")
+    <T> List<T>castList(List list) {
+        return list;
+    }
+
     @Test
     public void testFindAllByExample() throws Exception {
-        
+
         IQueryPrx qu = ice.getQueryService(null);
         ExperimenterI ex = new ExperimenterI();
         ex.omeName = new JString("root");
-        List<ExperimenterI> l = qu.findAllByExample(ex, null);
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByExample(ex, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
-        
+
     }
-    
+
     @Test
     public void testFindAllByQuery() throws Exception {
-        
+
         IQueryPrx qu = ice.getQueryService(null);
         String str = "select e from Experimenter e where e.omeName = :name";
         Parameters p = new Parameters();
@@ -119,32 +124,32 @@ public class QueryTest extends IceTest {
         name.stringVal = "root";
         name.paramType = Type.stringType;
         p.map.put("name", name);
-        List<ExperimenterI> l = qu.findAllByQuery(str,p);
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str,p));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
-        
+
     }
 
     @Test
     public void testFindAllByString() throws Exception {
-        
+
         IQueryPrx qu = ice.getQueryService(null);
-        List<ExperimenterI> l = qu.findAllByString("Experimenter", "omeName", "root", true, null);
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString("Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
-        
+
     }
-    
+
     @Test
     public void testFindExample() throws Exception {
-        
+
         IQueryPrx qu = ice.getQueryService(null);
-        List<ExperimenterI> l = qu.findAllByString("Experimenter", "omeName", "root", true, null);
+        List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString("Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));
         assertTrue(l.get(0).id.val == 0L);
-        
+
     }
 }

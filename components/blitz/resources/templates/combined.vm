@@ -180,7 +180,7 @@ since all collections are lists in ice.
 
 [$jav]        if (load) { 
 [$jav]          ${property.name} = new ArrayList(); 
-[$jav]          ${property.name}Loaded = false;
+[$jav]          ${property.name}Loaded = true;
 [$jav]        } else { 
 [$jav]          ${property.name} = null; 
 [$jav]          ${property.name}Loaded = false;
@@ -859,13 +859,22 @@ FILLOBJECT BLOCK:
 #elseif( $javaType.startsWith("long"))
  ----------------> ERROR
 #else
-                target.set$name( this.get$name() );
+[$jav]           target.set$name( this.get$name() );
 #end
 #end
 
 [$jav]       }
 [$jav]             return target;
 [$jav]     }
+
+MISCELLANEOUS METHODS:
+
+[$jav]     /**
+[$jav]      * Casts (without warning) the given list to a list of
+[$jav]      * the current type. 
+[$jav]      * @throws ClassCastException
+[$jav]      */
+[$jav]     @SuppressWarnings("unchecked") public static List<${PojoI}> cast(List list) { return list; }
 
 
 END DECLARATION BLOCK:

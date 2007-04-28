@@ -25,16 +25,16 @@ module omero {
     ["java:type:java.util.ArrayList"] 
     sequence<omero::model::ExperimenterGroup> ExperimenterGroupList;
 
-    ["java:type:java.util.ArrayList"] 
+    ["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"] 
     sequence<omero::model::IObject> IObjectList;
 
     ["java:type:java.util.ArrayList"] 
     sequence<omero::model::Image> ImageList;
 
-    ["java:type:java.util.ArrayList"] 
+    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"] 
     sequence<long> LongList;
 
-    ["java:type:java.util.ArrayList"] 
+    ["java:type:java.util.ArrayList<String>:java.util.List<String>"] 
     sequence<string> StringSet;
 
     interface ServiceInterface

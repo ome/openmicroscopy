@@ -1,7 +1,7 @@
 /*
  *   $Id: Server.java 1201 2007-01-18 21:54:35Z jmoore $
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 

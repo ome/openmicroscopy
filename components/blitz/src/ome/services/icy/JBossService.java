@@ -26,7 +26,7 @@ import ome.system.ServiceFactory;
  * Hook run after all the application has been deployed to the server. At that
  * point, it can be guaranteed that the Omero classes are available and so
  * attempting to connect to the database "internally" should work.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @version $Revision: 1175 $, $Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec
  *          2006) $
@@ -45,7 +45,7 @@ public class JBossService implements StartupAndShutdown {
         log.info("Starting.");
         log.debug("Acquiring OMERO.blitz context.");
         OmeroContext ctx = OmeroContext.getInstance("OMERO.blitz");
-        
+
     }
 
     public void stop() throws Exception {
