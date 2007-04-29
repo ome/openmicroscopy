@@ -17,6 +17,7 @@ import omero.api.IQueryPrxHelper;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.util.ObjectFactoryRegistrar;
 
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterMethod;
@@ -33,7 +34,7 @@ import Ice.Util;
 public class BlobjectTest extends IceTest {
 
     static class S {
-        static volatile int PORT = 9998;
+        static volatile int PORT = 19998;
 
         Ice.Communicator ic;
 
@@ -129,8 +130,10 @@ public class BlobjectTest extends IceTest {
         id.properties = Ice.Util.createProperties();
         String endpoint = "tcp -p " + s.port + " -h 127.0.0.1";
         id.properties.setProperty("OA.EndPoints", endpoint);
+        id.properties.setProperty("Ice.ImplicitContext", "Shared");
         s.ic = Ice.Util.initialize(id);
         s.ic.getImplicitContext().setContext( context );
+        ObjectFactoryRegistrar.registerObjectFactory(ic, ObjectFactoryRegistrar.INSTANCE);
         s.oa = s.ic.createObjectAdapterWithEndpoints("OA", endpoint);
         s.oa.add(obj, Util.stringToIdentity("B"));
         s.oa.activate();

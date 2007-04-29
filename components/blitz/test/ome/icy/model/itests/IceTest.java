@@ -51,6 +51,7 @@ public abstract class IceTest extends TestCase {
     @AfterMethod
     public void tearDown() throws Exception {
         ice.destroy();
+        root.destroy();
     }
     
     // ~ Helpers

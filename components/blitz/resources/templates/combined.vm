@@ -244,6 +244,29 @@ UNLOAD BLOCK:
 [$jav]    }
 [$cpp]    }
 
+SPECIAL METHODS:
+Id acccesors copied from other accessors below.
+
+[$jav]    public Long getId() {
+[$jav]        return id == null ? null : id._null ? null : id.val;
+[$jav]    }
+[$jav]    
+[$jav]    public void setId( Long id ) {
+[$jav]        this.id = (id == null) ? new omero.RLong(true,0L) : new omero.RLong(false,id);
+[$jav]    }
+
+[$hdr]  public:
+[$hdr]    omero::RLongPtr getId();
+[$hdr]    void setId( omero::RLongPtr id );
+
+[$cpp]    omero::RLongPtr ${PojoI}::getId() {
+[$cpp]        return id;
+[$cpp]    }
+[$cpp]    
+[$cpp]    void ${PojoI}::setId(omero::RLongPtr _id) {
+[$cpp]        id = _id;
+[$cpp]    }
+
 ###########################################################################
 #foreach($property in $pojo.propertyClosureForFullConstructor)#############
 ###########################################################################
@@ -784,7 +807,7 @@ COPYOBJECT BLOCK:
 [$jav]         if (model instanceof $pojo.qualifiedDeclarationName){
 [$jav]             $pojo.qualifiedDeclarationName source = ($pojo.qualifiedDeclarationName) model;
 [$jav]             this.loaded = source.isLoaded();
-
+[$jav]             this.setId( (Long) mapper.findTarget( source.getId() ));
 #foreach($property in $pojo.propertyClosureForFullConstructor)
 #set( $name = $pojo.getPropertyName($property))
 #set( $javaType = $c2j.getJavaTypeName($property,false))##generics
@@ -830,7 +853,7 @@ FILLOBJECT BLOCK:
 [$jav]           target.setId( id == null ? null : id._null ? null : id.val );
 [$jav]           target.unload();
 [$jav]         } else {
-
+[$jav]           target.setId( this.getId() ); // special property
 #foreach($property in $pojo.propertyClosureForFullConstructor)
 #set( $name = $pojo.getPropertyName($property))
 #set( $javaType = $c2j.getJavaTypeName($property,false))##generics

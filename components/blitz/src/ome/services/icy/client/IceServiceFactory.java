@@ -151,8 +151,8 @@ public class IceServiceFactory {
     public void createSession() throws CannotCreateSessionException,
             PermissionDeniedException {
 
-        String name = getCommunicator().getDefaultContext().get(USERNAME.value);
-        String pass = getCommunicator().getDefaultContext().get(PASSWORD.value);
+        String name = getCommunicator().getImplicitContext().get(USERNAME.value);
+        String pass = getCommunicator().getImplicitContext().get(PASSWORD.value);
         SessionPrx prx = getRouter().createSession(name,pass);
         sf = ServiceFactoryPrxHelper.checkedCast(prx);
     }

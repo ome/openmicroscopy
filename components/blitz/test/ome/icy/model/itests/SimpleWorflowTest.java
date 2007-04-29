@@ -52,6 +52,6 @@ public class SimpleWorflowTest extends IceTest {
         IQueryPrx prx = ice.getQueryService(null);
         
         Image i = (Image) prx.get(Image.class.getName(), imageId);
-        assertTrue( "simpleworkflowtest".equals(i.name));
+        assertTrue( "simpleworkflowtest".equals(i.name.val));
     }
 }

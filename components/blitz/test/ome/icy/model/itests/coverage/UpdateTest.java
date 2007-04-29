@@ -40,11 +40,11 @@ public class UpdateTest extends IceTest {
         link = (omero.model.CategoryImageLinkI) obj.categoryLinks.get(0);
         cat = (omero.model.CategoryI) link.parent;
         
-        assertTrue("foo".equals(obj.name));
+        assertTrue("foo".equals(obj.name.val));
         if (cat == null) 
             fail("Cat is null");
         else
-            assertTrue("bar".equals(cat.name));
+            assertTrue("bar".equals(cat.name.val));
     }
 
     @Test
@@ -52,11 +52,13 @@ public class UpdateTest extends IceTest {
         IUpdatePrx prx = ice.getUpdateService(null);
         assertNotNull(prx);
 
+        String uuid = Ice.Util.generateUUID();
         omero.model.ImageI obj = new omero.model.ImageI();
-        obj.name = new JString("foo");
+        obj.name = new JString(uuid);
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
         
         prx.deleteObject(obj);
-        fail("need to query here");
+        assertTrue(ice.getQueryService(null).findAllByString("Image", "name",
+                uuid, false, null).size() == 0);
     }
 }

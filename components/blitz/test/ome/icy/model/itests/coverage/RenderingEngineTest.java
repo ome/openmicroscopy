@@ -18,6 +18,7 @@ import omero.constants.UPDATESERVICE;
 
 import org.testng.annotations.Test;
 
+@Test( groups = { "unfinished", "ignore", "ticket:607" })
 public class RenderingEngineTest extends IceTest {
 
     IceServiceFactory ice;
