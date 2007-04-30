@@ -159,21 +159,13 @@ public class UIModel
 		drawing.clear();
 		ShapeList list = null;
 		try {
-			System.err.println("Trying to add figures to drawing");
 			list = model.getShapeList(currentView);
-			System.err.println("got List");
 			TreeMap<Long, ROIShape> roiList = list.getList();
-			System.err.println("got roiList");
 			Iterator shapeIterator = roiList.values().iterator();
-			System.err.println("UIModel : " + roiList.size());
-			System.err.println("UIModel.shapeIterator : " + shapeIterator.hasNext());
 			while(shapeIterator.hasNext())
 			{
-				System.err.println("fucker");
 				ROIShape shape = (ROIShape) shapeIterator.next();
-				System.err.println("UIModel ROIShape : " + shape.getID());
 				drawing.add(shape.getFigure());
-				System.err.println("added shape");
 			}
 		} catch (NoSuchShapeException e) {
 			// TODO Auto-generated catch block

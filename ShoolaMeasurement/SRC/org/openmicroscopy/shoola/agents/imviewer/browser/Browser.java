@@ -107,7 +107,7 @@ public interface Browser
      * 					{@link ImViewer#GRID_INDEX}.
      */
     public void addComponent(JComponent c, int viewIndex);
-    
+   
     /**
      * Sets the zoom factor.
      * 

@@ -217,10 +217,14 @@ class ImViewerComponent
     	model.setZoomFitToWindow(factor == -1);
     	model.setZoomFactor(factor);
     	if (view.isLensVisible() && 
-    		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
-    		view.setImageZoomFactor((float) model.getZoomFactor());
-    		view.scrollLens();	
-    	}	
+        		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
+        		view.setImageZoomFactor((float) model.getZoomFactor());
+        		view.scrollLens();	
+    	}
+        if (view.isMeasurementToolVisible() && 
+           		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
+           		view.setImageZoomFactor((float) model.getZoomFactor());
+          	}	
     }
 
     /**

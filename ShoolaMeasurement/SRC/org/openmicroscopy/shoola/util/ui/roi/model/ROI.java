@@ -52,11 +52,27 @@ public class ROI
 	final 	static 	int	DEFAULTMAPSIZE = 101;
 	private long	id;
 	
-	TreeMap<Coord3D, ROIShape> roiShapes;
+	TreeMap<Coord3D, ROIShape> 	roiShapes;
+	AttachmentMap 				attachments;
 
 	public ROI(long id)	
 	{
 		init(id);
+	}
+	
+	public void addAttachment(AttachmentKey key, Attachment attachment)
+	{
+		attachments.addAttachment(key, attachment);
+	}
+	
+	public Attachment getAttachment(AttachmentKey key)
+	{
+		return attachments.getAttachment(key);
+	}
+	
+	public AttachmentMap getAttachmentMap()
+	{
+		return attachments;
 	}
 	
 	public ROI(long id, Coord3D coord, ROIShape shape)

@@ -124,10 +124,9 @@ class BrowserUI
      */
     void addComponentToLayer(JComponent c)
     {
-    //	layeredPane.setLayout(new BorderLayout());
-    	layeredPane.add(c, new Integer(1));
+      	layeredPane.add(c, new Integer(1));
     }
-    
+          
     /**
      * Removes the component from the {@link #layeredPane}.
      * 

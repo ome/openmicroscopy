@@ -614,21 +614,14 @@ class ImViewerUI
     private void showMeasurementTool(boolean b)
     {
     	if (b) {
-//            if (model.getMaxX() < lens.getLensUI().getWidth() || 
-//                model.getMaxY() < lens.getLensUI().getHeight())
-//                    return;
             if (firstTimeMeasurementToolShown) {
                 firstTimeMeasurementToolShown = false;
-                //lens.setImageZoomFactor((float) model.getZoomFactor());
-//                measurement.setLensLocation(lensX, lensY);
             }
             JComponent comp = measurement.getMeasurementUI();
-            comp.setSize(new Dimension(model.getMaxX(), model.getMaxY()));
+            comp.setSize(new Dimension((int)(model.getMaxX()*model.getZoomFactor()), 
+            					(int)(model.getMaxY()*model.getZoomFactor())));
             model.getBrowser().addComponent(comp, 
 					ImViewer.VIEW_INDEX);
-//            model.getBrowser().addComponent(measurement.getMeasurementUI(), 
-//					ImViewer.VIEW_INDEX);
-//}
             measurement.setZoomFactor((float) model.getZoomFactor());
         }
     	measurement.setVisible(b);
@@ -1033,11 +1026,20 @@ class ImViewerUI
     void setImageZoomFactor(float factor)
     { 
     	if (lens != null) 
-    		lens.setImageZoomFactor(factor); 
-		if (measurement != null) 
-		{
-			measurement.setZoomFactor(factor);
-		}
+    		lens.setImageZoomFactor(factor);
+    	
+        if (measurement != null)
+        {
+        	measurement.setZoomFactor(factor);
+            JComponent comp = measurement.getMeasurementUI();
+            Browser browser = model.getBrowser();
+        	browser.removeComponent(measurement.getMeasurementUI(), ImViewer.VIEW_INDEX);
+      
+            comp.setSize(new Dimension((int)(model.getMaxX()*model.getZoomFactor()), 
+        			(int)(model.getMaxY()*model.getZoomFactor())));
+        	model.getBrowser().addComponent(comp, 
+        		ImViewer.VIEW_INDEX);
+        }
 	}
     
     /** Hides the lens when the window is iconified. */
