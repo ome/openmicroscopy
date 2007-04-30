@@ -162,6 +162,7 @@
 		<copy todir="${dist.dir}/include">
 			<fileset dir="${blitz.comp}/src/cpp" includes="**/*.h"/>
 			<fileset dir="${blitz.comp}/src/cpp/generated" includes="**/*.h"/>
+			<fileset dir="${blitz.comp}/src/cpp/generated2" includes="**/*.h"/>
 			<fileset dir="${blitz.comp}/resources/slice" includes="**/*.ice"/>
 			<fileset dir="${blitz.comp}/target/generated/resources" includes="**/*.ice"/>
 		</copy>
