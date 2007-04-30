@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef OMERO_types_h
-#define OMERO_types_h
+#ifndef OMERO_CTYPES_H
+#define OMERO_CTYPES_H
 
 #include <OMERO/RTypes.h>
 #include <string>
@@ -118,4 +118,4 @@ TypetoStringDecl(omero::RStringPtr);
 //TypetoStringDecl(omero::RObjectPtr);
 //TypetoStringDecl(omero::RTimePtr);
 
-#endif // OMERO_types_h
+#endif // OMERO_CTYPES_H

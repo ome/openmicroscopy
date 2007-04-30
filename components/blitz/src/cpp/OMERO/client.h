@@ -10,10 +10,10 @@
 #define OMERO_CLIENT_H
 
 #include <OMERO/API.h>
+#include <OMERO/CTypes.h>
 #include <OMERO/ModelI.h>
 #include <OMERO/ObjectFactoryRegistrar.h>
 #include <OMERO/System.h>
-#include <OMERO/types.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 #include <string>
