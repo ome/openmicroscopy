@@ -6,7 +6,8 @@
  * 
  */
 
-#include <OMERO/Model.h>
+
+#include <OMERO/Model/DetailsI.h>
 
 namespace omero { namespace model {
 

@@ -6,7 +6,7 @@
  * 
  */
 
-#include <OMERO/Model.h>
+#include <OMERO/Model/PermissionsI.h>
 
 namespace omero { namespace model {
 

@@ -9,6 +9,7 @@
 #ifndef OBJECTFACTORYREGISTRAR_H
 #define OBJECTFACTORYREGISTRAR_H
 
+#include <OMERO/ModelI.h>
 #include <string>
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>

@@ -1,4 +1,12 @@
 SUBDIR= src/cpp test/cpp
+
+CLEANFILES = \
+»···generated/*.cpp \
+»···generated/*.h \
+»···generated/OMERO/*.cpp \
+»···generated/OMERO/*.h \
+»···generated/OMERO/Model/*.cpp \
+»···generated/OMERO/Model/*.h
 DISTCLEANFILES = \
 	config.cache \
 	*.loT
@@ -35,3 +43,4 @@ test: force
 
 force:
 	true
+

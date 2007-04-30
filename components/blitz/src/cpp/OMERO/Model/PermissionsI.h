@@ -6,6 +6,7 @@
  * 
  */
 
+#include <OMERO/Model.h>
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>

@@ -6,6 +6,8 @@
  *
  */
 
+#ifndef OMERO_CLIENT_ERRORS_H
+#define OMERO_CLIENT_ERRORS_H
 #include <ostream>
 #include <iostream>
 #include <exception>
@@ -38,8 +40,9 @@ namespace omero {
   public:
     UnloadedCollectionException(const char*, int, const char* message);
   };
-  
+
 }
 
 std::ostream& operator<<(std::ostream&, const omero::ClientError&);
-  
+
+#endif // OMERO_CLIENT_ERRORS_H

@@ -6,7 +6,7 @@
  *
  */
 
-#include <OMERO/errors.h>
+#include <OMERO/ClientErrors.h>
 
 namespace omero {
 

@@ -37,12 +37,6 @@ Copyright notice added to all files:
 [$ALL]  * 
 [$ALL]  */
 
-[$jav] package omero.model;
-[$jav] import  java.util.*;
-[$jav] import  ome.conditions.*;
-[$cpp] \\\#include <OMERO/Model.h>
-
-
 VARIABLES:
 #set($Pojo  = "${pojo.declarationName}")
 #set($PojoI = "${Pojo}I")
@@ -54,19 +48,37 @@ DECLARATION BLOCK:
 
 [$ice] #ifndef ${POJO}_ICE
 [$ice] #define ${POJO}_ICE
-[$ice] module omero { 
+[$hdr] #ifndef ${POJOI}_H
+[$hdr] #define ${POJOI}_H
+
+[$ice] \\\#include <OMERO/fwd.ice>
+[$ice] \\\#include <OMERO/IObject.ice>
+[$ice] \\\#include <OMERO/RTypes.ice>
+#if( $pojo.isSubclass() )
+#set( $parent = $pojo.extendsDeclaration.replaceFirst("extends.*ome.model..+?[.]","") )
+[$ice] \\\#include <OMERO/Model/${parent}.ice>
+#set( $include = '\#include' )
+#set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <OMERO/Model/$1.ice>") ' )
+$secondpassclassimports$importModify
+#end 
+[$hdr] \\\#include <OMERO/ClientErrors.h>
+[$hdr] \\\#include <OMERO/Model/${Pojo}.h>
+[$hdr] \\\#include <OMERO/ModelI.h>
+
+[$ice] module omero {
 [$ice]   module model {
 
+[$jav] package omero.model;
+[$jav] import  java.util.*;
+[$jav] import  ome.conditions.*;
 [$jav] public class ${PojoI} extends ${Pojo} 
 [$jav]    implements ome.api.ModelBased {
 
-[$hdr] #ifndef ${POJOI}_H
-[$hdr] #define ${POJOI}_H
-[$hdr]
 [$hdr] namespace omero { 
 [$hdr]   namespace model {
 [$hdr]     class ${PojoI} : public ${Pojo} { 
 
+[$cpp] \\\#include <OMERO/Model/${Pojo}I.h>
 [$cpp] namespace omero { 
 [$cpp]   namespace model {
 
