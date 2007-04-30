@@ -9,7 +9,10 @@
 #ifndef OMERO_CLIENT_H
 #define OMERO_CLIENT_H
 
-#include <OMERO/Model.h>
+#include <OMERO/API.h>
+#include <OMERO/ModelI.h>
+#include <OMERO/ObjectFactoryRegistrar.h>
+#include <OMERO/System.h>
 #include <OMERO/types.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>

@@ -146,10 +146,7 @@
 #define OMERO_MODELI_H
 #include &lt;OMERO/fwd.h&gt;
 #include &lt;OMERO/Model.h&gt;
-#include &lt;OMERO/API.h&gt;
-#include &lt;OMERO/System.h&gt;
 #include &lt;OMERO/IObject.h&gt;
-#include &lt;OMERO/Error.h&gt;
 #include &lt;OMERO/ClientErrors.h&gt;
 #include &lt;Ice/Ice.h&gt;
 #include &lt;string&gt;
@@ -157,7 +154,7 @@
 #include &lt;algorithm&gt;
 
 			</header>
-			<fileset dir="${src.dir}/cpp" includes="**/*I.h" excludes="**/OMERO/ModelI.h"/>
+			<fileset dir="${src.dir}/cpp" includes="**/OMERO/Model/*I.h"/>
 			<footer>
 
 #endif // OMERO_MODELI_H
