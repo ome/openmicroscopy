@@ -6,6 +6,9 @@
  */
 package ome.icy.model.utests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import ome.model.annotations.ProjectAnnotation;
 import ome.model.containers.Dataset;
@@ -16,6 +19,7 @@ import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.RenderingDef;
+import omero.model.DatasetI;
 import omero.model.PlaneSlicingContextI;
 import omero.model.ProjectAnnotationI;
 import omero.model.ProjectDatasetLinkI;
@@ -166,6 +170,47 @@ public class AdapterTest extends TestCase {
 
         ProjectAnnotation pa = (ProjectAnnotation) mapper.reverse(pa_remote);
         assertFalse(pa.getProject().isLoaded());
+    }
+
+    @Test(groups = "ticket:684")
+    public void testNoDuplicateObjectsWithListsInsteadOfSets() throws Exception {
+        p.linkDataset(d);
+        IceMapper mapper = new IceMapper();
+        ProjectI p_remote = (ProjectI) mapper.map(p);
+        DatasetI d_remote = (DatasetI) mapper.map(d);
+
+        long p_sz = p_remote.sizeOfDatasetLinks();
+        long d_sz = d_remote.sizeOfProjectLinks();
+
+        assertTrue(d_sz+"!=1",d_sz==1L);
+        assertTrue(p_sz+"!=1",p_sz==1L);
+    }
+
+    @Test
+    public void testUnloadedCollectionsRemainUnloaded() throws Exception {
+        p.putAt(Project.DATASETLINKS, null);
+        assertTrue(p.sizeOfDatasetLinks() < 0);
+        IceMapper mapper = new IceMapper();
+        ProjectI p_remote = (ProjectI) mapper.map(p);
+        assertFalse( p_remote.datasetLinksLoaded );
+
+        // reverse
+        p_remote = new ProjectI();
+        p_remote.unloadDatasetLinks();
+        assertFalse(p_remote.datasetLinksLoaded);
+        mapper = new IceMapper();
+        p = (Project) mapper.reverse(p_remote);
+        assertTrue(p.sizeOfDatasetLinks()<0);
+
+        //and if we just forget to set unload?
+        p_remote = new ProjectI();
+        p_remote.datasetLinks = null;
+        assertTrue(p_remote.datasetLinksLoaded);
+        mapper = new IceMapper();
+        p = (Project) mapper.reverse(p_remote);
+        //This is why you should use the accessors!
+        //assertTrue(p.sizeOfDatasetLinks()<0);
+
     }
 
 }

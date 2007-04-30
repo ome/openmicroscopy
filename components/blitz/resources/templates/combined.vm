@@ -322,16 +322,12 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $setter = "${property.name}")
 #set( $cppType = "omero::model::IObjectPtr")
 
-#elseif( $javaType.startsWith("java.util.List"))
-#set( $getter = "new java.util.ArrayList( ${property.name} == null ? new java.util.ArrayList() : this.$property.name ) " )
-#set( $setter = "${property.name} == null ? new java.util.ArrayList() : $property.name " ) ## TODO or just null?
-#set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
-#set( $cppType = "$seqName" )
-#set( $unloadedCpp = "if (_${property.name} > ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
-
-#elseif( $javaType.startsWith("java.util.Set"))
-#set( $getter = "new java.util.HashSet( ${property.name} == null ? new java.util.ArrayList() : this.$property.name )" )
-#set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name ) " ) ## TODO or just null?
+## TODO use empty List or null?
+## #684 Mapping all sets to lists.
+#elseif( $javaType.startsWith("java.util.List") || $javaType.startsWith("java.util.Set") )
+#set( $javaType = "java.util.List" )
+#set( $getter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( this.$property.name ) " )
+#set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name )" )
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
 #set( $unloadedCpp = "if (_${property.name} > ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
@@ -813,6 +809,16 @@ COPYOBJECT BLOCK:
 #set( $javaType = $c2j.getJavaTypeName($property,false))##generics
 #set( $shortType = $c2j.unqualify($javaType) )
 #set( $method = "source.get$name()" )
+
+ TODO: Currently the findTarget methods have separate names.
+ Instead there should be a cast to guarantee that the right
+ method is invoked.
+
+#set( $findMethod = "Target" )
+
+ All properties other than id must be "guarded" to prevent
+ UnloadedEntityExceptions.
+
 #set( $guard  = "if (this.loaded) " )
 #if($clazz.identifierProperty.equals($property))
 #set( $guard  = "" )
@@ -827,12 +833,17 @@ COPYOBJECT BLOCK:
 #set( $javaType = "omero.model.IObject" )
 #elseif( $javaType.startsWith("long"))
 #set( $javaType = "Long")
+#elseif( $javaType.startsWith("java.util.Map") )
+#set( $findMethod = "Map" )
 #elseif( $javaType.startsWith("java.util.Set") || $javaType.startsWith("java.util.List") )
+## See ticket:684
 ## If this is the case, we can't use the accessor and have to use a generated method
-#set( $method = "source.retrieve(${pojo.qualifiedDeclarationName}.${name.toUpperCase()})" )
+#set( $method = "($javaType) source.retrieve(${pojo.qualifiedDeclarationName}.${name.toUpperCase()})" )
+#set( $javaType = "java.util.List" )
+#set( $findMethod = "Collection") 
 #end
 
-[$jav]              $guard this.set$name(($javaType) mapper.findTarget($method));
+[$jav]              $guard this.set$name(($javaType) mapper.find${findMethod}($method));
 
 #end
 
@@ -874,7 +885,9 @@ FILLOBJECT BLOCK:
 ## If this is the case, we can't use the accessor and have to use a generated method
 
 [$jav]           if (this.${propLoaded}) {
-[$jav]             target.putAt( $FIELD, mapper.reverse( this.get$name() ) );
+
+ticket:684 This is necessary to map back and forth from sets.
+[$jav]             target.putAt( $FIELD, mapper.reverse( this.get$name(), ${javaType}.class ));
 [$jav]           } else {
 [$jav]             target.putAt( $FIELD, null );
 [$jav]           }

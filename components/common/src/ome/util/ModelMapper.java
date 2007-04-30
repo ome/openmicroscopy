@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +40,12 @@ public abstract class ModelMapper extends ContextFilter {
 
     /**
      * TODO identity versus null mappings
-     * 
+     *
      * @return a map from {@link IObject} classes {@link ModelBased} classes.
      */
     protected abstract Map c2c();
 
-    protected Map model2target = new HashMap();
+    protected Map model2target = new IdentityHashMap();
 
     public ModelBased map(Filterable source) {
         Filterable o = this.filter("MAPPING...", source);
@@ -91,7 +92,7 @@ public abstract class ModelMapper extends ContextFilter {
 
     /**
      * known immutables are return unchanged.
-     * 
+     *
      * @param current
      * @return a possibly uninitialized object which will be finalized as the
      *         object graph is walked.

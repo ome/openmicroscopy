@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.api.IAdmin;
 import ome.api.IConfig;
@@ -22,6 +23,7 @@ import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.SecurityViolation;
+import ome.model.IObject;
 import ome.model.enums.Family;
 import ome.services.icy.util.IceMethodInvoker;
 import ome.services.icy.util.ServantHelper;
@@ -372,6 +374,30 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         ServantHelper.throwIfNecessary(rv);
         
     
+    }
+    
+    @Test
+    public void testPojosCanFindAnnotations() throws Exception {
+        IPojos p;
+
+        QueryParam qp = new QueryParam();
+        qp.name = "foo";
+        qp.paramType = Type.boolType;
+        qp.boolVal = true;
+        Map<String, QueryParam> paramMap = new HashMap<String, QueryParam>();
+        paramMap.put(qp.name, qp);
+        
+        Map<Long, Set<? extends IObject>> retVal =
+            new HashMap<Long, Set<? extends IObject>>();
+        
+        init(IPojos.class, "findAnnotations");
+        method().will(returnValue(retVal));
+        Object rv = invoke("Image", Arrays.asList(1L, 2L), 
+                Arrays.asList(1L, 2L), paramMap);
+        ServantHelper.throwIfNecessary(rv);
+        Map map = (Map)rv;
+        assertNotNull(map);
+        
     }
     
     
