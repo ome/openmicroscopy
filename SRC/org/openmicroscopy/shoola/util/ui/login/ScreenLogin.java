@@ -76,7 +76,7 @@ public class ScreenLogin
 	extends JFrame
 	implements ActionListener, PropertyChangeListener
 {
-
+	
 	/** Bounds property indicating this window is moved to the front. */
 	public static final String		TO_FRONT_PROPERTY = "toFront";
 	

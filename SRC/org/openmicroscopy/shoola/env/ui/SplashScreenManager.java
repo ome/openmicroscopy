@@ -28,8 +28,12 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.JFrame;
 
 //Third-party libraries
 
@@ -67,7 +71,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 
 class SplashScreenManager
-	implements PropertyChangeListener
+	implements PropertyChangeListener, WindowStateListener
 {
     
 	/** The title of the splash screens. */
@@ -101,11 +105,41 @@ class SplashScreenManager
 	private SplashScreen		component;
     
 	/**
+	 * Attempts to log onto <code>OMERO</code>.
+	 * 
+	 * @param lc The user's credentials.
+	 */
+	private void login(LoginCredentials lc)
+	{
+		try {
+			UserCredentials uc = new UserCredentials(lc.getUserName(), 
+					lc.getPassword(), lc.getHostName());
+			userCredentials.set(uc);
+		} catch (Exception e) {
+			UserNotifier un = UIFactory.makeUserNotifier(container);
+            un.notifyError("Login Incomplete", e.getMessage());
+            view.setControlsEnabled(true);
+		}
+	}
+	
+	/**
+	 * Sets the state of the specified window.
+	 * 
+	 * @param f		The window to handle.
+	 * @param state	The state to set.
+	 */
+	private void setWindowState(JFrame f, int state)
+	{
+		f.removeWindowStateListener(this);
+		f.setState(state);
+		f.addWindowStateListener(this);
+	}
+	
+	/**
 	 * Creates the splash screen component.
-	 * Creates a new instance of this manager, of its corresponding UI
-	 * ({@link SplashScreenView}), and links them as needed.
+	 * Creates a new instance of this manager and links them as needed.
      * 
-     * @param component	
+     * @param component	Reference to the {@link SplashScreen}.
      * @param c			Reference to the singleton {@link Container}.
 	 */
 	SplashScreenManager(SplashScreen component, Container c)
@@ -127,6 +161,8 @@ class SplashScreenManager
 		view.setBounds(r.x,  r.y+d.height, dlogin.width, dlogin.height);
 		view.addPropertyChangeListener(this);
 		viewTop.addPropertyChangeListener(this);
+		view.addWindowStateListener(this);
+		viewTop.addWindowStateListener(this);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -225,26 +261,10 @@ class SplashScreenManager
         view.setControlsEnabled(true);
     }
     
-	/**
-	 * Attempts to log onto <code>OMERO</code>.
-	 * 
-	 * @param lc The user's credentials.
-	 */
-	private void login(LoginCredentials lc)
-	{
-		try {
-			UserCredentials uc = new UserCredentials(lc.getUserName(), 
-					lc.getPassword(), lc.getHostName());
-			userCredentials.set(uc);
-		} catch (Exception e) {
-			UserNotifier un = UIFactory.makeUserNotifier(container);
-            un.notifyError("Login Incomplete", e.getMessage());
-            view.setControlsEnabled(true);
-		}
-	}
 	
 	/**
-	 * Reacts to property changes fired by the {@link ServerDialog}.
+	 * Reacts to property changes fired by the {@link ScreenLogin} and
+	 * {@link ScreenLogo}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
@@ -261,6 +281,20 @@ class SplashScreenManager
 		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
 			view.toFront();
 		}
+	}
+
+	/**
+	 * Reacts to state changes fired by the {@link ScreenLogo} and
+	 * {@link ScreenLogin}.
+	 * @see WindowStateListener#windowStateChanged(WindowEvent)
+	 */
+	public void windowStateChanged(WindowEvent e)
+	{
+		Object src = e.getSource();
+		if (src instanceof ScreenLogo) 
+			setWindowState(view, e.getNewState());
+		else if (src instanceof ScreenLogin)
+			setWindowState(viewTop, e.getNewState());
 	}
 
 }
