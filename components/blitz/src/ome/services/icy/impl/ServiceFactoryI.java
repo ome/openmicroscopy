@@ -144,7 +144,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
 
     String adminKey = "IAdmin", configKey = "IConfig", pixelsKey = "IPixels",
             pojosKey = "Pojos", queryKey = "IQuery", typesKey = "ITypes",
-            updateKey = "IUpdate";
+            updateKey = "IUpdate", repoKey = "IRepositoryInfo";
 
     Set<Ice.Identity> ids = Collections
             .synchronizedSet(new HashSet<Ice.Identity>());
@@ -306,7 +306,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp implements
     }
 
     public IRepositoryInfoPrx getRepositoryInfoService(Ice.Current current) {
-        synchronized (updateKey) {
+        synchronized (repoKey) {
             Ice.Identity id = getIdentity(current, updateKey);
             String key = Ice.Util.identityToString(id);
 
