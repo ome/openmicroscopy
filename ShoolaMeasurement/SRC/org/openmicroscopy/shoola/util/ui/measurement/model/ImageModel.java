@@ -61,13 +61,13 @@ public class ImageModel
 	
 	public ImageModel()
 	{
-		coord = new Coord3D(0,0,0);
+		coord = new Coord3D(0,0);
 	}
 	
-	public void setCurrentChannel(int channel)
-	{
-		coord.c = channel;
-	}
+//	public void setCurrentChannel(int channel)
+//	{
+//		coord.c = channel;
+//	}
 	
 	public void setCurrentZ(int z)
 	{
@@ -81,7 +81,7 @@ public class ImageModel
 	
 	public Coord3D getCoord3D()
 	{
-		return new Coord3D(coord.c, coord.t, coord.z);
+		return new Coord3D(coord.t, coord.z);
 	}
 	
 	public void setCoord3D(Coord3D coord)

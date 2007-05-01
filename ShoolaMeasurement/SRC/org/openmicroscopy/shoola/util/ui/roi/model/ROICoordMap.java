@@ -66,10 +66,10 @@ public class ROICoordMap
 	
 	public boolean containsKey(Coord3D start, Coord3D end)
 	{
-		for(int c = start.c; c < end.c ; c++)
+	//	for(int c = start.c; c < end.c ; c++)
 			for(int t = start.t; t < end.t ; t++)
 				for(int z = start.z; z < end.z ; z++)
-					if(!coordMap.containsKey(new Coord3D(c, t, z)))
+					if(!coordMap.containsKey(new Coord3D( t, z)))
 						return false;
 		return true;
 	}
@@ -155,19 +155,17 @@ public class ROICoordMap
 	{
 		ShapeList shapeList;
 		shapeList = new ShapeList(coord);
-		System.err.println("ROICoordMap: Created Shapelist");
 		coordMap.put(coord, shapeList);
-		System.err.println("ROICoordMap: added Shapelist to : " + coord.c + " " + coord.z);
 	}
 	
 	private void createShapeList(Coord3D start, Coord3D end)
 	{
-		for( int c = start.c ; c < end.c ; c++) 
+	//	for( int c = start.c ; c < end.c ; c++) 
 			for( int t = start.t ; t < end.t ; t++)
 				for( int z = start.z ; z < end.z ; z++)
 				{
 					ShapeList shapeList;
-					Coord3D coord = new Coord3D(c, t, z);
+					Coord3D coord = new Coord3D(t, z);
 					if(!coordMap.containsKey(coord))
 					{
 						shapeList = new ShapeList(coord);

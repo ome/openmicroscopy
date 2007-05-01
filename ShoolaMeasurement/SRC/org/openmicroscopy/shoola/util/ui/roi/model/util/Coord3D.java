@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 public class Coord3D 
 	implements Comparator
 {
-	public int c;
+	//public int c;
 	public int t;
 	public int z;
 	
@@ -55,18 +55,18 @@ public class Coord3D
 		
 	}
 	
-	public Coord3D(int ch, int time, int zsec)
+	public Coord3D(int time, int zsec)
 	{
-		c = ch;
+	//	c = ch;
 		t = time;
 		z = zsec;
 	}
 	
 	
-	public int getChannel()
-	{
-		return c;
-	}
+	//public int getChannel()
+	//{
+	//	return c;
+	//}
 	
 	public int getTimePoint()
 	{
@@ -83,15 +83,17 @@ public class Coord3D
 		if(!(obj instanceof Coord3D))
 			return false;
 		Coord3D comp = (Coord3D)obj;
-		return (comp.c == this.c && comp.t == this.t && comp.z == this.z );
+//		return (comp.c == this.c && comp.t == this.t && comp.z == this.z );
+		return (comp.t == this.t && comp.z == this.z );
 	}
 	
 	public int hashCode()
 	{
-		int cComp = c;
+		//int cComp = c;
 		int zComp = z*100;
 		int tComp = t*100000;
-		return cComp+zComp+tComp;
+		//return cComp+zComp+tComp;
+		return zComp+tComp;
 		
 		
 	}
@@ -104,11 +106,11 @@ public class Coord3D
 	{
 		Coord3D a = (Coord3D)o1;
 		Coord3D b = (Coord3D)o2;
-		if(a.c < b.c)
-			return -1;
-		else if(a.c > b.c)
-			return 1;
-		else if(a.t < b.t)
+	//	if(a.c < b.c)
+	//		return -1;
+	//	else if(a.c > b.c)
+	//		return 1;
+		if(a.t < b.t)
 			return -1;
 		else if(a.t > b.t)
 			return 1;
@@ -122,7 +124,8 @@ public class Coord3D
 	
 	public Coord3D clone()
 	{
-		return new Coord3D(this.c, this.t, this.z);
+//		return new Coord3D(this.c, this.t, this.z);
+		return new Coord3D(this.t, this.z);
 	}
 	
 	

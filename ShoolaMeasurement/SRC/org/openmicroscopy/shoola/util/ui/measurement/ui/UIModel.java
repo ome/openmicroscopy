@@ -148,7 +148,6 @@ public class UIModel
 	{
 		if(currentView.equals(coord))
 			return;
-		System.err.println("Changed view");
 		currentView = coord;
 		updateView();
 	}
@@ -171,7 +170,6 @@ public class UIModel
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			// Do nothing as no shapes on currentPlane
-			System.err.println("No figures at " + currentView.c + " " + currentView.t + " " + currentView.z);
 		}
 		view.setDrawing(drawing);
 		drawing.addDrawingListener(this);
@@ -201,12 +199,12 @@ public class UIModel
 	{
 		FONT_SIZE.set(fig, 10.0);
 		TEXT_COLOR.set(fig, Color.orange);
-		STROKE_WIDTH.set(fig, 1.5);
-		FILL_COLOR.set(fig, new Color(220, 220, 220, 64));
+		STROKE_WIDTH.set(fig, 1.0);
+		FILL_COLOR.set(fig, new Color(220, 220, 220, 0));
 		INMICRONS.set(fig, false);
 		SHOWMEASUREMENT.set(fig, true);
-		MEASUREMENTTEXT_COLOUR.set(fig, Color.yellow);
-		STROKE_COLOR.set(fig, Color.gray);
+		MEASUREMENTTEXT_COLOUR.set(fig, new Color(255, 204, 102, 0));
+		STROKE_COLOR.set(fig, Color.WHITE);
 		if(fig instanceof MeasureRectangleFigure)
 			FIGURETYPE.set(fig, "Rectangle");
 		if(fig instanceof MeasureEllipseFigure)

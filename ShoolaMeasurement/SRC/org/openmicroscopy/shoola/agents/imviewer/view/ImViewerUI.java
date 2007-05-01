@@ -834,7 +834,7 @@ class ImViewerUI
     	if (measurement == null) return;
     	switch (model.getTabbedIndex()) {
 			case ImViewer.VIEW_INDEX:
-				measurement.setCoord3D(new Coord3D(0,model.getDefaultT(), model.getDefaultZ()));
+				measurement.setCoord3D(new Coord3D(model.getDefaultT(), model.getDefaultZ()));
 				break;
 			//case ImViewer.GRID_INDEX:
 			//	lens.setPlaneImage(model.getGridImage());
@@ -946,7 +946,7 @@ class ImViewerUI
         	imageModel.setMicronsPixelY(model.getPixelsSizeY());
         	imageModel.setMicronsPixelZ(model.getPixelsSizeZ());
         	measurement = new MeasurementComponent(imageModel);
-        	measurement.setCoord3D(new Coord3D(0,model.getDefaultT(), model.getDefaultZ()));
+        	measurement.setCoord3D(new Coord3D(model.getDefaultT(), model.getDefaultZ()));
         	measurement.addPropertyChangeListener(
         			LensComponent.LENS_LOCATION_PROPERTY, controller);
         }

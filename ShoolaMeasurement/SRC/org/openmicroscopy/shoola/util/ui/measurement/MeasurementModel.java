@@ -118,7 +118,6 @@ public class MeasurementModel
 												ROIShapeCreationException, NoSuchROIException
 	{
 		ROI roi = roiComponent.createROI();
-		System.err.println("Current Coord of ROIShape : " + imageModel.getCoord3D().c+ " " + imageModel.getCoord3D().t+ " " + imageModel.getCoord3D().z+ " " );
 		ROIShape newShape = new ROIShape(roi, imageModel.getCoord3D(), fig, fig.getBounds());
 		//roi.addShape(newShape);
 		roiComponent.addShape(roi.getID(), imageModel.getCoord3D(), newShape);

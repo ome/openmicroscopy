@@ -367,7 +367,6 @@ class ImViewerComponent
         view.setStatus(getStatusText());
         view.setIconImage(model.getImageIcon());
         if (view.isLensVisible()) view.setLensPlaneImage();
-        System.err.println("ImViewerComponent : Setting measurement tool coord");
         if (view.isMeasurementToolVisible()) view.setMeasurementToolCoord();
         fireStateChange();
     }

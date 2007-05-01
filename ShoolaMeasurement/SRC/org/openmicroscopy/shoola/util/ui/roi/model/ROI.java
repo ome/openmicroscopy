@@ -23,6 +23,9 @@
 package org.openmicroscopy.shoola.util.ui.roi.model;
 
 //Java imports
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -49,12 +52,20 @@ import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
  */
 public class ROI
 {
-	final 	static 	int	DEFAULTMAPSIZE = 101;
-	private long	id;
+	final 	static 	int						DEFAULTMAPSIZE = 101;
+	private long							id;
 	
-	TreeMap<Coord3D, ROIShape> 	roiShapes;
-	AttachmentMap 				attachments;
-
+	TreeMap<Coord3D, ROIShape> 				roiShapes;
+	AttachmentMap 							attachments;
+	private HashMap<AnnotationKey, Object> 	annotations 
+										= new HashMap<AnnotationKey,Object>();
+	
+	/**
+     * Forbidden annotations can't be set by the setAnnotation() operation.
+     * They can only be changed by basicSetAnnotations().
+     */
+    private HashSet<AnnotationKey> forbiddenAnnotations;
+    
 	public ROI(long id)	
 	{
 		init(id);
@@ -99,10 +110,10 @@ public class ROI
 	
 	public boolean containsKey(Coord3D start, Coord3D end)
 	{
-		for(int c = start.c; c < end.c ; c++)
+		//for(int c = start.c; c < end.c ; c++)
 			for(int t = start.t; t < end.t ; t++)
 				for(int z = start.z; z < end.z ; z++)
-					if(!roiShapes.containsKey(new Coord3D(c, t, z)))
+					if(!roiShapes.containsKey(new Coord3D(t, z)))
 						return false;
 		return true;
 	}
@@ -151,10 +162,10 @@ public class ROI
 	
 	public void deleteShape(Coord3D start, Coord3D end) throws NoSuchShapeException
 	{
-		for(int c = start.c; c < end.c ; c++)
+		//for(int c = start.c; c < end.c ; c++)
 			for(int t = start.t; t < end.t ; t++)
 				for(int z = start.z; z < end.z ; z++)
-					deleteShape(new Coord3D(c, t, z));
+					deleteShape(new Coord3D(t, z));
 	}
 
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, Coord3D end) 
@@ -162,16 +173,124 @@ public class ROI
 													   NoSuchShapeException
 	{
 		ROIShape shape = getShape(selectedShape);
-		for(int c = start.c; c < end.c ; c++)
+		//for(int c = start.c; c < end.c ; c++)
 			for(int t = start.t; t < end.t ; t++)
 				for(int z = start.z; z < end.z ; z++)
 				{
-					Coord3D newCoord = new Coord3D(c, t, z);
+					Coord3D newCoord = new Coord3D(t, z);
 					ROIShape newShape = new ROIShape(this, newCoord, shape);
 					this.addShape(newShape);
 				}
 	}
 	
+
+    
+    public void setAnnotation(AnnotationKey key, Object newValue) {
+        if (forbiddenAnnotations == null
+                || ! forbiddenAnnotations.contains(key)) {
+            
+            Object oldValue = annotations.get(key);
+            if (! annotations.containsKey(key)
+            || oldValue != newValue
+                    || oldValue != null && newValue != null && ! oldValue.equals(newValue)) {
+                basicSetAnnotation(key, newValue);
+            }
+        }
+    }
+    
+    public void setAnnotationEnabled(AnnotationKey key, boolean b) 
+    {
+        if (forbiddenAnnotations == null) 
+        {
+        	forbiddenAnnotations = new HashSet<AnnotationKey>();
+        }
+        if (b) 
+        {
+        	forbiddenAnnotations.remove(key);
+        } else 
+        {
+        	forbiddenAnnotations.add(key);
+        }
+    }
+    
+    public boolean isAnnotationEnabled(AnnotationKey key) 
+    {
+        return forbiddenAnnotations == null || ! forbiddenAnnotations.contains(key);
+    }
+    
+    public void basicSetAnnotations(Map<AnnotationKey, Object> map) 
+    {
+        for (Map.Entry<AnnotationKey, Object> entry : map.entrySet()) 
+        {
+            basicSetAnnotation(entry.getKey(), entry.getValue());
+        }
+    }
+    
+    public void setAnnotations(Map<AnnotationKey, Object> map) 
+    {
+        for (Map.Entry<AnnotationKey, Object> entry : map.entrySet()) 
+        {
+            setAnnotation(entry.getKey(), entry.getValue());
+        }
+    }
+    
+    public Map<AnnotationKey, Object> getAnnotation() 
+    {
+        return new HashMap<AnnotationKey,Object>(annotations);
+    }
+    
+    /**
+     * Sets an annotation of the ROI.
+     * AnnotationKey name and semantics are defined by the class implementing
+     * the ROI interface.
+     */
+    public void basicSetAnnotation(AnnotationKey key, Object newValue) 
+    {
+        if (forbiddenAnnotations == null
+                || ! forbiddenAnnotations.contains(key)) 
+        {
+        	annotations.put(key, newValue);
+        }
+    }
+    
+    /**
+     * Gets an annotation from the ROI.
+     */
+    public Object getAnnotation(AnnotationKey key) 
+    {
+        return hasAnnotation(key) ? annotations.get(key) : key.getDefaultValue();
+    }
+    
+    protected AnnotationKey getAnnotationKey(String name) 
+    {
+        return AnnotationKeys.supportedAnnotationMap.get(name);
+    }
+    
+    /**
+     * Applies all annotation of this ROI to that ROI.
+     */
+    protected void applyAnnotationsTo(ROIShape that) 
+    {
+        for (Map.Entry<AnnotationKey, Object> entry : annotations.entrySet()) 
+        {
+            that.setAnnotation(entry.getKey(), entry.getValue());
+        }
+    }
+    
+    public void removeAnnotation(AnnotationKey key) 
+    {
+        if (hasAnnotation(key)) 
+        {
+            Object oldValue = getAnnotation(key);
+            annotations.remove(key);
+        }
+    }
+    
+    public boolean hasAnnotation(AnnotationKey key) 
+    {
+        return annotations.containsKey(key);
+    }
+
 }
 
 

@@ -82,7 +82,6 @@ public class CreationToolBar
 	
 	private		JButton			selectionButton;
 	private		JButton			rectangleButton;	
-	private 	ChannelComboBox	activeChannel;
 	
 	public CreationToolBar(UIModel model, UIControl control, DrawingEditor editor)
 	{
@@ -128,15 +127,15 @@ public class CreationToolBar
 
 	private void createActiveChannel()
 	{
-		activeChannel = new ChannelComboBox(model.getChannelInfo());
-		UIUtils.setComponentSize(activeChannel, new Dimension(150,30));
-		activeChannel.addActionListener(new AbstractAction()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				control.setCoord3D(new Coord3D(activeChannel.getSelectedIndex(), model.getCoord3D().t, model.getCoord3D().z));
-			}
-		});	
+//		activeChannel = new ChannelComboBox(model.getChannelInfo());
+//		UIUtils.setComponentSize(activeChannel, new Dimension(150,30));
+//		activeChannel.addActionListener(new AbstractAction()
+//		{
+//			public void actionPerformed(ActionEvent e)
+//			{
+//				control.setCoord3D(new Coord3D(activeChannel.getSelectedIndex(), model.getCoord3D().t, model.getCoord3D().z));
+//			}
+//		});	
 	}
 
 	private void createUI()
@@ -148,7 +147,7 @@ public class CreationToolBar
 		this.setSize(new Dimension(450,65));
 		createActiveChannel();
 		createToolset();
-		this.getContentPane().add(activeChannel);
+//		this.getContentPane().add(activeChannel);
 		this.getContentPane().add(toolBar);
 		
 	}
@@ -160,10 +159,10 @@ public class CreationToolBar
 	 */
 	public void propertyChange(PropertyChangeEvent changeEvent) 
 	{
-		if(changeEvent.getPropertyName() == DrawingEventList.UIMODEL_ACTIVECHANNELCHANGED)
-		{
-			activeChannel.setSelectedIndex((Integer)changeEvent.getNewValue());
-		}
+//		if(changeEvent.getPropertyName() == DrawingEventList.UIMODEL_ACTIVECHANNELCHANGED)
+//		{
+//			activeChannel.setSelectedIndex((Integer)changeEvent.getNewValue());
+//		}
 	}
 	
 	
