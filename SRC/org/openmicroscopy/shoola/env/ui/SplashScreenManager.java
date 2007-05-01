@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -71,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  */
 
 class SplashScreenManager
-	implements PropertyChangeListener, WindowStateListener
+	implements PropertyChangeListener, WindowFocusListener, WindowStateListener
 {
     
 	/** The title of the splash screens. */
@@ -163,6 +164,8 @@ class SplashScreenManager
 		viewTop.addPropertyChangeListener(this);
 		view.addWindowStateListener(this);
 		viewTop.addWindowStateListener(this);
+		view.addWindowFocusListener(this);
+		viewTop.addWindowFocusListener(this);
 		isOpen = false;
 		doneTasks = 0;
 	}
@@ -277,9 +280,13 @@ class SplashScreenManager
 			 container.exit();
 		     component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name)) {
-			viewTop.toFront();
+			//viewTop.toFront();
+			
+			//viewTop.setAlwaysOnTop(true);
+			//viewTop.setAlwaysOnTop(false);
 		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
-			view.toFront();
+			//view.toFront();
+			//view.setAlwaysOnTop(true);
 		}
 	}
 
@@ -295,6 +302,27 @@ class SplashScreenManager
 			setWindowState(view, e.getNewState());
 		else if (src instanceof ScreenLogin)
 			setWindowState(viewTop, e.getNewState());
+	}
+
+	/**
+	 * Sets the windows always on top when one of the windows gains focus.
+	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+	 */
+	public void windowGainedFocus(WindowEvent e)
+	{
+		view.setAlwaysOnTop(true);
+		viewTop.setAlwaysOnTop(true);
+	}
+
+	/**
+	 * Resests the flag when one of the windows loses focus.
+	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+	 */
+	public void windowLostFocus(WindowEvent e)
+	{
+		view.setAlwaysOnTop(false);
+		viewTop.setAlwaysOnTop(false);
+		
 	}
 
 }

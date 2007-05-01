@@ -455,8 +455,7 @@ public class ScreenLogin
 	private void requestFocusOnField()
 	{
 		String txt = user.getText();
-		if (txt == null || txt.trim().length() == 0)
-			user.requestFocus();
+		if (txt == null || txt.trim().length() == 0) user.requestFocus();
 		else pass.requestFocus();
 	}
 
@@ -494,8 +493,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				//firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+				//					Boolean.TRUE);
 				requestFocusOnField();
 			}
 		});
@@ -507,7 +506,6 @@ public class ScreenLogin
      * @param title		The frame's title.
      * @param logo		The frame's background logo. 
      * 					Mustn't be <code>null</code>.
-     * @param version	The version of the software.
      */
     public ScreenLogin(String title, Icon logo)
     {
@@ -614,7 +612,7 @@ public class ScreenLogin
 				setNewServer((String) evt.getNewValue());
 		} 
 	}
-
+	
 	/** 
 	 * Handles action events fired by the login fields and button.
 	 * Once user name and password have been entered, the login fields and

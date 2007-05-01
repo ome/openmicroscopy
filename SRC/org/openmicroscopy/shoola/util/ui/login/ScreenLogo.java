@@ -140,8 +140,8 @@ public class ScreenLogo
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
-									Boolean.TRUE);
+				//firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
+				//					Boolean.TRUE);
 			}
 		});
 	}
