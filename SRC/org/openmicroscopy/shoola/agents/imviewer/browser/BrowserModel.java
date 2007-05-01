@@ -69,12 +69,6 @@ import pojos.ImageData;
  */
 class BrowserModel
 {
-
-	/** 
-	 * Factor use to determine the size of the annotate image
-	 * w.r.t the rendered image.
-	 */
-	static final double 		RATIO = 0.50;
 	
 	/** The red mask. */
 	private static final int	RED_MASK = 0x00ff0000;
@@ -229,7 +223,7 @@ class BrowserModel
         renderedImage = image;
         //Create the annotate image.
         if (renderedImage != null) {
-        	annotateImage = Factory.magnifyImage(RATIO, renderedImage);
+        	annotateImage = Factory.magnifyImage(Browser.RATIO, renderedImage);
         } else annotateImage = null;
         displayedImage = null;
         gridImages.clear();
@@ -245,7 +239,7 @@ class BrowserModel
     	if (images != null) {
     		Iterator i = images.iterator();
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(RATIO, 
+        		gridImages.add(Factory.magnifyImage(Browser.RATIO, 
         						(BufferedImage) i.next()));
     		}
     	}
@@ -525,8 +519,8 @@ class BrowserModel
      */
     Dimension getGridSize()
     {
-    	int w = (int) (getMaxX()*RATIO);
-    	int h = (int) (getMaxY()*RATIO);
+    	int w = (int) (getMaxX()*Browser.RATIO);
+    	int h = (int) (getMaxY()*Browser.RATIO);
     	int n = parent.getMaxC()+1; //add one for combined image.
     	if (getRGBSplit()) n = 4;
     	if (n <=3) n = 4;

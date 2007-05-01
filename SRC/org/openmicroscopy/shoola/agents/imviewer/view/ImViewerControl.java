@@ -630,6 +630,7 @@ class ImViewerControl
 	public void componentResized(ComponentEvent e) 
 	{ 
 		if (model.zoomFitToWindow()) model.setZoomFactor(-1); 
+		view.maximizeWindow();
 	}
 
 	/**

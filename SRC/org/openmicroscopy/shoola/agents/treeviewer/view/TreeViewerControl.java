@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
@@ -205,6 +206,11 @@ class TreeViewerControl
     static final Integer    CLASSIFY_CHILDREN = new Integer(25);
     
     /** 
+     * Identifies the <code>Roll over action</code>.
+     */
+    static final Integer    ROLL_OVER = new Integer(26);
+    
+    /** 
      * Reference to the {@link TreeViewer} component, which, in this context,
      * is regarded as the Model.
      */
@@ -253,6 +259,7 @@ class TreeViewerControl
         actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
         actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
         actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
+        actionsMap.put(ROLL_OVER, new RollOverAction(model));
     }
     
     /** 

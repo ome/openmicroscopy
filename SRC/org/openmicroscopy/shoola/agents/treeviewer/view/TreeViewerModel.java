@@ -137,6 +137,8 @@ class TreeViewerModel
     /** Flag indicating if the {@link TreeViewer} is recycled or not. */
     private boolean					recycled;
     
+    private boolean					rollOver;
+    
     /** Reference to the component that embeds this model. */
     protected TreeViewer            component;
     
@@ -781,5 +783,9 @@ class TreeViewerModel
     	if (experimenter == null) experimenter = getUserDetails();
     	return experimenter;
     }
+
+	boolean isRollOver() { return rollOver; }
+	
+	void setRollOver(boolean rollOver) { this.rollOver = rollOver; }
 
 }

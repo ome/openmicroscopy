@@ -120,6 +120,7 @@ class SquaryLayout
                 maxY = 0;
             } 
         }
+       
         Rectangle bounds = node.getContentsBounds();
         node.getInternalDesktop().setPreferredSize(bounds.getSize());
         //node.validate();

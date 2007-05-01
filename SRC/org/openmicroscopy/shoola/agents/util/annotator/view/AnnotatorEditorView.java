@@ -128,17 +128,14 @@ class AnnotatorEditorView
 	private JScrollPane				scrollAnnotations;
 	
 	/** Flag indicating if the node is brought up on screen programatically.*/
-	private boolean					autoScroll;
+	private boolean					init;
 	
 	/** The component displaying the number of annotations. */
 	private JLabel					commentLabel;
 	
 	/** The listener attached to the text area. */
 	private DocumentListener		listener;
-	
-	/** The listener attached to the vertical scrollbar. */
-	private AdjustmentListener		scrollBarListener;
-	
+
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
     {
@@ -167,7 +164,6 @@ class AnnotatorEditorView
     private void scrollToNode(JComponent c)
     {
     	if (c == null) return;
-    	autoScroll = true;
     	Rectangle bounds = c.getBounds();
     	Rectangle viewRect = scrollAnnotations.getViewport().getViewRect();
 		if (!viewRect.contains(bounds)) {
@@ -181,7 +177,7 @@ class AnnotatorEditorView
 			y = bounds.y-h/2;
 			JScrollBar hBar = scrollAnnotations.getHorizontalScrollBar();
 			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
-			vBar.setValue(y);
+	    	vBar.setValue(y);
 			hBar.setValue(x);
         } 
 		if (c == annotationArea) {
@@ -189,23 +185,7 @@ class AnnotatorEditorView
 			c.requestFocus();
 		}
     }
-    
-    /**
-     * Adjusts the vertical scrollbar value if necessary.
-     * 
-     * @param isAdjusting 	Pass <code>true</code> of the scrollbar is adjusted 
-     * 						by the user, <code>false</code> otherwise.
-     */
-    private void adjust(boolean isAdjusting)
-    {
-    	if (!isAdjusting && !autoScroll) {
-    		JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
-        	vBar.removeAdjustmentListener(scrollBarListener);
-        	scrollAnnotations.getVerticalScrollBar().setValue(0);
-        	vBar.addAdjustmentListener(scrollBarListener);
-    	}	
-    }
-    
+   
     /** Initializes the UI components. */
     private void initComponents()
     {
@@ -217,12 +197,16 @@ class AnnotatorEditorView
     	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
     	//necessary to set the location of the scrollbar when 
     	// the component is embedded in another UI component. */
-    	scrollBarListener = new AdjustmentListener() {
+    	vBar.addAdjustmentListener(new AdjustmentListener() {
+		
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				adjust(e.getValueIsAdjusting());
+				if (!e.getValueIsAdjusting() && !init) {
+					JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+			    	vBar.setValue(0);
+		    	} else if (e.getValueIsAdjusting()) init = true;
 			}
-		};
-    	vBar.addAdjustmentListener(scrollBarListener);
+		
+		});
     	treeDisplay = AnnotatorUtil.initTree();
     	treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
@@ -279,7 +263,6 @@ class AnnotatorEditorView
             
         };
         annotationArea.getDocument().addDocumentListener(listener);
-        setComponentsEnabled(false);
     }
     
     /**

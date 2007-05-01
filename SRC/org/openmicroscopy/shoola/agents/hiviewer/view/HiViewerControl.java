@@ -432,6 +432,7 @@ class HiViewerControl
                     setViews();
                 break;
             case HiViewer.DISCARDED:
+            	ThumbWinManager.rollOverDisplay(null, null);
                 view.setVisible(false);
                 view.dispose();
                 break;
@@ -474,12 +475,24 @@ class HiViewerControl
             TreeView treeView = model.getTreeView();
             if (treeView == null) return; //tree shouldn't be null
             Browser browser = model.getBrowser();
+            ImageDisplay[] nodes = (ImageDisplay[]) pce.getNewValue();
+            if (nodes != null) {
+            	if (nodes.length == 1) {
+            		ImageDisplay img = nodes[0];
+            		if (!(img.equals(browser.getLastSelectedDisplay())))
+                        browser.setSelectedDisplay(img);
+            	} else 
+            		browser.setSelectedDisplays(nodes);
+            }
+            	
+            else browser.setSelectedDisplay(null);
+            /*
             ImageDisplay img = (ImageDisplay) pce.getNewValue();
             if (img != null) {
                 if (!(img.equals(browser.getLastSelectedDisplay())))
                     browser.setSelectedDisplay(img);
             } else browser.setSelectedDisplay(img);
-            
+            */
         } else if (HiViewer.SCROLL_TO_NODE_PROPERTY.equals(propName)) {
             scrollToNode((ImageDisplay) pce.getNewValue());
         } else if (Browser.ANNOTATED_NODE_PROPERTY.equals(propName)) {

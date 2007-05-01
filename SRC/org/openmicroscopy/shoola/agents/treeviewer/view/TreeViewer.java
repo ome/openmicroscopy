@@ -575,5 +575,21 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public boolean isRecycled();
+
+	/**
+	 * Returns <code>true</code> if the editor is updated when the user mouses
+	 * over a node in the tree, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRollOver();
+	
+	/**
+	 * Sets to <code>true</code> if the editor is updated when the user mouses
+	 * over a node in the tree, to <code>false</code> otherwise.
+	 * 
+	 * @param rollOver The value to set.
+	 */
+	public void setRollOver(boolean rollOver);
 	
 }

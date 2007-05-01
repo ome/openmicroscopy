@@ -58,6 +58,12 @@ public interface Browser
     extends ObservableComponent
 {
     
+	/** 
+	 * Factor use to determine the size of the annotate image
+	 * w.r.t the rendered image.
+	 */
+	public static final double 		RATIO = 0.50;
+	
     /**
      * Returns the widget that displays the image.
      *  
@@ -289,5 +295,12 @@ public interface Browser
 
 	/** Saves the annotation before closing the component. */
 	public void saveAnnotation();
+
+	/**
+	 * Returns the annotated image.
+	 * 
+	 * @return See above.
+	 */
+	public BufferedImage getAnnotateImage();
 	
 }

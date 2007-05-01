@@ -174,6 +174,7 @@ class ThumbWinManager
                 //are being loaded.
                 w = new ThumbWin((JFrame) node.getTopLevelAncestor(), full, ho,
                                         model, node);
+                w.moveToFront();
             //TODO: We assume getFullScaleThumb returns a *pre-fetched* image.
             //If this is not the case and we load async, then we need a
             //callback handler.

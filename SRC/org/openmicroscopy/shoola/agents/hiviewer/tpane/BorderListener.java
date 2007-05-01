@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.tpane;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -126,8 +127,8 @@ class BorderListener
     {
         if (frame == null) throw new NullPointerException("No frame.");
         this.frame = frame;
-        if (frame.getParent() != null) 
-          parentBounds = frame.getParent().getBounds();
+        Container parent = frame.getParent();
+        if (parent != null) parentBounds = parent.getBounds();
     }
   
     /**
@@ -140,6 +141,7 @@ class BorderListener
             discardRelease = false;
             return;
         }
+        frame.notifyEndMoving();
         if (resizeDir == RESIZE_NONE) {
             getDesktopManager().endDraggingFrame(frame);    
             dragging = false;
@@ -248,7 +250,6 @@ class BorderListener
             frame.setCursor(s);
             return;
         }
-        
     }
 
     /** 

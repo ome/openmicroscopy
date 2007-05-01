@@ -572,11 +572,9 @@ class TreeViewerWin
     public void setOnScreen()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = 8*(screenSize.width/10);
-        int height = 8*(screenSize.height/10);
-        setSize(width, height);
+        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
         UIUtilities.incrementRelativeToAndShow(invokerBounds, this);
-        invokerBounds = null;//UIUtilities.centerAndShow(this);
+        invokerBounds = null;
     }
 
 }

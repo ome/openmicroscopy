@@ -120,7 +120,8 @@ class TreeViewerComponent
 	 */
 	private void displayUserGroups(Map map)
 	{
-		UserManagerDialog d = new UserManagerDialog(view, 
+		JFrame f = (JFrame) TreeViewerAgent.getRegistry().getTaskBar();
+		UserManagerDialog d = new UserManagerDialog(f, 
 				model.getUserDetails(), map, model.getRootID());
 		d.addPropertyChangeListener(controller);
 		d.pack();
@@ -186,8 +187,9 @@ class TreeViewerComponent
     {
         switch (model.getState()) {
 	        case NEW:
-                model.getSelectedBrowser().activate();
+                model.getSelectedBrowser().activate(); 
                 view.setOnScreen();
+                //view.toFront();
                 model.setState(READY);
 	            break;
 	        case DISCARDED:
@@ -485,8 +487,9 @@ class TreeViewerComponent
     {
         if (model.getState() == LOADING_THUMBNAIL) {
             model.setState(READY);
-            if (thumbnail != null) 
-            	model.getEditor().setThumbnail(thumbnail);
+            Editor editor = model.getEditor();
+            if (thumbnail != null && editor != null) 
+            	editor.setThumbnail(thumbnail);
             fireStateChange();
         }
     }
@@ -1135,6 +1138,36 @@ class TreeViewerComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see TreeViewer#isRecycled()
      */
-	public boolean isRecycled() { return model.isRecycled(); }
+	public boolean isRecycled() 
+	{ 
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		return model.isRecycled(); 
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#isRollOver()
+     */
+	public boolean isRollOver()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		return model.isRollOver();
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#setRollOver(boolean)
+     */
+	public void setRollOver(boolean rollOver)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+                    "This method cannot be invoked in the DISCARDED state.");
+		model.setRollOver(rollOver);
+	}
     
 }

@@ -376,4 +376,26 @@ public class LensComponent
 		return lensModel.createZoomedImage(image);
 	}
 	
+	/**
+	 * Sets the image to be magnified and the location of the lens.
+	 * 
+	 * @param image	The image to magnify.
+	 * @param f		The amount of zooming that has occurred on the image. 
+	 * @param x		The x-coordinate of the lens.
+	 * @param y		The y-coordinate of the lens.
+	 */
+	public void resetLens(BufferedImage image, float f, int x, int y)
+	{
+		lensModel.setImageZoomFactor(f);
+		lensModel.setPlaneImage(image);
+		lensModel.setLensLocation(x, y);
+		//from ZoomFactor
+		lens.setImageZoomFactor();
+		//from PlaneImage
+		lensController.setLensLocation(x, y);
+		zoomWindow.setZoomImage(lensModel.getZoomedImage());
+		zoomWindow.repaint();
+		
+	}
+	
 }

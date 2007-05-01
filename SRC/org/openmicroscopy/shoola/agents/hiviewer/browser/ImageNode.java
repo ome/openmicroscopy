@@ -26,14 +26,13 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.event.MouseListener;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.JButton;
-import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -87,18 +86,24 @@ public class ImageNode
     {
         visitor.visit(this);
     }
-    
-    /**
-     * Returns the component on which the thumbnail is painted.
-     * 
-     * @return See above.
-     */
-    JComponent getCanvas() { return canvas; }
-    
+
     /** Pins the thumbnail on the board. */
     void pinThumbnail()
     {
     	firePropertyChange(PIN_THUMBNAIL_PROPERTY, null, this);
+    }
+    
+    /**
+     * Adds a {@link MouseListener} to the components composing the 
+     * node.
+     * 
+     * @param listener The listener to add.
+     */
+    void addMouseListenerToComponents(MouseListener listener)
+    {
+    	 getTitleBar().addMouseListener(listener);
+    	 addMouseListener(listener);
+    	 canvas.addMouseListener(listener);
     }
     
     /**

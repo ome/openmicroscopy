@@ -135,12 +135,17 @@ public class TinyPane
     public final static String  DECORATION_PROPERTY = "decoration";  
     
     /** 
-     * Bound property name indicating if the mouse pressed eventhappens
+     * Bound property name indicating if the mouse pressed event happens
      * on the frame icon. 
      */
     public final static String  FRAME_ICON_PRESSED_PROPERTY = 
                                 "frameIconPressed";  
     
+    /** 
+     * Bound property indicating that the dragging or resizing event 
+     * is finished.
+     */
+    public final static String	END_MOVING_PROPERTY = "endMoving";
     
     /** The View component that renders this frame. */
     private TinyPaneUI      uiDelegate;
@@ -274,6 +279,15 @@ public class TinyPane
         }
     }
     
+    /**
+     * Invokes when the draggring or resizing of the component is finished.
+     */
+	void notifyEndMoving()
+	{
+		System.err.println(getBounds());
+		firePropertyChange(END_MOVING_PROPERTY, null, this);
+	}
+	
     /** Resizes and repaints the component. */
     public void pack()
     {
@@ -603,9 +617,9 @@ public class TinyPane
         model.setDecoration(decoration);
         firePropertyChange(DECORATION_PROPERTY, oldValue, decoration);
     }
-    
+  
     /**
-     * Overrides to return the title of the frame.
+     * Overridden to return the title of the frame.
      * @see JPanel#toString()
      */
     public String toString() { return getTitle(); }

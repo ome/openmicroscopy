@@ -224,7 +224,14 @@ public class LayoutUtils
             node.setVisible(true);
             return;
         }
+        
+        Rectangle pBounds = node.getBounds();
         n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+        if (pBounds.width != 0) {
+        	int m = pBounds.width/maxDim.width;
+            n = m;
+        }
+        
         
         //Finally do layout.
         Dimension d;

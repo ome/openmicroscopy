@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -32,10 +31,11 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Shows a truncated name of the images or the full path is selected.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,13 +47,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ShowNameAction 
-	extends BrowserAction
+public class RollOverAction 
+	extends TreeViewerAction
 {
 
+	/** Name of the action. */
+    private static final String NAME = "Roll over";
+    
     /** Description of the action. */
-    private static final String DESCRIPTION = "Show the full name of " +
-    									"the image";
+    private static final String DESCRIPTION = "Mouse over a node to view " +
+    		"properties.";
     
     /** 
      * Reacts to {@link Browser}'s state change.
@@ -69,22 +72,24 @@ public class ShowNameAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public ShowNameAction(Browser model)
+    public RollOverAction(TreeViewer model)
     {
-    	super(model);
-    	putValue(Action.SHORT_DESCRIPTION, 
-    			UIUtilities.formatToolTipText(DESCRIPTION));
-    	IconManager im = IconManager.getInstance();
-    	putValue(Action.SMALL_ICON, im.getIcon(IconManager.PARTIAL_NAME));
+        super(model);
+        name = NAME;
+        setEnabled(true);
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.ROLL_OVER)); 
     }
     
     /**
-     * Shows a truncated name or the full path depending on the selection.
+     * Sets the value of the <code>rollOver</code> flag.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
-    { 
-        model.displaysImagesName();
+    {
+        model.setRollOver(!model.isRollOver());
     }
     
 }

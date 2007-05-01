@@ -130,7 +130,7 @@ public class RollOverWin
      */
     public RollOverWin(JFrame parent, Browser browser)
     {
-        super(parent);
+        //super(parent);
         if (browser == null) 
             throw new IllegalArgumentException("No browser.");
         this.browser = browser;

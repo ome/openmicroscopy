@@ -30,7 +30,8 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -174,17 +175,40 @@ public class TreeView
         selectedNode = node;
     }
     
+    /**
+     * Sets the selected nodes.
+     * 
+     * @param nodes	Collection of selected nodes.
+     * @param lastSelected
+     */
+    void setSelectedDisplays(List nodes, TreeViewNode lastSelected)
+    {
+    	if (nodes == null || nodes.size() == 0) return;
+    	Iterator i = nodes.iterator();
+    	ImageDisplay[] uos = new ImageDisplay[nodes.size()];
+    	int index = 0;
+    	while (i.hasNext()) 
+    		uos[index] = (ImageDisplay) 
+    		((TreeViewNode) i.next()).getUserObject();
+
+    	selectedNode = lastSelected;
+    	ImageDisplay uo = (ImageDisplay) lastSelected.getUserObject();
+    	firePropertyChange(TREE_SELECTED_DISPLAY_PROPERTY, null, uos);
+        firePropertyChange(HiViewer.SCROLL_TO_NODE_PROPERTY, null, uo);
+    }
+    
     /** 
      * Sets the selected node. 
      * 
      * @param node The selected node.
      */
-    void setSelectedDisplay(ImageDisplay node)
+    void setSelectedDisplay(TreeViewNode node)
     {
-        selectedNode = (TreeViewNode) 
-        				uiDelegate.getTree().getLastSelectedPathComponent();
-        firePropertyChange(TREE_SELECTED_DISPLAY_PROPERTY, null, node);
-        firePropertyChange(HiViewer.SCROLL_TO_NODE_PROPERTY, null, node);
+    	if (node == null) return;
+        selectedNode = node;
+        ImageDisplay uo = (ImageDisplay) node.getUserObject();
+        firePropertyChange(TREE_SELECTED_DISPLAY_PROPERTY, null, uo);
+        firePropertyChange(HiViewer.SCROLL_TO_NODE_PROPERTY, null, uo);
     }
     
     /**
@@ -205,7 +229,8 @@ public class TreeView
      */
 	void removeRollOver()
 	{
-		firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(REMOVE_ROLL_OVER_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
 	}
 	
     /**

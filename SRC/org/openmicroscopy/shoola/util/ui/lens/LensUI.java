@@ -268,8 +268,8 @@ public class LensUI
 	 */
 	void setImageZoomFactor()
 	{
-		this.setSize(lensComponent.getLensScaledSize());
-		this.setLocation(lensComponent.getLensScaledLocation().x, 
+		setSize(lensComponent.getLensScaledSize());
+		setLocation(lensComponent.getLensScaledLocation().x, 
 				lensComponent.getLensScaledLocation().y);
 	}
 	

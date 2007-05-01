@@ -788,4 +788,12 @@ class ImViewerModel
 	 * @param textVisible The value to set.
 	 */
 	void setTextVisible(boolean textVisible) { this.textVisible = textVisible; }
+
+    /**
+     * Returns the image displayed in the annotator view.
+     * 
+     * @return See above.
+     */
+	BufferedImage getAnnotateImage() { return browser.getAnnotateImage(); }
+	
 }

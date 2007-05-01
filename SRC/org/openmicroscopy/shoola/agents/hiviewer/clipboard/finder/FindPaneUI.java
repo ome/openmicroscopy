@@ -349,50 +349,7 @@ class FindPaneUI
         //title label is the search results status bar which will be displayed 
         // at top of findpane 
         titleLabel = new JLabel(FIND_MSG+DEFAULT);
-        
-//      controls panel is the container for all search criterion and title
-        // label. It will use a gridbaglayout and have title followed by
-        // separator then find text box and match case on the same line follow-
-        // -ing it. 
-        /*
-        controlsPanel.setLayout(new GridBagLayout());
-        
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.NONE;
-        c.gridy = 1;
-        controlsPanel.add(titleLabel, c);
-        
-        c.gridy = 2;
-        c.weighty = 1;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(5, 0, 5, 10);
-        
-        controlsPanel.add(new JSeparator(), c);
-        c.ipadx = 0; // reset ipadx = 20;
-        
-        c.gridy = 3;
-        controlsPanel.add(UIUtilities.buildComponentPanel(rows), c);
-        c.insets = new Insets(0, 0, 0, 0);
-        // the find pane itself has a gridbag layout and will incorporate the
-        // controlsPanel on the left and search results (treeHolder) on the 
-        // right
-         * */
-        /*
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();  
-        // griddy constraints
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.1;
-        c.weighty = 0.5;
-        c.gridy = 0;
-        add(controlsPanel, c);
-        c.gridy = 1;
-        // add tree panel
-        c.weightx = 100;
-        c.fill = GridBagConstraints.BOTH;
-        add(treeHolderPanel, c);
-        */
+
         double[][] tl = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
         		TableLayout.PREFERRED, 5, 300}}; 

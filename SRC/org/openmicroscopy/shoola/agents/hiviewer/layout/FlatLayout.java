@@ -68,8 +68,8 @@ class FlatLayout
      */
     private ViewerSorter    sorter;
     
-    /** Collection of {@link ImageNode} to lay out. */
-    private List            images;
+    /** Collection of {@link ImageNode}s to lay out. */
+    private List<ImageNode>	images;
     
     /** The root of all nodes. */
     private ImageSet        root;
@@ -82,7 +82,7 @@ class FlatLayout
      */
     FlatLayout(ViewerSorter sorter)
     {
-        images =  new ArrayList();
+        images =  new ArrayList<ImageNode>();
         this.sorter = sorter;
     }
     

@@ -36,6 +36,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -86,6 +87,9 @@ class ToolBar
         b = new JButton(controller.getAction(TreeViewerControl.REFRESH_TREE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        //UIUtilities.unifiedButtonLookAndFeel(b);
+        //bar.add(new JToggleButton(
+        //		controller.getAction(TreeViewerControl.ROLL_OVER)));
         bar.add(new JSeparator(JSeparator.VERTICAL));
         TreeViewerAction a = controller.getAction(TreeViewerControl.MANAGER);
         b = new JButton(a);

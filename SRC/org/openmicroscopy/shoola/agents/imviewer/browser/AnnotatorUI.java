@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
@@ -71,9 +74,28 @@ class AnnotatorUI
     /** UI component hosting the info about the image. */
     private InfoPane			infoPane;
     
+    /** The UI component hosting the {@link AnnotatorCanvas}. */
+    private JLayeredPane		layeredPane;
+    
     /** The listener listening to the canvas. */
     private ImageCanvasListener	canvasListener;
     
+    /** Initializes the components composing the display. */
+    private void initComponents()
+    {
+        layeredPane = new JLayeredPane();
+        canvas = new AnnotatorCanvas(model);
+		editor = AnnotatorFactory.getEditor(ImViewerAgent.getRegistry(), 
+									model.getImageData(), 
+									AnnotatorEditor.HORIZONTAL_LAYOUT);
+		infoPane = new InfoPane(model);
+		canvasListener = new ImageCanvasListener(model, canvas);
+		editor.addPropertyChangeListener(controller);
+        //The image canvas is always at the bottom of the pile.
+        //layeredPane.setLayout(new BorderLayout(0, 0));
+        layeredPane.add(canvas, new Integer(0));
+    }
+	
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -82,7 +104,7 @@ class AnnotatorUI
     	double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
 				{TableLayout.PREFERRED, 5, TableLayout.FILL}};
         p.setLayout(new TableLayout(tl));
-        p.add(canvas, "0, 0");
+        p.add(layeredPane, "0, 0");
         p.add(infoPane, "2, 0");
         p.add(new JSeparator(), "0, 2, 2, 2");
     	add(p, BorderLayout.NORTH);
@@ -103,15 +125,10 @@ class AnnotatorUI
 	void initialize(BrowserControl controller, BrowserModel model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
-		this.model = model;
 		if (controller == null) throw new NullPointerException("No control.");
-		canvas = new AnnotatorCanvas(model);
-		editor = AnnotatorFactory.getEditor(ImViewerAgent.getRegistry(), 
-									model.getImageData(), 
-									AnnotatorEditor.HORIZONTAL_LAYOUT);
-		infoPane = new InfoPane(model);
-		canvasListener = new ImageCanvasListener(model, canvas);
-		editor.addPropertyChangeListener(controller);
+		this.controller = controller;
+		this.model = model;
+		initComponents();
 		buildGUI();
 	}
 
@@ -127,7 +144,11 @@ class AnnotatorUI
         int w = img.getWidth();
         int h = img.getHeight();
         canvasListener.setAreaSize(w, h);
-        canvas.setPreferredSize(new Dimension(w, h));
+        Dimension d = new Dimension(w, h);
+		layeredPane.setPreferredSize(d);
+        layeredPane.setSize(d);
+        canvas.setPreferredSize(d);
+        canvas.setSize(d);
         canvas.repaint();
     }
     
@@ -158,7 +179,27 @@ class AnnotatorUI
 	{
 		if (editor == null) return;
 		editor.save();
-		
 	}
 	
+	/**
+     * Adds the component to the {@link #layeredPane}. The component will
+     * be added to the top of the pile
+     * 
+     * @param c The component to add.
+     */
+    void addComponentToLayer(JComponent c)
+    {
+        layeredPane.add(c, new Integer(1));
+    }
+    
+    /**
+     * Removes the component from the {@link #layeredPane}.
+     * 
+     * @param c The component to remove.
+     */
+    void removeComponentFromLayer(JComponent c)
+    {
+        layeredPane.remove(c);
+    }
+    
 }

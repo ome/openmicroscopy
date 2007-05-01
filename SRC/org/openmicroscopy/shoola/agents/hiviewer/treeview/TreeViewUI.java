@@ -29,8 +29,10 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -79,20 +81,22 @@ class TreeViewUI
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
      */
-    private ViewerSorter	sorter;
+    private ViewerSorter			sorter;
     
     /** The component hosting the visualization tree. */
-    private JTree			tree;
+    private JTree					tree;
     
     /** The tool bar. */
-    private JToolBar        toolBar;
+    private JToolBar        		toolBar;
     
     /** The menu bar. */
-    private JPanel			menuBar;
+    private JPanel					menuBar;
     
     /** The number of visible images displayed in the tree. */
-    private int				numberImages;
+    private int						numberImages;
 
+    /** Reference to the selection listener. */
+    private TreeSelectionListener	selectionListener;
     
     /** Reference to the Model this component is for. */
     private TreeView		model;
@@ -187,7 +191,7 @@ class TreeViewUI
         tree.setCellRenderer(new TreeCellRenderer(true, false));
         //tree.putClientProperty("JTree.lineStyle", "Angled");
         tree.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION);
+                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         TreeViewImageSet root = new TreeViewImageSet(node);
         tree.setRootVisible(false);
         tree.setModel(new DefaultTreeModel(root));
@@ -196,6 +200,12 @@ class TreeViewUI
             public void mouseReleased(MouseEvent e) { onClick(e, true); }
             public void mouseEntered(MouseEvent e) { model.removeRollOver(); }
         });
+        selectionListener = new TreeSelectionListener() {
+            
+            public void valueChanged(TreeSelectionEvent e) { onClick(); }
+        };
+        tree.addTreeSelectionListener(selectionListener);
+        /*
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             
             public void valueChanged(TreeSelectionEvent e)
@@ -210,7 +220,39 @@ class TreeViewUI
                         false, true, 0, false); 
             }
         });
+        */
         return root;
+    }
+    
+    /** Reacts to the selection of a node in the tree. */
+    private void onClick()
+    {
+    	TreePath[] paths = tree.getSelectionPaths();
+    	if (paths == null) return;
+        int n = paths.length;
+        if (n == 0) return;
+        
+        List<TreeViewNode> nodes = new ArrayList<TreeViewNode>();
+        Object node;
+        for (int i = 0; i < n; i++) {
+			node = paths[i].getLastPathComponent();
+			if (node instanceof TreeViewNode) 
+				nodes.add((TreeViewNode) node);
+		}
+        
+        DefaultMutableTreeNode last = (DefaultMutableTreeNode) 
+        						tree.getLastSelectedPathComponent();
+        model.setSelectedDisplays(nodes, (TreeViewNode) last);
+    	/*
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
+        tree.getLastSelectedPathComponent();
+        if (n == null) return;
+        model.setSelectedDisplay((TreeViewNode) n);
+
+        tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
+                tree.isPathSelected(new TreePath(n.getPath())),
+                false, true, 0, false); 
+                */
     }
     
     /**
@@ -222,19 +264,12 @@ class TreeViewUI
      */
     private void onClick(MouseEvent me, boolean released)
     {
-        int row = tree.getRowForLocation(me.getX(), me.getY());
+    	Point p = me.getPoint();
+        int row = tree.getRowForLocation(p.x, p.y);
         if (row != -1) {
         	int n = me.getClickCount();
-            //tree.setSelectionRow(row);
-            //DefaultMutableTreeNode n = (DefaultMutableTreeNode) 
-            //            tree.getLastSelectedPathComponent();
-           // model.setSelectedDisplay((ImageDisplay) n.getUserObject());
-            
-           // tree.getCellRenderer().getTreeCellRendererComponent(tree, n, 
-            //    	tree.isPathSelected(new TreePath(n.getPath())),
-            //    	false, true, 0, false); 
             if (n == 1) {
-                if (me.isPopupTrigger()) model.setPopupPoint(me.getPoint());
+                if (me.isPopupTrigger()) model.setPopupPoint(p);
             } else if (n == 2 && released) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) 
                                     tree.getLastSelectedPathComponent();

@@ -167,6 +167,9 @@ class BrowserComponent
 			case ImViewer.GRID_INDEX:
 				gridView.removeComponentFromLayer(c);
 				break;
+			case ImViewer.ANNOTATOR_INDEX:
+				annotator.removeComponentFromLayer(c);
+				break;
 		}
     }
 
@@ -184,6 +187,9 @@ class BrowserComponent
 				break;
 			case ImViewer.GRID_INDEX:
 				gridView.addComponentToLayer(c);
+				break;
+			case ImViewer.ANNOTATOR_INDEX:
+				annotator.addComponentToLayer(c);
 				break;
 		}
     }
@@ -427,5 +433,14 @@ class BrowserComponent
      * @see Browser#saveAnnotation()
      */
 	public void saveAnnotation() { annotator.saveAnnotation(); }
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getAnnotateImage()
+     */
+	public BufferedImage getAnnotateImage()
+	{
+		return model.getAnnotateImage();
+	}
 
 }

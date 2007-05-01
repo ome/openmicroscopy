@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -38,6 +39,9 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
+import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -77,6 +81,9 @@ class BrowserControl
     /** Flag to indicate that a popupTrigger event occured. */
     private boolean         popupTrigger;
     
+    /** Used to sort the nodes by date or alphabetically. */
+    private ViewerSorter    sorter;
+    
     /**
      * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
      * hierarchy.
@@ -115,6 +122,7 @@ class BrowserControl
         this.model = model;
         this.view = view;
         popupTrigger = false;
+        sorter = new ViewerSorter();
     }
     
     /**
@@ -129,8 +137,7 @@ class BrowserControl
      */
     public void visit(ImageNode node) 
     { 
-        node.getTitleBar().addMouseListener(this);
-        node.getCanvas().addMouseListener(this);
+    	node.addMouseListenerToComponents(this);
         node.addPropertyChangeListener(ImageNode.CLASSIFY_NODE_PROPERTY, this);
         node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
         node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
@@ -145,6 +152,7 @@ class BrowserControl
     {
         node.getTitleBar().addMouseListener(this);
         node.getInternalDesktop().addMouseListener(this);
+        node.addPropertyChangeListener(ImageDisplay.END_MOVING_PROPERTY, this);
         if (node.getHierarchyObject() instanceof DatasetData) {
             node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
                                             this);
@@ -189,6 +197,14 @@ class BrowserControl
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
         	ImageNode node = (ImageNode) evt.getNewValue();
         	model.setThumbSelected(true, node);
+        } else if (ImageDisplay.END_MOVING_PROPERTY.equals(name)) {
+        	//ImageDisplay node = model.getLastSelectedDisplay();
+        	ImageDisplay node = (ImageDisplay) evt.getNewValue();
+        	int layoutIndex = model.getSelectedLayout();
+        	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
+        	view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            node.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+        	view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
     
@@ -229,7 +245,6 @@ class BrowserControl
                 cmd.execute();
             }   
         }
-        
         popupTrigger = false; 
     }
 
@@ -267,11 +282,11 @@ class BrowserControl
      */
     public void mouseExited(MouseEvent me)
     {
-    	if (model.isRollOver()) return;
-        ImageDisplay d = model.getLastSelectedDisplay();
-        if (d != null) view.setTitle(model.currentPathString(d));
-        else view.setTitle("");
-        model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
+    	//if (model.isRollOver()) return;
+        //ImageDisplay d = model.getLastSelectedDisplay();
+        //if (d != null) view.setTitle(model.currentPathString(d));
+        //else view.setTitle("");
+        //model.setNodeForProperty(Browser.SELECTED_DISPLAY_PROPERTY, d);
     }
 
     /**

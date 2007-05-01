@@ -32,7 +32,6 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import javax.swing.JComponent;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -66,21 +65,7 @@ public class TitledLineBorder
 	
 	/** The color of the line. */
 	private Color	lineColor;
-	
-	/**
-	 * Returns the FontMetrics for the specified component.
-	 * 
-	 * @param c The component to handlde. May be <code>null</code>.
-	 * @param g The graphics context, taken into account if the passed component
-	 * 			is <code>null</code>;
-	 * @return See above.
-	 */
-	private FontMetrics getFontMetrics(JComponent c, Graphics g)
-	{
-		if (c != null) return c.getFontMetrics(c.getFont());
-		return g.getFontMetrics(g.getFont());
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed rectangle intersects withe 
 	 * the passed parameters defining the rectangle of reference, 
@@ -166,12 +151,9 @@ public class TitledLineBorder
          Font font = g.getFont();
          Color color = g.getColor();
          Font fontc = getFont(c);
-         if (fontc != null) fontc = fontc.deriveFont(Font.BOLD);
-         g.setFont(fontc);
-
-         JComponent jc = (c instanceof JComponent) ? (JComponent) c : null;
+         if (fontc != null) g.setFont(fontc.deriveFont(Font.BOLD));
          
-         FontMetrics fm = getFontMetrics(jc, g);
+         FontMetrics fm = g.getFontMetrics(g.getFont());
          int fontHeight = fm.getHeight();
          int descent = fm.getDescent();
          int ascent = fm.getAscent();

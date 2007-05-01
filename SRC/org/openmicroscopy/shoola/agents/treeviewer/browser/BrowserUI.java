@@ -29,8 +29,10 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -60,6 +62,7 @@ import javax.swing.tree.TreeSelectionModel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -222,6 +225,21 @@ class BrowserUI
         }
     }
     
+    private void rollOver(MouseEvent e)
+    {
+    	if (!model.getParentModel().isRollOver()) return;
+    	JTree tree = treeDisplay;
+    	TreePath path = treeDisplay.getClosestPathForLocation(
+    											e.getX(), e.getY());
+        Rectangle bounds = tree.getPathBounds(path);
+        if (!bounds.contains(e.getPoint())) return;
+        TreeImageDisplay node = (TreeImageDisplay) path.getLastPathComponent();
+    	Object uo = node.getUserObject();
+    	if (!(uo instanceof DataObject)) return;
+    	model.getParentModel().showProperties((DataObject) uo, 
+    								TreeViewer.PROPERTIES_EDITOR);
+    }
+    
     /** 
      * Helper method to create the trees hosting the display. 
      * 
@@ -251,7 +269,13 @@ class BrowserUI
         treeDisplay.addMouseListener(new MouseAdapter() {
            public void mousePressed(MouseEvent e) { onClick(e, false); }
            public void mouseReleased(MouseEvent e) { onClick(e, true); }
+           
+          // public void mouseMoved(MouseEvent e) { rollOver(e); }
         });
+        treeDisplay.addMouseMotionListener(new MouseMotionAdapter() {
+           
+            public void mouseMoved(MouseEvent e) { rollOver(e); }
+         });
         treeDisplay.addTreeExpansionListener(listener);
         selectionListener = new TreeSelectionListener() {
         
