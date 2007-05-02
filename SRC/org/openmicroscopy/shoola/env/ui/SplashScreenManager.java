@@ -34,7 +34,6 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -282,13 +281,15 @@ class SplashScreenManager
 			 container.exit();
 		     component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name)) {
-			viewTop.toFront();
-			
-			//viewTop.setAlwaysOnTop(true);
+			//viewTop.toFront();
+			view.setAlwaysOnTop(true);
+			viewTop.setAlwaysOnTop(true);
 			//viewTop.setAlwaysOnTop(false);
 		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
-			view.toFront();
+			//view.toFront();
 			//view.setAlwaysOnTop(true);
+			view.setAlwaysOnTop(true);
+			viewTop.setAlwaysOnTop(true);
 		}
 	}
 
@@ -307,24 +308,21 @@ class SplashScreenManager
 	}
 
 	/**
-	 * Sets the windows always on top when one of the windows gains focus.
-	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-	 */
-	public void windowGainedFocus(WindowEvent e)
-	{
-		view.setAlwaysOnTop(true);
-		viewTop.setAlwaysOnTop(true);
-	}
-
-	/**
 	 * Resests the flag when one of the windows loses focus.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
 	public void windowLostFocus(WindowEvent e)
 	{
-		//System.g
-		view.setAlwaysOnTop(false);
-		viewTop.setAlwaysOnTop(false);
+		if (e.getOppositeWindow() == null) {
+			if (view != null) view.setAlwaysOnTop(false);
+			if (view != null) viewTop.setAlwaysOnTop(false);
+		}
 	}
+	/**
+	 * Required by the {@link WindowFocusListener} I/F but no-op implementation
+	 * in our case.
+	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+	 */
+	public void windowGainedFocus(WindowEvent e) { }
 
 }
