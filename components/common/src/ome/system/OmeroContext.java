@@ -199,7 +199,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
             // wrong, we need to rollback.
             try {
                 ctx.refresh();
-            } finally {
+            } catch (Throwable t) {
                 if (ctx != null) {
                     ctx.close();
                 }

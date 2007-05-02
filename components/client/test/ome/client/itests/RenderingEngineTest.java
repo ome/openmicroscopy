@@ -39,13 +39,16 @@ public class RenderingEngineTest extends TestCase {
      * i = new Image(); Channel c = new Channel();
      */
 
-    ServiceFactory sf = new ServiceFactory();
+    ServiceFactory sf;
+    RenderingEngine re;
+    RenderingEngine re2;
+    IUpdate iUpdate;
 
-    RenderingEngine re = sf.createRenderingEngine();
-
-    RenderingEngine re2 = sf.createRenderingEngine();
-
-    IUpdate iUpdate = sf.getUpdateService();
+    @Configuration( beforeTestMethod = true )
+    public void setup() {
+        sf = new ServiceFactory();
+        iUpdate = sf.getUpdateService();
+    }
 
     @Test
     public void test_simpleUsage() throws Exception {

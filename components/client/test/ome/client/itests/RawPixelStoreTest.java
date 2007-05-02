@@ -20,11 +20,16 @@ import ome.testing.ObjectFactory;
 @Test(groups = { "client", "integration", "binary" })
 public class RawPixelStoreTest extends TestCase {
 
-    ServiceFactory sf = new ServiceFactory();
+    ServiceFactory sf;
+    RawPixelsStore raw;
+    IUpdate iUpdate;
 
-    RawPixelsStore raw = sf.createRawPixelsStore();
-
-    IUpdate iUpdate = sf.getUpdateService();
+    @Configuration( beforeTestMethod = true )
+    public void setup() {
+        sf = new ServiceFactory();
+        raw = sf.createRawPixelsStore();
+        iUpdate = sf.getUpdateService();
+    }
 
     @Test
     public void test_simpleDigest() throws Exception {

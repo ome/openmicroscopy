@@ -17,19 +17,22 @@ import ome.system.ServiceFactory;
 
 @Test(groups = { "broken", "version", "integration" }, enabled = false)
 public class VersionIncrementTest extends TestCase {
-    ServiceFactory sf = new ServiceFactory();
 
-    IQuery iQuery = sf.getQueryService();
-
-    IUpdate iUpdate = sf.getUpdateService();
-
-    Project p = new Project(), p2;
-
-    Dataset d = new Dataset(), d2;
+    ServiceFactory sf;
+    IQuery iQuery;
+    IUpdate iUpdate;
+    Project p, p2;
+    Dataset d, d2;
 
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
+        sf = new ServiceFactory();
+        iQuery = sf.getQueryService();
+        iUpdate = sf.getUpdateService();
+        p = new Project();
+        d = new Dataset();
+
         p.setName(NAME);
         d.setName(NAME);
         p.linkDataset(d);
