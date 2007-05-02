@@ -17,6 +17,16 @@
 
 namespace omero { namespace model {
 
+  /*
+   * Blitz wrapper for the permissions related to 
+   * an entity. Though the internal state is made
+   * public (see http://www.zeroc.com/forums/showthread.php?t=3084)
+   * it is only intended for clients to use the methods:
+   * 
+   *  -- [is|set][User|Group|World][Read|Write]()
+   *  -- [is|set]Locked
+   *
+   */
 class PermissionsI : public Permissions { 
 
 protected:

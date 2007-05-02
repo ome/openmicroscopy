@@ -63,25 +63,25 @@ namespace omero { namespace model {
 
   // bit 18
   bool PermissionsI::isLocked(const Ice::Current& c) {
-    return !granted(18,0); // Here we use the granted
+    return !granted(1,18); // Here we use the granted
     // logic but without a shift. The not is because
     // flags are stored with reverse semantics.
   }
   void PermissionsI::setLocked(bool value, const Ice::Current& c) {
-    set(18,0,!value); // Here we use the granted
+    set(1,18,!value); // Here we use the granted
     // logic but without a shift. The not is because
     // flags are stored with reverse semantics.
   }
 
   bool PermissionsI::granted(int mask, int shift) {
-    return (perm1 & mask << shift) == mask << shift;
+    return (perm1 & (mask<<shift) ) == (mask<<shift);
   }
 
   void PermissionsI::set(int mask, int shift, bool on) {
     if (on) {
-      perm1 = perm1 | ( 0L | mask << shift );
+      perm1 = perm1 | ( 0L  | (mask<<shift) );
     } else {
-      perm1 = perm1 & ( -1L | mask<<shift );
+      perm1 = perm1 & ( -1L ^ (mask<<shift) );
     }
   }
 
