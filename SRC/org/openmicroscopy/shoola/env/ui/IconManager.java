@@ -442,6 +442,4 @@ public class IconManager
         super(registry, LookupNames.ICONS_FACTORY, relPaths);
     }
 
-	
-	
 }

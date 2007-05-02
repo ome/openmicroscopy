@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
@@ -147,9 +148,10 @@ class SplashScreenManager
 	{
 		container = c;
 		this.component = component;
-		view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), 
+		Image img = IconManager.getOMEImageIcon();
+		view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
 								VERSION);
-		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen());
+		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen(), img);
 		//viewTop = new SplashScreenLogo();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();
@@ -280,12 +282,12 @@ class SplashScreenManager
 			 container.exit();
 		     component.close();
 		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name)) {
-			//viewTop.toFront();
+			viewTop.toFront();
 			
 			//viewTop.setAlwaysOnTop(true);
 			//viewTop.setAlwaysOnTop(false);
 		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
-			//view.toFront();
+			view.toFront();
 			//view.setAlwaysOnTop(true);
 		}
 	}
@@ -320,9 +322,9 @@ class SplashScreenManager
 	 */
 	public void windowLostFocus(WindowEvent e)
 	{
+		//System.g
 		view.setAlwaysOnTop(false);
 		viewTop.setAlwaysOnTop(false);
-		
 	}
 
 }

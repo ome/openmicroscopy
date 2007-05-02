@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -113,13 +114,29 @@ public class ScreenLogo
 		addToLayer(progressBar);
 	}
 	
+	/** 
+	 * Sets the default for the window. 
+	 * 
+	 * @param frameIcon The icon associated to the frame.
+	 */
+	private void setProperties(Image frameIcon)
+	{
+		setIconImage(frameIcon);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		setUndecorated(true);
+		toFront();
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param title The title of the frame.
-	 * @param logo	The Frame's background logo. Mustn't be <code>null</code>.
+	 * @param title 	The title of the frame.
+	 * @param logo		The Frame's background logo. 
+	 * 					Mustn't be <code>null</code>.
+	 * @param frameIcon The image icon for the window.
 	 */
-	public ScreenLogo(String title, Icon logo)
+	public ScreenLogo(String title, Icon logo, Image frameIcon)
 	{
 		super(title);
 		if (logo == null)
@@ -129,10 +146,7 @@ public class ScreenLogo
 		setSize(d);
 		setPreferredSize(d);
 		buildGUI(logo);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
-		setUndecorated(true);
-		toFront();
+		setProperties(frameIcon);
 		addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -140,8 +154,8 @@ public class ScreenLogo
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				//firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
-				//					Boolean.TRUE);
+				firePropertyChange(MOVE_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
 			}
 		});
 	}
@@ -149,11 +163,12 @@ public class ScreenLogo
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param logo	The Frame's logo. Mustn't be <code>null</code>.
+	 * @param logo		The Frame's logo. Mustn't be <code>null</code>.
+	 * @param frameIcon The image icon for the window.
 	 */
-	public ScreenLogo(Icon logo)
+	public ScreenLogo(Icon logo, Image frameIcon)
 	{
-		this(null, logo);
+		this(null, logo, frameIcon);
 	}
 	
 	/**

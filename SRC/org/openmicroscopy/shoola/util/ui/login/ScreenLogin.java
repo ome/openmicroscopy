@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -459,15 +460,30 @@ public class ScreenLogin
 		else pass.requestFocus();
 	}
 
+	/** 
+	 * Sets the default for the window. 
+	 * 
+	 * @param frameIcon The icon associated to the frame.
+	 */
+	private void setProperties(Image frameIcon)
+	{
+		setIconImage(frameIcon);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		setUndecorated(true);
+		toFront();
+	}
+	
     /**
      * Creates a new instance.
      * 
      * @param title		The frame's title.
      * @param logo		The frame's background logo. 
      * 					Mustn't be <code>null</code>.
+     * @param frameIcon The image icon for the window.
      * @param version	The version of the software.
      */
-    public ScreenLogin(String title, Icon logo, String version)
+    public ScreenLogin(String title, Icon logo, Image frameIcon, String version)
     {
     	super();
     	setTitle(title);
@@ -482,10 +498,7 @@ public class ScreenLogin
 		initButtons();
 		initListeners();
 		buildGUI(logo, version);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(false);
-		setUndecorated(true);
-		toFront();
+		setProperties(frameIcon);
 		addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -493,8 +506,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				//firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-				//					Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
 				requestFocusOnField();
 			}
 		});
@@ -506,10 +519,11 @@ public class ScreenLogin
      * @param title		The frame's title.
      * @param logo		The frame's background logo. 
      * 					Mustn't be <code>null</code>.
+     * @param frameIcon The image icon for the window.
      */
-    public ScreenLogin(String title, Icon logo)
+    public ScreenLogin(String title, Icon logo, Image frameIcon)
     {
-    	this(title, logo, null);
+    	this(title, logo, frameIcon, null);
     }
     
     /**
@@ -517,21 +531,23 @@ public class ScreenLogin
      * 
      * @param logo		The frame's background logo. 
      * 					Mustn't be <code>null</code>.
+     * @param frameIcon The image icon for the window.
      * @param version	The version of the software.
      */
-    public ScreenLogin(Icon logo, String version)
+    public ScreenLogin(Icon logo, Image frameIcon, String version)
     {
-    	this(null, logo, version);
+    	this(null, logo, frameIcon, version);
     }
 
     /**
      * Creates a new instance.
      * 
-     * @param logo	The frame's background logo. Mustn't be <code>null</code>.
+     * @param logo		The frame's background logo. Mustn't be <code>null</code>.
+     * @param frameIcon The image icon for the window.
      */
-    public ScreenLogin(Icon logo)
+    public ScreenLogin(Icon logo, Image frameIcon)
     {
-    	this(null, logo, null);
+    	this(null, logo, frameIcon, null);
     }
     
     /**
