@@ -160,15 +160,17 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$cpp]     ${PojoI}::${PojoI}() {
 [$cpp]         loaded = true;
 [$cpp]         toggleCollectionsLoaded(true);
+[$cpp]         details = new omero::model::DetailsI();
 [$jav]         loaded = true;
 [$jav]         toggleCollectionsLoaded(true);
+[$jav]         details = new omero.model.DetailsI();
 [$jav]    }
 [$cpp]    }
 
 TOGGLE COLLECTIONS:
 
 [$jav]    public void toggleCollectionsLoaded(boolean load) {
-[$hdr]    void toggleCollectionsLoaded(bool load);
+[$hdr]    virtual void toggleCollectionsLoaded(bool load);
 [$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
 #foreach( $property in $pojo.propertyClosureForFullConstructor)
 #set(     $name = $pojo.getPropertyName($property))
@@ -231,12 +233,14 @@ UNLOADED CONSTRUCTOR BLOCK:
 [$hdr]     ${PojoI}(omero::RLongPtr idPtr, bool isLoaded = false);
 [$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) {
 [$cpp]      id = idPtr;
-[$cpp]      loaded = isLoaded; 
+[$cpp]      loaded = isLoaded;
+[$cpp]      if (loaded) details = new omero::model::DetailsI(); 
 [$cpp]      toggleCollectionsLoaded(isLoaded);
 [$cpp]    }
 [$jav]    public ${PojoI}(long id, boolean loaded) {
 [$jav]      this.id = new omero.RLong(false,id);
 [$jav]      this.loaded = loaded; 
+[$jav]      if (loaded) details = new omero.model.DetailsI();
 [$jav]    }
 
 UNLOAD BLOCK:
@@ -268,8 +272,8 @@ Id acccesors copied from other accessors below.
 [$jav]    }
 
 [$hdr]  public:
-[$hdr]    omero::RLongPtr getId();
-[$hdr]    void setId( omero::RLongPtr id );
+[$hdr]    virtual omero::RLongPtr getId();
+[$hdr]    virtual void setId( omero::RLongPtr id );
 
 [$cpp]    omero::RLongPtr ${PojoI}::getId() {
 [$cpp]        return id;
@@ -450,7 +454,7 @@ Unload
 [$jav]      ${unloadIfIsSet}
 [$jav]      ${property.name} = null;
 [$jav]    }
-[$hdr]      void unload${PropertyName}();
+[$hdr]      virtual void unload${PropertyName}();
 [$cpp]    void ${Pojo}I::unload${PropertyName}() {
 [$cpp]      ${unloadIfIsSet}
 [$cpp]      ${property.name} = ($cppType) 0;
@@ -471,8 +475,8 @@ the special set methods are added.
 [$jav]    }
 
 [$hdr]  $access:
-[$hdr]    $cppType $pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException);
-[$hdr]    void set$name($cppType _$property.Name) throw(omero::UnloadedEntityException);
+[$hdr]    virtual $cppType $pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException);
+[$hdr]    virtual void set$name($cppType _$property.Name) throw(omero::UnloadedEntityException);
 [$hdr]  public:
 
 [$cpp]    $cppType ${PojoI}::$pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException) {
@@ -495,7 +499,7 @@ One-to-many extras:
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
 [$jav]      return ${property.name}.size();
 [$jav]    }
-[$hdr]    Ice::Long sizeOf${PropertyName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual Ice::Long sizeOf${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]    Ice::Long ${PojoI}::sizeOf${PropertyName}( ) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
@@ -509,8 +513,8 @@ One-to-many extras:
 [$jav]      }
 [$jav]      return get${PropertyName}().iterator();
 [$jav]    }
-[$hdr]    $cppType::iterator begin${PropertyName}() throw(omero::UnloadedEntityException);
-[$hdr]    $cppType::iterator end${PropertyName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual $cppType::iterator begin${PropertyName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual $cppType::iterator end${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]    $cppType::iterator ${PojoI}::begin${PropertyName}() throw(omero::UnloadedEntityException){
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) {
@@ -534,7 +538,7 @@ One-to-many extras:
 [$jav]    }
 
          Here we don't have a vector<$cppType> since the type is typedef'd
-[$hdr]    $cppType copy${PropertyName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual $cppType copy${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]    $cppType ${PojoI}::copy${PropertyName}() throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
@@ -565,7 +569,7 @@ add single
 [$jav]      get${PropertyName}().add( target );
 [$jav]      target.$inverse = this;
 [$jav]    }
-[$hdr]    void add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -583,7 +587,7 @@ add set
 [$jav]        target.$inverse = this;
 [$jav]      }
 [$jav]    }
-[$hdr]    void add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -616,7 +620,7 @@ remove single
 [$jav]      get${PropertyName}().remove( target );
 [$jav]      target.$inverse = null;
 [$jav]    }
-[$hdr]    void remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -650,7 +654,7 @@ remove multiple
 [$jav]        ${property.name}.remove( elt );
 [$jav]      }
 [$jav]    }
-[$hdr]    void remove${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void remove${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::remove${elementName}Set($cppType targets) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -675,7 +679,7 @@ clear
 [$jav]      }
 [$jav]      ${property.name}.clear();
 [$jav]    }
-[$hdr]    void clear${PropertyName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual void clear${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::clear${PropertyName}() throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -710,7 +714,7 @@ have linked elements.
 [$jav]      link.link( ${order} );
 [$jav]      add${Link}( link, true );
 [$jav]    }
-[$hdr]    void link${linkedName}(${linkedName}Ptr addition) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void link${linkedName}(${linkedName}Ptr addition) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::link${linkedName}(${linkedName}Ptr addition) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -732,7 +736,7 @@ TODO: Should we check for nulls in other?
 [$jav]      }
 #end
 [$jav]    }
-[$hdr]    void add${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException);
+[$hdr]    virtual void add${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::add${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
@@ -749,7 +753,7 @@ TODO: Should we check for nulls in other?
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
 [$jav]      return null;
 [$jav]    }
-[$hdr]    std::vector<${linkedName}Ptr>::iterator linked${linkedName}() throw(omero::UnloadedEntityException);
+[$hdr]    virtual std::vector<${linkedName}Ptr>::iterator linked${linkedName}() throw(omero::UnloadedEntityException);
 [$cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}() throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      std::vector<${linkedName}Ptr>::iterator result;
@@ -785,9 +789,9 @@ TODO: Should these be <>I or not?
 [$jav]   errorIfUnloaded();
 [$jav]   return (${child}I) child;
 [$jav] }
-[$hdr] void link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException);
-[$hdr] ${parent}Ptr castParent() throw(omero::UnloadedEntityException);
-[$hdr] ${child}Ptr castChild() throw(omero::UnloadedEntityException);
+[$hdr] virtual void link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException);
+[$hdr] virtual ${parent}Ptr castParent() throw(omero::UnloadedEntityException);
+[$hdr] virtual ${child}Ptr castChild() throw(omero::UnloadedEntityException);
 [$cpp] void ${PojoI}::link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException) {
 [$cpp]   errorIfUnloaded();
 [$cpp]   setParent( parent );

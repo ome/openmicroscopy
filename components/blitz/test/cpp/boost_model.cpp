@@ -45,12 +45,15 @@ BOOST_AUTO_TEST_CASE( Unload )
   Fixture f;
   ImageIPtr img = new ImageI();
   BOOST_CHECK( img->loaded );
-  BOOST_CHECK( img->details != (DetailsPtr)0 );
+  img->details->owner;
+  // operator bool() is overloaded
+  BOOST_CHECK( img->details ); // details are auto instantiated
+  BOOST_CHECK( ! img->name ); // no other single-valued field is
   BOOST_CHECK( img->annotationsLoaded );
   BOOST_CHECK( img->annotations != (ImageAnnotationsSeq)0 );
   img->unload();
   BOOST_CHECK( ! (img->loaded) );
-  BOOST_CHECK( ! (img->details != (DetailsPtr)0) );
+  BOOST_CHECK( ! (img->details) );
   BOOST_CHECK( ! (img->annotationsLoaded) );
   BOOST_CHECK( ! (img->annotations != (ImageAnnotationsSeq)0) );
 }

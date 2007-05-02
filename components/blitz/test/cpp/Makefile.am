@@ -8,7 +8,7 @@ our_incl = -I../../src/cpp -I../../src/cpp/generated -I../../src/cpp/generated2
 
 
 if BOOST_TEST
-boost_SOURCES = boost_fixture.cpp boost_example.cpp boost_model.cpp
+boost_SOURCES = boost_fixture.cpp boost_example.cpp boost_model.cpp boost_perms.cpp
 boost_CXXFLAGS = -g -O0 $(our_incl)
 boost_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework $(our_libs)
 else

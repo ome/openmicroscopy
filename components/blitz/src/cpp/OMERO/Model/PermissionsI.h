@@ -21,7 +21,8 @@ class PermissionsI : public Permissions {
 
 protected:
     ~PermissionsI(); // protected as outlined in docs.
-
+    bool granted(int mask, int shift);
+    void set(int mask, int shift, bool value);
 public:
 
    /**
@@ -31,9 +32,22 @@ public:
     */
     PermissionsI();
     PermissionsI(omero::RLongPtr idPtr, bool isLoaded = false);
-    void unload(Ice::Current c);
+    void unload(const Ice::Current& c = Ice::Current());
+    bool isUserRead(const Ice::Current& c = Ice::Current());
+    bool isUserWrite(const Ice::Current& c = Ice::Current());
+    bool isGroupRead(const Ice::Current& c = Ice::Current());
+    bool isGroupWrite(const Ice::Current& c = Ice::Current());
+    bool isWorldRead(const Ice::Current& c = Ice::Current());
+    bool isWorldWrite(const Ice::Current& c = Ice::Current());
+    bool isLocked(const Ice::Current& c = Ice::Current());
+    void setUserRead(bool value, const Ice::Current& c = Ice::Current());
+    void setUserWrite(bool value, const Ice::Current& c = Ice::Current());
+    void setGroupRead(bool value, const Ice::Current& c = Ice::Current());
+    void setGroupWrite(bool value, const Ice::Current& c = Ice::Current());
+    void setWorldRead(bool value, const Ice::Current& c = Ice::Current());
+    void setWorldWrite(bool value, const Ice::Current& c = Ice::Current());
+    void setLocked(bool value, const Ice::Current& c = Ice::Current());
 
-  
     long getPerm1() {
         return  perm1 ;
     }
@@ -44,6 +58,9 @@ public:
     }
  
   };
+
+ typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
+
  }
 }
 #endif // PERMISSIONSI_H

@@ -16,10 +16,23 @@ module omero { module model {
 
 
 class Permissions
-
 {
-	//  long perm1;
- 	long perm1;
+    long perm1;
+    bool isUserRead();
+    bool isUserWrite();
+    bool isGroupRead();
+    bool isGroupWrite();
+    bool isWorldRead();
+    bool isWorldWrite();
+    bool isLocked();
+
+    void setUserRead(bool value);
+    void setUserWrite(bool value);
+    void setGroupRead(bool value);
+    void setGroupWrite(bool value);
+    void setWorldRead(bool value);
+    void setWorldWrite(bool value);
+    void setLocked(bool value);
 };
 
 }; };
