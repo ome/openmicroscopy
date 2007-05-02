@@ -8,6 +8,8 @@
 
 package omero.model;
 
+import ome.util.Utils;
+
 /**
  * Blitz wrapper around the {@link ome.model.internal.Permissions} class.
  * Currently, the internal representation is made public. (see the ZeroC thread
@@ -21,6 +23,10 @@ package omero.model;
  */
 public class PermissionsI extends Permissions implements ome.api.ModelBased
 {
+    public PermissionsI() {
+        Long l = (Long) Utils.internalForm(ome.model.internal.Permissions.DEFAULT);
+        this.perm1 = l == null ? -1L : l.longValue();
+    }
 
     public Long getPerm1() {
         return new Long(this.perm1);

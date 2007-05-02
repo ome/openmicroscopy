@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
@@ -59,7 +59,9 @@ import omero.sys.QueryParam;
 import omero.sys.Type;
 
 /**
- * Code-generated
+ * Responsible for the mapping of ome.* types to omero.* types and back again.
+ * Not all types are bidirectional, rather only those mappings are needed that
+ * actually appear in the blitz API.
  */
 public class IceMapper extends ome.util.ModelMapper implements ReverseModelMapper {
 
@@ -132,14 +134,17 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return k;
     }
 
-    public static Object convert(RType rt) {
+    public static Object convert(RType rt) throws omero.ApiUsageException {
         if (rt._null) return null;
             Field f;
             try {
                 f = rt.getClass().getField("val");
                 return f.get(rt);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                omero.ApiUsageException aue = new omero.ApiUsageException();
+                fillServerError(aue, e);
+                aue.message = "Cannot get value for "+rt+":"+aue.message;
+                throw aue;
             }
     }
 
@@ -169,7 +174,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return b;
     }
 
-    public static PlaneDef convert(omero.romio.PlaneDef def) {
+    public static PlaneDef convert(omero.romio.PlaneDef def) throws omero.ApiUsageException{
         PlaneDef pd = new PlaneDef(def.slice, def.t);
         switch (def.slice) {
             case XY.value:
@@ -182,7 +187,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
                 pd.setY(def.y);
                 break;
             default:
-                throw new IllegalArgumentException("Unknown slice for "+def);
+                omero.ApiUsageException aue = new omero.ApiUsageException();
+                aue.message = "Unknown slice for "+def;
+                throw aue;
         }
 
         return pd;
@@ -272,7 +279,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
                 klass = IObject.class;
                 break;
             default:
-                throw new IllegalArgumentException("Unknown type code:" + t);
+                omero.ApiUsageException aue = new omero.ApiUsageException();
+                aue.message = "Unknown type code for "+t;
+                throw aue;
         }
 
         ome.parameters.QueryParameter qp = new ome.parameters.QueryParameter(
@@ -356,7 +365,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         } else if (QueryParam.class.isAssignableFrom(source.getClass())) {
             return convert((QueryParam)source);
         } else {
-            throw new IllegalArgumentException("Don't know how to reverse "+source);
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Don't know how to reverse "+source;
+            throw aue;
         }
 
     }
@@ -371,8 +382,13 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * @param collection
      * @return
      */
-    public Collection reverse(Collection source) {
-        return reverse(source, source == null ? null : source.getClass());
+    public Collection reverse(Collection source) { // FIXME throws omero.ApiUsageException {
+        try {
+            return reverse(source, source == null ? null : source.getClass());
+        } catch (ApiUsageException aue) { // FIXME reverse can't throw ServerErrors!
+            convertAndThrow(aue);
+            throw new RuntimeException("should never reach this.");
+        }
     }
 
     /**
@@ -386,7 +402,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * @return
      * @see ticket:684
      */
-    public Collection reverse(Collection source, Class targetType) {
+    public Collection reverse(Collection source, Class targetType) throws omero.ApiUsageException {
 
         if (source == null) {
             return null;
@@ -399,8 +415,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             } else if (List.class.isAssignableFrom(targetType)) {
                 target = new ArrayList();
             } else {
-                throw new RuntimeException("Unknown collection type: "
-                        + targetType);
+                omero.ApiUsageException aue = new omero.ApiUsageException();
+                aue.message = "Unknown collection type "+targetType;
+                throw aue;
             }
             target2model.put(source, target);
             try {

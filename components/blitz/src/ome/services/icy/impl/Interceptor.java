@@ -7,77 +7,16 @@
 
 package ome.services.icy.impl;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import ome.api.IAdmin;
-import ome.api.IConfig;
-import ome.api.IPixels;
-import ome.api.IPojos;
-import ome.api.IQuery;
-import ome.api.ITypes;
-import ome.api.IUpdate;
-import ome.api.RawFileStore;
-import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
-import ome.api.ThumbnailStore;
-import ome.logic.HardWiredInterceptor;
-import ome.services.icy.fire.AopContextInitializer;
-import ome.services.icy.fire.Session;
 import ome.services.icy.util.IceMethodInvoker;
 import ome.services.icy.util.ServantHelper;
-import ome.services.icy.util.UnregisterServantMessage;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
-import omeis.providers.re.RenderingEngine;
-import omero.api.IAdminPrx;
-import omero.api.IAdminPrxHelper;
-import omero.api.IConfigPrx;
-import omero.api.IConfigPrxHelper;
-import omero.api.IPixelsPrx;
-import omero.api.IPixelsPrxHelper;
-import omero.api.IPojosPrx;
-import omero.api.IPojosPrxHelper;
-import omero.api.IQueryPrx;
-import omero.api.IQueryPrxHelper;
-import omero.api.ITypesPrx;
-import omero.api.ITypesPrxHelper;
-import omero.api.IUpdatePrx;
-import omero.api.IUpdatePrxHelper;
-import omero.api.RawPixelsStorePrx;
-import omero.api.RawPixelsStorePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.api.RenderingEnginePrxHelper;
-import omero.api.SimpleCallbackPrx;
-import omero.api.ThumbnailStorePrx;
-import omero.api.ThumbnailStorePrxHelper;
-import omero.api._IAdminOperations;
-import omero.api._IAdminTie;
-import omero.api._ServiceFactoryDisp;
 import omero.util.IceMapper;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
 /**
- * @author josh
+ * @author Josh Moore, josh at glencoesoftware.com
  * 
  */
 public class Interceptor implements MethodInterceptor {
