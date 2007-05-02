@@ -6,28 +6,44 @@
  *
  */
 
+#include <OMERO/Model/PermissionsI.h>
 #include <boost_fixture.h>
 
-using namespace omero::model;
-using namespace OMERO;
-using namespace omero;
-using namespace std;
-
-BOOST_AUTO_TEST_CASE( Permissions )
+BOOST_AUTO_TEST_CASE( Perm1 )
 {
   Fixture f;
-  PermissionsIPtr p = new PermissionsI();
+  omero::model::PermissionsIPtr p = new omero::model::PermissionsI();
 
   // The default
+  BOOST_CHECK( p->isUserRead() );
+  BOOST_CHECK( p->isUserWrite() );
+  BOOST_CHECK( p->isGroupRead() );
+  BOOST_CHECK( ! p->isGroupWrite() );
+  BOOST_CHECK( p->isWorldRead() );
+  BOOST_CHECK( ! p->isWorldWrite() );
+  BOOST_CHECK( ! p->isLocked() ); // flags reversed
+
+  // All off
+  p->perm1 = 0L;
   BOOST_CHECK( ! p->isUserRead() );
   BOOST_CHECK( ! p->isUserWrite() );
   BOOST_CHECK( ! p->isGroupRead() );
   BOOST_CHECK( ! p->isGroupWrite() );
   BOOST_CHECK( ! p->isWorldRead() );
   BOOST_CHECK( ! p->isWorldWrite() );
-  BOOST_CHECK( ! p->isGroupRead() );
-  BOOST_CHECK( ! p->isLocked() );
+  BOOST_CHECK( p->isLocked() ); // flags reversed
   
+  // All on
+  p->perm1 = -1L;
+  BOOST_CHECK( p->isUserRead() );
+  BOOST_CHECK( p->isUserWrite() );
+  BOOST_CHECK( p->isGroupRead() );
+  BOOST_CHECK( p->isGroupWrite() );
+  BOOST_CHECK( p->isWorldRead() );
+  BOOST_CHECK( p->isWorldWrite() );
+  BOOST_CHECK( ! p->isLocked() ); // flags reversed
+  
+  // Various swaps
   p->setUserRead(false);
   BOOST_CHECK( !p->isUserRead() );
   p->setGroupWrite(true);

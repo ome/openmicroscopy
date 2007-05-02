@@ -6,18 +6,23 @@
  * 
  */
 
-#include <OMERO/ModelI.h>
+#ifndef DETAILSI_H
+#define DETAILSI_H
+
+#include <OMERO/Model/Details.h>
+#include <OMERO/Model/ExperimenterI.h>
+#include <OMERO/Model/ExperimenterGroupI.h>
+#include <OMERO/Model/EventI.h>
+#include <OMERO/Model/ExternalInfoI.h>
+#include <OMERO/Model/PermissionsI.h>
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#ifndef DETAILSI_H
-#define DETAILSI_H
-
 namespace omero { namespace model {
 
-class DetailsI : public Details { 
+class DetailsI : virtual public Details { 
 
 protected:
     ~DetailsI(); // protected as outlined in docs.
@@ -86,6 +91,9 @@ public:
     }
  
   };
+
+  typedef IceUtil::Handle<DetailsI> DetailsIPtr;
+
  }
 }
 #endif // DETAILSI_H

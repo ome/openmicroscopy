@@ -6,14 +6,15 @@
  * 
  */
 
-#include <OMERO/Model.h>
+#ifndef PERMISSIONSI_H
+#define PERMISSIONSI_H
+
+#include <OMERO/Model/Permissions.h>
+#include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#ifndef PERMISSIONSI_H
-#define PERMISSIONSI_H
 
 namespace omero { namespace model {
 
@@ -27,7 +28,7 @@ namespace omero { namespace model {
    *  -- [is|set]Locked
    *
    */
-class PermissionsI : public Permissions { 
+class PermissionsI : virtual public Permissions { 
 
 protected:
     ~PermissionsI(); // protected as outlined in docs.
@@ -69,7 +70,7 @@ public:
  
   };
 
- typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
+  typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
 
  }
 }

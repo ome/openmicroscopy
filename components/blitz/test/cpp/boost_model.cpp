@@ -13,6 +13,14 @@ using namespace OMERO;
 using namespace omero;
 using namespace std;
 
+BOOST_AUTO_TEST_CASE( Virtual )
+{
+  ImagePtr img = new ImageI();
+  ImageIPtr imgI = new ImageI();
+  img->unload();
+  imgI->unload();
+}
+
 BOOST_AUTO_TEST_CASE( Toggle )
 {
   Fixture f;
@@ -40,40 +48,57 @@ BOOST_AUTO_TEST_CASE( UnloadedCtor )
   BOOST_CHECK( !(img->datasetLinksLoaded) );
 }
 
-BOOST_AUTO_TEST_CASE( Unload )
+BOOST_AUTO_TEST_CASE( UnloadCheckPtr )
 {
   Fixture f;
   ImageIPtr img = new ImageI();
   BOOST_CHECK( img->loaded );
-  img->details->owner;
   // operator bool() is overloaded
   BOOST_CHECK( img->details ); // details are auto instantiated
   BOOST_CHECK( ! img->name ); // no other single-valued field is
-  BOOST_CHECK( img->annotationsLoaded );
-  BOOST_CHECK( img->annotations != (ImageAnnotationsSeq)0 );
   img->unload();
-  BOOST_CHECK( ! (img->loaded) );
-  BOOST_CHECK( ! (img->details) );
-  BOOST_CHECK( ! (img->annotationsLoaded) );
-  BOOST_CHECK( ! (img->annotations != (ImageAnnotationsSeq)0) );
+  BOOST_CHECK( !img->loaded );
+  BOOST_CHECK( !img->details );
 }
 
+BOOST_AUTO_TEST_CASE( UnloadField )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->details );
+  img->unloadDetails();
+  BOOST_CHECK( ! img->details );
+}
+
+BOOST_AUTO_TEST_CASE( Sequences )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->annotationsLoaded );
+  img->annotations.push_back((ImageAnnotationPtr)0);
+  img->unload();
+  BOOST_CHECK( !img->annotationsLoaded );
+  img->annotations.push_back((ImageAnnotationPtr)0);
+}
 
 BOOST_AUTO_TEST_CASE( Accessors )
 {
   Fixture f;
   RStringPtr name = new CString("name");
   ImageIPtr img = new ImageI();
-  BOOST_CHECK( img->name == (RStringPtr)0 );
+  BOOST_CHECK( !img->name );
   img->name = name;
-  BOOST_CHECK( img->name != (RStringPtr)0 );
+  BOOST_CHECK( img->name );
   RStringPtr str = img->getName();
   BOOST_CHECK( str->val == "name" );
   BOOST_CHECK( str == name );
 
-  img->setName(new RString("name2",false));
+  img->setName(new RString(false, "name2"));
   BOOST_CHECK( img->getName()->val == "name2" );
   BOOST_CHECK( ! img->getName()->null );
+
+  img->unload();
+  BOOST_CHECK( !img->name );
   
 }
 
@@ -87,33 +112,78 @@ BOOST_AUTO_TEST_CASE( UnloadedAccessThrows )
 BOOST_AUTO_TEST_CASE( Iterators )
 {
   Fixture f;
-  Ice::Current curr;
+
+  DatasetIPtr d = new DatasetI();
   ImageIPtr image = new ImageI();
-  //    image->unload(curr);
-  //    image->loaded = true;
+  image->loaded = true;
+  image->linkDataset(d);
   ImageDatasetLinksSeq::iterator it= image->beginDatasetLinks();
+  int count = 0;
   for (;it != image->endDatasetLinks(); ++it) {    
-    cout << ".";
+    count++;
   }
-  cout << endl;
-  //throw "oops";
+  BOOST_CHECK( count == 1 );
 }
 
+BOOST_AUTO_TEST_CASE( ClearSet )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->pixelsLoaded );
+  img->addPixels( new PixelsI() );
+  BOOST_CHECK( 1==img->sizeOfPixels() );
+  img->clearPixels();
+  BOOST_CHECK( img->pixelsLoaded );
+  BOOST_CHECK( 0==img->sizeOfPixels() );
+}
+
+BOOST_AUTO_TEST_CASE( UnloadSet )
+{
+  Fixture f;
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->pixelsLoaded );
+  img->addPixels( new PixelsI() );
+  BOOST_CHECK( 1==img->sizeOfPixels() );
+  img->unloadPixels();
+  BOOST_CHECK( ! img->pixelsLoaded );
+  // Can't check size BOOST_CHECK( 0==img->sizeOfPixels() );
+}
+
+BOOST_AUTO_TEST_CASE( RemoveFromSet )
+{
+  Fixture f;
+  PixelsIPtr pix = new PixelsI();
+  ImageIPtr img = new ImageI();
+  BOOST_CHECK( img->pixelsLoaded );
+
+  img->addPixels( pix );
+  BOOST_CHECK( 1==img->sizeOfPixels() );
+
+  img->removePixels( pix );
+  BOOST_CHECK( 0==img->sizeOfPixels() );
+}
 
 BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
 {
   Fixture f;
+
   ExperimenterIPtr user = new ExperimenterI();
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
+
   map->id = new OMERO::CLong(1);
-  user->addGroupExperimenterMap( map, true );
-  group->addGroupExperimenterMap( map, true );
-  ExperimenterGroupExperimenterMapSeq::iterator beg = user->beginGroupExperimenterMap();
-  ExperimenterGroupExperimenterMapSeq::iterator end = user->endGroupExperimenterMap();
+  map->link(group,user);
+  user->addGroupExperimenterMap( map, false );
+  group->addGroupExperimenterMap( map, false );
+
+  typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it; 
+  egm_it beg = user->beginGroupExperimenterMap();
+  egm_it end = user->endGroupExperimenterMap();
+  int count = 0 ;
   for( ; beg != end; beg++ ) {
-    cout << (*beg)->id << endl;
+    ++count;
   }
+  BOOST_CHECK( count == 1 );
 
 }
 

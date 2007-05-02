@@ -10,8 +10,13 @@
 
 namespace omero { namespace model {
 
-  PermissionsI::PermissionsI() {}
   PermissionsI::~PermissionsI() {} 
+  PermissionsI::PermissionsI() : Permissions() {
+    perm1 = -1L;
+    setGroupWrite(false);
+    setWorldWrite(false);
+    setLocked(false);
+  }
   
   // shift 8; mask 4
   bool PermissionsI::isUserRead(const Ice::Current& c) {

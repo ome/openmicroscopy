@@ -11,7 +11,7 @@
 
 namespace omero { namespace model {
 
-  DetailsI::DetailsI() {}
+  DetailsI::DetailsI() : Details()  {}
   DetailsI::~DetailsI() {}
  
  }

@@ -62,6 +62,8 @@ DECLARATION BLOCK:
 $secondpassclassimports$importModify
 #end 
 [$hdr] \\\#include <OMERO/ClientErrors.h>
+[$hdr] \\\#include <OMERO/IObject.h>
+[$hdr] \\\#include <OMERO/Model/DetailsI.h>
 [$hdr] \\\#include <OMERO/Model/${Pojo}.h>
 [$hdr] \\\#include <OMERO/ModelI.h>
 
@@ -76,7 +78,7 @@ $secondpassclassimports$importModify
 
 [$hdr] namespace omero { 
 [$hdr]   namespace model {
-[$hdr]     class ${PojoI} : public ${Pojo} { 
+[$hdr]     class ${PojoI} : virtual public ${Pojo} { 
 
 [$cpp] \\\#include <OMERO/Model/${Pojo}I.h>
 [$cpp] namespace omero { 
@@ -157,7 +159,7 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$hdr]       ${PojoI}();
 
 [$jav]     public ${PojoI}() {
-[$cpp]     ${PojoI}::${PojoI}() {
+[$cpp]     ${PojoI}::${PojoI}() : ${Pojo}() {
 [$cpp]         loaded = true;
 [$cpp]         toggleCollectionsLoaded(true);
 [$cpp]         details = new omero::model::DetailsI();
@@ -231,7 +233,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 [$hdr]     // Id constructor which allows for the using instances as pointers.
 [$hdr]     //
 [$hdr]     ${PojoI}(omero::RLongPtr idPtr, bool isLoaded = false);
-[$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) {
+[$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) : ${Pojo}() {
 [$cpp]      id = idPtr;
 [$cpp]      loaded = isLoaded;
 [$cpp]      if (loaded) details = new omero::model::DetailsI(); 
@@ -346,7 +348,7 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name )" )
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
-#set( $unloadedCpp = "if (_${property.name} > ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
+#set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
 #set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
@@ -511,7 +513,7 @@ One-to-many extras:
 [$jav]      if (!${propLoaded}) {
 [$jav]        throwNullCollectionException("${property.name}");
 [$jav]      }
-[$jav]      return get${PropertyName}().iterator();
+[$jav]      return ${property.name}.iterator();
 [$jav]    }
 [$hdr]    virtual $cppType::iterator begin${PropertyName}() throw(omero::UnloadedEntityException);
 [$hdr]    virtual $cppType::iterator end${PropertyName}() throw(omero::UnloadedEntityException);
