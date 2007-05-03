@@ -1,5 +1,5 @@
 /*
- * roi.model.Attachment 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,7 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+
+import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Java imports
 
@@ -41,19 +45,14 @@ package org.openmicroscopy.shoola.util.ui.roi.model;
  * </small>
  * @since OME3.0
  */
-public class Attachment 
+public interface ROIFigure 
+	extends Figure
 {
-	private Object attachment;
-	
-	public Attachment(Object attachment)
-	{
-		this.attachment = attachment; 
-	}
-	
-	public Object getAttachment()
-	{
-		return attachment;
-	}
+	public void setROI(ROI roi);
+	public void setROIShape(ROIShape shape);
+	public ROI  getROI();
+	public ROIShape getROIShape();
+	public void calculateMeasurements();
 }
 
 

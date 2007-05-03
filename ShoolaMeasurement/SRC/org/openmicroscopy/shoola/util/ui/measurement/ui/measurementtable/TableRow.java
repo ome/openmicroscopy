@@ -1,5 +1,5 @@
 /*
- * roi.model.AttachmentKey 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable.TableRow 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,7 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable;
+
+import java.util.ArrayList;
 
 //Java imports
 
@@ -41,18 +43,28 @@ package org.openmicroscopy.shoola.util.ui.roi.model;
  * </small>
  * @since OME3.0
  */
-public class AttachmentKey 
+public class TableRow 
 {
-	String key;
+	ArrayList<Object> row;
 	
-	AttachmentKey(String key)
+	TableRow()
 	{
-		this.key = key;
+		row = new ArrayList<Object>();
 	}
 	
-	public int hashCode()
+	public void add(Object value)
 	{
-		return key.hashCode();
+		row.add(value);
+	}
+	
+	public Object get(int index)
+	{
+		return row.get(index);
+	}
+	
+	public void set(int index, Object value)
+	{
+		row.set(index, value);
 	}
 }
 

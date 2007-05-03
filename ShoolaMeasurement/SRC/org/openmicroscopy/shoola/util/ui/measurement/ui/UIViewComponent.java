@@ -62,13 +62,13 @@ public class UIViewComponent
 	implements PropertyChangeListener
 {
 	
-	private 	UIModel 		model;
-	private		UIControl		control;
+	private 	UIModel 			model;
+	private		UIControl			control;
 	
-	private 	CreationToolBar	creationTool;				
-	private 	ObjectManager	objectManager;
-	private		ObjectInspector objectInspector;
-	private		ObjectPalette 	objectPalette;
+	private 	CreationToolBar		creationTool;				
+	private 	ObjectManager		objectManager;
+	private		ObjectInspector 	objectInspector;
+	private		ObjectPalette 		objectPalette;
 	
 	public UIViewComponent(MeasurementModel measurementModel)
 	{

@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,7 +42,6 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
@@ -49,7 +49,6 @@ import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
-import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
@@ -58,11 +57,12 @@ import org.jhotdraw.draw.FigureSelectionListener;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.FIGURETYPE;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.INMICRONS;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes.ROIID;
+
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.ROIID;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.FIGURETYPE;
+import static org.openmicroscopy.shoola.util.ui.measurement.ui.util.UIUtils.setComponentSize;
 
 import org.openmicroscopy.shoola.util.ui.measurement.MeasurementModel;
 import org.openmicroscopy.shoola.util.ui.measurement.model.ChannelInfo;
@@ -72,8 +72,8 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseFi
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ExceptionHandler;
-import static org.openmicroscopy.shoola.util.ui.measurement.ui.util.UIUtils.setComponentSize;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROICreationException;
@@ -82,9 +82,6 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-
-
-
 
 /** 
  * 
@@ -195,35 +192,19 @@ public class UIModel
 		view.setScaleFactor(zoom);
 	}
 	
-	public void setFigureAttributes(Figure fig)
+	public void setFigureAttributes(ROIFigure fig)
 	{
 		FONT_SIZE.set(fig, 10.0);
 		TEXT_COLOR.set(fig, Color.orange);
 		STROKE_WIDTH.set(fig, 1.0);
 		FILL_COLOR.set(fig, new Color(220, 220, 220, 0));
-		INMICRONS.set(fig, false);
 		SHOWMEASUREMENT.set(fig, true);
 		MEASUREMENTTEXT_COLOUR.set(fig, new Color(255, 204, 102, 0));
 		STROKE_COLOR.set(fig, Color.WHITE);
-		if(fig instanceof MeasureRectangleFigure)
-			FIGURETYPE.set(fig, "Rectangle");
-		if(fig instanceof MeasureEllipseFigure)
-			FIGURETYPE.set(fig,  "Ellipse");
-		if(fig instanceof BezierFigure)
-		{
-			BezierFigure figure = (BezierFigure)fig;
-			if(figure.isClosed()==false)
-				FIGURETYPE.set(fig, "Scribble");
-			else
-				FIGURETYPE.set(fig,  "Polygon");
-		}
-		if(fig instanceof MeasureLineFigure || fig instanceof MeasureLineConnectionFigure)
-			FIGURETYPE.set(fig, "Line");
-		if(fig instanceof TextFigure)
-			FIGURETYPE.set(fig,  "Text");
+		
 	}
 
-	public void selectFigure(Figure figure)
+	public void selectFigure(ROIFigure figure)
 	{
 		view.clearSelection();
 		view.addToSelection(figure);
@@ -233,10 +214,10 @@ public class UIModel
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
 		while(figIterator.hasNext())
 		{
-			Figure fig = (Figure)figIterator.next();
+			ROIFigure fig = (ROIFigure)figIterator.next();
 			try
 			{
-				ROI roi = model.getROI(ROIID.get(fig));
+				ROI roi = model.getROI(fig.getROI().getID());
 				roiList.add(roi);
 			}
 			catch(Exception e)
@@ -249,6 +230,8 @@ public class UIModel
 		firePropertyChange(DrawingEventList.UIMODEL_FIGURESELECTED, null, 
 				roiList);
 	}
+
+	
 	
 	/* (non-Javadoc)
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
@@ -273,7 +256,7 @@ public class UIModel
 	{
 		try
 		{
-			addROI(e.getFigure());
+			addROI((ROIFigure)e.getFigure());
 		}
 		catch(Exception exception)
 		{
@@ -281,7 +264,7 @@ public class UIModel
 		}
 	}
 
-	public void addROI(Figure fig) throws 		ROICreationException, 
+	public void addROI(ROIFigure fig) throws 		ROICreationException, 
 												ROIShapeCreationException, 
 												NoSuchROIException
 	{
@@ -289,20 +272,44 @@ public class UIModel
 		setFigureAttributes(fig);
 		long id;
 		id = model.addROI(fig);
-		ROIID.set(fig, id);
+		ROIShape shape = fig.getROIShape();
+		setShapeAnnotations(shape);
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
+		ROIID.set(shape, id);
 		roiList.add(model.getROI(id));
 		firePropertyChange(DrawingEventList.get().UIMODEL_FIGUREADDED, null, 
 				roiList);
 	}
 	
-
+	private void setShapeAnnotations(ROIShape shape)
+	{
+		ROIFigure fig = shape.getFigure();
+		
+		if(fig instanceof MeasureRectangleFigure)
+			FIGURETYPE.set(shape, "Rectangle");
+		if(fig instanceof MeasureEllipseFigure)
+			FIGURETYPE.set(shape,  "Ellipse");
+		if(fig instanceof BezierFigure)
+		{
+			BezierFigure figure = (BezierFigure)fig;
+			if(figure.isClosed()==false)
+				FIGURETYPE.set(shape, "Scribble");
+			else
+				FIGURETYPE.set(shape,  "Polygon");
+		}
+		if(fig instanceof MeasureLineFigure || fig instanceof MeasureLineConnectionFigure)
+			FIGURETYPE.set(shape, "Line");
+		if(fig instanceof TextFigure)
+			FIGURETYPE.set(shape,  "Text");
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.DrawingListener#figureRemoved(org.jhotdraw.draw.DrawingEvent)
 	 */
 	public void figureRemoved(DrawingEvent e) 
 	{
-	    long id = ROIID.get(e.getFigure());
+		ROIFigure fig = (ROIFigure)e.getFigure();
+	    long id = fig.getROI().getID();
 	    try 
 	    {
 	    model.removeROIShape(id, currentView);
@@ -325,10 +332,10 @@ public class UIModel
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
 		while(figIterator.hasNext())
 		{
-			Figure fig = (Figure)figIterator.next();
+			ROIFigure fig = (ROIFigure)figIterator.next();
 			try
 			{
-				ROI roi = model.getROI(ROIID.get(fig));
+				ROI roi = model.getROI(fig.getROI().getID());
 				roiList.add(roi);
 			}
 			catch(Exception e)
@@ -370,9 +377,10 @@ public class UIModel
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.FigureListener#figureChanged(org.jhotdraw.draw.FigureEvent)
 	 */
-	public void figureChanged(FigureEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void figureChanged(FigureEvent e) 
+	{
+		ROIFigure fig = (ROIFigure)e.getFigure();
+		fig.calculateMeasurements();
 	}
 
 	/* (non-Javadoc)
@@ -389,6 +397,14 @@ public class UIModel
 	public void figureRequestRemove(FigureEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	/**
+	 * @return
+	 */
+	public TreeMap<Long, ROI> getROIMap() 
+	{
+		return model.getROIMap();
 	}
 
 }

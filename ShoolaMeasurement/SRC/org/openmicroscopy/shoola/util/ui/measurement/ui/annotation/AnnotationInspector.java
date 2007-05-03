@@ -1,5 +1,5 @@
 /*
- * roi.model.AttachmentMap 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.annotation.AnnotationInspector 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,16 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.ui.measurement.ui.annotation;
 
 //Java imports
-import java.util.HashMap;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.Attachment;
-import org.openmicroscopy.shoola.util.ui.roi.model.AttachmentKey;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 
 /** 
  * 
@@ -44,26 +46,35 @@ import org.openmicroscopy.shoola.util.ui.roi.model.AttachmentKey;
  * </small>
  * @since OME3.0
  */
-public class AttachmentMap 
+public class AnnotationInspector
+	extends JFrame
+	implements PropertyChangeListener
+	
 {
-	private static final int MAPSIZE = 11;
-	private HashMap<AttachmentKey, Attachment> attachmentMap;
+
+	private UIModel	model;
 	
-	public AttachmentMap()
+	public AnnotationInspector(UIModel model)
 	{
-		attachmentMap = new HashMap<AttachmentKey, Attachment>(MAPSIZE);
+		this.model = model;
+		buildUI();
 	}
 	
-	public void addAttachment(AttachmentKey key, Attachment attachment)
+	public void buildUI()
 	{
-		attachmentMap.put(key, attachment);
+		
+		
 	}
 	
-	public Attachment getAttachment(AttachmentKey key)
-	{
-		return attachmentMap.get(key);
-	}
 	
+	/* (non-Javadoc)
+	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 

@@ -29,12 +29,17 @@ import java.util.Map;
 import java.util.TreeMap;
 
 //Third-party libraries
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.ui.roi.model.attachment.Attachment;
+import org.openmicroscopy.shoola.util.ui.roi.model.attachment.AttachmentKey;
+import org.openmicroscopy.shoola.util.ui.roi.model.attachment.AttachmentMap;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 
 /** 
@@ -135,7 +140,7 @@ public class ROI
 		}
 	}
 	
-	public Figure getFigure(Coord3D coord) throws NoSuchShapeException
+	public ROIFigure getFigure(Coord3D coord) throws NoSuchShapeException
 	{
 		return getShape(coord).getFigure();
 	}

@@ -27,11 +27,13 @@ package org.openmicroscopy.shoola.util.ui.measurement.ui;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 
 /** 
@@ -59,11 +61,11 @@ public class UIControl
 		this.model = model;
 	}
 	
-	public void selectFigure(Figure fig)
+	public void selectFigure(ROIFigure fig)
 	{
 		model.selectFigure(fig);
 	}
-	
+		
 	/* (non-Javadoc)
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */

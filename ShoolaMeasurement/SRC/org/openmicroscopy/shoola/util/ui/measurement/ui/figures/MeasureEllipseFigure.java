@@ -26,18 +26,31 @@ package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.INMICRONS;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTRE;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 /** 
  * 
@@ -54,11 +67,17 @@ import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttribu
  */
 public class MeasureEllipseFigure
 	extends EllipseFigure
+	implements ROIFigure
 {
 	private	Rectangle2D bounds;
+	private ROI			roi;
+	private ROIShape 	shape;
+
 	public MeasureEllipseFigure()
 	{
 		super();
+		shape = null;
+		roi = null;
 	}
 
 	public void draw(Graphics2D g)
@@ -114,7 +133,9 @@ public class MeasureEllipseFigure
 	
 	public String addUnits(String str)
 	{
-		if(INMICRONS.get(this))
+		if(shape==null)
+			return str;
+		if(INMICRONS.get(shape))
 			return str+"\u00B5m\u00B2";
 		else
 			return str+"px\u00B2";
@@ -123,6 +144,86 @@ public class MeasureEllipseFigure
 	public double getArea()
 	{
 		return (ellipse.getHeight()/2)*(ellipse.getWidth()/2)*Math.PI;
-	}	
+	}
+
+	
+	public double getWidth()
+	{
+		return ellipse.getWidth();
+	}
+
+	public double getHeight()
+	{
+		return ellipse.getHeight();
+	}
+
+	public double getPerimeter()
+	{
+		if( ellipse.getWidth() == ellipse.getHeight())
+		{
+			return ellipse.getWidth()*2*Math.PI;
+		}
+		else
+		{
+		double a = Math.max(ellipse.getWidth(), ellipse.getHeight());
+		double b = Math.min(ellipse.getWidth(), ellipse.getHeight());
+		// approximation of c for ellipse. 
+		double c = 
+			Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
+		return c;
+		}
+	}
+
+	public Point2D getCentre()
+	{
+		return new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	 */
+	public ROI getROI() 
+	{
+		return roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	 */
+	public ROIShape getROIShape() 
+	{
+		return shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	 */
+	public void setROI(ROI roi) 
+	{
+		this.roi = roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	 */
+	public void setROIShape(ROIShape shape) 
+	{
+		this.shape = shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements()
+	{
+			if(shape==null)
+				return;
+			AREA.set(shape, getArea());
+			WIDTH.set(shape, getWidth());		
+			HEIGHT.set(shape, getHeight());		
+			PERIMETER.set(shape, getPerimeter());		
+			CENTRE.set(shape, getCentre());		
+	}
 }
 

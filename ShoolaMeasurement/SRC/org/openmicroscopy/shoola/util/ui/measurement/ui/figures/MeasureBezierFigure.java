@@ -30,16 +30,29 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.geom.BezierPath.Node;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.INMICRONS;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTRE;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 /** 
  * 
@@ -56,12 +69,17 @@ import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttribu
  */
 public class MeasureBezierFigure 
 	extends BezierFigure
+	implements ROIFigure
 {
 	private	Rectangle2D bounds;
+	private ROI			roi;
+	private ROIShape 	shape;
 	
 	public MeasureBezierFigure()
 	{
 		super();
+		shape = null;
+		roi = null;
 	}
 	
 	public MeasureBezierFigure(boolean closed)
@@ -69,27 +87,8 @@ public class MeasureBezierFigure
 		super(closed);
 	}
 	
-//	public void rationalise()
-//	{
-//		for( int j =0 ; j < path.size() ; j++)
-//		{
-//			Node n0= path.get(j);
-//			for( int i = 1 ; i < 3 ; i++)
-//			{
-//				double length = 0;
-//				length += Math.sqrt(Math.pow(n0.x[0]-n0.x[i],2) + Math.pow(n0.y[i]-n0.y[0],2));
-//				if(length > 1)
-//				{
-//					n0.x[i] = n0.x[0]+(n0.x[i]-n0.x[0])/Math.sqrt(Math.pow(n0.x[i]-n0.x[0],2));
-//					n0.y[i] = n0.y[0]+(n0.y[i]-n0.y[0])/Math.sqrt(Math.pow(n0.y[i]-n0.y[0],2));
-//				}
-//			}	
-//		}
-//	}
-
 	public void draw(Graphics2D g)
 	{
-		//rationalise();
 		super.draw(g);
 		if(SHOWMEASUREMENT.get(this))
 		{
@@ -176,7 +175,10 @@ public class MeasureBezierFigure
 	
 	public String addLineUnits(String str)
 	{
-		if(INMICRONS.get(this))
+		if(shape==null)
+			return str;
+		
+		if(INMICRONS.get(shape))
 			return str+"\u00B5m";
 		else
 			return str+"px";
@@ -184,7 +186,9 @@ public class MeasureBezierFigure
 	
 	public String addAreaUnits(String str)
 	{
-		if(INMICRONS.get(this))
+		if(shape==null)
+			return str;
+		if(INMICRONS.get(shape))
 			return str+"\u00B5m\u00B2";
 		else
 			return str+"px\u00B2";
@@ -201,6 +205,11 @@ public class MeasureBezierFigure
 			length += Math.sqrt(Math.pow(p1.getX()-p0.getX(),2)+Math.pow(p1.getX()-p0.getX(),2)); 
 		}
 		return length;
+	}
+	
+	public Point2D getCentre()
+	{
+		return path.getCenter();
 	}
 	
 	public double getArea()
@@ -222,6 +231,61 @@ public class MeasureBezierFigure
 		}
 		return Math.abs(area/2);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	 */
+	public ROI getROI() 
+	{
+		return roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	 */
+	public ROIShape getROIShape() 
+	{
+		return shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	 */
+	public void setROI(ROI roi) 
+	{
+		this.roi = roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	 */
+	public void setROIShape(ROIShape shape) 
+	{
+		this.shape = shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements() 
+	{
+		if(shape==null)
+			return;
+		if(CLOSED.get(this))
+		{
+			AREA.set(shape,getArea());
+			PERIMETER.set(shape, getLength());
+			CENTRE.set(shape, getCentre());
+		}
+		else
+		{
+			ArrayList<Double> lengthArray = new ArrayList<Double>();
+			lengthArray.add(getLength());
+			LENGTH.set(shape, lengthArray);
+			CENTRE.set(shape, getCentre());
+		}
+	}
+
 }
 
 

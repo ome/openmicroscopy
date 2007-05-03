@@ -48,7 +48,6 @@ import org.jhotdraw.draw.FigureEvent;
 import org.openmicroscopy.shoola.util.ui.colourpicker.*;
 import org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.measurement.model.DrawingEventList;
-import org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIControl;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ExceptionHandler;
@@ -106,9 +105,9 @@ public class ObjectInspector
 	public void createTableModel()
 	{
 		ArrayList<AttributeField> fieldList = new ArrayList<AttributeField>();
-		fieldList.add(new AttributeField(ROIAttributes.ROIID, "ID", false));
-		fieldList.add(new AttributeField(DrawingAttributes.FIGURETYPE, "Shape Type", false));
-		fieldList.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
+		//fieldList.add(new AttributeField(ROIAttributes.ROIID, "ID", false));
+		//fieldList.add(new AttributeField(DrawingAttributes.FIGURETYPE, "Shape Type", false));
+		//fieldList.add(new AttributeField(DrawingAttributes.TEXT, "Text", true));
 		fieldList.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Text Colour", false));
 		fieldList.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", false));
 		fieldList.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", false));

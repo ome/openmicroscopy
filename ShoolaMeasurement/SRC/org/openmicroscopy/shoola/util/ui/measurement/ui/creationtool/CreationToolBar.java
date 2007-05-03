@@ -28,10 +28,12 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
 
@@ -53,6 +55,7 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseFi
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable.MeasurementTable;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ChannelComboBox;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.UIUtils;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
@@ -80,8 +83,8 @@ public class CreationToolBar
 	private 	ButtonGroup 	group;
 	private		DrawingEditor	editor;					
 	
-	private		JButton			selectionButton;
-	private		JButton			rectangleButton;	
+	private 	JButton			saveBtn;
+	private 	MeasurementTable measurementTable;
 	
 	public CreationToolBar(UIModel model, UIControl control, DrawingEditor editor)
 	{
@@ -125,17 +128,18 @@ public class CreationToolBar
 				labels);
 	}
 
-	private void createActiveChannel()
+	private void createSaveBtn()
 	{
-//		activeChannel = new ChannelComboBox(model.getChannelInfo());
-//		UIUtils.setComponentSize(activeChannel, new Dimension(150,30));
-//		activeChannel.addActionListener(new AbstractAction()
-//		{
-//			public void actionPerformed(ActionEvent e)
-//			{
-//				control.setCoord3D(new Coord3D(activeChannel.getSelectedIndex(), model.getCoord3D().t, model.getCoord3D().z));
-//			}
-//		});	
+		saveBtn = new JButton("Save ROI");
+		saveBtn.setAction(new AbstractAction()
+		{
+
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				measurementTable = new MeasurementTable(model);
+				measurementTable.setVisible(true);
+			}
+		});
 	}
 
 	private void createUI()
@@ -145,9 +149,10 @@ public class CreationToolBar
 		this.setResizable(false);
 		this.setLayout(new FlowLayout());
 		this.setSize(new Dimension(450,65));
-		createActiveChannel();
+		createSaveBtn();
 		createToolset();
 //		this.getContentPane().add(activeChannel);
+		this.getContentPane().add(saveBtn);
 		this.getContentPane().add(toolBar);
 		
 	}

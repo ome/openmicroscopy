@@ -28,18 +28,31 @@ package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.RectangleFigure;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.INMICRONS;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTRE;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 /** 
  * 
@@ -56,12 +69,18 @@ import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttribu
  */
 public class MeasureRectangleFigure
 	extends RectangleFigure
+	implements ROIFigure
 {
 	private	Rectangle2D bounds;
+	private ROI			roi;
+	private ROIShape 	shape;
+
 	
 	public MeasureRectangleFigure()
 	{
 		super();
+		roi = null;
+		shape = null;
 	}
 
 	
@@ -85,8 +104,6 @@ public class MeasureRectangleFigure
 					
 		}
 	}
-
-
 				
 	public Rectangle2D.Double getDrawingArea()
 	{
@@ -121,7 +138,9 @@ public class MeasureRectangleFigure
 
 	public String addUnits(String str)
 	{
-		if(INMICRONS.get(this))
+		if(shape==null)
+			return str;
+		if(INMICRONS.get(shape))
 			return str+"\u00B5m\u00B2";
 		else
 			return str+"px\u00B2";
@@ -132,7 +151,74 @@ public class MeasureRectangleFigure
 	{
 		return rectangle.getWidth()*rectangle.getHeight();
 	}
-	
+
+	public double getWidth()
+	{
+		return rectangle.getWidth();
+	}
+
+	public double getHeight()
+	{
+		return rectangle.getHeight();
+	}
+
+	public double getPerimeter()
+	{
+		return rectangle.getWidth()*2+rectangle.getHeight()*2;
+	}
+
+	public Point2D getCentre()
+	{
+		return new Point2D.Double(rectangle.getCenterX(), rectangle.getCenterY());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	 */
+	public ROI getROI() 
+	{
+		return roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	 */
+	public ROIShape getROIShape() 
+	{
+		return shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	 */
+	public void setROI(ROI roi) 
+	{
+		this.roi = roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	 */
+	public void setROIShape(ROIShape shape) 
+	{
+		this.shape = shape;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements()
+	{
+			if(shape==null)
+				return;
+			AREA.set(shape, getArea());
+			WIDTH.set(shape, getWidth());		
+			HEIGHT.set(shape, getHeight());		
+			PERIMETER.set(shape, getPerimeter());		
+			CENTRE.set(shape, getCentre());		
+	}
+
 }
 
 

@@ -46,6 +46,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.util.ui.measurement.model.DrawingEventList;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIControl;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ExceptionHandler;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
@@ -132,7 +133,7 @@ public class ObjectManager
 	private void objectIDSelected(int index)
 	{
 		if(fireEvent)
-			control.selectFigure((Figure)tableModel.getRow(index));
+			control.selectFigure((ROIFigure)tableModel.getRow(index));
 	}
 		
 	/* (non-Javadoc)

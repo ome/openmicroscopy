@@ -104,6 +104,21 @@ public class ImageModel
 		micronsPixelZ = z;
 	}
 	
+	public double getMicronsPixelX()
+	{
+		return micronsPixelX;
+	}
+
+	public double getMicronsPixelY()
+	{
+		return micronsPixelY;
+	}
+
+	public double getMicronsPixelZ()
+	{
+		return micronsPixelZ;
+	}
+
 	public void setImageDimensions(double w, double h)
 	{
 		width = w;

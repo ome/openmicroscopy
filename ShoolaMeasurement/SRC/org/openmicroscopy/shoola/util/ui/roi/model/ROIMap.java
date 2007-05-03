@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.util.ui.roi.model;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.TreeMap;
+
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
@@ -69,6 +71,11 @@ public class ROIMap
 		roiCoordMap.add(roi);
 	}
 
+	public TreeMap<Long, ROI>  getROIMap()
+	{
+		return roiIDMap.getROIMap();
+	}
+	
 	public ROI getROI(long id) throws NoSuchROIException
 	{
 		return roiIDMap.getROI(id);

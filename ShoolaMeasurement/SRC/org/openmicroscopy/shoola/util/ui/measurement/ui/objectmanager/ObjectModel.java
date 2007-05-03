@@ -32,9 +32,6 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.FIGUREID;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.FIGURETYPE;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes.ROIID;
 
 /** 
  * 
@@ -130,9 +127,9 @@ public class ObjectModel
         	switch(col)
         	{
         	case 0:
-        		return ROIID.get(fig)+"";
+     //   		return ROIID.get(fig)+"";
         	case 1:
-        		return (String)FIGURETYPE.get(fig);
+      ///  		return (String)FIGURETYPE.get(fig);
         	case 2:
         		return (String)TEXT.get(fig);
         	case 3:
@@ -147,10 +144,10 @@ public class ObjectModel
         	switch(col)
         	{
         	case 0:
-        		FIGUREID.set(fig, (String)value);
+       // 		FIGUREID.set(fig, (String)value);
         		break;
         	case 1:
-        		FIGURETYPE.set(fig, (String)value);
+      //  		FIGURETYPE.set(fig, (String)value);
         		break;
         	case 2:
         		TEXT.set(fig, (String)value);

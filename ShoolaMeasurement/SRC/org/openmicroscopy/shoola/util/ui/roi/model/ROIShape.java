@@ -30,11 +30,13 @@ import java.util.HashSet;
 import java.util.Map;
 
 //Third-party libraries
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 
 /** 
@@ -56,7 +58,7 @@ public class ROIShape
 	private	Coord3D				coord;
 	private Rectangle2D			boundingBox;
 	
-	private Figure				figure;
+	private ROIFigure			figure;
 	
 	/**
 	 * Annotations are stored according to a key, object mapping, just like the 
@@ -75,14 +77,16 @@ public class ROIShape
 		this.parent = parent;
 		this.coord = coord;
 		this.boundingBox = (Rectangle2D) shape.getBoundingBox().clone();
-		this.figure = (Figure) shape.getFigure().clone();
+		this.figure = (ROIFigure) shape.getFigure().clone();
 	}
 	
-	public ROIShape(ROI parent, Coord3D coord, Figure figure, Rectangle2D boundingBox)
+	public ROIShape(ROI parent, Coord3D coord, ROIFigure figure, Rectangle2D boundingBox)
 	{
 		this.parent = parent;
 		this.coord = coord;
 		this.figure = figure;
+		this.figure.setROIShape(this);
+		this.figure.setROI(parent);
 		this.boundingBox = boundingBox;
 	}
 	
@@ -101,7 +105,7 @@ public class ROIShape
 		return boundingBox;
 	}
 	
-	public Figure getFigure()
+	public ROIFigure getFigure()
 	{
 		return figure;
 	}
@@ -110,7 +114,6 @@ public class ROIShape
 	{
 		return parent;
 	}
-
        
     public void setAnnotation(AnnotationKey key, Object newValue) {
         if (forbiddenAnnotations == null
@@ -128,16 +131,11 @@ public class ROIShape
     public void setAnnotationEnabled(AnnotationKey key, boolean b) 
     {
         if (forbiddenAnnotations == null) 
-        {
         	forbiddenAnnotations = new HashSet<AnnotationKey>();
-        }
         if (b) 
-        {
         	forbiddenAnnotations.remove(key);
-        } else 
-        {
+         else 
         	forbiddenAnnotations.add(key);
-        }
     }
     
     public boolean isAnnotationEnabled(AnnotationKey key) 
@@ -148,17 +146,13 @@ public class ROIShape
     public void basicSetAnnotations(Map<AnnotationKey, Object> map) 
     {
         for (Map.Entry<AnnotationKey, Object> entry : map.entrySet()) 
-        {
             basicSetAnnotation(entry.getKey(), entry.getValue());
-        }
     }
     
     public void setAnnotations(Map<AnnotationKey, Object> map) 
     {
         for (Map.Entry<AnnotationKey, Object> entry : map.entrySet()) 
-        {
             setAnnotation(entry.getKey(), entry.getValue());
-        }
     }
     
     public Map<AnnotationKey, Object> getAnnotation() 
@@ -173,11 +167,9 @@ public class ROIShape
      */
     public void basicSetAnnotation(AnnotationKey key, Object newValue) 
     {
-        if (forbiddenAnnotations == null
-                || ! forbiddenAnnotations.contains(key)) 
-        {
+        if (forbiddenAnnotations == null 
+        	|| ! forbiddenAnnotations.contains(key)) 
         	annotations.put(key, newValue);
-        }
     }
     
     /**

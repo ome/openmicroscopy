@@ -20,16 +20,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.ui.roi.model.annotation;
 
 
 //Java imports
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.jhotdraw.draw.AttributeKey;
 
 //Third-party libraries
 
@@ -51,6 +55,39 @@ import java.util.Set;
 public class AnnotationKeys {
 	public static final AnnotationKey<String> BASIC_TEXT = 
 		new AnnotationKey<String>("BasicTextAnnotation", "");
+	public static final AnnotationKey<Double> AREA = 
+		new AnnotationKey<Double>("MesurementArea", 0.0);
+	public static final AnnotationKey<Double> PERIMETER = 
+		new AnnotationKey<Double>("MeasurementPerimeter", 0.0);
+	public static final AnnotationKey<Double> VOLUME = 
+		new AnnotationKey<Double>("MesurementVolume", 0.0);
+	public static final AnnotationKey<ArrayList<Double>> ANGLE = 
+		new AnnotationKey<ArrayList<Double>>("MeasurementAngle", null);
+	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
+		new AnnotationKey<ArrayList<Double>>("MeasurementLength", null);
+	public static final AnnotationKey<Point2D> CENTRE= 
+		new AnnotationKey<Point2D>("MeasurementCentre", null);
+	public static final AnnotationKey<Point2D> STARTPOINT= 
+		new AnnotationKey<Point2D>("MeasurementStartPoint", null);
+	public static final AnnotationKey<Point2D> ENDPOINT= 
+		new AnnotationKey<Point2D>("MeasurementEndPoint", null);
+	public static final AnnotationKey<Double> WIDTH = 
+		new AnnotationKey<Double>("MeasurementWidth", null);
+	public static final AnnotationKey<Double> HEIGHT = 
+		new AnnotationKey<Double>("MeasurementHeight", null);
+	public static final AnnotationKey<Boolean> INMICRONS = 
+		new AnnotationKey<Boolean>("MeasurementInMicrons", false);
+	public static final AnnotationKey<Double> MICRONSPIXELX = 
+		new AnnotationKey<Double>("MeasurementMicronsPixelX", 0.0);
+	public static final AnnotationKey<Double> MICRONSPIXELY = 
+		new AnnotationKey<Double>("MeasurementMicronsPixelY", 0.0);
+	public static final AnnotationKey<Double> MICRONSPIXELZ = 
+		new AnnotationKey<Double>("MeasurementMicronsPixelZ", 0.0);
+	public static final AnnotationKey<Long> ROIID = 
+		new AnnotationKey<Long>("RegionOfInterestID", null);
+	public static final AnnotationKey<String> FIGURETYPE = 
+		new AnnotationKey<String>("FigureType", null);
+	
 	
 	 /**
      * A set with all attributes defined by this class.

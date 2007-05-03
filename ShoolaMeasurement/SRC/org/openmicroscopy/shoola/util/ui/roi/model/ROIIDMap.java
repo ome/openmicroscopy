@@ -70,6 +70,11 @@ public class ROIIDMap
 		roiMap.put(id, roi);
 	}
 	
+	public TreeMap<Long, ROI> getROIMap()
+	{
+		return roiMap;
+	}
+	
 	public ROI getROI(long id) throws NoSuchROIException
 	{
 		try 

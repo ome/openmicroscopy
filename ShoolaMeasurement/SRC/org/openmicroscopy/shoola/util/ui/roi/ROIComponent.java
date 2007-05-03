@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.roi;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -77,6 +78,11 @@ public 	class ROIComponent
 	public ROI createROI() 						throws 	ROICreationException
 	{
 		return roiCollection.createROI();
+	}
+	
+	public TreeMap<Long, ROI>  getROIMap()
+	{
+		return roiCollection.getROIMap();
 	}
 	
 	public ROI getROI(long id) throws NoSuchROIException

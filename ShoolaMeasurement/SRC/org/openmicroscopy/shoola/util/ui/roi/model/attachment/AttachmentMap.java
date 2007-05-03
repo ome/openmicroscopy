@@ -1,5 +1,5 @@
 /*
- * measurement.model.DrawingPropertiesList 
+ * roi.model.AttachmentMap 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,17 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.model;
-
+package org.openmicroscopy.shoola.util.ui.roi.model.attachment;
 
 //Java imports
-import java.awt.Color;
+import java.util.HashMap;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.roi.model.attachment.Attachment;
+import org.openmicroscopy.shoola.util.ui.roi.model.attachment.AttachmentKey;
 
 /** 
  * 
@@ -45,35 +44,26 @@ import org.jhotdraw.draw.AttributeKeys;
  * </small>
  * @since OME3.0
  */
-public class DrawingAttributes  
-	extends AttributeKeys 
+public class AttachmentMap 
 {
-	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
-		new AttributeKey<Boolean>("ShowMeasurement", true);
-	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
-		new AttributeKey<Color>("MeasurementTextColour", Color.black);
+	private static final int MAPSIZE = 11;
+	private HashMap<AttachmentKey, Attachment> attachmentMap;
 	
-	private DrawingAttributes()
+	public AttachmentMap()
 	{
-	    // no code req'd
+		attachmentMap = new HashMap<AttachmentKey, Attachment>(MAPSIZE);
 	}
-
-	public static DrawingAttributes get()
-	{	
-		if (ref == null)
-			 // it's ok, we can call this constructor
-			ref = new DrawingAttributes();		
-		return ref;
-	}
-
-	public Object clone()
-		throws CloneNotSupportedException
+	
+	public void addAttachment(AttachmentKey key, Attachment attachment)
 	{
-		throw new CloneNotSupportedException(); 
-		 // that'll teach 'em
+		attachmentMap.put(key, attachment);
 	}
-
-	private static DrawingAttributes ref;
+	
+	public Attachment getAttachment(AttachmentKey key)
+	{
+		return attachmentMap.get(key);
+	}
+	
 }
 
 

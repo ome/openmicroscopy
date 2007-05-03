@@ -20,11 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.ui.roi.model.annotation;
 
 //Java imports
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
+
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Third-party libraries
 

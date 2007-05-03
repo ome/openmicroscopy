@@ -1,5 +1,5 @@
 /*
- * measurement.model.ROIAttributes 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable.AttributeAnnoationField 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,15 +20,15 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.model;
+package org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable;
+
 
 //Java imports
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
 
 /** 
  * 
@@ -43,39 +43,18 @@ import org.jhotdraw.draw.AttributeKeys;
  * </small>
  * @since OME3.0
  */
-public class ROIAttributes 
-	extends AttributeKeys
+public class AnnotationField 
 {
-	public static final AttributeKey<Long> ROIID = 
-		new AttributeKey<Long>("ROIID", null);
-	public static final AttributeKey<Double> ROISHAPEAREA = 
-		new AttributeKey<Double>("ROIShapeArea", null);
-	public static final AttributeKey<Double> ROISHAPELENGTH = 
-		new AttributeKey<Double>("ROIShapeLength", null);
-	public static final AttributeKey<Double> ROISHAPEANGLE = 
-		new AttributeKey<Double>("ROIShapeAngle", null);
-	
-	private ROIAttributes()
+	public AnnotationKey 	key;
+	public String 			fieldName;
+	public boolean 			editable;
+		
+	public AnnotationField(AnnotationKey key, String fieldName, boolean editable)
 	{
-	    // no code req'd
+		this.key = key;
+		this.fieldName = fieldName;
+		this.editable = editable;
 	}
-
-	public static ROIAttributes get()
-	{	
-		if (ref == null)
-			 // it's ok, we can call this constructor
-			ref = new ROIAttributes();		
-		return ref;
-	}
-
-	public Object clone()
-		throws CloneNotSupportedException
-	{
-		throw new CloneNotSupportedException(); 
-		 // that'll teach 'em
-	}
-
-	private static ROIAttributes ref;
 }
 
 

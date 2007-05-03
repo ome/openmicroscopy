@@ -31,17 +31,23 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.LineFigure;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.INMICRONS;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes.ROISHAPEANGLE;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes.ROISHAPELENGTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.ANGLE;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 /** 
  * 
@@ -58,14 +64,19 @@ import static org.openmicroscopy.shoola.util.ui.measurement.model.ROIAttributes.
  */
 public class MeasureLineFigure
 	extends LineFigure
+	implements ROIFigure
 {
 	private ArrayList<Rectangle2D> boundsArray = new ArrayList<Rectangle2D>();
 	private ArrayList<Double> lengthArray = new ArrayList<Double>();
 	private ArrayList<Double> angleArray = new ArrayList<Double>();
-	
+	private ROI			roi;
+	private ROIShape 	shape;
+
 	public MeasureLineFigure()
 	{
 		super();
+		shape = null;
+		roi = null;
 	}
 
 	public void draw(Graphics2D g)
@@ -145,7 +156,9 @@ public class MeasureLineFigure
 	
 	public String addUnits(String str)
 	{
-		if(INMICRONS.get(this))
+		if(shape==null)
+			return str;
+		if(INMICRONS.get(shape))
 			return str+"\u00B5m";
 		else
 			return str+"px";
@@ -229,6 +242,77 @@ public class MeasureLineFigure
 						Math.sqrt(p1.getX()*p1.getX()+p1.getY()*p1.getY());
 		return adotb/normab;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	 */
+	public ROI getROI() 
+	{
+		return roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	 */
+	public ROIShape getROIShape() 
+	{
+		return shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	 */
+	public void setROI(ROI roi) 
+	{
+		this.roi = roi;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	 */
+	public void setROIShape(ROIShape shape) 
+	{
+		this.shape = shape;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements() 
+	{
+		if(shape==null)
+			return;
+		lengthArray.clear();
+		angleArray.clear();
+		if(getPointCount()==2)
+		{
+			double angle = getAngle(0, 1);
+			if(angle>90)
+				angle = Math.abs(angle-180);
+			angleArray.add(angle);
+			ANGLE.set(shape, angleArray);
+			lengthArray.add(getLength(0, 1));
+			LENGTH.set(shape, lengthArray);
+		}
+		else
+		{
+			for( int x = 1 ; x < this.getPointCount()-1; x++)
+			{
+				double angle = getAngle(x-1, x, x+1);
+				angleArray.add(angle);
+			}
+			for( int x = 1 ; x < this.getPointCount(); x++)
+			{
+				double length = getLength(x-1, x);
+				lengthArray.add(length);
+			}
+			ANGLE.set(shape, angleArray);
+			LENGTH.set(shape, lengthArray);
+		}
+	}
+		
+	
+
 }
 
 
