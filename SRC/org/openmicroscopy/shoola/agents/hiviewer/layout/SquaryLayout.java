@@ -99,17 +99,20 @@ class SquaryLayout
             return;
         }
 
+        Object[] children = sorter.sortArray(node.getChildrenDisplay());
         //Finally do layout.
-        ImageDisplay[] children = 
-            LayoutUtils.sortChildrenByPrefWidth(node, false);
+        //ImageDisplay[] children = 
+        //    LayoutUtils.sortChildrenByPrefWidth(node, false);
         Dimension d;
         int maxY = 0;
         int x = 0, y = 0;
+        ImageDisplay child;
         for (int i = 0; i < children.length; i++) {
-            d = children[i].getPreferredSize();
-            children[i].setBounds(x, y, d.width, d.height);
+        	child = (ImageDisplay) children[i];
+            d = child.getPreferredSize();
+            child.setBounds(x, y, d.width, d.height);
             //children[i].setVisible(true);
-            children[i].setCollapsed(false);
+            child.setCollapsed(false);
             if (x+d.width <= browserW) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 

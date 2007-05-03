@@ -227,9 +227,9 @@ public class LayoutUtils
         
         Rectangle pBounds = node.getBounds();
         n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
-        if (pBounds.width != 0) {
-        	int m = pBounds.width/maxDim.width;
-            n = m;
+        if (pBounds.width != 0) { 
+        	//lay out the children when resizing the parent
+        	n = pBounds.width/maxDim.width;
         }
         
         
