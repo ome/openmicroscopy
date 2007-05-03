@@ -383,12 +383,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * @return
      */
     public Collection reverse(Collection source) { // FIXME throws omero.ApiUsageException {
-        try {
-            return reverse(source, source == null ? null : source.getClass());
-        } catch (ApiUsageException aue) { // FIXME reverse can't throw ServerErrors!
-            convertAndThrow(aue);
-            throw new RuntimeException("should never reach this.");
-        }
+    	return reverse(source, source == null ? null : source.getClass());
     }
 
     /**
@@ -402,7 +397,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
      * @return
      * @see ticket:684
      */
-    public Collection reverse(Collection source, Class targetType) throws omero.ApiUsageException {
+    public Collection reverse(Collection source, Class targetType) { // FIXME throws omero.ApiUsageException {
 
         if (source == null) {
             return null;
@@ -415,9 +410,10 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             } else if (List.class.isAssignableFrom(targetType)) {
                 target = new ArrayList();
             } else {
-                omero.ApiUsageException aue = new omero.ApiUsageException();
-                aue.message = "Unknown collection type "+targetType;
-                throw aue;
+                //omero.ApiUsageException aue = new omero.ApiUsageException();
+                //aue.message = "Unknown collection type "+targetType;
+                //throw aue;
+		throw new InternalException("Unknown collection type "+targetType);
             }
             target2model.put(source, target);
             try {

@@ -12,8 +12,9 @@ using namespace std;
 
 namespace OMERO {
   
-  client::client(int& argc, char* argv[]) {
-    ic = Ice::initialize(argc, argv);
+  client::client(int& argc, char* argv[],
+		 const Ice::InitializationData& id) {
+    ic = Ice::initialize(argc, argv, id);
     ObjectFactoryPtr of = new ObjectFactory();
     of->registerObjectFactory(ic);
   }

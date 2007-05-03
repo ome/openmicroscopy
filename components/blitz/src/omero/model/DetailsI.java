@@ -104,7 +104,7 @@ public class DetailsI
         target.putAt(ome.model.internal.Details.UPDATEEVENT, (ome.model.meta.Event) mapper.reverse( (ome.api.ModelBased) this.getUpdateEvent() ) );
         target.putAt(ome.model.internal.Details.EXTERNALINFO, (ome.model.meta.ExternalInfo) mapper.reverse( (ome.api.ModelBased) this.getExternalInfo() ) );
         PermissionsI sourceP = this.getPermissions();
-        target.putAt(ome.model.internal.Details.PERMISSIONS, ome.util.Utils.toPermissions(sourceP.getPerm1()));
+        target.putAt(ome.model.internal.Details.PERMISSIONS, sourceP==null?new ome.model.internal.Permissions():ome.util.Utils.toPermissions(sourceP.getPerm1()));
         return target;
     }
 

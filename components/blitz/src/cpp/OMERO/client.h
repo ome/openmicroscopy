@@ -55,7 +55,8 @@ namespace OMERO {
      * the ICE_CONFIG environment property). Command-line arguments
      * with the reserved prefixes, however, override all other values.
      */
-    client(int& argc, char* argv[]);
+    client(int& argc, char* argv[], 
+	   const Ice::InitializationData& id = Ice::InitializationData());
 
     /*
      * Destroys the session and the communicator instances.
