@@ -41,7 +41,6 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
@@ -332,32 +331,6 @@ class HiViewerControl
     }
     
     /**
-     * Brings up on screen the selected node. The nodes containing the child
-     * are visited i.e. parent then grandparent all the way up to the root node.
-     * 
-     * @param childBounds   The bounds of the selected node.
-     * @param parent        The node containing the child.
-     * @param isRoot        <code>true</code> if its the root node, 
-     *                      <code>false</code> otherwise.   
-     */
-    private void scrollToNode(Rectangle childBounds, ImageDisplay parent,
-                                boolean isRoot)
-    {
-        JScrollPane dskDecorator = parent.getDeskDecorator();
-        Rectangle viewRect = dskDecorator.getViewport().getViewRect();
-        if (!viewRect.contains(childBounds)) {
-            JScrollBar vBar = dskDecorator.getVerticalScrollBar();
-            JScrollBar hBar = dskDecorator.getHorizontalScrollBar();
-            vBar.setValue(childBounds.y);
-            hBar.setValue(childBounds.x);
-        }
-        if (!isRoot) {
-            ImageDisplay node = parent.getParentDisplay();
-            scrollToNode(childBounds, node, (node.getParentDisplay() == null));       
-        }      
-    }
-    
-    /**
      * Creates a new instance.
      * The {@link #initialize(HiViewerWin) initialize} method 
      * should be called straight after to link this Controller to the other
@@ -410,9 +383,28 @@ class HiViewerControl
     {
         if (node == null) throw new IllegalArgumentException("No node.");
         ImageDisplay parent = node.getParentDisplay();
-        if (parent != null)
-            scrollToNode(node.getBounds(), parent,
-                    (parent.getParentDisplay() == null)); 
+    	int x = 0;
+    	int y = 0;
+    	ImageDisplay n = parent;
+    	Rectangle viewRect, nBounds;
+    	JScrollPane dskDecorator;
+    	Rectangle bounds = node.getBounds();
+    	while (parent != null) {
+    		n = parent;
+    		dskDecorator = parent.getDeskDecorator();
+    		viewRect = dskDecorator.getViewport().getViewRect();
+    		nBounds = n.getBounds();
+    		x += nBounds.x;
+    		y += nBounds.y;
+    		if (!viewRect.contains(bounds)) {
+    			dskDecorator.getVerticalScrollBar().setValue(bounds.y);
+    			dskDecorator.getHorizontalScrollBar().setValue(bounds.x);
+    		}
+    		parent = parent.getParentDisplay();
+		}
+    	dskDecorator = n.getDeskDecorator();
+    	dskDecorator.getVerticalScrollBar().setValue(y+bounds.y);
+		dskDecorator.getHorizontalScrollBar().setValue(x+bounds.x);
     }
     
     /**

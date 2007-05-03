@@ -115,6 +115,8 @@ class GridCanvas
                 } else { //just paint rectangle.
                 	g2D.setColor(BACKGROUND);
                 	g2D.drawRect(x, y, w-1, h-1);
+                	//g2D.setColor(getBackground());
+                    g2D.drawString(channel.getName(), x+2, y+height);
                 }
             }
             x = 0;

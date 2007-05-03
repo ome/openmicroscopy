@@ -92,7 +92,7 @@ public class CreateTopContainerAction
                 setEnabled(false);
                 break;
             default:
-                setEnabled(true);
+            	setEnabled(model.isForCurrentUser());
                 break;
         }
     }
@@ -110,14 +110,14 @@ public class CreateTopContainerAction
         } else {
             switch (browser.getBrowserType()) {
                 case Browser.PROJECT_EXPLORER:
-                    setEnabled(true);
+                    setEnabled(model.isForCurrentUser());
                     name = NAME_PROJECT; 
                     nodeType = CreateCmd.PROJECT;
                     putValue(Action.SHORT_DESCRIPTION, 
                             UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
                     break;
                 case Browser.CATEGORY_EXPLORER:
-                    setEnabled(true);
+                	setEnabled(model.isForCurrentUser());
                     name = NAME_CATEGORY_GROUP; 
                     nodeType = CreateCmd.CATEGORY_GROUP;
                     putValue(Action.SHORT_DESCRIPTION, 

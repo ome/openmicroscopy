@@ -35,7 +35,10 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -81,7 +84,9 @@ public class ExitApplicationAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        model.closeWindow();
+    	model.cancel();
+    	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        bus.post(new ExitApplication());
     }
 
 }

@@ -350,7 +350,7 @@ class TinyPaneUI
      */
     public void mouseReleased(MouseEvent me)
     {
-        borderListener.mouseReleased(me);
+       borderListener.mouseReleased(me);
     }
 
     /** 

@@ -592,4 +592,12 @@ public interface TreeViewer
 	 */
 	public void setRollOver(boolean rollOver);
 	
+	/**
+	 * Returns <code>true</code> if this {@link TreeViewer} is
+	 * for the user currently logged in, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isForCurrentUser();
+	
 }

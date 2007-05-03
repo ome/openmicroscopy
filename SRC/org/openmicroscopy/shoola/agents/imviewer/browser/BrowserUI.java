@@ -223,7 +223,7 @@ class BrowserUI
 				if (w < 0) w = -w;
 				x = bounds.x-w/2;
 			}
-			if (deltaY  < 0 && blockIncrement)
+			if (deltaY < 0 && blockIncrement)
 				y = vBar.getValue()+vBar.getBlockIncrement();
 			else {
 				int h = viewRect.height-bounds.height;

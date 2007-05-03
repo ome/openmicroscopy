@@ -491,6 +491,7 @@ class AnnotatorEditorView
             number += list.size();
             data = ((AnnotationData) list.get(0)).getOwner();
             owner = new OwnerNode(data);
+            owner.setNumberOfAnnotations(list.size());
             dtm.insertNodeInto(owner, root, root.getChildCount());
             buildTreeNode(owner, list, dtm);
             if (userDetails.getId() == id.intValue()) currentUser = owner;
@@ -502,7 +503,9 @@ class AnnotatorEditorView
         	dtm.insertNodeInto(currentUser, root, root.getChildCount());
         	buildTreeNode(currentUser, null, dtm);
         }
-        treeDisplay.setSelectionPath(new TreePath(currentUser.getPath()));
+        TreePath path = new TreePath(currentUser.getPath());
+        treeDisplay.setSelectionPath(path);
+        treeDisplay.expandPath(path);
         setComponentsEnabled(true);
         String text = number+AnnotatorUtil.COMMENT;
         if (number > 1) text += "s";
@@ -633,4 +636,5 @@ class AnnotatorEditorView
 		}
         return toRemove;
 	}
+	
 }

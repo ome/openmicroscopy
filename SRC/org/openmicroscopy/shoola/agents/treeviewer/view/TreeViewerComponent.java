@@ -394,11 +394,10 @@ class TreeViewerComponent
         if (TreeViewerFactory.isLastViewer()) {
         	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
             bus.post(new ExitApplication());
-        } else {
-        	discard();
-        }
-    }
+        } else discard();
 
+    }
+    
     /**
      * Implemented as specified by the {@link TreeViewer} interface.
      * @see TreeViewer#removeObject(TreeImageDisplay)
@@ -1168,6 +1167,19 @@ class TreeViewerComponent
             throw new IllegalStateException(
                     "This method cannot be invoked in the DISCARDED state.");
 		model.setRollOver(rollOver);
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#isForCurrentUser()
+     */
+	public boolean isForCurrentUser()
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            	"This method cannot be invoked in the DISCARDED state.");
+		long userID = model.getUserDetails().getId();
+		return (userID == model.getRootID());
 	}
     
 }

@@ -163,7 +163,7 @@ class BorderListener
      */
     public void mousePressed(MouseEvent e)
     {
-        Point p = SwingUtilities.convertPoint((Component)e.getSource(), 
+        Point p = SwingUtilities.convertPoint((Component) e.getSource(), 
                     e.getX(), e.getY(), null);
         xView = e.getX();
         yView = e.getY();

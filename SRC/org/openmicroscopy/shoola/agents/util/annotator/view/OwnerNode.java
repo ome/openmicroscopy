@@ -50,6 +50,9 @@ class OwnerNode
 	extends DefaultMutableTreeNode
 {
 	
+	/** The number of annotations made by the user hosted by this node. */
+	private int numberOfAnnotations;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -61,7 +64,16 @@ class OwnerNode
 		if (ho == null)
 			throw new NullPointerException("No experimenter.");
 		setUserObject(ho);
+		numberOfAnnotations = 0;
 	}
+	
+	/**
+	 * Sets the number of annotations that belongs to the user hosted by 
+	 * this node.
+	 * 
+	 * @param n The value to set.
+	 */
+	void setNumberOfAnnotations(int n) { numberOfAnnotations = n; }
 	
 	/**
 	 * Returns the id of the experimenter.
@@ -82,7 +94,8 @@ class OwnerNode
 		ExperimenterData data = (ExperimenterData) getUserObject();
 		String n = "Name not available"; //TODO: REMOVE ASAP
         try {
-        	n = data.getFirstName()+" "+data.getLastName();
+        	n = data.getFirstName()+" "+data.getLastName()+
+        					" ["+numberOfAnnotations+"]";
         } catch (Exception e) {}
 		return n; 
 	}

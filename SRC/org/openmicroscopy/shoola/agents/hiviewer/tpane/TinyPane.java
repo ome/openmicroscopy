@@ -284,7 +284,6 @@ public class TinyPane
      */
 	void notifyEndMoving()
 	{
-		System.err.println(getBounds());
 		firePropertyChange(END_MOVING_PROPERTY, null, this);
 	}
 	

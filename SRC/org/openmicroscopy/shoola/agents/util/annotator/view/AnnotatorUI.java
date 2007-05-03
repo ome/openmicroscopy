@@ -419,13 +419,13 @@ class AnnotatorUI
             List list;
             ExperimenterData data;
             OwnerNode owner;
-            
             while (i.hasNext()) {
                 id = (Long) i.next();
                 list = (List) annotations.get(id);
                 number += list.size();
                 data = ((AnnotationData) list.get(0)).getOwner();
                 owner = new OwnerNode(data);
+                owner.setNumberOfAnnotations(list.size());
                 dtm.insertNodeInto(owner, root, root.getChildCount());
                 buildTreeNode(owner, list, dtm);
                 if (userDetails.getId() == id.intValue()) currentUser = owner;
@@ -439,7 +439,9 @@ class AnnotatorUI
         	dtm.insertNodeInto(currentUser, root, root.getChildCount());
         	buildTreeNode(currentUser, null, dtm);
         }
-        ownerTree.setSelectionPath(new TreePath(currentUser.getPath()));
+        TreePath path = new TreePath(currentUser.getPath());
+        ownerTree.setSelectionPath(path);
+        ownerTree.expandPath(path);
         //setComponentsEnabled(true);
         String text = number+AnnotatorUtil.COMMENT;
         if (number > 1) text += "s";
