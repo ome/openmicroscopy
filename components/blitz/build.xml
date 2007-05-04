@@ -30,19 +30,16 @@
 	<target name="compile" depends="generate" unless="skip.compile">
 		<hard-wire file="ome/services/icy/fire/SessionManagerI.java"
 		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
-		<tempfile property="src.tmp" prefix="omero"/>
-		<mkdir dir="${src.tmp}"/>
-  		<copy todir="${src.tmp}">
-    		  <fileset dir="${src.dir}">
-      		    <exclude name="ome/services/icy/fire/SessionManagerI.java"/>
-    		  </fileset>
-  		</copy>
 		<myjavac>
+		    <exclude name="**/SessionManagerI.java"/>
 		    <src path="${src.dest}"/>
-		    <src path="${src.tmp}"/>
+		    <src path="${src.dir}"/>
 		</myjavac>
-		<delete dir="${src.tmp}"/>
-		<delete file="${src.dest}/ome/services/icy/fire/SessionManagerI.java"/>
+		<myjavac>
+		    <include name="**/SessionManagerI.java"/>
+		    <src path="${src.dest}"/>
+		</myjavac>
+	<delete file="${src.dest}/ome/services/icy/fire/SessionManagerI.java"/>
 	</target>
 
 	<target name="install" depends="lifecycle.install,standalone"/>
