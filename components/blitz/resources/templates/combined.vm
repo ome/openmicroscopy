@@ -568,14 +568,14 @@ add single
 [$jav]    public void add${elementName}(${elementName} target) throws omero.UnloadedEntityException {
 [$jav]      errorIfUnloaded();
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]      get${PropertyName}().add( target );
+[$jav]      ${property.name}.add( target );
 [$jav]      target.$inverse = this;
 [$jav]    }
 [$hdr]    virtual void add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
 [$cpp]    void ${PojoI}::add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]      get${PropertyName}().push_back( target );
+[$cpp]      ${property.name}.push_back( target );
 [$cpp]      target->$inverse = this;
 [$cpp]    }
 
@@ -584,7 +584,7 @@ add set
 [$jav]    public void add${elementName}Set(Collection<${elementName}> targets) throws omero.UnloadedEntityException {
 [$jav]      errorIfUnloaded();
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]      get${PropertyName}().addAll( targets );
+[$jav]      ${property.name}.addAll( targets );
 [$jav]      for( ${elementName} target : targets) {
 [$jav]        target.$inverse = this;
 [$jav]      }
@@ -593,10 +593,10 @@ add set
 [$cpp]    void ${PojoI}::add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]      $cppType::iterator loc = get${PropertyName}().end();
+[$cpp]      $cppType::iterator loc = ${property.name}.end();
 [$cpp]      $cppType::iterator beg = targets.begin(); 
 [$cpp]      $cppType::iterator end = targets.end(); 
-[$cpp]      get${PropertyName}().insert(loc,beg,end);
+[$cpp]      ${property.name}.insert(loc,beg,end);
 [$cpp]      for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
 [$cpp]        ${elementName}Ptr target = *it;
 [$cpp]        target->$inverse = this;
@@ -619,7 +619,7 @@ remove single
 [$jav]    public void remove${elementName}(${elementName} target) throws omero.UnloadedEntityException {
 [$jav]      errorIfUnloaded();
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]      get${PropertyName}().remove( target );
+[$jav]      ${property.name}.remove( target );
 [$jav]      target.$inverse = null;
 [$jav]    }
 [$hdr]    virtual void remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
@@ -778,10 +778,10 @@ CLASS-LEVEL EXTRA METHODS:
 
 TODO: Should these be <>I or not?
 
-[$jav] public void link(${parent} parent, ${child} child) throws omero.UnloadedEntityException {
+[$jav] public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
 [$jav]   errorIfUnloaded();
-[$jav]   setParent( parent );
-[$jav]   setChild( child );
+[$jav]   setParent( _parent );
+[$jav]   setChild( _child );
 [$jav] }
 [$jav] public ${parent} parent() throws omero.UnloadedEntityException {
 [$jav]   errorIfUnloaded();
@@ -794,18 +794,18 @@ TODO: Should these be <>I or not?
 [$hdr] virtual void link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException);
 [$hdr] virtual ${parent}Ptr castParent() throw(omero::UnloadedEntityException);
 [$hdr] virtual ${child}Ptr castChild() throw(omero::UnloadedEntityException);
-[$cpp] void ${PojoI}::link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException) {
+[$cpp] void ${PojoI}::link(${parent}Ptr _parent, ${child}Ptr _child) throw(omero::UnloadedEntityException) {
 [$cpp]   errorIfUnloaded();
-[$cpp]   setParent( parent );
-[$cpp]   setChild(  child  );
+[$cpp]   setParent( _parent );
+[$cpp]   setChild(  _child  );
 [$cpp] }
 [$cpp] ${parent}Ptr ${PojoI}::castParent() throw(omero::UnloadedEntityException) {
 [$cpp]   errorIfUnloaded();
-[$cpp]   return ${parent}Ptr::dynamicCast( getParent() );
+[$cpp]   return ${parent}Ptr::dynamicCast( parent );
 [$cpp] }
 [$cpp] ${child}Ptr ${PojoI}::castChild() throw(omero::UnloadedEntityException) {
 [$cpp]   errorIfUnloaded();
-[$cpp]   return ${child}Ptr::dynamicCast( getChild() );
+[$cpp]   return ${child}Ptr::dynamicCast( child );
 [$cpp] }
 #end
 
