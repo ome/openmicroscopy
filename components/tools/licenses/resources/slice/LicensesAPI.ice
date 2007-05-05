@@ -10,7 +10,7 @@
 #define LicensesAPI
 
 #include <Ice/BuiltinSequences.ice>
-#include <OMERO/Error.ice>
+#include <OMERO/ServerErrors.ice>
 
 module omero { 
   module licenses {     
