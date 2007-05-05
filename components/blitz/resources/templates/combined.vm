@@ -496,6 +496,14 @@ One-to-many extras:
 
 #if( $hasSet || $hasLink )
 
+[$jav]    public boolean is${PropertyName}Loaded() {
+[$jav]      return ${propLoaded};
+[$jav]    }
+[$hdr]    virtual bool is${PropertyName}Loaded();
+[$cpp]    bool ${PojoI}::is${PropertyName}Loaded( ) {
+[$cpp]      return ${propLoaded};
+[$cpp]    }
+
 [$jav]    public long sizeOf${PropertyName}() throws omero.UnloadedEntityException {
 [$jav]      errorIfUnloaded();
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${property.name}");
@@ -755,8 +763,8 @@ TODO: Should we check for nulls in other?
 [$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
 [$jav]      return null;
 [$jav]    }
-[$hdr]    virtual std::vector<${linkedName}Ptr>::iterator linked${linkedName}() throw(omero::UnloadedEntityException);
-[$cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}() throw(omero::UnloadedEntityException) {
+[$hdr]    virtual std::vector<${linkedName}Ptr>::iterator linked${linkedName}Iterator() throw(omero::UnloadedEntityException);
+[$cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}Iterator() throw(omero::UnloadedEntityException) {
 [$cpp]      errorIfUnloaded();
 [$cpp]      std::vector<${linkedName}Ptr>::iterator result;
 [$cpp]      return result;

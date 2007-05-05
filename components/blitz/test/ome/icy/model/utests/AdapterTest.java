@@ -6,8 +6,14 @@
  */
 package ome.icy.model.utests;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import ome.model.annotations.ProjectAnnotation;
@@ -19,7 +25,36 @@ import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.RenderingDef;
+import ome.util.builders.PojoOptions;
+import omero.JArray;
+import omero.JBool;
+import omero.JClass;
+import omero.JDouble;
+import omero.JFloat;
+import omero.JInt;
+import omero.JList;
+import omero.JLong;
+import omero.JObject;
+import omero.JSet;
+import omero.JString;
+import omero.JTime;
+import omero.RBool;
+import omero.RClass;
+import omero.RDouble;
+import omero.RFloat;
+import omero.RInt;
+import omero.RList;
+import omero.RLong;
+import omero.RObject;
+import omero.RString;
+import omero.RTime;
+import omero.RType;
+import omero.constants.POJOCOUNTS;
+import omero.constants.POJOEXPERIMENTER;
+import omero.constants.POJOLEAVES;
 import omero.model.DatasetI;
+import omero.model.IObject;
+import omero.model.ImageI;
 import omero.model.PlaneSlicingContextI;
 import omero.model.ProjectAnnotationI;
 import omero.model.ProjectDatasetLinkI;
@@ -211,6 +246,91 @@ public class AdapterTest extends TestCase {
         //This is why you should use the accessors!
         //assertTrue(p.sizeOfDatasetLinks()<0);
 
+    }
+
+    @Test
+    public void testParameterMapAndPojoOptions() throws Exception {
+        PojoOptions po = new PojoOptions();
+        po.leaves();
+        po.exp(1L);
+        po.countFields(new String[]{"a","b"});
+
+        RList rl = new RList();
+        rl.val = Arrays.<RType>asList(new JString("a"),new JString("b"));
+
+        Map<String, RType> map = new HashMap<String, RType>();
+        map.put(POJOCOUNTS.value, rl);
+        map.put(POJOLEAVES.value, new JBool(true));
+        map.put(POJOEXPERIMENTER.value, new JLong(1L));
+
+        IceMapper mapper = new IceMapper();
+        Map reversed = (Map) mapper.reverse(map);
+        Long l = (Long) reversed.get(POJOEXPERIMENTER.value);
+        assertEquals(l,po.getExperimenter());
+        Boolean b = (Boolean) reversed.get(POJOLEAVES.value);
+        assertEquals(b,Boolean.valueOf(po.isLeaves()));
+        // FIXME Unsupported. No existing field on the objets
+        // Would need to be cnverted to an array
+        List c = (List) reversed.get(POJOCOUNTS.value);
+        assertTrue(c.contains("a"));
+    }
+
+    @Test
+    public void testRTypes() throws Exception {
+        IceMapper mapper = new IceMapper();
+        // Nulls
+        assertNull( mapper.convert(new JString()) );
+        assertNull( mapper.convert(new RString(true,"")) );
+        assertNull( mapper.convert(new JBool()) );
+        assertNull( mapper.convert(new RBool(true,false)) );
+        assertNull( mapper.convert(new JInt()) );
+        assertNull( mapper.convert(new RInt(true,1)) );
+        assertNull( mapper.convert(new JLong()) );
+        assertNull( mapper.convert(new RLong(true,0L)) );
+        assertNull( mapper.convert(new JDouble()) );
+        assertNull( mapper.convert(new RDouble(true,0.0)) );
+        assertNull( mapper.convert(new JClass()) );
+        assertNull( mapper.convert(new RClass(true,"")) );
+        assertNull( mapper.convert(new JFloat()) );
+        assertNull( mapper.convert(new RFloat(true,0.0f)) );
+        assertNull( mapper.convert(new JObject()) );
+        assertNull( mapper.convert(new RObject(true,null)) );
+        assertNull( mapper.convert(new JTime()) );
+        assertNull( mapper.convert(new RTime(true,null)) );
+        assertNull( mapper.convert(new JList()) );
+        assertNull( mapper.convert(new RList(true,new ArrayList<RType>())) );
+        //
+        assertEquals("a", mapper.convert(new JString("a")) );
+        assertEquals(1L, mapper.convert(new JLong(1L)) );
+        assertEquals(1, mapper.convert(new JInt(1)) );
+        assertEquals(1.0, mapper.convert(new JDouble(1.0)) );
+        assertEquals(1.0f, mapper.convert(new JFloat(1.0f)) );
+        assertEquals(true, mapper.convert(new JBool(true)) );
+        assertEquals(Image.class, mapper.convert(new JClass("Image")) );
+        IObject obj = new ImageI(1L,false);
+        Image img = (Image) mapper.convert(new JObject(obj));
+        assertEquals(img.getId(),Long.valueOf(obj.id.val));
+        JTime time = new JTime(1L);
+        Timestamp ts = (Timestamp) mapper.convert(time);
+        assertEquals(ts.getTime(),time.val.val);
+        JArray jarr = new JArray(new JString("A") );
+        String[] strings = (String[]) mapper.convert(jarr);
+        assertTrue( strings[0].equals("A" ));
+        JList jlist = new JList(Arrays.<RType>asList(new JString("L")));
+        List stringList = (List) mapper.convert(jlist);
+        assertTrue( stringList.contains("L"));
+        JSet jset = new JSet(new HashSet<RType>(Arrays.<RType>asList(new JString("S"))));
+        Set stringSet = (Set) mapper.convert(jset);
+        assertTrue( stringSet.contains("S"));
+    }
+
+    @Test
+    public void testMapsAreProperlyDispatched() throws Exception {
+        IceMapper mapper = new IceMapper();
+        Map m = new HashMap();
+        m.put("a",new JString("a"));
+        Map reversed = mapper.reverse(m);
+        assertTrue(reversed.get("a").equals("a"));
     }
 
 }

@@ -31,9 +31,6 @@ module omero {
     ["java:type:java.util.ArrayList"] 
     sequence<omero::model::Image> ImageList;
 
-    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"] 
-    sequence<long> LongList;
-
     ["java:type:java.util.ArrayList<String>:java.util.List<String>"] 
     sequence<string> StringSet;
 
@@ -111,14 +108,14 @@ module omero {
 
     interface IPojos extends ServiceInterface
     {
-      idempotent IObjectList loadContainerHierarchy(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
-      idempotent IObjectList findContainerHierarchies(string rootType, omero::api::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
-      idempotent AnnotationMap findAnnotations(string rootType, omero::api::LongList rootIds, omero::api::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
-      idempotent IObjectList findCGCPaths(omero::api::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
-      idempotent ImageList findImages(string rootType, omero::api::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent AnnotationMap findAnnotations(string rootType, omero::sys::LongList rootIds, omero::sys::LongList annotatorIds, omero::sys::ParamMap options) throws ServerError;
+      idempotent IObjectList findCGCPaths(omero::sys::LongList imageIds, string algo, omero::sys::ParamMap options) throws ServerError;
+      idempotent ImageList findImages(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
       idempotent ImageList findUserImages(omero::sys::ParamMap options) throws ServerError;
       idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
-      idempotent CountMap getCollectionCount(string type, string property, omero::api::LongList ids, omero::sys::ParamMap options) throws ServerError;
+      idempotent CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
       idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
       omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
       IObjectList createDataObjects(IObjectList dataObjects, omero::sys::ParamMap options) throws ServerError;

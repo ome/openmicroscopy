@@ -90,6 +90,21 @@ module omero {
   {
     string val;
   };
+
+  /*
+   * Extends RString and simply provides runtime
+   * information to the server that this string
+   * is intended as a class parameter. Used especially
+   * by omero::system::ParamMap (OMERO/System.ice) 
+   *
+   * Usage:
+   *   omero::RString s = ...; // from service
+   *   if (!s.null && s.val.equals("foo")) { ... }
+   */
+  class RClass extends RString
+  {
+  };
+
   
   /*
    * Usage:
@@ -111,8 +126,26 @@ module omero {
     omero::model::IObject val;
   };
 
+  ["java:type:java.util.ArrayList<RType>:java.util.List<RType>"] 
+  sequence<RType> RTypeSeq;
 
+  class RCollection extends RType
+  {
+    RTypeSeq val;
+  };
+
+  class RArray extends RCollection
+  {
+  };
+
+  class RList extends RCollection
+  {
+  };
+
+  class RSet extends RCollection
+  {
+  };
 };
 
 #endif // OMERO_RTYPES_ICE
-    
+

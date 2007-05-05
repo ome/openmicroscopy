@@ -21,23 +21,30 @@ module omero {
     const string ANALYSISSERVICE  = "ome.api.IAnalysis";
     const string CONFIGSERVICE    = "ome.api.IConfig";
     const string DELETESERVICE    = "ome.api.IDelete";
-    const string PIXELSSERVICE    = "ome.api.IPixels";    
-    const string POJOSSERVICE     = "ome.api.IPojos";    
+    const string PIXELSSERVICE    = "ome.api.IPixels";
+    const string POJOSSERVICE     = "ome.api.IPojos";
     const string QUERYSERVICE     = "ome.api.IQuery";
     const string TYPESSERVICE     = "ome.api.ITypes";
-    const string UPDATESERVICE    = "ome.api.IUpdate";    
+    const string UPDATESERVICE    = "ome.api.IUpdate";
     const string RAWFILESTORE     = "ome.api.RawFileStore";
     const string RAWPIXELSSTORE   = "ome.api.RawPixelsStore";
     const string RENDERINGENGINE  = "omeis.providers.re.RenderingEngine";
     const string THUMBNAILSTORE   = "ome.api.ThumbnailStore";
     const string REPOSITORYINFO   = "ome.api.IRepositoryInfo";
-	
+
     // User context
-    const string USERNAME = "omero.sys.username";
-    const string PASSWORD = "omero.sys.password";
-    const string GROUP    = "omero.sys.group";
-    const string EVENT    = "omero.sys.event";
-    const string UMASK    = "omero.sys.umask"; 
+    const string USERNAME = "OMERO.user";
+    const string PASSWORD = "OMERO.pass";
+    const string GROUP    = "OMERO.group";
+    const string EVENT    = "OMERO.event";
+    const string UMASK    = "OMERO.umask"; 
+
+    // PojoOptions
+    const string POJOFIELDS       = "fields";         // omero::RList<omero::RString> (names of fields) UNSUPPORTED
+    const string POJOCOUNTS       = "counts";         // omero::RLong (user id)
+    const string POJOLEAVES       = "leaves";         // omero::RBool (whether or not Images returned)
+    const string POJOEXPERIMENTER = "experimenter";   // omero::RLong
+    const string POJOGROUP        = "group";          // omero::RLong
 
     // Other
     const string CLASSIFICATIONME =  "CLASSIFICATION_ME";

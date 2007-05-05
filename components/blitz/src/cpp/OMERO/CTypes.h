@@ -102,6 +102,15 @@ namespace OMERO {
     static CObject _NULL;
   };
   typedef IceUtil::Handle<CObject> CObjectPtr;
+
+  // @CList@
+  class CList : public omero::RList {
+  public:
+    CList();
+    CList(omero::RTypeSeq value);
+    static CList _NULL;
+  };
+  typedef IceUtil::Handle<CList> CListPtr;
  
 }
 

@@ -133,7 +133,7 @@ public class BlobjectTest extends IceTest {
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
         s.ic = Ice.Util.initialize(id);
         s.ic.getImplicitContext().setContext( context );
-        ObjectFactoryRegistrar.registerObjectFactory(ic, ObjectFactoryRegistrar.INSTANCE);
+        ObjectFactoryRegistrar.registerObjectFactory(s.ic, ObjectFactoryRegistrar.INSTANCE);
         s.oa = s.ic.createObjectAdapterWithEndpoints("OA", endpoint);
         s.oa.add(obj, Util.stringToIdentity("B"));
         s.oa.activate();

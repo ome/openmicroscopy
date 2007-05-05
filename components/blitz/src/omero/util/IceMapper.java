@@ -11,9 +11,8 @@ package omero.util;
 // Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,11 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-// Application-internal dependencies
 import ome.api.IPojos;
 import ome.api.ModelBased;
 import ome.conditions.InternalException;
@@ -41,8 +35,30 @@ import ome.util.ReverseModelMapper;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
+import omero.JArray;
+import omero.JBool;
+import omero.JClass;
+import omero.JDouble;
+import omero.JFloat;
+import omero.JInt;
+import omero.JList;
+import omero.JLong;
+import omero.JObject;
+import omero.JSet;
+import omero.JString;
+import omero.JTime;
+import omero.RArray;
 import omero.RBool;
+import omero.RClass;
+import omero.RDouble;
+import omero.RFloat;
+import omero.RInt;
+import omero.RList;
+import omero.RLong;
+import omero.RObject;
+import omero.RSet;
 import omero.RString;
+import omero.RTime;
 import omero.RType;
 import omero.ServerError;
 import omero.Time;
@@ -55,8 +71,9 @@ import omero.romio.ZY;
 import omero.sys.EventContext;
 import omero.sys.Filter;
 import omero.sys.Parameters;
-import omero.sys.QueryParam;
-import omero.sys.Type;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Responsible for the mapping of ome.* types to omero.* types and back again.
@@ -134,18 +151,44 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return k;
     }
 
-    public static Object convert(RType rt) throws omero.ApiUsageException {
-        if (rt._null) return null;
-            Field f;
-            try {
-                f = rt.getClass().getField("val");
-                return f.get(rt);
-            } catch (Exception e) {
-                omero.ApiUsageException aue = new omero.ApiUsageException();
-                fillServerError(aue, e);
-                aue.message = "Cannot get value for "+rt+":"+aue.message;
-                throw aue;
-            }
+    public Object convert(RType rt) throws omero.ApiUsageException {
+
+        if (rt == null || rt._null) {
+            return null;
+        }
+
+        Field f;
+        Object rv;
+        try {
+            f = rt.getClass().getField("val");
+            rv = f.get(rt);
+        } catch (Exception e) {
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            fillServerError(aue, e);
+            aue.message = "Cannot get value for " + rt + ":" + aue.message;
+            throw aue;
+        }
+
+        // Next round of conversions on the value itself.
+        if (RClass.class.isAssignableFrom(rt.getClass())) {
+            rv = omeroClass((String) rv, true);
+        } else if (RArray.class.isAssignableFrom(rt.getClass())){
+            RArray arr = (RArray) rt;
+            Collection reversed = reverse(arr.val);
+            // Assuming all the same
+            Class k = rtypeTypes.get(arr.val.get(0).getClass());
+            rv = Array.newInstance(k, arr.val.size());
+            rv = reversed.toArray((Object[])rv);
+        } else if (RSet.class.isAssignableFrom(rt.getClass())){
+            RSet set = (RSet) rt;
+            rv = reverse(set.val, Set.class);
+        } else if (RList.class.isAssignableFrom(rt.getClass())) {
+            RList list = (RList) rt;
+            rv = reverse(list.val, List.class);
+        } else {
+            rv = reverse(rv); // TODO Any optimizations to be had here?
+        }
+        return rv;
     }
 
     public static EventContext convert(ome.system.EventContext ctx) {
@@ -212,6 +255,10 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return t;
     }
 
+    public static Timestamp convert(Time time) {
+        return new Timestamp(time.val);
+    }
+
     public ome.parameters.Parameters convert(Parameters params)
     throws ApiUsageException {
 
@@ -219,69 +266,62 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
         ome.parameters.Parameters p = new ome.parameters.Parameters();
         if (params.map != null) {
-            for (Object obj : params.map.values()) {
-                QueryParam qp = (QueryParam) obj;
-                p.add(convert(qp));
+            for (String name : params.map.keySet()) {
+                Object obj = params.map.get(name);
+                p.add(convert(name, obj));
             }
         }
-        if (params.filt != null) {
-            p.setFilter(convert(params.filt));
+        if (params.theFilter != null) {
+            p.setFilter(convert(params.theFilter));
         }
         return p;
     }
 
-    public ome.parameters.QueryParameter convert(QueryParam qParam)
+    static final Map<Class,Class> rtypeTypes;
+    static {
+        Map<Class,Class> tmp = new HashMap<Class,Class>();
+        tmp.put(RBool.class,Boolean.class);
+        tmp.put(JBool.class,Boolean.class);
+        tmp.put(RFloat.class,Float.class);
+        tmp.put(JFloat.class,Float.class);
+        tmp.put(RInt.class,Integer.class);
+        tmp.put(JInt.class,Integer.class);
+        tmp.put(RDouble.class,Double.class);
+        tmp.put(JDouble.class,Double.class);
+        tmp.put(RLong.class,Long.class);
+        tmp.put(JLong.class,Long.class);
+        tmp.put(RString.class,String.class);
+        tmp.put(JString.class,String.class);
+        tmp.put(RClass.class, Class.class);
+        tmp.put(JClass.class, Class.class);
+        tmp.put(RObject.class,IObject.class);
+        tmp.put(JObject.class,IObject.class);
+        tmp.put(RList.class,Collection.class);
+        tmp.put(JList.class,Collection.class);
+//        tmp.put(RArray.class,Collection.class);
+//        tmp.put(JArray.class,Collection.class);
+        tmp.put(RSet.class,Collection.class);
+        tmp.put(JSet.class,Collection.class);
+        tmp.put(RTime.class,Timestamp.class);
+        tmp.put(JTime.class,Timestamp.class);
+        rtypeTypes = tmp;
+    }
+
+    public ome.parameters.QueryParameter convert(String key, Object o)
     throws ApiUsageException {
 
-        if (qParam == null) return null;
+        if (o == null) return null;
 
-        String name = qParam.name;
+        String name = key;
+        Class klass = o.getClass();
         Object value = null;
-        Class klass = null;
-        int t = qParam.paramType.value();
-        switch (t) {
-            case Type._boolType:
-                value = Boolean.valueOf(qParam.boolVal);
-                klass = Boolean.class;
-                break;
-            case Type._intType:
-                value = Integer.valueOf(qParam.intVal);
-                klass = Integer.class;
-                break;
-            case Type._longType:
-                value = Long.valueOf(qParam.longVal);
-                klass = Long.class;
-                break;
-            case Type._floatType:
-                value = Float.valueOf(qParam.floatVal);
-                value = Float.class;
-                break;
-            case Type._doubleType:
-                value = Double.valueOf(qParam.doubleVal);
-                value = Double.class;
-                break;
-            case Type._stringType:
-                value = qParam.stringVal;
-                klass = String.class;
-                break;
-            case Type._classType:
-                value = IceMapper.omeroClass(qParam.classVal, true);
-                klass = Class.class;
-                break;
-            case Type._timeType:
-                omero.RTime rt = qParam.timeVal;
-                value = (rt == null ? null : rt._null ? null : new Timestamp(rt.val.val));
-                klass = Timestamp.class;
-                break;
-            case Type._objectType:
-                omero.RObject ro = qParam.objectVal;
-                value = (ro == null ? null : ro._null ? null : reverse(ro.val));
-                klass = IObject.class;
-                break;
-            default:
-                omero.ApiUsageException aue = new omero.ApiUsageException();
-                aue.message = "Unknown type code for "+t;
-                throw aue;
+        if (RType.class.isAssignableFrom(klass)) {
+            value = convert((RType)o);
+            klass = rtypeTypes.get(klass);
+        } else {
+            omero.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Query parameter must be a subclass of RType "+o;
+            throw aue;
         }
 
         ome.parameters.QueryParameter qp = new ome.parameters.QueryParameter(
@@ -362,8 +402,10 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             return reverse((ModelBased) source);
         } else if (isImmutable(source)) {
             return source;
-        } else if (QueryParam.class.isAssignableFrom(source.getClass())) {
-            return convert((QueryParam)source);
+        } else if (RType.class.isAssignableFrom(source.getClass())) {
+            return convert((RType) source);
+        } else if (Time.class.isAssignableFrom(source.getClass())) {
+            return convert((Time) source);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
             aue.message = "Don't know how to reverse "+source;

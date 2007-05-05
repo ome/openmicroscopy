@@ -33,6 +33,9 @@ namespace OMERO {
 
   CObject::CObject() : omero::RObject(true,0){}
   CObject::CObject(omero::model::IObjectPtr value) : omero::RObject(false,value){}
+
+  CList::CList() : omero::RList(true,omero::RTypeSeq()){}
+  CList::CList(omero::RTypeSeq value) : omero::RList(false,value){}
  
 }
 

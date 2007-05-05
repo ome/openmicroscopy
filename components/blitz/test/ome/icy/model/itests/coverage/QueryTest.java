@@ -10,28 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 
 import ome.icy.model.itests.IceTest;
-import ome.services.icy.client.IceServiceFactory;
 import omero.ApiUsageException;
 import omero.JInt;
 import omero.JString;
-import omero.RInt;
 import omero.RString;
-import omero.api.IConfigPrx;
-import omero.api.IConfigPrxHelper;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
-import omero.api.IUpdatePrxHelper;
-import omero.api.RenderingEnginePrx;
-import omero.constants.CONFIGSERVICE;
-import omero.constants.UPDATESERVICE;
-import omero.model.Experimenter;
 import omero.model.ExperimenterI;
-import omero.model.IObject;
 import omero.model.ImageI;
 import omero.sys.Filter;
 import omero.sys.Parameters;
-import omero.sys.QueryParam;
-import omero.sys.Type;
 
 import org.testng.annotations.Test;
 
@@ -116,14 +104,10 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getQueryService(null);
         String str = "select e from Experimenter e where e.omeName = :name";
         Parameters p = new Parameters();
-        p.filt = new Filter();
-        p.filt.limit = new JInt(1);
+        p.theFilter = new Filter();
+        p.theFilter.limit = new JInt(1);
         p.map = new HashMap();
-        QueryParam name = new QueryParam();
-        name.name = "name";
-        name.stringVal = "root";
-        name.paramType = Type.stringType;
-        p.map.put("name", name);
+        p.map.put("name", new JString("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str,p));
         assertTrue(l.size() == 1);
         assertTrue(l.get(0).omeName.val.equals("root"));

@@ -12,11 +12,15 @@
 #include <OMERO/fwd.ice>
 #include <OMERO/RTypes.ice>
 
+//
+// The omero::system module combines the ome.system
+// and ome.parameters packages. 
+// 
 module omero { 
   module sys {     
 
-    ["java:type:java.util.ArrayList"] 
-    sequence<long> ListOfLongs;
+    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"] 
+    sequence<long> LongList;
 
     class EventContext
     {
@@ -28,8 +32,8 @@ module omero {
       bool   isReadOnly;
       long   eventId;
       string eventType;
-      ListOfLongs memberOfGroups;
-      ListOfLongs leaderOfGroups;
+      LongList memberOfGroups;
+      LongList leaderOfGroups;
     };
 
     class Filter
@@ -41,32 +45,14 @@ module omero {
       omero::RInt   limit;
     };
 
-    enum Type { 
-      longType, intType, boolType, floatType,
-      doubleType, stringType, classType, objectType, timeType
-    };
-
-    class QueryParam
-    {
-      string name;
-      Type   paramType;
-      long   longVal;
-      int    intVal;
-      bool   boolVal;
-      float  floatVal;
-      double doubleVal;
-      string stringVal;
-      string classVal;
-      omero::RObject objectVal;
-      omero::RTime timeVal;
-    };
-
+    // ParamMap replaces the ome.parameters.QueryParam 
+    // type, since the use of varargs is not possible. 
     ["java:type:java.util.HashMap"] 
-    dictionary<string,QueryParam> ParamMap;
+    dictionary<string,omero::RType> ParamMap;
 
     class Parameters 
     {
-      Filter filt;
+      Filter theFilter;
       ParamMap map;
     };
 
