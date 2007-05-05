@@ -29,7 +29,7 @@
  *  i->setName(new OMERO::Str("foo"));
  *  i->setDescription(OMERO::Str::NULL);
  */
-namespace OMERO {
+namespace omero {
 
   // @CInt@
   class CInt : public omero::RInt {

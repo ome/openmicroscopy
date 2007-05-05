@@ -10,6 +10,7 @@
 #define OMERO_CLIENT_H
 
 #include <OMERO/API.h>
+#include <OMERO/Constants.h>
 #include <OMERO/CTypes.h>
 #include <OMERO/ModelI.h>
 #include <OMERO/ObjectFactoryRegistrar.h>
@@ -30,6 +31,11 @@ namespace OMERO {
    * from which all other proxies can be obtained. Once the
    * ServiceFactoryPrx is destroyed, times out, or close() is called,
    * all proxies obtained from this instance are also destroyed.
+   *
+   * Methods which take an Ice::Context should only be used when
+   * so instructed. The Ice 3.2+ rules for contexts say that all
+   * other contexts (the communicator ImplicitContext and per-proxy
+   * contexts) will not be sent if an explicit context parameter is used.
    */
   class client {
 
@@ -67,7 +73,7 @@ namespace OMERO {
 
     Ice::CommunicatorPtr getCommunicator() { return ic; }
     omero::api::ServiceFactoryPrx& getSession() { return sf; }
-    Ice::Context getDefaultContext() { return ic->getDefaultContext(); }
+    Ice::ImplicitContextPtr getImplicitContext() { return ic->getImplicitContext(); }
     Ice::PropertiesPtr getProperties() { return ic->getProperties(); }
     std::string getProperty(const std::string& key) { return getProperties()->getProperty(key); }
 
@@ -78,30 +84,60 @@ namespace OMERO {
      * after a session timeout exception, or similar.
      */
     void createSession();
+    omero::api::IAdminPrx getAdminService();
     omero::api::IAdminPrx getAdminService(const ::Ice::Context& ctx);
+
+    omero::api::IConfigPrx getConfigService();
     omero::api::IConfigPrx getConfigService(const ::Ice::Context& ctx);
+
+    omero::api::IPixelsPrx getPixelsService();
     omero::api::IPixelsPrx getPixelsService(const ::Ice::Context& ctx);
+
+    omero::api::IPojosPrx getPojosService();
     omero::api::IPojosPrx getPojosService(const ::Ice::Context& ctx);
+
+    omero::api::IQueryPrx getQueryService();
     omero::api::IQueryPrx getQueryService(const ::Ice::Context& ctx);
+
+    omero::api::IRepositoryInfoPrx getRepositoryInfoService();
     omero::api::IRepositoryInfoPrx getRepositoryInfoService(const ::Ice::Context& ctx);
+
+    omero::api::ITypesPrx getTypesService();
     omero::api::ITypesPrx getTypesService(const ::Ice::Context& ctx);
+
+    omero::api::IUpdatePrx getUpdateService();
     omero::api::IUpdatePrx getUpdateService(const ::Ice::Context& ctx);
+
+    omero::api::RawFileStorePrx createRawFileStore();
     omero::api::RawFileStorePrx createRawFileStore(const ::Ice::Context& ctx);
+
+    omero::api::RawPixelsStorePrx createRawPixelsStore();
     omero::api::RawPixelsStorePrx createRawPixelsStore(const ::Ice::Context& ctx);
+
+    omero::api::RenderingEnginePrx createRenderingEngine();
     omero::api::RenderingEnginePrx createRenderingEngine(const ::Ice::Context& ctx);
+
+    omero::api::ThumbnailStorePrx createThumbnailStore();
     omero::api::ThumbnailStorePrx createThumbnailStore(const ::Ice::Context& ctx);
+
+    Ice::ObjectPrx getByName(const std::string& name);
     Ice::ObjectPrx getByName(const std::string& name, const ::Ice::Context& ctx);
+
 
     /*
      * Closes the session AND all proxies created by it.
      */
+    void close();
     void close(const ::Ice::Context& ctx);
+
 
     /* 
      * The callback is currently unused. Rather, this is an example of
      * what a callback would look like.
      */
+    void setCallback(const ::omero::api::SimpleCallbackPrx& cb);
     void setCallback(const ::omero::api::SimpleCallbackPrx& cb, const ::Ice::Context& ctx);
+
 
   };
 

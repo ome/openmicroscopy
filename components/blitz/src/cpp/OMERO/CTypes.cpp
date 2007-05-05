@@ -8,7 +8,7 @@
 
 #include <OMERO/CTypes.h>
 
-namespace OMERO {
+namespace omero {
 
   CInt::CInt() : omero::RInt(true,0){}
   CInt::CInt(int value) : omero::RInt(false,value){}
