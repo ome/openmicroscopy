@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( SimpleCtor )
 BOOST_AUTO_TEST_CASE( UnloadedCtor )
 {
   Fixture f;
-  ImageIPtr img = new ImageI(new OMERO::CLong(1),false);
+  ImageIPtr img = new ImageI(new omero::CLong(1),false);
   BOOST_CHECK( !(img->loaded) );
   BOOST_CHECK( !(img->datasetLinksLoaded) );
 }
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( Accessors )
 BOOST_AUTO_TEST_CASE( UnloadedAccessThrows )
 {
   Fixture f;
-  ImageIPtr unloaded = new ImageI(new OMERO::CLong(1),false);
+  ImageIPtr unloaded = new ImageI(new omero::CLong(1),false);
   BOOST_CHECK_THROW( unloaded->getName(), omero::UnloadedEntityException );
 }
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( LinkGroupAndUser )
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
   GroupExperimenterMapIPtr map = new GroupExperimenterMapI();
 
-  map->id = new OMERO::CLong(1);
+  map->id = new omero::CLong(1);
   map->link(group,user);
   user->addGroupExperimenterMap( map, false );
   group->addGroupExperimenterMap( map, false );
@@ -191,9 +191,9 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
 {
   Fixture f;
   ExperimenterIPtr user = new ExperimenterI();
-  user->setFirstName(new OMERO::CString("test"));
-  user->setLastName(new OMERO::CString("user"));
-  user->setOmeName(new OMERO::CString("UUID"));
+  user->setFirstName(new omero::CString("test"));
+  user->setLastName(new omero::CString("user"));
+  user->setOmeName(new omero::CString("UUID"));
   
   // possibly setOmeName() and setOmeName(string) ??
   // and then don't need OMERO/types.h
@@ -205,3 +205,33 @@ BOOST_AUTO_TEST_CASE( LinkViaMap )
   map->child  = user;
 }
 
+BOOST_AUTO_TEST_CASE( LinkingAndUnlinking )
+{
+  Fixture f;
+
+  DatasetImageLinkIPtr dil;
+
+  DatasetIPtr d = new DatasetI();
+  ImageIPtr   i = new ImageI();
+  
+  d->linkImage(i);
+  BOOST_CHECK( d->sizeOfImageLinks() == 1 );
+  d->unlinkImage(i);
+  BOOST_CHECK( d->sizeOfImageLinks() == 0 );
+
+  d = new DatasetI();
+  i = new ImageI();
+  d->linkImage(i);
+  BOOST_CHECK( i->sizeOfDatasetLinks() == 1 );
+  i->unlinkDataset(d);
+  BOOST_CHECK( d->sizeOfImageLinks() == 0 );
+
+  d = new DatasetI();
+  i = new ImageI();
+  dil = new DatasetImageLinkI();
+  dil->link(d,i);
+  d->addDatasetImageLink(dil, false);
+  BOOST_CHECK( d->sizeOfImageLinks() == 1 );
+  BOOST_CHECK( i->sizeOfDatasetLinks() == 0 );
+
+}
