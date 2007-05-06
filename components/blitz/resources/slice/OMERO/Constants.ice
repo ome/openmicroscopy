@@ -12,11 +12,18 @@
 module omero { 
   module constants {     
 
-    // Spring names
+    /*
+     * The names of the OmeroContext instances 
+     * defined in beanRefContext.xml files. Only useful
+     * in the Java mappings.
+     */
     const string SERVERCONTEXT = "OMERO.server";
     const string CLIENTCONTEXT = "OMERO.client";
 
-    // Service names
+    /*
+     * Server-side names used for each of the services
+     * defined in API.ice
+     */
     const string ADMINSERVICE     = "ome.api.IAdmin";
     const string ANALYSISSERVICE  = "ome.api.IAnalysis";
     const string CONFIGSERVICE    = "ome.api.IConfig";
@@ -32,24 +39,32 @@ module omero {
     const string THUMBNAILSTORE   = "ome.api.ThumbnailStore";
     const string REPOSITORYINFO   = "ome.api.IRepositoryInfo";
 
-    // User context
+    // User context for logging in
     const string USERNAME = "OMERO.user";
     const string PASSWORD = "OMERO.pass";
     const string GROUP    = "OMERO.group";
     const string EVENT    = "OMERO.event";
     const string UMASK    = "OMERO.umask"; 
 
-    // PojoOptions
+    /*
+     * Strings used by the Java class ome.util.builders.PojoOptions
+     * to create Map options for IPojos methods. omero::api::IPojos
+     * takes omero::sys::ParamMaps instead. 
+     * 
+     * See System.ice and RTypes.ice.
+     */
     const string POJOFIELDS       = "fields";         // omero::RList<omero::RString> (names of fields) UNSUPPORTED
     const string POJOCOUNTS       = "counts";         // omero::RLong (user id)
     const string POJOLEAVES       = "leaves";         // omero::RBool (whether or not Images returned)
     const string POJOEXPERIMENTER = "experimenter";   // omero::RLong
     const string POJOGROUP        = "group";          // omero::RLong
 
-    // Other
-    const string CLASSIFICATIONME =  "CLASSIFICATION_ME";
+    /*
+     * Used by IPojos.findCGCPaths(...,string algo,...) 
+     */
+    const string CLASSIFICATIONME  =  "CLASSIFICATION_ME";
     const string CLASSIFICATIONNME = "CLASSIFICATION_NME";
-    const string DECLASSIFICATION = "DECLASSIFICATION";
+    const string DECLASSIFICATION  = "DECLASSIFICATION";
 
   };
 };

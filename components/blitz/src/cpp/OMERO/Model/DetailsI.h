@@ -6,8 +6,8 @@
  * 
  */
 
-#ifndef DETAILSI_H
-#define DETAILSI_H
+#ifndef OMERO_MODEL_DETAILSI_H
+#define OMERO_MODEL_DETAILSI_H
 
 #include <OMERO/Model/Details.h>
 #include <OMERO/Model/ExperimenterI.h>
@@ -22,18 +22,17 @@
 
 namespace omero { namespace model {
 
+/*
+ * Simple implementation of the Details.ice
+ * type embedded in every OMERO.blitz type.
+ */
 class DetailsI : virtual public Details { 
 
 protected:
-    ~DetailsI(); // protected as outlined in docs.
+    ~DetailsI(); // protected as outlined in Ice docs.
 
 public:
 
-   /**
-    * Default no-args constructor which manages the proper "loaded"
-    * status of all {@link Collection}s by manually initializing them all
-    * to an empty {@link Collection} of the approrpriate type.
-    */
     DetailsI();
  
     omero::model::ExperimenterPtr getOwner() {
@@ -96,5 +95,5 @@ public:
 
  }
 }
-#endif // DETAILSI_H
+#endif // OMERO_MODEL_DETAILSI_H
  

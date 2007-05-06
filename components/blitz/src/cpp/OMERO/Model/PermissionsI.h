@@ -31,19 +31,26 @@ namespace omero { namespace model {
 class PermissionsI : virtual public Permissions { 
 
 protected:
-    ~PermissionsI(); // protected as outlined in docs.
+    ~PermissionsI(); // protected as outlined in Ice docs.
     bool granted(int mask, int shift);
     void set(int mask, int shift, bool value);
 public:
 
-   /**
-    * Default no-args constructor which manages the proper "loaded"
-    * status of all {@link Collection}s by manually initializing them all
-    * to an empty {@link Collection} of the approrpriate type.
-    */
     PermissionsI();
-    PermissionsI(omero::RLongPtr idPtr, bool isLoaded = false);
-    void unload(const Ice::Current& c = Ice::Current());
+
+    /*
+     * Central methods. The optional argument is a requirement
+     * of the Ice runtime and can safely be omitted. The only
+     * methods which are not self-explanatory are isLocked
+     * and setLocked. These relate to whether or not the server
+     * will allow certain actions on the holding type. This
+     * would be of interest to know if the owner of a given
+     * entity can be changed, or if it can have its read
+     * permissions revoked. Doing so can cause strange
+     * behavior for other users. It is always best to start
+     * with the most strict permissions for objects, and 
+     * later elevate them.
+     */
     bool isUserRead(const Ice::Current& c = Ice::Current());
     bool isUserWrite(const Ice::Current& c = Ice::Current());
     bool isGroupRead(const Ice::Current& c = Ice::Current());
@@ -67,6 +74,9 @@ public:
         perm1 =  _perm1 ;
          
     }
+
+    // Meaningless for Permissions. No complex state.
+    void unload(const Ice::Current& c = Ice::Current());
  
   };
 

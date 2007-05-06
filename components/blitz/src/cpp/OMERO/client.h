@@ -24,7 +24,7 @@ namespace OMERO {
 
   /*
    * The OMERO::client class is the main entry point for consumers of
-   * the OMERO.blitz server. An instance provides access to an
+   * the OMERO.blitz server in C++. An instance provides access to an
    * Ice::Communicator which is the central Ice interface for all
    * communication. An instance also provides access to a single
    * omero::api::ServiceFactoryPrx which is the blitz session facade,
@@ -79,11 +79,18 @@ namespace OMERO {
 
     // Session management
 
-    /* Creates a session. Calling this method while a session is
+    /* 
+     * Creates a session. Calling this method while a session is
      * active will throw an exception. It should only be used again,
      * after a session timeout exception, or similar.
      */
     void createSession();
+
+    /*
+     * The following methods exactly mirror the interfaces defined
+     * on the OMERO.server. See the JavaDocs for the ome.api package
+     * for more background.
+     */
     omero::api::IAdminPrx getAdminService();
     omero::api::IAdminPrx getAdminService(const ::Ice::Context& ctx);
 

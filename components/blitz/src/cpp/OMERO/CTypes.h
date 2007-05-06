@@ -26,91 +26,96 @@
  * one can use:
  *
  *  ImagePtr i; 
- *  i->setName(new OMERO::Str("foo"));
- *  i->setDescription(OMERO::Str::NULL);
+ *  i->setName(new omero::CString("foo"));
+ *  i->setDescription(new omero::CString());
+ *
+ * See OMERO/RTypes.ice for more information.
  */
 namespace omero {
 
-  // @CInt@
   class CInt : public omero::RInt {
   public:
     CInt();
     CInt(int value);
-    static CInt _NULL; 
   };
   typedef IceUtil::Handle<CInt> CIntPtr;
 
-  // @CBool@
   class CBool : public omero::RBool {
   public:
     CBool();
     CBool(bool value);
-    static CBool _NULL;
   };
   typedef IceUtil::Handle<CBool> CBoolPtr;
 
-  // @CDouble@
   class CDouble : public omero::RDouble {
   public:
     CDouble();
     CDouble(double value);
-    static CDouble _NULL;
   };
   typedef IceUtil::Handle<CDouble> CDoublePtr;
 
-  // @CFloat@
   class CFloat : public omero::RFloat {
   public:
     CFloat();
     CFloat(float value);
-    static CFloat _NULL;
   };
   typedef IceUtil::Handle<CFloat> CFloatPtr;
 
-  // @CLong@
   class CLong : public omero::RLong {
   public:
     CLong();
     CLong(long value);
-    static CLong _NULL;
   };
   typedef IceUtil::Handle<CLong> CLongPtr;
 
-  // @CTime@
   class CTime : public omero::RTime {
   public:
     CTime();
     CTime(omero::TimePtr value);
-    static CTime _NULL;
   };
   typedef IceUtil::Handle<CTime> CTimePtr;
 
-  // @CString@
   class CString : public omero::RString {
   public:
     CString();
     CString(std::string value);
-    static CString _NULL;
   };
   typedef IceUtil::Handle<CString> CStringPtr;
 
-  // @CObject@
+  class CClass : public omero::RClass {
+  public:
+    CClass();
+    CClass(std::string value);
+  };
+  typedef IceUtil::Handle<CString> CStringPtr;
+
   class CObject : public omero::RObject {
   public:
     CObject();
     CObject(omero::model::IObjectPtr value);
-    static CObject _NULL;
   };
   typedef IceUtil::Handle<CObject> CObjectPtr;
 
-  // @CList@
+  class CArray : public omero::RArray {
+  public:
+    CArray();
+    CArray(omero::RTypeSeq value);
+  };
+  typedef IceUtil::Handle<CArray> CArrayPtr;
+
   class CList : public omero::RList {
   public:
     CList();
     CList(omero::RTypeSeq value);
-    static CList _NULL;
   };
   typedef IceUtil::Handle<CList> CListPtr;
+
+  class CSet : public omero::RSet {
+  public:
+    CSet();
+    CSet(omero::RTypeSeq value);
+  };
+  typedef IceUtil::Handle<CSet> CListPtr;
  
 }
 

@@ -12,28 +12,35 @@
 #include <OMERO/fwd.ice>
 #include <OMERO/IObject.ice>
 
-module omero { module model { 
+module omero { 
+  module model { 
 
+    /*
+     * Row-level permissions definition available on
+     * every OMERO.blitz type. Represents a similar 
+     * logic to the Unix filesystem.
+     */
+    class Permissions
+    {
+      // Internal representation. May change!
+      long perm1;
+      
+      bool isUserRead();
+      bool isUserWrite();
+      bool isGroupRead();
+      bool isGroupWrite();
+      bool isWorldRead();
+      bool isWorldWrite();
+      bool isLocked();
 
-class Permissions
-{
-    long perm1;
-    bool isUserRead();
-    bool isUserWrite();
-    bool isGroupRead();
-    bool isGroupWrite();
-    bool isWorldRead();
-    bool isWorldWrite();
-    bool isLocked();
-
-    void setUserRead(bool value);
-    void setUserWrite(bool value);
-    void setGroupRead(bool value);
-    void setGroupWrite(bool value);
-    void setWorldRead(bool value);
-    void setWorldWrite(bool value);
-    void setLocked(bool value);
+      void setUserRead(bool value);
+      void setUserWrite(bool value);
+      void setGroupRead(bool value);
+      void setGroupWrite(bool value);
+      void setWorldRead(bool value);
+      void setWorldWrite(bool value);
+      void setLocked(bool value);
+    };
+  };
 };
-
-}; };
 #endif 

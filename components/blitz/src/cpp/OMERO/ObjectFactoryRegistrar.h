@@ -6,8 +6,8 @@
  * 
  */
 
-#ifndef OBJECTFACTORYREGISTRAR_H
-#define OBJECTFACTORYREGISTRAR_H
+#ifndef OMERO_OBJECTFACTORYREGISTRAR_H
+#define OMERO_OBJECTFACTORYREGISTRAR_H
 
 #include <OMERO/ModelI.h>
 #include <string>
@@ -16,6 +16,16 @@
 
 namespace OMERO { 
 
+  /*
+   * Responsible for creating model instances based
+   * on string representations of their type. An 
+   * instance of this class can take an Ice::Communicator
+   * and add itself as the ObjectFactory to be used
+   * for all known types. If another type has already
+   * been registered, this instance will not register
+   * itself. (Normal Ice logic is to throw an exception
+   * if a type has already been registered.)
+   */
   class ObjectFactory : public Ice::ObjectFactory {
 
   public:
@@ -35,5 +45,5 @@ namespace OMERO {
 
 }
 
-#endif
+#endif // OMERO_OBJECTFACTORYREGISTRAR_H
 

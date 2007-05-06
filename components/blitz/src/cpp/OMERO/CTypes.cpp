@@ -31,11 +31,20 @@ namespace omero {
   CString::CString() : omero::RString(true,0){}
   CString::CString(std::string value) : omero::RString(false,value){}
 
+  CClass::CClass() : omero::RClass(true,0){}
+  CClass::CClass(std::string value) : omero::RClass(false,value){}
+
   CObject::CObject() : omero::RObject(true,0){}
   CObject::CObject(omero::model::IObjectPtr value) : omero::RObject(false,value){}
 
+  CArray::CArray() : omero::RArray(true,omero::RTypeSeq()){}
+  CArray::CArray(omero::RTypeSeq value) : omero::RArray(false,value){}
+
   CList::CList() : omero::RList(true,omero::RTypeSeq()){}
   CList::CList(omero::RTypeSeq value) : omero::RList(false,value){}
+
+  CSet::CSet() : omero::RSet(true,omero::RTypeSeq()){}
+  CSet::CSet(omero::RTypeSeq value) : omero::RSet(false,value){}
  
 }
 
