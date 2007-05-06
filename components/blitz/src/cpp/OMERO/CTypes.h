@@ -115,8 +115,8 @@ namespace omero {
     CSet();
     CSet(omero::RTypeSeq value);
   };
-  typedef IceUtil::Handle<CSet> CListPtr;
- 
+  typedef IceUtil::Handle<CSet> CSetPtr;
+
 }
 
 #define TypetoStringDecl(Type)                                          \
