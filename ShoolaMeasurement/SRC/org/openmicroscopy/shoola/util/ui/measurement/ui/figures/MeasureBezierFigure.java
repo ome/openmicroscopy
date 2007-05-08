@@ -50,7 +50,8 @@ import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationK
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTRE;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
@@ -275,14 +276,16 @@ public class MeasureBezierFigure
 		{
 			AREA.set(shape,getArea());
 			PERIMETER.set(shape, getLength());
-			CENTRE.set(shape, getCentre());
+			CENTREX.set(shape, getCentre().getX());
+			CENTREY.set(shape, getCentre().getY());
 		}
 		else
 		{
 			ArrayList<Double> lengthArray = new ArrayList<Double>();
 			lengthArray.add(getLength());
 			LENGTH.set(shape, lengthArray);
-			CENTRE.set(shape, getCentre());
+			CENTREX.set(shape, getCentre().getX());
+			CENTREY.set(shape, getCentre().getY());
 		}
 	}
 

@@ -23,17 +23,10 @@
 package org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable;
 
 //Java imports
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.Figure;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
 
 //Application-internal dependencies
 
@@ -54,19 +47,20 @@ public 	class 	MeasurementTableModel
 		extends AbstractTableModel
 {
 		ArrayList<String> 			columnNames;		
-		ArrayList<Object>			values;
+		ArrayList					values;
 		
 		public MeasurementTableModel()
 		{
 			columnNames = new ArrayList<String>();
-			values = new ArrayList<Object>();
+			values = new ArrayList();
+			
 		}
 		
 		
 		public void addRow(TableRow row)
 		{
 			values.add(row);
-			fireTableDataChanged();
+        	this.fireTableStructureChanged();
 		}
     	
         public String getColumnName(int col) 
@@ -86,6 +80,7 @@ public 	class 	MeasurementTableModel
                 
         public Object getValueAt(int row, int col) 
         {
+        	
         	TableRow rowData = (TableRow)values.get(row);
         	return rowData.get(col);
     	}
@@ -95,6 +90,16 @@ public 	class 	MeasurementTableModel
         	TableRow rowData = (TableRow)values.get(row);
         	rowData.set(col, value);
         	fireTableCellUpdated(row, col);
+        }
+        
+        public void print()
+        {
+        	for(int i = 0 ; i < getRowCount() ; i++)
+        		for( int j = 0 ; j < getColumnCount() ; j++)
+        		{
+        			TableRow row = (TableRow)values.get(i);
+        			System.err.println(row.get(j));
+        		}
         }
         
         public boolean isCellEditable(int row, int col)

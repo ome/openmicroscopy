@@ -42,6 +42,8 @@ import org.jhotdraw.draw.BezierTool;
 import org.jhotdraw.draw.ConnectionTool;
 import org.jhotdraw.draw.CreationTool;
 import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.EllipseFigure;
+import org.jhotdraw.draw.RectangleFigure;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.action.ToolBarButtonFactory;
 import org.jhotdraw.util.ResourceBundleUtil;
@@ -52,9 +54,12 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.UIControl;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable.MeasurementTable;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ChannelComboBox;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.UIUtils;
@@ -107,10 +112,10 @@ public class CreationToolBar
 		ToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.addSeparator(new Dimension(10,20));
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureRectangleFigure()), "createRectangle", 
+				new CreationTool(new MeasureRectangleTextFigure()), "createRectangle", 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureEllipseFigure()), "createEllipse", 
+				new CreationTool(new MeasureEllipseTextFigure()), "createEllipse", 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new MeasureLineFigure()), "createLine", 

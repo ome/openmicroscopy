@@ -67,14 +67,17 @@ public class MeasureLineConnectionFigure
 	implements ROIFigure
 {
 	private ArrayList<Rectangle2D> boundsArray = new ArrayList<Rectangle2D>();
-	private ArrayList<Double> lengthArray = new ArrayList<Double>();
-	private ArrayList<Double> angleArray = new ArrayList<Double>();
+	private ArrayList<Double> lengthArray;
+	private ArrayList<Double> angleArray;
 	private ROI			roi;
 	private ROIShape 	shape;
 
 	public MeasureLineConnectionFigure()
 	{
 		super();
+		lengthArray = new ArrayList<Double>();
+		angleArray = new ArrayList<Double>();
+	
 		shape = null;
 		roi = null;
 	}
@@ -286,8 +289,8 @@ public class MeasureLineConnectionFigure
 	{
 		if(shape==null)
 			return;
-		lengthArray.clear();
-		angleArray.clear();
+		lengthArray = new ArrayList<Double>();
+		angleArray = new ArrayList<Double>();
 		if(getPointCount()==2)
 		{
 			double angle = getAngle(0, 1);

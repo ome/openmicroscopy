@@ -33,8 +33,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jhotdraw.draw.AttributeKey;
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -61,12 +59,14 @@ public class AnnotationKeys {
 		new AnnotationKey<Double>("MeasurementPerimeter", 0.0);
 	public static final AnnotationKey<Double> VOLUME = 
 		new AnnotationKey<Double>("MesurementVolume", 0.0);
-	public static final AnnotationKey<ArrayList<Double>> ANGLE = 
+	public  static final AnnotationKey<ArrayList<Double>> ANGLE = 
 		new AnnotationKey<ArrayList<Double>>("MeasurementAngle", null);
 	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
 		new AnnotationKey<ArrayList<Double>>("MeasurementLength", null);
-	public static final AnnotationKey<Point2D> CENTRE= 
-		new AnnotationKey<Point2D>("MeasurementCentre", null);
+	public static final AnnotationKey<Double> CENTREX= 
+		new AnnotationKey<Double>("MeasurementCentreX", null);
+	public static final AnnotationKey<Double> CENTREY= 
+		new AnnotationKey<Double>("MeasurementCentreY", null);
 	public static final AnnotationKey<Point2D> STARTPOINT= 
 		new AnnotationKey<Point2D>("MeasurementStartPoint", null);
 	public static final AnnotationKey<Point2D> ENDPOINT= 

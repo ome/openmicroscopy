@@ -379,8 +379,11 @@ public class UIModel
 	 */
 	public void figureChanged(FigureEvent e) 
 	{
-		ROIFigure fig = (ROIFigure)e.getFigure();
-		fig.calculateMeasurements();
+		if(e.getFigure() instanceof ROIFigure)
+		{
+			ROIFigure fig = (ROIFigure)e.getFigure();
+			fig.calculateMeasurements();
+		}
 	}
 
 	/* (non-Javadoc)

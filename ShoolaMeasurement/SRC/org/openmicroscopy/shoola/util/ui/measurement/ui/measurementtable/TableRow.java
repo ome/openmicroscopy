@@ -66,6 +66,11 @@ public class TableRow
 	{
 		row.set(index, value);
 	}
+	
+	public int size()
+	{
+		return row.size();
+	}
 }
 
 

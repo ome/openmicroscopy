@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
@@ -38,23 +37,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.util.UIUtils;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
@@ -141,7 +135,9 @@ public class MeasurementTable
 		annotationList.add(field);
 		field = new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", false);
 		annotationList.add(field);
-		field = new AnnotationField(AnnotationKeys.CENTRE,"Centre", false);
+		field = new AnnotationField(AnnotationKeys.CENTREX,"Centre X", false);
+		annotationList.add(field);
+		field = new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", false);
 		annotationList.add(field);
 		field = new AnnotationField(AnnotationKeys.AREA,"Area", false);
 		annotationList.add(field);
@@ -180,9 +176,11 @@ public class MeasurementTable
 	{
 		TreeMap<Long, ROI> roiMap = model.getROIMap();
     	Iterator keyIterator = roiMap.keySet().iterator();
-    	
     	while(keyIterator.hasNext())
-    		addRow(roiMap.get((Long)keyIterator.next()));
+    	{
+    		ROI roi = roiMap.get((Long)keyIterator.next());
+    		addRow(roi);
+    	}
 
 	}
 	
@@ -201,14 +199,15 @@ public class MeasurementTable
 		for( int i = 0 ; i < annotationList.size() ; i++)
 		{
 			AnnotationKey key = annotationList.get(i).key;
-			row.add(key.get(shape));
+			Object value = key.get(shape);
+			row.add(value);
 		}
 		tableModel.addRow(row);
 	}
 
 	private void saveResults()
 	{
-		
+		tableModel.print();
 		JFileChooser fileChooser = new JFileChooser();
 		int returnValue = fileChooser.showSaveDialog(this);
 		if(returnValue != JFileChooser.APPROVE_OPTION)
@@ -248,8 +247,22 @@ public class MeasurementTable
 			    	{
 			    		outputStream.print(value+",");
 		    		}
+	    			else if (value instanceof ArrayList)
+	    			{
+	    				ArrayList list = (ArrayList)value;
+	    				for( int i = 0 ; i < list.size(); i++)
+	    				{
+	    					Object element = list.get(i);
+	    					if(element instanceof Double)
+	    					{
+	    						NumberFormat formatter = new DecimalFormat("###.#");
+	    						String formattedValue = formatter.format((Double)element);
+		    				outputStream.print(formattedValue+";");
+		    				}
+	    				}
+	    			}
 	    			else if(value == null)
-		    				continue;
+		    				outputStream.print(",");
 	    		}
 	    		outputStream.println();
 	    	}

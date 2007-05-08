@@ -35,10 +35,10 @@ import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.LineFigure;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
@@ -66,15 +66,18 @@ public class MeasureLineFigure
 	extends LineFigure
 	implements ROIFigure
 {
-	private ArrayList<Rectangle2D> boundsArray = new ArrayList<Rectangle2D>();
-	private ArrayList<Double> lengthArray = new ArrayList<Double>();
-	private ArrayList<Double> angleArray = new ArrayList<Double>();
+	private ArrayList<Rectangle2D> boundsArray;
+	private ArrayList<Double> lengthArray;
+	private ArrayList<Double> angleArray;
 	private ROI			roi;
 	private ROIShape 	shape;
 
 	public MeasureLineFigure()
 	{
 		super();
+		boundsArray = new ArrayList<Rectangle2D>();
+		lengthArray = new ArrayList<Double>();
+		angleArray = new ArrayList<Double>();
 		shape = null;
 		roi = null;
 	}
@@ -197,6 +200,12 @@ public class MeasureLineFigure
 		return newBounds;
 	}
 
+	/**
+	 * 
+	 * @param i
+	 * @param j
+	 * @return
+	 */
 	public Point2D.Double getLengthPosition(int i, int j)
 	{
 		Point2D.Double p0 = getPoint(i);
@@ -282,6 +291,8 @@ public class MeasureLineFigure
 	{
 		if(shape==null)
 			return;
+		lengthArray = new ArrayList<Double>();
+		angleArray = new ArrayList<Double>();
 		lengthArray.clear();
 		angleArray.clear();
 		if(getPointCount()==2)

@@ -25,13 +25,6 @@ package org.openmicroscopy.shoola.util.ui.measurement;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -40,17 +33,6 @@ import java.util.TreeMap;
 import org.openmicroscopy.shoola.util.ui.measurement.model.ChannelInfo;
 import org.openmicroscopy.shoola.util.ui.measurement.model.ImageModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.ANGLE;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTRE;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.STARTPOINT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.ENDPOINT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
 
 import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
