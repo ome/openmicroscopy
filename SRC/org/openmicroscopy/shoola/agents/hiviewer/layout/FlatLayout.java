@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -51,7 +53,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 class FlatLayout
-    implements Layout
+implements Layout
 {
     
     //NOTE: The algorithm for this layout *relies* on the fact that
@@ -74,6 +76,9 @@ class FlatLayout
     /** The root of all nodes. */
     private ImageSet        root;
     
+    /** Collection of nodes previously layed out. */
+    private Set				oldNodes;
+    
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
@@ -94,7 +99,10 @@ class FlatLayout
     {
         if (root != null) {
             List l = sorter.sort(images);
-            LayoutUtils.doSquareGridLayout(root, l);
+            if (oldNodes == null || oldNodes.size() != l.size())
+            	LayoutUtils.doSquareGridLayout(root, l);
+            else 
+            	LayoutUtils.redoLayout(root, null, l, oldNodes);
         }  
     }
     
@@ -125,5 +133,18 @@ class FlatLayout
      * @see Layout#getIndex()
      */
     public int getIndex() { return LayoutFactory.FLAT_LAYOUT; }
+
+    /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#setOldNodes(Set)
+     */
+	public void setOldNodes(Set oldNodes) { 
+		this.oldNodes = oldNodes; 
+		Iterator i = oldNodes.iterator();
+		while (i.hasNext()) {
+			System.err.println(i.next());
+			
+		}
+	}
    
 }

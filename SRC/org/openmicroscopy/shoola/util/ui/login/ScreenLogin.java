@@ -244,7 +244,7 @@ public class ScreenLogin
     private void setButtonDefault(JButton button)
     {
         //Next two statements get rid of surrounding border.
-        button.setOpaque(false);
+        //button.setOpaque(true);
         button.setRolloverEnabled(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
@@ -257,10 +257,12 @@ public class ScreenLogin
     	login.setToolTipText("Login");
     	setButtonDefault(login);
     	UIUtilities.enterPressesWhenFocused(login);
+    	UIUtilities.opacityCheck(login);
     	cancel = new JButton("Quit");
     	cancel.setMnemonic('Q');
     	cancel.setToolTipText("Quit the Application");
     	setButtonDefault(cancel);
+    	UIUtilities.opacityCheck(cancel);
     	configButton = new JButton();
     	configButton.setMnemonic('X');
     	configButton.setToolTipText("Config Server");

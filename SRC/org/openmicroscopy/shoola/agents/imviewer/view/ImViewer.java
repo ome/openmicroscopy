@@ -625,5 +625,8 @@ public interface ImViewer
 	 * @param b The value to set.
 	 */
 	public void setTextVisible(boolean b);
+
+	/** Brings up on screen the ROI Tool. */
+	public void showRoiTool();
     
 }

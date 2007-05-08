@@ -178,7 +178,7 @@ public class EditorFactory
     { 
         model.addPropertyChangeListener(this);
        
-        if (editor != null) return editor;
+        //if (editor != null) return editor;
         EditorModel m = new EditorModel(model, editorType, ho, parent);
         EditorComponent component = new EditorComponent(m);
         m.initialize(component);

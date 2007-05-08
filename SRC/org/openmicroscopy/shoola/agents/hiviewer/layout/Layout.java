@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 
 //Java imports
+import java.util.Set;
 
 //Third-party libraries
 
@@ -69,5 +70,12 @@ public interface Layout
     
     /** Lays out the nodes. */
     public void doLayout();
+    
+    /**
+     * Invokes when refreshing the display.
+     * 
+     * @param oldNodes The collection of the nodes previously displayed.
+     */
+    public void setOldNodes(Set oldNodes);
     
 }

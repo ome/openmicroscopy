@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ROITool;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -1303,6 +1305,19 @@ class ImViewerComponent
 	{
 		model.setTextVisible(b);
 		model.getBrowser().viewSplitImages();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#showRoiTool()
+     */
+	public void showRoiTool()
+	{
+		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+		ROITool request = new ROITool(model.getImageID(), 
+						model.getPixelsID(), model.getImageName(), 
+						view.getBounds());
+		bus.post(request);
 	}
     
 }

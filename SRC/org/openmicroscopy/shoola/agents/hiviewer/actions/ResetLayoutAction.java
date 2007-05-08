@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction
+ * org.openmicroscopy.shoola.agents.hiviewer.actions.ResetLayoutAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
+
 
 
 //Java imports
@@ -33,41 +33,38 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Reloads the Model of its viewer.
- * For the time being we just reinstantiate the viewer and discard the 
- * existing one.
+ * Action to reset the default layout.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since OME3.0
  */
-public class RefreshAction
-    extends HiViewerAction
+public class ResetLayoutAction 
+	extends HiViewerAction
 {
 
-    /** The name of the action. */
-    private static final String NAME = "Refresh";
+	/** The name of the action. */
+    private static final String NAME = "Reset Layout";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Refresh this window.";
+    private static final String DESCRIPTION = "Reset the layout.";
     
     /**
-     * Enables the action when the state is {@link HiViewer#READY}.
+     * Allows to modify the layout when the thumbnails are loaded.
      * @see HiViewerAction#onStateChange()
      */
     protected void onStateChange()
     {
-    	setEnabled(model.getState() == HiViewer.READY);
+        //setEnabled(model.getState() == HiViewer.READY);
+        setEnabled(true);
     }
     
     /**
@@ -75,22 +72,20 @@ public class RefreshAction
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    public RefreshAction(HiViewer model)
+    public ResetLayoutAction(HiViewer model)
     {
         super(model);
-        //setEnabled(true);
-        //putValue(Action.NAME, NAME);
-        name = NAME;
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+        setEnabled(true);
+        putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, DESCRIPTION);
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REFRESH));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
     }
-
-    /**
-     * Reloads the thumbnails. 
+    
+    /** 
+     * Resets the layout.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent ae) { model.refresh(); }
-    
+    public void actionPerformed(ActionEvent e) { model.resetLayout(); }
+
 }

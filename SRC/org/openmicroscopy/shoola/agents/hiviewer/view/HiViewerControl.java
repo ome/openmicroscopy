@@ -64,9 +64,11 @@ import org.openmicroscopy.shoola.agents.hiviewer.actions.ExitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FindwSTAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.FlatLayoutAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.MouseOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RemoveAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.ResetLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveLayoutAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.SaveThumbnailsAction;
@@ -189,6 +191,12 @@ class HiViewerControl
     
     /** Identifies the <code>Classify children</code> action. */
     static final Integer     CLASSIFY_CHILDREN = new Integer(28);
+    
+    /** Identifies the <code>Reset layout</code> action. */
+    static final Integer     RESET_LAYOUT = new Integer(29);
+    
+    /** Identifies the <code>Mouse over</code> action. */
+    static final Integer     MOUSE_OVER = new Integer(30);
        
     /** 
      * Reference to the {@link HiViewer} component, which, in this context,
@@ -237,6 +245,8 @@ class HiViewerControl
                                         SortByAction.BY_NAME));
         actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
         actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
+        actionsMap.put(RESET_LAYOUT, new ResetLayoutAction(model));
+        actionsMap.put(MOUSE_OVER, new MouseOverAction(model));
     }
   
     /** 
@@ -387,7 +397,7 @@ class HiViewerControl
     	int y = 0;
     	ImageDisplay n = parent;
     	Rectangle viewRect, nBounds;
-    	JScrollPane dskDecorator;
+    	JScrollPane dskDecorator = null;
     	Rectangle bounds = node.getBounds();
     	while (parent != null) {
     		n = parent;
@@ -402,6 +412,7 @@ class HiViewerControl
     		}
     		parent = parent.getParentDisplay();
 		}
+    	if (dskDecorator == null) return;
     	dskDecorator = n.getDeskDecorator();
     	dskDecorator.getVerticalScrollBar().setValue(y+bounds.y);
 		dskDecorator.getHorizontalScrollBar().setValue(x+bounds.x);

@@ -46,20 +46,20 @@ import pojos.ProjectData;
 /** 
  * Represents a component in the composite structure used to visualize an
  * image hierarchy.
- * <p>A concrete component can be either a {@link ImageNode}, to represent a
+ * <p>A concrete component can be either an {@link ImageNode}, to represent a
  * single image, or an {@link ImageSet}, to represent a collection of images.
  * An {@link ImageSet} can also contain other image sets, thus leading to a
  * composite structure.  This is a tree whose leaf nodes are {@link ImageNode}
  * objects and internal nodes are {@link ImageSet} objects.</p>
  * <p>So we have a general purpose, set-based structure we can use to visualize 
  * any image hierarchy: Project/Dataset/Image, Category Group/Category/Image, 
- * or Screen/Plate/Well/Image.  The original data hierarchy translates into
- * a visualization tree as follows.  Each image object corresponds to an
+ * or Screen/Plate/Well/Image. The original data hierarchy translates into
+ * a visualization tree as follows. Each image object corresponds to an
  * {@link ImageNode} and an image container, such as Dataset or Category, 
- * corresponds to an {@link ImageSet}.  All {@link ImageNode} objects that are
+ * corresponds to an {@link ImageSet}. All {@link ImageNode} objects that are
  * created for the images in a given image container are added to the 
  * {@link ImageSet} object created for that image container.  Nested containers
- * translate into nested {@link ImageSet}s.  For example, say you have a 
+ * translate into nested {@link ImageSet}s. For example, say you have a 
  * Project <code>p_1</code> and two datasets in it, <code>d_1</code> and <code>
  * d_2</code>.  The former contains image <code>i_1</code> and <code>i_2</code>,
  * as the latter only has one image, <code>i_3</code>.  This would translate
@@ -73,10 +73,9 @@ import pojos.ProjectData;
  * {@link ImageDisplayVisitor} interface allows you to define arbitrary 
  * operations that can then be applied to the tree by calling the 
  * {@link #accept(ImageDisplayVisitor) accept} method, usually on the root node.
- * An example of this is layout management.  In fact, an {@link ImageSet} can
- * contain other nodes &#151; this class inherits from 
- * {@link org.openmicroscopy.shoola.agents.hiviewer.tpane.TinyPane} and
- * nodes are added to its internal desktop, which has no layout manager.  In
+ * An example of this is layout management. In fact, an {@link ImageSet} can
+ * contain other nodes &#151; this class inherits from {@link TinyPane} and
+ * nodes are added to its internal desktop, which has no layout manager. In
  * order to position the contained nodes properly, you can write a layout class
  * that implements the {@link ImageDisplayVisitor} interface to lay out the
  * contents of every {@link ImageSet} node in a visualization tree.</p>

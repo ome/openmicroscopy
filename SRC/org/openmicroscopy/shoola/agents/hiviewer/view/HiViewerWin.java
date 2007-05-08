@@ -53,6 +53,7 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ClipBoardViewAction;
+import org.openmicroscopy.shoola.agents.hiviewer.actions.HiViewerAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.TreeViewAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomFitAction;
 import org.openmicroscopy.shoola.agents.hiviewer.actions.ZoomInAction;
@@ -226,7 +227,11 @@ class HiViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.SAVE_THUMB)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(controller.getAction(HiViewerControl.REFRESH)));
+        HiViewerAction a = (HiViewerAction) 
+        		controller.getAction(HiViewerControl.REFRESH);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(a.getName());
+        menu.add(item);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(new JMenuItem(
                 controller.getAction(HiViewerControl.EXIT)));
@@ -301,6 +306,8 @@ class HiViewerWin
         menu.add(mi);
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         menu.add(createLayoutMenu());
+        menu.add(new JMenuItem(
+        		controller.getAction(HiViewerControl.RESET_LAYOUT)));
         return menu;
     }
     

@@ -28,10 +28,12 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -39,6 +41,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
+import pojos.DataObject;
 
 /** 
  * A collection of <code>static</code> methods to support common computations 
@@ -224,14 +228,7 @@ public class LayoutUtils
             node.setVisible(true);
             return;
         }
-        
-        Rectangle pBounds = node.getBounds();
         n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
-        if (pBounds.width != 0) { 
-        	//lay out the children when resizing the parent
-        	n = pBounds.width/maxDim.width;
-        }
-        
         
         //Finally do layout.
         Dimension d;
@@ -258,10 +255,98 @@ public class LayoutUtils
             node.getInternalDesktop().setPreferredSize(d);
         }
     }
+    
+    /**
+     * Relays out the node when refreshing the display.
+     * 
+     * @param node		The node to refresh.
+     * @param oldNode	The node previously layed out.
+     * @param newNodes	The nodes to layout.
+     * @param oldNodes	The previously layed out nodes.
+     */
+    public static void redoLayout(ImageDisplay node, ImageDisplay oldNode, 
+    							Collection newNodes, 
+								Set oldNodes)
+    {
+    	int n = newNodes.size();        
+    	if (n == 0) {   //Node with no children.
+    		node.getInternalDesktop().setPreferredSize(
+    				node.getTitleBar().getMinimumSize());
+    		node.setVisible(true);
+    		return;
+    	}
+
+    	Iterator children = newNodes.iterator();
+    	ImageDisplay child, oldChild;
+    	Object ho, oho, pho, poho;
+    	Iterator j;
+    	long id, pid;
+    	Class klass, pKlass;
+    	while (children.hasNext()) {
+    		child = (ImageDisplay) children.next();
+    		ho = child.getHierarchyObject();
+    		klass = ho.getClass();
+    		pho = child.getParentDisplay().getHierarchyObject();
+    		pKlass = pho.getClass();
+    		if (ho instanceof DataObject) {
+    			if (pho instanceof DataObject) {
+    				j = oldNodes.iterator();
+        			id = ((DataObject) ho).getId();
+        			pid = ((DataObject) pho).getId();
+        			while (j.hasNext()) {
+        				oldChild = (ImageDisplay) j.next();
+        				oho = oldChild.getHierarchyObject();
+        				if (oldChild.getParentDisplay() != null) {
+        					poho = 
+        					oldChild.getParentDisplay().getHierarchyObject();
+            				if (oho instanceof DataObject) { 
+            					if (((DataObject) oho).getId() == id && 
+            							oho.getClass().equals(klass)) {
+            						if (((DataObject) poho).getId() == pid && 
+                							poho.getClass().equals(pKlass)) {
+            							child.setBounds(oldChild.getBounds());
+            						}
+            					}
+            				}
+        				}
+        			}
+    			} else {
+    				j = oldNodes.iterator();
+        			id = ((DataObject) ho).getId();
+        			while (j.hasNext()) {
+        				oldChild = (ImageDisplay) j.next();
+        				oho = oldChild.getHierarchyObject();
+        				if (oldChild.getParentDisplay() != null) {
+            				if (oho instanceof DataObject) { 
+            					if (((DataObject) oho).getId() == id && 
+            							oho.getClass().equals(klass)) {
+            						child.setBounds(oldChild.getBounds());
+            					}
+            				}
+        				}
+        			}
+    			}
+    		}
+    	}
+    	if (oldNode == null) {
+			Rectangle bounds = node.getContentsBounds();
+    		Dimension d = bounds.getSize();
+    		node.getInternalDesktop().setSize(d);
+    		node.getInternalDesktop().setPreferredSize(d);
+		} else {
+			Rectangle bounds = oldNode.getBounds();
+    		node.setBounds(bounds);
+    		Dimension d = bounds.getSize();
+    		node.getInternalDesktop().setSize(d);
+    		node.getInternalDesktop().setPreferredSize(d);
+		}
+    }
+
     //NOTE: Let A be the function that calculates the area of a Dimension,
     //sz the number of children, and r = sqr(sz).
     //The required area for the layout mustn't be less than sz*A(maxDim).
     //B/c: r < [r]+1  =>  sz=r^2 < ([r]+1)^2  
     //Then: sz*A(maxDim) < [([r]+1)^2]*A(maxDim)
-    
+
+
 }

@@ -62,6 +62,12 @@ class BrowserModel
     implements Browser
 {
 
+	/**
+	 * Flag indicating to display the data related to a node
+	 * when the user mouses over the node.
+	 */
+	private boolean				mouseOver;
+	
     /** 
      * Flag to control the zoom action when the user mouses over an 
      * {@link ImageNode}. 
@@ -406,6 +412,18 @@ class BrowserModel
      */
     public boolean isRollOver() { return rollOver; }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isMouseOver()
+     */
+	public boolean isMouseOver() { return mouseOver; }
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setMouseOver(boolean)
+     */
+	public void setMouseOver(boolean b) { mouseOver = b; }
+	
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#resetChildDisplay()

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treemng.IconManager
+ * org.openmicroscopy.shoola.agents.treeviewer.IconManager
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.

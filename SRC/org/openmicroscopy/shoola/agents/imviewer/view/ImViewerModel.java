@@ -796,4 +796,11 @@ class ImViewerModel
      */
 	BufferedImage getAnnotateImage() { return browser.getAnnotateImage(); }
 	
+	/**
+	 * Returns the ID of the viewed image.
+	 * 
+	 * @return See above.
+	 */
+	long getImageID() { return imageID; }
+	
 }

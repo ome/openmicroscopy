@@ -24,9 +24,6 @@
 package org.openmicroscopy.shoola.agents.hiviewer.tpane;
 
 
-
-
-
 //Java imports
 import java.awt.Component;
 import java.awt.Container;
@@ -148,7 +145,12 @@ class BorderListener
         } else {
             frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             getDesktopManager().endResizingFrame(frame);
+            //Rectangle r = frame.getBounds();
+            //Dimension d = r.getSize();
+            //frame.getInternalDesktop().setPreferredSize(d);
+            //frame.getInternalDesktop().setSize(d);
         }
+        
         xAbs = 0;
         yAbs = 0;
         xView = 0;
@@ -284,8 +286,8 @@ class BorderListener
             newY = startingBounds.y-deltaY;
 
             // Make sure we stay in-bounds
-            if (newX+i.left <= -xView)   newX = -xView-i.left+1;
-            if (newY+i.top <= -yView) newY = -yView - i.top + 1;
+            if (newX+i.left <= -xView) newX = -xView-i.left+1;
+            if (newY+i.top <= -yView) newY = -yView-i.top+1;
             if (newX+xView+i.right >= pWidth) newX = pWidth-xView-i.right-1;
             if (newY+yView+i.bottom >= pHeight) newY = pHeight-yView-i.bottom-1;
             getDesktopManager().dragFrame(frame, newX, newY);
@@ -334,7 +336,7 @@ class BorderListener
                     deltaX = startingBounds.x+startingBounds.width-
                             parentBounds.width;
                 newX = startingBounds.x;
-                newY = startingBounds.y - deltaY;
+                newY = startingBounds.y-deltaY;
                 newW = startingBounds.width-deltaX;
                 newH = startingBounds.height+deltaY;
                 frame.setCursor(Cursor.getPredefinedCursor(
@@ -343,7 +345,7 @@ class BorderListener
             case EAST:      
                 if (startingBounds.width-deltaX < min.width)
                     deltaX = startingBounds.width-min.width;
-                else if(startingBounds.width - deltaX > max.width)
+                else if (startingBounds.width-deltaX > max.width)
                     deltaX = startingBounds.width-max.width;
                 if (startingBounds.x+startingBounds.width-deltaX >
                         parentBounds.width)
@@ -447,6 +449,7 @@ class BorderListener
                 break;
             default: return;
         }
+        //frame.setBounds(newX, newY, newW, newH);
         getDesktopManager().resizeFrame(frame, newX, newY, newW, newH);
     }
 
@@ -469,7 +472,7 @@ class BorderListener
             }
             Insets i = frame.getInsets();
             if (ep.x <= i.left) {
-                if (ep.y < resizeCornerSize + i.top)
+                if (ep.y < resizeCornerSize+i.top)
                     frame.setCursor(Cursor.getPredefinedCursor(
                                     Cursor.NW_RESIZE_CURSOR));
                 else if (ep.y > frame.getHeight()-resizeCornerSize-i.bottom)

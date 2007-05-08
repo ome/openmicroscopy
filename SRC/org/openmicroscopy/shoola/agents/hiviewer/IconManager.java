@@ -266,15 +266,20 @@ public class IconManager
     /** The <code>History</code> icon. */
     public static int           HISTORY = 69;
 
-    
     /** The <code>Backward nav</code> icon. */
     public static int           BACKWARD_NAV = 70;
+    
+    /** The <code>Redo</code> icon. */
+    public static int           REDO = 71;
+    
+    /** The <code>Mouse over</code> icon. */
+    public static int           MOUSE_OVER = 72;
 
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 70;
+    private static int          MAX_ID = 72;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -353,6 +358,8 @@ public class IconManager
         relPaths[HIERARCHICAL_LAYOUT] = "eclipse_hierarchicalLayout16.png";
         relPaths[HISTORY] = "eclipse_history_list16.png";
         relPaths[BACKWARD_NAV] = "eclipse_backward_nav16.png";
+        relPaths[REDO] = "nuvola_redo16.png";
+        relPaths[MOUSE_OVER] = "nuvola_mouse16.png";
     }
     
     /** The sole instance. */

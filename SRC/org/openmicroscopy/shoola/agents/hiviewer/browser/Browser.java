@@ -296,6 +296,22 @@ public interface Browser
     public boolean isRollOver();
 
     /**
+	 * Returns <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMouseOver();
+
+	/**
+	 * Sets to <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, to <code>false</code> otherwise.
+	 * 
+	 * @param b The value to set.
+	 */
+	public void setMouseOver(boolean b);
+	
+    /**
      * Adds the nodes to the <code>Desktop</code> of the root node according
      * to the currently selected layout.
      */

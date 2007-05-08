@@ -92,10 +92,9 @@ import pojos.ProjectData;
  */
 abstract class HiViewerModel
 {
-    
+	
     /** The currently selected experimenter. */
     private ExperimenterData	experimenter;
-    
 
     /** The id of the selected group of the current user. */
     private long				userGroupID;
@@ -234,6 +233,7 @@ abstract class HiViewerModel
      */
     void refreshBrowser(Set roots, boolean flat)
     {
+    	thumbsManager = null;
     	Set visTrees; 
     	//Check if the objects are readable.
     	long userID = getUserDetails().getId();
@@ -243,10 +243,43 @@ abstract class HiViewerModel
     		visTrees = HiTranslator.transformHierarchy(roots, userID, 
     					userGroupID);
     	int layoutIndex = browser.getSelectedLayout();
-    	browser = BrowserFactory.createBrowser(visTrees);
+    	//TODO: Identifies the location of the nodes and pass it to 
     	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
-        browser.setSelectedLayout(layout.getIndex());
-        browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+    	switch (layoutIndex) {
+	    	case LayoutFactory.FLAT_LAYOUT:
+	    		layout.setOldNodes(browser.getImageNodes());
+	    		break;
+	    	case LayoutFactory.SQUARY_LAYOUT:
+	    	default:
+	    		HashSet set = new HashSet();
+	    		Set oldNodes = browser.getRootNodes();
+	    		if (oldNodes != null) {
+	    			Iterator i = oldNodes.iterator();
+	    			ImageDisplay n;
+	    			while (i.hasNext()) {
+						n = (ImageDisplay) i.next();
+						set.add(n);
+						if (!n.containsImages())
+							set.addAll(n.getChildrenDisplay());
+					}
+	    		}
+	    		set.add(browser.getUI());
+	    		layout.setOldNodes(set);
+	    	break;
+    	}
+    	browser = BrowserFactory.createBrowser(visTrees);
+        browser.setSelectedLayout(layoutIndex);
+        switch (layoutIndex) {
+			case LayoutFactory.FLAT_LAYOUT:
+				browser.resetChildDisplay();
+				browser.accept(layout);
+				layout.doLayout();
+			break;
+			case LayoutFactory.SQUARY_LAYOUT:
+			default:
+				browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+			break;
+		}
         browser.accept(new IconsVisitor(), ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
     
@@ -577,6 +610,28 @@ abstract class HiViewerModel
 		}
 	}
 	 
+	/**
+	 * Returns <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMouseOver() { 
+		if (browser == null) return false;
+		return browser.isMouseOver();  
+    }
+
+	/**
+	 * Sets to <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, to <code>false</code> otherwise.
+	 * 
+	 * @param b The value to set.
+	 */
+	void setMouseOver(boolean b)
+	{ 
+		if (browser != null) browser.setMouseOver(b);  
+	}
+	
 	/** 
 	 * Sets the state to <code>READY</code> when the <code>DataObject</code>
 	 * is saved.
@@ -632,5 +687,7 @@ abstract class HiViewerModel
      * @return A new Model created after this one.
      */
     protected abstract HiViewerModel reinstantiate();
+
+	
 
 }

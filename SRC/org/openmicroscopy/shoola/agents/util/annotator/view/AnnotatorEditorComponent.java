@@ -305,9 +305,9 @@ class AnnotatorEditorComponent
      */
 	public void save() 
 	{
-		if (model.getState() != READY)
-			throw new IllegalStateException("This method can only be invoked "+
-			"in the READY state.");
+		if (model.getState() != READY) return;
+			//throw new IllegalStateException("This method can only be invoked "+
+			//"in the READY state.");
 		Set siblings = model.getSiblings();
 		if (siblings == null || siblings.size() == 1) {
 			save(AnnotatorEditor.SELECT_ONE);

@@ -72,6 +72,24 @@ class HiViewerToolBar
     /** Reference to the model. */
     private HiViewerModel	model;
     
+    /**
+     * Builds the tool bar hosting various controls.
+     *  
+     * @return See above.
+     */
+    private JToolBar buildGeneralBar()
+    {
+    	JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(new JButton(controller.getAction(HiViewerControl.REFRESH)));
+        bar.add(Box.createRigidArea(HGLUE));
+        bar.add(new JSeparator(SwingConstants.VERTICAL));
+        bar.add(Box.createRigidArea(HGLUE));
+        return bar;
+    }
+    
     /** 
      * Builds the toolbar hosting the various <code>View</code>s.
      * 
@@ -126,6 +144,10 @@ class HiViewerToolBar
         bar.add(new JSeparator(SwingConstants.VERTICAL));
         bar.add(Box.createRigidArea(HGLUE));
         b = new JToggleButton(
+                controller.getAction(HiViewerControl.MOUSE_OVER));
+        b.setSelected(model.isMouseOver());
+        bar.add(b);
+        b = new JToggleButton(
                 controller.getAction(HiViewerControl.ROLL_OVER));
         b.setSelected(model.isRollOver());
         bar.add(b);
@@ -150,6 +172,7 @@ class HiViewerToolBar
         JPanel bars = new JPanel(), outerPanel = new JPanel();
         bars.setBorder(null);
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
+        bars.add(buildGeneralBar());
         bars.add(buildViewBar());
         bars.add(buildManagementBar());
         outerPanel.setBorder(null);

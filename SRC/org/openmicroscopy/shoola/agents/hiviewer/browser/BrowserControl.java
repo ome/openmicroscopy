@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.browser;
 
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -39,8 +38,6 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -81,9 +78,6 @@ class BrowserControl
     /** Flag to indicate that a popupTrigger event occured. */
     private boolean         popupTrigger;
     
-    /** Used to sort the nodes by date or alphabetically. */
-    private ViewerSorter    sorter;
-    
     /**
      * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
      * hierarchy.
@@ -122,7 +116,6 @@ class BrowserControl
         this.model = model;
         this.view = view;
         popupTrigger = false;
-        sorter = new ViewerSorter();
     }
     
     /**
@@ -199,12 +192,14 @@ class BrowserControl
         	model.setThumbSelected(true, node);
         } else if (ImageDisplay.END_MOVING_PROPERTY.equals(name)) {
         	//ImageDisplay node = model.getLastSelectedDisplay();
+        	/*
         	ImageDisplay node = (ImageDisplay) evt.getNewValue();
         	int layoutIndex = model.getSelectedLayout();
         	Layout layout = LayoutFactory.createLayout(layoutIndex, sorter);
         	view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             node.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
         	view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        	*/
         }
     }
     
@@ -256,21 +251,26 @@ class BrowserControl
      */
     public void mouseEntered(MouseEvent me)
     {
+    	boolean mo = model.isMouseOver();
+    	boolean ro = model.isRollOver();
+    	if (!mo && !ro) return;
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
-        if (d instanceof RootDisplay) {
-        	ImageDisplay lastSelected = model.getLastSelectedDisplay();
-        	if (lastSelected != null) {
-        		view.setTitle(model.currentPathString(lastSelected));
-        	} else lastSelected = null;
-        	model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, 
-					lastSelected);
-        	return;
+        if (mo) {
+        	if (d instanceof RootDisplay) {
+            	ImageDisplay lastSelected = model.getLastSelectedDisplay();
+            	if (lastSelected != null) {
+            		view.setTitle(model.currentPathString(lastSelected));
+            	} else lastSelected = null;
+            	model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, 
+    					lastSelected);
+            	return;
+            }
+            if (!(d instanceof RootDisplay))
+                view.setTitle(model.currentPathString(d));
+            model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);
         }
-        if (!(d instanceof RootDisplay))
-            view.setTitle(model.currentPathString(d));
-        model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);
-        if (!model.isRollOver()) return;
+        if (!ro) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
         } else model.setRollOverNode(null);

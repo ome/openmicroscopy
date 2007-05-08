@@ -58,6 +58,9 @@ public abstract class HiViewerAction
     implements ChangeListener, PropertyChangeListener
 {
     
+	/** The name of the action. */
+	protected String		name;
+	
     /** A reference to the Model. */
     protected HiViewer      model;
     
@@ -89,6 +92,13 @@ public abstract class HiViewerAction
         model.addChangeListener(this);
     }
  
+    /**
+     * Returns the name of the action.
+     * 
+     * @return See above.
+     */
+    public String getName() { return name; }
+    
     /** 
      * Subclasses should implement the method.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
@@ -123,7 +133,7 @@ public abstract class HiViewerAction
             model.getBrowser().addPropertyChangeListener(
                     Browser.LAYOUT_PROPERTY, this);
             onStateChange();
-        }
+        } else if (state == HiViewer.READY) onStateChange();
     }
     
 }

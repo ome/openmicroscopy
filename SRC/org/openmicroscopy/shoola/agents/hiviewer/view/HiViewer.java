@@ -490,5 +490,24 @@ public interface HiViewer
 	 * 				<code>Category</code>.
 	 */
 	public void classifyChildren(ImageDisplay node);
+
+	/** Lays out the nodes in a grid. */
+	public void resetLayout();
+
+	/**
+	 * Returns <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMouseOver();
+
+	/**
+	 * Sets to <code>true</code> if data related to a node is displayed
+	 * when the user mouses over the node, to <code>false</code> otherwise.
+	 * 
+	 * @param b The value to set.
+	 */
+	public void mouseOver(boolean b);
     
 }

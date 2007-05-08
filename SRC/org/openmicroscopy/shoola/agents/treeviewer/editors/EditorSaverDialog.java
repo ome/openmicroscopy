@@ -121,8 +121,8 @@ public class EditorSaverDialog
     /** Action performed when the {@link #noButton} is pressed. */
     private void noSelection()
     { 
-    	firePropertyChange(SAVING_DATA_EDITOR_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+    	firePropertyChange(SAVING_DATA_EDITOR_PROPERTY, Boolean.TRUE, 
+							Boolean.FALSE);
         close();
     }
     
