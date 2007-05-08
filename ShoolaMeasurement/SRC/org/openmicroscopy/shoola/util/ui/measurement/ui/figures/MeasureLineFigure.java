@@ -66,11 +66,11 @@ public class MeasureLineFigure
 	extends LineFigure
 	implements ROIFigure
 {
-	private ArrayList<Rectangle2D> boundsArray;
-	private ArrayList<Double> lengthArray;
-	private ArrayList<Double> angleArray;
-	private ROI			roi;
-	private ROIShape 	shape;
+	private ArrayList<Rectangle2D> 	boundsArray;
+	private ArrayList<Double> 		lengthArray;
+	private ArrayList<Double> 		angleArray;
+	private ROI						roi;
+	private ROIShape 				shape;
 
 	public MeasureLineFigure()
 	{

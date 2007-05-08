@@ -82,6 +82,7 @@ import org.jhotdraw.util.ResourceBundleUtil;
 import org.jhotdraw.util.ReversedList;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
 
 //Java imports
 
@@ -104,9 +105,9 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
  */
 public 	class 		MeasureRectangleTextFigure 
 		extends 	MeasureRectangleFigure
-		implements 	CompositeFigure 
+		implements 	CompositeFigure
 {
-		
+	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -151,6 +152,10 @@ public 	class 		MeasureRectangleTextFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
+	        	if(e.getAttribute().equals(BASIC_TEXT))
+	        	{
+	        		owner.fireAttributeChanged(AttributeKeys.TEXT, null, text.getText());
+	        	}
 	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 

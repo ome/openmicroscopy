@@ -42,6 +42,7 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
@@ -80,6 +81,7 @@ import org.openmicroscopy.shoola.util.ui.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
@@ -347,9 +349,17 @@ public class UIModel
 		
 		firePropertyChange(DrawingEventList.UIMODEL_FIGURESELECTED, null, 
 				roiList);
-
 	}
 
+	private void handleAttributeChange(FigureEvent e)
+	{
+		if(e.getAttribute().equals(AttributeKeys.TEXT.getKey()))
+		{
+			ROIShape shape = ((ROIFigure)e.getFigure()).getROIShape();
+			shape.setAnnotation(AnnotationKeys.BASIC_TEXT, e.getNewValue());
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.jhotdraw.draw.FigureListener#figureAdded(org.jhotdraw.draw.FigureEvent)
 	 */
@@ -371,6 +381,7 @@ public class UIModel
 	 */
 	public void figureAttributeChanged(FigureEvent e) 
 	{
+		handleAttributeChange(e);
 		firePropertyChange(DrawingEventList.UIMODEL_FIGUREATTRIBUTECHANGED, null, e);		
 	}
 

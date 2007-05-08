@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -66,12 +66,11 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public class MeasureEllipseTextFigure 
-		extends 	MeasureEllipseFigure
-		implements 	CompositeFigure 
+public 	class MeasureLineTextFigure 	
+		extends	MeasureLineFigure
+		implements 	CompositeFigure
 {
 	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
-	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -86,8 +85,8 @@ public class MeasureEllipseTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureEllipseTextFigure owner;
-	        private ChildHandler(MeasureEllipseTextFigure owner) 
+	        private MeasureLineTextFigure owner;
+	        private ChildHandler(MeasureLineTextFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -136,20 +135,15 @@ public class MeasureEllipseTextFigure
 	        }
 	    };
 	
-	/** Creates a new instance. */
-	public MeasureEllipseTextFigure() 
-	{
-	    this(0, 0, 0, 0);
-	}
 	
-	public MeasureEllipseTextFigure(double x, double y, double width, double height) 
+	public MeasureLineTextFigure() 
 	{
 		super();
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
 		RelativeLocator d = new RelativeLocator();
-		
+		//FontSizeLocator d = new FontSizeLocator();
 		d.locate(this, text);
 		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
 		this.setLayouter(new LocatorLayouter());
@@ -457,8 +451,6 @@ public class MeasureEllipseTextFigure
         }
     }
     
-// EVENT HANDLING
-    
     public void invalidate() 
     {
         super.invalidate();
@@ -489,9 +481,9 @@ public class MeasureEllipseTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureEllipseTextFigure clone() 
+    public MeasureLineTextFigure clone() 
     {
-    	MeasureEllipseTextFigure that = (MeasureEllipseTextFigure) super.clone();
+    	MeasureLineTextFigure that = (MeasureLineTextFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 
@@ -503,7 +495,6 @@ public class MeasureEllipseTextFigure
         }
         return that;
     }
-    
     public void remap(HashMap<Figure,Figure> oldToNew) 
     {
         super.remap(oldToNew);
@@ -512,5 +503,6 @@ public class MeasureEllipseTextFigure
             child.remap(oldToNew);
         }
     }
-    
 }
+
+

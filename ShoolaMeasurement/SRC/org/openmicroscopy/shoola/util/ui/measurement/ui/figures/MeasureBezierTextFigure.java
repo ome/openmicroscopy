@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -66,9 +66,9 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public class MeasureEllipseTextFigure 
-		extends 	MeasureEllipseFigure
-		implements 	CompositeFigure 
+public class MeasureBezierTextFigure 
+			extends 	MeasureBezierFigure
+			implements 	CompositeFigure 
 {
 	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
 	
@@ -86,8 +86,8 @@ public class MeasureEllipseTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureEllipseTextFigure owner;
-	        private ChildHandler(MeasureEllipseTextFigure owner) 
+	        private MeasureBezierTextFigure owner;
+	        private ChildHandler(MeasureBezierTextFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -137,14 +137,20 @@ public class MeasureEllipseTextFigure
 	    };
 	
 	/** Creates a new instance. */
-	public MeasureEllipseTextFigure() 
-	{
-	    this(0, 0, 0, 0);
-	}
-	
-	public MeasureEllipseTextFigure(double x, double y, double width, double height) 
+	public MeasureBezierTextFigure()
 	{
 		super();
+		addText();
+	}
+	
+	public MeasureBezierTextFigure(boolean closed) 
+	{
+		super(closed);
+		addText();
+	}
+	
+	private void addText()
+	{
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
@@ -489,9 +495,9 @@ public class MeasureEllipseTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureEllipseTextFigure clone() 
+    public MeasureBezierTextFigure clone() 
     {
-    	MeasureEllipseTextFigure that = (MeasureEllipseTextFigure) super.clone();
+    	MeasureBezierTextFigure that = (MeasureBezierTextFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 

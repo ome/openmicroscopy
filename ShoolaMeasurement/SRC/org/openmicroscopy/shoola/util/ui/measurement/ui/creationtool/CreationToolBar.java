@@ -53,10 +53,13 @@ import org.openmicroscopy.shoola.util.ui.measurement.model.DrawingEventList;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIControl;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
@@ -118,15 +121,15 @@ public class CreationToolBar
 				new CreationTool(new MeasureEllipseTextFigure()), "createEllipse", 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureLineFigure()), "createLine", 
+				new CreationTool(new MeasureLineTextFigure()), "createLine", 
 				labels);
 	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		new ConnectionTool(new MeasureLineConnectionFigure()), 
+	    		new ConnectionTool(new MeasureLineConnectionTextFigure()), 
 	    		"createLineConnection", labels);
 		  ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				  new BezierTool(new MeasureBezierFigure()), "createScribble", labels);
+				  new BezierTool(new MeasureBezierTextFigure()), "createScribble", labels);
 	      ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		  new BezierTool(new MeasureBezierFigure(true)), "createPolygon", 
+	    		  new BezierTool(new MeasureBezierTextFigure(true)), "createPolygon", 
 	    		  labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new TextFigure()), "createText", 
