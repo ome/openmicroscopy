@@ -38,18 +38,14 @@
 			<include name="**/EnumerationException*"/>
 			<include name="**/OMEROMetadataStore*"/>
 			<include name="**/OMEROWrapper*"/>
-			<include name="**/Plane2D*"/>
 			<include name="**/ImportContainer*"/>
 			<include name="**/ImportLibrary*"/>
 			<include name="**/ImportFixture*"/>
+			<include name="**/Plane2D*"/>
 			<include name="**/TinyImportFixture*"/>
-			<include name="**/loci/**/*"/>
+			<include name="**/loci/formats/**/*"/>
+			<exclude name="**/loci/formats/gui/**/*"/>
 			<exclude name="**/loci/**/*Test*"/>
-			<exclude name="**/loci/ome/old-*/**/*"/>
-			<exclude name="**/loci/ome/editor/**/*"/>
-			<exclude name="**/loci/ome/viewer/**/*"/>
-			<exclude name="**/loci/ome/notebook/**/*"/>
-			<include name="**/ij/**/*"/>
 		</javac>
 		<!-- END COPY-->
 	</target>
