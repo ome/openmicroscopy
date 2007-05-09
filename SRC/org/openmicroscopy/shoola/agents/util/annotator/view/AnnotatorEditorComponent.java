@@ -149,8 +149,10 @@ class AnnotatorEditorComponent
      */
 	public void discard()
 	{
-		model.discard();
-		fireStateChange();
+		if (model.getState() != DISCARDED) {
+			model.discard();
+			fireStateChange();
+		}
 	}
 
 	/**
@@ -173,9 +175,6 @@ class AnnotatorEditorComponent
      */
 	public void cancel()
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("This method cannot be invoked "+
-					"in the DISCARDED state.");
 		discard();
 	}
 

@@ -143,7 +143,7 @@ public class ImViewerFactory
     }
     
     /**
-     * Creates or recycle a viewer component for the specified 
+     * Creates or recycles a viewer component for the specified 
      * <code>model</code>.
      * 
      * @param model The component's Model.

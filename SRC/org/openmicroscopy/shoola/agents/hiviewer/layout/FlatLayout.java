@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -138,13 +137,6 @@ implements Layout
      * Implemented as specified by the {@link Layout} interface.
      * @see Layout#setOldNodes(Set)
      */
-	public void setOldNodes(Set oldNodes) { 
-		this.oldNodes = oldNodes; 
-		Iterator i = oldNodes.iterator();
-		while (i.hasNext()) {
-			System.err.println(i.next());
-			
-		}
-	}
+	public void setOldNodes(Set oldNodes) { this.oldNodes = oldNodes; }
    
 }

@@ -142,7 +142,7 @@ class ImViewerModel
     /** The image icon. */
     private BufferedImage       imageIcon;
     
-    /** The bounds of the components resquesting the viewer. */
+    /** The bounds of the component requesting the viewer. */
     private Rectangle           requesterBounds;
     
     /** Fit the image to the size of window, on resize. */

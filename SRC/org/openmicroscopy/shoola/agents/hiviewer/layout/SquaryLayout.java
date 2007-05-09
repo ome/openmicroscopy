@@ -301,7 +301,7 @@ class SquaryLayout
         	if (o == null || n == null || o.size() != n.size()) {
         		node.restoreDisplay();
                 if (node.isSingleViewMode()) return;
-                if (node.getChildrenDisplay().size() == 0) {   //node with no child
+                if (node.getChildrenDisplay().size() == 0) {//node with no child
                     LayoutUtils.noChildLayout(node);
                     return;
                 }

@@ -335,8 +335,9 @@ public class LayoutUtils
     		node.getInternalDesktop().setPreferredSize(d);
 		} else {
 			Rectangle bounds = oldNode.getBounds();
-    		node.setBounds(bounds);
-    		Dimension d = bounds.getSize();
+			Dimension d = bounds.getSize();
+			node.setBounds(bounds);
+    		//Dimension d = bounds.getSize();
     		node.getInternalDesktop().setSize(d);
     		node.getInternalDesktop().setPreferredSize(d);
 		}

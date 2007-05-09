@@ -280,17 +280,11 @@ class SplashScreenManager
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
 			 container.exit();
 		     component.close();
-		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name)) {
-			//viewTop.toFront();
+		} else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
+				ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
 			view.setAlwaysOnTop(true);
 			viewTop.setAlwaysOnTop(true);
-			//viewTop.setAlwaysOnTop(false);
-		} else if (ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
-			//view.toFront();
-			//view.setAlwaysOnTop(true);
-			view.setAlwaysOnTop(true);
-			viewTop.setAlwaysOnTop(true);
-		}
+		} 
 	}
 
 	/**
@@ -301,10 +295,11 @@ class SplashScreenManager
 	public void windowStateChanged(WindowEvent e)
 	{
 		Object src = e.getSource();
-		if (src instanceof ScreenLogo) 
-			setWindowState(view, e.getNewState());
-		else if (src instanceof ScreenLogin)
-			setWindowState(viewTop, e.getNewState());
+		int state = e.getNewState();
+		if (src instanceof ScreenLogo) setWindowState(view, state);
+		else if (src instanceof ScreenLogin) setWindowState(viewTop, state);
+		view.setAlwaysOnTop(state == JFrame.NORMAL);
+		viewTop.setAlwaysOnTop(state == JFrame.NORMAL);
 	}
 
 	/**

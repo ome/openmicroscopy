@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RateImageAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
@@ -237,6 +238,9 @@ class ImViewerControl
     /** Identifies the <code>text visible</code> action in the menu. */
     static final Integer     TEXT_VISIBLE = new Integer(39);
     
+    /** Identifies the <code>ROI tool</code> action in the menu. */
+    static final Integer     ROI_TOOL = new Integer(40);
+    
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
      * is regarded as the Model.
@@ -344,6 +348,7 @@ class ImViewerControl
         actionsMap.put(DOWNLOAD, new ArchivedAction(model));
         actionsMap.put(CHANNEL_SPLIT, new RGBSplitAction(model));
         actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
+        actionsMap.put(ROI_TOOL, new ROIToolAction(model));
     }
     
     /** 
