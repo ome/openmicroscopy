@@ -263,7 +263,6 @@ public class EllipseAnnotationFigure
     {
     	if(childKey(key))
     	{
-    		System.err.println("Return text key");
     		return text.getAttribute(key);
     	}
     	return super.getAttribute(key);

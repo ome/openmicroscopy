@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.XMLIOStrategy 
+ * org.openmicroscopy.shoola.util.ui.roi.io.InputStrategy 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -22,13 +22,16 @@
  */
 package org.openmicroscopy.shoola.util.ui.roi.io;
 
+
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+
 //Java imports
-import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
 
 /** 
  * 
@@ -43,10 +46,13 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
  * </small>
  * @since OME3.0
  */
-public interface XMLIOStrategy 
+public class InputStrategy 
 {
-	public void read(String file, ROICollection collection) throws IOException;
-	public void write(String file, ROICollection collection) throws IOException;
+	ArrayList<ROI> readROI(InputStream in)
+	{
+		return null;
+		
+	}
 }
 
 

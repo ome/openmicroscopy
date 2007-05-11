@@ -121,7 +121,7 @@ public class BezierAnnotationFigure
 	        {
 	           	if(e.getAttribute()==TEXT)
 	        		owner.getROIShape().setAnnotation(BASIC_TEXT, e.getNewValue());
-	       }
+	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 
 	        {
@@ -270,7 +270,6 @@ public class BezierAnnotationFigure
     {
     	if(childKey(key))
     	{
-    		System.err.println("Return text key");
     		return text.getAttribute(key);
     	}
     	return super.getAttribute(key);

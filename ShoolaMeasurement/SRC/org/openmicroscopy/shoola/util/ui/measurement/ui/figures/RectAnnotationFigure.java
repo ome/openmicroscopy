@@ -22,72 +22,35 @@
  */
 package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
-import java.awt.Font;
+// Java imports
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
-import org.jhotdraw.draw.AbstractAttributedFigure;
+//Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+
 import org.jhotdraw.draw.AttributeKey;
-
-
-import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierLabelLocator;
-import org.jhotdraw.draw.BoxHandleKit;
 import org.jhotdraw.draw.CompositeFigure;
-import org.jhotdraw.draw.ConnectionHandle;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.FontSizeLocator;
-import org.jhotdraw.draw.GraphicalCompositeFigure;
-import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.HorizontalLayouter;
-import org.jhotdraw.draw.LabelFigure;
-import org.jhotdraw.draw.LabeledLineConnectionFigure;
 import org.jhotdraw.draw.Layouter;
-import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.LocatorLayouter;
-import org.jhotdraw.draw.MoveHandle;
-import org.jhotdraw.draw.RectangleFigure;
-import org.jhotdraw.draw.RelativeDecoratorLocator;
 import org.jhotdraw.draw.RelativeLocator;
-import org.jhotdraw.draw.RotateHandle;
-import org.jhotdraw.draw.SetBoundsEdit;
-import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextFigure;
-import org.jhotdraw.draw.VerticalLayouter;
-import org.jhotdraw.geom.Geom;
-import org.jhotdraw.geom.Insets2D;
-import org.jhotdraw.util.ResourceBundleUtil;
 import org.jhotdraw.util.ReversedList;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
-//Java imports
-
-//Third-party libraries
 
 //Application-internal dependencies
 

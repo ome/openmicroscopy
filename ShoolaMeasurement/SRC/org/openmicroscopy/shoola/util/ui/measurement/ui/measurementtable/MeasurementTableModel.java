@@ -98,7 +98,6 @@ public 	class 	MeasurementTableModel
         		for( int j = 0 ; j < getColumnCount() ; j++)
         		{
         			TableRow row = (TableRow)values.get(i);
-        			System.err.println(row.get(j));
         		}
         }
         
