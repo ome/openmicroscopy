@@ -89,6 +89,9 @@ class AnnotatorUtil
     static final Dimension	AREA_SIZE = new Dimension(200, 150);
     
     /** Default text. */
+    static final String		COMMENT_TITLE = "Total: ";
+    
+    /** Default text. */
     static final String		COMMENT = " annotation";
     
     /** Text describing the new annotation. */
@@ -106,6 +109,9 @@ class AnnotatorUtil
 	 */
 	static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
   
+	/** Number of row for the editable area. */
+	static final int		ROWS = 10;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.

@@ -40,11 +40,12 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.ROITool;
+import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
@@ -175,7 +176,13 @@ class ImViewerComponent
     public void discard()
     {
         if (model.getState() != DISCARDED) {
+        	try {
+				model.saveRndSettings();
+			} catch (Exception e) {
+				//Ignore.
+			}
         	//First make sure that we save the annotation.
+        	//Save rendering settings.
         	if (model.getBrowser().hasAnnotationToSave()) {
         		MessageBox msg = new MessageBox(view, "Save Annotation", 
     			"Do you want to save the annotation before closing?");
@@ -1066,7 +1073,7 @@ class ImViewerComponent
     	if (model.getState() == DISCARDED)
     		throw new IllegalStateException("The method cannot be invoked in " +
     		"the DISCARDED state.");
-    	view.setLensVisible(b);
+    	view.setLensVisible(b, model.getTabbedIndex());
     }
    
     /** 
@@ -1309,15 +1316,28 @@ class ImViewerComponent
 
 	/** 
      * Implemented as specified by the {@link ImViewer} interface.
-     * @see ImViewer#showRoiTool()
+     * @see ImViewer#showMeasurementTool()
      */
-	public void showRoiTool()
+	public void showMeasurementTool()
 	{
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-		ROITool request = new ROITool(model.getImageID(), 
+		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 						model.getPixelsID(), model.getImageName(), 
 						view.getBounds());
 		bus.post(request);
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#showImageDetails()
+     */
+	public void showImageDetails()
+	{
+		if (model.getState() != READY) return;
+		ImageDetailsDialog d = new ImageDetailsDialog(view, model.getMaxX(), 
+				model.getMaxY(), model.getPixelsSizeX(), model.getPixelsSizeY(), 
+				model.getPixelsSizeZ());
+		UIUtilities.centerAndShow(d);
 	}
     
 }

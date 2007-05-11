@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
@@ -129,12 +130,7 @@ class GridUI
     }
     
 	/** Determines the size of the canvas. */
-	void paintImage()
-	{
-		//setGridSize();
-        repaint();
-        //setBounds(getBounds());
-	}
+	void paintImage() { repaint(); }
 	
 	/**
 	 * Returns the grid image.
@@ -142,6 +138,19 @@ class GridUI
 	 * @return See above.
 	 */
 	BufferedImage getGridImage() { return canvas.getGridImage(); }
+	
+	/**
+	 * Returns the coordinate of the point w.r.t the grid image 
+	 * coordinate system if the passed rectangle is contained in an image 
+	 * composing the grid, <code>null</code> otherwise.
+	 * 
+	 * @param rect The rectangle to handle.
+	 * @return See above.
+	 */
+	Point isOnImageInGrid(Rectangle rect)
+	{
+		return canvas.isOnImageInGrid(rect);
+	}
 	
 	/** 
 	 * Overridden to center the image.
@@ -168,5 +177,7 @@ class GridUI
 		//layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 		layeredPane.setLocation(xLoc, yLoc);
 	}
+
+	
 	
 }

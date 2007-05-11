@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
@@ -302,5 +303,23 @@ public interface Browser
 	 * @return See above.
 	 */
 	public BufferedImage getAnnotateImage();
+
+	/**
+	 * Builds and lays out the annotator.
+	 * 
+	 * @param left	The component to add to the left of the image.
+	 * @param right	The component to add to the bottom of the image.
+	 */
+	public void layoutAnnotator(JComponent left, JComponent right);
+
+	/**
+	 * Returns the coordinate of the point w.r.t the grid image 
+	 * coordinate system if the passed rectangle is contained in an image 
+	 * composing the grid, <code>null</code> otherwise.
+	 * 
+	 * @param rect The rectangle to handle.
+	 * @return See above.
+	 */
+	public Point isOnImageInGrid(Rectangle rect);
 	
 }

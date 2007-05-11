@@ -149,8 +149,20 @@ public class EditorControl
     {
         if (e.getSource() instanceof JTabbedPane) {
             JTabbedPane tab = (JTabbedPane) e.getSource();
-            Component c = tab.getSelectedComponent();
+            //Component c = tab.getSelectedComponent();
             int index = tab.getSelectedIndex();
+            switch (index) {
+				case Editor.ANNOTATIONS_INDEX:
+					view.setEditorSelectedPane(index);
+					retrieveAnnotations();
+					break;
+	
+				case Editor.INFO_INDEX:
+					model.retrieveChannelsData();
+					view.setEditorSelectedPane(index);
+					break;
+			}
+            /*
             if (c instanceof DOInfo) {
                 DOInfo info = (DOInfo) c;
                 switch (info.getInfoType()) {
@@ -161,15 +173,17 @@ public class EditorControl
                 view.setEditorSelectedPane(index);
             } else {
             	view.setEditorSelectedPane(index);
-                 if (index == Editor.PROPERTIES_INDEX) {
-                 	int subIndex = model.getSelectedSubPane();
-                 	if (subIndex == Editor.ANNOTATION_INDEX) 
-                 		retrieveAnnotations();
-                 	else if (subIndex == Editor.CLASSIFICATION_INDEX)
-                 		loadClassifications();
-                 }
+            	if (index == Editor.ANNOTATIONS_INDEX)
+            		retrieveAnnotations();
+            	if (index == Editor.PROPERTIES_INDEX) {
+            		int subIndex = model.getSelectedSubPane();
+            		if (subIndex == Editor.ANNOTATION_INDEX) 
+            			retrieveAnnotations();
+            		else if (subIndex == Editor.CLASSIFICATION_INDEX)
+            			loadClassifications();
+            	}
             }
-            
+            */
         } else {
         	view.onStateChanged(model.getState() == Editor.READY);
         }

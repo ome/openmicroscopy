@@ -184,8 +184,7 @@ public class OneKnobSliderUI
 	 */
 	private void calculateArrowRect()
 	{
-		if (slider.getOrientation() == JSlider.HORIZONTAL)
-		{
+		if (slider.getOrientation() == JSlider.HORIZONTAL) {
 			int offsetY = trackRect.height/2-ARROW_HEIGHT/2-1;
 			minArrowRect = new Rectangle(trackRect.x-(ARROW_WIDTH+THUMB_WIDTH/2+
 					ARROW_SPACE),trackRect.y+offsetY, ARROW_WIDTH, 
@@ -193,9 +192,7 @@ public class OneKnobSliderUI
 			maxArrowRect = new Rectangle(trackRect.x+trackRect.width+
 					ARROW_SPACE+THUMB_WIDTH/2, trackRect.y+offsetY, ARROW_WIDTH, 
 					ARROW_HEIGHT);
-		}
-		else
-		{
+		} else {
 			int offsetX = trackRect.width/2-ARROW_WIDTH/2;
 			maxArrowRect = new Rectangle(trackRect.x+offsetX, trackRect.y-
 					(ARROW_HEIGHT+THUMB_HEIGHT/2+ARROW_SPACE), ARROW_WIDTH, 
@@ -212,14 +209,12 @@ public class OneKnobSliderUI
 	 */
 	private void calculateEndLabelRect()
 	{
-		if (slider.getOrientation() == JSlider.HORIZONTAL)
-		{
-			int offsetY = trackRect.height/2-labelHeight/2-1;
-			endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
-					TEXT_SPACE+labelWidth), offsetY, labelWidth, labelHeight);
-		}
-		else
-		{
+		if (slider.getOrientation() == JSlider.HORIZONTAL) {
+			int offsetY = trackRect.height+labelHeight/2+1;//trackRect.height/2-labelHeight/2-1;
+			//endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
+			//		TEXT_SPACE+labelWidth), offsetY, labelWidth, labelHeight);
+			endLabelRect = new Rectangle(0, offsetY, labelWidth, labelHeight);
+		} else {
 			int offsetX = trackRect.width/2-labelWidth/2+1;
 			endLabelRect = new Rectangle(offsetX, trackRect.y-
 					(minArrowRect.height+labelHeight+TEXT_SPACE),
@@ -245,17 +240,13 @@ public class OneKnobSliderUI
         g.fillRoundRect(trackRect.x+trackRect.width/2-2, trackRect.y, 4, 
                 trackRect.height, 4, 4);
         g.setPaint(Color.black);
-        if (showArrows)
-        {
-            if (slider.isEnabled())
-            {
+        if (showArrows) {
+            if (slider.isEnabled()) {
                 g.drawImage(downArrowImage, minArrowRect.x, minArrowRect.y, 
                     minArrowRect.width, minArrowRect.height, null);
                 g.drawImage(upArrowImage, maxArrowRect.x, maxArrowRect.y, 
                     maxArrowRect.width, maxArrowRect.height, null);
-            }
-            else
-            {
+            } else {
                 g.drawImage(downArrowDisabledImage, minArrowRect.x, 
                         minArrowRect.y, minArrowRect.width, minArrowRect.height,
                         null);
@@ -278,6 +269,7 @@ public class OneKnobSliderUI
     {
         Color gradientStart = TRACK_GRADIENT_START;
         Color gradientEnd = TRACK_GRADIENT_END;
+        g.setPaint(Color.black);
         
         Paint paint = new GradientPaint(0, trackRect.y+thumbRect.height/2-3, 
               gradientStart, 0, trackRect.y+thumbRect.height/2+2, gradientEnd, 
@@ -286,17 +278,13 @@ public class OneKnobSliderUI
         g.fillRoundRect(trackRect.x, trackRect.y+thumbRect.height/2-3, 
                 trackRect.width, 4, 4, 4);
         g.setPaint(Color.black);
-        if (showArrows)
-        {
-            if (slider.isEnabled())
-            {
+        if (showArrows) {
+            if (slider.isEnabled()) {
                 g.drawImage(leftArrowImage, minArrowRect.x, minArrowRect.y, 
                     minArrowRect.width, minArrowRect.height, null);
                 g.drawImage(rightArrowImage, maxArrowRect.x, maxArrowRect.y, 
                     maxArrowRect.width, maxArrowRect.height, null);
-            }
-            else
-            {
+            } else {
                 g.drawImage(leftArrowDisabledImage, minArrowRect.x, 
                         minArrowRect.y, minArrowRect.width, minArrowRect.height,
                         null);
@@ -306,7 +294,7 @@ public class OneKnobSliderUI
             }
         }
         if (showEndLabel && endLabel != null)
-        	g.drawString(endLabel, endLabelRect.x, endLabelRect.y);
+        	g.drawString(endLabel, endLabelRect.x, endLabelRect.height);
     }
 
     /**

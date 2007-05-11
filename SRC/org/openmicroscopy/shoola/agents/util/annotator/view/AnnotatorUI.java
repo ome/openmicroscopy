@@ -263,6 +263,8 @@ class AnnotatorUI
             }
         });
         annotationArea = new MultilineLabel();
+        annotationArea.setBorder(BorderFactory.createEtchedBorder());
+        annotationArea.setRows(AnnotatorUtil.ROWS);
         listener = new DocumentListener() {
             
             /** 
@@ -336,9 +338,6 @@ class AnnotatorUI
         
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        //p.add(deleteButton);
-        //p.add(saveButton);
-        //p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
         p.add(commentLabel);
         add(UIUtilities.buildComponentPanel(p));
         add(new JSeparator());
@@ -357,11 +356,17 @@ class AnnotatorUI
 		List l = areas.get(new Long(ownerID));
 		Iterator i = l.iterator();
 		MultilineLabel c;
+		JScrollPane pane;
 		while (i.hasNext()) {
 			c = (MultilineLabel) i.next();
-			if (c != annotationArea)
+			if (c != annotationArea) {
 				c.setBackground(c.getOriginalBackground());
-			listAnnotations.add(c);
+				listAnnotations.add(c);
+			} else {
+				pane = new JScrollPane(c);
+				pane.getVerticalScrollBar().setVisible(true);
+				listAnnotations.add(pane);
+			}
 		}
     	//setComponentsEnabled(ownerID == model.getUserDetails().getId());
     }

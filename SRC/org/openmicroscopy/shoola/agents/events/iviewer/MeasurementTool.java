@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.iviewer.ROITool 
+ * org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -32,7 +32,7 @@ import java.awt.Rectangle;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * Event to bring the roi tool.
+ * Event to bring the measurement tool.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,7 +44,7 @@ import org.openmicroscopy.shoola.env.event.RequestEvent;
  * </small>
  * @since OME3.0
  */
-public class ROITool 
+public class MeasurementTool 
 	extends RequestEvent
 {
 
@@ -68,7 +68,7 @@ public class ROITool
      * @param name      The name of the image.
      * @param bounds    The bounds of the component posting the event.
      */
-    public ROITool(long imageID, long pixelsID, String name, Rectangle bounds)
+    public MeasurementTool(long imageID, long pixelsID, String name, Rectangle bounds)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");

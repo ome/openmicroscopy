@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.annotator.actions.DeleteAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.annotator.actions;
-
+package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
-import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -48,46 +48,37 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class DeleteAction 
-	extends AnnotatorEditorAction
+public class InfoAction
+	extends ViewerAction
 {
-	
-	 /** The name of the action. */
-	private static final String NAME = "Delete";
-	
-	/** The description of the action. */
-	private static final String DESCRIPTION = "Delete the annotation.";
-	 
+
+	/** The name of the action. */
+    private static final String NAME = "Details";
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Bring up the image details";
+
     /**
-     * Sets it enabled depending on the selected type.
-     * @see AnnotatorEditorAction#onStateChange()
+     * Creates a new instance.
+     * 
+     * @param model The model. Mustn't be <code>null</code>.
      */
-	protected void onStateChange()
-	{
-		//setEnabled(model.hasAnnotation());
-		setEnabled(false);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
-	 */
-	public DeleteAction(AnnotatorEditor model)
-	{
-		super(model);
-		putValue(Action.NAME, NAME);
-		//IconManager icons = IconManager.getInstance();
-		//putValue(Action.SMALL_ICON, icons.getIcon(IconManager.TRASH_CAN));
-		//putValue(Action.NAME, NAME);
-	    putValue(Action.SHORT_DESCRIPTION, 
-	                UIUtilities.formatToolTipText(DESCRIPTION));
-	}
-	
-	/**
-	 * Saves the annotations.
-	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) { model.delete(); }
-	
+    public InfoAction(ImViewer model)
+    {
+        super(model, NAME);
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager icons = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.INFO));
+    }
+    
+    /** 
+     * Brings up on screen a window with the image details.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+    	model.showImageDetails();
+    }
+    
 }

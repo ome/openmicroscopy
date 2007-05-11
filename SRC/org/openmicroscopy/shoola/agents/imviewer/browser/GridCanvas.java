@@ -29,6 +29,8 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.List;
@@ -75,13 +77,11 @@ class GridCanvas
         g2D.fillRect(0, 0, d.width, d.height);
     	int n = images.size();
     	if (n <=3) n = 4;
-    	int index = 0;
-    	//if (n%2 != 0) index = 1;
     	if (n > 4 && n%2 != 0) {
     		combined = (SplitImage) images.get(images.size()-1);
     		images.remove(images.size()-1);
     	}
-    	n = (int) Math.floor(Math.sqrt(n))+index;
+    	n = (int) Math.floor(Math.sqrt(n));
         Iterator channels = images.iterator();
         BufferedImage image;
         int x = 0, y = 0;
@@ -181,6 +181,68 @@ class GridCanvas
 	}
 
 	/**
+	 * Returns the location of the point of the top-left corner of the 
+	 * the rectangle with respect to the image coordinate system if the 
+	 * passed rectangle is contained in an image composing the grid.
+	 * Returns <code>null</code> otherwise.
+	 * 
+	 * @param r The rectangle to handle.
+	 * @return See above.
+	 */
+	Point isOnImageInGrid(Rectangle r)
+	{
+		List images = model.getGridImages();
+    	if (images == null) return null; 
+    	SplitImage combined = null;
+    	int n = images.size();
+    	if (n <=3) n = 4;
+    	if (n > 4 && n%2 != 0) {
+    		combined = (SplitImage) images.get(images.size()-1);
+    		images.remove(images.size()-1);
+    	}
+    	n = (int) Math.floor(Math.sqrt(n));
+        Iterator channels = images.iterator();
+        BufferedImage image;
+        int x = 0, y = 0;
+        SplitImage channel;
+        BufferedImage original = model.getAnnotateImage();
+    	int w = original.getWidth(), h = original.getHeight();
+    	Rectangle imageRectangle;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (!channels.hasNext()) break; //Done
+                channel = (SplitImage) channels.next();
+                image = channel.getImage();
+                x = j*(w+BrowserModel.GAP);
+                if (image != null) {
+                	imageRectangle = new Rectangle (x, y, w, h); 
+                	if (imageRectangle.contains(r)) {
+                		return new Point(r.x-imageRectangle.x, 
+                						r.y-imageRectangle.y);
+                		
+                	}
+                } 
+            }
+            x = 0;
+            y = (i+1)*(h+BrowserModel.GAP);
+        }   
+        if (combined != null) {
+        	image = combined.getImage();
+        	y = 0;
+        	x = n*(w+BrowserModel.GAP);
+        	if (image != null) {
+        		imageRectangle = new Rectangle (x, y, w, h); 
+        		if (imageRectangle.contains(r)) {
+            		return new Point(r.x-imageRectangle.x, 
+            						r.y-imageRectangle.y);
+            		
+            	}
+        	} return null;
+        }
+        return null;
+	}
+	
+	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
      */
@@ -193,5 +255,7 @@ class GridCanvas
     	paintImage(g2D, original.getWidth(), original.getHeight(), 
     				model.isUnitBar());
     }
+
+	
     
 }

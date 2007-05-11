@@ -67,7 +67,7 @@ public interface ClipBoard
 	 * Flag set to <code>true</code> if the clipboard is displayed
 	 * horizontally, to <code>false</code> if vertically.
 	 */
-	public static final boolean HORIZONTAL_SPLIT = false;
+	public static final boolean HORIZONTAL_SPLIT = true;
 	
     /** 
      * Bound property name indicating to remove the magnified node 

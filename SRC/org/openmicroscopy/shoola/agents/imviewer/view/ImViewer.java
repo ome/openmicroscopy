@@ -626,7 +626,10 @@ public interface ImViewer
 	 */
 	public void setTextVisible(boolean b);
 
-	/** Brings up on screen the ROI Tool. */
-	public void showRoiTool();
+	/** Brings up on screen the Measurement Tool. */
+	public void showMeasurementTool();
+
+	/** Brings up on screen a window with the image's details. */
+	public void showImageDetails();
     
 }

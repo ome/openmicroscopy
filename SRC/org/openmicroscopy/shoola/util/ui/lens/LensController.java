@@ -123,25 +123,19 @@ class LensController
 		int newY = lens.getY()+dy;
 		int newWidth, newHeight;
 		
-		if (keepSquare)
-		{
+		if (keepSquare) {
 			int mx = Math.max(dw, dh);
 			int mn = Math.min(dw, dh);
-			if (Math.abs(mx) > Math.abs(mn))
-			{
+			if (Math.abs(mx) > Math.abs(mn)) {
 				dw = mx;
 				dh = mx;
-			}
-			else
-			{
+			} else {
 				dw = mn;
 				dh = mn;
 			}
-			
 		}
 
-		if (checkBounds(dx, dy, dw, dh))
-		{
+		if (checkBounds(dx, dy, dw, dh)) {
 			newWidth = lens.getWidth()+dw;
 			newHeight = lens.getHeight()+dh;			
 			

@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 //Java imports
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -311,5 +312,16 @@ class ClipBoardModel
         currentLoader.load();
         state = ClipBoard.DECLASSIFICATION;
     }
+
+    /**
+     * Returns the preferred size of the component. 
+     * 
+     * @return See above.
+     */
+	Dimension getComponentPreferredSize()
+	{
+		Dimension d = parentModel.getBrowser().getUI().getPreferredSize();
+		return new Dimension(d.width-10, d.height);
+	}
     
 }

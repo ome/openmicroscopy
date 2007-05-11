@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -44,7 +45,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
@@ -97,7 +97,7 @@ class AnnotatorEditorView
     /** The UI component hosting the display. */
     private JPanel					pane;
 
-	/** The layout, one of the constants defined by {@link AnnotatorFactory}. */
+	/** The layout, one of the constants defined by {@link AnnotatorEditor}. */
 	private int						layout;
 	
 	/** The id of the selected experimenter. */
@@ -189,7 +189,8 @@ class AnnotatorEditorView
     /** Initializes the UI components. */
     private void initComponents()
     {
-    	commentLabel = new JLabel("0 "+AnnotatorUtil.COMMENT);
+    	commentLabel = new JLabel(AnnotatorUtil.COMMENT_TITLE+"0 "+
+    							AnnotatorUtil.COMMENT);
     	listAnnotations = new JPanel();
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
     							BoxLayout.Y_AXIS));
@@ -231,6 +232,8 @@ class AnnotatorEditorView
         saveButton = new JButton(
         			controller.getAction(AnnotatorEditorControl.SAVE));
         annotationArea = new MultilineLabel();
+        annotationArea.setBorder(BorderFactory.createEtchedBorder());
+        annotationArea.setRows(AnnotatorUtil.ROWS);
         deleteButton = new JButton(
     			controller.getAction(AnnotatorEditorControl.DELETE));
 
@@ -279,12 +282,16 @@ class AnnotatorEditorView
         switch (layout) {
 			case AnnotatorEditor.HORIZONTAL_LAYOUT:
 			default:
-				double[][] tl = {{200, 5, TableLayout.FILL}, //columns
-	    				{0, TableLayout.FILL} }; //rows
+				
+				double[][] tl = {{200, 5, TableLayout.FILL, 5}, //columns
+    				{TableLayout.FILL} }; //rows
 	    		p.setLayout(new TableLayout(tl));
-	    		p.add(new JScrollPane(treeDisplay), "0, 0, 0, 1");
-	    		p.add(empty, "1, 0, f, t");
-	    		p.add(scrollAnnotations , "2, 0, 2, 1");  
+	    		p.add(new JScrollPane(treeDisplay), "0, 0");
+	    		p.add(empty, "1, 0");
+	    		p.add(scrollAnnotations , "2, 0");  
+	    		empty = new JPanel();
+	            empty.setOpaque(true);
+	    		p.add(empty, "3, 0");
 				break;
 			case AnnotatorEditor.VERTICAL_LAYOUT:
 				double[][] tl2 = {{450}, //columns
@@ -297,20 +304,36 @@ class AnnotatorEditorView
         return p;
     }
 
+    /** 
+     * Builds and lays out the tool bar.
+     * 
+     * @return See above.
+     */
+    private JPanel buildToolBar()
+    {
+    	JPanel p = new JPanel();
+        p.add(deleteButton);
+        p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
+        p.add(saveButton);
+        p.setOpaque(true);
+        JPanel bar = new JPanel();
+        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL, 
+        				TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED}};
+        bar.setLayout(new TableLayout(tl));
+        bar.add(UIUtilities.buildComponentPanel(commentLabel), "0, 0");
+        bar.add(UIUtilities.buildComponentPanelRight(p), "2, 0");
+        return bar;
+    }
+    
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        JPanel p = new JPanel();
-        p.add(deleteButton);
-        p.add(saveButton);
-        p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
-        p.add(commentLabel);
-        add(UIUtilities.buildComponentPanel(p));
-        add(new JSeparator());
-        add(Box.createRigidArea(AnnotatorUtil.SMALL_V_SPACER_SIZE));
         pane = buildAnnotationPanel();
         add(pane);
+        add(Box.createRigidArea(AnnotatorUtil.SMALL_V_SPACER_SIZE));
+        add(buildToolBar());
     }
 
     /**
@@ -324,11 +347,17 @@ class AnnotatorEditorView
 		List l = areas.get(new Long(ownerID));
 		Iterator i = l.iterator();
 		MultilineLabel c;
+		JScrollPane pane;
 		while (i.hasNext()) {
 			c = (MultilineLabel) i.next();
-			if (c != annotationArea)
+			if (c != annotationArea) {
 				c.setBackground(c.getOriginalBackground());
-			listAnnotations.add(c);
+				listAnnotations.add(c);
+			} else {
+				pane = new JScrollPane(c);
+				pane.getVerticalScrollBar().setVisible(true);
+				listAnnotations.add(pane);
+			}
 		}
     	setComponentsEnabled(ownerID == model.getUserDetails().getId());
     }
@@ -507,7 +536,7 @@ class AnnotatorEditorView
         treeDisplay.setSelectionPath(path);
         treeDisplay.expandPath(path);
         setComponentsEnabled(true);
-        String text = number+AnnotatorUtil.COMMENT;
+        String text = AnnotatorUtil.COMMENT_TITLE+number+AnnotatorUtil.COMMENT;
         if (number > 1) text += "s";
         commentLabel.setText(text);
     }

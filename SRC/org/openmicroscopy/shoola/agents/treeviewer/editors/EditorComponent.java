@@ -135,7 +135,7 @@ class EditorComponent
 	                			subIndex == Editor.CLASSIFICATION_INDEX)
 	                			loadClassifications();
 							break;
-						case Editor.PERMISSIONS_INDEX:
+						case Editor.ANNOTATIONS_INDEX:
 							retrieveThumbnail();
 							break;
 						default:
@@ -355,7 +355,7 @@ class EditorComponent
 	{
 		if (model.getEditorType() != PROPERTIES_EDITOR) return;
 		if (model.isAnnotatable() && model.getSelectedTabbedIndex() == 
-        			Editor.PROPERTIES_INDEX) {
+        			Editor.ANNOTATIONS_INDEX) {
 			model.fireAnnotationsLoading();
 	        model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, 
 	        								false);

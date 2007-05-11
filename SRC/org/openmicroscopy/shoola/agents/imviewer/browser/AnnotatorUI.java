@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -77,6 +76,12 @@ class AnnotatorUI
     /** The UI component hosting the {@link AnnotatorCanvas}. */
     private JLayeredPane		layeredPane;
     
+    /** The UI component layed out on the left of the image. */
+    private JComponent 			left;
+    
+    /** The width of the left component. */
+    private int					leftWidth;
+    
     /** The listener listening to the canvas. */
     private ImageCanvasListener	canvasListener;
     
@@ -94,21 +99,6 @@ class AnnotatorUI
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, new Integer(0));
-    }
-	
-    /** Builds and lays out the UI. */
-    private void buildGUI()
-    {
-    	setLayout(new BorderLayout(0, 0));
-    	JPanel p = new JPanel();
-    	double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, 
-				{TableLayout.PREFERRED, 5, TableLayout.FILL}};
-        p.setLayout(new TableLayout(tl));
-        p.add(layeredPane, "0, 0");
-        p.add(infoPane, "2, 0");
-        p.add(new JSeparator(), "0, 2, 2, 2");
-    	add(p, BorderLayout.NORTH);
-    	add(editor.getUI(), BorderLayout.CENTER);
     }
     
     /** Creates a new instance. */
@@ -129,7 +119,7 @@ class AnnotatorUI
 		this.controller = controller;
 		this.model = model;
 		initComponents();
-		buildGUI();
+		//buildGUI();
 	}
 
 	/**
@@ -150,6 +140,7 @@ class AnnotatorUI
         canvas.setPreferredSize(d);
         canvas.setSize(d);
         canvas.repaint();
+        left.setPreferredSize(new Dimension(leftWidth, h));
     }
     
 	/** Retrieves the annotations linked to the viewed image. */
@@ -200,6 +191,32 @@ class AnnotatorUI
     void removeComponentFromLayer(JComponent c)
     {
         layeredPane.remove(c);
+    }
+
+    /**
+     * Adds the passes component to the {@link #imagePanel}. 
+     * 
+     * @param left		The component to add to the left of the image.
+     * @param bottom	The component to add to the bottom of the image.
+     */
+    void buildGUI(JComponent left, JComponent bottom)
+    {
+    	setLayout(new BorderLayout(0, 0));
+    	JPanel imagePanel = new JPanel();
+    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
+    						TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
+    							TableLayout.FILL}};
+    	imagePanel.setLayout(new TableLayout(tl));
+    	this.left = left;
+    	leftWidth = left.getPreferredSize().width;
+    	left.setPreferredSize(layeredPane.getPreferredSize());
+    	imagePanel.add(left, "0, 0");
+    	imagePanel.add(layeredPane, "1, 0");
+        imagePanel.add(bottom, "1, 1");
+    	imagePanel.add(new JSeparator(), "0, 3, 3, 3");
+    	add(imagePanel, BorderLayout.NORTH);
+    	add(editor.getUI(), BorderLayout.CENTER);
     }
     
 }

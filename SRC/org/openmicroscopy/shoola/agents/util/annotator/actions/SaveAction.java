@@ -51,6 +51,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class SaveAction 	
 	extends AnnotatorEditorAction
 {
+
+	/** The name of the action. */
+	private static final String NAME = "Save";
 	
 	/** The description of the action. */
 	private static final String DESCRIPTION = "Saves the annotation.";
@@ -72,8 +75,9 @@ public class SaveAction
 	public SaveAction(AnnotatorEditor model)
 	{
 		super(model);
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE));
+		putValue(Action.NAME, NAME);
+		//IconManager icons = IconManager.getInstance();
+		//putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE));
 	    putValue(Action.SHORT_DESCRIPTION, 
 	                UIUtilities.formatToolTipText(DESCRIPTION));
 	}

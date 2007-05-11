@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RGBSplitAction;
@@ -238,8 +239,11 @@ class ImViewerControl
     /** Identifies the <code>text visible</code> action in the menu. */
     static final Integer     TEXT_VISIBLE = new Integer(39);
     
-    /** Identifies the <code>ROI tool</code> action in the menu. */
-    static final Integer     ROI_TOOL = new Integer(40);
+    /** Identifies the <code>Measurement tool</code> action in the menu. */
+    static final Integer     MEASUREMENT_TOOL = new Integer(40);
+    
+    /** Identifies the <code>Image details</code> action in the menu. */
+    static final Integer     IMAGE_DETAILS = new Integer(41);
     
     /** 
      * Reference to the {@link ImViewer} component, which, in this context,
@@ -348,7 +352,8 @@ class ImViewerControl
         actionsMap.put(DOWNLOAD, new ArchivedAction(model));
         actionsMap.put(CHANNEL_SPLIT, new RGBSplitAction(model));
         actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
-        actionsMap.put(ROI_TOOL, new ROIToolAction(model));
+        actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
+        actionsMap.put(IMAGE_DETAILS, new InfoAction(model));
     }
     
     /** 
@@ -523,7 +528,7 @@ class ImViewerControl
                 view.setVisible(false);
                 view.dispose();
                 if (view.isLensVisible())
-                	view.setLensVisible(false);
+                	view.setLensVisible(false, model.getSelectedIndex());
                 historyState = state;
                 break;
             case ImViewer.LOADING_RENDERING_CONTROL:

@@ -369,17 +369,16 @@ public class LensUI
 		lensController.lensMouseWheelMoved(tick);
 	}
 	
-	/** Show popup menu. At (x,y).
+	/** 
+	 * Shows the popup menu at (x,y).
+	 * 
 	 * @param x see above. 
 	 * @param y see above.
 	 * */
-	void showMenu(int x, int y)
-	{
-		menu.show(this, x, y);
-	}
+	void showMenu(int x, int y) { menu.show(this, x, y); }
 	
 	/**
-	 * Attach lens to controller.
+	 * Attaches lens to controller.
 	 *  
 	 * @param lensController
 	 */

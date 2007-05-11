@@ -89,7 +89,7 @@ public interface Editor
 	public static final int			PROPERTIES_INDEX = 0;
     
 	/** The index of the <code>Permissions</code> pane. */
-	public static final int			PERMISSIONS_INDEX = 1;
+	public static final int			ANNOTATIONS_INDEX = 1;
 	
 	/** The index of the <code>Info</code> pane. */
 	public static final int			INFO_INDEX = 2;

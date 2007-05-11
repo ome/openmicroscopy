@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.clipboard;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -35,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -67,7 +67,7 @@ import pojos.ImageData;
  * @since OME2.2
  */
 class ClipBoardUI
-    extends JScrollPane
+    extends JTabbedPane
 {
 
     /** Reference to the Control. */
@@ -76,18 +76,12 @@ class ClipBoardUI
     /** Reference to the model. */
     private ClipBoardModel      model;
     
-    /** The tabbedPane hosting the display. */
-    private JTabbedPane         tabPane;
-    
     /** The popup menu. */
     private PopupMenu           popupMenu;
     
     /** Initializes the UI components. */
     private void initComponents()
     {
-        tabPane = new JTabbedPane(JTabbedPane.TOP,
-        						JTabbedPane.WRAP_TAB_LAYOUT);
-        tabPane.setAlignmentX(LEFT_ALIGNMENT);
         popupMenu = new PopupMenu(model);
     }
 
@@ -95,49 +89,55 @@ class ClipBoardUI
     private void buildUI()
     {
     	int h = 0;
+    	Dimension dim = model.getComponentPreferredSize();
     	ClipBoardPane pane = model.getClipboardPane(ClipBoard.ANNOTATION_PANE);
     	Icon icon = pane.getPaneIcon();
-        if (icon != null) {
-        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
-        }
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-						pane.getPaneDescription());
+    	if (icon != null && icon.getIconHeight() > h) h = icon.getIconHeight();
+    	Component c = pane;
+    	if (ClipBoard.HORIZONTAL_SPLIT) c = pane.getComponent(0);
+        insertTab(pane.getPaneName(), icon, c, 
+				pane.getPaneDescription(), ClipBoard.ANNOTATION_PANE);
+        
         pane = model.getClipboardPane(ClipBoard.CLASSIFICATION_PANE);
         icon = pane.getPaneIcon();
-        if (icon != null) {
-        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
-        }
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-									pane.getPaneDescription());
+        if (icon != null && icon.getIconHeight() > h) h = icon.getIconHeight();
+        insertTab(pane.getPaneName(), icon, pane, 
+        			pane.getPaneDescription(), ClipBoard.CLASSIFICATION_PANE);
+        
         pane = model.getClipboardPane(ClipBoard.FIND_PANE);
         icon = pane.getPaneIcon();
-        if (icon != null) h = icon.getIconHeight();
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-        				pane.getPaneDescription());
-        
+        if (icon != null && icon.getIconHeight() > h) h = icon.getIconHeight();
+        insertTab(pane.getPaneName(), icon, pane, 
+        			pane.getPaneDescription(), ClipBoard.FIND_PANE);
         
         pane = model.getClipboardPane(ClipBoard.EDITOR_PANE);
         icon = pane.getPaneIcon();
-        if (icon != null) {
-        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
-        }
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-						pane.getPaneDescription());
+        if (icon != null && icon.getIconHeight() > h) h = icon.getIconHeight();
+        insertTab(pane.getPaneName(), icon, pane, 
+        		pane.getPaneDescription(), ClipBoard.EDITOR_PANE);
+        
         pane = model.getClipboardPane(ClipBoard.INFO_PANE);
         icon = pane.getPaneIcon();
-        if (icon != null) {
-        	if (icon.getIconHeight() > h) h = icon.getIconHeight();
-        }
-        tabPane.addTab(pane.getPaneName(), icon, pane, 
-						pane.getPaneDescription());
-        tabPane.setSelectedIndex(model.getPaneIndex());
+        if (icon != null && icon.getIconHeight() > h) h = icon.getIconHeight();
+        insertTab(pane.getPaneName(), icon, pane, 
+        			pane.getPaneDescription(), ClipBoard.INFO_PANE);
+        setSelectedIndex(model.getPaneIndex());
         
-        setViewportView(tabPane);
         Dimension d;
-        if (ClipBoard.HORIZONTAL_SPLIT)
-        	d = new Dimension(getViewportBorderBounds().width, h+5);
-        else d = new Dimension(5, getViewportBorderBounds().height);
-        getViewport().setPreferredSize(d);
+        
+        if (ClipBoard.HORIZONTAL_SPLIT) d = new Dimension(dim.width, h+5);
+        else d = new Dimension(5, dim.height);
+        setPreferredSize(d);
+        
+        setMinimumSize(new Dimension(5, h));
+    }
+    
+    /** Creates a new instance. */
+    ClipBoardUI()
+    {
+    	super(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+    	setAlignmentX(LEFT_ALIGNMENT);
+    	
     }
     
     /**
@@ -163,10 +163,10 @@ class ClipBoardUI
             public void mouseEntered(MouseEvent e) { 
             	controller.removeRollOver(); }
         });
-        tabPane.addChangeListener(new ChangeListener() {
+        addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
-                switch (tabPane.getSelectedIndex()) {
+                switch (getSelectedIndex()) {
                     case ClipBoard.FIND_PANE:
                         controller.setSelectedPane(ClipBoard.FIND_PANE);
                         break;
@@ -230,14 +230,14 @@ class ClipBoardUI
      * 
      * @return See above.
      */
-    int getTabPaneHeight() { return tabPane.getHeight(); }
+    int getTabPaneHeight() { return getHeight(); }
     
     /**
      * Sets the selected tabbed pane.
      *  
      * @param index The index of the selected tabbed pane.
      */
-    void setSelectedPane(int index) { tabPane.setSelectedIndex(index); }
+    void setSelectedPane(int index) { setSelectedIndex(index); }
     
     /**
      * Brings up the popup menu for the specified {@link ImageDisplay} node.

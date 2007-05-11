@@ -286,7 +286,7 @@ class DOInfo
     private void buildGUI(Map details, boolean permission)
     {
         contentPanel = buildContentPanel(details);
-        setBorder(new EtchedBorder());
+        //setBorder(new EtchedBorder());
         if (model.getObjectPermissions() != null && permission) {
         	double[][] tl = {{TableLayout.FILL}, //columns
         					{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows

@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -56,6 +57,8 @@ import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
 import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -103,13 +106,16 @@ class DOBasic
      * The component hosting the annotation, <code>null</code> if the data 
      * object is not annotable.
      */
-    private AnnotatorEditor		annotator;
+    //private AnnotatorEditor		annotator;
     
     /** 
      * The component hosting the classification. <code>null</code> if the data 
      * object hasn't been clasified.
      */
-    private DOClassification    classifier;
+    //private DOClassification    classifier;
+    
+    /** Component hosting the object permissions. */
+    private DOInfo				permissionsInfo;
     
     /** A {@link DocumentListener} for the {@link #nameArea}. */
     private DocumentListener    nameAreaListener;
@@ -174,6 +180,7 @@ class DOBasic
                 public void changedUpdate(DocumentEvent de) {}
                 
             });
+            /*
             IconManager im = IconManager.getInstance();
             if (model.isAnnotatable()) {	
                 //annotator = new DOAnnotation(view, model);
@@ -198,6 +205,13 @@ class DOBasic
                 			im.getIcon(IconManager.CATEGORY), classifier);
                 tabbedPane.setSelectedIndex(EditorFactory.getSubSelectedPane());
             }
+            */
+            ExperimenterData exp = model.getDataObjectOwner();
+        	
+            Map details = EditorUtil.transformExperimenterData(exp);
+            permissionsInfo = new DOInfo(view, model, details, true, 
+                                DOInfo.OWNER_TYPE);
+            
         } //end if editor type
         nameAreaListener = new DocumentListener() {
             
@@ -305,7 +319,7 @@ class DOBasic
         int h = l.getFontMetrics(l.getFont()).getHeight()+5;
         layout.setRow(3, h);
         content.add(l, "0, 3, l, c");
-        JScrollPane pane  = new JScrollPane(descriptionArea);
+        JScrollPane pane = new JScrollPane(descriptionArea);
         content.add(pane, "1, 3, 1, 4");
         return content;
     }
@@ -317,6 +331,17 @@ class DOBasic
     private void buildGUI()
     {
         setLayout(new BorderLayout());
+        if (permissionsInfo != null) {
+        	JPanel p = new JPanel();
+            p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+            p.add(buildContentPanel());
+            p.add(permissionsInfo);
+            add(p, BorderLayout.NORTH);
+        } else add(buildContentPanel(), BorderLayout.NORTH);
+        add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
+        
+        
+        /*
         if (download != null) {
         	JPanel p = new JPanel();
             p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -328,6 +353,7 @@ class DOBasic
         if (model.isAnnotatable() && 
         		model.getEditorType() == Editor.PROPERTIES_EDITOR) 
             add(tabbedPane, BorderLayout.CENTER);
+            */
     }
 
     /**
@@ -383,8 +409,8 @@ class DOBasic
     /** Shows the classifications. */
     void showClassifications()
     {
-        if (classifier == null) return;
-        classifier.showClassifications();
+        //if (classifier == null) return;
+        //classifier.showClassifications();
     }
 
     /** 
@@ -426,7 +452,7 @@ class DOBasic
      */
 	void addSiblings(List nodes)
 	{
-		if (annotator != null) annotator.addSelectedNodes(nodes);
+		//if (annotator != null) annotator.addSelectedNodes(nodes);
 	}
     
 }

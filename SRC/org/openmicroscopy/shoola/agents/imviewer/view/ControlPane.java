@@ -121,6 +121,12 @@ class ControlPane
     /** Slider to select the timepoint. */
     private OneKnobSlider			tSliderGrid;
     
+    /** Slider to select the z-section. */
+    private OneKnobSlider			zSliderAnnotator;
+    
+    /** Slider to select the timepoint. */
+    private OneKnobSlider			tSliderAnnotator;
+    
     /** One  {@link ChannelButton} per channel. */
     private HashSet<ChannelButton>	channelButtons;
     
@@ -253,13 +259,16 @@ class ControlPane
 
         zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
-        tSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        tSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSlider.setEnabled(false);
         zSliderGrid = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         zSliderGrid.setEnabled(false);
-        tSliderGrid = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        tSliderGrid = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
         tSliderGrid.setEnabled(false);
-        
+        zSliderAnnotator = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
+        zSliderAnnotator.setEnabled(false);
+        tSliderAnnotator = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 0, 1, 0);
+        tSliderAnnotator.setEnabled(false);
         
         
         
@@ -298,6 +307,30 @@ class ControlPane
     }
     
     /**
+     * Attaches listener to the passed slider and sets the default values.
+     * 
+     * @param slider	The slider to handle.
+     * @param max		The maximum value.
+     * @param v			The default value.
+     * @param toolTip	The tooltip text.
+     * @param endLabel	The text for the tooltip which is displayed when 
+     * 					slider changes value, as well as the label shown at 
+     * 					the end of the text. 
+     */
+    private void initSlider(OneKnobSlider slider, int max, int v, 
+    						String toolTip, String endLabel)
+    {
+    	slider.setMaximum(max);
+    	slider.setValue(v);
+    	slider.addChangeListener(this);
+        slider.addMouseWheelListener(this);
+        slider.setToolTipText(toolTip);
+        slider.setEndLabel(endLabel);
+        slider.setShowEndLabel(true);
+        slider.setShowTipLabel(true);
+    }
+    
+    /**
      * Initializes the value of the components displaying the currently selected
      * z-section and timepoint.
      */
@@ -323,46 +356,19 @@ class ControlPane
                 ratingBox.setSelectedIndex(4);
         }
         ratingBox.addActionListener(this);
-        zSlider.setMaximum(model.getMaxZ());
-        zSlider.setValue(model.getDefaultZ());
-        tSlider.setMaximum(model.getMaxT());
-        tSlider.setValue(model.getDefaultT());
+        initSlider(zSlider, model.getMaxZ(), model.getDefaultZ(), 
+        			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+        initSlider(zSliderGrid, model.getMaxZ(), model.getDefaultZ(), 
+    			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+        initSlider(zSliderAnnotator, model.getMaxZ(), model.getDefaultZ(), 
+    			Z_SLIDER_DESCRIPTION, Z_SLIDER_TIPSTRING);
+        initSlider(tSlider, model.getMaxT(), model.getDefaultT(), 
+        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        initSlider(tSliderGrid, model.getMaxT(), model.getDefaultT(), 
+        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
+        initSlider(tSliderAnnotator, model.getMaxT(), model.getDefaultT(), 
+        		T_SLIDER_DESCRIPTION, T_SLIDER_TIPSTRING);
         
-        zSliderGrid.setMaximum(model.getMaxZ());
-        zSliderGrid.setValue(model.getDefaultZ());
-        tSliderGrid.setMaximum(model.getMaxT());
-        tSliderGrid.setValue(model.getDefaultT());
-        
-        zSlider.addChangeListener(this);
-        tSlider.addChangeListener(this);
-        zSlider.addMouseWheelListener(this);
-        tSlider.addMouseWheelListener(this);
-        
-        zSliderGrid.addChangeListener(this);
-        tSliderGrid.addChangeListener(this);
-        zSliderGrid.addMouseWheelListener(this);
-        tSliderGrid.addMouseWheelListener(this);
-        
-        
-        zSlider.setToolTipText(Z_SLIDER_DESCRIPTION);
-        zSlider.setEndLabel(Z_SLIDER_TIPSTRING);
-        zSlider.setShowEndLabel(true);
-        zSlider.setShowTipLabel(true);
-        
-        zSliderGrid.setToolTipText(Z_SLIDER_DESCRIPTION);
-        zSliderGrid.setEndLabel(Z_SLIDER_TIPSTRING);
-        zSliderGrid.setShowEndLabel(true);
-        zSliderGrid.setShowTipLabel(true);
-        
-        tSlider.setToolTipText(T_SLIDER_DESCRIPTION);
-        tSlider.setEndLabel(T_SLIDER_TIPSTRING);
-        tSlider.setShowEndLabel(true);
-        tSlider.setShowTipLabel(true);
-        
-        tSliderGrid.setToolTipText(T_SLIDER_DESCRIPTION);
-        tSliderGrid.setEndLabel(T_SLIDER_TIPSTRING);
-        tSliderGrid.setShowEndLabel(true);
-        tSliderGrid.setShowTipLabel(true);
         
         colorModelButton.setIcon(getColorModelIcon(model.getColorModel()));
         colorModelButton.setToolTipText(
@@ -396,7 +402,7 @@ class ControlPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(createSliderPane(zSlider));
-        p.add(createSliderPane(tSlider));
+        //p.add(createSliderPane(tSlider));
         return p;
     }
 
@@ -528,6 +534,16 @@ class ControlPane
     }
     
     /**
+     * Returns the UI component hosting the z-section slider.
+     * 
+     * @return See above.
+     */
+    JPanel buildAnnotatorComponent()
+    {
+    	return createSliderPane(zSliderAnnotator);
+    }
+    
+    /**
      * Builds the control panel displayed in the grid view.
      * 
      * @return See above.
@@ -577,6 +593,7 @@ class ControlPane
     { 
     	updateSlider(tSlider, t);
     	updateSlider(tSliderGrid, t);
+    	updateSlider(tSliderAnnotator, t);
     }
     
     /**
@@ -588,6 +605,7 @@ class ControlPane
     { 
     	updateSlider(zSlider, z); 
     	updateSlider(zSliderGrid, z); 
+    	updateSlider(zSliderAnnotator, z);
     }
     
     /**
@@ -696,7 +714,7 @@ class ControlPane
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(createSliderPane(zSliderGrid));
-        p.add(createSliderPane(tSliderGrid));
+        //p.add(createSliderPane(tSliderGrid));
         return p;
     }
     
@@ -713,11 +731,15 @@ class ControlPane
             tSlider.setEnabled(model.getMaxT() != 0);
             zSliderGrid.setEnabled(model.getMaxZ() != 0);
             tSliderGrid.setEnabled(model.getMaxT() != 0);
+            zSliderAnnotator.setEnabled(model.getMaxZ() != 0);
+            tSliderAnnotator.setEnabled(model.getMaxT() != 0);
         } else {
             zSlider.setEnabled(b);
             tSlider.setEnabled(b);
             zSliderGrid.setEnabled(b);
             tSliderGrid.setEnabled(b);
+            zSliderAnnotator.setEnabled(b);
+            tSliderAnnotator.setEnabled(b);
         } 
         zoomingBox.setEnabled(b);
         ratingBox.setEnabled(b);
@@ -725,6 +747,26 @@ class ControlPane
         while (i.hasNext())
             ((ChannelButton) i.next()).setEnabled(b);
         colorModelButton.setEnabled(b);
+    }
+    
+    /**
+     * Builds and returns a UI component hosting the time slider 
+     * corresponding to the passed index.
+     * 
+     * @param index The index used to identify the slider.
+     * @return See above.
+     */
+    JPanel getTimeSliderPane(int index) 
+    {
+    	switch (index) {
+			case ImViewer.ANNOTATOR_INDEX:
+				return createSliderPane(tSliderAnnotator);
+			case ImViewer.GRID_INDEX:
+				return createSliderPane(tSliderGrid);
+			case ImViewer.VIEW_INDEX:
+			default:
+				return createSliderPane(tSlider);
+		}
     }
     
     /**
@@ -750,9 +792,12 @@ class ControlPane
         	if (object == zSlider || object == tSlider)
         		controller.setSelectedXYPlane(zSlider.getValue(), 
                     tSlider.getValue());
-        	else 
+        	else if (object == zSliderGrid || object == tSliderGrid)
         		controller.setSelectedXYPlane(zSliderGrid.getValue(), 
                         tSliderGrid.getValue());
+        	else if (object == zSliderAnnotator || object == tSliderAnnotator)
+        		controller.setSelectedXYPlane(zSliderAnnotator.getValue(), 
+        				tSliderAnnotator.getValue());
         }
     }
     
@@ -770,6 +815,10 @@ class ControlPane
         else if (source == zSliderGrid && zSliderGrid.isEnabled()) 
         	mouseWheelMovedZ(e);
         else if (source == tSliderGrid && tSliderGrid.isEnabled())
+            mouseWheelMovedT(e);
+        else if (source == zSliderAnnotator && zSliderAnnotator.isEnabled()) 
+        	mouseWheelMovedZ(e);
+        else if (source == tSliderAnnotator && tSliderAnnotator.isEnabled())
             mouseWheelMovedT(e);
     }
     

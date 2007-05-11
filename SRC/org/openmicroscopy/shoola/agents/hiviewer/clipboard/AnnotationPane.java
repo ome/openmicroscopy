@@ -41,7 +41,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Component hosting the annotator.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

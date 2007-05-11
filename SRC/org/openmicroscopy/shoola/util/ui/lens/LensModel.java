@@ -165,6 +165,8 @@ class LensModel
 	LensModel(BufferedImage planeImage)
 	{
 		this.planeImage = planeImage;
+		x = 0;
+		y = 0;
 	}
 
 	/** 

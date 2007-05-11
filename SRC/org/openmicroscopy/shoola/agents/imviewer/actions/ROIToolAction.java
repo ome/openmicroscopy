@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Brings up the Measurement tool.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,7 +54,7 @@ public class ROIToolAction
 	extends ViewerAction
 {
 
-	 /** The name of the action. */
+	/** The name of the action. */
     private static final String NAME = "ROI";
     
     /** The description of the action. */
@@ -75,12 +75,12 @@ public class ROIToolAction
     }
     
     /** 
-     * Brings up on screen the {@link ImgSaver} window.
+     * Brings up on screen the measurement tool.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	model.showRoiTool();
+    	model.showMeasurementTool();
     }
     
 }

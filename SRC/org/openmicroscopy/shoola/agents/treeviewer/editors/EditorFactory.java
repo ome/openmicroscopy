@@ -65,7 +65,7 @@ public class EditorFactory
     { 
     	switch (index) {
 			case Editor.INFO_INDEX:
-			case Editor.PERMISSIONS_INDEX:
+			case Editor.ANNOTATIONS_INDEX:
 			case Editor.PROPERTIES_INDEX:
 				break;
 			default:

@@ -58,6 +58,7 @@ import javax.swing.JTabbedPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -199,6 +200,12 @@ class EditorUI
      */
     private DOBasic         doBasic;
     
+    /** 
+     * The component hosting the annotation, <code>null</code> if the data 
+     * object is not annotable.
+     */
+    private AnnotatorEditor	annotator;
+    
     /** Reference to the Model. */
     private EditorModel     model;
     
@@ -224,6 +231,11 @@ class EditorUI
             public void actionPerformed(ActionEvent e) {  finish(); }
         });
         doBasic = new DOBasic(this, model, controller); 
+        if (model.isAnnotatable()) {	
+            //annotator = new DOAnnotation(view, model);
+        	annotator = model.createAnnotator();
+        	annotator.addPropertyChangeListener(controller);
+        }
     }
     
     /** 
@@ -286,7 +298,7 @@ class EditorUI
      * Builds the tool bar hosting the {@link #cancelButton} and
      * {@link #finishButton}.
      * 
-     * @return See above;
+     * @return See above.
      */
     private JPanel buildToolBar()
     {
@@ -295,7 +307,30 @@ class EditorUI
         bar.add(finishButton);
         bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(cancelButton);
-        return bar;
+        JPanel p = UIUtilities.buildComponentPanelRight(bar);
+        p.setOpaque(true);
+        return p;
+    }
+    
+    /**
+     * Builds the tool bar hosting the {@link #finishButton} and
+     * the passed button if not <code>null</code>.
+     * 
+     * @param button The button to add.
+     * @return See above.
+     */
+    JPanel buildBasicToolBar(JButton button)
+    {
+    	JPanel bar = new JPanel();
+        bar.setBorder(null);
+        if (button != null) {
+        	bar.add(finishButton);
+            bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        }
+        bar.add(finishButton);
+        JPanel p = UIUtilities.buildComponentPanelRight(bar);
+        p.setOpaque(true);
+        return p;
     }
     
     /** Creates the {@link #emptyMessagePanel} if required. */
@@ -339,6 +374,12 @@ class EditorUI
                 tabs.setAlignmentX(LEFT_ALIGNMENT);
                 tabs.addTab(PROPERTIES_TITLE, 
                         im.getIcon(IconManager.PROPERTIES), doBasic);
+                if (annotator != null) {
+                	tabs.addTab(DOBasic.ANNOTATION, 
+                            im.getIcon(IconManager.ANNOTATION), 
+                            annotator.getUI());
+                }
+                /*
                 ExperimenterData exp = model.getDataObjectOwner();
             	
                 Map details = EditorUtil.transformExperimenterData(exp);
@@ -347,11 +388,15 @@ class EditorUI
                 
                 tabs.addTab(OWNER_TITLE,  im.getIcon(IconManager.OWNER), 
                 			info);
+                */			
                 DataObject hierarchyObject = model.getHierarchyObject();
                 if (hierarchyObject instanceof ImageData) {
+                	ExperimenterData exp = model.getDataObjectOwner();
+                	
+                    Map details = EditorUtil.transformExperimenterData(exp);
                     details = EditorUtil.transformPixelsData(
                           ((ImageData) hierarchyObject).getDefaultPixels());
-                    info = new DOInfo(this, model, details, false, 
+                    DOInfo info = new DOInfo(this, model, details, false, 
                             DOInfo.INFO_TYPE);
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
                     			info);  
@@ -359,8 +404,27 @@ class EditorUI
                 //Add a tab listeners to the info
                 tabs.addChangeListener(controller);
                 int index = model.getSelectedTabbedIndex();
-                if (index >= 0 && index < MAX_INDEX)
-                    tabs.setSelectedIndex(index);
+                switch (index) {
+					case Editor.PROPERTIES_INDEX:
+						tabs.setSelectedIndex(index);
+						break;
+					case Editor.ANNOTATIONS_INDEX:
+						if (annotator != null) 
+							tabs.setSelectedIndex(index);
+						else {
+							setEditorSelectedPane(0);
+							tabs.setSelectedIndex(0);
+						}
+						break;
+					case Editor.INFO_INDEX:
+						if (hierarchyObject instanceof ImageData) 
+							tabs.setSelectedIndex(index);
+						else {
+							setEditorSelectedPane(0);
+							tabs.setSelectedIndex(0);
+						}
+						break;
+				}
                 return tabs;
         }
         return null;
@@ -379,9 +443,8 @@ class EditorUI
         JScrollPane pane = new JScrollPane(c);
         c.setPreferredSize(pane.getViewport().getExtentSize());
         add(pane, BorderLayout.CENTER);
-        JPanel p = UIUtilities.buildComponentPanelRight(buildToolBar());
-        p.setOpaque(true);
-        add(p, BorderLayout.SOUTH);
+        if (model.getEditorType() == Editor.CREATE_EDITOR) 
+            add(buildToolBar(), BorderLayout.SOUTH);
     }
 
     /** 
@@ -519,18 +582,6 @@ class EditorUI
     		finishButton.setEnabled(false);
             edit = false;
     	}
-    }
-    
-    /** Enables the {@link #finishButton}. 
-     * 
-     * @param b Pass <code>true</code> to enable the {@link #finishButton}
-     * 			<code>false</code> otherwise.
-     */
-    void handleAnnotationAreaInsert(boolean b)
-    {
-    	if (doBasic == null) return;
-    	if (doBasic.hasDataToSave()) finishButton.setEnabled(true);
-    	else finishButton.setEnabled(b);
     }
     
     /**
@@ -717,7 +768,8 @@ class EditorUI
      */
 	void addSelectedNodes(List nodes)
 	{
-		if (doBasic != null) doBasic.addSiblings(nodes);
+		//if (doBasic != null) doBasic.addSiblings(nodes);
+		if (annotator != null) annotator.addSelectedNodes(nodes);
 	}
 	
     /**

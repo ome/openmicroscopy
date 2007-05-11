@@ -228,7 +228,8 @@ class AnnotatorEditorModel
      * Starts the asynchronous update of the specifed object and the creation 
      * of the annotation.
      * 
-     * @param data      The annotation to create. 
+     * @param data  The annotation to create. 
+     * @param index	The selection mode.
      */
     void fireAnnotationCreate(AnnotationData data, int index)
     {

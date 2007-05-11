@@ -26,11 +26,11 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-
 
 //Third-party libraries
 
@@ -441,6 +441,24 @@ class BrowserComponent
 	public BufferedImage getAnnotateImage()
 	{
 		return model.getAnnotateImage();
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#layoutAnnotator(JComponent, JComponent)
+     */
+	public void layoutAnnotator(JComponent left, JComponent right)
+	{
+		annotator.buildGUI(left, right);
+	}
+
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#isOnImageInGrid(Rectangle rect)
+     */
+	public Point isOnImageInGrid(Rectangle rect)
+	{
+		return gridView.isOnImageInGrid(rect);
 	}
 
 }

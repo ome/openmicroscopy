@@ -803,4 +803,17 @@ class ImViewerModel
 	 */
 	long getImageID() { return imageID; }
 	
+	/** 
+     * Saves the rendering settings. 
+     * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    void saveRndSettings()
+    	throws RenderingServiceException, DSOutOfServiceException
+    {
+    	rndControl.saveCurrentSettings(); 
+    }
+	
 }

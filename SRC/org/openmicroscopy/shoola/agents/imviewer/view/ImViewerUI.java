@@ -54,6 +54,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
+import layout.TableLayout;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -518,7 +520,7 @@ class ImViewerUI
         ratingGroup.add(item);
         return menu;
     }
-    
+   
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -528,18 +530,35 @@ class ImViewerUI
         tabs.setAlignmentX(LEFT_ALIGNMENT);
         
     	JPanel p = new JPanel();
+    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
+				{TableLayout.FILL, TableLayout.PREFERRED}};
+        p.setLayout(new TableLayout(tl));
+        p.add(controlPane, "0, 0");
+        p.add(browser.getUI(), "1, 0");
+        p.add(controlPane.getTimeSliderPane(ImViewer.VIEW_INDEX), "1, 1");
+        /*
     	p.setLayout(new BorderLayout(0, 0));
     	p.add(controlPane, BorderLayout.WEST);
         p.add(browser.getUI(), BorderLayout.CENTER);
+        */
     	tabs.insertTab(browser.getTitle(), browser.getIcon(), p, "", 
     					ImViewer.VIEW_INDEX);
+    	
+    	browser.layoutAnnotator(controlPane.buildAnnotatorComponent(), 
+    			controlPane.getTimeSliderPane(ImViewer.ANNOTATOR_INDEX));
     	tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
     				browser.getAnnotator(), "", ImViewer.ANNOTATOR_INDEX);
     	
     	p = new JPanel();
+    	p.setLayout(new TableLayout(tl));
+    	p.add(controlPane.buildGridComponent(), "0, 0");
+        p.add(browser.getGridView(), "1, 0");
+        p.add(controlPane.getTimeSliderPane(ImViewer.GRID_INDEX), "1, 1");
+    	/*
     	p.setLayout(new BorderLayout(0, 0));
     	p.add(controlPane.buildGridComponent(), BorderLayout.WEST);
         p.add(browser.getGridView(), BorderLayout.CENTER);
+        */
     	tabs.insertTab(browser.getGridViewTitle(), browser.getGridViewIcon(), p, 
     					"", ImViewer.GRID_INDEX);
         Container container = getContentPane();
@@ -549,49 +568,7 @@ class ImViewerUI
         container.add(statusBar, BorderLayout.SOUTH);
         tabs.addChangeListener(controller);
     }
- 
-    
-    /**
-     * Sets the lens's visibility and displays the lens on the main canvas.
-     * 
-     * @param b		Pass <code>true</code> to display the lens, 
-     * 				<code>false</code> otherwise.
-     * @param maxX 	The maximum size along the X-axis.
-     * @param maxY	The maximum size along the Y-axis.
-     * @param index	The index of the selected panel.
-     * @param f		The magnification factor.
-     * @param image	The image to display in the lens.
-     */
-    private void showLens(boolean b, int maxX, int maxY, int index, float f,
-    						BufferedImage image)
-    {
-    	if (b) {
-    		int width = lens.getLensUI().getWidth();
-    		int height = lens.getLensUI().getHeight();
-            if (maxX < width || maxY < height) return;
-           // if (firstTimeLensShown) {
-                //firstTimeLensShown = false;
-                int diffX = maxX-width;
-                int diffY = maxY-height;
-                int lensX = diffX/2;
-                int lensY = diffY/2;
-                if (lensX+width > maxX) lensX = diffX;
-                if (lensY+height > maxY) lensY = diffY;
-                //lens.setLensLocation(lensX, lensY);
-                lens.resetLens(image, f, lensX, lensY);
-                
-           // }
-            model.getBrowser().addComponent(lens.getLensUI(), index);
-            //}
-            //lens.setImageZoomFactor(f);
-            //lens.setPlaneImage(image);
-            scrollLens();
-            UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
-        }
-        lens.setVisible(b);
-        repaint();
-    } 
- 
+
     /**
      * Creates a new instance.
      * The {@link #initialize(ImViewerControl, ImViewerModel) initialize} 
@@ -827,42 +804,126 @@ class ImViewerUI
      * Sets the lens's visibility. If the lens hasn't previously created, 
      * we first create the lens.
      * 
-     * @param b Pass <code>true</code> to display the lens, <code>false</code>
-     * 			otherwise.
+     * @param b 			Pass <code>true</code> to display the lens, 
+     * 						<code>false</code> otherwise.
+     * @param historyIndex	The index of the tabbed pane. 
      */
-    void setLensVisible(boolean b)
+    void setLensVisible(boolean b, int historyIndex)
     {
+    	boolean firstTime = false;
     	if (lens == null) {
-        	lens = new LensComponent(this);
-        	lens.setXYPixelMicron(model.getPixelsSizeX(), 
-                    			model.getPixelsSizeY());
-        	lens.addPropertyChangeListener(
-        			LensComponent.LENS_LOCATION_PROPERTY, controller);
+    		if (b) {
+    			firstTime = true;
+        		lens = new LensComponent(this);
+        		lens.setXYPixelMicron(model.getPixelsSizeX(), 
+        				model.getPixelsSizeY());
+        		lens.addPropertyChangeListener(
+        				LensComponent.LENS_LOCATION_PROPERTY, controller);
+    		} else return;
+    		
+    	} else {
+    		Browser browser = model.getBrowser();
+    		JComponent c = lens.getLensUI();
+    		browser.removeComponent(c, ImViewer.VIEW_INDEX);
+    		browser.removeComponent(c, ImViewer.GRID_INDEX);
+    		browser.removeComponent(c, ImViewer.ANNOTATOR_INDEX);
+    	}
+    	if (!b) {
+    		lens.setVisible(b);
+    		repaint();
+    		return;
+    	}
+    	//depending on the previous selected tabbed pane, 
+    	//we reset the location of the lens
+    	
+    	int maxX = model.getMaxX();
+    	int maxY = model.getMaxY();
+    	float f = 1.0f;
+    	BufferedImage img;
+    	int index = model.getTabbedIndex();
+    	switch (index) {
+	    	case ImViewer.VIEW_INDEX:
+	    	default:
+	    		f = (float) model.getZoomFactor();
+	    		img = model.getOriginalImage();
+	    		break;
+	    	case ImViewer.GRID_INDEX:
+	    		img = model.getGridImage();
+	    		break;
+	    	case ImViewer.ANNOTATOR_INDEX:
+	    		img = model.getOriginalImage();
+	    		f = (float) Browser.RATIO;
+	    		break;
+    	}
+    	
+    	
+    	/*
+    	switch (model.getTabbedIndex()) {
+	    	case ImViewer.VIEW_INDEX:
+	    		showLens(b, model.getMaxX(), model.getMaxY(), 
+	    				ImViewer.VIEW_INDEX, (float) model.getZoomFactor(), 
+	    				model.getOriginalImage());
+	    		break;
+	    	case ImViewer.GRID_INDEX:
+	    		showLens(b, model.getMaxX(), model.getMaxY(), 
+	    				ImViewer.GRID_INDEX, 1.0f, model.getGridImage());
+	    		break;
+	    	case ImViewer.ANNOTATOR_INDEX:
+	    		int maxX = (int) (model.getMaxX()*Browser.RATIO);
+	    		int maxY = (int) (model.getMaxY()*Browser.RATIO);
+	    		showLens(b, maxX, maxY, ImViewer.ANNOTATOR_INDEX, 1.0f,
+	    				model.getAnnotateImage());
+	    		break;
+    	}
+    	*/
+    	int width = lens.getLensUI().getWidth();
+		int height = lens.getLensUI().getHeight();
+		Point p = lens.getLensLocation();
+		int lensX = p.x;
+		int lensY = p.y;
+        if (maxX < width || maxY < height) return;
+        if (firstTime) {
+            //firstTimeLensShown = false;
+            int diffX = maxX-width;
+            int diffY = maxY-height;
+            lensX = diffX/2;
+            lensY = diffY/2;
+            if (lensX+width > maxX) lensX = diffX;
+            if (lensY+height > maxY) lensY = diffY;
         } else {
-        	Browser browser = model.getBrowser();
-        	JComponent c = lens.getLensUI();
-        	browser.removeComponent(c, ImViewer.VIEW_INDEX);
-        	browser.removeComponent(c, ImViewer.GRID_INDEX);
-        	browser.removeComponent(c, ImViewer.ANNOTATOR_INDEX);
+        	switch (historyIndex) {
+				case ImViewer.GRID_INDEX:
+					if (historyIndex != index) {
+						Point point = model.getBrowser().isOnImageInGrid(
+								lens.getLensScaledBounds());
+						if (point == null) {
+							int diffX = maxX-width;
+				            int diffY = maxY-height;
+				            lensX = diffX/2;
+				            lensY = diffY/2;
+				            if (lensX+width > maxX) lensX = diffX;
+				            if (lensY+height > maxY) lensY = diffY;
+						} else {
+							lensX = (int) (point.x/Browser.RATIO);
+							lensY = (int) (point.y/Browser.RATIO);
+						}
+					}
+					break;
+				case ImViewer.VIEW_INDEX:
+				case ImViewer.ANNOTATOR_INDEX:
+					if (index == ImViewer.GRID_INDEX) {
+						lensX = (int) (lensX*Browser.RATIO);
+						lensY = (int) (lensY*Browser.RATIO);
+					}
+					break;
+			}
         }
-        
-        switch (model.getTabbedIndex()) {
-			case ImViewer.VIEW_INDEX:
-				showLens(b, model.getMaxX(), model.getMaxY(), 
-						ImViewer.VIEW_INDEX, (float) model.getZoomFactor(), 
-						model.getOriginalImage());
-				break;
-			case ImViewer.GRID_INDEX:
-				showLens(b, model.getMaxX(), model.getMaxY(), 
-						ImViewer.GRID_INDEX, 1.0f, model.getGridImage());
-				break;
-			case ImViewer.ANNOTATOR_INDEX:
-				int maxX = (int) (model.getMaxX()*Browser.RATIO);
-	        	int maxY = (int) (model.getMaxY()*Browser.RATIO);
-	        	showLens(b, maxX, maxY, ImViewer.ANNOTATOR_INDEX, 1.0f,
-	        			model.getAnnotateImage());
-				break;
-		}
+        lens.resetLens(img, f, lensX, lensY);  
+        model.getBrowser().addComponent(lens.getLensUI(), index);
+        scrollLens();
+        UIUtilities.setLocationRelativeTo(this, lens.getZoomWindowUI());
+        lens.setVisible(b);
+		repaint();
     }
    
     /**
@@ -949,9 +1010,10 @@ class ImViewerUI
      */
     void setSelectedPane(int index)
     {
+    	int oldIndex = model.getTabbedIndex();
     	model.setTabbedIndex(index);
     	model.getBrowser().setSelectedPane(index);
-    	setLensVisible(isLensVisible());
+    	setLensVisible(isLensVisible(), oldIndex);
     }
     
     /** Centers the image when the user maximized the viewer. */
