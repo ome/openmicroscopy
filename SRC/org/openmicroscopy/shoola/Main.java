@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.env.Container;
  * This class implements the main method, which gets only one optional
  * argument to specify the path to the installation directory.
  * <p>If this argument doesn't specify an absolute path, then it'll be 
- * translated into an absolute path.  Translation is system dependent -- in
+ * translated into an absolute path. Translation is system dependent -- in
  * many cases, the path is resolved against the user directory (typically the
  * directory in which the JVM was invoked).</p>
  *
