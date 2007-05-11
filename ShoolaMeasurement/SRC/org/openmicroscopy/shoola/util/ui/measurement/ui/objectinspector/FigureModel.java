@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.util.ui.measurement.ui.objectinspector;
 
 //Java imports
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.table.AbstractTableModel;
 
@@ -33,6 +31,7 @@ import javax.swing.table.AbstractTableModel;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 
 //Application-internal dependencies
 
@@ -82,10 +81,21 @@ public 	class 	FigureModel
 					AttributeKey key = attributeIterator.next();
 					if(key==fieldName.key)
 					{
+						if(key.getKey().equals(AttributeKeys.TEXT.getKey())&& figure instanceof RectAnnotationFigure)
+						{
+							keys.add(key);
+							values.add(((RectAnnotationFigure)figure).getText());
+							found = true;
+							break;
+								
+						}
+						else
+						{
 						keys.add(key);
 						values.add(figure.getAttributes().get(key));
 						found = true;
 						break;
+						}
 					}
 				}
 				if(found == false)

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
@@ -66,12 +67,11 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public class MeasureBezierTextFigure 
-			extends 	MeasureBezierFigure
-			implements 	CompositeFigure 
+public 	class LineAnnotationFigure 	
+		extends	MeasureLineFigure
+		implements 	CompositeFigure
 {
 	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
-	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -86,8 +86,8 @@ public class MeasureBezierTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureBezierTextFigure owner;
-	        private ChildHandler(MeasureBezierTextFigure owner) 
+	        private LineAnnotationFigure owner;
+	        private ChildHandler(LineAnnotationFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -136,26 +136,15 @@ public class MeasureBezierTextFigure
 	        }
 	    };
 	
-	/** Creates a new instance. */
-	public MeasureBezierTextFigure()
+	
+	public LineAnnotationFigure() 
 	{
 		super();
-		addText();
-	}
-	
-	public MeasureBezierTextFigure(boolean closed) 
-	{
-		super(closed);
-		addText();
-	}
-	
-	private void addText()
-	{
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
 		RelativeLocator d = new RelativeLocator();
-		
+		//FontSizeLocator d = new FontSizeLocator();
 		d.locate(this, text);
 		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
 		this.setLayouter(new LocatorLayouter());
@@ -263,6 +252,31 @@ public class MeasureBezierTextFigure
             }
         }
         changed();
+    }
+    
+    public Object getAttribute(AttributeKey key)
+    {
+    	if(childKey(key))
+    	{
+    		System.err.println("Return text key");
+    		return text.getAttribute(key);
+    	}
+    	return super.getAttribute(key);
+    }
+
+    public Map<AttributeKey, Object> getAttributes()
+    {
+    	Map<AttributeKey, Object> attributes;
+    	attributes = super.getAttributes();
+    	attributes.put(AttributeKeys.TEXT, getAttribute(AttributeKeys.TEXT));
+    	return attributes;
+    }
+    
+    public boolean childKey(AttributeKey key)
+    {
+    	if(key.getKey().equals(AttributeKeys.TEXT.getKey()))
+    	    return true;
+    	return false;
     }
     
     // EDITING
@@ -463,8 +477,6 @@ public class MeasureBezierTextFigure
         }
     }
     
-// EVENT HANDLING
-    
     public void invalidate() 
     {
         super.invalidate();
@@ -495,9 +507,9 @@ public class MeasureBezierTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureBezierTextFigure clone() 
+    public LineAnnotationFigure clone() 
     {
-    	MeasureBezierTextFigure that = (MeasureBezierTextFigure) super.clone();
+    	LineAnnotationFigure that = (LineAnnotationFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 
@@ -509,7 +521,6 @@ public class MeasureBezierTextFigure
         }
         return that;
     }
-    
     public void remap(HashMap<Figure,Figure> oldToNew) 
     {
         super.remap(oldToNew);
@@ -518,5 +529,6 @@ public class MeasureBezierTextFigure
             child.remap(oldToNew);
         }
     }
-    
 }
+
+

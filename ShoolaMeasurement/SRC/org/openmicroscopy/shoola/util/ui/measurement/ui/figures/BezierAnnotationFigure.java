@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -22,71 +22,34 @@
  */
 package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
-import java.awt.Font;
+
+//Java imports
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
-import org.jhotdraw.draw.AbstractAttributedFigure;
+//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-
-
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierLabelLocator;
-import org.jhotdraw.draw.BoxHandleKit;
 import org.jhotdraw.draw.CompositeFigure;
-import org.jhotdraw.draw.ConnectionHandle;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.FontSizeLocator;
-import org.jhotdraw.draw.GraphicalCompositeFigure;
-import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.HorizontalLayouter;
-import org.jhotdraw.draw.LabelFigure;
-import org.jhotdraw.draw.LabeledLineConnectionFigure;
 import org.jhotdraw.draw.Layouter;
-import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.LocatorLayouter;
-import org.jhotdraw.draw.MoveHandle;
-import org.jhotdraw.draw.RectangleFigure;
-import org.jhotdraw.draw.RelativeDecoratorLocator;
 import org.jhotdraw.draw.RelativeLocator;
-import org.jhotdraw.draw.RotateHandle;
-import org.jhotdraw.draw.SetBoundsEdit;
-import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextFigure;
-import org.jhotdraw.draw.VerticalLayouter;
-import org.jhotdraw.geom.Geom;
-import org.jhotdraw.geom.Insets2D;
-import org.jhotdraw.util.ResourceBundleUtil;
 import org.jhotdraw.util.ReversedList;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
-
-//Java imports
-
-//Third-party libraries
 
 //Application-internal dependencies
 
@@ -103,11 +66,12 @@ import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
  * </small>
  * @since OME3.0
  */
-public 	class 		MeasureRectangleTextFigure 
-		extends 	MeasureRectangleFigure
-		implements 	CompositeFigure
+public class BezierAnnotationFigure 
+			extends 	MeasureBezierFigure
+			implements 	CompositeFigure 
 {
 	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
+	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -122,8 +86,8 @@ public 	class 		MeasureRectangleTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureRectangleTextFigure owner;
-	        private ChildHandler(MeasureRectangleTextFigure owner) 
+	        private BezierAnnotationFigure owner;
+	        private ChildHandler(BezierAnnotationFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -173,19 +137,25 @@ public 	class 		MeasureRectangleTextFigure
 	    };
 	
 	/** Creates a new instance. */
-	public MeasureRectangleTextFigure() 
-	{
-	    this(0, 0, 0, 0);
-	}
-	
-	public MeasureRectangleTextFigure(double x, double y, double width, double height) 
+	public BezierAnnotationFigure()
 	{
 		super();
+		addText();
+	}
+	
+	public BezierAnnotationFigure(boolean closed) 
+	{
+		super(closed);
+		addText();
+	}
+	
+	private void addText()
+	{
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
 		RelativeLocator d = new RelativeLocator();
-		//FontSizeLocator d = new FontSizeLocator();
+		
 		d.locate(this, text);
 		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
 		this.setLayouter(new LocatorLayouter());
@@ -293,6 +263,31 @@ public 	class 		MeasureRectangleTextFigure
             }
         }
         changed();
+    }
+    
+    public Object getAttribute(AttributeKey key)
+    {
+    	if(childKey(key))
+    	{
+    		System.err.println("Return text key");
+    		return text.getAttribute(key);
+    	}
+    	return super.getAttribute(key);
+    }
+
+    public Map<AttributeKey, Object> getAttributes()
+    {
+    	Map<AttributeKey, Object> attributes;
+    	attributes = super.getAttributes();
+    	attributes.put(AttributeKeys.TEXT, getAttribute(AttributeKeys.TEXT));
+    	return attributes;
+    }
+    
+    public boolean childKey(AttributeKey key)
+    {
+    	if(key.getKey().equals(AttributeKeys.TEXT.getKey()))
+    	    return true;
+    	return false;
     }
     
     // EDITING
@@ -493,6 +488,8 @@ public 	class 		MeasureRectangleTextFigure
         }
     }
     
+// EVENT HANDLING
+    
     public void invalidate() 
     {
         super.invalidate();
@@ -523,9 +520,9 @@ public 	class 		MeasureRectangleTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureRectangleTextFigure clone() 
+    public BezierAnnotationFigure clone() 
     {
-    	MeasureRectangleTextFigure that = (MeasureRectangleTextFigure) super.clone();
+    	BezierAnnotationFigure that = (BezierAnnotationFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 
@@ -537,6 +534,7 @@ public 	class 		MeasureRectangleTextFigure
         }
         return that;
     }
+    
     public void remap(HashMap<Figure,Figure> oldToNew) 
     {
         super.remap(oldToNew);
@@ -547,5 +545,3 @@ public 	class 		MeasureRectangleTextFigure
     }
     
 }
-
-

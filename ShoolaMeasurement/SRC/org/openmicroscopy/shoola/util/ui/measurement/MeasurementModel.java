@@ -73,6 +73,11 @@ public class MeasurementModel
 		currentChannel = 0;
 	}
 	
+	public void saveResults(String filename)
+	{
+		roiComponent.saveResults(filename);
+	}
+	
 	public Dimension getImageDimensions()
 	{
 		return new Dimension((int)imageModel.width, (int)imageModel.height);

@@ -53,15 +53,15 @@ import org.openmicroscopy.shoola.util.ui.measurement.model.DrawingEventList;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIControl;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.UIModel;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.measurementtable.MeasurementTable;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ChannelComboBox;
@@ -115,24 +115,24 @@ public class CreationToolBar
 		ToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
 		toolBar.addSeparator(new Dimension(10,20));
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureRectangleTextFigure()), "createRectangle", 
+				new CreationTool(new RectAnnotationFigure()), "createRectangle", 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureEllipseTextFigure()), "createEllipse", 
+				new CreationTool(new EllipseAnnotationFigure()), "createEllipse", 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureLineTextFigure()), "createLine", 
+				new CreationTool(new LineAnnotationFigure()), "createLine", 
 				labels);
 	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		new ConnectionTool(new MeasureLineConnectionTextFigure()), 
+	    		new ConnectionTool(new LineConnectionAnnotationFigure()), 
 	    		"createLineConnection", labels);
 		  ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				  new BezierTool(new MeasureBezierTextFigure()), "createScribble", labels);
+				  new BezierTool(new BezierAnnotationFigure()), "createScribble", labels);
 	      ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		  new BezierTool(new MeasureBezierTextFigure(true)), "createPolygon", 
+	    		  new BezierTool(new BezierAnnotationFigure(true)), "createPolygon", 
 	    		  labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new TextFigure()), "createText", 
+				new CreationTool(new MeasureTextFigure()), "createText", 
 				labels);
 	}
 
@@ -144,8 +144,9 @@ public class CreationToolBar
 
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				measurementTable = new MeasurementTable(model);
-				measurementTable.setVisible(true);
+				control.saveResults("crap.xml");
+			//	measurementTable = new MeasurementTable(model);
+			//	measurementTable.setVisible(true);
 			}
 		});
 	}

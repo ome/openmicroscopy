@@ -128,6 +128,11 @@ public class UIModel
 		return view.getComponent();
 	} 
 	
+	public void saveResults(String filename)
+	{
+		model.saveResults(filename);
+	}
+	
 	public Coord3D getCoord3D()
 	{
 		return currentView;

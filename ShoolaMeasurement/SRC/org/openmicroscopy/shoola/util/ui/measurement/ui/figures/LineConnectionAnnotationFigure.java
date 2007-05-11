@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -22,6 +22,11 @@
  */
 package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
+
+
+
+
+//Java imports
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -30,10 +35,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
+//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
@@ -46,10 +53,6 @@ import org.jhotdraw.draw.LocatorLayouter;
 import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
-
-//Java imports
-
-//Third-party libraries
 
 //Application-internal dependencies
 
@@ -66,11 +69,10 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public 	class MeasureLineTextFigure 	
-		extends	MeasureLineFigure
+public class LineConnectionAnnotationFigure 
+		extends	MeasureLineConnectionFigure
 		implements 	CompositeFigure
 {
-	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -85,8 +87,8 @@ public 	class MeasureLineTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureLineTextFigure owner;
-	        private ChildHandler(MeasureLineTextFigure owner) 
+	        private LineConnectionAnnotationFigure owner;
+	        private ChildHandler(LineConnectionAnnotationFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -115,10 +117,6 @@ public 	class MeasureLineTextFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
-	        	if(e.getAttribute().equals(BASIC_TEXT))
-	        	{
-	        		owner.fireAttributeChanged(AttributeKeys.TEXT, null, text.getText());
-	        	}
 	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 
@@ -136,14 +134,13 @@ public 	class MeasureLineTextFigure
 	    };
 	
 	
-	public MeasureLineTextFigure() 
+	public LineConnectionAnnotationFigure() 
 	{
 		super();
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
 		RelativeLocator d = new RelativeLocator();
-		//FontSizeLocator d = new FontSizeLocator();
 		d.locate(this, text);
 		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
 		this.setLayouter(new LocatorLayouter());
@@ -251,6 +248,31 @@ public 	class MeasureLineTextFigure
             }
         }
         changed();
+    }
+    
+    public Object getAttribute(AttributeKey key)
+    {
+    	if(childKey(key))
+    	{
+    		System.err.println("Return text key");
+    		return text.getAttribute(key);
+    	}
+    	return super.getAttribute(key);
+    }
+
+    public Map<AttributeKey, Object> getAttributes()
+    {
+    	Map<AttributeKey, Object> attributes;
+    	attributes = super.getAttributes();
+    	attributes.put(AttributeKeys.TEXT, getAttribute(AttributeKeys.TEXT));
+    	return attributes;
+    }
+    
+    public boolean childKey(AttributeKey key)
+    {
+    	if(key.getKey().equals(AttributeKeys.TEXT.getKey()))
+    	    return true;
+    	return false;
     }
     
     // EDITING
@@ -481,9 +503,9 @@ public 	class MeasureLineTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureLineTextFigure clone() 
+    public LineConnectionAnnotationFigure clone() 
     {
-    	MeasureLineTextFigure that = (MeasureLineTextFigure) super.clone();
+    	LineConnectionAnnotationFigure that = (LineConnectionAnnotationFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 
@@ -504,5 +526,3 @@ public 	class MeasureLineTextFigure
         }
     }
 }
-
-

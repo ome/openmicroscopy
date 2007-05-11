@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.roi;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -36,6 +37,8 @@ import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.ui.roi.io.XMLFileIOStrategy;
+import org.openmicroscopy.shoola.util.ui.roi.io.XMLIOStrategy;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationship;
@@ -64,10 +67,22 @@ public 	class ROIComponent
 		implements PropertyChangeListener
 {
 	private ROICollection		roiCollection;
+	private XMLIOStrategy		ioStrategy;
 	
 	public ROIComponent()
 	{
 		roiCollection = new ROICollection();
+		ioStrategy = new XMLFileIOStrategy();
+	}
+	
+	public void saveResults(String filename)
+	{
+		try {
+			ioStrategy.write(filename, roiCollection);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public long getNextID()

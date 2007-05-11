@@ -107,7 +107,7 @@ public class ObjectInspector
 		ArrayList<AttributeField> fieldList = new ArrayList<AttributeField>();
 		//fieldList.add(new AttributeField(ROIAttributes.ROIID, "ID", false));
 		//fieldList.add(new AttributeField(DrawingAttributes.FIGURETYPE, "Shape Type", false));
-		//fieldList.add(new AttributeField(DrawingAttributes.TEXT, "Text", true));
+		fieldList.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
 		fieldList.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Text Colour", false));
 		fieldList.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", false));
 		fieldList.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", false));

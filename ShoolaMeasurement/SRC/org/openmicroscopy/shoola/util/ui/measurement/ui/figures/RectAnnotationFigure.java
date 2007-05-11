@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConnectionTextFigure 
+ * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -22,32 +22,68 @@
  */
 package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
+import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
+
+
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.BezierLabelLocator;
+import org.jhotdraw.draw.BoxHandleKit;
 import org.jhotdraw.draw.CompositeFigure;
+import org.jhotdraw.draw.ConnectionHandle;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
+import org.jhotdraw.draw.FontSizeLocator;
+import org.jhotdraw.draw.GraphicalCompositeFigure;
+import org.jhotdraw.draw.Handle;
+import org.jhotdraw.draw.HorizontalLayouter;
+import org.jhotdraw.draw.LabelFigure;
+import org.jhotdraw.draw.LabeledLineConnectionFigure;
 import org.jhotdraw.draw.Layouter;
+import org.jhotdraw.draw.ListFigure;
 import org.jhotdraw.draw.LocatorLayouter;
+import org.jhotdraw.draw.MoveHandle;
+import org.jhotdraw.draw.RectangleFigure;
+import org.jhotdraw.draw.RelativeDecoratorLocator;
 import org.jhotdraw.draw.RelativeLocator;
+import org.jhotdraw.draw.RotateHandle;
+import org.jhotdraw.draw.SetBoundsEdit;
+import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.VerticalLayouter;
+import org.jhotdraw.geom.Geom;
+import org.jhotdraw.geom.Insets2D;
+import org.jhotdraw.util.ResourceBundleUtil;
 import org.jhotdraw.util.ReversedList;
-
-
+import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
+import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
 //Java imports
 
 //Third-party libraries
@@ -67,11 +103,10 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public class MeasureLineConnectionTextFigure 
-		extends	MeasureLineConnectionFigure
+public 	class 		RectAnnotationFigure 
+		extends 	MeasureRectangleFigure
 		implements 	CompositeFigure
 {
-	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
 
@@ -86,8 +121,8 @@ public class MeasureLineConnectionTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureLineConnectionTextFigure owner;
-	        private ChildHandler(MeasureLineConnectionTextFigure owner) 
+	        private RectAnnotationFigure owner;
+	        private ChildHandler(RectAnnotationFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -116,10 +151,7 @@ public class MeasureLineConnectionTextFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
-	        	if(e.getAttribute().equals(BASIC_TEXT))
-	        	{
-	        		owner.fireAttributeChanged(AttributeKeys.TEXT, null, text.getText());
-	        	}
+	        	owner.fireFigureChanged();
 	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 
@@ -136,19 +168,33 @@ public class MeasureLineConnectionTextFigure
 	        }
 	    };
 	
+	/** Creates a new instance. */
+	public RectAnnotationFigure() 
+	{
+	    this(0, 0, 0, 0);
+	}
 	
-	public MeasureLineConnectionTextFigure() 
+	public RectAnnotationFigure(double x, double y, double width, double height) 
 	{
 		super();
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");
 		RelativeLocator d = new RelativeLocator();
-		//FontSizeLocator d = new FontSizeLocator();
 		d.locate(this, text);
 		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
 		this.setLayouter(new LocatorLayouter());
 		this.add(text);
+	}
+	
+	public void setText(String newString)
+	{
+		text.setText(newString);
+	}
+	
+	public String getText()
+	{
+		return text.getText();
 	}
 	
 	 /**
@@ -252,6 +298,18 @@ public class MeasureLineConnectionTextFigure
             }
         }
         changed();
+    }
+    
+    public Object getAttribute(AttributeKey key)
+    {
+      	return super.getAttribute(key);
+    }
+
+    public Map<AttributeKey, Object> getAttributes()
+    {
+    	Map<AttributeKey, Object> attributes;
+    	attributes = super.getAttributes();
+    	return attributes;
     }
     
     // EDITING
@@ -482,9 +540,9 @@ public class MeasureLineConnectionTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureLineConnectionTextFigure clone() 
+    public RectAnnotationFigure clone() 
     {
-    	MeasureLineConnectionTextFigure that = (MeasureLineConnectionTextFigure) super.clone();
+    	RectAnnotationFigure that = (RectAnnotationFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 
@@ -496,6 +554,8 @@ public class MeasureLineConnectionTextFigure
         }
         return that;
     }
+    
+    
     public void remap(HashMap<Figure,Figure> oldToNew) 
     {
         super.remap(oldToNew);
@@ -504,4 +564,7 @@ public class MeasureLineConnectionTextFigure
             child.remap(oldToNew);
         }
     }
+    
 }
+
+

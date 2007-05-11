@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
+
+//Java imports
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -30,10 +32,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
+//Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
@@ -46,10 +50,6 @@ import org.jhotdraw.draw.LocatorLayouter;
 import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
-
-//Java imports
-
-//Third-party libraries
 
 //Application-internal dependencies
 
@@ -66,7 +66,7 @@ import org.jhotdraw.util.ReversedList;
  * </small>
  * @since OME3.0
  */
-public class MeasureEllipseTextFigure 
+public class EllipseAnnotationFigure 
 		extends 	MeasureEllipseFigure
 		implements 	CompositeFigure 
 {
@@ -86,8 +86,8 @@ public class MeasureEllipseTextFigure
 	 private ChildHandler childHandler = new ChildHandler(this);
 	    private class ChildHandler implements FigureListener, UndoableEditListener 
 	    {
-	        private MeasureEllipseTextFigure owner;
-	        private ChildHandler(MeasureEllipseTextFigure owner) 
+	        private EllipseAnnotationFigure owner;
+	        private ChildHandler(EllipseAnnotationFigure owner) 
 	        {
 	            this.owner = owner;
 	        }
@@ -137,12 +137,12 @@ public class MeasureEllipseTextFigure
 	    };
 	
 	/** Creates a new instance. */
-	public MeasureEllipseTextFigure() 
+	public EllipseAnnotationFigure() 
 	{
 	    this(0, 0, 0, 0);
 	}
 	
-	public MeasureEllipseTextFigure(double x, double y, double width, double height) 
+	public EllipseAnnotationFigure(double x, double y, double width, double height) 
 	{
 		super();
 		text = new TextFigure();
@@ -257,6 +257,31 @@ public class MeasureEllipseTextFigure
             }
         }
         changed();
+    }
+    
+    public Object getAttribute(AttributeKey key)
+    {
+    	if(childKey(key))
+    	{
+    		System.err.println("Return text key");
+    		return text.getAttribute(key);
+    	}
+    	return super.getAttribute(key);
+    }
+
+    public Map<AttributeKey, Object> getAttributes()
+    {
+    	Map<AttributeKey, Object> attributes;
+    	attributes = super.getAttributes();
+    	attributes.put(AttributeKeys.TEXT, getAttribute(AttributeKeys.TEXT));
+    	return attributes;
+    }
+    
+    public boolean childKey(AttributeKey key)
+    {
+    	if(key.getKey().equals(AttributeKeys.TEXT.getKey()))
+    	    return true;
+    	return false;
     }
     
     // EDITING
@@ -489,9 +514,9 @@ public class MeasureEllipseTextFigure
         super.removeNotify(drawing);
     }
     
-    public MeasureEllipseTextFigure clone() 
+    public EllipseAnnotationFigure clone() 
     {
-    	MeasureEllipseTextFigure that = (MeasureEllipseTextFigure) super.clone();
+    	EllipseAnnotationFigure that = (EllipseAnnotationFigure) super.clone();
         that.childHandler = new ChildHandler(that);
         that.children = new ArrayList<Figure>();
         for (Figure thisChild : this.children) 

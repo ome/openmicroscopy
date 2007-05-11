@@ -44,7 +44,6 @@ import javax.swing.Action;
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.RotateHandle;
 import org.jhotdraw.geom.Geom;
@@ -62,8 +61,6 @@ import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationK
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 /** 
  * 

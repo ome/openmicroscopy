@@ -58,6 +58,12 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 //Java imports
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREX;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREY;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
 
 //Third-party libraries
 
@@ -77,25 +83,15 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
  * @since OME3.0
  */
 public class MeasureTextFigure 
-	extends MeasureTextArea
+	extends TextFigure
 	implements ROIFigure
 {
-	public final static AttributeKey<AffineTransform>TRANSFORM = new AttributeKey<AffineTransform>("transform", null, true);
+	
+	private Shape				cachedTransformedShape;
+	private	Rectangle2D 		bounds;
+	private ROI					roi;
+	private ROIShape 			shape;
 
-	private Rectangle2D.Double rectangle;
-    /**
-     * This is used to perform faster drawing and hit testing.
-     */
-	
-	
-    private Shape cachedTransformedShape;
-    
-	private	Rectangle2D bounds;
-	private ROI			roi;
-	private ROIShape 	shape;
-
-	private MeasureEllipseFigure rect;
-	
     /** Creates a new instance. */
     public MeasureTextFigure() 
     {
@@ -105,26 +101,15 @@ public class MeasureTextFigure
     public MeasureTextFigure(double x, double y, double width, double height) 
     {
     	super();
-    	rect = new MeasureEllipseFigure();
-    	this.setDecorator(rect);
-    	FILL_COLOR.set(this, new Color(0,0,0,0));
-    	STROKE_COLOR.set(this, new Color(0,0,0,0));
-    	
-    }
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
-	 */
-	public void calculateMeasurements() 
-	{
-		rect.calculateMeasurements();
-	}
-
-	/* (non-Javadoc)
+    	shape = null;
+   		roi = null;
+     }
+    /* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
 	 */
 	public ROI getROI() 
 	{
-		return rect.getROI();
+		return roi;
 	}
 
 	/* (non-Javadoc)
@@ -132,22 +117,33 @@ public class MeasureTextFigure
 	 */
 	public ROIShape getROIShape() 
 	{
-		return rect.getROIShape();
+		return shape;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
 	 */
-	public void setROI(ROI roi) {
-		rect.setROI(roi);
-		
+	public void setROI(ROI roi) 
+	{
+		this.roi = roi;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
 	 */
-	public void setROIShape(ROIShape shape) {
-		rect.setROIShape(shape);
+	public void setROIShape(ROIShape shape) 
+	{
+		this.shape = shape;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements()
+	{
+			if(shape==null)
+				return;
 		
 	}
 

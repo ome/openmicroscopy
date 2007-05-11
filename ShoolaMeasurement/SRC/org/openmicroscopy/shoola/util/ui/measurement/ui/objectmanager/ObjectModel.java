@@ -30,6 +30,9 @@ import javax.swing.table.AbstractTableModel;
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
 import org.jhotdraw.draw.Figure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 //Application-internal dependencies
 
@@ -50,16 +53,35 @@ public class ObjectModel
 	extends     AbstractTableModel
 {
 	
-		ArrayList<Figure> data;
+		ArrayList<ROIFigure> data;
 		ArrayList<String> columnNames;		
 		
 		public ObjectModel()
 		{
-			data = new ArrayList<Figure>();
+			data = new ArrayList<ROIFigure>();
 			columnNames = new ArrayList<String>();
 		}
 		
-		public int getRowFromFigure(Figure figure)
+		public void update()
+		{
+			for(int i = 0 ; i < data.size(); i++)
+				for(int j = 0 ; j < getColumnCount(); j++)
+				{
+					Object crap = mapFigureToValue(i,j); 
+					setValueAt(crap, i, j);
+				}
+			fireTableDataChanged();
+		}
+		
+		public void update(ROIFigure fig)
+		{
+			int i = getRowFromFigure(fig);
+			for(int j = 0 ; j < getColumnCount(); j++)
+				setValueAt(mapFigureToValue(i,j), i, j);
+			fireTableDataChanged();
+		}
+		
+		public int getRowFromFigure(ROIFigure figure)
 		{
 			for(int i = 0 ; i < data.size(); i++)
 			{
@@ -89,13 +111,13 @@ public class ObjectModel
         	return columnNames.size(); 
         }
         
-        public void addRow(Figure fig)
+        public void addRow(ROIFigure fig)
         {
         	data.add(fig);
         	fireTableDataChanged();
         }
         
-        public void removeRow(Figure fig)
+        public void removeRow(ROIFigure fig)
         {
         	data.remove(fig);
         }
@@ -123,15 +145,15 @@ public class ObjectModel
         
         public String mapFigureToValue(int row, int col)
         {
-        	Figure fig = data.get(row);
+        	ROIFigure fig = data.get(row);
         	switch(col)
         	{
         	case 0:
-     //   		return ROIID.get(fig)+"";
+        		return fig.getROI().getID()+"";
         	case 1:
-      ///  		return (String)FIGURETYPE.get(fig);
+        		return "Depreciated";
         	case 2:
-        		return (String)TEXT.get(fig);
+        		return "";
         	case 3:
         		return fig.isVisible() ? "true" : "false";
         	}
@@ -144,10 +166,8 @@ public class ObjectModel
         	switch(col)
         	{
         	case 0:
-       // 		FIGUREID.set(fig, (String)value);
         		break;
         	case 1:
-      //  		FIGURETYPE.set(fig, (String)value);
         		break;
         	case 2:
         		TEXT.set(fig, (String)value);

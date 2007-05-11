@@ -172,7 +172,7 @@ public class ObjectManager
 		if(propertyChangeEvent.getPropertyName() == DrawingEventList.UIMODEL_FIGUREREMOVED)
 		{
 			DrawingEvent event = (DrawingEvent) propertyChangeEvent.getNewValue();
-			tableModel.removeRow(event.getFigure());
+			tableModel.removeRow((ROIFigure)event.getFigure());
 			objects.setModel(tableModel);
 			objects.repaint();
 		}
@@ -190,7 +190,7 @@ public class ObjectManager
 				try
 				{
 					ROI roi = roiIterator.next();
-					Figure fig = roi.getFigure(model.getCoord3D());
+					ROIFigure fig = roi.getFigure(model.getCoord3D());
 					objects.addRowSelectionInterval(
 						tableModel.getRowFromFigure(fig),
 						tableModel.getRowFromFigure(fig));

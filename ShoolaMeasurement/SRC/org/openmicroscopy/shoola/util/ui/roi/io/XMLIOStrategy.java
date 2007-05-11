@@ -1,5 +1,5 @@
 /*
- * measurement.ui.UIControl 
+ * org.openmicroscopy.shoola.util.ui.roi.io.XMLIOStrategy 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -20,21 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui;
+package org.openmicroscopy.shoola.util.ui.roi.io;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
 
 //Java imports
-import java.awt.Component;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 
 //Third-party libraries
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 
 /** 
  * 
@@ -49,44 +46,14 @@ import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public class UIControl 
-	extends Component
-	implements PropertyChangeListener
+public interface XMLIOStrategy 
 {
-	
-	private UIModel 	model;
-	
-	public UIControl(UIModel model)
-	{
-		this.model = model;
-	}
-	
-	public void saveResults(String filename)
-	{
-		model.saveResults(filename);
-	}
-	
-	public void selectFigure(ROIFigure fig)
-	{
-		model.selectFigure(fig);
-	}
-		
-	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent changeEvent)
-	{
-		
-	}
-
-	/**
-	 * @param coord3D
-	 */
-	public void setCoord3D(Coord3D coord) 
-	{
-		model.setCoord3D(coord);
-	}
-	
+	public void read(File file, ROICollection collection) throws IOException;
+	public void write(String filename, ROICollection collection) throws IOException;
+	public void openConnection();
+	public void closeConnection();
+	public void readXML();
+	public void writeXML();
 }
 
 
