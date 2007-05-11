@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineConne
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.util.ExceptionHandler;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
@@ -358,11 +359,7 @@ public class UIModel
 
 	private void handleAttributeChange(FigureEvent e)
 	{
-		if(e.getAttribute().equals(AttributeKeys.TEXT.getKey()))
-		{
-			ROIShape shape = ((ROIFigure)e.getFigure()).getROIShape();
-			shape.setAnnotation(AnnotationKeys.BASIC_TEXT, e.getNewValue());
-		}
+	
 	}
 	
 	/* (non-Javadoc)

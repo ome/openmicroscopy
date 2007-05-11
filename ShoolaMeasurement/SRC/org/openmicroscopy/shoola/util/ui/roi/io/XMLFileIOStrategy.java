@@ -252,6 +252,7 @@ public 	class XMLFileIOStrategy
 			AnnotationKey key = (AnnotationKey)iterator.next();
 			XMLElement annotation = new XMLElement(key.getKey());
 			addAttributes(annotation, annotationMap.get(key));
+			shapeElement.addChild(annotation);
 		}
 	}
 	
@@ -269,6 +270,10 @@ public 	class XMLFileIOStrategy
 
 	public void writeFigure(XMLElement shapeElement, ROIFigure figure) throws IOException
 	{
+		double fillOpacity = FILL_COLOR.get(figure).getAlpha()/255.0;
+		FILL_OPACITY.set(figure, fillOpacity);
+		double strokeOpacity = STROKE_COLOR.get(figure).getAlpha()/255.0;
+		STROKE_OPACITY.set(figure, strokeOpacity);
 		if(figure instanceof RectAnnotationFigure)
 		{
 			writeRectAnnotationFigure(shapeElement, (RectAnnotationFigure)figure);

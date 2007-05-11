@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
 
 
 //Java imports
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -50,6 +53,7 @@ import org.jhotdraw.draw.LocatorLayouter;
 import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 //Application-internal dependencies
 
@@ -70,7 +74,6 @@ public class BezierAnnotationFigure
 			extends 	MeasureBezierFigure
 			implements 	CompositeFigure 
 {
-	private final static String BASIC_TEXT = AttributeKeys.TEXT.getKey();	
 	
 	private Layouter layouter;
     private ArrayList<Figure> children = new ArrayList();
@@ -116,11 +119,9 @@ public class BezierAnnotationFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
-	        	if(e.getAttribute().equals(BASIC_TEXT))
-	        	{
-	        		owner.fireAttributeChanged(AttributeKeys.TEXT, null, text.getText());
-	        	}
-	        }
+	           	if(e.getAttribute()==TEXT)
+	        		owner.getROIShape().setAnnotation(BASIC_TEXT, e.getNewValue());
+	       }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 
 	        {

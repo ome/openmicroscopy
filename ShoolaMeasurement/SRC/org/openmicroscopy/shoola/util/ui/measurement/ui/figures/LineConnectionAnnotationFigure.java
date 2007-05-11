@@ -54,6 +54,9 @@ import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
 
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+
 //Application-internal dependencies
 
 /** 
@@ -117,6 +120,8 @@ public class LineConnectionAnnotationFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
+	        	if(e.getAttribute()==TEXT)
+	        		owner.getROIShape().setAnnotation(BASIC_TEXT, e.getNewValue());
 	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 

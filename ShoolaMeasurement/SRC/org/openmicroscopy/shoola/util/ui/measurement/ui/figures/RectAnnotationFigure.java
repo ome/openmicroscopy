@@ -84,6 +84,7 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 //Java imports
 
 //Third-party libraries
@@ -151,7 +152,8 @@ public 	class 		RectAnnotationFigure
 	        
 	        public void figureAttributeChanged(FigureEvent e) 
 	        {
-	        	owner.fireFigureChanged();
+	        	if(e.getAttribute()==TEXT)
+	        		owner.getROIShape().setAnnotation(BASIC_TEXT, e.getNewValue());
 	        }
 	        
 	        public void figureAreaInvalidated(FigureEvent e) 
