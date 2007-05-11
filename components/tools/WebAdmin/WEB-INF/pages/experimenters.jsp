@@ -1,6 +1,3 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -17,15 +14,15 @@
 			</h:commandLink>
 
 			<br />
-			<br />
-			<h:message styleClass="errorText" id="experimentersError"
-				for="experimenters" />
-			<br />
 
 			<h2><h:outputText value="#{msg.experimentersList}" /></h2>
 
-			<h:dataTable id="items" value="#{IAEManagerBean.experimenters}"
-				var="experimenter" styleClass="list">
+			<h:message styleClass="errorText" id="experimentersError"
+				for="experimenters" />
+
+			<div id="main"><h:dataTable id="items"
+				value="#{IAEManagerBean.experimenters}" var="experimenter"
+				styleClass="list" columnClasses="action,link,desc,desc">
 
 				<h:column>
 					<f:facet name="header">
@@ -46,7 +43,36 @@
 					<f:facet name="header">
 						<h:panelGroup>
 
-							<h:commandLink styleClass="smallLink" action="sortItems"
+							<h:commandLink action="sortItems"
+								actionListener="#{IAEManagerBean.sortItems}">
+								<f:attribute name="sortItem" value="lastName" />
+								<f:attribute name="sort" value="asc" />
+								<h:graphicImage url="/images/asc.png" alt="asc" />
+							</h:commandLink>
+
+							<h:outputText value=" #{msg.experimentersName} " />
+
+							<h:commandLink action="sortItems"
+								actionListener="#{IAEManagerBean.sortItems}">
+								<f:attribute name="sortItem" value="lastName" />
+								<f:attribute name="sort" value="dsc" />
+								<h:graphicImage url="/images/dsc.png" alt="dsc" />
+							</h:commandLink>
+
+						</h:panelGroup>
+
+					</f:facet>
+
+					<h:outputText value="#{experimenter.lastName}, " />
+					<h:outputText value=" #{experimenter.firstName}" />
+					<h:outputText value=" #{experimenter.middleName}" />
+				</h:column>
+
+				<h:column>
+					<f:facet name="header">
+						<h:panelGroup>
+
+							<h:commandLink action="sortItems"
 								actionListener="#{IAEManagerBean.sortItems}">
 								<f:attribute name="sortItem" value="omeName" />
 								<f:attribute name="sort" value="asc" />
@@ -55,7 +81,7 @@
 
 							<h:outputText value=" #{msg.experimentersOmeName} " />
 
-							<h:commandLink styleClass="smallLink" action="sortItems"
+							<h:commandLink action="sortItems"
 								actionListener="#{IAEManagerBean.sortItems}">
 								<f:attribute name="sortItem" value="omeName" />
 								<f:attribute name="sort" value="dsc" />
@@ -69,73 +95,12 @@
 						<h:outputText value="#{experimenter.omeName}" />
 					</h:commandLink>
 				</h:column>
-
+				
 				<h:column>
 					<f:facet name="header">
 						<h:panelGroup>
 
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="firstName" />
-								<f:attribute name="sort" value="asc" />
-								<h:graphicImage url="/images/asc.png" alt="asc" />
-							</h:commandLink>
-
-							<h:outputText value=" #{msg.experimentersFirstName} " />
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="firstName" />
-								<f:attribute name="sort" value="dsc" />
-								<h:graphicImage url="/images/dsc.png" alt="dsc" />
-							</h:commandLink>
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="middleName" />
-								<f:attribute name="sort" value="asc" />
-								<h:graphicImage url="/images/asc.png" alt="asc" />
-							</h:commandLink>
-
-							<h:outputText value=" #{msg.experimentersMiddleName} " />
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="middleName" />
-								<f:attribute name="sort" value="dsc" />
-								<h:graphicImage url="/images/dsc.png" alt="dsc" />
-							</h:commandLink>
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="lastName" />
-								<f:attribute name="sort" value="asc" />
-								<h:graphicImage url="/images/asc.png" alt="asc" />
-							</h:commandLink>
-
-							<h:outputText value=" #{msg.experimentersLastName} " />
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
-								actionListener="#{IAEManagerBean.sortItems}">
-								<f:attribute name="sortItem" value="lastName" />
-								<f:attribute name="sort" value="dsc" />
-								<h:graphicImage url="/images/dsc.png" alt="dsc" />
-							</h:commandLink>
-
-						</h:panelGroup>
-
-					</f:facet>
-
-					<h:outputText value="#{experimenter.firstName}" />
-					<h:outputText value=" #{experimenter.middleName}" />
-					<h:outputText value=" #{experimenter.lastName}" />
-				</h:column>
-
-				<h:column>
-					<f:facet name="header">
-						<h:panelGroup>
-
-							<h:commandLink styleClass="smallLink" action="sortItems"
+							<h:commandLink action="sortItems"
 								actionListener="#{IAEManagerBean.sortItems}">
 								<f:attribute name="sortItem" value="institution" />
 								<f:attribute name="sort" value="asc" />
@@ -144,7 +109,7 @@
 
 							<h:outputText value=" #{msg.experimentersInstitution} " />
 
-							<h:commandLink styleClass="smallLink" action="sortItems"
+							<h:commandLink action="sortItems"
 								actionListener="#{IAEManagerBean.sortItems}">
 								<f:attribute name="sortItem" value="institution" />
 								<f:attribute name="sort" value="dsc" />
@@ -154,11 +119,12 @@
 						</h:panelGroup>
 					</f:facet>
 
-					<h:outputText value="#{experimenter.institution}" />
+					<h:outputText value="#{experimenter.institution}"
+						converter="SubstringConverter" />
 				</h:column>
 
 
-			</h:dataTable>
+			</h:dataTable></div>
 		</h:form>
 	</f:view>
 </c:if>

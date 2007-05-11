@@ -1,6 +1,3 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -10,8 +7,9 @@
 
 <c:if test="${sessionScope.LoginBean.mode}">
 	<f:view>
-		<h1><h:outputText value="#{msg.myaccountEdit}" /></h1>
-		<h:form id="experimenterForm">
+		<div id="addform"><h:form id="experimenterForm">
+
+			<h2><h:outputText value="#{msg.myaccountEdit}" /></h2>
 
 			<h:inputHidden id="experimenterid"
 				value="#{IAMAManagerBean.experimenter.id}" />
@@ -25,13 +23,14 @@
 				<h:outputText value="#{msg.myaccountOmeName}" />
 
 				<h:outputText value="#{IAMAManagerBean.experimenter.omeName}" />
+
 				<h:outputText value=" " />
 
 				<h:outputText value="#{msg.myaccountFirstName}" />
 
 				<h:inputText id="firstName" maxlength="255"
 					value="#{IAMAManagerBean.experimenter.firstName}" required="true">
-					<f:validateLength minimum="3" maximum="255" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="firstNameError"
@@ -40,7 +39,9 @@
 				<h:outputText value="#{msg.myaccountMiddleName}" />
 
 				<h:inputText id="middleName" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.middleName}" />
+					value="#{IAMAManagerBean.experimenter.middleName}">
+					<f:validateLength maximum="255" />
+				</h:inputText>
 
 				<h:message styleClass="errorText" id="middleNameError"
 					for="middleName" />
@@ -49,17 +50,17 @@
 
 				<h:inputText id="lastName" maxlength="255"
 					value="#{IAMAManagerBean.experimenter.lastName}" required="true">
-					<f:validateLength minimum="3" maximum="255" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="lastNameError" for="lastName" />
 
 				<h:outputText value="#{msg.myaccountEmail}" />
 
-				<h:inputText id="email" maxlength="100"
-					value="#{IAMAManagerBean.experimenter.email}" required="true"
+				<h:inputText id="email" maxlength="255"
+					value="#{IAMAManagerBean.experimenter.email}"
 					validator="#{IAMAManagerBean.validateEmail}">
-					<f:validateLength minimum="6" maximum="100" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="emailNameError" for="email" />
@@ -67,8 +68,8 @@
 				<h:outputText value="#{msg.myaccountInstitution}" />
 
 				<h:inputText id="institution" maxlength="255"
-					value="#{IAMAManagerBean.experimenter.institution}" required="true">
-					<f:validateLength maximum="255" />
+					value="#{IAMAManagerBean.experimenter.institution}">
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="institutionError"
@@ -90,44 +91,13 @@
 				action="#{IAMAManagerBean.updateExperimenter}"
 				value="#{msg.myaccountSave}" />
 
-		</h:form>
-
-		<h:form id="changePassword">
-
-			<h:message styleClass="errorText" id="changePasswordError"
-				for="changePassword" />
+		</h:form> <h:form id="passwd">
 			<br />
+			<h:graphicImage url="/images/add.png" />
+			<h:commandLink action="#{IAMAManagerBean.changeMyPassword}">
+				<h:outputText value="#{msg.myaccountChangePassword}" />
+			</h:commandLink>
+		</h:form></div>
 
-			<h:inputHidden id="experimenterid"
-				value="#{IAMAManagerBean.experimenter.id}" />
-
-			<h:panelGrid columns="3" columnClasses="form">
-
-				<h:outputText value="#{msg.myaccountPassword}" />
-
-				<h:inputSecret id="password" value="#{IAMAManagerBean.password}"
-					maxlength="100">
-
-				</h:inputSecret>
-
-				<h:message styleClass="errorText" id="passwordError" for="password" />
-
-				<h:outputText value="#{msg.myaccountPassword2}" />
-
-				<h:inputSecret id="password2" value="#{IAMAManagerBean.password2}"
-					maxlength="100">
-
-				</h:inputSecret>
-
-				<h:message styleClass="errorText" id="password2Error"
-					for="password2" />
-
-
-			</h:panelGrid>
-			<h:commandButton id="submitUpdate"
-				action="#{IAMAManagerBean.updateMyPassword}"
-				value="#{msg.myaccountSave}" />
-
-		</h:form>
 	</f:view>
 </c:if>

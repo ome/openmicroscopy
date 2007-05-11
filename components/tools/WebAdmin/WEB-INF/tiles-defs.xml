@@ -6,13 +6,41 @@
 
 <tiles-definitions>
 
-	<definition name=".mainLayout" path="/WEB-INF/layout/layout.jsp">
-		<put name="title" value="Omero Admin Panel" />
-		<put name="header" value="/WEB-INF/layout/header.jsp" />
+	<definition name=".login" path="/WEB-INF/layout/login.jsp">
+		<put name="title" value="OMERO Admin Panel" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/login.jsp" />
 		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
-		<put name="content" value="/WEB-INF/layout/center.jsp" />
 	</definition>
 
+	<definition name=".mainLayout" path="/WEB-INF/layout/layout.jsp">
+		<put name="header" value="/WEB-INF/layout/header.jsp" />
+		<put name="content" value="/WEB-INF/layout/center.jsp" />
+		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
+	</definition>
+
+	<definition name="header" extends=".login">
+		<put name="title" value="OME Admin Panel" />
+	</definition>
+
+	<definition name=".space" extends=".mainLayout">
+		<put name="title" value="Space" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/space.jsp" />
+	</definition>
+
+	<definition name=".editInGroup" extends=".mainLayout">
+		<put name="title" value="Add to Group" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/editInGroup.jsp" />
+	</definition>
+	
+	<definition name=".myPassword" extends=".mainLayout">
+		<put name="title" value="My Password" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/myPassword.jsp" />
+	</definition>
+	
 	<definition name=".myAccount" extends=".mainLayout">
 		<put name="title" value="My Account" />
 		<put name="content" type="page"
@@ -20,7 +48,7 @@
 	</definition>
 
 	<definition name=".password" extends=".mainLayout">
-		<put name="title" value="My Account" />
+		<put name="title" value="Password" />
 		<put name="content" type="page"
 			value="/WEB-INF/pages/password.jsp" />
 	</definition>
@@ -37,16 +65,12 @@
 			value="/WEB-INF/pages/experimenterForm.jsp" />
 	</definition>
 
-	<definition name=".main" extends=".mainLayout">
-		<put name="title" value="Main page" />
-		<put name="content" type="page" value="/WEB-INF/pages/main.jsp" />
+	<definition name=".logout" extends=".mainLayout">
+		<put name="title" value="Logout" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/logout.jsp" />
 	</definition>
 
-        <definition name=".logout" extends=".mainLayout">
-		<put name="title" value="Logout" />
-		<put name="content" type="page" value="/WEB-INF/pages/logout.jsp" />
-	</definition>
-        
 	<definition name=".groups" extends=".mainLayout">
 		<put name="title" value="Group Listing" />
 		<put name="content" type="page"

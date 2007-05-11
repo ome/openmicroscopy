@@ -1,6 +1,3 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -10,33 +7,32 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
+		<div id="addform"><h:form id="groupForm">
 
-		<h1><h:outputText value="#{msg.groupsAddNewGroup}"
-			rendered="#{not IAGManagerBean.editMode}" /></h1>
-		<h1><h:outputText value="#{msg.groupsEditGroup}"
-			rendered="#{IAGManagerBean.editMode}" /></h1>
-
-		<h:form id="groupForm">
+			<h2><h:outputText value="#{msg.groupsAddNewGroup}"
+				rendered="#{not IAGManagerBean.editMode}" /></h2>
+			<h2><h:outputText value="#{msg.groupsEditGroup}"
+				rendered="#{IAGManagerBean.editMode}" /></h2>
 
 			<h:inputHidden id="groupid" value="#{IAGManagerBean.group.id}" />
 
 			<h:message styleClass="errorText" id="groupFormError" for="groupForm" />
 			<br />
 
-			<h:panelGrid columns="3" columnClasses="form">
+			<h:panelGrid columns="3" columnClasses="form, input">
 
 				<h:outputText value="#{msg.groupsGroupName}" />
 
 				<h:inputText id="name" value="#{IAGManagerBean.group.name}"
-					required="true">
-					<f:validateLength minimum="3" maximum="25" />
+					required="true" maxlength="255" size="30">
+					<f:validateLength minimum="1" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="nameError" for="name" />
 
 				<h:outputText value="#{msg.groupsDescription}" />
 
-				<h:inputText id="description"
+				<h:inputText id="description" maxlength="255" size="30"
 					value="#{IAGManagerBean.group.description}" />
 
 				<h:message styleClass="errorText" id="descriptionError"
@@ -53,8 +49,6 @@
 				action="#{IAGManagerBean.updateGroup}" value="#{msg.groupsSave}"
 				rendered="#{IAGManagerBean.editMode}" />
 
-		</h:form>
-
-
+		</h:form></div>
 	</f:view>
 </c:if>

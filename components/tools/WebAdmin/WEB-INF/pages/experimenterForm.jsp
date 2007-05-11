@@ -1,6 +1,3 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
@@ -10,12 +7,12 @@
 <c:if
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
-		<h1><h:outputText value="#{msg.experimentersAddNew}"
-			rendered="#{not IAEManagerBean.editMode}" /></h1>
-		<h1><h:outputText value="#{msg.experimentersEdit}"
-			rendered="#{IAEManagerBean.editMode}" /></h1>
+		<div id="addform"><h:form id="experimenterForm">
 
-		<h:form id="experimenterForm">
+			<h2><h:outputText value="#{msg.experimentersAddNew}"
+				rendered="#{not IAEManagerBean.editMode}" /></h2>
+			<h2><h:outputText value="#{msg.experimentersEdit}"
+				rendered="#{IAEManagerBean.editMode}" /></h2>
 
 			<h:inputHidden id="experimenterid"
 				value="#{IAEManagerBean.experimenter.id}" />
@@ -24,14 +21,14 @@
 				for="experimenterForm" />
 			<br />
 
-			<h:panelGrid columns="3" columnClasses="form">
+			<h:panelGrid columns="3" columnClasses="form, input">
 
 				<h:outputText value="#{msg.experimentersOmeName}" />
 
-				<h:inputText id="omeName" maxlength="50"
+				<h:inputText id="omeName" maxlength="255"
 					value="#{IAEManagerBean.experimenter.omeName}" required="true"
 					validator="#{IAEManagerBean.validateOmeName}">
-					<f:validateLength minimum="3" maximum="50" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="omeNameError" for="omeName" />
@@ -40,7 +37,7 @@
 
 				<h:inputText id="firstName" maxlength="255"
 					value="#{IAEManagerBean.experimenter.firstName}" required="true">
-					<f:validateLength minimum="3" maximum="255" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="firstNameError"
@@ -49,7 +46,9 @@
 				<h:outputText value="#{msg.experimentersMiddleName}" />
 
 				<h:inputText id="middleName" maxlength="255"
-					value="#{IAEManagerBean.experimenter.middleName}" />
+					value="#{IAEManagerBean.experimenter.middleName}">
+					<f:validateLength minimum="1" maximum="255" />
+				</h:inputText>
 
 				<h:message styleClass="errorText" id="middleNameError"
 					for="middleName" />
@@ -58,17 +57,17 @@
 
 				<h:inputText id="lastName" maxlength="255"
 					value="#{IAEManagerBean.experimenter.lastName}" required="true">
-					<f:validateLength minimum="3" maximum="255" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="lastNameError" for="lastName" />
 
 				<h:outputText value="#{msg.experimentersEmail}" />
 
-				<h:inputText id="email" maxlength="100"
-					value="#{IAEManagerBean.experimenter.email}" required="true"
+				<h:inputText id="email" maxlength="255"
+					value="#{IAEManagerBean.experimenter.email}"
 					validator="#{IAEManagerBean.validateEmail}">
-					<f:validateLength minimum="6" maximum="100" />
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="emailNameError" for="email" />
@@ -76,8 +75,8 @@
 				<h:outputText value="#{msg.experimentersInstitution}" />
 
 				<h:inputText id="institution" maxlength="255"
-					value="#{IAEManagerBean.experimenter.institution}" required="true">
-					<f:validateLength maximum="255" />
+					value="#{IAEManagerBean.experimenter.institution}">
+					<f:validateLength minimum="1" maximum="255" />
 				</h:inputText>
 
 				<h:message styleClass="errorText" id="institutionError"
@@ -101,7 +100,7 @@
 
 				<h:outputText value="#{msg.experimentersDefaultGroup}" />
 
-				<h:selectOneMenu id="defaultGroup"
+				<h:selectOneMenu id="defaultGroup" 
 					value="#{IAEManagerBean.defaultGroup}" required="true">
 					<f:selectItems value="#{IAEManagerBean.defaultGroups}" />
 				</h:selectOneMenu>
@@ -111,7 +110,7 @@
 
 				<h:outputText value="#{msg.experimentersOtherGroups}" />
 
-				<h:selectManyListbox id="otherGroup"
+				<h:selectManyListbox id="otherGroup" size="5"
 					value="#{IAEManagerBean.selectedGroup}">
 					<f:selectItems value="#{IAEManagerBean.otherGroups}" />
 				</h:selectManyListbox>
@@ -133,13 +132,14 @@
 				value="#{msg.experimentersSave}"
 				rendered="#{IAEManagerBean.editMode}" />
 
-		</h:form>
-		<br />
-		<h:commandLink action="#{IAEManagerBean.changePassword}"
-			rendered="#{IAEManagerBean.editMode}">
-			<h:outputText value="#{msg.experimentersChangePassword}" />
-		</h:commandLink>
-
-
+		</h:form> <h:form id="passwd">
+			<br />
+			<h:graphicImage url="/images/add.png"
+				rendered="#{IAEManagerBean.editMode}" />
+			<h:commandLink action="#{IAEManagerBean.changePassword}"
+				rendered="#{IAEManagerBean.editMode}">
+				<h:outputText value="#{msg.experimentersChangePassword}" />
+			</h:commandLink>
+		</h:form></div>
 	</f:view>
 </c:if>

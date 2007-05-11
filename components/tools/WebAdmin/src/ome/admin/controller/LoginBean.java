@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 // Application-internal dependencies
 import ome.api.IAdmin;
 import ome.api.IQuery;
+import ome.api.IRepositoryInfo;
 import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Server;
@@ -82,6 +83,11 @@ public class LoginBean implements java.io.Serializable{
      */
 	private IQuery queryService;
 	
+	/**
+     * IRepositoryInfo
+     */
+	private IRepositoryInfo repService;
+	
     /**
      * log4j logger
      */
@@ -132,7 +138,8 @@ public class LoginBean implements java.io.Serializable{
      * @param password Not-null. Might must pass validation in the security sub-system.
      */
 	public void setPassword(String password) {
-		this.password = password;
+		if(password!=null) this.password = password;
+		else this.password="";
 	}
 
     /**
@@ -156,9 +163,11 @@ public class LoginBean implements java.io.Serializable{
      * @return {@link java.lang.String}
      */
 	public String getServer() {
-		FacesContext fc = FacesContext.getCurrentInstance();
-		this.server = fc.getExternalContext().getInitParameter(
-					"defaultServerHost");
+		if(this.server==null) {
+			FacesContext fc = FacesContext.getCurrentInstance();
+			this.server = fc.getExternalContext().getInitParameter(
+						"defaultServerHost");
+		}
 		
 		return this.server;
 	}
@@ -176,9 +185,11 @@ public class LoginBean implements java.io.Serializable{
      * @return int
      */
 	public int getPort() {
-		FacesContext fc = FacesContext.getCurrentInstance();
-		this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
-					"defaultServerPort"));
+		if(this.port==0) {
+			FacesContext fc = FacesContext.getCurrentInstance();
+			this.port = Integer.parseInt(fc.getExternalContext().getInitParameter(
+						"defaultServerPort"));
+		}
 		return this.port;
 	}
 
@@ -206,12 +217,28 @@ public class LoginBean implements java.io.Serializable{
 		return mode;
 	}
 	
+	/**
+     * Get {@link ome.api.IAdmin}
+     * @return {@link ome.admin.controller.LoginBean#adminService}
+     */
 	public IAdmin getAdminServices() {
 		return this.adminService;
 	}
 	
+	/**
+     * Get {@link ome.api.IQuery}
+     * @return {@link ome.admin.controller.LoginBean#queryService}
+     */
 	public IQuery getQueryServices() {
 		return this.queryService;
+	}
+	
+	/**
+     * Get {@link ome.api.IRepositoryInfo}
+     * @return {@link ome.admin.controller.LoginBean#repService}
+     */
+    public IRepositoryInfo getRepServices() {
+		return this.repService;
 	}
 
     /**
@@ -228,7 +255,7 @@ public class LoginBean implements java.io.Serializable{
 				+ port + " by " + username + " ...");
 				
 		try {
-			
+			String jsfnav;
 			try {
 
 				Login l = new Login(username, password, "system", "User");
@@ -236,9 +263,10 @@ public class LoginBean implements java.io.Serializable{
 				ServiceFactory sf = new ServiceFactory(s, l);
 				this.adminService = sf.getAdminService();
 				this.queryService = sf.getQueryService();
+				this.repService = sf.getRepositoryInfoService();
+				jsfnav = "success";
 				logger.info("Admin role for user "
 						+ adminService.getEventContext().getCurrentUserId());
-
 			} catch (Exception e) {
 
 				Login l = new Login(username, password, "user", "User");
@@ -246,6 +274,7 @@ public class LoginBean implements java.io.Serializable{
 				ServiceFactory sf = new ServiceFactory(s, l);
 				this.adminService = sf.getAdminService();
 				this.queryService = sf.getQueryService();
+				jsfnav = "account";
 				logger.info("User role for user "
 						+ adminService.getEventContext().getCurrentUserId());
 
@@ -256,7 +285,7 @@ public class LoginBean implements java.io.Serializable{
 			this.role = ctx.isCurrentUserAdmin();
 			this.mode = true;
 			logger.info("Authentication succesfule");
-			return "success";
+			return jsfnav;
 		} catch (EJBAccessException e) {
 			logger.info("Authentication not succesfule - invalid log in params");
 			FacesContext context = FacesContext.getCurrentInstance();

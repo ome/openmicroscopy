@@ -1,4 +1,5 @@
 body {
+
 	margin: 5px;
 	padding: 5px;
 	background-color: #555555;
@@ -6,26 +7,72 @@ body {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
+#login {
+    margin-top: 12%;
+    margin-left: auto;
+    margin-right: auto;
+	background-color: #F6F6F6;
+	border: 1px solid black;
+	width: 500px;
+}
+
+
+#login table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#login form {
+	padding: 25px;
+}
+
+#login h1 {
+	color: #BBBBBB;
+	font-size: 24pt;
+	margin: 5px;
+    text-align: left;
+} 
+
+#login img {
+        float: right;
+}
+
+#bottom {
+	clear: both;
+	color: #000000;
+	font-size: 10px;
+	text-align: center;
+    margin: auto;
+	width: 500px
+}
+
 #wrapper {
 	margin: 5px 20% 5px 20%;
 	border: 1px solid black;
 	padding: 5px 5px 5px 5px;
-	background-color: #FFFFFF;
+	background-color: #ffffff;
 }
 
 #header {
-	margin: 5px;
-	padding: 5px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-top: 10px;
+	margin-bottom: 0px;
 }
 
-#center {
-	float: left;
-	margin: 10px;
-	padding: 10px;
-	height: 420px;
-	max-height: 420px;
-	overflow: scroll;
-	overflow: auto;
+#addform {
+	padding-left: 25px;
+}
+
+#chart{
+	width: 550px;
+	margin: auto;
+}
+		
+#button {
+	margin-top: 10px;
+    width: 100%;
+    text-align: center;
 }
 
 #footer {
@@ -34,36 +81,49 @@ body {
 	font-size: 10px;
 	border-top: 1px solid;
 	margin: 10px;
-	padding: 5px;
+	padding-top: 5px;
+	padding-bottom: 0px;
 	text-align: center;
 }
 
-/* general anchor colors */
 img {
 	border: 0px;
+	padding-left: 3px;
+	padding-right: 3px;
+	vertical-align: middle;
 }
 
 a:link,a:visited {
-	font-weight: bold;
-	color: #333333;
+	color: #3467a7;
 	text-decoration: none;
 }
 
 a:hover {
-	color: #aaaaaa;
+	color: #3467a7;
 	text-decoration: none;
 }
 
-/* center lists */
-#center ul li {
-	margin: 5px;
-	padding: 5px;
-	font-size: .75em;
+/* center */
+#main {
+	height: 480px;
+	max-height: 480px;
+	overflow: scroll;
+	overflow: auto;
 }
+
+#center {
+	padding-left: 10px;
+	padding-right: 10px;
+	height: 600px;
+    margin: 0px;
+	overflow: scroll;
+	overflow: auto;
+}
+
 
 /* NAVIGATION FORMATTING BEGIN */
 #navigation {
-	margin: 0;
+	margin: 0px;
 	text-align: right;
 	vertical-align: middle;
 	text-transform: capitalize;
@@ -74,7 +134,7 @@ a:hover {
 }
 
 #navigation ul {
-	margin: 0;
+	margin: 0px;
 	display: inline;
 }
 
@@ -86,6 +146,7 @@ a:hover {
 }
 
 #navigation a:link,#navigation a:visited {
+	color: #333333;
 	text-decoration: none;
 }
 
@@ -94,27 +155,76 @@ a:hover {
 	text-decoration: none;
 }
 
-#center h1,h2,#header h1 {
-	font-size: 12px;
-	font-weight: bold;
-	text-align: left;
+#hello h1{
+    text-align: right;
 }
 
-#center table {
+h1 {
+	color: #333333;
+	font-size: 12px;
+	text-align: left;
+	margin-bottom: 10px;
+	margin-left: 10px;
+}
+
+h2 {
+	color: #333333;
+	font-size: 18px;
+	text-align: left;
+	margin-left: 5px;
+}
+
+table {
 	font-size: 12px;
 	text-align: center;
+	padding: 2px;
+	
 }
 
 table.list {
-	width: 100%
+	width: 99%
+}
+
+td {
+	text-align: left;
+	padding: 2px;
+	padding-left: 20px;
+}
+td.link {
+	text-align: left;
+	padding-left: 20px;
+    border-bottom-width: 1px;
+	border-bottom-style: dashed;
+	border-bottom-color: #bbbbbb;
+}
+td.desc {
+	text-align: left;
+	padding-left: 20px;
+	border-bottom-width: 1px;
+	border-bottom-style: dashed;
+	border-bottom-color: #bbbbbb;
+}
+
+td.action {
+	text-align: center;
+	padding: 0px;
+	border-bottom-width: 1px;
+	border-bottom-style: dashed;
+	border-bottom-color: #bbbbbb;
 }
 
 td.form {
-	text-align: right;
+	text-align: left;
 	font-size: 12px;
+	padding-right: 30px;
+}
+td.input {
+	text-align: left;
 }
 
-#center th {
+
+
+th {
 	font-weight: bold;
 	border: 1px solid #bbbbbb;
 	background-color: #eeeeee;

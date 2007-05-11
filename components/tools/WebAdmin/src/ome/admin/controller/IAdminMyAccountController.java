@@ -9,6 +9,7 @@ package ome.admin.controller;
 
 // Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIComponent;
@@ -18,6 +19,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.event.ActionEvent;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
+
 // Third-party libraries
 
 // Application-internal dependencies
@@ -25,6 +28,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.admin.logic.IAdminExperimenterManagerDelegate;
 import ome.admin.controller.LoginBean;
+import ome.admin.data.ConnectionDB;
 
 /**
  * It's the Java bean with fife attributes and setter/getter and actions methods. The bean captures login params entered by a user after the user clicks the submit button. This way the bean provides a bridge between the JSP page and the application logic.
@@ -39,6 +43,11 @@ public class IAdminMyAccountController implements java.io.Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * log4j logger
+	 */
+	static Logger logger = Logger.getLogger(ConnectionDB.class.getName());
+	
     /**
      * {@link ome.model.meta.Experimenter}
      */
@@ -52,7 +61,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
     /**
      * {@link ome.model.meta.Experimenter#getDefaultGroup().getId()}
      */
-	private Long defaultGroup = -1L;
+	private String defaultGroup = "-1";
 
     /**
      * Not-null. Might must pass validation in the security sub-system.
@@ -69,12 +78,21 @@ public class IAdminMyAccountController implements java.io.Serializable {
      */
 	@SuppressWarnings("deprecation")
 	public IAdminMyAccountController() {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		LoginBean lb = (LoginBean) facesContext.getApplication()
-				.getVariableResolver().resolveVariable(facesContext,
-						"LoginBean");
-		this.experimenter = iadmin.getExperimenterById(Long.parseLong(lb
-				.getId()));
+		try {
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			LoginBean lb = (LoginBean) facesContext.getApplication()
+					.getVariableResolver().resolveVariable(facesContext,
+							"LoginBean");
+			this.experimenter = iadmin.getExperimenterById(Long.parseLong(lb
+					.getId()));
+		} catch (Exception e) {
+			logger.error("changeMyPassword: " + e.getMessage());
+			FacesContext context = FacesContext.getCurrentInstance();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenterForm", message);
+		}
 	}
 
     /**
@@ -92,17 +110,18 @@ public class IAdminMyAccountController implements java.io.Serializable {
      * @param event {@link javax.faces.event.ActionEvent} object from the specified source component and action command.
      * @return {@link java.lang.String}
      */
-	public String changeMyPassword(ActionEvent event) {
+	public String changeMyPassword() {
 		try {
 			this.experimenter = (Experimenter) this.iadmin
-					.getExperimenterById(Long.parseLong(getAttribute(event,
-							"userid")));
+					.getExperimenterById(this.experimenter.getId());
 			return "success";
 		} catch (Exception e) {
+			logger.error("changeMyPassword: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot change your password");
-			context.addMessage("experimenterForm", message);
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("changePassword", message);
 			return "false";
 		}
 	}
@@ -110,24 +129,32 @@ public class IAdminMyAccountController implements java.io.Serializable {
     /**
      * Provides action for navigation rule "updateMyPassword" what is described in the faces-config.xml file. Changes the password for current {@link ome.model.meta.Experimenter}.
      */
-	@SuppressWarnings("deprecation")
-	public void updateMyPassword() {
-		if (!password2.equals(this.password)) {
+	public String updateMyPassword() {
+		try {
+			if (!password2.equals(this.password)) {
+				FacesContext context = FacesContext.getCurrentInstance();
+				FacesMessage message = new FacesMessage(
+						"Confirmation has to be the same as password.");
+				context.addMessage("changePassword", message);
+				return "false";
+			} else {
+				iadmin.changeMyPassword(this.password);
+				FacesContext facesContext = FacesContext.getCurrentInstance();
+				HttpSession session = (HttpSession) facesContext
+						.getExternalContext().getSession(false);
+				session.invalidate();
+				return "success";
+			}
+		} catch (Exception e) {
+			logger.error("updateMyPassword: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"Confirmation has to be the same as password.");
-			context.addMessage("changePassword", message);
-		} else {
-			iadmin.changeMyPassword(this.password);
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			LoginBean lb = (LoginBean) facesContext.getApplication()
-					.getVariableResolver().resolveVariable(facesContext,
-							"LoginBean");
-			lb.setPassword(this.password);
-			HttpSession session = (HttpSession) facesContext
-					.getExternalContext().getSession(false);
-			session.invalidate();
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("experimenterForm", message);
+			return "false";
 		}
+
 	}
 
     /**
@@ -135,7 +162,10 @@ public class IAdminMyAccountController implements java.io.Serializable {
      * @param password @Not-null. Might must pass validation in the security sub-system.
      */
 	public void setPassword(String password) {
-		this.password = password;
+		if (password != null)
+			this.password = password;
+		else
+			this.password = "";
 	}
 
     /**
@@ -151,7 +181,10 @@ public class IAdminMyAccountController implements java.io.Serializable {
      * @param password2 Not-null. Might must pass validation in the security sub-system.
      */
 	public void setPassword2(String password2) {
-		this.password2 = password2;
+		if (password2 != null)
+			this.password2 = password2;
+		else
+			this.password2 = "";
 	}
 
     /**
@@ -174,9 +207,11 @@ public class IAdminMyAccountController implements java.io.Serializable {
 							"userid")));
 			return "success";
 		} catch (Exception e) {
+			logger.error("editMyAccount: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot edit your account");
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 			return "false";
 		}
@@ -192,14 +227,13 @@ public class IAdminMyAccountController implements java.io.Serializable {
 			ExperimenterGroup[] exg = iadmin
 					.containedMyGroups(this.experimenter.getId());
 
-			for (int i = 0; i < exg.length; i++) {
-				groups.add(exg[i]);
-			}
-
+			groups = Arrays.asList(exg);
 		} catch (Exception e) {
+			logger.error("getMyGroups: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot get your groups");
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 		return wrapAsGUIList(groups);
@@ -209,7 +243,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
      * Sets fild {@link ome.admin.controller.IAdminMyAccountController#defaultGroup}
      * @param id Long
      */
-	public void setDefaultGroup(Long id) {
+	public void setDefaultGroup(String id) {
 		this.defaultGroup = id;
 	}
 
@@ -217,15 +251,17 @@ public class IAdminMyAccountController implements java.io.Serializable {
      * Gets default group {@link ome.model.meta.ExperimenterGroup#getId()}
      * @return Long
      */
-	public Long getDefaultGroup() {
+	public String getDefaultGroup() {
 		try {
 			ExperimenterGroup exg = iadmin.getDefaultGroup(this.experimenter
 					.getId());
-			this.defaultGroup = exg.getId();
+			this.defaultGroup = exg.getId().toString();
 		} catch (Exception e) {
+			logger.error("getDefaultGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot change details, baceuse user is loged in");
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 		}
 		return this.defaultGroup;
@@ -274,9 +310,11 @@ public class IAdminMyAccountController implements java.io.Serializable {
 					.getExperimenterById(this.experimenter.getId());
 			return "success";
 		} catch (Exception e) {
+			logger.error("editExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot edit experimenter");
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 			return "false";
 		}
@@ -289,11 +327,17 @@ public class IAdminMyAccountController implements java.io.Serializable {
 	public String updateExperimenter() {
 		try {
 			iadmin.updateMyAccount(this.experimenter, this.defaultGroup);
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			HttpSession session = (HttpSession) facesContext
+					.getExternalContext().getSession(true);
+			session.invalidate();
 			return "success";
 		} catch (Exception e) {
+			logger.error("updateExperimenter: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
-			FacesMessage message = new FacesMessage(
-					"You cannot change details, baceuse user is loged in");
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
 			context.addMessage("experimenterForm", message);
 			return "false";
 		}
@@ -307,17 +351,26 @@ public class IAdminMyAccountController implements java.io.Serializable {
      */
 	public void validateEmail(FacesContext context, UIComponent toValidate,
 			Object value) {
-		String email = (String) value;
-		if (email.indexOf('@') == -1) {
-			((UIInput) toValidate).setValid(false);
-			FacesMessage message = new FacesMessage("Invalid Email");
-			context.addMessage(toValidate.getClientId(context), message);
-		}
-		if (iadmin.checkEmail(email)
-				&& !email.equals(this.experimenter.getEmail())) {
-			((UIInput) toValidate).setValid(false);
-			FacesMessage message = new FacesMessage("Email exist");
-			context.addMessage(toValidate.getClientId(context), message);
+		try {
+			String email = (String) value;
+		
+			if (email.indexOf('@') == -1) {
+				((UIInput) toValidate).setValid(false);
+				FacesMessage message = new FacesMessage("Invalid Email");
+				context.addMessage(toValidate.getClientId(context), message);
+			}
+			if (iadmin.checkEmail(email)
+					&& !email.equals(this.experimenter.getEmail())) {
+				((UIInput) toValidate).setValid(false);
+				FacesMessage message = new FacesMessage("Email exist");
+				context.addMessage(toValidate.getClientId(context), message);
+			}
+		} catch (Exception e) {
+			logger.error("validateEmail: " + e.getMessage());
+			FacesMessage message = new FacesMessage("Experimenter: [id: "
+					+ this.experimenter.getId() + ", '"
+					+ this.experimenter.getOmeName() + "'] : " + e.getMessage());
+			context.addMessage("groupForm", message);
 		}
 	}
 

@@ -35,7 +35,7 @@
       	<mkdir dir= "${basedir}/WEB-INF/classes" />
         <javac   srcdir="${src.dir}"
                     destdir="${build.dir}"
-                    debug="off"
+                    debug="on"
                 deprecation="on">
           <include name="**/*.java"/>
           <classpath refid="project.class.path"/>
@@ -57,8 +57,8 @@
           <war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
                  <fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath"/>
                  <webinf  dir="${basedir}/WEB-INF"    includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class"/>
-                 <lib     dir="${basedir}/WEB-INF/lib" excludes="jsf-api.jar, jsf-impl.jar"/>
-                 <classes dir="${basedir}/WEB-INF/classes" />
+                 <lib     dir="${basedir}/WEB-INF/lib" excludes="j2ee.jar"/>
+          		 <classes dir="${basedir}/WEB-INF/classes" />
           </war>
       </target>
   

@@ -3,16 +3,27 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee">
 
-	<!--
-		<context-param>
-		<param-name>javax.faces.CONFIG_FILES</param-name>
-		<param-value>/WEB-INF/examples-config.xml</param-value>
-		</context-param>
-	-->
-
 	<context-param>
 		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-		<param-value>server</param-value>
+		<param-value>client</param-value>
+	</context-param>
+	<context-param>
+		<param-name>
+			org.apache.myfaces.NUMBER_OF_VIEWS_IN_SESSION
+		</param-name>
+		<param-value>20</param-value>
+	</context-param>
+	<context-param>
+		<param-name>
+			org.apache.myfaces.SERIALIZE_STATE_IN_SESSION
+		</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>
+			org.apache.myfaces.COMPRESS_STATE_IN_SESSION
+		</param-name>
+		<param-value>true</param-value>
 	</context-param>
 	<context-param>
 		<param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
@@ -31,6 +42,31 @@
 		<param-value>true</param-value>
 	</context-param>
 
+	<context-param>
+		<param-name>org.apache.myfaces.SECRET</param-name>
+		<param-value>NzY1NDMyMTA=</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>org.apache.myfaces.VALIDATE</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>org.apache.myfaces.ADD_RESOURCE_CLASS</param-name>
+		<param-value>
+			org.apache.myfaces.renderkit.html.util.DefaultAddResource
+		</param-value>
+		<!--param-value>org.apache.myfaces.component.html.util.StreamingAddResource</param-value-->
+	</context-param>
+
+	<context-param>
+		<param-name>
+			org.apache.myfaces.CHECK_EXTENSIONS_FILTER
+		</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+
 	<!-- Login form params -->
 	<context-param>
 		<param-name>defaultServerHost</param-name>
@@ -40,6 +76,61 @@
 		<param-name>defaultServerPort</param-name>
 		<param-value>1099</param-value>
 	</context-param>
+
+	<!-- TopTen params -->
+	<context-param>
+		<param-name>topTenValue</param-name>
+		<param-value>5</param-value>
+	</context-param>
+
+	<!-- Faces Servlet Mapping -->
+	<filter>
+		<filter-name>extensionsFilter</filter-name>
+		<filter-class>
+			org.apache.myfaces.webapp.filter.ExtensionsFilter
+		</filter-class>
+		<init-param>
+			<description>
+				Set the size limit for uploaded files. Format: 10 - 10
+				bytes 10k - 10 KB 10m - 10 MB 1g - 1 GB
+			</description>
+			<param-name>uploadMaxFileSize</param-name>
+			<param-value>100m</param-value>
+		</init-param>
+		<init-param>
+			<description>
+				Set the threshold size - files below this limit are
+				stored in memory, files above this limit are stored on
+				disk.
+
+				Format: 10 - 10 bytes 10k - 10 KB 10m - 10 MB 1g - 1 GB
+			</description>
+			<param-name>uploadThresholdSize</param-name>
+			<param-value>100k</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>extensionsFilter</filter-name>
+		<url-pattern>*.jsf</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>extensionsFilter</filter-name>
+		<url-pattern>/faces/*</url-pattern>
+	</filter-mapping>
+
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>SourceCodeServlet</servlet-name>
+		<servlet-class>
+			org.apache.myfaces.shared_tomahawk.util.servlet.SourceCodeServlet
+		</servlet-class>
+	</servlet>
 
 	<!-- Log4J path properties-->
 	<servlet>
@@ -53,33 +144,13 @@
 
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-
-
-	<!-- Faces Servlet -->
-	<servlet>
-		<servlet-name>FacesServlet</servlet-name>
-		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-
-	<!-- Faces Servlet Mapping -->
-	<servlet-mapping>
-		<servlet-name>FacesServlet</servlet-name>
-		<url-pattern>*.html</url-pattern>
-	</servlet-mapping>
-
+	
 	<!-- Logout Servlet -->
 	<servlet>
 		<servlet-name>Logout</servlet-name>
 		<servlet-class>ome.admin.controller.Logout</servlet-class>
 	</servlet>
-
-	<!-- Logout Mapping -->
-	<servlet-mapping>
-		<servlet-name>Logout</servlet-name>
-		<url-pattern>/logout</url-pattern>
-	</servlet-mapping>
-
+	
 	<!-- Tails Servlet -->
 	<servlet>
 		<servlet-name>tiles</servlet-name>
@@ -102,14 +173,27 @@
 		<taglib-location>/WEB-INF/html_basic_mod.tld</taglib-location>
 	</taglib>
 
-	<!-- Faces -->
-	<listener>
-		<listener-class>
-			org.apache.myfaces.webapp.StartupServletContextListener
-		</listener-class>
-	</listener>
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SourceCodeServlet</servlet-name>
+		<url-pattern>*.source</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Logout Mapping -->
+	<servlet-mapping>
+		<servlet-name>Logout</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
 
 	<session-config>
-		<session-timeout>5</session-timeout>
+		<session-timeout>15</session-timeout>
 	</session-config>
 </web-app>

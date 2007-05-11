@@ -13,10 +13,13 @@ import org.apache.log4j.PropertyConfigurator;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
-import java.io.IOException;
 
 public class Log4jInit extends HttpServlet {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public void init() {
 		String prefix = getServletContext().getRealPath("/");

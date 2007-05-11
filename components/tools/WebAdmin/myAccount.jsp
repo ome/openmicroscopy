@@ -3,7 +3,7 @@
 
 <c:if
 	test="${empty sessionScope.LoginBean.mode or !sessionScope.LoginBean.mode}">
-	<t:insert definition=".main" />
+	<t:insert definition=".login" />
 </c:if>
 <c:if test="${sessionScope.LoginBean.mode}">
 	<t:insert definition=".myAccount" />
