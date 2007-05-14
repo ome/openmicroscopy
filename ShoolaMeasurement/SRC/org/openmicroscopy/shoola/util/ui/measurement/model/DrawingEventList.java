@@ -44,12 +44,12 @@ package org.openmicroscopy.shoola.util.ui.measurement.model;
  */
 public class DrawingEventList 
 {
-	public static final String UIMODEL_FIGUREADDED = "UIModel_FigureAdded"; 
-	public static final String UIMODEL_FIGUREREMOVED = "UIModel_FigureRemoved"; 
-	public static final String UIMODEL_FIGURESELECTED = "UIModel_FigureSelected"; 
-	public static final String UIMODEL_FIGUREATTRIBUTECHANGED = "UIModel_FigureAttributeChanged"; 
-	public static final String OBJECTMANAGER_FIGURESELECTED = "ObjectManager_FigureSelected"; 
-	public static final String UIMODEL_ACTIVECHANNELCHANGED = "UIModel_ActiveChannelChanged";
+	public static final String UIMODEL_FIGUREADDED = "uiModel_FigureAdded"; 
+	public static final String UIMODEL_FIGUREREMOVED = "uiModel_FigureRemoved"; 
+	public static final String UIMODEL_FIGURESELECTED = "uiModel_FigureSelected"; 
+	public static final String UIMODEL_FIGUREATTRIBUTECHANGED = "uiModel_FigureAttributeChanged"; 
+	public static final String OBJECTMANAGER_FIGURESELECTED = "objectManager_FigureSelected"; 
+	public static final String UIMODEL_ACTIVECHANNELCHANGED = "uiModel_ActiveChannelChanged";
 	
 	private DrawingEventList()
 	{
