@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ *
+ * Copyright 2004 The Apache Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+                        "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+ <tlib-version>1.0</tlib-version>
+ <jsp-version>1.2</jsp-version>
+ <short-name>chartcreator</short-name>
+ <uri>http://sourceforge.net/projects/jsf-comp</uri>
+ <tag>
+  <name>chart</name>
+  <tag-class>net.sf.jsfcomp.chartcreator.ChartTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+  	<name>id</name>
+  	<required>true</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>title</name>
+  	<required>false</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>is3d</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>type</name>
+  	<required>true</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>datasource</name>
+  	<required>true</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>width</name>
+  	<required>false</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>height</name>
+  	<required>false</required>
+  	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+	<name>rendered</name>
+	<required>false</required>
+	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+    <name>background</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+    <name>foreground</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>xlabel</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>ylabel</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>orientation</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>antialias</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>outline</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>legend</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>alpha</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>explode</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+  <attribute>
+  	<name>depth</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>startAngle</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>colors</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+
+  <attribute>
+  	<name>styleClass</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>alt</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>imgTitle</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onclick</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>ondblclick</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onmousedown</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onmouseup</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onmouseover</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onmousemove</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onmouseout</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onkeypress</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onkeydown</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>onkeyup</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>output</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+   <attribute>
+  	<name>usemap</name>
+  	<required>false</required>
+ 	<rtexprvalue>false</rtexprvalue>
+  </attribute>
+  
+ </tag>
+</taglib>
+

@@ -189,8 +189,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("addGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("changePassword", message);
 			return "false";
 		}
@@ -203,21 +203,38 @@ public class IAdminGroupController implements java.io.Serializable {
 	 * @return {@link java.lang.String} "success" or "false"
 	 */
 	public String editGroup() {
+		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			this.editMode = true;
 			this.group = (ExperimenterGroup) groupModel.getRowData();
 			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
 					.getId());
-			return "success";
+			if (!checkGroup(this.group.getName())) {
+				this.editMode = true;
+				return "success";
+			} else {
+				this.editMode = false;
+				FacesMessage message = new FacesMessage(
+						"Cannot edit group [name '" + this.group.getName()
+								+ "']. This is system group.");
+				context.addMessage("groups", message);
+				return "false";
+			}
 		} catch (Exception e) {
 			logger.error("editGroup: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
 			return "false";
 		}
+	}
+
+	private boolean checkGroup(String name) {
+		if (name.equals("system"))
+			return true;
+		if (name.equals("default"))
+			return true;
+		return false;
 	}
 
 	/**
@@ -227,20 +244,28 @@ public class IAdminGroupController implements java.io.Serializable {
 	 * @return {@link java.lang.String} "success" or "false"
 	 */
 	public String delGroup() {
+		FacesContext context = FacesContext.getCurrentInstance();
 		try {
-			this.editMode = true;
 			this.group = (ExperimenterGroup) groupModel.getRowData();
 			this.group = (ExperimenterGroup) iadmin.getGroupById(this.group
 					.getId());
-			iadmin.deleteGroup(this.group.getId());
-			this.groupModel.setWrappedData(iadmin.sortItems(sortItem, sort));
-			return "success";
+			if (!checkGroup(this.group.getName())) {
+				this.editMode = true;
+				iadmin.deleteGroup(this.group.getId());
+				this.groupModel
+						.setWrappedData(iadmin.sortItems(sortItem, sort));
+				return "success";
+			}
+			FacesMessage message = new FacesMessage(
+					"Cannot delete group [name '" + this.group.getName()
+							+ "']. This is system group.");
+			context.addMessage("groups", message);
+			return "false";
 		} catch (Exception e) {
 			logger.error("delGroup: " + e.getMessage());
-			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
 			return "false";
 		}
@@ -262,8 +287,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("updateGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("groupForm", message);
 			return "false";
 		}
@@ -284,8 +309,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("getSelectedExperimenters: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("group", message);
 		}
 		return this.selectedExperimenters;
@@ -316,8 +341,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("getExperimenters: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("group", message);
 		}
 		return wrapAsGUIList(this.experimenters);
@@ -362,8 +387,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("editInGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
 			return "false";
 		}
@@ -384,8 +409,8 @@ public class IAdminGroupController implements java.io.Serializable {
 			logger.error("SaveInToGroup: " + e.getMessage());
 			FacesContext context = FacesContext.getCurrentInstance();
 			FacesMessage message = new FacesMessage("Group: [id: "
-					+ this.group.getId() + ", '"
-					+ this.group.getName() + "'] : " + e.getMessage());
+					+ this.group.getId() + ", '" + this.group.getName()
+					+ "'] : " + e.getMessage());
 			context.addMessage("groups", message);
 			return "false";
 		}

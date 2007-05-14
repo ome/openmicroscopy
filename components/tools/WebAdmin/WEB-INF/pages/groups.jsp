@@ -9,7 +9,8 @@
 	<f:view>
 		<h:form id="groups">
 
-			<h:commandLink action="#{IAGManagerBean.addNewGroup}">
+			<h:commandLink action="#{IAGManagerBean.addNewGroup}"
+				title="#{msg.groupsAddNewGroup}">
 				<h:graphicImage url="/images/add.png" />
 				<h:outputText value=" #{msg.groupsAddNewGroup}" />
 			</h:commandLink>
@@ -18,8 +19,7 @@
 
 			<h2><h:outputText value="#{msg.groupsListGroup}" /></h2>
 
-			<h:message styleClass="errorText" id="groupsError"
-				for="groups" />
+			<h:message styleClass="errorText" id="groupsError" for="groups" />
 
 			<div id="main"><h:dataTable id="items"
 				value="#{IAGManagerBean.groups}" var="group" styleClass="list"
@@ -29,13 +29,15 @@
 					<f:facet name="header">
 						<h:outputText value=" #{msg.groupsActions} " />
 					</f:facet>
-					
-					<h:commandLink action="#{IAGManagerBean.editInGroup}">
+
+					<h:commandLink action="#{IAGManagerBean.editInGroup}"
+						title="#{msg.groupsEditIn}">
 						<h:graphicImage url="/images/editing.png"
 							alt="#{msg.groupsEditIn}" />
 					</h:commandLink>
-					
-					<h:commandLink action="#{IAGManagerBean.editGroup}">
+
+					<h:commandLink action="#{IAGManagerBean.editGroup}"
+						title="#{msg.groupsEditGroup}">
 						<h:graphicImage url="/images/edit.png"
 							alt="#{msg.groupsEditGroup}" />
 					</h:commandLink>
@@ -47,25 +49,25 @@
 						<h:panelGroup>
 
 							<h:commandLink action="sortItems"
-								actionListener="#{IAGManagerBean.sortItems}">
+								actionListener="#{IAGManagerBean.sortItems}" title="#{msg.sortAsc}">
 								<f:attribute name="sortItem" value="name" />
 								<f:attribute name="sort" value="asc" />
-								<h:graphicImage url="/images/asc.png" alt="asc" />
+								<h:graphicImage url="/images/asc.png" alt="#{msg.sortAsc}" />
 							</h:commandLink>
 
 							<h:outputText value=" #{msg.groupsName} " />
 
 							<h:commandLink action="sortItems"
-								actionListener="#{IAGManagerBean.sortItems}">
+								actionListener="#{IAGManagerBean.sortItems}" title="#{msg.sortDesc}">
 								<f:attribute name="sortItem" value="name" />
 								<f:attribute name="sort" value="dsc" />
-								<h:graphicImage url="/images/dsc.png" alt="dsc" />
+								<h:graphicImage url="/images/dsc.png" alt="#{msg.sortDesc}" />
 							</h:commandLink>
 
 						</h:panelGroup>
 					</f:facet>
 
-					<h:commandLink action="#{IAGManagerBean.editGroup}">
+					<h:commandLink action="#{IAGManagerBean.editGroup}" title="#{msg.groupsEditGroup}">
 						<h:outputText value="#{group.name}" />
 					</h:commandLink>
 				</h:column>

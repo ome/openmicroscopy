@@ -8,7 +8,7 @@
       <property name="build.compiler"     value="modern"/>
       <property name="build.dir"          value="${basedir}/WEB-INF/classes" />
       <property name="src.dir"            value="${basedir}/src"/>
-      <property name="war.file"           value="IAdmin"/>
+      <property name="war.file"           value="WebAdmin"/>
       <property name="war.file.name"      value="${war.file}.war"/>
       <property name="jboss.home"         value="/Users/Ola/J2EP/software/jboss-4.0.4.GA"/>
       <property name="deploy.dir"         value="${jboss.home}/server/default/deploy"/>
