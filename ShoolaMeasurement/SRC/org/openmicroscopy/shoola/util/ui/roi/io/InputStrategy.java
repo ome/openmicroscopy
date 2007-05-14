@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.roi.io;
 
 
 //Java imports
-
 import java.awt.BasicStroke;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,9 +68,65 @@ public class InputStrategy
 {
 	FigureFactory figureFactory;
 	
-	private final static String ROI = "ROI";
-	private final static String ROISHAPE = "ROIShape";
-	private final static String SVG = "svg";
+	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk";
+	public final static String VERSION_TAG = "version";
+	public final static String SVG_VERSION = "1.2";
+	public final static String SVG_XLINK_VALUE = "http://www.w3.org/1999/xlink";
+	public final static String XLINK_ATTRIBUTE = "xmlns:xlink";
+	
+	public final static String ROI_VERSION = "1.0";
+	public final static String ROISET_TAG = "roiset";
+	public final static String ROI_TAG = "roi";
+	public final static String ROI_ID_ATTRIBUTE = "id";
+	public final static String ROISHAPE_TAG = "roishape";
+	public final static String ANNOTATION_TAG = "annotation";
+	public final static String DEFS_TAG = "defs";
+	public final static String SVG_TAG = "svg";
+	public final static String VALUE_TAG = "value";
+	public final static String RECT_TAG = "rect";
+	public final static String ELLIPSE_TAG = "ellipse";
+	public final static String LINE_TAG = "line";
+	public final static String POLYLINE_TAG = "polyline";
+	public final static String POLYGON_TAG = "polygon";
+	
+	public final static String DATATYPE_ATTRIBUTE = "type";
+	public final static String SIZE_ATTRIBUTE = "size"; 
+	public final static String VALUE_ATTRIBUTE = "value";
+	public final static String POINTS_ATTRIBUTE = "points";
+	
+	public final static String X_ATTRIBUTE = "x";
+	public final static String X1_ATTRIBUTE = "x1";
+	public final static String X2_ATTRIBUTE = "x2";
+	public final static String Y_ATTRIBUTE = "y";
+	public final static String Y1_ATTRIBUTE = "y1";
+	public final static String Y2_ATTRIBUTE = "y2";
+	public final static String CX_ATTRIBUTE = "cx";
+	public final static String CY_ATTRIBUTE = "cy";
+	public final static String RX_ATTRIBUTE = "rx";
+	public final static String RY_ATTRIBUTE = "ry";
+	public final static String Z_ATTRIBUTE = "z";
+	public final static String C_ATTRIBUTE = "c";
+	public final static String T_ATTRIBUTE = "t";
+	public final static String WIDTH_ATTRIBUTE = "width";
+	public final static String HEIGHT_ATTRIBUTE = "height";
+	public final static String RED_ATTRIBUTE = "r";
+	public final static String BLUE_ATTRIBUTE = "b";
+	public final static String GREEN_ATTRIBUTE = "g";
+	public final static String ALPHA_ATTRIBUTE = "a";
+	
+	
+	public final static String DATATYPE_ATTRIBUTE_VALUE_STRING = "String";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_DOUBLE = "Double";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_LONG = "Long";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_INTEGER = "Integer";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_FLOAT = "Float";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_POINT2D = "Point2D";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_ELLIPSE2D = "Ellipse2D";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_RECTANGLE2D = "Rectangle2D";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_COLOUR = "Color";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_COORD3D = "Coord3D";
+	public final static String DATATYPE_ATTRIBUTE_VALUE_ARRAYLIST = "ArrayList";
 	
 	
 	private final static HashMap<String,WindingRule> fillRuleMap;
@@ -176,7 +231,7 @@ public class InputStrategy
 	        throw e;
 	    }
 	    
-	    ArrayList<IXMLElement> roiElements = document.getChildrenNamed("ROI");
+	    ArrayList<IXMLElement> roiElements = document.getChildrenNamed(ROI_TAG);
 	    for(int i = 0 ; i < roiElements.size() ; i++)
 	    {
 	    	roiList.add(createROI(roiElements.get(i), component));
@@ -187,9 +242,9 @@ public class InputStrategy
 	
 	private ROI createROI(IXMLElement roiElement, ROIComponent component) throws ROIShapeCreationException, IOException
 	{
-		if(!roiElement.hasAttribute("id"))
+		if(!roiElement.hasAttribute(ROI_ID_ATTRIBUTE))
 			return null;
-		long id = new Long(roiElement.getAttribute("id","-1"));
+		long id = new Long(roiElement.getAttribute(ROI_ID_ATTRIBUTE,"-1"));
 		
 		ROI newROI = null;
 		try 
@@ -203,7 +258,7 @@ public class InputStrategy
 		ArrayList<IXMLElement> roiChildren = roiElement.getChildren();
 		for(int i = 0 ; i < roiChildren.size(); i++)
 		{
-			if(roiChildren.get(i).equals(ROISHAPE))
+			if(roiChildren.get(i).equals(ROISHAPE_TAG))
 			{
 				newROI.addShape(createROIShape(roiChildren.get(i), newROI));
 			}
@@ -218,13 +273,13 @@ public class InputStrategy
 		
 	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI) throws IOException
 	{
-		ArrayList<IXMLElement> figureElement = shapeElement.getChildrenNamed(SVG);
+		ArrayList<IXMLElement> figureElement = shapeElement.getChildrenNamed(SVG_TAG);
 		if(figureElement.size()!=0)
 		{
 			throw new IOException("No Figure Element in ROIShape");
 		}
-		int t = new Integer(shapeElement.getAttribute("t","0"));
-		int z = new Integer(shapeElement.getAttribute("z","0"));
+		int t = new Integer(shapeElement.getAttribute(T_ATTRIBUTE,"0"));
+		int z = new Integer(shapeElement.getAttribute(Z_ATTRIBUTE,"0"));
 		Coord3D coord = new Coord3D(t,z);
 		
 		ROIFigure figure = createFigure(figureElement.get(0));
@@ -251,7 +306,9 @@ public class InputStrategy
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
 		String key = annotationElement.getName();
+		String dataType = annotationElement.getAttribute(DATATYPE_ATTRIBUTE);
 		String value = annotationElement.getContent();
+		
 	}
 	
 	private void addAnnotation(IXMLElement annotationElement, ROI roi)
