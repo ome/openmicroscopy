@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.util.ui.roi.io;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -73,8 +75,8 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFi
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
+import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
@@ -96,6 +98,8 @@ public class OutputStrategy
 {
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk/roi";
+	public final static String VERSION = "version";
+	public final static String ROIVERSION = "1.0";
 	
 	private final static HashMap<Integer, String> strokeLinejoinMap;
 	static 
@@ -152,12 +156,13 @@ public class OutputStrategy
    IXMLElement document;
    IXMLElement defs; 
 	
-   public void write(OutputStream out, ROICollection roiCollection) throws IOException 
+   public void write(OutputStream out, ROIComponent roiComponent) throws IOException 
    {
 		document = new XMLElement("ROISET", ROI_NAMESPACE);
+		document.setAttribute(VERSION, ROIVERSION);
 		defs = new XMLElement("defs");
 		document.addChild(defs);
-		ROICollection collection = roiCollection;
+		ROIComponent collection = roiComponent;
 	        
 	    TreeMap<Long, ROI> roiMap = collection.getROIMap();
 	    Iterator iterator = roiMap.values().iterator();
@@ -200,14 +205,100 @@ public class OutputStrategy
 	private void writeROIShapeAnnotations(IXMLElement shapeElement, ROIShape shape)
 	{
 		Map<AnnotationKey, Object> annotationMap = shape.getAnnotation();
+		IXMLElement annotationLeaf = new XMLElement("Annotations");
 		Iterator iterator = annotationMap.keySet().iterator();
 		while(iterator.hasNext())
 		{
 			AnnotationKey key = (AnnotationKey)iterator.next();
 			XMLElement annotation = new XMLElement(key.getKey());
 			addAttributes(annotation, annotationMap.get(key));
-			shapeElement.addChild(annotation);
+			annotationLeaf.addChild(annotation);
 		}
+		shapeElement.addChild(annotationLeaf);
+	}
+	
+	private void addAttributes(XMLElement annotation, Object value)
+	{
+		String str;
+		if( value instanceof Double || 
+			value instanceof Float ||
+			value instanceof Integer ||
+			value instanceof Long)
+		{
+			if( value instanceof Double)
+				annotation.setAttribute("type", "Double");
+			if( value instanceof Float)
+				annotation.setAttribute("type", "Float");
+			if( value instanceof Integer)
+				annotation.setAttribute("type", "Integer");
+			if( value instanceof Long)
+				annotation.setAttribute("type", "Long");
+			annotation.setAttribute("value", value+"");
+		}
+		else if(value instanceof Color)
+		{
+			Color colour = (Color)value;
+			annotation.setAttribute("type", "Colour");
+			annotation.setAttribute("r", colour.getRed()+"");
+			annotation.setAttribute("g", colour.getGreen()+"");
+			annotation.setAttribute("b", colour.getBlue()+"");
+			annotation.setAttribute("a", colour.getAlpha()+"");
+		}
+		else if(value instanceof Rectangle2D)
+		{
+			Rectangle2D object = (Rectangle2D)value;
+			annotation.setAttribute("type", "Rectangle2D");
+			annotation.setAttribute("x", object.getX()+"");
+			annotation.setAttribute("y", object.getY()+"");
+			annotation.setAttribute("width", object.getWidth()+"");
+			annotation.setAttribute("height", object.getHeight()+"");
+		}	
+		else if(value instanceof Ellipse2D)
+		{
+			Ellipse2D object = (Ellipse2D)value;
+			annotation.setAttribute("type", "Ellipse2D");
+			annotation.setAttribute("x", object.getX()+"");
+			annotation.setAttribute("y", object.getY()+"");
+			annotation.setAttribute("width", object.getWidth()+"");
+			annotation.setAttribute("height", object.getHeight()+"");
+		}
+		else if(value instanceof String)
+		{
+			annotation.setAttribute("type", "String");
+			annotation.setAttribute("value", (String)value);
+		}
+		else if(value instanceof Point2D)
+		{
+			Point2D point = (Point2D)value;
+			annotation.setAttribute("type", "Point2D");
+			annotation.setAttribute("x", point.getX()+"");
+			annotation.setAttribute("y", point.getY()+"");
+		}
+		else if(value instanceof Coord3D)
+		{
+			Coord3D coord = (Coord3D)value;
+			annotation.setAttribute("type", "Coord3D");
+			annotation.setAttribute("t", coord.getTimePoint()+"");
+			annotation.setAttribute("z", coord.getZSection()+"");
+		}
+		else if(value instanceof ArrayList)
+		{
+			ArrayList list = (ArrayList)value;
+			annotation.setAttribute("type", "ArrayList");
+			annotation.setAttribute("size", list.size()+"");
+			for( int i = 0 ; i < list.size(); i++)
+			{
+				XMLElement valueElement = new XMLElement("Value");
+				Object object = list.get(i);
+				addAttributes(valueElement, object);
+				annotation.addChild(valueElement);
+			}
+		}
+	}
+
+	private String newLine()
+	{
+		return System.getProperty("line.separator");
 	}
 	
 	private void writeROIShape(XMLElement roiElement, ROIShape shape) throws IOException
@@ -983,80 +1074,7 @@ public class OutputStrategy
     }
 
     
-    private void addAttributes(XMLElement annotation, Object value)
-	{
-		String str;
-		if( value instanceof Double ||
-			value instanceof Float ||
-			value instanceof Integer ||
-			value instanceof Long ||
-			value instanceof Float)
-		{
-			annotation.setAttribute("value", value+"");
-		}
-		else if(value instanceof String)
-		{
-			annotation.setAttribute("value", (String)value);
-		}
-		else if(value instanceof Point2D)
-		{
-			Point2D point = (Point2D)value;
-			annotation.setAttribute("x", point.getX()+"");
-			annotation.setAttribute("y", point.getY()+"");
-		}
-		else if(value instanceof Coord3D)
-		{
-			Coord3D coord = (Coord3D)value;
-			annotation.setAttribute("t", coord.getTimePoint()+"");
-			annotation.setAttribute("z", coord.getZSection()+"");
-		}
-		else if(value instanceof ArrayList)
-		{
-			String buildString = new String();
-			ArrayList list = (ArrayList)value;
-			for( int i = 0 ; i < list.size(); i++)
-			{
-				buildString = buildString + toString(list.get(i));
-				if(i<list.size()-1)
-					buildString = buildString+newLine();
-			}
-			annotation.setContent(buildString);
-		}
-	}
-
-	private String toString(Object value)
-	{
-		String str = "";
-		if( value instanceof Double ||
-			value instanceof Float ||
-			value instanceof Integer ||
-			value instanceof Long ||
-			value instanceof Float)
-		{
-			str = value+"";
-		}
-		else if(value instanceof String)
-		{
-			str = (String)value;
-		}
-		else if(value instanceof Point2D)
-		{
-			Point2D point = (Point2D)value;
-			str = "x = " + point.getX() + " y = " + point.getY();
-		}
-		else if(value instanceof Coord3D)
-		{
-			Coord3D coord = (Coord3D)value;
-			str = "t = " + coord.getTimePoint() + " z = " + coord.getZSection();
-		}
-		
-		return str;
-	}
-
-	private String newLine()
-	{
-		return System.getProperty("line.separator");
-	}
+    
 	
 	
 }

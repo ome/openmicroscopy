@@ -28,7 +28,8 @@ import java.io.IOException;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
+import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
 
 /** 
  * 
@@ -45,8 +46,8 @@ import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
  */
 public interface XMLIOStrategy 
 {
-	public void read(String file, ROICollection collection) throws IOException;
-	public void write(String file, ROICollection collection) throws IOException;
+	public void read(String file, ROIComponent component) throws IOException, ROIShapeCreationException;
+	public void write(String file, ROIComponent component) throws IOException;
 }
 
 

@@ -89,6 +89,14 @@ public class ROICollection
 		return lastID;
 	}
 	
+	public ROI createROI(long id)
+	{
+		ROI newROI = new ROI(getNextID());
+		lastID = id+1;
+		roiMap.add(newROI.getID(), newROI);
+		return newROI;
+	}
+	
 	public ROI createROI()
 	{
 		ROI newROI = new ROI(getNextID());

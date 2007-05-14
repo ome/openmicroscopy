@@ -78,7 +78,7 @@ public 	class ROIComponent
 	public void saveResults(String filename)
 	{
 		try {
-			ioStrategy.write(filename, roiCollection);
+			ioStrategy.write(filename, this);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,6 +88,11 @@ public 	class ROIComponent
 	public long getNextID()
 	{
 		return roiCollection.getNextID();
+	}
+	
+	public ROI createROI(long id) 				throws ROICreationException
+	{
+		return roiCollection.createROI(id);
 	}
 	
 	public ROI createROI() 						throws 	ROICreationException

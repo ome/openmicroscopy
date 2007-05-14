@@ -41,6 +41,8 @@ import java.util.ArrayList;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
 
@@ -68,23 +70,23 @@ public 	class XMLFileIOStrategy
 		outputStrategy = new OutputStrategy();
 	}
 	
-	public void read(String filename, ROICollection collection)
+	public void read(String filename, ROIComponent component) throws ROIShapeCreationException
 	{
 		File file = new File(filename);
 		try {
-			read(file, collection);
+			read(file, component);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private void read(File file, ROICollection collection) throws IOException
+	private void read(File file, ROIComponent component) throws IOException, ROIShapeCreationException
 	{
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
 	    try 
 	    {
-	    	read(in, collection);
+	    	read(in, component);
 	    } 
 	    finally 
 	    {
@@ -95,36 +97,36 @@ public 	class XMLFileIOStrategy
 	    }
 	}
 	
-	private void read(BufferedInputStream in, ROICollection collection)
+	private void read(BufferedInputStream in, ROIComponent component) throws IOException, ROIShapeCreationException
 	{
-		ArrayList<ROI> roiList = readROI(in);
+		ArrayList<ROI> roiList = readROI(in, component);
 		
 	}
 	
-	private ArrayList<ROI> readROI(InputStream in)
+	private ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException
 	{
-		ArrayList<ROI> roiList = inputStrategy.readROI(in);
+		ArrayList<ROI> roiList = inputStrategy.readROI(in, component);
 		return roiList;
 	}
 		 
 	
-	public void write(String filename, ROICollection collection)
+	public void write(String filename, ROIComponent component)
 	{
 		File file = new File(filename);
 		try {
-			write(file, collection);
+			write(file, component);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	private void write(File file, ROICollection collection) throws IOException 
+	private void write(File file, ROIComponent component) throws IOException 
 	{
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
 	    try 
 	    {
-	    	outputStrategy.write(out, collection);
+	    	outputStrategy.write(out, component);
 	    } 
 	    finally 
 	    {

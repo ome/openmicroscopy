@@ -52,41 +52,41 @@ import java.util.Set;
  */
 public class AnnotationKeys {
 	public static final AnnotationKey<String> BASIC_TEXT = 
-		new AnnotationKey<String>("BasicTextAnnotation", "");
+		new AnnotationKey<String>("basicTextAnnotation", "");
 	public static final AnnotationKey<Double> AREA = 
-		new AnnotationKey<Double>("MesurementArea", 0.0);
+		new AnnotationKey<Double>("mesurementArea", 0.0);
 	public static final AnnotationKey<Double> PERIMETER = 
-		new AnnotationKey<Double>("MeasurementPerimeter", 0.0);
+		new AnnotationKey<Double>("measurementPerimeter", 0.0);
 	public static final AnnotationKey<Double> VOLUME = 
-		new AnnotationKey<Double>("MesurementVolume", 0.0);
+		new AnnotationKey<Double>("mesurementVolume", 0.0);
 	public  static final AnnotationKey<ArrayList<Double>> ANGLE = 
-		new AnnotationKey<ArrayList<Double>>("MeasurementAngle", null);
+		new AnnotationKey<ArrayList<Double>>("measurementAngle", null);
 	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
-		new AnnotationKey<ArrayList<Double>>("MeasurementLength", null);
+		new AnnotationKey<ArrayList<Double>>("measurementLength", null);
 	public static final AnnotationKey<Double> CENTREX= 
-		new AnnotationKey<Double>("MeasurementCentreX", null);
+		new AnnotationKey<Double>("measurementCentreX", null);
 	public static final AnnotationKey<Double> CENTREY= 
-		new AnnotationKey<Double>("MeasurementCentreY", null);
+		new AnnotationKey<Double>("measurementCentreY", null);
 	public static final AnnotationKey<Point2D> STARTPOINT= 
-		new AnnotationKey<Point2D>("MeasurementStartPoint", null);
+		new AnnotationKey<Point2D>("measurementStartPoint", null);
 	public static final AnnotationKey<Point2D> ENDPOINT= 
-		new AnnotationKey<Point2D>("MeasurementEndPoint", null);
+		new AnnotationKey<Point2D>("measurementEndPoint", null);
 	public static final AnnotationKey<Double> WIDTH = 
-		new AnnotationKey<Double>("MeasurementWidth", null);
+		new AnnotationKey<Double>("measurementWidth", null);
 	public static final AnnotationKey<Double> HEIGHT = 
-		new AnnotationKey<Double>("MeasurementHeight", null);
+		new AnnotationKey<Double>("measurementHeight", null);
 	public static final AnnotationKey<Boolean> INMICRONS = 
-		new AnnotationKey<Boolean>("MeasurementInMicrons", false);
+		new AnnotationKey<Boolean>("measurementInMicrons", false);
 	public static final AnnotationKey<Double> MICRONSPIXELX = 
-		new AnnotationKey<Double>("MeasurementMicronsPixelX", 0.0);
+		new AnnotationKey<Double>("measurementMicronsPixelX", 0.0);
 	public static final AnnotationKey<Double> MICRONSPIXELY = 
-		new AnnotationKey<Double>("MeasurementMicronsPixelY", 0.0);
+		new AnnotationKey<Double>("measurementMicronsPixelY", 0.0);
 	public static final AnnotationKey<Double> MICRONSPIXELZ = 
-		new AnnotationKey<Double>("MeasurementMicronsPixelZ", 0.0);
+		new AnnotationKey<Double>("measurementMicronsPixelZ", 0.0);
 	public static final AnnotationKey<Long> ROIID = 
-		new AnnotationKey<Long>("RegionOfInterestID", null);
+		new AnnotationKey<Long>("regionOfInterestID", null);
 	public static final AnnotationKey<String> FIGURETYPE = 
-		new AnnotationKey<String>("FigureType", null);
+		new AnnotationKey<String>("figureType", null);
 	
 	
 	 /**
