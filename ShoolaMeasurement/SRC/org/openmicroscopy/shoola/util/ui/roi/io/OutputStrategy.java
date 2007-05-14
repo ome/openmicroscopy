@@ -98,8 +98,19 @@ public class OutputStrategy
 {
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk/roi";
-	public final static String VERSION = "version";
-	public final static String ROIVERSION = "1.0";
+	public final static String VERSION_TAG = "version";
+	public final static String SVG_VERSION = "1.2";
+	public final static String SVG_XLINK_VALUE = "http://www.w3.org/1999/xlink";
+	public final static String XLINK_ATTRIBUTE = "xmlns:xlink";
+	
+	public final static String ROI_VERSION = "1.0";
+	public final static String ROISET_TAG = "roiset";
+	public final static String ROI_TAG = "roi";
+	public final static String ROI_ID_ATTRIBUTE = "id";
+	public final static String ROISHAPE_TAG = "roishape";
+	public final static String ANNOTATION_TAG = "annotation";
+	public final static String DEFS_TAG = "defs";
+	public final static String SVG_TAG = "svg";
 	
 	private final static HashMap<Integer, String> strokeLinejoinMap;
 	static 
@@ -158,9 +169,9 @@ public class OutputStrategy
 	
    public void write(OutputStream out, ROIComponent roiComponent) throws IOException 
    {
-		document = new XMLElement("ROISET", ROI_NAMESPACE);
-		document.setAttribute(VERSION, ROIVERSION);
-		defs = new XMLElement("defs");
+		document = new XMLElement(ROISET_TAG, ROI_NAMESPACE);
+		document.setAttribute(VERSION_TAG, ROI_VERSION);
+		defs = new XMLElement(DEFS_TAG);
 		document.addChild(defs);
 		ROIComponent collection = roiComponent;
 	        
@@ -177,7 +188,7 @@ public class OutputStrategy
 
 	private void write(IXMLElement document, ROI roi) throws IOException
 	{
-		XMLElement roiElement = new XMLElement("ROI");
+		XMLElement roiElement = new XMLElement(ROI_TAG);
 		document.addChild(roiElement);
 
 		writeROIAnnotations(roiElement, roi);
@@ -191,7 +202,7 @@ public class OutputStrategy
 
 	private void writeROIAnnotations(IXMLElement roiElement, ROI roi)
 	{
-		roiElement.setAttribute("id", roi.getID()+"");
+		roiElement.setAttribute(ROI_ID_ATTRIBUTE, roi.getID()+"");
 		Map<AnnotationKey, Object> annotationMap = roi.getAnnotation();
 		Iterator iterator = annotationMap.keySet().iterator();
 		while(iterator.hasNext())
@@ -205,7 +216,7 @@ public class OutputStrategy
 	private void writeROIShapeAnnotations(IXMLElement shapeElement, ROIShape shape)
 	{
 		Map<AnnotationKey, Object> annotationMap = shape.getAnnotation();
-		IXMLElement annotationLeaf = new XMLElement("Annotations");
+		IXMLElement annotationLeaf = new XMLElement(ANNOTATION_TAG);
 		Iterator iterator = annotationMap.keySet().iterator();
 		while(iterator.hasNext())
 		{
@@ -303,7 +314,7 @@ public class OutputStrategy
 	
 	private void writeROIShape(XMLElement roiElement, ROIShape shape) throws IOException
 	{
-		XMLElement shapeElement = new XMLElement("ROIShape");
+		XMLElement shapeElement = new XMLElement(ROISHAPE_TAG);
 		roiElement.addChild(shapeElement);
 		shapeElement.setAttribute("t",shape.getCoord3D().getTimePoint()+"");
 		shapeElement.setAttribute("z",shape.getCoord3D().getZSection()+"");
@@ -343,9 +354,9 @@ public class OutputStrategy
 
 	private void writeBezierAnnotationFigure(XMLElement shapeElement, BezierAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement("svg", SVG_NAMESPACE);
-		svgElement.setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
-		svgElement.setAttribute("version","1.2");
+		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
+		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
+		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
 		if(fig.isClosed())
 			writePolygonFigure(svgElement, fig);
 		else
@@ -392,9 +403,9 @@ public class OutputStrategy
 	    
 	private void writeLineAnnotationFigure(XMLElement shapeElement, LineAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement("svg", SVG_NAMESPACE);
-		svgElement.setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
-		svgElement.setAttribute("version","1.2");
+		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
+		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
+		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
 		
 	  	XMLElement lineElement = new XMLElement("line");
 	  	shapeElement.addChild(svgElement);
@@ -411,10 +422,10 @@ public class OutputStrategy
    
 	private void writeEllipseAnnotationFigure(XMLElement shapeElement, EllipseAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement("svg", SVG_NAMESPACE);
-		svgElement.setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
-		svgElement.setAttribute("version","1.2");
-
+		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
+		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
+		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
+		
 		XMLElement ellipseElement = new XMLElement("ellipse");
 		shapeElement.addChild(svgElement);
 		svgElement.addChild(ellipseElement);
@@ -433,10 +444,10 @@ public class OutputStrategy
 	
 	private void writeRectAnnotationFigure(XMLElement shapeElement, RectAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement("svg", SVG_NAMESPACE);
-		svgElement.setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
-		svgElement.setAttribute("version","1.2");
-
+		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
+		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
+		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
+		
 		XMLElement rectElement = new XMLElement("rect");
 		shapeElement.addChild(svgElement);
 		svgElement.addChild(rectElement);

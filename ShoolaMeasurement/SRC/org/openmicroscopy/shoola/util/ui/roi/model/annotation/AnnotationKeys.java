@@ -54,11 +54,11 @@ public class AnnotationKeys {
 	public static final AnnotationKey<String> BASIC_TEXT = 
 		new AnnotationKey<String>("basicTextAnnotation", "");
 	public static final AnnotationKey<Double> AREA = 
-		new AnnotationKey<Double>("mesurementArea", 0.0);
+		new AnnotationKey<Double>("measurementArea", 0.0);
 	public static final AnnotationKey<Double> PERIMETER = 
 		new AnnotationKey<Double>("measurementPerimeter", 0.0);
 	public static final AnnotationKey<Double> VOLUME = 
-		new AnnotationKey<Double>("mesurementVolume", 0.0);
+		new AnnotationKey<Double>("measurementVolume", 0.0);
 	public  static final AnnotationKey<ArrayList<Double>> ANGLE = 
 		new AnnotationKey<ArrayList<Double>>("measurementAngle", null);
 	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
