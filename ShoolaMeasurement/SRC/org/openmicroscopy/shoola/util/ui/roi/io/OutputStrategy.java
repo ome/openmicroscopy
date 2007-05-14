@@ -59,6 +59,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_OPACITY;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
 
 import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.samples.svg.LinearGradient;
@@ -97,7 +98,7 @@ import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
 public class OutputStrategy 
 {
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk/roi";
+	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk";
 	public final static String VERSION_TAG = "version";
 	public final static String SVG_VERSION = "1.2";
 	public final static String SVG_XLINK_VALUE = "http://www.w3.org/1999/xlink";
@@ -357,6 +358,7 @@ public class OutputStrategy
 		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
 		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
 		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
+		shapeElement.addChild(svgElement);
 		if(fig.isClosed())
 			writePolygonFigure(svgElement, fig);
 		else
@@ -368,16 +370,13 @@ public class OutputStrategy
 		XMLElement bezierElement = new XMLElement("polygon");
 		svgElement.addChild(bezierElement);
 		LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
-	    BezierPath[] beziers = new BezierPath[fig.getChildCount()];
-	    for (int i=0, n = fig.getChildCount(); i < n; i++) 
+		BezierPath bezier = fig.getBezierPath();
+	    for (BezierPath.Node node: bezier) 
 	    {
-	    	BezierPath bezier = ((BezierAnnotationFigure) fig.getChild(i)).getBezierPath();
-	      	for (BezierPath.Node node: bezier) 
-	       	{
-	       		points.add(new Point2D.Double(node.x[0], node.y[0]));
-	        }
+	    	points.add(new Point2D.Double(node.x[0], node.y[0]));
 	    }
-	    writeAttribute(bezierElement, "points", toPoints(points.toArray(new Point2D.Double[points.size()])), null);
+	    String pointsValues = toPoints(points.toArray(new Point2D.Double[points.size()]));
+	    bezierElement.setAttribute("points", pointsValues);
 	    writeShapeAttributes(bezierElement, fig.getAttributes());
 	    writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
@@ -387,16 +386,13 @@ public class OutputStrategy
 		XMLElement bezierElement = new XMLElement("polyline");
 		svgElement.addChild(bezierElement);
 		LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
-        BezierPath[] beziers = new BezierPath[fig.getChildCount()];
-        for (int i=0, n = fig.getChildCount(); i < n; i++) 
-        {
-            BezierPath bezier = ((BezierAnnotationFigure) fig.getChild(i)).getBezierPath();
-            for (BezierPath.Node node: bezier) 
-            {
-                points.add(new Point2D.Double(node.x[0], node.y[0]));
-            }
-        }
-	    writeAttribute(bezierElement, "points", toPoints(points.toArray(new Point2D.Double[points.size()])), null);
+		BezierPath bezier = fig.getBezierPath();
+	    for (BezierPath.Node node: bezier) 
+	    {
+	    	points.add(new Point2D.Double(node.x[0], node.y[0]));
+	    }
+	    String pointsValues = toPoints(points.toArray(new Point2D.Double[points.size()]));
+	    bezierElement.setAttribute("points", pointsValues);
 	    writeShapeAttributes(bezierElement, fig.getAttributes());
 	    writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
@@ -411,10 +407,24 @@ public class OutputStrategy
 	  	shapeElement.addChild(svgElement);
 		svgElement.addChild(lineElement);
       
-	  	lineElement.setAttribute("x1", fig.getNode(0).x[0]+"");
-	  	lineElement.setAttribute("y1", fig.getNode(0).y[0]+"");
-	  	lineElement.setAttribute("x2", fig.getNode(1).x[0]+"");
-	  	lineElement.setAttribute("y2", fig.getNode(1).y[0]+"");
+		if(fig.getNodeCount()==2)
+		{
+			lineElement.setAttribute("x1", fig.getNode(0).x[0]+"");
+			lineElement.setAttribute("y1", fig.getNode(0).y[0]+"");
+			lineElement.setAttribute("x2", fig.getNode(1).x[0]+"");
+			lineElement.setAttribute("y2", fig.getNode(1).y[0]+"");
+		}
+		else
+		{
+			LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
+			BezierPath bezier = fig.getBezierPath();
+		    for (BezierPath.Node node: bezier) 
+		    {
+		    	points.add(new Point2D.Double(node.x[0], node.y[0]));
+		    }
+		    String pointsValues = toPoints(points.toArray(new Point2D.Double[points.size()]));
+		    lineElement.setAttribute("points", pointsValues);
+		}
       	writeShapeAttributes(lineElement, fig.getAttributes());
       	writeTransformAttribute(lineElement, fig.getAttributes());
   	}
