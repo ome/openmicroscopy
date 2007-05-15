@@ -42,7 +42,7 @@ public final class SubstringConverter implements Converter  {
      * Gets as String
      * @param fc {@link javax.faces.context.FacesContext} Faces Context
      * @param toConvert {@link javax.faces.component.UIComponent} UI Compnent for converting
-     * @param {@link java.lang.Object} Object for converting cast as String
+     * @param ob {@link java.lang.Object} Object for converting cast as String
      * @return String
      */
     public String getAsString( FacesContext fc, UIComponent toConvert, Object ob) {

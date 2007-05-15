@@ -85,13 +85,12 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	private String sort = "asc";
 
 	/**
-	 * {@link ome.model.meta.Experimenter#getDefaultGroup().getId()}.
+	 * {@link java.lang.String}.
 	 */
 	private String defaultGroup = "-1";
 
 	/**
-	 * {@link java.util.List}<{@link java.lang.String}> List of
-	 * {@link ome.admin.data.ConnectionDB#containedGroups()} for chosen
+	 * {@link java.util.List}<{@link java.lang.String}> List of containedGroups for chosen
 	 * {@link ome.model.meta.Experimenter#getId()}
 	 */
 	private List<String> selectedGroup = Collections.EMPTY_LIST;
@@ -439,7 +438,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
 	}
 
 	/**
-	 * Sets {@link ome.admin.controller.IAdminExperimenterController#adminrole}
+	 * Sets {@link ome.admin.controller.IAdminExperimenterController#adminRole}
 	 * 
 	 * @param adminRole
 	 *            boolean

@@ -59,7 +59,7 @@ public class IAdminMyAccountController implements java.io.Serializable {
 	private IAdminExperimenterManagerDelegate iadmin = new IAdminExperimenterManagerDelegate();
 
     /**
-     * {@link ome.model.meta.Experimenter#getDefaultGroup().getId()}
+     * {@link java.lang.String}
      */
 	private String defaultGroup = "-1";
 
@@ -107,7 +107,6 @@ public class IAdminMyAccountController implements java.io.Serializable {
 
     /**
      * Provides action for navigation rule "changeMyPassword" what is described in the faces-config.xml file. Changes the password for {@link ome.model.meta.Experimenter}.
-     * @param event {@link javax.faces.event.ActionEvent} object from the specified source component and action command.
      * @return {@link java.lang.String}
      */
 	public String changeMyPassword() {

@@ -47,7 +47,7 @@ public class IRepositoryInfoManagerDelegator implements java.io.Serializable {
 
     /**
      * Gets drive space in kilobytes.
-     * @param String type of space
+     * @param type {@link java.lang.String} type of space
      * @return long - space in kilobytes
 	 */
     public long getSpaceInKilobytes(String type) {
@@ -60,7 +60,7 @@ public class IRepositoryInfoManagerDelegator implements java.io.Serializable {
 
     /**
      * Gets TopTen user space in kilobytes.
-     * @return {@link java.util.HashMape} used space in Bytes
+     * @return {@link java.util.HashMap} used space in Bytes
 	 */
     public HashMap getTopTenUserSpace() {
     	return db.getTopTen();

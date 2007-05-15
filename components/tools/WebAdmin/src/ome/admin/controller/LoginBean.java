@@ -110,16 +110,16 @@ public class LoginBean implements java.io.Serializable{
 	}
 
     /**
-     * Get {@link ome.model.meta.Experimenter#getName()}
-     * @return {@link ome.model.meta.Experimenter#getName()}
+     * Get {@link ome.model.meta.Experimenter#getOmeName()}
+     * @return {@link ome.model.meta.Experimenter#getOmeName()}
      */
 	public String getUsername() {
 		return this.username;
 	}
 
     /**
-     * Set {@link ome.model.meta.Experimenter#getName()}
-     * @param username {@link ome.model.meta.Experimenter#getName()}
+     * Set {@link ome.model.meta.Experimenter#getOmeName()}
+     * @param username {@link ome.model.meta.Experimenter#getOmeName()}
      */
 	public void setUsername(String username) {
 		this.username = username;

@@ -140,7 +140,7 @@ public class ConnectionDB {
 	/**
 	 * Gets used space on this file system by users.
 	 * 
-	 * @return {@link java.util.HashMape} of used space on this file system by
+	 * @return {@link java.util.HashMap} of used space on this file system by
 	 *         users in Bytes.
 	 */
 	public HashMap getTopTen() {
@@ -706,14 +706,12 @@ public class ConnectionDB {
 	 * 
 	 * @param experimenter
 	 *            {@link ome.model.meta.Experimenter}
-	 * @param groups
+	 * @param addGroups
+	 *            {@link ome.model.meta.ExperimenterGroup} []
+	 * @param rmGroups
 	 *            {@link ome.model.meta.ExperimenterGroup} []
 	 * @param defaultGroup
 	 *            {@link ome.model.meta.ExperimenterGroup}
-	 * @param userRole
-	 *            boolean
-	 * @param adminRole
-	 *            boolean
 	 */
 	public void setOtherGroups(Experimenter experimenter,
 			ExperimenterGroup[] addGroups, ExperimenterGroup[] rmGroups,

@@ -77,7 +77,7 @@ public class IAdminGroupController implements java.io.Serializable {
 
 	/**
 	 * {@link java.util.List}<{@link java.lang.String}> List of
-	 * {@link ome.admin.data.ConnectionDB#containedGroups()} for chosen
+	 * containedGroups for chosen
 	 * {@link ome.model.meta.ExperimenterGroup#getId()}
 	 */
 	private List<String> selectedExperimenters = Collections.EMPTY_LIST;
@@ -321,11 +321,12 @@ public class IAdminGroupController implements java.io.Serializable {
 	 * who now is selected on
 	 * {@link ome.admin.controller.IAdminGroupController#group}
 	 * 
-	 * @param {@link java.util.List}
+	 * @param experimenters
+	 *            {@link java.util.List} of {@link ome.model.meta.Experimenter}
 	 *            never-null.
 	 */
-	public void setSelectedExperimenters(List<String> exps) {
-		this.selectedExperimenters = exps;
+	public void setSelectedExperimenters(List<String> experimenters) {
+		this.selectedExperimenters = experimenters;
 	}
 
 	/**

@@ -130,8 +130,8 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 * Gets {@link ome.model.meta.ExperimenterGroup} by
 	 * {@link ome.model.meta.ExperimenterGroup#getId()}.
 	 * 
-	 * @param id
-	 *            {@link ome.model.meta.ExperimenterGroup#getId()}.
+	 * @param name
+	 *            {@link ome.model.meta.ExperimenterGroup#getName()}.
 	 * @return {@link ome.model.meta.ExperimenterGroup}.
 	 */
 	public ExperimenterGroup getGroupById(String name) {
@@ -245,8 +245,8 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 * 
 	 * @param experimenter
 	 *            {@link ome.model.meta.Experimenter}. Not null.
-	 * @param group
-	 *            {@link ome.model.meta.ExperimenterGroup}. Not null.
+	 * @param sgroup
+	 *            {@link ome.model.meta.ExperimenterGroup#getName()}. Not null.
 	 * @param otherGroups
 	 *            {@link ome.model.meta.ExperimenterGroup} list.
 	 * @param userRole
@@ -283,7 +283,7 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 * database.
 	 * 
 	 * @param omeName
-	 *            {@link ome.model.meta.ExperimenterGroup#getOmeName()}
+	 *            {@link ome.model.meta.Experimenter#getOmeName()}
 	 * @return boolean
 	 */
 	public boolean checkExperimenter(String omeName) {
@@ -326,8 +326,8 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 * 
 	 * @param experimenter
 	 *            {@link ome.model.meta.Experimenter}. Not null.
-	 * @param dgroup
-	 *            {@link ome.model.meta.ExperimenterGroup#getId()}
+	 * @param sdgroup
+	 *            {@link ome.model.meta.ExperimenterGroup#getName()}
 	 * @param otherGroups
 	 *            {@link java.util.List}
 	 * @param userRole
