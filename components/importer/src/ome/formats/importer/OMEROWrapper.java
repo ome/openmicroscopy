@@ -9,7 +9,6 @@ import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.ReaderWrapper;
 
 public class OMEROWrapper extends MinMaxCalculator
 {
@@ -98,8 +97,7 @@ public class OMEROWrapper extends MinMaxCalculator
 	public void finalizeMetadataStore(String id)
 		throws FormatException, IOException
 	{
-		// Make sure we have StatsInfo objects.
-		// TODO - DLW ... fix when Josh back
+        // populate variable if required
 		if (getChannelGlobalMinimum(0) == null
 			|| getChannelGlobalMaximum(0) == null)
 			setChannelGlobalMinMax(id);
