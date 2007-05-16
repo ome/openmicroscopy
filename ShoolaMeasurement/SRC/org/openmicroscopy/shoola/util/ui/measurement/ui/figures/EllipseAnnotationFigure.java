@@ -156,6 +156,10 @@ public class EllipseAnnotationFigure
 		this.add(text);
 	}
 	
+	public TextFigure getTextFigure()
+	{
+		return text;
+	}
 	 /**
      * Draw the figure. This method is delegated to the encapsulated presentation figure.
      */

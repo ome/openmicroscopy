@@ -152,6 +152,10 @@ public 	class 		RectAnnotationFigure
 		this.add(text);
 	}
 	
+	public TextFigure getTextFigure()
+	{
+		return text;
+	}
 	public void setText(String newString)
 	{
 		text.setText(newString);

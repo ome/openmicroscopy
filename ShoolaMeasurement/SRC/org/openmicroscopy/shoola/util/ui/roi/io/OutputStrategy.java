@@ -44,6 +44,7 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
 import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
 import static org.jhotdraw.draw.AttributeKeys.FONT_ITALIC;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
+import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
@@ -60,6 +61,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.samples.svg.LinearGradient;
@@ -74,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.BezierAnnotation
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
@@ -116,6 +119,7 @@ public class OutputStrategy
 	public final static String RECT_TAG = "rect";
 	public final static String ELLIPSE_TAG = "ellipse";
 	public final static String LINE_TAG = "line";
+	public final static String TEXT_TAG = "text";
 	public final static String POLYLINE_TAG = "polyline";
 	public final static String POLYGON_TAG = "polygon";
 	
@@ -124,6 +128,8 @@ public class OutputStrategy
 	public final static String VALUE_ATTRIBUTE = "value";
 	public final static String POINTS_ATTRIBUTE = "points";
 	
+	public final static String CONNECTION_TO_ATTRIBUTE = "to";
+	public final static String CONNECTION_FROM_ATTRIBUTE = "from";
 	public final static String X_ATTRIBUTE = "x";
 	public final static String X1_ATTRIBUTE = "x1";
 	public final static String X2_ATTRIBUTE = "x2";
@@ -145,17 +151,17 @@ public class OutputStrategy
 	public final static String ALPHA_ATTRIBUTE = "a";
 	
 	
-	public final static String DATATYPE_ATTRIBUTE_VALUE_STRING = "String";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_DOUBLE = "Double";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_LONG = "Long";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_INTEGER = "Integer";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_FLOAT = "Float";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_POINT2D = "Point2D";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_ELLIPSE2D = "Ellipse2D";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_RECTANGLE2D = "Rectangle2D";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_COLOUR = "Color";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_COORD3D = "Coord3D";
-	public final static String DATATYPE_ATTRIBUTE_VALUE_ARRAYLIST = "ArrayList";
+	public final static String ATTRIBUTE_DATATYPE_STRING = "String";
+	public final static String ATTRIBUTE_DATATYPE_DOUBLE = "Double";
+	public final static String ATTRIBUTE_DATATYPE_LONG = "Long";
+	public final static String ATTRIBUTE_DATATYPE_INTEGER = "Integer";
+	public final static String ATTRIBUTE_DATATYPE_FLOAT = "Float";
+	public final static String ATTRIBUTE_DATATYPE_POINT2D = "Point2D";
+	public final static String ATTRIBUTE_DATATYPE_ELLIPSE2D = "Ellipse2D";
+	public final static String ATTRIBUTE_DATATYPE_RECTANGLE2D = "Rectangle2D";
+	public final static String ATTRIBUTE_DATATYPE_COLOUR = "Color";
+	public final static String ATTRIBUTE_DATATYPE_COORD3D = "Coord3D";
+	public final static String ATTRIBUTE_DATATYPE_ARRAYLIST = "ArrayList";
 	
 	
 	private final static HashMap<Integer, String> strokeLinejoinMap;
@@ -283,19 +289,19 @@ public class OutputStrategy
 			value instanceof Long)
 		{
 			if( value instanceof Double)
-				annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_DOUBLE);
+				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_DOUBLE);
 			if( value instanceof Float)
-				annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_FLOAT);
+				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_FLOAT);
 			if( value instanceof Integer)
-				annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_INTEGER);
+				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_INTEGER);
 			if( value instanceof Long)
-				annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_LONG);
+				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_LONG);
 			annotation.setAttribute(VALUE_ATTRIBUTE, value+"");
 		}
 		else if(value instanceof Color)
 		{
 			Color colour = (Color)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_COLOUR);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_COLOUR);
 			annotation.setAttribute(RED_ATTRIBUTE, colour.getRed()+"");
 			annotation.setAttribute(GREEN_ATTRIBUTE, colour.getGreen()+"");
 			annotation.setAttribute(BLUE_ATTRIBUTE, colour.getBlue()+"");
@@ -304,7 +310,7 @@ public class OutputStrategy
 		else if(value instanceof Rectangle2D)
 		{
 			Rectangle2D object = (Rectangle2D)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_RECTANGLE2D);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_RECTANGLE2D);
 			annotation.setAttribute(X_ATTRIBUTE, object.getX()+"");
 			annotation.setAttribute(Y_ATTRIBUTE, object.getY()+"");
 			annotation.setAttribute(WIDTH_ATTRIBUTE, object.getWidth()+"");
@@ -313,7 +319,7 @@ public class OutputStrategy
 		else if(value instanceof Ellipse2D)
 		{
 			Ellipse2D object = (Ellipse2D)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_ELLIPSE2D);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_ELLIPSE2D);
 			annotation.setAttribute(X_ATTRIBUTE, object.getX()+"");
 			annotation.setAttribute(Y_ATTRIBUTE, object.getY()+"");
 			annotation.setAttribute(WIDTH_ATTRIBUTE, object.getWidth()+"");
@@ -321,27 +327,27 @@ public class OutputStrategy
 		}
 		else if(value instanceof String)
 		{
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_STRING);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_STRING);
 			annotation.setAttribute(VALUE_ATTRIBUTE, (String)value);
 		}
 		else if(value instanceof Point2D)
 		{
 			Point2D point = (Point2D)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_POINT2D);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_POINT2D);
 			annotation.setAttribute(X_ATTRIBUTE, point.getX()+"");
 			annotation.setAttribute(Y_ATTRIBUTE, point.getY()+"");
 		}
 		else if(value instanceof Coord3D)
 		{
 			Coord3D coord = (Coord3D)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_COORD3D);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_COORD3D);
 			annotation.setAttribute(T_ATTRIBUTE, coord.getTimePoint()+"");
 			annotation.setAttribute(Z_ATTRIBUTE, coord.getZSection()+"");
 		}
 		else if(value instanceof ArrayList)
 		{
 			ArrayList list = (ArrayList)value;
-			annotation.setAttribute(DATATYPE_ATTRIBUTE, DATATYPE_ATTRIBUTE_VALUE_ARRAYLIST);
+			annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_ARRAYLIST);
 			annotation.setAttribute(SIZE_ATTRIBUTE, list.size()+"");
 			for( int i = 0 ; i < list.size(); i++)
 			{
@@ -378,42 +384,117 @@ public class OutputStrategy
 		STROKE_OPACITY.set(figure, strokeOpacity);
 		if(figure instanceof RectAnnotationFigure)
 		{
+			writeSVGHeader(shapeElement);
 			writeRectAnnotationFigure(shapeElement, (RectAnnotationFigure)figure);
+			writeTextFigure(shapeElement, ((RectAnnotationFigure)figure).getTextFigure());
 		}
 		else if (figure instanceof EllipseAnnotationFigure)
 		{
+			writeSVGHeader(shapeElement);
 			writeEllipseAnnotationFigure(shapeElement, (EllipseAnnotationFigure)figure);		
-		}
-		else if (figure instanceof BezierAnnotationFigure)
-		{
-			writeBezierAnnotationFigure(shapeElement, (BezierAnnotationFigure)figure);		
-		}
-		else if (figure instanceof LineAnnotationFigure)
-		{
-			writeLineAnnotationFigure(shapeElement, (LineAnnotationFigure)figure);
+			writeTextFigure(shapeElement, ((EllipseAnnotationFigure)figure).getTextFigure());
 		}
 		else if(figure instanceof LineConnectionAnnotationFigure)
 		{
-			
+			writeSVGHeader(shapeElement);
+			writeLineConnectionFigure(shapeElement, (LineConnectionAnnotationFigure)figure);
+			writeTextFigure(shapeElement, ((LineConnectionAnnotationFigure)figure).getTextFigure());
+		}
+		else if (figure instanceof BezierAnnotationFigure)
+		{
+			writeSVGHeader(shapeElement);
+			writeBezierAnnotationFigure(shapeElement, (BezierAnnotationFigure)figure);		
+			writeTextFigure(shapeElement, ((BezierAnnotationFigure)figure).getTextFigure());
+		}
+		else if (figure instanceof LineAnnotationFigure)
+		{
+			writeSVGHeader(shapeElement);
+			writeLineAnnotationFigure(shapeElement, (LineAnnotationFigure)figure);
+			writeTextFigure(shapeElement, ((LineAnnotationFigure)figure).getTextFigure());
+		}
+		else if(figure instanceof MeasureTextFigure)
+		{
+			writeSVGHeader(shapeElement);
+			writeTextFigure(shapeElement, (MeasureTextFigure)figure);
 		}
 	}
 
-	private void writeBezierAnnotationFigure(XMLElement shapeElement, BezierAnnotationFigure fig) throws IOException
+	private void writeSVGHeader(XMLElement shapeElement)
 	{
 		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
 		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
 		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
 		shapeElement.addChild(svgElement);
+	}
+	private void writeTextFigure(XMLElement shapeElement, MeasureTextFigure fig) throws IOException
+	{
+		writeTextFigure(shapeElement, (TextFigure)fig);
+	}
+	
+	private void writeTextFigure(XMLElement shapeElement, TextFigure fig) throws IOException
+	{
+		XMLElement textElement = new XMLElement(TEXT_TAG);
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
+		svgElement.addChild(textElement);
+		
+		textElement.setContent(fig.getText());
+		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
+		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
+		writeShapeAttributes(textElement, fig.getAttributes());
+      	writeTransformAttribute(textElement, fig.getAttributes());
+        writeFontAttributes(textElement, fig.getAttributes());
+        textElement.setAttribute("fill", toColor(fig.getTextColor()),"none");
+        
+        
+	}
+	
+	private void writeLineConnectionFigure(XMLElement shapeElement, LineConnectionAnnotationFigure fig) throws IOException
+	{
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
+		XMLElement lineConnectionElement = new XMLElement(LINE_TAG);
+	  	svgElement.addChild(lineConnectionElement);
+      
+		ROIFigure startConnection = (ROIFigure)fig.getStartConnector().getOwner();
+		ROIFigure endConnection = (ROIFigure)fig.getEndConnector().getOwner();
+		lineConnectionElement.setAttribute(CONNECTION_FROM_ATTRIBUTE, startConnection.getROI().getID()+"");
+		lineConnectionElement.setAttribute(CONNECTION_TO_ATTRIBUTE, endConnection.getROI().getID()+"");
+		if(fig.getNodeCount()==2)
+		{
+			lineConnectionElement.setAttribute(X1_ATTRIBUTE, fig.getNode(0).x[0]+"");
+			lineConnectionElement.setAttribute(Y1_ATTRIBUTE, fig.getNode(0).y[0]+"");
+			lineConnectionElement.setAttribute(X2_ATTRIBUTE, fig.getNode(1).x[0]+"");
+			lineConnectionElement.setAttribute(Y2_ATTRIBUTE, fig.getNode(1).y[0]+"");
+		}
+		else
+		{
+			LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
+			BezierPath bezier = fig.getBezierPath();
+		    for (BezierPath.Node node: bezier) 
+		    {
+		    	points.add(new Point2D.Double(node.x[0], node.y[0]));
+		    }
+		    String pointsValues = toPoints(points.toArray(new Point2D.Double[points.size()]));
+		    lineConnectionElement.setAttribute(POINTS_ATTRIBUTE, pointsValues);
+		}
+      	writeShapeAttributes(lineConnectionElement, fig.getAttributes());
+      	writeTransformAttribute(lineConnectionElement, fig.getAttributes());
+  	}
+
+	
+	private void writeBezierAnnotationFigure(XMLElement shapeElement, BezierAnnotationFigure fig) throws IOException
+	{
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		if(fig.isClosed())
 			writePolygonFigure(svgElement, fig);
 		else
 			writePolylineFigure(svgElement, fig);
 	}
 
-	private void writePolygonFigure(XMLElement svgElement, BezierAnnotationFigure fig) throws IOException
+	private void writePolygonFigure(IXMLElement svgElement, BezierAnnotationFigure fig) throws IOException
 	{
 		XMLElement bezierElement = new XMLElement(POLYGON_TAG);
 		svgElement.addChild(bezierElement);
+		
 		LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		BezierPath bezier = fig.getBezierPath();
 	    for (BezierPath.Node node: bezier) 
@@ -426,10 +507,11 @@ public class OutputStrategy
 	    writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
 	
-	private void writePolylineFigure(XMLElement svgElement, BezierAnnotationFigure fig) throws IOException
+	private void writePolylineFigure(IXMLElement svgElement, BezierAnnotationFigure fig) throws IOException
 	{
 		XMLElement bezierElement = new XMLElement(POLYLINE_TAG);
 		svgElement.addChild(bezierElement);
+		
 		LinkedList<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		BezierPath bezier = fig.getBezierPath();
 	    for (BezierPath.Node node: bezier) 
@@ -444,13 +526,9 @@ public class OutputStrategy
 	    
 	private void writeLineAnnotationFigure(XMLElement shapeElement, LineAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
-		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
-		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
-		
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 	  	XMLElement lineElement = new XMLElement(LINE_TAG);
-	  	shapeElement.addChild(svgElement);
-		svgElement.addChild(lineElement);
+	  	svgElement.addChild(lineElement);
       
 		if(fig.getNodeCount()==2)
 		{
@@ -477,13 +555,10 @@ public class OutputStrategy
    
 	private void writeEllipseAnnotationFigure(XMLElement shapeElement, EllipseAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
-		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
-		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
-		
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement ellipseElement = new XMLElement(ELLIPSE_TAG);
-		shapeElement.addChild(svgElement);
 		svgElement.addChild(ellipseElement);
+		
 		double cx = fig.getX() + fig.getWidth() / 2d;		
 		double cy = fig.getY() + fig.getHeight() / 2d;
 		double rx = fig.getWidth() / 2d;
@@ -499,13 +574,10 @@ public class OutputStrategy
 	
 	private void writeRectAnnotationFigure(XMLElement shapeElement, RectAnnotationFigure fig) throws IOException
 	{
-		XMLElement svgElement = new XMLElement(SVG_TAG, SVG_NAMESPACE);
-		svgElement.setAttribute(XLINK_ATTRIBUTE,SVG_XLINK_VALUE);
-		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
-		
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement rectElement = new XMLElement(RECT_TAG);
-		shapeElement.addChild(svgElement);
 		svgElement.addChild(rectElement);
+		
 		rectElement.setAttribute(X_ATTRIBUTE, fig.getX()+"");
 		rectElement.setAttribute(Y_ATTRIBUTE, fig.getY()+"");
 		rectElement.setAttribute(WIDTH_ATTRIBUTE, fig.getWidth()+"");
@@ -753,7 +825,6 @@ public class OutputStrategy
     throws IOException {
         String value;
         double doubleValue;
-        
         // 'font-family'
         // Value:  	[[ <family-name> |
         // <generic-family> ],]* [<family-name> |
@@ -953,6 +1024,10 @@ public class OutputStrategy
             elem.setAttribute(name, value);
         }
     }
+    protected void writeAttribute(IXMLElement elem, String name, Color color, Color defaultColor) {
+        writeAttribute(elem, name, SVG_NAMESPACE, toColor(color), toColor(defaultColor));
+    }
+
     protected void writeAttribute(IXMLElement elem, String name, double value, double defaultValue) {
         writeAttribute(elem, name, SVG_NAMESPACE, value, defaultValue);
     }
