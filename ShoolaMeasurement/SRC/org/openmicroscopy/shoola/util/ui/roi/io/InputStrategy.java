@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.InputStrategy 
+ * org.openmicroscopy.shoola.util.roi.io.InputStrategy 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io;
+package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
@@ -49,29 +49,29 @@ import org.jhotdraw.geom.BezierPath.Node;
 import org.jhotdraw.samples.svg.SVGAttributeKeys.TextAnchor;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineConnectionAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.ui.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGFillOpacityParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGFillParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGMiterLimitParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGNullParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeOpacityParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeParser;
-import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeWidthParser;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillOpacityParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGMiterLimitParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGNullParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeOpacityParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParser;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.OutputStrategy 
+ * org.openmicroscopy.shoola.util.roi.io.OutputStrategy 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io;
+package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
 import java.awt.BasicStroke;
@@ -72,18 +72,18 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLWriter;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineConnectionAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 

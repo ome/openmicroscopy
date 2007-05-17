@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.XMLFileIOStrategy 
+ * org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io;
+package org.openmicroscopy.shoola.util.roi.io;
 
 
 
@@ -41,10 +41,10 @@ import java.util.ArrayList;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROICollection;
+import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROICollection;
 
 /** 
  * 

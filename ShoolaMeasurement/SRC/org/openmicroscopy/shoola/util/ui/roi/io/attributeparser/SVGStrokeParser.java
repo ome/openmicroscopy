@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,20 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io.attributeparser;
-
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-
-import java.awt.Color;
-
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
+package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
+import java.awt.Color;
 
 //Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

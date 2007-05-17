@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour 
+ * org.openmicroscopy.shoola.util.roi.io.util.SVGColour 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io.util;
+package org.openmicroscopy.shoola.util.roi.io.util;
 
 import static org.jhotdraw.samples.svg.SVGConstants.SVG_COLORS;
 

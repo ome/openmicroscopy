@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.ROIFigureFactory 
+ * org.openmicroscopy.shoola.util.roi.io.ROIFigureFactory 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.io;
+package org.openmicroscopy.shoola.util.roi.io;
 
 
 
@@ -43,14 +43,15 @@ import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.samples.svg.Gradient;
 import org.jhotdraw.samples.svg.LinearGradient;
 import org.jhotdraw.samples.svg.RadialGradient;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.BezierAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 
 
 /** 
