@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.roi.NoSuchShapeException 
+ * org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException 
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+  *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,20 +41,18 @@ package org.openmicroscopy.shoola.util.roi.exception;
  * </small>
  * @since OME3.0
  */
-public class NoSuchShapeException 
+public class NoSuchROIException1
 	extends Exception
 {
-	public NoSuchShapeException(Exception e)
+	public NoSuchROIException1(Exception e)
 	{
 		super(e);
 	}
 	
-	public NoSuchShapeException()
+	public NoSuchROIException1()
 	{
 		super();
 	}
 }
-
-
 
 
