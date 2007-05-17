@@ -30,7 +30,6 @@ import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
 
 /** 
  * 
@@ -45,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
+public class SVGStrokeOpacityParser
 	implements SVGAttributeParser
 {
 
@@ -54,9 +53,14 @@ public class SVGFillParser
 	 */
 	public void parse(ROIFigure figure, String value) 
 	{
-		SVGColour svgColour = new SVGColour();
-		Color fillValue = svgColour.toColor(value);
-		FILL_COLOR.set(figure, fillValue);
+		Double opacityValue = new Double(value);
+		Color colour;
+		if(FILL_COLOR.get(figure)!=FILL_COLOR.getDefaultValue())
+		{
+			colour = FILL_COLOR.get(figure);
+			Color newColour = new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), (int)(opacityValue*255));
+			FILL_COLOR.set(figure, newColour);
+		}
 	}
 	
 }

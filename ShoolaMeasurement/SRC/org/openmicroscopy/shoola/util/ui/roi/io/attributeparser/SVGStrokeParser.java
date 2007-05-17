@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGFillParser 
+ * org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -22,15 +22,18 @@
  */
 package org.openmicroscopy.shoola.util.ui.roi.io.attributeparser;
 
-//Java imports
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+
 import java.awt.Color;
 
-//Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
  * 
@@ -45,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
+public class SVGStrokeParser 
 	implements SVGAttributeParser
 {
 
@@ -55,10 +58,9 @@ public class SVGFillParser
 	public void parse(ROIFigure figure, String value) 
 	{
 		SVGColour svgColour = new SVGColour();
-		Color fillValue = svgColour.toColor(value);
-		FILL_COLOR.set(figure, fillValue);
+		Color strokeValue = svgColour.toColor(value);
+		STROKE_COLOR.set(figure, strokeValue);
 	}
 	
 }
-
 

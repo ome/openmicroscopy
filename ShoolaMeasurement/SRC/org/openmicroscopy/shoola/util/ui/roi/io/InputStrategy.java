@@ -44,8 +44,6 @@ import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLException;
 import net.n3.nanoxml.XMLParserFactory;
 
-import org.jhotdraw.draw.ChopBezierConnector;
-import org.jhotdraw.draw.RectangleFigure;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.jhotdraw.samples.svg.SVGAttributeKeys.TextAnchor;
@@ -59,12 +57,16 @@ import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigur
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGFillOpacityParser;
 import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGFillParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGMiterLimitParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGNullParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeOpacityParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeParser;
+import org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGStrokeWidthParser;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
 import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
@@ -156,7 +158,7 @@ public class InputStrategy
 	private final static String SVG_FILL_OPACITY_ATTRIBUTE = "fill-opacity";
 	private final static String SVG_FILL_RULE_ATTRIBUTE = "fill-rule";
 	private final static String SVG_STROKE_ATTRIBUTE = "stroke";
-	private final static String SVG_STROKE_OPACITY = "stroke-opacity";
+	private final static String SVG_STROKE_OPACITY_ATTRIBUTE = "stroke-opacity";
 	private final static String SVG_STROKE_WIDTH_ATTRIBUTE = "stroke-width";
 	private final static String SVG_STROKE_DASHOFFSET_ATTRIBUTE = "stroke-dashoffset";
 	private final static String SVG_STROKE_LINECAP_ATTRIBUTE = "stroke-linecap";
@@ -191,51 +193,48 @@ public class InputStrategy
 	private final static String SVG_TRANSFORM_ATTRIBUTE = "transform";
 		
 	
-	
-	
-
-	
 	private final static HashMap<String, SVGAttributeParser> attributeParserMap;
 	static {
 		attributeParserMap = new HashMap<String, SVGAttributeParser>();
 		attributeParserMap.put(SVG_FILL_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FILL_OPACITY_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FILL_RULE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_OPACITY, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_WIDTH_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_DASHOFFSET_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_LINECAP_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_LINEJOIN_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_STROKE_MITERLIMIT_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_COLOR_INTERPOLATION_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_COLOR_RENDERING_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_OPACITY_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_MARKER_END_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_MARKER_MID_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_FAMILY_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_SIZE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_SIZE_ADJUST_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_STRETCH_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_STYLE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_VARIANT_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FONT_WEIGHT_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_ALIGNMENT_BASELINE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_BASELINE_SHIFT_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_DIRECTION_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_DOMINANT_BASELINE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_GLYPH_ORIENTATION_HORIZONTAL_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_GLYPH_ORIENTATION_VERTICAL_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_KERNING_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_LETTER_SPACING_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_TEXT_ANCHOR_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_TEXT_DECORATION_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_UNICODE_BIDI_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_WORD_SPACING_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_ROTATE_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_TRANSFORM_ATTRIBUTE, new SVGFillParser());
+		attributeParserMap.put(SVG_FILL_OPACITY_ATTRIBUTE, new SVGFillOpacityParser());
+		attributeParserMap.put(SVG_FILL_RULE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_STROKE_ATTRIBUTE, new SVGStrokeParser());
+		attributeParserMap.put(SVG_STROKE_OPACITY_ATTRIBUTE, new SVGStrokeOpacityParser());
+		attributeParserMap.put(SVG_STROKE_WIDTH_ATTRIBUTE, new SVGStrokeWidthParser());
+		attributeParserMap.put(SVG_STROKE_DASHOFFSET_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_STROKE_LINECAP_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_STROKE_LINEJOIN_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_STROKE_MITERLIMIT_ATTRIBUTE, new SVGMiterLimitParser());
+		attributeParserMap.put(SVG_COLOR_INTERPOLATION_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_COLOR_RENDERING_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_OPACITY_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_MARKER_END_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_MARKER_MID_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_FAMILY_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_SIZE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_SIZE_ADJUST_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_STRETCH_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_STYLE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_VARIANT_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_WEIGHT_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_ALIGNMENT_BASELINE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_BASELINE_SHIFT_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_DIRECTION_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_DOMINANT_BASELINE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_GLYPH_ORIENTATION_HORIZONTAL_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_GLYPH_ORIENTATION_VERTICAL_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_KERNING_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_LETTER_SPACING_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_TEXT_ANCHOR_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_TEXT_DECORATION_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_UNICODE_BIDI_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_WORD_SPACING_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_ROTATE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_TRANSFORM_ATTRIBUTE, new SVGNullParser());
 	}
 	
 	private final static HashMap<String, Boolean> basicSVGAttribute;
@@ -767,8 +766,6 @@ public class InputStrategy
 		if(isSVGAttribute(attribute))
 			parseAttribute(figure, attribute, value);
 	}
-
-	
 	
 	private void addTextElementToFigure(ROIFigure figure, IXMLElement textElement)
 	{

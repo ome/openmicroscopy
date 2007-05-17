@@ -26,11 +26,10 @@ package org.openmicroscopy.shoola.util.ui.roi.io.attributeparser;
 import java.awt.Color;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
 
 /** 
  * 
@@ -45,7 +44,7 @@ import org.openmicroscopy.shoola.util.ui.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
+public class SVGMiterLimitParser
 	implements SVGAttributeParser
 {
 
@@ -54,9 +53,8 @@ public class SVGFillParser
 	 */
 	public void parse(ROIFigure figure, String value) 
 	{
-		SVGColour svgColour = new SVGColour();
-		Color fillValue = svgColour.toColor(value);
-		FILL_COLOR.set(figure, fillValue);
+		Double miterLimit = new Double(value);
+		STROKE_MITER_LIMIT.set(figure, miterLimit);
 	}
 	
 }
