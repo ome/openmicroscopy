@@ -1,8 +1,8 @@
 /*
- * roi.model.ROIShapeRelationship 
+ * org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.roi.model;
 
 
 //Java imports
@@ -28,8 +28,8 @@ package org.openmicroscopy.shoola.util.ui.roi.model;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.attachment.AttachmentMap;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentMap;
 
 /** 
  * 

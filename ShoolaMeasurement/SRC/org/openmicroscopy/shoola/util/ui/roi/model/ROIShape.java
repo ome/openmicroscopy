@@ -1,8 +1,8 @@
 /*
- * roi.model.ROIShape 
+ * org.openmicroscopy.shoola.util.roi.model.ROIShape 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,10 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.roi.model;
 
 //Java imports
-
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,12 +31,12 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys;
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 

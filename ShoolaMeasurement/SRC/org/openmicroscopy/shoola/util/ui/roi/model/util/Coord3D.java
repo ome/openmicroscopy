@@ -1,8 +1,8 @@
 /*
- * util.Coord5D 
+ * org.openmicroscopy.shoola.util.roi.model.util.Coord3D 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model.util;
+package org.openmicroscopy.shoola.util.roi.model.util;
 
 //Java imports
 import java.util.Comparator;
@@ -28,7 +28,7 @@ import java.util.Comparator;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 

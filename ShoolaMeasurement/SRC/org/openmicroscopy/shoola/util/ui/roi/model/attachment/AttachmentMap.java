@@ -1,8 +1,8 @@
 /*
- * roi.model.AttachmentMap 
+ * org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentMap 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model.attachment;
+package org.openmicroscopy.shoola.util.roi.model.attachment;
 
 //Java imports
 import java.util.HashMap;
@@ -28,8 +28,8 @@ import java.util.HashMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.model.attachment.Attachment;
-import org.openmicroscopy.shoola.util.ui.roi.model.attachment.AttachmentKey;
+import org.openmicroscopy.shoola.util.roi.model.attachment.Attachment;
+import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentKey;
 
 /** 
  * 

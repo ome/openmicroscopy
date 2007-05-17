@@ -1,8 +1,8 @@
 /*
- * roi.model.ROIRelationshipMap 
+ * org.openmicroscopy.shoola.util.roi.model.ROIRelationshipMap 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,19 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.roi.model;
 
 
 //Java imports
 import java.util.HashMap;
 
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationship;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationshipList;
-
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
+import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipList;
 
 /** 
  * 

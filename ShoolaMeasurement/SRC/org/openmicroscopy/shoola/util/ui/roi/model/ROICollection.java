@@ -1,8 +1,8 @@
 /*
- * roi.model.ROICollection 
+ * org.openmicroscopy.shoola.util.roi.model.ROICollection 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.roi.model;
+package org.openmicroscopy.shoola.util.roi.model;
 
 
 //Java imports
@@ -32,20 +32,20 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.ui.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.ui.roi.exception.ROIShapeCreationException;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIMap;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationship;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationshipList;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIRelationshipMap;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShapeRelationship;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShapeRelationshipList;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShapeRelationshipMap;
-import org.openmicroscopy.shoola.util.ui.roi.model.ShapeList;
-import org.openmicroscopy.shoola.util.ui.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
+import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIMap;
+import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
+import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipList;
+import org.openmicroscopy.shoola.util.roi.model.ROIRelationshipMap;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
+import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
+import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipMap;
+import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 
