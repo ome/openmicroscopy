@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureEllipseTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
@@ -52,9 +52,10 @@ import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
 
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 //Application-internal dependencies
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure 
+ * org.openmicroscopy.shoola.util.roi.figures.ROIFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,17 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
-
-import org.jhotdraw.draw.Figure;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
+package org.openmicroscopy.shoola.util.roi.figures;
 
 //Java imports
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+
 
 /** 
  * 

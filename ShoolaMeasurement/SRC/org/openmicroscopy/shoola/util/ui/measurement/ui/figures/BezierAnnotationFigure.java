@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureBezierTextFigure 
+ * org.openmicroscopy.shoola.util.roi.figures.MeasureBezierTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,13 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
-
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -41,6 +38,8 @@ import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 
 //Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.CompositeFigure;
@@ -53,9 +52,9 @@ import org.jhotdraw.draw.LocatorLayouter;
 import org.jhotdraw.draw.RelativeLocator;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 //Application-internal dependencies
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 /** 
  * 

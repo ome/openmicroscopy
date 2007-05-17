@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextFigure 
+ * org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
+
+//Java imports
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
@@ -36,6 +38,10 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.event.UndoableEditListener;
+
+//Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.ConnectionFigure;
@@ -53,21 +59,18 @@ import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.Dimension2DDouble;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-//Java imports
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREY;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.WIDTH;
-
-//Third-party libraries
-
 //Application-internal dependencies
+
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.HEIGHT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.WIDTH;
+
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

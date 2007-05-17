@@ -1,8 +1,8 @@
 /*
- * measurement.ui.figures.MeasureBezierFigure 
+ * org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
@@ -35,18 +35,19 @@ import java.util.ArrayList;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BezierFigure;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROI;
-import org.openmicroscopy.shoola.util.ui.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
-import static org.openmicroscopy.shoola.util.ui.measurement.model.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.INMICRONS;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.LENGTH;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.CENTREY;
+import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
+import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
+
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 

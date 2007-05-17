@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureTextArea 
+ * org.openmicroscopy.shoola.util.roi.figures.MeasureTextArea 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,15 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
-import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
-
+//Java imports
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -49,6 +43,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+//Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
+import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
+
 import org.jhotdraw.draw.AbstractAttributedDecoratedFigure;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.FontSizeHandle;
@@ -61,11 +63,8 @@ import org.jhotdraw.geom.Insets2D;
 import org.jhotdraw.xml.DOMInput;
 import org.jhotdraw.xml.DOMOutput;
 
-//Java imports
-
-//Third-party libraries
-
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 

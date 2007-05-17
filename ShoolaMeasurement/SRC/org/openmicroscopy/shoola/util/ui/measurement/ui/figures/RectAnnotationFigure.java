@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.ui.measurement.ui.figures.MeasureRectangleTextFigure 
+ * org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleTextFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui.measurement.ui.figures;
+package org.openmicroscopy.shoola.util.roi.figures;
 
 // Java imports
 import java.awt.Graphics2D;
@@ -38,7 +38,6 @@ import javax.swing.event.UndoableEditListener;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.openmicroscopy.shoola.util.ui.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.CompositeFigure;
@@ -53,6 +52,8 @@ import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.util.ReversedList;
 
 //Application-internal dependencies
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 
