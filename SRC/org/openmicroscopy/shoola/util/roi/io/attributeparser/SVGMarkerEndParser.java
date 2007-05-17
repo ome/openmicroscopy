@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGMarkerEndParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,16 +22,20 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-//Java imports
+import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+
 import java.awt.Color;
 
-//Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import net.n3.nanoxml.IXMLElement;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
  * 
@@ -46,19 +50,18 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * </small>
  * @since OME3.0
  */
-public class SVGStrokeParser 
+public class SVGMarkerEndParser 	
 	implements SVGAttributeParser
 {
 
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
 	 */
-	public void parse(ROIFigure figure,IXMLElement element, String value) 
+	public void parse(ROIFigure figure,IXMLElement element,String value) 
 	{
-		SVGColour svgColour = new SVGColour();
-		Color strokeValue = svgColour.toColor(value);
-		STROKE_COLOR.set(figure, strokeValue);
+		
 	}
 	
 }
+
 

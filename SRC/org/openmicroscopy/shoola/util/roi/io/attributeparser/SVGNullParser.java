@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 //Java imports
 
 //Third-party libraries
+import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -50,7 +51,7 @@ public class SVGNullParser
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
 	 */
-	public void parse(ROIFigure figure, String value) {
+	public void parse(ROIFigure figure,IXMLElement element, String value) {
 		// TODO Auto-generated method stub
 		
 	}

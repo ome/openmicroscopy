@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontSizeParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -24,13 +24,13 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
 //Java imports
 import java.awt.Color;
+import java.util.HashMap;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
@@ -46,19 +46,33 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * </small>
  * @since OME3.0
  */
-public class SVGStrokeParser 
+public class SVGFontSizeParser 
 	implements SVGAttributeParser
 {
+	 private final static HashMap<String,Double> absoluteFontSizeMap;
+	    static 
+	    {
+	        absoluteFontSizeMap = new HashMap<String,Double>();
+	        absoluteFontSizeMap.put("xx-small",6.944444);
+	        absoluteFontSizeMap.put("x-small",8.3333333);
+	        absoluteFontSizeMap.put("small", 10d);
+	        absoluteFontSizeMap.put("medium", 12d);
+	        absoluteFontSizeMap.put("large", 14.4);
+	        absoluteFontSizeMap.put("x-large", 17.28);
+	        absoluteFontSizeMap.put("xx-large",20.736);
+	    }	
+	    
 
 	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	 * 	@see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
-		SVGColour svgColour = new SVGColour();
-		Color strokeValue = svgColour.toColor(value);
-		STROKE_COLOR.set(figure, strokeValue);
+		if (absoluteFontSizeMap.containsKey(value)) 
+		{
+			FONT_SIZE.set(figure, absoluteFontSizeMap.get(value));
+		}
+		else
+			FONT_SIZE.set(figure, new Double(value));
 	}
-	
 }
-

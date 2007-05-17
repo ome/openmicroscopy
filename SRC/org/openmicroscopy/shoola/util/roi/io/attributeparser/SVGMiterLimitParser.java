@@ -27,6 +27,7 @@ import java.awt.Color;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;
+import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -51,7 +52,7 @@ public class SVGMiterLimitParser
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
 	 */
-	public void parse(ROIFigure figure, String value) 
+	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		Double miterLimit = new Double(value);
 		STROKE_MITER_LIMIT.set(figure, miterLimit);

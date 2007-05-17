@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,16 +22,18 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
+
 //Java imports
-import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.io.IOException;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
+import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.util.SVGTransform;
 
 /** 
  * 
@@ -46,19 +48,27 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * </small>
  * @since OME3.0
  */
-public class SVGStrokeParser 
+public class SVGTransformParser
 	implements SVGAttributeParser
 {
-
+	  public final static AttributeKey<AffineTransform>TRANSFORM = 
+		  new AttributeKey<AffineTransform>("transform", null, true);
+	   
 	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	 * @see org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.roi.figures.ROIFigure, net.n3.nanoxml.IXMLElement, java.lang.String)
 	 */
-	public void parse(ROIFigure figure,IXMLElement element, String value) 
+	public void parse(ROIFigure figure, IXMLElement element, String value) 
 	{
-		SVGColour svgColour = new SVGColour();
-		Color strokeValue = svgColour.toColor(value);
-		STROKE_COLOR.set(figure, strokeValue);
+		AffineTransform transform;
+		try {
+			transform = SVGTransform.toTransform(value);
+			TRANSFORM.set(figure, transform);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		}
 	}
-	
+
 }
+
 

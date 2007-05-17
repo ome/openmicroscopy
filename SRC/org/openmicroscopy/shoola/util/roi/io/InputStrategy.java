@@ -62,11 +62,16 @@ import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillOpacityParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontFamilyParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontSizeParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontStyleAttribute;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontWeightParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGMiterLimitParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGNullParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeOpacityParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
@@ -212,15 +217,15 @@ public class InputStrategy
 		attributeParserMap.put(SVG_MARKER_END_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_MARKER_MID_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_FONT_FAMILY_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_FAMILY_ATTRIBUTE, new SVGFontFamilyParser());
 		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_FONT_SIZE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_SIZE_ATTRIBUTE, new SVGFontSizeParser());
 		attributeParserMap.put(SVG_MARKER_START_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_FONT_SIZE_ADJUST_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_FONT_STRETCH_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_FONT_STYLE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_STYLE_ATTRIBUTE, new SVGFontStyleAttribute());
 		attributeParserMap.put(SVG_FONT_VARIANT_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_FONT_WEIGHT_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FONT_WEIGHT_ATTRIBUTE, new SVGFontWeightParser());
 		attributeParserMap.put(SVG_ALIGNMENT_BASELINE_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_BASELINE_SHIFT_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_DIRECTION_ATTRIBUTE, new SVGNullParser());
@@ -234,7 +239,7 @@ public class InputStrategy
 		attributeParserMap.put(SVG_UNICODE_BIDI_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_WORD_SPACING_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_ROTATE_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_TRANSFORM_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_TRANSFORM_ATTRIBUTE, new SVGTransformParser());
 	}
 	
 	private final static HashMap<String, Boolean> basicSVGAttribute;
@@ -739,7 +744,7 @@ public class InputStrategy
 		{
 			String attribute = (String) attributeKeys.next();
 			String value = figureElement.getAttribute(attribute, VALUE_NULL);
-			addAttribute(figure, attribute, value);
+			addAttribute(figure, figureElement, attribute, value);
 		}
 	}
 	
@@ -753,18 +758,18 @@ public class InputStrategy
 		return attributeParserMap.containsKey(attribute);
 	}
 	
-	private void parseAttribute(ROIFigure figure, String attribute, String value)
+	private void parseAttribute(ROIFigure figure, IXMLElement figureElement, String attribute, String value)
 	{
 		SVGAttributeParser parser = attributeParserMap.get(attribute);
-		parser.parse(figure, value);
+		parser.parse(figure, figureElement, value);
 	}
 	
-	private void addAttribute(ROIFigure figure, String attribute, String value)
+	private void addAttribute(ROIFigure figure, IXMLElement figureElement, String attribute, String value)
 	{
 		if(isBasicSVGAttribute(attribute))
 			return;
 		if(isSVGAttribute(attribute))
-			parseAttribute(figure, attribute, value);
+			parseAttribute(figure, figureElement, attribute, value);
 	}
 	
 	private void addTextElementToFigure(ROIFigure figure, IXMLElement textElement)
