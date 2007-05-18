@@ -22,14 +22,12 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.util;
 
+
+//Java imports
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
-
-import net.n3.nanoxml.IXMLElement;
-
-//Java imports
 
 //Third-party libraries
 
