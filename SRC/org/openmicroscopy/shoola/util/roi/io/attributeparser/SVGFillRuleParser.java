@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillRuleParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,17 +22,22 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-//Java imports
-import java.awt.Color;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
 
-//Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import java.awt.Color;
+import java.util.HashMap;
+
 import net.n3.nanoxml.IXMLElement;
 
-//Application-internal dependencies
+import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
  * 
@@ -47,24 +52,25 @@ import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
-	implements SVGAttributeParser
+public 	class SVGFillRuleParser 
+		implements SVGAttributeParser
 {
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
-	 */
-	public void parse(ROIFigure figure, IXMLElement element,String value) 
+	private final static HashMap<String,WindingRule> fillRuleMap;
+	static 
 	{
-		int alpha = 0;
-		if(element.hasAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
-		SVGColour svgColour = new SVGColour();
-		Color svgColourValue = svgColour.toColor(value);
-		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		FILL_COLOR.set(figure, fillValue);
+		 fillRuleMap = new HashMap<String, WindingRule>();
+	     fillRuleMap.put("nonzero", WindingRule.NON_ZERO);
+	     fillRuleMap.put("evenodd", WindingRule.EVEN_ODD);
 	}
 	
+	/* (non-Javadoc)
+	* @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	*/
+	public void parse(ROIFigure figure,IXMLElement element, String value) 
+	{
+		String fillRule = value;
+		if(fillRuleMap.containsKey(fillRule))
+			WINDING_RULE.set(figure, fillRuleMap.get(value));
+		
+	}
 }
-
-

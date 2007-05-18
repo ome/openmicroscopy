@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeLineCap 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,17 +22,20 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
+
+
+
 //Java imports
-import java.awt.Color;
+import java.awt.BasicStroke;
+import java.util.HashMap;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
+
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
 /** 
  * 
@@ -47,24 +50,31 @@ import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
+public class SVGStrokeLineCapParser 
 	implements SVGAttributeParser
 {
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
-	 */
-	public void parse(ROIFigure figure, IXMLElement element,String value) 
-	{
-		int alpha = 0;
-		if(element.hasAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
-		SVGColour svgColour = new SVGColour();
-		Color svgColourValue = svgColour.toColor(value);
-		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		FILL_COLOR.set(figure, fillValue);
-	}
+	private final static String 					BUTT_VALUE = "butt";
 	
+	private final static HashMap<String,Integer> 	strokeLinecapMap;
+	static 
+	{
+	        strokeLinecapMap = new HashMap<String, Integer>();
+	        strokeLinecapMap.put("butt", 	BasicStroke.CAP_BUTT);
+	        strokeLinecapMap.put("round", 	BasicStroke.CAP_ROUND);
+	        strokeLinecapMap.put("square", 	BasicStroke.CAP_SQUARE);
+	}
+		
+	/* (non-Javadoc)
+	 * @see org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.roi.figures.ROIFigure, net.n3.nanoxml.IXMLElement, java.lang.String)
+	 */
+	public void parse(ROIFigure figure, IXMLElement element, String value) 
+	{
+		if(strokeLinecapMap.containsKey(value))
+			STROKE_CAP.set(figure, strokeLinecapMap.get(value));
+		else
+			STROKE_CAP.set(figure, strokeLinecapMap.get(BUTT_VALUE));
+	}
+
 }
 
 

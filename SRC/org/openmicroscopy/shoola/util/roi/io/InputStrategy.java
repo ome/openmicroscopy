@@ -49,6 +49,16 @@ import org.jhotdraw.geom.BezierPath.Node;
 import org.jhotdraw.samples.svg.SVGAttributeKeys.TextAnchor;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
@@ -56,27 +66,24 @@ import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser;
-import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillOpacityParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillRuleParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontFamilyParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontSizeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontStyleAttribute;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFontWeightParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGMiterLimitParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGNullParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeDashArrayParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeDashOffsetParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeLineCapParser;
+import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeLineJoinParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeOpacityParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeWidthParser;
 import org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGTransformParser;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 
@@ -145,8 +152,7 @@ public class InputStrategy
 	public final static String BLUE_ATTRIBUTE = "b";
 	public final static String GREEN_ATTRIBUTE = "g";
 	public final static String ALPHA_ATTRIBUTE = "a";
-	
-	
+		
 	public final static String ATTRIBUTE_DATATYPE_STRING = "String";
 	public final static String ATTRIBUTE_DATATYPE_DOUBLE = "Double";
 	public final static String ATTRIBUTE_DATATYPE_LONG = "Long";
@@ -159,57 +165,59 @@ public class InputStrategy
 	public final static String ATTRIBUTE_DATATYPE_COORD3D = "Coord3D";
 	public final static String ATTRIBUTE_DATATYPE_ARRAYLIST = "ArrayList";
 	
-	private final static String SVG_FILL_ATTRIBUTE = "fill";
-	private final static String SVG_FILL_OPACITY_ATTRIBUTE = "fill-opacity";
-	private final static String SVG_FILL_RULE_ATTRIBUTE = "fill-rule";
-	private final static String SVG_STROKE_ATTRIBUTE = "stroke";
-	private final static String SVG_STROKE_OPACITY_ATTRIBUTE = "stroke-opacity";
-	private final static String SVG_STROKE_WIDTH_ATTRIBUTE = "stroke-width";
-	private final static String SVG_STROKE_DASHOFFSET_ATTRIBUTE = "stroke-dashoffset";
-	private final static String SVG_STROKE_LINECAP_ATTRIBUTE = "stroke-linecap";
-	private final static String SVG_STROKE_LINEJOIN_ATTRIBUTE = "stroke-linejoin";
-	private final static String SVG_STROKE_MITERLIMIT_ATTRIBUTE = "stroke-miterlimit";
-	private final static String SVG_COLOR_INTERPOLATION_ATTRIBUTE = "color-interpolation";
-	private final static String SVG_COLOR_RENDERING_ATTRIBUTE = "color-rendering";
-	private final static String SVG_OPACITY_ATTRIBUTE = "opacity";
-	private final static String SVG_MARKER_END_ATTRIBUTE = "marker-end";
-	private final static String SVG_MARKER_MID_ATTRIBUTE = "color-rendering";
-	private final static String SVG_MARKER_START_ATTRIBUTE = "color-rendering";
-	private final static String SVG_FONT_FAMILY_ATTRIBUTE = "font-family";
-	private final static String SVG_FONT_SIZE_ATTRIBUTE = "font-size";
-	private final static String SVG_FONT_SIZE_ADJUST_ATTRIBUTE = "font-adjust";
-	private final static String SVG_FONT_STRETCH_ATTRIBUTE = "font-strech";
-	private final static String SVG_FONT_STYLE_ATTRIBUTE = "font-style";
-	private final static String SVG_FONT_VARIANT_ATTRIBUTE = "font-variant";
-	private final static String SVG_FONT_WEIGHT_ATTRIBUTE = "font-weight";
-	private final static String SVG_ALIGNMENT_BASELINE_ATTRIBUTE = "alignment-baseline";
-	private final static String SVG_BASELINE_SHIFT_ATTRIBUTE = "baseline-shift";
-	private final static String SVG_DIRECTION_ATTRIBUTE = "direction";
-	private final static String SVG_DOMINANT_BASELINE_ATTRIBUTE = "dominant-baseline";
-	private final static String SVG_GLYPH_ORIENTATION_HORIZONTAL_ATTRIBUTE = "glyph-orientation-horizontal";
-	private final static String SVG_GLYPH_ORIENTATION_VERTICAL_ATTRIBUTE = "glyph-orientation-vertical";
-	private final static String SVG_KERNING_ATTRIBUTE = "kerning";
-	private final static String SVG_LETTER_SPACING_ATTRIBUTE = "letter-spacing";
-	private final static String SVG_TEXT_ANCHOR_ATTRIBUTE = "text-anchor";
-	private final static String SVG_TEXT_DECORATION_ATTRIBUTE = "text-decoration";
-	private final static String SVG_UNICODE_BIDI_ATTRIBUTE = "unicode-bidi";
-	private final static String SVG_WORD_SPACING_ATTRIBUTE = "word-spacing";
-	private final static String SVG_ROTATE_ATTRIBUTE = "rotate";
-	private final static String SVG_TRANSFORM_ATTRIBUTE = "transform";
+	public final static String SVG_FILL_ATTRIBUTE = "fill";
+	public final static String SVG_FILL_OPACITY_ATTRIBUTE = "fill-opacity";
+	public final static String SVG_FILL_RULE_ATTRIBUTE = "fill-rule";
+	public final static String SVG_STROKE_ATTRIBUTE = "stroke";
+	public final static String SVG_STROKE_OPACITY_ATTRIBUTE = "stroke-opacity";
+	public final static String SVG_STROKE_WIDTH_ATTRIBUTE = "stroke-width";
+	public final static String SVG_STROKE_DASHOFFSET_ATTRIBUTE = "stroke-dashoffset";
+	public final static String SVG_STROKE_DASHARRAY_ATTRIBUTE = "stroke-dasharray";
+	public final static String SVG_STROKE_LINECAP_ATTRIBUTE = "stroke-linecap";
+	public final static String SVG_STROKE_LINEJOIN_ATTRIBUTE = "stroke-linejoin";
+	public final static String SVG_STROKE_MITERLIMIT_ATTRIBUTE = "stroke-miterlimit";
+	public final static String SVG_COLOR_INTERPOLATION_ATTRIBUTE = "color-interpolation";
+	public final static String SVG_COLOR_RENDERING_ATTRIBUTE = "color-rendering";
+	public final static String SVG_OPACITY_ATTRIBUTE = "opacity";
+	public final static String SVG_MARKER_END_ATTRIBUTE = "marker-end";
+	public final static String SVG_MARKER_MID_ATTRIBUTE = "color-rendering";
+	public final static String SVG_MARKER_START_ATTRIBUTE = "color-rendering";
+	public final static String SVG_FONT_FAMILY_ATTRIBUTE = "font-family";
+	public final static String SVG_FONT_SIZE_ATTRIBUTE = "font-size";
+	public final static String SVG_FONT_SIZE_ADJUST_ATTRIBUTE = "font-adjust";
+	public final static String SVG_FONT_STRETCH_ATTRIBUTE = "font-strech";
+	public final static String SVG_FONT_STYLE_ATTRIBUTE = "font-style";
+	public final static String SVG_FONT_VARIANT_ATTRIBUTE = "font-variant";
+	public final static String SVG_FONT_WEIGHT_ATTRIBUTE = "font-weight";
+	public final static String SVG_ALIGNMENT_BASELINE_ATTRIBUTE = "alignment-baseline";
+	public final static String SVG_BASELINE_SHIFT_ATTRIBUTE = "baseline-shift";
+	public final static String SVG_DIRECTION_ATTRIBUTE = "direction";
+	public final static String SVG_DOMINANT_BASELINE_ATTRIBUTE = "dominant-baseline";
+	public final static String SVG_GLYPH_ORIENTATION_HORIZONTAL_ATTRIBUTE = "glyph-orientation-horizontal";
+	public final static String SVG_GLYPH_ORIENTATION_VERTICAL_ATTRIBUTE = "glyph-orientation-vertical";
+	public final static String SVG_KERNING_ATTRIBUTE = "kerning";
+	public final static String SVG_LETTER_SPACING_ATTRIBUTE = "letter-spacing";
+	public final static String SVG_TEXT_ANCHOR_ATTRIBUTE = "text-anchor";
+	public final static String SVG_TEXT_DECORATION_ATTRIBUTE = "text-decoration";
+	public final static String SVG_UNICODE_BIDI_ATTRIBUTE = "unicode-bidi";
+	public final static String SVG_WORD_SPACING_ATTRIBUTE = "word-spacing";
+	public final static String SVG_ROTATE_ATTRIBUTE = "rotate";
+	public final static String SVG_TRANSFORM_ATTRIBUTE = "transform";
 		
 	
 	private final static HashMap<String, SVGAttributeParser> attributeParserMap;
 	static {
 		attributeParserMap = new HashMap<String, SVGAttributeParser>();
 		attributeParserMap.put(SVG_FILL_ATTRIBUTE, new SVGFillParser());
-		attributeParserMap.put(SVG_FILL_OPACITY_ATTRIBUTE, new SVGFillOpacityParser());
-		attributeParserMap.put(SVG_FILL_RULE_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FILL_OPACITY_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_FILL_RULE_ATTRIBUTE, new SVGFillRuleParser());
 		attributeParserMap.put(SVG_STROKE_ATTRIBUTE, new SVGStrokeParser());
 		attributeParserMap.put(SVG_STROKE_OPACITY_ATTRIBUTE, new SVGStrokeOpacityParser());
 		attributeParserMap.put(SVG_STROKE_WIDTH_ATTRIBUTE, new SVGStrokeWidthParser());
-		attributeParserMap.put(SVG_STROKE_DASHOFFSET_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_STROKE_LINECAP_ATTRIBUTE, new SVGNullParser());
-		attributeParserMap.put(SVG_STROKE_LINEJOIN_ATTRIBUTE, new SVGNullParser());
+		attributeParserMap.put(SVG_STROKE_DASHOFFSET_ATTRIBUTE, new SVGStrokeDashOffsetParser());
+		attributeParserMap.put(SVG_STROKE_DASHARRAY_ATTRIBUTE, new SVGStrokeDashArrayParser());
+		attributeParserMap.put(SVG_STROKE_LINECAP_ATTRIBUTE, new SVGStrokeLineCapParser());
+		attributeParserMap.put(SVG_STROKE_LINEJOIN_ATTRIBUTE, new SVGStrokeLineJoinParser());
 		attributeParserMap.put(SVG_STROKE_MITERLIMIT_ATTRIBUTE, new SVGMiterLimitParser());
 		attributeParserMap.put(SVG_COLOR_INTERPOLATION_ATTRIBUTE, new SVGNullParser());
 		attributeParserMap.put(SVG_COLOR_RENDERING_ATTRIBUTE, new SVGNullParser());
@@ -270,60 +278,15 @@ public class InputStrategy
 		basicSVGAttribute.put(GREEN_ATTRIBUTE, true);
 		basicSVGAttribute.put(ALPHA_ATTRIBUTE, true);
 	}
-
-	private final static HashMap<String,WindingRule> fillRuleMap;
-    static {
-        fillRuleMap = new HashMap<String, WindingRule>();
-        fillRuleMap.put("nonzero", WindingRule.NON_ZERO);
-        fillRuleMap.put("evenodd", WindingRule.EVEN_ODD);
-    }
-    private final static HashMap<String,Integer> strokeLinecapMap;
-    static {
-        strokeLinecapMap = new HashMap<String, Integer>();
-        strokeLinecapMap.put("butt", BasicStroke.CAP_BUTT);
-        strokeLinecapMap.put("round", BasicStroke.CAP_ROUND);
-        strokeLinecapMap.put("square", BasicStroke.CAP_SQUARE);
-    }
-    private final static HashMap<String,Integer> strokeLinejoinMap;
-    static {
-        strokeLinejoinMap = new HashMap<String, Integer>();
-        strokeLinejoinMap.put("miter", BasicStroke.JOIN_MITER);
-        strokeLinejoinMap.put("round", BasicStroke.JOIN_ROUND);
-        strokeLinejoinMap.put("bevel", BasicStroke.JOIN_BEVEL);
-    }
-    private final static HashMap<String,Double> absoluteFontSizeMap;
-    static {
-        absoluteFontSizeMap = new HashMap<String,Double>();
-        absoluteFontSizeMap.put("xx-small",6.944444);
-        absoluteFontSizeMap.put("x-small",8.3333333);
-        absoluteFontSizeMap.put("small", 10d);
-        absoluteFontSizeMap.put("medium", 12d);
-        absoluteFontSizeMap.put("large", 14.4);
-        absoluteFontSizeMap.put("x-large", 17.28);
-        absoluteFontSizeMap.put("xx-large",20.736);
-    }
-    private final static HashMap<String,Double> relativeFontSizeMap;
-    static {
-        relativeFontSizeMap = new HashMap<String,Double>();
-        relativeFontSizeMap.put("larger", 1.2);
-        relativeFontSizeMap.put("smaller",0.83333333);
-    }
-    private final static HashMap<String,TextAnchor> textAnchorMap;
-    static {
-        textAnchorMap = new HashMap<String, TextAnchor>();
-        textAnchorMap.put("start", TextAnchor.START);
-        textAnchorMap.put("middle", TextAnchor.MIDDLE);
-        textAnchorMap.put("end", TextAnchor.END);
-    }
-    
+	
     /**
      * Maps to all XML elements that are identified by an xml:id.
      */
-    public HashMap<String,IXMLElement> identifiedElements;
+    private HashMap<String,IXMLElement> identifiedElements;
     /**
      * Maps to all drawing objects from the XML elements they were created from.
      */
-    public HashMap<IXMLElement,Object> elementObjects;
+    private HashMap<IXMLElement,Object> elementObjects;
     
     /**
      * Holds the document that is currently being read.

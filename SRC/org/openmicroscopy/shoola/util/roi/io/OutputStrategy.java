@@ -182,7 +182,8 @@ public class OutputStrategy
         strokeLinecapMap.put(BasicStroke.CAP_SQUARE, "square");
     }
 	
-
+    private IXMLElement document;
+    private IXMLElement defs; 
 	
 	 /**
     * This is a counter used to create the next unique identification.
@@ -216,9 +217,7 @@ public class OutputStrategy
            return id;
        }
    }
-   IXMLElement document;
-   IXMLElement defs; 
-	
+  	
    public void write(OutputStream out, ROIComponent roiComponent) throws IOException 
    {
 		document = new XMLElement(ROISET_TAG, ROI_NAMESPACE);
@@ -443,9 +442,6 @@ public class OutputStrategy
 		writeShapeAttributes(textElement, fig.getAttributes());
       	writeTransformAttribute(textElement, fig.getAttributes());
         writeFontAttributes(textElement, fig.getAttributes());
-        textElement.setAttribute("fill", toColor(fig.getTextColor()),"none");
-        
-        
 	}
 	
 	private void writeLineConnectionFigure(XMLElement shapeElement, LineConnectionAnnotationFigure fig) throws IOException
@@ -586,6 +582,16 @@ public class OutputStrategy
         writeTransformAttribute(rectElement, fig.getAttributes());
 	}
 
+	private void writeShapeAttributes(IXMLElement shapeElement, ROIFigure fig)
+	{
+		Map<AttributeKey, Object> attributeMap = fig.getAttributes();
+		Iterator<AttributeKey> iterator = attributeMap.keySet().iterator();
+		while(iterator.hasNext())
+		{
+			
+		}
+	}	
+	
 	protected void writeShapeAttributes(IXMLElement elem, Map<AttributeKey,Object> f)
     throws IOException {
         Color color;
@@ -1192,8 +1198,9 @@ public class OutputStrategy
     protected IXMLElement createRadialGradient(IXMLElement doc,
             double cx, double cy, double r,
             double[] stopOffsets, Color[] stopColors,
-            boolean isRelativeToFigureBounds) throws IOException {
-        IXMLElement elem = doc.createElement("radialGradient");
+            boolean isRelativeToFigureBounds) throws IOException 
+    {
+    	IXMLElement elem = doc.createElement("radialGradient");
 
         writeAttribute(elem, "cx", toNumber(cx), "0.5");
         writeAttribute(elem, "cy", toNumber(cy), "0.5");
@@ -1203,7 +1210,8 @@ public class OutputStrategy
                 "objectBoundingBox"
                 );
         
-        for (int i=0; i < stopOffsets.length; i++) {
+        for (int i=0; i < stopOffsets.length; i++)
+        {
             IXMLElement stop = new XMLElement("stop");
             writeAttribute(stop, "offset", toNumber(stopOffsets[i]), null);
             writeAttribute(stop, "stop-color", toColor(stopColors[i]), null);

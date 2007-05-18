@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGFillParser 
+ * org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGStrokeDashArrayParser 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -22,17 +22,19 @@
  */
 package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 
-//Java imports
-import java.awt.Color;
+import static org.jhotdraw.draw.AttributeKeys.STROKE_DASHES;
 
-//Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import java.io.IOException;
+
 import net.n3.nanoxml.IXMLElement;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
-import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
+
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
  * 
@@ -47,24 +49,31 @@ import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
  * </small>
  * @since OME3.0
  */
-public class SVGFillParser
-	implements SVGAttributeParser
+public 	class SVGStrokeDashArrayParser
+		implements SVGAttributeParser
 {
 
 	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure, java.lang.String)
+	 * @see org.openmicroscopy.shoola.util.roi.io.attributeparser.SVGAttributeParser#parse(org.openmicroscopy.shoola.util.roi.figures.ROIFigure, net.n3.nanoxml.IXMLElement, java.lang.String)
 	 */
-	public void parse(ROIFigure figure, IXMLElement element,String value) 
+	public void parse(ROIFigure figure, IXMLElement element, String value) 
 	{
-		int alpha = 0;
-		if(element.hasAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
-		SVGColour svgColour = new SVGColour();
-		Color svgColourValue = svgColour.toColor(value);
-		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		FILL_COLOR.set(figure, fillValue);
+		if (! value.equals("none")) 
+		{
+			String[] values = toCommaSeparatedArray(value);
+            double[] dashes = new double[values.length];
+            for (int i=0; i < values.length; i++) {
+                dashes[i] = new Double(values[i]);
+            }
+            STROKE_DASHES.set(figure, dashes);
+        }	
 	}
 	
+	public static String[] toCommaSeparatedArray(String str) 
+	{
+	        return str.split("\\s*,\\s*");
+	}
+
 }
 
 
