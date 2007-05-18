@@ -542,4 +542,20 @@ public class UIUtilities
     	return new File(f);
     }
     
+    /**
+     * Sets the preferred size, minimum and maximum size of the specified 
+     * component.
+     * 
+     * @param component	The component to handle.
+     * @param dim		The dimension to set.
+     */
+    public static void setDefaultSize(Component component, Dimension dim)
+    {
+    	if (component == null) return;
+    	if (dim == null) dim = new Dimension(5, 5);
+    	component.setPreferredSize(dim);
+    	component.setMaximumSize(dim);
+    	component.setMinimumSize(dim);
+    }
+    
 }

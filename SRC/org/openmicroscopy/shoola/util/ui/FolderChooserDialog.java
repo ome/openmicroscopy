@@ -126,7 +126,7 @@ public class FolderChooserDialog
     private void setProperties()
     {
     	setTitle(TITLE);
-        setModal(true);
+        //setModal(true);
         setAlwaysOnTop(true);
     }
     

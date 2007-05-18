@@ -64,7 +64,7 @@ public class LoadingWindow
 {
 
     /** Bounds property indicating that the window is closed. */
-    public static final String         	CLOSED_PROPERTY = "closed";
+    public static final String		CLOSED_PROPERTY = "closed";
     
     /** The title of the window. */
     private static final String 	TITLE = "Loading window";

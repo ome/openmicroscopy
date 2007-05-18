@@ -32,6 +32,8 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -107,5 +109,25 @@ public class NullRenderingService
      * @see OmeroImageService#reloadRenderingService(long)
      */
 	public void reloadRenderingService(long pixelsID) {}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadPixelsDimensions(long)
+     */
+	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#loadPixels(long)
+     */
+	public Pixels loadPixels(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException 
+	{
+		return null;
+	}
 
 }
