@@ -881,6 +881,28 @@ class OMEROGateway
     }
     
     /**
+     * Retrieves the dimensions in microns of the specified pixels set.
+     * 
+     * @param pixelsID  The pixels set ID.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occured while trying to 
+     * retrieve data from OMERO service. 
+     */
+    Pixels getPixels(long pixelsID)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            IQuery service = getIQueryService();
+            Pixels pixs = service.get(Pixels.class, pixelsID);
+            return pixs;
+        } catch (Throwable t) {
+            handleException(t, "Cannot retrieve the pixels set of "+
+                                "the pixels set.");
+        }
+        return null;
+    }
+    /**
      * Retrieves the channel information related to the given pixels set.
      * 
      * @param pixelsID  The id of the pixels set.
@@ -1124,11 +1146,17 @@ class OMEROGateway
     	throws DSOutOfServiceException, DSAccessException
     {
     	IQuery service = getIQueryService();
-    	List files = service.findAllByQuery(
-    			"select ofile from OriginalFile as ofile left join " +
-                "ofile.pixelsFileMaps as pfm left join pfm.child as child " +
-                "where child.id = :id",
-                new Parameters().addId(new Long(pixelsID)));
+    	List files = null;
+    	try {
+    		files = service.findAllByQuery(
+        			"select ofile from OriginalFile as ofile left join " +
+                    "ofile.pixelsFileMaps as pfm left join pfm.child as " +
+                    "child where child.id = :id",
+                    new Parameters().addId(new Long(pixelsID)));
+		} catch (Exception e) {
+			throw new DSAccessException("Cannot retrieve original file", e);
+		}
+    	
     	Map<Integer, List> result = new HashMap<Integer, List>();
     	if (files == null || files.size() == 0) return result;
     	RawFileStore store = getRawFileService();

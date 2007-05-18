@@ -70,7 +70,7 @@ public class TreeViewerAgent
      */
     public void activate()
     {
-    	ExperimenterData exp =(ExperimenterData) registry.lookup(
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
 			        				LookupNames.CURRENT_USER_DETAILS);
     	long id = exp.getDefaultGroup().getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);

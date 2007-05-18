@@ -36,7 +36,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
- * 
+ * Command to retrieve the {@link RenderingControl}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,7 +70,7 @@ public class RenderingControlLoader
      */
     private BatchCall makeBatchCall(final long pixelsID, final boolean reload)
     {
-        return new BatchCall("Loading container tree: ") {
+        return new BatchCall("Loading rendering control: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();

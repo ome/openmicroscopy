@@ -105,8 +105,8 @@ public class DataViewsFactory
             dsv = new HierarchyBrowsingViewImpl();
         else if (view.equals(DataManagerView.class)) 
             dsv = new DataManagerViewImpl();
-        else if (view.equals(ImViewerView.class))
-            dsv = new ImViewerViewImpl();
+        else if (view.equals(ImageDataView.class))
+            dsv = new ImageDataViewImpl();
         else if (view.equals(DataHandlerView.class))
         	dsv = new DataHandlerViewImpl();
         if (dsv == null) 

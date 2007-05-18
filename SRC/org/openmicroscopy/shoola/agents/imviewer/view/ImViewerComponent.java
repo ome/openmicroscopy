@@ -35,11 +35,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -105,6 +107,9 @@ class ImViewerComponent
     /** List of active channels before switching between color mode. */
     private List                historyActiveChannels;
         
+    /** Flag indicating that a new z-section or timepoint is selected. */
+    private boolean				newPlane;
+    
     /** 
      * Returns the description displayed in the status bar.
      * 
@@ -116,6 +121,19 @@ class ImViewerComponent
         text += "Z="+model.getDefaultZ()+"/"+model.getMaxZ();
         text += " T="+model.getDefaultT()+"/"+model.getMaxT();
         return text;
+    }
+    
+    /**
+     * Posts a {@link MeasurePlane} event to indicate that a new plane is
+     * rendered or a new magnification factor has been selected.
+     */
+    private void postMeasurePlane()
+    {
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	MeasurePlane event = new MeasurePlane(model.getPixelsID(), 
+    			model.getDefaultZ(), model.getDefaultT(), 
+    			model.getZoomFactor());
+    	bus.post(event);
     }
     
     /**
@@ -228,7 +246,8 @@ class ImViewerComponent
     		model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
     		view.setImageZoomFactor((float) model.getZoomFactor());
     		view.scrollLens();	
-    	}	
+    	}
+    	postMeasurePlane();
     }
 
     /**
@@ -350,8 +369,8 @@ class ImViewerComponent
                  firePropertyChange(ImViewer.T_SELECTED_PROPERTY, 
                          new Integer(defaultT), new Integer(t));
              }
+             newPlane = true;
              model.setSelectedXYPlane(z, t);
-             
              renderXYPlane();
 		} catch (Exception ex) {
 			reload(ex);
@@ -367,6 +386,7 @@ class ImViewerComponent
         if (model.getState() != LOADING_IMAGE) 
             throw new IllegalStateException("This method can only be invoked " +
                     "in the LOADING_IMAGE state.");
+        newPlane = false;
         model.setImage(image);
         view.setStatus(getStatusText());
         view.setIconImage(model.getImageIcon());
@@ -511,7 +531,8 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         } 
         model.fireImageRetrieval();
-       
+        if (newPlane) postMeasurePlane();
+        newPlane = false;
         fireStateChange();
     }
 
@@ -1132,9 +1153,18 @@ class ImViewerComponent
     	if (e instanceof RenderingServiceException) {
     		RenderingServiceException rse = (RenderingServiceException) e;
     		logger.error(this, rse.getExtendedMessage());
-    		un.notifyError(ImViewerAgent.ERROR, rse.getExtendedMessage(), 
-    						e.getCause());
-    		discard();
+    		if (newPlane) {
+    			MessageBox msg = new MessageBox(view, "Invalid Plane", 
+    	    			"The selected plane contains invalid value. " +
+    	    			"Do you want to close the viewer?");
+    			if (msg.centerMsgBox() == MessageBox.YES_OPTION) 
+    				discard();
+    			else setImage(null);
+    		} else {
+    			un.notifyError(ImViewerAgent.ERROR, rse.getExtendedMessage(), 
+						e.getCause());
+    		}
+    		newPlane = false;
     	} else if (e instanceof DSOutOfServiceException) {
     		MessageBox msg = new MessageBox(view, "Rendering timeout", 
     			"The rendering engine has timed out. " +
@@ -1323,7 +1353,8 @@ class ImViewerComponent
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		MeasurementTool request = new MeasurementTool(model.getImageID(), 
 						model.getPixelsID(), model.getImageName(), 
-						view.getBounds());
+						model.getDefaultZ(), model.getDefaultT(),
+						model.getZoomFactor(), view.getBounds());
 		bus.post(request);
 	}
 
@@ -1338,6 +1369,31 @@ class ImViewerComponent
 				model.getMaxY(), model.getPixelsSizeX(), model.getPixelsSizeY(), 
 				model.getPixelsSizeZ());
 		UIUtilities.centerAndShow(d);
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#addView(JComponent)
+     */
+	public void addView(JComponent comp)
+	{
+		if (model.getState() != READY) return;
+		if (comp == null) return;
+		model.getBrowser().addComponent(comp, ImViewer.VIEW_INDEX);
+		comp.setVisible(true);
+		view.repaint();
+	}
+
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#removeView(JComponent)
+     */
+	public void removeView(JComponent comp)
+	{
+		if (model.getState() != READY) return;
+		if (comp == null) return;
+		model.getBrowser().removeComponent(comp, ImViewer.VIEW_INDEX);
+		view.repaint();
 	}
     
 }

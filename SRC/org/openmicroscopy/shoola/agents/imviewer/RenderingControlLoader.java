@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 /** 
  * Loads the rendering control proxy for the specified pixels' set.
  * This class calls the <code>loadRenderingControl</code> method in the
- * <code>ImViewerView</code>.
+ * <code>ImageDataView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

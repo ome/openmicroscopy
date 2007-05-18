@@ -33,7 +33,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.views.ImViewerView;
+import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 
 /** 
  * 
@@ -61,7 +61,7 @@ public abstract class DataLoader
     protected final Registry            registry;
     
     /** Convenience reference for subclasses. */
-    protected final ImViewerView        ivView;
+    protected final ImageDataView        ivView;
     
     /**
      * Creates a new instance.
@@ -74,8 +74,8 @@ public abstract class DataLoader
         if (viewer == null) throw new NullPointerException("No viewer.");
         this.viewer = viewer;
         registry = ImViewerAgent.getRegistry();
-        ivView = (ImViewerView) 
-                    registry.getDataServicesView(ImViewerView.class);
+        ivView = (ImageDataView) 
+                    registry.getDataServicesView(ImageDataView.class);
     }
     
     /**

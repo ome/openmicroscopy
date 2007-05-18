@@ -324,7 +324,7 @@ class EditorUI
     	JPanel bar = new JPanel();
         bar.setBorder(null);
         if (button != null) {
-        	bar.add(finishButton);
+        	bar.add(button);
             bar.add(Box.createRigidArea(H_SPACER_SIZE));
         }
         bar.add(finishButton);

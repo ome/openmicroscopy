@@ -71,7 +71,7 @@ public class ROIToolAction
         putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.ROI_TOOL));
+        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.MEASUREMENT_TOOL));
     }
     
     /** 

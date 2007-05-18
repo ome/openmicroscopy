@@ -27,10 +27,7 @@ package org.openmicroscopy.shoola.agents.hiviewer.layout;
 //Java imports
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +36,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.hiviewer.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 import pojos.DataObject;
@@ -62,37 +61,31 @@ import pojos.DataObject;
 public class LayoutUtils
 {
 
+	/**
+	 * Scales the thumbnail of the specified new node.
+	 * 
+	 * @param newNode	The new node to handle.
+	 * @param oldNode	The original node.
+	 */
+	private static void scaleImage(ImageNode newNode, ImageNode oldNode)
+    {
+		Thumbnail th = newNode.getThumbnail();
+		th.scale(oldNode.getThumbnail().getScalingFactor());
+    }
+	
     /**
      * Sets the size of the specified {@link ImageSet} node if it doesn't
      * have child.
      * 
      * @param node The {@link ImageSet} node to lay out.
      */
-    public static void noChildLayout(ImageDisplay node)
+    static void noChildLayout(ImageDisplay node)
     {
         node.getInternalDesktop().setPreferredSize(
                 node.getTitleBar().getMinimumSize());
         node.setVisible(true);
     }
-    
-    /**
-     * Returns the object with the largest associated area. 
-     * This method calculates the <code>area = width x height</code> of each
-     * <code>Dimension</code> object and then returns the one having the
-     * largest area.
-     *  
-     * @param a The first dimensions.  Mustn't be <code>null</code>.
-     * @param b The second dimensions.  Mustn't be <code>null</code>.
-     * @return The one between <code>a</code> and <code>b</code> with the
-     *         largest associated area.
-     */
-    public static Dimension max(Dimension a, Dimension b)
-    {
-        int areaA = a.width*a.height, areaB = b.width*b.height;
-        if (areaA < areaB) return b;
-        return a;
-    }
-    
+  
     /**
      * Finds out the dimensions of the largest child node in the specified
      * {@link ImageDisplay}.
@@ -106,7 +99,7 @@ public class LayoutUtils
      * @return The dimensions of the child having the largest area.
      * @see #max(Dimension, Dimension)
      */
-    public static Dimension maxChildDim(ImageDisplay node)
+    static Dimension maxChildDim(ImageDisplay node)
     {
         Dimension maxDim = new Dimension(0, 0);
         Iterator children = node.getChildrenDisplay().iterator();
@@ -119,11 +112,18 @@ public class LayoutUtils
     }
     
     /**
+     * Finds out the dimensions of the largest child node in the specified
+     * collection.
+     * This method calculates the area of each child node and then returns
+     * the dimensions of the child having the largest area.
+     * Note that the returned <code>Dimension</code> object can have 
+     * <code>0</code>-width and height. In particular this is always the
+     * case if the specified parent <code>node</code> has no children.
      * 
-     * @param images
+     * @param images The collection to handle.
      * @return See above,
      */
-    public static Dimension maxChildDim(List images)
+    static Dimension maxChildDim(List images)
     {
         Dimension maxDim = new Dimension(0, 0);
         Iterator children = images.iterator();
@@ -136,48 +136,12 @@ public class LayoutUtils
     }
     
     /**
-     * Sorts the children of the specified <code>node</code> by their 
-     * preferred width.
-     * This method queries the preferred size of each child node in order to
-     * determine its preferred width.  If the ascending order is specified,
-     * a child with a smaller width will preceed a child with a larger width
-     * in the returned array.  If the descending order is specified instead,
-     * a child with a larger width will preceed a child with a smaller width.
-     * 
-     * @param node The parent node.  Mustn't be <code>null</code>.
-     * @param ascending Pass <code>true</code> to have the returned array sorted
-     *                  in the ascending order; pass <code>false</code> for the
-     *                  descending order.
-     * @return An array containing all the children of <code>node</code>,
-     *         sorted in the specified order.  The returned array will have
-     *         <code>0</code>-length if <code>node</code> has no children.
-     */
-    public static ImageDisplay[] sortChildrenByPrefWidth(ImageDisplay node,
-                                                        final boolean ascending)
-    {
-        List children = new ArrayList(node.getChildrenDisplay());
-        Comparator c = new Comparator() {
-            public int compare(Object o1, Object o2)
-            {
-                Dimension d1 = ((ImageDisplay) o1).getPreferredSize(),
-                          d2 = ((ImageDisplay) o2).getPreferredSize();
-                //NOTE: o1, o2 can't be null b/c an ImageDisplay doesn't allow
-                //you to set null children.
-                if (ascending) return d1.width-d2.width;
-                return -(d1.width-d2.width);
-            }
-        };
-        Collections.sort(children, c);
-        return (ImageDisplay[]) children.toArray(new ImageDisplay[] {});
-    }
-    
-    /**
      * Lays out the specified images in a square grid.
      * 
      * @param root          The root node.
      * @param imageNodes    The collection of images to lay out.
      */
-    public static void doSquareGridLayout(ImageDisplay root, List imageNodes)
+    static void doSquareGridLayout(ImageDisplay root, List imageNodes)
     {
         Iterator children = imageNodes.iterator();
         ImageDisplay child;
@@ -213,8 +177,7 @@ public class LayoutUtils
      * @param node The parent node. Mustn't be <code>null</code>.
      * @param sorter The sorter.
      */
-    public static void doSquareGridLayout(ImageDisplay node,
-                                        ViewerSorter sorter)
+    static void doSquareGridLayout(ImageDisplay node, ViewerSorter sorter)
     {
         //First find out the max dim among children.
         Dimension maxDim = maxChildDim(node);
@@ -264,9 +227,8 @@ public class LayoutUtils
      * @param newNodes	The nodes to layout.
      * @param oldNodes	The previously layed out nodes.
      */
-    public static void redoLayout(ImageDisplay node, ImageDisplay oldNode, 
-    							Collection newNodes, 
-								Set oldNodes)
+    static void redoLayout(ImageSet node, ImageSet oldNode, Collection newNodes, 
+							Set oldNodes)
     {
     	int n = newNodes.size();        
     	if (n == 0) {   //Node with no children.
@@ -304,6 +266,10 @@ public class LayoutUtils
             							oho.getClass().equals(klass)) {
             						if (((DataObject) poho).getId() == pid && 
                 							poho.getClass().equals(pKlass)) {
+            							if (child instanceof ImageNode) {
+            								scaleImage((ImageNode) child, 
+            										(ImageNode) oldChild);
+            							}
             							child.setBounds(oldChild.getBounds());
             						}
             					}
@@ -334,15 +300,44 @@ public class LayoutUtils
     		node.getInternalDesktop().setSize(d);
     		node.getInternalDesktop().setPreferredSize(d);
 		} else {
-			Rectangle bounds = oldNode.getBounds();
-			Dimension d = bounds.getSize();
-			node.setBounds(bounds);
-    		//Dimension d = bounds.getSize();
-    		node.getInternalDesktop().setSize(d);
-    		node.getInternalDesktop().setPreferredSize(d);
+			Dimension d = oldNode.getRestoreSize();
+			if (oldNode.isCollapsed()) {
+				//d = oldNode.getPreferredSize();
+				//node.setSize(d);
+				Rectangle r = oldNode.getBounds();
+				Rectangle bounds = new Rectangle(r.x, r.y, d.width, d.height);
+				node.setBounds(bounds);
+				node.setPreferredSize(d);
+				node.getInternalDesktop().setSize(d);
+	    		node.getInternalDesktop().setPreferredSize(d);
+				node.setCollapsed(true);
+			} else {
+				node.setBounds(oldNode.getBounds());
+	    		//Dimension d = bounds.getSize();
+	    		node.getInternalDesktop().setSize(d);
+	    		node.getInternalDesktop().setPreferredSize(d);
+			}
 		}
     }
 
+    /**
+     * Returns the object with the largest associated area. 
+     * This method calculates the <code>area = width x height</code> of each
+     * <code>Dimension</code> object and then returns the one having the
+     * largest area.
+     *  
+     * @param a The first dimensions.  Mustn't be <code>null</code>.
+     * @param b The second dimensions.  Mustn't be <code>null</code>.
+     * @return The one between <code>a</code> and <code>b</code> with the
+     *         largest associated area.
+     */
+    public static Dimension max(Dimension a, Dimension b)
+    {
+        int areaA = a.width*a.height, areaB = b.width*b.height;
+        if (areaA < areaB) return b;
+        return a;
+    }
+    
     //NOTE: Let A be the function that calculates the area of a Dimension,
     //sz the number of children, and r = sqr(sz).
     //The required area for the layout mustn't be less than sz*A(maxDim).

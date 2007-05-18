@@ -1181,5 +1181,20 @@ class TreeViewerComponent
 		long userID = model.getUserDetails().getId();
 		return (userID == model.getRootID());
 	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see TreeViewer#isReadable(DataObject)
+     */
+	public boolean isReadable(DataObject ho)
+	{
+		if (model.getState() == DISCARDED)
+            throw new IllegalStateException(
+            "This method cannot be invoked in the DISCARDED state.");
+        //Check if current user can write in object
+        long id = model.getUserDetails().getId();
+        long groupId = model.getUserDetails().getDefaultGroup().getId();
+        return TreeViewerTranslator.isReadable(ho, id, groupId);
+	}
     
 }

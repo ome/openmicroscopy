@@ -33,12 +33,13 @@ package org.openmicroscopy.shoola.env.data.views;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
+import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
- * 
+ * Implementation of the {@link ImageDataViewImpl} interface.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,13 +53,13 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * </small>
  * @since OME2.2
  */
-class ImViewerViewImpl
-    implements ImViewerView
+class ImageDataViewImpl
+    implements ImageDataView
 {
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImViewerView#loadChannelMetadata(long, AgentEventListener)
+     * @see ImageDataView#loadChannelMetadata(long, AgentEventListener)
      */
     public CallHandle loadChannelMetadata(long imageID,
                                         AgentEventListener observer)
@@ -69,7 +70,7 @@ class ImViewerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImViewerView#loadRenderingControl(long, boolean, AgentEventListener)
+     * @see ImageDataView#loadRenderingControl(long, boolean, AgentEventListener)
      */
     public CallHandle loadRenderingControl(long pixelsID, boolean reload,
                                         AgentEventListener observer)
@@ -80,7 +81,7 @@ class ImViewerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImViewerView#render(long, PlaneDef, AgentEventListener)
+     * @see ImageDataView#render(long, PlaneDef, AgentEventListener)
      */
     public CallHandle render(long pixelsID, PlaneDef pd, 
                         AgentEventListener observer)
@@ -91,7 +92,7 @@ class ImViewerViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImViewerView#loadIconImage(long, int, int, AgentEventListener)
+     * @see ImageDataView#loadIconImage(long, int, int, AgentEventListener)
      */
     public CallHandle loadIconImage(long pixelsID, int iconWidth, 
                         int iconHeight, AgentEventListener observer)
@@ -100,5 +101,28 @@ class ImViewerViewImpl
                                                 iconHeight);
         return cmd.exec(observer);
     }
+
+    /**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadPixelsDimension(long, AgentEventListener)
+     */
+	public CallHandle loadPixelsDimension(long pixelsID, 
+							AgentEventListener observer) 
+	{
+		 BatchCallTree cmd = new PixelsDataLoader(pixelsID, 
+				 			PixelsDataLoader.DIMENSION);
+		 return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadPixels(long, AgentEventListener)
+     */
+	public CallHandle loadPixels(long pixelsID, AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new PixelsDataLoader(pixelsID, 
+									PixelsDataLoader.SET);
+		return cmd.exec(observer);
+	}
 
 }

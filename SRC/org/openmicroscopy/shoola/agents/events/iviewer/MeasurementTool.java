@@ -57,18 +57,32 @@ public class MeasurementTool
     /** The name of the image. */
     private String      name;
     
+    /** The currently selected z-section. */
+    private int			defaultZ;
+    
+    /** The currently selected timepoint. */
+    private int			defaultT;
+    
+    /** The image's magnification factor. */
+    private double		magnification;
+    
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
     
     /**
      * Creates a new instance.
      * 
-     * @param imageID   The image ID.
-     * @param pixelsID  The pixels set ID.
-     * @param name      The name of the image.
-     * @param bounds    The bounds of the component posting the event.
+     * @param imageID   	The image ID.
+     * @param pixelsID  	The pixels set ID.
+     * @param name      	The name of the image.
+     * @param defaultZ		The currently selected z-section.
+     * @param defaultT		The currently selected timepoint.
+     * @param magnification The magnification factor.
+     * @param bounds    	The bounds of the component posting the event.
      */
-    public MeasurementTool(long imageID, long pixelsID, String name, Rectangle bounds)
+    public MeasurementTool(long imageID, long pixelsID, String name, 
+    						int defaultZ, int defaultT, double magnification,
+    						Rectangle bounds)
     {
         if (pixelsID < 0) 
             throw new IllegalArgumentException("Pixels set ID not valid.");
@@ -77,6 +91,9 @@ public class MeasurementTool
         this.pixelsID = pixelsID;
         this.imageID = imageID;
         this.name = name;
+        this.defaultT = defaultT;
+        this.defaultZ = defaultZ;
+        this.magnification = magnification;
         requesterBounds = bounds;
     }
     
@@ -108,5 +125,26 @@ public class MeasurementTool
      * @return See above.
      */
     public Rectangle getRequesterBounds() { return requesterBounds; }
+    
+    /**
+     * Returns the currently selected z-section.
+     * 
+     * @return See above.
+     */
+    public int getDefaultZ() { return defaultZ; }
+    
+    /**
+     * Returns the currently selected timepoint.
+     * 
+     * @return See above.
+     */
+    public int getDefaultT() { return defaultT; }
+    
+    /**
+     * Returns the image's magnification factor.
+     * 
+     * @return See above.
+     */
+    public double getMagnification() { return magnification; }
     
 }

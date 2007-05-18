@@ -526,9 +526,9 @@ class ImViewerControl
                 window.setVisible(false);
                 window.dispose();
                 view.setVisible(false);
-                view.dispose();
                 if (view.isLensVisible())
                 	view.setLensVisible(false, model.getSelectedIndex());
+                view.dispose();
                 historyState = state;
                 break;
             case ImViewer.LOADING_RENDERING_CONTROL:
@@ -553,8 +553,7 @@ class ImViewerControl
                 break;
             case ImViewer.CHANNEL_MOVIE:
                 historyState = ImViewer.CHANNEL_MOVIE;
-                view.onStateChange(false);
-                
+                view.onStateChange(false); 
         }
     }
 

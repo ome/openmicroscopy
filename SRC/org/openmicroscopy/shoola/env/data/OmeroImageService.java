@@ -31,6 +31,8 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -115,5 +117,31 @@ public interface OmeroImageService
      * @param pixelsID The id of the pixels set.
      */
     public void reloadRenderingService(long pixelsID);
+    
+    /**
+     * Loads the dimensions in microns of the pixels set.
+     * 
+     * @param pixelsID The id of the pixels set.
+     * @return See above
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public PixelsDimensions loadPixelsDimensions(long pixelsID)
+    	throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+     * Loads the pixels set.
+     * 
+     * @param pixelsID The id of the pixels set.
+     * @return See above
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+     */
+    public Pixels loadPixels(long pixelsID)
+    	throws DSOutOfServiceException, DSAccessException;
     
 }

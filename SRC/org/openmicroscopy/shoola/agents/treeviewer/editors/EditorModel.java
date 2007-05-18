@@ -617,6 +617,17 @@ class EditorModel
 		}
 		return -1;
 	}
+
+	/**
+     * Returns <code>true</code> if the edited object is readable,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+	public boolean isReadable()
+	{
+		return parentModel.isReadable(hierarchyObject);
+	}
     
 }
  

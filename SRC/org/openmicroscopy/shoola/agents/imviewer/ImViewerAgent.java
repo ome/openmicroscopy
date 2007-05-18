@@ -30,7 +30,9 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -88,6 +90,28 @@ public class ImViewerAgent
         if (view != null) view.activate();
     }
     
+    /**
+     * Handles the {@link MeasurementToolLoaded} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleMeasurementToolLoaded(MeasurementToolLoaded evt)
+    {
+    	if (evt == null) return;
+    	MeasurementTool request = (MeasurementTool) evt.getACT();
+    	long pixelsID = request.getPixelsID();
+    	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
+    	if (view != null) {
+    		switch (evt.getIndex()) {
+				case MeasurementToolLoaded.ADD:
+					view.addView(evt.getView());
+					break;
+				case MeasurementToolLoaded.REMOVE:
+					view.removeView(evt.getView());
+			}
+    	}
+    }
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -112,6 +136,7 @@ public class ImViewerAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, ViewImage.class);
+        bus.register(this, MeasurementToolLoaded.class);
     }
 
     /**
@@ -128,6 +153,8 @@ public class ImViewerAgent
     public void eventFired(AgentEvent e)
     {
         if (e instanceof ViewImage) handleViewImage((ViewImage) e);
+        else if (e instanceof MeasurementToolLoaded)
+        	handleMeasurementToolLoaded((MeasurementToolLoaded) e);
     }
 
 }

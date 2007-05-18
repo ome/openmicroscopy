@@ -45,7 +45,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Presents the variable controls of the viewer.
+ * Presents the variable drawing controls.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -123,7 +123,7 @@ class ToolBar
         button = new JButton(
         		controller.getAction(ImViewerControl.MEASUREMENT_TOOL));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button); 
+        bar.add(button); 
         bar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(ImViewerControl.SAVE));
         UIUtilities.unifiedButtonLookAndFeel(button);

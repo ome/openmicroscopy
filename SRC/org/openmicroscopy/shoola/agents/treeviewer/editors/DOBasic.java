@@ -180,6 +180,17 @@ class DOBasic
                 public void changedUpdate(DocumentEvent de) {}
                 
             });
+            if (model.getHierarchyObject() instanceof ImageData) {
+            	download = new JButton(DOWNLOAD);
+            	download.setToolTipText(DOWNLOAD_DESCRIPTION);
+            	download.setEnabled(model.isReadable());
+            	download.addActionListener(new ActionListener() {
+            		public void actionPerformed(ActionEvent e)
+            		{ 
+            			download(); 
+            		}
+				});
+            }
             /*
             IconManager im = IconManager.getInstance();
             if (model.isAnnotatable()) {	

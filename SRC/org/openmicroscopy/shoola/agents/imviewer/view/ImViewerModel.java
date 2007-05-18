@@ -228,7 +228,7 @@ class ImViewerModel
         if (other == null) return false;
         return ((other.pixelsID == pixelsID) && (other.imageID == imageID));
     }
-
+    
     /**
      * Returns the name of the image.
      * 

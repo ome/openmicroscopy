@@ -38,7 +38,6 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.hiviewer.Colors;
 import org.openmicroscopy.shoola.agents.hiviewer.cmd.ViewCmd;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DatasetData;
 import pojos.ImageData;
 

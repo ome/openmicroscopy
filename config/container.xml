@@ -144,6 +144,11 @@
         <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
         <config>treeviewer.xml</config>
     </agent>
+    <agent>
+        <name>Measurement Tool</name>
+        <class>org.openmicroscopy.shoola.agents.measurement.MeasurementAgent</class>
+        <config>measurement.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
   

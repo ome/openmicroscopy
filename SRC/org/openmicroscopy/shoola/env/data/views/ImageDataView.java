@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ImViewerView
+ * org.openmicroscopy.shoola.env.data.views.ImageDataView
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -34,7 +34,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
- * Provides methods to support image viewing.
+ * Provides methods to support image viewing and analysing
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,14 +48,14 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
  * </small>
  * @since OME2.2
  */
-public interface ImViewerView
+public interface ImageDataView
     extends DataServicesView
 {
 
     /**
      * Retrieves the metadata.
      * 
-     * @param imageID
+     * @param imageID	The id of the image.
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
@@ -96,5 +96,25 @@ public interface ImViewerView
      */
     public CallHandle loadIconImage(long pixelsID, int iconWidth, 
                             int iconHeight, AgentEventListener observer);
+    
+    /**
+     * Retrieves the dimensions in microns of the pixels set.
+     * 
+     * @param pixelsID	The id of the pixels set.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle loadPixelsDimension(long pixelsID, 
+    					AgentEventListener observer);
+    
+    /**
+     * Retrieves the pixels set.
+     * 
+     * @param pixelsID	The id of the pixels set.
+     * @param observer	Callback handler.
+     * @return See above.
+     */
+    public CallHandle loadPixels(long pixelsID, 
+    					AgentEventListener observer);
     
 }

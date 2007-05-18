@@ -33,6 +33,7 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
@@ -101,6 +102,12 @@ class OmeroImageServiceImpl
             throw new IllegalArgumentException("No gateway.");
         context = registry;
         this.gateway = gateway;
+    }
+    
+    /** Shuts down all active rendering engines. */
+    void shutDown()
+    {
+        RenderingServicesFactory.shutDownRenderingControls(context);
     }
 
     /** 
@@ -200,12 +207,24 @@ class OmeroImageServiceImpl
 		}
 	}
 	
-    /** Shuts down all active rendering engines. */
-    void shutDown()
-    {
-        RenderingServicesFactory.shutDownRenderingControls(context);
-    }
+	/** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#loadPixelsDimensions(long)
+     */
+	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getPixelsDimensions(pixelsID);
+	}
 
-
+	/** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#loadPixels(long)
+     */
+	public Pixels loadPixels(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getPixels(pixelsID);
+	}
 
 }

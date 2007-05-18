@@ -172,70 +172,12 @@ class SquaryLayout
     }
     
     /**
-     * Visits an {@link ImageSet} node that contains {@link ImageSet} nodes. 
+     * Returns the node already layed out corresponding to the specified
+     * node or <code>null</code> if no node found.
      * 
-     * @param node	The parent {@link ImageSet} node.
+     * @param n	The node to handle.
+     * @return See above.
      */
-    private void setContainerNodeBounds(ImageSet node, Set oldChildren)
-    {
-        //Then figure out the number of columns, which is the same as the
-        //number of rows.    
-        if (node.getChildrenDisplay().size() == 0) {   //node with no child
-            LayoutUtils.noChildLayout(node);
-            return;
-        }
-
-        Iterator k = oldNodes.iterator();
-        ImageDisplay oldNode = null;
-        long id = -1;
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof DataObject) id = ((DataObject) ho).getId();
-        Class hoClass = ho.getClass();
-        Object oho;
-        while (k.hasNext()) {
-        	oldNode = (ImageDisplay) k.next();
-			oho = oldNode.getHierarchyObject();
-			if (oho instanceof DataObject) {
-				if (((DataObject) oho).getId() == id &&
-						oho.getClass().equals(hoClass)) break;
-			} else { //root
-				break;
-			}
-		}
-        if (oldNode == null) {
-        	visitContainerNode(node);
-        	return;
-        }
-        //System.err.println("oldNode: "+oldNode);
-        Set children = node.getChildrenDisplay();
-        //Set oldChildren = oldNode.getChildrenDisplay();
-        Iterator i = children.iterator();
-        Iterator j;
-        ImageDisplay n, oldChild;
-        while (i.hasNext()) {
-			n = (ImageDisplay) i.next();
-			j = oldChildren.iterator();
-			ho = n.getHierarchyObject();
-			if (ho instanceof DataObject) {
-				id = ((DataObject) ho).getId();
-				while (j.hasNext()) {
-					oldChild = (ImageDisplay) j.next();
-					oho = oldChild.getHierarchyObject();
-					if (oho instanceof DataObject) {
-						if (((DataObject) oho).getId() == id) {
-							n.setBounds(oldChild.getBounds());
-						}
-					}
-				}
-			}			
-		}
-        Rectangle bounds = oldNode.getContentsBounds();
-        Dimension d = oldNode.getSize();
-        node.setBounds(bounds);
-        node.getInternalDesktop().setSize(d);
-        node.getInternalDesktop().setPreferredSize(d);
-    }
-    
     private ImageDisplay getOldNode(ImageDisplay n)
     {
     	if (n.getParentDisplay() == null) {
@@ -308,11 +250,10 @@ class SquaryLayout
             	if (node.containsImages()) 
             		LayoutUtils.doSquareGridLayout(node, sorter);
             	else visitContainerNode(node);
-        	} else
-        		LayoutUtils.redoLayout(node, getOldNode(node), n, o);
-        	//} else {
-        	//	setContainerNodeBounds(node, getOldChildren(node));
-        	//}
+        	} else {
+        		LayoutUtils.redoLayout(node, (ImageSet) getOldNode(node), n, o);
+        	}
+        		
         }
     }
     

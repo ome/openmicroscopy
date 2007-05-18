@@ -122,6 +122,23 @@ public class ImViewerFactory
         return singleton.getViewer(model);
     }
 
+    /**
+     * Returns the viewer if any, identified by the passed pixels ID.
+     * 
+     * @param pixelsID The Id of the pixels set.
+     * @return See above.
+     */
+    public static ImViewer getImageViewer(long pixelsID)
+    {
+    	Iterator v = singleton.viewers.iterator();
+        ImViewerComponent comp;
+        while (v.hasNext()) {
+            comp = (ImViewerComponent) v.next();
+            if (comp.getModel().getPixelsID() == pixelsID)  return comp;
+        }
+        return null;
+    }
+    
     /** All the tracked components. */
     private Set<ImViewer>     	viewers;
 

@@ -189,8 +189,9 @@ class AnnotatorEditorView
     /** Initializes the UI components. */
     private void initComponents()
     {
-    	commentLabel = new JLabel(AnnotatorUtil.COMMENT_TITLE+"0 "+
-    							AnnotatorUtil.COMMENT);
+    	//commentLabel = new JLabel(AnnotatorUtil.COMMENT_TITLE+"0 "+
+    	//						AnnotatorUtil.COMMENT);
+    	commentLabel = new JLabel();
     	listAnnotations = new JPanel();
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
     							BoxLayout.Y_AXIS));
@@ -560,6 +561,7 @@ class AnnotatorEditorView
     	annotationArea.setText("");
     	annotationArea.getDocument().addDocumentListener(listener);
     	model.setAnnotated(false);
+    	commentLabel.setText("");
         repaint();
     }
     

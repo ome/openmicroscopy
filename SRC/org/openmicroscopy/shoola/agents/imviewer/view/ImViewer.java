@@ -32,6 +32,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -631,5 +632,19 @@ public interface ImViewer
 
 	/** Brings up on screen a window with the image's details. */
 	public void showImageDetails();
+
+	/**
+	 * Adds the passed component to the viewer.
+	 * 
+	 * @param view The component to add.
+	 */
+	public void addView(JComponent view);
+
+	/**
+	 * Removes the passed component from the viewer.
+	 * 
+	 * @param view The component to remove.
+	 */
+	public void removeView(JComponent view);
     
 }

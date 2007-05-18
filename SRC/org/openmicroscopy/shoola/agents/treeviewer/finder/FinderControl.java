@@ -72,13 +72,13 @@ class FinderControl
     static final Integer     FILTER_MENU = new Integer(5);
     
     /** Reference to the {@link Finder}, viewed as the Model. */
-    private Finder		model;
+    private Finder						model;
     
     /** Reference to the {@link FinderUI view}. */
-    private FinderUI	view;
+    private FinderUI					view;
     
     /** Maps actions ids onto actual <code>Action</code> object. */
-    private Map			actionsMap;
+    private Map<Integer, FinderAction>	actionsMap;
     
     /** Helper method to create all the UI actions. */
     private void createActions()
@@ -102,7 +102,7 @@ class FinderControl
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         model.addPropertyChangeListener(Finder.RETRIEVED_PROPERTY, this);
-        actionsMap = new HashMap();
+        actionsMap = new HashMap<Integer, FinderAction>();
         createActions();
     }
     

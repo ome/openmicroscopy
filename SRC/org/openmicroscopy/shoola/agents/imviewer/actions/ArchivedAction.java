@@ -76,12 +76,9 @@ public class ArchivedAction
     }
     
     /** 
-     * Shows or hides the lens.
+     * Downloads the archived files.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.download();
-    }
+    public void actionPerformed(ActionEvent e) { model.download(); }
     
 }

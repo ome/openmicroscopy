@@ -171,7 +171,7 @@ public class IconManager
     public static int           TEXT = 36;
     
     /** The <code>ROI tool</code> icon. */
-    public static int           ROI_TOOL = 37;
+    public static int           MEASUREMENT_TOOL = 37;
    
     /** 
      * The maximum ID used for the icon IDs.
@@ -221,7 +221,7 @@ public class IconManager
         relPaths[GRIDVIEW] = "gridView16.png";
         relPaths[CHANNEL_SPLIT] = "gridView16.png";
         relPaths[TEXT] = "nuvola_font_truetype16.png";
-        relPaths[ROI_TOOL] = "nuvola_font_truetype16.png";
+        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";
     }
     
     /** The sole instance. */

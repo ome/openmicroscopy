@@ -392,6 +392,15 @@ public interface TreeViewer
      */
     public boolean isObjectWritable(Object ho);
     
+    /**
+     * Returns <code>true</code> if the specified object is readable,
+     * <code>false</code> otherwise.
+     * 
+     * @param ho    The data object to check.
+     * @return See above.
+     */
+    public boolean isReadable(DataObject hierarchyObject);
+    
     /** 
      * Adds existing objects to the currently selected node. 
      * 

@@ -244,9 +244,8 @@ class BrowserModel
      */
     public void setSelectedDisplays(ImageDisplay[] nodes)
     {
-    	for (int i = 0; i < nodes.length; i++) {
+    	for (int i = 0; i < nodes.length; i++) 
     		setSelectedDisplay(nodes[i], true);
-		}
     }
     
     /**

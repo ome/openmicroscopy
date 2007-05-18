@@ -52,7 +52,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 class FlatLayout
-implements Layout
+	implements Layout
 {
     
     //NOTE: The algorithm for this layout *relies* on the fact that

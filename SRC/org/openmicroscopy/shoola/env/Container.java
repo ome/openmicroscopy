@@ -314,6 +314,18 @@ public final class Container
 	public void exit()
 	{	
 		//TODO: implement.
+		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		Agent a;
+		//Agents termination phase.
+		i = agents.iterator();
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			a = agentInfo.getAgent();
+			if (a.canTerminate())
+				a.terminate();
+		}
 		System.exit(0);
 	}
     
