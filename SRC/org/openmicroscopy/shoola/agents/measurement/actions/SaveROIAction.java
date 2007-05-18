@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -36,7 +35,7 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Saves the ROI.
+ * Saves the ROI for a given set of pixels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -79,7 +78,7 @@ public class SaveROIAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	
+    	model.saveROI();
     }
     
 }

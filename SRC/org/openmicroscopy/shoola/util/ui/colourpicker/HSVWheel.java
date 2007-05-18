@@ -60,7 +60,7 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
  */
 
 class HSVWheel 
-		extends JPanel
+	extends JPanel
 {
 	
 	/**

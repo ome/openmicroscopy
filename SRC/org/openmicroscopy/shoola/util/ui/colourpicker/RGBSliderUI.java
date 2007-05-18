@@ -277,6 +277,7 @@ class RGBSliderUI
 	void createRedTextbox()
 	{
 		redTextbox = new JTextField(""+(int) (control.getRed()*255));
+		redTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
 		redTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
@@ -304,6 +305,7 @@ class RGBSliderUI
 	void createGreenTextbox()
 	{
 		greenTextbox = new JTextField(""+(int) (control.getGreen()*255));
+		greenTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
 		greenTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
@@ -332,6 +334,7 @@ class RGBSliderUI
 	void createBlueTextbox()
 	{
 		blueTextbox = new JTextField(""+(int) (control.getBlue()*255));
+		blueTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
 		blueTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();
@@ -359,6 +362,7 @@ class RGBSliderUI
 	void createAlphaTextbox()
 	{
 		alphaTextbox = new JTextField(""+(int) (control.getAlpha()*255));
+		alphaTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
 		alphaTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();

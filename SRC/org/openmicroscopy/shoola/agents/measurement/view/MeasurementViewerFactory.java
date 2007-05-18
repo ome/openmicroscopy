@@ -99,6 +99,7 @@ public class MeasurementViewerFactory
 	{
 		Iterator v = singleton.viewers.iterator();
         MeasurementViewerComponent comp;
+        
         while (v.hasNext()) {
             comp = (MeasurementViewerComponent) v.next();
             if (comp.getModel().getPixelsID() == pixelsID) return comp;

@@ -27,10 +27,16 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
@@ -41,6 +47,7 @@ import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
@@ -71,6 +78,9 @@ class MeasurementViewerUI
 	extends TopWindow
 {
 
+	/** The default size of the window. */
+	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
+	
 	/** The default color of the text. */
 	private static final Color			TEXT_COLOR = Color.ORANGE;
 	
@@ -156,6 +166,39 @@ class MeasurementViewerUI
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 	}
     
+    /** 
+     * Creates the menu bar.
+     * 
+     * @return The menu bar. 
+     */
+    private JMenuBar createMenuBar()
+    {
+    	JMenuBar menuBar = new JMenuBar(); 
+        menuBar.add(createControlsMenu());
+        return menuBar;
+    }
+    
+    /**
+     * Helper method to create the controls menu.
+     * 
+     * @return The controls submenu.
+     */
+    private JMenu createControlsMenu()
+    {
+        JMenu menu = new JMenu("Controls");
+        menu.setMnemonic(KeyEvent.VK_C);
+        MeasurementViewerAction a = 
+        	controller.getAction(MeasurementViewerControl.LOAD);
+        JMenuItem item = new JMenuItem(a);
+        item.setText(a.getName());
+        menu.add(item);
+        a = controller.getAction(MeasurementViewerControl.SAVE);
+        item = new JMenuItem(a);
+        item.setText(a.getName());
+        menu.add(item);
+        return menu;
+    }
+    
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -170,6 +213,7 @@ class MeasurementViewerUI
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
+		setJMenuBar(createMenuBar());
 		tabs.addTab(roiInspector.getComponentName(), 
 					roiInspector.getComponentIcon(), roiInspector);
 		tabs.addTab(roiManager.getComponentName(), 
@@ -312,8 +356,7 @@ class MeasurementViewerUI
     	setShapeAnnotations(shape);
     	List roiList = new ArrayList();
     	roiList.add(roi);
-    	//AnnotationsKeys.ROIID.setShape(shape, roi.getID());
-    	roiList.add(roi);
+    	AnnotationKeys.ROIID.set(shape, roi.getID());
     	roiManager.addFigures(roiList);
     }
     
@@ -328,6 +371,12 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	roiInspector.setModelData(figure);
     	roiManager.update();
+    }
+    
+    /** Populates the results tree. */
+    void setROI()
+    {
+    	roiResults.populate();
     }
     
     /**
@@ -351,7 +400,7 @@ class MeasurementViewerUI
     public void setOnScreen()
     {
         if (model != null) {
-        	setSize(300, 300);
+        	setSize(DEFAULT_SIZE);
             UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
                     this);
         } else {

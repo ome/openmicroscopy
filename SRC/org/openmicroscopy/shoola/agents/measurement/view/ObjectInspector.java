@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.ColorCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -299,7 +300,8 @@ class ObjectInspector
 			if (fieldList == null)
 				throw new IllegalArgumentException("No fields specified.");
 			if (columnNames == null)
-				throw new IllegalArgumentException("No column's names specified.");
+				throw new IllegalArgumentException("No column's names " +
+												"specified.");
 			this.fieldList = fieldList;
 			this.columnNames = columnNames;
 			keys = new ArrayList<AttributeKey>();
@@ -328,10 +330,11 @@ class ObjectInspector
 					key = (AttributeKey) i.next();
 					if (key.equals(fieldName.getKey())) {
 						if (key.getKey().equals(AttributeKeys.TEXT.getKey())
-								)//&& figure instanceof RectAnnotationFigure)
+							&& figure instanceof RectAnnotationFigure)
 						{
 							keys.add(key);
-							//values.add(((RectAnnotationFigure)figure).getText());
+							values.add(
+									((RectAnnotationFigure)figure).getText());
 							found = true;
 							break;
 								
@@ -349,7 +352,6 @@ class ObjectInspector
 				}
 			}
 			fireTableDataChanged();
-			
 		}
 		
 		/**
@@ -397,7 +399,7 @@ class ObjectInspector
 	    }
 		
 		/**
-		 * 
+		 * Depending on the selected cell, allow the user to edit.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
 		public boolean isCellEditable(int row, int col)

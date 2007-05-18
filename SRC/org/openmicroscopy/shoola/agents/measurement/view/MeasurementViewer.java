@@ -139,7 +139,27 @@ public interface MeasurementViewer
 	 */
 	public void setPixels(Pixels pixels);
 	
-	/** Closes the application. */
-	public void close();
+	/** 
+	 * Closes the application.
+	 * 
+	 *  @param post Pass <code>true</code> to post an event, 
+	 *  			<code>false</code> otherwise.
+	 */
+	public void close(boolean post);
+
+	/**
+	 * Sets the visibilty of the component depending on the passed
+	 * parameter.
+	 * 
+	 * @param b Pass <code>true</code> to display the component on screen.
+	 * 			<code>false</code> otherwise.
+	 */
+	public void iconified(boolean b);
+
+	/** Loads the ROI. */
+	public void loadROI();
+
+	/** Saves the ROI. */
+	public void saveROI();
 
 }

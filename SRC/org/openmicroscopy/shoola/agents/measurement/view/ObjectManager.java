@@ -180,7 +180,6 @@ class ObjectManager
 			while (i.hasNext()) {
 				roi = (ROI) i.next();
 				tm.addFigure(roi.getFigure(model.getCurrentView()));
-				
 			}
 			objectsTable.setModel(tm);
 			objectsTable.repaint();
@@ -421,6 +420,12 @@ class ObjectManager
 		 * @see AbstractTableModel#getRowCount()
 		 */
 		public int getRowCount() { return data.size(); }
+		
+		/**
+		 * Returns <code>false</code> so that user cannot edit a cell.
+		 * @see AbstractTableModel#isCellEditable(int, int)
+		 */
+		public boolean isCellEditable(int row, int col) { return false; }
 	    
 	}
 

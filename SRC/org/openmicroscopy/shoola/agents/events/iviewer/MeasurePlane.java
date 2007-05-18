@@ -75,6 +75,7 @@ public class MeasurePlane
     	 this.defaultT = defaultT;
          this.defaultZ = defaultZ;
          this.magnification = magnification;
+         this.pixelsID = pixelsID;
     }
     
     /**

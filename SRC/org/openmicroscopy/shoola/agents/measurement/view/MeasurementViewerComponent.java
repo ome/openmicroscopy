@@ -216,6 +216,7 @@ class MeasurementViewerComponent
 	{
 		if (model.getState() != LOADING_ROI) return;
 		model.setROI(rois);
+		view.setROI();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
@@ -270,15 +271,37 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setPixels(Pixels)
+     * @see MeasurementViewer#close(boolean)
      */
-	public void close()
+	public void close(boolean post)
 	{
 		if (model.getState() == DISCARDED) 
 			throw new IllegalStateException("This method shouldn't be " +
 					"invoked in the DISCARDED state:"+model.getState());
-		postEvent(MeasurementToolLoaded.REMOVE);
+		if (post) postEvent(MeasurementToolLoaded.REMOVE);
 		view.setVisible(false);
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#iconified(boolean)
+     */
+	public void iconified(boolean b)
+	{
+		if (model.getState() == DISCARDED) 
+			throw new IllegalStateException("This method shouldn't be " +
+					"invoked in the DISCARDED state:"+model.getState());
+		view.setVisible(b);
+	}
+
+	public void loadROI() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void saveROI() {
+		// TODO Auto-generated method stub
+		
 	}
     
 }

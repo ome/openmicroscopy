@@ -134,20 +134,9 @@ class MeasurementResults
 		//Create table model.
 		results = new JTable();
 		results.getTableHeader().setReorderingAllowed(false);
-		MeasurementTableModel tm = new MeasurementTableModel(formatList(), 
-															columnNames);
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
 		results.setModel(tm);
 		
-	}
-	
-	/** 
-	 * Formats the results. 
-	 * 
-	 * @return See above.
-	 */
-	private List<MeasurementObject> formatList()
-	{
-		return new ArrayList<MeasurementObject>();
 	}
 	
 	/** Builds and lays out the GUI. */
@@ -245,19 +234,16 @@ class MeasurementResults
 		/**
 		 * Creates a new instance.
 		 * 
-		 * @param values		The object hosted by this model. 
-		 * 						Mustn't be <code>null</code>.
 		 * @param columnNames	The collection of column's names.
 		 * 						Mustn't be <code>null</code>.
 		 */
-		MeasurementTableModel(List<MeasurementObject> values,
-									List<String> columnNames)
+		MeasurementTableModel(List<String> columnNames)
 		{
 			if (columnNames == null)
 				throw new IllegalArgumentException("No column's names " +
 													"specified.");
 			this.columnNames = columnNames;
-			this.values = values;
+			this.values = new ArrayList<MeasurementObject>();
 		}
 		
 		/** 

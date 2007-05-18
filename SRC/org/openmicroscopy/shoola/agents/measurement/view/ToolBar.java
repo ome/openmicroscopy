@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * UI component acting as toolbar. Used to create Region of Interest.
@@ -112,7 +113,7 @@ class ToolBar
 		toolBar.putClientProperty("toolButtonGroup", group);
 		DrawingEditor editor = model.getDrawingEditor();
 		ToolBarButtonFactory.addSelectionToolTo(toolBar, editor);
-		toolBar.add(new JSeparator(JSeparator.VERTICAL));
+		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new RectAnnotationFigure()), RECTANGLE, 
@@ -136,14 +137,35 @@ class ToolBar
 				labels);
 	}
 	
+	/**
+	 * Builds the tool bar hosting the controls.
+	 * 
+	 * @return See above.
+	 */
+	private JToolBar buildControlsBar()
+	{
+		JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        JButton button = new JButton(
+				controller.getAction(MeasurementViewerControl.SAVE));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
+        button = new JButton(controller.getAction(
+				MeasurementViewerControl.LOAD));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
+        bar.add(new JSeparator());
+		return bar;
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		JButton save = new JButton(
-					controller.getAction(MeasurementViewerControl.SAVE));
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(save);
+		p.add(buildControlsBar());
 		p.add(toolBar);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 	    add(p);

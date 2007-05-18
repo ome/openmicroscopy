@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
@@ -137,6 +138,19 @@ class ImViewerComponent
     }
     
     /**
+     * Posts an {@link ViewerState} event to indicate that the frame state
+     * of this component has changed.
+     * 
+     * @param index One of the constants defined by {@link ViewerState}.
+     */
+    private void postViewerState(int index)
+    {
+    	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+    	ViewerState event = new ViewerState(model.getPixelsID(), index);
+    	bus.post(event);
+    }
+    
+    /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
      * after to complete the MVC set up.
@@ -208,6 +222,7 @@ class ImViewerComponent
         			model.getBrowser().saveAnnotation();
         			
         	}
+        	postViewerState(ViewerState.CLOSE);
         	model.discard();
             fireStateChange();
         }
@@ -386,6 +401,7 @@ class ImViewerComponent
         if (model.getState() != LOADING_IMAGE) 
             throw new IllegalStateException("This method can only be invoked " +
                     "in the LOADING_IMAGE state.");
+        if (newPlane) postMeasurePlane();
         newPlane = false;
         model.setImage(image);
         view.setStatus(getStatusText());
@@ -531,7 +547,6 @@ class ImViewerComponent
                 "LOADING_RENDERING_CONTROL state.");
         } 
         model.fireImageRetrieval();
-        if (newPlane) postMeasurePlane();
         newPlane = false;
         fireStateChange();
     }
@@ -710,11 +725,13 @@ class ImViewerComponent
         }
         Boolean newValue =  Boolean.FALSE;
         Boolean oldValue = Boolean.TRUE;
-        
+        int index = ViewerState.DEICONIFIED;
         if (b) {
             newValue = Boolean.TRUE;
             oldValue = Boolean.FALSE;
+            index = ViewerState.ICONIFIED;
         } 
+        postViewerState(index);
         firePropertyChange(ICONIFIED_PROPERTY, oldValue, newValue);
     }
 

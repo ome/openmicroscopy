@@ -46,6 +46,7 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
+import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -75,9 +76,12 @@ class MeasurementViewerControl
 	/** Identifies the <code>SAVE</code> action in the menu. */
     static final Integer     SAVE = new Integer(0);
     
+    /** Identifies the <code>LOAD</code> action in the menu. */
+    static final Integer     LOAD = new Integer(1);
+    
     /** 
-     * Reference to the {@link MeasurementViewer} component, which, in this context,
-     * is regarded as the Model.
+     * Reference to the {@link MeasurementViewer} component, which, 
+     * in this context, is regarded as the Model.
      */
     private MeasurementViewer						model;
 
@@ -91,6 +95,7 @@ class MeasurementViewerControl
     private void createActions()
     {
     	actionsMap.put(SAVE, new SaveROIAction(model));
+    	actionsMap.put(LOAD, new LoadROIAction(model));
     }
 
     /**
@@ -133,7 +138,7 @@ class MeasurementViewerControl
     	 view.getDrawingView().addFigureSelectionListener(this);
     	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     	 view.addWindowListener(new WindowAdapter() {
-             public void windowClosing(WindowEvent e) { model.close(); }
+             public void windowClosing(WindowEvent e) { model.close(true); }
              public void windowDeiconified(WindowEvent e) { 
                  //model.iconified(false);
              }
@@ -163,7 +168,7 @@ class MeasurementViewerControl
 		ColourPicker colourPicker = new ColourPicker(view, color);
 		colourPicker.addPropertyChangeListener(ColourPicker.COLOUR_PROPERTY, 
 												this);
-		colourPicker.setVisible(true);
+		UIUtilities.setLocationRelativeTo(view, colourPicker);
 	}
     
     /**

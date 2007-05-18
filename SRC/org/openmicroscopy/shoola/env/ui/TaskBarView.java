@@ -225,7 +225,7 @@ class TaskBarView
             if (comps[i] instanceof JMenu) {
                 menu.add(copyItemsFromMenu((JMenu) comps[i]));
             } else if (comps[i] instanceof JMenuItem) {
-                //menu.add(copyItem((JMenuItem) comps[i]));
+                menu.add(copyItem((JMenuItem) comps[i]));
             }
         }
         return menu;

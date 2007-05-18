@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -91,6 +92,30 @@ public class MeasurementAgent
     }
     
     /**
+     * Reacts to the passed event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleViewerStateEvent(ViewerState evt)
+    {
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    									evt.getPixelsID());
+    	if (viewer != null) {
+    		switch (evt.getIndex()) {
+				case ViewerState.CLOSE:
+					viewer.close(false);
+					break;
+				case ViewerState.ICONIFIED:
+					viewer.iconified(false);
+					break;
+				case ViewerState.DEICONIFIED:
+					viewer.iconified(true);
+					break;
+			}
+    	}
+    }
+    
+    /**
      * Helper method. 
      * 
      * @return A reference to the {@link Registry}.
@@ -119,6 +144,7 @@ public class MeasurementAgent
 		EventBus bus = ctx.getEventBus();
 		bus.register(this, MeasurementTool.class);
 		bus.register(this, MeasurePlane.class);
+		bus.register(this, ViewerState.class);
 	}
 
 	/**
@@ -137,6 +163,8 @@ public class MeasurementAgent
 			handleMeasurementToolEvent((MeasurementTool) e);
 		else if (e instanceof MeasurePlane)
 			handleMeasurePlaneEvent((MeasurePlane) e);
+		else if (e instanceof ViewerState)
+			handleViewerStateEvent((ViewerState) e);
 	}
 	
 }

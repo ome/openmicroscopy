@@ -151,6 +151,7 @@ public class ColourSwatchUI
 	{
 		alphaLabel = new JLabel("Alpha");
 		alphaTextbox = new JTextField(""+(int) (control.getAlpha()*255));
+		alphaTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
 		alphaTextboxActionListener = new ActionListener(){
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();

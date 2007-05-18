@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded 
+ * org.openmicroscopy.shoola.agents.events.iviewer.ViewerState 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,20 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.measurement;
+package org.openmicroscopy.shoola.agents.events.iviewer;
 
 
 //Java imports
-import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import org.openmicroscopy.shoola.env.event.ResponseEvent;
 
 /** 
- * 
+ * Event indicating that the state of the frame has changed.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,23 +43,26 @@ import org.openmicroscopy.shoola.env.event.ResponseEvent;
  * </small>
  * @since OME3.0
  */
-public class MeasurementToolLoaded 
-	extends ResponseEvent
+public class ViewerState
+	extends RequestEvent
 {
 
-	/** Index indicating to add the component. */
-	public static final int ADD = 0;
+	/** Indicates that the viewer is closed. */
+	public static final int CLOSE = 0;
 	
-	/** Index indicating to remove the component. */
-	public static final int REMOVE = 1;
+	/** Indicates that the viewer is iconified. */
+	public static final int ICONIFIED = 1;
 	
-	/** The component to add to the image display. */
-	private JComponent	view;
+	/** Indicates that the viewer is iconified. */
+	public static final int DEICONIFIED = 2;
 	
-	/** One of the constants defined by this class. */
-	private int			index;
-	
-	/**
+	/** The ID of the pixels set. */
+    private long        pixelsID;
+    
+    /** One of the constants defined by this class. */
+    private int			index;
+    
+    /**
 	 * Controls if the passed index is valid.
 	 * 
 	 * @param i The value to control.
@@ -69,42 +70,40 @@ public class MeasurementToolLoaded
 	private void checkIndex(int i)
 	{
 		switch (i) {
-			case ADD:
-			case REMOVE:
+			case CLOSE:
+			case ICONIFIED:
+			case DEICONIFIED:
 				return;
 	
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
 	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param act	The original request.
-	 * @param view	The component to add to the display.
-	 * @param index One of the constants defined by this class.
-	 */
-	public MeasurementToolLoaded(RequestEvent act, JComponent view, int index) 
-	{
-		super(act);
-		checkIndex(index);
-		this.index = index;
-		this.view = view;
-	}
-
-	/**
-	 * Returns the component to add to the display.
-	 * 
-	 * @return See above.
-	 */
-	public JComponent getView() { return view; }
-	
-	/**
-	 * Returns either {@link #ADD} or {@link #REMOVE}.
+    /**
+     * Creates a new instance.
+     * 
+     * @param pixelsID	The ID of the pixels set.
+     * @param index		One of the constants defined by this class.
+     */
+    public ViewerState(long pixelsID, int index)
+    {
+    	checkIndex(index);
+    	this.pixelsID = pixelsID;
+    	this.index = index;
+    }
+    
+    /**
+     * Returns the pixels set ID.
+     * 
+     * @return See above. 
+     */
+    public long getPixelsID() { return pixelsID; }
+    
+    /**
+	 * Returns one of the constants defined by this class.
 	 * 
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
-	
+    
 }

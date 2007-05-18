@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction 
+ * org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -23,21 +23,20 @@
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
 
+
 //Java imports
 import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Top class that each action should extend.
+ * Loads the ROI for a given set of pixels.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,62 +48,38 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
  * </small>
  * @since OME3.0
  */
-public class MeasurementViewerAction 
-	extends AbstractAction
-	implements ChangeListener
+public class LoadROIAction
+	extends MeasurementViewerAction
 {
+
+	/** The name of the action. */
+	private static final String NAME = "Load ";
 	
-	/** Reference to the Model. */
-	protected MeasurementViewer model;
-	
-	 /** The name of the action. */
-    protected String			name;
-    
+	/** The description of the action. */
+	private static final String DESCRIPTION = "Load the ROI.";
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model The model. Mustn't be <code>null</code>.
 	 */
-	public MeasurementViewerAction(MeasurementViewer model)
+	public LoadROIAction(MeasurementViewer model)
 	{
-		 super();
-	     if (model == null) throw new NullPointerException("No model.");
-	     this.model = model;
-	     setEnabled(false);
-	     model.addChangeListener(this);
+		super(model);
+		name = NAME;
+		putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+		IconManager icons = IconManager.getInstance();
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.LOAD));
 	}
-
-	/**
-	 * Returns the name of the action.
-	 * 
-	 * @return See above.
-	 */
-    public String getName()
-    { 
-    	 if (name == null || name.length() == 0)
-             return (String) getValue(Action.NAME);  
-    	return name; 
-    } 
-    
+	
 	/** 
-     * Reacts to state changes in the {@link MeasurementViewer}.
-     * @see ChangeListener#stateChanged(ChangeEvent)
-     */
-	public void stateChanged(ChangeEvent e)
-	{
-		setEnabled(model.getState() == MeasurementViewer.READY);
-	}
-
-	/** 
-     * Implemented by sub-classes.
+     * Loads the ROI.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-	public void actionPerformed(ActionEvent e) {}
-	
-	/**
-     * Overridden to return the name of the action.
-     * @see java.lang.Object#toString()
-     */
-    public String toString() { return getName(); }
-
+    public void actionPerformed(ActionEvent e)
+    {
+    	model.loadROI();
+    }
+    
 }
