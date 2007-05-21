@@ -1,6 +1,30 @@
 begin;
 set constraints all deferred;
 
+--
+-- First, we install a unique constraint so that it is only possible
+-- to go from versionA/patchA to versionB/patchB once.
+--
+alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+
+--
+-- Since this is a table that we will be using in DB-specific ways, we're also going
+-- to make working with it a bit simpler.
+--
+alter table dbpatch alter id set default nextval('seq_dbpatch'),
+                    alter permissions set default -35,
+                    alter message set default 'Updating';
+
+--
+-- Then, we insert into the patch table the patch (initialization) which we are currently
+-- running so that if anything goes wrong, we'll have some record. 
+--
+insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message) 
+             values ('3.0-TRUNK',    @DBPATCH@,    '3.0-TRUNK',     0,             'Initializing');
+
+--
+-- Here we will create the root account and the necessary groups
+--
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
         values (0,0,0,'root','root','root');
 insert into event (id,permissions,time,status,experimenter) values (0,0,now(),'BOOTSTRAP',0);
@@ -14,19 +38,19 @@ insert into eventtype (id,permissions,owner_id,group_id,creation_id,value) value
         (0,-35,0,0,0,'Bootstrap');
 insert into groupexperimentermap 
         (id,permissions,version,owner_id,group_id,creation_id,update_id,defaultgrouplink, parent, child) 
-		values
-		(0,-35,0,0,0,0,0,true,0,0);
+        values
+        (0,-35,0,0,0,0,0,true,0,0);
 insert into groupexperimentermap 
         (id,permissions,version,owner_id,group_id,creation_id,update_id,defaultgrouplink, parent, child) 
-		select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,false,1,0;
+        select nextval('seq_groupexperimentermap'),-35,0,0,0,0,0,false,1,0;
 
-		
+
 update event set type = 0;
 update event set experimentergroup = 0;
 
 alter table event alter column type set not null;
 alter table event alter column experimentergroup set not null;
-	
+
 ##insert into event (id,version,name,e) select next, 0 as version, 'Bootstrap'
 ##  as name, next from (select nextval('seq_event') as next) as nv;
 
@@ -36,12 +60,20 @@ alter table event alter column experimentergroup set not null;
 #set($table = ${enum.typeToColumn($enum.id)} )
 #if($prop.class.name == "ome.dsl.EntryField")
 insert into $table (id,permissions,owner_id,group_id,creation_id,value)
-	select nextval('seq_$table'),-35,0,0,0,'$prop.name';
+    select nextval('seq_$table'),-35,0,0,0,'$prop.name';
 #end
 #end
 #end
 
 create table password ( experimenter_id bigint unique not null REFERENCES experimenter (id) , hash char(24) );
-insert into password values (0,'@ROOTPASS@'); -- root can now login with 'ome'
+insert into password values (0,'@ROOTPASS@'); 
+-- root can now login with omero.rootpass property value
+
+-- Here we have finished initializing this database. 
+update dbpatch set message = 'Database ready.', finished = now() 
+  where currentVersion = '3.0-TRUNK' and 
+        currentPatch = @DBPATCH@ and 
+        previousVersion = '3.0-TRUNK' and 
+        previousPatch = 0;
 
 commit;

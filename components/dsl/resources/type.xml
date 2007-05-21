@@ -86,6 +86,16 @@
 		</properties>
 	</link>
 
+	<type id="ordertest">
+		<properties>
+			<required name="pixels" type="int" />
+			<required name="cccccc" type="int" />
+			<required name="aaaaaa" type="int" />
+			<required name="bbbbbb" type="int" />
+			<required name="images" type="int" />
+		</properties>
+	</type>
+
 
 	<!-- examples -->
 	<!--

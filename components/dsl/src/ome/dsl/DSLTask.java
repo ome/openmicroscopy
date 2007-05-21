@@ -18,10 +18,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * An ant task for generating artifacts from the dsl.
@@ -54,7 +52,7 @@ public class DSLTask extends Task {
             throw new BuildException("No fileset specified");
         }
 
-        Set<SemanticType> types = new HashSet<SemanticType>();
+        List<SemanticType> types;
         DSLHandler handler = new DSLHandler();
 
         java.util.Iterator p = _fileSets.iterator();
@@ -77,7 +75,7 @@ public class DSLTask extends Task {
             }
         }
 
-        types.addAll(handler.process());
+        types = handler.process();
 
         for (Iterator it = types.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();

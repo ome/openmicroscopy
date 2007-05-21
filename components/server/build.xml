@@ -1,26 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="services" default="install" basedir=".">
 
-	<property name="classpath.file" value="classpath.xml"/>
-	<import file="${classpath.file}"/>
+    <property name="classpath.file" value="classpath.xml"/>
+    <import file="${classpath.file}"/>
 
-        <target name="reload-db" depends="prepare">
-                <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
-		    <arg value="${omero.rootpass}"/>
-		</java>
-		<copy file="${sql.dir}/ddl.sql" todir="${target.dir}"/>
-		<copy file="${sql.dir}/data.sql" todir="${target.dir}"/>
-                <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
-                <sql_run>
-                        <transaction src="${target.dir}/ddl.sql"/>
-                        <transaction src="${target.dir}/data.sql"/>
-                </sql_run>
-        </target>
+    <target name="reload-db" depends="prepare">
+        <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
+            <arg value="${omero.rootpass}"/>
+        </java>
+        <copy file="${sql.dir}/${omero.version}__0__schema.sql" todir="${target.dir}"/>
+        <copy file="${sql.dir}/${omero.version}__0__data.sql" todir="${target.dir}"/>
+        <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
+        <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+        <sql_run>
+            <transaction src="${target.dir}/ddl.sql"/>
+            <transaction src="${target.dir}/data.sql"/>
+        </sql_run>
+    </target>
 
-	<target name="compile" depends="generate">
-		<hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"
-		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
+    <target name="compile" depends="generate">
+        <hardWireCompile pattern="ome/services/util/OmeroAroundInvoke"
+            token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
 
-	</target>
+    </target>
+
+   <target name="initdb" depends="compile">
+        <taskdef classname="ome.tools.DbUpdateTask" classpathref="omero.classpath" name="dbUpdate"/>
+        <dbUpdate sqldir="${sql.dir}" classpathref="omero.classpath"
+            driver="${hibernate.connection.driver_class}"
+            url="${hibernate.connection.url}"
+            userid="${hibernate.connection.username}"
+            password="${hibernate.connection.password}" 
+         />
+    </target>
 
 </project>

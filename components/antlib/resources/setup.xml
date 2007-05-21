@@ -173,6 +173,7 @@ server.port=${config_server.port}
 omero.user=${config_omero.user}
 omero.pass=CHANGE_ME
 omero.rootpass=${omero.rootpass}
+omero.db.profile=${config_database.profile}
 hibernate.connection.username=${config_hibernate.connection.username}
 hibernate.connection.password=CHANGE_ME
 database.host=${config_database.host}

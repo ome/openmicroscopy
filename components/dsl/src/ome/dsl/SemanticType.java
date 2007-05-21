@@ -8,9 +8,11 @@
 package ome.dsl;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -21,7 +23,7 @@ import java.util.Set;
 
 /**
  * represents a SemanticType <b>definition</b>.
- * 
+ *
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
@@ -65,7 +67,7 @@ public abstract class SemanticType {
     }
 
     // all properties
-    private Set<Property> properties = new HashSet<Property>();
+    private List<Property> properties = new ArrayList<Property>();
 
     /** future class name; required for all types */
     private String id;
@@ -157,7 +159,7 @@ public abstract class SemanticType {
 
     //
     // Getters and Setters
-    // 
+    //
 
     public void setAbstract(Boolean abstrakt) {
         this.abstrakt = abstrakt;
@@ -215,11 +217,11 @@ public abstract class SemanticType {
         return immutable;
     }
 
-    public void setProperties(Set<Property> properties) {
+    public void setProperties(List<Property> properties) {
         this.properties = properties;
     }
 
-    public Set<Property> getProperties() {
+    public List<Property> getProperties() {
         return properties;
     }
 

@@ -55,6 +55,9 @@
 	<!-- Message bundles, so all properties are defined -->
 	<property file="${import.dir}/messages.properties" />
 
+    <!-- Post-import properties -->
+    <property name="sql.dir" value="${omero.home}/sql/${omero.db.profile}"/>
+
     <!-- = = = = = = = = = = = = = = = = =
           help 
          = = = = = = = = = = = = = = = = = -->

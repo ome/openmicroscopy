@@ -10,8 +10,12 @@ import org.springframework.util.ResourceUtils;
 import org.testng.annotations.*;
 import java.io.File;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,9 +50,9 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testONE() {
         sr.parse();
-        Set set = sr.process();
-        log.info("Results of parse:" + set);
-        for (Iterator it = set.iterator(); it.hasNext();) {
+        List list = sr.process();
+        log.info("Results of parse:" + list);
+        for (Iterator it = list.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
@@ -64,8 +68,8 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testWithWriting() throws Exception {
         sr.parse();
-        Set set = sr.process();
-        for (Iterator it = set.iterator(); it.hasNext();) {
+        List list = sr.process();
+        for (Iterator it = list.iterator(); it.hasNext();) {
             SemanticType st = (SemanticType) it.next();
             VelocityHelper vh = new VelocityHelper();
             vh.put("type", st);
@@ -84,8 +88,8 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testPostProcessingInverse() throws Exception {
         sr.parse();
-        Set<SemanticType> set = sr.process();
-        Map<String, SemanticType> map = setToMap(set);
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
         SemanticType thumbnail = map.get("ome.Thumbnail");
         assertTrue(thumbnail.getProperties().iterator().next().getInverse()
                 .equals("thumbnails"));
@@ -94,8 +98,8 @@ public class ExampleUsageTest extends TestCase {
     @Test
     public void testPostProcessingBidirectional() throws Exception {
         sr.parse();
-        Set<SemanticType> set = sr.process();
-        Map<String, SemanticType> map = setToMap(set);
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
         SemanticType job = map.get("Job");
         for (Property p : job.getProperties()) {
             if (p.getName().equals("jobThingLink")) {
@@ -104,6 +108,22 @@ public class ExampleUsageTest extends TestCase {
                 assertTrue(p.getBidirectional());
             } else {
                 fail("Unknown property:"+p);
+            }
+        }
+    }
+
+    @Test
+    public void testOrder() throws Exception {
+        sr.parse();
+        List<SemanticType> list = sr.process();
+        Map<String, SemanticType> map = toMap(list);
+        SemanticType ot = map.get("ordertest");
+        List<String> order = new LinkedList<String>(Arrays.asList("pixels","cccccc","aaaaaa","bbbbbb","images"));
+        for (Property p : ot.getProperties()) {
+            if (p.getName().equals(order.get(0))) {
+                order.remove(0);
+            } else {
+                fail(p.getName() + "!=" + order.get(0));
             }
         }
     }
@@ -134,9 +154,9 @@ public class ExampleUsageTest extends TestCase {
 
     // ~ Helpers
     // =========================================================================
-    private Map<String, SemanticType> setToMap(Set<SemanticType> set) {
+    private Map<String, SemanticType> toMap(Collection<SemanticType> coll) {
         Map<String, SemanticType> map = new HashMap<String, SemanticType>();
-        for (SemanticType type : set) {
+        for (SemanticType type : coll) {
             map.put(type.getId(), type);
         }
         return map;

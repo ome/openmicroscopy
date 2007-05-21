@@ -28,11 +28,11 @@
 	<dirname property="root.dir"       file="${components.dir}"/>
 
 	<!-- Absolute paths: same for all components -->
-	<property name="omero.home" value="${root.dir}"/>
-	<property name="etc.dir"    value="${root.dir}/etc" />
-	<property name="lib.dir"    value="${root.dir}/lib" />
-	<property name="tools.dir"  value="${root.dir}/lib/tools" />
-	<property name="dist.dir"   value="${root.dir}/dist" />
+	<property name="omero.home"    value="${root.dir}"/>
+	<property name="etc.dir"       value="${root.dir}/etc" />
+	<property name="lib.dir"       value="${root.dir}/lib" />
+	<property name="tools.dir"     value="${root.dir}/lib/tools" />
+	<property name="dist.dir"      value="${root.dir}/dist" />
 	
 	<!-- Components -->
 	<property name="dsl.comp"       value="${components.dir}/dsl"/>
@@ -75,9 +75,6 @@
 
 	<!-- Files relative to basedir: different for each component -->
 	<property name="hibernate.properties" value="${resrc.dest}/hibernate.properties"/>
-
-	<!-- Special directories (rely on above definitions) -->
-	<property name="sql.dir"	value="${common.comp}/${generated.rel}/resources"/>
 
 	<path id="source.path">
 		<fileset dir="${src.dir}">

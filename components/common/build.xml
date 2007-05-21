@@ -60,6 +60,8 @@
 			</filelist>
 		</concat>
 
+		<mkdir dir="${resrc.dest}/${omero.db.profile}"/>
+
 		<hibernate>
 			<hbm2java destdir="${src.dest}"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
@@ -79,6 +81,12 @@
 			<fileset dir="${src.dest}" includes="**/*.hbm.xml"/>
 			<fileset dir="${resrc.dest}" includes="**/*.hbm.xml"/>
 		</copy>
+	</target>
+
+	<target name="generate-schema" depends="generate">
+		<mkdir dir="${sql.dir}" />
+		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.version}__0__schema.sql"/>
+		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.version}__0__data.sql"/>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =

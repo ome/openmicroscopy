@@ -87,4 +87,15 @@
 		</properties>
 	</type>
 
+	<type id="ome.model.meta.DBPatch" immutable="true" global="true">
+		<properties>
+			<required name="currentVersion"  type="string"     mutable="false"/>
+			<required name="currentPatch"    type="int"        mutable="false"/>
+			<required name="previousVersion" type="string"     mutable="false"/>
+			<required name="previousPatch"   type="int"        mutable="false"/>
+			<optional name="finished"        type="timestamp"  mutable="false"/>
+			<optional name="message"         type="string"     mutable="false"/>
+		</properties>
+	</type>
+
 </types>

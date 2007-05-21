@@ -8,6 +8,7 @@ omero.version=3.0-TRUNK
 omero.repo.local=${omero.home}/lib/repository
 omero.repo.remote=file://${user.home}/.m2/repository
 omero.rootpass=ome
+omero.db.profile=psql
 
 ############################################
 # build

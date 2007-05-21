@@ -11,11 +11,11 @@ package ome.dsl;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 // Third-party libraries
 import javax.xml.parsers.SAXParserFactory;
@@ -84,7 +84,7 @@ public class SaxReader {
         }
     }
 
-    public Set<SemanticType> process() {
+    public List<SemanticType> process() {
         return handler.process();
     }
 
@@ -208,7 +208,7 @@ class DSLHandler extends DefaultHandler {
      * We want Thumbail.pixels to be given the inverse "thumbnails"
      *
      */
-    public Set<SemanticType> process() {
+    public List<SemanticType> process() {
         for (String id : types.keySet()) { // "ome...Pixels"
             SemanticType t = types.get(id); // Pixels
             for (Property p : t.getProperties()) { // thumbnails
@@ -247,7 +247,7 @@ class DSLHandler extends DefaultHandler {
                 }
             }
         }
-        return new HashSet<SemanticType>(types.values());
+        return new ArrayList<SemanticType>(types.values());
     }
 
     /** simple outputting routine with indention */
