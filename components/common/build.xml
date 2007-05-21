@@ -60,7 +60,7 @@
 			</filelist>
 		</concat>
 
-		<hibernate>			
+		<hibernate>
 			<hbm2java destdir="${src.dest}"/>
 			<!-- hbm2java destdir="${dest.dir}/jdk5" generics="true" ejb3="true"/ -->
 			<hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" />
@@ -74,6 +74,13 @@
 		</delete>
 	</target>
 
+	<target name="dist" depends="lifecycle.dist" description="Copies HBM files to dist">
+		<copy todir="${dist.dir}/include">
+			<fileset dir="${src.dest}" includes="**/*.hbm.xml"/>
+			<fileset dir="${resrc.dest}" includes="**/*.hbm.xml"/>
+		</copy>
+	</target>
+
     <!-- = = = = = = = = = = = = = = = = =
           misc          
          = = = = = = = = = = = = = = = = = -->
@@ -83,26 +90,6 @@
 		<sql_run>
 			<transaction> select 'database exists.' </transaction>
 		</sql_run>
-	</target>
-
-	<target name="adduser" depends="lifecycle.prepare,load-groovy">
-                <input
-                        message="Please enter login username:"
-                        addproperty="user.name"
-                />
-		<groovy>
-			e = new ome.model.meta.Experimenter()
-			e.omeName=properties["user.name"]
-			e.firstName="test"
-			e.lastName="test"
-			l  = new ome.system.Login("root",properties["omero.rootpass"])
-			sf = new ome.system.ServiceFactory(l)
-			sf.getAdminService().createUser(e)
-		</groovy>
-	</target>
-
-	<target name="cache">
-		<java classname="InitializeHibernateTest" classpathref="omero.classpath" fork="yes" failonerror="yes" />
 	</target>
 
 </project>

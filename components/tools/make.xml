@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="make" default="install" basedir=".">
+
+    <property environment="make"/>
+    <property name="make.ICE_HOME"    value="/usr/share/Ice"/>
+    <property name="make.DESTDIR"     value="${up-two}/target/"/>
+    <property name="make.LDFLAGS"     value="-fPIC"/>
+    <property name="make.CXXFLAGS"    value="-fPIC -O0 -g"/>
+    <property name="make.CXX"         value="ccache g++"/>
+    <property name="make.J"           value="1"/>
+
+    <macrodef name="make">
+        <sequential>
+        <exec executable="${basedir}/../autogen.sh" failonerror="true">
+            <arg value="--with-ice=${make.ICE_HOME}"/>
+            <arg value="--prefix=${make.DESTDIR}"/>
+            <arg value="LDFLAGS=${make.LDFLAGS}"/>
+            <arg value="CXXFLAGS=${make.CXXFLAGS}"/>
+            <arg value="CXX=${make.CXX}"/>
+        </exec>
+        <exec executable="make" dir="src" failonerror="true"> <arg value="slice"/> </exec>
+        <exec executable="make" dir="src" failonerror="true"> <arg value="-j${make.J}"/> </exec>
+        <exec executable="make" dir="src" failonerror="true"> <arg value="install"/> </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="make-copy">
+        <sequential>
+        <copy todir="../target/include">
+            <fileset dir="src/slice_generated" includes="**/*.h"/>
+            <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
+        </copy>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="make-clean">
+        <sequential>
+        <exec executable="make" failonerror="true"> <arg value="clean"/> </exec>
+        </sequential>
+    </macrodef>
+
+</project>

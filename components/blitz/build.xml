@@ -81,12 +81,12 @@
         </macrodef>
 
 	<target name="icegen" depends="icegen-init,load-hibernate" unless="icegen.not.required">
-		<hibernate mappings="${common.comp}/${generated.rel}/resources">			
+		<hibernate mappings="${common.comp}/${generated.rel}/resources">
 			<hbmtemplate template="templates/combined.vm"     filepattern="resources/{class-name}I.combined" />
 			<hbmtemplate template="templates/ice_includes.vm" filepattern="resources/OMERO/fwd.ice" />
 			<hbmtemplate template="templates/java_ice_map.vm" filepattern="src/omero/util/IceMap.java" />
 			<hbmtemplate template="templates/java_obj_reg.vm" filepattern="src/omero/util/ObjectFactoryRegistrar.java" />
-			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="../../src/cpp/generated/OMERO/ObjectFactoryRegistrar.cpp" />
+			<hbmtemplate template="templates/cpp_obj_reg.vm"  filepattern="src/OMERO/ObjectFactoryRegistrar.cpp" />
 		</hibernate>
 		
 
@@ -97,10 +97,10 @@
 		-->
 		<split-combined prefix="hdr">
 			<!-- resources/*I.combined => ../../src/cpp/generated/*I.h -->
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/OMERO/Model/\1I.h"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/OMERO/Model/\1I.h"/>
 		</split-combined>
 		<split-combined prefix="cpp">
-			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="src/cpp/generated/OMERO/Model/\1I.cpp"/>
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/OMERO/Model/\1I.cpp"/>
 		</split-combined>
 		<split-combined prefix="jav">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
@@ -118,55 +118,36 @@
 				<present present="both" targetdir="${src.dir}"/>
 			</fileset>
 			<fileset dir="${resrc.dest}" includes="**/*.ice">
-				<present present="both" targetdir="${resrc.dir}/slice"/>
+				<present present="both" targetdir="${resrc.dir}"/>
 			</fileset>
 			<fileset dir="${resrc.dest}" includes="**/*.ice">
-				<present present="both" targetdir="${resrc.dir}/slice"/>
+				<present present="both" targetdir="${resrc.dir}"/>
 			</fileset>
-			<fileset dir="${src.dir}/cpp/generated" includes="**/*.h">
+			<fileset dir="${resrc.dest}" includes="**/*.h">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
-			<fileset dir="${src.dir}/cpp/generated" includes="**/*.cpp">
+			<fileset dir="${src.dest}" includes="**/*.cpp">
 				<present present="both" targetdir="${src.dir}/cpp"/>
 			</fileset>
 		</delete>
-
-		<!--
-		    For ease of use, we concatenate all of our header files
-		    into a single header file.
-		-->
-		<concat destfile="${src.dir}/cpp/generated/OMERO/ModelI.h">
-			<header>
-
-/* All *I.h files concatenated by blitz/build.xml */
-#ifndef OMERO_MODELI_H
-#define OMERO_MODELI_H
-#include &lt;OMERO/fwd.h&gt;
-#include &lt;OMERO/Model.h&gt;
-#include &lt;OMERO/IObject.h&gt;
-#include &lt;OMERO/ClientErrors.h&gt;
-#include &lt;Ice/Ice.h&gt;
-#include &lt;string&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-
-			</header>
-			<fileset dir="${src.dir}/cpp" includes="**/OMERO/Model/*I.h"/>
-			<footer>
-
-#endif // OMERO_MODELI_H
-
-</footer>
-		</concat>
-
-		<!-- 
-		     The concatentation of all *.ice-generated headers now takes place
-		     via the Makefile.
-		-->
 
 		<done name="icegen1"/>
 		<done name="icegen2"/>
 	</target>
 
+	<target name="dist" depends="package,install"><!-- install for standalone -->
+	  <copy todir="${dist.dir}/etc">
+	    <fileset dir="${resrc.dir}" includes="*.config"/>
+	    <flattenmapper/>
+	  </copy>
+	  <copy todir="${dist.dir}/include">
+	    <fileset dir="${resrc.dest}" includes="**/*.h"/>
+	    <fileset dir="${resrc.dir}"  includes="**/*.ice"/>
+	    <fileset dir="${resrc.dest}" includes="**/*.ice,**/*.h"/>
+	  </copy>
+	  <copy todir="${dist.dir}/blitz">
+	    <fileset dir="${target.dir}/standalone" includes="**/*"/>
+	  </copy>
+	</target>
 
 </project>

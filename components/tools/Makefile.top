@@ -1,0 +1,47 @@
+SUBDIR= src test
+
+DISTCLEANFILES = \
+	config.cache \
+	*.loT
+MAINTAINERCLEANFILES = \
+	aclocal.m4 \
+	autoscan.log \
+	compile \
+	config.guess \
+	config.h.in \
+	config.sub \
+	configure.scan \
+	depcomp \
+	install-sh \
+	ltmain.sh \
+	missing \
+	mkinstalldirs\
+	Makefile.in\
+	configure
+
+all : slice src test
+
+slice: force
+	@date
+	cd src ; $(MAKE) $(MFLAGS) slice
+	@date
+
+src: force
+	@date
+	cd src ; $(MAKE) $(MFLAGS)
+	@date
+
+test: force
+	@date
+	cd test ; $(MAKE) $(MFLAGS) 
+	@date
+
+clean: force
+	@date
+	cd src ; $(MAKE) $(MFLAGS) clean
+	cd test ; $(MAKE) $(MFLAGS) clean
+	@date
+
+force:
+	true
+

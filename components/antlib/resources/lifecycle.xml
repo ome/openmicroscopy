@@ -60,7 +60,7 @@
 
 	<target name="slice-init" depends="prepare">
 		<fileset dir="${basedir}" id="slice.generated">
-			<include name="resources/slice/${ice.pat}"/>
+			<include name="resources/${ice.pat}"/>
 			<include name="target/generated/resources/${ice.pat}"/>
 		</fileset>
 		<pathconvert pathsep=" "   property="slice.files" refid="slice.generated"/>
@@ -100,8 +100,8 @@
 		 	<arg value="--output-dir"/>
 			<arg value="@{output}"/>
 			<arg value="-I${resrc.dest}"/>
-			<arg value="-I${resrc.dir}/slice"/>
-			<arg value="-I${blitz.comp}/resources/slice"/>
+			<arg value="-I${resrc.dir}"/>
+			<arg value="-I${blitz.comp}/resources"/>
 			<arg value="-I${blitz.comp}target/generated/resources"/>
 			<arg value="-I@{ice.slice}"/>
 			<arg line="@{files}"/>
@@ -268,6 +268,10 @@
 				<include name="${integration.suite}"/>
 			</xmlfileset>
 		</suite>
+	</target>
+
+	<target name="dist" depends="integration">
+		<!-- empty by default -->
 	</target>
 
 	<target name="clean">

@@ -104,7 +104,7 @@ ifdef([AM_PATH_CPPUNIT], [
 			 [AM_CONDITIONAL(CPPUNIT, false)])
 
 AC_CONFIG_FILES([Makefile
-		 src/cpp/Makefile
-		 test/cpp/Makefile])
+		 src/Makefile
+		 test/Makefile])
                  
 AC_OUTPUT

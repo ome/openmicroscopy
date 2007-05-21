@@ -1,48 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="tools" default="install" basedir=".">
+<project name="tools" default="help" basedir=".">
 
    <dirname property="up-one" file="${basedir}"/>
    <import file="${up-one}/antlib/resources/global.xml"/>
    
-	<target name="help">
+	<target name="help" description="This help message">
 		<echo>
 			The tools/ directory is a special repository
-			for loosely coupled OMERO components.
+			for loosely coupled OMERO components. Each of
+			these tools depends on a completed "dist" of
+			OMERO.
 		</echo>
 	</target>
 
-	<!-- This property determines which tools will have their
-	build file called. To use:
-
-	  java omero -Dtools=licences,admin TARGET
-
-	-->
-	<property name="tools" value=""/>
-
-	<macrodef name="callTools">
-	  <sequential/>	  
-	</macrodef>
-
-	<target name="parsetools">
-
-	</target>
-
-	<target name="prepare" depends="parsetools"/>
-
-	<target name="generate"/>
-
-	<target name="compile"/>
-
-	<target name="testng-init"/> 
-
-	<target name="test"/>
-		
-	<target name="junittest"/>
-		
-	<target name="package"/>
-
-	<target name="install">
-	  	<mkdir dir="${tools.unjar}"/>
+	<target name="build" description="Calls 'tools-build' on all components to fill target">
+	  	<ant dir="${basedir}/OmeroCpp" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/OmeroCpp"/>
+			<property name="test.with.fail" value="${test.with.fail}"/>
+			<property name="test.skip" value="${test.skip}"/>
+			<property name="generate.skip" value="${generate.skip}"/>
+			<property name="checks.skip" value="${checks.skip}"/>
+			<property name="classpath.file" value="${classpath.file}"/>
+			<target name="tools-build"/>
+			<target name="tools-dist"/>
+		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
 			<property name="test.with.fail" value="${test.with.fail}"/>
@@ -50,18 +31,27 @@
 			<property name="generate.skip" value="${generate.skip}"/>
 			<property name="checks.skip" value="${checks.skip}"/>
 			<property name="classpath.file" value="${classpath.file}"/>
-			<target name="install"/>
+			<target name="tools-build"/>
+			<target name="tools-dist"/>
 		</ant>
 	</target>
 
-	<target name="integration"/>
+	<target name="dist" description="Copies target onto an existing dist">
+		<copy todir="../../dist">
+			<fileset dir="target" includes="lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
+		</copy>
+	</target>
 
-	<target name="clean">
-	        <delete dir="${tools.dest}"/>
+	<target name="clean" description="Calls 'tools-clean' on all components.">
+	  	<ant dir="${basedir}/OmeroCpp" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/OmeroCpp"/>
+			<target name="clean"/>
+		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
 			<target name="clean"/>
 		</ant>
+		<delete dir="${tools.dest}"/>
 	</target>
 
 </project>

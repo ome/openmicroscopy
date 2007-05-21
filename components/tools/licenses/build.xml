@@ -28,6 +28,8 @@
 	<dirname property="up-one" file="${up-two}"/>
 	<import file="${classpath.file}"/>
 
+    <import file="../make.xml"/>
+
 	<!-- The hard-wiring allows a specific Store implementation to
 	be hard-wired into the LicenseBean.
 
@@ -40,19 +42,31 @@
 		   value="${ome.services.licenses.Store_class}"/>
 	</target>
 
-	<!-- Additional functionality for the lifecycle.package target.
-	Unjars the final contents of the service jar to a top-level tools/
-	directory so that they can be bundled together for the final EAR.
-	This is necessary since otherwise the jar listed here would have to
-	be manually added to app/resources/application.xml -->
-	<target name="package" depends="lifecycle.package" unless="skip.compile">
-	        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.unjar}"/>
-	</target>
+    <target name="tools-build" depends="package" description="Creates all artifacts for tools/target">
+        <make/>
+    </target>
 
-	<!-- Additional functionality for the lifecycle.install target.
-	Copies the jar to ${tools.jars} for later copying into dist/client. -->
-	<target name="install" depends="lifecycle.install">
-	        <copy file="${target.dir}/${artifact.final.name}" todir="${tools.jars}"/>
-	</target>
+    <!-- Additional functionality for the lifecycle.package target.
+    Unjars the final contents of the service jar to a tools/target
+    directory so that they can be bundled together for the final products.
+    This is necessary since otherwise the jar listed here would have to
+    be manually added to app/resources/application.xml -->
+    <target name="tools-dist" description="Copied artifacts to tools/target">
+        <mkdir dir="${tools.classes}"/>
+        <unjar src="${target.dir}/${artifact.final.name}" dest="${tools.classes}"/>
+        <copy todir="../target/client">
+            <fileset dir="${target.dir}" includes="${artifact.final.name}"/>
+        </copy>
+        <copy todir="../target/include">
+            <fileset dir="${resrc.dir}" includes="**/*.ice,**/*.h"/>
+            <fileset dir="src/slice_generated" includes="**/*.h"/>
+            <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
+        </copy>
+        <make-copy/>
+    </target>
+
+    <target name="clean" depends="lifecycle.clean">
+        <make-clean/>
+    </target>
 
 </project>

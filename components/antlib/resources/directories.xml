@@ -39,8 +39,8 @@
 	<property name="common.comp"    value="${components.dir}/common"/>
 	<property name="server.comp"    value="${components.dir}/server"/>
 	<property name="nio.comp"       value="${components.dir}/romio"/>
-	<property name="render.comp" 	value="${components.dir}/rendering"/>
-	<property name="app.comp" 	value="${components.dir}/app"/>
+	<property name="render.comp"    value="${components.dir}/rendering"/>
+	<property name="app.comp"       value="${components.dir}/app"/>
 	<property name="client.comp"    value="${components.dir}/client"/>
 	<property name="import.comp"    value="${components.dir}/bioformats-omero"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>
@@ -49,7 +49,7 @@
 	<property name="tools.comp"    value="${components.dir}/tools"/>
 	<property name="tools.dest"    value="${components.dir}/tools/target"/>
 	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
-	<property name="tools.unjar"   value="${components.dir}/tools/target/service-classes"/>
+	<property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
 	
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>

@@ -80,4 +80,12 @@
 	<antcall inheritrefs="true" target="wait-on-as-jboss"/>
    </target>
 
+   <target name="dist" depends="package" description="Copies final .EAR artifact to dist">
+       <copy todir="${dist.dir}">
+           <fileset dir="${target.dir}">
+               <include name="artifact.final.name"/>
+           </fileset>
+       </copy>
+   </target>
+
 </project>

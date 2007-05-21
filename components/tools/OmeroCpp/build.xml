@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="OmeroCpp" default="install" basedir=".">
+<!--
+    <property name="classpath.file" value="classpath.xml"/>
+    <property name="main.class" value="ome.services.icy.Main"/>
+    <import file="${classpath.file}"/>
+-->
+
+    <dirname property="up-two"        file="${basedir}"/>
+    <dirname property="up-one"        file="${up-two}"/>
+    <property name="copy.dir"         value="target/temp"/>
+
+    <import file="../make.xml"/>
+
+    <target name="get-source">
+        <copy todir="${copy.dir}">
+            <fileset dir="../../blitz/src" includes="**/*.cpp"/>
+            <fileset dir="../../blitz/target/generated/src" includes="**/*.cpp"/>
+            <fileset dir="../../blitz/resources" includes="**/*.h,**/*.ice"/>
+            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h,**/*.ice"/>
+        </copy>
+        <delete>
+            <fileset dir="${copy.dir}" includes="**/*">
+                <present present="both" targetdir="src"/>
+            </fileset>
+        </delete>
+        <!--
+            For ease of use, we concatenate all of our header files
+            into a single header file.
+        -->
+        <concat destfile="${copy.dir}/OMERO/ModelI.h">
+            <header>
+
+/* All *I.h files concatenated by blitz/build.xml */
+#ifndef OMERO_MODELI_H
+#define OMERO_MODELI_H
+#include &lt;OMERO/fwd.h&gt;
+#include &lt;OMERO/Model.h&gt;
+#include &lt;OMERO/IObject.h&gt;
+#include &lt;OMERO/ClientErrors.h&gt;
+#include &lt;Ice/Ice.h&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+            </header>
+            <fileset dir="${copy.dir}" includes="**/OMERO/Model/*I.h"/>
+            <footer>
+
+#endif // OMERO_MODELI_H
+
+</footer>
+        </concat>
+    </target>
+
+    <target name="tools-build" depends="get-source" description="Uses autogen.sh and make to build artifacts">
+        <make/>
+    </target>
+
+    <target name="tools-dist" description="Copies files into tools/target">
+        <make-copy/>
+    </target>
+
+   <target name="clean">
+        <delete dir="${copy.dir}"/>
+        <make-clean/>
+    </target>
+
+</project>

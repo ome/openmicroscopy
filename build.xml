@@ -42,12 +42,130 @@
 
 	<!-- Multiproject:
 	  The idea for these targets is taken from maven2 and is
-	  supported by the antlib/resources/lifecycle.xml ant script.
+	  supported by the ${import.dir}/lifecycle.xml ant script.
 	  Unlike most other targets which can be called from anywhere,
 	  these targets can only be called from the top-level because
 	  they mask the lifecycle.xml target definitions.
 	 -->
-	<target name="multiproject" depends="compatibility,init"/>
+
+	<macrodef name="iterate">
+		<attribute name="target"/>
+		<sequential>
+		<iter><target name="@{target}"/></iter>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="iter">
+		<element name="elem" implicit="yes"/>
+		<attribute name="inheritAll" default="false"/>
+		<attribute name="inheritRefs" default="false"/>
+		<attribute name="file" default="build.xml"/>
+		<sequential>
+		<antRun component="dsl"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="common"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="romio"     file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="rendering" file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="importer"  file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="server"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="client"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="bioformats-omero"    file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<!-- These are our final products, and should be run last -->
+		<antRun component="blitz"     file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		<antRun component="app"       file="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}"><elem/> </antRun>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="antRun">
+		<attribute name="file" default="build.xml"/>
+		<attribute name="component"/>
+		<attribute name="inheritAll" default="false"/>
+		<attribute name="inheritRefs" default="false"/>
+		<element name="targets" implicit="yes"/>
+		<sequential>
+		<echo> +===========================================================================================+ </echo>
+		<echo> |                                                                                             </echo>
+		<echo> |                                      @{component}                                           </echo>
+		<echo> |                                                                                             </echo>
+		<echo> +===========================================================================================+ </echo>
+		<ant dir="${components.dir}/@{component}" antfile="@{file}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}">
+			<property name="current.component" value="@{component}"/>
+			<property name="multi.test.with.fail" value="${test.with.fail}"/>
+			<property name="multi.test.skip" value="${test.skip}"/>
+			<property name="multi.generate.skip" value="${generate.skip}"/>
+			<property name="multi.checks.skip" value="${checks.skip}"/>
+			<property name="classpath.file" value="${classpath.file}"/>
+			<targets/>
+		</ant>
+		</sequential>
+	</macrodef>
+
+<!-- 	===============================================
+		BUILD
+	==================================================  -->
+	<target name="fullbuild" depends="check-system,clean,build,reload-db"
+		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
+
+	<target name="build" depends="dsl,model,install"
+		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
+
+	<target name="build-client" depends="check-system,model">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="client"><target name="install"/></antRun>
+	</target>
+
+	<target name="build-server" depends="check-system,model">
+		<antRun component="common"><target name="install"/></antRun>
+		<antRun component="romio"><target name="install"/></antRun>
+		<antRun component="rendering"><target name="install"/></antRun>
+		<antRun component="server"><target name="install"/></antRun>
+	</target>
+
+	<target name="deploy" depends="check-system,build-server">
+		<antRun component="app">
+			<target name="package"/>
+			<target name="deploy-ear-jboss"/>
+		</antRun>
+	</target>
+
+	<target name="fulldeploy" depends="check-system,build-server,deploy"/>
+
+
+
+	<!-- Special Components -->
+	<property name="defaultTarget" value="install"/>
+
+	<target name="dsl" depends="check-system" unless="generate.skip">
+		<antRun component="dsl">
+			<target name="${defaultTarget}"/>
+		</antRun>
+	</target>
+
+	<target name="model" depends="check-system,dsl" unless="generate.skip">
+		<antRun component="common">
+			<target name="clean"/>
+			<target name="install"/>
+		</antRun>
+	</target>
+
+	<target name="reload-db">
+		<antRun component="server">
+			<target name="reload-db"/>
+		</antRun>
+	</target>
+
+	<target name="addgroup">
+		<antRun component="client">
+			<target name="addgroup"/>
+		</antRun>
+	</target>
+
+	<target name="adduser">
+		<antRun component="client">
+			<target name="adduser"/>
+		</antRun>
+	</target>
+
+<target name="multiproject" depends="compatibility,init"/>
 
 	<target name="multi" depends="multiproject"
 		description="Convenience target. Iterates over all components calling the $${defaultTarget} method (default=${defaultTarget}">
@@ -91,7 +209,7 @@
 
 	<target name="dist">
 		<mkdir dir="${dist.dir}"/>
-		<echo>javadoc needs to copy images</echo>
+		<iterate target="dist"/>
 
 		<!-- 
 			etc/
@@ -131,52 +249,18 @@
 				<include name="components/client/build.xml"/>
 			</fileset>
 		</copy>
-		<copy todir="${dist.dir}">
-			<fileset dir="${app.comp}/${target.rel}">
-				<include name="*.ear"/>
-			</fileset>
-		</copy>
 
-		<!-- 
-			SQL to createdb.
-		-->
+		<!-- SQL to createdb. -->
 		<copy todir="${dist.dir}/sql">
 			<fileset dir="${common.comp}/${generated.rel}/resources" includes="*.sql"/>
                 </copy>
-		<!-- 
-			Copy new build.xml to ${dist.dir}
-		-->
+
+		<!-- Copy new build.xml to ${dist.dir} -->
                 <copy
                         file="${import.dir}/omero.xml"
                         tofile="${dist.dir}/build.xml"
                         overwrite="true"
                 />
-		<!--
-		        OMERO.blitz
-		-->
-		<copy todir="${dist.dir}/etc">
-			<fileset dir="${blitz.comp}/resources" includes="*.config"/>
-			<flattenmapper/>
-		</copy>
-
-		<copy todir="${dist.dir}/include">
-			<fileset dir="${blitz.comp}/src/cpp" includes="**/*.h"/>
-			<fileset dir="${blitz.comp}/src/cpp/generated" includes="**/*.h"/>
-			<fileset dir="${blitz.comp}/src/cpp/generated2" includes="**/*.h"/>
-			<fileset dir="${blitz.comp}/resources/slice" includes="**/*.ice"/>
-			<fileset dir="${blitz.comp}/target/generated/resources" includes="**/*.ice"/>
-		</copy>
-
-		<copy todir="${dist.dir}/lib">
-			<fileset dir="${blitz.comp}/src/cpp/.libs" includes="**/*.so*" followsymlinks="false"/>
-			<flattenmapper/>
-		</copy>
-
-		<copy todir="${dist.dir}/blitz">
-			<fileset dir="${blitz.comp}/target/standalone" includes="**/*"/>
-		</copy>
-
-		<useServices dir="${dist.dir}/blitz/"/>
 
 		<copy todir="${dist.dir}/client">
 			<fileset dir="${common.comp}/${target.rel}" includes="*.jar"/>
@@ -184,7 +268,6 @@
 			<fileset dir="${import.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${server.comp}/${target.rel}" includes="*.jar"/>
 			<fileset dir="${blitz.comp}/${target.rel}" includes="*.jar"/>
-			<fileset dir="${tools.jars}/" includes="*.jar"/>
 			<fileset dir="${lib.dir}/repository">
 				<include name="omero/jboss*/**/*.jar"/>
 				<include name="org/springframework/spring/**/*.jar"/>
@@ -200,15 +283,36 @@
 	</target>
 
 	<target name="zip">
-		<zip destfile="omero-${omero.version}.zip">
-			<zipfileset dir="${dist.dir}" prefix="omero-${omero.version}"/>
+		<zip destfile="${product.name}-${product.version}.zip">
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
 		</zip>
+	</target>
+
+	<target name="tar">
+		<tar destfile="${product.name}-${product.version}.tar.bz2" compress="bzip2">
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
+		</tar>
 	</target>
 
 	<target name="clean" depends="multiproject"
 		description="Lifecycle target: calls 'clean' on all components">
 		<delete dir="${dist.dir}"/>
 		<iterate target="clean"/>
+	</target>
+
+	<target name="withtools"
+		description="Calls build and dist on the tools component, copying over dist/">
+		<antRun component="tools">
+			<target name="build"/>
+			<target name="dist"/>
+		</antRun>
+	</target>
+
+	<target name="cleantools"
+		description="Calls cleans on the tools component and removes tools/target">
+		<antRun component="tools">
+			<target name="clean"/>
+		</antRun>
 	</target>
 
 </project>
