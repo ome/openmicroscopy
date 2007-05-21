@@ -24,8 +24,8 @@
     	  lazy-init="true">
 	<constructor-arg index="0">
       <list>
-        <value>classpath:omero/server.xml</value>
-        <value>classpath:omero/constants.xml</value>
+        <value>classpath:OMERO/server.xml</value>
+        <value>classpath:OMERO/constants.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
         <value>classpath*:ome/services/blitz-*.xml</value>   
       </list>
@@ -42,8 +42,8 @@
         <!-- Initialization issues with having ome.client as a parent;
         instead we're copying it's configuration file and it's parent. -->
         <value>classpath:ome/client/spring.xml</value>
-        <value>classpath:omero/client.xml</value>
-        <value>classpath:omero/constants.xml</value>
+        <value>classpath:OMERO/client.xml</value>
+        <value>classpath:OMERO/constants.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="false"/>
