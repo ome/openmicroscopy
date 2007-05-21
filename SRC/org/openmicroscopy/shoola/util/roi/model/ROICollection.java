@@ -91,7 +91,7 @@ public class ROICollection
 	
 	public ROI createROI(long id)
 	{
-		ROI newROI = new ROI(getNextID());
+		ROI newROI = new ROI(id);
 		lastID = id+1;
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;

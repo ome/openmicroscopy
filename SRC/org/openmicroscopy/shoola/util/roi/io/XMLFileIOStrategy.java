@@ -32,14 +32,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeMap;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 
@@ -63,9 +71,10 @@ public 	class XMLFileIOStrategy
 	public XMLFileIOStrategy()
 	{
 		outputStrategy = new OutputStrategy();
+		inputStrategy = new InputStrategy();
 	}
 	
-	public void read(String filename, ROIComponent component) throws ROIShapeCreationException
+	public void read(String filename, ROIComponent component) throws ROIShapeCreationException, NoSuchROIException, ROICreationException
 	{
 		File file = new File(filename);
 		try {
@@ -76,7 +85,7 @@ public 	class XMLFileIOStrategy
 		}
 	}
 	
-	private void read(File file, ROIComponent component) throws IOException, ROIShapeCreationException
+	private void read(File file, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
 	{
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
 	    try 
@@ -92,16 +101,15 @@ public 	class XMLFileIOStrategy
 	    }
 	}
 	
-	private void read(BufferedInputStream in, ROIComponent component) throws IOException, ROIShapeCreationException
+	private void read(BufferedInputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
 	{
 		ArrayList<ROI> roiList = readROI(in, component);
 		
 	}
 	
-	private ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException
+	private ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
 	{
-		ArrayList<ROI> roiList = inputStrategy.readROI(in, component);
-		return roiList;
+		return inputStrategy.readROI(in, component);
 	}
 		 
 	

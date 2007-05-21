@@ -56,6 +56,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 
@@ -338,7 +340,7 @@ public class InputStrategy
 		return currentROI;
 	}
 	
-	ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException 
+	ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException 
 	{
 		roiList = new ArrayList<ROI>();
 		this.component = component;
@@ -367,40 +369,40 @@ public class InputStrategy
 	    }
 	    
 	    ArrayList<IXMLElement> roiElements = document.getChildrenNamed(ROI_TAG);
-	    for(int i = 0 ; i < roiElements.size() ; i++)
-	    {
-	    	roiList.add(createROI(roiElements.get(i), component));
-	    }
+	    
+	    int cnt = 0;
+	    for(IXMLElement roi : roiElements)
+	    	roiList.add(createROI(roi, component));
 	    
 		return roiList;
 	}
 	
-	private ROI createROI(IXMLElement roiElement, ROIComponent component) throws ROIShapeCreationException, IOException
+	private ROI createROI(IXMLElement roiElement, ROIComponent component) throws ROIShapeCreationException, IOException, NoSuchROIException, ROICreationException
 	{
 		if(!roiElement.hasAttribute(ROI_ID_ATTRIBUTE))
 			return null;
 		long id = new Long(roiElement.getAttribute(ROI_ID_ATTRIBUTE,"-1"));
 		setCurrentROI(id);
 		ROI newROI = null;
-		try 
+		newROI = component.createROI(id);
+		ArrayList<IXMLElement> annotationList = roiElement.getChildrenNamed(ANNOTATION_TAG);
+		ArrayList<IXMLElement> roiShapeList = roiElement.getChildrenNamed(ROISHAPE_TAG);
+		int cnt = 0;
+		for(IXMLElement annotation : annotationList)
 		{
-			newROI = component.createROI(id);
-		} 
-		catch (ROICreationException e) 
-		{
-			e.printStackTrace();
+			if(isAnnotation(annotation.getName()))
+					addAnnotation(annotation, newROI);
 		}
-		ArrayList<IXMLElement> roiChildren = roiElement.getChildren();
-		for(int i = 0 ; i < roiChildren.size(); i++)
+		cnt = 0;
+		for(IXMLElement roiShape : roiShapeList)
 		{
-			if(roiChildren.get(i).equals(ROISHAPE_TAG))
-			{
-				newROI.addShape(createROIShape(roiChildren.get(i), newROI));
-			}
-			else
-			if(isAnnotation(roiChildren.get(i).getName()))
-			{
-				addAnnotation(roiChildren.get(i), newROI);
+			ROIShape shape = createROIShape(roiShape, newROI);
+			component.addShape(newROI.getID(), shape.getCoord3D(), shape);
+			try {
+				ROIShape returnedShape = component.getShape(newROI.getID(), shape.getCoord3D());
+			} catch (NoSuchShapeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return newROI;
@@ -408,22 +410,18 @@ public class InputStrategy
 		
 	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI) throws IOException
 	{
-		IXMLElement figureElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		int t = new Integer(shapeElement.getAttribute(T_ATTRIBUTE,"0"));
 		int z = new Integer(shapeElement.getAttribute(Z_ATTRIBUTE,"0"));
 		Coord3D coord = new Coord3D(t,z);
 		setCurrentCoord(coord);
+		
+		IXMLElement figureElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		ROIFigure figure = createFigure(figureElement);
 		ROIShape shape = new ROIShape(newROI, coord, figure, figure.getBounds());
-		ArrayList<IXMLElement> attributeList = shapeElement.getChildren();
-		for(int i = 0 ; i < attributeList.size(); i++)
-		{
-			if(isAnnotation(attributeList.get(i).getName()))
-			{
-				addAnnotation(attributeList.get(i), shape);
-			}
-		}
-				
+		ArrayList<IXMLElement> annotationList = shapeElement.getChildrenNamed(ANNOTATION_TAG);
+		for(IXMLElement annotation : annotationList)
+			if(isAnnotation(annotation.getName()))
+				addAnnotation(annotation, shape);
 		return shape;
 	}
 
@@ -581,24 +579,28 @@ public class InputStrategy
 	{
 		String xValue = textElement.getAttribute(X_ATTRIBUTE, VALUE_NULL);
 		String yValue = textElement.getAttribute(Y_ATTRIBUTE, VALUE_NULL);
-		String widthValue = textElement.getAttribute(WIDTH_ATTRIBUTE, VALUE_NULL);
-		String heightValue = textElement.getAttribute(HEIGHT_ATTRIBUTE, VALUE_NULL);
 		
 		MeasureTextFigure textFigure = new MeasureTextFigure(new Double(xValue), 
-				new Double(yValue), new Double(widthValue), new Double(heightValue));
+				new Double(yValue));
 		addAttributes(textFigure, textElement);
 		return textFigure;
 	}
 	
 	private EllipseAnnotationFigure createEllipseFigure(IXMLElement ellipseElement)
 	{
-		String xValue = ellipseElement.getAttribute(X_ATTRIBUTE, VALUE_NULL);
-		String yValue = ellipseElement.getAttribute(Y_ATTRIBUTE, VALUE_NULL);
-		String widthValue = ellipseElement.getAttribute(WIDTH_ATTRIBUTE, VALUE_NULL);
-		String heightValue = ellipseElement.getAttribute(HEIGHT_ATTRIBUTE, VALUE_NULL);
+		String xValue = ellipseElement.getAttribute(CX_ATTRIBUTE, VALUE_NULL);
+		String yValue = ellipseElement.getAttribute(CY_ATTRIBUTE, VALUE_NULL);
+		String widthValue = ellipseElement.getAttribute(RX_ATTRIBUTE, VALUE_NULL);
+		String heightValue = ellipseElement.getAttribute(RY_ATTRIBUTE, VALUE_NULL);
+		double x = new Double(xValue);
+		double y = new Double(yValue);
+		double width = new Double(widthValue);
+		double height = new Double(heightValue);
 		
-		EllipseAnnotationFigure ellipseFigure = new EllipseAnnotationFigure(new Double(xValue), 
-				new Double(yValue), new Double(widthValue), new Double(heightValue));
+		EllipseAnnotationFigure ellipseFigure = new EllipseAnnotationFigure(x, y, width, height);
+		ellipseFigure.willChange();
+		ellipseFigure.basicSetBounds(new Point2D.Double(x,y), new Point2D.Double(width, height));
+		ellipseFigure.changed();
 		addAttributes(ellipseFigure, ellipseElement);
 		return ellipseFigure;
 	}

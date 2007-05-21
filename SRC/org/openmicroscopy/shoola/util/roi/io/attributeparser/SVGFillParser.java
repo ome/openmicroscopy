@@ -27,9 +27,11 @@ import java.awt.Color;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
@@ -56,13 +58,16 @@ public class SVGFillParser
 	 */
 	public void parse(ROIFigure figure, IXMLElement element,String value) 
 	{
-		int alpha = 0;
+		int alpha = 255;
 		if(element.hasAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE))
 			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
 		SVGColour svgColour = new SVGColour();
 		Color svgColourValue = svgColour.toColor(value);
 		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		FILL_COLOR.set(figure, fillValue);
+		if(!(figure instanceof MeasureTextFigure))
+			FILL_COLOR.set(figure, fillValue);
+		else
+			TEXT_COLOR.set(figure, fillValue);
 	}
 	
 }

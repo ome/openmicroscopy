@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.roi.io.attributeparser;
 import java.awt.Color;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import net.n3.nanoxml.IXMLElement;
 
@@ -57,7 +56,7 @@ public class SVGStrokeParser
 	 */
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
-		int alpha = 0;
+		int alpha = 255;
 		if(element.hasAttribute(InputStrategy.SVG_STROKE_OPACITY_ATTRIBUTE))
 			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_STROKE_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
 		SVGColour svgColour = new SVGColour();

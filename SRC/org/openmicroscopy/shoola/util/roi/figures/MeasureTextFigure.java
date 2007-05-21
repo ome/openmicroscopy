@@ -30,6 +30,7 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
 import java.io.IOException;
@@ -98,12 +99,15 @@ public class MeasureTextFigure
     /** Creates a new instance. */
     public MeasureTextFigure() 
     {
-        this(0, 0, 0, 0);
+        this(0, 0);
     }
     
-    public MeasureTextFigure(double x, double y, double width, double height) 
+    public MeasureTextFigure(double x, double y) 
     {
     	super();
+    	this.willChange();
+    	this.basicSetBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
+    	this.changed();
     	shape = null;
    		roi = null;
      }

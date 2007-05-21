@@ -164,6 +164,7 @@ public class OutputStrategy
 	public final static String ATTRIBUTE_DATATYPE_ARRAYLIST = "ArrayList";
 	
 	
+	
 	private final static HashMap<Integer, String> strokeLinejoinMap;
 	static 
     {
@@ -377,15 +378,17 @@ public class OutputStrategy
 
 	private void writeFigure(XMLElement shapeElement, ROIFigure figure) throws IOException
 	{
-		double fillOpacity = FILL_COLOR.get(figure).getAlpha()/255.0;
-		FILL_OPACITY.set(figure, fillOpacity);
-		double strokeOpacity = STROKE_COLOR.get(figure).getAlpha()/255.0;
-		STROKE_OPACITY.set(figure, strokeOpacity);
+		/*** TO DO ****/
+		//double fillOpacity = FILL_COLOR.get(figure).getAlpha()/255.0;
+		//FILL_OPACITY.set(figure, fillOpacity);
+		//double strokeOpacity = STROKE_COLOR.get(figure).getAlpha()/255.0;
+		//STROKE_OPACITY.set(figure, strokeOpacity);
+		/*** TO DO ****/
 		if(figure instanceof RectAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
 			writeRectAnnotationFigure(shapeElement, (RectAnnotationFigure)figure);
-			writeTextFigure(shapeElement, ((RectAnnotationFigure)figure).getTextFigure());
+	        writeTextFigure(shapeElement, ((RectAnnotationFigure)figure).getTextFigure());
 		}
 		else if (figure instanceof EllipseAnnotationFigure)
 		{
@@ -831,7 +834,36 @@ public class OutputStrategy
     throws IOException {
         String value;
         double doubleValue;
-        // 'font-family'
+        Object gradient = FILL_GRADIENT.get(a);
+        if (gradient != null) {
+            IXMLElement gradientElem;
+            if (gradient instanceof LinearGradient) {
+                LinearGradient lg = (LinearGradient) gradient;
+                gradientElem = createLinearGradient(document,
+                        lg.getX1(), lg.getY1(),
+                        lg.getX2(), lg.getY2(),
+                        lg.getStopOffsets(),
+                        lg.getStopColors(),
+                        lg.isRelativeToFigureBounds()
+                        );
+            } else /*if (gradient instanceof RadialGradient)*/ {
+                RadialGradient rg = (RadialGradient) gradient;
+                gradientElem = createRadialGradient(document,
+                        rg.getCX(), rg.getCY(),
+                        rg.getR(),
+                        rg.getStopOffsets(),
+                        rg.getStopColors(),
+                        rg.isRelativeToFigureBounds()
+                        );
+            }
+            String id = getId(gradientElem);
+            gradientElem.setAttribute("id","xml",id);
+            defs.addChild(gradientElem);
+            writeAttribute(elem, "fill", "url(#"+id+")", "#000");
+        } else {
+            writeAttribute(elem, "fill", toColor(TEXT_COLOR.get(a)), "#000");
+        }
+       // 'font-family'
         // Value:  	[[ <family-name> |
         // <generic-family> ],]* [<family-name> |
         // <generic-family>] | inherit

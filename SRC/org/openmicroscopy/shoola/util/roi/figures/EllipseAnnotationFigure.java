@@ -145,7 +145,7 @@ public class EllipseAnnotationFigure
 	
 	public EllipseAnnotationFigure(double x, double y, double width, double height) 
 	{
-		super();
+		super(x, y, width, height);
 		text = new TextFigure();
 		text.setEditable(true);
 		text.setText("Text");

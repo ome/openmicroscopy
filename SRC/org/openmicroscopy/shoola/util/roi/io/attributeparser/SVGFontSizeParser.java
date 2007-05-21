@@ -69,9 +69,7 @@ public class SVGFontSizeParser
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		if (absoluteFontSizeMap.containsKey(value)) 
-		{
 			FONT_SIZE.set(figure, absoluteFontSizeMap.get(value));
-		}
 		else
 			FONT_SIZE.set(figure, new Double(value));
 	}

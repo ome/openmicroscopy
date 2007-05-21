@@ -113,7 +113,7 @@ public class MeasureRectangleFigure
     
     public MeasureRectangleFigure(double x, double y, double width, double height) 
     {
-    	super();
+		super();
     	rectangle = new Rectangle2D.Double(x, y, width, height);
         shape = null;
 		roi = null;

@@ -75,14 +75,14 @@ public 	class ROIComponent
 		ioStrategy = new XMLFileIOStrategy();
 	}
 	
-	public void saveResults(String filename)
+	public void saveROI(String filename) throws IOException
 	{
-		try {
-			ioStrategy.write(filename, this);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ioStrategy.write(filename, this);
+	}
+	
+	public void loadROI(String filename) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
+	{
+		ioStrategy.read(filename, this);
 	}
 	
 	public long getNextID()
