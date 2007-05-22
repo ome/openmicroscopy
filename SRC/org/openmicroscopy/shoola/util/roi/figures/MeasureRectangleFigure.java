@@ -24,22 +24,17 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -48,14 +43,12 @@ import javax.swing.Action;
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.Figure;
 import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.LabelFigure;
-import org.jhotdraw.draw.LabeledLineConnectionFigure;
 import org.jhotdraw.draw.RectangleFigure;
 import org.jhotdraw.draw.RotateHandle;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.util.ResourceBundleUtil;
+
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
@@ -65,7 +58,6 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
@@ -91,18 +83,16 @@ public class MeasureRectangleFigure
 	extends AbstractAttributedFigure
 	implements ROIFigure
 {
-
-	RectangleFigure a;
 	AttributeKey<AffineTransform>TRANSFORM = new AttributeKey<AffineTransform>("transform", null, true);
 
-	private Rectangle2D.Double rectangle;
+	protected Rectangle2D.Double rectangle;
     /**
      * This is used to perform faster drawing and hit testing.
      */
-	private Shape				cachedTransformedShape;
-	private	Rectangle2D 		bounds;
-	private ROI					roi;
-	private ROIShape 			shape;
+	protected Shape				cachedTransformedShape;
+	protected	Rectangle2D 		bounds;
+	protected ROI					roi;
+	protected ROIShape 			shape;
 
 	   
     /** Creates a new instance. */
@@ -189,12 +179,12 @@ public class MeasureRectangleFigure
         return getTransformedShape().contains(p);
     }
     
-    private void invalidateTransformedShape() 
+    protected void invalidateTransformedShape() 
     {
         cachedTransformedShape = null;
     }
     
-    private Shape getTransformedShape() 
+    protected Shape getTransformedShape() 
     {
         if (cachedTransformedShape == null) 
             if (TRANSFORM.get(this) == null) 
