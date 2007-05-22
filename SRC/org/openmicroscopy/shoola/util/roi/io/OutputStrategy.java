@@ -388,7 +388,7 @@ public class OutputStrategy
 		{
 			writeSVGHeader(shapeElement);
 			writeRectAnnotationFigure(shapeElement, (RectAnnotationFigure)figure);
-	        writeTextFigure(shapeElement, ((RectAnnotationFigure)figure).getTextFigure());
+	        writeTextFigure(shapeElement, (RectAnnotationFigure)figure);
 		}
 		else if (figure instanceof EllipseAnnotationFigure)
 		{
@@ -428,9 +428,24 @@ public class OutputStrategy
 		svgElement.setAttribute(VERSION_TAG,SVG_VERSION);
 		shapeElement.addChild(svgElement);
 	}
+	
 	private void writeTextFigure(XMLElement shapeElement, MeasureTextFigure fig) throws IOException
 	{
 		writeTextFigure(shapeElement, (TextFigure)fig);
+	}
+	
+	private void writeTextFigure(XMLElement shapeElement, RectAnnotationFigure fig) throws IOException
+	{
+		XMLElement textElement = new XMLElement(TEXT_TAG);
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
+		svgElement.addChild(textElement);
+		
+		textElement.setContent(fig.getText());
+		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
+		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
+		writeShapeAttributes(textElement, fig.getAttributes());
+      	writeTransformAttribute(textElement, fig.getAttributes());
+        writeFontAttributes(textElement, fig.getAttributes());
 	}
 	
 	private void writeTextFigure(XMLElement shapeElement, TextFigure fig) throws IOException
