@@ -46,7 +46,7 @@
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/springframework/spring-mock/2.0/spring-mock-2.0.jar" sourcepath="/SPRING_HOME"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/org/springframework/spring/2.0/spring-2.0.jar" sourcepath="/SPRING_HOME"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/qdox/qdox/1.5/qdox-1.5.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/quartz/quartz/1.5/quartz-1.5.2.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/quartz/quartz/1.5.2/quartz-1.5.2.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/testng/testng/5.2-jdk15/testng-5.2-jdk15.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/velocity-tools/velocity-tools-generic/1.1/velocity-tools-generic-1.1.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/velocity/velocity/1.4/velocity-1.4.jar"/>
