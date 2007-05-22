@@ -24,38 +24,41 @@ package org.openmicroscopy.shoola.util.roi.figures;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
-
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.CompositeFigure;
-import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.FigureEvent;
-import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Layouter;
-import org.jhotdraw.draw.LocatorLayouter;
-import org.jhotdraw.draw.RelativeLocator;
-import org.jhotdraw.draw.TextFigure;
-import org.jhotdraw.util.ReversedList;
-
+import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
+import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
+import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
+import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
+import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
 
+
+import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.BoxHandleKit;
+import org.jhotdraw.draw.Handle;
+import org.jhotdraw.draw.TextHolderFigure;
+import org.jhotdraw.draw.TextTool;
+import org.jhotdraw.draw.Tool;
+import org.jhotdraw.geom.Geom;
+import org.jhotdraw.geom.Insets2D;
+
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -71,475 +74,234 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * @since OME3.0
  */
 public class EllipseAnnotationFigure 
-		extends 	MeasureEllipseFigure
-		implements 	CompositeFigure 
+	extends MeasureEllipseFigure
+	implements TextHolderFigure
 {
-	
-	private Layouter layouter;
-    private ArrayList<Figure> children = new ArrayList();
-
-    private Rectangle2D.Double drawBounds;
-
-	/**
-	 * This is used to perform faster drawing and hit testing.
-	 */
+	private boolean 							editable;
 		
-	private TextFigure  text;
-	   
-	 private ChildHandler childHandler = new ChildHandler(this);
-	    private class ChildHandler implements FigureListener, UndoableEditListener 
-	    {
-	        private EllipseAnnotationFigure owner;
-	        private ChildHandler(EllipseAnnotationFigure owner) 
-	        {
-	            this.owner = owner;
-	        }
-	        public void figureRequestRemove(FigureEvent e) 
-	        {
-	            owner.remove(e.getFigure());
-	        }
-	        
-	        public void figureRemoved(FigureEvent evt) 
-	        {
-	        }
-	        
-	        public void figureChanged(FigureEvent e) 
-	        {
-	            if (! owner.isChanging()) 
-	            {
-	                owner.willChange();
-	                owner.fireFigureChanged(e);
-	                owner.changed();
-	            }
-	        }
-	        
-	        public void figureAdded(FigureEvent e) 
-	        {
-	        }
-	        
-	        public void figureAttributeChanged(FigureEvent e) 
-	        {
-	         	if(e.getAttribute()==TEXT)
-	        		owner.getROIShape().setAnnotation(BASIC_TEXT, e.getNewValue());
-	        }
-	        
-	        public void figureAreaInvalidated(FigureEvent e) 
-	        {
-	            if (! owner.isChanging()) 
-	            {
-	                owner.fireAreaInvalidated(e.getInvalidatedArea());
-	            }
-	        }
-	        
-	        public void undoableEditHappened(UndoableEditEvent e) 
-	        {
-	            owner.fireUndoableEditHappened(e.getEdit());
-	        }
-	    };
+	private Color 								oldColor;
+	private boolean 							fillChanged;
 	
-	/** Creates a new instance. */
+	// cache of the TextFigure's layout
+	transient private  	TextLayout 				textLayout;
+	private				Rectangle2D.Double 		textBounds;
+	
 	public EllipseAnnotationFigure() 
 	{
-	    this(0, 0, 0, 0);
+		this("Text", 0, 0, 30, 20);
 	}
-	
-	public EllipseAnnotationFigure(double x, double y, double width, double height) 
-	{
-		super(x, y, width, height);
-		text = new TextFigure();
-		text.setEditable(true);
-		text.setText("Text");
-		RelativeLocator d = new RelativeLocator();
-		
-		d.locate(this, text);
-		text.setAttribute(LocatorLayouter.LAYOUT_LOCATOR, d);
-		this.setLayouter(new LocatorLayouter());
-		this.add(text);
-	}
-	
-	public TextFigure getTextFigure()
-	{
-		return text;
-	}
-	 /**
-     * Draw the figure. This method is delegated to the encapsulated presentation figure.
-     */
-    public void draw(Graphics2D g) 
-    {
-        super.draw(g);
-        
-        for (Figure child : children) 
-        {
-            if (child.isVisible()) 
-            {
-                child.draw(g);
-            }
-        }
-    }
-    
-    // SHAPE AND BOUNDS
-    /**
-     * Transforms the figure.
-     */
-    public void basicTransform(AffineTransform tx) 
-    {
-        super.basicTransform(tx);
-        for (Figure f : children) 
-        {
-            f.basicTransform(tx);
-        }
-        invalidateBounds();
-    }
-    
-    public void basicSetBounds(Point2D.Double anchor, Point2D.Double lead) 
-    {
-        super.basicSetBounds(anchor, lead);
-        invalidate();
-    }
-    
-    public Rectangle2D.Double getBounds() 
-    {
-        return super.getBounds();
-    }
-    
-    public Rectangle2D.Double getDrawingArea() 
-    {
-        if (drawBounds == null) 
-        {
-            drawBounds = super.getDrawingArea();
-            for (Figure child : getChildrenFrontToBack()) 
-            {
-                if (child.isVisible()) 
-                {
-                    Rectangle2D.Double childBounds = child.getDrawingArea();
-                    if (! childBounds.isEmpty()) 
-                    {
-                        drawBounds.add(childBounds);
-                    }
-                }
-            }
-        }
-        return (Rectangle2D.Double) drawBounds.clone();
-    }
-    
-    public boolean contains(Point2D.Double p) 
-    {
-        if (getDrawingArea().contains(p)) 
-        {
-            for (Figure child : getChildrenFrontToBack()) 
-            {
-                if (child.isVisible() && child.contains(p)) 
-                	return true;
-            }
-            return super.contains(p);
-        }
-        return false;
-    }
-    
-    protected void invalidateBounds() 
-    {
-        drawBounds = null;
-    }
-    
-    // ATTRIBUTES
-    /**
-     * Sets an attribute of the figure.
-     * AttributeKey name and semantics are defined by the class implementing
-     * the figure interface.
-     */
-    public void setAttribute(AttributeKey key, Object newValue) 
-    {
-        willChange();
-        super.setAttribute(key, newValue);
-        if (isAttributeEnabled(key)) 
-        {
-            if (children != null) 
-            {
-                for (Figure child : children) 
-                {
-                    child.setAttribute(key, newValue);
-                }
-            }
-        }
-        changed();
-    }
-    
-    public Object getAttribute(AttributeKey key)
-    {
-    	if(childKey(key))
-    	{
-    		return text.getAttribute(key);
-    	}
-    	return super.getAttribute(key);
-    }
 
-    public Map<AttributeKey, Object> getAttributes()
-    {
-    	Map<AttributeKey, Object> attributes;
-    	attributes = super.getAttributes();
-    	attributes.put(AttributeKeys.TEXT, getAttribute(AttributeKeys.TEXT));
-    	return attributes;
-    }
+	public EllipseAnnotationFigure(double x, double y, double w, double h)
+	{
+		this("Text", x, y, w, h);
+	}
+
+	public EllipseAnnotationFigure(String text) 
+	{
+		this(text, 0, 0, 0, 0);
+	}
+
+	public EllipseAnnotationFigure(String text, double x, double y, double w, double h) 
+	{
+		super(x, y, w, h);
+		setText(text);
+		textLayout = null;
+		textBounds = null;
+		oldColor = null;
+		fillChanged = false;
+		editable = true;
+	}
+	 
+	
+	protected void drawFill(java.awt.Graphics2D g) 
+	{
+		if(fillChanged)
+		{
+			FILL_COLOR.set(this, oldColor);
+			fillChanged = false;
+		}
+		super.drawFill(g);
+		drawText(g);
+	}
+
+	protected void drawText(java.awt.Graphics2D g) 
+	{
+		if (getText()!=null || isEditable()) 
+		{
+			TextLayout layout = getTextLayout();
+			setTextBounds(g);
+			layout.draw(g, (float) textBounds.x, (float)textBounds.y);
+		}
+	}
+
+	protected void setTextBounds(Graphics2D g) 
+	{
+	textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
+				getTextWidth(g), getTextHeight(g));
+	}
+
+	protected double getTextX(Graphics2D g) 
+	{
+		return (getBounds().getX()+(getBounds().getWidth()/2) - (getTextWidth(g)/2));
+	}
+
+	protected double getTextY(Graphics2D g) 
+	{
+		return (getBounds().getY()+getBounds().getHeight()/2) + getTextHeight(g)/2;
+	}
+
+	protected double getTextWidth(Graphics2D g) 
+	{
+		return g.getFontMetrics(FONT_FACE.get(this)).stringWidth(getText().trim());
+	}
+
+	protected double getTextHeight(Graphics2D g) 
+	{
+		return g.getFontMetrics(FONT_FACE.get(this)).getAscent();
+	}
+
+	protected Rectangle2D.Double getTextBounds() 
+	{
+		if (textBounds == null)
+			return new Rectangle2D.Double(0, 0, 0, 0);
+		else
+			return textBounds;
+	}
+
+	// EVENT HANDLING
+	public void invalidate() 
+	{
+		super.invalidate();
+		textLayout = null;
+	}
+
+	protected void validate() 
+	{
+		super.validate();
+		textLayout = null;
+	}
+
+	public Rectangle2D.Double getDrawingArea() 
+	{
+		Rectangle2D.Double r = super.getDrawingArea();
+		r.add(getTextBounds());
+		return r;
+	}
     
-    public boolean childKey(AttributeKey key)
-    {
-    	if(key.getKey().equals(AttributeKeys.TEXT.getKey()))
-    	    return true;
-    	return false;
-    }
-    
-    // EDITING
-    public Figure findFigureInside(Point2D.Double p) 
-    {
-        if (getDrawingArea().contains(p)) 
-        {
-            Figure found = null;
-            for (Figure child : getChildrenFrontToBack()) 
-            {
-                if (child.isVisible()) 
-                {
-                    found = child.findFigureInside(p);
-                    if (found != null) 
-                    {
-                        return found;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-    
-    // COMPOSITE FIGURES
-    public java.util.List<Figure> getChildren() 
-    {
-        return Collections.unmodifiableList(children);
-    }
-    
-    public int getChildCount() 
-    {
-        return children.size();
-    }
-    
-    public Figure getChild(int index) 
-    {
-        return children.get(index);
-    }
-    
-    public void set(int index, Figure child) 
-    {
-        children.set(index, child);
-    }
-    
-    /**
-     * Returns an iterator to iterate in
-     * Z-order front to back over the children.
-     */
-    public java.util.List<Figure> getChildrenFrontToBack() 
-    {
-        return children ==  null ?
-            new LinkedList<Figure>() :
-            new ReversedList<Figure>(children);
-    }
-    
-    public void add(Figure figure) 
-    {
-        basicAdd(figure);
-        if (getDrawing() != null) 
-        {
-            figure.addNotify(getDrawing());
-        }
-    }
-    
-    public void add(int index, Figure figure) 
-    {
-        basicAdd(index, figure);
-        if (getDrawing() != null) 
-        {
-            figure.addNotify(getDrawing());
-        }
-    }
-    
-    public void basicAdd(Figure figure) 
-    {
-        basicAdd(children.size(), figure);
-    }
-    
-    public void basicAdd(int index, Figure figure) 
-    {
-        children.add(index, figure);
-        figure.addFigureListener(childHandler);
-        figure.addUndoableEditListener(childHandler);
-        invalidate();
-    }
-    
-    public boolean remove(final Figure figure) 
-    {
-        int index = children.indexOf(figure);
-        if (index == -1) 
-        {
-            return false;
-        } 
-        else 
-        {
-            willChange();
-            basicRemoveChild(index);
-            if (getDrawing() != null) 
-            {
-                figure.removeNotify(getDrawing());
-            }
-            changed();
-            return true;
-        }
-    }
-    
-    public Figure removeChild(int index) 
-    {
-        willChange();
-        Figure figure = basicRemoveChild(index);
-        if (getDrawing() != null) 
-        {
-            figure.removeNotify(getDrawing());
-        }
-        changed();
-        return figure;
-    }
-    
-    public boolean basicRemove(final Figure figure) 
-    {
-        int index = children.indexOf(figure);
-        if (index == -1) 
-        {
-            return false;
-        } 
-        else 
-        {
-            basicRemoveChild(index);
-            return true;
-        }
-    }
-    
-    public Figure basicRemoveChild(int index) 
-    {
-        Figure figure = children.remove(index);
-        figure.removeFigureListener(childHandler);
-        figure.removeUndoableEditListener(childHandler);
-        
-        return figure;
-    }
-    
-    public void removeAllChildren() 
-    {
-        willChange();
-        while (children.size() > 0) 
-        {
-            Figure figure = basicRemoveChild(children.size() - 1);
-            if (getDrawing() != null) {
-                figure.removeNotify(getDrawing());
-            }
-        }
-        changed();
-    }
-    public void basicRemoveAllChildren() 
-    {
-        while (children.size() > 0) 
-        {
-            basicRemoveChild(children.size() - 1);
-        }
-    }
-    
-    // LAYOUT
-    /**
-     * Get a Layouter object which encapsulated a layout
-     * algorithm for this figure. Typically, a Layouter
-     * accesses the child components of this figure and arranges
-     * their graphical presentation.
-     *
-     *
-     * @return layout strategy used by this figure
-     */
-    public Layouter getLayouter() 
-    {
-        return layouter;
-    }
-    
-    public void setLayouter(Layouter newLayouter) 
-    {
-        this.layouter = newLayouter;
-    }
-    
-    /**
-     * A layout algorithm is used to define how the child components
-     * should be laid out in relation to each other. The task for
-     * layouting the child components for presentation is delegated
-     * to a Layouter which can be plugged in at runtime.
-     */
-    public void layout() 
-    {
-        if (getLayouter() != null) 
-        {
-            Rectangle2D.Double bounds = getBounds();
-            Point2D.Double p = new Point2D.Double(bounds.x, bounds.y);
-            Rectangle2D.Double r = getLayouter().layout(
-                    this, p, p
-                    );
-            invalidateBounds();
-        }
-    }
-    
-// EVENT HANDLING
-    
-    public void invalidate() 
-    {
-        super.invalidate();
-        invalidateBounds();
-    }
-    
-    public void validate() 
-    {
-        super.validate();
-        layout();
-    }
-    
-    public void addNotify(Drawing drawing) 
-    {
-        for (Figure child : new LinkedList<Figure>(children)) 
-        {
-            child.addNotify(drawing);
-        }
-        super.addNotify(drawing);
-    }
-    
-    public void removeNotify(Drawing drawing) 
-    {
-        for (Figure child : new LinkedList<Figure>(children)) 
-        {
-            child.removeNotify(drawing);
-        }
-        super.removeNotify(drawing);
-    }
-    
-    public EllipseAnnotationFigure clone() 
-    {
-    	EllipseAnnotationFigure that = (EllipseAnnotationFigure) super.clone();
-        that.childHandler = new ChildHandler(that);
-        that.children = new ArrayList<Figure>();
-        for (Figure thisChild : this.children) 
-        {
-            Figure thatChild = (Figure) thisChild.clone();
-            that.children.add(thatChild);
-            thatChild.addFigureListener(that.childHandler);
-            thatChild.addUndoableEditListener(that.childHandler);
-        }
-        return that;
-    }
-    
-    public void remap(HashMap<Figure,Figure> oldToNew) 
-    {
-        super.remap(oldToNew);
-        for (Figure child : children) 
-        {
-            child.remap(oldToNew);
-        }
-    }
-    
+	/**
+	 * Returns a specialized tool for the given coordinate.
+	 * <p>Returns null, if no specialized tool is available.
+	 */
+	public Tool getTool(Point2D.Double p) 
+	{
+		if(isEditable() && contains(p)) 
+		{
+			fillChanged = true;
+			oldColor = FILL_COLOR.get(this);
+			FILL_COLOR.set(this, Color.white);
+			invalidate();
+			return new TextTool(this); 
+		}
+		return null;
+	}
+
+	private TextLayout getTextLayout() 
+	{
+		if (textLayout == null) {
+			String text = getText();
+			if (text == null || text.length() == 0) 
+			{
+				text = " ";
+			}
+
+			FontRenderContext frc = getFontRenderContext();
+			HashMap<TextAttribute, Object> textAttributes = new HashMap<TextAttribute, Object>();
+			textAttributes.put(TextAttribute.FONT, getFont());
+			if (FONT_UNDERLINED.get(this)) 
+			{
+				textAttributes.put(TextAttribute.UNDERLINE,
+						TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+			}
+			textLayout = new TextLayout(text, textAttributes, frc);
+		}
+		return textLayout;
+	}
+
+	// ATTRIBUTES
+	/**
+	 * Gets the text shown by the text figure.
+	 */
+	public String getText() 
+	{
+		return (String) getAttribute(TEXT);
+	}
+
+	/**
+	 * Sets the text shown by the text figure.
+	 */
+	public void setText(String newText) 
+	{
+		setAttribute(TEXT, newText);
+	}
+
+	public int getTextColumns() 
+	{
+		return (getText() == null) ? 4 : Math.max(getText().length(), 4);
+	}
+
+	/**
+	 * Gets the number of characters used to expand tabs.
+	 */
+	public int getTabSize() 
+	{
+		return 8;
+	}
+
+	public TextHolderFigure getLabelFor() 
+	{
+		return this;
+	}
+
+	public Insets2D.Double getInsets() 
+	{
+		return new Insets2D.Double();
+	}
+
+	public Font getFont() 
+	{
+		return AttributeKeys.getFont(this);
+	}
+
+	public Color getTextColor() 
+	{
+		return TEXT_COLOR.get(this);
+	}
+
+	public Color getFillColor() 
+	{
+		return FILL_COLOR.get(this);
+	}
+
+	public void setFontSize(float size) 
+	{
+		//    FONT_SIZE.set(this, new Double(size));
+	}
+
+	public float getFontSize() 
+	{
+		return FONT_SIZE.get(this).floatValue();
+	}
+
+	// EDITING
+	public boolean isEditable() 
+	{
+		return editable;
+	}
+
+	public void setEditable(boolean b) 
+	{
+		this.editable = b;
+	}
+	
 }
+

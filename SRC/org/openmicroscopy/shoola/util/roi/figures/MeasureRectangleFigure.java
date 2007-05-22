@@ -89,10 +89,10 @@ public class MeasureRectangleFigure
     /**
      * This is used to perform faster drawing and hit testing.
      */
-	protected Shape				cachedTransformedShape;
+	protected 	Shape				cachedTransformedShape;
 	protected	Rectangle2D 		bounds;
-	protected ROI					roi;
-	protected ROIShape 			shape;
+	protected 	ROI					roi;
+	protected 	ROIShape 			shape;
 
 	   
     /** Creates a new instance. */
@@ -261,7 +261,7 @@ public class MeasureRectangleFigure
     public Collection<Handle> createHandles(int detailLevel) 
     {
         LinkedList<Handle> handles = (LinkedList<Handle>) super.createHandles(detailLevel);
-        handles.add(new RotateHandle(this));
+ //       handles.add(new RotateHandle(this));
         return handles;
     }
     

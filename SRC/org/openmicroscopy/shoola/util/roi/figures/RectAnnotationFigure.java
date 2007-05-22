@@ -31,6 +31,7 @@ import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,10 +40,9 @@ import java.util.LinkedList;
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
 import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
+import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
-
-//Application-internal dependencies
 
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.BoxHandleKit;
@@ -52,14 +52,23 @@ import org.jhotdraw.draw.TextTool;
 import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.geom.Insets2D;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
-/**
- * NodeFigure.
+/** 
+ * 
  *
- * @author Werner Randelshofer
- * @version 1.0 July 4, 2006 Created.
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
  */
 public class RectAnnotationFigure 
 	extends MeasureRectangleFigure
@@ -72,12 +81,11 @@ public class RectAnnotationFigure
 	private ROIShape 	shape;
 	
 	private Color 		oldColor;
+	private boolean 	fillChanged = false;
 	
 	// cache of the TextFigure's layout
-	transient private TextLayout textLayout;
-
-	protected Rectangle2D.Double textBounds;
-
+	transient private  	TextLayout textLayout;
+	private				Rectangle2D.Double textBounds;
 	public RectAnnotationFigure() 
 	{
 		this("Text", 0, 0, 30, 20);
@@ -97,65 +105,56 @@ public class RectAnnotationFigure
 	{
 		super(x, y, w, h);
 		setText(text);
+		textLayout = null;
 		textBounds = null;
 		oldColor = null;
 	}
-	  // SHAPE AND BOUNDS
-    public Rectangle2D.Double getBounds() 
-    {
-        Rectangle2D.Double bounds = (Rectangle2D.Double) rectangle.clone();
-        
-        return bounds;
-    }
-    
-	protected void drawStroke(java.awt.Graphics2D g) 
-	{
-		super.drawStroke(g);
-	}
-
+	
 	protected void drawFill(java.awt.Graphics2D g) 
 	{
-		if(oldColor != null )
+		if(fillChanged)
+		{
 			FILL_COLOR.set(this, oldColor);
+			fillChanged = false;
+		}
 		super.drawFill(g);
 		drawText(g);
 	}
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if (getText() != null || isEditable()) 
+		if (getText()!=null || isEditable()) 
 		{
 			TextLayout layout = getTextLayout();
 			setTextBounds(g);
-			layout.draw(g, (float) textBounds.x, (float) textBounds.y);
+			layout.draw(g, (float) textBounds.x, (float)textBounds.y);
 		}
 	}
 
 	protected void setTextBounds(Graphics2D g) 
 	{
-		textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
+	textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
 				getTextWidth(g), getTextHeight(g));
 	}
 
 	protected double getTextX(Graphics2D g) 
 	{
-		return (rectangle.getCenterX() - getTextWidth(g) / 2);
+		return (rectangle.getX()+(rectangle.getWidth()/2) - (getTextWidth(g)/2));
 	}
 
 	protected double getTextY(Graphics2D g) 
 	{
-		return (rectangle.getCenterY() + getTextHeight(g) / 2);
-		//return (rectangle.getCenterY()-getTextHeight(g)/2);
+		return (rectangle.getCenterY()) + getTextHeight(g)/2;
 	}
 
 	protected double getTextWidth(Graphics2D g) 
 	{
-		return g.getFontMetrics().stringWidth(getText());
+		return g.getFontMetrics(FONT_FACE.get(this)).stringWidth(getText().trim());
 	}
 
 	protected double getTextHeight(Graphics2D g) 
 	{
-		return g.getFontMetrics().getAscent() + g.getFontMetrics().getDescent();
+		return g.getFontMetrics(FONT_FACE.get(this)).getAscent();
 	}
 
 	protected Rectangle2D.Double getTextBounds() 
@@ -166,19 +165,6 @@ public class RectAnnotationFigure
 			return textBounds;
 	}
 
-	// EVENT HANDLING
-	public void invalidate() 
-	{
-		super.invalidate();
-		textLayout = null;
-	}
-
-	protected void validate() 
-	{
-		super.validate();
-		textLayout = null;
-	}
-
 	public Rectangle2D.Double getDrawingArea() 
 	{
 		Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
@@ -187,53 +173,19 @@ public class RectAnnotationFigure
 		r.add(getTextBounds());
 		return r;
 	}
-	 /**
-     * Informs that a figure changed the area of its display box.
-     */
-    public void changed() {
-        if (changingDepth <= 1) {
-            validate();
-            fireFigureChanged(getDrawingArea());
-            changingDepth = 0;
-        } else {
-            changingDepth--;
-        }
-    }
 	
-    public void willChange() {
-        changingDepth++;
-        invalidate();
-    }
-    
-	public Collection<Handle> createHandles(int detailLevel) {
-	        LinkedList<Handle> handles = new LinkedList<Handle>();
-	        if (detailLevel == 0) {
-	            BoxHandleKit.addBoxHandles(this, handles);
-	        }
-	        return handles;
-	    }
-	/**
-     * Checks if a Point2D.Double is inside the figure.
-     */
-    public boolean contains(Point2D.Double p) {
-    	if(rectangle.getWidth()<10||rectangle.getHeight()<10)
-    		return false;
-        Rectangle2D.Double r = (Rectangle2D.Double) rectangle.clone();
-        double grow = AttributeKeys.getPerpendicularHitGrowth(this) + 1d;
-        Geom.grow(r, grow, grow);
-        return r.contains(p);
-    }
 	/**
 	 * Returns a specialized tool for the given coordinate.
 	 * <p>Returns null, if no specialized tool is available.
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
-		if(isEditable() && contains(p)) 
+		if(isEditable() && (textBounds.contains(p) || contains(p))) 
 		{
-			if(!(FILL_COLOR.get(this).equals(Color.white)))
-				oldColor = FILL_COLOR.get(this);
+			fillChanged = true;
+			oldColor = FILL_COLOR.get(this);
 			FILL_COLOR.set(this, Color.white);
+			invalidate();
 			return new TextTool(this); 
 		}
 		return null;
@@ -373,6 +325,6 @@ public class RectAnnotationFigure
 	 */
 	public void calculateMeasurements()
 	{
-		
+		super.calculateMeasurements();
 	}
 }

@@ -93,36 +93,30 @@ public class ROIFigureFactory implements FigureFactory
             double x1, double y1, double x2, double y2,
             Map<AttributeKey,Object> a) {
         LineAnnotationFigure figure = new LineAnnotationFigure();
-        figure.removeAllChildren();
-        BezierFigure bf = new BezierFigure();
-        bf.addNode(new BezierPath.Node(x1, y1));
-        bf.addNode(new BezierPath.Node(x2, y2));
-        figure.add(bf);
+        figure.addNode(new BezierPath.Node(x1, y1));
+        figure.addNode(new BezierPath.Node(x2, y2));
+        //figure.add(bf);
         figure.basicSetAttributes(a);
         return figure;
     }
     
     public ROIFigure createPolyline(Point2D.Double[] points, Map<AttributeKey, Object> a) {
-        BezierAnnotationFigure figure = new BezierAnnotationFigure();
-        figure.removeAllChildren();
-        BezierFigure bf = new BezierFigure();
-        for (int i=0; i < points.length; i++) {
-            bf.addNode(new BezierPath.Node(points[i].x, points[i].y));
+        BezierAnnotationFigure figure = new BezierAnnotationFigure(false);
+        for (int i=0; i < points.length; i++) 
+        {
+        	figure.addNode(new BezierPath.Node(points[i].x, points[i].y));
         }
-        figure.add(bf);
         figure.basicSetAttributes(a);
         return figure;
     }
     
     public ROIFigure createPolygon(Point2D.Double[] points, Map<AttributeKey, Object> a) {
-    	BezierAnnotationFigure figure = new BezierAnnotationFigure();
-        figure.removeAllChildren();
-        BezierFigure bf = new BezierFigure();
-        for (int i=0; i < points.length; i++) {
-            bf.addNode(new BezierPath.Node(points[i].x, points[i].y));
+    	BezierAnnotationFigure figure = new BezierAnnotationFigure(true);
+        for (int i=0; i < points.length; i++) 
+        {
+        	figure.addNode(new BezierPath.Node(points[i].x, points[i].y));
         }
-        bf.setClosed(true);
-        figure.add(bf);
+        figure.setClosed(true);
         figure.basicSetAttributes(a);
         return figure;
     }

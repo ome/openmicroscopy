@@ -262,7 +262,7 @@ public class MeasureEllipseFigure
     public Collection<Handle> createHandles(int detailLevel) 
     {
         LinkedList<Handle> handles = (LinkedList<Handle>) super.createHandles(detailLevel);
-        handles.add(new RotateHandle(this));
+   //     handles.add(new RotateHandle(this));
         return handles;
     }
     

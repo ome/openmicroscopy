@@ -62,6 +62,7 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.TextFigure;
+import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath;
 import org.jhotdraw.samples.svg.LinearGradient;
@@ -394,25 +395,25 @@ public class OutputStrategy
 		{
 			writeSVGHeader(shapeElement);
 			writeEllipseAnnotationFigure(shapeElement, (EllipseAnnotationFigure)figure);		
-			writeTextFigure(shapeElement, ((EllipseAnnotationFigure)figure).getTextFigure());
+			writeTextFigure(shapeElement, (EllipseAnnotationFigure)figure);
 		}
 		else if(figure instanceof LineConnectionAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
 			writeLineConnectionFigure(shapeElement, (LineConnectionAnnotationFigure)figure);
-			writeTextFigure(shapeElement, ((LineConnectionAnnotationFigure)figure).getTextFigure());
+			writeTextFigure(shapeElement, (LineConnectionAnnotationFigure)figure);
 		}
 		else if (figure instanceof BezierAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
 			writeBezierAnnotationFigure(shapeElement, (BezierAnnotationFigure)figure);		
-			writeTextFigure(shapeElement, ((BezierAnnotationFigure)figure).getTextFigure());
+			writeTextFigure(shapeElement, (BezierAnnotationFigure)figure);
 		}
 		else if (figure instanceof LineAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
 			writeLineAnnotationFigure(shapeElement, (LineAnnotationFigure)figure);
-			writeTextFigure(shapeElement, ((LineAnnotationFigure)figure).getTextFigure());
+			writeTextFigure(shapeElement, (LineAnnotationFigure)figure);
 		}
 		else if(figure instanceof MeasureTextFigure)
 		{
@@ -434,7 +435,7 @@ public class OutputStrategy
 		writeTextFigure(shapeElement, (TextFigure)fig);
 	}
 	
-	private void writeTextFigure(XMLElement shapeElement, RectAnnotationFigure fig) throws IOException
+	private void writeTextFigure(XMLElement shapeElement, TextHolderFigure fig) throws IOException
 	{
 		XMLElement textElement = new XMLElement(TEXT_TAG);
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
