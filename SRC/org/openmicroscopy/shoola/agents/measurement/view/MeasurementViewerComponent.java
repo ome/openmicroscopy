@@ -31,6 +31,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.EllipseFigure;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
@@ -256,6 +257,27 @@ class MeasurementViewerComponent
 			if (f != magnification) model.setMagnification(magnification);
 		}
 	}
+	
+	public void updateDrawingArea()
+	{
+		Drawing drawing = model.getDrawing();
+		drawing.removeDrawingListener(controller);
+		drawing.clear();
+		ShapeList list = model.getShapeList();
+		if (list != null) {
+			TreeMap map = list.getList();
+			Iterator i = map.values().iterator();
+			ROIShape shape;
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+			if (shape != null) drawing.add(shape.getFigure());
+			}
+		}
+		
+		model.getDrawingView().setDrawing(drawing);
+		drawing.addDrawingListener(controller);
+			
+	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -294,13 +316,17 @@ class MeasurementViewerComponent
 		view.setVisible(b);
 	}
 
+	/**
+	 * Load the ROISet from file and populate ROIComponent.
+	 */
 	public void loadROI() {
-		// TODO Auto-generated method stub
-		
+		model.loadROI("saveFile.xml");
+		updateDrawingArea();
 	}
 
-	public void saveROI() {
-		// TODO Auto-generated method stub
+	public void saveROI() 
+	{
+		model.saveROI("saveFile.xml");
 		
 	}
     
