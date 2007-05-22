@@ -72,7 +72,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     }
 
     private void createPlanes() throws IOException {
-        int byteWidth = PixelBuffer.getBitDepth(pixels.getPixelsType()) / 8;
+        int byteWidth = PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
         planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
         planeSize = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
         path = new PixelsService(ROOT)
