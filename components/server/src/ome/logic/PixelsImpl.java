@@ -117,7 +117,7 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
     @RolesAllowed("user")
     public int getBitDepth(PixelsType pixelsType) {
-        return PixelBuffer.getBitDepth(pixelsType);
+        return PixelsService.getBitDepth(pixelsType);
     }
 
     @RolesAllowed("user")

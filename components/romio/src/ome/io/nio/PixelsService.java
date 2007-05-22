@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ome.model.core.Pixels;
+import ome.model.enums.PixelsType;
 
 /**
  * @author callan
@@ -32,21 +33,22 @@ public class PixelsService extends AbstractFileSystemService {
             -128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
             -128, 127, -128, 127 }; // 64
 
-    public PixelBuffer createPixelBuffer(Pixels pixels) throws IOException {
-        PixelBuffer pixbuf = new PixelBuffer(getPixelsPath(pixels.getId()),
-                pixels);
+    public PixelBuffer createPixelBuffer(Pixels pixels) throws IOException
+    {
+        RomioPixelBuffer pixbuf =
+        	new RomioPixelBuffer(getPixelsPath(pixels.getId()), pixels);
         initPixelBuffer(pixbuf);
-
         return pixbuf;
     }
 
     public PixelBuffer getPixelBuffer(Pixels pixels) {
         String path = getPixelsPath(pixels.getId());
         createSubpath(path);
-        return new PixelBuffer(path, pixels);
+        return new RomioPixelBuffer(path, pixels);
     }
 
-    private void initPixelBuffer(PixelBuffer pixbuf) throws IOException {
+    private void initPixelBuffer(RomioPixelBuffer pixbuf) throws IOException
+    {
         String path = getPixelsPath(pixbuf.getId());
         createSubpath(path);
         byte[] padding = new byte[pixbuf.getPlaneSize() - NULL_PLANE_SIZE];
@@ -60,5 +62,28 @@ public class PixelsService extends AbstractFileSystemService {
                 }
             }
         }
+    }
+    
+    /**
+     * Retrieves the bit width of a particular <code>PixelsType</code>.
+     * @param type a pixel type.
+     * @return width of a single pixel value in bits.
+     */
+    public static int getBitDepth(PixelsType type) {
+        if (type.getValue().equals("int8") || type.getValue().equals("uint8")) {
+            return 8;
+        } else if (type.getValue().equals("int16")
+                || type.getValue().equals("uint16")) {
+            return 16;
+        } else if (type.getValue().equals("int32")
+                || type.getValue().equals("uint32")
+                || type.getValue().equals("float")) {
+            return 32;
+        } else if (type.getValue().equals("double")) {
+            return 64;
+        }
+
+        throw new RuntimeException("Pixels type '" + type.getValue()
+                + "' unsupported by nio.");
     }
 }

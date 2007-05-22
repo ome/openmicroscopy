@@ -4,397 +4,365 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.io.nio;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ome.model.core.Pixels;
-import ome.model.enums.PixelsType;
 
 /**
- * @author callan
+ * 
+ * This interface declares the I/O responsibilities of a buffer, file or
+ * otherwise, that contains a 5-dimensional Pixel array (XYZCT).
+ * 
+ * @author Chris Allan
+ *         &nbsp;<a href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
+ * @version $Revision$
+ * @since 3.0
  * 
  */
-public class PixelBuffer extends AbstractBuffer {
-    /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
-
-    private Pixels pixels;
-
-    private FileChannel channel;
-
-    private Integer rowSize;
-
-    private Integer planeSize;
-
-    private Integer stackSize;
-
-    private Integer timepointSize;
-
-    private Integer totalSize;
-
-    PixelBuffer(String path, Pixels pixels) {
-        super(path);
-        if (pixels == null) {
-            throw new NullPointerException(
-                    "Expecting a not-null pixels element.");
-        }
-
-        this.pixels = pixels;
-    }
-
-    private void checkBounds(Integer y, Integer z, Integer c, Integer t)
-            throws DimensionsOutOfBoundsException {
-        if (y != null && (y > getSizeY() - 1 || y < 0)) {
-            throw new DimensionsOutOfBoundsException("Y '" + y
-                    + "' greater than sizeY '" + getSizeY() + "'.");
-        }
-
-        if (z != null && (z > getSizeZ() - 1 || z < 0)) {
-            throw new DimensionsOutOfBoundsException("Z '" + z
-                    + "' greater than sizeZ '" + getSizeZ() + "'.");
-        }
-
-        if (c != null && (c > getSizeC() - 1 || c < 0)) {
-            throw new DimensionsOutOfBoundsException("C '" + c
-                    + "' greater than sizeC '" + getSizeC() + "'.");
-        }
-
-        if (t != null && (t > getSizeT() - 1 || t < 0)) {
-            throw new DimensionsOutOfBoundsException("T '" + t
-                    + "' greater than sizeT '" + getSizeT() + "'.");
-        }
-    }
-
-    private FileChannel getFileChannel() throws FileNotFoundException {
-        if (channel == null) {
-            RandomAccessFile file = new RandomAccessFile(getPath(), "rw");
-            channel = file.getChannel();
-        }
-
-        return channel;
-    }
-
+public interface PixelBuffer
+{
     /**
      * Closes the buffer, cleaning up file state.
      * 
-     * @throws IOException
-     *             if an I/O error occurs.
+     * @throws IOException if an I/O error occurs.
      */
-    public void close() throws IOException {
-        if (channel != null) {
-            channel.close();
-            channel = null;
-        }
-    }
+    public void close() throws IOException;
 
-    public Integer getPlaneSize() {
-        if (planeSize == null) {
-            planeSize = getSizeX() * getSizeY() * getByteWidth();
-        }
+    /**
+     * Checks to ensure that no one particular axis has an offset out of bounds.
+     * <code>null</code> may be passed as the argument to any one of the offsets
+     * to ignore it for the purposes of bounds checking.
+     * @param y offset across the Y-axis of the pixel buffer to check.
+     * @param z offset across the Z-axis of the pixel buffer to check.
+     * @param c offset across the C-axis of the pixel buffer to check.
+     * @param t offset across the T-axis of the pixel buffer to check.
+     * @throws DimensionsOutOfBoundsException if <code>y</code>,
+     * <code>z</code>, <code>c</code> or <code>t</code> is out of bounds.
+     */
+    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    	throws DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves the in memory size of a 2D image plane in this pixel buffer.
+     * @return 2D image plane size in bytes (sizeX*sizeY*ByteWidth).
+     */
+    public Integer getPlaneSize();
 
-        return planeSize;
-    }
+    /**
+     * Retreives the in memory size of a row or scanline of pixels in this
+     * pixel buffer.
+     * @return row or scanline size in bytes (sizeX*ByteWidth)
+     */
+    public Integer getRowSize();
 
-    public Integer getRowSize() {
-        if (rowSize == null) {
-            rowSize = getSizeX() * getByteWidth();
-        }
+    /**
+     * Retreives the in memory size of the entire number of optical sections
+     * for a <b>single</b> wavelength or channel at a particular timepoint in
+     * this pixel buffer.
+     * @return stack size in bytes (sizeX*sizeY*sizeZ*ByteWidth).
+     */
+    public Integer getStackSize();
 
-        return rowSize;
-    }
+    /**
+     * Retrieves the in memory size of the entire number of optical sections for
+     * <b>all</b> wavelengths or channels at a particular timepoint in this
+     * pixel buffer.
+     * @return timepoint size in bytes (sizeX*sizeY*sizeZ*sizeC*ByteWidth).
+     */
+    public Integer getTimepointSize();
 
-    public Integer getStackSize() {
-        if (stackSize == null) {
-            stackSize = getPlaneSize() * getSizeZ();
-        }
+    /**
+     * Retrieves the in memory size of the entire pixel buffer.
+     * @return total size of the pixel size in bytes
+     * (sizeX*sizeY*sizeZ*sizeC*sizeT*ByteWidth).
+     */
+    public Integer getTotalSize();
 
-        return stackSize;
-    }
-
-    public Integer getTimepointSize() {
-        if (timepointSize == null) {
-            timepointSize = getStackSize() * getSizeC();
-        }
-
-        return timepointSize;
-    }
-
-    public Integer getTotalSize() {
-        if (totalSize == null) {
-            totalSize = getTimepointSize() * getSizeT();
-        }
-
-        return totalSize;
-    }
-
+    /**
+     * Retrieves the offset for a particular row or scanline in this pixel 
+     * buffer.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return offset of the row or scaline.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
-            throws DimensionsOutOfBoundsException {
-        checkBounds(y, z, c, t);
+            throws DimensionsOutOfBoundsException;
 
-        Integer rowSize = getRowSize();
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
-        Integer planeSize = getPlaneSize();
-
-        return (long) rowSize * y + (long) timepointSize * t
-                + (long) stackSize * c + (long) planeSize * z;
-    }
-
+    /**
+     * Retrieves the offset for a particular 2D image plane in this pixel
+     * buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return offset of the 2D image plane.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
-            throws DimensionsOutOfBoundsException {
-        checkBounds(null, z, c, t);
+            throws DimensionsOutOfBoundsException;
 
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
-        Integer planeSize = getPlaneSize();
-
-        return (long) timepointSize * t + (long) stackSize * c
-                + (long) planeSize * z;
-    }
-
+    /**
+     * Retreives the offset for the entire number of optical sections
+     * for a <b>single</b> wavelength or channel at a particular timepoint in
+     * this pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return offset of the stack.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public Long getStackOffset(Integer c, Integer t)
-            throws DimensionsOutOfBoundsException {
-        checkBounds(null, null, c, t);
+            throws DimensionsOutOfBoundsException;
+    
 
-        Integer timepointSize = getTimepointSize();
-        Integer stackSize = getStackSize();
-
-        return (long) timepointSize * t + (long) stackSize * c;
-    }
-
+    /**
+     * Retrieves the in memory size of the entire number of optical sections for
+     * <b>all</b> wavelengths or channels at a particular timepoint in this
+     * pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return offset of the timepoint.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public Long getTimepointOffset(Integer t)
-            throws DimensionsOutOfBoundsException {
-        checkBounds(null, null, null, t);
+            throws DimensionsOutOfBoundsException;
 
-        Integer timepointSize = getTimepointSize();
-
-        return (long) timepointSize * t;
-    }
-
+    /**
+     * Retrieves a region from this pixel buffer.
+     * @param size byte width of the region to retrieve.
+     * @param offset offset within the pixel buffer.
+     * @return buffer containing the data.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
     public MappedByteBuffer getRegion(Integer size, Long offset)
-            throws IOException {
-        FileChannel fileChannel = getFileChannel();
+            throws IOException;
 
-        /*
-         * fileChannel should not be "null" as it will throw an exception if
-         * there happens to be an error.
-         */
-
-        return fileChannel.map(MapMode.READ_ONLY, offset, size);
-    }
-
+    /**
+     * Retrieves a particular row or scanline from this pixel buffer.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return buffer containing the data which comprises this row or scanline.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public MappedByteBuffer getRow(Integer y, Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException {
-        Long offset = getRowOffset(y, z, c, t);
-        Integer size = getRowSize();
+            throws IOException, DimensionsOutOfBoundsException;
 
-        return getRegion(size, offset);
-    }
-
+    /**
+     * Retrieves a particular 2D image plane from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return buffer containing the data which comprises this 2D image plane.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public MappedByteBuffer getPlane(Integer z, Integer c, Integer t)
-            throws IOException, DimensionsOutOfBoundsException {
-        log.info("Retrieving plane: " + z + "x" + c + "x" + t);
-        Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
-        MappedByteBuffer region = getRegion(size, offset);
+            throws IOException, DimensionsOutOfBoundsException;
 
-        byte[] nullPlane = PixelsService.nullPlane;
-
-        for (int i = 0; i < PixelsService.NULL_PLANE_SIZE; i++) {
-            if (region.get(i) != nullPlane[i]) {
-                return region;
-            }
-        }
-
-        return null; // All of the nullPlane bytes match, non-filled plane
-    }
-
+    /**
+     * Retreives the the entire number of optical sections for a <b>single</b>
+     * wavelength or channel at a particular timepoint in this pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return buffer containing the data which comprises this stack.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public MappedByteBuffer getStack(Integer c, Integer t) throws IOException,
-            DimensionsOutOfBoundsException {
-        Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
+            DimensionsOutOfBoundsException;
 
-        return getRegion(size, offset);
-    }
-
+    /**
+     * Retrieves the entire number of optical sections for <b>all</b>
+     * wavelengths or channels at a particular timepoint in this pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return buffer containing the data which comprises this timepoint.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
     public MappedByteBuffer getTimepoint(Integer t) throws IOException,
-            DimensionsOutOfBoundsException {
-        Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
+            DimensionsOutOfBoundsException;
 
-        return getRegion(size, offset);
-    }
-
+    /**
+     * Sets a region in this pixel buffer.
+     * @param size byte width of the region to set.
+     * @param offset offset within the pixel buffer.
+     * @param buffer a byte array of the data.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws BufferOverflowException if <code>buffer.length > size</code>.
+     */
     public void setRegion(Integer size, Long offset, byte[] buffer)
-            throws IOException, BufferOverflowException {
-        FileChannel fileChannel = getFileChannel();
+            throws IOException, BufferOverflowException;
 
-        /*
-         * fileChannel should not be "null" as it will throw an exception if
-         * there happens to be an error.
-         */
-
-        MappedByteBuffer byteBuffer = fileChannel.map(MapMode.READ_WRITE,
-                offset, size);
-
-        byteBuffer.put(buffer);
-        byteBuffer.force();
-        fileChannel.force(false);
-    }
-
+    /**
+     * Sets a region in this pixel buffer.
+     * @param size byte width of the region to set.
+     * @param offset offset within the pixel buffer.
+     * @param buffer a byte buffer of the data.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws BufferOverflowException if <code>buffer.length > size</code>.
+     */
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)
-            throws IOException, BufferOverflowException {
-        setRegion(size, offset, buffer.array());
-    }
+            throws IOException, BufferOverflowException;
 
+    /**
+     * Sets a particular row or scanline in this pixel buffer.
+     * @param buffer a byte buffer of the data comprising this row or scanline.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getRowSize()}</code>.
+     */
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
             Integer t) throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
-        Long offset = getRowOffset(y, z, c, t);
-        Integer size = getRowSize();
+            BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets a particular 2D image plane in this pixel buffer.
+     * @param buffer a byte array of the data comprising this 2D image plane.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getPlaneSize()}</code>.
+     */
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
-        Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
+            BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets a particular 2D image plane in this pixel buffer.
+     * @param buffer a byte buffer of the data comprising this 2D image plane.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getPlaneSize()}</code>.
+     */
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
-        Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
+            BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets the entire number of optical sections for a <b>single</b>
+     * wavelength or channel at a particular timepoint in this pixel buffer.
+     * @param buffer a byte buffer of the data comprising this stack.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getStackSize()}</code>.
+     */
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
-        Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
+            BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets the entire number of optical sections for a <b>single</b>
+     * wavelength or channel at a particular timepoint in this pixel buffer.
+     * @param buffer a byte array of the data comprising this stack.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getStackSize()()}</code>.
+     */
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
-            BufferOverflowException {
-        Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
+            BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets the entire number of optical sections for <b>all</b>
+     * wavelengths or channels at a particular timepoint in this pixel buffer.
+     * @param buffer a byte buffer of the data comprising this timepoint.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getTimepointSize()}</code>.
+     */
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
-            DimensionsOutOfBoundsException, BufferOverflowException {
-        Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
+            DimensionsOutOfBoundsException, BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
-
+    /**
+     * Sets the entire number of optical sections for <b>all</b>
+     * wavelengths or channels at a particular timepoint in this pixel buffer.
+     * @param buffer a byte array of the data comprising this timepoint.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     * @throws BufferOverflowException if
+     * <code>buffer.length > {@link getTimepointSize()}</code>.
+     */
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
-            DimensionsOutOfBoundsException, BufferOverflowException {
-        Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
+            DimensionsOutOfBoundsException, BufferOverflowException;
 
-        setRegion(size, offset, buffer);
-    }
+    /**
+     * Calculates a SHA-1 message digest for the entire pixel buffer.
+     * @return byte array containing the message digest.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public byte[] calculateMessageDigest() throws IOException;
 
-    public byte[] calculateMessageDigest() throws IOException {
-        MessageDigest md;
+	/**
+	 * Delegates to {@link Pixels.getId()}.
+	 */
+	public long getId();
+	
+	/**
+	 * Delegates to {@link Pixels.getSizeX()}.
+	 */
+	public int getSizeX();
 
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
-        }
+	/**
+	 * Delegates to {@link Pixels.getSizeY()}.
+	 */
+	public int getSizeY();
 
-        for (int t = 0; t < getSizeT(); t++) {
-            try {
-                MappedByteBuffer buffer = getTimepoint(t);
-                md.update(buffer);
-            } catch (DimensionsOutOfBoundsException e) {
-                // This better not happen. :)
-                throw new RuntimeException(e);
-            }
-        }
+	/**
+	 * Delegates to {@link Pixels.getSizeZ()}.
+	 */
+	public int getSizeZ();
 
-        return md.digest();
-    }
+	/**
+	 * Delegates to {@link Pixels.getSizeC()}.
+	 */
+	public int getSizeC();
 
-    //
-    // Delegate methods to ease work with pixels
-    //
-
-    int getByteWidth() {
-        return getBitDepth(pixels.getPixelsType()) / 8;
-    }
-
-    public static int getBitDepth(PixelsType type) {
-        if (type.getValue().equals("int8") || type.getValue().equals("uint8")) {
-            return 8;
-        } else if (type.getValue().equals("int16")
-                || type.getValue().equals("uint16")) {
-            return 16;
-        } else if (type.getValue().equals("int32")
-                || type.getValue().equals("uint32")
-                || type.getValue().equals("float")) {
-            return 32;
-        } else if (type.getValue().equals("double")) {
-            return 64;
-        }
-
-        throw new RuntimeException("Pixels type '" + type.getValue()
-                + "' unsupported by nio.");
-    }
-
-    int getSizeC() {
-        return pixels.getSizeC();
-    }
-
-    int getSizeT() {
-        return pixels.getSizeT();
-    }
-
-    int getSizeX() {
-        return pixels.getSizeX();
-    }
-
-    int getSizeY() {
-        return pixels.getSizeY();
-    }
-
-    int getSizeZ() {
-        return pixels.getSizeZ();
-    }
-
-    long getId() {
-        return pixels.getId();
-    }
-
-    String getSha1() {
-        return pixels.getSha1();
-    }
+	/**
+	 * Delegates to {@link Pixels.getSizeT()}.
+	 */
+	public int getSizeT();
 }
