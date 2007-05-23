@@ -116,14 +116,12 @@ public class RefreshDataLoader
      */
     public void load()
     {
-    	if (expandedNodes == null || expandedNodes.size() == 0) {
+    	if (expandedNodes == null || expandedNodes.size() == 0)
             handle = dmView.loadContainerHierarchy(rootNodeType, null, false,
                     convertRootLevel(), viewer.getRootID(), this);
-        } else {
-        	System.err.println("HERE");
+        else
             handle = dmView.refreshHierarchy(rootNodeType, expandedNodes, 
                     convertRootLevel(), viewer.getRootID(), this);
-        }
     }
 
     /**

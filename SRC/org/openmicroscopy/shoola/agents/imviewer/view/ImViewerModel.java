@@ -355,8 +355,8 @@ class ImViewerModel
      * Returns <code>true</code> if the channel is mapped, <code>false</code>
      * otherwise.
      * 
-     * @param w     The channel's index.
-     * @return      <code>true</code> if selected, <code>false</code> otherwise.
+     * @param w	The channel's index.
+     * @return See above.
      */
     boolean isChannelActive(int w) { return rndControl.isActive(w); }
     
@@ -556,7 +556,7 @@ class ImViewerModel
      * 
      * @return See above.
      */
-    int getMaxC() { return rndControl.getPixelsDimensionsC();}
+    int getMaxC() { return rndControl.getPixelsDimensionsC(); }
     
     /** 
      * Returns the number of active channels.

@@ -410,6 +410,7 @@ public class TreeViewerTranslator
                 }	
             }   
         }
+        if (orphan != null) orphan.setExpanded(false);
         return results;
     }
     
@@ -557,6 +558,7 @@ public class TreeViewerTranslator
                 }
             }
         }
+        if (orphan != null) orphan.setExpanded(false);
         return results;
     }
     

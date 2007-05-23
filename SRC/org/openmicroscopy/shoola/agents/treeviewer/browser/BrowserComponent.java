@@ -201,7 +201,7 @@ class BrowserComponent
 	    }
 	    if (model.getBrowserType() == IMAGES_EXPLORER) {
 	        root.removeAllChildrenDisplay();
-	        model.setSelectedDisplay(root);
+	        model.setSelectedDisplay(null); //root
 	        
 	        Set nodes = model.getFilteredNodes();
 	        if (nodes != null) loadFilteredImageData(nodes);
@@ -211,12 +211,12 @@ class BrowserComponent
 	    		RefreshVisitor visitor = new RefreshVisitor(this);
 		        accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 		        root.removeAllChildrenDisplay();
-		        model.setSelectedDisplay(root);
+		        model.setSelectedDisplay(null); //root
 		        model.loadRefreshedData(visitor.getFoundNodes(), 
 		                visitor.getExpandedTopNodes());
 	    	} else {
 	    		root.removeAllChildrenDisplay();
-		        model.setSelectedDisplay(root);
+		        model.setSelectedDisplay(null); //root
 		        model.loadRefreshedData(null, null);
 	    	}
 	    }

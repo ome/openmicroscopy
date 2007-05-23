@@ -283,8 +283,8 @@ class AnnotatorEditorView
         switch (layout) {
 			case AnnotatorEditor.HORIZONTAL_LAYOUT:
 			default:
-				
-				double[][] tl = {{200, 5, TableLayout.FILL, 5}, //columns
+				double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL, 
+									5}, //columns
     				{TableLayout.FILL} }; //rows
 	    		p.setLayout(new TableLayout(tl));
 	    		p.add(new JScrollPane(treeDisplay), "0, 0");

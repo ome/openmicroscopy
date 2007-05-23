@@ -197,7 +197,6 @@ public class ImgSaver
     {
     	setTitle(TITLE);
         setModal(true);
-        //setAlwaysOnTop(true);
     }
     
     /**

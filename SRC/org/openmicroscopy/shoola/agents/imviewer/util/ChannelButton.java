@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
-import javax.swing.Timer;
 
 //Third-party libraries
 
@@ -84,10 +83,10 @@ public class ChannelButton
      * The number of milliseconds we'll wait till we know we've got a single
      * click event. 
      */
-    private static final int DOUBLE_CLICK_THRESHOLD = 200; // ms
+    //private static final int DOUBLE_CLICK_THRESHOLD = 200; // ms
    
     /** Timer scheduling the double click task. */
-    private Timer timer;  
+    //private Timer timer;  
     
     /** Fires an event to select the channel. */
     private final void setChannelSelected()
@@ -108,11 +107,12 @@ public class ChannelButton
     {
     	boolean mask = (e.isControlDown() || e.isMetaDown());
     	if (e.getButton() == MouseEvent.BUTTON1 && !(mask) ) {
-    		if (e.getClickCount() == 1) timer.start();
-    		else if (e.getClickCount() == 2) {
-    			timer.stop();
-    			doubleClick();
-    		}
+    		//if (e.getClickCount() == 1) timer.start();
+    		//else if (e.getClickCount() == 2) {
+    		//	timer.stop();
+    		//	doubleClick();
+    		//}
+    		singleClick();
     	} else if ((e.getButton() == MouseEvent.BUTTON2 || mask)) 
         	onReleased(e);
     }
@@ -128,7 +128,7 @@ public class ChannelButton
      * event has been received before the double click threshold time has 
      * expired. 
      */
-    private void doubleClick()   { showColorPicker(); }
+    //private void doubleClick()   { showColorPicker(); }
        
     /** 
      * Handles the mouse released event because Popup menus are triggered 
@@ -166,8 +166,8 @@ public class ChannelButton
             public void mousePressed(MouseEvent e) { onClick(e); }
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
-        timer = new Timer(DOUBLE_CLICK_THRESHOLD, this);
-        timer.setCoalesce(true);
+        //timer = new Timer(DOUBLE_CLICK_THRESHOLD, this);
+        //timer.setCoalesce(true);
     }
     
     /**
@@ -204,13 +204,13 @@ public class ChannelButton
     public int getChannelIndex() { return index; }
     
 	/**
-     * Handles double-click performed on the channel button.
+     * Handles click performed on the channel button.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
     {
 		singleClick();
-		timer.stop();
+		//timer.stop();
 	}
     
 }

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -523,5 +524,35 @@ class RendererModel
     {
     	rndControl.saveCurrentSettings(); 
     }
+    
+    /**
+     * Returns <code>true</code> if the channel is mapped, <code>false</code>
+     * otherwise.
+     * 
+     * @param w	The channel's index.
+     * @return See above.
+     */
+    boolean isChannelActive(int w) { return rndControl.isActive(w); }
+    
+    /**
+     * Returns a list of active channels.
+     * 
+     * @return See above.
+     */
+    List getActiveChannels()
+    {
+        ArrayList<Integer> active = new ArrayList<Integer>();
+        for (int i = 0; i < getMaxC(); i++) {
+            if (rndControl.isActive(i)) active.add(new Integer(i));
+        }
+        return active;
+    }
+    
+    /**
+     * Returns the number of channels.
+     * 
+     * @return See above.
+     */
+    int getMaxC() { return rndControl.getPixelsDimensionsC(); }
     
 }

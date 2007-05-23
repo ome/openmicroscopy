@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
-import java.awt.Component;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JTabbedPane;

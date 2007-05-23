@@ -137,9 +137,12 @@ public interface Renderer
     /**
      * Sets the selected channel.
      * 
-     * @param c The new selected channel.
+     * @param c 			The new selected channel.
+     * @param checkIfActive	Pass <code>true</code> to control if the selected
+     * 						channel is active or not, <code>false</code>
+     * 						otherwise.
      */
-    void setSelectedChannel(int c);
+    void setSelectedChannel(int c, boolean checkIfActive);
     
     /**
      * Sets the family and updates the image.

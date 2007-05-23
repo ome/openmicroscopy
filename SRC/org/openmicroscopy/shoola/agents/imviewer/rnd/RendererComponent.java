@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 
 
 //Java imports
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -71,6 +73,21 @@ class RendererComponent
     
     /** The View sub-component. */
     private RendererUI      view;
+    
+    /**
+     * Sets the index of the selected channel.
+     * 
+     * @param oldChannel	The index of the previously selected channel.
+     * @param c				The index of the newly selected channel.
+     */
+    private void setSelectedChannel(int oldChannel, int c)
+    {
+    	if (oldChannel == c) return;
+    	model.setSelectedChannel(c);
+        view.setSelectedChannel(c);
+        firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
+                    	new Integer(oldChannel), new Integer(c));
+    }
     
     /**
      * Creates a new instance.
@@ -178,20 +195,37 @@ class RendererComponent
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#setSelectedChannel(int)
+     * @see Renderer#setSelectedChannel(int, boolean)
      */
-    public void setSelectedChannel(int c)
+    public void setSelectedChannel(int c, boolean checkIfActive)
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
             return;
         int selectedChannel  = model.getSelectedChannel();
-        if (selectedChannel == c) return;
-        model.setSelectedChannel(c);
-        view.setSelectedChannel(c);
-        //if (model.getParentModel().getColorModel().equals(
-        //        ImViewer.GREY_SCALE_MODEL))
-        firePropertyChange(SELECTED_CHANNEL_PROPERTY, 
-                    	new Integer(selectedChannel), new Integer(c));
+        //if (selectedChannel == c) return;
+        if (!checkIfActive) { 
+        	setSelectedChannel(selectedChannel, c);
+        } else {
+        	boolean active = model.isChannelActive(c);
+        	if (active)
+        		setSelectedChannel(selectedChannel, c);
+        	else {
+        		List actives = model.getActiveChannels();
+        		if (actives != null && actives.size() > 0) {
+        			int maxC = model.getMaxC();
+        			int index = c+1;
+        			int selected = -1;
+        			while (selected == -1) {
+						if (actives.contains(new Integer(index)))
+							selected = index;
+						if (index == maxC) index = 0;
+						else index++;
+					}
+        			setSelectedChannel(selectedChannel, selected);
+        		}
+        	}
+        }
+       
     }
 
     /**

@@ -85,6 +85,7 @@ public class ImageDetailsDialog
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { close(); }
         });
+        getRootPane().setDefaultButton(cancelButton);
     }
     
     /** Closes and disposes. */

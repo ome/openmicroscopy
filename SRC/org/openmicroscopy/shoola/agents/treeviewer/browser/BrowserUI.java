@@ -30,6 +30,8 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -61,6 +63,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FilterMenuAction;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -225,6 +229,12 @@ class BrowserUI
         }
     }
     
+    /**
+     * Handles the mouse moved event. Displays the properties fo the
+     * the nodes the mouse is over.
+     * 
+     * @param e	The mouse event to handle.
+     */
     private void rollOver(MouseEvent e)
     {
     	if (!model.getParentModel().isRollOver()) return;
@@ -285,6 +295,30 @@ class BrowserUI
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
+        
+        treeDisplay.addKeyListener(new KeyAdapter() {
+	
+			public void keyPressed(KeyEvent e)
+			{
+				switch (e.getKeyCode()) {
+					case KeyEvent.VK_ENTER:
+						ViewCmd cmd = new ViewCmd(model.getParentModel());
+					    cmd.execute();
+						break;
+					case KeyEvent.VK_DELETE:
+						switch (model.getState()) {
+							case Browser.LOADING_DATA:
+							case Browser.LOADING_LEAVES:
+							case Browser.COUNTING_ITEMS:  
+								break;
+							default:
+								DeleteCmd c = new DeleteCmd(
+												model.getParentModel());
+								c.execute();
+						}
+				}
+			}
+		});
         //Initialize the goIntoTree
         goIntoTree = new JTree();      
         goIntoTree.setVisible(true);

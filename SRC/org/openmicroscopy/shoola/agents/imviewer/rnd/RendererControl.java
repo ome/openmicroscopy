@@ -258,10 +258,10 @@ class RendererControl
             model.setBitResolution(newValue.intValue());
         } else if (name.equals(ChannelToggleButton.CHANNEL_PICKED_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v);
+            model.setSelectedChannel(v, false);
         } else if (name.equals(ImViewer.CHANNEL_ACTIVE_PROPERTY)) {
             int v = ((Integer) evt.getNewValue()).intValue();
-            model.setSelectedChannel(v);
+            model.setSelectedChannel(v, true);
         } else if (name.equals(ImViewer.ICONIFIED_PROPERTY)) {
             if (((Boolean) evt.getNewValue()).booleanValue()) {
             	if (view.isVisible()) {

@@ -22,21 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.hiviewer.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
-import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
 
 /** 
- * 
+ * Depending on the status, display the properties of the node 
+ * the mouse is over. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,8 +56,8 @@ public class MouseOverAction
     private static final String NAME = "";
 
     /** The description of the action. */
-    private static final String DESCRIPTION = "Mouse over node to display " +
-    							"its properties";
+    private static final String DESCRIPTION = "Mouse over thumbnail to " +
+    						"display its properties";
     
     /**
      * Creates a new instance.

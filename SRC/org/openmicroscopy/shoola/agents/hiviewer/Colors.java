@@ -74,13 +74,13 @@ public class Colors
     public static final int     ANNOTATED = 4;
     
     /** The sole instance. */
-    private static Colors   singleton;
+    private static Colors   	singleton;
     
     /** The collection of colors. */
-    private Map             colorsMap;
+    private Map<Integer, Color>	colorsMap;
     
     /** Convenience reference. */
-    private Registry        registry;
+    private Registry        	registry;
     
     /**
      * Creates a new instance and configures the parameters.
@@ -91,7 +91,7 @@ public class Colors
     {
         if (registry == null) throw new NullPointerException("No registry.");
         this.registry = registry;
-        colorsMap = new HashMap();
+        colorsMap = new HashMap<Integer, Color>();
         initializeColors();
     }
     
@@ -136,7 +136,7 @@ public class Colors
             registry.getLogger().error(this, "color id out of range: "+id+".");
             return null;
         }
-        return (Color) colorsMap.get(new Integer(id));
+        return colorsMap.get(new Integer(id));
     }
     
     /**
