@@ -66,6 +66,7 @@ import org.jhotdraw.draw.TextTool;
 import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.Insets2D;
 import org.jhotdraw.util.ReversedList;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -87,19 +88,14 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
  */
 public 	class BezierAnnotationFigure
 		extends MeasureBezierFigure
-		implements TextHolderFigure, ROIFigure
+		implements TextHolderFigure
 {
-	private boolean editable = true;
-
-	private ROI			roi;
-	private ROIShape 	shape;
-
-	private Color 		oldColor;
-	private boolean 	fillChanged = false;
+	private boolean 		editable = true;
+	private boolean			displayText = true;
 
 	// cache of the TextFigure's layout
-	transient private  	TextLayout textLayout;
-	private				Rectangle2D.Double textBounds;
+	transient private  		TextLayout textLayout;
+	private					Rectangle2D.Double textBounds;
 
 	public BezierAnnotationFigure()
 	{
@@ -117,7 +113,6 @@ public 	class BezierAnnotationFigure
 		setText(text);
 		textLayout = null;
 		textBounds = null;
-		oldColor = null;
 	}
 	
 
@@ -127,7 +122,6 @@ public 	class BezierAnnotationFigure
 		setText(text);
 		textLayout = null;
 		textBounds = null;
-		oldColor = null;
 	}
 
 	// SHAPE AND BOUNDS
@@ -144,23 +138,19 @@ public 	class BezierAnnotationFigure
 
 	protected void drawFill(java.awt.Graphics2D g) 
 	{
-		if(fillChanged)
-		{
-			FILL_COLOR.set(this, oldColor);
-			fillChanged = false;
-		}
 		super.drawFill(g);
 		drawText(g);
 	}
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if (getText()!=null || isEditable()) 
-		{
-			TextLayout layout = getTextLayout();
-			setTextBounds(g);
-			layout.draw(g, (float) textBounds.x, (float)(textBounds.y+getTextHeight(g)));
-		}
+		if(displayText)
+			if (getText()!=null || isEditable()) 
+			{
+				TextLayout layout = getTextLayout();
+				setTextBounds(g);
+				layout.draw(g, (float) textBounds.x, (float)(textBounds.y+getTextHeight(g)));
+			}
 	}
 
 	protected void setTextBounds(Graphics2D g) 
@@ -236,16 +226,16 @@ public 	class BezierAnnotationFigure
 		if(super.path != null)
 		{
 			if(showText)
-				if(super.path.outlineContains(p, 10.0))
-					showText= false;
+				if(!isClosed() && super.path.outlineContains(p, 10.0))
+					showText = false;
+				if(isClosed() && super.path.outlineContains(p, 3.0))
+					showText = false;
 		}
 		if(showText) 
 		{
-			fillChanged = true;
-			oldColor = FILL_COLOR.get(this);
-			FILL_COLOR.set(this, Color.white);
+			displayText = false;
 			invalidate();
-			return new TextTool(this); 
+			return new MeasureTextTool(this); 
 		}
 		return null;
 	}
@@ -287,6 +277,7 @@ public 	class BezierAnnotationFigure
 	 */
 	public void setText(String newText) 
 	{
+		displayText = true;
 		setAttribute(TEXT, newText);
 	}
 
@@ -348,38 +339,7 @@ public 	class BezierAnnotationFigure
 	{
 		this.editable = b;
 	}
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
-	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
-	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
-	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
-	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
 	 */

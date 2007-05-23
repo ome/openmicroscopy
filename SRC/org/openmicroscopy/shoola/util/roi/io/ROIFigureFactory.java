@@ -95,7 +95,6 @@ public class ROIFigureFactory implements FigureFactory
         LineAnnotationFigure figure = new LineAnnotationFigure();
         figure.addNode(new BezierPath.Node(x1, y1));
         figure.addNode(new BezierPath.Node(x2, y2));
-        //figure.add(bf);
         figure.basicSetAttributes(a);
         return figure;
     }
@@ -120,20 +119,7 @@ public class ROIFigureFactory implements FigureFactory
         figure.basicSetAttributes(a);
         return figure;
     }
-    
-  /*  public ROIFigure createPath(BezierPath[] beziers, Map<AttributeKey, Object> a) 
-    {
-        SVGPathFigure figure = new SVGPathFigure();
-        figure.removeAllChildren();
-        for (int i=0; i < beziers.length; i++) {
-            BezierFigure bf = new BezierFigure();
-            bf.basicSetBezierPath(beziers[i]);
-            figure.add(bf);
-        }
-        figure.basicSetAttributes(a);
-        return figure;
-    }*/
-            
+                
    /* public ROIFigure createText(Point2D.Double[] coordinates, double[] rotates, StyledDocument text, Map<AttributeKey, Object> a) 
     {
         MeasureTextFigure figure = new MeasureTextFigure();

@@ -71,6 +71,7 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -88,13 +89,11 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
  * @since OME3.0
  */
 public class LineConnectionAnnotationFigure 
-extends MeasureLineConnectionFigure
-implements TextHolderFigure, ROIFigure
+	extends MeasureLineConnectionFigure
+	implements TextHolderFigure
 {
 	private boolean editable = true;
-
-	private ROI			roi;
-	private ROIShape 	shape;
+	private boolean displayText = true;
 
 	private Color 		oldColor;
 	private boolean 	fillChanged = false;
@@ -132,23 +131,19 @@ implements TextHolderFigure, ROIFigure
 
 	protected void drawFill(java.awt.Graphics2D g) 
 	{
-		if(fillChanged)
-		{
-			FILL_COLOR.set(this, oldColor);
-			fillChanged = false;
-		}
 		super.drawFill(g);
 		drawText(g);
 	}
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if (getText()!=null || isEditable()) 
-		{
-			TextLayout layout = getTextLayout();
-			setTextBounds(g);
-			layout.draw(g, (float) textBounds.x, (float)(textBounds.y+getTextHeight(g)));
-		}
+		if(displayText)
+			if (getText()!=null || isEditable()) 
+			{
+				TextLayout layout = getTextLayout();
+				setTextBounds(g);
+				layout.draw(g, (float) textBounds.x, (float)(textBounds.y+getTextHeight(g)));
+			}
 	}
 
 	protected void setTextBounds(Graphics2D g) 
@@ -229,11 +224,9 @@ implements TextHolderFigure, ROIFigure
 		}
 		if(showText) 
 		{
-			fillChanged = true;
-			oldColor = FILL_COLOR.get(this);
-			FILL_COLOR.set(this, Color.white);
+			displayText = false;
 			invalidate();
-			return new TextTool(this); 
+			return new MeasureTextTool(this); 
 		}
 		return null;
 	}
@@ -275,6 +268,7 @@ implements TextHolderFigure, ROIFigure
 	 */
 	public void setText(String newText) 
 	{
+		displayText = true;
 		setAttribute(TEXT, newText);
 	}
 
@@ -335,44 +329,5 @@ implements TextHolderFigure, ROIFigure
 	public void setEditable(boolean b) 
 	{
 		this.editable = b;
-	}
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
-	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
-	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
-	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
-	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
-	 */
-	public void calculateMeasurements()
-	{
-		super.calculateMeasurements();
 	}
 }

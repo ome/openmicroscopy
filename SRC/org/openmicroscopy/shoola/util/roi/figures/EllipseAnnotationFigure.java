@@ -30,13 +30,9 @@ import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
@@ -48,17 +44,13 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT;
 
 
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BoxHandleKit;
-import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.TextTool;
 import org.jhotdraw.draw.Tool;
-import org.jhotdraw.geom.Geom;
 import org.jhotdraw.geom.Insets2D;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -78,10 +70,8 @@ public class EllipseAnnotationFigure
 	implements TextHolderFigure
 {
 	private boolean 							editable;
-		
-	private Color 								oldColor;
-	private boolean 							fillChanged;
-	
+	private boolean 							displayText = true;
+
 	// cache of the TextFigure's layout
 	transient private  	TextLayout 				textLayout;
 	private				Rectangle2D.Double 		textBounds;
@@ -107,36 +97,30 @@ public class EllipseAnnotationFigure
 		setText(text);
 		textLayout = null;
 		textBounds = null;
-		oldColor = null;
-		fillChanged = false;
 		editable = true;
 	}
 	 
 	
 	protected void drawFill(java.awt.Graphics2D g) 
 	{
-		if(fillChanged)
-		{
-			FILL_COLOR.set(this, oldColor);
-			fillChanged = false;
-		}
 		super.drawFill(g);
 		drawText(g);
 	}
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if (getText()!=null || isEditable()) 
-		{
-			TextLayout layout = getTextLayout();
-			setTextBounds(g);
-			layout.draw(g, (float) textBounds.x, (float)textBounds.y);
-		}
+		if(displayText)
+			if (getText()!=null || isEditable()) 
+			{
+				TextLayout layout = getTextLayout();
+				setTextBounds(g);
+				layout.draw(g, (float) textBounds.x, (float)textBounds.y);
+			}
 	}
 
 	protected void setTextBounds(Graphics2D g) 
 	{
-	textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
+		textBounds = new Rectangle2D.Double(getTextX(g), getTextY(g),
 				getTextWidth(g), getTextHeight(g));
 	}
 
@@ -196,11 +180,9 @@ public class EllipseAnnotationFigure
 	{
 		if(isEditable() && contains(p)) 
 		{
-			fillChanged = true;
-			oldColor = FILL_COLOR.get(this);
-			FILL_COLOR.set(this, Color.white);
+			displayText = false;
 			invalidate();
-			return new TextTool(this); 
+			return new MeasureTextTool(this); 
 		}
 		return null;
 	}
@@ -241,6 +223,7 @@ public class EllipseAnnotationFigure
 	 */
 	public void setText(String newText) 
 	{
+		displayText = true;
 		setAttribute(TEXT, newText);
 	}
 
