@@ -41,6 +41,7 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -50,6 +51,7 @@ import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
