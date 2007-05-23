@@ -31,6 +31,9 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+
+import org.jhotdraw.draw.AttributeKey;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -168,4 +171,13 @@ public interface MeasurementViewer
 	/** Save the results table in the measurement results component. */
 	public void saveResultsTable();
 	
+	/**
+	 * A figures attributes hae changed. The model needs to manage the logic 
+	 * of how this affects the ROI, ROIShape parent of the figure. 
+	 * 
+	 * @param key
+	 * @param fig
+	 */
+	public void figureAttributeChanged(AttributeKey key, ROIFigure fig);
+
 }

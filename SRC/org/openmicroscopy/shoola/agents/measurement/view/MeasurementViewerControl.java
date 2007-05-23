@@ -245,13 +245,14 @@ class MeasurementViewerControl
 	}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} This allows the viewer to manage
+	 * the link between figure attributes and ROIShape, ROI objects. 
 	 * @see FigureListener#figureAttributeChanged(FigureEvent)
 	 */
 	public void figureAttributeChanged(FigureEvent e)
 	{
 		view.onAttributeChanged(e.getFigure());
+		model.figureAttributeChanged(e.getAttribute(), (ROIFigure)e.getFigure());
 	}
 
 	/**

@@ -29,12 +29,16 @@ import java.util.TreeMap;
 
 
 //Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 
 //Application-internal dependencies
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
@@ -68,7 +72,6 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 class MeasurementViewerModel 
 {
-
 	/** The id of the image this {@link MeasurementViewer} is for. */
 	private long					imageID;
 	
@@ -431,6 +434,19 @@ class MeasurementViewerModel
 		}
 	}
 
+	/**
+	 * Figure attribute has changed, need to add any special processing to see
+	 * if it should affect ROIShape, ROI or other object. 
+	 */
+	public void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
+	{
+		if(attribute.getKey().equals(TEXT.getKey()))
+		{
+			ROIShape shape = figure.getROIShape();
+			BASIC_TEXT.set(shape, TEXT.get(figure));
+		}
+	}
+	
 	/**
 	 * Sets the pixels set this model is for.
 	 * 

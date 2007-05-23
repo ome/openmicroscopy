@@ -30,6 +30,7 @@ import java.util.TreeMap;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
@@ -40,6 +41,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 
@@ -344,13 +346,22 @@ class MeasurementViewerComponent
 		view.refreshResultsTable();
 	}
 
-		/** 
-	     * Implemented as specified by the {@link MeasurementViewer} interface.
-	     * @see MeasurementViewer#saveResultsTable()
-	     */
+	/** 
+	* Implemented as specified by the {@link MeasurementViewer} interface.
+	* @see MeasurementViewer#saveResultsTable()
+	*/
 	public void saveResultsTable() 
 	{
 		view.saveResultsTable();
+	}
+	
+	/** 
+	* Implemented as specified by the {@link MeasurementViewer} interface.
+	* @see MeasurementViewer#figureAttributeChanged()
+	*/
+	public void figureAttributeChanged(AttributeKey key, ROIFigure figure)
+	{
+		model.figureAttributeChanged(key, figure);
 	}
     
 }
