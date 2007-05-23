@@ -337,6 +337,22 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
     }
 
+    @RolesAllowed("user")
+    public void updateSelf(@NotNull Experimenter e) {
+    	EventContext ec = getSecuritySystem().getEventContext();
+    	final Experimenter self = getExperimenter(ec.getCurrentUserId());
+    	self.setFirstName(e.getFirstName());
+    	self.setMiddleName(e.getMiddleName());
+    	self.setLastName(e.getLastName());
+    	self.setEmail(e.getEmail());
+    	self.setInstitution(e.getInstitution());
+        getSecuritySystem().runAsAdmin(new AdminAction(){
+            public void runAsAdmin() {
+                iUpdate.flush();
+            }
+        });
+    }
+    
     @RolesAllowed("system")
     public void updateExperimenter(@NotNull
     Experimenter experimenter) {
@@ -483,7 +499,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         iUpdate.flush();
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public void setDefaultGroup(Experimenter user, ExperimenterGroup group) {
         if (user == null) {
             return;
@@ -496,7 +512,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             throw new ApiUsageException("Group argument to setDefaultGroup "
                     + "must be managed (i.e. have an id)");
         }
+        
+        EventContext ec = getSecuritySystem().getEventContext();
+        if (!ec.isCurrentUserAdmin() && !ec.getCurrentUserId().equals(user.getId())) {
+        	throw new SecurityViolation("User "+user.getId()+" can only set own default group.");
+        }
 
+        Roles roles = getSecuritySystem().getSecurityRoles();
+        if (Long.valueOf(roles.getUserGroupId()).equals(group.getId())) {
+        	throw new ApiUsageException("Cannot set default group to: "+roles.getUserGroupName());
+        }
+        
         boolean newDefaultSet = false;
         Experimenter foundUser = getExperimenter(user.getId());
         for (GroupExperimenterMap map : (List<GroupExperimenterMap>) foundUser
@@ -507,6 +533,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
             } else {
                 map.setDefaultGroupLink(Boolean.FALSE);
             }
+            // TODO: May want to move this outside the loop 
+            // and after the !newDefaultSet check.
+            getSecuritySystem().doAction(map, new SecureAction() {
+                public <T extends IObject> T updateObject(T obj) {
+                    iUpdate.saveObject(obj);
+                    return null;
+                }
+            });
+
         }
 
         if (!newDefaultSet) {
@@ -515,6 +550,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         }
 
         iUpdate.flush();
+        
     }
 
     @RolesAllowed("system")
@@ -543,7 +579,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         iUpdate.flush();
     }
 
-    @RolesAllowed("system")
+    @RolesAllowed("user")
     public ExperimenterGroup getDefaultGroup(@NotNull
     Long experimenterId) {
         ExperimenterGroup g = iQuery.findByQuery(

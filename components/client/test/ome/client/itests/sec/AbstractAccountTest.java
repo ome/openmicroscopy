@@ -36,7 +36,7 @@ public class AbstractAccountTest extends AbstractSecurityTest {
 
     // ~ Testng Adapter
     // =========================================================================
-    @Configuration(beforeTestClass = true)
+    @BeforeClass
     public void sudoCanLoginWith_ome() throws Exception {
         init();
         root = rootQuery.get(Experimenter.class, 0L);

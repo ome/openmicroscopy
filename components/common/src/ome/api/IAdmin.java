@@ -153,7 +153,21 @@ public interface IAdmin extends ServiceInterface {
     // =========================================================================
 
     /**
-     * Updates an experimenter.
+     * Allows a user to update his/her own information. This is limited to
+     * the fields on Experimenter, all other fields (groups, etc.) are ignored.
+     * The experimenter argument need not have the proper id nor the proper omeName 
+     * (which is immutable).  To change the users default group (which is the only
+     * other customizable option), use {@link #setDefaultGroup(Experimenter, ExperimenterGroup)}
+     * 
+     * @see #setDefaultGroup(Experimenter, ExperimenterGroup) 
+     * @param experimenter A data transfer object. Only the fields: firstName, middleName,
+     * 		lastName, email, and institution are checked. Not null.
+     */
+    void updateSelf(@NotNull Experimenter experimenter);
+    
+    /**
+     * Updates an experimenter as admin. All aspects of the passed object are taken into account
+     * including omeName, groups, and default group.
      * 
      * @param experimenter
      *            the Experimenter to update.
@@ -162,7 +176,8 @@ public interface IAdmin extends ServiceInterface {
     Experimenter experimenter);
 
     /**
-     * Updates a group.
+     * Updates a group. All aspects of the passed object are taken into account
+     * including group name and the included users.
      * 
      * @param group
      *            the ExperimenterGroup to update.
