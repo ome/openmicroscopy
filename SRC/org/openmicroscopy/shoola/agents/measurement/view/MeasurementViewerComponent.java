@@ -31,7 +31,6 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.EllipseFigure;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
@@ -97,6 +96,28 @@ class MeasurementViewerComponent
 		bus.post(response);
     }
     
+    /** Updates the drawing area. */
+	private void updateDrawingArea()
+	{
+		Drawing drawing = model.getDrawing();
+		drawing.removeDrawingListener(controller);
+		drawing.clear();
+		ShapeList list = model.getShapeList();
+		if (list != null) {
+			TreeMap map = list.getList();
+			Iterator i = map.values().iterator();
+			ROIShape shape;
+			while (i.hasNext()) {
+				shape = (ROIShape) i.next();
+			if (shape != null) drawing.add(shape.getFigure());
+			}
+		}
+		
+		model.getDrawingView().setDrawing(drawing);
+		drawing.addDrawingListener(controller);
+			
+	}
+	
 	/**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straigh 
@@ -257,27 +278,6 @@ class MeasurementViewerComponent
 			if (f != magnification) model.setMagnification(magnification);
 		}
 	}
-	
-	public void updateDrawingArea()
-	{
-		Drawing drawing = model.getDrawing();
-		drawing.removeDrawingListener(controller);
-		drawing.clear();
-		ShapeList list = model.getShapeList();
-		if (list != null) {
-			TreeMap map = list.getList();
-			Iterator i = map.values().iterator();
-			ROIShape shape;
-			while (i.hasNext()) {
-				shape = (ROIShape) i.next();
-			if (shape != null) drawing.add(shape.getFigure());
-			}
-		}
-		
-		model.getDrawingView().setDrawing(drawing);
-		drawing.addDrawingListener(controller);
-			
-	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -316,18 +316,23 @@ class MeasurementViewerComponent
 		view.setVisible(b);
 	}
 
-	/**
-	 * Load the ROISet from file and populate ROIComponent.
-	 */
-	public void loadROI() {
-		model.loadROI("saveFile.xml");
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#loadROI()
+     */
+	public void loadROI()
+	{
+		model.loadROI("saveFile.xml"); //TODO: MODIFY
 		updateDrawingArea();
 	}
 
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#saveROI()
+     */
 	public void saveROI() 
 	{
 		model.saveROI("saveFile.xml");
-		
 	}
     
 }

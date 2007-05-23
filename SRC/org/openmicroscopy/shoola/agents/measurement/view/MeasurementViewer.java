@@ -125,12 +125,6 @@ public interface MeasurementViewer
 	public void setMagnifiedPlane(int defaultZ, int defaultT, 
 									double magnification);
 	
-	/** 
-	 * Invoked when the ROI Component has changed without changing plane, 
-	 * calling loadROI.
-	 */
-	public void updateDrawingArea();
-	
 	/**
 	 * Sets the collection of ROIs for the pixels set.
 	 * 

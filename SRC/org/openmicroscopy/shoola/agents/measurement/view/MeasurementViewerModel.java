@@ -432,27 +432,31 @@ class MeasurementViewerModel
 	void setPixels(Pixels pixels) { this.pixels = pixels; }
 	
 	/**
-	 * Save the current ROISet in the roi component to file.
+	 * Saves the current ROISet in the roi component to file.
+	 * 
+	 * @param fileName The name of the file to save the ROI set to.
 	 */
-	void saveROI(String filename)
+	void saveROI(String fileName)
 	{
 		try {
-			roiComponent.saveROI(filename);
+			roiComponent.saveROI(fileName);
 		} catch(Exception e)	{
 			return;
 		}
 	}
 	
 	/**
-	 * Load the current ROISet in the roi component to file.
+	 * Loads the current ROISet in the roi component to file. 
+	 * 
+	 * @param fileName The name of the file to load.
 	 */
-	void loadROI(String filename)
+	void loadROI(String fileName)
 	{
 		try {
-			roiComponent.loadROI(filename);
+			roiComponent.loadROI(fileName);
 			
 		} catch(Exception e)	{
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 }	

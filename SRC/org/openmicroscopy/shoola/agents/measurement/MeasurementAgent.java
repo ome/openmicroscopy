@@ -72,7 +72,7 @@ public class MeasurementAgent
     			evt.getRequesterBounds(), evt.getDefaultZ(), evt.getDefaultT(),
     			evt.getMagnification());
     	if (viewer != null) {
-    		MeasurementViewerFactory.addRequest(evt);
+    		MeasurementViewerFactory.addRequest(evt, evt.getPixelsID());
     		viewer.activate();
     	}
     }

@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -82,6 +84,7 @@ public class MeasurementViewerFactory
 										String name, Rectangle bounds, 
 										int z, int t, double magnification)
 	{
+		System.err.println(pixelsID);
 		MeasurementViewerModel model = new MeasurementViewerModel(pixelsID, 
 							imageID, name, bounds);
 		model.setPlane(z, t);
@@ -99,7 +102,6 @@ public class MeasurementViewerFactory
 	{
 		Iterator v = singleton.viewers.iterator();
         MeasurementViewerComponent comp;
-        
         while (v.hasNext()) {
             comp = (MeasurementViewerComponent) v.next();
             if (comp.getModel().getPixelsID() == pixelsID) return comp;
@@ -110,13 +112,13 @@ public class MeasurementViewerFactory
 	/**
 	 * Adds the passed request to the collection.
 	 * 
-	 * @param request The request to add.
+	 * @param request 	The request to add.
+	 * @param pixelsID	The id of the pixels set.
 	 */
-	public static void addRequest(MeasurementTool request)
+	public static void addRequest(MeasurementTool request, long pixelsID)
 	{
 		if (request == null) return;
-		long pixelsID = request.getPixelsID();
-		if (getViewer(pixelsID) != null) singleton.requests.add(request);	
+		singleton.requests.put(new Long(pixelsID), request);	
 	}
 	
 	/**
@@ -127,26 +129,20 @@ public class MeasurementViewerFactory
 	 */
 	public static MeasurementTool getRequest(long pixelsID)
 	{
-		Iterator v = singleton.requests.iterator();
-		MeasurementTool comp;
-        while (v.hasNext()) {
-            comp = (MeasurementTool) v.next();
-            if (comp.getPixelsID() == pixelsID) return comp;
-        }
-		return null;
+		return singleton.requests.get(new Long(pixelsID));
 	}
 	
 	/** All the tracked components. */
     private Set<MeasurementViewer>     	viewers;
     
     /** All the tracked requests. */
-    private Set<MeasurementTool>		requests;
+    private Map<Long, MeasurementTool>	requests;
     
     /** Creates a new instance. */
 	private MeasurementViewerFactory()
 	{
 		viewers = new HashSet<MeasurementViewer>();
-		requests = new HashSet<MeasurementTool>();
+		requests = new HashMap<Long, MeasurementTool>();
 	}
 	
 	/**
