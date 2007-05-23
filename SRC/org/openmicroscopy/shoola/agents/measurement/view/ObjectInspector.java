@@ -100,16 +100,19 @@ class ObjectInspector
 	{
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
-		l.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Text Colour", 
-								false));
-		l.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", 
-								false));
-		l.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", 
-								false));
-		l.add(new AttributeField(DrawingAttributes.MEASUREMENTTEXT_COLOUR, 
-								"Measurement Text Colour", false));
 		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
-								true));
+				true));
+		l.add(new AttributeField(AttributeKeys.FONT_SIZE, "Font Size", 
+				true));
+		l.add(new AttributeField(AttributeKeys.TEXT_COLOR, "Font Colour", 
+				false));
+		l.add(new AttributeField(AttributeKeys.FILL_COLOR, "Fill Colour", 
+				false));
+		l.add(new AttributeField(AttributeKeys.STROKE_COLOR, "Line Colour", 
+				false));
+		l.add(new AttributeField(DrawingAttributes.MEASUREMENTTEXT_COLOUR, 
+				"Measurement Text Colour", false));
+		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
 		fieldTable.getTableHeader().setReorderingAllowed(false);

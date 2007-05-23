@@ -126,10 +126,10 @@ class ToolBar
 	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		new ConnectionTool(new LineConnectionAnnotationFigure()), 
 	    		"createLineConnection", labels);
-		  ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				  new BezierTool(new BezierAnnotationFigure()), SCRIBBLE, 
-				  	labels);
-	      ToolBarButtonFactory.addToolTo(toolBar, editor, 
+			  	labels);
+	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		  new BezierTool(new BezierAnnotationFigure(true)), POLYGON, 
 	    		  labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 

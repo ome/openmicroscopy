@@ -408,5 +408,23 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
+    
+    /**
+     * Rebuild the results table in the roi Results component.
+     *
+     */
+    void refreshResultsTable()
+    {
+    	roiResults.refreshResults();
+    }
+    
+    /**
+     * Save the results table in the roi Results component.
+     *
+     */
+    void saveResultsTable()
+    {
+    	roiResults.saveResults();
+    }
 
 }

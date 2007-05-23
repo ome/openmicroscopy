@@ -40,6 +40,8 @@ import javax.swing.table.AbstractTableModel;
 
 
 //Third-party libraries
+import static org.jhotdraw.draw.AttributeKeys.TEXT;
+
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Figure;
 
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 
 /** 
  * UI Component managing a Region of Interest.
@@ -90,6 +93,8 @@ class ObjectManager
 	static {
 		columnNames = new ArrayList<String>(2);
 		columnNames.add("ID");
+		columnNames.add("Z Section");
+		columnNames.add("Timepoint");
 		columnNames.add("Shape");
 		columnNames.add("Text");
 		columnNames.add("Visible");
@@ -270,10 +275,12 @@ class ObjectManager
 			ROIFigure fig = data.get(row);
 			switch (col) {
 				case 0: return ""+fig.getROI().getID();
-				case 1: return DEPRECIATED;
-	        	case 2: return EMPTY;
-	        	case 3: return fig.isVisible() ? "true" : "false";
-				default:
+				case 1: return ""+fig.getROIShape().getCoord3D().getZSection();
+				case 2: return ""+fig.getROIShape().getCoord3D().getTimePoint();
+				case 3: return AnnotationKeys.FIGURETYPE.get(fig.getROIShape());
+	        	case 4: return TEXT.get(fig);
+	        	case 5: return fig.isVisible() ? "true" : "false";
+	        	default:
 					return null;
 			}
 		}

@@ -70,11 +70,14 @@ public class IconManager
 	/** The <code>Load</code> icon. */
 	public static final int		LOAD = 4;
 	
+	/** The <code>Refresh</code> icon. */
+	public static final int		REFRESH = 5;
+	
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 4;
+    private static final int    MAX_ID = 5;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -88,6 +91,7 @@ public class IconManager
         relPaths[MANAGER] = "nuvola_filesaveas16.png";
         relPaths[RESULTS] = "nuvola_filesaveas16.png";
         relPaths[LOAD] = "nuvola_filesaveas16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
     }
     
     /** 

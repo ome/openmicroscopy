@@ -334,5 +334,23 @@ class MeasurementViewerComponent
 	{
 		model.saveROI("saveFile.xml");
 	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#refreshResultsTable()
+     */
+	public void refreshResultsTable() 
+	{
+		view.refreshResultsTable();
+	}
+
+		/** 
+	     * Implemented as specified by the {@link MeasurementViewer} interface.
+	     * @see MeasurementViewer#saveResultsTable()
+	     */
+	public void saveResultsTable() 
+	{
+		view.saveResultsTable();
+	}
     
 }

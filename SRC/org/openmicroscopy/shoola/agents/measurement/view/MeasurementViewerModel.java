@@ -223,6 +223,13 @@ class MeasurementViewerModel
     Drawing getDrawing() { return drawing; }
 
     /**
+     * results the MeasurementComponent
+     */
+    MeasurementViewer getMeasurementComponent()
+    {
+    	return component;
+    }
+    /**
      * Sets the object in the {@link MeasurementViewer#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
      */
@@ -459,4 +466,5 @@ class MeasurementViewerModel
 			//e.printStackTrace();
 		}
 	}
+	
 }	

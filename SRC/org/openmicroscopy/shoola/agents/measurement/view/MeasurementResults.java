@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ import javax.swing.table.AbstractTableModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -81,6 +84,9 @@ class MeasurementResults
 	
 	/** Button to save locally the results. */
 	private JButton							saveButton;
+
+	/** Button to save locally the results. */
+	private JButton							refreshButton;
 	
 	/** The table displaying the results. */
 	private JTable							results;
@@ -122,14 +128,11 @@ class MeasurementResults
 	private void initComponents()
 	{
 		saveButton = new JButton("Save");
-		saveButton.addActionListener(new ActionListener() {
+		saveButton.addActionListener(new SaveResultsAction(model.getMeasurementComponent()));
 		
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+		refreshButton = new JButton("Refresh Results");
+		refreshButton.addActionListener(new RefreshResultsTableAction(model.getMeasurementComponent()));
 		
-			}
-		
-		});
 		
 		//Create table model.
 		results = new JTable();
@@ -144,8 +147,12 @@ class MeasurementResults
 	{
 		setLayout(new BorderLayout());
 		add(new JScrollPane(results), BorderLayout.CENTER);
-		add(UIUtilities.buildComponentPanelRight(saveButton), 
-			BorderLayout.SOUTH);
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout());
+		panel.add(refreshButton);
+		panel.add(saveButton);
+		this.add(panel, BorderLayout.SOUTH);
+		
 	}
 	
 	/**
@@ -179,7 +186,7 @@ class MeasurementResults
 		ROIFigure figure;
 		MeasurementObject row;
 		AnnotationKey key;
-		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
+		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
 		while (i.hasNext()) {
 			roi = (ROI) map.get(i.next());
 			shapes = roi.getShapes();
@@ -198,6 +205,7 @@ class MeasurementResults
 				tm.addRow(row);
 			}
 		}
+		results.setModel(tm);
 	}
 
 	/**
@@ -216,6 +224,16 @@ class MeasurementResults
 	{
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.RESULTS);
+	}
+	
+	public void saveResults()
+	{
+		
+	}
+	
+	public void refreshResults()
+	{
+		populate();
 	}
 	
 	/** 
