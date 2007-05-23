@@ -84,9 +84,8 @@ public class MeasurementViewerFactory
 										String name, Rectangle bounds, 
 										int z, int t, double magnification)
 	{
-		System.err.println(pixelsID);
-		MeasurementViewerModel model = new MeasurementViewerModel(pixelsID, 
-							imageID, name, bounds);
+		MeasurementViewerModel model = new MeasurementViewerModel(imageID, 
+											pixelsID, name, bounds);
 		model.setPlane(z, t);
 		model.setMagnification(magnification);
 		return singleton.createROIViewer(model);
@@ -113,12 +112,11 @@ public class MeasurementViewerFactory
 	 * Adds the passed request to the collection.
 	 * 
 	 * @param request 	The request to add.
-	 * @param pixelsID	The id of the pixels set.
 	 */
-	public static void addRequest(MeasurementTool request, long pixelsID)
+	public static void addRequest(MeasurementTool request)
 	{
 		if (request == null) return;
-		singleton.requests.put(new Long(pixelsID), request);	
+		singleton.requests.add(request);	
 	}
 	
 	/**
@@ -129,20 +127,26 @@ public class MeasurementViewerFactory
 	 */
 	public static MeasurementTool getRequest(long pixelsID)
 	{
-		return singleton.requests.get(new Long(pixelsID));
+		Iterator v = singleton.requests.iterator();
+		MeasurementTool request;
+        while (v.hasNext()) {
+        	request = (MeasurementTool) v.next();
+            if (request.getPixelsID() == pixelsID) return request;
+        }
+		return null;
 	}
 	
 	/** All the tracked components. */
     private Set<MeasurementViewer>     	viewers;
     
     /** All the tracked requests. */
-    private Map<Long, MeasurementTool>	requests;
+    private Set<MeasurementTool>	requests;
     
     /** Creates a new instance. */
 	private MeasurementViewerFactory()
 	{
 		viewers = new HashSet<MeasurementViewer>();
-		requests = new HashMap<Long, MeasurementTool>();
+		requests = new HashSet<MeasurementTool>();
 	}
 	
 	/**

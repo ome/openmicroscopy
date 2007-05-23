@@ -99,7 +99,6 @@ public class ImViewerAgent
     {
     	if (evt == null) return;
     	MeasurementTool request = (MeasurementTool) evt.getACT();
-    	System.err.println("request: "+request);
     	long pixelsID = request.getPixelsID();
     	ImViewer view = ImViewerFactory.getImageViewer(pixelsID);
     	if (view != null) {
