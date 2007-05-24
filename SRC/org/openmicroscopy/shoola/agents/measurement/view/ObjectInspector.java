@@ -100,6 +100,10 @@ class ObjectInspector
 	{
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
+		l.add(new AttributeField(DrawingAttributes.SHOWTEXT, "Show Text", 
+				false));
+		l.add(new AttributeField(DrawingAttributes.SHOWMEASUREMENT, "Show Measurements", 
+				false));
 		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
 				true));
 		l.add(new AttributeField(AttributeKeys.FONT_SIZE, "Font Size", 
@@ -121,28 +125,25 @@ class ObjectInspector
 		fieldTable.setCellSelectionEnabled(true);
 		fieldTable.setColumnSelectionAllowed(true);
 		
-	    
-	    //Add selection listener
-	    fieldTable.getSelectionModel().addListSelectionListener(
-	    		new ListSelectionListener() {
-		
-			public void valueChanged(ListSelectionEvent e) {
-				if (e.getValueIsAdjusting()) return;
-
-		        ListSelectionModel lsm =
-		            (ListSelectionModel) e.getSource();
-		        if (lsm.isSelectionEmpty()) {
-		        } else {
-		        	int col = fieldTable.getSelectedColumn();
-		        	int row = fieldTable.getSelectedRow();
-		        	Object value = fieldTable.getValueAt(row, col);
-		            if (value instanceof Color)
-		            	controller.showColorPicker((Color) value);
-		        }
+		fieldTable.addMouseListener(new java.awt.event.MouseAdapter() 
+		{
+		     public void mouseClicked(java.awt.event.MouseEvent e) {
+			if ( e.getClickCount() == 2 ) {
+				e.consume();
+				int col = fieldTable.getSelectedColumn();
+	        	int row = fieldTable.getSelectedRow();
+	       
+	        	Object value = fieldTable.getValueAt(row, col);
+	            if (value instanceof Color)
+	            	controller.showColorPicker((Color) value);
+	            if (value instanceof Boolean)
+	            	toggleValue();
+	            }
 			}
-		
 		});
+
 	}
+	
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -170,6 +171,8 @@ class ObjectInspector
 		buildGUI();
 	}
 	
+	
+
 	/**
 	 * Returns the name of the component.
 	 * 
@@ -198,6 +201,17 @@ class ObjectInspector
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
 		fieldTable.getModel().setValueAt(c, row, col);
+	}
+	/**
+	 * Toggle the value of the boolean under the current selection.
+	 */
+	private void toggleValue()
+	{
+		int col = fieldTable.getSelectedColumn();
+		int row = fieldTable.getSelectedRow();
+		Boolean value = (Boolean)fieldTable.getModel().getValueAt(row, col);
+		boolean newValue = !(value.booleanValue());
+		fieldTable.getModel().setValueAt(new Boolean(newValue), row, col);
 	}
 	
 	/**
@@ -332,21 +346,10 @@ class ObjectInspector
 				while (i.hasNext()) {
 					key = (AttributeKey) i.next();
 					if (key.equals(fieldName.getKey())) {
-						if (key.getKey().equals(AttributeKeys.TEXT.getKey())
-							&& figure instanceof RectAnnotationFigure)
-						{
-							keys.add(key);
-							values.add(
-									((RectAnnotationFigure)figure).getText());
-							found = true;
-							break;
-								
-						} else {
-							keys.add(key);
-							values.add(figure.getAttributes().get(key));
-							found = true;
-							break;
-						}
+						keys.add(key);
+						values.add(figure.getAttribute(key));
+						found = true;
+						break;
 					}
 				}
 				if (!found) {
@@ -395,6 +398,8 @@ class ObjectInspector
 			AttributeKey key = keys.get(row);
 	    	if (figure.getAttribute(key) instanceof Double)
 	    		figure.setAttribute(keys.get(row), new Double((String) value));
+	        else if(figure.getAttribute(key) instanceof Boolean)
+	        	figure.setAttribute(keys.get(row), value);
 	        else
 	        	figure.setAttribute(keys.get(row), value);
 	    	values.set(row, value);

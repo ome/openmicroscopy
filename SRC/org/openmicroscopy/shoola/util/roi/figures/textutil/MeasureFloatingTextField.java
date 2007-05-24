@@ -55,7 +55,8 @@ public class MeasureFloatingTextField
     private JTextField   editWidget;
     private DrawingView   view;
     
-    public MeasureFloatingTextField() {
+    public MeasureFloatingTextField() 
+    {
         editWidget = new JTextField(20);
         editWidget.setOpaque(false);
         editWidget.setHorizontalAlignment(JTextField.CENTER);

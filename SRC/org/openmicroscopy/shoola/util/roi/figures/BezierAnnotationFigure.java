@@ -30,17 +30,9 @@ import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 
 //Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
@@ -50,28 +42,15 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_UNDERLINED;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.CompositeFigure;
-import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.FigureEvent;
-import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Layouter;
-import org.jhotdraw.draw.LocatorLayouter;
-import org.jhotdraw.draw.RelativeLocator;
-import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.TextHolderFigure;
-import org.jhotdraw.draw.TextTool;
 import org.jhotdraw.draw.Tool;
 import org.jhotdraw.geom.Insets2D;
-import org.jhotdraw.util.ReversedList;
-import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
-import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWTEXT;
+
+import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
 
 /** 
  * 
@@ -144,13 +123,14 @@ public 	class BezierAnnotationFigure
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if(displayText)
-			if (getText()!=null || isEditable()) 
-			{
-				TextLayout layout = getTextLayout();
-				setTextBounds(g);
-				layout.draw(g, (float) textBounds.x, (float)(textBounds.y+getTextHeight(g)));
-			}
+		if(SHOWTEXT.get(this))
+			if(displayText)
+				if (getText()!=null || isEditable()) 
+				{	
+					TextLayout layout = getTextLayout();
+					setTextBounds(g);
+					layout.draw(g, (float) textBounds.x, (float)textBounds.y);
+				}
 	}
 
 	protected void setTextBounds(Graphics2D g) 
@@ -321,7 +301,7 @@ public 	class BezierAnnotationFigure
 
 	public void setFontSize(float size) 
 	{
-		//    FONT_SIZE.set(this, new Double(size));
+		FONT_SIZE.set(this, new Double(size));
 	}
 
 	public float getFontSize() 

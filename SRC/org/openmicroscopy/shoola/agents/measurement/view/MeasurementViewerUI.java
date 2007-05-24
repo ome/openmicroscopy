@@ -86,7 +86,7 @@ class MeasurementViewerUI
 	
 	/** The default color of the measurement text. */
 	private static final Color			MEASUREMENT_COLOR = 
-											new Color(255, 204, 102, 0);
+											new Color(255, 204, 102, 255);
 	
 	/** The default color used to fill area. */
 	private static final Color			FILL_COLOR = 
@@ -137,9 +137,11 @@ class MeasurementViewerUI
 		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
 		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR);
 		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR);
-		DrawingAttributes.SHOWMEASUREMENT.set(figure, true);
+		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
 		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
+		DrawingAttributes.SHOWTEXT.set(figure, true);
     }
+    
     
     /**
      * Helper method to set the annotations of the newly created shape.

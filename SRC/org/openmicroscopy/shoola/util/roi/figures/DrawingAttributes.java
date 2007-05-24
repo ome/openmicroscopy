@@ -49,9 +49,11 @@ public class DrawingAttributes
 	extends AttributeKeys 
 {
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
-		new AttributeKey<Boolean>("ShowMeasurement", true);
+		new AttributeKey<Boolean>("ShowMeasurement", false);
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
 		new AttributeKey<Color>("MeasurementTextColour", Color.black);
+	public static final AttributeKey<Boolean> SHOWTEXT = 
+		new AttributeKey<Boolean>("ShowBasicTextAnnotation", false);
 	
 	private DrawingAttributes()
 	{

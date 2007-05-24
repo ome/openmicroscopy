@@ -41,7 +41,6 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
 import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.TEXT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
 
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.TextHolderFigure;
@@ -50,8 +49,9 @@ import org.jhotdraw.geom.Geom;
 import org.jhotdraw.geom.Insets2D;
 
 //Application-internal dependencies
+import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWTEXT;
+
 import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
  * 
@@ -110,13 +110,14 @@ public class RectAnnotationFigure
 
 	protected void drawText(java.awt.Graphics2D g) 
 	{
-		if(displayText)
-			if (getText()!=null || isEditable()) 
-			{	
-				TextLayout layout = getTextLayout();
-				setTextBounds(g);
-				layout.draw(g, (float) textBounds.x, (float)textBounds.y);
-			}
+		if(SHOWTEXT.get(this))
+			if(displayText)
+				if (getText()!=null || isEditable()) 
+				{	
+					TextLayout layout = getTextLayout();
+					setTextBounds(g);
+					layout.draw(g, (float) textBounds.x, (float)textBounds.y);
+				}
 	}
 
 	protected void setTextBounds(Graphics2D g) 

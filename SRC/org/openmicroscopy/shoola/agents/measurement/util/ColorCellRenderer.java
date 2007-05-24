@@ -70,7 +70,8 @@ public class ColorCellRenderer
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		if ((value instanceof Integer) || (value instanceof Long) ||
-				(value instanceof Double) || (value instanceof String))  {
+				(value instanceof Double) || (value instanceof String) || (value instanceof Boolean))  
+		{
 			setOpaque(true);
     		setText(value+"");
     	} else if (value instanceof Color) {
