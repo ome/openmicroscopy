@@ -8,7 +8,10 @@
 package ome.services;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -27,6 +30,8 @@ import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 // Third-party libraries
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
@@ -42,6 +47,7 @@ import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.services.util.OmeroAroundInvoke;
 
@@ -65,6 +71,8 @@ import omeis.providers.re.RenderingEngine;
 @Interceptors( { OmeroAroundInvoke.class })
 @SecurityDomain("OmeroSecurity")
 public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStore {
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(RawPixelsBean.class);
 
     private static final long serialVersionUID = -6640632220587930165L;
 
@@ -145,13 +153,36 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         // id is the only thing passivated.
         dataService = null;
         pixelsInstance = null;
+        closePixelBuffer();
         buffer = null;
     }
 
     @Remove
     @Transactional(readOnly = true)
     public void close() {
-        // don't need to do anything.
+    	closePixelBuffer();
+    }
+    
+    /**
+     * Close the active pixel buffer, cleaning up any potential messes left by
+     * the pixel buffer itself.
+     */
+    private void closePixelBuffer()
+    {
+		try
+		{
+			if (buffer != null)
+				buffer.close();
+		}
+		catch (IOException e)
+		{
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    e.printStackTrace(printWriter);
+			log.error(result.toString());
+			throw new ResourceError(
+					e.getMessage() + " Please check server log.");
+		}
     }
 
     @RolesAllowed("user")
@@ -159,6 +190,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
         if (id == null || id.longValue() != pixelsId) {
             id = new Long(pixelsId);
             pixelsInstance = null;
+            closePixelBuffer();
             buffer = null;
             reset = null;
 

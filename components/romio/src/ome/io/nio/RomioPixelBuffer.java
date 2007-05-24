@@ -29,7 +29,7 @@ import ome.model.enums.PixelsType;
  */
 public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
+    private static Log log = LogFactory.getLog(RomioPixelBuffer.class);
 
     private Pixels pixels;
 

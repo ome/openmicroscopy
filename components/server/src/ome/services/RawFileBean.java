@@ -9,6 +9,9 @@ package ome.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 
 import javax.annotation.PostConstruct;
@@ -34,6 +37,8 @@ import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.services.util.OmeroAroundInvoke;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.security.SecurityDomain;
@@ -62,6 +67,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      * 
      */
     private static final long serialVersionUID = -450924529925301925L;
+    
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(RawPixelsBean.class);
 
     /** The id of the original files instance. */
     private Long id;
@@ -137,14 +145,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         // id is the only thing passivated.
         ioService = null;
         file = null;
-        try {
-            if (buffer != null) {
-                buffer.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ResourceError(e.getMessage());
-        }
+        closeFileBuffer();
         buffer = null;
     }
 
@@ -156,7 +157,29 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @Remove
     @Transactional(readOnly = true)
     public void close() {
-        // don't need to do anything.
+        closeFileBuffer();
+    }
+    
+    /**
+     * Close the active file buffer, cleaning up any potential messes left by
+     * the file buffer itself.
+     */
+    private void closeFileBuffer()
+    {
+		try
+		{
+			if (buffer != null)
+				buffer.close();
+		}
+		catch (IOException e)
+		{
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    e.printStackTrace(printWriter);
+			log.error(result.toString());
+			throw new ResourceError(
+					e.getMessage() + " Please check server log.");
+		}
     }
 
     /*
@@ -170,14 +193,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         if (id == null || id.longValue() != fileId) {
             id = new Long(fileId);
             file = null;
-            try {
-                if (buffer != null) {
-                    buffer.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new ResourceError(e.getMessage());
-            }
+            closeFileBuffer();
             buffer = null;
 
             file = iQuery.get(OriginalFile.class, id);

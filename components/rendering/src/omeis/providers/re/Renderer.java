@@ -9,6 +9,9 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.api.IPixels;
+import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -668,6 +672,28 @@ public class Renderer {
 
         // Save the rendering definition to the database.
         iPixels.saveRndSettings(rndDef);
+    }
+    
+    /**
+     * Closes the buffer, cleaning up file state.
+     * 
+     * @throws IOException if an I/O error occurs.
+     */
+    public void close() {
+		try
+		{
+			if (buffer != null)
+				buffer.close();
+		}
+		catch (IOException e)
+		{
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    e.printStackTrace(printWriter);
+			log.error(result.toString());
+			throw new ResourceError(
+					e.getMessage() + " Please check server log.");
+		}
     }
 
     /**

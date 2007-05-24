@@ -9,7 +9,10 @@ package ome.services;
 
 // Java imports
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -196,6 +199,7 @@ public class RenderingBean extends AbstractLevel2Service implements
 
         try {
         	// Mark us unready. All other state is marked transient.
+        	closeRenderer();
             renderer = null; 
         } finally {
             rwl.writeLock().unlock();
@@ -226,6 +230,7 @@ public class RenderingBean extends AbstractLevel2Service implements
 
         try {
             this.pixelsObj = pixMetaSrv.retrievePixDescription(pixelsId);
+            closeRenderer();
             this.renderer = null;
 
             if (pixelsObj == null) {
@@ -253,6 +258,7 @@ public class RenderingBean extends AbstractLevel2Service implements
 
         try {
             rendDefObj = pixMetaSrv.retrieveRndSettings(pixelsId);
+            closeRenderer();
             renderer = null;
 
             if (rendDefObj == null) {
@@ -292,6 +298,7 @@ public class RenderingBean extends AbstractLevel2Service implements
              * better caching, etc.
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
+            closeRenderer();
             renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
         } finally {
             rwl.writeLock().unlock();
@@ -932,6 +939,17 @@ public class RenderingBean extends AbstractLevel2Service implements
         } finally {
             rwl.writeLock().unlock();
         }
+    }
+    
+    /**
+     * Close the active renderer, cleaning up any potential messes left by
+     * the included pixel buffer.
+     */
+    private void closeRenderer()
+    {
+    	if (renderer != null)
+    		renderer.close();
+
     }
 
     // ~ Error checking methods
