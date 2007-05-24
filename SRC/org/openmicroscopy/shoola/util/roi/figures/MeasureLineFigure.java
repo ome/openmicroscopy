@@ -228,7 +228,7 @@ public class MeasureLineFigure
 			Point2D.Double pt2 = getPoint(j);
 			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
 			pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
-			return getPoint(i).distance(getPoint(j));
+			return pt1.distance(pt2);
 		}
 		else
 			return getPoint(i).distance(getPoint(j));

@@ -126,7 +126,7 @@ public class MeasureBezierFigure
 							y+bounds.getHeight()/2,
 							bounds.getWidth(), bounds.getHeight());
 					g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
-					g.drawString(polygonLength, (int)bounds.getX(), (int)bounds.getY());
+					g.drawString(polygonLength, (int)path.getCenter().getX(), (int)path.getCenter().getY());
 				}
 			}
 		}
@@ -203,7 +203,7 @@ public class MeasureBezierFigure
 				p0.setLocation(p0.getX()*MICRONSPIXELX.get(shape), p0.getY()*MICRONSPIXELY.get(shape));
 				p1.setLocation(p1.getX()*MICRONSPIXELX.get(shape), p1.getY()*MICRONSPIXELY.get(shape));
 			}
-			length += Math.sqrt(Math.pow(p1.getX()-p0.getX(),2)+Math.pow(p1.getX()-p0.getX(),2)); 
+			length += p0.distance(p1);
 		}
 		return length;
 	}
