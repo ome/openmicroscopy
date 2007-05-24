@@ -301,9 +301,9 @@ class EditorComponent
      */
     public boolean hasDataToSave()
     {
-        if (model.getState() == DISCARDED)
-            throw new IllegalStateException("This method cannot be invoked " +
-                        "in the DISCARDED state.");
+        if (model.getState() == DISCARDED) return false; //Need to review
+            //throw new IllegalStateException("This method cannot be invoked " +
+            //            "in the DISCARDED state.");
         return view.hasDataToSave();
     }
 

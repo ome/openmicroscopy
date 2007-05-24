@@ -646,5 +646,13 @@ public interface ImViewer
 	 * @param view The component to remove.
 	 */
 	public void removeView(JComponent view);
+
+	/**
+	 * Returns <code>true</code> if the user used the lens for this,
+	 * <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	public boolean hasLens();
     
 }

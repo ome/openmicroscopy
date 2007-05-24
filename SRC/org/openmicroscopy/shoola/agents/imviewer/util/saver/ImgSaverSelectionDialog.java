@@ -62,6 +62,13 @@ class ImgSaverSelectionDialog
     /** Reference to the {@link ImgSaver}. */
     private ImgSaver    model;
     
+    /** 
+     * One of the following constant: 
+     * {@link ImgSaver#DIRECT} or 
+     * {@link ImgSaver#PREVIEW}.
+     */
+    private int			index;
+    
     /**
      * Overridden to bring up the preview image widget.
      * @see OptionsDialog#onYesSelection()
@@ -69,7 +76,15 @@ class ImgSaverSelectionDialog
     protected void onYesSelection()
     { 
     	setVisible(false);
-    	model.previewImage(false); 
+    	switch (index) {
+			case ImgSaver.DIRECT:
+				model.saveImage(true);
+				break;
+			case ImgSaver.PREVIEW:
+				model.previewImage(); 
+				break;
+		}
+    	
     	dispose();
     }
     
@@ -78,12 +93,14 @@ class ImgSaverSelectionDialog
      * 
      * @param parent    The parent of this dialog.
      * @param icon      The icon displayed next to the message.
+     * @param index		The index of the saving type.
      */
-    ImgSaverSelectionDialog(ImgSaver parent, Icon icon)
+    ImgSaverSelectionDialog(ImgSaver parent, Icon icon, int index)
     {
         super(parent, "Save Image", MESSAGE, icon);
         if (parent == null) throw new IllegalArgumentException("No model.");
         model = parent;
+        this.index = index;
     }
 
 }

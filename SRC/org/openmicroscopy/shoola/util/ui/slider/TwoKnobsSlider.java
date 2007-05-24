@@ -112,13 +112,9 @@ public class TwoKnobsSlider
     protected static final Dimension    PREFERRED_VERTICAL = new Dimension(21, 
                                                                 200);
     
-    /** The preferred dimension of a vertical slider. */
+    /** The preferred dimension of a horizontal slider. */
     protected static final Dimension    PREFERRED_HORIZONTAL =
                                                     new Dimension(200, 21);
-
-
-    /** The default width of the horizontal slider. */
-    private static final int            PREFERRED_HORIZONTAL_WIDTH = 200;
 
     /** Indicates that the right knob is pushed when moving the left knob. */
     private static final int            RIGHT_KNOB_PUSHED = 3;
@@ -172,7 +168,7 @@ public class TwoKnobsSlider
         if (model.getOrientation() == VERTICAL)
             preferredSize_ = PREFERRED_VERTICAL;
         else
-        	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL_WIDTH, h);
+        	preferredSize_ = new Dimension(PREFERRED_HORIZONTAL.width, h);
     }
     
     /** Sets the default values. */
@@ -222,7 +218,8 @@ public class TwoKnobsSlider
         int oldStart = getStartValue();
         int oldEnd = getEndValue();
         if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
-            handleMouseEventForHorizSlider((int) me.getPoint().getX());
+        	handleMouseEventForHorizSlider((int) me.getPoint().getX());
+        	/*
             if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
                                 getStartValue());
@@ -230,6 +227,13 @@ public class TwoKnobsSlider
                     pushKnobControl == RIGHT_KNOB_PUSHED) {
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, getEndValue());
             }
+            */
+        	 if (knobControl == LEFT) {
+                 firePropertyChange(LEFT_MOVED_PROPERTY, oldStart,
+                                 getStartValue());
+             } else if (knobControl == RIGHT) {
+                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldEnd, getEndValue());
+             }
                 
         } else {
             handleMouseEventForVertSlider((int) me.getPoint().getY());
@@ -271,12 +275,12 @@ public class TwoKnobsSlider
             	left = xmin;
             } else if (left > (xmax-knobWidth)) left = xmax-knobWidth;
             else {
-
                 if (left > (right-knobWidth) && right < xmax) {
                     //push right
-                    pushKnobControl = RIGHT_KNOB_PUSHED;
-                    right = left+knobWidth;  
-                    model.setEndValue(uiDelegate.xValueForPosition(right));
+                    //pushKnobControl = RIGHT_KNOB_PUSHED;
+                    //right = left+knobWidth;  
+                    //model.setEndValue(uiDelegate.xValueForPosition(right));
+                	left = right-knobWidth;
                 }   
             }
             model.setStartValue(uiDelegate.xValueForPosition(left));
@@ -286,9 +290,10 @@ public class TwoKnobsSlider
             else {
                 if (right < (left+knobWidth) && left > xmin) {
                     //push left
-                    pushKnobControl = LEFT_KNOB_PUSHED;
-                    left = right-knobWidth;    
-                    model.setStartValue(uiDelegate.xValueForPosition(left));
+                    //pushKnobControl = LEFT_KNOB_PUSHED;
+                    //left = right-knobWidth;    
+                    //model.setStartValue(uiDelegate.xValueForPosition(left));
+                	right = left+knobWidth;
                 }
             }
             model.setEndValue(uiDelegate.xValueForPosition(right));
@@ -323,9 +328,10 @@ public class TwoKnobsSlider
             else {
                 if (up > (down-knobHeight) && down < ymax) {
                     //push down
-                    pushKnobControl = RIGHT_KNOB_PUSHED;
-                    down = up+knobHeight;  
-                    model.setStartValue(uiDelegate.yValueForPosition(down));
+                    //pushKnobControl = RIGHT_KNOB_PUSHED;
+                    //down = up+knobHeight;  
+                    //model.setStartValue(uiDelegate.yValueForPosition(down));
+                	up = down-knobHeight;
                 }    
             }
             model.setEndValue(uiDelegate.yValueForPosition(up));
@@ -334,9 +340,10 @@ public class TwoKnobsSlider
             else if (down < (ymin+knobHeight)) down = ymin+knobHeight;
             else {
                 if (down < (up+knobHeight) && up > ymin) {
-                    pushKnobControl = LEFT_KNOB_PUSHED;
-                    up = down-knobHeight;  
-                    model.setEndValue(uiDelegate.yValueForPosition(up));
+                    //pushKnobControl = LEFT_KNOB_PUSHED;
+                    //up = down-knobHeight;  
+                    //model.setEndValue(uiDelegate.yValueForPosition(up));
+                	down = up+knobHeight;
                 }    
             }
             model.setStartValue(uiDelegate.yValueForPosition(down));

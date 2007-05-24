@@ -131,7 +131,7 @@ class ImgSaverPreviewer
             public void actionPerformed(ActionEvent e)
             { 
                 model.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                model.saveImage();
+                model.saveImage(false);
                 model.setCursor(
                         Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 onClose();

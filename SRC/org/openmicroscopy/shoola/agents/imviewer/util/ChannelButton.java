@@ -61,17 +61,18 @@ public class ChannelButton
 	
 	
     /** Bound property indicating to bring up the info dialog. */
-    public static final String  INFO_PROPERTY = "info";
+    public static final String  	INFO_PROPERTY = "info";
     
     /** 
      * Bound property name indicating that the channel is or is not selected. 
      */
-    public static final String  CHANNEL_SELECTED_PROPERTY = "channelSelected";
+    public static final String  	CHANNEL_SELECTED_PROPERTY = 
+    											"channelSelected";
     
     /** 
      * Bound property name indicating that the channel is mapped to a new color. 
      */
-    public static final String  CHANNEL_COLOR_PROPERTY = "channelColor";
+    public static final String  	CHANNEL_COLOR_PROPERTY = "channelColor";
     
     /** The index of the channel. */
     private final int               index;

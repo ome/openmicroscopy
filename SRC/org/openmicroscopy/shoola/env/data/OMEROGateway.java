@@ -954,13 +954,14 @@ class OMEROGateway
         } catch (Throwable t) {
         	if (t instanceof EJBException || 
         			t.getCause() instanceof IllegalStateException) {
+        		if (thumbnailService != null) thumbnailService.close();
         		thumbnailService = null;
         		throw new DSOutOfServiceException(
         				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
         				printErrorText((Exception) t));
         	}
-        	if (thumbnailService != null) thumbnailService.close();
-        	thumbnailService = null;
+        	//if (thumbnailService != null) thumbnailService.close();
+        	//thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }

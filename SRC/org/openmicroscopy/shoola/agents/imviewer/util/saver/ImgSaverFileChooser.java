@@ -25,8 +25,14 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -68,11 +74,87 @@ class ImgSaverFileChooser
     private static final String SAVE_AS = "Save the current image in the " +
                                             "specified format.";
     
+    /** The tool tip of the <code>Preview</code> button. */
+    private static final String PREVIEW = "Preview the image to save.";
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension  H_SPACER_SIZE = new Dimension(3, 10);
+    
     /** Reference to the model. */
     private ImgSaver    model;
     
-    /** Flag to indicate if the file choose is visible. */
-    private boolean     display;
+    /** Flag to indicate if the selected file is visible. */
+    //private boolean     display;
+    
+    /** 
+     * Replaces the <code>CancelButton</code> provided by the 
+     * {@link JFileChooser} class. 
+     */
+    private JButton		cancelButton;
+    
+    /** 
+     * Replaces the <code>ApproveButton</code> provided by the 
+     * {@link JFileChooser} class. 
+     */
+    private JButton		saveButton;
+    
+    /** Button to launch the preview window. */
+    private JButton		previewButton;
+    
+    /** Initiliazes the components composing the display. */
+    private void initComponents()
+    {
+    	cancelButton = new JButton("Cancel");
+    	cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { cancelSelection(); }
+		});
+    	saveButton = new JButton("Save as");
+    	saveButton.setToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
+    	
+    	saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { 
+				approveSelection(); 
+			}
+		});
+    	previewButton = new JButton("Preview");
+    	previewButton.setToolTipText(UIUtilities.formatToolTipText(PREVIEW));
+    	previewButton.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) { previewSelection(); }
+		});
+    	
+    	model.getRootPane().setDefaultButton(saveButton);
+    }
+    
+    /** Previews the image to save. */
+    private void previewSelection()
+    {
+    	Boolean b = setSelection();
+    	if (b == null) return;
+    	if (b.booleanValue()) model.setSelection(ImgSaver.PREVIEW);
+    	else model.previewImage();
+    }
+    
+    /**
+     * Builds the tool bar.
+     * 
+     * @return See above
+     */
+    private JPanel buildToolbar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setBorder(null);
+    	bar.add(cancelButton);
+    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	bar.add(previewButton);
+    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	bar.add(saveButton);
+    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+        p.setOpaque(true);
+        return p;
+    }
     
     /** Builds and lays out the GUI. */
     private void buildGUI()
@@ -88,8 +170,10 @@ class ImgSaverFileChooser
         setFileFilter(filter);
         setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
         setApproveButtonText("Save as");
+        //setControlButtonsAreShown(false);
         File f = UIUtilities.getDefaultFolder();
         if (f != null) setCurrentDirectory(f);
+        add(buildToolbar());
     }
     
     /**
@@ -132,7 +216,41 @@ class ImgSaverFileChooser
         model.setFileFormat(format);
         model.setFileMessage(msg);
         //If the file already exits so do we override it?
-        model.previewImage(exist);
+        //model.previewImage(exist);
+    }
+    
+    private Boolean setSelection()
+    {
+    	File file = getSelectedFile();
+    	//getF
+        System.err.println("file "+file);
+        if (file != null) {
+            String format = getFormat(getFileFilter());
+            String fileName = file.getAbsolutePath();
+            String message = MSG_DIR+""+getCurrentDirectory();
+            model.setFileName(fileName);
+            model.setFileFormat(format);
+            model.setFileMessage(message);
+            /*
+            setSelection(format, fileName, message, 
+                                getCurrentDirectory().listFiles());
+             */
+            File[] l = getCurrentDirectory().listFiles();
+            String n = model.getExtendedName(fileName, format);
+            boolean exist = false;
+            for (int i = 0; i < l.length; i++) {
+                if ((l[i].getAbsolutePath()).equals(n)) {
+                    exist = true;
+                    break;
+                }
+            }
+            System.err.println("file "+exist);
+            setSelectedFile(null);
+            if (exist) return Boolean.TRUE;
+            return Boolean.FALSE;
+            //if (display) return;    // to check
+        }   
+        return null;
     }
     
     /**
@@ -144,7 +262,8 @@ class ImgSaverFileChooser
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        display = false;
+        //display = false;
+        initComponents();
         buildGUI();
     }
     
@@ -160,18 +279,20 @@ class ImgSaverFileChooser
      */
     public void approveSelection()
     {
-        File file = getSelectedFile();
-        if (file != null) {
-            String format = getFormat(getFileFilter());
-            String fileName = file.getAbsolutePath();
-            String message = MSG_DIR+""+getCurrentDirectory();
-            setSelection(format, fileName, message, 
-                                getCurrentDirectory().listFiles());
-            setSelectedFile(null);
-            if (display) return;    // to check
-        }      
-        // No file selected, or file can be written - let OK action continue
-        super.approveSelection();
+    	/*
+        Boolean exist = setSelection();
+        if (exist == null)
+        	// No file selected, or file can be written - let OK action continue
+        	super.approveSelection();
+        else {
+        	if (exist.booleanValue()) 
+        		model.setSelection(ImgSaver.DIRECT);
+        	else model.saveImage(true);
+        	super.approveSelection();
+        }
+        */
+    	previewSelection();
+    	super.approveSelection();
     }
     
 }

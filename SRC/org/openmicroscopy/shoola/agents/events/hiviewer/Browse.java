@@ -33,7 +33,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 /** 
  * Event to browse a given <code>Data Object</code>.

@@ -64,7 +64,7 @@ class ImgSaverUI
 {
     
     /** Save the main image. */
-    static final int                    IMAGE = 0;
+    static final int                   IMAGE = 0;
     
     /** Save the grid image. */
     static final int                    GRID_IMAGE = 1;
@@ -94,12 +94,18 @@ class ImgSaverUI
     /** The maximum number of save options. */
     private static final int			MAX = 6;
     
+    /** The maximum number of save options if no lens. */
+    private static final int			MAX_PARTIAL = 3;
+    
     /** Brief description of the action performed by this widget. */
     private static final String         NOTE = "Save the currrent image in " +
             "one of the following formats: TIFF, JPEG, PNG or BMP.";
 
     /** Description of the type of images we can save. */
     private static final String[]       selections;
+    
+    /** Description of the type of images we can save. */
+    private static final String[]       partialSelections;
     
     /** Reference to the {@link ImgSaver}. */
     private ImgSaver                    model;
@@ -126,12 +132,27 @@ class ImgSaverUI
         						"lens' image and split channels";
         selections[LENS_IMAGE_AND_COMPONENTS_GREY] = 
 								"lens' image and split channels  in grey";
+        partialSelections = new String[MAX_PARTIAL+1];
+        partialSelections[IMAGE] = "image";
+        partialSelections[GRID_IMAGE] = "grid view";
+        partialSelections[IMAGE_AND_COMPONENTS] = "image and split channels";
+        partialSelections[IMAGE_AND_COMPONENTS_GREY] = 
+        					"image and split channels in grey";
     }
     
     /** Initializes the component composing the display. */
     private void initComponents()
     {
-        savingTypes = new JComboBox(selections);
+    	switch (model.getSavingType()) {
+    		case ImgSaver.PARTIAL:
+    			savingTypes = new JComboBox(selections);
+			break;
+	    	case ImgSaver.FULL:
+			default:
+				savingTypes = new JComboBox(selections);
+				break;
+		}
+    	
         chooser = new ImgSaverFileChooser(model);
         settings = new JCheckBox();
         settings.setText("Set the current directory as default.");

@@ -163,6 +163,9 @@ class ImViewerModel
      */
     private boolean				textVisible;
     
+    /**Flag indicating that the a movie is played. */
+    private boolean				playingMovie;
+    
     /** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
     private void computeSizes()
     {
@@ -815,5 +818,21 @@ class ImViewerModel
     {
     	rndControl.saveCurrentSettings(); 
     }
+
+    /**
+     * Sets to <code>true</code> when the movie is played, to <code>false</code>
+     * otherwise.
+     * 
+     * @param b The value to set.
+     */
+	void setPlayingMovie(boolean b) { playingMovie = b; }
+	
+	/**
+	 * Returns <code>true</code> if a movie is played, to <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isPlayingMovie() { return playingMovie; }
 	
 }

@@ -108,7 +108,6 @@ class PopupMenu
     {
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(view);
-        add(remove);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(classify);
         add(declassify);
@@ -118,6 +117,8 @@ class PopupMenu
         add(annotateChildren);
         add(new JSeparator(JSeparator.HORIZONTAL));
         add(properties);
+        add(new JSeparator(JSeparator.HORIZONTAL));
+        add(remove);
     }
     
     /** 

@@ -119,7 +119,7 @@ class ImViewerComponent
     private String getStatusText()
     {
         String text = "";
-        text += "Z="+model.getDefaultZ()+"/"+model.getMaxZ();
+        text += "Z="+(model.getDefaultZ()+1)+"/"+(model.getMaxZ()+1);
         text += " T="+model.getDefaultT()+"/"+model.getMaxT();
         return text;
     }
@@ -308,6 +308,7 @@ class ImViewerComponent
      	        case ColorModelAction.GREY_SCALE_MODEL:
      	        	historyActiveChannels = model.getActiveChannels();
      	        	model.setColorModel(GREY_SCALE_MODEL);
+     	        	model.setRGBSplit(false);
      	        	if (channels != null && channels.size() > 1) {
      	        		i = channels.iterator();
      	        		int index;
@@ -325,21 +326,26 @@ class ImViewerComponent
      	        case ColorModelAction.RGB_MODEL:
      	        case ColorModelAction.HSB_MODEL:
      	        	model.setColorModel(HSB_MODEL);
+     	        	model.setRGBSplit(true);
+     	        	int index;
      	        	if (historyActiveChannels != null && 
      	        			historyActiveChannels.size() != 0) {
      	        		i = historyActiveChannels.iterator();
-     	        		while (i.hasNext()) 
-     	        			setChannelActive(((Integer) i.next()).intValue(), 
-     	        					true);
+     	        		while (i.hasNext()) {
+     	        			index = ((Integer) i.next()).intValue();
+     	        			setChannelActive(index, true);
+     	        		}
+     	        			
      	        	} else {
      	        		if (channels == null || channels.size() == 0) {
      	        			//no channel so one will be active.
      	        			setChannelActive(0, true);
      	        		} else {
      	        			i = channels.iterator();
-     	        			while (i.hasNext()) 
-     	        				setChannelActive(
-     	        						((Integer) i.next()).intValue(), true);
+     	        			while (i.hasNext()) {
+         	        			index = ((Integer) i.next()).intValue();
+         	        			setChannelActive(index, true);
+         	        		}
      	        		}
      	        	}
      	        	break;
@@ -824,30 +830,58 @@ class ImViewerComponent
 	            "This method can't be invoked in the DISCARDED, NEW or" +
 	            "LOADING_RENDERING_CONTROL state.");
     	}
-	    if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
+	    //if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 	    int index;
 	    List active = model.getActiveChannels();
 	    int maxC = model.getMaxC();
 	    List<BufferedImage> images = new ArrayList<BufferedImage>(maxC);
+	    
 	    try {
-	    	Iterator i;
-	    	for (int j = 0; j < maxC; j++) {
-	    		if (model.isChannelActive(j)) {
-	    			for (int k = 0; k < maxC; k++) {
-	    				model.setChannelActive(k, k == j);
+	    	if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
+	    		for (int k = 0; k < maxC; k++) {
+    				model.setChannelActive(k, true);
+    				for (int i = 0; i < maxC; i++) {
+    					if (i != k) model.setChannelActive(i, false);
 					}
-	    			images.add(model.getSplitComponentImage());
-	    			i = active.iterator();
-		            while (i.hasNext()) { //reset values.
-		                index = ((Integer) i.next()).intValue();
-		                model.setChannelActive(index, true);
-		            }
-	    		} else {
-	    			images.add(null);
-	    		}
+    				images.add(model.getSplitComponentImage());
+				}
 	    		
+	    		for (int k = 0; k < maxC; k++) {
+    				model.setChannelActive(k, true);
+				}
+	    		model.setColorModel(HSB_MODEL);
+	    		images.add(model.getSplitComponentImage());
+	    		model.setColorModel(GREY_SCALE_MODEL);
 	    		
-			}
+	    		for (int k = 0; k < maxC; k++) {
+    				model.setChannelActive(k, false);
+				}
+    			Iterator i = active.iterator();
+    			
+	            while (i.hasNext()) { //reset values.
+	                index = ((Integer) i.next()).intValue();
+	                model.setChannelActive(index, true);
+	            }
+	            
+	    	} else {
+	    		Iterator i;
+		    	for (int j = 0; j < maxC; j++) {
+		    		if (model.isChannelActive(j)) {
+		    			for (int k = 0; k < maxC; k++) {
+		    				model.setChannelActive(k, k == j);
+						}
+		    			images.add(model.getSplitComponentImage());
+		    			i = active.iterator();
+			            while (i.hasNext()) { //reset values.
+			                index = ((Integer) i.next()).intValue();
+			                model.setChannelActive(index, true);
+			            }
+		    		} else {
+		    			images.add(null);
+		    		}
+				}
+	    	}
+	    	
 		} catch (Exception ex) {
 			reload(ex);
 		}
@@ -1257,6 +1291,8 @@ class ImViewerComponent
      */
 	public void playMovie(boolean b)
 	{
+		model.setPlayingMovie(b);
+		view.enableSliders(!b);
 		controller.getAction(ImViewerControl.CHANNEL_MOVIE).setEnabled(!b);
 	}
 
@@ -1411,6 +1447,19 @@ class ImViewerComponent
 		if (comp == null) return;
 		model.getBrowser().removeComponent(comp, ImViewer.VIEW_INDEX);
 		view.repaint();
+	}
+	
+	/** 
+     * Implemented as specified by the {@link ImViewer} interface.
+     * @see ImViewer#hasLens()
+     */
+	public boolean hasLens()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		if (model.getState() != READY) return false;
+		return view.hasLensImage(); 
 	}
     
 }

@@ -187,14 +187,18 @@ class MoviePlayerControl
         try {
             val = Integer.parseInt(start.getText());
             valEnd = Integer.parseInt(end.getText());
+            if (type == TYPE_Z) {
+            	val = val-1;
+            	valEnd = valEnd-1;
+            }
             if (0 <= val && val < valEnd) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
-            int v = valEnd-1; 
+            int v = valEnd+1; 
             start.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid start point", 
-                "Please enter a value between 0 and "+v);
+                "Please enter a value between 1 and "+v);
             return;
         }
         if (type == TYPE_T) {
@@ -228,6 +232,10 @@ class MoviePlayerControl
         try {
             val = Integer.parseInt(end.getText());
             valStart = Integer.parseInt(start.getText());
+            if (type == TYPE_Z) {
+            	val = val-1;
+            	valStart = valStart-1;
+            }
             if (valStart < val && val <= max) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
@@ -235,7 +243,7 @@ class MoviePlayerControl
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             int v = valStart+1;
             un.notifyInfo("Invalid end point", "Please enter a value between "+
-                            v+" and "+max);
+                            v+" and "+(max+1));
             return;
         }
         if (type == TYPE_T) {
@@ -377,8 +385,8 @@ class MoviePlayerControl
              view.startT.setText(startT);        
         if (endVal == null || !endVal.equals(endT)) 
             view.endT.setText(endT);
-        String startZ = ""+model.getStartZ();
-        String endZ = ""+model.getEndZ();
+        String startZ = ""+(model.getStartZ()+1);
+        String endZ = ""+(model.getEndZ()+1);
         startVal = view.startZ.getText();
         endVal = view.endZ.getText();
         if (startVal == null || !startVal.equals(startZ))

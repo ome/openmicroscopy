@@ -81,7 +81,7 @@ class BrowserModel
 	
 	/** The blank mask. */
 	private static final int	BLANK_MASK = 0x00000000;
-	
+
 	/** The text above the red band image. */
 	private static final String	RED = "Red";
 	
@@ -548,17 +548,18 @@ class BrowserModel
     { 
     	if (splitImages == null) splitImages = new ArrayList<SplitImage>();
     	else splitImages.clear();
-    	boolean c = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+    	boolean grey = parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+    	BufferedImage combined;
     	if (getRGBSplit()) {	
         	BufferedImage r = null, g = null, b = null;
-        	if (!c) {
+        	if (!grey) { //shouldn't happen
         		int w = annotateImage.getWidth();
             	int h = annotateImage.getHeight();
             	DataBuffer buf = annotateImage.getRaster().getDataBuffer();
         		boolean[] rgb = parent.hasRGB();
             	if (rgb[0])
             		r = createBandImage(buf, w, h, RED_MASK, BLANK_MASK, 
-            							BLANK_MASK);
+            				BLANK_MASK);
             	if (rgb[1])
             		g = createBandImage(buf, w, h, BLANK_MASK, GREEN_MASK, 
             							BLANK_MASK);
@@ -570,20 +571,22 @@ class BrowserModel
         	splitImages.add(new SplitImage(r, RED));
         	splitImages.add(new SplitImage(g, GREEN));
         	splitImages.add(new SplitImage(b, BLUE));
+        	combined = annotateImage;
     	} else { 
-	    	int index = 0;
-	    	Iterator i = gridImages.iterator();
-	    	BufferedImage img;
 	    	String n;
-	    	while (i.hasNext()) {
+	    	combined = annotateImage;
+	    	int length = gridImages.size();
+	    	if (grey) {
+	    		length = length-1;
+	    		combined = gridImages.get(length);
+	    	}
+	    	for (int j = 0; j < length; j++) {
 	    		n = PREFIX+
-	    			parent.getChannelMetadata(index).getEmissionWavelength();
-	    		img = (BufferedImage) i.next();
-	    		splitImages.add(new SplitImage(img, n));
-	    		index++;
+    				parent.getChannelMetadata(j).getEmissionWavelength();
+	    		splitImages.add(new SplitImage(gridImages.get(j), n));
 			}
     	}
-    	splitImages.add(new SplitImage(annotateImage, COMBINED));
+    	splitImages.add(new SplitImage(combined, COMBINED));
     	return splitImages;
     }
     

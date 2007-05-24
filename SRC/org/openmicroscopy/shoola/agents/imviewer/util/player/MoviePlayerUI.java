@@ -197,10 +197,11 @@ class MoviePlayerUI
                                     model.getStartZ(), model.getEndZ());
         zSlider.setPaintEndLabels(false);
         zSlider.setPaintLabels(false);
-        startZ = new JTextField(""+model.getStartZ(), (""+maxZ).length());
+        int length = (""+(maxZ+1)).length();
+        startZ = new JTextField(""+(model.getStartZ()+1), length);
         startZ.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the start z-section."));
-        endZ = new JTextField(""+model.getEndZ(), (""+maxZ).length());
+        endZ = new JTextField(""+(model.getEndZ()+1), length);
         endZ.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the end z-section."));
         
@@ -344,8 +345,6 @@ class MoviePlayerUI
         JPanel movie = new JPanel();
         movie.setLayout(new GridBagLayout());
         GridBagConstraints mc = new GridBagConstraints();
-        mc.gridx = 0;
-        mc.gridy = 0;
         mc.insets = new Insets(5, 5, 5, 5);
         JPanel p = buildGroupPanel(zSlider, acrossZ, 
                 buildControlsMoviePanel((""+model.getMaxZ()).length(), startZ, 
@@ -382,7 +381,6 @@ class MoviePlayerUI
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridy = 0;
         gbc.insets = new Insets(5, 5, 5, 5);
         add(controls, gbc);
         gbc.gridy = 1;
@@ -427,13 +425,9 @@ class MoviePlayerUI
         acrossZT.setEnabled(!((maxZ == 0) || (maxT == 0)));
         int index = model.getMovieIndex();
 
-        if (index == MoviePlayer.ACROSS_Z) {
-            acrossZ.setSelected(true);
-        } else if (index == MoviePlayer.ACROSS_T) {
-            acrossT.setSelected(true);
-        } else if (index == MoviePlayer.ACROSS_ZT) {
-            acrossZT.setSelected(true);
-        }
+        if (index == MoviePlayer.ACROSS_Z) acrossZ.setSelected(true);
+        else if (index == MoviePlayer.ACROSS_T) acrossT.setSelected(true);
+        else if (index == MoviePlayer.ACROSS_ZT) acrossZT.setSelected(true);
     }
     
     /**
@@ -460,7 +454,7 @@ class MoviePlayerUI
      */
     void setStartZ(int v)
     {
-        startZ.setText(""+v);
+        startZ.setText(""+(v+1));
         zSlider.setStartValue(v);
     }
     
@@ -482,7 +476,7 @@ class MoviePlayerUI
      */
     void setEndZ(int v)
     {
-        endZ.setText(""+v);
+        endZ.setText(""+(v+1));
         zSlider.setEndValue(v);
     }
     

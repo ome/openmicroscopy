@@ -82,7 +82,9 @@ public class SaveAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        ImgSaver saver = new ImgSaver(model.getUI(), model);
+    	int index = ImgSaver.PARTIAL;
+    	if (model.hasLens()) index = ImgSaver.FULL;
+        ImgSaver saver = new ImgSaver(model.getUI(), model, index);
         UIUtilities.setLocationRelativeToAndShow(model.getUI(), saver);
     }
     

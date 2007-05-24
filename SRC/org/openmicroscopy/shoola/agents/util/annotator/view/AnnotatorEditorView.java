@@ -136,6 +136,9 @@ class AnnotatorEditorView
 	/** The listener attached to the text area. */
 	private DocumentListener		listener;
 
+	/** Listener added to the vertical scrollBar. */
+	private AdjustmentListener 		adjustementlistener;
+	
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
     {
@@ -177,7 +180,9 @@ class AnnotatorEditorView
 			y = bounds.y-h/2;
 			JScrollBar hBar = scrollAnnotations.getHorizontalScrollBar();
 			JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
+			vBar.removeAdjustmentListener(adjustementlistener);
 	    	vBar.setValue(y);
+	    	vBar.addAdjustmentListener(adjustementlistener);
 			hBar.setValue(x);
         } 
 		if (c == annotationArea) {
@@ -199,7 +204,7 @@ class AnnotatorEditorView
     	JScrollBar vBar = scrollAnnotations.getVerticalScrollBar();
     	//necessary to set the location of the scrollbar when 
     	// the component is embedded in another UI component. */
-    	vBar.addAdjustmentListener(new AdjustmentListener() {
+    	adjustementlistener = new AdjustmentListener() {
 		
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				if (!e.getValueIsAdjusting() && !init) {
@@ -208,7 +213,8 @@ class AnnotatorEditorView
 		    	} else if (e.getValueIsAdjusting()) init = true;
 			}
 		
-		});
+		};
+    	vBar.addAdjustmentListener(adjustementlistener);
     	treeDisplay = AnnotatorUtil.initTree();
     	treeDisplay.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);

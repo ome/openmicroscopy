@@ -367,7 +367,24 @@ class ImViewerUI
         item = new JMenuItem(action);
         item.setText(action.getName());
         menu.add(item);
-        menu.add(createColorModelMenu());
+        //Color model
+        colorModelGroup = new ButtonGroup();
+        action = controller.getAction(ImViewerControl.GREY_SCALE_MODEL);
+        item = new JCheckBoxMenuItem();
+        String cm = model.getColorModel();
+        item.setSelected(cm.equals(ImViewer.GREY_SCALE_MODEL));
+        item.setAction(action);
+        colorModelGroup.add(item);
+        menu.add(item);
+        action = controller.getAction(ImViewerControl.RGB_MODEL);
+        item = new JCheckBoxMenuItem();
+        item.setAction(action);
+        item.setSelected(cm.equals(ImViewer.RGB_MODEL) || 
+                        cm.equals(ImViewer.HSB_MODEL));
+        colorModelGroup.add(item);
+        menu.add(item);
+
+        //menu.add(createColorModelMenu());
         menu.add(new JSeparator());
         action = controller.getAction(ImViewerControl.SAVE);
         item = new JMenuItem(action);
@@ -376,7 +393,7 @@ class ImViewerUI
         action = controller.getAction(ImViewerControl.DOWNLOAD);
         item = new JMenuItem(action);
         item.setText(action.getName());
-        menu.add(item);
+        //menu.add(item);
         return menu;
     }
     
@@ -1021,6 +1038,19 @@ class ImViewerUI
     {
 		JComponent c = model.getBrowser().getUI();
 		c.setBounds(c.getBounds());
+	}
+    
+    /**
+     * Sets the <code>enable</code> flag of the slider used to select
+     * the current z-section and timepoint.
+     * 
+     * @param b Pass <code>true</code> to enable the sliders,
+     * 			<code>false</code> otherwise.
+     */
+    void enableSliders(boolean b)
+    {
+		controlPane.enableSliders(b);
+		
 	}
     
     /** 

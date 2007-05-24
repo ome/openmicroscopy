@@ -75,11 +75,26 @@ public class ImgSaver
     extends JDialog
 {
     
+	/** Indicates to display all possible save options. */
+	public static final int FULL = 0;
+	
+	/** Indicates to display save options without lens saving options. */
+	public static final int PARTIAL = 1;
+	
     /** The window's title. */
-    static final String TITLE = "Save Image";
+    static final String 	TITLE = "Save Image";
     
     /** The title of the preview window. */
-    static final String PREVIEW_TITLE =  "Preview image to save.";
+    static final String 	PREVIEW_TITLE =  "Preview image to save.";
+    
+    /** 
+     * Indicates that the question dialog is for the <code>Preview</code>
+     * dialog.
+     */
+    static final int		PREVIEW = 0;
+    
+    /** Indicates that the question dialog will save the image directly. */
+    static final int		DIRECT = 1;
     
     /** Reference to the model. */
     private ImViewer        model;
@@ -108,16 +123,17 @@ public class ImgSaver
     /** The type of the image to save. */
     private int				type;
     
+    /** One of the following constants: {@link #FULL}, {@link #PARTIAL}. */
+    private int				savingType;
+    
     /**
      * Displays the preview dialog with images depending on the 
      * saving type.
      * 
      * @param savingType The type of saving.
      */
-    private void showPreview(int savingType)
+    private void createImages(int savingType)
     {
-        ImgSaverPreviewer preview = new ImgSaverPreviewer(this);
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         switch (savingType) {
             default:
             case ImgSaverUI.IMAGE:
@@ -160,9 +176,6 @@ public class ImgSaver
             								ImViewer.GREY_SCALE_MODEL);
                 break;
         }
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        preview.initialize();
-        UIUtilities.centerAndShow(preview);
     }
     
     /**
@@ -200,15 +213,36 @@ public class ImgSaver
     }
     
     /**
+     * Checks and sets the saving type.
+     * 
+     * @param t The value to control and set.
+     */
+    private void checkSavingType(int t)
+    {
+    	switch (t) {
+			case PARTIAL:
+				savingType = t;
+				break;
+			case FULL:
+			default:
+				savingType = t;
+				break;
+		}
+    }
+    
+    /**
      * Creates a new instance.
      * 
-     * @param owner The owner of this dialog.
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param owner 		The owner of this dialog.
+     * @param model 		Reference to the Model. 
+     * 						Mustn't be <code>null</code>.
+     * @param savingType 	One of the constants defined by this class.
      */
-    public ImgSaver(JFrame owner, ImViewer model)
+    public ImgSaver(JFrame owner, ImViewer model, int savingType)
     {
         super(owner);
         if (model == null) throw new IllegalArgumentException("No model.");
+        checkSavingType(savingType);
         this.model = model;
         setProperties();
         uiDelegate = new ImgSaverUI(this);
@@ -238,6 +272,13 @@ public class ImgSaver
     }
     
     /**
+     * Returns the type of options available.
+     * 
+     * @return See above.
+     */
+    int getSavingType() { return savingType; }
+    
+    /**
      * Returns the type of image to save.
      * 
      * @return See above.
@@ -265,22 +306,28 @@ public class ImgSaver
      */
     void setFileMessage(String saveMessage) { this.saveMessage = saveMessage; }
     
-    /** 
-     * Brings up a preview of the image or images to save. 
+    /** Brings up a preview of the image or images to save. */
+    void previewImage()
+    { 
+    	ImgSaverPreviewer preview = new ImgSaverPreviewer(this);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        createImages(uiDelegate.getSavingType());
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        preview.initialize();
+        UIUtilities.centerAndShow(preview);
+    }
+    
+    /**
+     * Brings up on screen the dialog asking a <code>Yes/No</code>.
      * 
-     * @param exist Pass <code>true</code> to bring up the selection dialog
-     *              prior to the preview image widget, <code>false</code>
-     *              otherwise.
+     * @param index One of the constants defined by this class.
      */
-    void previewImage(boolean exist)
+    void setSelection(int index)
     {
-        if (exist) {
-            IconManager im = IconManager.getInstance();
-            ImgSaverSelectionDialog d = new ImgSaverSelectionDialog(this, 
-                    im.getIcon(IconManager.QUESTION));
-            UIUtilities.centerAndShow(d);
-        } else
-        	showPreview(uiDelegate.getSavingType());
+    	IconManager im = IconManager.getInstance();
+        ImgSaverSelectionDialog d = new ImgSaverSelectionDialog(this, 
+                im.getIcon(IconManager.QUESTION), index);
+        UIUtilities.centerAndShow(d);
     }
     
     /** Closes the window and disposes. */
@@ -290,9 +337,15 @@ public class ImgSaver
         dispose();
     }
     
-    /** Saves the displayed image. */
-    void saveImage()
+    /** 
+     * Saves the displayed images. 
+     * 
+     * @param init	Pass <code>true</code> to initialize the images to save,
+     * 				<code>false</code> otherwise.
+     */
+    void saveImage(boolean init)
     {
+    	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.
         boolean unitBar = model.isUnitBar();
         String v = model.getUnitBarValue(); 

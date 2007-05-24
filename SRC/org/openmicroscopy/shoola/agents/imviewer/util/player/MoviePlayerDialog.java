@@ -99,7 +99,6 @@ public class MoviePlayerDialog
         super(owner);
         if (model == null) throw new NullPointerException("No model.");
         setTitle("Movie Player: "+model.getImageName());
-        setAlwaysOnTop(true);
         this.model = model;
         player = new MoviePlayer(model, this);
         uiDelegate = new MoviePlayerUI(player);
