@@ -35,8 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -51,7 +49,6 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.ColorCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -102,7 +99,8 @@ class ObjectInspector
 		l.add(new AttributeField(AttributeKeys.TEXT, "Text", true));
 		l.add(new AttributeField(DrawingAttributes.SHOWTEXT, "Show Text", 
 				false));
-		l.add(new AttributeField(DrawingAttributes.SHOWMEASUREMENT, "Show Measurements", 
+		l.add(new AttributeField(DrawingAttributes.SHOWMEASUREMENT, 
+					"Show Measurements", 
 				false)); 
 	//	l.add(new AttributeField(DrawingAttributes.INMICRONS, "Measurements In Microns", 
 	//			false));
@@ -129,23 +127,32 @@ class ObjectInspector
 		
 		fieldTable.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
-		     public void mouseClicked(java.awt.event.MouseEvent e) {
-			if ( e.getClickCount() == 2 ) {
-				e.consume();
-				int col = fieldTable.getSelectedColumn();
-	        	int row = fieldTable.getSelectedRow();
-	       
-	        	Object value = fieldTable.getValueAt(row, col);
-	            if (value instanceof Color)
-	            	controller.showColorPicker((Color) value);
-	            if (value instanceof Boolean)
-	            	toggleValue();
-	            }
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					e.consume();
+					int col = fieldTable.getSelectedColumn();
+					int row = fieldTable.getSelectedRow();
+
+					Object value = fieldTable.getValueAt(row, col);
+					if (value instanceof Color)
+						controller.showColorPicker((Color) value);
+					if (value instanceof Boolean)
+						toggleValue();
+				}
 			}
 		});
 
 	}
 	
+	/** Toggles the value of the boolean under the current selection. */
+	private void toggleValue()
+	{
+		int col = fieldTable.getSelectedColumn();
+		int row = fieldTable.getSelectedRow();
+		Boolean value = (Boolean)fieldTable.getModel().getValueAt(row, col);
+		boolean newValue = !(value.booleanValue());
+		fieldTable.getModel().setValueAt(new Boolean(newValue), row, col);
+	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -172,8 +179,6 @@ class ObjectInspector
 		initComponents();
 		buildGUI();
 	}
-	
-	
 
 	/**
 	 * Returns the name of the component.
@@ -204,18 +209,7 @@ class ObjectInspector
 		int row = fieldTable.getSelectedRow();
 		fieldTable.getModel().setValueAt(c, row, col);
 	}
-	/**
-	 * Toggle the value of the boolean under the current selection.
-	 */
-	private void toggleValue()
-	{
-		int col = fieldTable.getSelectedColumn();
-		int row = fieldTable.getSelectedRow();
-		Boolean value = (Boolean)fieldTable.getModel().getValueAt(row, col);
-		boolean newValue = !(value.booleanValue());
-		fieldTable.getModel().setValueAt(new Boolean(newValue), row, col);
-	}
-	
+
 	/**
 	 * Sets the data.
 	 * 
@@ -415,7 +409,7 @@ class ObjectInspector
 		public boolean isCellEditable(int row, int col)
 	    { 
 	    	if (values.get(row) instanceof String)
-	    		if (values.get(row).equals("N/A")) return false;
+	    		if (values.get(row).equals(NA)) return false;
 	    	return fieldList.get(row).isEditable();
 	    }
 	}

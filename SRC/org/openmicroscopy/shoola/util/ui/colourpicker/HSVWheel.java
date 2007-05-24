@@ -31,6 +31,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.JPanel;
@@ -62,6 +64,12 @@ import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 class HSVWheel 
 	extends JPanel
 {
+	
+	/** The default stroke. */
+	private static final Stroke		LINE = new BasicStroke(1.0f);
+	
+	/** The default color. */
+	private static final Color		LINE_COLOR = Color.BLACK;
 	
 	/**
 	 * The colour wheel is created as an bufferedImage which is created
@@ -328,12 +336,18 @@ class HSVWheel
 	{
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                   RenderingHints.VALUE_ANTIALIAS_ON);
+		Ellipse2D.Float ellipse = new Ellipse2D.Float(0, 0, wheelwidth-1, 
+									wheelwidth-1);
+		Color c = getBackground();
+		g.setColor(LINE_COLOR);
+		g.draw(ellipse);
+		g.setColor(c);
 		g.drawImage(img, 0, 0, (int) wheelwidth, (int) wheelwidth, null);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                  RenderingHints.VALUE_ANTIALIAS_OFF);
 		if (puck == null) return;
 		
-		g.setStroke(new BasicStroke(1.0f));
+		g.setStroke(LINE);
 		g.setPaint(puckfillColour);
 		g.fillRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
 		g.setPaint(puckColour);

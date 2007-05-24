@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+
 /** 
  * This is the colourpicker which instatiates a dialog. Once the user hits 
  * cancel or accept the dialog will disappear. It contains 3 panels, HSV wheel
@@ -135,8 +136,6 @@ public class ColourPicker
         
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
 		gbc.weightx = 80;
 		gbc.weighty = 30;
 		gbc.anchor = GridBagConstraints.CENTER;
@@ -145,5 +144,5 @@ public class ColourPicker
 		getContentPane().add(tabbedPane, gbc);
         pack();
 	}
-	
+
 }
