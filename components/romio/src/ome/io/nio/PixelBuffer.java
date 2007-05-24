@@ -335,6 +335,12 @@ public interface PixelBuffer
      * @throws IOException if there is a problem reading from the pixel buffer.
      */
     public byte[] calculateMessageDigest() throws IOException;
+    
+    /**
+     * Retrieves the full path to this pixel buffer on disk
+     * @return fully qualified path.
+     */
+    public String getPath();
 
 	/**
 	 * Delegates to {@link Pixels.getId()}.
