@@ -14,108 +14,48 @@
 #include <iosfwd>
 
 /**
- * These helper classes are intended to make working with the
- * omero::RType subclasses simpler.
+ * Previously (before ticket:710) the CTYpe helper classes were intended to make working with the
+ * omero::RType subclasses simpler. However, due to garbage collections issues they were
+ * sometimes prematurely collected. The previous class definitions have been replaced by typedefs
+ * so earlier code will still compile. These typedefs should be considered DEPRECATED.
  *
- * E.g. rather than:
- *   
- *  ImagePtr i; 
- *  i->setName(new omero::RString(false,"foo"));
- *  i->setDescription(new omero::RString(true,""));
- *
- * one can use:
- *
- *  ImagePtr i; 
- *  i->setName(new omero::CString("foo"));
- *  i->setDescription(new omero::CString());
- *
+ * Please use the omero::RTypes directly.
  * See OMERO/RTypes.ice for more information.
  */
 namespace omero {
 
-  class CInt : public omero::RInt {
-  public:
-    CInt();
-    CInt(int value);
-  };
-  typedef IceUtil::Handle<CInt> CIntPtr;
+  typedef RInt CInt;
+  typedef RIntPtr CIntPtr;
 
-  class CBool : public omero::RBool {
-  public:
-    CBool();
-    CBool(bool value);
-  };
-  typedef IceUtil::Handle<CBool> CBoolPtr;
+  typedef RBool CBool;
+  typedef RBoolPtr CBoolPtr;
 
-  class CDouble : public omero::RDouble {
-  public:
-    CDouble();
-    CDouble(double value);
-  };
-  typedef IceUtil::Handle<CDouble> CDoublePtr;
+  typedef RDouble CDouble;
+  typedef RDoublePtr CDoublePtr;
 
-  class CFloat : public omero::RFloat {
-  public:
-    CFloat();
-    CFloat(float value);
-  };
-  typedef IceUtil::Handle<CFloat> CFloatPtr;
+  typedef RFloat CFloat;
+  typedef RFloatPtr CFloatPtr;
 
-  class CLong : public omero::RLong {
-  public:
-    CLong();
-    CLong(long value);
-  };
-  typedef IceUtil::Handle<CLong> CLongPtr;
+  typedef RLong CLong;
+  typedef RLongPtr CLongPtr;
 
-  class CTime : public omero::RTime {
-  public:
-    CTime();
-    CTime(omero::TimePtr value);
-  };
-  typedef IceUtil::Handle<CTime> CTimePtr;
+  typedef RTime CTime;
+  typedef RTimePtr CTimePtr;
 
-  class CString : public omero::RString {
-  public:
-    CString();
-    CString(std::string value);
-  };
-  typedef IceUtil::Handle<CString> CStringPtr;
+  typedef RString CString;
+  typedef RStringPtr CStringPtr;
 
-  class CClass : public omero::RClass {
-  public:
-    CClass();
-    CClass(std::string value);
-  };
-  typedef IceUtil::Handle<CString> CStringPtr;
+  typedef RObject CObject; 
+  typedef RObjectPtr CObjectPtr;
 
-  class CObject : public omero::RObject {
-  public:
-    CObject();
-    CObject(omero::model::IObjectPtr value);
-  };
-  typedef IceUtil::Handle<CObject> CObjectPtr;
+  typedef RArray CArray;
+  typedef RArrayPtr CArrayPtr;
 
-  class CArray : public omero::RArray {
-  public:
-    CArray();
-    CArray(omero::RTypeSeq value);
-  };
-  typedef IceUtil::Handle<CArray> CArrayPtr;
+  typedef RList CList;
+  typedef RListPtr CListPtr;
 
-  class CList : public omero::RList {
-  public:
-    CList();
-    CList(omero::RTypeSeq value);
-  };
-  typedef IceUtil::Handle<CList> CListPtr;
-
-  class CSet : public omero::RSet {
-  public:
-    CSet();
-    CSet(omero::RTypeSeq value);
-  };
-  typedef IceUtil::Handle<CSet> CSetPtr;
+  typedef RSet CSet;
+  typedef RSetPtr CSetPtr;
 
 }
 
