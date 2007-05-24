@@ -12,17 +12,12 @@ import java.util.ArrayList;
 
 public class JString extends omero.RString {
 
-    public JString() {
-        super(true,null);
-    }
-
     public JString(String s) {
-        super(s==null,s);
+        super(s);
     }
 
     public static JList asList(String...strings) {
         JList list = new JList();
-        list._null = false;
         list.val = new ArrayList<RType>();
         for (String string : strings) {
             list.val.add( new JString(string));

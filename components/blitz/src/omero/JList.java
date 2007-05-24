@@ -15,20 +15,16 @@ import java.util.List;
 
 public class JList extends omero.RList {
 
-    public JList() {
-        super(true,null);
-    }
-
     public JList(RType...rtypes) {
-        super(false,Arrays.asList(rtypes));
+        super(Arrays.asList(rtypes));
     }
 
     public JList(List<RType> l) {
-        super(false,l);
+        super(l);
     }
 
     public JList(Collection<RType> s) {
-        super(false,new ArrayList(s));
+        super(new ArrayList(s));
     }
 
 

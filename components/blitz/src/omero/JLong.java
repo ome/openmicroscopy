@@ -10,12 +10,8 @@ package omero;
 
 public class JLong extends omero.RLong {
 
-    public JLong() {
-        super(true,0L);
-    }
-
     public JLong(long l) {
-        super(false,l);
+        super(l);
     }
 
 }

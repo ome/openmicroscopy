@@ -61,7 +61,6 @@ import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
-import omero.Time;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
 import omero.romio.RedBand;
@@ -153,7 +152,7 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
 
     public Object convert(RType rt) throws omero.ApiUsageException {
 
-        if (rt == null || rt._null) {
+        if (rt == null) {
             return null;
         }
 
@@ -170,7 +169,9 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         }
 
         // Next round of conversions on the value itself.
-        if (RClass.class.isAssignableFrom(rt.getClass())) {
+        if (RTime.class.isAssignableFrom(rt.getClass())) {
+            rv = new Timestamp((Long)rv);
+        } else if (RClass.class.isAssignableFrom(rt.getClass())) {
             rv = omeroClass((String) rv, true);
         } else if (RArray.class.isAssignableFrom(rt.getClass())){
             RArray arr = (RArray) rt;
@@ -249,13 +250,12 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         return r;
     }
 
-    public static Time convert(Date date) {
-        Time t = new Time();
-        t.val = date.getTime();
-        return t;
+    public static RTime convert(Date date) {
+        return new JTime(date);
     }
 
-    public static Timestamp convert(Time time) {
+    public static Timestamp convert(RTime time) {
+        if (time == null) return null;
         return new Timestamp(time.val);
     }
 
@@ -336,19 +336,19 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
         ome.parameters.Filter filter = new ome.parameters.Filter();
 
         int offset = 0, limit = Integer.MAX_VALUE;
-        if (f.offset != null && ! f.offset._null) {
+        if (f.offset != null) {
             offset = f.offset.val;
         }
-        if (f.limit != null && ! f.limit._null) {
+        if (f.limit != null) {
             limit = f.limit.val;
         }
         filter.page(offset, limit);
 
-        if (f.ownerId != null && ! f.ownerId._null ) {
+        if (f.ownerId != null) {
             filter.owner(f.ownerId.val);
         }
 
-        if (f.groupId != null && ! f.groupId._null ) {
+        if (f.groupId != null) {
             filter.group(f.groupId.val);
         }
 
@@ -404,8 +404,6 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
             return source;
         } else if (RType.class.isAssignableFrom(source.getClass())) {
             return convert((RType) source);
-        } else if (Time.class.isAssignableFrom(source.getClass())) {
-            return convert((Time) source);
         } else {
             omero.ApiUsageException aue = new omero.ApiUsageException();
             aue.message = "Don't know how to reverse "+source;

@@ -42,7 +42,6 @@ import omero.JString;
 import omero.JTime;
 import omero.RString;
 import omero.RType;
-import omero.Time;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOFIELDS;
 import omero.constants.POJOLEAVES;
@@ -179,7 +178,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
     public void testInvokeProperlyMapsIObject() throws Exception {
 
         Image i = new ImageI();
-        i.name = new RString(false, "foo");
+        i.name = new RString("foo");
 
         init(IUpdate.class, "saveObject");
         mock.expects(once()).method(curr.operation).with(new Constraint() {
@@ -307,7 +306,7 @@ public class IceMethodInvokerTest extends MockObjectTestCase {
         p.map = new HashMap<String, RType>();
         p.map.put("S",new JString("S"));
         p.map.put("List",new JList(new JLong(1L), new JLong(2L)));
-        p.map.put("Time",new JTime(new Time(10L)));
+        p.map.put("Time",new JTime(10L));
 //        p.map.put("Array",new JArray(new JString("A")));
 //        FIXME: Not supported. Array class needed for query parameters. 
         Object rv = invoke("my query", p);

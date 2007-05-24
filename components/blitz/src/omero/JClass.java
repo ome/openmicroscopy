@@ -10,16 +10,12 @@ package omero;
 
 public class JClass extends omero.RClass {
 
-    public JClass() {
-        super(true,"");
-    }
-
     public JClass(String s) {
-        super(s==null,s);
+        super(s);
     }
 
     public JClass(Class k) {
-        super(k==null,k==null?"":k.getName());
+        super(k.getName());
     }
 
 }

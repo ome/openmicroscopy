@@ -12,12 +12,8 @@ import omero.model.IObject;
 
 public class JObject extends omero.RObject {
 
-    public JObject() {
-        super(true,null);
-    }
-
     public JObject(IObject o) {
-        super(o==null,o);
+        super(o);
     }
 
 }

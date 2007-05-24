@@ -19,36 +19,30 @@
  * (the empty string, 0.0, etc.), and a simple implementation of an
  * "Any" value.
  *
+ * Usage (C++):
+ *   
+ *    omero::RBoolPtr b1 = new omero::RBool(true);
+ *    omero::RBoolPtr b2 = someObjPtr->getBool();
+ *    if (b2 && b2.val) { ... };
+ *    // the first test, checks if the pointer is null
+ *
+ * Usage (Java):
+ *    omero.RBool b1 = new omero.RBool(true);
+ *    omero.RBool b2 = someObj.getBool();
+ *    if (b2!=null && b2.val) { ... };
+ *    // no operator overloading; check for null directly.
+ *
  */
 module omero { 
 
-  /* A simple Time implementation. The long value is the number
-   * of milliseconds since the epoch (January 1, 1970). 
-   *
-   * This is not nullable like the other definitions here.
-   *
-   */
-  class Time
-  {
-    long val;
-  };
-
-  // Nullable types
-
   /*
-   * Simple base class. Essentially abstract. The "null" field may be
-   * mapped to "_null" in language bindings which define a "null"
-   * keyword.
+   * Simple base class. Essentially abstract. 
    */
   class RType
   {
-    bool null;
   };
-  
+
   /*
-   * Usage:
-   *   omero::RBool b = ...; // from service
-   *   if (!b.null && b.val) { ... }
    */
   class RBool extends RType
   {
@@ -57,9 +51,6 @@ module omero {
   
   
   /*
-   * Usage:
-   *   omero::RDouble d = ...; // from service
-   *   if (!d.null && d.val < 0.0) { ... }
    */
   class RDouble extends RType
   {
@@ -68,9 +59,6 @@ module omero {
   
   
   /*
-   * Usage:
-   *   omero::RFloat f = ...; // from service
-   *   if (!f.null && d.val < 0.0) { ... }
    */
   class RFloat extends RType
   {
@@ -79,9 +67,6 @@ module omero {
   
   
   /*
-   * Usage:
-   *   omero::RInt i = ...; // from service
-   *   if (!i.null && i.val==0) { ... }
    */
   class RInt extends RType
   {
@@ -90,9 +75,6 @@ module omero {
   
   
   /*
-   * Usage:
-   *   omero::RLong l = ...; // from service
-   *   if (!l.null && l.val==0) { ... }
    */
   class RLong extends RType
   {
@@ -101,9 +83,6 @@ module omero {
   
   
   /*
-   * Usage:
-   *   omero::RString s = ...; // from service
-   *   if (!s.null && s.val.equals("foo")) { ... }
    */
   class RString extends RType
   {
@@ -125,20 +104,16 @@ module omero {
   };
 
   
-  /*
-   * Usage:
-   *   omero::RTime t = ...; // from service
-   *   if (!t.null && t.val < System.currentMillis()) { ... }
+
+  /* A simple Time implementation. The long value is the number
+   * of milliseconds since the epoch (January 1, 1970). 
    */
   class RTime extends RType
   {
-    Time val;
+    long val;
   };
-
+  
   /*
-   * Usage:
-   *   omero::RObject o = ...; // from service
-   *   if (!o.null && o.val.isLoaded()) { ... }
    */
   class RObject extends RType
   {

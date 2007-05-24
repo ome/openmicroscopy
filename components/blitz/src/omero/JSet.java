@@ -15,21 +15,17 @@ import java.util.List;
 
 public class JSet extends omero.RSet {
 
-    public JSet() {
-        super(true,null);
-
-    }
 
     public JSet(RType...rtypes) {
-        super(false,Arrays.asList(rtypes));
+        super(Arrays.asList(rtypes));
     }
 
     public JSet(List<RType> l) {
-        super(false,l);
+        super(l);
     }
 
     public JSet(Collection<RType> s) {
-        super(false,new ArrayList(s));
+        super(new ArrayList(s));
     }
 
 

@@ -234,7 +234,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 [$cpp]      toggleCollectionsLoaded(isLoaded);
 [$cpp]    }
 [$jav]    public ${PojoI}(long id, boolean loaded) {
-[$jav]      this.id = new omero.RLong(false,id);
+[$jav]      this.id = new omero.RLong(id);
 [$jav]      this.loaded = loaded; 
 [$jav]      if (loaded) details = new omero.model.DetailsI();
 [$jav]    }
@@ -260,11 +260,11 @@ SPECIAL METHODS:
 Id acccesors copied from other accessors below.
 
 [$jav]      public Long getId() {
-[$jav]        return id == null ? null : id._null ? null : id.val;
+[$jav]        return id == null ? null : id.val;
 [$jav]      }
 [$jav]    
 [$jav]      public void setId( Long id ) {
-[$jav]        this.id = (id == null) ? new omero.RLong(true,0L) : new omero.RLong(false,id);
+[$jav]        this.id = (id == null) ? null : new omero.RLong(id);
 [$jav]      }
 
 [$hdr]       virtual omero::RLongPtr getId();
@@ -349,28 +349,28 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RBool(true,false) : new omero.RBool(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RBool(${property.name}) ")
 #set( $cppType   = "omero::RBoolPtr" )
 
 #elseif( $javaType.startsWith("java.lang.Integer"))
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RInt(true,0) : new omero.RInt(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RInt(${property.name}) ")
 #set( $cppType   = "omero::RIntPtr" )
 
 #elseif( $javaType.startsWith("java.lang.Long"))
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RLong(true,0L) : new omero.RLong(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RLong(${property.name}) ")
 #set( $cppType   = "omero::RLongPtr" )
 
 #elseif( $javaType.startsWith("java.lang.Double"))
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RDouble(true,0.0) : new omero.RDouble(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RDouble(${property.name}) ")
 #set( $cppType   = "omero::RDoublePtr" )
 
 #elseif( $javaType.startsWith("java.lang.Float"))
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RFloat(true,0f) : new omero.RFloat(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RFloat(${property.name}) ")
 #set( $cppType   = "omero::RFloatPtr" )
 
 #elseif( $javaType.startsWith("long")) ## for Permissions
@@ -380,13 +380,13 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $cppType = "long" )
 
 #elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : new java.sql.Timestamp( ${property.name}.val.val )" )
-#set( $setter = "${property.name} == null ? new omero.RTime(true,null) : new omero.RTime(false,new omero.Time(${property.name}.getTime()))");
+#set( $getter = "${property.name} == null ? null : new java.sql.Timestamp( ${property.name}.val )" )
+#set( $setter = "${property.name} == null ? null : new omero.RTime(${property.name}.getTime())");
 #set( $cppType = "omero::RTimePtr" )
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
-#set( $getter = "${property.name} == null ? null : ${property.name}._null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? new omero.RString(true,null) : new omero.RString(false,${property.name}) ")
+#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
+#set( $setter = "${property.name} == null ? null : new omero.RString(${property.name}) ")
 #set( $cppType = "omero::RStringPtr" )
 
 #else
@@ -979,7 +979,7 @@ FILLOBJECT BLOCK:
 [$jav]           $pojo.qualifiedDeclarationName target = new ${pojo.qualifiedDeclarationName}();
 [$jav]           mapper.store(this, target);
 [$jav]           if (!this.loaded) {
-[$jav]             target.setId( id == null ? null : id._null ? null : id.val );
+[$jav]             target.setId( id == null ? null : id.val );
 [$jav]             target.unload();
 [$jav]           } else {
 [$jav]             target.setId( this.getId() ); // special property

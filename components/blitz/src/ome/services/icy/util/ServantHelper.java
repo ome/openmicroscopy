@@ -13,7 +13,6 @@ import ome.util.Filterable;
 import omero.InternalException;
 import omero.RType;
 import omero.ServerError;
-import omero.Time;
 import omero.model.IObject;
 import omero.util.IceMapper;
 

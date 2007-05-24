@@ -15,21 +15,16 @@ import java.util.List;
 
 public class JArray extends omero.RArray {
 
-    public JArray() {
-        super(true,null);
-
-    }
-
     public JArray(RType...rtypes) {
-        super(false,Arrays.asList(rtypes));
+        super(Arrays.asList(rtypes));
     }
 
     public JArray(List<RType> l) {
-        super(false,l);
+        super(l);
     }
 
     public JArray(Collection<RType> s) {
-        super(false,new ArrayList(s));
+        super(new ArrayList(s));
     }
 
 

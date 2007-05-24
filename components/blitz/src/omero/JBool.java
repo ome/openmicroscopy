@@ -10,12 +10,8 @@ package omero;
 
 public class JBool extends omero.RBool {
 
-    public JBool() {
-        super(true,false);
-    }
-
-    public JBool(Boolean b) {
-        super(b==null,b==null?false:b);
+    public JBool(boolean b) {
+        super(b);
     }
 
 }

@@ -10,16 +10,12 @@ package omero;
 
 public class JTime extends omero.RTime {
 
-    public JTime() {
-        super(true,null);
-    }
-
     public JTime(long l) {
-        super(false,null);
-        val = new Time(l);
+        super(l);
     }
 
-    public JTime(Time t) {
-        super(t==null,t);
+    public JTime(java.util.Date d) {
+        super(d.getTime());
     }
+    
 }

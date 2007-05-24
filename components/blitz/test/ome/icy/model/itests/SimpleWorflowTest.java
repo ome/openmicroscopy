@@ -42,7 +42,7 @@ public class SimpleWorflowTest extends IceTest {
         IUpdatePrx prx = ice.getUpdateService(null);
         
         Image i = new ImageI();
-        i.name = new RString(false, "simpleworkflowtest");
+        i.name = new RString("simpleworkflowtest");
         i = (Image) prx.saveAndReturnObject(i, null);
         imageId = i.id.val;
     }

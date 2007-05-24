@@ -32,7 +32,7 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getQueryService(null);
 
         ImageI i = new ImageI();
-        i.name = new RString(false, "foo");
+        i.name = new RString("foo");
 
         i = (ImageI) up.saveAndReturnObject(i);
 
@@ -57,7 +57,7 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getQueryService(null);
 
         ImageI i = new ImageI();
-        i.name = new RString(false, "foo");
+        i.name = new RString("foo");
 
         i = (ImageI) up.saveAndReturnObject(i);
 
