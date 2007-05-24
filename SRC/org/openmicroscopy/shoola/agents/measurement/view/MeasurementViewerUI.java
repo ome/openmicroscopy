@@ -140,7 +140,7 @@ class MeasurementViewerUI
 		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
 		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
 		DrawingAttributes.SHOWTEXT.set(figure, true);
-    }
+	 }
     
     
     /**
@@ -166,7 +166,10 @@ class MeasurementViewerUI
 			type = "Line";
 		if (figure instanceof TextFigure) type = "Text";
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
-	}
+		AnnotationKeys.INMICRONS.set(figure.getROIShape(), true);
+		AnnotationKeys.MICRONSPIXELX.set(figure.getROIShape(),  (double)model.getPixelSizeX());
+		AnnotationKeys.MICRONSPIXELY.set(figure.getROIShape(),  (double)model.getPixelSizeY());
+   }
     
     /** 
      * Creates the menu bar.

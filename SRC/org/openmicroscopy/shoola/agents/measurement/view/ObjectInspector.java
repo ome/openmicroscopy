@@ -103,7 +103,9 @@ class ObjectInspector
 		l.add(new AttributeField(DrawingAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(DrawingAttributes.SHOWMEASUREMENT, "Show Measurements", 
-				false));
+				false)); 
+	//	l.add(new AttributeField(DrawingAttributes.INMICRONS, "Measurements In Microns", 
+	//			false));
 		l.add(new AttributeField(AttributeKeys.STROKE_WIDTH, "Line Width", 
 				true));
 		l.add(new AttributeField(AttributeKeys.FONT_SIZE, "Font Size", 
