@@ -188,8 +188,9 @@ public 	class LineAnnotationFigure
 	public Tool getTool(Point2D.Double p) 
 	{
 		boolean showText = false;
-		if(isEditable() && (textLayout.getBounds().contains(p) || getBounds().contains(p)))
+		if(isEditable() && getBounds().contains(p))
 			showText = true;
+			
 		if(super.path != null)
 		{
 			if(showText)

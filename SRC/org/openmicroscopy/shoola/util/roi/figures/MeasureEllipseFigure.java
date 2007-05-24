@@ -45,7 +45,6 @@ import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.RotateHandle;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.util.ResourceBundleUtil;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -61,7 +60,8 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
@@ -122,11 +122,18 @@ public class MeasureEllipseFigure
     // SHAPE AND BOUNDS
     public double getX() 
     {
-    	return ellipse.x;
+    	if(INMICRONS.get(shape))
+    		return ellipse.x*MICRONSPIXELX.get(shape);
+    	else
+        	return ellipse.x;
     }
+    
     public double getY() 
     {
-        return ellipse.y;
+    	if(INMICRONS.get(shape))
+    		return ellipse.y*MICRONSPIXELY.get(shape);
+    	else
+        	return ellipse.y;
     }
     
     public double getWidth() 
@@ -138,7 +145,10 @@ public class MeasureEllipseFigure
     	Point2D lowerBound = new Point2D.Double(0, 0);
     	Point2D transformedUpperBound = value.transform(upperBound, null);
     	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	return transformedUpperBound.distance(transformedLowerBound);
+    	if(INMICRONS.get(shape))
+    		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELX.get(shape);
+    	else
+    		return transformedUpperBound.distance(transformedLowerBound);
     }
     
     public double getHeight() 
@@ -150,7 +160,10 @@ public class MeasureEllipseFigure
     	Point2D lowerBound = new Point2D.Double(ellipse.getWidth()/2, 0);
     	Point2D transformedUpperBound = value.transform(upperBound, null);
     	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	return transformedUpperBound.distance(transformedLowerBound);
+    	if(INMICRONS.get(shape))
+    		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELY.get(shape);
+    	else
+    		return transformedUpperBound.distance(transformedLowerBound);
     }
     
     public Rectangle2D.Double getBounds() 

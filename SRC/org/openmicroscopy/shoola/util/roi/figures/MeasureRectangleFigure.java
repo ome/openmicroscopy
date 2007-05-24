@@ -123,11 +123,17 @@ public class MeasureRectangleFigure
     // SHAPE AND BOUNDS
     public double getX() 
     {
-    	return rectangle.x;
-    }
+       	if(INMICRONS.get(shape))
+    		return rectangle.x*MICRONSPIXELX.get(shape);
+    	else
+        	return rectangle.x;
+  }
     public double getY() 
     {
-        return rectangle.y;
+     	if(INMICRONS.get(shape))
+    		return rectangle.y*MICRONSPIXELY.get(shape);
+    	else
+        	return rectangle.y;
     }
     
     public double getWidth() 
@@ -139,7 +145,10 @@ public class MeasureRectangleFigure
     	Point2D lowerBound = new Point2D.Double(0, 0);
     	Point2D transformedUpperBound = value.transform(upperBound, null);
     	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	return transformedUpperBound.distance(transformedLowerBound);
+     	if(INMICRONS.get(shape))
+     		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELX.get(shape);
+    	else
+    		return transformedUpperBound.distance(transformedLowerBound);
     }
     
     public double getHeight() 
@@ -152,7 +161,10 @@ public class MeasureRectangleFigure
     	Point2D lowerBound = new Point2D.Double(rectangle.getWidth()/2, 0);
     	Point2D transformedUpperBound = value.transform(upperBound, null);
     	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	return transformedUpperBound.distance(transformedLowerBound);
+     	if(INMICRONS.get(shape))
+     		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELY.get(shape);
+    	else
+    		return transformedUpperBound.distance(transformedLowerBound);
     }
     
     public Rectangle2D.Double getBounds() 
@@ -372,7 +384,12 @@ public class MeasureRectangleFigure
 
 	public Point2D getCentre()
 	{
-		return new Point2D.Double(rectangle.getCenterX(), rectangle.getCenterY());
+     	if(INMICRONS.get(shape))
+     	{
+    		return new Point2D.Double(rectangle.getCenterX()*MICRONSPIXELX.get(shape), rectangle.getCenterY()*MICRONSPIXELY.get(shape));
+     	}
+    	else
+    		return new Point2D.Double(rectangle.getCenterX(), rectangle.getCenterY());
 	}
 
 	/* (non-Javadoc)

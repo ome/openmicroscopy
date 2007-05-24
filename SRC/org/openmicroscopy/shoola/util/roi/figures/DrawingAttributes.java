@@ -29,6 +29,7 @@ import java.awt.Color;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 
 //Application-internal dependencies
 

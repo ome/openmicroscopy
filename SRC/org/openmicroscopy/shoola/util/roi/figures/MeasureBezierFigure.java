@@ -41,6 +41,8 @@ import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASU
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
@@ -196,7 +198,11 @@ public class MeasureBezierFigure
 		{
 			Point2D p0 = getPoint(i);
 			Point2D p1 = getPoint(i+1);
-			
+			if(INMICRONS.get(shape))
+			{
+				p0.setLocation(p0.getX()*MICRONSPIXELX.get(shape), p0.getY()*MICRONSPIXELY.get(shape));
+				p1.setLocation(p1.getX()*MICRONSPIXELX.get(shape), p1.getY()*MICRONSPIXELY.get(shape));
+			}
 			length += Math.sqrt(Math.pow(p1.getX()-p0.getX(),2)+Math.pow(p1.getX()-p0.getX(),2)); 
 		}
 		return length;
@@ -204,13 +210,25 @@ public class MeasureBezierFigure
 	
 	public Point2D getCentre()
 	{
-		return path.getCenter();
+		if(INMICRONS.get(shape))
+		{
+			Point2D.Double pt1 =  path.getCenter();
+			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
+			return pt1;
+		}
+		else
+			return path.getCenter();
 	}
 	
 	public double getArea()
 	{
 		double area = 0;
 		Point2D centre = path.getCenter();
+		if(INMICRONS.get(shape))
+		{
+			centre.setLocation(centre.getX()*MICRONSPIXELX.get(shape), centre.getY()*MICRONSPIXELY.get(shape));
+		}
+	
 		for(int i = 0 ; i < path.size() ; i++)
 		{
 			Point2D p0 = getPoint(i);
@@ -219,7 +237,12 @@ public class MeasureBezierFigure
 				p1 = getPoint(0);
 			else
 				p1 = getPoint(i+1);
-			
+			if(INMICRONS.get(shape))
+			{
+				p0.setLocation(p0.getX()*MICRONSPIXELX.get(shape), p0.getY()*MICRONSPIXELY.get(shape));
+				p1.setLocation(p1.getX()*MICRONSPIXELX.get(shape), p1.getY()*MICRONSPIXELY.get(shape));
+			}
+		
 			p0.setLocation(p0.getX()-centre.getX(), p0.getY()-centre.getY());
 			p1.setLocation(p1.getX()-centre.getX(), p1.getY()-centre.getY());
 			area += (p0.getX()*p1.getY()-p1.getX()*p0.getY());

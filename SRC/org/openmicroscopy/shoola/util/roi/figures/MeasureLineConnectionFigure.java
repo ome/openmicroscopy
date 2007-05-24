@@ -218,7 +218,16 @@ public class MeasureLineConnectionFigure
 	
 	public double getLength(int i , int j)
 	{
-		return getPoint(i).distance(getPoint(j));
+		if(INMICRONS.get(shape))
+		{
+			Point2D.Double pt1 = getPoint(i);
+			Point2D.Double pt2 = getPoint(j);
+			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
+			pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
+			return getPoint(i).distance(getPoint(j));
+		}
+		else
+			return getPoint(i).distance(getPoint(j));
 	}
 	
 	public double getAngle(int i, int j, int k)
