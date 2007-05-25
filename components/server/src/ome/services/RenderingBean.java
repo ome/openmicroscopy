@@ -416,6 +416,7 @@ public class RenderingBean extends AbstractLevel2Service implements
            		RenderingDef def = Renderer.createNewRenderingDef(pixelsObj);
            		Renderer.resetDefaults(def, pixelsObj, pixMetaSrv,
            		                       buffer);
+           		buffer.close();
             	pixMetaSrv.saveRndSettings(def);
             }
             else
@@ -423,6 +424,15 @@ public class RenderingBean extends AbstractLevel2Service implements
             	errorIfInvalidState();
             	renderer.resetDefaults();
             }
+        }
+        catch (IOException e)
+        {
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    e.printStackTrace(printWriter);
+			log.error(result.toString());
+			throw new ResourceError(
+					e.getMessage() + " Please check server log.");
         }
         finally
         {
@@ -949,7 +959,6 @@ public class RenderingBean extends AbstractLevel2Service implements
     {
     	if (renderer != null)
     		renderer.close();
-
     }
 
     // ~ Error checking methods
