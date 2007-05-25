@@ -322,16 +322,16 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      * 
      * @param image
      *            the thumbnail's buffered image.
-     * @param stream
+     * @param outputStream
      *            the stream to write to.
      * @throws IOException
      *             if there is a problem when writing to <i>stream<i>.
      */
     private void compressThumbnailToStream(BufferedImage image,
-            OutputStream stream) throws IOException {
+            OutputStream outputStream) throws IOException {
         // Get a JPEG image writer
-        ImageWriter jpegWriter = ImageIO.getImageWritersByFormatName("jpeg")
-                .next();
+        ImageWriter jpegWriter =
+        	ImageIO.getImageWritersByFormatName("jpeg").next();
 
         // Setup the compression value from (0.05, 0.75 and 0.95)
         ImageWriteParam iwp = jpegWriter.getDefaultWriteParam();
@@ -339,10 +339,15 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         iwp.setCompressionQuality(DEFAULT_COMPRESSION_QUALITY);
 
         // Write the JPEG to our ByteArray stream
-        ImageOutputStream imageOutputStream = ImageIO
-                .createImageOutputStream(stream);
-        jpegWriter.setOutput(imageOutputStream);
-        jpegWriter.write(null, new IIOImage(image, null, null), iwp);
+    	ImageOutputStream imageOutputStream = null;
+        try {
+        	imageOutputStream = ImageIO.createImageOutputStream(outputStream);
+        	jpegWriter.setOutput(imageOutputStream);
+        	jpegWriter.write(null, new IIOImage(image, null, null), iwp);
+        } finally {
+        	if (imageOutputStream != null)
+        		imageOutputStream.close();
+        }
     }
 
     /**
@@ -627,11 +632,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         try {
             compressThumbnailToStream(image, byteStream);
             byte[] thumbnail = byteStream.toByteArray();
-            byteStream.close();
             return thumbnail;
         } catch (IOException e) {
             e.printStackTrace();
             throw new ResourceError(e.getMessage());
+        } finally {
+        	try {
+        		byteStream.close();
+        	} catch (IOException e) {
+        		e.printStackTrace();
+        		throw new ResourceError(e.getMessage());
+        	}
         }
     }
 
