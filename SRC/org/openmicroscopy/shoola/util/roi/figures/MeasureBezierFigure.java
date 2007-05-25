@@ -39,6 +39,8 @@ import org.jhotdraw.draw.BezierFigure;
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
@@ -47,6 +49,9 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
 
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -68,6 +73,9 @@ public class MeasureBezierFigure
 	extends BezierFigure
 	implements ROIFigure
 {
+
+	private ArrayList<Double>			pointArrayX;
+	private ArrayList<Double>			pointArrayY;
 	private	Rectangle2D bounds;
 	private ROI			roi;
 	private ROIShape 	shape;
@@ -191,18 +199,32 @@ public class MeasureBezierFigure
 			return str+"px\u00B2";
 	}
 	
+	/**
+	 * Get the point i in pixels or microns depending on the units used.
+	 * 
+	 * @param i node
+	 * @return see above.
+	 */
+	private Point2D.Double getPt(int i)
+	{
+		Point2D.Double pt = getPoint(i); 
+			//new Point2D.Double(path.get(i).x[0],path.get(i).y[0]);
+		if(INMICRONS.get(shape))
+		{
+			return new Point2D.Double(	pt.getX()*MICRONSPIXELX.get(shape), 
+										pt.getY()*MICRONSPIXELY.get(shape));
+		}
+		else
+			return pt;
+	}
+	
 	public double getLength()
 	{
 		double length = 0;
-		for(int i = 0 ; i < path.size()-1 ; i++)
+		for(int i = 0 ; i < getPointCount()-1 ; i++)
 		{
-			Point2D p0 = getPoint(i);
-			Point2D p1 = getPoint(i+1);
-			if(INMICRONS.get(shape))
-			{
-				p0.setLocation(p0.getX()*MICRONSPIXELX.get(shape), p0.getY()*MICRONSPIXELY.get(shape));
-				p1.setLocation(p1.getX()*MICRONSPIXELX.get(shape), p1.getY()*MICRONSPIXELY.get(shape));
-			}
+			Point2D p0 = getPt(i);
+			Point2D p1 = getPt(i+1);
 			length += p0.distance(p1);
 		}
 		return length;
@@ -223,25 +245,16 @@ public class MeasureBezierFigure
 	public double getArea()
 	{
 		double area = 0;
-		Point2D centre = path.getCenter();
-		if(INMICRONS.get(shape))
-		{
-			centre.setLocation(centre.getX()*MICRONSPIXELX.get(shape), centre.getY()*MICRONSPIXELY.get(shape));
-		}
+		Point2D centre = getCentre();
 	
 		for(int i = 0 ; i < path.size() ; i++)
 		{
-			Point2D p0 = getPoint(i);
+			Point2D p0 = getPt(i);
 			Point2D p1;
 			if(i==path.size()-1)
-				p1 = getPoint(0);
+				p1 = getPt(0);
 			else
-				p1 = getPoint(i+1);
-			if(INMICRONS.get(shape))
-			{
-				p0.setLocation(p0.getX()*MICRONSPIXELX.get(shape), p0.getY()*MICRONSPIXELY.get(shape));
-				p1.setLocation(p1.getX()*MICRONSPIXELX.get(shape), p1.getY()*MICRONSPIXELY.get(shape));
-			}
+				p1 = getPt(i+1);
 		
 			p0.setLocation(p0.getX()-centre.getX(), p0.getY()-centre.getY());
 			p1.setLocation(p1.getX()-centre.getX(), p1.getY()-centre.getY());
@@ -289,6 +302,19 @@ public class MeasureBezierFigure
 	{
 		if(shape==null)
 			return;
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		
+		pointArrayX.clear();
+		pointArrayY.clear();
+		for( int i = 0 ; i < path.size(); i++)
+		{
+			Point2D.Double pt = getPt(i);
+			pointArrayX.add(pt.getX());
+			pointArrayY.add(pt.getY());
+		}
+		POINTARRAYX.set(shape, pointArrayX);
+		POINTARRAYY.set(shape, pointArrayY);
 		if(CLOSED.get(this))
 		{
 			AREA.set(shape,getArea());
@@ -300,9 +326,14 @@ public class MeasureBezierFigure
 		{
 			ArrayList<Double> lengthArray = new ArrayList<Double>();
 			lengthArray.add(getLength());
+			
 			LENGTH.set(shape, lengthArray);
 			CENTREX.set(shape, getCentre().getX());
 			CENTREY.set(shape, getCentre().getY());
+			STARTPOINTX.set(shape, getPt(0).getX());
+			STARTPOINTX.set(shape, getPt(0).getY());
+			ENDPOINTX.set(shape, getPt(path.size()-1).getX());
+			ENDPOINTY.set(shape, getPt(path.size()-1).getY());
 		}
 	}
 

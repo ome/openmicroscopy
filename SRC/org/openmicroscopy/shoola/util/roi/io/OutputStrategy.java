@@ -690,7 +690,7 @@ public class OutputStrategy
         //Media:  	 visual
         //Animatable:  	 yes
         //Computed value:  	 Specified value, except inherit
-        writeAttribute(elem, "fill-opacity", FILL_OPACITY.get(f), 1d);
+        writeAttribute(elem, "fill-opacity", FILL_COLOR.get(f).getAlpha()/255.0, 1d);
         
         // 'fill-rule'
         // Value:	 nonzero | evenodd | inherit
@@ -819,7 +819,7 @@ public class OutputStrategy
         //Media:  	 visual
         //Animatable:  	 yes
         //Computed value:  	 Specified value, except inherit
-        writeAttribute(elem, "stroke-opacity", STROKE_OPACITY.get(f), 1d);
+        writeAttribute(elem, "stroke-opacity", STROKE_COLOR.get(f).getAlpha()/255.0, 1d);
         
         //'stroke-width'
         //Value:  	<length> | inherit

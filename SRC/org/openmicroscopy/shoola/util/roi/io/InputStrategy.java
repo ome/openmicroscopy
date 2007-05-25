@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -44,6 +46,8 @@ import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLException;
 import net.n3.nanoxml.XMLParserFactory;
 
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.jhotdraw.samples.svg.SVGAttributeKeys.TextAnchor;
@@ -62,6 +66,7 @@ import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
@@ -104,6 +109,7 @@ public class InputStrategy
 {
 	FigureFactory figureFactory;
 
+	
 	public final static String SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 	public final static String ROI_NAMESPACE = "http://www.openmicroscopy.org.uk";
 	public final static String VERSION_TAG = "version";
@@ -205,7 +211,26 @@ public class InputStrategy
 	public final static String SVG_WORD_SPACING_ATTRIBUTE = "word-spacing";
 	public final static String SVG_ROTATE_ATTRIBUTE = "rotate";
 	public final static String SVG_TRANSFORM_ATTRIBUTE = "transform";
-		
+
+	private final static Color DEFAULT_TEXT_COLOUR = Color.ORANGE;
+	private final static Color DEFAULT_FILL_COLOUR = new Color(255, 255, 255, 0);
+	private final static Color DEFAULT_STROKE_COLOUR = new Color(255, 255, 255, 255);
+	private final static Color DEFAULT_MEASUREMENT_TEXT_COLOUR = Color.YELLOW;
+	
+	private final static HashMap<AttributeKey, Object> defaultAttributes;
+	static {
+		defaultAttributes = new HashMap<AttributeKey, Object>();
+		defaultAttributes.put(AttributeKeys.FILL_COLOR, DEFAULT_FILL_COLOUR);
+		defaultAttributes.put(AttributeKeys.STROKE_COLOR, DEFAULT_STROKE_COLOUR);
+		defaultAttributes.put(AttributeKeys.TEXT_COLOR, DEFAULT_TEXT_COLOUR);
+		defaultAttributes.put(AttributeKeys.FONT_SIZE, new Double(10));
+		defaultAttributes.put(AttributeKeys.FONT_BOLD, false);
+		defaultAttributes.put(AttributeKeys.STROKE_WIDTH, new Double(1.0));
+		defaultAttributes.put(AttributeKeys.TEXT, "Text");
+		defaultAttributes.put(DrawingAttributes.MEASUREMENTTEXT_COLOUR, DEFAULT_MEASUREMENT_TEXT_COLOUR);
+		defaultAttributes.put(DrawingAttributes.SHOWMEASUREMENT, new Boolean(false));
+		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(true));
+	}
 	
 	private final static HashMap<String, SVGAttributeParser> attributeParserMap;
 	static {
@@ -534,11 +559,14 @@ public class InputStrategy
 		IXMLElement parentElement = svgElement.getChildAtIndex(0);
 		IXMLElement textElement;
 		ROIFigure figure = createParentFigure(parentElement);
+		// Check that the parent element is not a text element, as they have not
+		// got any other text associated with them.
 		if(!parentElement.getName().equals(TEXT_TAG))
 		{
 			textElement = svgElement.getChildAtIndex(1);
 			addTextElementToFigure(figure, textElement);
 		}
+		addMissingAttributes(figure);
 		return figure;
 	}
 	
@@ -739,6 +767,29 @@ public class InputStrategy
 	
 	private void addTextElementToFigure(ROIFigure figure, IXMLElement textElement)
 	{
+		String text = textElement.getContent();
+		setText(figure, text);
+		addAttributes(figure, textElement);
+	}
+		
+	private void setText(ROIFigure fig, String text)
+	{
+		AttributeKeys.TEXT.set(fig, text);
+	}
+	
+	private void addMissingAttributes(ROIFigure figure)
+	{
+		Map<AttributeKey, Object> attributes = figure.getAttributes();
+		Iterator<AttributeKey> iterator = defaultAttributes.keySet().iterator();
+		while(iterator.hasNext())
+		{
+			AttributeKey key = iterator.next();
+			if(!attributes.containsKey(key))
+			{
+				Object value = defaultAttributes.get(key);
+				key.set(figure, value);
+			}
+		}
 		
 	}
 }

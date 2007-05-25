@@ -44,6 +44,7 @@ import javax.swing.Action;
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
+import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Handle;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.util.ResourceBundleUtil;
@@ -79,16 +80,12 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
  * @since OME3.0
  */
 public class MeasureEllipseFigure
-	extends AbstractAttributedFigure
+	extends EllipseFigure
 	implements ROIFigure
 {
-	public final static AttributeKey<AffineTransform>TRANSFORM = new AttributeKey<AffineTransform>("transform", null, true);
-
-	private Ellipse2D.Double ellipse;
-    /**
+	 /**
      * This is used to perform faster drawing and hit testing.
      */
-    private Shape cachedTransformedShape;
     	
 	private	Rectangle2D bounds;
 	private ROI			roi;
@@ -103,205 +100,65 @@ public class MeasureEllipseFigure
     
     public MeasureEllipseFigure(double x, double y, double width, double height) 
     {
-    	super();
-		ellipse = new Ellipse2D.Double(x, y, width, height);
-        shape = null;
+    	super(x, y, width, height);
+    	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
+	    shape = null;
 		roi = null;
     }
-    
-    // DRAWING
-    protected void drawFill(Graphics2D g) 
-    {
-        g.fill(getTransformedShape());
-    }
-    
-    protected void drawStroke(Graphics2D g) 
-    {
-        g.draw(getTransformedShape());
-    }
-    // SHAPE AND BOUNDS
-    public double getX() 
+
+    public double getMeasurementX() 
     {
     	if(INMICRONS.get(shape))
-    		return ellipse.x*MICRONSPIXELX.get(shape);
+    		return getX()*MICRONSPIXELX.get(shape);
     	else
-        	return ellipse.x;
+        	return getX();
+    }
+    
+    public double getMeasurementY() 
+    {
+    	if(INMICRONS.get(shape))
+    		return getY()*MICRONSPIXELY.get(shape);
+    	else
+        	return getY();
+    }
+    
+    public double getMeasurementWidth() 
+    {
+    	
+    	if(INMICRONS.get(shape))
+    		return getWidth()*MICRONSPIXELX.get(shape);
+    	else
+    		return getWidth();
+    }
+    
+    public double getMeasurementHeight() 
+    {
+    	if(INMICRONS.get(shape))
+    		return getHeight()*MICRONSPIXELY.get(shape);
+    	else
+    		return getHeight();
+    }
+    
+    public double getX() 
+    {
+      	return ellipse.x;
     }
     
     public double getY() 
     {
-    	if(INMICRONS.get(shape))
-    		return ellipse.y*MICRONSPIXELY.get(shape);
-    	else
-        	return ellipse.y;
+       	return ellipse.y;
     }
     
     public double getWidth() 
     {
-    	if(TRANSFORM.get(this) == null)
-            return ellipse.getWidth();
-    	AffineTransform value = TRANSFORM.get(this);
-    	Point2D upperBound = new Point2D.Double(ellipse.getWidth(), 0);
-    	Point2D lowerBound = new Point2D.Double(0, 0);
-    	Point2D transformedUpperBound = value.transform(upperBound, null);
-    	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	if(INMICRONS.get(shape))
-    		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELX.get(shape);
-    	else
-    		return transformedUpperBound.distance(transformedLowerBound);
+    	return ellipse.getWidth();
     }
     
     public double getHeight() 
     {
-    	if(TRANSFORM.get(this) == null)
-            return ellipse.getHeight();
-    	AffineTransform value = TRANSFORM.get(this);
-    	Point2D upperBound = new Point2D.Double(ellipse.getWidth()/2, ellipse.getHeight());
-    	Point2D lowerBound = new Point2D.Double(ellipse.getWidth()/2, 0);
-    	Point2D transformedUpperBound = value.transform(upperBound, null);
-    	Point2D transformedLowerBound = value.transform(lowerBound, null);
-    	if(INMICRONS.get(shape))
-    		return transformedUpperBound.distance(transformedLowerBound)*MICRONSPIXELY.get(shape);
-    	else
-    		return transformedUpperBound.distance(transformedLowerBound);
+    	return ellipse.getHeight();
     }
     
-    public Rectangle2D.Double getBounds() 
-    {
-        Rectangle2D rx = getTransformedShape().getBounds2D();
-        Rectangle2D.Double r = (rx instanceof Rectangle2D.Double) ? (Rectangle2D.Double) rx : new Rectangle2D.Double(rx.getX(), rx.getY(), rx.getWidth(), rx.getHeight());
-        return r;
-    }
-    public Rectangle2D.Double getFigureDrawBounds() 
-    {
-        Rectangle2D rx = getTransformedShape().getBounds2D();
-        Rectangle2D.Double r = (rx instanceof Rectangle2D.Double) ? (Rectangle2D.Double) rx : new Rectangle2D.Double(rx.getX(), rx.getY(), rx.getWidth(), rx.getHeight());
-        double g = AttributeKeys.getPerpendicularHitGrowth(this);
-        Geom.grow(r, g, g);
-        return r;
-    }
-    /**
-     * Checks if a Point2D.Double is inside the figure.
-     */
-    public boolean contains(Point2D.Double p) 
-    {
-        return getTransformedShape().contains(p);
-    }
-    
-    private void invalidateTransformedShape() 
-    {
-        cachedTransformedShape = null;
-    }
-    
-    private Shape getTransformedShape() 
-    {
-        if (cachedTransformedShape == null) 
-            if (TRANSFORM.get(this) == null) 
-                cachedTransformedShape = ellipse;
-            else 
-                cachedTransformedShape = TRANSFORM.get(this).createTransformedShape(ellipse);
-        return cachedTransformedShape;
-    }
-    
-    public void basicSetBounds(Point2D.Double anchor, Point2D.Double lead) 
-    {
-        ellipse.x = Math.min(anchor.x, lead.x);
-        ellipse.y = Math.min(anchor.y , lead.y);
-        ellipse.width = Math.max(0.1, Math.abs(lead.x - anchor.x));
-        ellipse.height = Math.max(0.1, Math.abs(lead.y - anchor.y));
-    }
-    
-    /**
-     * Transforms the figure.
-     *
-     * @param tx the transformation.
-     */
-    public void basicTransform(AffineTransform tx) 
-    {
-        invalidateTransformedShape();
-        if (TRANSFORM.get(this) != null ||
-                (tx.getType() & 
-                		(AffineTransform.TYPE_TRANSLATION | 
-                			AffineTransform.TYPE_MASK_SCALE)) != tx.getType()) 
-        {
-            if (TRANSFORM.get(this) == null) 
-            {
-                TRANSFORM.basicSet(this, (AffineTransform) tx.clone());
-            } 
-            else 
-            {
-                TRANSFORM.get(this).preConcatenate(tx);
-            }
-        } 
-        else 
-        {
-            Point2D.Double anchor = getStartPoint();
-            Point2D.Double lead = getEndPoint();
-            basicSetBounds(
-                    (Point2D.Double) tx.transform(anchor, anchor),
-                    (Point2D.Double) tx.transform(lead, lead)
-                    );
-        }
-    }
-    public void restoreTransformTo(Object geometry) 
-    {
-            invalidateTransformedShape();
-            Object[] o = (Object[]) geometry;
-            ellipse = (Ellipse2D.Double) ((Ellipse2D.Double) o[0]).clone();
-            if (o[1] == null) 
-            {
-                TRANSFORM.set(this, null);
-            } 
-            else 
-            {
-            TRANSFORM.set(this, (AffineTransform) ((AffineTransform) o[1]).clone());
-            }
-    }
-    
-    public Object getTransformRestoreData() 
-    {
-        return new Object[] {
-            ellipse.clone(),
-            TRANSFORM.get(this)
-        };
-    }
-    
-    public MeasureEllipseFigure clone() {
-    	MeasureEllipseFigure that = (MeasureEllipseFigure) super.clone();
-        that.ellipse = (Ellipse2D.Double) this.ellipse.clone();
-        return that;
-    }
-    
-    public Collection<Handle> createHandles(int detailLevel) 
-    {
-        LinkedList<Handle> handles = (LinkedList<Handle>) super.createHandles(detailLevel);
-   //     handles.add(new RotateHandle(this));
-        return handles;
-    }
-    
-    @Override public Collection<Action> getActions(Point2D.Double p) 
-    {
-        ResourceBundleUtil labels = ResourceBundleUtil.getLAFBundle("org.jhotdraw.samples.svg.Labels");
-        LinkedList<Action> actions = new LinkedList<Action>();
-        if (TRANSFORM.get(this) != null) 
-        {
-            actions.add(new AbstractAction(labels.getString("removeTransform")) 
-            {
-                public void actionPerformed(ActionEvent evt) 
-                {
-                    TRANSFORM.set(MeasureEllipseFigure.this, null);
-                }
-            });
-        }
-        return actions;
-    }
-
-    @Override public void invalidate() 
-    {
-        super.invalidate();
-        invalidateTransformedShape();
-    }
-
     
 	public void draw(Graphics2D g)
 	{
@@ -366,21 +223,19 @@ public class MeasureEllipseFigure
 	public double getArea()
 	{
 		
-		return (getHeight()/2)*(getWidth()/2)*Math.PI;
+		return (getMeasurementHeight()/2)*(getMeasurementWidth()/2)*Math.PI;
 	}
-
-	
 	
 	public double getPerimeter()
 	{
-		if( getWidth() == getHeight())
+		if( getMeasurementWidth() == getMeasurementHeight())
 		{
-			return getWidth()*2*Math.PI;
+			return getMeasurementWidth()*2*Math.PI;
 		}
 		else
 		{
-		double a = Math.max(getWidth(), getHeight());
-		double b = Math.min(getWidth(), getHeight());
+		double a = Math.max(getMeasurementWidth(), getMeasurementHeight());
+		double b = Math.min(getMeasurementWidth(), getMeasurementHeight());
 		// approximation of c for ellipse. 
 		double c = 
 			Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
@@ -434,8 +289,8 @@ public class MeasureEllipseFigure
 			if(shape==null)
 				return;
 			AREA.set(shape, getArea());
-			WIDTH.set(shape, getWidth());		
-			HEIGHT.set(shape, getHeight());		
+			WIDTH.set(shape, getMeasurementWidth());		
+			HEIGHT.set(shape, getMeasurementHeight());		
 			PERIMETER.set(shape, getPerimeter());		
 			CENTREX.set(shape, getCentre().getX());
 			CENTREY.set(shape, getCentre().getY());

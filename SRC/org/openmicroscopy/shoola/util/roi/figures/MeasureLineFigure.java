@@ -43,7 +43,13 @@ import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASU
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ANGLE;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTY;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
@@ -67,11 +73,13 @@ public class MeasureLineFigure
 	extends LineFigure
 	implements ROIFigure
 {
-	private ArrayList<Rectangle2D> 	boundsArray;
-	private ArrayList<Double> 		lengthArray;
-	private ArrayList<Double> 		angleArray;
-	private ROI						roi;
-	private ROIShape 				shape;
+	private ArrayList<Rectangle2D> 		boundsArray;
+	private ArrayList<Double> 			lengthArray;
+	private ArrayList<Double> 			angleArray;
+	private ArrayList<Double>			pointArrayX;
+	private ArrayList<Double>			pointArrayY;
+	private ROI							roi;
+	private ROIShape 					shape;
 
 	public MeasureLineFigure()
 	{
@@ -222,23 +230,23 @@ public class MeasureLineFigure
 	
 	public double getLength(int i , int j)
 	{
-		if(INMICRONS.get(shape))
-		{
-			Point2D.Double pt1 = getPoint(i);
-			Point2D.Double pt2 = getPoint(j);
-			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
-			pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
+	//	if(INMICRONS.get(shape))
+	//	{
+			Point2D.Double pt1 = getPt(i);
+			Point2D.Double pt2 = getPt(j);
+			//pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
+			//pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
 			return pt1.distance(pt2);
-		}
-		else
-			return getPoint(i).distance(getPoint(j));
+	//	}
+	//	else
+	//		return getPoint(i).distance(getPoint(j));
 	}
 	
 	public double getAngle(int i, int j, int k)
 	{
-		Point2D p0 = getPoint(i);
-		Point2D p1 = getPoint(j);
-		Point2D p2 = getPoint(k);
+		Point2D p0 = getPt(i);
+		Point2D p1 = getPt(j);
+		Point2D p2 = getPt(k);
 		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), p0.getY()-p1.getY());
 		Point2D v1 = new Point2D.Double(p2.getX()-p1.getX(), p2.getY()-p1.getY());
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
@@ -246,8 +254,8 @@ public class MeasureLineFigure
 	
 	public double getAngle(int i, int j)
 	{
-		Point2D p0 = getPoint(i);
-		Point2D p1 = getPoint(j);
+		Point2D p0 = getPt(i);
+		Point2D p1 = getPt(j);
 		Point2D v0 = new Point2D.Double(p0.getX()-p1.getX(), p0.getY()-p1.getY());
 		Point2D v1 = new Point2D.Double(1,0);
 		return Math.toDegrees(Math.acos(dotProd(v0, v1)));
@@ -294,6 +302,24 @@ public class MeasureLineFigure
 		this.shape = shape;
 	}
 
+	/**
+	 * Get the point i in pixels or microns depending on the units used.
+	 * 
+	 * @param i node
+	 * @return see above.
+	 */
+	private Point2D.Double getPt(int i)
+	{
+		if(INMICRONS.get(shape))
+		{
+			Point2D.Double pt = getPoint(i);
+			return new Point2D.Double(pt.getX()*MICRONSPIXELX.get(shape), 
+					pt.getY()*MICRONSPIXELY.get(shape));
+		}
+		else
+			return getPoint(i);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
 	 */
@@ -301,10 +327,24 @@ public class MeasureLineFigure
 	{
 		if(shape==null)
 			return;
+	
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		
+		pointArrayX.clear();
+		pointArrayY.clear();
 		lengthArray.clear();
 		angleArray.clear();
+		
+		for( int i = 0 ; i < getPointCount(); i++)
+		{
+			Point2D.Double pt = getPt(i);
+			pointArrayX.add(pt.getX());
+			pointArrayY.add(pt.getY());
+		}
+		
 		if(getPointCount()==2)
 		{
 			double angle = getAngle(0, 1);
@@ -330,6 +370,12 @@ public class MeasureLineFigure
 			ANGLE.set(shape, angleArray);
 			LENGTH.set(shape, lengthArray);
 		}
+		STARTPOINTX.set(shape, getPt(0).getX());
+		STARTPOINTX.set(shape, getPt(0).getY());
+		ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
+		ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
+		POINTARRAYX.set(shape, pointArrayX);
+		POINTARRAYY.set(shape, pointArrayY);
 	}
 		
 	

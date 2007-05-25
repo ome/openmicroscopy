@@ -63,18 +63,26 @@ public class AnnotationKeys {
 		new AnnotationKey<ArrayList<Double>>("measurementAngle", null);
 	public static final AnnotationKey<ArrayList<Double>> LENGTH = 
 		new AnnotationKey<ArrayList<Double>>("measurementLength", null);
+	public static final AnnotationKey<ArrayList<Double>> POINTARRAYX= 
+		new AnnotationKey<ArrayList<Double>>("measurementPointsX", null);
+	public static final AnnotationKey<ArrayList<Double>> POINTARRAYY= 
+		new AnnotationKey<ArrayList<Double>>("measurementPointsY", null);
 	public static final AnnotationKey<Double> CENTREX= 
-		new AnnotationKey<Double>("measurementCentreX", null);
+		new AnnotationKey<Double>("measurementCentreX", 0.0);
 	public static final AnnotationKey<Double> CENTREY= 
-		new AnnotationKey<Double>("measurementCentreY", null);
-	public static final AnnotationKey<Point2D> STARTPOINT= 
-		new AnnotationKey<Point2D>("measurementStartPoint", null);
-	public static final AnnotationKey<Point2D> ENDPOINT= 
-		new AnnotationKey<Point2D>("measurementEndPoint", null);
+		new AnnotationKey<Double>("measurementCentreY", 0.0);
+	public static final AnnotationKey<Double> STARTPOINTX= 
+		new AnnotationKey<Double>("measurementStartPointX", 0.0);
+	public static final AnnotationKey<Double> STARTPOINTY= 
+		new AnnotationKey<Double>("measurementStartPointY", 0.0);
+	public static final AnnotationKey<Double> ENDPOINTX= 
+		new AnnotationKey<Double>("measurementEndPointX", 0.0);
+	public static final AnnotationKey<Double> ENDPOINTY= 
+		new AnnotationKey<Double>("measurementEndPointY", 0.0);
 	public static final AnnotationKey<Double> WIDTH = 
-		new AnnotationKey<Double>("measurementWidth", null);
+		new AnnotationKey<Double>("measurementWidth", 0.0);
 	public static final AnnotationKey<Double> HEIGHT = 
-		new AnnotationKey<Double>("measurementHeight", null);
+		new AnnotationKey<Double>("measurementHeight", 0.0);
 	public static final AnnotationKey<Boolean> INMICRONS = 
 		new AnnotationKey<Boolean>("measurementInMicrons", false);
 	public static final AnnotationKey<Double> MICRONSPIXELX = 

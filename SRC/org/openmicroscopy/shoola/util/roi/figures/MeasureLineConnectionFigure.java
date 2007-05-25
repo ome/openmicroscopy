@@ -41,12 +41,17 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ANGLE;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.LENGTH;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
+import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
@@ -67,11 +72,14 @@ public class MeasureLineConnectionFigure
 	extends LineConnectionFigure
 	implements ROIFigure
 {
-	private ArrayList<Rectangle2D> boundsArray = new ArrayList<Rectangle2D>();
-	private ArrayList<Double> lengthArray;
-	private ArrayList<Double> angleArray;
-	private ROI			roi;
-	private ROIShape 	shape;
+	private ArrayList<Rectangle2D> 			boundsArray = new ArrayList<Rectangle2D>();
+	private ArrayList<Double> 				lengthArray;
+	private ArrayList<Double> 				angleArray;
+
+	private ArrayList<Double>				pointArrayX;
+	private ArrayList<Double>				pointArrayY;
+	private ROI								roi;
+	private ROIShape 						shape;
 
 	public MeasureLineConnectionFigure()
 	{
@@ -176,29 +184,29 @@ public class MeasureLineConnectionFigure
 		if(boundsArray!=null)
 			for(int i = 0 ; i < boundsArray.size(); i++)
 			{
-						Rectangle2D bounds = boundsArray.get(i);
-						if(newBounds.getX()>bounds.getX())
-						{
-							double diff = newBounds.x-bounds.getX();
-							newBounds.x = bounds.getX();
-							newBounds.width = newBounds.width+diff;
-						}
-						if(newBounds.getY()>bounds.getY())
-						{
-							double diff = newBounds.y-bounds.getY();
-							newBounds.y = bounds.getY();
-							newBounds.height = newBounds.height+diff;
-						}
-						if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
-						{
-							double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
-							newBounds.width = newBounds.width+diff;
-						}
-						if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
-						{
-							double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
-							newBounds.height = newBounds.height+diff;
-						}
+				Rectangle2D bounds = boundsArray.get(i);
+				if(newBounds.getX()>bounds.getX())
+				{
+					double diff = newBounds.x-bounds.getX();
+					newBounds.x = bounds.getX();
+					newBounds.width = newBounds.width+diff;
+				}
+				if(newBounds.getY()>bounds.getY())
+				{
+					double diff = newBounds.y-bounds.getY();
+					newBounds.y = bounds.getY();
+					newBounds.height = newBounds.height+diff;
+				}
+				if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
+				{
+					double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
+					newBounds.width = newBounds.width+diff;
+				}
+				if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
+				{
+					double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
+					newBounds.height = newBounds.height+diff;
+				}
 			}
 		return newBounds;
 	}
@@ -215,19 +223,31 @@ public class MeasureLineConnectionFigure
 		
 		return new Point2D.Double(x, y);
 	}
+	/**
+	 * Get the point i in pixels or microns depending on the units used.
+	 * 
+	 * @param i node
+	 * @return see above.
+	 */
+	private Point2D.Double getPt(int i)
+	{
+		if(shape != null)
+			if(INMICRONS.get(shape))
+			{
+				Point2D.Double pt = getPoint(i);
+				return new Point2D.Double(pt.getX()*MICRONSPIXELX.get(shape), 
+					pt.getY()*MICRONSPIXELY.get(shape));
+			}
+			else
+				return getPoint(i);
+		return getPoint(i);
+	}
 	
 	public double getLength(int i , int j)
 	{
-		if(INMICRONS.get(shape))
-		{
-			Point2D.Double pt1 = getPoint(i);
-			Point2D.Double pt2 = getPoint(j);
-			pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
-			pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
-			return getPoint(i).distance(getPoint(j));
-		}
-		else
-			return getPoint(i).distance(getPoint(j));
+			Point2D.Double pt1 = getPt(i);
+			Point2D.Double pt2 = getPt(j);
+			return pt1.distance(pt2);
 	}
 	
 	public double getAngle(int i, int j, int k)
@@ -301,6 +321,21 @@ public class MeasureLineConnectionFigure
 			return;
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		
+		pointArrayX.clear();
+		pointArrayY.clear();
+		lengthArray.clear();
+		angleArray.clear();
+		
+		for( int i = 0 ; i < getPointCount(); i++)
+		{
+			Point2D.Double pt = getPt(i);
+			pointArrayX.add(pt.getX());
+			pointArrayY.add(pt.getY());
+		}
+		
 		if(getPointCount()==2)
 		{
 			double angle = getAngle(0, 1);
@@ -326,8 +361,14 @@ public class MeasureLineConnectionFigure
 			ANGLE.set(shape, angleArray);
 			LENGTH.set(shape, lengthArray);
 		}
+		STARTPOINTX.set(shape, getPt(0).getX());
+		STARTPOINTX.set(shape, getPt(0).getY());
+		ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
+		ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
+		POINTARRAYX.set(shape, pointArrayX);
+		POINTARRAYY.set(shape, pointArrayY);
 	}
-
+		
 }
 
 

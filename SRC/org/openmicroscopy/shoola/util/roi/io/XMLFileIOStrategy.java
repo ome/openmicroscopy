@@ -92,6 +92,10 @@ public 	class XMLFileIOStrategy
 	    {
 	    	read(in, component);
 	    } 
+	    catch(Exception e)
+	    {
+	    	e.printStackTrace();
+	    }
 	    finally 
 	    {
 	    	if (in != null) 

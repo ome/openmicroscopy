@@ -64,12 +64,23 @@ public class ROICollection
 	extends Component
 	implements PropertyChangeListener
 {
+	/** A TreeMap object of the ROI, id and ROIShapeList Coord Map.*/
 	private ROIMap					roiMap;
+	
+	/** The ROIRelationships Map relating ROI to relationships. */
 	private ROIRelationshipMap 		roiRelationshipMap;
+	
+	/** The ROIShapeRelatiions map relating ROIShapes to Relationships. */
 	private ROIShapeRelationshipMap shapeRelationshipMap;
+	
+	/** The last id assigned to a ROI. */
 	static  long					lastID;
 	
-	
+	/**
+	 * The ROICollection contains the separate objects which manage the 
+	 * ROI, ROIShape and Relationships. 
+	 *
+	 */
 	public ROICollection()
 	{
 		roiMap = new ROIMap();
@@ -78,11 +89,21 @@ public class ROICollection
 		generateInitialID();
 	}
 	
+	/** 
+	 * Create a staring ROI. This is the method that most likely will call the
+	 * DB and get assigned an ROI. The resulting id will then offset all ROI's 
+	 * created from this point, so that when the ROIs are saved back to the DB 
+	 * the id's can map correcly to the DB's ids.
+	 */
 	private void generateInitialID()
 	{
 		lastID = 0;
 	}
-	
+
+	/**
+	 * Get the next id in the system. 
+	 * @return next id.
+	 */
 	public long getNextID()
 	{
 		lastID = lastID+1;

@@ -111,7 +111,10 @@ public 	class ROIComponent
 	 * 									   been created yet.
 	 * @throws ROICreationException		 - See ROIShapeCreationException.
 	 */
-	public void loadROI(String filename) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
+	public void loadROI(String filename) throws IOException, 
+												ROIShapeCreationException, 
+												NoSuchROIException, 
+												ROICreationException
 	{
 		ioStrategy.read(filename, this);
 	}
@@ -401,7 +404,7 @@ public 	class ROIComponent
 	
 	
 	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		// TODO Auto-generated method stub

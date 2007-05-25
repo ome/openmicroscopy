@@ -68,7 +68,7 @@ import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
  */
 public class RectAnnotationFigure 
 	extends MeasureRectangleFigure
-	implements TextHolderFigure, ROIFigure
+	implements TextHolderFigure
 {
 	private boolean 						editable = true;
 	private boolean 						displayText = true;
@@ -179,12 +179,13 @@ public class RectAnnotationFigure
 	 */
 	public Tool getTool(Point2D.Double p) 
 	{
-		if(isEditable() && (textBounds.contains(p) || contains(p))) 
-		{
-			invalidate();
-			displayText = false;
-			return new MeasureTextTool(this); 
-		}
+		if(textBounds!=null)
+			if(isEditable() && (textBounds.contains(p) || contains(p))) 
+			{
+				invalidate();
+				displayText = false;
+				return new MeasureTextTool(this); 
+			}
 		return null;
 	}
 
