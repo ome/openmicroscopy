@@ -65,6 +65,8 @@ public class MeasurementObject
 	public void addElement(Object element)
 	{
 		if (element != null) elements.add(element);
+		else
+			elements.add("");
 	}
 	
 	/**

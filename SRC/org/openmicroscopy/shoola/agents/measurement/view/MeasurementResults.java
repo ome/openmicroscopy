@@ -28,12 +28,18 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -99,7 +105,6 @@ class MeasurementResults
 	
 	static {
 		fields = new ArrayList<AnnotationField>(11);
-		fields.add(new AnnotationField(AnnotationKeys.ROIID,"ROI ID", false)); 
 		fields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
 										false)); 
 		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
@@ -111,15 +116,22 @@ class MeasurementResults
 		fields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
 		fields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
 										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.LENGTH,"Length", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ANGLE,"Angle", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.STARTPOINT,"Start Point", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ENDPOINT,"End Point", 
-										false)); 
-		columnNames = new ArrayList<String>(fields.size()+2);
+		fields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
+				false)); 
+		fields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
+				false)); 
+		fields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
+				false)); 
+		fields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
+				false)); 
+		columnNames = new ArrayList<String>();
 		columnNames.add("Time Point");
 		columnNames.add("Z Section");
+		columnNames.add("ROI ID");
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
 	}
@@ -198,6 +210,7 @@ class MeasurementResults
 				row = new MeasurementObject();
 				row.addElement(shape.getCoord3D().getTimePoint());
 				row.addElement(shape.getCoord3D().getZSection());
+				row.addElement(shape.getROI().getID());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
 					row.addElement(key.get(shape));
@@ -228,7 +241,113 @@ class MeasurementResults
 	
 	public void saveResults()
 	{
-		
+		JFileChooser chooser;
+
+		chooser = new JFileChooser();
+		int results = chooser.showSaveDialog(this.getParent());
+		if(results!=JFileChooser.APPROVE_OPTION)
+			return;
+		File file = chooser.getSelectedFile();
+
+		try
+		{
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			writeColumns(out);
+			writeData(out);
+			out.close();
+		}
+		catch(IOException e)
+		{
+
+		}
+	}
+
+	private void writeColumns(BufferedWriter out) throws IOException
+	{
+		for(int i = 0 ; i < results.getColumnCount() ; i++)
+		{
+			out.write(results.getColumnName(i));
+			if(i<results.getColumnCount()-1)
+				out.write(",");
+		}
+		out.newLine();
+	}
+	
+	private void writeData(BufferedWriter out) throws IOException
+	{
+		MeasurementTableModel model = (MeasurementTableModel) results.getModel();
+		for(int i = 0 ; i < results.getRowCount() ; i++)
+		{
+			MeasurementObject row = model.getRow(i);
+			writeRow(out, row);
+		}
+	}
+	
+	private void writeRow(BufferedWriter out, MeasurementObject row) throws IOException
+	{
+		int height=1;
+		int width = row.getSize();
+		for(int i = 0 ; i < row.getSize(); i++)
+		{
+			Object element = row.getElement(i);
+			if(element instanceof ArrayList)
+			{
+				ArrayList list = (ArrayList)element;
+				if(list.size()>height)
+					height = list.size();
+			}
+		}
+		for(int j = 0 ; j < height ; j++)
+		{
+			for(int i = 0 ; i < width ; i++)
+			{
+				Object element = row.getElement(i);
+				out.write(writeElement(element, j));
+				if(i<width-1)
+					out.write(",");
+			}
+			out.newLine();
+		}
+	}
+	
+	private String writeElement(Object element, int j)
+	{
+		if(element instanceof Double || element instanceof Integer ||
+				element instanceof Float || element instanceof String ||
+				element instanceof Boolean || element instanceof Long)
+			if(j==0)
+			{
+				return convertElement(element);
+			}
+			else
+				return "";
+		else if(element instanceof ArrayList)
+		{
+			ArrayList list = (ArrayList)element;
+			if(j<list.size())
+				return convertElement(list.get(j));
+			else
+				return "";
+		}
+		return "";
+	}
+	
+	private String convertElement(Object element)
+	{
+		if(element instanceof Double)
+			return ((Double) element)+"";
+		if(element instanceof Boolean)
+			return ((Boolean) element).toString();
+		if(element instanceof Long)
+			return ((Long) element)+"";
+		if(element instanceof Integer)
+			return ((Integer) element)+"";
+		if(element instanceof Float)
+			return ((Float) element)+"";
+		if(element instanceof String)
+			return (String) element;
+		else
+			return "";
 	}
 	
 	public void refreshResults()
@@ -273,6 +392,20 @@ class MeasurementResults
 		{
 			values.add(row);
 			fireTableStructureChanged();
+		}
+		
+		/** 
+		 * Get a row from the model.
+		 * 
+		 * @param index The row to return
+		 * 
+		 * @return MeasurementObject the row.
+		 */
+		MeasurementObject getRow(int index)
+		{
+			if(index < values.size())
+				return values.get(index);
+			return null;
 		}
 		
 		/**
