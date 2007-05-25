@@ -37,6 +37,7 @@
 |   Use:					
 |  	ant test                # Regular.	
 |  	ant quick <target>      # No tests	
+|  	ant nochecks <target>   # No database or jboss checks	
 |  	ant strict-test         # Re-compile tests.
 |  	ant fail-on-error test  # Stop build if fails. 
 |_

@@ -58,6 +58,8 @@
 	==================================================  -->
 	<target name="javadoc">
 
+		<mkdir dir="dist/docs/api"/>
+
 	    <patternset id="all.java.files">
 	        <!-- Includes prefixed with "**" in order to pick up
 		tools/ components -->
