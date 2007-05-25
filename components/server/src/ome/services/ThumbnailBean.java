@@ -626,11 +626,13 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             compressThumbnailToStream(image, byteStream);
+            byte[] thumbnail = byteStream.toByteArray();
+            byteStream.close();
+            return thumbnail;
         } catch (IOException e) {
             e.printStackTrace();
             throw new ResourceError(e.getMessage());
         }
-        return byteStream.toByteArray();
     }
 
     /*
