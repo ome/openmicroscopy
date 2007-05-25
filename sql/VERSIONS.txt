@@ -18,26 +18,26 @@ Analysis                      |
                               |                       
 HERE ARE WE -->               |                       
                               |                       
-DBUPDATE           2007/05    +-------+ r1397         
-Added dbpatch table.          |         OMERO3:4      
-                              |                       
-                              |                       
-                              |                       
-DBUPDATE           2007/04    +-------+ r1397         
-Added permissions column      |         OMERO3:3      
-security tables.              |                       
-                              |                       
-                              |                       
-DBUPDATE           2007/03    +-------+ r1394         
-Model updates, etc.           |         OMERO3:2      
-                              |                       
-                              |                       
-                              |                       
-                              |                       
-                              |                       
-                              |                       
-FIRST DATABASE     2007/01    +-------+ r???          
-                              |         OMERO3:1      
+DBUPDATE           2007/05    +-------+ r1547    <-+   
+Added dbpatch table.          |         OMERO3:4   |   
+                              |                    |   
+                              |                    |   
+                              |                    |   
+DBUPDATE           2007/04    +-------+ r1397      |   
+Added permissions column      |         OMERO3:3   |   
+security tables.              |                    |   
+                              |                    |   
+                              |                    |   
+DBUPDATE           2007/03    +-------+ r1394      |      
+Model updates, etc.           |         OMERO3:2   |   
+                              |                    |   
+                              |                    |   
+                              |                    |   
+                              |                    |   
+                              |                    |   
+                              |                    |   
+FIRST DATABASE     2007/01    +-------+ ~ r1216  >-+  
+3.0-Beta1 Release             |         OMERO3:1      
                               |                       
                               |                       
                               |                       

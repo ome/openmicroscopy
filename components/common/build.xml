@@ -100,4 +100,31 @@
 		</sql_run>
 	</target>
 
+
+    <target name="schemaupdate" depends="prepare,load-hibernate">
+        <taskdef name="schemaupdate"
+            classname="org.hibernate.tool.hbm2ddl.SchemaUpdateTask"
+            classpathref="omero.classpath"/>
+
+        <schemaupdate
+            properties="${resrc.dest}/local.properties" text="true" quiet="no">
+            <fileset dir="${classes.dir}">
+                <include name="**/*.hbm.xml"/>
+            </fileset>
+        </schemaupdate>
+    </target>
+
+    <target name="schemavalidate" depends="prepare,load-hibernate">
+        <taskdef name="schemavalidator"
+            classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask"
+            classpathref="omero.classpath"/>
+
+        <schemavalidator
+            properties="${resrc.dest}/local.properties">
+            <fileset dir="${classes.dir}">
+                <include name="**/*.hbm.xml"/>
+            </fileset>
+        </schemavalidator>
+    </target>
+
 </project>

@@ -16,4 +16,6 @@ with the exception of:
   CURRENTVERSION__0__data.sql             Adds OMERO-specific data to a fresh database
 
 
-
+To create the update scripts, first cleaned version of each schema are compared 
+(where cleaned means simple formatting differences, random foreign key names, etc. 
+are removed). Then it is necessary to compare the values in all enumerations.
