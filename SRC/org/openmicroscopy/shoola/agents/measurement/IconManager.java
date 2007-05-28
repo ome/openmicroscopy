@@ -32,12 +32,12 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
 /** 
- * Provides the icons used by the TreeViewer.
+ * Provides the icons used by the MeasurementTool.
  * <p>The icons are retrieved by first calling the 
  * {@link #getInstance() getInstance} method and then the 
  * {@link #getIcon(int) getIcon} method passing one of the icon ID's specified
  * by the static constants within this class &#151; icons will be retrieved
- * from the TreeViewer's graphics bundle, which implies that its
+ * from the Measurement tool graphics bundle, which implies that its
  * configuration has been read in (this happens during the initialization
  * procedure).</p>
  * 
@@ -86,11 +86,11 @@ public class IconManager
     private static IconManager  singleton;
     
     static {
-        relPaths[SAVE] = "nuvola_filesaveas16.png";
-        relPaths[INSPECTOR] = "nuvola_filesaveas16.png";
-        relPaths[MANAGER] = "nuvola_filesaveas16.png";
-        relPaths[RESULTS] = "nuvola_filesaveas16.png";
-        relPaths[LOAD] = "nuvola_filesaveas16.png";
+        relPaths[SAVE] = "nuvola_filesaveas22.png";
+        relPaths[INSPECTOR] = "nuvola_viewmag16.png";
+        relPaths[MANAGER] = "nuvola_find16.png";
+        relPaths[RESULTS] = "nuvola_view_text16.png";
+        relPaths[LOAD] = "nuvola_revert22.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
     }
     

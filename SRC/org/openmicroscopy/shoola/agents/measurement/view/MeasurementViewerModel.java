@@ -35,6 +35,7 @@ import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.QuadTreeDrawing;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
@@ -88,7 +89,7 @@ class MeasurementViewerModel
     private int 					state;
     
     /** Component managaging the drawing. */
-    private	Drawing					drawing;
+    private	QuadTreeDrawing			drawing;
 
     /** Component managaging the drawing. */
 	private	DrawingEditor			drawingEditor;
@@ -137,7 +138,7 @@ class MeasurementViewerModel
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
 		drawingEditor = new DefaultDrawingEditor();
-		drawing = new DefaultDrawing();
+		drawing = new QuadTreeDrawing();
 		drawingView = new DrawingView();
 		roiComponent = new ROIComponent();
 		drawingView.setDrawing(drawing);
@@ -180,6 +181,13 @@ class MeasurementViewerModel
         if (other == null) return false;
         return ((other.pixelsID == pixelsID) && (other.imageID == imageID));
     }
+    
+    /**
+     * Returns the ID of the image.
+     * 
+     * @return See above.
+     */
+    long getImageID() { return imageID; }
     
     /**
      * Returns the ID of the pixels set this model is for.
@@ -457,12 +465,11 @@ class MeasurementViewerModel
 	/**
 	 * Saves the current ROISet in the roi component to file.
 	 * 
-	 * @param fileName The name of the file to save the ROI set to.
 	 */
-	void saveROI(String fileName)
+	void saveROI()
 	{
 		try {
-			roiComponent.saveROI(fileName);
+			roiComponent.saveROI(getImageID());
 		} catch(Exception e)	{
 			return;
 		}
@@ -471,13 +478,12 @@ class MeasurementViewerModel
 	/**
 	 * Loads the current ROISet in the roi component to file. 
 	 * 
-	 * @param fileName The name of the file to load.
 	 */
-	void loadROI(String fileName)
+	void loadROI()
 	{
 		try {
-			roiComponent.loadROI(fileName);
-			
+			roiComponent.loadROI(getImageID());
+			component.rebuildManagerTable();
 		} catch(Exception e)	{
 			//e.printStackTrace();
 		}

@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeMap;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -50,7 +52,9 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * UI Component managing a Region of Interest.
@@ -242,6 +246,23 @@ class ObjectManager
 	/** Rapaints the table. */
 	void update() { objectsTable.repaint(); }
 	
+	/** Rebuild the table, and repaint. */
+	public void rebuildTable()
+	{
+		ROIFigureTableModel tm = (ROIFigureTableModel) objectsTable.getModel();
+		tm.clear();
+		TreeMap<Long, ROI> roiList = model.getROI();
+		Iterator<ROI> iterator = roiList.values().iterator();
+		while(iterator.hasNext())
+		{
+			ROI roi = iterator.next();
+			TreeMap<Coord3D, ROIShape> shapeList = roi.getShapes();
+			Iterator<ROIShape> shapeIterator = shapeList.values().iterator();
+			while(shapeIterator.hasNext())
+				tm.addFigure(shapeIterator.next().getFigure());		
+		}
+	}
+	
 	/** 
 	 * Inner class used to display stringified version of 
 	 * the {@link ROIFigure}. 
@@ -261,6 +282,16 @@ class ObjectManager
 		
 		/** Collection of {@link ROIFigure} hosted by this model. */
 		private List<ROIFigure>			data;
+		
+		/**
+		 * Remove all data from the table .
+		 */
+		public void clear()
+		{
+			int size = data.size();
+			data.clear();
+			this.fireTableRowsDeleted(0, size);
+		}
 		
 		/**
 		 * Converts and returns a stringified version of the {@link ROIFigure}

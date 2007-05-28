@@ -415,6 +415,15 @@ class MeasurementViewerUI
     }
     
     /**
+     * Rebuild the ROI  table in the roi manager component.
+     *
+     */
+    void rebuildManagerTable()
+    {
+    	roiManager.rebuildTable();
+    }
+    
+    /**
      * Rebuild the results table in the roi Results component.
      *
      */

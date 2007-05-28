@@ -324,7 +324,7 @@ class MeasurementViewerComponent
      */
 	public void loadROI()
 	{
-		model.loadROI("saveFile.xml"); //TODO: MODIFY
+		model.loadROI(); //TODO: MODIFY
 		updateDrawingArea();
 	}
 
@@ -334,9 +334,18 @@ class MeasurementViewerComponent
      */
 	public void saveROI() 
 	{
-		model.saveROI("saveFile.xml");
+		model.saveROI();
 	}
 
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#rebuildManagerTable()
+     */
+	public void rebuildManagerTable() 
+	{
+		view.rebuildManagerTable();
+	}
+	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#refreshResultsTable()
