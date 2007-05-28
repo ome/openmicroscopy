@@ -48,4 +48,13 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
         System.out.println("testRepositoryPercentUsed successful");
     }	
 
+    @Test
+    public void testRemoveUnusedFiles() throws Exception {
+
+        IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
+        // TODO - remove comments when deeper methods tested (DLW)
+        //iRepositoryInfo.removeUnusedFiles();
+        System.out.println("testRemoveUnusedFiles successful");
+    }	
+
 }

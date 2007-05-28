@@ -62,6 +62,11 @@ public interface IRepositoryInfo extends ServiceInterface {
      * Checks that image data repository has not exceeded 95% disk space use level
      */
 	public void sanityCheckRepository() throws InternalException;
-	
-
+    
+    /**
+     * Removes all files from the server that do not have an OriginalFile complement
+     * in the database.
+     */
+    public void removeUnusedFiles() throws InternalException;
+    
 }
