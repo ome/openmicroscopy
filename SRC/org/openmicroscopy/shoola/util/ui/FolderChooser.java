@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.io.File;
 import javax.swing.JFileChooser;
-import javax.swing.plaf.basic.BasicFileChooserUI;
+import javax.swing.JLabel;
 
 
 //Third-party libraries
@@ -35,7 +35,8 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Basic chooser to select a folder where to store the downloaded archived
+ * files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,39 +58,18 @@ class FolderChooser
 	/** Initializes the folder chooser. */
 	private void initialize()
 	{
+		JLabel label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
+		if (label != null) label.setText("Selected folder:");
 		setAcceptAllFileFilterUsed(false);
-		//setControlButtonsAreShown(false);
 		setDialogType(CUSTOM_DIALOG);
         setFileSelectionMode(DIRECTORIES_ONLY);
         setApproveButtonText("Download");
-        setApproveButtonToolTipText("Dowload the archived files.");
+        setApproveButtonToolTipText(FolderChooserDialog.TITLE);
         String s = UIUtilities.getDefaultFolderAsString();
         if (s == null) return;
         if (s == null || s.equals("") || !(new File(s).exists()))
             setCurrentDirectory(getFileSystemView().getHomeDirectory());
         else setCurrentDirectory(new File(s));   
-
-        /*
-        String last;
-        String separator = File.separator;
-        String[] elements = s.split(separator);
-        int n = elements.length-1;
-
-        if (n > 0) {
-        	String path = "";
-        	last = elements[n];
-        	int index = 0;
-        	for (int i = 0; i < n; i++) {
-        		path += elements[i];
-        		if (index != (n-1)) path += separator;
-        		index++;
-        	}
-        	File f = new File(path);
-        	if (f != null) setCurrentDirectory(f);
-        	//File selectedFile = new File(last);
-        	//if (selectedFile != null) setSelectedFile(selectedFile);
-        }
-        */
 	}
 	
 	/**
@@ -99,8 +79,7 @@ class FolderChooser
 	 */
 	FolderChooser(FolderChooserDialog model)
 	{
-		if (model == null)
-			throw new NullPointerException("No model.");
+		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
 		initialize();
 	}
@@ -109,7 +88,11 @@ class FolderChooser
      * Overridden to close the {@link ImgSaver} when the selection is cancelled.
      * @see JFileChooser#cancelSelection()
      */
-    public void cancelSelection() { model.close(); }
+    public void cancelSelection()
+    { 
+    	model.close(); 
+    	super.cancelSelection();
+    }
     
     /**
      * Overridden to set the directory
@@ -118,12 +101,9 @@ class FolderChooser
     public void approveSelection()
     {
         File file = getSelectedFile();
-        if (file != null) {
-        	model.setFolderPath(file.getAbsolutePath());
-        }      
+        if (file != null) model.setFolderPath(file.getAbsolutePath());    
         // No file selected, or file can be written - let OK action continue
         super.approveSelection();
     }
-    
 	
 }

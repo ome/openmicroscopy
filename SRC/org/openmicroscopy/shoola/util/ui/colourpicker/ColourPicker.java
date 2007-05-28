@@ -145,4 +145,8 @@ public class ColourPicker
         pack();
 	}
 
+	public static void main(String[] args) {
+		ColourPicker f = new ColourPicker(new JFrame(), Color.WHITE);
+		UIUtilities.centerAndShow(f);
+	}
 }

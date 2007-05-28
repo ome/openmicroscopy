@@ -412,10 +412,10 @@ public class UIUtilities
     }
     
     /**
-     * format a double to 2 decimal places and return as a string. 
+     * Formats a double to two decimal places and returns as a string. 
      * 
-     * @param val number to be formatted. 
-     * @return formatted string. 
+     * @param val The number to be formatted. 
+     * @return The formatted string. 
      */
     public static String twoDecimalPlaces(double val)
     {
@@ -443,7 +443,7 @@ public class UIUtilities
     /**
      * Formats the text and displays it in a {@link JEditorPane}.
      * 
-     * @param text 			The text to display.
+     * @param text	The text to display.
      * @return See above.
      */
     public static JEditorPane buildTextEditorPane(String text)
@@ -457,6 +457,7 @@ public class UIUtilities
         
         return textPane;
     }
+    
     /**
      * Formats the text and displays it in a {@link JTextPane}.
      * 
@@ -556,6 +557,33 @@ public class UIUtilities
     	component.setPreferredSize(dim);
     	component.setMaximumSize(dim);
     	component.setMinimumSize(dim);
+    }
+    
+    /**
+     * Finds the component identified by the specified class contained in the 
+     * passed component. Returns the found component or <code>null</code> if 
+     * none found.
+     * 
+     * @param comp	The component to visit. Mustn't be <code>null</code>.
+     * @param c		The class identifying the component to find.
+     * @return See above.
+     */
+    public static Component findComponent(Component comp, Class c)
+    {
+    	if (c == null || comp == null)
+    		throw new IllegalArgumentException("The parameters cannot be " +
+    				"null");
+    	if (c.isAssignableFrom(comp.getClass())) return comp;
+		
+		if (comp instanceof Container) {
+			Component[] comps = ((Container)comp).getComponents();
+			Component child;
+			for(int i = 0; i < comps.length; i++) {
+				child = findComponent(comps[i], c);
+				if (child != null) return child;
+			}
+		}
+		return null;
     }
     
 }

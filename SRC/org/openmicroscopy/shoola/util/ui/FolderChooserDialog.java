@@ -26,14 +26,7 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -49,7 +42,8 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Dialog use to select where to store the downloaded files.
+ * Modal dialog hosting a {@link FolderChooser}
+ * used to select where to store the downloaded files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,23 +59,17 @@ public class FolderChooserDialog
 	extends JDialog
 {
 
+	/** The window's title. */
+	static final String 	TITLE = "Download archived files";
+	
 	/** 
 	 * Bound property indicating the directory where to save the original files.
 	 */
 	public static final String		LOCATION_PROPERTY = "location";
-	
-	/** The window's title. */
-	private static final String 	TITLE = "Download archived files";
-	
+
 	/** The window's text. */
 	private static final String 	TEXT = "Select a directory where to " +
 											"download the files.";
-	
-    /** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(5, 10);
     
 	/** Box to save the current directory as default. */
     private JCheckBox		settings;
@@ -126,8 +114,8 @@ public class FolderChooserDialog
     private void setProperties()
     {
     	setTitle(TITLE);
-        //setModal(true);
-        setAlwaysOnTop(true);
+        setModal(true);
+        //setAlwaysOnTop(true);
     }
     
     /** Closes and disposes. */

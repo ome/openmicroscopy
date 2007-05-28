@@ -36,6 +36,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import layout.TableLayout;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -104,125 +106,17 @@ class HSVColourWheelUI
 	private RGBControl 			control;
 	
 	/**
-	 * HSVPicker constructor, control c is the control, which also contains
-	 * the a RGBModel.
-	 * 
-	 * @param c Reference to the control. Mustn't be <code>null</code>.
-	 */
-	HSVColourWheelUI(RGBControl c)
-	{
-        if (c == null)
-            throw new NullPointerException("No control.");
-		control = c;
-		createUI();
-		active = false;
-	}
-	
-	/**
-	 * Createw the HSV Colour wheel, and addw the listener which will notify
-     * this component when its been picked by the user.  
-	 */
-	void createWheel()
-	{
-		wheel = new HSVWheel(control);
-		wheel.addListener(this);
-		wheel.setPreferredSize(WHEEL_SIZE);
-	}
-	
-	/** 
-	 * Creates the HSV Slider in the UI, this will construct the slider and
-	 * instantiate the values of the slider, including the range of colours the
-	 * slider will display in its track. 
-	 */
-	void createHSVSlider()
-	{
-		HSV startcol = new HSV(control.getColour());
-		HSV endcol = new HSV(control.getColour());
-		startcol.setValue(0);
-		endcol.setValue(1);
-		HSVSlider = new ColourSlider(0, 255, startcol, endcol);
-		HSVSlider.setColourSpace(ColourSlider.HSV_COLOURSPACE);
-		HSVSlider.setChannel(ColourSlider.HSV_CHANNEL_VALUE);
-		HSVSlider.setOrientation(ColourSlider.VERTICAL);
-		HSVSlider.setValue((int) (control.getValue()*255));
-		HSVListener = new ChangeListener() {
-			public void stateChanged(ChangeEvent changeEvent)
-			{
-				ColourSlider src = (ColourSlider) changeEvent.getSource();
-				control.setHSVColour(wheel.getHue(), wheel.getSaturation(), 
-								     src.getValue()/255.0f, 
-								     alphaSlider.getValue()/255.0f);
-			}
-		};
-		HSVSlider.addChangeListener(HSVListener);
-	}
-	
-	/** 
-	 * Creates the Alpha Slider in the UI, this will construct the slider and
-	 * instantiate the values of the slider, including the range of colours the
-	 * slider will display in its track. 
-	 */
-	void createAlphaSlider()
-	{
-		Color s1 = control.getColour();
-		Color s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
-		Color e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
-		alphaSlider = new ColourSlider(0, 255, s, e);
-		alphaSlider.setColourSpace(ColourSlider.RGB_COLOURSPACE);
-		alphaSlider.setOrientation(ColourSlider.HORIZONTAL);
-		alphaSlider.setValue((int) (control.getAlpha()*255));
-		alphaListener = new ChangeListener() {
-			public void stateChanged(ChangeEvent changeEvent)
-			{
-				control.setHSVColour(wheel.getHue(), wheel.getSaturation(), 
-						        HSVSlider.getValue()/255.0f, 
-						        alphaSlider.getValue()/255.0f);
-			}
-		};
-		alphaSlider.addChangeListener(alphaListener);
-	}
-	
-	/** 
-	 * Creates the AlphaTextbox in the UI, this will construct the textbox and
-	 * instantiates the values of the textbox. 
-	 */
-	void createAlphaTextbox()
-	{
-		alphaTextbox = new JTextField((int) (control.getAlpha()*255)+"");
-		alphaTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
-		alphaTextboxListener = new ActionListener() {		
-			public void actionPerformed(ActionEvent actionEvent) {
-				JTextField src = (JTextField) actionEvent.getSource();
-				try {
-					int value = Integer.parseInt(src.getText());
-					if (value >= 0 && value <= 255)
-						control.setHSVColour(wheel.getHue(), 
-											wheel.getSaturation(), 
-								            HSVSlider.getValue()/255.0f, 
-								             value/255.0f);
-					else {
-						ColourPicker.invalidColorValue();
-						alphaTextbox.setText(""+(int) (control.getAlpha()*255));
-					}
-				} catch(NumberFormatException e) {
-					ColourPicker.invalidColorValue();
-					alphaTextbox.setText(""+(int) (control.getAlpha()*255));
-				}
-			}
-		};
-	}
-	
-	/**
 	 * Creates all the UI components of the panel. This includes, HSVSlider, 
 	 * alphaSlider and colourwheel. It also initialises all the Change, Action
 	 * listeners. 
 	 */
-	void createUI()
+	private void createUI()
 	{
 		createWheel();
 		createHSVSlider();
 		createAlphaSlider();
 		createAlphaTextbox();	
+		/*
         JPanel container = new JPanel();
         GridBagConstraints gbc = new GridBagConstraints();
         container.setLayout(new GridBagLayout());
@@ -253,10 +147,141 @@ class HSVColourWheelUI
         add(container,gbc);
         gbc.weighty = 15;
         gbc.gridy = 1;
-        add(p,gbc);
+        add(p, gbc);
+        */
+		int width = HSVSlider.getPreferredSize().width;
+		
+		double[][] tl = {{TableLayout.PREFERRED, 5, width}, //columns
+							{TableLayout.FILL, TableLayout.PREFERRED} }; //rows
+		setLayout(new TableLayout(tl));
+		JPanel empty = new JPanel();
+        empty.setOpaque(true);
+        add(wheel, "0, 0");
+        add(empty, "1, 0");
+        add(HSVSlider, "2, 0");
+        add(alphaSlider, "0, 1");
+        empty = new JPanel();
+        empty.setOpaque(true);
+        add(empty, "1, 1");
+        JPanel p = new JPanel();
+        p.add(alphaTextbox);
+        add(p, "2, 1, t, l");
 	}
 
-	/** Updates UI components based on chahnges to the model. */
+
+	/**
+	 * Createw the HSV Colour wheel, and addw the listener which will notify
+     * this component when its been picked by the user.  
+	 */
+	private void createWheel()
+	{
+		wheel = new HSVWheel(control);
+		wheel.addListener(this);
+		wheel.setPreferredSize(WHEEL_SIZE);
+	}
+	
+	/** 
+	 * Creates the HSV Slider in the UI, this will construct the slider and
+	 * instantiate the values of the slider, including the range of colours the
+	 * slider will display in its track. 
+	 */
+	private void createHSVSlider()
+	{
+		HSV startcol = new HSV(control.getColour());
+		HSV endcol = new HSV(control.getColour());
+		startcol.setValue(0);
+		endcol.setValue(1);
+		HSVSlider = new ColourSlider(0, 255, startcol, endcol);
+		HSVSlider.setColourSpace(ColourSlider.HSV_COLOURSPACE);
+		HSVSlider.setChannel(ColourSlider.HSV_CHANNEL_VALUE);
+		HSVSlider.setOrientation(ColourSlider.VERTICAL);
+		HSVSlider.setValue((int) (control.getValue()*255));
+		HSVListener = new ChangeListener() {
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				ColourSlider src = (ColourSlider) changeEvent.getSource();
+				control.setHSVColour(wheel.getHue(), wheel.getSaturation(), 
+								     src.getValue()/255.0f, 
+								     alphaSlider.getValue()/255.0f);
+			}
+		};
+		HSVSlider.addChangeListener(HSVListener);
+	}
+	
+	/** 
+	 * Creates the Alpha Slider in the UI, this will construct the slider and
+	 * instantiate the values of the slider, including the range of colours the
+	 * slider will display in its track. 
+	 */
+	private void createAlphaSlider()
+	{
+		Color s1 = control.getColour();
+		Color s = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 0);
+		Color e = new Color(s1.getRed(), s1.getGreen(), s1.getBlue(), 255);
+		alphaSlider = new ColourSlider(0, 255, s, e);
+		alphaSlider.setColourSpace(ColourSlider.RGB_COLOURSPACE);
+		alphaSlider.setOrientation(ColourSlider.HORIZONTAL);
+		alphaSlider.setValue((int) (control.getAlpha()*255));
+		alphaListener = new ChangeListener() {
+			public void stateChanged(ChangeEvent changeEvent)
+			{
+				control.setHSVColour(wheel.getHue(), wheel.getSaturation(), 
+						        HSVSlider.getValue()/255.0f, 
+						        alphaSlider.getValue()/255.0f);
+			}
+		};
+		alphaSlider.addChangeListener(alphaListener);
+	}
+	
+	/** 
+	 * Creates the AlphaTextbox in the UI, this will construct the textbox and
+	 * instantiates the values of the textbox. 
+	 */
+	private void createAlphaTextbox()
+	{
+		alphaTextbox = new JTextField((int) (control.getAlpha()*255)+"");
+		int h = getFontMetrics(getFont()).getHeight();
+		alphaTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
+		int w = alphaTextbox.getPreferredSize().width;
+		//alphaTextbox.setPreferredSize(new Dimension(w, h));
+		alphaTextboxListener = new ActionListener() {		
+			public void actionPerformed(ActionEvent actionEvent) {
+				JTextField src = (JTextField) actionEvent.getSource();
+				try {
+					int value = Integer.parseInt(src.getText());
+					if (value >= 0 && value <= 255)
+						control.setHSVColour(wheel.getHue(), 
+											wheel.getSaturation(), 
+								            HSVSlider.getValue()/255.0f, 
+								             value/255.0f);
+					else {
+						ColourPicker.invalidColorValue();
+						alphaTextbox.setText(""+(int) (control.getAlpha()*255));
+					}
+				} catch(NumberFormatException e) {
+					ColourPicker.invalidColorValue();
+					alphaTextbox.setText(""+(int) (control.getAlpha()*255));
+				}
+			}
+		};
+	}
+	
+	/**
+	 * HSVPicker constructor, control c is the control, which also contains
+	 * the a RGBModel.
+	 * 
+	 * @param c Reference to the control. Mustn't be <code>null</code>.
+	 */
+	HSVColourWheelUI(RGBControl c)
+	{
+        if (c == null)
+            throw new NullPointerException("No control.");
+		control = c;
+		createUI();
+		active = false;
+	}
+
+	/** Updates the UI components based on changes to the model. */
 	void refresh() 
 	{
 		if (!(active)) return;

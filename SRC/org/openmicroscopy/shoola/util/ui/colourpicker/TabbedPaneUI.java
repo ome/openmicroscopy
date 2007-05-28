@@ -67,7 +67,7 @@ class TabbedPaneUI
 {
 	
 	/** The number of column of the label displaying the alpha value. */
-	static final int			TEXTBOX_COLUMN = 3;
+	static final int			TEXTBOX_COLUMN = 2;
 	
 	/** Used by card layout to select colour wheel panel. */
 	private static final String COLOURWHEELPANE = "Colour Wheel Pane"; 	

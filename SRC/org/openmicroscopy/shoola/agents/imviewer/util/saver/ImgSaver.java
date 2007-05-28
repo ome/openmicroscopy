@@ -36,7 +36,6 @@ import java.io.FileOutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -241,7 +240,7 @@ public class ImgSaver
     public ImgSaver(JFrame owner, ImViewer model, int savingType)
     {
         super(owner);
-        if (model == null) throw new IllegalArgumentException("No model.");
+        //if (model == null) throw new IllegalArgumentException("No model.");
         checkSavingType(savingType);
         this.model = model;
         setProperties();
@@ -447,5 +446,5 @@ public class ImgSaver
      * @return See above.
      */
     Color getUnitBarColor() { return model.getUnitBarColor(); }
-    
+
 }

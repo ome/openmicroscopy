@@ -73,7 +73,7 @@ class ColourSliderUI
 	/** RGB Colour use to complete the gradient fill. */
 	private Color 			RGBEnd;
 	
-	/** HSV Colour use to start the gradient fill.  */
+	/** HSV Colour used to start the gradient fill.  */
 	private HSV 			HSVStart;
 	
 	/** 
@@ -82,7 +82,7 @@ class ColourSliderUI
 	 */
 	private int				channel;
 	
-	/** HSV Colour use to complete the gradient fill. */
+	/** HSV Colour used to complete the gradient fill. */
 	private HSV 			HSVEnd;
 	
 	/** Colour of the border of the track. This is a medium Gray.  */
@@ -105,9 +105,9 @@ class ColourSliderUI
      * Creates the sliderUI delegate based on the JSlider component. The 
 	 * Colour range is specifed in the s, and e parameters. 
      * 
-	 * @param slider   parent slider.
-	 * @param s        start colour used to paint the gradient in the track.
-	 * @param e        end colour used to paint the gradient in the track.
+	 * @param slider   The parent slider.
+	 * @param s        The start colour used to paint the gradient in the track.
+	 * @param e        The end colour used to paint the gradient in the track.
 	 */
 	ColourSliderUI(JSlider slider, Color s, Color e)
 	{

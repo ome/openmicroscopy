@@ -35,6 +35,8 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 
@@ -100,7 +102,7 @@ class HSVWheel
 	 * HSVWheel. The listeners will be notified when the user has change the
 	 * puck position.
 	 */
-	private ArrayList				listeners;
+	private List<ChangeListener>	listeners;
 	
     /** Reference to the Control. */
     private RGBControl              control;
@@ -130,23 +132,20 @@ class HSVWheel
 	{
 		int sz = (int) radius;
 		float szsz = sz*sz;
-		
 		float value  = control.getValue(); 
 		for (int x =  sz ; x > -sz ; x--)
 			for (int y =  sz ; y > -sz ; y--)
-				if (x*x+y*y < szsz)
-				{
+				if (x*x+y*y < szsz) {
 					img.setRGB(sz+x, sz+y, makeARGB((
-					(int) (control.getAlpha()*255)),
-					(int) (lut[x+sz][y+sz][0]*value),
-					(int) (lut[x+sz][y+sz][1]*value),
-					(int) (lut[x+sz][y+sz][2]*value )));	
-				}
-				
+							(int) (control.getAlpha()*255)),
+							(int) (lut[x+sz][y+sz][0]*value),
+							(int) (lut[x+sz][y+sz][1]*value),
+							(int) (lut[x+sz][y+sz][2]*value )));	
+				}		
 	}
 	
 	/**
-	 * Builds the lookup table for the colourwheel. althought the WheelUI
+	 * Builds the lookup table for the colourwheel. Althought the WheelUI
 	 * changes all parts of the HSV vector, the wheel only changes the H, S
 	 * components. We can then create a colour lookup table which will set these
 	 * It is much fast to render the wheel using this.  
@@ -154,11 +153,11 @@ class HSVWheel
 	private void buildComponents()
 	{
 		int sz = (int) radius;
-		
+
 		float f, p, q, t;
 		float s, fsz, xd, yd, sd;
 		float angle;
-		int Hi;
+		int hi;
 	
 		float szsz = sz*sz;
 		float value = 1;
@@ -179,10 +178,10 @@ class HSVWheel
 					else angle = 90;
 					
 					if (yd < 0) angle = 360-angle;
-					Hi = ((int) angle/60)%6;
-					switch (Hi) {
+					hi = ((int) angle/60)%6;
+					switch (hi) {
     					case 0:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						t = (value)*(1-(1-f)*sd);
     						lut[x+sz][y+sz][0] = (int) (value*255.0f);
@@ -190,7 +189,7 @@ class HSVWheel
     						lut[x+sz][y+sz][2] = (int) (p*255.0f);
     						break;
     					case 1:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						q = (value)*(1-f*sd);
     						lut[x+sz][y+sz][0] = (int) (q*255.0f);
@@ -198,7 +197,7 @@ class HSVWheel
     						lut[x+sz][y+sz][2] = (int) (p*255.0f);
     						break;
     					case 2:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						t = (value)*(1-(1-f)*sd);
     						lut[x+sz][y+sz][0] = (int) (p*255.0f);
@@ -206,7 +205,7 @@ class HSVWheel
     						lut[x+sz][y+sz][2] = (int) (t*255.0f);
     						break;
     					case 3:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						q = (value)*(1-f*sd);
     						lut[x+sz][y+sz][0] = (int) (p*255.0f);
@@ -214,7 +213,7 @@ class HSVWheel
     						lut[x+sz][y+sz][2] = (int) (value*255.0f);
     						break;
     					case 4:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						t = (value)*(1-(1-f)*sd);
     						lut[x+sz][y+sz][0] = (int) (t*255.0f);
@@ -222,7 +221,7 @@ class HSVWheel
     						lut[x+sz][y+sz][2] = (int) (value*255.0f);
     						break;
     					case 5:
-    						f = ((angle/60.0f)-Hi);
+    						f = ((angle/60.0f)-hi);
     						p = (value)*(1-sd);
     						q = (value)*(1-f*sd);
     						lut[x+sz][y+sz][0] = (int) (value*255.0f);
@@ -236,31 +235,85 @@ class HSVWheel
 	}
 		
 	/**
+	 * Renders the graphics colourwheel. 
+	 * 
+	 * @param g The graphics context.
+	 */
+	private void render(Graphics2D g)
+	{
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                  RenderingHints.VALUE_ANTIALIAS_ON);
+		Ellipse2D.Float ellipse = new Ellipse2D.Float(0.5f, 0.5f, wheelwidth-1, 
+									wheelwidth-1);
+		Color c = getBackground();
+		g.setColor(LINE_COLOR);
+		g.draw(ellipse);
+		g.setColor(c);
+		g.drawImage(img, 0, 0, (int) wheelwidth, (int) wheelwidth, null);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                 RenderingHints.VALUE_ANTIALIAS_OFF);
+		if (puck == null) return;
+		
+		g.setStroke(LINE);
+		g.setPaint(puckfillColour);
+		g.fillRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
+		g.setPaint(puckColour);
+		g.drawRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);  
+	}
+	
+	/**
 	 * Builds the lookup table of the colourwheel, althought the WheelUI
 	 * changes all parts of the HSV vector, the wheel only changes the H, S
 	 * components. We can then create a colour lookup table which will set them. 
 	 */
-	void buildLUT()
+	private void buildLUT()
 	{
 		lut = new int[(int) wheelwidth][(int) wheelwidth][3];
 		buildComponents();
 	}
+
+	/**
+	 * Fires a Changed event to all listeners stating the HSVWheel has changed.
+	 */
+	private void fireChangeEvent()
+	{
+		for (int i = 0 ; i < listeners.size(); i++)
+			listeners.get(i).stateChanged(new ColourChangedEvent(this));
+	}
 	
 	/**
-	 * Construct the HSVWheel and reference to the control c.
+	 * Sets the wheel width to the panel size, the puck position to match the 
+     * colour specified in the model and creates LUT and colourwheel image.
+     * Called when the panel changes size.
+	 */
+	private void changePanelSize()
+	{
+		wheelwidth = this.getWidth() < this.getHeight() ?
+					this.getWidth() : this.getHeight();
+		radius = wheelwidth/2;
+		puckColour = Color.black;
+		puckfillColour = Color.white;
+		img = new BufferedImage((int) wheelwidth,(int) wheelwidth, 
+				BufferedImage.TYPE_INT_ARGB);
+		buildLUT();
+		createColourWheelFromLUT();
+		findPuck();
+	}
+	
+	/**
+	 * Constructs the HSVWheel and reference to the control c.
 	 * 
 	 * @param c Reference to the control. Mustn't be <code>null</code>.
 	 */
 	HSVWheel(RGBControl c)
 	{
-        if (c == null)
-            throw new NullPointerException("No control.");
+        if (c == null) throw new NullPointerException("No control.");
 		control = c;
 		puck = new PlanePoint(radius, radius);
 		mouselistener = new HSVWheelListener(this);
 		this.addMouseListener(mouselistener);
 		this.addMouseMotionListener(mouselistener);
-		listeners = new ArrayList();
+		listeners = new ArrayList<ChangeListener>();
 	}	
 	
 	/**
@@ -271,18 +324,6 @@ class HSVWheel
 	 */
 	void addListener(ChangeListener listener) { listeners.add(listener); }
 
-	/**
-	 * Fires a Changed event to all listeners stating the HSVWheel has changed.
-	 */
-	void fireChangeEvent()
-	{
-        ChangeListener e;
-		for (int i = 0 ; i < listeners.size(); i++)
-		{
-			e = (ChangeListener) listeners.get(i);
-			e.stateChanged(new ColourChangedEvent(this));
-		}
-	}
 	
 	/** 
 	 * Gets the Hue of the colour determined by the position of the puck.
@@ -310,7 +351,6 @@ class HSVWheel
 		if (yd < 0) angle = 360-angle;
 		
 		return (float) angle/360.0f;
-		
 	}
 	
 	/** 
@@ -326,61 +366,14 @@ class HSVWheel
 		double s = Math.sqrt(x*x+y*y);
 		return (float) s/radius;
 	}
-	
-	/**
-	 * Renders the graphics colourwheel. 
-	 * 
-	 * @param g The graphics context.
-	 */
-	void render(Graphics2D g)
-	{
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                  RenderingHints.VALUE_ANTIALIAS_ON);
-		Ellipse2D.Float ellipse = new Ellipse2D.Float(0, 0, wheelwidth-1, 
-									wheelwidth-1);
-		Color c = getBackground();
-		g.setColor(LINE_COLOR);
-		g.draw(ellipse);
-		g.setColor(c);
-		g.drawImage(img, 0, 0, (int) wheelwidth, (int) wheelwidth, null);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                 RenderingHints.VALUE_ANTIALIAS_OFF);
-		if (puck == null) return;
-		
-		g.setStroke(LINE);
-		g.setPaint(puckfillColour);
-		g.fillRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);
-		g.setPaint(puckColour);
-		g.drawRect((int) puck.x1-2, (int) puck.x2-2, 4, 4);  
-	}
 
 	/**
-	 * Sets the wheel width to the panel size, the puck position to match the 
-     * colour specified in the model and creates LUT and colourwheel image.
-     * Called when the panel changes size.
-	 */
-	void changePanelSize()
-	{
-		wheelwidth = this.getWidth() < this.getHeight() ?
-					this.getWidth() : this.getHeight();
-		radius = wheelwidth/2;
-		puckColour = Color.black;
-		puckfillColour = Color.white;
-		img = new BufferedImage((int) wheelwidth,(int) wheelwidth, 
-				BufferedImage.TYPE_INT_ARGB);
-		buildLUT();
-		createColourWheelFromLUT();
-		findPuck();
-	}
-	
-	/**
 	 * Returns <code>true</code> if the wheel has been picked in the 
-	 * JPanel component.
+	 * JPanel component, <code>false</code> otherwise.
 	 * 
-	 * @param x position(x coord) of the mouse relative to the panel.
-	 * @param y position(y coord) of the mouse relative to the panel.
-	 * @return Returns <code>true</code> if (x,y) within wheel, 
-     *          <code>false</code> otherwise.
+	 * @param x The position(x coord) of the mouse relative to the panel.
+	 * @param y The position(y coord) of the mouse relative to the panel.
+	 * @return See above.
 	 */
 	boolean picked(int x, int y)
 	{

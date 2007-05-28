@@ -94,33 +94,12 @@ public class ColourSwatchUI
 	 */
 	private boolean			active;
 	
-	/**
-	 * Create the UI and attach the control c.
-	 * 
-	 * @param c  Reference to the control. Mustn't be <code>null</code>.
-	 */
-	ColourSwatchUI(RGBControl c)
-	{
-		if (c == null) throw new IllegalArgumentException("No control.");
-		control = c;
-		createUI();
-		active = false;
-	}
 
-	/**
-	 * Sets the current component Active, called from parent control letting 
-	 * this component know it should listen to refresh events. 
-	 * 
-	 * @param act 	Pass <code>true</code> to set the component to active,
-	 * 				<code>false</code> otherwise..
-	 */
-	void setActive(boolean act) { active = act; }
-	
 	/**
 	 * Creates the Alpha slider, and changes listener, attaching the change
 	 * listener to the slider. 
 	 */
-	void createAlphaSlider()
+	private void createAlphaSlider()
 	{
 		Color s1, s;
 		Color e1, e;
@@ -147,7 +126,7 @@ public class ColourSwatchUI
 	 * Creates the Alpha textbox, and action listener, attaching the action
 	 * listener to the textbox. 
 	 */
-	void createAlphaTextbox()
+	private void createAlphaTextbox()
 	{
 		alphaLabel = new JLabel("Alpha");
 		alphaTextbox = new JTextField(""+(int) (control.getAlpha()*255));
@@ -176,7 +155,7 @@ public class ColourSwatchUI
 	 * Create the colours and add the renderer {@link ColourListRenderer} to 
 	 * the JList object. 
 	 */
-	void createColours()
+	private void createColours()
 	{
 		colourlist = new JList(
 				new Object[] {	
@@ -198,7 +177,7 @@ public class ColourSwatchUI
 	 * Create the UI which includes adding the colour list (JList) to the 
 	 * scrollpane.
 	 */
-	void createUI()
+	private void createUI()
 	{
 		createColours();
 		createAlphaSlider();
@@ -242,6 +221,29 @@ public class ColourSwatchUI
 		gbc.weightx = 20;
 		this.add(alphaTextbox, gbc);
 	}
+	
+	/**
+	 * Create the UI and attach the control c.
+	 * 
+	 * @param c  Reference to the control. Mustn't be <code>null</code>.
+	 */
+	ColourSwatchUI(RGBControl c)
+	{
+		if (c == null) throw new IllegalArgumentException("No control.");
+		control = c;
+		createUI();
+		active = false;
+	}
+
+	/**
+	 * Sets the current component Active, called from parent control letting 
+	 * this component know it should listen to refresh events. 
+	 * 
+	 * @param act 	Pass <code>true</code> to set the component to active,
+	 * 				<code>false</code> otherwise..
+	 */
+	void setActive(boolean act) { active = act; }
+	
 	
 	/** 
 	 * Refresh method will be called by tabbedpanelUI when the model has 

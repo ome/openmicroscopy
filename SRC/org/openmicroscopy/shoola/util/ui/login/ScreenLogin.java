@@ -277,7 +277,8 @@ public class ScreenLogin
     	getRootPane().setDefaultButton(login);
     }
     
-    /** Creates and initializes the login fields. 
+    /** 
+     * Creates and initializes the login fields. 
      * 
      * @param userName The name of the user.
      */

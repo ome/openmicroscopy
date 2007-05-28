@@ -33,6 +33,9 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -62,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class ImgSaverFileChooser
     extends JFileChooser
+    implements DocumentListener
 {
 
     /** Default extension format. */
@@ -104,6 +108,9 @@ class ImgSaverFileChooser
     /** Button to launch the preview window. */
     private JButton		previewButton;
     
+    /** The text area where to enter the name of the file to save. */
+    private JTextField	nameArea;
+    
     /** Initiliazes the components composing the display. */
     private void initComponents()
     {
@@ -119,13 +126,20 @@ class ImgSaverFileChooser
 				approveSelection(); 
 			}
 		});
+    	saveButton.setEnabled(false);
     	previewButton = new JButton("Preview");
     	previewButton.setToolTipText(UIUtilities.formatToolTipText(PREVIEW));
     	previewButton.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent e) { previewSelection(); }
 		});
-    	
+    	previewButton.setEnabled(false);
     	model.getRootPane().setDefaultButton(saveButton);
+    	
+    	nameArea = (JTextField) UIUtilities.findComponent(this, 
+    											JTextField.class);
+    	if (nameArea != null) 
+    		nameArea.getDocument().addDocumentListener(this);
+    	
     }
     
     /** Previews the image to save. */
@@ -168,12 +182,15 @@ class ImgSaverFileChooser
         addChoosableFileFilter(filter); 
         addChoosableFileFilter(new TIFFFilter());
         setFileFilter(filter);
-        setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
-        setApproveButtonText("Save as");
-        //setControlButtonsAreShown(false);
+        
         File f = UIUtilities.getDefaultFolder();
         if (f != null) setCurrentDirectory(f);
-        add(buildToolbar());
+        if (nameArea != null) {
+        	setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
+            setApproveButtonText("Save as");
+            setControlButtonsAreShown(false);
+        	add(buildToolbar());
+        }
     }
     
     /**
@@ -191,50 +208,41 @@ class ImgSaverFileChooser
         else if (filter instanceof BMPFilter) format = BMPFilter.BMP;
         return format;
     }
-    
-    /** 
-     * Checks if the selected name already exists. If not, a preview of
-     * the image to save is brought up on screen.
-     * 
-     * @param format    The selected format.
-     * @param name      The name of the image.
-     * @param msg       The message displayed after creation.
-     * @param l         The list of files in the current directory.
+
+    /**
+     * Sets the <code>enabled</code> flag of {@link #saveButton} and 
+     * {@link #previewButton} depending on the lenght of the text entered
+     * in the {@link #nameArea}.
      */
-    private void setSelection(String format, String name, String msg, File[] l)
+    private void handleTextUpdate()
     {
-    	//First check if name already contains the extension.
-    	String n = model.getExtendedName(name, format);
-        boolean exist = false;
-        for (int i = 0; i < l.length; i++) {
-            if ((l[i].getAbsolutePath()).equals(n)) {
-                exist = true;
-                break;
-            }
-        }
-        model.setFileName(name);
-        model.setFileFormat(format);
-        model.setFileMessage(msg);
-        //If the file already exits so do we override it?
-        //model.previewImage(exist);
+    	if (nameArea == null) return; //should happen
+    	String text = nameArea.getText();
+    	boolean b = (text == null || text.trim().length() == 0);
+    	saveButton.setEnabled(!b);
+    	previewButton.setEnabled(!b);
     }
-    
+   
+    /**
+     * Sets the format, the file name and the message to display.
+     * Returns <code>null</code> if the selected file is <code>null</code>
+     * or a <code>Boolean</code> whose value is <code>true</code>
+     * if the file already exists, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     private Boolean setSelection()
     {
-    	File file = getSelectedFile();
-    	//getF
-        System.err.println("file "+file);
-        if (file != null) {
+    	// Build the file .
+    	File f = getSelectedFile();
+    	
+        if (f != null) {
             String format = getFormat(getFileFilter());
-            String fileName = file.getAbsolutePath();
+            String fileName = f.getAbsolutePath();
             String message = MSG_DIR+""+getCurrentDirectory();
             model.setFileName(fileName);
             model.setFileFormat(format);
             model.setFileMessage(message);
-            /*
-            setSelection(format, fileName, message, 
-                                getCurrentDirectory().listFiles());
-             */
             File[] l = getCurrentDirectory().listFiles();
             String n = model.getExtendedName(fileName, format);
             boolean exist = false;
@@ -244,10 +252,8 @@ class ImgSaverFileChooser
                     break;
                 }
             }
-            System.err.println("file "+exist);
             setSelectedFile(null);
-            if (exist) return Boolean.TRUE;
-            return Boolean.FALSE;
+            return new Boolean(exist);
             //if (display) return;    // to check
         }   
         return null;
@@ -262,16 +268,40 @@ class ImgSaverFileChooser
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         this.model = model;
-        //display = false;
         initComponents();
         buildGUI();
     }
+ 
+    /**
+	 * Enables or not the {@link #saveButton} and {@link #previewButton}
+	 * depending on the text entered in the {@link #nameArea}.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e) { handleTextUpdate(); }
+
+	/**
+	 * Enables or not the {@link #saveButton} and {@link #previewButton}
+	 * depending on the text entered in the {@link #nameArea}.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) { handleTextUpdate(); }
     
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+	
     /**
      * Overridden to close the {@link ImgSaver} when the selection is cancelled.
      * @see JFileChooser#cancelSelection()
      */
-    public void cancelSelection() { model.close(); }
+    public void cancelSelection()
+    { 
+    	model.close(); 
+    	super.cancelSelection();
+    }
     
     /**
      * Overridden to set the format, name and type of images to save.
@@ -279,7 +309,6 @@ class ImgSaverFileChooser
      */
     public void approveSelection()
     {
-    	/*
         Boolean exist = setSelection();
         if (exist == null)
         	// No file selected, or file can be written - let OK action continue
@@ -290,9 +319,21 @@ class ImgSaverFileChooser
         	else model.saveImage(true);
         	super.approveSelection();
         }
-        */
-    	previewSelection();
+    	//previewSelection();
     	super.approveSelection();
     }
-    
+
+    /**
+     * Overridden to create the selected file when the {@link #saveButton}
+     * and the {@link #previewButton} are visible, otherwise the selected
+     * file is <code>null</code>.
+     * @see JFileChooser#getSelectedFile()
+     */
+    public File getSelectedFile()
+    {
+    	if (nameArea == null) return super.getSelectedFile();
+    	return new File(getCurrentDirectory().toString(), nameArea.getText());
+    }
+
+	
 }
