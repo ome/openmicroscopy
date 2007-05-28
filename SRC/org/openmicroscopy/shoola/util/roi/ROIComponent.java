@@ -96,6 +96,16 @@ public 	class ROIComponent
 		ioStrategy.write(filename, this);
 	}
 	
+	/** 
+	 * Save the current ROI data to file. 
+	 * @param imageID  the id of the image where the ROIs have been created.
+	 * @throws IOException 
+	 */
+	public void saveROI(long imageID) throws IOException
+	{
+		ioStrategy.write(imageID+".xml", this);
+	}
+	
 	/**
 	 * Load the ROIs from file to the roiComponent. 
 	 * 
@@ -117,6 +127,29 @@ public 	class ROIComponent
 												ROICreationException
 	{
 		ioStrategy.read(filename, this);
+	}
+	
+	/**
+	 * Load the ROIs from file to the roiComponent. 
+	 * 
+	 * @param imageID the imageID of the file to load ROIs from.
+	 * @throws IOException	- file handling error.
+	 * @throws ROIShapeCreationException - If an error occured while creating 
+	 * 									   ROIShape, basic assumption is this is 
+	 * 									   linked to memory issues.
+	 * @throws NoSuchROIException		 - Tried to access a ROI which does not
+	 * 									   Exist. In this case most likely reason
+	 * 									   is that a LineConnectionFigure tried
+	 * 									   to link to ROIShapes which have not 
+	 * 									   been created yet.
+	 * @throws ROICreationException		 - See ROIShapeCreationException.
+	 */
+	public void loadROI(long imageID) throws IOException, 
+												ROIShapeCreationException, 
+												NoSuchROIException, 
+												ROICreationException
+	{
+		ioStrategy.read(imageID+".xml", this);
 	}
 	
 	/**

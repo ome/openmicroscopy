@@ -108,7 +108,29 @@ public class AnnotationKeys {
         HashSet<AnnotationKey> as = new HashSet<AnnotationKey>();
         as.addAll(Arrays.asList(new AnnotationKey[] 
                                                   {
-        		BASIC_TEXT
+        		BASIC_TEXT,
+        		AREA,
+        		PERIMETER, 
+        		VOLUME, 
+        		ANGLE,
+        		LENGTH, 
+        		POINTARRAYX, 
+        		POINTARRAYY, 
+        		CENTREX, 
+        		CENTREY, 
+        		STARTPOINTX, 
+        		STARTPOINTY, 
+        		ENDPOINTX, 
+        		ENDPOINTY, 
+        		WIDTH,
+        		HEIGHT, 
+        		INMICRONS, 
+        		MICRONSPIXELX, 
+        		MICRONSPIXELY,
+        		MICRONSPIXELZ, 
+        		ROIID, 
+        		FIGURETYPE
+        		
         }));
         
         supportedAnnotations = Collections.unmodifiableSet(as);

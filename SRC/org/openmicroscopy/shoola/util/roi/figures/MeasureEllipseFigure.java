@@ -26,28 +26,14 @@ package org.openmicroscopy.shoola.util.roi.figures;
 //Java imports
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.LinkedList;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 //Third-party libraries
-import org.jhotdraw.draw.AbstractAttributedFigure;
-import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
-import org.jhotdraw.draw.Handle;
-import org.jhotdraw.geom.Geom;
-import org.jhotdraw.util.ResourceBundleUtil;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -141,12 +127,12 @@ public class MeasureEllipseFigure
     
     public double getX() 
     {
-      	return ellipse.x;
+      	return ellipse.getX();
     }
     
     public double getY() 
     {
-       	return ellipse.y;
+       	return ellipse.getY();
     }
     
     public double getWidth() 

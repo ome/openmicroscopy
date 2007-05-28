@@ -443,10 +443,15 @@ public class InputStrategy
 		IXMLElement figureElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		ROIFigure figure = createFigure(figureElement);
 		ROIShape shape = new ROIShape(newROI, coord, figure, figure.getBounds());
-		ArrayList<IXMLElement> annotationList = shapeElement.getChildrenNamed(ANNOTATION_TAG);
-		for(IXMLElement annotation : annotationList)
-			if(isAnnotation(annotation.getName()))
+		ArrayList<IXMLElement> annotationElementList = shapeElement.getChildrenNamed(ANNOTATION_TAG);
+		for(IXMLElement annotationTagElement : annotationElementList)
+		{
+			ArrayList<IXMLElement> annotationList = annotationTagElement.getChildren();
+			for(IXMLElement annotation : annotationList)
+			{
 				addAnnotation(annotation, shape);
+			}
+		}
 		return shape;
 	}
 
@@ -616,19 +621,21 @@ public class InputStrategy
 	
 	private EllipseAnnotationFigure createEllipseFigure(IXMLElement ellipseElement)
 	{
-		String xValue = ellipseElement.getAttribute(CX_ATTRIBUTE, VALUE_NULL);
-		String yValue = ellipseElement.getAttribute(CY_ATTRIBUTE, VALUE_NULL);
-		String widthValue = ellipseElement.getAttribute(RX_ATTRIBUTE, VALUE_NULL);
-		String heightValue = ellipseElement.getAttribute(RY_ATTRIBUTE, VALUE_NULL);
-		double x = new Double(xValue);
-		double y = new Double(yValue);
-		double width = new Double(widthValue);
-		double height = new Double(heightValue);
+		String cxValue = ellipseElement.getAttribute(CX_ATTRIBUTE, VALUE_NULL);
+		String cyValue = ellipseElement.getAttribute(CY_ATTRIBUTE, VALUE_NULL);
+		String rxValue = ellipseElement.getAttribute(RX_ATTRIBUTE, VALUE_NULL);
+		String ryValue = ellipseElement.getAttribute(RY_ATTRIBUTE, VALUE_NULL);
+		double cx = new Double(cxValue);
+		double cy = new Double(cyValue);
+		double rx = new Double(rxValue);
+		double ry = new Double(ryValue);
+		
+		double x = cx-rx;
+		double y = cy-ry;
+		double width = rx*2;
+		double height = ry*2;
 		
 		EllipseAnnotationFigure ellipseFigure = new EllipseAnnotationFigure(x, y, width, height);
-		ellipseFigure.willChange();
-		ellipseFigure.basicSetBounds(new Point2D.Double(x,y), new Point2D.Double(width, height));
-		ellipseFigure.changed();
 		addAttributes(ellipseFigure, ellipseElement);
 		return ellipseFigure;
 	}
@@ -666,18 +673,30 @@ public class InputStrategy
 			fromROI = component.getROI(fromROIid);
 			ROIFigure toFigure = toROI.getFigure(getCurrentCoord());
 			ROIFigure fromFigure = fromROI.getFigure(getCurrentCoord());
-			lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
-			lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
+			if(lineElement.hasAttribute(POINTS_ATTRIBUTE))
+			{
+				lineFigure.removeAllNodes();
+				String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
+				Point2D.Double[] points = toPoints(pointsValues);
+				for(int i = 0 ; i < points.length ; i++)
+				{
+					lineFigure.addNode(new Node(points[i].x, points[i].y));
+				}
+				lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
+				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
+
+			}
+			else
+			{
+				lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
+				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
+			}
 		}
 		catch(Exception e)
 		{
 			throw new IOException("In Line connection figure, with ROI :" + getCurrentROI() + " on Coord :" + getCurrentCoord() + " Connection <to>/<from> tag invalid.");
 		}
-		if(lineElement.hasAttribute(POINTS_ATTRIBUTE))
-		{
-			String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
-			
-		}
+		
 		addAttributes(lineFigure, lineElement);
 		return lineFigure;
 	}
@@ -687,9 +706,10 @@ public class InputStrategy
 		LineAnnotationFigure lineFigure = new LineAnnotationFigure();
 		if(lineElement.hasAttribute(POINTS_ATTRIBUTE))
 		{
+			lineFigure.removeAllNodes();
 			String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
 			Point2D.Double[] points = toPoints(pointsValues);
-			for(int i = 1 ; i < points.length-1 ; i++)
+			for(int i = 0 ; i < points.length ; i++)
 				lineFigure.addNode(new Node(points[i].x, points[i].y));
 		}
 		else
@@ -698,6 +718,7 @@ public class InputStrategy
 			String y1Value = lineElement.getAttribute(Y1_ATTRIBUTE, VALUE_NULL);
 			String x2Value = lineElement.getAttribute(X2_ATTRIBUTE, VALUE_NULL);
 			String y2Value = lineElement.getAttribute(Y2_ATTRIBUTE, VALUE_NULL);
+			lineFigure.removeAllNodes();
 			lineFigure.addNode(new Node(new Double(x1Value), new Double(y1Value)));
 			lineFigure.addNode(new Node(new Double(x2Value), new Double(y2Value)));
 		}
