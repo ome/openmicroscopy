@@ -156,6 +156,7 @@ public class OutputStrategy
 	public final static String ATTRIBUTE_DATATYPE_DOUBLE = "Double";
 	public final static String ATTRIBUTE_DATATYPE_LONG = "Long";
 	public final static String ATTRIBUTE_DATATYPE_INTEGER = "Integer";
+	public final static String ATTRIBUTE_DATATYPE_BOOLEAN = "Boolean";
 	public final static String ATTRIBUTE_DATATYPE_FLOAT = "Float";
 	public final static String ATTRIBUTE_DATATYPE_POINT2D = "Point2D";
 	public final static String ATTRIBUTE_DATATYPE_ELLIPSE2D = "Ellipse2D";
@@ -287,7 +288,8 @@ public class OutputStrategy
 		if( value instanceof Double || 
 			value instanceof Float ||
 			value instanceof Integer ||
-			value instanceof Long)
+			value instanceof Long ||
+			value instanceof Boolean)
 		{
 			if( value instanceof Double)
 				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_DOUBLE);
@@ -297,6 +299,8 @@ public class OutputStrategy
 				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_INTEGER);
 			if( value instanceof Long)
 				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_LONG);
+			if( value instanceof Boolean)
+				annotation.setAttribute(DATATYPE_ATTRIBUTE, ATTRIBUTE_DATATYPE_BOOLEAN);
 			annotation.setAttribute(VALUE_ATTRIBUTE, value+"");
 		}
 		else if(value instanceof Color)

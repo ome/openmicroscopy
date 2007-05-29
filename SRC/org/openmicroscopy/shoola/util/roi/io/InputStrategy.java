@@ -165,6 +165,7 @@ public class InputStrategy
 	public final static String ATTRIBUTE_DATATYPE_DOUBLE = "Double";
 	public final static String ATTRIBUTE_DATATYPE_LONG = "Long";
 	public final static String ATTRIBUTE_DATATYPE_INTEGER = "Integer";
+	public final static String ATTRIBUTE_DATATYPE_BOOLEAN = "Boolean";
 	public final static String ATTRIBUTE_DATATYPE_FLOAT = "Float";
 	public final static String ATTRIBUTE_DATATYPE_POINT2D = "Point2D";
 	public final static String ATTRIBUTE_DATATYPE_ELLIPSE2D = "Ellipse2D";
@@ -410,13 +411,16 @@ public class InputStrategy
 		setCurrentROI(id);
 		ROI newROI = null;
 		newROI = component.createROI(id);
-		ArrayList<IXMLElement> annotationList = roiElement.getChildrenNamed(ANNOTATION_TAG);
 		ArrayList<IXMLElement> roiShapeList = roiElement.getChildrenNamed(ROISHAPE_TAG);
 		int cnt = 0;
-		for(IXMLElement annotation : annotationList)
+		ArrayList<IXMLElement> annotationElementList = roiElement.getChildrenNamed(ANNOTATION_TAG);
+		for(IXMLElement annotationTagElement : annotationElementList)
 		{
-			if(isAnnotation(annotation.getName()))
-					addAnnotation(annotation, newROI);
+			ArrayList<IXMLElement> annotationList = annotationTagElement.getChildren();
+			for(IXMLElement annotation : annotationList)
+			{
+				addAnnotation(annotation, newROI);
+			}
 		}
 		cnt = 0;
 		for(IXMLElement roiShape : roiShapeList)
@@ -479,21 +483,28 @@ public class InputStrategy
 		}
 		else if(dataType.equals(ATTRIBUTE_DATATYPE_INTEGER))
 		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE,VALUE_NULL);
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
 			if(value.equals(VALUE_NULL))
 				return 0;
 			return new Integer(value);
 		}
+		else if(dataType.equals(ATTRIBUTE_DATATYPE_BOOLEAN))
+		{
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
+			if(value.equals(VALUE_NULL))
+				return 0;
+			return new Boolean(value);
+		}
 		else if(dataType.equals(ATTRIBUTE_DATATYPE_LONG))
 		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE,VALUE_NULL);
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
 			if(value.equals(VALUE_NULL))
 				return 0;
 			return new Long(value);
 		}
 		else if(dataType.equals(ATTRIBUTE_DATATYPE_FLOAT))
 		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE,VALUE_NULL);
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
 			if(value.equals(VALUE_NULL))
 				return 0;
 			return new Float(value);

@@ -102,7 +102,8 @@ public 	class BezierAnnotationFigure
 		textLayout = null;
 		textBounds = null;
 	}
-
+	
+    
 	// SHAPE AND BOUNDS
 	public Rectangle2D.Double getBounds() 
 	{
