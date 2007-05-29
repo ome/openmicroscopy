@@ -25,6 +25,7 @@
         <property name="ant.resources"       value="${basedir}/components/antlib/resources/"/>
 	<property name="classpath.file"      value="${ant.resources}/dist-classpath.xml"/>
 	<import file="${classpath.file}"/> <!-- imports global.xml -->
+	<import file="${ant.resources}/multiproject.xml"/>
 
 	<target name="classpath-define">
 		<path id="omero.classpath">
