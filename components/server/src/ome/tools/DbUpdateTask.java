@@ -30,8 +30,11 @@ public class DbUpdateTask extends SQLExec {
 	private SimpleJdbcTemplate jdbc;
 
 	public DbUpdateTask() {
-		ctx = OmeroContext.getManagedServerContext();
-		jdbc = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate");
+        //ClassLoader cl = Thread.currentThread().getContextClassLoader(); 
+		ctx = OmeroContext.getManagedServerContext(); 
+		//Thread.currentThread().setContextClassLoader(DbUpdateTask.class.getClassLoader()); 
+		jdbc = (SimpleJdbcTemplate) ctx.getBean("simpleJdbcTemplate"); 
+		//Thread.currentThread().setContextClassLoader(cl); 		
 	}
 
 	private File _sqlDir;
