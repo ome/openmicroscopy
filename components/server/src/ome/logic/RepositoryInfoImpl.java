@@ -205,14 +205,6 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 			List<Long> pixels = task.getPixelIds();
 			List<Long> thumbs = task.getThumbnailIds();
 			
-			
-			// manually chosen file ids
-			List<Long> list = task.getTestIds();
-			
-			if (log.isInfoEnabled()) {
-				log.info("INFO: File ids obtained (" + list.size() + ")");
-			}
-			
 			boolean success = false;
 			
 			// cleanup any files
@@ -226,6 +218,10 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 					if (!success) {
 						throw new InternalException("File " + file.getName()
 								+ " deletion failed");
+					} else {
+						if (log.isInfoEnabled()) {
+							log.info("INFO: File " + file.getName() + " deleted.");
+						}
 					}
 				}
 			}
@@ -241,6 +237,10 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 					if (!success) {
 						throw new InternalException("Pixels " + file.getName()
 								+ " deletion failed");
+					} else {
+						if (log.isInfoEnabled()) {
+							log.info("INFO: Pixels " + file.getName() + " deleted.");
+						}
 					}
 				}
 			}
@@ -256,6 +256,10 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 					if (!success) {
 						throw new InternalException("Thumbnail " + file.getName()
 								+ " deletion failed");
+					} else {
+						if (log.isInfoEnabled()) {
+							log.info("INFO: Thumbnail " + file.getName() + " deleted.");
+						}
 					}
 				}
 

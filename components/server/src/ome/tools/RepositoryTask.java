@@ -1,5 +1,7 @@
 package ome.tools;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 public class RepositoryTask {
 
 	private OmeroContext ctx;
-
 	private SimpleJdbcTemplate template;
 
 	/**

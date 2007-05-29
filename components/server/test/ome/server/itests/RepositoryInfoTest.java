@@ -48,12 +48,17 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
         System.out.println("testRepositoryPercentUsed successful");
     }	
 
+    /**
+     * Query database eventlog table for objects marked for delete and
+     * remove unused artifacts from file repository
+     * 
+     * @throws Exception
+     */
     @Test
     public void testRemoveUnusedFiles() throws Exception {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
-        // TODO - remove comments when deeper methods tested (DLW)
-        //iRepositoryInfo.removeUnusedFiles();
+        iRepositoryInfo.removeUnusedFiles();
         System.out.println("testRemoveUnusedFiles successful");
     }	
 
