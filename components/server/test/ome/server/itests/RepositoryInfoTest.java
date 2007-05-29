@@ -28,7 +28,6 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
         assertTrue(iRepositoryInfo.getFreeSpaceInKilobytes() > 0);
-        System.out.println("testRepositoryFree successful");
     }	
 
     @Test
@@ -36,7 +35,6 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
         assertTrue(iRepositoryInfo.getUsedSpaceInKilobytes() > 0);
-        System.out.println("testRepositoryUsed successful");
     }	
 
     @Test
@@ -45,7 +43,6 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
     	
         assertTrue(iRepositoryInfo.getUsageFraction() < 0.95);
-        System.out.println("testRepositoryPercentUsed successful");
     }	
 
     /**
@@ -59,7 +56,6 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
         iRepositoryInfo.removeUnusedFiles();
-        System.out.println("testRemoveUnusedFiles successful");
     }	
 
 }

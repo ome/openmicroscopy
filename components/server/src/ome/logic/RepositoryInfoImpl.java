@@ -1,8 +1,5 @@
 package ome.logic;
 
-import java.io.File;
-import java.util.Formatter;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,6 +15,9 @@ import ome.annotations.RevisionNumber;
 import ome.api.IRepositoryInfo;
 import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
+import ome.io.nio.OriginalFilesService;
+import ome.io.nio.PixelsService;
+import ome.io.nio.ThumbnailService;
 import ome.tools.FileSystem;
 import ome.tools.RepositoryTask;
 
@@ -67,11 +67,44 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	/* repository filesystem */
 	private transient String datadir;
 
-	public final static String PIXELS_PATH = "Pixels" + File.separator;
+	/* The ROMIO thumbnail service. */
+	private transient ThumbnailService thumbnailService;
 
-	public final static String FILES_PATH = "Files" + File.separator;
+	/* The ROMIO pixels service. */
+	private transient PixelsService pixelsService;
 
-	public final static String THUMBNAILS_PATH = "Thumbnails" + File.separator;
+	/* The ROMIO file service. */
+	private transient OriginalFilesService fileService;
+
+	/**
+	 * Bean injection setter for ROMIO thumbnail service
+	 * 
+	 * @param rootdir
+	 */
+	public void setThumbnailService(ThumbnailService thumbnailService) {
+		beanHelper.throwIfAlreadySet(this.thumbnailService, thumbnailService);
+		this.thumbnailService = thumbnailService;
+	}
+
+	/**
+	 * Bean injection setter for ROMIO pixels service
+	 * 
+	 * @param rootdir
+	 */
+	public void setPixelsService(PixelsService pixelsService) {
+		beanHelper.throwIfAlreadySet(this.pixelsService, pixelsService);
+		this.pixelsService = pixelsService;
+	}
+
+	/**
+	 * Bean injection setter for ROMIO file service
+	 * 
+	 * @param rootdir
+	 */
+	public void setFileService(OriginalFilesService fileService) {
+		beanHelper.throwIfAlreadySet(this.fileService, fileService);
+		this.fileService = fileService;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -195,110 +228,27 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	@RolesAllowed("user")
 	public void removeUnusedFiles() throws InternalException {
 
-		File file;
-
 		try {
 
 			RepositoryTask task = new RepositoryTask();
-			
+
+			// get ids for any objects marked as deleted
 			List<Long> files = task.getFileIds();
 			List<Long> pixels = task.getPixelIds();
 			List<Long> thumbs = task.getThumbnailIds();
-			
-			boolean success = false;
-			
+
 			// cleanup any files
-			for (Iterator iter = files.iterator(); iter.hasNext();) {
-				Long id = (Long) iter.next();
+			fileService.removeFiles(files);
 
-				String filePath = getPath(FILES_PATH, id);
-				file = new File(filePath);
-				if (file.exists()) {
-					success = file.delete();
-					if (!success) {
-						throw new InternalException("File " + file.getName()
-								+ " deletion failed");
-					} else {
-						if (log.isInfoEnabled()) {
-							log.info("INFO: File " + file.getName() + " deleted.");
-						}
-					}
-				}
-			}
-			
 			// cleanup any pixels
-			for (Iterator iter = pixels.iterator(); iter.hasNext();) {
-					Long id = (Long) iter.next();
-				
-				String pixelPath = getPath(PIXELS_PATH, id);
-				file = new File(pixelPath);
-				if (file.exists()) {
-					success = file.delete();
-					if (!success) {
-						throw new InternalException("Pixels " + file.getName()
-								+ " deletion failed");
-					} else {
-						if (log.isInfoEnabled()) {
-							log.info("INFO: Pixels " + file.getName() + " deleted.");
-						}
-					}
-				}
-			}
-			
-			// cleanup any thumbnails
-			for (Iterator iter = thumbs.iterator(); iter.hasNext();) {
-					Long id = (Long) iter.next();
-				
-				String thumbnailPath = getPath(THUMBNAILS_PATH, id);
-				file = new File(thumbnailPath);
-				if (file.exists()) {
-					success = file.delete();
-					if (!success) {
-						throw new InternalException("Thumbnail " + file.getName()
-								+ " deletion failed");
-					} else {
-						if (log.isInfoEnabled()) {
-							log.info("INFO: Thumbnail " + file.getName() + " deleted.");
-						}
-					}
-				}
+			pixelsService.removePixels(pixels);
 
-			}
+			// cleanup any thumbnails
+			thumbnailService.removeThumbnails(thumbs);
 
 		} catch (RuntimeException rtex) {
 			throw new InternalException(rtex.getMessage());
 		}
-	}
-
-	/**
-	 * This method is used to return the full path of file on the disk using
-	 * it's entityid and the prefix (choice of Files, Pixels, Thumbnails)
-	 * 
-	 * @param prefix - subdirectory Files, Pixels, or Thumbnails
-	 * @param id - entityid and filename
-	 * @return String representing full path of filename
-	 */
-	private String getPath(String prefix, Long id) {
-		String suffix = "";
-		Long remaining = id;
-		Long dirno = 0L;
-
-		if (id == null) {
-			throw new NullPointerException("Expecting a not-null id.");
-		}
-
-		while (remaining > 999) {
-			remaining /= 1000;
-
-			if (remaining > 0) {
-				Formatter formatter = new Formatter();
-				dirno = remaining % 1000;
-				suffix = formatter.format("Dir-%03d", dirno).out().toString()
-						+ File.separator + suffix;
-			}
-		}
-
-		return datadir + prefix + suffix + id;
 	}
 
 }

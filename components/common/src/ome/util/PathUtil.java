@@ -8,13 +8,14 @@ import java.util.Properties;
 public class PathUtil {
 	
 	private final String SPRING_FILE_PATH = "components/romio/resources/beanRefContext.xml"; 
+	private final String OMERO_PROPS = "etc/omero.properties";
 	private static PathUtil instance = null;
 	private static Properties properties;
 	
 	private PathUtil() {
 		properties = new Properties();
 	    try {
-	        properties.load(new FileInputStream("etc/omero.properties"));
+	        properties.load(new FileInputStream(OMERO_PROPS));
 	    } catch (IOException e) {
 			// TODO - something
 		}		

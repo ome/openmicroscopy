@@ -6,6 +6,14 @@
  */
 package ome.io.nio;
 
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import ome.conditions.InternalException;
 import ome.model.core.OriginalFile;
 
 /**
@@ -19,13 +27,57 @@ import ome.model.core.OriginalFile;
  */
 public class OriginalFilesService extends AbstractFileSystemService {
 
+	/* The logger for this class. */
+	private transient static Log log = LogFactory
+			.getLog(OriginalFilesService.class);
+
+    /**
+     * Constructor
+     * @param path
+     */
     public OriginalFilesService(String path) {
         super(path);
     }
 
+    /**
+     * Returns FileBuffer based on OriginalFile path
+     * 
+     * @param file
+     * @return FileBuffer
+     */
     public FileBuffer getFileBuffer(OriginalFile file) {
         String path = getFilesPath(file.getId());
         createSubpath(path);
         return new FileBuffer(path, file);
+    }
+    
+    /**
+     * Removes files from data repository based on a parameterized List of
+     * Long file ids
+     * 
+     * @param fileIds - Long file keys to be deleted
+     */
+    public void removeFiles(List<Long> fileIds){
+
+    	File file;
+    	boolean success = false;
+    	
+    	for (Iterator iter = fileIds.iterator(); iter.hasNext();) {
+			Long id = (Long) iter.next();
+
+			String filePath = getFilesPath(id);
+			file = new File(filePath);
+			if (file.exists()) {
+				success = file.delete();
+				if (!success) {
+					throw new InternalException("File " + file.getName()
+							+ " deletion failed");
+				} else {
+					if (log.isInfoEnabled()) {
+						log.info("INFO: File " + file.getName() + " deleted.");
+					}
+				}
+			}
+		}
     }
 }
