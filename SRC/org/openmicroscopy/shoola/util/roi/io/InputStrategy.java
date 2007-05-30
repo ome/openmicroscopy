@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -48,9 +47,7 @@ import net.n3.nanoxml.XMLParserFactory;
 
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.AttributeKeys.WindingRule;
 import org.jhotdraw.geom.BezierPath.Node;
-import org.jhotdraw.samples.svg.SVGAttributeKeys.TextAnchor;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -452,9 +449,7 @@ public class InputStrategy
 		{
 			ArrayList<IXMLElement> annotationList = annotationTagElement.getChildren();
 			for(IXMLElement annotation : annotationList)
-			{
 				addAnnotation(annotation, shape);
-			}
 		}
 		return shape;
 	}

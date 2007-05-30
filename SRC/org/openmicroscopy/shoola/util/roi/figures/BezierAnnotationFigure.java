@@ -187,6 +187,7 @@ public 	class BezierAnnotationFigure
 		r.add(getTextBounds());
 		return r;
 	}
+	
 	/**
 	 * Checks if a Point2D.Double is inside the figure.
 	 */
