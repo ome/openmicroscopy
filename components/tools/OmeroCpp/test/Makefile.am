@@ -3,7 +3,7 @@ check_PROGRAMS = $(TESTS)
 bin_PROGRAMS = blitzdemo
 
 our_libp = -L@top_srcdir@/src/.libs
-our_libs = -lOMERO_common -lOMERO_client -lstdc++ -lIce -lIceUtil -lSlice -lGlacier2
+our_libs = -lOMERO_common -lOMERO_client -lstdc++ -lIce -lIceUtil -lSlice -lGlacier2 -lpthread
 our_incl = -I../src -I../src/slice_generated -I../target/temp
 
 if BOOST_TEST

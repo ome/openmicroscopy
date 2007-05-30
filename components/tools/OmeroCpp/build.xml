@@ -55,7 +55,12 @@
 
     <target name="tools-build" depends="get-source,make_build" description="Uses autogen.sh and make to build artifacts"/>
 
-    <target name="tools-dist" depends="make_copy" description="Copies files into tools/target"/>
+    <target name="tools-dist" depends="make_copy" description="Copies files into tools/target">
+        <copy file="${copy.dir}/OMERO/ModelI.h" todir="../target/include/OMERO"/>
+        <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
+        ${copy.dir} is already in the dist. Later we may want to test copying them all
+        back, but that depends on how get-source works -->
+    </target>
 
    <target name="clean" depends="make_clean">
         <delete dir="${copy.dir}"/>

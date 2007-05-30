@@ -190,7 +190,7 @@
 
 	<target name="tar">
 		<tar destfile="${product.name}-${product.version}.tar.bz2" compress="bzip2">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
+			<tarfileset dir="${dist.dir}" prefix="${product.name}-${product.version}"/>
 		</tar>
 	</target>
 

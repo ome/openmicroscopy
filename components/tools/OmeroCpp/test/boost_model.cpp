@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( Accessors )
 
   img->setName(new RString("name2"));
   BOOST_CHECK( img->getName()->val == "name2" );
-  BOOST_CHECK( ! img->getName()->null );
+  BOOST_CHECK( img->getName() );
 
   img->unload();
   BOOST_CHECK( !img->name );

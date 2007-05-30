@@ -42,7 +42,9 @@
 	<delete file="${src.dest}/ome/services/blitz/fire/SessionManagerI.java"/>
 	</target>
 
-	<target name="install" depends="lifecycle.install,standalone"/>
+	<target name="install" depends="lifecycle.install,standalone">
+		<useServices dir="${target.dir}/standalone"/>
+	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
           generate slice   

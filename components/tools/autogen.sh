@@ -21,10 +21,10 @@ files="NEWS INSTALL README AUTHORS ChangeLog COPYING"
 for f in $files; do
   [ -e "$f" ] || touch $f
 done
-aclocal $ACLOCAL_FLAGS -I.. || exit;
-autoheader -I.. || exit;
+aclocal $ACLOCAL_FLAGS || exit;
+autoheader || exit;
 automake --add-missing --copy;
 libtoolize
-autoconf -I.. || exit;
+autoconf || exit;
 automake || exit;
 ./configure "$@"

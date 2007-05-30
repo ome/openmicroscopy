@@ -70,6 +70,7 @@ libOMERO_client_la_SOURCES = ./OMERO/client.cpp ./OMERO/CTypes.cpp \
 	../target/temp/OMERO/Model/ContrastMethodI.cpp\
 	../target/temp/OMERO/Model/ContrastStretchingContextI.cpp\
 	../target/temp/OMERO/Model/CustomizedFilterSetI.cpp\
+	../target/temp/OMERO/Model/DBPatchI.cpp\
 	../target/temp/OMERO/Model/DatasetAnnotationI.cpp\
 	../target/temp/OMERO/Model/DatasetI.cpp\
 	../target/temp/OMERO/Model/DatasetImageLinkI.cpp\
@@ -218,6 +219,7 @@ libOMERO_client_la_SOURCES = ./OMERO/client.cpp ./OMERO/CTypes.cpp \
 	./slice_generated/OMERO/Model/ContrastMethod.cpp\
 	./slice_generated/OMERO/Model/ContrastStretchingContext.cpp\
 	./slice_generated/OMERO/Model/CustomizedFilterSet.cpp\
+	./slice_generated/OMERO/Model/DBPatch.cpp\
 	./slice_generated/OMERO/Model/Dataset.cpp\
 	./slice_generated/OMERO/Model/DatasetAnnotation.cpp\
 	./slice_generated/OMERO/Model/DatasetImageLink.cpp\

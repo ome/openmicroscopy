@@ -34,12 +34,19 @@
 			<target name="tools-build"/>
 			<target name="tools-dist"/>
 		</ant>
+		<ant dir="${basedir}/WebAdmin" inheritAll="false" inheritRefs="false">
+			<target name="tools-build"/>
+			<target name="tools-dist"/>
+		</ant>
 	</target>
 
 	<target name="dist" description="Copies target onto an existing dist">
-		<copy todir="../../dist">
-			<fileset dir="target" includes="lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
+		<copy todir="../../dist" overwrite="true">
+			<fileset dir="target" includes="*.war,lib/**/*,client/**/*,include/**/*" followsymlinks="false"/>
 		</copy>
+		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${basedir}/target/service-classes" includes="**/*"/>
+		<!-- This must be reworked upstream -->
+		<jar update="true" destfile="${dist.dir}/GlencoeDME.ear" basedir="${dist.dir}/blitz" includes="services.jar"/>
 	</target>
 
 	<target name="clean" description="Calls 'tools-clean' on all components.">
@@ -49,6 +56,10 @@
 		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
+			<target name="clean"/>
+		</ant>
+	  	<ant dir="${basedir}/WebAdmin" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/WebAdmin"/>
 			<target name="clean"/>
 		</ant>
 		<delete dir="${tools.dest}"/>

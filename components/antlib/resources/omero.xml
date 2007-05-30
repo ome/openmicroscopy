@@ -74,6 +74,7 @@
 				<include name="local.properties.example"/>
 				<include name="omero.properties"/>
 				<include name="hibernate.properties"/>
+				<include name="log4j.properties"/>
 			</fileset>
 		</jar>
 

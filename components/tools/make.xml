@@ -5,7 +5,7 @@
     <property name="make.ICE_HOME"    value="/usr/share/Ice"/>
     <property name="make.DESTDIR"     value="${up-two}/target/"/>
     <property name="make.LDFLAGS"     value="-fPIC"/>
-    <property name="make.CXXFLAGS"    value="-fPIC -O0 -g"/>
+    <property name="make.CXXFLAGS"    value="-fPIC -O0 -g -D_REENTRANT -Wall"/>
     <property name="make.CXX"         value="ccache g++"/>
     <property name="make.J"           value="1"/>
 

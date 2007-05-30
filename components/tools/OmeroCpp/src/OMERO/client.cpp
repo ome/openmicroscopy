@@ -15,6 +15,9 @@ namespace OMERO {
   client::client(int& argc, char* argv[],
 		 const Ice::InitializationData& id) {
     ic = Ice::initialize(argc, argv, id);
+    if (!ic) {
+      throw omero::ClientError(__FILE__,__LINE__,"Improper initialization.");
+    }
     ObjectFactoryPtr of = new ObjectFactory();
     of->registerObjectFactory(ic);
   }
@@ -40,7 +43,9 @@ namespace OMERO {
     Glacier2::SessionPrx session;
     session = router->createSession(username, password);
     sf = omero::api::ServiceFactoryPrx::checkedCast(session);
-
+    if (!sf) {
+      throw omero::ClientError(__FILE__,__LINE__,"No session obtained.");
+    }
   }
   
   omero::api::IAdminPrx client::getAdminService() {return sf->getAdminService();}
