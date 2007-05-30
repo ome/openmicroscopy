@@ -89,7 +89,7 @@ class MeasurementViewerModel
     private int 					state;
     
     /** Component managaging the drawing. */
-    private	QuadTreeDrawing			drawing;
+    private	DefaultDrawing			drawing;
 
     /** Component managaging the drawing. */
 	private	DrawingEditor			drawingEditor;
@@ -138,7 +138,7 @@ class MeasurementViewerModel
 		requesterBounds = bounds;
 		state = MeasurementViewer.NEW;
 		drawingEditor = new DefaultDrawingEditor();
-		drawing = new QuadTreeDrawing();
+		drawing = new DefaultDrawing();
 		drawingView = new DrawingView();
 		roiComponent = new ROIComponent();
 		drawingView.setDrawing(drawing);

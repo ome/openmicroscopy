@@ -126,11 +126,20 @@ class ObjectInspector
 		fieldTable.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
 			public void mouseClicked(java.awt.event.MouseEvent e) {
+				
+				if (e.getClickCount() == 1) {
+					int col = fieldTable.getSelectedColumn();
+					int row = fieldTable.getSelectedRow();
+					Object value = fieldTable.getValueAt(row, col);
+					if (value instanceof Boolean)
+						toggleValue();
+					else
+						return;
+				}
 				if (e.getClickCount() == 2) {
 					e.consume();
 					int col = fieldTable.getSelectedColumn();
 					int row = fieldTable.getSelectedRow();
-
 					Object value = fieldTable.getValueAt(row, col);
 					if (value instanceof Color)
 						controller.showColorPicker((Color) value);
@@ -389,6 +398,8 @@ class ObjectInspector
 		 */
 		public void setValueAt(Object value, int row, int col) 
 	    {
+			if(col == 0)
+				return;
 			AttributeKey key = keys.get(row);
 	    	if (figure.getAttribute(key) instanceof Double)
 	    		figure.setAttribute(keys.get(row), new Double((String) value));
@@ -406,6 +417,8 @@ class ObjectInspector
 		 */
 		public boolean isCellEditable(int row, int col)
 	    { 
+			if(col == 0)
+				return false;
 	    	if (values.get(row) instanceof String)
 	    		if (values.get(row).equals(NA)) return false;
 	    	return fieldList.get(row).isEditable();

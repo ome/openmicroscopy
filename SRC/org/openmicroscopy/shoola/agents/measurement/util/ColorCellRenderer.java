@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -49,10 +51,10 @@ import javax.swing.table.TableCellRenderer;
  * @since OME3.0
  */
 public class ColorCellRenderer 
-	extends JLabel
+	extends JComponent
 	implements TableCellRenderer
 {
-
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -70,15 +72,25 @@ public class ColorCellRenderer
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
 		if ((value instanceof Integer) || (value instanceof Long) ||
-				(value instanceof Double) || (value instanceof String) 
-				|| (value instanceof Boolean))  
+				(value instanceof Double) || (value instanceof String))
 		{
-			setOpaque(true);
-    		setText(value+"");
+			JLabel label = new JLabel();
+			label.setOpaque(true);
+    		label.setText(value+"");
+    		return label;
     	} else if (value instanceof Color) {
-    		setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-    		setBackground((Color) value);
+    		JLabel label = new JLabel();
+    		label.setOpaque(true);
+    		label.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+    		label.setBackground((Color) value);
+    		return label;
     	}
+    	else if( value instanceof Boolean)
+    	{
+    		JCheckBox checkBox = new JCheckBox();
+    		checkBox.setSelected((Boolean)value);
+    		return checkBox;
+    	 }
     	return this;
 	}
 

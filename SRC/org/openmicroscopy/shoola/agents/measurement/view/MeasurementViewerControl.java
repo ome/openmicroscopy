@@ -265,7 +265,7 @@ class MeasurementViewerControl
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) {
 			((ROIFigure) f).calculateMeasurements();
-		}
+			}
 	}
 
 	/**

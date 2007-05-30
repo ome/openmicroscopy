@@ -359,7 +359,7 @@ class MeasurementViewerUI
     	if (roi == null) return;
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
-    	List roiList = new ArrayList();
+    	List<ROI> roiList = new ArrayList<ROI>();
     	roiList.add(roi);
     	AnnotationKeys.ROIID.set(shape, roi.getID());
     	roiManager.addFigures(roiList);
@@ -404,11 +404,14 @@ class MeasurementViewerUI
      */
     public void setOnScreen()
     {
-        if (model != null) {
+        if (model != null) 
+        {
         	setSize(DEFAULT_SIZE);
             UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
                     this);
-        } else {
+        } 
+        else 
+        {
             pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }

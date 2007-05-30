@@ -39,6 +39,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 
 //Third-party libraries
@@ -50,6 +51,7 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.ColorCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -80,7 +82,7 @@ class ObjectManager
 	private static final String			NAME = "Manager";
 	
 	/** The table hosting the ROI objects. */
-	private JTable						objectsTable;
+	private ObjectTable					objectsTable;
 
 	/** Reference to the View. */
 	private MeasurementViewerUI			view;
@@ -107,7 +109,7 @@ class ObjectManager
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		objectsTable = new JTable(new ROIFigureTableModel(columnNames));
+		objectsTable = new ObjectTable(new ROIFigureTableModel(columnNames));
 		objectsTable.setSelectionMode(
 						ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		objectsTable.setRowSelectionAllowed(true);
@@ -131,6 +133,26 @@ class ObjectManager
 			}
 		
 		};
+		
+
+		objectsTable.addMouseListener(new java.awt.event.MouseAdapter() 
+		{
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				
+				if (e.getClickCount() == 1) {
+					System.err.println("Clicked");
+					int col = objectsTable.getSelectedColumn();
+					int row = objectsTable.getSelectedRow();
+
+					Object value = objectsTable.getValueAt(row, col);
+					if (value instanceof Boolean)
+						toggleValue();
+					else
+						return;
+				}
+				
+			}
+		});
 		objectsTable.getSelectionModel().addListSelectionListener(listener);
 	}
 	
@@ -263,6 +285,43 @@ class ObjectManager
 		}
 	}
 	
+	/** Toggles the value of the boolean under the current selection. */
+	private void toggleValue()
+	{
+		int col = objectsTable.getSelectedColumn();
+		int row = objectsTable.getSelectedRow();
+		System.err.println("Toggling");
+		Boolean value = (Boolean)objectsTable.getModel().getValueAt(row, col);
+		boolean newValue = !(value.booleanValue());
+		objectsTable.getModel().setValueAt(new Boolean(newValue), row, col);
+	}
+	
+	/** Basic inner class use to set the cell renderer. */
+	class ObjectTable
+		extends JTable
+	{
+		
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param model The model used by this table.
+		 */
+		ObjectTable(ROIFigureTableModel model)
+		{
+			super(model);
+		}
+		
+		/**
+		 * Overridden to return a customized cell renderer.
+		 * @see JTable#getCellRenderer(int, int)
+		 */
+		public TableCellRenderer getCellRenderer(int row, int column) 
+		{
+	        return new ColorCellRenderer();
+	    }
+
+	}
+	
 	/** 
 	 * Inner class used to display stringified version of 
 	 * the {@link ROIFigure}. 
@@ -271,11 +330,8 @@ class ObjectManager
 		extends AbstractTableModel
 	{
 	
-		/** Text displayed when the {@link ROIFigure} no longer exists. */
-		private static final String DEPRECIATED = "Depreciated";
-		
 		/** Empty text. */
-		private static final String EMPTY = "";
+		private static final String 	EMPTY = "";
 		
 		/** The collection of column's names. */
 		private List<String>			columnNames;
@@ -301,16 +357,16 @@ class ObjectManager
 		 * @param col	The selected column.
 		 * @return See above.
 		 */
-		private String mapFigureToValue(int row, int col)
+		private Object mapFigureToValue(int row, int col)
 		{
 			ROIFigure fig = data.get(row);
 			switch (col) {
-				case 0: return ""+fig.getROI().getID();
-				case 1: return ""+fig.getROIShape().getCoord3D().getZSection();
-				case 2: return ""+fig.getROIShape().getCoord3D().getTimePoint();
+				case 0: return fig.getROI().getID();
+				case 1: return fig.getROIShape().getCoord3D().getZSection();
+				case 2: return fig.getROIShape().getCoord3D().getTimePoint();
 				case 3: return AnnotationKeys.FIGURETYPE.get(fig.getROIShape());
 	        	case 4: return TEXT.get(fig);
-	        	case 5: return fig.isVisible() ? "true" : "false";
+	        	case 5: return fig.isVisible();
 	        	default:
 					return null;
 			}
@@ -334,8 +390,9 @@ class ObjectManager
 		    	case 2:
 		    		AttributeKeys.TEXT.set(fig, (String) value);
 		    		break;
-		    	case 3:
+		    	case 5:
 		    		fig.setVisible((Boolean) value);
+		    		break;
 	    	}
 		}
 		
