@@ -72,10 +72,10 @@
 
     <target name="tools-build" depends="war" description="Tools build hook: runs war"/>
 
-    <target name="tools-dist" description="Tools dist hook: copies war to tools/target"/>>
-      <copy todir="${basedir}/target">
-	<fileset dir="${basedir}/WebAdmin" includes="*.war"/>
+    <target name="tools-dist" description="Tools dist hook: copies war to tools/target">
+      <copy todir="../target">
+        <fileset dir="${basedir}" includes="*.war"/>
       </copy>
     </target>
-  
+
   </project>
