@@ -8,7 +8,7 @@
 package ome.services.licenses.test;
 
 import junit.framework.TestCase;
-import ome.services.icy.client.IceServiceFactory;
+import ome.services.blitz.client.IceServiceFactory;
 import ome.services.licenses.LicensedServiceFactory;
 import ome.system.Login;
 import ome.system.OmeroContext;

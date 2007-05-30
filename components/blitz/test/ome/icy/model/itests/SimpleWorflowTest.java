@@ -6,7 +6,7 @@
  */
 package ome.icy.model.itests;
 
-import ome.services.icy.client.IceServiceFactory;
+import ome.services.blitz.client.IceServiceFactory;
 import omero.RString;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;

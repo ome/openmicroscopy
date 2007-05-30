@@ -7,10 +7,13 @@
 
 package ome.services.licenses.tasks;
 
+import java.lang.reflect.Constructor;
 import java.util.Properties;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.services.blitz.client.IceServiceFactory;
+import ome.services.blitz.tasks.BlitzTask;
 import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
@@ -36,6 +39,32 @@ public class Config extends Configuration {
     @Override
     public ServiceFactory createServiceFactory() {
         return new LicensedServiceFactory(getProperties(), null, null);
+    }
+
+    public IceServiceFactory createIceServiceFactory() {
+        return new IceServiceFactory(getProperties(), null, null);
+    }
+
+    @Override
+    public BlitzTask createTask() {
+        if (Boolean.valueOf(getProperties().getProperty("blitz","false"))) {
+            Class taskClass = getTaskClass();
+            Constructor ctor;
+            try {
+                ctor = taskClass.getConstructor(IceServiceFactory.class,
+                        Properties.class);
+                return (BlitzTask) ctor.newInstance(createIceServiceFactory(),
+                        getProperties());
+            } catch (Exception e) {
+                if (RuntimeException.class.isAssignableFrom(e.getClass())) {
+                    throw (RuntimeException) e;
+                }
+                throw new RuntimeException(e);
+            }
+        } else {
+            return (BlitzTask) super.createTask();
+        }
+        
     }
 
 }

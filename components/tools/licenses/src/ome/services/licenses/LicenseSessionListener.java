@@ -12,17 +12,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.security.SecuritySystem;
-import ome.services.icy.util.AbstractSessionMessage;
-import ome.services.icy.util.CreateSessionMessage;
-import ome.services.icy.util.DestroySessionMessage;
+import ome.services.blitz.util.AbstractSessionMessage;
+import ome.services.blitz.util.CreateSessionMessage;
+import ome.services.blitz.util.DestroySessionMessage;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
  * Listens for {@link AbstractSessionMessages} sent by
- * {@link ome.services.icy.fire.SesssionManagerI} and
- * {@link ome.services.icy.impl.ServiceFactoryI} and creates licenses
+ * {@link ome.services.blitz.fire.SesssionManagerI} and
+ * {@link ome.services.blitz.impl.ServiceFactoryI} and creates licenses
  * when necessary for the user. The listener decouples the session
  * creation from the licensing logic.
  *

@@ -53,17 +53,12 @@
         </concat>
     </target>
 
-    <target name="tools-build" depends="get-source" description="Uses autogen.sh and make to build artifacts">
-        <make/>
-    </target>
+    <target name="tools-build" depends="get-source,make_build" description="Uses autogen.sh and make to build artifacts"/>
 
-    <target name="tools-dist" description="Copies files into tools/target">
-        <make-copy/>
-    </target>
+    <target name="tools-dist" depends="make_copy" description="Copies files into tools/target"/>
 
-   <target name="clean">
+   <target name="clean" depends="make_clean">
         <delete dir="${copy.dir}"/>
-        <make-clean/>
     </target>
 
 </project>

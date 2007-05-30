@@ -21,7 +21,7 @@ javac.target=1.5
 javac.debug=on
 javac.debuglevel=lines,vars,source
 javac.maxmem=100m
-
+javadoc.maxmem=100m
 ############################################
 # libraries
 ############################################

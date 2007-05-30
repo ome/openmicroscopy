@@ -14,7 +14,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import ome.logic.HardWiredInterceptor;
-import ome.services.icy.impl.ServiceFactoryI;
+import ome.services.blitz.impl.ServiceFactoryI;
 import ome.system.OmeroContext;
 
 import org.aopalliance.intercept.MethodInvocation;

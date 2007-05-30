@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import ome.services.icy.client.IceServiceFactory;
+import ome.services.blitz.client.IceServiceFactory;
 import ome.system.Login;
 import ome.system.OmeroContext;
 import omero.api.IUpdatePrx;

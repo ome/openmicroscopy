@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ome.icy.model.itests.IceTest;
-import ome.services.icy.util.CommonsLoggingAdapter;
+import ome.services.blitz.util.CommonsLoggingAdapter;
 import omero.ResourceError;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;

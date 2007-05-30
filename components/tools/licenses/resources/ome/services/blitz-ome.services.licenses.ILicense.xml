@@ -25,7 +25,7 @@
 	<property name="licenseWiring" ref="licenseWiring"/>
   </bean>
 
-  <bean id="omero.licenses.ILicense" class="ome.services.icy.util.ServantDefinition">
+  <bean id="omero.licenses.ILicense" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.licenses._ILicenseOperations"/>
     <property name="serviceClass" value="ome.services.licenses.ILicense"/>
     <property name="tieClass" value="omero.licenses._ILicenseTie"/>

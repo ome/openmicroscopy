@@ -19,7 +19,7 @@
 
 <beans>
 
-  <bean id="Ice.Communicator" class="ome.services.icy.config.IceCommunicatorFactoryBean">
+  <bean id="Ice.Communicator" class="ome.services.blitz.config.IceCommunicatorFactoryBean">
     <property name="properties">
       <props>
         <prop key="OMEROObjectAdapter.Endpoints">tcp -p 9999</prop>
@@ -28,7 +28,7 @@
     </property>
     <property name="adapters" value="OMEROObjectAdapter"/>
     <property name="logger">
-      <bean class="ome.services.icy.util.CommonsLoggingAdapter">
+      <bean class="ome.services.blitz.util.CommonsLoggingAdapter">
         <constructor-arg>
           <bean class="org.springframework.beans.factory.config.CommonsLogFactoryBean">
             <property name="logName" value="IceRuntime"/>
@@ -38,7 +38,7 @@
     </property>
   </bean>
 
-  <bean id="OMEROObjectAdapter" class="ome.services.icy.config.IceObjectAdapterFactoryBean">
+  <bean id="OMEROObjectAdapter" class="ome.services.blitz.config.IceObjectAdapterFactoryBean">
     <property name="servants">
       <map>
         <entry key="Verifier" value-ref="Verifier"/>
@@ -47,15 +47,15 @@
     </property>
   </bean>
 
-  <bean id="Manager" class="ome.services.icy.fire.SessionManagerI">
+  <bean id="Manager" class="ome.services.blitz.fire.SessionManagerI">
     <constructor-arg ref="securitySystem"/>
   </bean>
 
-  <bean id="Verifier" class="ome.services.icy.fire.PermissionsVerifierI">
+  <bean id="Verifier" class="ome.services.blitz.fire.PermissionsVerifierI">
     <constructor-arg ref="internal:ome.api.IAdmin"/>
   </bean>
 
-  <bean id="Session" class="ome.services.icy.impl.ServiceFactoryI" singleton="false">
+  <bean id="Session" class="ome.services.blitz.impl.ServiceFactoryI" singleton="false">
     <description>Prototype for sessions. Used by Manager</description>
     <constructor-arg ref="ServantCache"/>
   </bean>
@@ -67,10 +67,10 @@
     <property name="timeToLive" value="3600"/>
     <property name="timeToIdle" value="900"/>
     <!-- property name="cacheEntryFactory">
-      <bean class="ome.services.icy.lookup.ContextCacheEntryFactory"/>
+      <bean class="ome.services.blitz.lookup.ContextCacheEntryFactory"/>
     </property-->
   </bean>
 
-  <bean id="CacheManager" class="ome.services.icy.util.ShutdownSafeEhcacheManagerFactoryBean"/>
+  <bean id="CacheManager" class="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean"/>
 
 </beans>

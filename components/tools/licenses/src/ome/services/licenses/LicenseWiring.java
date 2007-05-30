@@ -19,9 +19,9 @@ import org.aopalliance.intercept.MethodInvocation;
 
 // Application-internal dependencies
 import ome.logic.HardWiredInterceptor;
-import ome.services.icy.fire.SessionPrincipal;
-import ome.services.icy.util.CreateSessionMessage;
-import ome.services.icy.util.DestroySessionMessage;
+import ome.services.blitz.fire.SessionPrincipal;
+import ome.services.blitz.util.CreateSessionMessage;
+import ome.services.blitz.util.DestroySessionMessage;
 
 /**
  * Responsible for enforcing a generic licensing policy:

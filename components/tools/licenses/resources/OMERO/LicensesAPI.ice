@@ -12,8 +12,13 @@
 #include <Ice/BuiltinSequences.ice>
 #include <OMERO/ServerErrors.ice>
 
-module omero { 
-  module licenses {     
+module omero {
+  module constants {
+
+    const string LICENSESERVICE = "omero.licenses.ILicense";
+
+  };
+  module licenses {
 
     exception NoAvailableLicenseException extends omero::SessionCreationException {
 

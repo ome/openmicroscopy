@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.services.blitz.tasks.BlitzTask;
 import ome.services.licenses.LicensedServiceFactory;
 import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
@@ -27,6 +28,10 @@ import ome.util.tasks.Task;
  *   java Run task=admin.AddUserTask
  * </code>
  * resolves to ome.util.tasks.admin.AddUserTask.
+ * 
+ * Use <code>
+ *    blitz=true
+ * </code> to configure the task for blitz.
  * 
  * @author Josh Moore, josh.moore at gmx.de
  * @see Configuration
@@ -62,7 +67,7 @@ public class Run extends ome.util.tasks.Run {
      */
     @Override
     protected void setup() {
-        getServiceFactory().acquireLicense();
+        acquireLicense();
         super.setup();
     }
     
@@ -72,9 +77,23 @@ public class Run extends ome.util.tasks.Run {
     @Override
     protected void cleanup() {
         super.cleanup();
-        getServiceFactory().releaseLicense();
+        releaseLicense();
     }
 
+    protected void acquireLicense() {
+        BlitzTask bt = (BlitzTask)this.task;
+        if (!bt.isBlitz()) {
+            getServiceFactory().acquireLicense();
+        }
+    }
+    
+    protected void releaseLicense() {
+        BlitzTask bt = (BlitzTask)this.task;
+        if (!bt.isBlitz()) {
+            getServiceFactory().releaseLicense();
+        }
+    }
+    
     protected LicensedServiceFactory getServiceFactory() {
         return (LicensedServiceFactory) this.task.getServiceFactory();
     }

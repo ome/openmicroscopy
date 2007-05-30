@@ -7,7 +7,7 @@
 package ome.icy.model.itests.coverage;
 
 import ome.icy.model.itests.IceTest;
-import ome.services.icy.client.IceServiceFactory;
+import ome.services.blitz.client.IceServiceFactory;
 import omero.JString;
 import omero.ServerError;
 import omero.api.IAdminPrx;

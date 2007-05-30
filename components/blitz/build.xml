@@ -2,7 +2,7 @@
 <project name="blitz" default="install" basedir=".">
 
     <property name="classpath.file" value="classpath.xml"/>
-    <property name="main.class" value="ome.services.icy.Main"/>
+    <property name="main.class" value="ome.services.blitz.Main"/>
     <import file="${classpath.file}"/>
 
     <!-- Local properties -->
@@ -28,7 +28,7 @@
 	<target name="generate" depends="prepare,icegen,lifecycle.generate"/>
 
 	<target name="compile" depends="generate" unless="skip.compile">
-		<hard-wire file="ome/services/icy/fire/SessionManagerI.java"
+		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
 		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
 		<myjavac>
 		    <exclude name="**/SessionManagerI.java"/>
@@ -39,7 +39,7 @@
 		    <include name="**/SessionManagerI.java"/>
 		    <src path="${src.dest}"/>
 		</myjavac>
-	<delete file="${src.dest}/ome/services/icy/fire/SessionManagerI.java"/>
+	<delete file="${src.dest}/ome/services/blitz/fire/SessionManagerI.java"/>
 	</target>
 
 	<target name="install" depends="lifecycle.install,standalone"/>

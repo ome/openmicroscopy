@@ -85,8 +85,8 @@
 
 	<target name="generate-schema" depends="generate">
 		<mkdir dir="${sql.dir}" />
-		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.version}__0__schema.sql"/>
-		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.version}__0__data.sql"/>
+		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql"/>
+		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql"/>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =

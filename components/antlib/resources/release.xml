@@ -63,16 +63,20 @@
 	    <patternset id="all.java.files">
 	        <!-- Includes prefixed with "**" in order to pick up
 		tools/ components -->
-		<include name="**/src/**/*.java"/>
-		<include name="**/target/generated/src/**/*.java"/>
+		<include name="src/**/*.java"/>
+		<include name="target/generated/src/**/*.java"/>
 		<exclude name="xxx/**"/>
 	    </patternset>
 
-	    <javadoc
+	    <javadoc 
+		failonerror="true"
+		Verbose="true"
+		maxmemory="${javadoc.maxmem}"
 		destdir="dist/docs/api"
 		author="true"
 		version="true"
 		use="true"
+		breakiterator="true"
 		windowtitle="OMERO (OME Remote Objects) Server">
 
 		<classpath>
@@ -96,7 +100,15 @@
 		<fileset dir="components/client/" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/tools/" defaultexcludes="yes">
+		<!-- Skipping generated files for blitz. Just too many -->
+		<fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
+		<fileset dir="components/tools/WebAdmin" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
+		<fileset dir="components/tools/admin" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
+		<fileset dir="components/tools/licenses" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 
@@ -107,17 +119,21 @@
 
 		<tag name="DEV.TODO" scope="all" description="To do:"/>
 
-		<group title="Common Packages" 
-			packages="ome.util*:ome.api:ome.conditions*:ome.parameters*:ome.system*:ome.testing*"/>
-		<group title="Client Packages" 
-			packages="ome.client*:ome.adapaters*:pojos*"/>
-		<group title="Server Packages" 
-			packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
-		<group title="Model"
+		<group title="A. Core System" 
+			packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
+		<group title="B. Model"
 			packages="ome.model*"/>
-		<group title="Rendering"
+		<group title="C. Client Packages" 
+			packages="ome.client*:ome.adapters*:pojos*"/>
+		<group title="D. Server Packages" 
+			packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
+		<group title="E. Blitz Server" 
+			packages="ome.services.blitz*"/>
+		<group title="F. Rendering Engine"
 			packages="omeis*"/>
-		<group title="Deprecated"
+		<group title="G. Utilities"
+			packages="ome.util*:ome.testing*"/>
+		<group title="H. Deprecated"
 			packages="ome.dynamic*:ome.rules*"/>
 
  		<link href="http://java.sun.com/j2se/1.5/docs/api/"/>

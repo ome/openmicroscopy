@@ -55,6 +55,14 @@ public abstract class Task implements Runnable {
 
     private boolean completedSuccessfully = false;
 
+    /** 
+     * Protected constructor for subclasses who may not wish to use {@link #sf}.  
+     */
+    protected Task(Properties properties) {
+        sf = null;
+        props = properties == null ? System.getProperties() : properties;
+    }
+    
     /**
      * Sole constructor. Requires a non-null {@link ServiceFactory}. If a null
      * {@link Properties} instance is provided, the
