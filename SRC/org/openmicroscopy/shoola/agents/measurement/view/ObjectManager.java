@@ -140,7 +140,6 @@ class ObjectManager
 			public void mouseClicked(java.awt.event.MouseEvent e) {
 				
 				if (e.getClickCount() == 1) {
-					System.err.println("Clicked");
 					int col = objectsTable.getSelectedColumn();
 					int row = objectsTable.getSelectedRow();
 
@@ -290,7 +289,6 @@ class ObjectManager
 	{
 		int col = objectsTable.getSelectedColumn();
 		int row = objectsTable.getSelectedRow();
-		System.err.println("Toggling");
 		Boolean value = (Boolean)objectsTable.getModel().getValueAt(row, col);
 		boolean newValue = !(value.booleanValue());
 		objectsTable.getModel().setValueAt(new Boolean(newValue), row, col);
