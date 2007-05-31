@@ -28,6 +28,8 @@
   generates the classpath.xml files in each component
   directory for use by ant.
 
+  ----- 
+
 -->
 
   <modelVersion>4.0.0</modelVersion>
