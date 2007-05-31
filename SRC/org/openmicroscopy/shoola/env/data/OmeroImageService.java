@@ -112,6 +112,20 @@ public interface OmeroImageService
         throws RenderingServiceException;
     
     /**
+     * Returns a thumbnail of the currently selected 2D-plane for the
+     * passed pixels set.
+     * 
+     * @param pixelsID	The id of the pixels set.
+     * @param maxLength	The maximum length of the thumbnail width or heigth
+     * 					depending on the pixel size.
+     * @return See above.
+     * @throws RenderingServiceException    If the server cannot retrieve the 
+     *                                      thumbnail.
+     */
+    public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength)
+    	throws RenderingServiceException;
+    
+    /**
      * Reloads the rendering engine for the passed set of pixels.
      * 
      * @param pixelsID The id of the pixels set.

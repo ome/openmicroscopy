@@ -153,8 +153,9 @@ class HiViewerComponent
                 fireStateChange();
                 break;
             case DISCARDED:
-                throw new IllegalStateException(
-                        "This method can't be invoked in the DISCARDED state.");
+            	break;
+            //    throw new IllegalStateException(
+            //            "This method can't be invoked in the DISCARDED state.");
             default:
                 view.deIconify();
         }
@@ -717,7 +718,13 @@ class HiViewerComponent
      */
 	public void refresh()
 	{
-		//TODO check state.
+		switch (model.getState()) {
+			case DISCARDED:
+				throw new IllegalStateException("This method cannot be" +
+						"invoked in the DISCARDED state.");
+			case NEW:
+				return;
+		}
 		model.fireHierarchyLoading(true);
 		fireStateChange();
 	}

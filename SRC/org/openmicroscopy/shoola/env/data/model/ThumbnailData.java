@@ -56,8 +56,7 @@ public class ThumbnailData
     
     /** The thumbnail pixels. */
     private BufferedImage   thumbnail;
-    
-    
+
     /**
      * Creates a new instance.
      * 

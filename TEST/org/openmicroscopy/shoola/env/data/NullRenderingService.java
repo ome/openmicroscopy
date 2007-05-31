@@ -130,4 +130,14 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnailByLongestSide(long, int)
+     */
+	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
+		throws RenderingServiceException 
+	{
+		return null;
+	}
+
 }

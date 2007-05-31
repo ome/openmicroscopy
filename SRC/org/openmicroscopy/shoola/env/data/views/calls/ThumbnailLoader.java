@@ -42,7 +42,7 @@ import pojos.PixelsData;
 
 /** 
  * Command to load a given set of thumbnails.
- * <p>As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to the 
+ * <p>As thumbnails are retrieved from <i>OMERO</i>, they're posted back to the 
  * caller through <code>DSCallFeedbackEvent</code>s. Each thumbnail will be
  * posted in a single event; the caller can then invoke the <code>
  * getPartialResult</code> method to retrieve a <code>ThumbnailData</code>
@@ -68,22 +68,25 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private ImageData[]     images;
+    private ImageData[]     	images;
     
     /** The maximum acceptable width of the thumbnails. */
-    private int             maxWidth;
+    private int             	maxWidth;
     
     /** The maximum acceptable height of the thumbnails. */
-    private int             maxHeight;
+    private int             	maxHeight;
     
     /** The lastly retrieved thumbnail. */
-    private Object          currentThumbnail;
+    private Object          	currentThumbnail;
 
     /** Flag to indicate if the class was invoked for a pixels ID. */
-    private boolean         pixelsCall;
+    private boolean         	pixelsCall;
     
     /** The id of the pixels set this loader is for. */
-    private long            pixelsID;
+    private long            	pixelsID;
+    
+    /** Helper reference to the image service. */
+    private OmeroImageService	service;
     
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
@@ -95,23 +98,22 @@ public class ThumbnailLoader
         PixelsData pxd = images[index].getDefaultPixels();
         BufferedImage thumbPix = null;
         if (pxd == null) {
-        	System.err.println("img: "+images[index].getName());
         	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
-             int sizeX = maxWidth, sizeY = maxHeight;
-             double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-             if (ratio < 1) sizeX *= ratio;
-             else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-             OmeroImageService rds = context.getImageService();
-             
              try {
-                 thumbPix = rds.getThumbnail(pxd.getId(), sizeX, sizeY);  
+                 thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
+                		 										maxWidth);  
              } catch (RenderingServiceException e) {
                  context.getLogger().error(this, 
                          "Cannot retrieve thumbnail: "+e.getExtendedMessage());
              }
-             if (thumbPix == null) 
+             if (thumbPix == null) {
+            	 int sizeX = maxWidth, sizeY = maxHeight;
+                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+                 if (ratio < 1) sizeX *= ratio;
+                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
                  thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
+             }  
         }
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }
@@ -126,14 +128,15 @@ public class ThumbnailLoader
         return new BatchCall("Loading thumbnail for: "+pixelsID) {
             public void doCall() throws Exception
             {
-                OmeroImageService rds = context.getImageService();
                 BufferedImage thumbPix = null;
                 try {
-                    thumbPix = rds.getThumbnail(pixelsID, maxWidth, maxHeight);
+                    thumbPix = service.getThumbnail(pixelsID, maxWidth, 
+                    								maxHeight);
                     
                 } catch (RenderingServiceException e) {
                     context.getLogger().error(this, 
-                    "Cannot retrieve thumbnail from ID: "+e.getExtendedMessage());
+                    "Cannot retrieve thumbnail from ID: "+
+                    	e.getExtendedMessage());
                 }
                 if (thumbPix == null) 
                     thumbPix = Factory.createDefaultThumbnail(maxWidth, 
@@ -203,6 +206,7 @@ public class ThumbnailLoader
         images = (ImageData[]) imgs.toArray(new ImageData[] {});
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+        service = context.getImageService();
     }
 
     /**
@@ -227,6 +231,7 @@ public class ThumbnailLoader
         images[0] = image;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+        service = context.getImageService();
     }
     
     /**
@@ -253,6 +258,7 @@ public class ThumbnailLoader
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.pixelsID = pixelsID;
+        service = context.getImageService();
     }
     
 }

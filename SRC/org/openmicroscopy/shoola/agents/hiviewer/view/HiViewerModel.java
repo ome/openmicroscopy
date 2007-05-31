@@ -132,6 +132,12 @@ abstract class HiViewerModel
     /** Reference to the component that embeds this model. */
     protected HiViewer          component;
     
+    /** Cancels any on-going data retrieval. */
+    private void cancel()
+    {
+    	if (currentLoader != null) currentLoader.cancel();
+    }
+    
     /** Creates a new object and sets its state to {@link HiViewer#NEW}. */
     protected HiViewerModel()
     { 
@@ -219,6 +225,7 @@ abstract class HiViewerModel
      */
     void fireHierarchyLoading(boolean refresh)
     {
+    	cancel();
         state = HiViewer.LOADING_HIERARCHY;
         currentLoader = createHierarchyLoader(refresh);
         currentLoader.load();

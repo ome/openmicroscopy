@@ -965,7 +965,40 @@ class OMEROGateway
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
-
+    
+    /**
+     * Retrieves the thumbnail for the passed set of pixels.
+     * 
+     * @param pixelsID	The id of the pixels set the thumbnail is for.
+     * @param maxLength	The maximum length of the thumbnail width or heigth
+     * 					depending on the pixel size.
+     * @return See above.
+     * @throws RenderingServiceException If an error occured while trying to 
+     *              retrieve data from the service. 
+     * @throws DSOutOfServiceException If the connection is broken.
+     */
+    synchronized byte[] getThumbnailByLongestSide(long pixelsID, int maxLength)
+        throws RenderingServiceException, DSOutOfServiceException
+    {
+        try {
+        	ThumbnailStore service = getThumbService();
+        	needDefault(pixelsID, null);
+        	return service.getThumbnailByLongestSideDirect(maxLength);
+        } catch (Throwable t) {
+        	if (t instanceof EJBException || 
+        			t.getCause() instanceof IllegalStateException) {
+        		if (thumbnailService != null) thumbnailService.close();
+        		thumbnailService = null;
+        		throw new DSOutOfServiceException(
+        				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
+        				printErrorText((Exception) t));
+        	}
+        	//if (thumbnailService != null) thumbnailService.close();
+        	//thumbnailService = null;
+            throw new RenderingServiceException("Cannot get thumbnail", t);
+        }
+    }
+    
     /**
      * Creates a new rendering service for the specified pixels set.
      * 

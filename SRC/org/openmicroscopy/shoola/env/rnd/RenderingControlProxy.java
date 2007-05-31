@@ -403,6 +403,7 @@ class RenderingControlProxy
         
         BufferedImage img = getFromCache(pDef);
         if (img != null) return img;
+        int[] buf = servant.renderAsPackedInt(pDef);
         int sizeX1, sizeX2;
         switch (pDef.getSlice()) {
             case PlaneDef.XZ:
@@ -417,10 +418,9 @@ class RenderingControlProxy
             default:
                 sizeX1 = pixs.getSizeX().intValue();
                 sizeX2 = pixs.getSizeY().intValue();
+                if (xyImgSize == 0) xyImgSize = buf.length;
                 break;
         }
-
-        int[] buf = servant.renderAsPackedInt(pDef);
         img = createImage(sizeX1, sizeX2, buf);
         cache(pDef, img);
         return img;

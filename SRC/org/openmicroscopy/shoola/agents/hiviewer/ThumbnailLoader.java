@@ -80,7 +80,6 @@ public class ThumbnailLoader
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
     }
-    
     /**
      * Retrieves the thumbnails.
      * @see DataLoader#load()
@@ -111,6 +110,7 @@ public class ThumbnailLoader
             status = (percDone == 100) ? "Done" :  //Else
                                        ""; //Description wasn't available.   
         viewer.setStatus(status, percDone);
+       
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
         if (td != null)  //Last fe has null object.
             viewer.setThumbnail(td.getImageID(), td.getThumbnail());

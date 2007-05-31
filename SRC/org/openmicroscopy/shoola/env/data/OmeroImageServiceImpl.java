@@ -38,7 +38,6 @@ import ome.model.core.PixelsDimensions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -171,15 +170,11 @@ class OmeroImageServiceImpl
     public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY)
         throws RenderingServiceException
     {
-    	Logger logger = context.getLogger();
         try {
-            LogMessage msg = new LogMessage();
-            msg.println("Get thumbnail direct from ID, PixelsID: "+pixID);
-            logger.debug(this, msg);
             return createImage(gateway.getThumbnail(pixID, sizeX, sizeY));
         } catch (Exception e) {
         	if (e instanceof DSOutOfServiceException) {
-        		logger.error(this, e.getMessage());
+        		context.getLogger().error(this, e.getMessage());
         		return getThumbnail(pixID, sizeX, sizeY);
         	}
             throw new RenderingServiceException("Get Thumbnail", e);
@@ -225,6 +220,25 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getPixels(pixelsID);
+	}
+
+	/** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#getThumbnailByLongestSide(long, int)
+     */
+	public BufferedImage getThumbnailByLongestSide(long pixelsID, int maxLength) 
+		throws RenderingServiceException 
+	{
+        try {
+            return createImage(gateway.getThumbnailByLongestSide(pixelsID, 
+            					maxLength));
+        } catch (Exception e) {
+        	if (e instanceof DSOutOfServiceException) {
+        		context.getLogger().error(this, e.getMessage());
+        		return getThumbnailByLongestSide(pixelsID, maxLength);
+        	}
+            throw new RenderingServiceException("Get Thumbnail", e);
+        }
 	}
 
 }

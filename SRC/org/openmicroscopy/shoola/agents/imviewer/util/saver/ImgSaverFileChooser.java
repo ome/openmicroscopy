@@ -137,9 +137,9 @@ class ImgSaverFileChooser
     	
     	nameArea = (JTextField) UIUtilities.findComponent(this, 
     											JTextField.class);
+    	nameArea = null;
     	if (nameArea != null) 
     		nameArea.getDocument().addDocumentListener(this);
-    	
     }
     
     /** Previews the image to save. */
