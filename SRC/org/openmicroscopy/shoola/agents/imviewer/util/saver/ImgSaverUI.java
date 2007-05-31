@@ -29,10 +29,17 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -63,44 +70,60 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ImgSaverUI
 {
     
+	 /** The tool tip of the <code>Approve</code> button. */
+    static final String 			SAVE_AS = "Save the current image in" +
+    												"the specified format.";
+    
     /** Save the main image. */
-    static final int                   IMAGE = 0;
+    static final int				IMAGE = 0;
     
     /** Save the grid image. */
-    static final int                    GRID_IMAGE = 1;
+    static final int				GRID_IMAGE = 1;
     
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image. 
      */
-    static final int                    IMAGE_AND_COMPONENTS = 2;
+    static final int				IMAGE_AND_COMPONENTS = 2;
     
     /** 
      * Save the images and an image of each channel composing the rendered 
      * image.  Each channel rendered in grey scale mode.
      */
-    static final int                    IMAGE_AND_COMPONENTS_GREY = 3;
+    static final int				IMAGE_AND_COMPONENTS_GREY = 3;
     
     /** Save the lens image. */
-    static final int					LENS_IMAGE = 4;
+    static final int				LENS_IMAGE = 4;
     
     /** Save the lens image and the split channels. */
-    static final int					LENS_IMAGE_AND_COMPONENTS = 5;
+    static final int				LENS_IMAGE_AND_COMPONENTS = 5;
     
     
     /** Save the lens image. */
-    static final int					LENS_IMAGE_AND_COMPONENTS_GREY = 6;
+    static final int				LENS_IMAGE_AND_COMPONENTS_GREY = 6;
     
     /** The maximum number of save options. */
-    private static final int			MAX = 6;
+    private static final int		MAX = 6;
     
     /** The maximum number of save options if no lens. */
-    private static final int			MAX_PARTIAL = 3;
+    private static final int		MAX_PARTIAL = 3;
     
     /** Brief description of the action performed by this widget. */
-    private static final String         NOTE = "Save the currrent image in " +
-            "one of the following formats: TIFF, JPEG, PNG or BMP.";
-
+    private static final String     NOTE = "Save the currrent image in " +
+    										"one of the following formats:" +
+    										" TIFF, JPEG, PNG or BMP.";
+    
+    
+    
+    /** The tool tip of the <code>Preview</code> button. */
+    private static final String		PREVIEW = "Preview the image to save.";
+    
+    /** 
+     * The size of the invisible components used to separate buttons
+     * horizontally.
+     */
+    private static final Dimension	H_SPACER_SIZE = new Dimension(3, 10);
+    
     /** Description of the type of images we can save. */
     private static final String[]       selections;
     
@@ -118,6 +141,21 @@ class ImgSaverUI
     
     /** Box to save the current directory as default. */
     private JCheckBox					settings;
+    
+    /** 
+     * Replaces the <code>CancelButton</code> provided by the 
+     * {@link JFileChooser} class. 
+     */
+    private JButton						cancelButton;
+    
+    /** 
+     * Replaces the <code>ApproveButton</code> provided by the 
+     * {@link JFileChooser} class. 
+     */
+    private JButton						saveButton;
+    
+    /** Button to launch the preview window. */
+    private JButton						previewButton;
     
     /** Initializes the static fields. */
     static {
@@ -153,10 +191,51 @@ class ImgSaverUI
 				break;
 		}
     	
-        chooser = new ImgSaverFileChooser(model);
+        chooser = new ImgSaverFileChooser(model, this);
         settings = new JCheckBox();
         settings.setText("Set the current directory as default.");
         settings.setSelected(true);
+        cancelButton = new JButton("Cancel");
+    	cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { 
+				chooser.cancelSelection(); }
+		});
+    	saveButton = new JButton("Save as");
+    	saveButton.setToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
+    	
+    	saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { 
+				chooser.approveSelection(); 
+			}
+		});
+    	saveButton.setEnabled(false);
+    	previewButton = new JButton("Preview");
+    	previewButton.setToolTipText(UIUtilities.formatToolTipText(PREVIEW));
+    	previewButton.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent e) { 
+    			chooser.previewSelection(); }
+		});
+    	previewButton.setEnabled(false);
+    	model.getRootPane().setDefaultButton(saveButton);
+    }
+    
+    /**
+     * Builds the tool bar.
+     * 
+     * @return See above
+     */
+    private JPanel buildToolbar()
+    {
+    	JPanel bar = new JPanel();
+    	bar.setBorder(null);
+    	bar.add(cancelButton);
+    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	bar.add(previewButton);
+    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
+    	bar.add(saveButton);
+    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
+        p.setOpaque(true);
+        return p;
     }
     
     /**
@@ -181,10 +260,14 @@ class ImgSaverUI
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
+    	JPanel controls = new JPanel();
+    	controls.setLayout(new BorderLayout(0, 0));
+    	controls.add(buildToolbar(), BorderLayout.CENTER);
+    	controls.add(buildSelectionPane(), BorderLayout.SOUTH);
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout(0, 0));
         p.add(chooser, BorderLayout.CENTER);
-        p.add(buildSelectionPane(), BorderLayout.SOUTH);
+        p.add(controls, BorderLayout.SOUTH);
         IconManager im = IconManager.getInstance();
         Container c = model.getContentPane();
         c.setLayout(new BorderLayout(0, 0));
@@ -240,4 +323,17 @@ class ImgSaverUI
      */
     boolean isSetDefaultFolder() { return settings.isSelected(); }
     
+
+    /**
+     * Sets the <code>enabled</code> flag of not the <code>Save</code> and
+     * <code>Preview</code> options.
+     * 
+     * @param b The value to set.
+     */
+	void setControlsEnabled(boolean b)
+	{
+		saveButton.setEnabled(b);
+    	previewButton.setEnabled(b);
+	}
+
 }

@@ -25,14 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer.util.saver;
 
 
 //Java imports
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -74,39 +68,11 @@ class ImgSaverFileChooser
     /** Message used to indicate the directory in which the image is saved. */
     private static final String MSG_DIR = "The image has been saved in \n";
     
-    /** The tool tip of the <code>Approve</code> button. */
-    private static final String SAVE_AS = "Save the current image in the " +
-                                            "specified format.";
-    
-    /** The tool tip of the <code>Preview</code> button. */
-    private static final String PREVIEW = "Preview the image to save.";
-    
-    /** 
-     * The size of the invisible components used to separate buttons
-     * horizontally.
-     */
-    private static final Dimension  H_SPACER_SIZE = new Dimension(3, 10);
-    
     /** Reference to the model. */
     private ImgSaver    model;
     
-    /** Flag to indicate if the selected file is visible. */
-    //private boolean     display;
-    
-    /** 
-     * Replaces the <code>CancelButton</code> provided by the 
-     * {@link JFileChooser} class. 
-     */
-    private JButton		cancelButton;
-    
-    /** 
-     * Replaces the <code>ApproveButton</code> provided by the 
-     * {@link JFileChooser} class. 
-     */
-    private JButton		saveButton;
-    
-    /** Button to launch the preview window. */
-    private JButton		previewButton;
+    /** Reference to the View. */
+    private ImgSaverUI	view;
     
     /** The text area where to enter the name of the file to save. */
     private JTextField	nameArea;
@@ -114,62 +80,12 @@ class ImgSaverFileChooser
     /** Initiliazes the components composing the display. */
     private void initComponents()
     {
-    	cancelButton = new JButton("Cancel");
-    	cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { cancelSelection(); }
-		});
-    	saveButton = new JButton("Save as");
-    	saveButton.setToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
-    	
-    	saveButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { 
-				approveSelection(); 
-			}
-		});
-    	saveButton.setEnabled(false);
-    	previewButton = new JButton("Preview");
-    	previewButton.setToolTipText(UIUtilities.formatToolTipText(PREVIEW));
-    	previewButton.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent e) { previewSelection(); }
-		});
-    	previewButton.setEnabled(false);
-    	model.getRootPane().setDefaultButton(saveButton);
-    	
     	nameArea = (JTextField) UIUtilities.findComponent(this, 
     											JTextField.class);
-    	nameArea = null;
     	if (nameArea != null) 
     		nameArea.getDocument().addDocumentListener(this);
     }
-    
-    /** Previews the image to save. */
-    private void previewSelection()
-    {
-    	Boolean b = setSelection();
-    	if (b == null) return;
-    	if (b.booleanValue()) model.setSelection(ImgSaver.PREVIEW);
-    	else model.previewImage();
-    }
-    
-    /**
-     * Builds the tool bar.
-     * 
-     * @return See above
-     */
-    private JPanel buildToolbar()
-    {
-    	JPanel bar = new JPanel();
-    	bar.setBorder(null);
-    	bar.add(cancelButton);
-    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
-    	bar.add(previewButton);
-    	bar.add(Box.createRigidArea(H_SPACER_SIZE));
-    	bar.add(saveButton);
-    	JPanel p = UIUtilities.buildComponentPanelRight(bar);
-        p.setOpaque(true);
-        return p;
-    }
-    
+
     /** Builds and lays out the GUI. */
     private void buildGUI()
     {
@@ -185,11 +101,11 @@ class ImgSaverFileChooser
         
         File f = UIUtilities.getDefaultFolder();
         if (f != null) setCurrentDirectory(f);
-        if (nameArea != null) {
-        	setApproveButtonToolTipText(UIUtilities.formatToolTipText(SAVE_AS));
+        if (nameArea != null) setControlButtonsAreShown(false);
+        else {
+        	setApproveButtonToolTipText(
+        				UIUtilities.formatToolTipText(ImgSaverUI.SAVE_AS));
             setApproveButtonText("Save as");
-            setControlButtonsAreShown(false);
-        	add(buildToolbar());
         }
     }
     
@@ -210,8 +126,8 @@ class ImgSaverFileChooser
     }
 
     /**
-     * Sets the <code>enabled</code> flag of {@link #saveButton} and 
-     * {@link #previewButton} depending on the lenght of the text entered
+     * Sets the <code>enabled</code> flag of not the <code>Save</code> and
+     * <code>Preview</code> options depending on the lenght of the text entered
      * in the {@link #nameArea}.
      */
     private void handleTextUpdate()
@@ -219,8 +135,7 @@ class ImgSaverFileChooser
     	if (nameArea == null) return; //should happen
     	String text = nameArea.getText();
     	boolean b = (text == null || text.trim().length() == 0);
-    	saveButton.setEnabled(!b);
-    	previewButton.setEnabled(!b);
+    	view.setControlsEnabled(!b);
     }
    
     /**
@@ -263,24 +178,36 @@ class ImgSaverFileChooser
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
+     * @param view 	Reference to the view. Mustn't be <code>null</code>.
      */
-    ImgSaverFileChooser(ImgSaver model)
+    ImgSaverFileChooser(ImgSaver model, ImgSaverUI view)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
+        if (view == null) throw new IllegalArgumentException("No view.");
         this.model = model;
+        this.view = view;
         initComponents();
         buildGUI();
     }
  
+    /** Previews the image to save. */
+    void previewSelection()
+    {
+    	Boolean b = setSelection();
+    	if (b == null) return;
+    	if (b.booleanValue()) model.setSelection(ImgSaver.PREVIEW);
+    	else model.previewImage();
+    }
+    
     /**
-	 * Enables or not the {@link #saveButton} and {@link #previewButton}
+	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
 	public void insertUpdate(DocumentEvent e) { handleTextUpdate(); }
 
 	/**
-	 * Enables or not the {@link #saveButton} and {@link #previewButton}
+	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
 	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
@@ -324,9 +251,9 @@ class ImgSaverFileChooser
     }
 
     /**
-     * Overridden to create the selected file when the {@link #saveButton}
-     * and the {@link #previewButton} are visible, otherwise the selected
-     * file is <code>null</code>.
+     * Overridden to create the selected file when 
+     * <code>Save</code> and <code>Preview</code> options are visible,
+     * otherwise the selected file is <code>null</code>.
      * @see JFileChooser#getSelectedFile()
      */
     public File getSelectedFile()
@@ -334,6 +261,5 @@ class ImgSaverFileChooser
     	if (nameArea == null) return super.getSelectedFile();
     	return new File(getCurrentDirectory().toString(), nameArea.getText());
     }
-
 	
 }
