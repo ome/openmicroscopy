@@ -167,8 +167,9 @@ class MeasurementViewerComponent
                         "This method can't be invoked in the DISCARDED state.");
             default:
             	//Review that code
+            	postEvent(MeasurementToolLoaded.ADD);
                 view.deIconify();
-                UIUtilities.centerOnScreen(view);
+                view.setVisible(true);
         }
 	}
 
@@ -366,7 +367,7 @@ class MeasurementViewerComponent
 	
 	/** 
 	* Implemented as specified by the {@link MeasurementViewer} interface.
-	* @see MeasurementViewer#figureAttributeChanged()
+	* @see MeasurementViewer#figureAttributeChanged(AttributeKey, ROIFigure)
 	*/
 	public void figureAttributeChanged(AttributeKey key, ROIFigure figure)
 	{
