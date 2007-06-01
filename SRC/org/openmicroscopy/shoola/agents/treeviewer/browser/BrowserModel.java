@@ -325,8 +325,7 @@ class BrowserModel
             klass =  CategoryData.class;
         }
         state = Browser.LOADING_DATA;
-        currentLoader = new ImagesInContainerLoader(component, klass, ids, 
-                                                    null);
+        currentLoader = new ImagesInContainerLoader(component, klass, ids);
         currentLoader.load();
     }
     
@@ -337,6 +336,19 @@ class BrowserModel
      */
     void fireLeavesLoading()
     {
+    	TreeImageDisplay n = getLastSelectedDisplay();
+        if (n instanceof TreeImageNode) return;
+        
+        Object ho = n.getUserObject();
+        int type = -1;
+        if (ho instanceof DatasetData) type = HierarchyLoader.DATASET;
+        else if (ho instanceof CategoryData) type = HierarchyLoader.CATEGORY;
+        if (type == -1) return;
+        state = Browser.LOADING_LEAVES;
+        currentLoader = new HierarchyLoader(component, type, (TreeImageSet) n);
+        currentLoader.load();
+        
+    	/*
         TreeImageDisplay node = getLastSelectedDisplay();
         if (node instanceof TreeImageNode) return;
         Object ho = node.getUserObject();
@@ -354,6 +366,7 @@ class BrowserModel
         currentLoader = new ImagesInContainerLoader(component, nodeType, id,
                                                     (TreeImageSet) node);
         currentLoader.load();
+        */
     }
 
     /**

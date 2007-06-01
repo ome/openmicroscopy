@@ -25,21 +25,22 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.CategoryData;
+import pojos.DataObject;
 import pojos.DatasetData;
 
 /** 
  * Loads the images contained in the specified container i.e. 
  * Images in a given Dataset or Category.
- * This class calls the <code>getImages</code> method in the
+ * This class calls the <code>loadContainerHierarchy</code> method in the
  * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,9 +67,6 @@ public class ImagesInContainerLoader
     /** The type of the node. */
     private Class           nodeType;
     
-    /** The parent of the nodes. */
-    private TreeImageSet    parent;
-    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle      handle;
     
@@ -93,11 +91,8 @@ public class ImagesInContainerLoader
      *                      Mustn't be <code>null</code>.
      * @param nodeType      The type of the node.
      * @param nodeID        The ID of the node.
-     * @param parent        The parent of the nodes. If <code>null</code>, the 
-     *                      nodes are added to the root.
      */
-    public ImagesInContainerLoader(Browser viewer, Class nodeType, long nodeID, 
-                                    TreeImageSet parent)
+    public ImagesInContainerLoader(Browser viewer, Class nodeType, long nodeID)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -105,7 +100,6 @@ public class ImagesInContainerLoader
         if (nodeID < 0)
             throw new IllegalArgumentException("RootId not valid");
         this.nodeType = nodeType;
-        this.parent = parent;
         nodeIDs = new HashSet<Long>(1);
         nodeIDs.add(new Long(nodeID));
     }
@@ -117,11 +111,9 @@ public class ImagesInContainerLoader
      *                      Mustn't be <code>null</code>.
      * @param nodeType      The type of the node.
      * @param nodeIDs       Collection of the ID of the selected nodes.
-     * @param parent        The parent of the nodes. If <code>null</code>, the 
-     *                      nodes are added to the root.
      */
     public ImagesInContainerLoader(Browser viewer, Class nodeType, 
-    							Set<Long> nodeIDs, TreeImageSet parent)
+    							Set<Long> nodeIDs)
     {
         super(viewer);
         if (!validate(nodeType))
@@ -130,7 +122,6 @@ public class ImagesInContainerLoader
             throw new IllegalArgumentException("RootIds not valid");
         this.nodeType = nodeType;
         this.nodeIDs = nodeIDs;
-        this.parent = parent;
     }
     
     /**
@@ -139,8 +130,8 @@ public class ImagesInContainerLoader
      */
     public void load()
     { 
-        handle = dmView.getImages(nodeType, nodeIDs, convertRootLevel(),
-                				  viewer.getRootID(), this); 
+    	handle = dmView.loadContainerHierarchy(nodeType, nodeIDs, true,
+    			convertRootLevel(), viewer.getRootID(), this);
     }
 
     /** 
@@ -156,8 +147,19 @@ public class ImagesInContainerLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-        if (parent == null) viewer.setNodes((Set) result);
-        else viewer.setLeaves((Set) result, parent);
+        //viewer.setNodes((Set) result);
+        Set nodes = (Set) result;
+		Iterator i = nodes.iterator();
+		DataObject object;
+		Set images = new HashSet();
+		while (i.hasNext()) {
+			object = (DataObject) i.next();
+			if (object instanceof DatasetData) 
+				images.addAll(((DatasetData) object).getImages());
+			else if (object instanceof CategoryData) 
+				images.addAll(((CategoryData) object).getImages());
+		}
+		 viewer.setNodes(images);
     }
  
 }

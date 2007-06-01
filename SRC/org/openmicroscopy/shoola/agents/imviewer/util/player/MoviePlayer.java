@@ -70,6 +70,9 @@ class MoviePlayer
     /** Indicates to play the movie round trip. */
     protected static final int      PINGPONG = 203;
     
+    /** Indicates to play the movie in loop starting from the end point. */
+    protected static final int      LOOP_BACKWARD = 204;
+    
     /** Indicates to play movie across z-sections only. */
     static final int                ACROSS_Z = 300;
     
@@ -156,6 +159,10 @@ class MoviePlayer
                 if (frameNumberZ == endZ) frameNumberZ = startZ;
                 else frameNumberZ++;
                 break;
+            case LOOP_BACKWARD:
+            	if (frameNumberZ == startZ) frameNumberZ = endZ;
+                else frameNumberZ--;
+            	break;
             case BACKWARD:
                 if (frameNumberZ == startZ) {
                     frameNumberZ = endZ;
@@ -188,6 +195,10 @@ class MoviePlayer
             case LOOP:
                 if (frameNumberT == endT) frameNumberT = startT;
                 else frameNumberT++;
+                break;
+            case LOOP_BACKWARD:
+                if (frameNumberT == startT) frameNumberT = endT;
+                else frameNumberT--;
                 break;
             case BACKWARD:
                 if (frameNumberT == startT) {
@@ -225,6 +236,14 @@ class MoviePlayer
                         frameNumberT = startT; 
                     } else frameNumberT++;
                 } else frameNumberZ++;
+                break;
+            case LOOP_BACKWARD: 
+                if (frameNumberZ == startZ) {
+                    frameNumberZ = endZ;
+                    if (frameNumberT == startT) {
+                        frameNumberT = endT; 
+                    } else frameNumberT--;
+                } else frameNumberZ--;
                 break;
             case BACKWARD: 
                 if (frameNumberZ == startZ) {

@@ -369,7 +369,7 @@ public interface Browser
      * Adds the specified nodes to the currently selected
      * {@link TreeImageDisplay}.
      * 
-     * @param nodes Collection to set.
+     * @param nodes 	Collection to set.
      * @param parent 	The parent hosting the nodes if <code>null</code> the 
      * 					nodes will be added to the root node.
      */

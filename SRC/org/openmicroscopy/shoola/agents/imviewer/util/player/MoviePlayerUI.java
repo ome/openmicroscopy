@@ -74,14 +74,17 @@ class MoviePlayerUI
     /** UI identifier corresponding to {@link MoviePlayer#LOOP}. */
     private static final int        LOOP_CMD = 0;
     
+    /** UI identifier corresponding to {@link MoviePlayer#LOOP_BACKWARD}. */
+    private static final int        LOOP_BACKWARD_CMD = 1;
+    
     /** UI identifier corresponding to {@link MoviePlayer#BACKWARD}. */
-    private static final int        BACKWARD_CMD = 1;
+    private static final int        BACKWARD_CMD = 2;
     
     /** UI identifier corresponding to {@link MoviePlayer#FORWARD}. */
-    private static final int        FORWARD_CMD = 2;
+    private static final int        FORWARD_CMD = 3;
     
     /** UI identifier corresponding to {@link MoviePlayer#PINGPONG}. */
-    private static final int        PINGPONG_CMD = 3;
+    private static final int        PINGPONG_CMD = 4;
     
     /** Movie type selections. */
     private static final String[]   selections;
@@ -142,8 +145,9 @@ class MoviePlayerUI
     
     /** Initializes the static components. */
     static {
-        selections = new String[4];
+        selections = new String[5];
         selections[LOOP_CMD] = "Loop";
+        selections[LOOP_BACKWARD_CMD] = "Loop Backward";
         selections[BACKWARD_CMD] = "Backward";
         selections[FORWARD_CMD] = "Forward";
         selections[PINGPONG_CMD] = "Back and Forth";  
@@ -162,6 +166,7 @@ class MoviePlayerUI
             case MoviePlayer.BACKWARD: return BACKWARD_CMD;
             case MoviePlayer.FORWARD: return FORWARD_CMD;
             case MoviePlayer.PINGPONG: return PINGPONG_CMD;
+            case MoviePlayer.LOOP_BACKWARD: return LOOP_BACKWARD_CMD;
         }
         throw new IllegalArgumentException("Movie type not supported.");
     }
@@ -443,6 +448,7 @@ class MoviePlayerUI
             case BACKWARD_CMD: return MoviePlayer.BACKWARD;
             case FORWARD_CMD: return MoviePlayer.FORWARD;
             case PINGPONG_CMD: return MoviePlayer.PINGPONG;
+            case LOOP_BACKWARD_CMD: return MoviePlayer.LOOP_BACKWARD;
         }
         throw new IllegalArgumentException("UI index not supported.");
     }

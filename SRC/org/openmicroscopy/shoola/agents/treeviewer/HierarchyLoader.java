@@ -24,16 +24,19 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -81,20 +84,23 @@ public class HierarchyLoader
      * Value set to <code>true</code> to retrieve the images,
      * <code>false</code> otherwise.
      */
-    private boolean     images;
+    private boolean     		images;
     
     /**
      * Flag to indicate that the output is for the filter component.
      * Value set to <code>true</code> to indicate that the output is displayed 
      * in a filtering widget, <code>false</code> otherwise.
      */
-    private boolean     filter;
+    private boolean     		filter;
     
     /** The type of container. */
-    private int         containerType;
+    private int         		containerType;
     
     /** The type of the root node. */
-    private Class       rootNodeType;
+    private Class       		rootNodeType;
+    
+    /** The parent the nodes to retrieve are for. */
+    private TreeImageSet		parent;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -142,6 +148,21 @@ public class HierarchyLoader
      * @param viewer        The viewer this data loader is for.
      *                      Mustn't be <code>null</code>.
      * @param containerType One of the type defined by this class.
+     * @param parent		The parent the nodes are for.
+     */
+    public HierarchyLoader(Browser viewer, int containerType,
+    					TreeImageSet parent)
+    {
+        this(viewer, containerType, true, false);
+        this.parent = parent;
+    } 
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param viewer        The viewer this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param containerType One of the type defined by this class.
      */
     public HierarchyLoader(Browser viewer, int containerType)
     {
@@ -178,8 +199,15 @@ public class HierarchyLoader
      */
     public void load()
     {
-        handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
-                			convertRootLevel(), viewer.getRootID(), this);
+    	if (parent == null) {
+    		handle = dmView.loadContainerHierarchy(rootNodeType, null, images,
+        			convertRootLevel(), viewer.getRootID(), this);
+    	} else {
+    		Set<Long> ids = new HashSet<Long>(1);
+    		ids.add(new Long(parent.getUserObjectId()));
+    		handle = dmView.loadContainerHierarchy(rootNodeType, ids, images,
+        			convertRootLevel(), viewer.getRootID(), this);
+    	}
     }
 
     /**
@@ -196,7 +224,30 @@ public class HierarchyLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (filter) viewer.setFilterNodes((Set) result, convertType());
-        else viewer.setContainerNodes((Set) result, null);
+        else {
+        	if (parent == null) viewer.setContainerNodes((Set) result, parent);
+        	else {
+        		Set nodes = (Set) result;
+        		Iterator i = nodes.iterator();
+        		DataObject object;
+        		Class klass = parent.getUserObject().getClass();
+        		long id = parent.getUserObjectId();
+        		while (i.hasNext()) {
+        			object = (DataObject) i.next();
+					if (object.getClass().equals(klass)
+							&& object.getId() == id) {
+						if (object instanceof DatasetData) {
+							viewer.setLeaves(((DatasetData) object).getImages(), 
+									parent);
+						} else if (object instanceof CategoryData) {
+							viewer.setLeaves(((CategoryData) object).getImages(), 
+									parent);
+						}
+					}
+				}
+        	}
+        }
+        	
     }
     
 }
