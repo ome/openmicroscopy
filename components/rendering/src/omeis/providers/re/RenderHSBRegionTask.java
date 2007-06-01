@@ -9,6 +9,9 @@ package omeis.providers.re;
 
 // Java imports
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
@@ -28,6 +31,9 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @since OMERO3.0
  */
 class RenderHSBRegionTask implements RenderingTask {
+	
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(RenderHSBRegionTask.class);
 
     /** Buffer to hold the output image's data. */
     private RGBBuffer dataBuffer;
@@ -58,6 +64,9 @@ class RenderHSBRegionTask implements RenderingTask {
 
     /** The <i>X2</i>-axis end */
     private int x2End;
+    
+    /** The optimizations that the renderer has turned on for us. */
+    private Optimizations optimizations;
 
     /**
      * Creates a new instance to render a wavelength.
@@ -84,12 +93,14 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     RenderHSBRegionTask(RGBBuffer dataBuffer, List<Plane2D> wData,
             List<QuantumStrategy> strategies, CodomainChain cc,
-            List<Color> colors, int x1Start, int x1End, int x2Start, int x2End) {
+            List<Color> colors, Optimizations optimizations,
+            int x1Start, int x1End, int x2Start, int x2End) {
         this.dataBuffer = dataBuffer;
         this.wData = wData;
         this.strategies = strategies;
         this.cc = cc;
         this.colors = colors;
+        this.optimizations = optimizations;
         this.x1Start = x1Start;
         this.x1End = x1End;
         this.x2Start = x2Start;
@@ -180,42 +191,58 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     private void renderPackedInt() throws QuantizationException {
         int discreteValue, pix;
-        float v;
-        int rColor, gColor, bColor;
+        int redRatio, greenRatio, blueRatio;
         int rValue, gValue, bValue;
         int newRValue, newGValue, newBValue;
+        int colorOffset = 24;  // Only used when we're doing primary color.
 
         int width = x1End - x1Start;
         int i = 0;
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
+        boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
+        boolean isAlphaless = optimizations.isAlphalessRendering();
         for (Plane2D plane : wData) {
             Color color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
-            rColor = color.getRed();
-            gColor = color.getGreen();
-            bColor = color.getBlue();
+            redRatio = color.getRed() > 0? color.getRed() / 255 : 0;
+            greenRatio = color.getGreen() > 0? color.getGreen() / 255 : 0;
+            blueRatio = color.getBlue() > 0? color.getBlue() / 255 : 0;
 
-            float alpha = color.getAlpha().floatValue() / 65025;// 255*255
+            // Get our color offset if we've got the primary color optimization
+            // enabled.
+            if (isPrimaryColor)
+            	colorOffset = getColorOffset(color);
+            
+            float alpha = color.getAlpha().floatValue() / 255;
             for (int x2 = x2Start; x2 < x2End; ++x2) {
                 for (int x1 = x1Start; x1 < x1End; ++x1) {
                     pix = width * x2 + x1;
                     discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
                     discreteValue = cc.transform(discreteValue);
 
-                    /*
-                     * // This is an optimization that can only be used when the //
-                     * channel colours are primary (red, green or blue).
-                     * buf[pix] |= 0xFF000000; if (rColor == 255) buf[pix] |=
-                     * discreteValue << 16; if (gColor == 255) buf[pix] |=
-                     * discreteValue << 8; if (bColor == 255) buf[pix] |=
-                     * discreteValue;
-                     */
+                    // Primary colour optimization is in effect, we don't need
+                    // to do any of the sillyness below just shift the value
+                    // into the correct colour component slot and move on to
+                    // the next pixel value.
+                    if (colorOffset != 24)
+                    {
+                    	buf[pix] |= 0xFF000000;  // Alpha.
+                    	buf[pix] |= discreteValue << colorOffset;
+                    	continue;
+                    }
 
-                    // Pre-multiply the alpha for each colour component.
-                    v = discreteValue * alpha;
-                    newRValue = (int) (rColor > 0 ? rColor * v : 0);
-                    newGValue = (int) (gColor > 0 ? gColor * v : 0);
-                    newBValue = (int) (bColor > 0 ? bColor * v : 0);
+                    newRValue = (int) (redRatio * discreteValue);
+                    newGValue = (int) (greenRatio * discreteValue);
+                    newBValue = (int) (blueRatio * discreteValue);
+                    
+                    // Pre-multiply the alpha for each colour component if the
+                    // image has a non-1.0 alpha component.
+                    if (!isAlphaless)
+                    {
+                    	newRValue *= alpha;
+                    	newGValue *= alpha;
+                    	newBValue *= alpha;
+                    }
 
                     // Add the existing colour component values to the new
                     // colour component values.
@@ -224,9 +251,11 @@ class RenderHSBRegionTask implements RenderingTask {
                     bValue = (buf[pix] & 0x000000FF) + newBValue;
 
                     // Ensure that each colour component value is between 0 and
-                    // 255 (byte). We must make *certain* that values to not
+                    // 255 (byte). We must make *certain* that values do not
                     // wrap over 255 otherwise there will be corruption
-                    // introduced into the rendered image.
+                    // introduced into the rendered image. The value may be over
+                    // 255 if we have mapped two high intensity channels to
+                    // the same color.
                     if (rValue > 255) {
                         rValue = 255;
                     }
@@ -247,5 +276,22 @@ class RenderHSBRegionTask implements RenderingTask {
 
             i++;
         }
+    }
+    
+    /**
+     * Returns a color offset based on which color component is 0xFF.
+     * @param color the color to check.
+     * @return an integer color offset in bits.
+     */
+    private int getColorOffset(Color color)
+    {
+    	if (color.getRed() == 255)
+    		return 16;
+    	if (color.getGreen() == 255)
+    		return 8;
+    	if (color.getBlue() == 255)
+    		return 0;
+    	throw new IllegalArgumentException(
+    			"Unable to find color component offset in color.");
     }
 }

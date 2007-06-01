@@ -61,23 +61,6 @@ import omeis.providers.re.quantum.QuantizationException;
 class RGBStrategy extends RenderingStrategy {
 
     /**
-     * Number of pixels on the <i>X1</i>-axis. This is the <i>X</i>-axis in
-     * the case of an <i>XY</i> or <i>XZ</i> plane. Otherwise it is the <i>Z</i>-axis
-     * &#151; <i>ZY</i> plane.
-     */
-    private int sizeX1;
-
-    /**
-     * Number of pixels on the X2-axis. This is the <i>Y</i>-axis in the case
-     * of an <i>XY</i> or <i>ZY</i> plane. Otherwise it is the <i>Z</i>-axis
-     * &#151; <i>XZ</i> plane.
-     */
-    private int sizeX2;
-
-    /** The rendering context. */
-    private Renderer renderer;
-
-    /**
      * Initialize the <code>sizeX1</code> and <code>sizeX2</code> fields
      * according to the specified {@link PlaneDef#getSlice() slice}.
      * 
@@ -184,15 +167,12 @@ class RGBStrategy extends RenderingStrategy {
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        RenderingStats performanceStats = renderer.getStats();
         Pixels metadata = renderer.getMetadata();
 
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
-        performanceStats.startMalloc();
-        RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
-        performanceStats.endMalloc();
+        RGBBuffer buf = getRgbBuffer();
 
         render(buf, planeDef);
         return buf;
@@ -208,15 +188,12 @@ class RGBStrategy extends RenderingStrategy {
             throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        RenderingStats performanceStats = renderer.getStats();
         Pixels metadata = renderer.getMetadata();
 
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
-        performanceStats.startMalloc();
-        RGBIntBuffer buf = new RGBIntBuffer(sizeX1, sizeX2);
-        performanceStats.endMalloc();
+        RGBIntBuffer buf = getIntBuffer();
 
         render(buf, planeDef);
         return buf;
@@ -234,8 +211,6 @@ class RGBStrategy extends RenderingStrategy {
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, renderer.getMetadata());
-        performanceStats.startMalloc();
-        performanceStats.endMalloc();
 
         // Process each active wavelength. If their number N > 1, then
         // process N-1 async and one in the current thread. If N = 1,

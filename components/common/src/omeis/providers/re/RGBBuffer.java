@@ -9,6 +9,7 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.Serializable;
+import java.util.Arrays;
 
 // Third-party libraries
 
@@ -208,5 +209,14 @@ public class RGBBuffer implements Serializable {
      */
     public byte getBlueValue(int index) {
         return bands[B_BAND][index];
+    }
+    
+    /**
+     * Zeros out (sets every pixel offset to zero) each band.
+     */
+    public void zero()
+    {
+    	for (int i = 0; i < bands.length; i++)
+    		Arrays.fill(bands[i], (byte) 0);
     }
 }

@@ -173,16 +173,4 @@ public class PlaneFactory {
 
         return null;
     }
-
-    /**
-     * Helper method to retrieve a RenderingModel enumeration from the database.
-     * 
-     * @param value
-     *            The enumeration value.
-     * @return A rendering model enumeration object.
-     */
-    public static RenderingModel getRenderingModel(IPixels iPixels, String value) {
-        return iPixels.getEnumeration(RenderingModel.class,
-                value);
-    }
 }

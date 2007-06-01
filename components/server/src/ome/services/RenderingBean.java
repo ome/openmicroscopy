@@ -72,6 +72,7 @@ import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.quantum.QuantizationException;
+import omeis.providers.re.quantum.QuantumFactory;
 
 /**
  * Provides the {@link RenderingEngine} service. This class is an Adapter to
@@ -185,6 +186,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     /** lifecycle method -- {@link PrePassivate}. Disallows all passivation. */
     @PrePassivate
     public void passivate() {
+        closeRenderer();
         beanHelper.passivationNotAllowed();
     }
 
@@ -299,7 +301,13 @@ public class RenderingBean extends AbstractLevel2Service implements
              */
             PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
             closeRenderer();
-            renderer = new Renderer(pixMetaSrv, pixelsObj, rendDefObj, buffer);
+            List<Family> families =
+            	pixMetaSrv.getAllEnumerations(Family.class);
+            List<RenderingModel> renderingModels =
+            	pixMetaSrv.getAllEnumerations(RenderingModel.class);
+            QuantumFactory quantumFactory = new QuantumFactory(families);
+            renderer = new Renderer(quantumFactory, renderingModels, pixelsObj,
+                                    rendDefObj, buffer);
         } finally {
             rwl.writeLock().unlock();
         }
@@ -412,10 +420,15 @@ public class RenderingBean extends AbstractLevel2Service implements
             if (rendDefObj == null
                 && pixMetaSrv.retrieveRndSettings(pixelsId) == null)
             {
+                List<Family> families =
+                	pixMetaSrv.getAllEnumerations(Family.class);
+                List<RenderingModel> renderingModels =
+                	pixMetaSrv.getAllEnumerations(RenderingModel.class);
+                QuantumFactory quantumFactory = new QuantumFactory(families);
            		PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
            		RenderingDef def = Renderer.createNewRenderingDef(pixelsObj);
-           		Renderer.resetDefaults(def, pixelsObj, pixMetaSrv,
-           		                       buffer);
+           		Renderer.resetDefaults(def, pixelsObj, quantumFactory,
+           		                       renderingModels, buffer);
            		buffer.close();
             	pixMetaSrv.saveRndSettings(def);
             }
@@ -806,8 +819,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         try {
             rwl.writeLock().lock();
             errorIfInvalidState();
-            ChannelBinding[] cb = renderer.getChannelBindings();
-            cb[w].setActive(Boolean.valueOf(active));
+            renderer.setActive(w, active);
         } finally {
             rwl.writeLock().unlock();
         }

@@ -49,6 +49,63 @@ abstract class RenderingStrategy {
 
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RenderingStrategy.class);
+    
+    /** An integer buffer to render data into. */
+    private RGBIntBuffer cachedIntBuffer;
+    
+    /** An RGB buffer to render data into. */
+    private RGBBuffer cachedRgbBuffer;
+    
+    /** The rendering context. */
+    protected Renderer renderer;
+    
+    /**
+     * The number of pixels on the <i>X1</i>-axis. This is the <i>X</i>-axis
+     * in the case of an <i>XY</i> or <i>XZ</i> plane. Otherwise it is the
+     * <i>Z</i>-axis &#151; <i>ZY</i> plane.
+     */
+    protected int sizeX1;
+
+    /**
+     * The number of pixels on the X2-axis. This is the <i>Y</i>-axis in the
+     * case of an <i>XY</i> or <i>ZY</i> plane. Otherwise it is the <i>Z</i>-axis
+     * &#151; <i>XZ</i> plane.
+     */
+    protected int sizeX2;
+    
+    /**
+     * Returns a cached RGB buffer for usage. Note that the buffer is zeroed
+     * out upon each call. Should only be called within the context of a
+     * "render" operation as it requires a {@link renderer}.
+     * @return See above.
+     */
+    protected RGBBuffer getRgbBuffer()
+	{
+    	RenderingStats stats = renderer.getStats();
+    	stats.startMalloc();
+		if (cachedRgbBuffer == null)
+			cachedRgbBuffer = new RGBBuffer(sizeX1, sizeX2);
+		cachedRgbBuffer.zero();
+		stats.endMalloc();
+		return cachedRgbBuffer;
+	}
+
+    /**
+     * Returns a cached RGB integer buffer for usage. Note that the buffer is
+     * zeroed out upon each call. Should only be called within the context of
+     * a "render" operation as it requires a {@link renderer}.
+     * @return See above.
+     */
+	protected RGBIntBuffer getIntBuffer()
+    {
+    	RenderingStats stats = renderer.getStats();
+    	stats.startMalloc();
+    	if (cachedIntBuffer == null)
+    		cachedIntBuffer = new RGBIntBuffer(sizeX1, sizeX2);
+    	cachedIntBuffer.zero();
+    	stats.endMalloc();
+    	return cachedIntBuffer;
+    }
 
     /**
      * Factory method to retrieve a concrete strategy. The strategy is selected

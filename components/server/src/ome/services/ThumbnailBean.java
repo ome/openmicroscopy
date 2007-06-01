@@ -170,6 +170,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @PreDestroy
     public void destroy() {
         // id is the only thing passivated.
+   		re.close();
         re = null;
         iScale = null;
         ioService = null;

@@ -171,10 +171,9 @@ public abstract class QuantumStrategy {
      *            The {@link QuantumDef} this strategy is for.
      * @param pt
      */
-    protected QuantumStrategy(QuantumDef qd, PixelsType pt, IPixels iPixels) {
+    protected QuantumStrategy(QuantumDef qd, PixelsType pt) {
         windowStart = globalMin = 0.0;
         windowEnd = globalMax = 1.0;
-        family = QuantumFactory.getFamily(iPixels, QuantumFactory.LINEAR);
         curveCoefficient = 1.0;
         if (qd == null) {
             throw new NullPointerException("No quantum definition");

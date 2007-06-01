@@ -46,8 +46,8 @@ class QuantumManager {
      */
     private QuantumStrategy[] wavesStg;
 
-    /** Omero Pixels service */
-    private IPixels iPixels;
+    /** A quantum factory instance for looking up enumerations. */
+    private QuantumFactory factory;
 
     /**
      * Creates a new instance.
@@ -55,8 +55,8 @@ class QuantumManager {
      * @param metadata
      *            The pixels metadata.
      */
-    QuantumManager(Pixels metadata, IPixels iPixels) {
-        this.iPixels = iPixels;
+    QuantumManager(Pixels metadata, QuantumFactory factory) {
+    	this.factory = factory;
         this.metadata = metadata;
         wavesStg = new QuantumStrategy[metadata.getSizeC().intValue()];
     }
@@ -99,7 +99,7 @@ class QuantumManager {
         Channel channel;
         for (Iterator i = channels.iterator(); i.hasNext();) {
             channel = (Channel) i.next();
-            stg = QuantumFactory.getStrategy(qd, type, iPixels);
+            stg = factory.getStrategy(qd, type);
             gMin = channel.getStatsInfo().getGlobalMin().doubleValue();
             gMax = channel.getStatsInfo().getGlobalMax().doubleValue();
             stg.setExtent(gMin, gMax);

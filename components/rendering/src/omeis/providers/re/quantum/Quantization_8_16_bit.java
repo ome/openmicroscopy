@@ -42,7 +42,7 @@ import omeis.providers.re.Renderer;
 public class Quantization_8_16_bit extends QuantumStrategy {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Renderer.class);
+    private static Log log = LogFactory.getLog(Quantization_8_16_bit.class);
 
     /** The look-up table. */
     private byte[] LUT;
@@ -220,8 +220,8 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * @param type
      *            The pixel type;
      */
-    public Quantization_8_16_bit(QuantumDef qd, PixelsType type, IPixels iPixels) {
-        super(qd, type, iPixels);
+    public Quantization_8_16_bit(QuantumDef qd, PixelsType type) {
+        super(qd, type);
     }
 
     /**

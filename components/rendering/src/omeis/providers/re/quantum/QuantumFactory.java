@@ -12,6 +12,8 @@ package omeis.providers.re.quantum;
 // Third-party libraries
 
 // Application-internal dependencies
+import java.util.List;
+
 import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
@@ -98,7 +100,20 @@ public class QuantumFactory {
 
     /** Default value. */
     public static final boolean NOISE_REDUCTION = true;
-
+    
+    /** Enumerated list of all families. */
+    private List<Family> families;
+    
+    /**
+     * Default constructor.
+     * 
+     * @param families the enumerated list of all families.
+     */
+    public QuantumFactory(List<Family> families)
+    {
+    	this.families = families;
+    }
+    
     /**
      * Helper method to retrieve a Family enumeration from the database.
      * 
@@ -106,8 +121,13 @@ public class QuantumFactory {
      *            The enumeration value.
      * @return A family enumeration object.
      */
-    public static Family getFamily(IPixels iPixels, String value) {
-        return iPixels.getEnumeration(Family.class, value);
+    public Family getFamily(String value) {
+    	for (Family family : families)
+    	{
+    		if (family.getValue().equals(value))
+    			return family;
+    	}
+    	throw new IllegalArgumentException("Unknown family: " + value);
     }
 
     /**
@@ -119,7 +139,7 @@ public class QuantumFactory {
      * @throws IllegalArgumentException
      *             If the check fails.
      */
-    private static void verifyDef(QuantumDef qd, PixelsType type) {
+    private void verifyDef(QuantumDef qd, PixelsType type) {
         if (qd == null) {
             throw new NullPointerException("No quantum definition.");
         }
@@ -135,7 +155,7 @@ public class QuantumFactory {
      * @throws IllegalArgumentException
      *             If the check fails.
      */
-    private static void verifyBitResolution(int bitResolution) {
+    private void verifyBitResolution(int bitResolution) {
         boolean b = false;
         switch (bitResolution) {
             case DEPTH_1BIT:
@@ -178,9 +198,8 @@ public class QuantumFactory {
      * @return A {@link QuantumStrategy} object suitable for the given pixels
      *         type.
      */
-    private static QuantumStrategy getQuantization(QuantumDef qd,
-            PixelsType type, IPixels iPixels) {
-        return new Quantization_8_16_bit(qd, type, iPixels);
+    private QuantumStrategy getQuantization(QuantumDef qd, PixelsType type) {
+        return new Quantization_8_16_bit(qd, type);
     }
 
     /**
@@ -192,11 +211,10 @@ public class QuantumFactory {
      *            and its values must have been properly specified.
      * @return A {@link QuantumStrategy} suitable for the specified context.
      */
-    public static QuantumStrategy getStrategy(QuantumDef qd, PixelsType type,
-            IPixels iPixels) {
+    public QuantumStrategy getStrategy(QuantumDef qd, PixelsType type) {
         verifyDef(qd, type);
         QuantumStrategy strg = null;
-        strg = getQuantization(qd, type, iPixels);
+        strg = getQuantization(qd, type);
         if (strg == null) {
             throw new IllegalArgumentException("Unsupported strategy");
         }

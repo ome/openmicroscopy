@@ -134,30 +134,34 @@ public class Renderer {
      */
     private RenderingStats stats;
 
-    /** Omero Pixels service */
-    private IPixels iPixels;
+    /** Quantum factory instance for enumeration lookup and verification. */
+    private QuantumFactory quantumFactory;
+    
+    /** An enumerated list of rendering models. */
+    private List<RenderingModel> renderingModels;
+    
+    /** Renderer optimizations. */
+    private Optimizations optimizations = new Optimizations();
 
     /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
-     * @param iPixels
-     *            An IPixels service.
-     * @param pixelsObj
-     *            Pixels object.
-     * @param renderingDefObj
-     *            Rendering definition object.
-     * @param bufferObj
-     *            PixelBuffer object.
-     * @throws NullPointerException
-     *             If <code>null</code> parameters are passed.
+     * @param quantumFactory a populated quantum factory.
+     * @param renderingModels an enumerated list of all rendering models.
+     * @param pixelsObj Pixels object.
+     * @param renderingDefObj Rendering definition object.
+     * @param bufferObj PixelBuffer object.
+     * @throws NullPointerException If <code>null</code> parameters are passed.
      */
-    public Renderer(IPixels iPixels, Pixels pixelsObj,
+    public Renderer(QuantumFactory quantumFactory,
+    		List<RenderingModel> renderingModels,Pixels pixelsObj,
             RenderingDef renderingDefObj, PixelBuffer bufferObj) {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-        this.iPixels = iPixels;
+        this.quantumFactory = quantumFactory;
+        this.renderingModels = renderingModels;
 
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
@@ -167,9 +171,10 @@ public class Renderer {
             throw new NullPointerException("Expecting not null buffer");
         }
 
+   
         // Create and configure the quantum strategies.
         QuantumDef qd = rndDef.getQuantization();
-        quantumManager = new QuantumManager(metadata, iPixels);
+        quantumManager = new QuantumManager(metadata, quantumFactory);
         ChannelBinding[] cBindings = getChannelBindings();
         quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
 
@@ -179,6 +184,9 @@ public class Renderer {
 
         // Create an appropriate rendering strategy.
         renderingStrategy = RenderingStrategy.makeNew(rndDef.getModel());
+        
+        // Examine the metadata we've been given and enable optimizations.
+        checkOptimizations();
     }
 
     /**
@@ -385,6 +393,17 @@ public class Renderer {
         List bindings = rndDef.getWaveRendering();
         return (ChannelBinding[]) bindings.toArray(new ChannelBinding[bindings
                 .size()]);
+    }
+    
+    /**
+     * Returns a list containing the channel bindings. The dimension of the
+     * array equals the number of channels.
+     * 
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+	public List<ChannelBinding> getChannelBindingsAsList() {
+        return rndDef.getWaveRendering();
     }
 
     /**
@@ -602,60 +621,35 @@ public class Renderer {
         c.setGreen(Integer.valueOf(green));
         c.setBlue(Integer.valueOf(blue));
         c.setAlpha(Integer.valueOf(alpha));
+        checkOptimizations();
     }
-
+    
     /**
-     * Resets the channel bindings for the current active pixels set.
-     * 
-     * @param def
-     *            the rendering definition to link to.
-     * @param pixels
-     *            the pixels set to reset the bindings based upon.
-     * @param iPixels
-     *            an OMERO pixels service.
-     * @param buffer
-     *            a pixel buffer which maps to the <i>planeDef</i>.
+     * Makes a particular channel active or inactive.
+     * @param w the wavelength index to toggle.
+     * @param active <code>true</code> to set the channel active or 
+     * <code>false</code> to set the channel inactive.
      */
-    private static void resetChannelBindings(RenderingDef def, Pixels pixels,
-            IPixels iPixels, PixelBuffer buffer) {
-        // The actual channel bindings we are returning
-        List<ChannelBinding> channelBindings = def.getWaveRendering();
-
-        // Default plane definition for our rendering definition
-        PlaneDef planeDef = getDefaultPlaneDef(def);
-
-        List<Channel> channels = pixels.getChannels();
-        int i = 0;
-        for (Channel channel : channels) {
-            Family family = QuantumFactory.getFamily(iPixels,
-                    QuantumFactory.LINEAR);
-
-            ChannelBinding channelBinding = channelBindings.get(i);
-            channelBinding.setFamily(family);
-            channelBinding.setCoefficient(new Double(1));
-
-            // If we have more than one channel set each of the first three
-            // active, otherwise only activate the first.
-            if (i < 3) {
-                channelBinding.setActive(true);
-            } else {
-                channelBinding.setActive(false);
-            }
-
-            channelBinding.setColor(ColorsFactory.getColor(i, channel));
-            channelBinding.setNoiseReduction(false);
-            i++;
-        }
-
-        // Set the input start and input end for each channel binding based upon
-        // the computation of the pixels set's location statistics.
-        computeLocationStats(pixels, channelBindings, planeDef, buffer);
+    public void setActive(int w, boolean active) {
+    	ChannelBinding[] cb = getChannelBindings();
+    	cb[w].setActive(Boolean.valueOf(active));
+    	checkOptimizations();
+    }
+    
+    /**
+     * Returns the optimizations that the renderer currently has enabled.
+     * @return See above.
+     */
+    public Optimizations getOptimizations()
+    {
+    	return optimizations;
     }
 
     /** Resets the rendering engine defaults. */
-    public void resetDefaults() {
+    public RenderingDef resetDefaults() {
         // Reset our default rendering definition parameters.
-        resetDefaults(rndDef, getMetadata(), iPixels, buffer);
+        resetDefaults(rndDef, getMetadata(), quantumFactory,
+                      renderingModels, buffer);
 
         // Keep up with rendering engine model state.
         setModel(rndDef.getModel());
@@ -669,12 +663,108 @@ public class Renderer {
         if (getCodomainChain() != null) {
             getCodomainChain().remove();
         }
-
-        // Save the rendering definition to the database.
-        iPixels.saveRndSettings(rndDef);
+        
+        return rndDef;
     }
     
     /**
+	 * Resets a rendering definition to its predefined defaults.
+	 * 
+	 * @param def the rendering definition to reset.
+	 * @param pixels the pixels set to reset the definition based upon.
+	 * @param quantumFactory a populated quantum factory.
+	 * @param renderingModels an enumerated list of all rendering models.
+	 * @param buffer a pixel buffer which maps to the <i>planeDef</i>.
+	 */
+	public static void resetDefaults(RenderingDef def, Pixels pixels,
+	        QuantumFactory quantumFactory, List<RenderingModel> renderingModels,
+	        PixelBuffer buffer) {
+	    // The default rendering definition settings
+	    def.setDefaultZ(pixels.getSizeZ() / 2);
+	    def.setDefaultT(0);
+
+	    // Set the rendering model to RGB if there is more than one channel,
+	    // otherwise set it to greyscale.
+	    RenderingModel defaultModel = null;
+	    if (pixels.getChannels().size() > 1) {
+	    	for (RenderingModel model : renderingModels)
+	    	{
+	    		if (model.getValue().equals(MODEL_HSB))
+	    			defaultModel = model;
+	    	}
+	    } else {
+	    	for (RenderingModel model : renderingModels)
+	    	{
+	    		if (model.getValue().equals(MODEL_GREYSCALE))
+	    			defaultModel = model;
+	    	}
+	    }
+	    if (defaultModel == null)
+	    {
+	    	throw new IllegalArgumentException(
+	    		"Unable to find default rendering model in enumerated list.");
+	    }
+	    def.setModel(defaultModel);
+	
+	    // Quantization settings
+	    QuantumDef quantumDef = def.getQuantization();
+	    quantumDef.setCdStart(0);
+	    quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
+	    quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
+	    def.setQuantization(quantumDef);
+	
+	    // Reset the channel bindings
+	    resetChannelBindings(def, pixels, quantumFactory, buffer);
+	}
+
+	/**
+	 * Resets the channel bindings for the current active pixels set.
+	 * 
+	 * @param def
+	 *            the rendering definition to link to.
+	 * @param pixels
+	 *            the pixels set to reset the bindings based upon.
+	 * @param quantumFactory
+	 *            a populated quantum factory.
+	 * @param buffer
+	 *            a pixel buffer which maps to the <i>planeDef</i>.
+	 */
+	private static void resetChannelBindings(RenderingDef def, Pixels pixels,
+	        QuantumFactory quantumFactory, PixelBuffer buffer) {
+	    // The actual channel bindings we are returning
+	    List<ChannelBinding> channelBindings = def.getWaveRendering();
+	
+	    // Default plane definition for our rendering definition
+	    PlaneDef planeDef = getDefaultPlaneDef(def);
+	
+	    List<Channel> channels = pixels.getChannels();
+	    int i = 0;
+	    for (Channel channel : channels) {
+	        Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
+	
+	        ChannelBinding channelBinding = channelBindings.get(i);
+	        channelBinding.setFamily(family);
+	        channelBinding.setCoefficient(new Double(1));
+	
+	        // If we have more than one channel set each of the first three
+	        // active, otherwise only activate the first.
+	        if (i < 3) {
+	            channelBinding.setActive(true);
+	        } else {
+	            channelBinding.setActive(false);
+	        }
+	
+	        channelBinding.setColor(ColorsFactory.getColor(i, channel));
+	        channelBinding.setNoiseReduction(false);
+	        i++;
+	    }
+	
+	    // Set the input start and input end for each channel binding based upon
+	    // the computation of the pixels set's location statistics.
+	    computeLocationStats(pixels, channelBindings, planeDef, buffer);
+	}
+
+	/**
      * Closes the buffer, cleaning up file state.
      * 
      * @throws IOException if an I/O error occurs.
@@ -694,44 +784,6 @@ public class Renderer {
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
 		}
-    }
-
-    /**
-     * Resets a rendering definition to its predefined defaults.
-     * 
-     * @param def
-     *            the rendering definition to reset.
-     * @param pixels
-     *            the pixels set to reset the definition based upon.
-     * @param iPixels
-     *            the OMERO pixels service.
-     * @param buffer
-     *            a pixel buffer which maps to the <i>planeDef</i>.
-     */
-    public static void resetDefaults(RenderingDef def, Pixels pixels,
-            IPixels iPixels, PixelBuffer buffer) {
-        // The default rendering definition settings
-        def.setDefaultZ(pixels.getSizeZ() / 2);
-        def.setDefaultT(0);
-
-        // Set the rendering model to RGB if there is more than one channel,
-        // otherwise set it to greyscale.
-        if (pixels.getChannels().size() > 1) {
-            def.setModel(PlaneFactory.getRenderingModel(iPixels, MODEL_HSB));
-        } else {
-            def.setModel(PlaneFactory.getRenderingModel(iPixels,
-                    MODEL_GREYSCALE));
-        }
-
-        // Quantization settings
-        QuantumDef quantumDef = def.getQuantization();
-        quantumDef.setCdStart(0);
-        quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
-        quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
-        def.setQuantization(quantumDef);
-
-        // Reset the channel bindings
-        resetChannelBindings(def, pixels, iPixels, buffer);
     }
 
     /**
@@ -762,5 +814,145 @@ public class Renderer {
             cbs.add(new ChannelBinding());
         }
         return cbs;
+    }
+    
+    /**
+     * Checks to see if we can enable specific optimizations for "primary" color
+     * rendering and alphaless rendering.
+     * 
+     * Alphaless rendering is only enabled when each of the active channels has
+     * no alpha blending (alpha of 0xFF [255]).
+     * 
+     * Primary color rendering optimizations are only enabled when the
+     * number of active channels < 4, each of the active channels is mapped
+     * to a primary color (0xFF0000 [Red], 0x00FF00 [Green], 0x0000FF [Blue])
+     * and there are no duplicate mappings (two channels mapped to Green for 
+     * example). It is also dependant on alphaless rendering being enabled.
+     */
+    private void checkOptimizations()
+    {
+    	List<ChannelBinding> channelBindings = getChannelBindingsAsList();
+    	
+    	for (ChannelBinding channelBinding : channelBindings)
+    	{
+    		Color color = channelBinding.getColor();
+    		boolean isActive = channelBinding.getActive();
+    		if (isActive && color.getAlpha() != 255)
+    		{
+    			log.info("Disabling alphaless rendering and PriColor rendering.");
+    			optimizations.setAlphalessRendering(false);
+    			return;
+    		}
+    	}
+    	log.info("Enabling alphaless rendering.");
+    	optimizations.setAlphalessRendering(true);
+    	
+    	int channelsActive = 0;
+    	for (ChannelBinding channelBinding : channelBindings)
+    	{
+    		// First lets check and see if we have more than 3 channels active.
+    		if (channelBinding.getActive() == false)
+    			continue;
+    		
+    		channelsActive++;
+    		if (channelsActive > 3)
+    		{
+    			log.info("Disabling PriColor rendering, active channels > 3");
+    			optimizations.setPrimaryColorEnabled(false);
+    			return;
+    		}
+    		
+			// Now we ensure the color is "primary" (Red, Green or Blue).
+			Color channelColor = channelBinding.getColor();
+			boolean isPrimary = false;
+			int[] colorArray = getColorArray(channelColor);
+			for (int value : colorArray)
+			{
+				if (value != 0 && value != 255)
+				{
+					log.info("Disabling PriColor rendering, channel color not primary.");
+					optimizations.setPrimaryColorEnabled(false);
+					return;
+				}
+				if (value == 255)
+				{
+					if (isPrimary == true)
+					{
+						log.info("Disabling PriColor rendering, duplicate channel color component.");
+						optimizations.setPrimaryColorEnabled(false);
+						return;
+					}
+					isPrimary = true;
+				}
+			}
+			
+    		// Finally we check to make sure that the color is different from
+			// all other channels that are active.
+			List<ChannelBinding> otherBindings =
+				getOtherBindings(channelBindings, channelBinding);
+    		for (ChannelBinding otherChannelBinding : otherBindings)
+    		{
+    			if (otherChannelBinding.getActive() == false)
+    				continue;
+    			
+    			int[] otherColorArray =
+    				getColorArray(otherChannelBinding.getColor());
+    			for (int i = 0; i < colorArray.length; i++)
+    			{
+    				if (colorArray[i] == otherColorArray[i]
+    				    && colorArray[i] != 0)
+    				{
+    					log.info("Disabling PriColor rendering, duplicate channel color.");
+    					optimizations.setPrimaryColorEnabled(false);
+    					return;
+    				}
+    			}
+    		}
+    	}
+    	
+    	// All checks have passed, enable "primary" color rendering.
+    	log.info("Enabling primary color rendering.");
+    	optimizations.setPrimaryColorEnabled(true);
+    }
+    
+    /**
+     * Returns an array  whose ascending indicies represent the color
+     * components Red, Green and Blue.
+     * 
+     * @param color the color to decompose into an array.
+     * @return See above.
+     */
+    public static int[] getColorArray(Color color)
+    {
+    	int[] colors = new int[3];
+    	colors[0] = color.getRed();
+    	colors[1] = color.getGreen();
+    	colors[2] = color.getBlue();
+    	return colors;
+    }
+
+    /**
+     * Returns a copy of a list of channel bindings with one element removed;
+     * the so called "other" channel bindings for the image.
+     * @param bindings
+     * @param toRemove
+     * @throws IllegalArgumentException if the <code>toRemove</code> channel
+     * binding is not present in the list.
+     * @return See above.
+     */
+    private List<ChannelBinding> getOtherBindings(
+    		List<ChannelBinding> bindings, ChannelBinding toRemove)
+    {
+    	if (!bindings.contains(toRemove))
+    		throw new IllegalArgumentException(
+    				"Channel binding not found in list.");
+    	List<ChannelBinding> otherBindings =
+    		new ArrayList<ChannelBinding>(bindings.size() - 1);
+    	for (ChannelBinding binding : bindings)
+    	{
+    		if (binding != toRemove)
+    			otherBindings.add(binding);
+    	}
+    	return otherBindings;
     }
 }

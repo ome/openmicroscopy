@@ -7,6 +7,8 @@
 
 package omeis.providers.re;
 
+import java.util.Arrays;
+
 // Java imports
 
 // Third-party libraries
@@ -149,5 +151,10 @@ public class RGBIntBuffer extends RGBBuffer {
      */
     public int[] getDataBuffer() {
         return dataBuf;
+    }
+    
+    @Override
+    public void zero() {
+    	Arrays.fill(dataBuf, 0);
     }
 }

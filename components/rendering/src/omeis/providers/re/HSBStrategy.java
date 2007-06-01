@@ -9,11 +9,17 @@ package omeis.providers.re;
 
 // Java imports
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Third-party libraries
 
@@ -64,23 +70,9 @@ import omeis.providers.re.quantum.QuantumStrategy;
  * @since OME2.2
  */
 class HSBStrategy extends RenderingStrategy {
-
-    /**
-     * The number of pixels on the <i>X1</i>-axis. This is the <i>X</i>-axis
-     * in the case of an <i>XY</i> or <i>XZ</i> plane. Otherwise it is the
-     * <i>Z</i>-axis &#151; <i>ZY</i> plane.
-     */
-    private int sizeX1;
-
-    /**
-     * The number of pixels on the X2-axis. This is the <i>Y</i>-axis in the
-     * case of an <i>XY</i> or <i>ZY</i> plane. Otherwise it is the <i>Z</i>-axis
-     * &#151; <i>XZ</i> plane.
-     */
-    private int sizeX2;
-
-    /** The rendering context. */
-    private Renderer renderer;
+	
+    /** The logger for this particular class */
+    private static Log log = LogFactory.getLog(HSBStrategy.class);
 
     /**
      * The maximum number of tasks (regions to split the image up into) that we
@@ -142,24 +134,38 @@ class HSBStrategy extends RenderingStrategy {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         Pixels metadata = renderer.getMetadata();
         PixelBuffer pixels = renderer.getPixels();
-        RenderingStats performanceStats = renderer.getStats();
-        ArrayList<Plane2D> wData = new ArrayList<Plane2D>();
+        ArrayList<Plane2D> wData = null;
+        try
+        {
+        	RenderingStats performanceStats = renderer.getStats();
+        	wData = new ArrayList<Plane2D>();
 
-        for (int w = 0; w < channelBindings.length; w++) {
-            if (channelBindings[w].getActive()) {
-                performanceStats.startIO(w);
-                wData.add(PlaneFactory.createPlane(pDef, w, metadata, pixels));
-                performanceStats.endIO(w);
-            }
+        	for (int w = 0; w < channelBindings.length; w++) {
+        		if (channelBindings[w].getActive()) {
+        			performanceStats.startIO(w);
+        			wData.add(PlaneFactory.createPlane(pDef, w, metadata, pixels));
+        			performanceStats.endIO(w);
+        		}
+        	}
+        }
+        finally
+        {
+            // Make sure that the pixel buffer is cleansed properly.
+            try
+            {
+                pixels.close();
+            } 
+            catch (IOException e)
+            {
+    		    final Writer result = new StringWriter();
+    		    final PrintWriter printWriter = new PrintWriter(result);
+    		    e.printStackTrace(printWriter);
+    			log.error(result.toString());
+    			throw new ResourceError(
+    					e.getMessage() + " Please check server log.");
+            }        	
         }
 
-        // Make sure that the pixel buffer is cleansed properly.
-        try {
-            pixels.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ResourceError(e.getMessage());
-        }
         return wData;
     }
 
@@ -222,16 +228,13 @@ class HSBStrategy extends RenderingStrategy {
         int taskCount = numTasks();
         int delta = sizeX2 / taskCount;
         for (int i = 0; i < taskCount; i++) {
-            // Allocate the RGB buffer for this wavelength.
-            performanceStats.startMalloc();
-            performanceStats.endMalloc();
-
             int x1Start = 0;
             int x1End = sizeX1;
             int x2Start = i * delta;
             int x2End = (i + 1) * delta;
             tasks.add(new RenderHSBRegionTask(buf, wData, strategies, cc,
-                    colors, x1Start, x1End, x2Start, x2End));
+            		colors, renderer.getOptimizations(),
+            		x1Start, x1End, x2Start, x2End));
         }
 
         // Turn the list into an array an return it.
@@ -255,14 +258,12 @@ class HSBStrategy extends RenderingStrategy {
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
-        performanceStats.startMalloc();
-        RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
-        performanceStats.endMalloc();
+        RGBBuffer buf = getRgbBuffer();
 
         render(buf, planeDef);
         return buf;
     }
-
+    
     /**
      * Implemented as specified by the superclass.
      * 
@@ -273,16 +274,13 @@ class HSBStrategy extends RenderingStrategy {
             throws IOException, QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
-        RenderingStats performanceStats = renderer.getStats();
         Pixels metadata = renderer.getMetadata();
 
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
-        performanceStats.startMalloc();
-        RGBIntBuffer buf = new RGBIntBuffer(sizeX1, sizeX2);
-        performanceStats.endMalloc();
-
+        RGBIntBuffer buf = getIntBuffer();
+        
         render(buf, planeDef);
         return buf;
     }
