@@ -160,8 +160,6 @@ public class SessionHandler implements MethodInterceptor {
 
     private Object doStateful(MethodInvocation invocation) throws Throwable {
         Object result = null;
-        System.out.println(Thread.currentThread().getName() + "::"
-                + invocation.getMethod().getName());
         SessionStatus status = null;
         try {
             // Need to open even if "closing" because the service may need
