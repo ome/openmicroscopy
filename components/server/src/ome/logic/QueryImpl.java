@@ -214,6 +214,7 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                     public Object doInHibernate(Session session)
                             throws HibernateException, SQLException {
                         Criteria c = session.createCriteria(klass);
+                        c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
                         parseFilter(c, filter);
                         return c.list();
                     }
