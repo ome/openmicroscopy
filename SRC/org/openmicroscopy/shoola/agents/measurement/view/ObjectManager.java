@@ -51,7 +51,7 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.measurement.util.ColorCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -137,19 +137,16 @@ class ObjectManager
 
 		objectsTable.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				
-				if (e.getClickCount() == 1) {
-					int col = objectsTable.getSelectedColumn();
-					int row = objectsTable.getSelectedRow();
-
-					Object value = objectsTable.getValueAt(row, col);
-					if (value instanceof Boolean)
-						toggleValue();
-					else
-						return;
-				}
-				
+			public void mouseClicked(java.awt.event.MouseEvent e) 
+			{
+				int col = objectsTable.getSelectedColumn();
+				int row = objectsTable.getSelectedRow();
+				Object value = objectsTable.getValueAt(row, col);
+				if (value instanceof Boolean)
+					toggleValue();
+				else
+					return;
+		
 			}
 		});
 		objectsTable.getSelectionModel().addListSelectionListener(listener);
@@ -315,7 +312,7 @@ class ObjectManager
 		 */
 		public TableCellRenderer getCellRenderer(int row, int column) 
 		{
-	        return new ColorCellRenderer();
+	        return new ROITableCellRenderer();
 	    }
 
 	}
@@ -360,7 +357,7 @@ class ObjectManager
 			ROIFigure fig = data.get(row);
 			switch (col) {
 				case 0: return fig.getROI().getID();
-				case 1: return fig.getROIShape().getCoord3D().getZSection();
+				case 1: return fig.getROIShape().getCoord3D().getZSection()+1;
 				case 2: return fig.getROIShape().getCoord3D().getTimePoint();
 				case 3: return AnnotationKeys.FIGURETYPE.get(fig.getROIShape());
 	        	case 4: return TEXT.get(fig);
@@ -385,7 +382,7 @@ class ObjectManager
 	    		case 1:
 		    	case 0:
 		    		break;
-		    	case 2:
+		    	case 4:
 		    		AttributeKeys.TEXT.set(fig, (String) value);
 		    		break;
 		    	case 5:
@@ -518,9 +515,13 @@ class ObjectManager
 		 * Returns <code>false</code> so that user cannot edit a cell.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
-		public boolean isCellEditable(int row, int col) { return false; }
-	    
-	}
+		public boolean isCellEditable(int row, int col) 
+		{ 
+			if(col==4)
+				return true;
+			return false; 
+		}
+}
 
 	
 

@@ -50,16 +50,21 @@ import javax.swing.table.TableCellRenderer;
  * </small>
  * @since OME3.0
  */
-public class ColorCellRenderer 
+public class ROITableCellRenderer 
 	extends JComponent
 	implements TableCellRenderer
 {
+	
+	final static Color BACKGROUND_COLOUR_EVEN = new Color(241, 245, 250);
+	final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
+	final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
+	final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
 	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
 	 */
-	public ColorCellRenderer()
+	public ROITableCellRenderer()
 	{
 		setOpaque(true);
 	}
@@ -71,27 +76,44 @@ public class ColorCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value, 
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		Component thisComponent = new JLabel();
 		if ((value instanceof Integer) || (value instanceof Long) ||
 				(value instanceof Double) || (value instanceof String))
 		{
 			JLabel label = new JLabel();
 			label.setOpaque(true);
     		label.setText(value+"");
-    		return label;
+    		thisComponent = label;
     	} else if (value instanceof Color) {
     		JLabel label = new JLabel();
     		label.setOpaque(true);
     		label.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
     		label.setBackground((Color) value);
-    		return label;
+    		thisComponent = label;
     	}
     	else if( value instanceof Boolean)
     	{
     		JCheckBox checkBox = new JCheckBox();
     		checkBox.setSelected((Boolean)value);
-    		return checkBox;
-    	 }
-    	return this;
+    		thisComponent = checkBox;
+    	}
+		if(!(value instanceof Color))
+		{
+			if(table.getSelectedRow() == row)
+			{
+				thisComponent.setBackground(SELECTED_BACKGROUND_COLOUR);
+				thisComponent.setForeground(FOREGROUND_COLOUR);
+			}
+			else
+			{
+				if(row % 2 == 0)
+					thisComponent.setBackground(BACKGROUND_COLOUR_EVEN);
+				else
+					thisComponent.setBackground(BACKGROUND_COLOUR_ODD);
+				thisComponent.setForeground(FOREGROUND_COLOUR);
+			}
+		}
+		return thisComponent;
 	}
 
 }

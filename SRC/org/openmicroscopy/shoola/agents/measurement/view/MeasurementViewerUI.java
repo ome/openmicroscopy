@@ -90,7 +90,7 @@ class MeasurementViewerUI
 	
 	/** The default color used to fill area. */
 	private static final Color			FILL_COLOR = 
-											new Color(220, 220, 220, 0);
+											new Color(220, 220, 220, 120);
 	
 	/** The default color of the text. */
 	private static final double			FONT_SIZE = 10.0;

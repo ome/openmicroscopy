@@ -26,12 +26,14 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -79,6 +81,9 @@ class ToolBar
 	/** The label key to create a <code>line</code>. */
 	private static final String			LINE = "createLine";
 	
+	/** The label key to create a <code>line connection</code>. */
+	private static final String			LINECONNECTION = "createLineConnection";
+	
 	/** The label key to create a <code>scribble</code>. */
 	private static final String			SCRIBBLE = "createScribble";
 	
@@ -123,9 +128,9 @@ class ToolBar
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new LineAnnotationFigure()), LINE, labels);
-	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
+		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		new ConnectionTool(new LineConnectionAnnotationFigure()), 
-	    		"createLineConnection", labels);
+	    		LINECONNECTION, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				  new BezierTool(new BezierAnnotationFigure()), SCRIBBLE, 
 			  	labels);

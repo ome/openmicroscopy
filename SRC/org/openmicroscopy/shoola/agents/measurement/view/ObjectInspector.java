@@ -47,7 +47,7 @@ import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.AttributeField;
-import org.openmicroscopy.shoola.agents.measurement.util.ColorCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -278,7 +278,7 @@ class ObjectInspector
 		 */
 		public TableCellRenderer getCellRenderer(int row, int column) 
 		{
-	        return new ColorCellRenderer();
+	        return new ROITableCellRenderer();
 	    }
 
 	}

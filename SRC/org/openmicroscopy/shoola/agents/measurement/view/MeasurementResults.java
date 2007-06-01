@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
 
 
 
@@ -55,6 +56,9 @@ import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableA
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
+import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.view.ObjectManager.ROIFigureTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -95,7 +99,7 @@ class MeasurementResults
 	private JButton							refreshButton;
 	
 	/** The table displaying the results. */
-	private JTable							results;
+	private ResultsTable					results;
 	
 	/** Reference to the control. */
 	private MeasurementViewerControl		controller;
@@ -104,7 +108,7 @@ class MeasurementResults
 	private MeasurementViewerModel			model;
 	
 	static {
-		fields = new ArrayList<AnnotationField>(11);
+		fields = new ArrayList<AnnotationField>();
 		fields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
 										false)); 
 		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
@@ -116,18 +120,18 @@ class MeasurementResults
 		fields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
 		fields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
 										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
 		fields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
 		fields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
-				false)); 
-		fields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
-				false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
-				false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
-				false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
+		//		false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
+		//		false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
+		//		false)); 
+		//fields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
+		//		false)); 
 		columnNames = new ArrayList<String>();
 		columnNames.add("Time Point");
 		columnNames.add("Z Section");
@@ -147,11 +151,10 @@ class MeasurementResults
 		
 		
 		//Create table model.
-		results = new JTable();
+		results = new ResultsTable();
 		results.getTableHeader().setReorderingAllowed(false);
 		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
 		results.setModel(tm);
-		
 	}
 	
 	/** Builds and lays out the GUI. */
@@ -354,6 +357,32 @@ class MeasurementResults
 	{
 		populate();
 	}
+	
+	/** Basic inner class use to set the cell renderer. */
+	class ResultsTable
+		extends JTable
+	{
+		
+		/**
+		 * Creates a new instance.
+		 * 
+		 */
+		ResultsTable()
+		{
+			super();
+		}
+		
+		/**
+		 * Overridden to return a customized cell renderer.
+		 * @see JTable#getCellRenderer(int, int)
+		 */
+		public TableCellRenderer getCellRenderer(int row, int column) 
+		{
+	        return new ResultsCellRenderer();
+	    }
+
+	}
+	
 	
 	/** 
 	 * Inner class used to display the results of measurement.
