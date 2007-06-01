@@ -19,6 +19,8 @@ import ome.system.ServiceFactory;
 import ome.util.tasks.Configuration;
 import ome.util.tasks.SimpleTask;
 import omero.constants.LICENSESERVICE;
+import omero.licenses.ILicensePrx;
+import omero.licenses.ILicensePrxHelper;
 
 /**
  * {@link BlitzTask} which provides access to the
@@ -69,8 +71,8 @@ public class ResetLicensesTask extends BlitzTask {
         if (useBlitz) {
             try {
                 final IceServiceFactory isf = getBlitzServiceFactory();
-                final omero.licenses.ILicensePrx lic = (omero.licenses.ILicensePrx) 
-                    isf.getByName(LICENSESERVICE.value,null);
+                final Ice.ObjectPrx prx = isf.getByName(LICENSESERVICE.value,null);
+                final ILicensePrx lic = ILicensePrxHelper.uncheckedCast(prx); 
                 lic.resetLicenses();
             } catch (omero.ServerError se) {
                 throw new RuntimeException(se);

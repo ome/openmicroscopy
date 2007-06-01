@@ -9,6 +9,9 @@ package ome.services.licenses.tasks;
 
 import java.util.Properties;
 
+import Glacier2.CannotCreateSessionException;
+import Glacier2.PermissionDeniedException;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.services.blitz.tasks.BlitzTask;
@@ -84,6 +87,12 @@ public class Run extends ome.util.tasks.Run {
         BlitzTask bt = (BlitzTask)this.task;
         if (!bt.isBlitz()) {
             getServiceFactory().acquireLicense();
+        } else {
+            try {
+                bt.getBlitzServiceFactory().createSession();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
@@ -91,6 +100,12 @@ public class Run extends ome.util.tasks.Run {
         BlitzTask bt = (BlitzTask)this.task;
         if (!bt.isBlitz()) {
             getServiceFactory().releaseLicense();
+        } else {
+            try {
+                bt.getBlitzServiceFactory().destroy();
+            } catch (Exception e) {
+                // ignore. will timeout eventually
+            }
         }
     }
     
