@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -77,6 +78,9 @@ class ToolBar
 	
 	/** The label key to create an <code>ellipse</code>. */
 	private static final String			ELLIPSE = "createEllipse";
+	
+	/** The label key to create an <code>point</code>. */
+	private static final String			POINT = "createEllipse";
 	
 	/** The label key to create a <code>line</code>. */
 	private static final String			LINE = "createLine";
@@ -125,6 +129,9 @@ class ToolBar
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new EllipseAnnotationFigure()), ELLIPSE, 
+				labels);
+		ToolBarButtonFactory.addToolTo(toolBar, editor, 
+				new CreationTool(new PointAnnotationFigure()), POINT, 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 				new CreationTool(new LineAnnotationFigure()), LINE, labels);
