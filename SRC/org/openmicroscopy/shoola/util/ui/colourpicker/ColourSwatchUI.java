@@ -75,6 +75,7 @@ public class ColourSwatchUI
 		
 	  /** The slider representing the alpha channel. */
 	private ColourSlider	alphaSlider;
+	
 	/** Change listener for alpha slider.  */
 	private ChangeListener	alphaChangeListener;
 	
@@ -163,6 +164,7 @@ public class ColourSwatchUI
 						new Object[] {Color.green, "Green"},
 						new Object[] {Color.red, "Red"},
 						new Object[] {Color.white, "White"},
+						new Object[] {Color.black, "Black"},
 						new Object[] {Color.gray, "Gray"},
 						new Object[] {Color.orange, "Orange"},
 						new Object[] {Color.yellow, "Yellow"},
