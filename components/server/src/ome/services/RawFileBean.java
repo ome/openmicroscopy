@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -253,7 +254,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public void write(byte[] buf, long position, int length) {
         errorIfNotLoaded();
-        ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
+        ByteBuffer nioBuffer = MappedByteBuffer.wrap(buf);
         nioBuffer.limit(length);
 
         if (diskSpaceChecking) {

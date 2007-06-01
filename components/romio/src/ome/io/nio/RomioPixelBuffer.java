@@ -240,24 +240,18 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     public void setRegion(Integer size, Long offset, byte[] buffer)
             throws IOException, BufferOverflowException {
+    	setRegion(size, offset, MappedByteBuffer.wrap(buffer));
+    }
+
+    public void setRegion(Integer size, Long offset, ByteBuffer buffer)
+            throws IOException, BufferOverflowException {
         FileChannel fileChannel = getFileChannel();
 
         /*
          * fileChannel should not be "null" as it will throw an exception if
          * there happens to be an error.
          */
-
-        MappedByteBuffer byteBuffer = fileChannel.map(MapMode.READ_WRITE,
-                offset, size);
-
-        byteBuffer.put(buffer);
-        byteBuffer.force();
-        fileChannel.force(false);
-    }
-
-    public void setRegion(Integer size, Long offset, ByteBuffer buffer)
-            throws IOException, BufferOverflowException {
-        setRegion(size, offset, buffer.array());
+        fileChannel.write(buffer, offset);
     }
 
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
@@ -274,6 +268,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             BufferOverflowException {
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
+        if (buffer.limit() != size)
+        	throw new BufferOverflowException();
 
         setRegion(size, offset, buffer);
     }
@@ -281,10 +277,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-        Long offset = getPlaneOffset(z, c, t);
-        Integer size = getPlaneSize();
-
-        setRegion(size, offset, buffer);
+    	setPlane(MappedByteBuffer.wrap(buffer), z, c, t);
     }
 
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
@@ -292,6 +285,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             BufferOverflowException {
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
+        if (buffer.limit() != size)
+        	throw new BufferOverflowException();
 
         setRegion(size, offset, buffer);
     }
@@ -299,26 +294,22 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-        Long offset = getStackOffset(c, t);
-        Integer size = getStackSize();
-
-        setRegion(size, offset, buffer);
+    	setStack(MappedByteBuffer.wrap(buffer), z, c, t);
     }
 
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
+        if (buffer.limit() != size)
+        	throw new BufferOverflowException();
 
         setRegion(size, offset, buffer);
     }
 
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
-        Long offset = getTimepointOffset(t);
-        Integer size = getTimepointSize();
-
-        setRegion(size, offset, buffer);
+    	setTimepoint(MappedByteBuffer.wrap(buffer), t);
     }
 
     public byte[] calculateMessageDigest() throws IOException {
