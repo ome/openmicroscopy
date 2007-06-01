@@ -383,12 +383,7 @@ public class OutputStrategy
 
 	private void writeFigure(XMLElement shapeElement, ROIFigure figure) throws IOException
 	{
-		/*** TO DO ****/
-		//double fillOpacity = FILL_COLOR.get(figure).getAlpha()/255.0;
-		//FILL_OPACITY.set(figure, fillOpacity);
-		//double strokeOpacity = STROKE_COLOR.get(figure).getAlpha()/255.0;
-		//STROKE_OPACITY.set(figure, strokeOpacity);
-		/*** TO DO ****/
+	
 		if(figure instanceof RectAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
@@ -448,24 +443,23 @@ public class OutputStrategy
 		textElement.setContent(fig.getText());
 		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
 		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
-		writeShapeAttributes(textElement, fig.getAttributes());
-      	writeTransformAttribute(textElement, fig.getAttributes());
+		writeTransformAttribute(textElement, fig.getAttributes());
         writeFontAttributes(textElement, fig.getAttributes());
 	}
 	
-	private void writeTextFigure(XMLElement shapeElement, TextFigure fig) throws IOException
-	{
-		XMLElement textElement = new XMLElement(TEXT_TAG);
-		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
-		svgElement.addChild(textElement);
-		
-		textElement.setContent(fig.getText());
-		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
-		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
-		writeShapeAttributes(textElement, fig.getAttributes());
-      	writeTransformAttribute(textElement, fig.getAttributes());
-        writeFontAttributes(textElement, fig.getAttributes());
-	}
+//	private void writeTextFigure(XMLElement shapeElement, TextFigure fig) throws IOException
+//	{
+//		XMLElement textElement = new XMLElement(TEXT_TAG);
+//		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
+//		svgElement.addChild(textElement);
+//		
+//		textElement.setContent(fig.getText());
+//		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
+//		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
+//		writeShapeAttributes(textElement, fig.getAttributes());
+//      	writeTransformAttribute(textElement, fig.getAttributes());
+//        writeFontAttributes(textElement, fig.getAttributes());
+//	}
 	
 	private void writeLineConnectionFigure(XMLElement shapeElement, LineConnectionAnnotationFigure fig) throws IOException
 	{
@@ -604,19 +598,10 @@ public class OutputStrategy
         writeShapeAttributes(rectElement, fig.getAttributes());
         writeTransformAttribute(rectElement, fig.getAttributes());
 	}
-
-	private void writeShapeAttributes(IXMLElement shapeElement, ROIFigure fig)
-	{
-		Map<AttributeKey, Object> attributeMap = fig.getAttributes();
-		Iterator<AttributeKey> iterator = attributeMap.keySet().iterator();
-		while(iterator.hasNext())
-		{
-			
-		}
-	}	
 	
 	protected void writeShapeAttributes(IXMLElement elem, Map<AttributeKey,Object> f)
-    throws IOException {
+    throws IOException 
+    {
         Color color;
         String value;
         int intValue;
@@ -847,7 +832,7 @@ public class OutputStrategy
             writeAttribute(elem, "transform", toTransform(t), "none");
         }
     }
-    /* Reads font attributes as listed in
+    /* Writes font attributes as listed in
      * http://www.w3.org/TR/SVGMobile12/feature.html#Font
      */
     private void writeFontAttributes(IXMLElement elem, Map<AttributeKey,Object> a)
@@ -883,7 +868,19 @@ public class OutputStrategy
         } else {
             writeAttribute(elem, "fill", toColor(TEXT_COLOR.get(a)), "#000");
         }
-       // 'font-family'
+        
+        //'fill-opacity'
+        //Value:  	 <opacity-value> | inherit
+        //Initial:  	 1
+        //Applies to:  	 shapes and text content elements
+        //Inherited:  	 yes
+        //Percentages:  	 N/A
+        //Media:  	 visual
+        //Animatable:  	 yes
+        //Computed value:  	 Specified value, except inherit
+        writeAttribute(elem, "fill-opacity", TEXT_COLOR.get(a).getAlpha()/255.0, 1d);
+   
+        // 'font-family'
         // Value:  	[[ <family-name> |
         // <generic-family> ],]* [<family-name> |
         // <generic-family>] | inherit
@@ -1074,13 +1071,13 @@ public class OutputStrategy
         return buf.toString();
     }
     
+    
+       
     protected void writeAttribute(IXMLElement elem, String name, String value, String defaultValue) {
         writeAttribute(elem, name, "", value, defaultValue);
     }
     protected void writeAttribute(IXMLElement elem, String name, String namespace, String value, String defaultValue) {
-        if (! value.equals(defaultValue)) {
-            elem.setAttribute(name, value);
-        }
+        elem.setAttribute(name, value);
     }
     protected void writeAttribute(IXMLElement elem, String name, Color color, Color defaultColor) {
         writeAttribute(elem, name, SVG_NAMESPACE, toColor(color), toColor(defaultColor));
@@ -1089,10 +1086,10 @@ public class OutputStrategy
     protected void writeAttribute(IXMLElement elem, String name, double value, double defaultValue) {
         writeAttribute(elem, name, SVG_NAMESPACE, value, defaultValue);
     }
+    
     protected void writeAttribute(IXMLElement elem, String name, String namespace, double value, double defaultValue) {
-        if (value != defaultValue) {
-            elem.setAttribute(name, toNumber(value));
-        }
+       elem.setAttribute(name, toNumber(value));
+    
     }
 
     

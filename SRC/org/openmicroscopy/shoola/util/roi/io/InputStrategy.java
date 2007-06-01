@@ -685,12 +685,9 @@ public class InputStrategy
 				String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
 				Point2D.Double[] points = toPoints(pointsValues);
 				for(int i = 0 ; i < points.length ; i++)
-				{
 					lineFigure.addNode(new Node(points[i].x, points[i].y));
-				}
 				lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
 				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
-
 			}
 			else
 			{

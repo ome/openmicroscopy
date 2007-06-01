@@ -64,7 +64,7 @@ public class SVGFillParser
 		SVGColour svgColour = new SVGColour();
 		Color svgColourValue = svgColour.toColor(value);
 		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);
-		if(!(figure instanceof MeasureTextFigure))
+		if(!(figure instanceof MeasureTextFigure) && !element.getName().equals("text"))
 			FILL_COLOR.set(figure, fillValue);
 		else
 			TEXT_COLOR.set(figure, fillValue);
