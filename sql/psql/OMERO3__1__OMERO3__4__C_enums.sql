@@ -1,5 +1,7 @@
  begin;
 
+ -- Calculated by hand
+
  insert into binning (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_binning'),-35,0,0,0,'8x8';
  insert into binning (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_binning'),-35,0,0,0,'4x4';
  insert into binning (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_binning'),-35,0,0,0,'2x2';
@@ -32,10 +34,10 @@
  insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_jobstatus'),-35,0,0,0,'Finished';
  insert into jobstatus (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_jobstatus'),-35,0,0,0,'Error';
 
- insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'lasermediumeFl';
- insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'lasermediumeCl';
- insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'lasermediumeBr';
- insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'lasermediume';
+ insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'XeFl';
+ insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'XeCl';
+ insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'XeBr';
+ insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'Xe';
  insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'Rhodamine-5G';
  insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'N';
  insert into lasermedium (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_lasermedium'),-35,0,0,0,'KrFl';
@@ -72,4 +74,13 @@
 
  insert into photometricinterpretation (id,permissions,owner_id,group_id,creation_id,value) select nextval('seq_photometricinterpretation'),-35,0,0,0,'ColorMap';
 
+ alter table dbpatch add constraint unique_dbpatch unique (currentVersion, currentPatch, previousVersion, previousPatch);
+ alter table dbpatch alter id set default nextval('seq_dbpatch'),
+                    alter permissions set default -35,
+                    alter message set default 'Updating';
+ update dbpatch set message = 'Updated.', finished = now() 
+ where currentVersion   = 'OMERO3'    and
+        currentPatch    = 4           and
+        previousVersion = 'OMERO3'    and
+        previousPatch   = 1;
  commit;

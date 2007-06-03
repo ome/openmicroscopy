@@ -1,5 +1,9 @@
- 
- begin;
+BEGIN;
+
+ -- Manually added items
+ alter table originalfile alter column size type int8;
+
+ -- Items calculated by <schemaupdate/>
  create table binning (id int8 not null, owner_id int8 not null, group_id int8 not null, creation_id int8 not null, permissions int8 not null, external_id int8 unique, value varchar(255) not null unique, primary key (id));
  create table coating (id int8 not null, owner_id int8 not null, group_id int8 not null, creation_id int8 not null, permissions int8 not null, external_id int8 unique, value varchar(255) not null unique, primary key (id));
  alter table customizedfilterset add column transmittanceRange int8;
@@ -46,7 +50,6 @@
  alter table planeinfo add column positionZ float4;
  create table projectannotation (id int8 not null, owner_id int8 not null, group_id int8 not null, creation_id int8 not null, update_id int8 not null, permissions int8 not null, external_id int8 unique, version int4 default 0, project int8 not null, content text not null, primary key (id));
  create table transmittancerange (id int8 not null, owner_id int8 not null, group_id int8 not null, creation_id int8 not null, update_id int8 not null, permissions int8 not null, external_id int8 unique, version int4 default 0, cutIn int4 not null, cutOut int4 not null, cutInTolerance int4, cutOutTolerance int4, transmittance float4 not null, primary key (id));
-
  alter table binning add constraint FKbinning_owner_id_experimenter foreign key (owner_id) references experimenter;
  alter table binning add constraint FKbinning_creation_id_event foreign key (creation_id) references event;
  alter table binning add constraint FKbinning_external_id_externalinfo foreign key (external_id) references externalinfo;
@@ -126,7 +129,6 @@
  alter table transmittancerange add constraint FKtransmittancerange_creation_id_event foreign key (creation_id) references event;
  alter table transmittancerange add constraint FKtransmittancerange_external_id_externalinfo foreign key (external_id) references externalinfo;
  alter table transmittancerange add constraint FKtransmittancerange_group_id_experimentergroup foreign key (group_id) references experimentergroup;
-
  create sequence seq_binning;
  create sequence seq_coating;
  create sequence seq_dbpatch;
@@ -142,4 +144,4 @@
  create sequence seq_projectannotation;
  create sequence seq_transmittancerange;
 
- commit;
+COMMIT;

@@ -1,23 +1,15 @@
+BEGIN; 
 
-BEGIN;
-
-ALTER TABLE image
-	DROP CONSTRAINT fkimage_acquisition_objective;
+-- Calculated by apg_diff
 
 ALTER TABLE objective
-	DROP CONSTRAINT fkobjective_aberrationcorrection_aberrationcorrection;
+	DROP COLUMN correctioncollar,
+	DROP COLUMN irisdiaphragm,
+	DROP COLUMN aberrationcorrection,
+	DROP COLUMN immersionmedium,
+	DROP COLUMN phasecondenserannulus,
+	ALTER COLUMN serialnumber DROP NOT NULL;
 
-ALTER TABLE objective
-	DROP CONSTRAINT fkobjective_correctioncollar_correctioncollar;
-
-ALTER TABLE objective
-	DROP CONSTRAINT fkobjective_immersionmedium_immersionmedium;
-
-ALTER TABLE objective
-	DROP CONSTRAINT fkobjective_irisdiaphragm_irisdiaphragm;
-
-ALTER TABLE pixels
-	DROP CONSTRAINT fkpixels_acquisitioncontext_acquisitioncontext;
 
 DROP SEQUENCE seq_acquisitioncontext;
 
@@ -37,35 +29,35 @@ DROP SEQUENCE seq_metalvaporlasermedia;
 
 DROP SEQUENCE seq_semiconductorlasermedia;
 
-DROP TABLE acquisitioncontext;
+DROP TABLE acquisitioncontext CASCADE;
 
-DROP TABLE correctioncollar;
+DROP TABLE correctioncollar CASCADE;
 
-DROP TABLE dyelaser;
+DROP TABLE dyelaser CASCADE;
 
-DROP TABLE dyelasermedia;
+DROP TABLE dyelasermedia CASCADE;
 
-DROP TABLE excimerlaser;
+DROP TABLE excimerlaser CASCADE;
 
-DROP TABLE excimerlasermedia;
+DROP TABLE excimerlasermedia CASCADE;
 
-DROP TABLE freeelectronlaser;
+DROP TABLE freeelectronlaser CASCADE;
 
-DROP TABLE freeelectronlasermedia;
+DROP TABLE freeelectronlasermedia CASCADE;
 
-DROP TABLE gaslaser;
+DROP TABLE gaslaser CASCADE;
 
-DROP TABLE gaslasermedia;
+DROP TABLE gaslasermedia CASCADE;
 
-DROP TABLE immersionmedium;
+DROP TABLE immersionmedium CASCADE;
 
-DROP TABLE metalvaporlaser;
+DROP TABLE metalvaporlaser CASCADE;
 
-DROP TABLE metalvaporlasermedia;
+DROP TABLE metalvaporlasermedia CASCADE;
 
-DROP TABLE semiconductorlaser;
+DROP TABLE semiconductorlaser CASCADE;
 
-DROP TABLE semiconductorlasermedia;
+DROP TABLE semiconductorlasermedia CASCADE;
 
 ALTER TABLE arc
 	DROP COLUMN version;
@@ -93,19 +85,12 @@ ALTER TABLE detectorsettings
 ALTER TABLE dummystatistics
 	DROP COLUMN version;
 
-UPDATE event
-	SET permissions = -35 WHERE permissions is null;
-
-UPDATE eventlog
-	SET permissions = -35 WHERE permissions is null;
-
-UPDATE experimenter
-	SET permissions = -35 WHERE permissions is null;
+UPDATE event set permissions = -35;
+UPDATE eventlog set permissions = -35;
+UPDATE experimenter set permissions = -35;
 
 ALTER TABLE event
-	ALTER COLUMN permissions SET NOT NULL,
-	ALTER COLUMN experimentergroup SET NOT NULL,
-	ALTER COLUMN type SET NOT NULL;
+	ALTER COLUMN permissions SET NOT NULL;
 
 ALTER TABLE eventlog
 	ALTER COLUMN permissions SET NOT NULL;
@@ -136,17 +121,6 @@ ALTER TABLE lightsource
 
 ALTER TABLE microscope
 	ALTER COLUMN serialnumber DROP NOT NULL;
-
-ALTER TABLE objective
-	DROP COLUMN immersionmedium,
-	DROP COLUMN aberrationcorrection,
-	DROP COLUMN correctioncollar,
-	DROP COLUMN phasecondenserannulus,
-	DROP COLUMN irisdiaphragm,
-	ALTER COLUMN serialnumber DROP NOT NULL;
-
-ALTER TABLE originalfile
-	ALTER COLUMN size TYPE bigint;
 
 ALTER TABLE overlay
 	DROP COLUMN version;
@@ -192,8 +166,5 @@ ALTER TABLE xyzct
 
 ALTER TABLE xyzt
 	DROP COLUMN version;
-
-ALTER TABLE dbpatch
-	ADD CONSTRAINT unique_dbpatch UNIQUE (currentversion, currentpatch, previousversion, previouspatch);
 
 COMMIT;
