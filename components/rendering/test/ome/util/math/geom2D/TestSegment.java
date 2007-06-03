@@ -36,25 +36,7 @@ public class TestSegment extends TestCase {
     @Test
     public void testSegmentBadArgs() {
         try {
-            new Segment(null, null);
-            fail("Shouldn't allow nulls.");
-        } catch (NullPointerException npe) {
-            // Ok, expected.
-        }
-        try {
-            new Segment(null, new PlanePoint(0, 0));
-            fail("Shouldn't allow null origin.");
-        } catch (NullPointerException npe) {
-            // Ok, expected.
-        }
-        try {
-            new Segment(new PlanePoint(0, 0), null);
-            fail("Shouldn't allow null head.");
-        } catch (NullPointerException npe) {
-            // Ok, expected.
-        }
-        try {
-            new Segment(new PlanePoint(1, 1), new PlanePoint(1, 1));
+            new Segment(1, 1, 1, 1);
             fail("Shouldn't allow same points.");
         } catch (IllegalArgumentException iae) {
             // Ok, expected.
@@ -63,15 +45,15 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testSegment() {
-        PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
-        assertEquals("Shouldn't change the origin.", o, r.origin);
+        Segment r = new Segment(0, 0, 1, 1);
+        assertEquals("Shouldn't change the originX1.", 0.0, r.originX1);
+        assertEquals("Shouldn't change the originX2.", 0.0, r.originX2);
     }
 
     @Test
     public void testGetPointXAxis() {
-        PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 0);
-        Segment r = new Segment(o, p);
+        PlanePoint p;
+        Segment r = new Segment(0, 0, 1, 0);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
@@ -82,8 +64,8 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testGetPointYAxis() {
-        PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(0, 1);
-        Segment r = new Segment(o, p);
+        PlanePoint p;
+        Segment r = new Segment(0, 0, 0, 1);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
@@ -94,8 +76,8 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testGetPointParallelXAxis() {
-        PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        PlanePoint p;
+        Segment r = new Segment(0, 1, 1, 1);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
@@ -106,8 +88,8 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testGetPointParallelYAxis() {
-        PlanePoint o = new PlanePoint(1, 0), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        PlanePoint p;
+        Segment r = new Segment(1, 0, 1, 1);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
@@ -117,63 +99,42 @@ public class TestSegment extends TestCase {
     }
 
     @Test
-    public void testLiesNull() {
-        PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
-        try {
-            r.lies(null);
-            fail("Souldn't accept null.");
-        } catch (NullPointerException npe) {
-            // Ok, expected.
-        }
-    }
-
-    @Test
     public void testLies1() {
-        PlanePoint o = new PlanePoint(0, 1), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        Segment r = new Segment(0, 1, 1, 1);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
-            p = new PlanePoint(d, 1);
-            assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
-            p = new PlanePoint(d, 0);
-            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(p));
+            assertTrue("Actually lies on r [i = " + i + "].", r.lies(d, 1));
+            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(d, 0));
         }
     }
 
     @Test
     public void testLies2() {
-        PlanePoint o = new PlanePoint(1, 0), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        Segment r = new Segment(1, 0, 1, 1);
         double d;
         for (int i = 0; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
-            p = new PlanePoint(1, d);
-            assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
-            p = new PlanePoint(d, 0);
-            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(p));
+            assertTrue("Actually lies on r [i = " + i + "].", r.lies(1, d));
+            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(d, 0));
         }
     }
 
     @Test
     public void testLies3() {
-        PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        Segment r = new Segment(0, 0, 1, 1);
         double d;
         for (int i = 1; i < INTERVAL; ++i) {
             d = (double) i / INTERVAL;
-            p = new PlanePoint(d, d);
-            assertTrue("Actually lies on r [i = " + i + "].", r.lies(p));
-            p = new PlanePoint(d, 0);
-            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(p));
+            assertTrue("Actually lies on r [i = " + i + "].", r.lies(d, d));
+            assertFalse("Doesn't lie on r [i = " + i + "].", r.lies(d, 0));
         }
     }
 
     @Test
     public void testEquals() {
         PlanePoint o = new PlanePoint(0, 0), p = new PlanePoint(1, 1);
-        Segment r = new Segment(o, p);
+        Segment r = new Segment(0, 0, 1, 1);
         assertFalse("Should never be equal to null.", r.equals(null));
         assertFalse("Should never be equal to a different type.", r
                 .equals(new Object()));
@@ -185,8 +146,7 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testHashCodeDiffCalls() {
-        PlanePoint p = new PlanePoint(500, -30000), q = new PlanePoint(0, 0);
-        Segment r = new Segment(p, q);
+        Segment r = new Segment(500, -30000, 0, 0);
         int h = r.hashCode();
         for (int i = 0; i < MAX_ITER; ++i) {
             assertEquals("Should return same value across different calls.", h,
@@ -196,13 +156,10 @@ public class TestSegment extends TestCase {
 
     @Test
     public void testHashCodeObjectEquality() {
-        PlanePoint p, q;
         Segment r, s;
         for (int i = -MAX_ITER / 2; i < MAX_ITER / 2; ++i) {
-            p = new PlanePoint(i, -i);
-            q = new PlanePoint(i + 1, -i + 1);
-            r = new Segment(p, q);
-            s = new Segment(p, q);
+            r = new Segment(i, -i, i + 1, -i + 1);
+            s = new Segment(i, -i, i + 1, -i + 1);
             assertEquals("Should return same value for equal objects [i = " + i
                     + "].", r.hashCode(), s.hashCode());
         }

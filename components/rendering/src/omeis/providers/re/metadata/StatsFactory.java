@@ -81,21 +81,23 @@ public class StatsFactory {
         double epsilon = sizeBin / EPSILON;
         int[] totals = new int[NB_BIN];
         locationStats = new double[NB_BIN];
-        PlanePoint o, e;
         Segment[] segments = new Segment[NB_BIN];
         for (int i = 0; i < NB_BIN; i++) {
-            o = new PlanePoint(gMin + i * sizeBin, 0);
-            e = new PlanePoint(gMin + (i + 1) * sizeBin, 0);
-            segments[i] = new Segment(o, e);
+            segments[i] = new Segment(
+            		gMin + i * sizeBin, 0,
+            		gMin + (i + 1) * sizeBin, 0);
         }
-        PlanePoint point;
-        // check segment [o,e[
+
+        // check segment [o,e]
+        double pointX1;
+        double pointX2 = 0;
         for (int x2 = 0; x2 < sizeX2; ++x2) {
             for (int x1 = 0; x1 < sizeX1; ++x1) {
-                point = new PlanePoint(p2D.getPixelValue(x1, x2), 0);
                 for (int i = 0; i < segments.length; i++) {
-                    if (segments[i].lies(point)
-                            && !segments[i].getPoint(1).equals(point)) {
+                	pointX1 = p2D.getPixelValue(x1, x2);
+                    if (!segments[i].equals(1, pointX1, pointX2)
+                    	&& segments[i].lies(pointX1, pointX2))
+                    {
                         totals[i]++;
                         break;
                     }

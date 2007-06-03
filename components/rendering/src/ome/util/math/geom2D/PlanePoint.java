@@ -140,6 +140,27 @@ public class PlanePoint {
         }
         return new PlanePoint(p.x1 - x1, p.x2 - x2);
     }
+    
+    /**
+     * Calculates the vector associated to this point and the specified
+     * argument. This is the map that makes the set A = <b>R</b><sup>2</sup>
+     * an affine space over the vector space V = <b>R</b><sup>2</sup> and is
+     * defined by:
+     * <p>
+     * <nobr><i> f: AxA ---&gt; V <br>
+     * f(a, b) = b - a = (b<sub>1</sub> - a<sub>1</sub>, b<sub>2</sub> - a<sub>2</sub>)
+     * </i></nobr>
+     * </p>
+     * This method returns <nobr><i>f(t, p)</i></nobr>, where <i>t</i> is
+     * this point and <i>p</i> is the specified argument.
+     * 
+     * @param p
+     *            The other point. Mustn't be a <code>null</code> reference.
+     * @return The vector associated to this point and <i>p</i>.
+     */
+    public PlanePoint vec(double x1, double x2) {
+        return new PlanePoint(x1 - this.x1, x2 - this.x2);
+    }
 
     /**
      * Calulates the dot product of this vector by the specified argument. We
@@ -232,6 +253,18 @@ public class PlanePoint {
             isEqual = x1 == other.x1 && x2 == other.x2;
         }
         return isEqual;
+    }
+    
+    /**
+     * Check to see if the point values are equal.
+     * 
+     * @param x1 The comparison point's first element.
+     * @param x2 The comparison point's second element.
+     * @return <code>true</code> if the points are equal, <code>false</code>
+     * otherwise.
+     */
+    public boolean equals(double x1, double x2) {
+    	return this.x1 == x1 && this.x2 == x2;
     }
 
     /**

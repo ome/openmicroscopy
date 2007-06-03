@@ -14,11 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.api.IPixels;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
-import ome.util.math.Approximation;
-import omeis.providers.re.Renderer;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -196,8 +193,8 @@ public class Quantization_8_16_bit extends QuantumStrategy {
                 v = cdStart;
             }
             v = aNormalized * (valueMapper.transform(v, k) - ysNormalized);
-            v = Approximation.nearestInteger(v);
-            v = Approximation.nearestInteger(a1 * v + cdStart);
+            v = Math.round(v);
+            v = Math.round(a1 * v + cdStart);
             LUT[x - min] = (byte) v;
         }
 
