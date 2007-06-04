@@ -145,7 +145,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         Mock mockCriteria = criteriaListCall(blank);
         mockCriteria.expects(once()).method("setFirstResult");
         mockCriteria.expects(once()).method("setMaxResults");
-
+        mockCriteria.expects(once()).method("setResultTransformer");
         mockSession.expects(once()).method("createCriteria").will(
                 returnValue(mockCriteria.proxy())).id("test");
         List retVal = iQuery.findAll(Project.class, filter);
