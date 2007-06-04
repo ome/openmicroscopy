@@ -131,8 +131,17 @@ public abstract class Plane2D {
      * @return The intensity value.
      */
     public double getPixelValue(int x1, int x2) {
-        int offset = calculateOffset(x1, x2);
-
+    	return getPixelValue(calculateOffset(x1, x2));
+    }
+    
+    /**
+     * Returns the pixel intensity value of the pixel at a given offset.
+     * 
+     * @param offset The offset.
+     * @return The intensity value.
+     */
+    public double getPixelValue(int offset)
+    {
         if (signed) {
             switch (javaType) {
                 case PlaneFactory.BYTE:
