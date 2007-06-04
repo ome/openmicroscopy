@@ -73,11 +73,27 @@ public class IconManager
 	/** The <code>Refresh</code> icon. */
 	public static final int		REFRESH = 5;
 	
+	/** The <code>Left Arrow</code> icon. */
+	public static final int		LEFT_ARROW = 6;
+	
+	/** The <code>Right Arrow</code> icon. */
+	public static final int		RIGHT_ARROW = 7;
+	
+	/** The <code>Double Left Arrow</code> icon. */
+	public static final int		DOUBLE_LEFT_ARROW = 8;
+	
+	/** The <code>Double Right Arrow</code> icon. */
+	public static final int		DOUBLE_RIGHT_ARROW = 9;
+
+	/** The <code>Wizard</code> icon. */
+	public static final int		WIZARD = 10;
+	
+	
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 5;
+    private static final int    MAX_ID = 10;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -92,6 +108,11 @@ public class IconManager
         relPaths[RESULTS] = "nuvola_view_text16.png";
         relPaths[LOAD] = "nuvola_revert22.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[LEFT_ARROW] = "nuvola_1leftarrow32.png";
+        relPaths[RIGHT_ARROW] = "nuvola_1rightarrow32.png";
+        relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow32.png";
+        relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow32.png";
+        relPaths[WIZARD] = "nuvola_wizard32.png";
     }
     
     /** 

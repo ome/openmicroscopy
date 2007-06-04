@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -91,6 +92,10 @@ class MeasurementViewerUI
 	/** The default color used to fill area. */
 	private static final Color			FILL_COLOR = 
 											new Color(220, 220, 220, 120);
+
+	/** The default color used to fill area alpha'ed <sp>. */
+	private static final Color			FILL_COLOR_ALPHA = 
+											new Color(220, 220, 220, 0);
 	
 	/** The default color of the text. */
 	private static final double			FONT_SIZE = 10.0;
@@ -100,6 +105,10 @@ class MeasurementViewerUI
 	
 	/** The default color of the stroke. */
 	private static final Color			STROKE_COLOR = Color.WHITE;
+	
+	/** The default color of the stroke alpha'ed <sp> to transparent. */
+	private static final Color			STROKE_COLOR_ALPHA = 
+											new Color(255, 255, 255, 128);
 	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
@@ -132,14 +141,28 @@ class MeasurementViewerUI
      */
     private void setFigureAttributes(ROIFigure figure)
     {
-    	AttributeKeys.FONT_SIZE.set(figure, FONT_SIZE);
-		AttributeKeys.TEXT_COLOR.set(figure, TEXT_COLOR);
-		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
-		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR);
-		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR);
-		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
-		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
-		DrawingAttributes.SHOWTEXT.set(figure, true);
+    	if(figure instanceof PointAnnotationFigure)
+    	{
+    		AttributeKeys.FONT_SIZE.set(figure, FONT_SIZE);
+    		AttributeKeys.TEXT_COLOR.set(figure, TEXT_COLOR);
+    		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
+    		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR_ALPHA);
+    		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR_ALPHA);
+    		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
+    		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
+    		DrawingAttributes.SHOWTEXT.set(figure, false);
+    	}
+    	else
+    	{
+    		AttributeKeys.FONT_SIZE.set(figure, FONT_SIZE);
+    		AttributeKeys.TEXT_COLOR.set(figure, TEXT_COLOR);
+    		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
+    		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR);
+    		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR);
+    		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
+    		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
+    		DrawingAttributes.SHOWTEXT.set(figure, true);
+    	}
 	 }
     
     

@@ -28,7 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -56,9 +55,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableA
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.view.ObjectManager.ROIFigureTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -87,16 +84,19 @@ class MeasurementResults
 	private static final String			NAME = "Results";
 	
 	/** Collection of column names. */
-	private static List<String>				columnNames;
+	private List<String>				columnNames;
 	
 	/** Collection of column names. */
-	private static List<AnnotationField>	fields;
+	private List<AnnotationField>	fields;
 	
 	/** Button to save locally the results. */
 	private JButton							saveButton;
 
 	/** Button to save locally the results. */
 	private JButton							refreshButton;
+	
+	/** Button to launch the results wizard. */
+	private JButton 						resultsWizardButton;
 	
 	/** The table displaying the results. */
 	private ResultsTable					results;
@@ -107,38 +107,6 @@ class MeasurementResults
 	/** Reference to the model. */
 	private MeasurementViewerModel			model;
 	
-	static {
-		fields = new ArrayList<AnnotationField>();
-		fields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
-										false)); 
-		fields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
-										false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
-		fields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
-		//		false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
-		//		false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
-		//		false)); 
-		//fields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
-		//		false)); 
-		columnNames = new ArrayList<String>();
-		columnNames.add("Time Point");
-		columnNames.add("Z Section");
-		columnNames.add("ROI ID");
-		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(fields.get(i).getName());
-	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -146,11 +114,24 @@ class MeasurementResults
 		saveButton = new JButton("Save");
 		saveButton.addActionListener(new SaveResultsAction(model.getMeasurementComponent()));
 		
+		resultsWizardButton = new JButton("Results Wizard..");
+		resultsWizardButton.addActionListener(new ActionListener()
+		{
+
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				showResultsWizard();
+			}
+			
+		});
+		
+		
 		refreshButton = new JButton("Refresh Results");
 		refreshButton.addActionListener(new RefreshResultsTableAction(model.getMeasurementComponent()));
 		
 		
 		//Create table model.
+		createDefaultFields();
 		results = new ResultsTable();
 		results.getTableHeader().setReorderingAllowed(false);
 		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
@@ -164,10 +145,57 @@ class MeasurementResults
 		add(new JScrollPane(results), BorderLayout.CENTER);
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout());
+		panel.add(resultsWizardButton);
 		panel.add(refreshButton);
 		panel.add(saveButton);
 		this.add(panel, BorderLayout.SOUTH);
-		
+	}
+
+	/**
+	 * Create the default fields to show results of in the measurement tool.
+	 *
+	 */
+	private void createDefaultFields()
+	{
+		fields = new ArrayList<AnnotationField>();
+		fields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
+										false)); 
+		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
+										false)); 
+		fields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
+										false)); 
+		fields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
+										false)); 
+		fields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
+										false)); 
+		fields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
+		fields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
+		columnNames = new ArrayList<String>();
+		columnNames.add("Time Point");
+		columnNames.add("Z Section");
+		columnNames.add("ROI ID");
+		for (int i = 0 ; i < fields.size(); i++)
+			columnNames.add(fields.get(i).getName());
+	}
+	
+	/**
+	 * Show the results wizard and update the fields based on the users 
+	 * selection.
+	 */
+	private void showResultsWizard()
+	{
+		ResultsWizard resultsWizard = new ResultsWizard(fields);
+		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
+		columnNames.clear();
+		columnNames = new ArrayList<String>();
+		columnNames.add("Time Point");
+		columnNames.add("Z Section");
+		columnNames.add("ROI ID");
+		for (int i = 0 ; i < fields.size(); i++)
+			columnNames.add(fields.get(i).getName());
+		populate();
+		results.repaint();
 	}
 	
 	/**
