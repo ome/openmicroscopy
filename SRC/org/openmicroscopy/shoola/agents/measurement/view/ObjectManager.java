@@ -100,7 +100,7 @@ class ObjectManager
 		columnNames = new ArrayList<String>(2);
 		columnNames.add("ID");
 		columnNames.add("Z Section");
-		columnNames.add("Timepoint");
+		columnNames.add("Time Point");
 		columnNames.add("Shape");
 		columnNames.add("Text");
 		columnNames.add("Visible");

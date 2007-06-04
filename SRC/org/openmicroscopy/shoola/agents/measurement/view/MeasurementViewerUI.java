@@ -49,6 +49,7 @@ import org.jhotdraw.draw.TextFigure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
@@ -56,6 +57,7 @@ import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -233,7 +235,7 @@ class MeasurementViewerUI
 		toolBar = new ToolBar(controller, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiManager = new ObjectManager(this, model);
-		roiResults = new MeasurementResults(controller, model);
+		roiResults = new MeasurementResults(controller, model, this);
 		tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         tabs.setAlignmentX(LEFT_ALIGNMENT);
 	}
@@ -305,6 +307,29 @@ class MeasurementViewerUI
     {
 		if (roiInspector != null) roiInspector.setCellColor(color);
 	}
+    
+    /**
+     * Select the current figure based on ROIid, t and z sections.
+     * 
+     * @param ROIid id of the selected ROI.
+     * @param t its timepoint.
+     * @param z its z section.
+     */
+    void selectFigure(long ROIid, int t, int z)
+    {
+    	ROI roi = model.getROI(ROIid);
+    	if(roi==null)
+    		return;
+    	ROIFigure fig;
+    	try {
+			fig = roi.getFigure(new Coord3D(t, z));
+			selectFigure(fig);
+			
+		} catch (NoSuchShapeException e) {
+			e.printStackTrace();
+		}
+		
+    }
     
     /**
      * Selects the passed figure.

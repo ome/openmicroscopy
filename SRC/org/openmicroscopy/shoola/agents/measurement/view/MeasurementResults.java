@@ -42,6 +42,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -56,6 +59,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.view.ObjectManager.ROIFigureTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -107,7 +111,16 @@ class MeasurementResults
 	/** Reference to the model. */
 	private MeasurementViewerModel			model;
 	
+	/** Reference to the View. */
+	private MeasurementViewerUI			view;
 	
+	/** 
+	 * The table selection listener attached to the table displaying the 
+	 * objects.
+	 */
+	private ListSelectionListener		listener;
+	
+
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -136,6 +149,32 @@ class MeasurementResults
 		results.getTableHeader().setReorderingAllowed(false);
 		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
 		results.setModel(tm);
+		results.setSelectionMode(
+				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		results.setRowSelectionAllowed(true);
+
+		listener = new ListSelectionListener() {
+			
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting()) return;
+
+		        ListSelectionModel lsm =
+		            (ListSelectionModel) e.getSource();
+		        if (lsm.isSelectionEmpty()) {
+		        } else {
+		        	int index = lsm.getMinSelectionIndex();
+		        	MeasurementTableModel m = 
+	        			(MeasurementTableModel) results.getModel();
+	        		long ROIID = (Long)m.getValueAt(index, 2);
+	        		int T = (Integer)m.getValueAt(index, 0);
+	        		int Z = (Integer)m.getValueAt(index, 1);
+	        		view.selectFigure(ROIID, T, Z);
+		        }
+			}
+		
+		};
+
+		results.getSelectionModel().addListSelectionListener(listener);
 	}
 	
 	/** Builds and lays out the GUI. */
@@ -205,7 +244,7 @@ class MeasurementResults
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
 	MeasurementResults(MeasurementViewerControl	controller, 
-					MeasurementViewerModel model)
+					MeasurementViewerModel model, MeasurementViewerUI view)
 	{
 		if (controller == null)
 			throw new IllegalArgumentException("No control.");
@@ -213,6 +252,7 @@ class MeasurementResults
 			throw new IllegalArgumentException("No model.");
 		this.controller = controller;
 		this.model = model;
+		this.view = view;
 		initComponents();
 		buildGUI();
 	}
