@@ -101,8 +101,13 @@ public class ThumbnailLoader
         	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
              try {
-                 thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
-                		 										maxWidth);  
+            	 int sizeX = maxWidth, sizeY = maxHeight;
+                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+                 if (ratio < 1) sizeX *= ratio;
+                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+                 thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY);
+                 //thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
+                //		 										maxWidth);  
              } catch (RenderingServiceException e) {
                  context.getLogger().error(this, 
                          "Cannot retrieve thumbnail: "+e.getExtendedMessage());
