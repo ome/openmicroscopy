@@ -107,6 +107,9 @@
 		<split-combined prefix="jav">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/omero/model/\1I.java"/>
 		</split-combined>
+		<split-combined prefix="pyc">
+			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/src/OMERO/Model/\1.py"/>
+		</split-combined>
 		<split-combined prefix="ice">
 			<regexpmapper from="target/generated/resources/(.*?)I[.]combined" to="target/generated/resources/OMERO/Model/\1.ice"/>
 		</split-combined>

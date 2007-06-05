@@ -1,29 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="OmeroCpp" default="install" basedir=".">
-<!--
-    <property name="classpath.file" value="classpath.xml"/>
-    <property name="main.class" value="ome.services.icy.Main"/>
-    <import file="${classpath.file}"/>
--->
 
     <dirname property="up-two"        file="${basedir}"/>
     <dirname property="up-one"        file="${up-two}"/>
     <property name="copy.dir"         value="target/temp"/>
 
     <import file="../make.xml"/>
+    <import file="../common.xml"/>
 
-    <target name="get-source">
-        <copy todir="${copy.dir}">
-            <fileset dir="../../blitz/src" includes="**/*.cpp"/>
-            <fileset dir="../../blitz/target/generated/src" includes="**/*.cpp"/>
-            <fileset dir="../../blitz/resources" includes="**/*.h,**/*.ice"/>
-            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h,**/*.ice"/>
-        </copy>
-        <delete>
-            <fileset dir="${copy.dir}" includes="**/*">
-                <present present="both" targetdir="src"/>
-            </fileset>
-        </delete>
+    <target name="tools-init">
+        <get-source todir="${copy.dir}"/>
         <!--
             For ease of use, we concatenate all of our header files
             into a single header file.
@@ -53,16 +39,16 @@
         </concat>
     </target>
 
-    <target name="tools-build" depends="get-source,make_build" description="Uses autogen.sh and make to build artifacts"/>
+    <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts"/>
 
-    <target name="tools-dist" depends="make_copy" description="Copies files into tools/target">
+    <target name="tools-dist" depends="make-install" description="Copies files into tools/target">
         <copy file="${copy.dir}/OMERO/ModelI.h" todir="../target/include/OMERO"/>
         <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
         ${copy.dir} is already in the dist. Later we may want to test copying them all
         back, but that depends on how get-source works -->
     </target>
 
-   <target name="clean" depends="make_clean">
+   <target name="clean" depends="make-clean">
         <delete dir="${copy.dir}"/>
     </target>
 

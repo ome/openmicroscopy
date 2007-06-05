@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="OmeroPy" default="install" basedir=".">
+
+    <dirname property="up-two"        file="${basedir}"/>
+    <dirname property="up-one"        file="${up-two}"/>
+    <property name="copy.dir"         value="target"/>
+
+    <import file="../python.xml"/>
+    <import file="../common.xml"/>
+
+    <target name="tools-init">
+        <get-source todir="${copy.dir}">
+            <fileset dir="../../blitz/src" includes="**/*.py"/>
+            <fileset dir="../../blitz/target/generated/src" includes="**/*.py"/>
+        </get-source>
+        <copy todir="${copy.dir}">
+            <fileset dir="src" includes="**/*.py"/>
+        </copy>
+<!--    <setup_py>
+            <arg value="icegen"/>
+        </setup_py> -->
+        <apply executable="slice2py" failonerror="true" parallel="true">
+            <arg value="--output-dir"/>
+            <arg value="${copy.dir}"/>
+            <arg value="-I${copy.dir}"/>
+            <arg value="-I${py.ICE_HOME}/slice"/>
+            <fileset dir="${copy.dir}" includes="**/*.ice"/>
+        </apply>
+    </target>
+
+    <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts"/>
+
+    <target name="tools-dist" depends="python-install" description="Copies files into tools/target">
+    </target>
+
+   <target name="tools-clean" depends="python-clean">
+        <delete dir="${copy.dir}"/>
+    </target>
+
+</project>

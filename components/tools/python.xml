@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="python" default="install" basedir=".">
+
+    <property environment="py"/>
+    <property name="py.DESTDIR"  value="${up-two}/target/"/>
+    <property name="py.ICE_HOME" value="/usr/share/Ice"/>
+
+    <macrodef name="setup_py">
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="${basedir}/setup.py" failonerror="true">
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <target name="python-build" unless="py.NOPYTHON">
+        <setup_py>
+            <arg value="build"/>
+        </setup_py>
+    </target>
+
+    <target name="python-install" unless="make.NOMAKE">
+        <copy todir="../target">
+            <fileset dir="src/slice_generated" includes="**/*.h"/>
+            <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
+        </copy>
+    </target>
+
+    <target name="python-clean" unless="make.NOMAKE">
+        <setup_py>
+            <arg value="clean"/>
+        </setup_py>
+    </target>
+
+</project>

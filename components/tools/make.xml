@@ -9,7 +9,7 @@
     <property name="make.CXX"         value="ccache g++"/>
     <property name="make.J"           value="1"/>
 
-    <target name="make_build" unless="make.NOMAKE">
+    <target name="make-build" unless="make.NOMAKE">
         <exec executable="${basedir}/../autogen.sh" failonerror="true">
             <arg value="--with-ice=${make.ICE_HOME}"/>
             <arg value="--prefix=${make.DESTDIR}"/>
@@ -22,14 +22,14 @@
         <exec executable="make" dir="src" failonerror="true"> <arg value="install"/> </exec>
     </target>
 
-    <target name="make_copy" unless="make.NOMAKE">
+    <target name="make-install" unless="make.NOMAKE">
         <copy todir="../target/include">
             <fileset dir="src/slice_generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
         </copy>
     </target>
 
-    <target name="make_clean" unless="make.NOMAKE">
+    <target name="make-clean" unless="make.NOMAKE">
         <exec executable="make" failonerror="true"> <arg value="clean"/> </exec>
     </target>
 

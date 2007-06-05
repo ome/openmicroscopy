@@ -1,0 +1,18 @@
+<project name="tools-common">
+    <macrodef name="get-source">
+        <attribute name="todir"/>
+        <element   name="filesets" implicit="true"/>
+        <sequential>
+        <copy todir="@{todir}">
+            <fileset dir="../../blitz/resources" includes="**/*.h,**/*.ice"/>
+            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h,**/*.ice"/>
+            <filesets/>
+        </copy>
+        <delete>
+            <fileset dir="@{todir}" includes="**/*">
+                <present present="both" targetdir="src"/>
+            </fileset>
+        </delete>
+        </sequential>
+    </macrodef>
+</project>
