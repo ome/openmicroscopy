@@ -1,0 +1,82 @@
+/*
+ * org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder.ClearAction
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+
+package org.openmicroscopy.shoola.agents.hiviewer.clipboard.finder;
+
+
+
+
+//Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+/** 
+ * Clears the results of a previous find action.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * after code by
+ *          Barry Anderson &nbsp;&nbsp;&nbsp;&nbsp;
+ *              <a href="mailto:banderson@computing.dundee.ac.uk">
+ *              banderson@computing.dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * </small>
+ * @since OME2.2
+ */
+class ClearAction
+    extends FindPaneAction
+{
+    
+    /** The description of the action. */
+    private static final String DESCRIPTION = "Clear results of a previous " +
+                                                "search.";
+    
+    /**
+     * Creates a new instance. 
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    ClearAction(FindPane model)
+    {
+        super(model);
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
+        IconManager im = IconManager.getInstance();
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.CLEAR));
+    }
+    
+    /**
+     * Clears the resuls of a previous find action.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e) { model.clear(); }
+
+}

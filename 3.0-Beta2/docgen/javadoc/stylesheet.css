@@ -1,0 +1,57 @@
+/* JavaDoc style-sheet for Shoola. */
+
+/* Tags. */
+body { 
+	background-color: #FCFFFF; 
+	color: black; 
+}
+a { 
+	color: steelblue; 
+	text-decoration: none; 
+}
+
+/* Table colors. */
+.TableHeadingColor     { background: #CCCCFF; } 
+.TableSubHeadingColor  { background: #EEEEFF; } 
+.TableRowColor         { background: #FAFFFF; } 
+
+/* Fonts used in left-hand frame lists. */
+.FrameTitleFont { 
+	font-size: 100%; 
+	font-family: Helvetica, Arial, sans-serif; 
+	color: #888888; 
+}
+.FrameHeadingFont { 
+	font-size: 90%; 
+	font-family: Helvetica, Arial, sans-serif; 
+	color: #888888; 
+}
+.FrameItemFont { 
+	font-size: 90%; 
+	font-family: Helvetica, Arial, sans-serif; 
+	color: #888888; 
+}
+
+/* Navigation bar fonts and colors. */
+.NavBarCell1 { 
+	background-color:#EEEEFF;
+}
+.NavBarCell1Rev { 
+	background-color:#00008B;
+}
+.NavBarFont1 { 
+	font-family: Arial, Helvetica, sans-serif; 
+	color:#000000;
+}
+.NavBarFont1Rev { 
+	font-family: Arial, Helvetica, sans-serif; 
+	color:#FFFFFF;
+}
+.NavBarCell2 { 
+	font-family: Arial, Helvetica, sans-serif; 
+	background-color:#FFFFFF;
+}
+.NavBarCell3 { 
+	font-family: Arial, Helvetica, sans-serif; 
+	background-color:#FFFFFF;
+} 

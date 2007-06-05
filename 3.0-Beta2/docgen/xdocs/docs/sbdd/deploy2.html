@@ -1,0 +1,49 @@
+<html>
+<head>
+  <title>Installing and Running</title>
+</head>
+<body>
+<p>Installing and running OMERO.insight is pretty easy. The following paragraphs detail the 
+  procedure to follow if you're using the build system or have downloaded/generated 
+  the generic or Mac OS X distribution bundle.</p>
+<h5><i>Generic Bundle</i></h5>
+<p>If you want to install the generic distribution bundle, just extract the archive 
+  contents into the directory in which you intend to install. 
+  To run, just launch the start-up script for your 
+  platform -- the installation directory contains scripts for Mac OS X, Unix, 
+  and Windows. A splash screen will pop up, enter a new server address or select
+  a previously entered one, your user name and password to log 
+  onto the selected OMERO server site.</p>
+<p>&#160;</p>
+<div class="noteFrame">
+  <div class="noteLabel">Note: Linux/Mac OS X/Unix</div>
+  <div class="noteContent">We experienced problems with some GUI tools that deflate 
+    zip archives on Unix-like platforms. The original file permissions were ignored/overwritten 
+    during the archive extraction phase. (Indeed, there's no portable way to store 
+    these permissions. We use the Ant zip task which in turn uses the algorithm used 
+    by the default versions of zip and unzip for many Unix-like systems.) This resulted 
+    in having to set the executable bit for some files manually after the extraction 
+    of the archive contents. If you're experiencing similar problems, then proceed 
+    as follows after unzipping. Move to your installation directory and from there 
+    type, at the command prompt: <code>chmod +x *.sh</code></div>
+</div>
+<p>&#160;</p>
+<h5><i>Mac OS X Bundle</i></h5>
+<p>If you want to install the Mac OS X distribution bundle, just extract the archive 
+  contents into the directory in which you intend to install. 
+  To run, just double-click on the OMERO.insight icon 
+  in your installation directory. A splash screen will pop up, enter a new server 
+  address or select a previously entered one, your user name and password to log 
+  onto the selected OMERO server site.</p>
+<p>&#160;</p>
+<div class="noteFrame">
+  <div class="noteLabel">Note for Linux/Mac OS X/Unix</div>
+  <div class="noteContent"> As already mentioned, we experienced problems with some 
+    GUI tools that deflate zip archives. If you double-click on the OMERO.insight icon and 
+    the application doesn't start, then probably file permissions haven't been set 
+    properly during the archive extraction phase. The fix is easy: open up a terminal 
+    and <code>cd</code> to your installation directory. From there, again <code>cd</code> 
+    to <i>OMERO.insight.app/Contents/MacOS</i>. Now type: <code>chmod +x JavaApplicationStub</code></div>
+</div>
+</body>
+</html>
