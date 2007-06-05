@@ -15,11 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
@@ -43,7 +41,13 @@ class GreyScaleStrategy extends RenderingStrategy {
 
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(Renderer.class);
-
+    
+    /** The channel we're operating on */
+    private int channel;
+    
+    /** The channel binding we're using */
+    private ChannelBinding channelBinding;
+    
     /**
      * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
      * according to the specified {@link PlaneDef#getSlice() slice}.
@@ -75,60 +79,6 @@ class GreyScaleStrategy extends RenderingStrategy {
     }
 
     /**
-     * Renders the specified wavelength (channel).
-     * 
-     * @param dataBuf
-     *            The buffer to hold the output image's data.
-     * @param plane
-     *            Defines the plane to render.
-     * @param qs
-     *            Knows how to quantize a pixel intensity value.
-     * @param color
-     *            The color components used when mapping a quantized value onto
-     *            the color space.
-     * @throws QuantizationException
-     *             If an error occurs while quantizing a pixels intensity value.
-     */
-    private void renderWave(RGBBuffer dataBuf, Plane2D plane, Color color,
-            QuantumStrategy qs) throws QuantizationException {
-        CodomainChain cc = renderer.getCodomainChain();
-        int x1, x2, discreteValue, pixelIndex;
-
-        // Perform optimised pixel settings for integer arrays
-        if (dataBuf instanceof RGBIntBuffer) {
-            int alpha = color.getAlpha();
-            int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
-            for (x2 = 0; x2 < sizeX2; ++x2) {
-                int index = sizeX1 * x2;
-                for (x1 = 0; x1 < sizeX1; ++x1) {
-                    discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-                    discreteValue = cc.transform(discreteValue);
-                    buf[index + x1] = alpha << 24 | discreteValue << 16
-                            | discreteValue << 8 | discreteValue;
-                }
-            }
-        } else // We have just a plain RGBBuffer
-        {
-            byte value;
-            float alpha = color.getAlpha().floatValue() / 255;
-            byte[] r = dataBuf.getRedBand();
-            byte[] g = dataBuf.getBlueBand();
-            byte[] b = dataBuf.getGreenBand();
-            for (x2 = 0; x2 < sizeX2; ++x2) {
-                for (x1 = 0; x1 < sizeX1; ++x1) {
-                    pixelIndex = sizeX1 * x2 + x1;
-                    discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
-                    discreteValue = cc.transform(discreteValue);
-                    value = (byte) (discreteValue * alpha);
-                    r[pixelIndex] = value;
-                    g[pixelIndex] = value;
-                    b[pixelIndex] = value;
-                }
-            }
-        }
-    }
-
-    /**
      * Implemented as specified by the superclass.
      * 
      * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
@@ -138,80 +88,141 @@ class GreyScaleStrategy extends RenderingStrategy {
             QuantizationException {
         // Set the context and retrieve objects we're gonna use.
         renderer = ctx;
+        findFirstActiveChannelBinding();
+        PixelBuffer pixels = renderer.getPixels();
         Pixels metadata = renderer.getMetadata();
+        RenderingStats performanceStats = renderer.getStats();
+        QuantumStrategy qs = 
+        	renderer.getQuantumManager().getStrategyFor(channel);
+        CodomainChain cc = renderer.getCodomainChain();
+        
+        // Retrieve the planar data to render
+        performanceStats.startIO(channel);
+        Plane2D plane =
+        	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
+        performanceStats.endIO(channel);
 
         // Initialize sizeX1 and sizeX2 according to the plane definition and
         // create the RGB buffer.
         initAxesSize(planeDef, metadata);
         RGBBuffer buf = getRgbBuffer();
+        
+        byte value;
+        float alpha = channelBinding.getColor().getAlpha().floatValue() / 255;
 
-        render(buf, planeDef);
-        return buf;
-    }
-
-    /**
-     * Implemented as specified by the superclass.
-     * 
-     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
-     */
-    @Override
-    RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
-            throws IOException, QuantizationException {
-        // Set the context and retrieve objects we're gonna use.
-        renderer = ctx;
-        Pixels metadata = renderer.getMetadata();
-
-        // Initialize sizeX1 and sizeX2 according to the plane definition and
-        // create the RGB buffer.
-        initAxesSize(planeDef, metadata);
-        RGBIntBuffer buf = getIntBuffer();
-
-        render(buf, planeDef);
-        return buf;
-    }
-
-    /**
-     * Implemented as specified by the superclass.
-     * 
-     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
-     */
-    private void render(RGBBuffer buf, PlaneDef planeDef) throws IOException,
-            QuantizationException {
-        QuantumManager qManager = renderer.getQuantumManager();
-        PixelBuffer pixels = renderer.getPixels();
-        Pixels metadata = renderer.getMetadata();
-        ChannelBinding[] cBindings = renderer.getChannelBindings();
-        RenderingStats performanceStats = renderer.getStats();
-
-        // Process the first active wavelength.
-        Plane2D wData;
-        for (int i = 0; i < cBindings.length; i++) {
-            if (cBindings[i].getActive().booleanValue()) {
-                // Get the raw data.
-                performanceStats.startIO(i);
-                wData = PlaneFactory.createPlane(planeDef, i, metadata, pixels);
-                performanceStats.endIO(i);
-
-                try { // Transform it into an RGB image.
-                    performanceStats.startRendering();
-                    renderWave(buf, wData, cBindings[i].getColor(), qManager
-                            .getStrategyFor(i));
-                    performanceStats.endRendering();
-                } catch (QuantizationException e) {
-                    e.setWavelength(i);
-                    throw e;
+        int x1, x2, discreteValue, pixelIndex;
+        byte[] r = buf.getRedBand();
+        byte[] g = buf.getBlueBand();
+        byte[] b = buf.getGreenBand();
+        if (plane.isXYPlanar())
+        {
+        	int planeSize = sizeX1 * sizeX2;
+            for (int i = 0; i < planeSize; i++)
+            {
+                for (x1 = 0; x1 < sizeX1; ++x1)
+                {
+                    discreteValue = qs.quantize(plane.getPixelValue(i));
+                    discreteValue = cc.transform(discreteValue);
+                    value = (byte) (discreteValue * alpha);
+                    r[i] = value;
+                    g[i] = value;
+                    b[i] = value;
                 }
-                break;
             }
         }
-        // Make sure that the pixel buffer is cleansed properly.
-        try {
-            pixels.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ResourceError(e.getMessage());
+        else
+        {
+        	for (x2 = 0; x2 < sizeX2; ++x2) {
+        		for (x1 = 0; x1 < sizeX1; ++x1) {
+        			pixelIndex = sizeX1 * x2 + x1;
+        			discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+        			discreteValue = cc.transform(discreteValue);
+        			value = (byte) (discreteValue * alpha);
+        			r[pixelIndex] = value;
+        			g[pixelIndex] = value;
+        			b[pixelIndex] = value;
+        		}
+        	}
         }
+        return buf;
     }
+    
+    /**
+	 * Implemented as specified by the superclass.
+	 * 
+	 * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+	 */
+	@Override
+	RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
+	        throws IOException, QuantizationException {
+        // Set the context and retrieve objects we're gonna use.
+        renderer = ctx;
+        findFirstActiveChannelBinding();
+        PixelBuffer pixels = renderer.getPixels();
+        Pixels metadata = renderer.getMetadata();
+        RenderingStats performanceStats = renderer.getStats();
+        QuantumStrategy qs = 
+        	renderer.getQuantumManager().getStrategyFor(channel);
+        CodomainChain cc = renderer.getCodomainChain();
+        
+        // Retrieve the planar data to render
+        performanceStats.startIO(channel);
+        Plane2D plane =
+        	PlaneFactory.createPlane(planeDef, channel, metadata, pixels);
+        performanceStats.endIO(channel);
+	
+	    // Initialize sizeX1 and sizeX2 according to the plane definition and
+	    // create the RGB buffer.
+	    initAxesSize(planeDef, metadata);
+	    RGBIntBuffer dataBuf = getIntBuffer();
+	    
+        int alpha = channelBinding.getColor().getAlpha();
+        int[] buf = ((RGBIntBuffer) dataBuf).getDataBuffer();
+        int x1, x2, discreteValue, pixelIndex;
+        if (plane.isXYPlanar())
+        {
+        	int planeSize = sizeX1 * sizeX2;
+        	for (int i = 0; i < planeSize; i++)
+        	{
+                discreteValue = qs.quantize(plane.getPixelValue(i));
+                discreteValue = cc.transform(discreteValue);
+                buf[i] = alpha << 24 | discreteValue << 16
+                        | discreteValue << 8 | discreteValue;            		
+        	}
+        }
+        else
+        {
+        	for (x2 = 0; x2 < sizeX2; ++x2) {
+        		pixelIndex = sizeX1 * x2;
+        		for (x1 = 0; x1 < sizeX1; ++x1) {
+        			discreteValue = qs.quantize(plane.getPixelValue(x1, x2));
+        			discreteValue = cc.transform(discreteValue);
+        			buf[pixelIndex + x1] = alpha << 24 | discreteValue << 16
+        			| discreteValue << 8 | discreteValue;
+        		}
+        	}
+        }
+	    return dataBuf;
+	}
+
+	/**
+	 * Initializes the first active channel binding for the current rendering
+	 * context.
+	 */
+	private void findFirstActiveChannelBinding()
+	{
+		ChannelBinding[] channelBindings = renderer.getChannelBindings();
+		for (int i = 0; i < channelBindings.length; i++)
+		{
+			if (channelBindings[i].getActive())
+			{
+				channel = i;
+				channelBinding = channelBindings[i];
+				return;
+			}
+		}
+		throw new IllegalArgumentException("No active channel bindings found.");
+	}
 
     /**
      * Implemented as specified by the superclass.
