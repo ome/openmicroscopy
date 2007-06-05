@@ -50,12 +50,17 @@ import org.jhotdraw.draw.TextFigure;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
+import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -179,15 +184,17 @@ class MeasurementViewerUI
     	ROIFigure figure = shape.getFigure();
 		String type = null;
 		
-		if (figure instanceof MeasureRectangleFigure) type = "Rectangle";
-		if (figure instanceof MeasureEllipseFigure) type = "Ellipse";
-		if (figure instanceof BezierFigure) {
+		if (figure instanceof RectAnnotationFigure) type = "Rectangle";
+		if (figure instanceof EllipseAnnotationFigure) type = "Ellipse";
+		if (figure instanceof PointAnnotationFigure) type = "Point";
+		if (figure instanceof BezierAnnotationFigure) 
+		{
 			BezierFigure f = (BezierFigure) figure;
 			if (f.isClosed()) type = "Polygon";
 			else type = "Scribble";
 		}
-		if (figure instanceof MeasureLineFigure || 
-			figure instanceof MeasureLineConnectionFigure)
+		if (figure instanceof LineAnnotationFigure || 
+			figure instanceof LineConnectionAnnotationFigure)
 			type = "Line";
 		if (figure instanceof TextFigure) type = "Text";
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);

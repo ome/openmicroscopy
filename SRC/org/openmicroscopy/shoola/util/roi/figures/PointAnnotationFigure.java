@@ -74,7 +74,7 @@ import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWT
  * @since OME3.0
  */
 public class PointAnnotationFigure 
-	extends MeasureEllipseFigure
+	extends MeasurePointFigure
 	implements TextHolderFigure
 {
 	private final static double 				POINTSIZE = 6;  
