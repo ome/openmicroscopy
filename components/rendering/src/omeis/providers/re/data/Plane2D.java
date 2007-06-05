@@ -131,16 +131,34 @@ public abstract class Plane2D {
      * @return The intensity value.
      */
     public double getPixelValue(int x1, int x2) {
-    	return getPixelValue(calculateOffset(x1, x2));
+    	return getPixelValueDirect(calculateOffset(x1, x2));
     }
     
+    
     /**
-     * Returns the pixel intensity value of the pixel at a given offset.
+     * Returns the pixel intensity value of the pixel at a given offset within
+     * the backing buffer. This method takes into account bytes per pixel. So
+     * the number of offsets is equal to the buffer size / 
+     * <code>bytesPerPixel</code>.
      * 
-     * @param offset The offset.
+     * @param offset The relative offset (taking into account the number of 
+     * bytes per pixel) within the backing buffer.
      * @return The intensity value.
      */
     public double getPixelValue(int offset)
+    {
+    	return getPixelValueDirect(offset * bytesPerPixel);
+    }
+    
+    /**
+     * Returns the pixel intensity value of the pixel at a given offset within
+     * the backing buffer. This method does not take into account bytes per
+     * pixel.
+     * 
+     * @param offset The absolute offset within the backing buffer.
+     * @return The intensity value.
+     */
+    private double getPixelValueDirect(int offset)
     {
         if (signed) {
             switch (javaType) {
@@ -168,4 +186,14 @@ public abstract class Plane2D {
         throw new RuntimeException("Unknown pixel type.");
     }
 
+    /**
+     * Returns <code>true</code> if the plane is an <code>XY-plane</code>,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isXYPlanar()
+    {
+    	return (planeDef.getSlice() == PlaneDef.XY);
+    }
 }

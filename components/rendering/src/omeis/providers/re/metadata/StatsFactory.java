@@ -94,37 +94,55 @@ public class StatsFactory {
             segments[i] = new BasicSegment(
             		gMin + i * sizeBin, gMin + (i + 1) * sizeBin);
         }
+        
         // check segment [o,e[
         double v;
         BasicSegment segment;
-        for (int x2 = 0; x2 < sizeX2; ++x2) {
-            for (int x1 = 0; x1 < sizeX1; ++x1) {
-            	v = p2D.getPixelValue(x1, x2);
-                for (int i = 0; i < segments.length; i++) {
+        if (p2D.isXYPlanar()) {
+        	//modified code
+        	int size = sizeX1*sizeX2;
+        	for (int j = 0; j < size; j++) {
+				v = p2D.getPixelValue(j);
+				for (int i = 0; i < segments.length; i++) {
                 	segment = segments[i];
                 	if (v >= segment.x1 && v < segment.x2) {
                 		totals[i]++;
                         break;
                 	}
-                	/*
-                    if (!segments[i].equals(1, pointX1, pointX2)
-                    	&& segments[i].lies(pointX1, pointX2))
-                    {
-                        totals[i]++;
-                        break;
-                    }
-                    */
                 } // end i
-            } // end x1
-        }// end x2
+			}
+        } else {
+        	for (int x2 = 0; x2 < sizeX2; ++x2) {
+                for (int x1 = 0; x1 < sizeX1; ++x1) {
+                	v = p2D.getPixelValue(x1, x2);
+                    for (int i = 0; i < segments.length; i++) {
+                    	segment = segments[i];
+                    	if (v >= segment.x1 && v < segment.x2) {
+                    		totals[i]++;
+                            break;
+                    	}
+                    	/*
+                        if (!segments[i].equals(1, pointX1, pointX2)
+                        	&& segments[i].lies(pointX1, pointX2))
+                        {
+                            totals[i]++;
+                            break;
+                        }
+                        */
+                    } // end i
+                } // end x1
+            }// end x2
+        }
+       
+        
 
         double total = sizeX2 * sizeX1;
         for (int i = 0; i < totals.length; i++) {
             locationStats[i] = totals[i] / total;
         }
         // Default, we assume that we have at least 3 sub-intervals.
-        inputStart = segments[0].x1;//segments[0].getPoint(1).x1;
-        inputEnd = segments[NB_BIN - 1].x1;//segments[NB_BIN - 1].getPoint(1).x1;
+        inputStart = segments[0].x2;//segments[0].getPoint(1).x1;
+        inputEnd = segments[NB_BIN - 1].x2;//segments[NB_BIN - 1].getPoint(1).x1;
         total = total - totals[0] - totals[NB_BIN - 1];
         if (totals[0] >= totals[NB_BIN - 1]) {
             inputEnd = accumulateCloseToMin(totals, segments, total, epsilon);
@@ -158,7 +176,7 @@ public class StatsFactory {
      */
     private double accumulateCloseToMin(int[] totals, BasicSegment[] segments,
             double total, double epsilon) {
-        double e = segments[NB_BIN - 1].x1, sum = 0;
+        double e = segments[NB_BIN - 1].x2, sum = 0;
         for (int i = 1; i < totals.length - 1; i++) {
             sum += totals[i];
             if (sum / total > THRESHOLD) {
@@ -175,11 +193,11 @@ public class StatsFactory {
      */
     private double accumulateCloseToMax(int[] totals, BasicSegment[] segments,
             double total, double epsilon) {
-        double s = segments[0].x1, sum = 0;
+        double s = segments[0].x2, sum = 0;
         for (int i = totals.length - 2; i > 0; i--) {
             sum += totals[i];
             if (sum / total > THRESHOLD) {
-                s = segments[i].x1 - epsilon;
+                s = segments[i].x2 - epsilon;
                 break;
             }
         }
