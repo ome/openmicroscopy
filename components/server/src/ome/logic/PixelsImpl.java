@@ -62,7 +62,7 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
     protected transient PixelsService pixelsData;
 
     public final void setPixelsData(PixelsService pixelsData) {
-        beanHelper.throwIfAlreadySet(this.pixelsData, pixelsData);
+        getBeanHelper().throwIfAlreadySet(this.pixelsData, pixelsData);
         this.pixelsData = pixelsData;
     }
 

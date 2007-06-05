@@ -239,7 +239,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            a <code>RenderingEngine</code>.
      */
     public void setRenderingEngine(RenderingEngine re) {
-        beanHelper.throwIfAlreadySet(this.re, re);
+        getBeanHelper().throwIfAlreadySet(this.re, re);
         this.re = re;
     }
 
@@ -250,7 +250,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            an <code>IScale</code>.
      */
     public void setScaleService(IScale iScale) {
-        beanHelper.throwIfAlreadySet(this.iScale, iScale);
+        getBeanHelper().throwIfAlreadySet(this.iScale, iScale);
         this.iScale = iScale;
     }
 
@@ -261,7 +261,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *            a <code>ThumbnailService</code>.
      */
     public void setIoService(ThumbnailService ioService) {
-        beanHelper.throwIfAlreadySet(this.ioService, ioService);
+        getBeanHelper().throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
     }
 
@@ -271,7 +271,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *   		  	an <code>IRepositoryInfo</code>
      */
     public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
-        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
     }
     /**

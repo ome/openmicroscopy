@@ -45,10 +45,10 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
      * {@link OmeroContext#applyBeanPropertyValues(Object, Class)} when
      * necessary.
      */
-    protected transient BeanHelper beanHelper = new BeanHelper(this.getClass());
+    private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
 
     public final void setQueryFactory(QueryFactory factory) {
-        beanHelper.throwIfAlreadySet(this.queryFactory, factory);
+        getBeanHelper().throwIfAlreadySet(this.queryFactory, factory);
         this.queryFactory = factory;
     }
     
@@ -57,7 +57,7 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
     }
 
     public final void setSecuritySystem(SecuritySystem security) {
-        beanHelper.throwIfAlreadySet(this.securitySystem, security);
+        getBeanHelper().throwIfAlreadySet(this.securitySystem, security);
         this.securitySystem = security;
     }
     
@@ -72,7 +72,14 @@ public abstract class AbstractLevel1Service implements SelfConfigurableService {
      * perform the configuration.
      */
     public void selfConfigure() {
-        beanHelper.configure(this);
+        getBeanHelper().configure(this);
+    }
+    
+    protected BeanHelper getBeanHelper() {
+        if (beanHelper == null) {
+            beanHelper = new BeanHelper(this.getClass());
+        }
+        return beanHelper;
     }
 
     // ~ HibernateDaoSupport methods

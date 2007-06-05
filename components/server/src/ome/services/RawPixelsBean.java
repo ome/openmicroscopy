@@ -112,12 +112,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     }
 
     public final void setPixelsMetadata(IPixels metaService) {
-        beanHelper.throwIfAlreadySet(this.metadataService, metaService);
+        getBeanHelper().throwIfAlreadySet(this.metadataService, metaService);
         metadataService = metaService;
     }
 
     public final void setPixelsData(PixelsService dataService) {
-        beanHelper.throwIfAlreadySet(this.dataService, dataService);
+        getBeanHelper().throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
     }
 
@@ -127,7 +127,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
      *   		  	an <code>IRepositoryInfo</code>
      */
     public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
-        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
     }
     

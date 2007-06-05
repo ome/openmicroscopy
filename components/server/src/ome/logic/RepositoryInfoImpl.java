@@ -82,7 +82,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @param rootdir
 	 */
 	public void setThumbnailService(ThumbnailService thumbnailService) {
-		beanHelper.throwIfAlreadySet(this.thumbnailService, thumbnailService);
+		getBeanHelper().throwIfAlreadySet(this.thumbnailService, thumbnailService);
 		this.thumbnailService = thumbnailService;
 	}
 
@@ -92,7 +92,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @param rootdir
 	 */
 	public void setPixelsService(PixelsService pixelsService) {
-		beanHelper.throwIfAlreadySet(this.pixelsService, pixelsService);
+		getBeanHelper().throwIfAlreadySet(this.pixelsService, pixelsService);
 		this.pixelsService = pixelsService;
 	}
 
@@ -102,7 +102,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @param rootdir
 	 */
 	public void setFileService(OriginalFilesService fileService) {
-		beanHelper.throwIfAlreadySet(this.fileService, fileService);
+		getBeanHelper().throwIfAlreadySet(this.fileService, fileService);
 		this.fileService = fileService;
 	}
 

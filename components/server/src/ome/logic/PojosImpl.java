@@ -502,7 +502,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
                 if (key == null || c.getIds(key) == null
                         || c.getIds(key).size() == 0) {
-                    beanHelper.getLogger().warn(
+                    getBeanHelper().getLogger().warn(
                             " Skipping " + key + " in collection counts.");
                     continue;
                 }

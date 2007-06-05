@@ -192,7 +192,7 @@ public class ConfigImpl extends AbstractLevel2Service implements IConfig {
      * to be set.
      */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        beanHelper.throwIfAlreadySet(jdbc, jdbcTemplate);
+        getBeanHelper().throwIfAlreadySet(jdbc, jdbcTemplate);
         this.jdbc = jdbcTemplate;
     }
 

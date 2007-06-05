@@ -29,7 +29,7 @@ import ome.system.SimpleEventContext;
 public abstract class AbstractStatefulBean implements SelfConfigurableService,
         StatefulServiceInterface, Serializable {
 
-    protected transient BeanHelper beanHelper = new BeanHelper(this.getClass());
+    private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
 
     protected transient LocalQuery iQuery;
 
@@ -42,17 +42,24 @@ public abstract class AbstractStatefulBean implements SelfConfigurableService,
      *            an <code>IQuery</code> service.
      */
     public final void setQueryService(LocalQuery iQuery) {
-        beanHelper.throwIfAlreadySet(this.iQuery, iQuery);
+        getBeanHelper().throwIfAlreadySet(this.iQuery, iQuery);
         this.iQuery = iQuery;
     }
 
     public final void setSecuritySystem(SecuritySystem secSys) {
-        beanHelper.throwIfAlreadySet(this.sec, secSys);
+        getBeanHelper().throwIfAlreadySet(this.sec, secSys);
         this.sec = secSys;
     }
 
     public void selfConfigure() {
-        beanHelper.configure(this);
+        getBeanHelper().configure(this);
+    }
+    
+    protected BeanHelper getBeanHelper() {
+        if (beanHelper == null) {
+            beanHelper = new BeanHelper(this.getClass());
+        }
+        return beanHelper;
     }
 
     @RolesAllowed("user")

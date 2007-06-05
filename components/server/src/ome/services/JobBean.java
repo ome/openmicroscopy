@@ -193,7 +193,7 @@ public class JobBean extends AbstractStatefulBean implements
      *            an <code>ITypes</code>.
      */
     public void setTypesService(ITypes typesService) {
-        beanHelper.throwIfAlreadySet(this.iTypes, typesService);
+        getBeanHelper().throwIfAlreadySet(this.iTypes, typesService);
 	this.iTypes = typesService;
     }
 
@@ -204,7 +204,7 @@ public class JobBean extends AbstractStatefulBean implements
      *            a <code>IUpdate</code>.
      */
     public void setUpdateService(IUpdate updateService) {
-        beanHelper.throwIfAlreadySet(this.iUpdate, updateService);
+        getBeanHelper().throwIfAlreadySet(this.iUpdate, updateService);
 	this.iUpdate = updateService;
     }
 
@@ -215,7 +215,7 @@ public class JobBean extends AbstractStatefulBean implements
      *            a <code>ProcessManager</code>.
      */
     public void setProcessManager(ProcessManager procMgr) {
-        beanHelper.throwIfAlreadySet(this.pm, procMgr);
+        getBeanHelper().throwIfAlreadySet(this.pm, procMgr);
 	this.pm = procMgr;
     }
 

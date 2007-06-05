@@ -160,13 +160,13 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsMetadata(IPixels metaService) {
-        beanHelper.throwIfAlreadySet(this.pixMetaSrv, metaService);
+        getBeanHelper().throwIfAlreadySet(this.pixMetaSrv, metaService);
         pixMetaSrv = metaService;
     }
 
     /** set injector. For use during configuration. Can only be called once. */
     public void setPixelsData(PixelsService dataService) {
-        beanHelper.throwIfAlreadySet(this.pixDataSrv, dataService);
+        getBeanHelper().throwIfAlreadySet(this.pixDataSrv, dataService);
         pixDataSrv = dataService;
     }
 
@@ -187,7 +187,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     @PrePassivate
     public void passivate() {
         closeRenderer();
-        beanHelper.passivationNotAllowed();
+        getBeanHelper().passivationNotAllowed();
     }
 
     /**

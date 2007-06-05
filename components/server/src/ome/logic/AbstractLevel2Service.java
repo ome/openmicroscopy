@@ -32,7 +32,7 @@ import ome.system.SelfConfigurableService;
  */
 public abstract class AbstractLevel2Service implements SelfConfigurableService {
 
-    protected transient BeanHelper beanHelper = new BeanHelper(this.getClass());
+    private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
     
     protected transient LocalUpdate iUpdate;
 
@@ -52,26 +52,33 @@ public abstract class AbstractLevel2Service implements SelfConfigurableService {
      * perform the configuration.
      */
     public void selfConfigure() {
-        beanHelper.configure(this);
+        getBeanHelper().configure(this);
     }
-    
+
+    protected BeanHelper getBeanHelper() {
+        if (beanHelper == null) {
+            beanHelper = new BeanHelper(this.getClass());
+        }
+        return beanHelper;
+    }
+
     public final void setUpdateService(LocalUpdate update) {
-        beanHelper.throwIfAlreadySet(this.iUpdate, update);
+        getBeanHelper().throwIfAlreadySet(this.iUpdate, update);
         this.iUpdate = update;
     }
 
     public final void setQueryFactory(QueryFactory qFactory) {
-        beanHelper.throwIfAlreadySet(this.queryFactory, qFactory);
+        getBeanHelper().throwIfAlreadySet(this.queryFactory, qFactory);
         this.queryFactory = qFactory;
     }
     
     public final void setQueryService(LocalQuery query) {
-        beanHelper.throwIfAlreadySet(this.iQuery, query);
+        getBeanHelper().throwIfAlreadySet(this.iQuery, query);
         this.iQuery = query;
     }
 
     public final void setSecuritySystem(SecuritySystem secSys) {
-        beanHelper.throwIfAlreadySet(this.sec, secSys);
+        getBeanHelper().throwIfAlreadySet(this.sec, secSys);
         this.sec = secSys;
     }
 

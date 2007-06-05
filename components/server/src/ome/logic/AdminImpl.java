@@ -116,19 +116,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
 
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-        beanHelper.throwIfAlreadySet(this.jdbc, jdbcTemplate);
+        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
         jdbc = jdbcTemplate;
     }
 
     /** injector for usage by the container. Not for general use */
     public final void setExtendedMetadata(ExtendedMetadata extMetadata) {
-        beanHelper.throwIfAlreadySet(this.em, extMetadata);
+        getBeanHelper().throwIfAlreadySet(this.em, extMetadata);
         em = extMetadata;
     }
     
     /** injector for usage by the container. Not for general use */
     public final void setSessionFactory(SessionFactory sessions) {
-        beanHelper.throwIfAlreadySet(this.sf, sessions);
+        getBeanHelper().throwIfAlreadySet(this.sf, sessions);
         sf = sessions;
     }
     
@@ -319,16 +319,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
         String string = "omero:service=LoginConfig";
         // using Spring utilities to get MBeanServer
         MBeanServer mbeanServer = JmxUtils.locateMBeanServer();
-        beanHelper.getLogger().debug("Acquired MBeanServer.");
+        getBeanHelper().getLogger().debug("Acquired MBeanServer.");
         ObjectName name;
         try {
             // defined in app/resources/jboss-service.xml
             name = new ObjectName(string);
             mbeanServer.invoke(name, "flushAuthenticationCaches",
                     new Object[] {}, new String[] {});
-            beanHelper.getLogger().debug("Flushed authentication caches.");
+            getBeanHelper().getLogger().debug("Flushed authentication caches.");
         } catch (InstanceNotFoundException infe) {
-            beanHelper.getLogger().warn(
+            getBeanHelper().getLogger().warn(
                     string + " not found. Won't synchronize login cache.");
         } catch (Exception e) {
             InternalException ie = new InternalException(e.getMessage());
@@ -602,7 +602,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                 "delete from password where experimenter_id = ?", e.getId());
 
         if (count == 0) {
-            beanHelper.getLogger().info(
+            getBeanHelper().getLogger().info(
                     "No password found for user " + e.getOmeName()
                             + ". Cannot delete.");
         }
@@ -766,8 +766,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin {
                     }
 
                     // reporting
-                    if (beanHelper.getLogger().isDebugEnabled()) {
-                        beanHelper.getLogger().debug(counts);
+                    if (getBeanHelper().getLogger().isDebugEnabled()) {
+                        getBeanHelper().getLogger().debug(counts);
                     }
 
                     // if there are no links, the we can unlock

@@ -116,7 +116,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      *            an <code>OriginalFileService</code>.
      */
     public final void setOriginalFilesService(OriginalFilesService ioService) {
-        beanHelper.throwIfAlreadySet(this.ioService, ioService);
+        getBeanHelper().throwIfAlreadySet(this.ioService, ioService);
         this.ioService = ioService;
     }
     
@@ -126,7 +126,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
      *   		  	an <code>IRepositoryInfo</code>
      */
     public final void setIRepositoryInfo(IRepositoryInfo iRepositoryInfo) {
-        beanHelper.throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
+        getBeanHelper().throwIfAlreadySet(this.iRepositoryInfo, iRepositoryInfo);
         this.iRepositoryInfo = iRepositoryInfo;
     }
     

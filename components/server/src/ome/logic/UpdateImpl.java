@@ -67,7 +67,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     protected transient LocalQuery localQuery;
 
     public final void setQueryService(LocalQuery query) {
-        beanHelper.throwIfAlreadySet(this.localQuery, query);
+        getBeanHelper().throwIfAlreadySet(this.localQuery, query);
         this.localQuery = query;
     }
 
@@ -220,8 +220,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
                     "Argument to save cannot be null.");
         }
 
-        if (beanHelper.getLogger().isDebugEnabled()) {
-            beanHelper.getLogger().debug(" Saving event before merge. ");
+        if (getBeanHelper().getLogger().isDebugEnabled()) {
+            getBeanHelper().getLogger().debug(" Saving event before merge. ");
         }
 
     }
@@ -232,8 +232,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
      * {@link UpdateFilter} or to another event listener.
      */
     protected IObject internalSave(IObject obj, UpdateFilter filter) {
-        if (beanHelper.getLogger().isDebugEnabled()) {
-            beanHelper.getLogger().debug(" Internal save. ");
+        if (getBeanHelper().getLogger().isDebugEnabled()) {
+            getBeanHelper().getLogger().debug(" Internal save. ");
         }
 
         IObject result = (IObject) filter.filter(null, obj);
@@ -242,8 +242,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     protected void internalDelete(IObject obj, UpdateFilter filter) {
-        if (beanHelper.getLogger().isDebugEnabled()) {
-            beanHelper.getLogger().debug(" Internal delete. ");
+        if (getBeanHelper().getLogger().isDebugEnabled()) {
+            getBeanHelper().getLogger().debug(" Internal delete. ");
         }
 
         getHibernateTemplate().delete(
@@ -253,8 +253,8 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
     private void afterUpdate(UpdateFilter filter) {
 
-        if (beanHelper.getLogger().isDebugEnabled()) {
-            beanHelper.getLogger().debug(" Post-save cleanup. ");
+        if (getBeanHelper().getLogger().isDebugEnabled()) {
+            getBeanHelper().getLogger().debug(" Post-save cleanup. ");
         }
 
         // Clean up
