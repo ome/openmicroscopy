@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 
@@ -129,7 +130,8 @@ public class InputStrategy
 	public final static String TEXT_TAG = "text";
 	public final static String POLYLINE_TAG = "polyline";
 	public final static String POLYGON_TAG = "polygon";
-	
+	public final static String POINT_TAG = "point";
+
 	public final static String DATATYPE_ATTRIBUTE = "type";
 	public final static String SIZE_ATTRIBUTE = "size"; 
 	public final static String VALUE_ATTRIBUTE = "value";
@@ -591,6 +593,8 @@ public class InputStrategy
 			figure = createLineFigure(figureElement);
 		if(figureElement.getName().equals(ELLIPSE_TAG))
 			figure = createEllipseFigure(figureElement);
+		if(figureElement.getName().equals(POINT_TAG))
+			figure = createPointFigure(figureElement);
 		if(figureElement.getName().equals(TEXT_TAG))
 			figure = createTextFigure(figureElement);
 		if(figureElement.getName().equals(POLYLINE_TAG))
@@ -644,6 +648,27 @@ public class InputStrategy
 		EllipseAnnotationFigure ellipseFigure = new EllipseAnnotationFigure(x, y, width, height);
 		addAttributes(ellipseFigure, ellipseElement);
 		return ellipseFigure;
+	}
+	
+	private PointAnnotationFigure createPointFigure(IXMLElement pointElement)
+	{
+		String cxValue = pointElement.getAttribute(CX_ATTRIBUTE, VALUE_NULL);
+		String cyValue = pointElement.getAttribute(CY_ATTRIBUTE, VALUE_NULL);
+		String rxValue = pointElement.getAttribute(RX_ATTRIBUTE, VALUE_NULL);
+		String ryValue = pointElement.getAttribute(RY_ATTRIBUTE, VALUE_NULL);
+		double cx = new Double(cxValue);
+		double cy = new Double(cyValue);
+		double rx = new Double(rxValue);
+		double ry = new Double(ryValue);
+		
+		double x = cx-rx;
+		double y = cy-ry;
+		double width = rx*2;
+		double height = ry*2;
+		
+		PointAnnotationFigure pointFigure = new PointAnnotationFigure(x, y, width, height);
+		addAttributes(pointFigure, pointElement);
+		return pointFigure;
 	}
 	
 	private RectAnnotationFigure createRectangleFigure(IXMLElement rectElement)

@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
@@ -123,6 +124,7 @@ public class OutputStrategy
 	public final static String TEXT_TAG = "text";
 	public final static String POLYLINE_TAG = "polyline";
 	public final static String POLYGON_TAG = "polygon";
+	public final static String POINT_TAG = "point";
 	
 	public final static String DATATYPE_ATTRIBUTE = "type";
 	public final static String SIZE_ATTRIBUTE = "size"; 
@@ -396,6 +398,12 @@ public class OutputStrategy
 			writeEllipseAnnotationFigure(shapeElement, (EllipseAnnotationFigure)figure);		
 			writeTextFigure(shapeElement, (EllipseAnnotationFigure)figure);
 		}
+		else if (figure instanceof PointAnnotationFigure)
+		{
+			writeSVGHeader(shapeElement);
+			writePointAnnotationFigure(shapeElement, (PointAnnotationFigure)figure);		
+			writeTextFigure(shapeElement, (PointAnnotationFigure)figure);
+		}
 		else if(figure instanceof LineConnectionAnnotationFigure)
 		{
 			writeSVGHeader(shapeElement);
@@ -570,6 +578,24 @@ public class OutputStrategy
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement ellipseElement = new XMLElement(ELLIPSE_TAG);
+		svgElement.addChild(ellipseElement);
+		
+		double cx = fig.getX() + fig.getWidth() / 2d;		
+		double cy = fig.getY() + fig.getHeight() / 2d;
+		double rx = fig.getWidth() / 2d;
+		double ry = fig.getHeight() / 2d;
+		ellipseElement.setAttribute(CX_ATTRIBUTE, cx+"");
+		ellipseElement.setAttribute(CY_ATTRIBUTE, cy+"");
+		ellipseElement.setAttribute(RX_ATTRIBUTE, rx+"");
+		ellipseElement.setAttribute(RY_ATTRIBUTE, ry+"");
+        writeShapeAttributes(ellipseElement, fig.getAttributes());
+        writeTransformAttribute(ellipseElement, fig.getAttributes());
+	}
+
+	private void writePointAnnotationFigure(XMLElement shapeElement, PointAnnotationFigure fig) throws IOException
+	{
+		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
+		XMLElement ellipseElement = new XMLElement(POINT_TAG);
 		svgElement.addChild(ellipseElement);
 		
 		double cx = fig.getX() + fig.getWidth() / 2d;		
