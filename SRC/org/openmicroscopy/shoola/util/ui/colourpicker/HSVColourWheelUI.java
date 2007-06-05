@@ -27,8 +27,6 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
@@ -36,9 +34,9 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import layout.TableLayout;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.colour.HSV;
@@ -168,7 +166,6 @@ class HSVColourWheelUI
         add(p, "2, 1, t, l");
 	}
 
-
 	/**
 	 * Createw the HSV Colour wheel, and addw the listener which will notify
      * this component when its been picked by the user.  
@@ -240,10 +237,7 @@ class HSVColourWheelUI
 	private void createAlphaTextbox()
 	{
 		alphaTextbox = new JTextField((int) (control.getAlpha()*255)+"");
-		int h = getFontMetrics(getFont()).getHeight();
 		alphaTextbox.setColumns(TabbedPaneUI.TEXTBOX_COLUMN);
-		int w = alphaTextbox.getPreferredSize().width;
-		//alphaTextbox.setPreferredSize(new Dimension(w, h));
 		alphaTextboxListener = new ActionListener() {		
 			public void actionPerformed(ActionEvent actionEvent) {
 				JTextField src = (JTextField) actionEvent.getSource();

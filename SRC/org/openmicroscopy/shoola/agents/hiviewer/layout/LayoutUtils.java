@@ -253,44 +253,48 @@ public class LayoutUtils
     		if (ho instanceof DataObject) {
     			if (pho instanceof DataObject) {
     				j = oldNodes.iterator();
-        			id = ((DataObject) ho).getId();
-        			pid = ((DataObject) pho).getId();
-        			while (j.hasNext()) {
-        				oldChild = (ImageDisplay) j.next();
-        				oho = oldChild.getHierarchyObject();
-        				if (oldChild.getParentDisplay() != null) {
-        					poho = 
-        					oldChild.getParentDisplay().getHierarchyObject();
-            				if (oho instanceof DataObject) { 
-            					if (((DataObject) oho).getId() == id && 
-            							oho.getClass().equals(klass)) {
-            						if (((DataObject) poho).getId() == pid && 
-                							poho.getClass().equals(pKlass)) {
-            							if (child instanceof ImageNode) {
-            								scaleImage((ImageNode) child, 
-            										(ImageNode) oldChild);
-            							}
-            							child.setBounds(oldChild.getBounds());
-            						}
-            					}
-            				}
-        				}
-        			}
-    			} else {
+    				id = ((DataObject) ho).getId();
+    				pid = ((DataObject) pho).getId();
+    				while (j.hasNext()) {
+    					oldChild = (ImageDisplay) j.next();
+    					oho = oldChild.getHierarchyObject();
+    					if (oldChild.getParentDisplay() != null) {
+    						poho = 
+    							oldChild.getParentDisplay().getHierarchyObject();
+    						if (oho instanceof DataObject) { 
+    							if (((DataObject) oho).getId() == id && 
+    									oho.getClass().equals(klass)) {
+    								if (((DataObject) poho).getId() == pid && 
+    										poho.getClass().equals(pKlass)) {
+    									if (child instanceof ImageNode) {
+    										scaleImage((ImageNode) child, 
+    												(ImageNode) oldChild);
+    									}
+    									child.setBounds(oldChild.getBounds());
+    								}
+    							}
+    						}
+    					}
+    				}
+    			} else { //pho not a dataobject
     				j = oldNodes.iterator();
-        			id = ((DataObject) ho).getId();
-        			while (j.hasNext()) {
-        				oldChild = (ImageDisplay) j.next();
-        				oho = oldChild.getHierarchyObject();
-        				if (oldChild.getParentDisplay() != null) {
-            				if (oho instanceof DataObject) { 
-            					if (((DataObject) oho).getId() == id && 
-            							oho.getClass().equals(klass)) {
-            						child.setBounds(oldChild.getBounds());
-            					}
-            				}
-        				}
-        			}
+    				id = ((DataObject) ho).getId();
+    				while (j.hasNext()) {
+    					oldChild = (ImageDisplay) j.next();
+    					oho = oldChild.getHierarchyObject();
+    					if (oldChild.getParentDisplay() != null) {
+    						if (oho instanceof DataObject) { 
+    							if (((DataObject) oho).getId() == id && 
+    									oho.getClass().equals(klass)) {
+    								if (child instanceof ImageNode) {
+    									scaleImage((ImageNode) child, 
+    											(ImageNode) oldChild);
+    								}
+    								child.setBounds(oldChild.getBounds());
+    							}
+    						}
+    					}
+    				}
     			}
     		}
     	}

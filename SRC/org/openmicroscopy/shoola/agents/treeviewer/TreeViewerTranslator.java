@@ -72,6 +72,9 @@ import pojos.ProjectData;
 public class TreeViewerTranslator
 {
     
+	/** Default text displayed in the acquisition date is not available. */
+	public static final String DATE_NOT_AVAILABLE = "Date not available";
+	
 	/** Text of the dummy TreeImageSet containing the orphaned datasets. */
 	public static final String ORPHANED_DATASETS = "Orphaned Datasets";
 	
@@ -93,8 +96,8 @@ public class TreeViewerTranslator
             try {
                 time = ((ImageData) node.getUserObject()).getInserted();
             } catch (Exception e) {}
-            if (time == null) time = getDefaultTimestamp();
-            title = DateFormat.getDateInstance().format(time);   
+            if (time == null) title = DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
+            else title = formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
             node.setToolTip(toolTip); 
         }
@@ -788,6 +791,18 @@ public class TreeViewerTranslator
     public static Timestamp getDefaultTimestamp()
     {
         return new Timestamp(new Date().getTime());
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * 
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatTime(Timestamp time) 
+    {
+    	if (time == null) return "";
+    	return DateFormat.getDateInstance().format(time);  
     }
     
 }

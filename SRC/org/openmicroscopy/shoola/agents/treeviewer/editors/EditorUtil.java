@@ -26,14 +26,18 @@ package org.openmicroscopy.shoola.agents.treeviewer.editors;
 
 
 //Java imports
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
@@ -84,6 +88,9 @@ class EditorUtil
     /** Identifies the <code>PixelType</code> field. */
     private static final String PIXEL_TYPE = "Pixel Type";
 
+    /** Identifies the <code>Acquisition date</code> field. */
+    private static final String ACQUISITION_DATE = "Acquisition date";
+    
     /** Identifies the <code>Name</code> field. */
     private static final String NAME = "Owner";
     
@@ -139,7 +146,7 @@ class EditorUtil
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");  
         } else {
-            NumberFormat    nf = NumberFormat.getInstance();
+            NumberFormat nf = NumberFormat.getInstance();
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
@@ -160,4 +167,72 @@ class EditorUtil
         return details;
     }
       
+    /**
+     * Transforms the specified {@link ImageData} object into 
+     * a visualization form.
+     * 
+     * @param image The {@link ImageData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
+     */
+    static Map<String, String> transformImageData(ImageData image)
+    {
+        LinkedHashMap<String, String> details = 
+        						new LinkedHashMap<String, String>(10);
+        if (image == null) {
+        	details.put(SIZE_X, "");
+            details.put(SIZE_Y, "");
+            details.put(SECTIONS, "");
+            details.put(TIMEPOINTS, "");
+            details.put(PIXEL_SIZE_X, "");
+            details.put(PIXEL_SIZE_Y, "");
+            details.put(PIXEL_SIZE_Z, "");
+            details.put(PIXEL_TYPE, "");  
+            details.put(WAVELENGTHS, "");
+            details.put(ACQUISITION_DATE, 
+            			TreeViewerTranslator.DATE_NOT_AVAILABLE);
+        }
+        PixelsData data = image.getDefaultPixels();
+        if (data == null) {
+            details.put(SIZE_X, "");
+            details.put(SIZE_Y, "");
+            details.put(SECTIONS, "");
+            details.put(TIMEPOINTS, "");
+            details.put(PIXEL_SIZE_X, "");
+            details.put(PIXEL_SIZE_Y, "");
+            details.put(PIXEL_SIZE_Z, "");
+            details.put(PIXEL_TYPE, "");  
+        } else {
+            NumberFormat nf = NumberFormat.getInstance();
+            details.put(SIZE_X, ""+data.getSizeX());
+            details.put(SIZE_Y, ""+data.getSizeY());
+            details.put(SECTIONS, ""+data.getSizeZ());
+            details.put(TIMEPOINTS, ""+data.getSizeT());
+            try {
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+                details.put(PIXEL_TYPE, ""+data.getPixelType()); 
+            } catch (Exception e) {
+                details.put(PIXEL_SIZE_X, "");
+                details.put(PIXEL_SIZE_Y, "");
+                details.put(PIXEL_SIZE_Z, "");
+                details.put(PIXEL_TYPE, ""); 
+            }
+        }
+        details.put(WAVELENGTHS, ""); 
+        Timestamp date = null;
+        try {
+        	date = image.getInserted();
+		} catch (Exception e) {}
+        
+        if (date == null) 
+        	details.put(ACQUISITION_DATE, 
+        				TreeViewerTranslator.DATE_NOT_AVAILABLE);
+        else 
+        	details.put(ACQUISITION_DATE, 
+        				TreeViewerTranslator.formatTime(date));
+        return details;
+    }
+    
 }

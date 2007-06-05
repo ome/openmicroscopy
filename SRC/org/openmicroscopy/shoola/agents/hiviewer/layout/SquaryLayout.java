@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * Recursively lays out all nodes in a container display in a square grid.
@@ -151,13 +152,29 @@ class SquaryLayout
     private Set getOldChildren(ImageSet n)
     {
     	Object object = n.getHierarchyObject();
-    	if (!(object instanceof DataObject)) //root
+    	ImageDisplay child;
+    	Iterator i;
+    	if (!(object instanceof DataObject)) {
+    		//root
+    		boolean image = false;
+    		if (oldNodes != null) {
+    			i = oldNodes.iterator();
+    			while (i.hasNext()) {
+					ImageDisplay element = (ImageDisplay) i.next();
+					if (element.getHierarchyObject() instanceof ImageData)
+						image = true;
+					break;
+				}
+    		}
+    		if (image) return oldNodes;
     		return n.getChildrenDisplay();
+    	}
+    		
     	DataObject ho = (DataObject) object;
     	Class klass = ho.getClass();
     	long id = ho.getId();
-    	Iterator i = oldNodes.iterator();
-    	ImageDisplay child;
+    	i = oldNodes.iterator();
+    	
     	Object oho;
     	while (i.hasNext()) {
     		child = (ImageDisplay) i.next();
@@ -240,6 +257,7 @@ class SquaryLayout
         	Set o = getOldChildren(node);
         	Set n = node.getChildrenDisplay();
         	//if (node.containsImages()) {
+        	/*
         	if (o == null || n == null || o.size() != n.size()) {
         		node.restoreDisplay();
                 if (node.isSingleViewMode()) return;
@@ -252,6 +270,20 @@ class SquaryLayout
             	else visitContainerNode(node);
         	} else {
         		LayoutUtils.redoLayout(node, (ImageSet) getOldNode(node), n, o);
+        	}
+        	*/
+        	if (o != null && n != null && o.size() >= n.size())
+        		LayoutUtils.redoLayout(node, (ImageSet) getOldNode(node), n, o);
+        	else {
+        		node.restoreDisplay();
+                if (node.isSingleViewMode()) return;
+                if (node.getChildrenDisplay().size() == 0) {//node with no child
+                    LayoutUtils.noChildLayout(node);
+                    return;
+                }
+            	if (node.containsImages()) 
+            		LayoutUtils.doSquareGridLayout(node, sorter);
+            	else visitContainerNode(node);
         	}
         		
         }

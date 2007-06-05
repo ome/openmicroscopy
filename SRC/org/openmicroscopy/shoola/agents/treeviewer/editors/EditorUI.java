@@ -396,8 +396,8 @@ class EditorUI
                 	ExperimenterData exp = model.getDataObjectOwner();
                 	
                     Map details = EditorUtil.transformExperimenterData(exp);
-                    details = EditorUtil.transformPixelsData(
-                          ((ImageData) hierarchyObject).getDefaultPixels());
+                    details = EditorUtil.transformImageData(
+                    						(ImageData) hierarchyObject);
                     DOInfo info = new DOInfo(this, model, details, false, 
                             DOInfo.INFO_TYPE);
                     tabs.addTab(INFO_TITLE, im.getIcon(IconManager.IMAGE), 
@@ -696,8 +696,8 @@ class EditorUI
             Object ho = model.getHierarchyObject();
             if (c instanceof DOInfo && ho instanceof ImageData) {
                 ImageData img = (ImageData) ho;
-                Map<String, String> details = 
-                	 EditorUtil.transformPixelsData(img.getDefaultPixels());
+                Map<String, String> 
+                	details = EditorUtil.transformImageData(img);
                 List waves = model.getChannelsData();
                 if (waves == null) return;
                 String s = "";

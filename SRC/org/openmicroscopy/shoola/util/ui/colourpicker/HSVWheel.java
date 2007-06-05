@@ -243,8 +243,8 @@ class HSVWheel
 	{
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                   RenderingHints.VALUE_ANTIALIAS_ON);
-		Ellipse2D.Float ellipse = new Ellipse2D.Float(0.5f, 0.5f, wheelwidth-1, 
-									wheelwidth-1);
+		Ellipse2D.Float ellipse = new Ellipse2D.Float(1f, 1f, wheelwidth-2, 
+									wheelwidth-2);
 		Color c = getBackground();
 		g.setColor(LINE_COLOR);
 		g.draw(ellipse);

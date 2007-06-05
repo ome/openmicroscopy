@@ -99,6 +99,17 @@ class OMEROGateway
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
 	
+	/** 
+	 * The maximum number of thumbnails retrieved before restarting the
+	 * thumbnails service.
+	 */
+	private static final int		MAX_RETRIEVAL = 100;
+	
+	/** The number of thumbnails already retrieved. Resets to <code>0</code>
+	 * when the value equals {@link #MAX_RETRIEVAL}.
+	 */
+	private int						thumbRetrieval;
+	
     /**
      * The entry point provided by the connection library to access the various
      * <i>OMERO</i> services.
@@ -312,8 +323,15 @@ class OMEROGateway
      */
     private ThumbnailStore getThumbService()
     { 
+    	if (thumbRetrieval == MAX_RETRIEVAL) {
+    		thumbRetrieval = 0;
+    		//to be on the save side
+    		if (thumbnailService != null) thumbnailService.close();
+    		thumbnailService = null;
+    	}
         if (thumbnailService == null) 
             thumbnailService = entry.createThumbnailService();
+        thumbRetrieval++;
         return thumbnailService; 
     }
 
@@ -390,6 +408,7 @@ class OMEROGateway
             throw new IllegalArgumentException("No Data service factory.");
         this.dsFactory = dsFactory;
         this.port = port;
+        thumbRetrieval = 0;
     }
     
     /**
@@ -952,16 +971,14 @@ class OMEROGateway
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
+        	if (thumbnailService != null) thumbnailService.close();
+        	thumbnailService = null;
         	if (t instanceof EJBException || 
         			t.getCause() instanceof IllegalStateException) {
-        		if (thumbnailService != null) thumbnailService.close();
-        		thumbnailService = null;
         		throw new DSOutOfServiceException(
         				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
         				printErrorText((Exception) t));
         	}
-        	//if (thumbnailService != null) thumbnailService.close();
-        	//thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
@@ -985,16 +1002,14 @@ class OMEROGateway
         	needDefault(pixelsID, null);
         	return service.getThumbnailByLongestSideDirect(maxLength);
         } catch (Throwable t) {
+        	if (thumbnailService != null) thumbnailService.close();
+        	thumbnailService = null;
         	if (t instanceof EJBException || 
         			t.getCause() instanceof IllegalStateException) {
-        		if (thumbnailService != null) thumbnailService.close();
-        		thumbnailService = null;
         		throw new DSOutOfServiceException(
         				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
         				printErrorText((Exception) t));
         	}
-        	//if (thumbnailService != null) thumbnailService.close();
-        	//thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }

@@ -6,7 +6,7 @@
   <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
   <author name="David Sloan" email="comments@openmicroscopy.org.uk" />
   <version number="3.0-Beta"/>
-  <last-modified date="2007-02-16"/>
+  <last-modified date="2007-05-11"/>
 </xdoc-info>
 
  <toc name="Table of Contents" href="index.htm">
@@ -84,7 +84,7 @@
 	      <section href="section_4_8_4_2.html" name="Display Tree View of images"/>
 	      <section href="section_4_8_4_3.html" name="Sorting images"/>
 	      <section href="section_4_8_4_4.html" name="Managing images in the Hierarchy Viewer"/>
-	      <section href="section_4_8_4_5.html" name="Additional image information: the Clipboard"/>
+	      <section href="section_4_8_4_5.html" name="Additional image information: the Working Area"/>
 	   </section>
       </section> <!-- END SEction 4_8 -->
     <section href="section_4_9.html" name="Managing windows in OMERO.insight"/> 

@@ -320,6 +320,8 @@ class ControlPane
     private void initSlider(OneKnobSlider slider, int max, int v, 
     						String toolTip, String endLabel)
     {
+    	slider.setVisible(max != 0);
+    	
     	slider.setMaximum(max);
     	slider.setValue(v);
     	slider.addChangeListener(this);

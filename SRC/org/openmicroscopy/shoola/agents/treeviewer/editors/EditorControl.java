@@ -156,9 +156,11 @@ public class EditorControl
 					view.setEditorSelectedPane(index);
 					retrieveAnnotations();
 					break;
-	
 				case Editor.INFO_INDEX:
 					model.retrieveChannelsData();
+					view.setEditorSelectedPane(index);
+					break;
+				case Editor.PROPERTIES_INDEX:
 					view.setEditorSelectedPane(index);
 					break;
 			}
