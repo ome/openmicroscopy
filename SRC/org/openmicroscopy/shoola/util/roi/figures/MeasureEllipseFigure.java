@@ -125,6 +125,16 @@ public class MeasureEllipseFigure
     		return getHeight();
     }
     
+    public Point2D getMeasurementCentre()
+    {
+    	if(INMICRONS.get(shape))
+    		return new Point2D.Double(getCentre().getX()*
+    				MICRONSPIXELX.get(shape),getCentre().getY()*
+    				MICRONSPIXELY.get(shape));
+    	else
+    		return getCentre();
+    }
+    
     public double getX() 
     {
       	return ellipse.getX();
@@ -278,8 +288,8 @@ public class MeasureEllipseFigure
 			WIDTH.set(shape, getMeasurementWidth());		
 			HEIGHT.set(shape, getMeasurementHeight());		
 			PERIMETER.set(shape, getPerimeter());		
-			CENTREX.set(shape, getCentre().getX());
-			CENTREY.set(shape, getCentre().getY());
+			CENTREX.set(shape, getMeasurementCentre().getX());
+			CENTREY.set(shape, getMeasurementCentre().getY());
 	}
 }
 

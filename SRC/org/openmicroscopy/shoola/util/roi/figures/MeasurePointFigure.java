@@ -77,16 +77,11 @@ public class MeasurePointFigure
 	private ROI			roi;
 	private ROIShape 	shape;
 
-	   
-    /** Creates a new instance. */
-    public MeasurePointFigure() 
-    {
-        this(0, 0, 0, 0);
-    }
-    
+	    
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
     	super(x, y, width, height);
+    	System.err.println("Width : " + width + " Height : " + height);
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 	    shape = null;
 		roi = null;
@@ -98,6 +93,16 @@ public class MeasurePointFigure
     		return getX()*MICRONSPIXELX.get(shape);
     	else
         	return getX();
+    }
+    
+    public Point2D getMeasurementCentre()
+    {
+    	if(INMICRONS.get(shape))
+    		return new Point2D.Double(getCentre().getX()*
+    				MICRONSPIXELX.get(shape),getCentre().getY()*
+    				MICRONSPIXELY.get(shape));
+    	else
+    		return getCentre();
     }
     
     public double getMeasurementY() 
@@ -137,7 +142,9 @@ public class MeasurePointFigure
     
     public double getWidth() 
     {
+    	System.err.println(ellipse.getWidth());
     	return ellipse.getWidth();
+    	
     }
     
     public double getHeight() 
@@ -152,16 +159,16 @@ public class MeasurePointFigure
 		if(SHOWMEASUREMENT.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
-			String ellipseArea = formatter.format(getArea());
-			ellipseArea = addUnits(ellipseArea);
+			String pointCentre = "("+formatter.format(getMeasurementCentre().getX()) + ","+formatter.format(getMeasurementCentre().getY())+")";
+			//ellipseArea = addUnits(ellipseArea);
 			double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-			bounds = g.getFontMetrics().getStringBounds(ellipseArea, g);
+			bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
 			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
 					this.getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
 			g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(ellipseArea, (int)bounds.getX(), (int)bounds.getY()); 
+			g.drawString(pointCentre, (int)bounds.getX(), (int)bounds.getY()); 
 		}
 	}
 
@@ -204,29 +211,6 @@ public class MeasurePointFigure
 			return str+"\u00B5m\u00B2";
 		else
 			return str+"px\u00B2";
-	}
-
-	public double getArea()
-	{
-		
-		return (getMeasurementHeight()/2)*(getMeasurementWidth()/2)*Math.PI;
-	}
-	
-	public double getPerimeter()
-	{
-		if( getMeasurementWidth() == getMeasurementHeight())
-		{
-			return getMeasurementWidth()*2*Math.PI;
-		}
-		else
-		{
-		double a = Math.max(getMeasurementWidth(), getMeasurementHeight());
-		double b = Math.min(getMeasurementWidth(), getMeasurementHeight());
-		// approximation of c for ellipse. 
-		double c = 
-			Math.PI*(3*a+3*b-Math.sqrt((a+3*b)*(b+3*a)));
-		return c;
-		}
 	}
 
 	public Point2D getCentre()
@@ -274,8 +258,8 @@ public class MeasurePointFigure
 	{
 			if(shape==null)
 				return;
-			CENTREX.set(shape, getCentre().getX());
-			CENTREY.set(shape, getCentre().getY());
+			CENTREX.set(shape, getMeasurementCentre().getX());
+			CENTREY.set(shape, getMeasurementCentre().getY());
 	}
 }
 

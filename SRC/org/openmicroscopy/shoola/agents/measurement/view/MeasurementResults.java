@@ -59,7 +59,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.view.ObjectManager.ROIFigureTableModel;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -152,7 +151,7 @@ class MeasurementResults
 		results.setSelectionMode(
 				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		results.setRowSelectionAllowed(true);
-
+		results.setRowHeight(30);
 		listener = new ListSelectionListener() {
 			
 			public void valueChanged(ListSelectionEvent e) {
@@ -417,8 +416,7 @@ class MeasurementResults
 			return ((Float) element)+"";
 		if(element instanceof String)
 			return (String) element;
-		else
-			return "";
+		return "";
 	}
 	
 	public void refreshResults()
@@ -511,7 +509,7 @@ class MeasurementResults
 		 */
 		public Object getValueAt(int row, int col) 
 	    {
-			if (row < 0 || row > values.size()) return null;
+		//	if (row < 0 || row > values.size()) return null;
 			MeasurementObject rowData = values.get(row);
 	    	return rowData.getElement(col);
 		}
@@ -550,7 +548,10 @@ class MeasurementResults
 		 * Overridden so that the cell is not editable.
 		 * @see AbstractTableModel#isCellEditable(int, int)
 		 */
-		public boolean isCellEditable(int row, int col) { return false; }
+		public boolean isCellEditable(int row, int col) 
+		{ 
+			return false;
+		}
 		
 	}
 

@@ -256,15 +256,19 @@ public 	class ResultsWizard
 	{
 		if(remainingFieldsListbox.getSelectedIndex()==-1)
 			return;
+		int [] indexes = remainingFieldsListbox.getSelectedIndices();
 		DefaultListModel model = (DefaultListModel)remainingFieldsListbox.getModel();
 		
-		String annotationName = (String) model.getElementAt(remainingFieldsListbox.getSelectedIndex());
-		for(AnnotationField field : allFields)
+		for( int i = 0 ; i < indexes.length ; i++)
 		{
-			if(field.getName().equals(annotationName))
+			String annotationName = (String) model.getElementAt(indexes[i]);
+			for(AnnotationField field : allFields)
 			{
-				currentFields.add(field);
-				break;
+				if(field.getName().equals(annotationName))
+				{
+					currentFields.add(field);
+					break;
+				}
 			}
 		}
 		sortCurrentFields();
@@ -314,14 +318,18 @@ public 	class ResultsWizard
 		if(currentFieldsListbox.getSelectedIndex()==-1)
 			return;
 		DefaultListModel model = (DefaultListModel)currentFieldsListbox.getModel();
+		int [] indexes = currentFieldsListbox.getSelectedIndices();
 		
-		String annotationName = (String) model.getElementAt(currentFieldsListbox.getSelectedIndex());
-		for(AnnotationField field : currentFields)
+		for( int i = 0 ; i < indexes.length ; i++)
 		{
-			if(field.getName().equals(annotationName))
+			String annotationName = (String) model.getElementAt(indexes[i]);
+			for(AnnotationField field : currentFields)
 			{
-				currentFields.remove(field);
-				break;
+				if(field.getName().equals(annotationName))
+				{
+					currentFields.remove(field);
+					break;
+				}
 			}
 		}
 		
@@ -497,7 +505,7 @@ public 	class ResultsWizard
 	
 	/**
 	 * Create the current fields panel, which shows the fields which have
-	 *  been selected.
+	 * been selected.
 	 * @return currentFieldsPanel. 
 	 */
 	private JPanel createCurrentFieldsPanel()

@@ -471,7 +471,7 @@ class MeasurementViewerModel
 		try {
 			roiComponent.saveROI(getImageID());
 		} catch(Exception e)	{
-			return;
+			e.printStackTrace();
 		}
 	}
 	

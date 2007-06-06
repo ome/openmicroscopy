@@ -25,14 +25,18 @@ package org.openmicroscopy.shoola.agents.measurement.util;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.ScrollPane;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -119,8 +123,8 @@ public class ResultsCellRenderer
     	else if(value instanceof ArrayList)
     	{
     		JList list = createList(value);
+    		//return new JScrollPane(list);
     		thisComponent = list;
-    		
     	}
 		if(table.getSelectedRow() == row)
 		{
@@ -152,6 +156,8 @@ public class ResultsCellRenderer
 	private JList createList(Object value)
 	{
 		ArrayList elementList = (ArrayList)value;
+		JList list = new JList();
+		
 		DefaultListModel model = new DefaultListModel();
 		for(Object element : elementList)
 		{
@@ -162,8 +168,7 @@ public class ResultsCellRenderer
 			else 
 				model.addElement(twoDecimalPlaces((Float)element));
 		}
-		JList list = new JList(model);
-		UIUtilities.setDefaultSize(list, new Dimension(100,40));
+		list.setModel(model);
 		return list;
 	}
 }

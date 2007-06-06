@@ -598,8 +598,8 @@ public class OutputStrategy
 		XMLElement ellipseElement = new XMLElement(POINT_TAG);
 		svgElement.addChild(ellipseElement);
 		
-		double cx = fig.getX() + fig.getWidth() / 2d;		
-		double cy = fig.getY() + fig.getHeight() / 2d;
+		double cx = fig.getCentre().getX();//fig.getX() + fig.getWidth() / 2d;		
+		double cy = fig.getCentre().getY();//fig.getY() + fig.getHeight() / 2d;
 		double rx = fig.getWidth() / 2d;
 		double ry = fig.getHeight() / 2d;
 		ellipseElement.setAttribute(CX_ATTRIBUTE, cx+"");
@@ -952,7 +952,6 @@ public class OutputStrategy
         //Media:  	visual
         //Animatable:  	no
         //Computed value:  	 Specified value, except inherit
-        // XXX - Implement me
         writeAttribute(elem, "font-variant", "normal", "normal");
         
         // 'font-weight'

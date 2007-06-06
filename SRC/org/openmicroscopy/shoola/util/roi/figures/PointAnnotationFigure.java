@@ -77,7 +77,8 @@ public class PointAnnotationFigure
 	extends MeasurePointFigure
 	implements TextHolderFigure
 {
-	private final static double 				POINTSIZE = 6;  
+	private final static double 				POINTSIZE 	= 6;  
+	private final static double 				FIGURESIZE 	= 16;  
 	private boolean 							editable;
 	private boolean 							displayText = true;
 
@@ -89,22 +90,22 @@ public class PointAnnotationFigure
 	
 	public PointAnnotationFigure() 
 	{
-		this("Text", 0, 0, POINTSIZE, POINTSIZE);
+		this("Text", 0, 0, FIGURESIZE, FIGURESIZE);
 	}
 
 	public PointAnnotationFigure(double x, double y, double w, double h)
 	{
-		this("Text", x, y, POINTSIZE, POINTSIZE);
+		this("Text", x, y, FIGURESIZE, FIGURESIZE);
 	}
 
 	public PointAnnotationFigure(String text) 
 	{
-		this(text, 0, 0, POINTSIZE, POINTSIZE);
+		this(text, 0, 0, FIGURESIZE, FIGURESIZE);
 	}
 
 	public PointAnnotationFigure(String text, double x, double y, double w, double h) 
 	{
-		super(x, y, POINTSIZE, POINTSIZE);
+		super(x, y, FIGURESIZE, FIGURESIZE);
 		setText(text);
 		textLayout = null;
 		textBounds = null;
@@ -116,7 +117,7 @@ public class PointAnnotationFigure
 		//super.drawStroke(g);
 		Ellipse2D.Double newEllipse = new Ellipse2D.Double(
 				ellipse.getCenterX()-POINTSIZE, ellipse.getCenterY()-POINTSIZE,
-				POINTSIZE*2+1, POINTSIZE*2+1);
+				POINTSIZE*2, POINTSIZE*2);
 		g.draw(newEllipse);
 		drawCrossHairs(g);
 	}
@@ -125,7 +126,7 @@ public class PointAnnotationFigure
 	{
 		Ellipse2D.Double newEllipse = new Ellipse2D.Double(
 				ellipse.getCenterX()-POINTSIZE, ellipse.getCenterY()-POINTSIZE,
-				POINTSIZE*2+1, POINTSIZE*2+1);
+				POINTSIZE*2, POINTSIZE*2);
 		double cx =  Math.floor(newEllipse.getCenterX());
 		double cy = Math.floor(newEllipse.getCenterY());
 		double x =  Math.floor(newEllipse.getX());
@@ -134,27 +135,22 @@ public class PointAnnotationFigure
 		double height = POINTSIZE;
 		double loffset = 3;
 		
-	//	Color thisColour = g.getColor();
-	//	Color newColour = new Color(thisColour.getRed(), thisColour.getGreen(), thisColour.getBlue(), 255);
 		Line2D.Double lhline = new Line2D.Double(x-loffset*2, cy,cx-loffset, cy);
 		Line2D.Double rhline = new Line2D.Double(cx+loffset, cy,cx+width+loffset*2, cy);
 		Line2D.Double tvline = new Line2D.Double(cx, y-loffset*2, cx, cy-loffset);
 		Line2D.Double bvline = new Line2D.Double(cx, cy+loffset, cx, cy+height+loffset*2);
 		
-	//	g.setColor(newColour);
 		g.draw(lhline);
 		g.draw(rhline);
 		g.draw(tvline);
 		g.draw(bvline);
-	//	g.setColor(thisColour);
 	}
 	
 	protected void drawFill(java.awt.Graphics2D g) 
 	{
-		//super.drawFill(g);
 		Ellipse2D.Double newEllipse = new Ellipse2D.Double(
 				ellipse.getCenterX()-POINTSIZE, ellipse.getCenterY()-POINTSIZE,
-				POINTSIZE*2+1, POINTSIZE*2+1);
+				POINTSIZE*2, POINTSIZE*2);
 		g.fill(newEllipse);
 		drawText(g);
 	}
