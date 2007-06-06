@@ -40,6 +40,7 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -62,60 +63,40 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public 	class XMLFileIOStrategy
-		implements XMLIOStrategy
+public class XMLFileIOStrategy
 {
+	
+	/** Used to write the rois to the stream. */
 	private OutputStrategy outputStrategy;
+	
+	/** Used to read the rois from the stream. */
 	private InputStrategy  inputStrategy;
 	
+	/** Creates a new instance. */
 	public XMLFileIOStrategy()
 	{
 		outputStrategy = new OutputStrategy();
 		inputStrategy = new InputStrategy();
 	}
 	
-	public void read(String filename, ROIComponent component) throws ROIShapeCreationException, NoSuchROIException, ROICreationException
+	/**
+	 * Converts the ROIs hosted in the passed input stream.
+	 * 
+	 * @param input
+	 * @param component
+	 * @throws NoSuchROIException
+	 * @throws ParsingException
+	 * @throws ROICreationException
+	 * @throws ROIShapeCreationException
+	 */
+	public void read(InputStream input, ROIComponent component)
+		throws NoSuchROIException, ParsingException, ROICreationException, 
+				ROIShapeCreationException	   
 	{
-		File file = new File(filename);
-		try {
-			read(file, component);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BufferedInputStream in = new BufferedInputStream(input);
+		//TODO: REview that code.
+		ArrayList<ROI> roiList = inputStrategy.readROI(in, component);
 	}
-	
-	private void read(File file, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
-	{
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-	    try 
-	    {
-	    	read(in, component);
-	    } 
-	    catch(Exception e)
-	    {
-	    	e.printStackTrace();
-	    }
-	    finally 
-	    {
-	    	if (in != null) 
-	    	{
-	    		in.close();
-	        }
-	    }
-	}
-	
-	private void read(BufferedInputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
-	{
-		ArrayList<ROI> roiList = readROI(in, component);
-		
-	}
-	
-	private ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException
-	{
-		return inputStrategy.readROI(in, component);
-	}
-		 
 	
 	public void write(String filename, ROIComponent component)
 	{

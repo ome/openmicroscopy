@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.util.roi.io.XMLIOStrategy 
+ * org.openmicroscopy.shoola.util.roi.io.ParsingException 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -20,36 +20,47 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.io;
+package org.openmicroscopy.shoola.util.roi.exception;
 
 //Java imports
-import java.io.IOException;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.ROIComponent;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 
 /** 
- * 
+ * Reports an error occured while parsing an input stream with XML tags.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since OME3.0
  */
-public interface XMLIOStrategy 
+public class ParsingException
+	extends Exception
 {
-	public void read(String file, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException;
-	public void write(String file, ROIComponent component) throws IOException;
+
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 */
+	public ParsingException(String message) { super(message); }
+
+	/**
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 * @param cause		The exception that caused this one to be risen.
+	 */
+	public ParsingException(String message, Throwable cause) 
+	{
+		super(message, cause);
+	}
+	
 }
-
-

@@ -26,8 +26,8 @@ package org.openmicroscopy.shoola.util.roi;
 //Java imports
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -35,10 +35,10 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
-import org.openmicroscopy.shoola.util.roi.io.XMLIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
 import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
@@ -66,26 +66,25 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public 	class ROIComponent 
-		extends Component 
-		implements PropertyChangeListener
+public class ROIComponent 
+	extends Component 
 {
+	
 	/** The main object for storing and manipulating ROIs. */
 	private ROICollection		roiCollection;
-	
+
 	/** The object used to load and save ROIs. */
-	private XMLIOStrategy		ioStrategy;
-	
+	private XMLFileIOStrategy	ioStrategy;
+
 	/** 
-	 * ROIComponent instatiates a basic FileIO strategy and roiCollection 
-	 * object.
+	 * Creates a new instance. Initializes an collection to keep 
+	 * track of the existing ROI.
 	 */
 	public ROIComponent()
 	{
 		roiCollection = new ROICollection();
-		ioStrategy = new XMLFileIOStrategy();
 	}
-	
+
 	/** 
 	 * Save the current ROI data to file. 
 	 * @param filename name of the file to save to, including path.
@@ -93,9 +92,10 @@ public 	class ROIComponent
 	 */
 	public void saveROI(String filename) throws IOException
 	{
+		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
 		ioStrategy.write(filename, this);
 	}
-	
+
 	/** 
 	 * Save the current ROI data to file. 
 	 * @param imageID  the id of the image where the ROIs have been created.
@@ -103,55 +103,41 @@ public 	class ROIComponent
 	 */
 	public void saveROI(long imageID) throws IOException
 	{
+		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
 		ioStrategy.write(imageID+".xml", this);
 	}
-	
+
 	/**
-	 * Load the ROIs from file to the roiComponent. 
+	 * Loads the ROIs. This method should be invoked straight after creating
+	 * the component.
 	 * 
-	 * @param filename file name to load ROIs from.
-	 * @throws IOException	- file handling error.
-	 * @throws ROIShapeCreationException - If an error occured while creating 
-	 * 									   ROIShape, basic assumption is this is 
-	 * 									   linked to memory issues.
-	 * @throws NoSuchROIException		 - Tried to access a ROI which does not
-	 * 									   Exist. In this case most likely reason
-	 * 									   is that a LineConnectionFigure tried
-	 * 									   to link to ROIShapes which have not 
-	 * 									   been created yet.
-	 * @throws ROICreationException		 - See ROIShapeCreationException.
-	 */
-	public void loadROI(String filename) throws IOException, 
-												ROIShapeCreationException, 
-												NoSuchROIException, 
-												ROICreationException
-	{
-		ioStrategy.read(filename, this);
-	}
-	
-	/**
-	 * Load the ROIs from file to the roiComponent. 
 	 * 
-	 * @param imageID the imageID of the file to load ROIs from.
-	 * @throws IOException	- file handling error.
-	 * @throws ROIShapeCreationException - If an error occured while creating 
-	 * 									   ROIShape, basic assumption is this is 
-	 * 									   linked to memory issues.
-	 * @throws NoSuchROIException		 - Tried to access a ROI which does not
-	 * 									   Exist. In this case most likely reason
-	 * 									   is that a LineConnectionFigure tried
-	 * 									   to link to ROIShapes which have not 
-	 * 									   been created yet.
-	 * @throws ROICreationException		 - See ROIShapeCreationException.
+	 * @param input The stream with the previously saved ROIs or 
+	 * 				<code>null</code> if no ROIs previously saved.
+	 * @throws ParsingException				Thrown when an error occured
+	 * 										while parsing the stream.
+	 * @throws ROIShapeCreationException 	Thrown If an error occured while 
+	 * 										creating ROIShape, basic assumption 
+	 * 										is this is linked to memory issues.
+	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
+	 * 									   	Exist. In this case most likely 
+	 * 										reason is that a 
+	 * 										LineConnectionFigure tried
+	 * 									   	to link to ROIShapes which have not 
+	 * 									   	been created yet.
+	 * @throws ROICreationException		 	Thrown while trying to create an 
+	 * 										ROI.
 	 */
-	public void loadROI(long imageID) throws IOException, 
-												ROIShapeCreationException, 
-												NoSuchROIException, 
-												ROICreationException
+	public void loadROI(InputStream input) 
+		throws NoSuchROIException, ParsingException, ROICreationException,
+				ROIShapeCreationException
 	{
-		ioStrategy.read(imageID+".xml", this);
+		if (input != null) {
+			ioStrategy = new XMLFileIOStrategy();
+			ioStrategy.read(input, this);
+		}
 	}
-	
+
 	/**
 	 * Generate the next ID for a new ROI. This method will possibly be replaced 
 	 * with a call to the database for the generation of an ROI id.
@@ -162,7 +148,7 @@ public 	class ROIComponent
 	{
 		return roiCollection.getNextID();
 	}
-	
+
 	/**
 	 * Create a ROI with an ROI id == id. This method is called from the IO
 	 * strategy to create a pre-existing ROI from file.
@@ -175,11 +161,12 @@ public 	class ROIComponent
 	 * 									   	an ROI, basic assumption is this is 
 	 * 									   	linked to memory issues.
 	 */
-	public ROI createROI(long id) 				throws ROICreationException
+	public ROI createROI(long id)
+		throws ROICreationException
 	{
 		return roiCollection.createROI(id);
 	}
-	
+
 	/**
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * @return new ROI. 
@@ -187,11 +174,12 @@ public 	class ROIComponent
 	 * 									   	an ROI, basic assumption is this is 
 	 * 									   	linked to memory issues.
 	 */
-	public ROI createROI() 						throws 	ROICreationException
+	public ROI createROI()
+		throws 	ROICreationException
 	{
 		return roiCollection.createROI();
 	}
-	
+
 	/**
 	 * Get the roiMap which is the TreeMap containing the ROI, ROI.id pairs. 
 	 * It is an ordered Tree. 
@@ -202,7 +190,7 @@ public 	class ROIComponent
 	{
 		return roiCollection.getROIMap();
 	}
-	
+
 	/**
 	 * Get the ROI with the id == id. This is obtained by a searh of the ROIMap. 
 	 * @param id the ROI.id that is being requested.
@@ -210,11 +198,12 @@ public 	class ROIComponent
 	 * @throws NoSuchROIException if a ROI.id is used which does not exist this
 	 * 								exception is thrown.
 	 */
-	public ROI getROI(long id) throws NoSuchROIException
+	public ROI getROI(long id) 
+		throws NoSuchROIException
 	{
 		return roiCollection.getROI(id);
 	}
-	
+
 	/**
 	 * Get the RIOShape which is part of the ROI id, and exists on the plane
 	 * coord. This method looks up the ROIIDMap (TreeMap) for the ROI with id 
@@ -228,12 +217,12 @@ public 	class ROIComponent
 	 * 								coord then this exception is thrown.
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+	throws 	NoSuchROIException, 
+	NoSuchShapeException
 	{
 		return roiCollection.getShape(id, coord);
 	}
-	
+
 	/** 
 	 * Return the list of ROIShapes which reside on the plane coord. ShapeList is
 	 * an object which contains a TreeMap of the ROIShapes and ROIId of those shapes.
@@ -245,11 +234,11 @@ public 	class ROIComponent
 	 * 								throw NoSuchShapeException.
 	 */
 	public ShapeList getShapeList(Coord3D coord) throws
-														NoSuchShapeException
+	NoSuchShapeException
 	{
 		return roiCollection.getShapeList(coord);
 	}
-	
+
 	/** 
 	 * Delete the ROI and all it's ROIShapes from the system.
 	 * 
@@ -261,7 +250,7 @@ public 	class ROIComponent
 	{
 		roiCollection.deleteROI(id);
 	}
-	
+
 	/** 
 	 * Delete the ROIShape from the ROI with id. 
 	 * 
@@ -273,12 +262,12 @@ public 	class ROIComponent
 	 * 								does not exist on the plane coord. 
 	 */
 	public void deleteShape(long id, Coord3D coord) 	
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+	throws 	NoSuchROIException, 
+	NoSuchShapeException
 	{
 		roiCollection.deleteShape(id, coord);
 	}
-	
+
 	/**
 	 * Add a ROIShape to the ROI.id at coord. The ROIShape should be created 
 	 * before hand.
@@ -298,12 +287,12 @@ public 	class ROIComponent
 	 * 										  does not exist. 
 	 */
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-												throws ROIShapeCreationException, 
-													   NoSuchROIException
+	throws ROIShapeCreationException, 
+	NoSuchROIException
 	{
 		roiCollection.addShape(id, coord, shape);
 	}	
-	
+
 	/**
 	 * This method will create new versions of the ROIShape belonging to ROI.id
 	 * on plane coord and propagate it from plane start to end. If the shape 
@@ -323,14 +312,14 @@ public 	class ROIComponent
 	 * 											coord.
 	 */
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
-															   Coord3D end) 
-												throws ROIShapeCreationException, 
-												       NoSuchROIException, 
-												       NoSuchShapeException
+			Coord3D end) 
+	throws ROIShapeCreationException, 
+	NoSuchROIException, 
+	NoSuchShapeException
 	{
 		roiCollection.propagateShape(id, selectedShape, start, end);
 	}
-	
+
 	/**
 	 * Delete the ROIShape belonging to ROI.id from plane start to plane end.
 	 * This method requires that the object belongs on all planes from start 
@@ -345,12 +334,12 @@ public 	class ROIComponent
 	 * @throws NoSuchShapeException - see above.
 	 */
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+	throws 	NoSuchROIException, 
+	NoSuchShapeException
 	{
 		roiCollection.deleteShape(id, start, end);
 	}
-	
+
 	/**
 	 * Add an ROIRelationship to the system, the ROIRelationship will be parsed
 	 * to see what has to be setup to create relationships. This is a relationship
@@ -362,7 +351,7 @@ public 	class ROIComponent
 	{
 		roiCollection.addROIRelationship(relationship);
 	}
-	
+
 	/**
 	 * Add an ROIShapeRelationship to the system, the ROIShapeRelationship will 
 	 * be parsed to see what has to be setup to create relationships. This is a 
@@ -374,7 +363,7 @@ public 	class ROIComponent
 	{
 		roiCollection.addROIShapeRelationship(relationship);
 	}
-	
+
 	/**
 	 * Remove the ROIRelationship with id from the system.
 	 * @param relationship the id of the relationship being removed.
@@ -383,8 +372,8 @@ public 	class ROIComponent
 	{
 		roiCollection.removeROIRelationship(relationship);
 	}
-	
-	
+
+
 	/**
 	 * Remove the ROIShapeRelationship with id from the system.
 	 * @param relationship the id of the relationship being removed.
@@ -393,56 +382,56 @@ public 	class ROIComponent
 	{
 		roiCollection.removeROIShapeRelationship(relationship);
 	}
-	
+
 	/**
 	 * Return true if the ROIRelationship exists in the system.
 	 * 
 	 * @param relationship the id of the relationship.
 	 * @return see above.
 	 */public boolean containsROIRelationship(long relationship)
-	{
-		return roiCollection.containsROIRelationship(relationship);
-	}
-	
+	 {
+		 return roiCollection.containsROIRelationship(relationship);
+	 }
+
 	 /**
-	 * Return true if the ROIShapeRelationship exists in the system.
-	 * 
-	 * @param relationship the id of the relationship.
-	 * @return see above.
-	 */
-	public boolean containsROIShapeRelationship(long relationship)
-	{
-		return roiCollection.containsROIShapeRelationship(relationship);
-	}
-	
-	/**
-	 * Return the ROIRelationships which relate to ROI with id.
-	 * @param roiID id to find relationships which belong to it.
-	 * @return see above.
-	 */
-	public ROIRelationshipList getROIRelationshipList(long roiID)
-	{
-		return roiCollection.getROIRelationshipList(roiID);
-	}
-	
-	/**
-	 * Return the ROIShapeRelationships which relate to ROIShape with ROI id.
-	 * @param roiID id to find relationships which belong to it.
-	 * @return see above.
-	 */
-	public ROIShapeRelationshipList getROIShapeRelationshipList(long roiID)
-	{
-		return roiCollection.getROIShapeRelationshipList(roiID);
-	}
-	
-	
-	/* (non-Javadoc)
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		// TODO Auto-generated method stub
-		
-	}
+	  * Return true if the ROIShapeRelationship exists in the system.
+	  * 
+	  * @param relationship the id of the relationship.
+	  * @return see above.
+	  */
+	 public boolean containsROIShapeRelationship(long relationship)
+	 {
+		 return roiCollection.containsROIShapeRelationship(relationship);
+	 }
+
+	 /**
+	  * Return the ROIRelationships which relate to ROI with id.
+	  * @param roiID id to find relationships which belong to it.
+	  * @return see above.
+	  */
+	 public ROIRelationshipList getROIRelationshipList(long roiID)
+	 {
+		 return roiCollection.getROIRelationshipList(roiID);
+	 }
+
+	 /**
+	  * Return the ROIShapeRelationships which relate to ROIShape with ROI id.
+	  * @param roiID id to find relationships which belong to it.
+	  * @return see above.
+	  */
+	 public ROIShapeRelationshipList getROIShapeRelationshipList(long roiID)
+	 {
+		 return roiCollection.getROIShapeRelationshipList(roiID);
+	 }
+
+
+	 /* (non-Javadoc)
+	  * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	  */
+	 public void propertyChange(PropertyChangeEvent evt) {
+		 // TODO Auto-generated method stub
+
+	 }
 
 }
 

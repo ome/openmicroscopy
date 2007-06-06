@@ -44,6 +44,18 @@ package org.openmicroscopy.shoola.util.roi.exception;
 public class NoSuchROIException
 	extends Exception
 {
+	
+	/**
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 * @param cause		The exception that caused this one to be risen.
+	 */
+	public NoSuchROIException(String message, Throwable cause) 
+	{
+		super(message, cause);
+	}
+	
 	public NoSuchROIException(Exception e)
 	{
 		super(e);

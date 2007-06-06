@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.TreeMap;
 import javax.swing.JFrame;
@@ -38,9 +39,11 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
@@ -237,11 +240,26 @@ class MeasurementViewerComponent
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#setROI(Object)
      */
-	public void setROI(Object rois)
+	public void setROI(InputStream input)
 	{
 		if (model.getState() != LOADING_ROI) return;
-		model.setROI(rois);
-		view.setROI();
+		try {
+			model.setROI(input);
+		} catch (Exception e) {
+			//TODO register and notify user.
+			Registry reg = MeasurementAgent.getRegistry();
+			if (e instanceof ParsingException) {
+				reg.getLogger().error(this, "Cannot parse the ROI for " 
+						+model.getImageID());
+
+			} else {
+
+			}
+			//TODO: notify 
+			return;
+		}
+
+		view.rebuildManagerTable();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.io.InputStream;
 import java.util.TreeMap;
 
 
@@ -45,6 +46,7 @@ import ome.model.core.PixelsDimensions;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -280,7 +282,7 @@ class MeasurementViewerModel
 	void fireROILoading()
 	{
 		state = MeasurementViewer.LOADING_ROI;
-		component.setROI(new Object());
+		component.setROI(IOUtil.readFile(imageID+".xml"));
 	}
 	
 	/**
@@ -325,10 +327,14 @@ class MeasurementViewerModel
 	/** 
 	 * Sets the ROI for the pixels set.
 	 *  
-	 * @param rois The value to set.
+	 * @param input 			The value to set.
+	 * @throws Exception	Forward exception thrown by the 
+	 * 						{@link ROIComponent}.
 	 */
-	void setROI(Object rois)
+	void setROI(InputStream input)
+		throws Exception
 	{
+		if (input != null) roiComponent.loadROI(input);
 		state = MeasurementViewer.READY;
 	}
 
@@ -446,7 +452,7 @@ class MeasurementViewerModel
 	 * Figure attribute has changed, need to add any special processing to see
 	 * if it should affect ROIShape, ROI or other object. 
 	 */
-	public void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
+	void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
 	{
 		if(attribute.getKey().equals(TEXT.getKey()))
 		{
@@ -482,8 +488,7 @@ class MeasurementViewerModel
 	void loadROI()
 	{
 		try {
-			roiComponent.loadROI(getImageID());
-			component.rebuildManagerTable();
+			
 		} catch(Exception e)	{
 			//e.printStackTrace();
 		}

@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,9 +41,7 @@ import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
 import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLException;
 import net.n3.nanoxml.XMLParserFactory;
-
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath.Node;
@@ -59,6 +56,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 
@@ -309,7 +307,7 @@ public class InputStrategy
     /**
      * Maps to all XML elements that are identified by an xml:id.
      */
-    private HashMap<String,IXMLElement> identifiedElements;
+    private HashMap<String,IXMLElement>	identifiedElements;
     /**
      * Maps to all drawing objects from the XML elements they were created from.
      */
@@ -318,34 +316,29 @@ public class InputStrategy
     /**
      * Holds the document that is currently being read.
      */
-    private IXMLElement document;
+    private IXMLElement 				document;
     
 	/**
 	 * Holds the ROIs which have been created.
 	 */
-    private ArrayList<ROI> roiList;
+    private ArrayList<ROI> 				roiList;
 	
     /**
      * The current coord of the shape being created.
      */
-    private Coord3D currentCoord;
+    private Coord3D 					currentCoord;
     
     /**
      * The current roi of the shape being created.
      */
-    private long currentROI;
+    private long 						currentROI;
     
     /**
      * The ROIComponent 
      */
-    ROIComponent component;
+    private ROIComponent 				component;
     
-	InputStrategy()
-	{
-		figureFactory = new ROIFigureFactory();
-	}
-	
-	private void setCurrentCoord(Coord3D coord)
+    private void setCurrentCoord(Coord3D coord)
 	{
 		currentCoord = coord;
 	}
@@ -365,78 +358,46 @@ public class InputStrategy
 		return currentROI;
 	}
 	
-	ArrayList<ROI> readROI(InputStream in, ROIComponent component) throws IOException, ROIShapeCreationException, NoSuchROIException, ROICreationException 
+
+	private ROI createROI(IXMLElement roiElement, ROIComponent component) 
+		throws NoSuchROIException, ParsingException, ROICreationException, 
+			ROIShapeCreationException
 	{
-		roiList = new ArrayList<ROI>();
-		this.component = component;
-		IXMLParser parser;
-	    try 
-	    {
-	    	parser = XMLParserFactory.createDefaultXMLParser();
-	    } 
-	    catch (Exception ex) 
-	    {
-	    	InternalError e = new InternalError("Unable to instantiate NanoXML Parser");
-	        e.initCause(ex);
-	        throw e;
-	    }
-	    IXMLReader reader = new StdXMLReader(in);
-	    parser.setReader(reader);
-	    try 
-	    {
-	    document = (IXMLElement) parser.parse();
-	    } 
-	    catch (XMLException ex) 
-	    {
-	    	IOException e = new IOException(ex.getMessage());
-	        e.initCause(ex);
-	        throw e;
-	    }
-	    
-	    ArrayList<IXMLElement> roiElements = document.getChildrenNamed(ROI_TAG);
-	    
-	    int cnt = 0;
-	    for(IXMLElement roi : roiElements)
-	    	roiList.add(createROI(roi, component));
-	    
-		return roiList;
-	}
-	
-	private ROI createROI(IXMLElement roiElement, ROIComponent component) throws ROIShapeCreationException, IOException, NoSuchROIException, ROICreationException
-	{
-		if(!roiElement.hasAttribute(ROI_ID_ATTRIBUTE))
-			return null;
+		if (!roiElement.hasAttribute(ROI_ID_ATTRIBUTE)) return null;
 		long id = new Long(roiElement.getAttribute(ROI_ID_ATTRIBUTE,"-1"));
 		setCurrentROI(id);
 		ROI newROI = null;
 		newROI = component.createROI(id);
-		ArrayList<IXMLElement> roiShapeList = roiElement.getChildrenNamed(ROISHAPE_TAG);
+		ArrayList<IXMLElement> roiShapeList = 
+				roiElement.getChildrenNamed(ROISHAPE_TAG);
 		int cnt = 0;
-		ArrayList<IXMLElement> annotationElementList = roiElement.getChildrenNamed(ANNOTATION_TAG);
-		for(IXMLElement annotationTagElement : annotationElementList)
+		ArrayList<IXMLElement> annotationElementList = 
+			roiElement.getChildrenNamed(ANNOTATION_TAG);
+		ArrayList<IXMLElement> annotationList;
+		for (IXMLElement annotationTagElement : annotationElementList)
 		{
-			ArrayList<IXMLElement> annotationList = annotationTagElement.getChildren();
-			for(IXMLElement annotation : annotationList)
-			{
+			annotationList = annotationTagElement.getChildren();
+			for (IXMLElement annotation : annotationList)
 				addAnnotation(annotation, newROI);
-			}
 		}
 		cnt = 0;
-		for(IXMLElement roiShape : roiShapeList)
+		ROIShape shape, returnedShape;
+		for (IXMLElement roiShape : roiShapeList)
 		{
-			ROIShape shape = createROIShape(roiShape, newROI);
+			shape = createROIShape(roiShape, newROI);
 			component.addShape(newROI.getID(), shape.getCoord3D(), shape);
 			try {
-				ROIShape returnedShape = component.getShape(newROI.getID(), shape.getCoord3D());
+				returnedShape = component.getShape(newROI.getID(), 
+												shape.getCoord3D());
 			} catch (NoSuchShapeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new NoSuchROIException("No shape: ", e);
 			}
 		}
 		return newROI;
 	}
 		
-	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI) throws IOException
+	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI) 
+		throws ParsingException
 	{
 		int t = new Integer(shapeElement.getAttribute(T_ATTRIBUTE,"0"));
 		int z = new Integer(shapeElement.getAttribute(Z_ATTRIBUTE,"0"));
@@ -444,13 +405,15 @@ public class InputStrategy
 		setCurrentCoord(coord);
 		
 		IXMLElement figureElement = shapeElement.getFirstChildNamed(SVG_TAG);
-		ROIFigure figure = createFigure(figureElement);
-		ROIShape shape = new ROIShape(newROI, coord, figure, figure.getBounds());
-		ArrayList<IXMLElement> annotationElementList = shapeElement.getChildrenNamed(ANNOTATION_TAG);
-		for(IXMLElement annotationTagElement : annotationElementList)
+		ROIFigure fig = createFigure(figureElement);
+		ROIShape shape = new ROIShape(newROI, coord, fig, fig.getBounds());
+		ArrayList<IXMLElement> annotationElementList = 
+			shapeElement.getChildrenNamed(ANNOTATION_TAG);
+		ArrayList<IXMLElement> annotationList;
+		for (IXMLElement annotationTagElement : annotationElementList)
 		{
-			ArrayList<IXMLElement> annotationList = annotationTagElement.getChildren();
-			for(IXMLElement annotation : annotationList)
+			annotationList = annotationTagElement.getChildren();
+			for (IXMLElement annotation : annotationList)
 				addAnnotation(annotation, shape);
 		}
 		return shape;
@@ -458,94 +421,88 @@ public class InputStrategy
 
 	private boolean isAnnotation(String name)
 	{
-		if(AnnotationKeys.supportedAnnotations.contains(name))
-			return true;
-		return false;
+		return (AnnotationKeys.supportedAnnotations.contains(name));
 	}
 	
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
 		String key = annotationElement.getName();
-		AnnotationKey annotation = new AnnotationKey(key);
-		shape.setAnnotation(annotation, createAnnotationData(annotationElement));
+		AnnotationKey v = new AnnotationKey(key);
+		shape.setAnnotation(v, createAnnotationData(annotationElement));
 	}
 	
 	public Object createAnnotationData(IXMLElement annotationElement)
 	{
-		String dataType = annotationElement.getAttribute(DATATYPE_ATTRIBUTE, VALUE_NULL);
-		if(dataType.equals(ATTRIBUTE_DATATYPE_STRING))
-		{			
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
-			return value;
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_INTEGER))
-		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
-			if(value.equals(VALUE_NULL))
-				return 0;
+		String dataType = annotationElement.getAttribute(DATATYPE_ATTRIBUTE, 
+					VALUE_NULL);
+		if (dataType.equals(ATTRIBUTE_DATATYPE_STRING)) {			
+			return annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
+		} else if (dataType.equals(ATTRIBUTE_DATATYPE_INTEGER)) {
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, 
+										VALUE_NULL);
+			if (value.equals(VALUE_NULL)) return 0;
 			return new Integer(value);
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_BOOLEAN))
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_BOOLEAN))
 		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
-			if(value.equals(VALUE_NULL))
-				return 0;
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, 
+												VALUE_NULL);
+			if (value.equals(VALUE_NULL)) return 0;
 			return new Boolean(value);
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_LONG))
-		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
-			if(value.equals(VALUE_NULL))
-				return 0;
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_LONG)) {
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, 
+							VALUE_NULL);
+			if (value.equals(VALUE_NULL)) return 0;
 			return new Long(value);
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_FLOAT))
-		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, VALUE_NULL);
-			if(value.equals(VALUE_NULL))
-				return 0;
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_FLOAT)) {
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE, 
+														VALUE_NULL);
+			if (value.equals(VALUE_NULL)) return 0;
 			return new Float(value);
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_DOUBLE))
-		{
-			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE,VALUE_NULL);
-			if(value.equals(VALUE_NULL))
-				return 0;
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_DOUBLE)) {
+			String value = annotationElement.getAttribute(VALUE_ATTRIBUTE,
+															VALUE_NULL);
+			if (value.equals(VALUE_NULL)) return 0;
 			return new Double(value);
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_POINT2D))
-		{
-			String xValue = annotationElement.getAttribute(X_ATTRIBUTE, VALUE_NULL);
-			String yValue = annotationElement.getAttribute(Y_ATTRIBUTE, VALUE_NULL);
-			if(xValue.equals(VALUE_NULL) || yValue.equals(VALUE_NULL))
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_POINT2D)) {
+			String xValue = annotationElement.getAttribute(X_ATTRIBUTE, 
+																VALUE_NULL);
+			String yValue = annotationElement.getAttribute(Y_ATTRIBUTE, 
+															VALUE_NULL);
+			if (xValue.equals(VALUE_NULL) || yValue.equals(VALUE_NULL))
 				return new Point2D.Double(0,0);
 			return new Point2D.Double(new Double(xValue), new Double(yValue));
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D) ||
-				dataType.equals(ATTRIBUTE_DATATYPE_ELLIPSE2D))
-		{
-			String xValue = annotationElement.getAttribute(X_ATTRIBUTE, VALUE_NULL);
-			String yValue = annotationElement.getAttribute(Y_ATTRIBUTE, VALUE_NULL);
-			String widthValue = annotationElement.getAttribute(WIDTH_ATTRIBUTE, VALUE_NULL);
-			String heightValue = annotationElement.getAttribute(HEIGHT_ATTRIBUTE, VALUE_NULL);
-			if(xValue.equals(VALUE_NULL) || yValue.equals(VALUE_NULL) ||
-					widthValue.equals(VALUE_NULL) || heightValue.equals(VALUE_NULL))
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D) ||
+				dataType.equals(ATTRIBUTE_DATATYPE_ELLIPSE2D)) {
+			String xValue = annotationElement.getAttribute(X_ATTRIBUTE, 
+														VALUE_NULL);
+			String yValue = annotationElement.getAttribute(Y_ATTRIBUTE, 
+														VALUE_NULL);
+			String widthValue = annotationElement.getAttribute(WIDTH_ATTRIBUTE, 
+															VALUE_NULL);
+			String heightValue = annotationElement.getAttribute(
+									HEIGHT_ATTRIBUTE, VALUE_NULL);
+			if (xValue.equals(VALUE_NULL) || yValue.equals(VALUE_NULL) ||
+				widthValue.equals(VALUE_NULL) || heightValue.equals(VALUE_NULL))
 			{
-				if(dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D))
+				if (dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D))
 					return new Rectangle2D.Double();
 				else
 					return new Ellipse2D.Double();
 			}
-			if(dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D))
-				new Rectangle2D.Double(new Double(xValue), new Double(yValue), new Double(widthValue), new Double(heightValue));
-			if(dataType.equals(ATTRIBUTE_DATATYPE_ELLIPSE2D))
-				return new Ellipse2D.Double(new Double(xValue), new Double(yValue), new Double(widthValue), new Double(heightValue));
-		}
-		else if(dataType.equals(ATTRIBUTE_DATATYPE_COORD3D))
+			if (dataType.equals(ATTRIBUTE_DATATYPE_RECTANGLE2D))
+				new Rectangle2D.Double(new Double(xValue), new Double(yValue), 
+							new Double(widthValue), new Double(heightValue));
+			if (dataType.equals(ATTRIBUTE_DATATYPE_ELLIPSE2D))
+				return new Ellipse2D.Double(new Double(xValue), 
+						new Double(yValue), new Double(widthValue), 
+						new Double(heightValue));
+		} else if(dataType.equals(ATTRIBUTE_DATATYPE_COORD3D))
 		{
-			String zValue = annotationElement.getAttribute(Z_ATTRIBUTE, VALUE_NULL);
-			String tValue = annotationElement.getAttribute(T_ATTRIBUTE, VALUE_NULL);
-			if(zValue.equals(VALUE_NULL) || tValue.equals(VALUE_NULL))
+			String zValue = annotationElement.getAttribute(Z_ATTRIBUTE, 
+													VALUE_NULL);
+			String tValue = annotationElement.getAttribute(T_ATTRIBUTE, 
+													VALUE_NULL);
+			if (zValue.equals(VALUE_NULL) || tValue.equals(VALUE_NULL))
 				return new Coord3D(0,0);
 			return new Coord3D(new Integer(tValue), new Integer(zValue));
 		}
@@ -567,7 +524,8 @@ public class InputStrategy
 		roi.setAnnotation(annotation, createAnnotationData(annotationElement));
 	}
 		
-	private ROIFigure createFigure(IXMLElement svgElement) throws IOException
+	private ROIFigure createFigure(IXMLElement svgElement) 
+		throws ParsingException
 	{
 		IXMLElement parentElement = svgElement.getChildAtIndex(0);
 		IXMLElement textElement;
@@ -583,7 +541,8 @@ public class InputStrategy
 		return figure;
 	}
 	
-	private ROIFigure createParentFigure(IXMLElement figureElement) throws IOException
+	private ROIFigure createParentFigure(IXMLElement figureElement) 
+		throws ParsingException
 	{
 		ROIFigure figure = null;
 		
@@ -604,18 +563,20 @@ public class InputStrategy
 		return figure;
 	}
 	
-	public BezierAnnotationFigure createBezierFigure(IXMLElement bezierElement, boolean closed)
+	public BezierAnnotationFigure createBezierFigure(IXMLElement bezierElement, 
+												boolean closed)
 	{
-		BezierAnnotationFigure bezierFigure = new BezierAnnotationFigure(closed);
-		if(bezierElement.hasAttribute(POINTS_ATTRIBUTE))
+		BezierAnnotationFigure fig = new BezierAnnotationFigure(closed);
+		if (bezierElement.hasAttribute(POINTS_ATTRIBUTE))
 		{
-			String pointsValues = bezierElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
+			String pointsValues = bezierElement.getAttribute(POINTS_ATTRIBUTE, 
+												VALUE_NULL);
 			Point2D.Double[] points = toPoints(pointsValues);
-			for(int i = 0 ; i < points.length ; i++)
-				bezierFigure.addNode(new Node(points[i].x, points[i].y));
+			for (int i = 0 ; i < points.length ; i++)
+				fig.addNode(new Node(points[i].x, points[i].y));
 		}
-		addAttributes(bezierFigure, bezierElement);
-		return bezierFigure;
+		addAttributes(fig, bezierElement);
+		return fig;
 	}
 	
 	private MeasureTextFigure createTextFigure(IXMLElement textElement)
@@ -684,7 +645,8 @@ public class InputStrategy
 		return rectFigure;
 	}
 
-	private ROIFigure createLineFigure(IXMLElement lineElement) throws IOException
+	private ROIFigure createLineFigure(IXMLElement lineElement) 
+		throws ParsingException
 	{
 		if(lineElement.hasAttribute(CONNECTION_TO_ATTRIBUTE))
 			return createLineConnectionFigure(lineElement);
@@ -692,11 +654,16 @@ public class InputStrategy
 			return createBasicLineFigure(lineElement);
 	}
 		
-	private LineConnectionAnnotationFigure createLineConnectionFigure(IXMLElement lineElement) throws IOException
+	private LineConnectionAnnotationFigure 
+		createLineConnectionFigure(IXMLElement lineElement) 
+		throws ParsingException
 	{
-		LineConnectionAnnotationFigure lineFigure = new LineConnectionAnnotationFigure();
-		long toROIid = new Long(lineElement.getAttribute(CONNECTION_TO_ATTRIBUTE, VALUE_NULL));
-		long fromROIid = new Long(lineElement.getAttribute(CONNECTION_FROM_ATTRIBUTE, VALUE_NULL));
+		LineConnectionAnnotationFigure 
+		lineFigure = new LineConnectionAnnotationFigure();
+		long toROIid = new Long(lineElement.getAttribute(
+								CONNECTION_TO_ATTRIBUTE, VALUE_NULL));
+		long fromROIid = new Long(lineElement.getAttribute(
+								CONNECTION_FROM_ATTRIBUTE, VALUE_NULL));
 		ROI toROI, fromROI;
 		try
 		{
@@ -704,25 +671,33 @@ public class InputStrategy
 			fromROI = component.getROI(fromROIid);
 			ROIFigure toFigure = toROI.getFigure(getCurrentCoord());
 			ROIFigure fromFigure = fromROI.getFigure(getCurrentCoord());
-			if(lineElement.hasAttribute(POINTS_ATTRIBUTE))
+			if (lineElement.hasAttribute(POINTS_ATTRIBUTE))
 			{
 				lineFigure.removeAllNodes();
-				String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
+				String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, 
+																	VALUE_NULL);
 				Point2D.Double[] points = toPoints(pointsValues);
 				for(int i = 0 ; i < points.length ; i++)
 					lineFigure.addNode(new Node(points[i].x, points[i].y));
-				lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
-				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
+				lineFigure.setStartConnector(toFigure.findCompatibleConnector(
+									lineFigure.getStartConnector(), true));
+				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(
+							lineFigure.getEndConnector(), false));
 			}
 			else
 			{
-				lineFigure.setStartConnector(toFigure.findCompatibleConnector(lineFigure.getStartConnector(), true));
-				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(lineFigure.getEndConnector(), false));
+				lineFigure.setStartConnector(toFigure.findCompatibleConnector(
+							lineFigure.getStartConnector(), true));
+				lineFigure.setEndConnector(fromFigure.findCompatibleConnector(
+							lineFigure.getEndConnector(), false));
 			}
 		}
 		catch(Exception e)
 		{
-			throw new IOException("In Line connection figure, with ROI :" + getCurrentROI() + " on Coord :" + getCurrentCoord() + " Connection <to>/<from> tag invalid.");
+			throw new ParsingException("In Line connection figure, " +
+					"with ROI :" + getCurrentROI() + 
+					" on Coord :" + getCurrentCoord() + 
+					" Connection <to>/<from> tag invalid.");
 		}
 		
 		addAttributes(lineFigure, lineElement);
@@ -735,7 +710,8 @@ public class InputStrategy
 		if(lineElement.hasAttribute(POINTS_ATTRIBUTE))
 		{
 			lineFigure.removeAllNodes();
-			String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, VALUE_NULL);
+			String pointsValues = lineElement.getAttribute(POINTS_ATTRIBUTE, 
+														VALUE_NULL);
 			Point2D.Double[] points = toPoints(pointsValues);
 			for(int i = 0 ; i < points.length ; i++)
 				lineFigure.addNode(new Node(points[i].x, points[i].y));
@@ -747,34 +723,32 @@ public class InputStrategy
 			String x2Value = lineElement.getAttribute(X2_ATTRIBUTE, VALUE_NULL);
 			String y2Value = lineElement.getAttribute(Y2_ATTRIBUTE, VALUE_NULL);
 			lineFigure.removeAllNodes();
-			lineFigure.addNode(new Node(new Double(x1Value), new Double(y1Value)));
-			lineFigure.addNode(new Node(new Double(x2Value), new Double(y2Value)));
+			lineFigure.addNode(new Node(new Double(x1Value), 
+								new Double(y1Value)));
+			lineFigure.addNode(new Node(new Double(x2Value), 
+								new Double(y2Value)));
 		}
 		addAttributes(lineFigure, lineElement);
-		
-		
 		return lineFigure;
 	}	
 	
 	
 	
-	 /**
-     * Returns a value as a Point2D.Double array.
-     * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-     */
+	/**
+	 * Returns a value as a Point2D.Double array.
+	 * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	 * 
+	 * @return See above.
+	 */
     private Point2D.Double[] toPoints(String str) 
     {
-        
         StringTokenizer tt = new StringTokenizer(str," ,");
         Point2D.Double[] points =new Point2D.Double[tt.countTokens() / 2];
-        for (int i=0; i < points.length; i++) 
-        {
-            
+        for (int i=0; i < points.length; i++)  
             points[i] = new Point2D.Double(
                     new Double(tt.nextToken()),
                     new Double(tt.nextToken())
                     );
-        }
         return points;
     }
 	
@@ -782,10 +756,12 @@ public class InputStrategy
 	{
 		Properties attributes = figureElement.getAttributes();
 		Iterator attributeKeys = attributes.keySet().iterator();
+		String attribute;
+		String value;
 		while(attributeKeys.hasNext())
 		{
-			String attribute = (String) attributeKeys.next();
-			String value = figureElement.getAttribute(attribute, VALUE_NULL);
+			attribute = (String) attributeKeys.next();
+			value = figureElement.getAttribute(attribute, VALUE_NULL);
 			addAttribute(figure, figureElement, attribute, value);
 		}
 	}
@@ -800,21 +776,23 @@ public class InputStrategy
 		return attributeParserMap.containsKey(attribute);
 	}
 	
-	private void parseAttribute(ROIFigure figure, IXMLElement figureElement, String attribute, String value)
+	private void parseAttribute(ROIFigure figure, IXMLElement figureElement, 
+							String attribute, String value)
 	{
 		SVGAttributeParser parser = attributeParserMap.get(attribute);
 		parser.parse(figure, figureElement, value);
 	}
 	
-	private void addAttribute(ROIFigure figure, IXMLElement figureElement, String attribute, String value)
+	private void addAttribute(ROIFigure figure, IXMLElement figureElement, 
+							String attribute, String value)
 	{
-		if(isBasicSVGAttribute(attribute))
-			return;
-		if(isSVGAttribute(attribute))
+		if (isBasicSVGAttribute(attribute)) return;
+		if (isSVGAttribute(attribute))
 			parseAttribute(figure, figureElement, attribute, value);
 	}
 	
-	private void addTextElementToFigure(ROIFigure figure, IXMLElement textElement)
+	private void addTextElementToFigure(ROIFigure figure, 
+										IXMLElement textElement)
 	{
 		String text = textElement.getContent();
 		setText(figure, text);
@@ -830,17 +808,60 @@ public class InputStrategy
 	{
 		Map<AttributeKey, Object> attributes = figure.getAttributes();
 		Iterator<AttributeKey> iterator = defaultAttributes.keySet().iterator();
-		while(iterator.hasNext())
+		AttributeKey key;
+		while (iterator.hasNext())
 		{
-			AttributeKey key = iterator.next();
-			if(!attributes.containsKey(key))
-			{
-				Object value = defaultAttributes.get(key);
-				key.set(figure, value);
-			}
+			key = iterator.next();
+			if (!attributes.containsKey(key))
+				key.set(figure, defaultAttributes.get(key));
 		}
 		
 	}
+	
+	InputStrategy()
+	{
+		figureFactory = new ROIFigureFactory();
+	}
+	
+	ArrayList<ROI> readROI(InputStream in, ROIComponent component) 
+		throws ParsingException, ROIShapeCreationException, NoSuchROIException, 
+				ROICreationException 
+	{
+		roiList = new ArrayList<ROI>();
+		this.component = component;
+		IXMLParser parser;
+	    try 
+	    {
+	    	parser = XMLParserFactory.createDefaultXMLParser();
+	    } 
+	    catch (Exception ex) 
+	    {
+	    	InternalError e = new InternalError("Unable to instantiate NanoXML Parser");
+	        e.initCause(ex);
+	        throw e;
+	    }
+	    
+	    try 
+	    {
+	    	IXMLReader reader = new StdXMLReader(in);
+		    parser.setReader(reader);
+		    document = (IXMLElement) parser.parse();
+	    } catch (Exception ex) 
+	    {
+	    	ParsingException e = new ParsingException(ex.getMessage());
+	        e.initCause(ex);
+	        throw e;
+	    }
+	    
+	    ArrayList<IXMLElement> roiElements = document.getChildrenNamed(ROI_TAG);
+	    
+	    int cnt = 0;
+	    for(IXMLElement roi : roiElements)
+	    	roiList.add(createROI(roi, component));
+	    
+		return roiList;
+	}
+	
 }
 
 

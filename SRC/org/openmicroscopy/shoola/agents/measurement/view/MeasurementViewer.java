@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.io.InputStream;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -133,7 +135,7 @@ public interface MeasurementViewer
 	 * 
 	 * @param rois The value to set.
 	 */
-	public void setROI(Object rois);
+	public void setROI(InputStream rois);
 
 	/**
 	 * Sets the set of pixels this measurement tool is for.

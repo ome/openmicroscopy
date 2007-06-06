@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.NoSuchShapeException 
+ * org.openmicroscopy.shoola.util.file.IOUtil 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,58 +20,54 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.exception;
+package org.openmicroscopy.shoola.util.file;
+
 
 //Java imports
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Collection of static methods to read and write files.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since OME3.0
  */
-public class NoSuchShapeException 
-	extends Exception
+public class IOUtil
 {
-	
+
 	/**
-	 * Constructs a new exception with the specified detail message and cause.
+	 * Reads the file corresponding to the passed file name. Returns
+	 * the inputstream or <code>null</code> if the file doesn't exist.
 	 * 
-	 * @param message	Short explanation of the problem.
-	 * @param cause		The exception that caused this one to be risen.
+	 * @param fileName The name of the file to read.
+	 * @return See above.
 	 */
-	public NoSuchShapeException(String message, Throwable cause) 
+	public static InputStream readFile(String fileName)
 	{
-		super(message, cause);
+		if (fileName == null)
+			throw new IllegalArgumentException("No file name specified.");
+		File f = new File(fileName);
+		BufferedInputStream in;
+		try {
+			in = new BufferedInputStream(new FileInputStream(f));
+		} catch (Exception e) {
+			return null;
+		}
+		return in;
 	}
 	
-	/**
-	 * Constructs a new exception with the specified exception.
-	 * 
-	 * @param e	The exception that caused this one to be risen.
-	 */
-	public NoSuchShapeException(Exception e)
-	{
-		super(e);
-	}
-	
-	public NoSuchShapeException()
-	{
-		super();
-	}
 }
-
-
-
-
