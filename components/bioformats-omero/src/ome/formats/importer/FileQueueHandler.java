@@ -29,10 +29,12 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
+import loci.formats.ChannelSeparator;
+import loci.formats.ImageReader;
+
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.model.containers.Dataset;
-
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -48,30 +50,37 @@ public class FileQueueHandler
     @SuppressWarnings("unused")
     private ImportHandler       importHandler;
     private OMEROMetadataStore  store;
+ 
+    public ImageReader iReader;
+    public ChannelSeparator separator;
     private OMEROWrapper    reader;
+    
     private Main          viewer;
     
     FileQueueChooser fileChooser = null;
     FileQueueTable qTable = null;
 
     
+    /**
+     * @param viewer
+     */
     FileQueueHandler(Main viewer)
     {        
         this.viewer = viewer;
+        
         reader = new OMEROWrapper();
-        reader.setChannelStatCalculationStatus(true);
+
+        //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());
         fileChooser = new FileQueueChooser();
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
         
-
         //fc.setAccessory(new FindAccessory(fc));
         
         qTable = new FileQueueTable();
         qTable.addPropertyChangeListener(this);
-        qTable.importBtn.setEnabled(false);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 fileChooser, qTable);
@@ -79,8 +88,6 @@ public class FileQueueHandler
         //splitPane.setResizeWeight(0.1);
         
         add(splitPane, BorderLayout.CENTER);
-        
-        
     }
 
 //  where member variables are declared
@@ -170,8 +177,6 @@ public class FileQueueHandler
         }
         if (prop.equals(Actions.REMOVE))
         {
-            try {
-
                 rows = qTable.queue.getSelectedRows();   
 
                 if (rows.length == 0)
@@ -185,21 +190,46 @@ public class FileQueueHandler
 
                 while (rows.length > 0)
                 {
-                    if (qTable.queue.getValueAt(rows[0], 2) == "added")
+                    if (qTable.queue.getValueAt(rows[0], 2) == "added"
+                        || qTable.queue.getValueAt(rows[0], 2) == "pending")
                     {
                         removeFileFromQueue(rows[0]);
                         rows = qTable.queue.getSelectedRows();                    
                     }
                 }                
-            } catch (Exception ex) { 
-                ex.printStackTrace();
-                return; 
-            }
+        }
+        if (prop.equals(Actions.CLEARDONE))
+        {
+                int numRows = qTable.queue.getRowCount();
 
+                for (int i = (numRows - 1); i >= 0; i--)
+                {
+                    if (qTable.queue.getValueAt(i, 2) == "done")
+                    {
+                        removeFileFromQueue(i);                    
+                    }
+                }
+                qTable.clearDoneBtn.setEnabled(false);
+        }
+        if (prop.equals(Actions.CLEARFAILED))
+        {
+                int numRows = qTable.queue.getRowCount();
+
+                for (int i = (numRows - 1); i >= 0; i--)
+                {
+                    if (qTable.queue.getValueAt(i, 2) == "failed")
+                    {
+                        removeFileFromQueue(i);                    
+                    }
+                }  
+                qTable.clearFailedBtn.setEnabled(false);
         }
         
+        
         if (prop.equals(Actions.IMPORT))
-        {   
+        {
+            qTable.clearDoneBtn.setEnabled(false);
+            qTable.clearFailedBtn.setEnabled(false);
             try {
                 if (qTable.importing == false)
                 {
@@ -207,12 +237,14 @@ public class FileQueueHandler
 
                     if (fads != null)
                     {
-                        store = viewer.loginHandler.getMetadataStore();                    
+                        store = viewer.loginHandler.getMetadataStore();
                         if (store != null)
                             importHandler = 
                                 new ImportHandler(viewer, qTable, store, reader, fads);
                     }
                     qTable.importing = true;
+                    qTable.queue.setRowSelectionAllowed(false);
+                    qTable.removeBtn.setEnabled(false);
                 } else {
                     qTable.cancel = true;
                     qTable.importing = false;
@@ -220,6 +252,9 @@ public class FileQueueHandler
                     qTable.importBtn.setEnabled(false);
                     viewer.statusBar.setStatusIcon("gfx/import_cancelling_16.png",
                     "Cancelling import... please wait.");
+                    JOptionPane.showMessageDialog(viewer, 
+                            "You import will be cancelled after the " +
+                            "current file has finished importing.");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -230,6 +265,13 @@ public class FileQueueHandler
         {
             savedDirectory = fileChooser.getCurrentDirectory().getAbsolutePath();
             userPrefs.put("savedDirectory", savedDirectory);
+        }
+        
+        if (prop.equals(Actions.REFRESH))
+        {
+            fileChooser.setVisible(false);
+            fileChooser.rescanCurrentDirectory();
+            fileChooser.setVisible(true);
         }
     }
     
@@ -308,6 +350,7 @@ public class FileQueueHandler
     private void removeFileFromQueue(int row)
     {
         qTable.table.removeRow(row);
+        //qTable.table.fireTableRowsDeleted(row, row);
         if (qTable.table.getRowCount() == 0)
             qTable.importBtn.setEnabled(false);
     }

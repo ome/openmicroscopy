@@ -13,9 +13,9 @@ package ome.formats.importer;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
-
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+
+import ome.formats.importer.util.GuiCommonElements;
 /**
  * A Splash window.
  *  <p>
@@ -49,7 +49,7 @@ public class SplashWindow extends JFrame {
      * (Singleton design pattern).
      */
     private static SplashWindow instance;
-    
+
     /**
      * The splash image which is displayed on the splash window.
      */
@@ -70,6 +70,9 @@ public class SplashWindow extends JFrame {
      */
     private boolean paintCalled = false;
     
+    // Load the gui for managing image icons
+    private GuiCommonElements gui = new GuiCommonElements();
+    
     /**
      * Creates a new instance.
      * @param parent the parent of the window.
@@ -83,7 +86,7 @@ public class SplashWindow extends JFrame {
         setResizable(false);
         setUndecorated(true);
         setTitle(Main.TITLE);
-        setIconImage(getImageIcon(Main.ICON).getImage());
+        setIconImage(gui.getImageIcon(Main.ICON).getImage());
         // Load the image
         MediaTracker mt = new MediaTracker(this);
         mt.addImage(image,0);
@@ -166,7 +169,7 @@ public class SplashWindow extends JFrame {
      * Open's a splash window using the specified image.
      * @param image The splash image.
      */
-    public static void splash(Image image) {
+    public static SplashWindow splash(Image image) {
         if (instance == null && image != null) {
            JFrame f = new JFrame();
             
@@ -190,15 +193,17 @@ public class SplashWindow extends JFrame {
                 }
             }
         }
+        return instance;
     }
     /**
      * Open's a splash window using the specified image.
      * @param imageURL The url of the splash image.
      */
-    public static void splash(URL imageURL) {
+    public static SplashWindow splash(URL imageURL) {
         if (imageURL != null) {
             splash(Toolkit.getDefaultToolkit().createImage(imageURL));
         }
+        return instance;
     }
     
     /**
@@ -224,13 +229,5 @@ public class SplashWindow extends JFrame {
         } catch (Exception e) {
             new DebugMessenger(null, "Error Dialog", true, e);
         }
-    }
-    
-    private ImageIcon getImageIcon(String path)
-    {
-        java.net.URL imgURL = Main.class.getResource(path);
-        if (imgURL != null) { return new ImageIcon(imgURL); } 
-        else { System.err.println("Couldn't find icon: " + imgURL); }
-        return null;
     }
 }

@@ -21,6 +21,8 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
@@ -29,6 +31,7 @@ import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
 import ome.model.containers.Dataset;
 import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,16 +112,16 @@ public class ImportLibrary
     public ImportLibrary(OMEROMetadataStore store, OMEROWrapper reader,
             ImportContainer[] fads)
     {
-
+        this.store = store;
+        this.reader = reader;
+        this.fads = fads;
+        
         if (store == null || reader == null || fads == null
                 || fads.length == 0)
         {
             throw new ApiUsageException(
                     "All arguments to ImportLibrary() must be non-null.");
         }
-        this.store = store;
-        this.reader = reader;
-        this.fads = fads;
     }
 
     /**
@@ -156,9 +159,9 @@ public class ImportLibrary
     }
 
     /** gets {@link Pixels} instance from {@link OMEROMetadataStore} */
-    public Pixels getRoot()
+    public List<Pixels> getRoot()
     {
-        return (Pixels) store.getRoot();
+        return (List<Pixels>) store.getRoot();
     }
 
     // ~ Actions
@@ -170,7 +173,8 @@ public class ImportLibrary
     {
         reader.close();
         reader.setMetadataStore(store);
-        log.debug("Image Count: " + reader.getImageCount(fileName));
+        reader.setId(fileName);
+        log.debug("Image Count: " + reader.getImageCount());
     }
 
     /**
@@ -180,9 +184,10 @@ public class ImportLibrary
      * @param fileName filename for use in {@link #setOffsetInfo(String)}
      * @return the number of planes in this image (z * c * t)
      */
-    public int calculateImageCount(String fileName)
+    public int calculateImageCount(String fileName, Integer series)
     {
-        Pixels pixels = getRoot();
+        List<Pixels> pixelsList = getRoot();
+        Pixels pixels = pixelsList.get(series);
         this.sizeZ = pixels.getSizeZ().intValue();
         this.sizeC = pixels.getSizeC().intValue();
         this.sizeT = pixels.getSizeT().intValue();
@@ -201,16 +206,32 @@ public class ImportLibrary
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
      */
-    public long importMetadata(String imageName)
+    public List<Pixels> importMetadata(String imageName)
     	throws FormatException, IOException
     {
-        Pixels p = (Pixels) store.getRoot();
-        p.getImage().setName(imageName);
+        List<Pixels> pixelsArray = (List<Pixels>) store.getRoot();
         // Ensure that our metadata is consistent before writing to the DB.
-        reader.finalizeMetadataStore(imageName);
-        Long pixId = store.saveToDB();
-        store.addPixelsToDataset(pixId, dataset);
-        return pixId;
+        for (Pixels pix:pixelsArray)
+        {
+            pix.getImage().setName(imageName);
+            if (pix.getPixelsDimensions() == null)
+            {   
+                PixelsDimensions pixDims = new PixelsDimensions();
+                pixDims.setSizeX(1.0f);
+                pixDims.setSizeY(1.0f);
+                pixDims.setSizeZ(1.0f);
+                pix.setPixelsDimensions(pixDims);
+            }
+        }
+        
+        pixelsArray = store.saveToDB();
+        
+        for (Pixels pix:pixelsArray)
+        {
+            store.addPixelsToDataset(pix.getId(), dataset);
+        }
+        
+        return pixelsArray;
     }
 
     /**
@@ -240,21 +261,25 @@ public class ImportLibrary
      * saves the binary data to the server. After each successful save,
      * {@link Step#step(int)} is called with the number of the iteration just
      * completed.
+     * @param series 
      */
-    public void importData(long pixId, String fileName, Step step)
+    public void importData(Long pixId, String fileName, int series, Step step)
     {
         int i = 1;
         try {
-            int bytesPerPixel = getBytesPerPixel(reader.getPixelType(fileName));
+            int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
             byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
-
+            
+            reader.setSeries(series);
+            
             for (int t = 0; t < sizeT; t++)
             {
                 for (int c = 0; c < sizeC; c++)
                 {
                     for (int z = 0; z < sizeZ; z++)
                     {
-                        int planeNumber = getTotalOffset(z, c, t);
+                        int planeNumber = reader.getIndex(z, c, t);
+                        //int planeNumber = getTotalOffset(z, c, t);
                         ByteBuffer buf =
                         	reader.openPlane2D(fileName, planeNumber,
                         			           arrayBuf).getData();
@@ -265,6 +290,7 @@ public class ImportLibrary
                     }
                 }
             }
+            reader.populateMinMax(pixId, series);
         } catch (FormatException e)
         {
             StringWriter sw = new StringWriter();
@@ -288,23 +314,7 @@ public class ImportLibrary
     private void setOffsetInfo(String fileName)
     {
         int order = 0;
-        try
-        {
-            order = getSequenceNumber(reader.getDimensionOrder(fileName));
-        } catch (FormatException e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
-        } catch (IOException e)
-        {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
-        }
-
+        order = getSequenceNumber(reader.getDimensionOrder());
         setOffsetInfo(order, sizeZ, sizeC, sizeT);
     }
 
@@ -347,6 +357,11 @@ public class ImportLibrary
                 wSize = tSize * numTimes;
                 zSize = wSize * numWaves;
                 break;
+            // WTZ sequence
+            case 4:
+                wSize = smallOffset;
+                tSize = wSize * numWaves;
+                zSize = tSize * numTimes;
         }
     }
 
@@ -370,6 +385,7 @@ public class ImportLibrary
         if (dimOrder.equals("XYCZT")) return 1;
         if (dimOrder.equals("XYZCT")) return 2;
         if (dimOrder.equals("XYTCZ")) return 3;
+        if (dimOrder.equals("XYCTZ")) return 4;
         throw new RuntimeException(dimOrder + " not represented in " +
                 "getSequenceNumber");
     }
@@ -378,7 +394,7 @@ public class ImportLibrary
      * @throws IOException 
      * @throws FormatException */
     public boolean isLittleEndian(String fileName) throws FormatException, IOException {
-      return reader.isLittleEndian(fileName);
+      return reader.isLittleEndian();
     }
     
     /**
@@ -392,7 +408,7 @@ public class ImportLibrary
     private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
       throws FormatException, IOException
     {
-      int pixelType = reader.getPixelType(fileName);
+      int pixelType = reader.getPixelType();
       int bytesPerPixel = getBytesPerPixel(pixelType);
 
       // We've got nothing to do if the samples are only 8-bits wide or if they

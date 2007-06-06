@@ -1,30 +1,47 @@
 package ome.formats.importer;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
+import java.util.ArrayList;
+import java.util.List;
 
 import loci.formats.ChannelSeparator;
+import loci.formats.ClassList;
 import loci.formats.FormatException;
-import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
-import loci.formats.ReaderWrapper;
+import loci.formats.in.LeicaReader;
+import ome.formats.OMEROMetadataStore;
+import ome.model.core.Channel;
+import ome.model.core.Pixels;
 
 public class OMEROWrapper extends MinMaxCalculator
 {
-	/**
+    private ChannelSeparator separator;
+    private Boolean minMaxSet = null; 
+    private ImageReader iReader;
+    /**
 	 * Reference copy of <i>reader</i> so that we can be compatible with the
 	 * IFormatReader/ReaderWrapper interface but still maintain functionality
 	 * that we require.
+	 * @param separator 
 	 */
-	public ChannelSeparator separator;
-
-	public OMEROWrapper()
-	{
-	    separator = new ChannelSeparator(new ImageReader());
-	}
-
+    
+    public OMEROWrapper() 
+    {
+        try
+        {
+            iReader = new ImageReader(
+                    new ClassList("readers.txt", 
+                            IFormatReader.class));
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Unable to load readers.txt.");
+        }
+        reader = separator = new ChannelSeparator(iReader);
+    };
 	/**
 	 * Obtains an object which represents a given plane within the file.
 	 * @param id The path to the file.
@@ -44,13 +61,13 @@ public class OMEROWrapper extends MinMaxCalculator
 		// all of the plane data (all three channels) from the file if the file
 		// is RGB.
 		ByteBuffer plane;
-		if (separator.getReader().isRGB(id))
-			plane = ByteBuffer.wrap(openBytes(id, no));
+		if (separator.getReader().isRGB() || iReader.getReader() instanceof LeicaReader)
+			plane = ByteBuffer.wrap(openBytes(no));
 		else
-			plane = ByteBuffer.wrap(openBytes(id, no, buf));
+			plane = ByteBuffer.wrap(openBytes(no, buf));
 
-		return new Plane2D(plane, getPixelType(id), isLittleEndian(id),
-				           getSizeX(id), getSizeY(id));
+		return new Plane2D(plane, getPixelType(), isLittleEndian(),
+				           getSizeX(), getSizeY());
 	}
 
 	/**
@@ -63,30 +80,20 @@ public class OMEROWrapper extends MinMaxCalculator
 	public void setChannelGlobalMinMax(String id)
 		throws FormatException, IOException
 	{
-		int planeSize = getSizeX(id) * getSizeY(id) *
-		FormatTools.getBytesPerPixel(getPixelType(id));
-
-		byte[] buf = new byte[planeSize];
-		for (int c = 0; c < getSizeC(id); c++) {
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
-			for (int t = 0; t < getSizeT(id); t++) {
-				for (int z = 0; z < getSizeZ(id); z++) {
-					int index = getIndex(id, z, c, t);
-					Plane2D plane = openPlane2D(id, index, buf);
-					for (int x = 0; x < getSizeX(id); x++) {
-						for (int y = 0; y < getSizeY(id); y++) {
-                            //System.err.println("x: " + x + " y: " + y + " z: " + z + " c: " + c + " t: " + t);
-							double pixelValue = plane.getPixelValue(x, y);
-							if (pixelValue < min) min = pixelValue;
-							if (pixelValue > max) max = pixelValue;
-						}
-					}
-				}
-			}
-			getMetadataStore(id).setChannelGlobalMinMax(c, min, max, null);
-		}
-	}
+	    for(int c = 0; c < getSizeC(); c++)
+        {
+            double gMin = Double.MIN_VALUE;
+            double gMax = Double.MAX_VALUE;
+            
+            double cMin = getChannelGlobalMinimum(c);
+            double cMax = getChannelGlobalMaximum(c);
+            
+            gMin = cMin;
+            gMax = cMax;
+                       
+            getMetadataStore().setChannelGlobalMinMax(c, gMin, gMax, null);
+        }    
+    }
 
 	/**
 	 * Makes sure that the reader's <code>MetadataStore</code> has all the
@@ -99,9 +106,57 @@ public class OMEROWrapper extends MinMaxCalculator
 		throws FormatException, IOException
 	{
 		// Make sure we have StatsInfo objects.
-		// TODO - DLW ... fix when Josh back
 		if (getChannelGlobalMinimum(0) == null
-			|| getChannelGlobalMaximum(1000) == null)
+			|| getChannelGlobalMaximum(0) == null)
 			setChannelGlobalMinMax(id);
 	}
+
+    public boolean isMinMaxSet() throws FormatException, IOException
+    {
+        if (minMaxSet == null)
+        {
+            OMEROMetadataStore store = 
+                (OMEROMetadataStore) separator.getMetadataStore();
+            List<Pixels> p = (ArrayList<Pixels>) store.getRoot();
+            int series = reader.getSeries();
+            List<Channel> channels = p.get(series).getChannels();
+            if (channels.get(0).getStatsInfo() == null)
+            {
+                minMaxSet = false;
+            } else {
+                minMaxSet = true;
+            }
+        }
+        return minMaxSet;
+    }
+    
+     protected void updateMinMax(BufferedImage b, int ndx)
+        throws FormatException, IOException
+      {
+         if (isMinMaxSet() == false)
+              super.updateMinMax(b, ndx);
+      }
+     
+     protected void updateMinMax(byte[] b, int ndx)
+     throws FormatException, IOException
+   {
+         if (isMinMaxSet() == false)
+             super.updateMinMax(b, ndx);
+   }
+     
+     public void populateMinMax(Long id, Integer i) throws FormatException, IOException
+     {
+         if (isMinMaxSet() == false)
+         {
+             OMEROMetadataStore store = 
+                 (OMEROMetadataStore) separator.getMetadataStore();
+             store.populateMinMax(id, i);
+         }
+     }
+     
+     public void close() throws IOException
+     {
+         minMaxSet = null;
+         super.close();
+     }
 }

@@ -58,13 +58,13 @@ public class ETable extends JTable {
             setShowVerticalLines(true);
         }
         
-        // Enable Java 6's row sorting by default, without yet requiring Java 6.
-        try {
-            java.lang.reflect.Method setAutoCreateRowSorterMethod = JTable.class.getDeclaredMethod("setAutoCreateRowSorter", new Class[] { boolean.class });
-            setAutoCreateRowSorterMethod.invoke(this, true);
-        } catch (Exception ex) {
-            // Ignore. Likely we're on Java 5, where this functionality doesn't exist.
-        }
+//        // Enable Java 6's row sorting by default, without yet requiring Java 6.
+//        try {
+//            java.lang.reflect.Method setAutoCreateRowSorterMethod = JTable.class.getDeclaredMethod("setAutoCreateRowSorter", new Class[] { boolean.class });
+//            setAutoCreateRowSorterMethod.invoke(this, true);
+//        } catch (Exception ex) {
+//            // Ignore. Likely we're on Java 5, where this functionality doesn't exist.
+//        }
     }
 
     public ETable(AbstractTableModel atm) {
@@ -90,13 +90,13 @@ public class ETable extends JTable {
             setShowVerticalLines(true);
         }
         
-        // Enable Java 6's row sorting by default, without yet requiring Java 6.
-        try {
-            java.lang.reflect.Method setAutoCreateRowSorterMethod = JTable.class.getDeclaredMethod("setAutoCreateRowSorter", new Class[] { boolean.class });
-            setAutoCreateRowSorterMethod.invoke(this, true);
-        } catch (Exception ex) {
-            // Ignore. Likely we're on Java 5, where this functionality doesn't exist.
-        }
+//        // Enable Java 6's row sorting by default, without yet requiring Java 6.
+//        try {
+//            java.lang.reflect.Method setAutoCreateRowSorterMethod = JTable.class.getDeclaredMethod("setAutoCreateRowSorter", new Class[] { boolean.class });
+//            setAutoCreateRowSorterMethod.invoke(this, true);
+//        } catch (Exception ex) {
+//            // Ignore. Likely we're on Java 5, where this functionality doesn't exist.
+//        }
     }
     /**
      * Tests whether we're running on Mac OS. The Mac is quite

@@ -46,6 +46,7 @@ import ome.api.RawPixelsStore;
 import ome.model.IObject;
 import ome.model.acquisition.StageLabel;
 import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
@@ -65,6 +66,7 @@ import ome.parameters.Parameters;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
+import ome.api.IRepositoryInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,13 +97,17 @@ public class OMEROMetadataStore implements MetadataStore
 
     /** OMERO update service */
     private IUpdate        iUpdate;
+    
+    private IRepositoryInfo iInfo;
 
     /** The "root" pixels object */
-    private Pixels         pixels = new Pixels();
+    private ArrayList<Pixels>    pixelsList = new ArrayList<Pixels>();
     
     private Experimenter    exp;
     
     private RawFileStore    rawFileStore;
+
+    //private List<Boolean> minMaxSet = new ArrayList<Boolean>();
     
     /**
      * Creates a new instance.
@@ -138,6 +144,7 @@ public class OMEROMetadataStore implements MetadataStore
             iUpdate = sf.getUpdateService();
             pservice = sf.createRawPixelsStore();
             rawFileStore = sf.createRawFileStore();
+            iInfo = sf.getRepositoryInfoService();
             
             exp = iQuery.findByString(Experimenter.class, "omeName", username);
         } catch (Throwable t)
@@ -183,9 +190,32 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public Object getRoot()
     {
-        return pixels;
+        return pixelsList;
     }
 
+    /**
+     * 
+     * Returns a specific pixels object from the pixelsList
+     * 
+     * @param series
+     * @return
+     */
+    public Pixels getPixels(Integer series)
+    {
+        if (series == null)
+            series = 0;
+
+        resizePixelsArray(series);
+        
+        Pixels p = pixelsList.get(series);
+        if (p == null)
+        {
+            p = new Pixels();
+            pixelsList.set(series, p);
+        }
+        return p;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -193,11 +223,11 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setRoot(Object root) throws IllegalArgumentException
     {
-        if (!(root instanceof Pixels))
+        if (!(root instanceof List))
             throw new IllegalArgumentException("'root' object of type '"
                     + root.getClass()
                     + "' must be of type 'ome.model.core.Pixels'");
-        pixels = (Pixels) root;
+        pixelsList = (ArrayList<Pixels>) root;
     }
 
     /*
@@ -207,7 +237,7 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void createRoot()
     {
-        pixels = new Pixels();
+        pixelsList = new ArrayList<Pixels>();
     }
 
     /**
@@ -238,7 +268,7 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.String, java.lang.String, java.lang.Integer)
      */
     public void setImage(String name, String creationDate, String description,
-            Integer i)
+            Integer series)
     {
         log.debug(String.format("Setting Image: name (%s), creationDate (%s), "
                 + "description (%s)", name, creationDate, description));
@@ -247,7 +277,7 @@ public class OMEROMetadataStore implements MetadataStore
         image.setName(name);
         image.setDescription(description);
 
-        pixels.setImage(image);
+        getPixels(series).setImage(image);
     }
 
     /*
@@ -319,7 +349,7 @@ public class OMEROMetadataStore implements MetadataStore
         dimensions.setSizeY(pixelSizeY);
         dimensions.setSizeZ(pixelSizeZ);
 
-        pixels.setPixelsDimensions(dimensions);
+        getPixels(i).setPixelsDimensions(dimensions);
     }
 
     /*
@@ -391,6 +421,8 @@ public class OMEROMetadataStore implements MetadataStore
         DimensionOrder order = (DimensionOrder) getEnumeration(
                 DimensionOrder.class, dimensionOrder);
 
+        Pixels pixels = getPixels(imageIndex);
+        
         pixels.setSha1("foo"); // FIXME: needs to be fixed!
         pixels.setSizeX(sizeX);
         pixels.setSizeY(sizeY);
@@ -402,6 +434,18 @@ public class OMEROMetadataStore implements MetadataStore
         pixels.setDefaultPixels(Boolean.TRUE); // *Very* important
     }
 
+    private void resizePixelsArray(int series)
+    {
+        int currentSize = pixelsList.size();
+        if (series + 1 > currentSize)
+        {
+            for (int i = 0; i < series + 1 - currentSize; i++)
+            {
+                pixelsList.add(null);
+            }
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -433,7 +477,7 @@ public class OMEROMetadataStore implements MetadataStore
         stageLabel.setPositionY(y);
         stageLabel.setPositionZ(z);
 
-        pixels.getImage().setPosition(stageLabel);
+        getPixels(i).getImage().setPosition(stageLabel);
     }
 
     /*
@@ -445,7 +489,7 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setLogicalChannel(int channelIdx, String name, Float ndFilter,
             Integer emWave, Integer exWave, String photometricInterpretation,
-            String mode, Integer i)
+            String mode, Integer series)
     {
         log
                 .debug(String
@@ -460,19 +504,22 @@ public class OMEROMetadataStore implements MetadataStore
         AcquisitionMode acquisitionMode = (AcquisitionMode) getEnumeration(
                 AcquisitionMode.class, mode);
 
+        
+        Pixels pixels = getPixels(series);
+        
         List<Channel> channels = pixels.getChannels();
         Channel channel = new Channel();
 
         if (channels.size() == 0)
         {
-            channels = initChannels();
+            channels = initChannels(series);
         } 
         else if (channels.size() != pixels.getSizeC())
         {
             log.warn(String.format("channels.size() (%d) is not equal to " +
                     "pixels.getChannels().size() (%d) Resetting channel array.", 
                     channels.size(), pixels.getSizeC()));
-            channels = initChannels();
+            channels = initChannels(series);
         }
         
 //        try {
@@ -495,17 +542,17 @@ public class OMEROMetadataStore implements MetadataStore
         pixels.setChannels(channels);
     }
 
-    private List<Channel> initChannels()
+    private List<Channel> initChannels(Integer i)
     {
+        Pixels pixels = getPixels(i);
+        
         List<Channel> channels = new ArrayList<Channel>(pixels.getSizeC());
-        for (int i = 0; i < pixels.getSizeC(); i++)
+        for (int j = 0; j < pixels.getSizeC(); j++)
         {
             channels.add(null);
         }
         return channels;
     }
-
-
 
     /*
      * (non-Javadoc)
@@ -516,15 +563,25 @@ public class OMEROMetadataStore implements MetadataStore
     public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
             Double globalMax, Integer i)
     {
+//       try { minMaxSet.get(channelIdx); }
+//        catch (IndexOutOfBoundsException e) 
+//        { minMaxSet.add(channelIdx, false); }
+//
+//        if (minMaxSet.get(channelIdx) == true)
+//            return;
         log.debug(String.format(
                 "Setting GlobalMin: '%f' GlobalMax: '%f' for channel: '%d'",
                 globalMin, globalMax, channelIdx));
         if (globalMin != null)
-        	globalMin = Math.floor(globalMin);
+        {
+        	globalMin = new Double(Math.floor(globalMin.doubleValue()));
+        }
         if (globalMax != null)
-        	globalMax = Math.floor(globalMax);
+        {
+        	globalMax = new Double(Math.ceil(globalMax.doubleValue()));
+        }
 
-        List<Channel> channels = pixels.getChannels();
+        List<Channel> channels = getPixels(i).getChannels();
 
         if (channels.size() < channelIdx)
             throw new IndexOutOfBoundsException("No such channel index: "
@@ -536,6 +593,7 @@ public class OMEROMetadataStore implements MetadataStore
         statsInfo.setGlobalMax(globalMax);
         
         channel.setStatsInfo(statsInfo);
+        //minMaxSet.set(channelIdx, true);
     }
 
     /*
@@ -553,7 +611,7 @@ public class OMEROMetadataStore implements MetadataStore
         pi.setTheT(t);
         pi.setTimestamp(timestamp);
         pi.setExposureTime(exposureTime);
-        pixels.addPlaneInfo(pi);
+        getPixels(i).addPlaneInfo(pi);
     }
 
     /*
@@ -605,19 +663,17 @@ public class OMEROMetadataStore implements MetadataStore
     public void addPixelsToDataset(Long pixId, Dataset dataset)
     {
         Pixels pixels = iQuery.get(Pixels.class, pixId);
+        Image unloadedImage = new Image(pixels.getImage().getId());
+        unloadedImage.unload();
 
-        // We need a special dataset query because of the nature of the call
-        // we're going to do next needing the Dataset --> Image links.
-        Dataset d2 = iQuery.findByQuery(
-                "select d from Dataset as d left join fetch "
-                        + "d.imageLinks where d.id = :id", new Parameters()
-                        .addId(dataset.getId()));
-
-        // Link the image to the dataset
-        d2.linkImage(pixels.getImage());
+        Dataset unloadedDataset = new Dataset(dataset.getId());
+        unloadedDataset.unload();
+        DatasetImageLink link = new DatasetImageLink();
+        link.setParent(unloadedDataset);
+        link.setChild(unloadedImage);
 
         // Now update the dataset object in the database
-        iUpdate.saveObject(d2);
+        iUpdate.saveObject(link);
     }
 
     /**
@@ -628,7 +684,7 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public List<Dataset> getDatasets(Project project)
     {
-        List l = iQuery.findAllByQuery(
+        List<Dataset> l = iQuery.findAllByQuery(
                 "from Dataset where id in " +
                 "(select link.child.id from ProjectDatasetLink link where " +
                 "link.parent.id = :id)", new Parameters().addId(project.getId()));
@@ -646,26 +702,40 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public List<Project> getProjects()
     {
-        List l = iQuery.findAllByQuery(
-                "from Project as p where p.details.owner.id = :id", 
+        List<Project> l = iQuery.findAllByQuery(
+                "from Project as p left join fetch p.datasetLinks " +
+                "where p.details.owner.id = :id", 
                 new Parameters().addId(exp.getId()));
         return (List<Project>) l;
     }
     
     
     /**
-     * Saves the current <i>root</i> pixels to the database.
+     * Saves the current <i>root</i> pixelsList to the database.
      * 
-     * @return the primary <i>id</i> of the pixels set saved.
+     * @return the pixelsList set saved.
      */
-    public Long saveToDB()
+    public ArrayList<Pixels> saveToDB()
     {
         IUpdate update = sf.getUpdateService();
-        pixels = update.saveAndReturnObject(pixels);
-
-        return pixels.getId();
+        Pixels[] pixelsArray = pixelsList.toArray(new Pixels[pixelsList.size()]);
+        IObject[] o = update.saveAndReturnArray(pixelsArray);
+        for (int i = 0; i < o.length; i++)
+        {
+            pixelsList.set(i, (Pixels) o[i]);
+        }
+        return pixelsList;
     }
     
+    public ServiceFactory getSF()
+    {
+        return sf;
+    }
+
+    public IUpdate getIUpdate()
+    {
+        return iUpdate;
+    }
     
     public void setOriginalFiles(File[] files)
     {
@@ -678,7 +748,10 @@ public class OMEROMetadataStore implements MetadataStore
             oFile.setSize(file.length());
             oFile.setSha1("pending");
             oFile.setFormat(f);
-            pixels.linkOriginalFile(oFile);
+            for (Pixels pixels:pixelsList)
+            {
+                pixels.linkOriginalFile(oFile);
+            }
         }
     }
     
@@ -688,7 +761,6 @@ public class OMEROMetadataStore implements MetadataStore
         {
             for (File file : files)
             {
-                System.err.println(file + "  " + pixelsId);
                 Parameters p = new Parameters();
                 p.addId(pixelsId);
                 p.addString("path", file.getAbsolutePath());
@@ -715,8 +787,6 @@ public class OMEROMetadataStore implements MetadataStore
                     ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
                     nioBuffer.limit(rlen);
                 }
-
-                System.err.println(System.currentTimeMillis() - time);
             }
             
         } catch (Exception e)
@@ -872,4 +942,38 @@ public class OMEROMetadataStore implements MetadataStore
 	{
 		// TODO: Unsupported.
 	}
+
+
+
+	/**
+     * Check the MinMax values stored in the DB and sync them with the new values
+     * we generate in the channelMinMax reader, then save them to the DB. 
+     * We could trust that the values are in the right order, but this This just 
+     * makes sure.
+	 * @param id
+	 */
+	public void populateMinMax(Long id, Integer i)
+    {
+        Pixels p = iQuery.findByQuery(
+                "select p from Pixels as p left join fetch p.channels " +
+                "where p.id = :id", new Parameters().addId(id));
+        List<Channel> channels = p.getChannels();
+        List<Channel> readerChannels = getPixels(i).getChannels();
+        
+        for (int j=0; j < channels.size(); j++)
+        {
+            channels.get(j).setStatsInfo(readerChannels.get(j).getStatsInfo());
+        }
+        iUpdate.saveObject(p);
+    }
+    
+    public IRepositoryInfo getRepositoryInfo()
+    {
+        return iInfo;
+    }
+    
+    public long getRepositorySpace()
+    {
+        return iInfo.getFreeSpaceInKilobytes();
+    }
 }

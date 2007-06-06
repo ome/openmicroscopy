@@ -30,24 +30,37 @@ package ome.formats.importer.util;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -67,12 +80,23 @@ import layout.TableLayout;
  */
 public class GuiCommonElements
 {
-    public boolean lafOpaque = true;
+    public boolean lafOpaque = true; // Hack for macness
+    public boolean offsetButtons = false; //Another hack for macness
+    public boolean motif = false;
+    
     public GuiCommonElements()
     {
-        String laf = UIManager.getSystemLookAndFeelClassName();
-        if (laf.equals("apple.laf.AquaLookAndFeel")) 
+        String laf = UIManager.getLookAndFeel().getClass().getName();
+        if (laf.equals("apple.laf.AquaLookAndFeel") 
+                || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
+        {
             lafOpaque = false;
+            offsetButtons = true;
+        }
+        if (laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
+        {
+            motif = true;
+        }
     }
 
     public JPanel addMainPanel(Container container, double tableSize[][], 
@@ -93,6 +117,78 @@ public class GuiCommonElements
                 panel.getBorder()));
         
         return panel;
+    }
+    
+    public JPanel addBorderedPanel(Container container, double tableSize[][], 
+            String name,
+            boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+              
+        TableLayout layout = new TableLayout(tableSize);
+        panel.setLayout(layout);       
+        panel.setBorder(BorderFactory.createTitledBorder(name));
+
+        if (debug == true)
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.red),
+                panel.getBorder()));
+        
+        return panel;
+    }
+    
+    public JPanel addPlanePanel(Container container, double tableSize[][], 
+            boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+              
+        TableLayout layout = new TableLayout(tableSize);
+        panel.setLayout(layout);       
+        panel.setBorder(BorderFactory.createEmptyBorder());
+
+        if (debug == true)
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.red),
+                panel.getBorder()));
+        
+        return panel;
+    }
+    
+    
+    public WholeNumberField addWholeNumberField(Container container, String prefexStr,
+            String initialValue, String suffexStr, int mnemonic, String tooltip,
+            int maxChars, int fieldWidth, String placement, boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        double table[][] = 
+            {{TableLayout.PREFERRED, fieldWidth, 5, TableLayout.PREFERRED}, // columns
+            {TableLayout.PREFERRED}}; // rows 
+        
+        TableLayout layout = new TableLayout(table);
+        panel.setLayout(layout);  
+
+        JLabel prefex = new JLabel(prefexStr);
+        prefex.setDisplayedMnemonic(mnemonic);
+        panel.add(prefex,"0,0");
+
+        WholeNumberField result = new WholeNumberField(0, maxChars);
+        result.setHorizontalAlignment(JTextField.CENTER);
+        prefex.setLabelFor(result);
+        result.setToolTipText(tooltip);
+        if (initialValue != null) result.setText(initialValue);
+
+        panel.add(result,"1,0");
+
+        JLabel suffex = new JLabel(suffexStr);
+        panel.add(suffex,"3,0");
+        
+        container.add(panel, placement);
+        
+        return result;
     }
     
     public JTextPane addTextPane(Container container, String text, 
@@ -407,6 +503,93 @@ public class GuiCommonElements
         return button;
     }
     
+    public JButton addIconButton(Container container, String label, String image,
+            Integer width, Integer height, Integer mnemonic, String tooltip, String placement, 
+            boolean debug)
+    {
+        JButton button = null;
+        
+        if (image == null) 
+        {
+            button = new JButton(label);
+        } else {
+            java.net.URL imgURL = Main.class.getResource(image);
+            if (imgURL != null)
+            {
+                button = new JButton(null, new ImageIcon(imgURL));
+            } else {
+                button = new JButton(label);
+                System.err.println("Couldn't find icon: " + image);
+            }
+        }
+        button.setMaximumSize(new Dimension(height, width));
+        button.setPreferredSize(new Dimension(height, width));
+        button.setMinimumSize(new Dimension(height, width));
+        button.setSize(new Dimension(height, width));
+        if (mnemonic != null) button.setMnemonic(mnemonic);
+        button.setOpaque(lafOpaque);
+        container.add(button, placement);
+        if (motif == true) 
+            {
+                Border b = BorderFactory.createLineBorder(Color.gray);
+                button.setMargin(new Insets(0,0,0,0)); 
+                button.setBorder(b);
+            }
+        
+        if (debug == true)
+            button.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.red),
+                    button.getBorder()));
+        
+        return button;
+    }
+    
+    public JComboBox addComboBox(Container container, String label,
+         Object[] initialValues, int mnemonic, String tooltip, 
+         double labelWidth, String placement, boolean debug)
+    {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        
+        double size[][] = {{labelWidth,TableLayout.FILL},{TableLayout.PREFERRED}};
+        TableLayout layout = new TableLayout(size);
+        panel.setLayout(layout);
+
+        JLabel labelTxt = new JLabel(label);
+        labelTxt.setDisplayedMnemonic(mnemonic);
+        panel.add(labelTxt, "0,0,l,c");
+
+        JComboBox result = null;
+        if (initialValues != null)
+        {
+            result = new JComboBox(initialValues);
+        } else {
+            result = new JComboBox();
+        }
+        labelTxt.setLabelFor(result);
+        result.setToolTipText(tooltip);
+        panel.add(result, "1,0,f,c");
+        container.add(panel, placement);
+        return result;
+    }
+
+    public JRadioButton addRadioButton(Container container, String label, 
+            int mnemonic, String tooltip, String placement, boolean debug)
+    {
+        JRadioButton button = new JRadioButton(label);
+        container.add(button, placement);        
+        return button;
+        
+    }
+
+    public JCheckBox addCheckBox(Container container, 
+            String string, String placement, boolean debug)
+    {
+        JCheckBox checkBox = new JCheckBox(string);
+        container.add(checkBox, placement);
+        return checkBox;
+    }
+
     // Fires a button click when using the enter key
     public void enterPressesWhenFocused(JButton button) {
 
@@ -431,4 +614,67 @@ public class GuiCommonElements
         else { System.err.println("Couldn't find icon: " + imgURL); }
         return null;
     }
+
+    public class WholeNumberField extends JTextField {
+
+        private Toolkit toolkit;
+        private NumberFormat integerFormatter;
+
+        public WholeNumberField(int value, int columns) {
+            super(columns);
+            toolkit = Toolkit.getDefaultToolkit();
+            integerFormatter = NumberFormat.getNumberInstance(Locale.US);
+            integerFormatter.setParseIntegerOnly(true);
+            setValue(value);
+        }
+
+        public int getValue() {
+            int retVal = 0;
+            try {
+                retVal = integerFormatter.parse(getText()).intValue();
+            } catch (ParseException e) {
+                // This should never happen because insertString allows
+                // only properly formatted data to get in the field.
+                toolkit.beep();
+            }
+            return retVal;
+        }
+
+        public void setValue(int value) {
+            setText(integerFormatter.format(value));
+        }
+
+        protected Document createDefaultModel() {
+            return new WholeNumberDocument();
+        }
+
+        protected class WholeNumberDocument extends PlainDocument {
+
+            public void insertString(int offs, String str, AttributeSet a) 
+            throws BadLocationException {
+
+                char[] source = str.toCharArray();
+                char[] result = new char[source.length];
+                int j = 0;
+
+                for (int i = 0; i < result.length; i++) {
+                    if (Character.isDigit(source[i]))
+                    {
+                        result[j++] = source[i];
+                    }
+                    else {
+                        toolkit.beep();
+                        //System.err.println("insertString: " + source[i]);
+                    }
+                }
+                super.insertString(offs, new String(result, 0, j), a);
+
+
+            }
+
+        }
+
+    }
 }
+
+

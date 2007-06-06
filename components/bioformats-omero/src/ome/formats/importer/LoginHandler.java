@@ -17,6 +17,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.prefs.Preferences;
 
 import javax.ejb.EJBAccessException;
@@ -173,9 +175,19 @@ public class LoginHandler implements PropertyChangeListener
                 viewer.enableMenus(true);
                 viewer.setImportEnabled(true);
                 viewer.loggedIn = true;
-                viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                "Connected to " + server);
-
+                // if this fails, using the old server without repositorySpace
+                try {
+                    long freeSpace = store.getRepositorySpace();
+                    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+                    String freeMB = formatter.format(freeSpace/1000);                
+                    viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
+                            "Connected to " + server + ". Free space: " + 
+                            freeMB + " MB.");
+                } catch (Exception e) 
+                {
+                    viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
+                            "Connected to " + server + ".");
+                }
             }
         }.start();
     }

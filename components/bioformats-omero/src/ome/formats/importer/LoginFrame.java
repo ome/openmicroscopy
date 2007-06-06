@@ -114,10 +114,10 @@ public class LoginFrame extends JFrame
     {   
         this.main = main;
         
-        ImageIcon top = getImageIcon(Main.splash);
-              
+        gui = new GuiCommonElements();
+        
         setTitle("Login");
-        setIconImage(getImageIcon(Main.ICON).getImage());
+        setIconImage(gui.getImageIcon(Main.ICON).getImage());
 
         setLocation(200, 200);
         setResizable(false);
@@ -125,10 +125,12 @@ public class LoginFrame extends JFrame
         setSize(new Dimension(loginWidth, loginHeight));
         setLocationRelativeTo(main);
         //get the amount to offset the login by
-        if (!center)
+        //get the amount to offset the login by
+        if (!center && Main.getSplashLocation() != null)
         {
-            int offset = this.getY() + top.getIconHeight()/2 + 5 + this.getHeight()/2;
-            setLocation(this.getX(), offset);            
+            int offset = Main.getSplashLocation().y 
+                    + gui.getImageIcon(Main.splash).getIconHeight() + 5;
+            setLocation(this.getX(), offset);           
         }
         setUndecorated(true);
                 
@@ -146,8 +148,6 @@ public class LoginFrame extends JFrame
         port = userPrefs.get("port", port);
         if (port != null) port = port.trim();
         else port = "1099";
-                
-        gui = new GuiCommonElements();
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
@@ -209,8 +209,8 @@ public class LoginFrame extends JFrame
         configBtn.setOpaque(false);
         configBtn.setContentAreaFilled(false);
         
-        configBtn.setIcon(getImageIcon("gfx/config.png"));
-        configBtn.setPressedIcon(getImageIcon("gfx/config_pressed.png"));
+        configBtn.setIcon(gui.getImageIcon("gfx/config.png"));
+        configBtn.setPressedIcon(gui.getImageIcon("gfx/config_pressed.png"));
         
         uname = gui.addTextField(topPanel, 
                 unameLabel, 
@@ -247,7 +247,7 @@ public class LoginFrame extends JFrame
         // Add the tab panel to the main panel
         mainPanel.add(topPanel, "0, 0, 3, 0");
         
-        JLabel background = new JLabel(getImageIcon("gfx/login_background.png"));
+        JLabel background = new JLabel(gui.getImageIcon("gfx/login_background.png"));
         background.setBorder(BorderFactory.createEmptyBorder());
         this.getRootPane().setBorder(null);
         JLayeredPane layers = new JLayeredPane();  //Default is absolute layout.
@@ -383,14 +383,6 @@ public class LoginFrame extends JFrame
             if (currentServer.equals(oldValue)) 
                 currentServer = DEFAULT_SERVER_TEXT;
         }
-    }
-
-    private ImageIcon getImageIcon(String path)
-    {
-        java.net.URL imgURL = Main.class.getResource(path);
-        if (imgURL != null) { return new ImageIcon(imgURL); } 
-        else { System.err.println("Couldn't find icon: " + imgURL); }
-        return null;
     }
     
     ///////////////////////////////////////////////////////////////////////

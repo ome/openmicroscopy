@@ -23,7 +23,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import loci.formats.ComboFileFilter;
+import loci.formats.gui.ComboFileFilter;
 import loci.formats.ImageReader;
 
 
@@ -46,6 +46,7 @@ public class FileQueueChooser
     
     ImageReader reader = new ImageReader();
     
+    
     FileQueueChooser() {
         
         if (savedDirectory.equals("") || !(new File(savedDirectory).exists()))
@@ -62,13 +63,13 @@ public class FileQueueChooser
         this.setDragEnabled(true);
         //this.setAccessory(new FindAccessory(this));
         
-        int readerFFSize = reader.getFileFilters().length;
+        int readerFFSize = loci.formats.gui.GUITools.buildFileFilters(reader).length;
         /** Gets a JFileChooser that recognizes accepted file types. */
         
         setAcceptAllFileFilterUsed(false);
         FileFilter[] ff = new FileFilter[readerFFSize + 6];
         System.arraycopy(ComboFileFilter.sortFilters(
-                reader.getFileFilters()), 0, ff, 0, readerFFSize);
+                loci.formats.gui.GUITools.buildFileFilters(reader)), 0, ff, 0, readerFFSize);
         ff[readerFFSize] = new DashFileFilter();
         ff[readerFFSize + 1] = new R3DNewFileFilter();
         ff[readerFFSize + 2] = new R3DOldFileFilter();
@@ -77,23 +78,23 @@ public class FileQueueChooser
         ff[readerFFSize + 5] = new D3DNPrjFileFilter();
 
         //ff = ComboFileFilter.sortFilters(ff);
-//        FileFilter combo = null;
-//        if (ff.length > 1)
-//        {
-//            combo = new ComboFileFilter(ff, "All supported file types");
-//            addChoosableFileFilter(combo);
-//        }
-//        for (int i = 0; i < ff.length; i++)
-//            this.addChoosableFileFilter(ff[i]);
-//        if (combo != null) this.setFileFilter(combo);
+        FileFilter combo = null;
+        if (ff.length > 1)
+        {
+            combo = new ComboFileFilter(ff, "All supported file types");
+            addChoosableFileFilter(combo);
+        }
+        for (int i = 0; i < ff.length; i++)
+            this.addChoosableFileFilter(ff[i]);
+        if (combo != null) this.setFileFilter(combo);
         
-        // Retrieve all JLists and JTables from the fileChooser
+         //Retrieve all JLists and JTables from the fileChooser
         fileListObjects = getFileListObjects(this);
         
-        // For now, assume the first list/table found is the correct one
-        // (this will need to be adjusted if LAF bugs crop up)
-        // Shouldn't break anything since dblclick will just stop working if
-        // this changes for some reason
+         //For now, assume the first list/table found is the correct one
+         //(this will need to be adjusted if LAF bugs crop up)
+         //Shouldn't break anything since dblclick will just stop working if
+         //this changes for some reason
         if (fileListObjects.length > 0 && !laf.contains("Windows")) {
             fileList = fileListObjects[0];
             MouseCommand mc = new MouseCommand();

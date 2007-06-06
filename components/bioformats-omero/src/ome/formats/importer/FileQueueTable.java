@@ -40,6 +40,7 @@ import javax.swing.table.TableColumnModel;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.ETable;
 import ome.model.containers.Dataset;
+import ome.api.IRepositoryInfo;
 
 
 public class FileQueueTable 
@@ -53,14 +54,19 @@ public class FileQueueTable
     private static final long serialVersionUID = -4239932269937114120L;
 
 
-    JButton           addBtn;
-    JButton           removeBtn;
-    JButton           importBtn;
+    JButton         refreshBtn;
+    JButton         addBtn;
+    JButton         removeBtn;
+    JButton         importBtn;
+    JButton         clearDoneBtn;
+    JButton         clearFailedBtn;
     
     private int row;
     private int maxPlanes;
     public boolean cancel = false;
     public boolean importing = false;
+    public boolean failedFiles;
+    public boolean doneFiles;
     
     FileQueueTable() {
 
@@ -68,8 +74,10 @@ public class FileQueueTable
         // Debug Borders
         Boolean debugBorders = false;
         
-        // Size of the add/remove buttons (which are square).
+        // Size of the add/remove/refresh buttons (which are square).
         int buttonSize = 40;
+        // Add graphic for the refresh button
+        String refreshIcon = "gfx/recycled.png";
         // Add graphic for add button
         String addIcon = "gfx/add.png";
         // Remove graphics for remove button
@@ -87,6 +95,15 @@ public class FileQueueTable
         if (debugBorders == true) 
             buttonPanel.setBorder(BorderFactory.createLineBorder(Color.red, 1));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
+        
+        refreshBtn = addButton("¤", refreshIcon, null);
+        refreshBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
+        refreshBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
+        refreshBtn.setMinimumSize(new Dimension(buttonSize, buttonSize));
+        refreshBtn.setSize(new Dimension(buttonSize, buttonSize));
+        refreshBtn.setActionCommand(Actions.REFRESH);
+        refreshBtn.addActionListener(this);
+        
         addBtn = addButton(">>", addIcon, null);
         addBtn.setMaximumSize(new Dimension(buttonSize, buttonSize));
         addBtn.setPreferredSize(new Dimension(buttonSize, buttonSize));
@@ -103,11 +120,14 @@ public class FileQueueTable
         removeBtn.setActionCommand(Actions.REMOVE);
         removeBtn.addActionListener(this);
         
+        buttonPanel.add(Box.createRigidArea(new Dimension(0,30)));
+        buttonPanel.add(refreshBtn);
         buttonPanel.add(Box.createVerticalGlue());
         buttonPanel.add(addBtn);
         buttonPanel.add(Box.createRigidArea(new Dimension(0,5)));
         buttonPanel.add(removeBtn);
         buttonPanel.add(Box.createVerticalGlue());
+        buttonPanel.add(Box.createRigidArea(new Dimension(0,60)));
         add(buttonPanel);
         add(Box.createRigidArea(new Dimension(5,0)));
 
@@ -145,8 +165,8 @@ public class FileQueueTable
 
         SelectionListener listener = new SelectionListener(queue);
         queue.getSelectionModel().addListSelectionListener(listener);
-        queue.getColumnModel().getSelectionModel()
-            .addListSelectionListener(listener);
+        //queue.getColumnModel().getSelectionModel()
+        //    .addListSelectionListener(listener);
         
         // Hide 3rd to 5th columns
         TableColumnModel tcm = queue.getColumnModel();
@@ -165,10 +185,22 @@ public class FileQueueTable
         
         JPanel importPanel = new JPanel();
         importPanel.setLayout(new BoxLayout(importPanel, BoxLayout.LINE_AXIS));
+        clearDoneBtn = addButton("Clear Done", null, null);
+        clearFailedBtn = addButton("Clear Failed", null, null);
         importBtn = addButton("Import", null, null);
         importPanel.add(Box.createHorizontalGlue());
+        importPanel.add(clearDoneBtn);
+        clearDoneBtn.setEnabled(false);
+        clearDoneBtn.setActionCommand(Actions.CLEARDONE);
+        clearDoneBtn.addActionListener(this);
+        importPanel.add(Box.createRigidArea(new Dimension(0,5)));
+        importPanel.add(clearFailedBtn);
+        clearFailedBtn.setEnabled(false);
+        clearFailedBtn.setActionCommand(Actions.CLEARFAILED);
+        clearFailedBtn.addActionListener(this);
+        importPanel.add(Box.createRigidArea(new Dimension(0,10)));
         importPanel.add(importBtn);
-        importBtn.setEnabled(true);
+        importBtn.setEnabled(false);
         importBtn.setActionCommand(Actions.IMPORT);
         importBtn.addActionListener(this);
         queuePanel.add(Box.createRigidArea(new Dimension(0,5)));
@@ -185,7 +217,10 @@ public class FileQueueTable
     public void setProgressPending(int row)
     {
         if (table.getValueAt(row, 2).equals("added"))
-            table.setValueAt("pending", row, 2);    
+        {
+            table.setValueAt("pending", row, 2);  
+        }
+            
     }
     
     public void setProgressInvalid(int row)
@@ -202,7 +237,9 @@ public class FileQueueTable
 
     public void setProgressFailed(int row)
     {
-     	table.setValueAt("failed", row, 2); 
+     	table.setValueAt("failed", row, 2);
+        failedFiles = true;
+        table.fireTableDataChanged();
     }
         
     public void setProgressPrepping(int row)
@@ -212,12 +249,14 @@ public class FileQueueTable
 
     public void setProgressDone(int row)
     {
-        table.setValueAt("done", row, 2); 
+        table.setValueAt("done", row, 2);
+        doneFiles = true;
+        table.fireTableDataChanged();
     }
     
     public void setProgressArchiving(int row)
     {
-        table.setValueAt("archiving", row, 2);
+        table.setValueAt("archiving", row, 2);       
     }
     
     public int getMaximum()
@@ -270,18 +309,19 @@ public class FileQueueTable
     {
         Object src = e.getSource();
         if (src == addBtn)
-        {
             firePropertyChange(Actions.ADD, false, true);
-        } 
         if (src == removeBtn)
-        {
             firePropertyChange(Actions.REMOVE, false, true);
-        }
+        if (src == refreshBtn)
+            firePropertyChange(Actions.REFRESH, false, true);
+        if (src == clearDoneBtn)
+            firePropertyChange(Actions.CLEARDONE, false, true);
+        if (src == clearDoneBtn)
+            firePropertyChange(Actions.CLEARFAILED, false, true);
         if (src == importBtn)
         {
             queue.clearSelection();
-
-                firePropertyChange(Actions.IMPORT, false, true); 
+            firePropertyChange(Actions.IMPORT, false, true); 
         }
     }
 
@@ -300,7 +340,7 @@ public class FileQueueTable
         
         public boolean isCellEditable(int row, int col) { return false; }
         
-        public boolean rowSelectionAllowed() { return false; }
+        public boolean rowSelectionAllowed() { return true; }
     }
  
     public class MyTableHeaderRenderer 
@@ -381,6 +421,11 @@ public class FileQueueTable
             }
 
             setFont(UIManager.getFont("TableCell.font"));
+            if (queue.getValueAt(row, 2).equals("done") || 
+                    queue.getValueAt(row, 2).equals("failed"))
+            { this.setEnabled(false); } 
+            else
+            { this.setEnabled(true); }
            
             return this;
         }
@@ -404,6 +449,12 @@ public class FileQueueTable
             // Set tool tip if desired
             setToolTipText((String)value);
             
+            if (queue.getValueAt(row, 2).equals("done") || 
+                    queue.getValueAt(row, 2).equals("failed"))
+            { this.setEnabled(false); } 
+            else
+            { this.setEnabled(true); }
+            
             // Since the renderer is a component, return itself
             return this;
         }
@@ -421,38 +472,27 @@ public class FileQueueTable
         public void valueChanged(ListSelectionEvent e) {
             // If cell selection is enabled, both row and column change events are fired
             if (e.getSource() == table.getSelectionModel()
-                  && table.getRowSelectionAllowed()) {
-                // Column selection changed
-                int first = e.getFirstIndex();
-                int last = e.getLastIndex();
-                dselectRow(first, last);
-            } else if (e.getSource() == table.getColumnModel().getSelectionModel()
-                   && table.getColumnSelectionAllowed() ){
-                // Row selection changed
-                int first = e.getFirstIndex();
-                int last = e.getLastIndex();
-                dselectRow(first, last);
-            }
-    
-            if (e.getValueIsAdjusting()) {
-                // The mouse button has not yet been released
-            }
+                  && table.getRowSelectionAllowed()) 
+            {
+                    dselectRows();
+            } 
         }
         
-        private void dselectRow(int first, int last)
+        private void dselectRows()
         {
-            for (int i = first; i < last; i++ )
+            // Column selection changed
+            int rows = queue.getRowCount();
+
+            for (int i = 0; i < rows; i++ )
             {
                 try
                 {
-                    //System.err.println("first: " + first + 
-                    //    " last: " + last + " i: " + i);
-                    if (!table.getValueAt(i, 2).equals("added") 
+                    if (!(queue.getValueAt(i, 2).equals("added") ||
+                            queue.getValueAt(i, 2).equals("pending")) 
                             && table.getSelectionModel().isSelectedIndex(i))
                     {
                         table.getSelectionModel().removeSelectionInterval(i, i);
-                        table.clearSelection();
-                    }                    
+                    }
                 } catch (ArrayIndexOutOfBoundsException e)
                 {
                     e.printStackTrace();

@@ -55,11 +55,15 @@ public class LogAppender
                 StyleConstants.setFontFamily(style, "SansSerif");
                 StyleConstants.setFontSize(style, 12);
 
-                doc.insertString(doc.getLength(), s + "\n", style);
+                doc.insertString(doc.getLength(), s, style);
+                
+                int maxChars = 100000;
+                if (doc.getLength() > maxChars)
+                    doc.remove(0, doc.getLength() - maxChars);
                 // Toolkit.getDefaultToolkit().beep();
             } catch (BadLocationException e)
             {
-
+                throw new RuntimeException(e);
             }
         }
     }

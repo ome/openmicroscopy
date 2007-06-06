@@ -17,6 +17,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -37,9 +38,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+
+import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,6 +74,8 @@ public class Main extends JFrame implements ActionListener, WindowListener
     /** Logger for this class. */
     @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(Main.class);
+
+    public static Point splashLocation = Splasher.location;
 
     // -- Constants --
 
@@ -116,6 +122,9 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public Main()
     {
         super(TITLE);
+        
+        GuiCommonElements gui = new GuiCommonElements();
+        
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         JPanel pane = new JPanel();
         pane.setLayout(new BorderLayout());
@@ -126,7 +135,7 @@ public class Main extends JFrame implements ActionListener, WindowListener
         addWindowListener(this);
         
         setTitle(TITLE);
-        setIconImage(getImageIcon(Main.ICON).getImage());
+        setIconImage(gui.getImageIcon(Main.ICON).getImage());
 
         // menu bar
         JMenuBar menubar = new JMenuBar();
@@ -257,7 +266,17 @@ public class Main extends JFrame implements ActionListener, WindowListener
             StyleConstants.setFontSize(style, 12);
             StyleConstants.setBold(style, false);
 
+            // set to blank before update, this will speed up inserts by 3
+            //StyledDocument blank = new DefaultStyledDocument();
+            //outputTextPane.setDocument(blank);
             doc.insertString(doc.getLength(), s, style);
+            
+            //trim the document size so it doesn't grow to big
+            int maxChars = 100000;
+            if (doc.getLength() > maxChars)
+                doc.remove(0, doc.getLength() - maxChars);
+            
+            //outputTextPane.setDocument(doc);
         } catch (BadLocationException e) {}
     }
 
@@ -275,15 +294,26 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public void appendToDebug(String s)
     {
         try
-        {
+        {          
             StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
+            
             Style style = doc.addStyle("StyleName", null);
             StyleConstants.setForeground(style, Color.black);
             StyleConstants.setFontFamily(style, "SansSerif");
             StyleConstants.setFontSize(style, 12);
             StyleConstants.setBold(style, false);
 
+            // set to blank before update, this will speed up inserts by 3
+            //StyledDocument blank = new DefaultStyledDocument();
+            //debugTextPane.setDocument(blank);
             doc.insertString(doc.getLength(), s, style);
+            
+            //trim the document size so it doesn't grow to big
+            int maxChars = 100000;
+            if (doc.getLength() > maxChars)
+                doc.remove(0, doc.getLength() - maxChars);
+            
+            //debugTextPane.setDocument(doc);
         } catch (BadLocationException e) {}
     }
 
@@ -436,15 +466,6 @@ public class Main extends JFrame implements ActionListener, WindowListener
     public void windowIconified(WindowEvent e)  {}
     public void windowOpened(WindowEvent e) {}
 
-    
-    private ImageIcon getImageIcon(String path)
-    {
-        java.net.URL imgURL = Main.class.getResource(path);
-        if (imgURL != null) { return new ImageIcon(imgURL); } 
-        else { System.err.println("Couldn't find icon: " + imgURL); }
-        return null;
-    }
-    
     /**
      * @param args Start up the application, display the main window and the
      *            login dialog.
@@ -478,32 +499,8 @@ public class Main extends JFrame implements ActionListener, WindowListener
         new Main();
     }
 
-    public static Main returnMain(String[] args)
-    {  
-
-        String laf = UIManager.getSystemLookAndFeelClassName() ;
-
-        //laf = "ch.randelshofer.quaqua.QuaquaLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-        //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
-
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
-        {
-            System.setProperty("Quaqua.design", "panther");
-            
-            try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
-           } catch (Exception e) { System.err.println(laf + " not supported.");}
-        } else {
-            try {
-                UIManager.setLookAndFeel(laf);
-            } catch (Exception e) 
-           { System.err.println(laf + " not supported."); }
-        }
-        return new Main();
+    public static Point getSplashLocation()
+    {
+        return splashLocation;
     }
 }
