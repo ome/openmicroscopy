@@ -48,7 +48,9 @@ import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -79,6 +81,12 @@ class MeasurementViewerControl
     /** Identifies the <code>LOAD</code> action in the menu. */
     static final Integer     LOAD = new Integer(1);
     
+    /** Identifies the <code>SAVE Results</code> action in the menu. */
+    static final Integer     SAVE_RESULTS = new Integer(2);
+    
+    /** Identifies the <code>SAVE Results</code> action in the menu. */
+    static final Integer     REFRESH_RESULTS = new Integer(3);
+    
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -96,6 +104,8 @@ class MeasurementViewerControl
     {
     	actionsMap.put(SAVE, new SaveROIAction(model));
     	actionsMap.put(LOAD, new LoadROIAction(model));
+    	actionsMap.put(SAVE_RESULTS, new SaveResultsAction(model));
+    	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
     }
 
     /**

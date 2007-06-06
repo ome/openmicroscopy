@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -236,13 +237,6 @@ class MeasurementViewerModel
     Drawing getDrawing() { return drawing; }
 
     /**
-     * results the MeasurementComponent
-     */
-    MeasurementViewer getMeasurementComponent()
-    {
-    	return component;
-    }
-    /**
      * Sets the object in the {@link MeasurementViewer#DISCARDED} state.
      * Any ongoing data loading will be cancelled.
      */
@@ -334,7 +328,9 @@ class MeasurementViewerModel
 	void setROI(InputStream input)
 		throws Exception
 	{
-		if (input != null) roiComponent.loadROI(input);
+		if (input != null) {
+			roiComponent.loadROI(input);
+		}
 		state = MeasurementViewer.READY;
 	}
 
@@ -451,6 +447,9 @@ class MeasurementViewerModel
 	/**
 	 * Figure attribute has changed, need to add any special processing to see
 	 * if it should affect ROIShape, ROI or other object. 
+	 * 
+	 * @param attribute
+	 * @param figure
 	 */
 	void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
 	{
@@ -470,28 +469,12 @@ class MeasurementViewerModel
 	
 	/**
 	 * Saves the current ROISet in the roi component to file.
-	 * 
+	 * @throws ParsingException
 	 */
 	void saveROI()
+		throws ParsingException
 	{
-		try {
-			roiComponent.saveROI(getImageID());
-		} catch(Exception e)	{
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Loads the current ROISet in the roi component to file. 
-	 * 
-	 */
-	void loadROI()
-	{
-		try {
-			
-		} catch(Exception e)	{
-			//e.printStackTrace();
-		}
+		roiComponent.saveROI(IOUtil.writeFile(imageID+".xml"));
 	}
 	
 }	

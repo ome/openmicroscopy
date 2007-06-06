@@ -68,6 +68,7 @@ public class RefreshResultsTableAction
 	{
 		super(model);
 		name = NAME;
+		putValue(Action.NAME, NAME);
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();

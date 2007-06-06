@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
@@ -120,7 +121,6 @@ class MeasurementViewerComponent
 		
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
-			
 	}
 	
 	/**
@@ -246,7 +246,8 @@ class MeasurementViewerComponent
 		try {
 			model.setROI(input);
 		} catch (Exception e) {
-			//TODO register and notify user.
+			
+			//TODO register and notify user. close Input
 			Registry reg = MeasurementAgent.getRegistry();
 			if (e instanceof ParsingException) {
 				reg.getLogger().error(this, "Cannot parse the ROI for " 
@@ -260,6 +261,7 @@ class MeasurementViewerComponent
 		}
 
 		view.rebuildManagerTable();
+		updateDrawingArea();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
@@ -343,8 +345,8 @@ class MeasurementViewerComponent
      */
 	public void loadROI()
 	{
-		model.loadROI(); //TODO: MODIFY
-		updateDrawingArea();
+		//model.loadROI(); //TODO: MODIFY
+		//updateDrawingArea();
 	}
 
 	/** 
@@ -353,16 +355,17 @@ class MeasurementViewerComponent
      */
 	public void saveROI() 
 	{
-		model.saveROI();
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#rebuildManagerTable()
-     */
-	public void rebuildManagerTable() 
-	{
-		view.rebuildManagerTable();
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		try {
+			model.saveROI();
+		} catch (ParsingException e) {
+			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
+			un.notifyInfo("Save ROI", "Cannot save ROI " +
+										"for "+model.getImageID());
+		}
+		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
+									"successfully saved. ");
 	}
 	
 	/** 

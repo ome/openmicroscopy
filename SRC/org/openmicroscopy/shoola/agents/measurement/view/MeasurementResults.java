@@ -54,8 +54,6 @@ import javax.swing.table.TableCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
-import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
@@ -111,20 +109,20 @@ class MeasurementResults
 	private MeasurementViewerModel			model;
 	
 	/** Reference to the View. */
-	private MeasurementViewerUI			view;
+	private MeasurementViewerUI				view;
 	
 	/** 
 	 * The table selection listener attached to the table displaying the 
 	 * objects.
 	 */
-	private ListSelectionListener		listener;
+	private ListSelectionListener			listener;
 	
 
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		saveButton = new JButton("Save");
-		saveButton.addActionListener(new SaveResultsAction(model.getMeasurementComponent()));
+		saveButton = new JButton(
+				controller.getAction(MeasurementViewerControl.SAVE_RESULTS));
 		
 		resultsWizardButton = new JButton("Results Wizard..");
 		resultsWizardButton.addActionListener(new ActionListener()
@@ -138,9 +136,8 @@ class MeasurementResults
 		});
 		
 		
-		refreshButton = new JButton("Refresh Results");
-		refreshButton.addActionListener(new RefreshResultsTableAction(model.getMeasurementComponent()));
-		
+		refreshButton = new JButton(
+				controller.getAction(MeasurementViewerControl.REFRESH_RESULTS));
 		
 		//Create table model.
 		createDefaultFields();
@@ -241,6 +238,7 @@ class MeasurementResults
 	 * 
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 * @param view		 Reference to the View. Mustn't be <code>null</code>.
 	 */
 	MeasurementResults(MeasurementViewerControl	controller, 
 					MeasurementViewerModel model, MeasurementViewerUI view)
@@ -249,6 +247,8 @@ class MeasurementResults
 			throw new IllegalArgumentException("No control.");
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
 		this.controller = controller;
 		this.model = model;
 		this.view = view;

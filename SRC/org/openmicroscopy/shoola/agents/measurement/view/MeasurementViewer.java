@@ -167,9 +167,6 @@ public interface MeasurementViewer
 	/** Saves the ROI. */
 	public void saveROI();
 
-	/** Rebuild the ROI table in the ROI manager component. */
-	public void rebuildManagerTable();
-
 	/** Rebuild the results table in the measurement results component. */
 	public void refreshResultsTable();
 

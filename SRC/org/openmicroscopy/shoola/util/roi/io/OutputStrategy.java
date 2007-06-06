@@ -29,7 +29,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +59,6 @@ import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_OPACITY;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
 
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.TextFigure;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.AttributeKeys.WindingRule;
@@ -73,6 +71,7 @@ import net.n3.nanoxml.XMLElement;
 import net.n3.nanoxml.XMLWriter;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
@@ -223,7 +222,8 @@ public class OutputStrategy
        }
    }
   	
-   public void write(OutputStream out, ROIComponent roiComponent) throws IOException 
+   public void write(OutputStream out, ROIComponent roiComponent) 
+   		throws ParsingException 
    {
 		document = new XMLElement(ROISET_TAG, ROI_NAMESPACE);
 		document.setAttribute(VERSION_TAG, ROI_VERSION);
@@ -233,16 +233,19 @@ public class OutputStrategy
 	        
 	    TreeMap<Long, ROI> roiMap = collection.getROIMap();
 	    Iterator iterator = roiMap.values().iterator();
-	        
-	    while(iterator.hasNext())
-	    {
-	    	write(document, (ROI)iterator.next());
-	    }
-	        
-	    new XMLWriter(out).write(document);
+	    try {
+	    	while(iterator.hasNext())
+		    {
+		    	write(document, (ROI)iterator.next());
+		    }
+	    	new XMLWriter(out).write(document);
+		} catch (Exception e) {
+			throw new ParsingException("Cannot create XML output", e);
+		}  	    
 	}
 
-	private void write(IXMLElement document, ROI roi) throws IOException
+	private void write(IXMLElement document, ROI roi) 
+		throws ParsingException
 	{
 		XMLElement roiElement = new XMLElement(ROI_TAG);
 		document.addChild(roiElement);
@@ -371,7 +374,8 @@ public class OutputStrategy
 		return System.getProperty("line.separator");
 	}
 	
-	private void writeROIShape(XMLElement roiElement, ROIShape shape) throws IOException
+	private void writeROIShape(XMLElement roiElement, ROIShape shape) 
+		throws ParsingException
 	{
 		XMLElement shapeElement = new XMLElement(ROISHAPE_TAG);
 		roiElement.addChild(shapeElement);
@@ -383,7 +387,8 @@ public class OutputStrategy
 		writeFigure(shapeElement, figure);
 	}
 
-	private void writeFigure(XMLElement shapeElement, ROIFigure figure) throws IOException
+	private void writeFigure(XMLElement shapeElement, ROIFigure figure) 
+		throws ParsingException
 	{
 	
 		if(figure instanceof RectAnnotationFigure)
@@ -437,12 +442,14 @@ public class OutputStrategy
 		shapeElement.addChild(svgElement);
 	}
 	
-	private void writeTextFigure(XMLElement shapeElement, MeasureTextFigure fig) throws IOException
+	private void writeTextFigure(XMLElement shapeElement, MeasureTextFigure fig) 
+		throws ParsingException
 	{
 		writeTextFigure(shapeElement, (TextFigure)fig);
 	}
 	
-	private void writeTextFigure(XMLElement shapeElement, TextHolderFigure fig) throws IOException
+	private void writeTextFigure(XMLElement shapeElement, TextHolderFigure fig) 
+		throws ParsingException
 	{
 		XMLElement textElement = new XMLElement(TEXT_TAG);
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
@@ -455,21 +462,9 @@ public class OutputStrategy
         writeFontAttributes(textElement, fig.getAttributes());
 	}
 	
-//	private void writeTextFigure(XMLElement shapeElement, TextFigure fig) throws IOException
-//	{
-//		XMLElement textElement = new XMLElement(TEXT_TAG);
-//		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
-//		svgElement.addChild(textElement);
-//		
-//		textElement.setContent(fig.getText());
-//		textElement.setAttribute(X_ATTRIBUTE, fig.getStartPoint().getX()+"");
-//		textElement.setAttribute(Y_ATTRIBUTE, fig.getStartPoint().getY()+"");
-//		writeShapeAttributes(textElement, fig.getAttributes());
-//      	writeTransformAttribute(textElement, fig.getAttributes());
-//        writeFontAttributes(textElement, fig.getAttributes());
-//	}
-	
-	private void writeLineConnectionFigure(XMLElement shapeElement, LineConnectionAnnotationFigure fig) throws IOException
+	private void writeLineConnectionFigure(XMLElement shapeElement, 
+			LineConnectionAnnotationFigure fig) 
+		throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement lineConnectionElement = new XMLElement(LINE_TAG);
@@ -502,7 +497,8 @@ public class OutputStrategy
   	}
 
 	
-	private void writeBezierAnnotationFigure(XMLElement shapeElement, BezierAnnotationFigure fig) throws IOException
+	private void writeBezierAnnotationFigure(XMLElement shapeElement, 
+			BezierAnnotationFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		if(fig.isClosed())
@@ -511,7 +507,8 @@ public class OutputStrategy
 			writePolylineFigure(svgElement, fig);
 	}
 
-	private void writePolygonFigure(IXMLElement svgElement, BezierAnnotationFigure fig) throws IOException
+	private void writePolygonFigure(IXMLElement svgElement, BezierAnnotationFigure fig) 
+		throws ParsingException
 	{
 		XMLElement bezierElement = new XMLElement(POLYGON_TAG);
 		svgElement.addChild(bezierElement);
@@ -528,7 +525,9 @@ public class OutputStrategy
 	    writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
 	
-	private void writePolylineFigure(IXMLElement svgElement, BezierAnnotationFigure fig) throws IOException
+	private void writePolylineFigure(IXMLElement svgElement, 
+									BezierAnnotationFigure fig) 
+		throws ParsingException
 	{
 		XMLElement bezierElement = new XMLElement(POLYLINE_TAG);
 		svgElement.addChild(bezierElement);
@@ -545,7 +544,8 @@ public class OutputStrategy
 	    writeTransformAttribute(bezierElement, fig.getAttributes());
 	}
 	    
-	private void writeLineAnnotationFigure(XMLElement shapeElement, LineAnnotationFigure fig) throws IOException
+	private void writeLineAnnotationFigure(XMLElement shapeElement, 
+			LineAnnotationFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 	  	XMLElement lineElement = new XMLElement(LINE_TAG);
@@ -574,7 +574,8 @@ public class OutputStrategy
   	}
     
    
-	private void writeEllipseAnnotationFigure(XMLElement shapeElement, EllipseAnnotationFigure fig) throws IOException
+	private void writeEllipseAnnotationFigure(XMLElement shapeElement, 
+			EllipseAnnotationFigure fig) throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement ellipseElement = new XMLElement(ELLIPSE_TAG);
@@ -592,7 +593,9 @@ public class OutputStrategy
         writeTransformAttribute(ellipseElement, fig.getAttributes());
 	}
 
-	private void writePointAnnotationFigure(XMLElement shapeElement, PointAnnotationFigure fig) throws IOException
+	private void writePointAnnotationFigure(XMLElement shapeElement, 
+			PointAnnotationFigure fig) 
+		throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement ellipseElement = new XMLElement(POINT_TAG);
@@ -611,7 +614,9 @@ public class OutputStrategy
 	}
 
 	
-	private void writeRectAnnotationFigure(XMLElement shapeElement, RectAnnotationFigure fig) throws IOException
+	private void writeRectAnnotationFigure(XMLElement shapeElement, 
+				RectAnnotationFigure fig) 
+		throws ParsingException
 	{
 		IXMLElement svgElement = shapeElement.getFirstChildNamed(SVG_TAG);
 		XMLElement rectElement = new XMLElement(RECT_TAG);
@@ -625,8 +630,9 @@ public class OutputStrategy
         writeTransformAttribute(rectElement, fig.getAttributes());
 	}
 	
-	protected void writeShapeAttributes(IXMLElement elem, Map<AttributeKey,Object> f)
-    throws IOException 
+	protected void writeShapeAttributes(IXMLElement elem, 
+									Map<AttributeKey,Object> f)
+    	throws ParsingException 
     {
         Color color;
         String value;
@@ -852,7 +858,8 @@ public class OutputStrategy
      *
      */
     protected void writeTransformAttribute(IXMLElement elem, Map<AttributeKey,Object> a)
-    throws IOException {
+    	throws ParsingException 
+    {
         AffineTransform t = TRANSFORM.get(a);
         if (t != null) {
             writeAttribute(elem, "transform", toTransform(t), "none");
@@ -862,7 +869,8 @@ public class OutputStrategy
      * http://www.w3.org/TR/SVGMobile12/feature.html#Font
      */
     private void writeFontAttributes(IXMLElement elem, Map<AttributeKey,Object> a)
-    throws IOException {
+    	throws ParsingException 
+    {
         String value;
         double doubleValue;
         Object gradient = FILL_GRADIENT.get(a);
@@ -1133,7 +1141,9 @@ public class OutputStrategy
      * Returns a Point2D.Double array as a Points attribute value.
      * as specified in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
      */
-    private static String toPoints(Point2D.Double[] points) throws IOException {
+    private static String toPoints(Point2D.Double[] points) 
+    	throws ParsingException 
+    {
         StringBuilder buf = new StringBuilder();
         for (int i=0; i < points.length; i++) {
             if (i != 0) {
@@ -1149,7 +1159,9 @@ public class OutputStrategy
     /* Converts an AffineTransform into an SVG transform attribute value as specified in
      * http://www.w3.org/TR/SVGMobile12/coords.html#TransformAttribute
      */
-    private static String toTransform(AffineTransform t) throws IOException {
+    private static String toTransform(AffineTransform t) 
+    	throws ParsingException 
+    {
         StringBuilder buf = new StringBuilder();
         switch (t.getType()) {
             case AffineTransform.TYPE_IDENTITY :
@@ -1246,7 +1258,9 @@ public class OutputStrategy
     protected IXMLElement createLinearGradient(IXMLElement doc,
             double x1, double y1, double x2, double y2,
             double[] stopOffsets, Color[] stopColors,
-            boolean isRelativeToFigureBounds) throws IOException {
+            boolean isRelativeToFigureBounds) 
+    	throws ParsingException 
+    {
         IXMLElement elem = doc.createElement("linearGradient");
         
         writeAttribute(elem, "x1", toNumber(x1), "0");
@@ -1272,7 +1286,7 @@ public class OutputStrategy
     protected IXMLElement createRadialGradient(IXMLElement doc,
             double cx, double cy, double r,
             double[] stopOffsets, Color[] stopColors,
-            boolean isRelativeToFigureBounds) throws IOException 
+            boolean isRelativeToFigureBounds) throws ParsingException 
     {
     	IXMLElement elem = doc.createElement("radialGradient");
 

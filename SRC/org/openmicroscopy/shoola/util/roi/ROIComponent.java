@@ -26,8 +26,8 @@ package org.openmicroscopy.shoola.util.roi;
 //Java imports
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.TreeMap;
 
 //Third-party libraries
@@ -86,27 +86,21 @@ public class ROIComponent
 	}
 
 	/** 
-	 * Save the current ROI data to file. 
-	 * @param filename name of the file to save to, including path.
-	 * @throws IOException 
+	 * Saves the current ROI data to passed stream. 
+	 * 
+	 * @param output The output stream to write the ROI into.
+	 * @throws ParsingException Thrown if an error occurs while creating the 
+	 * 							xml element. 
 	 */
-	public void saveROI(String filename) throws IOException
+	public void saveROI(OutputStream output) 
+		throws ParsingException
 	{
+		if (output == null)
+			throw new NullPointerException("No input stream specified.");
 		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
-		ioStrategy.write(filename, this);
+		ioStrategy.write(output, this);
 	}
-
-	/** 
-	 * Save the current ROI data to file. 
-	 * @param imageID  the id of the image where the ROIs have been created.
-	 * @throws IOException 
-	 */
-	public void saveROI(long imageID) throws IOException
-	{
-		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
-		ioStrategy.write(imageID+".xml", this);
-	}
-
+	
 	/**
 	 * Loads the ROIs. This method should be invoked straight after creating
 	 * the component.
@@ -132,10 +126,10 @@ public class ROIComponent
 		throws NoSuchROIException, ParsingException, ROICreationException,
 				ROIShapeCreationException
 	{
-		if (input != null) {
-			ioStrategy = new XMLFileIOStrategy();
-			ioStrategy.read(input, this);
-		}
+		if (input == null)
+			throw new NullPointerException("No input stream specified.");
+		if (ioStrategy == null) ioStrategy = new XMLFileIOStrategy();
+		ioStrategy.read(input, this);
 	}
 
 	/**

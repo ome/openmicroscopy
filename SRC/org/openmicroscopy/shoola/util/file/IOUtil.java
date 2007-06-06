@@ -25,9 +25,12 @@ package org.openmicroscopy.shoola.util.file;
 
 //Java imports
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 //Third-party libraries
 
@@ -68,6 +71,27 @@ public class IOUtil
 			return null;
 		}
 		return in;
+	}
+	
+	/**
+	 * Writes the file corresponding to the passed file name. Returns
+	 * the outputStream or <code>null</code> if the file cannot be created.
+	 * 
+	 * @param fileName The name of the file to write.
+	 * @return See above.
+	 */
+	public static OutputStream writeFile(String fileName)
+	{
+		if (fileName == null)
+			throw new IllegalArgumentException("No file name specified.");
+		File f = new File(fileName);
+		BufferedOutputStream out;
+		try {
+			out = new BufferedOutputStream(new FileOutputStream(f));
+		} catch (Exception e) {
+			return null;
+		}
+		return out;
 	}
 	
 }

@@ -24,16 +24,9 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -43,12 +36,7 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROICollection;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.ShapeList;
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 
@@ -93,39 +81,25 @@ public class XMLFileIOStrategy
 		throws NoSuchROIException, ParsingException, ROICreationException, 
 				ROIShapeCreationException	   
 	{
-		BufferedInputStream in = new BufferedInputStream(input);
+		if (input == null)
+			throw new NullPointerException("No input stream specified.");
 		//TODO: REview that code.
-		ArrayList<ROI> roiList = inputStrategy.readROI(in, component);
+		ArrayList<ROI> roiList = inputStrategy.readROI(input, component);
 	}
 	
-	public void write(String filename, ROIComponent component)
+	/**
+	 * 
+	 * @param output
+	 * @param component
+	 * @throws ParsingException
+	 */
+	public void write(OutputStream output, ROIComponent component)
+		throws ParsingException
 	{
-		File file = new File(filename);
-		try {
-			write(file, component);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (output == null)
+			throw new NullPointerException("No input stream specified.");
+		outputStrategy.write(output, component);
 	}
-	
-	private void write(File file, ROIComponent component) throws IOException 
-	{
-		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-	    try 
-	    {
-	    	outputStrategy.write(out, component);
-	    } 
-	    finally 
-	    {
-	    	if (out != null) 
-	    	{
-	    		out.close();
-	        }
-	    }
-	}
-
-	
 	
 }
 
