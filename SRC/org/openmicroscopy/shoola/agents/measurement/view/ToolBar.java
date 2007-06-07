@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -71,29 +72,8 @@ class ToolBar
 	extends JPanel
 {
 	
-	/** The label key to create a <code>rectangle</code>. */
-	private static final String			RECTANGLE = "createRectangle";
-	
-	/** The label key to create an <code>ellipse</code>. */
-	private static final String			ELLIPSE = "createEllipse";
-	
-	/** The label key to create an <code>point</code>. */
-	private static final String			POINT = "createEllipse";
-	
-	/** The label key to create a <code>line</code>. */
-	private static final String			LINE = "createLine";
-	
-	/** The label key to create a <code>line connection</code>. */
-	private static final String			LINECONNECTION = "createLineConnection";
-	
-	/** The label key to create a <code>scribble</code>. */
-	private static final String			SCRIBBLE = "createScribble";
-	
-	/** The label key to create a <code>polygon</code>. */
-	private static final String			POLYGON = "createPolygon";
-	
-	/** The label key to create a <code>text</code>. */
-	private static final String			TEXT = "createText";
+	/** The default string added to the type of Figure to create. */
+	private static final String			CREATE_KEY = "create";
 	
 	/** The base name used for Labels. */
 	private static final String			BASE_NAME = "org.jhotdraw.draw.Labels";
@@ -123,28 +103,32 @@ class ToolBar
 		toolBar.add(new JSeparator());
 		toolBar.add(Box.createRigidArea(HGLUE));
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new RectAnnotationFigure()), RECTANGLE, 
+				new CreationTool(new RectAnnotationFigure()), 
+				CREATE_KEY+ROIFigure.RECTANGLE_TYPE, 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new EllipseAnnotationFigure()), ELLIPSE, 
+				new CreationTool(new EllipseAnnotationFigure()), 
+				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new PointAnnotationFigure()), POINT, 
+				new CreationTool(new PointAnnotationFigure()), 
+				CREATE_KEY+ROIFigure.ELLIPSE_TYPE, 
 				labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new LineAnnotationFigure()), LINE, labels);
+				new CreationTool(new LineAnnotationFigure()), 
+					CREATE_KEY+ROIFigure.LINE_TYPE, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
 	    		new ConnectionTool(new LineConnectionAnnotationFigure()), 
-	    		LINECONNECTION, labels);
+	    		CREATE_KEY+ROIFigure.LINE_CONNECTION_TYPE, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				  new BezierTool(new BezierAnnotationFigure()), SCRIBBLE, 
-			  	labels);
+				  new BezierTool(new BezierAnnotationFigure()), 
+				  CREATE_KEY+ROIFigure.SCRIBBLE_TYPE, labels);
 	    ToolBarButtonFactory.addToolTo(toolBar, editor, 
-	    		  new BezierTool(new BezierAnnotationFigure(true)), POLYGON, 
-	    		  labels);
+	    		  new BezierTool(new BezierAnnotationFigure(true)), 
+	    		  CREATE_KEY+ROIFigure.POLYGON_TYPE, labels);
 		ToolBarButtonFactory.addToolTo(toolBar, editor, 
-				new CreationTool(new MeasureTextFigure()), TEXT, 
-				labels);
+				new CreationTool(new MeasureTextFigure()), 
+				CREATE_KEY+ROIFigure.TEXT_TYPE, labels);
 	}
 	
 	/**
@@ -165,7 +149,7 @@ class ToolBar
         button = new JButton(controller.getAction(
 				MeasurementViewerControl.LOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        //bar.add(button);
+        bar.add(button);
         bar.add(new JSeparator());
 		return bar;
 	}

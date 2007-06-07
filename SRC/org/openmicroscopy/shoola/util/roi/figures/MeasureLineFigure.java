@@ -52,8 +52,6 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.ENDPOINTY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
-
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
@@ -81,6 +79,24 @@ public class MeasureLineFigure
 	private ROI							roi;
 	private ROIShape 					shape;
 
+	/**
+	 * Returns the point i in pixels or microns depending on the units used.
+	 * 
+	 * @param i node
+	 * @return See above.
+	 */
+	private Point2D.Double getPt(int i)
+	{
+		if (INMICRONS.get(shape))
+		{
+			Point2D.Double pt = getPoint(i);
+			return new Point2D.Double(pt.getX()*MICRONSPIXELX.get(shape), 
+					pt.getY()*MICRONSPIXELY.get(shape));
+		}
+		return getPoint(i);
+	}
+	
+	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
 		super();
@@ -182,29 +198,29 @@ public class MeasureLineFigure
 		if(boundsArray!=null)
 			for(int i = 0 ; i < boundsArray.size(); i++)
 			{
-					Rectangle2D bounds = boundsArray.get(i);
-					if(newBounds.getX()>bounds.getX())
-					{
-						double diff = newBounds.x-bounds.getX();
-						newBounds.x = bounds.getX();
-						newBounds.width = newBounds.width+diff;
-					}
-					if(newBounds.getY()>bounds.getY())
-					{
-						double diff = newBounds.y-bounds.getY();
-						newBounds.y = bounds.getY();
-						newBounds.height = newBounds.height+diff;
-					}
-					if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
-					{
-						double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
-						newBounds.width = newBounds.width+diff;
-					}
-					if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
-					{
-						double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
-						newBounds.height = newBounds.height+diff;
-					}
+				Rectangle2D bounds = boundsArray.get(i);
+				if(newBounds.getX()>bounds.getX())
+				{
+					double diff = newBounds.x-bounds.getX();
+					newBounds.x = bounds.getX();
+					newBounds.width = newBounds.width+diff;
+				}
+				if(newBounds.getY()>bounds.getY())
+				{
+					double diff = newBounds.y-bounds.getY();
+					newBounds.y = bounds.getY();
+					newBounds.height = newBounds.height+diff;
+				}
+				if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
+				{
+					double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
+					newBounds.width = newBounds.width+diff;
+				}
+				if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
+				{
+					double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
+					newBounds.height = newBounds.height+diff;
+				}
 			}
 		return newBounds;
 	}
@@ -270,58 +286,35 @@ public class MeasureLineFigure
 		return adotb/normab;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
-	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
-	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
-	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
+	public ROI getROI() { return roi; }
 
 	/**
-	 * Get the point i in pixels or microns depending on the units used.
-	 * 
-	 * @param i node
-	 * @return see above.
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
-	private Point2D.Double getPt(int i)
-	{
-		if(INMICRONS.get(shape))
-		{
-			Point2D.Double pt = getPoint(i);
-			return new Point2D.Double(pt.getX()*MICRONSPIXELX.get(shape), 
-					pt.getY()*MICRONSPIXELY.get(shape));
-		}
-		else
-			return getPoint(i);
-	}
+	public ROIShape getROIShape() { return shape; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
+	 */
+	public void setROI(ROI roi) { this.roi = roi; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
+	 */
+	public void setROIShape(ROIShape shape)  { this.shape = shape; }
+
 	
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
 	 */
 	public void calculateMeasurements() 
 	{
@@ -378,7 +371,11 @@ public class MeasureLineFigure
 		POINTARRAYY.set(shape, pointArrayY);
 	}
 		
-	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return ROIFigure.LINE_TYPE; }
 
 }
 

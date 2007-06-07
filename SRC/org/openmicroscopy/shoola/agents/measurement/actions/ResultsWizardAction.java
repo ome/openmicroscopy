@@ -1,7 +1,7 @@
 /*
- * org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTable 
+ * org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction 
  *
-  *------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
  *
@@ -22,49 +22,49 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-
-
-
-//Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * Refreshes the result table.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since OME3.0
  */
-public class RefreshResultsTableAction
+public class ResultsWizardAction
 	extends MeasurementViewerAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Refresh ";
+	private static final String NAME = "Results Wizard.. ";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Refresh the results table.";
+	private static final String DESCRIPTION = "Brings up the results wizard.";
 
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model The model. Mustn't be <code>null</code>.
 	 */
-	public RefreshResultsTableAction(MeasurementViewer model)
+	public ResultsWizardAction(MeasurementViewer model)
 	{
 		super(model);
 		name = NAME;
@@ -72,13 +72,13 @@ public class RefreshResultsTableAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REFRESH16));
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.WIZARD16));
 	}
 	
 	/** 
-     * Refreshes the result table.
+     * Brings up the results wizard.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.refreshResultsTable(); }
+    public void actionPerformed(ActionEvent e) { model.showResultsWizard(); }
     
 }

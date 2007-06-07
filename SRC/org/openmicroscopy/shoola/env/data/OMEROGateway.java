@@ -967,6 +967,7 @@ class OMEROGateway
     {
         try {
         	ThumbnailStore service = getThumbService();
+        	
         	needDefault(pixelsID, null);
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
@@ -1194,6 +1195,7 @@ class OMEROGateway
     Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
     	throws DSOutOfServiceException, DSAccessException
     {
+    	
     	IQuery service = getIQueryService();
     	List files = null;
     	try {

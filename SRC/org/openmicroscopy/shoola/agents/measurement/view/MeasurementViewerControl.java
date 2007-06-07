@@ -49,6 +49,7 @@ import org.jhotdraw.draw.FigureSelectionListener;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -84,8 +85,11 @@ class MeasurementViewerControl
     /** Identifies the <code>SAVE Results</code> action in the menu. */
     static final Integer     SAVE_RESULTS = new Integer(2);
     
-    /** Identifies the <code>SAVE Results</code> action in the menu. */
+    /** Identifies the <code>Refresh Results</code> action in the menu. */
     static final Integer     REFRESH_RESULTS = new Integer(3);
+    
+    /** Identifies the <code>Results Wizard</code> action in the menu. */
+    static final Integer     RESULTS_WIZARD = new Integer(4);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -106,6 +110,7 @@ class MeasurementViewerControl
     	actionsMap.put(LOAD, new LoadROIAction(model));
     	actionsMap.put(SAVE_RESULTS, new SaveResultsAction(model));
     	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
+    	actionsMap.put(RESULTS_WIZARD, new ResultsWizardAction(model));
     }
 
     /**
@@ -226,6 +231,7 @@ class MeasurementViewerControl
 	 */
 	public void figureAdded(DrawingEvent e)
 	{
+		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (!(f instanceof ROIFigure)) return;
 		ROIFigure roiFigure = (ROIFigure) f;
@@ -239,6 +245,7 @@ class MeasurementViewerControl
 	 */
 	public void figureRemoved(DrawingEvent e)
 	{
+		if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (f instanceof ROIFigure) view.removeROI((ROIFigure) f);
 	}

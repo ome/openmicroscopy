@@ -108,7 +108,13 @@ class MeasurementViewerComponent
 		Drawing drawing = model.getDrawing();
 		drawing.removeDrawingListener(controller);
 		drawing.clear();
-		ShapeList list = model.getShapeList();
+		
+		ShapeList list = null;
+		try {
+			list = model.getShapeList();
+		} catch (Exception e) {
+			view.handleROIException(e);
+		}
 		if (list != null) {
 			TreeMap map = list.getList();
 			Iterator i = map.values().iterator();
@@ -220,7 +226,7 @@ class MeasurementViewerComponent
 								(int) (model.getSizeY()*f));
 			UIUtilities.setDefaultSize(model.getDrawingView(), d);
 			model.getDrawingView().setSize(d);
-			model.fireROILoading();
+			model.fireROILoading(null);
 			fireStateChange();
 		}
 	}
@@ -274,7 +280,12 @@ class MeasurementViewerComponent
 			Drawing drawing = model.getDrawing();
 			drawing.removeDrawingListener(controller);
 			drawing.clear();
-			ShapeList list = model.getShapeList();
+			ShapeList list = null;
+			try {
+				list = model.getShapeList();
+			} catch (Exception e) {
+				view.handleROIException(e);
+			}
 			if (list != null) {
 				TreeMap map = list.getList();
 				Iterator i = map.values().iterator();
@@ -367,9 +378,9 @@ class MeasurementViewerComponent
 	}
 
 	/** 
-	* Implemented as specified by the {@link MeasurementViewer} interface.
-	* @see MeasurementViewer#saveResultsTable()
-	*/
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#saveResultsTable()
+	 */
 	public void saveResultsTable() 
 	{
 		Registry reg = MeasurementAgent.getRegistry();
@@ -386,12 +397,21 @@ class MeasurementViewerComponent
 	}
 	
 	/** 
-	* Implemented as specified by the {@link MeasurementViewer} interface.
-	* @see MeasurementViewer#figureAttributeChanged(AttributeKey, ROIFigure)
-	*/
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#figureAttributeChanged(AttributeKey, ROIFigure)
+	 */
 	public void figureAttributeChanged(AttributeKey key, ROIFigure figure)
 	{
 		model.figureAttributeChanged(key, figure);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#saveResultsTable()
+	 */
+	public void showResultsWizard()
+	{
+		view.showResultsWizard();
 	}
     
 }

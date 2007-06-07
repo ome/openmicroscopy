@@ -65,7 +65,7 @@ import org.openmicroscopy.shoola.util.roi.figures.textutil.MeasureTextTool;
  * </small>
  * @since OME3.0
  */
-public 	class BezierAnnotationFigure
+public class BezierAnnotationFigure
 		extends MeasureBezierFigure
 		implements TextHolderFigure
 {

@@ -23,52 +23,15 @@
 package org.openmicroscopy.shoola.util.roi.figures;
 
 
-//Java imports
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Graphics2D;
+//Java importss
 import java.awt.Shape;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D.Double;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-
-import javax.swing.Action;
-import javax.swing.event.UndoableEditListener;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
-
-import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.ConnectionFigure;
-import org.jhotdraw.draw.Connector;
-import org.jhotdraw.draw.Drawing;
-import org.jhotdraw.draw.DrawingView;
-import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
-import org.jhotdraw.draw.LabelFigure;
-import org.jhotdraw.draw.LabeledLineConnectionFigure;
-import org.jhotdraw.draw.TextAreaFigure;
 import org.jhotdraw.draw.TextFigure;
-import org.jhotdraw.draw.Tool;
-import org.jhotdraw.geom.Dimension2DDouble;
-import org.jhotdraw.xml.DOMInput;
-import org.jhotdraw.xml.DOMOutput;
+
 //Application-internal dependencies
-
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.WIDTH;
-
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -96,12 +59,18 @@ public class MeasureTextFigure
 	private ROI					roi;
 	private ROIShape 			shape;
 
-    /** Creates a new instance. */
+    /** Creates a new instance. Default value <code>(0, 0) </code>.*/
     public MeasureTextFigure() 
     {
         this(0, 0);
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param x	The x-coordinate of the top-left corner.
+     * @param y The y-coordinate of the top-left corner.
+     */
     public MeasureTextFigure(double x, double y) 
     {
     	super();
@@ -110,51 +79,44 @@ public class MeasureTextFigure
     	this.changed();
     	shape = null;
    		roi = null;
-     }
-    /* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+    }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
-	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
-	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
-	 */
-	public void calculateMeasurements()
-	{
-			if(shape==null)
-				return;
-		
-	}
-
+	public ROIShape getROIShape() { return shape; }
 	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
+	 */
+	public void setROI(ROI roi) { this.roi = roi; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
+	 */
+	public void setROIShape(ROIShape shape) { this.shape = shape; }
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return ROIFigure.TEXT_TYPE; }
+	
+	/**
+	 * Required by the {@link ROIFigure} interface but no-op implementation 
+	 * in our case.
+	 * @see ROIFigure#calculateMeasurements()
+	 */
+	public void calculateMeasurements() {}
 	
 }
 

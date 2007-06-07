@@ -278,47 +278,49 @@ public class MeasureLineConnectionFigure
 		return adotb/normab;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
 	public ROI getROI() 
 	{
 		return roi;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
 	public ROIShape getROIShape() 
 	{
 		return shape;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
 	 */
 	public void setROI(ROI roi) 
 	{
 		this.roi = roi;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
 	public void setROIShape(ROIShape shape) 
 	{
 		this.shape = shape;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
 	 */
 	public void calculateMeasurements() 
 	{
-		if(shape==null)
-			return;
+		if (shape == null) return;
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
 		pointArrayX = new ArrayList<Double>();
@@ -328,19 +330,18 @@ public class MeasureLineConnectionFigure
 		pointArrayY.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		
-		for( int i = 0 ; i < getPointCount(); i++)
+		Point2D.Double pt;
+		for (int i = 0 ; i < getPointCount(); i++)
 		{
-			Point2D.Double pt = getPt(i);
+			pt = getPt(i);
 			pointArrayX.add(pt.getX());
 			pointArrayY.add(pt.getY());
 		}
 		
-		if(getPointCount()==2)
+		if (getPointCount() == 2)
 		{
 			double angle = getAngle(0, 1);
-			if(angle>90)
-				angle = Math.abs(angle-180);
+			if (angle > 90) angle = Math.abs(angle-180);
 			angleArray.add(angle);
 			ANGLE.set(shape, angleArray);
 			lengthArray.add(getLength(0, 1));
@@ -348,16 +349,11 @@ public class MeasureLineConnectionFigure
 		}
 		else
 		{
-			for( int x = 1 ; x < this.getPointCount()-1; x++)
-			{
-				double angle = getAngle(x-1, x, x+1);
-				angleArray.add(angle);
-			}
-			for( int x = 1 ; x < this.getPointCount(); x++)
-			{
-				double length = getLength(x-1, x);
-				lengthArray.add(length);
-			}
+			for (int x = 1 ; x < this.getPointCount()-1; x++)
+				angleArray.add(getAngle(x-1, x, x+1));
+			
+			for (int x = 1 ; x < this.getPointCount(); x++)
+				lengthArray.add(getLength(x-1, x));
 			ANGLE.set(shape, angleArray);
 			LENGTH.set(shape, lengthArray);
 		}
@@ -369,6 +365,12 @@ public class MeasureLineConnectionFigure
 		POINTARRAYY.set(shape, pointArrayY);
 	}
 		
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return ROIFigure.LINE_TYPE; }
+	
 }
 
 

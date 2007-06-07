@@ -47,7 +47,11 @@ import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -276,11 +280,17 @@ class MeasurementViewerModel
 		currentLoader.load();
 	}
 	
-	/** Fires an asynchronous retrieval of the ROI related to the pixels set. */
-	void fireROILoading()
+	/** 
+	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
+	 * 
+	 * @param fileName The name of the file to load. If <code>null</code>
+	 * 					the {@link #roiFileName} is selected.
+	 */
+	void fireROILoading(String fileName)
 	{
 		state = MeasurementViewer.LOADING_ROI;
-		component.setROI(IOUtil.readFile(roiFileName));
+		if (fileName == null) fileName = roiFileName;
+		component.setROI(IOUtil.readFile(fileName));
 	}
 	
 	/**
@@ -391,13 +401,13 @@ class MeasurementViewerModel
 	 * Removes the <code>ROI</code> corresponding to the passed id.
 	 * 
 	 * @param id The id of the <code>ROI</code>.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 * @throws NoSuchShapeException If the ROI shape does not exist.
 	 */
 	void removeROIShape(long id)
+		throws NoSuchROIException, NoSuchShapeException
 	{
-		try {
-			roiComponent.deleteShape(id, getCurrentView());
-		} catch (Exception e) {
-		}
+		roiComponent.deleteShape(id, getCurrentView());
 	}
 	
 	/**
@@ -405,14 +415,12 @@ class MeasurementViewerModel
 	 * 
 	 * @param id The id of the <code>ROI</code>.
 	 * @return See above.
+	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	ROI getROI(long id)
+		throws NoSuchROIException
 	{
-		try {
-			return roiComponent.getROI(id);
-		} catch (Exception e) {
-			return null;
-		}
+		return roiComponent.getROI(id);
 	}
 
 	/**
@@ -420,32 +428,31 @@ class MeasurementViewerModel
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @return Returns the created <code>ROI</code>.
+	 * @throws ROICreationException If the ROI cannot be created.
+	 * @throws ROIShapeCreationException If the ROI shape cannot be created.
+	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	ROI createROI(ROIFigure figure)
+		throws ROICreationException, ROIShapeCreationException, 
+			NoSuchROIException
 	{
-		try {
-			ROI roi = roiComponent.createROI();
-			ROIShape newShape = new ROIShape(roi, currentPlane, figure, 
-								figure.getBounds());
-			roiComponent.addShape(roi.getID(), currentPlane, newShape);
-			return roi;
-		} catch (Exception e) {
-			return null;
-		}
+		ROI roi = roiComponent.createROI();
+		ROIShape newShape = new ROIShape(roi, currentPlane, figure, 
+							figure.getBounds());
+		roiComponent.addShape(roi.getID(), currentPlane, newShape);
+		return roi;
 	}
 	
 	/**
 	 * Returns the {@link ShapeList} for the current plane.
 	 * 
 	 * @return See above.
+	 * @throws NoSuchShapeException Thrown if the ROI doesn't exist.
 	 */
 	ShapeList getShapeList()
+		throws NoSuchShapeException
 	{
-		try {
-			return roiComponent.getShapeList(currentPlane);
-		} catch (Exception e) {
-			return null;
-		}
+		return roiComponent.getShapeList(currentPlane);
 	}
 
 	/**

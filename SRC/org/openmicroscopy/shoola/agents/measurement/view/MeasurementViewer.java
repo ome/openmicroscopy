@@ -166,12 +166,16 @@ public interface MeasurementViewer
 	public void saveResultsTable();
 	
 	/**
-	 * A figures attributes hae changed. The model needs to manage the logic 
+	 * Invokes when a figures attributes have changed. 
+	 * The model needs to manage the logic 
 	 * of how this affects the ROI, ROIShape parent of the figure. 
 	 * 
-	 * @param key
-	 * @param fig
+	 * @param key	The modified attribute.
+	 * @param fig	The affected figure.
 	 */
 	public void figureAttributeChanged(AttributeKey key, ROIFigure fig);
+
+	/** Brings up on screen the results wizard. */
+	public void showResultsWizard();
 
 }

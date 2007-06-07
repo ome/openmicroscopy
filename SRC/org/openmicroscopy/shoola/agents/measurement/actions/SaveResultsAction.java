@@ -22,22 +22,20 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Saves the analysis results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,8 +47,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public 	class SaveResultsAction
-		extends MeasurementViewerAction
+public class SaveResultsAction
+	extends MeasurementViewerAction
 {
 
 	/** The name of the action. */
@@ -72,16 +70,13 @@ public 	class SaveResultsAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE));
+		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SAVE16));
 	}
 	
 	/** 
-     * Loads the ROI.
+     * Saves the results.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.saveResultsTable();
-    }
+    public void actionPerformed(ActionEvent e) { model.saveResultsTable(); }
     
 }

@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -42,22 +41,19 @@ import javax.swing.JTabbedPane;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
-import org.jhotdraw.draw.BezierFigure;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
-import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.roi.figures.BezierAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
-import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -138,37 +134,31 @@ class MeasurementViewerUI
     /** Tabbed pane hosting the various panel. */
     private JTabbedPane					tabs;
  
+    /** The status bar. */
+    private StatusBar					statusBar;
+    
     /**
      * Helper method to set the attributes of the newly created figure.
      * 
-     * @param figure The figure to handle.
+     * @param fig The figure to handle.
      */
-    private void setFigureAttributes(ROIFigure figure)
+    private void setFigureAttributes(ROIFigure fig)
     {
-    	if(figure instanceof PointAnnotationFigure)
-    	{
-    		AttributeKeys.FONT_SIZE.set(figure, FONT_SIZE);
-    		AttributeKeys.TEXT_COLOR.set(figure, TEXT_COLOR);
-    		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
-    		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR_ALPHA);
-    		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR_ALPHA);
-    		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
-    		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
-    		DrawingAttributes.SHOWTEXT.set(figure, false);
-    	}
-    	else
-    	{
-    		AttributeKeys.FONT_SIZE.set(figure, FONT_SIZE);
-    		AttributeKeys.TEXT_COLOR.set(figure, TEXT_COLOR);
-    		AttributeKeys.STROKE_WIDTH.set(figure, STROKE_WIDTH);
-    		AttributeKeys.FILL_COLOR.set(figure, FILL_COLOR);
-    		AttributeKeys.STROKE_COLOR.set(figure, STROKE_COLOR);
-    		DrawingAttributes.SHOWMEASUREMENT.set(figure, false);
-    		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(figure, MEASUREMENT_COLOR);
-    		DrawingAttributes.SHOWTEXT.set(figure, true);
+    	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
+		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
+		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
+		DrawingAttributes.SHOWMEASUREMENT.set(fig, false);
+		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
+    	if (fig instanceof PointAnnotationFigure) {
+    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
+    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
+    		DrawingAttributes.SHOWTEXT.set(fig, false);
+    	} else {
+    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
+    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
+    		DrawingAttributes.SHOWTEXT.set(fig, true);
     	}
 	 }
-    
     
     /**
      * Helper method to set the annotations of the newly created shape.
@@ -177,27 +167,14 @@ class MeasurementViewerUI
      */
     private void setShapeAnnotations(ROIShape shape)
 	{
-    	//Type should be a static field in the Figure object.
-    	ROIFigure figure = shape.getFigure();
-		String type = null;
-		
-		if (figure instanceof RectAnnotationFigure) type = "Rectangle";
-		if (figure instanceof EllipseAnnotationFigure) type = "Ellipse";
-		if (figure instanceof PointAnnotationFigure) type = "Point";
-		if (figure instanceof BezierAnnotationFigure) 
-		{
-			BezierFigure f = (BezierFigure) figure;
-			if (f.isClosed()) type = "Polygon";
-			else type = "Scribble";
-		}
-		if (figure instanceof LineAnnotationFigure || 
-			figure instanceof LineConnectionAnnotationFigure)
-			type = "Line";
-		if (figure instanceof TextFigure) type = "Text";
+    	ROIFigure fig = shape.getFigure();
+		String type = fig.getType();
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
-		AnnotationKeys.INMICRONS.set(figure.getROIShape(), true);
-		AnnotationKeys.MICRONSPIXELX.set(figure.getROIShape(),  (double)model.getPixelSizeX());
-		AnnotationKeys.MICRONSPIXELY.set(figure.getROIShape(),  (double)model.getPixelSizeY());
+		
+		ROIShape s = fig.getROIShape();
+		AnnotationKeys.INMICRONS.set(s, true);
+		AnnotationKeys.MICRONSPIXELX.set(s,  (double) model.getPixelSizeX());
+		AnnotationKeys.MICRONSPIXELY.set(s,  (double) model.getPixelSizeY());
    }
     
     /** 
@@ -236,6 +213,7 @@ class MeasurementViewerUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		statusBar = new StatusBar();
 		toolBar = new ToolBar(controller, model);
 		roiInspector = new ObjectInspector(controller, model);
 		roiManager = new ObjectManager(this, model);
@@ -258,6 +236,7 @@ class MeasurementViewerUI
 		container.setLayout(new BorderLayout(0, 0));
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
+		container.add(statusBar, BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -313,26 +292,21 @@ class MeasurementViewerUI
 	}
     
     /**
-     * Select the current figure based on ROIid, t and z sections.
+     * Selects the current figure based on ROIid, t and z sections.
      * 
-     * @param ROIid id of the selected ROI.
-     * @param t its timepoint.
-     * @param z its z section.
+     * @param ROIid The id of the selected ROI.
+     * @param t 	The corresponding timepoint.
+     * @param z 	The corresponding z-section.
      */
     void selectFigure(long ROIid, int t, int z)
     {
-    	ROI roi = model.getROI(ROIid);
-    	if(roi==null)
-    		return;
-    	ROIFigure fig;
     	try {
-    		fig = roi.getFigure(new Coord3D(t, z));
+    		ROI roi = model.getROI(ROIid);
+    		ROIFigure fig = roi.getFigure(new Coord3D(t, z));
     		selectFigure(fig);
-			
-		} catch (NoSuchShapeException e) {
-			e.printStackTrace();
-		}
-		
+		} catch (Exception e) {
+			handleROIException(e);
+		}	
     }
     
     /**
@@ -352,11 +326,16 @@ class MeasurementViewerUI
 		List roiList = new ArrayList();
 		ROIFigure f;
 		ROI roi;
-		while (i.hasNext()) {
-			f = (ROIFigure) i.next();
-			roi = model.getROI(f.getROI().getID());
-			if (roi != null) roiList.add(roi);
+		try {
+			while (i.hasNext()) {
+				f = (ROIFigure) i.next();
+				roi = model.getROI(f.getROI().getID());
+				if (roi != null) roiList.add(roi);
+			}
+		} catch (Exception e) {
+			handleROIException(e);
 		}
+		
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList);
     }
@@ -374,12 +353,15 @@ class MeasurementViewerUI
 		ROIFigure figure;
 		List roiList = new ArrayList();
 		ROI roi;
-		while (i.hasNext()) {
-			figure = (ROIFigure) i.next();
-			roi = model.getROI(figure.getROI().getID());
-			if (roi != null) roiList.add(roi);
+		try {
+			while (i.hasNext()) {
+				figure = (ROIFigure) i.next();
+				roi = model.getROI(figure.getROI().getID());
+				if (roi != null) roiList.add(roi);
+			}
+		} catch (Exception e) {
+			handleROIException(e);
 		}
-		
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList);
 	}
@@ -391,10 +373,13 @@ class MeasurementViewerUI
      */
     void removeROI(ROIFigure figure)
     {
-    	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
-    	model.removeROIShape(figure.getROI().getID());
-    	roiManager.removeFigure(figure);
+    	try {
+    		model.removeROIShape(figure.getROI().getID());
+        	roiManager.removeFigure(figure);
+		} catch (Exception e) {
+			handleROIException(e);
+		}
     }
     
     /**
@@ -404,10 +389,14 @@ class MeasurementViewerUI
      */
     void addROI(ROIFigure figure)
     {
-    	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
     	setFigureAttributes(figure);
-    	ROI roi = model.createROI(figure);
+    	ROI roi = null;
+    	try {
+    		roi = model.createROI(figure);
+		} catch (Exception e) {
+			handleROIException(e);
+		}
     	if (roi == null) return;
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
@@ -461,6 +450,34 @@ class MeasurementViewerUI
     	roiResults.saveResults(); 
     }
     
+    /**
+	 * Shows the results wizard and updates the fields based on the users 
+	 * selection.
+	 */
+	void showResultsWizard() { roiResults.showResultsWizard(); }
+    
+    
+    /**
+     * Handles the exception thrown by the <code>ROIComponent</code>.
+     * 
+     * @param e The exception to handle.
+     */
+    void handleROIException(Exception e)
+    {
+    	Registry reg = MeasurementAgent.getRegistry();
+    	if (e instanceof ROICreationException || 
+    		e instanceof NoSuchROIException ||
+    		e instanceof NoSuchShapeException) {
+    		reg.getLogger().error(this, 
+    						"Problem while handling ROI "+e.getMessage());
+    		statusBar.setStatus(e.getMessage());
+    	} else {
+    		String s = "An unexpected error occured while handling ROI ";
+    		reg.getLogger().error(this, s+e.getMessage());
+    		reg.getUserNotifier().notifyError("ROI", s, e);
+    	}
+    }
+    
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -475,6 +492,5 @@ class MeasurementViewerUI
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
-    
 
 }

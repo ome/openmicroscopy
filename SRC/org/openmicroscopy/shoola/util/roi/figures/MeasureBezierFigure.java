@@ -52,7 +52,6 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
-
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -263,59 +262,52 @@ public class MeasureBezierFigure
 		return Math.abs(area/2);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	public ROIShape getROIShape() { return shape; }
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
+	public void setROI(ROI roi) { this.roi = roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
+	public void setROIShape(ROIShape shape) { this.shape = shape; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#calculateMeasurements()
 	 */
 	public void calculateMeasurements() 
 	{
-		if(shape==null)
-			return;
+		if (shape==null) return;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		
 		pointArrayX.clear();
 		pointArrayY.clear();
-		for( int i = 0 ; i < path.size(); i++)
+		Point2D.Double pt;
+		for (int i = 0 ; i < path.size(); i++)
 		{
-			Point2D.Double pt = getPt(i);
+			pt = getPt(i);
 			pointArrayX.add(pt.getX());
 			pointArrayY.add(pt.getY());
 		}
 		POINTARRAYX.set(shape, pointArrayX);
 		POINTARRAYY.set(shape, pointArrayY);
-		if(CLOSED.get(this))
+		if (CLOSED.get(this))
 		{
 			AREA.set(shape,getArea());
 			PERIMETER.set(shape, getLength());
@@ -335,6 +327,16 @@ public class MeasureBezierFigure
 			ENDPOINTX.set(shape, getPt(path.size()-1).getX());
 			ENDPOINTY.set(shape, getPt(path.size()-1).getY());
 		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType()
+	{
+		if (CLOSED.get(this)) return ROIFigure.POLYGON_TYPE;
+		return ROIFigure.SCRIBBLE_TYPE;
 	}
 
 }

@@ -25,13 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -51,8 +45,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-
-
 
 //Third-party libraries
 
@@ -126,27 +118,11 @@ class MeasurementResults
 	{
 		saveButton = new JButton(
 				controller.getAction(MeasurementViewerControl.SAVE_RESULTS));
-		saveButton.setIcon(IconManager.getInstance().getIcon(IconManager.SAVE16));
-		UIUtilities.setDefaultSize(saveButton, new Dimension(100,28));
-		
-		resultsWizardButton = new JButton("Results Wizard..");
-		resultsWizardButton.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD16));
-		UIUtilities.setDefaultSize(resultsWizardButton, new Dimension(100,28));
-		resultsWizardButton.addActionListener(new ActionListener()
-		{
-
-			public void actionPerformed(ActionEvent arg0) 
-			{
-				showResultsWizard();
-			}
-			
-		});
-		
+		resultsWizardButton = new JButton(
+				controller.getAction(MeasurementViewerControl.RESULTS_WIZARD));
 		
 		refreshButton = new JButton(
 				controller.getAction(MeasurementViewerControl.REFRESH_RESULTS));
-		refreshButton.setIcon(IconManager.getInstance().getIcon(IconManager.REFRESH16));
-		UIUtilities.setDefaultSize(refreshButton, new Dimension(100,28));
 		//Create table model.
 		createDefaultFields();
 		results = new ResultsTable();
@@ -220,25 +196,6 @@ class MeasurementResults
 		columnNames.add("ROI ID");
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
-	}
-	
-	/**
-	 * Show the results wizard and update the fields based on the users 
-	 * selection.
-	 */
-	private void showResultsWizard()
-	{
-		ResultsWizard resultsWizard = new ResultsWizard(fields);
-		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
-		columnNames.clear();
-		columnNames = new ArrayList<String>();
-		columnNames.add("Time Point");
-		columnNames.add("Z Section");
-		columnNames.add("ROI ID");
-		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(fields.get(i).getName());
-		populate();
-		results.repaint();
 	}
 	
 	/**
@@ -453,6 +410,25 @@ class MeasurementResults
 
 	/** Refreshes the result table. */
 	void refreshResults() { populate(); }
+	
+	/**
+	 * Shows the results wizard and updates the fields based on the users 
+	 * selection.
+	 */
+	void showResultsWizard()
+	{
+		ResultsWizard resultsWizard = new ResultsWizard(fields);
+		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
+		columnNames.clear();
+		columnNames = new ArrayList<String>();
+		columnNames.add("Time Point");
+		columnNames.add("Z Section");
+		columnNames.add("ROI ID");
+		for (int i = 0 ; i < fields.size(); i++)
+			columnNames.add(fields.get(i).getName());
+		populate();
+		results.repaint();
+	}
 	
 	/** Basic inner class use to set the cell renderer. */
 	class ResultsTable

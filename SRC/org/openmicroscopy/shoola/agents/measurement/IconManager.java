@@ -97,12 +97,14 @@ public class IconManager
 	/** The <code>Refresh16</code> icon. */
 	public static final int		REFRESH16 = 13;
 	
+	/** The <code>Status Info</code> icon. */
+	public static final int		STATUS_INFO = 14;
 	
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 13;
+    private static final int    MAX_ID = 14;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -125,6 +127,7 @@ public class IconManager
         relPaths[WIZARD16] = "nuvola_wizard16.png";
         relPaths[SAVE16] = "nuvola_filesaveas16.png";
         relPaths[REFRESH16] = "nuvola_reload16.png";
+        relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
     }
     
     /** 

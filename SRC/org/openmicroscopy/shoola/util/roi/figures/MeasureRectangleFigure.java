@@ -84,7 +84,8 @@ public class MeasureRectangleFigure
         this(0, 0, 0, 0);
     }
     
-    public MeasureRectangleFigure(double x, double y, double width, double height) 
+    public MeasureRectangleFigure(double x, double y, double width, 
+    							double height) 
     {
 		super(x, y, width, height);
         shape = null;
@@ -150,7 +151,7 @@ public class MeasureRectangleFigure
 	{
 		super.draw(g);
 		
-		if(SHOWMEASUREMENT.get(this))
+		if (SHOWMEASUREMENT.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
@@ -158,11 +159,13 @@ public class MeasureRectangleFigure
 			double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
-			bounds = new Rectangle2D.Double(this.getBounds().getCenterX()-bounds.getWidth()/2,
-					this.getBounds().getCenterY()+bounds.getHeight()/2,
+			bounds = new Rectangle2D.Double(
+						getBounds().getCenterX()-bounds.getWidth()/2,
+						getBounds().getCenterY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
 			g.setColor(MEASUREMENTTEXT_COLOUR.get(this));
-			g.drawString(rectangleArea, (int)bounds.getX(), (int)bounds.getY()); 
+			g.drawString(rectangleArea, (int) bounds.getX(), (int) 
+						bounds.getY()); 
 					
 		}
 	}
@@ -170,28 +173,32 @@ public class MeasureRectangleFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds = super.getDrawingArea();
-		if(bounds!=null)
+		if (bounds != null)
 		{
-			if(newBounds.getX()>bounds.getX())
+			if (newBounds.getX() > bounds.getX())
 			{
 				double diff = newBounds.x-bounds.getX();
 				newBounds.x = bounds.getX();
 				newBounds.width = newBounds.width+diff;
 			}
-			if(newBounds.getY()>bounds.getY())
+			if (newBounds.getY() > bounds.getY())
 			{
 				double diff = newBounds.y-bounds.getY();
 				newBounds.y = bounds.getY();
 				newBounds.height = newBounds.height+diff;
 			}
-			if(bounds.getX()+bounds.getWidth()>newBounds.getX()+newBounds.getWidth())
+			if (bounds.getX()+bounds.getWidth() > 
+				newBounds.getX()+newBounds.getWidth())
 			{
-				double diff = bounds.getX()+bounds.getWidth()-newBounds.getX()+newBounds.getWidth();
+				double diff = bounds.getX()+bounds.getWidth()-
+							newBounds.getX()+newBounds.getWidth();
 				newBounds.width = newBounds.width+diff;
 			}
-			if(bounds.getY()+bounds.getHeight()>newBounds.getY()+newBounds.getHeight())
+			if (bounds.getY()+bounds.getHeight() >
+				newBounds.getY()+newBounds.getHeight())
 			{
-				double diff = bounds.getY()+bounds.getHeight()-newBounds.getY()+newBounds.getHeight();
+				double diff = bounds.getY()+bounds.getHeight()
+								-newBounds.getY()+newBounds.getHeight();
 				newBounds.height = newBounds.height+diff;
 			}
 		}
@@ -222,62 +229,59 @@ public class MeasureRectangleFigure
 
 	public Point2D getCentre()
 	{
-     	if(INMICRONS.get(shape))
-     	{
-    		return new Point2D.Double(rectangle.getCenterX()*MICRONSPIXELX.get(shape), rectangle.getCenterY()*MICRONSPIXELY.get(shape));
-     	}
-    	else
-    		return new Point2D.Double(rectangle.getCenterX(), rectangle.getCenterY());
+     	if (INMICRONS.get(shape))
+    		return new Point2D.Double(
+    				rectangle.getCenterX()*MICRONSPIXELX.get(shape), 
+    				rectangle.getCenterY()*MICRONSPIXELY.get(shape));
+    	return new Point2D.Double(rectangle.getCenterX(), 
+    							rectangle.getCenterY());
 	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
+	public ROIShape getROIShape() { return shape; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
+	public void setROI(ROI roi) { this.roi = roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
+	public void setROIShape(ROIShape shape) { this.shape = shape; }
 
-
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#calculateMeasurements()
 	 */
 	public void calculateMeasurements()
 	{
-			if(shape==null)
-				return;
-			AREA.set(shape, getArea());
-			WIDTH.set(shape, getMeasurementWidth());		
-			HEIGHT.set(shape, getMeasurementHeight());		
-			PERIMETER.set(shape, getPerimeter());		
-			CENTREX.set(shape, getCentre().getX());
-			CENTREY.set(shape, getCentre().getY());
+		if (shape == null) return;
+		AREA.set(shape, getArea());
+		WIDTH.set(shape, getMeasurementWidth());		
+		HEIGHT.set(shape, getMeasurementHeight());		
+		PERIMETER.set(shape, getPerimeter());		
+		CENTREX.set(shape, getCentre().getX());
+		CENTREY.set(shape, getCentre().getY());
 	}
 
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return ROIFigure.RECTANGLE_TYPE; }
+	
 }
 
 

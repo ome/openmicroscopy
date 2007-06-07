@@ -40,10 +40,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.SHOWMEASUREMENT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.HEIGHT;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.WIDTH;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.AREA;
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.PERIMETER;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.CENTREY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.INMICRONS;
@@ -158,7 +154,9 @@ public class MeasurePointFigure
 		if(SHOWMEASUREMENT.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
-			String pointCentre = "("+formatter.format(getMeasurementCentre().getX()) + ","+formatter.format(getMeasurementCentre().getY())+")";
+			String pointCentre = 
+				"("+formatter.format(getMeasurementCentre().getX()) 
+				+ ","+formatter.format(getMeasurementCentre().getY())+")";
 			//ellipseArea = addUnits(ellipseArea);
 			double sz = ((Double)this.getAttribute(AttributeKeys.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
@@ -217,48 +215,46 @@ public class MeasurePointFigure
 		return new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROI()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROI()
 	 */
-	public ROI getROI() 
-	{
-		return roi;
-	}
+	public ROI getROI() { return roi;	}
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#getROIShape()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getROIShape()
 	 */
-	public ROIShape getROIShape() 
-	{
-		return shape;
-	}
+	public ROIShape getROIShape() { return shape; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROI(org.openmicroscopy.shoola.util.ui.roi.model.ROI)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi) 
-	{
-		this.roi = roi;
-	}
+	public void setROI(ROI roi) { this.roi = roi; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#setROIShape(org.openmicroscopy.shoola.util.ui.roi.model.ROIShape)
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setROIShape(ROIShape)
 	 */
-	public void setROIShape(ROIShape shape) 
-	{
-		this.shape = shape;
-	}
+	public void setROIShape(ROIShape shape) { this.shape = shape; }
 
-	/* (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.measurement.ui.figures.ROIFigure#calculateMeasurements()
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
 	 */
 	public void calculateMeasurements()
 	{
-			if(shape==null)
-				return;
-			CENTREX.set(shape, getMeasurementCentre().getX());
-			CENTREY.set(shape, getMeasurementCentre().getY());
+		if (shape == null) return;
+		CENTREX.set(shape, getMeasurementCentre().getX());
+		CENTREY.set(shape, getMeasurementCentre().getY());
 	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#getType()
+	 */
+	public String getType() { return ROIFigure.POINT_TYPE; }
+	
 }
 
