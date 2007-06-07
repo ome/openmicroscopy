@@ -91,8 +91,10 @@ public class MeasurementObject
 	 */
 	public void setElement(Object value, int index)
 	{
-		if (index < 0 || index >= elements.size()) return;
-		elements.set(index, value);
+		if (index >= 0 || index < elements.size()) 
+			elements.set(index, value);
+		else
+			return;
 	}
 	
 	/**

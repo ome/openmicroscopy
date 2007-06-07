@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -82,10 +86,10 @@ class MeasurementResults
 {
 
 	/** The name of the panel. */
-	private static final String			NAME = "Results";
+	private static final String				NAME = "Results";
 	
 	/** Collection of column names. */
-	private List<String>				columnNames;
+	private List<String>					columnNames;
 	
 	/** Collection of column names. */
 	private List<AnnotationField>	fields;
@@ -122,8 +126,12 @@ class MeasurementResults
 	{
 		saveButton = new JButton(
 				controller.getAction(MeasurementViewerControl.SAVE_RESULTS));
-		//TODO: Create action
+		saveButton.setIcon(IconManager.getInstance().getIcon(IconManager.SAVE16));
+		UIUtilities.setDefaultSize(saveButton, new Dimension(100,28));
+		
 		resultsWizardButton = new JButton("Results Wizard..");
+		resultsWizardButton.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD16));
+		UIUtilities.setDefaultSize(resultsWizardButton, new Dimension(100,28));
 		resultsWizardButton.addActionListener(new ActionListener()
 		{
 
@@ -137,7 +145,8 @@ class MeasurementResults
 		
 		refreshButton = new JButton(
 				controller.getAction(MeasurementViewerControl.REFRESH_RESULTS));
-		
+		refreshButton.setIcon(IconManager.getInstance().getIcon(IconManager.REFRESH16));
+		UIUtilities.setDefaultSize(refreshButton, new Dimension(100,28));
 		//Create table model.
 		createDefaultFields();
 		results = new ResultsTable();
@@ -145,9 +154,9 @@ class MeasurementResults
 		MeasurementTableModel tm = new MeasurementTableModel(columnNames);
 		results.setModel(tm);
 		results.setSelectionMode(
-				ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+				ListSelectionModel.SINGLE_SELECTION);
 		results.setRowSelectionAllowed(true);
-		results.setRowHeight(30);
+		results.setColumnSelectionAllowed(false);
 		listener = new ListSelectionListener() {
 			
 			public void valueChanged(ListSelectionEvent e) {
@@ -162,7 +171,7 @@ class MeasurementResults
 	        			(MeasurementTableModel) results.getModel();
 	        		long ROIID = (Long)m.getValueAt(index, 2);
 	        		int T = (Integer)m.getValueAt(index, 0);
-	        		int Z = (Integer)m.getValueAt(index, 1);
+	        		int Z = (Integer)m.getValueAt(index, 1)-1;
 	        		view.selectFigure(ROIID, T, Z);
 		        }
 			}
@@ -388,11 +397,17 @@ class MeasurementResults
 				figure.calculateMeasurements();
 				row = new MeasurementObject();
 				row.addElement(shape.getCoord3D().getTimePoint());
-				row.addElement(shape.getCoord3D().getZSection());
+				row.addElement(shape.getCoord3D().getZSection()+1);
 				row.addElement(shape.getROI().getID());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
-					row.addElement(key.get(shape));
+					Object value = key.get(shape);
+					if(value instanceof ArrayList)
+					{
+						row.addElement(new ArrayList((ArrayList)value));
+					}
+					else
+						row.addElement(value);
 				}
 				tm.addRow(row);
 			}
@@ -517,7 +532,7 @@ class MeasurementResults
 		 */
 		public Object getValueAt(int row, int col) 
 	    {
-		//	if (row < 0 || row > values.size()) return null;
+			if (row < 0 || row > values.size()) return null;
 			MeasurementObject rowData = values.get(row);
 	    	return rowData.getElement(col);
 		}
@@ -528,10 +543,10 @@ class MeasurementResults
 		 */
 	    public void setValueAt(Object value, int row, int col) 
 	    {
-	    	if (row < 0 || row > values.size()) return;
-	    	MeasurementObject rowData = values.get(row);
-	    	rowData.setElement(value, col);
-	    	fireTableCellUpdated(row, col);
+//	    	if (row < 0 || row > values.size()) return;
+//	    	MeasurementObject rowData = values.get(row);
+//	    	rowData.setElement(value, col);
+//	    	fireTableCellUpdated(row, col);
 	    }
 	    
 		/**

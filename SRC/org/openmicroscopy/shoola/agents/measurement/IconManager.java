@@ -88,12 +88,21 @@ public class IconManager
 	/** The <code>Wizard</code> icon. */
 	public static final int		WIZARD = 10;
 	
+	/** The <code>Wizard16</code> icon. */
+	public static final int		WIZARD16 = 11;
+	
+	/** The <code>Save16</code> icon. */
+	public static final int		SAVE16 = 12;
+	
+	/** The <code>Refresh16</code> icon. */
+	public static final int		REFRESH16 = 13;
+	
 	
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 10;
+    private static final int    MAX_ID = 13;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -113,6 +122,9 @@ public class IconManager
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow32.png";
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow32.png";
         relPaths[WIZARD] = "nuvola_wizard32.png";
+        relPaths[WIZARD16] = "nuvola_wizard16.png";
+        relPaths[SAVE16] = "nuvola_filesaveas16.png";
+        relPaths[REFRESH16] = "nuvola_reload16.png";
     }
     
     /** 

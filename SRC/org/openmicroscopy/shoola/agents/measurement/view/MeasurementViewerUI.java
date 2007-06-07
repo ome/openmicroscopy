@@ -326,8 +326,8 @@ class MeasurementViewerUI
     		return;
     	ROIFigure fig;
     	try {
-			fig = roi.getFigure(new Coord3D(t, z));
-			selectFigure(fig);
+    		fig = roi.getFigure(new Coord3D(t, z));
+    		selectFigure(fig);
 			
 		} catch (NoSuchShapeException e) {
 			e.printStackTrace();

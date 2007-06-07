@@ -81,7 +81,6 @@ public class MeasurePointFigure
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
     	super(x, y, width, height);
-    	System.err.println("Width : " + width + " Height : " + height);
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 	    shape = null;
 		roi = null;

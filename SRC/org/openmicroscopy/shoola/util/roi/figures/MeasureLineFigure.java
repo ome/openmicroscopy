@@ -371,7 +371,7 @@ public class MeasureLineFigure
 			LENGTH.set(shape, lengthArray);
 		}
 		STARTPOINTX.set(shape, getPt(0).getX());
-		STARTPOINTX.set(shape, getPt(0).getY());
+		STARTPOINTY.set(shape, getPt(0).getY());
 		ENDPOINTX.set(shape, getPt(getPointCount()-1).getX());
 		ENDPOINTY.set(shape, getPt(getPointCount()-1).getY());
 		POINTARRAYX.set(shape, pointArrayX);
