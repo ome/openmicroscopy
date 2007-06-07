@@ -83,9 +83,9 @@ $secondpassclassimports$importModify
 [$jav]    implements ome.api.ModelBased {
 
 Note how the whitespace for the python definitions is important.
-[$pyc] class ${PojoI}($Pojo):
+[$pyc] import omero.model
+[$pyc] class ${PojoI}(omero.model.$Pojo):
 [$pyc]
-
 [$hdr] namespace omero { 
 [$hdr]   namespace model {
 [$hdr]     class ${PojoI} : virtual public ${Pojo} { 
@@ -107,11 +107,10 @@ INTERNAL METHODS:
 [$jav]       {
 [$jav]         if ( ! loaded ) throw new omero.UnloadedEntityException("Object unloaded:"+this);
 [$jav]       }
-[$pyc]	     def errorIfUnloaded(self):
-[$pyc]	         if ! loaded:
-[$pyc]	             raise omero.UnloadedEntityException("Object unloaded:"+self)
+[$pyc]       def errorIfUnloaded(self):
+[$pyc]           if not loaded:
+[$pyc]               raise omero.UnloadedEntityException("Object unloaded:"+self)
 [$pyc]
-
 [$hdr]       void throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException);
 [$cpp]       void ${PojoI}::throwNullCollectionException(std::string propertyName) throw(omero::UnloadedCollectionException)
 [$cpp]       {
@@ -133,15 +132,14 @@ INTERNAL METHODS:
 [$jav]            "in order to update this collection.\n"
 [$jav]            );
 [$jav]       }
-[$pyc]	     def throwNullCollectionException(self,propertyName):
-[$pyc]	         raise omero.UnloadedEntityException,
+[$pyc]       def throwNullCollectionException(self,propertyName):
+[$pyc]           raise omero.UnloadedEntityException(""+
 [$pyc]           "Error updating collection:" + propertyName +"\n"+
 [$pyc]           "Collection is currently null. This can be seen\n" +
-[$pyc]	         "by testing \""+ propertyName +"Loaded\". This implies\n"+
-[$pyc]	         "that this collection was unloaded. Please refresh this object\n"+
-[$pyc]	         "in order to update this collection.\n"
+[$pyc]           "by testing \""+ propertyName +"Loaded\". This implies\n"+
+[$pyc]           "that this collection was unloaded. Please refresh this object\n"+
+[$pyc]           "in order to update this collection.\n")
 [$pyc]
-
 DESTRUCTOR BLOCK:
 
 [$hdr]       virtual ~${PojoI}();
@@ -156,31 +154,29 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$hdr]       ${PojoI}();
 [$jav]       public ${PojoI}() {
 [$cpp]       ${PojoI}::${PojoI}() : ${Pojo}() {
-[$cpp]         loaded = true;
-[$cpp]         toggleCollectionsLoaded(true);
-[$cpp]         details = new omero::model::DetailsI();
-[$jav]         loaded = true;
-[$jav]         toggleCollectionsLoaded(true);
-[$jav]         details = new omero.model.DetailsI();
+[$cpp]           loaded = true;
+[$cpp]           toggleCollectionsLoaded(true);
+[$cpp]           details = new omero::model::DetailsI();
+[$jav]           loaded = true;
+[$jav]           toggleCollectionsLoaded(true);
+[$jav]           details = new omero.model.DetailsI();
 [$jav]       }
 [$cpp]       }
 
 Python combines the two constructors. See below for a comparison.
-[$pyc]    def __init__(self,id = None,loaded = true):
-[$pyc]      self.id = id
-[$pyc]      self.loaded = loaded
-[$pyc]      if self.loaded:
-[$pyc]          self.details = omero.model.DetailsI()
-[$pyc]          self.toggleCollectionsLoaded(true)
+[$pyc]       def __init__(self,id = None,loaded = True):
+[$pyc]           self.id = id
+[$pyc]           self.loaded = loaded
+[$pyc]           if self.loaded:
+[$pyc]              self.details = omero.model.DetailsI()
+[$pyc]              self.toggleCollectionsLoaded(True)
 [$pyc]
-
 TOGGLE COLLECTIONS:
 
 [$jav]       public void toggleCollectionsLoaded(boolean load) {
 [$hdr]       virtual void toggleCollectionsLoaded(bool load);
 [$cpp]    void ${PojoI}::toggleCollectionsLoaded(bool load) {
-[$pyc]    def toggleCollectionsLoaded(self,load):
-[$pyc]
+[$pyc]       def toggleCollectionsLoaded(self,load):
 #foreach( $property in $pojo.propertyClosureForFullConstructor)
 #set(     $name = $pojo.getPropertyName($property))
 #set(     $javaType = $c2j.getJavaTypeName($property,false))##generics
@@ -201,26 +197,26 @@ since all collections are lists in ice.
 
 [$ice]     ["java:type:java.util.ArrayList"] sequence<$genericTypeC> ${seqName};
 
-[$jav]        if (load) { 
-[$jav]          ${property.name} = new ArrayList(); 
-[$jav]          ${property.name}Loaded = true;
-[$jav]        } else { 
-[$jav]          ${property.name} = null; 
-[$jav]          ${property.name}Loaded = false;
-[$jav]        }
-[$cpp]        if (load) { 
-[$cpp]          ${property.name} = ${seqName}(); 
-[$cpp]          ${property.name}Loaded = true;
-[$cpp]        } else { 
-[$cpp]          ${property.name} = (${seqName})0;
-[$cpp]          ${property.name}Loaded = false; 
-[$cpp]        }
-[$pyc]        if load:
-[$pyc]          self.${property.name} = []
-[$pyc]          self.${property.name}Loaded = true;
-[$pyc]        else:
-[$pyc]          self.${property.name} = []
-[$pyc]          self/${property.name}Loaded = false; 
+[$jav]           if (load) { 
+[$jav]               ${property.name} = new ArrayList(); 
+[$jav]               ${property.name}Loaded = true;
+[$jav]           } else { 
+[$jav]               ${property.name} = null; 
+[$jav]               ${property.name}Loaded = false;
+[$jav]           }
+[$cpp]          if (load) { 
+[$cpp]               ${property.name} = ${seqName}(); 
+[$cpp]               ${property.name}Loaded = true;
+[$cpp]          } else { 
+[$cpp]               ${property.name} = (${seqName})0;
+[$cpp]               ${property.name}Loaded = false; 
+[$cpp]          }
+[$pyc]          if load:
+[$pyc]               self.${property.name} = []
+[$pyc]               self.${property.name}Loaded = True;
+[$pyc]          else:
+[$pyc]               self.${property.name} = []
+[$pyc]               self.${property.name}Loaded = False; 
 [$pyc]
 #end
 #end
@@ -262,49 +258,56 @@ UNLOAD BLOCK:
 [$jav]       public void unload(Ice.Current current) {
 [$hdr]       virtual void unload(const Ice::Current& current = Ice::Current());
 [$cpp]       void ${PojoI}::unload(const Ice::Current& current) {
-[$pyc]       def unload(self, Ice.Current current):
-[$pyc]          self.loaded = false
-[$jav]          loaded = false;
-[$cpp]          loaded = false;
+[$pyc]       def unload(self, current):
+[$pyc]            self.loaded = False
+[$jav]            loaded = false;
+[$cpp]            loaded = false;
 #foreach($property in $pojo.propertyClosureForFullConstructor)
 #if(!$clazz.identifierProperty.equals($property))
 #set( $PropertyName = $pojo.beanCapitalize( $property.name ) )
-[$jav]          unload${PropertyName}( );
-[$cpp]          unload${PropertyName}( );
-[$pyc]          self.unload${PropertyName}( )
+[$jav]            unload${PropertyName}( );
+[$cpp]            unload${PropertyName}( );
+[$pyc]            self.unload${PropertyName}( )
+#end
+#end
 [$pyc]
-#end
-#end
 [$jav]    }
 [$cpp]    }
 
 SPECIAL METHODS:
 Id acccesors copied from other accessors below.
 
-[$jav]      public Long getId() {
-[$jav]        return id == null ? null : id.val;
-[$jav]      }
+[$jav]       public Long getId() {
+[$jav]           return id == null ? null : id.val;
+[$jav]       }
 [$jav]    
-[$jav]      public void setId( Long id ) {
-[$jav]        this.id = (id == null) ? null : new omero.RLong(id);
-[$jav]      }
+[$jav]       public void setId( Long id ) {
+[$jav]           this.id = (id == null) ? null : new omero.RLong(id);
+[$jav]       }
 
 [$hdr]       virtual omero::RLongPtr getId();
 [$hdr]       virtual void setId( omero::RLongPtr id );
 
-[$cpp]      omero::RLongPtr ${PojoI}::getId() {
-[$cpp]        return id;
-[$cpp]      }
+[$cpp]       omero::RLongPtr ${PojoI}::getId() {
+[$cpp]           return id;
+[$cpp]       }
 [$cpp]    
-[$cpp]      void ${PojoI}::setId(omero::RLongPtr _id) {
-[$cpp]        id = _id;
-[$cpp]      }  
+[$cpp]       void ${PojoI}::setId(omero::RLongPtr _id) {
+[$cpp]           id = _id;
+[$cpp]       }  
 
-[$pyc]      def getId(self):
-[$pyc]        return self.id
-[$pyc]    
-[$pyc]      def setId(self, omero.RLong _id):
-[$pyc]        self.id = _id
+[$pyc]       def getId(self):
+[$pyc]           return self.id
+[$pyc]
+[$pyc]       def setId(self, _id):
+[$pyc]           self.id = _id
+[$pyc]
+Doing unloadedPython as a method because of the multi-line restriction. See below.
+[$pyc]       def checkUnloadedProperty(self, value, loadedField):
+[$pyc]           if value == None:
+[$pyc]               self.__dict__[loadedField] = False
+[$pyc]           else:
+[$pyc]               self.__dict__[loadedField] = True
 [$pyc]
 ###########################################################################
 #foreach($property in $pojo.propertyClosureForFullConstructor)#############
@@ -349,6 +352,7 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $suffix=" " )
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
+#set( $unloadedPython="pass" )
 #set( $elementType = $c2j.getJavaTypeName($property,true).replaceFirst(".*<","").replaceFirst(">.*",""))
 #set( $elementName = $c2j.unqualify( $elementType ) )
 #set( $seqName = "${Pojo}${name.substring(0,1).toUpperCase()}${name.substring(1,$name.length())}Seq" )## seqName copied from ice_defs.vm
@@ -375,7 +379,7 @@ must be filtered in the [Ice] sections below, but not for all others.
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
 #set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
-
+#set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
@@ -480,63 +484,61 @@ ASSOCIATION TYPES BLOCK:
 Unload
 
 [$jav]       public void unload${PropertyName}() {
-[$jav]         ${unloadIfIsSet}
-[$jav]         ${property.name} = null;
+[$jav]           ${unloadIfIsSet}
+[$jav]           ${property.name} = null;
 [$jav]       }
 [$hdr]       virtual void unload${PropertyName}();
 [$cpp]       void ${Pojo}I::unload${PropertyName}() {
-[$cpp]         ${unloadIfIsSet}
-[$cpp]         ${property.name} = ($cppType) 0;
+[$cpp]           ${unloadIfIsSet}
+[$cpp]           ${property.name} = ($cppType) 0;
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self):
-[$pyc]         self.${property.Name}Loaded = false
-[$pyc]         self.${property.name} = None;
+[$pyc]           self.${property.Name}Loaded = False
+[$pyc]           self.${property.name} = None;
 [$pyc]
-
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
-[$jav]    $access $javaType $pojo.getGetterSignature($property)() throws omero.UnloadedEntityException {
-[$jav]        errorIfUnloaded();
-[$jav]        return $getter;
-[$jav]    }
+[$jav]       $access $javaType $pojo.getGetterSignature($property)() throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           return $getter;
+[$jav]       }
 [$jav]    
-[$jav]    $access void set$name($javaType $property.Name) throws omero.UnloadedEntityException {
-[$jav]        errorIfUnloaded();
-[$jav]        this.$property.Name = $setter;
-[$jav]        $unloadedJava
-[$jav]    }
+[$jav]       $access void set$name($javaType $property.Name) throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           this.$property.Name = $setter;
+[$jav]           $unloadedJava
+[$jav]       }
 
 #if($access == "protected" )
 [$hdr]     protected:
 #end
-[$hdr]       virtual $cppType $pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException);
-[$hdr]       virtual void set$name($cppType _$property.Name) throw(omero::UnloadedEntityException);
+[$hdr]          virtual $cppType $pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException);
+[$hdr]          virtual void set$name($cppType _$property.Name) throw(omero::UnloadedEntityException);
 #if($access == "protected" )
 [$hdr]     public:
 #end
 
-[$cpp]    $cppType ${PojoI}::$pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException) {
-[$cpp]        errorIfUnloaded();
-[$cpp]        return ${open}${property.name}${close};
-[$cpp]    }
+[$cpp]       $cppType ${PojoI}::$pojo.getGetterSignature($property)() throw(omero::UnloadedEntityException) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           return ${open}${property.name}${close};
+[$cpp]       }
 [$cpp]    
-[$cpp]    void ${PojoI}::set$name($cppType _$property.Name) throw(omero::UnloadedEntityException) {
-[$cpp]        errorIfUnloaded();
-[$cpp]        $property.Name = $!{prefix}_${property.Name}$!{suffix};
-[$cpp]        $unloadedCpp
-[$cpp]    }
+[$cpp]       void ${PojoI}::set$name($cppType _$property.Name) throw(omero::UnloadedEntityException) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           $property.Name = $!{prefix}_${property.Name}$!{suffix};
+[$cpp]           $unloadedCpp
+[$cpp]       }
 
-[$pyc]    def $pojo.getGetterSignature($property)(self):
-[$pyc]        self.errorIfUnloaded()
-[$pyc]        return self.${property.name}
-[$pyc]    
-[$pyc]    def set$name(value):
-[$pyc]        self.errorIfUnloaded()
-[$pyc]        self.${property.Name} = value
-[$pyc]        FIXME$unloadedPython
+[$pyc]       def $pojo.getGetterSignature($property)(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           return self.${property.name}
 [$pyc]
-
+[$pyc]       def set$name(_${property.name}):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           self.${property.Name} = value
+[$pyc]           $unloadedPython
+[$pyc]
 One-to-many extras:
 
 #if( $hasSet || $hasLink )
@@ -551,7 +553,6 @@ One-to-many extras:
 [$pyc]       def is${PropertyName}Loaded(self):
 [$pyc]           return self.${propLoaded}
 [$pyc]
-
 [$jav]       public long sizeOf${PropertyName}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
@@ -564,57 +565,52 @@ One-to-many extras:
 [$cpp]           return ${property.name}.size();
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self):
-[$pyc]           errorIfUnloaded()
-[$pyc]           if !${propLoaded}: throwNullCollectionException("${property.name}");
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${property.name}")
 [$pyc]           return len(self.${property.name})
 [$pyc]
-
 [$jav]       public Iterator iterate${PropertyName}() throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) {
-[$jav]           throwNullCollectionException("${property.name}");
-[$jav]         }
-[$jav]         return ${property.name}.iterator();
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$jav]           return ${property.name}.iterator();
 [$jav]       }
 [$hdr]       virtual $cppType::iterator begin${PropertyName}() throw(omero::UnloadedEntityException);
 [$hdr]       virtual $cppType::iterator end${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]       $cppType::iterator ${PojoI}::begin${PropertyName}() throw(omero::UnloadedEntityException){
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) {
-[$cpp]           throwNullCollectionException("${property.name}");
-[$cpp]         }
-[$cpp]         return ${property.name}.begin();
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$cpp]           return ${property.name}.begin();
 [$cpp]       }
 [$cpp]       $cppType::iterator ${PojoI}::end${PropertyName}() throw(omero::UnloadedEntityException){
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) {
-[$cpp]           throwNullCollectionException("${property.name}");
-[$cpp]         }
-[$cpp]         return ${property.name}.end();
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$cpp]           return ${property.name}.end();
 [$cpp]       } 
-[$pyc]       public Iterator iterate${PropertyName}() throws omero.UnloadedEntityException {
-[$pyc]         errorIfUnloaded();
-[$pyc]         if (!${propLoaded}) {
-[$pyc]           throwNullCollectionException("${property.name}");
-[$pyc]         }
-[$pyc]         return ${property.name}.iterator();
-[$pyc]       }
+[$pyc]       def iterate${PropertyName}(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${property.name}")
+[$pyc]           return iter(${property.name})
+[$pyc]
 
 [$jav]       public List<$javaType> copy${PropertyName}() throws omero.UnloadedEntityException{
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${property.name}");
-[$jav]         List<$javaType> result = new ArrayList(${property.name});
-[$jav]         return result;
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$jav]           List<$javaType> result = new ArrayList(${property.name});
+[$jav]           return result;
 [$jav]       }
-
+[$pyc]       def copy${PropertyName}(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${property.name}")
+[$pyc]           return list(self.${property.name})
+[$pyc]
              Here we don't have a vector<$cppType> since the type is typedef'd
 [$hdr]       virtual $cppType copy${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]       $cppType ${PojoI}::copy${PropertyName}() throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${property.name}");
-[$cpp]         $cppType result(${property.name}.size());
-[$cpp]         std::copy(${property.name}.begin(), ${property.name}.end(), result.begin());
-[$cpp]         return result;
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
+[$cpp]           $cppType result(${property.name}.size());
+[$cpp]           std::copy(${property.name}.begin(), ${property.name}.end(), result.begin());
+[$cpp]           return result;
 [$cpp]       }  
 
 #end
@@ -634,131 +630,161 @@ Set modifications:
 add single
 
 [$jav]       public void add${elementName}(${elementName} target) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${property.name}.add( target );
-[$jav]         target.$inverse = this;
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${property.name}.add( target );
+[$jav]           target.$inverse = this;
 [$jav]       }
+[$pyc]       def add${elementName}(self,target):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not ${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           self.${property.name}.append( target );
+[$pyc]           target.$inverse = self;
+[$pyc]
 [$hdr]       virtual void add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::add${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         ${property.name}.push_back( target );
-[$cpp]         target->$inverse = this;
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           ${property.name}.push_back( target );
+[$cpp]           target->$inverse = this;
 [$cpp]       } 
 
 add set
 
 [$jav]       public void add${elementName}Set(Collection<${elementName}> targets) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${property.name}.addAll( targets );
-[$jav]         for( ${elementName} target : targets) {
-[$jav]           target.$inverse = this;
-[$jav]         }
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${property.name}.addAll( targets );
+[$jav]           for( ${elementName} target : targets) {
+[$jav]               target.$inverse = this;
+[$jav]           }
 [$jav]       }
+[$pyc]       def add${elementName}Set(self, targets):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if  not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           self.${property.name}.extend( targets )
+[$pyc]           for target in targets:
+[$pyc]               target.$inverse = self
+[$pyc]
 [$hdr]       virtual void add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::add${elementName}Set($cppType targets) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         $cppType::iterator loc = ${property.name}.end();
-[$cpp]         $cppType::iterator beg = targets.begin(); 
-[$cpp]         $cppType::iterator end = targets.end(); 
-[$cpp]         ${property.name}.insert(loc,beg,end);
-[$cpp]         for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
-[$cpp]           ${elementName}Ptr target = *it;
-[$cpp]           target->$inverse = this;
-[$cpp]         } 
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           $cppType::iterator loc = ${property.name}.end();
+[$cpp]           $cppType::iterator beg = targets.begin(); 
+[$cpp]           $cppType::iterator end = targets.end(); 
+[$cpp]           ${property.name}.insert(loc,beg,end);
+[$cpp]           for ($cppType::iterator it = targets.begin(); it != targets.end(); ++it) {
+[$cpp]               ${elementName}Ptr target = *it;
+[$cpp]               target->$inverse = this;
+[$cpp]           } 
 [$cpp]       } 
 
 remove single
 
 #set( $removePredicate = "testRemove${elementName}From${PojoI}" )
-[$cpp] 	     struct $removePredicate
-[$cpp] 	     {
-[$cpp] 	         const ${elementName}Ptr t;
-[$cpp] 	         ${removePredicate}(const ${elementName}Ptr n) : t(n) {}
-[$cpp] 	         bool operator()(${elementName}Ptr const& o) {
-[$cpp] 	             return o == t;
-[$cpp] 	         }
-[$cpp] 
-[$cpp] 	     };    
+[$cpp]       struct $removePredicate
+[$cpp]       {
+[$cpp]           const ${elementName}Ptr t;
+[$cpp]           ${removePredicate}(const ${elementName}Ptr n) : t(n) {}
+[$cpp]           bool operator()(${elementName}Ptr const& o) {
+[$cpp]               return o == t;
+[$cpp]           }
+[$cpp]       };    
 
 [$jav]       public void remove${elementName}(${elementName} target) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${property.name}.remove( target );
-[$jav]         target.$inverse = null;
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${property.name}.remove( target );
+[$jav]           target.$inverse = null;
 [$jav]       }
+[$pyc]       def remove${elementName}(self, target):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           self.${property.name}.remove( target )
+[$pyc]           target.$inverse = None
+[$pyc]       
 [$hdr]       virtual void remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::remove${elementName}(${elementName}Ptr target) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         $cppType::iterator it = std::remove_if(
-[$cpp]           ${property.name}.begin(),
-[$cpp]           ${property.name}.end(),
-[$cpp]           ${removePredicate}(target));
-[$cpp]         ${property.name}.erase(it,${property.name}.end());
-[$cpp]         target->$inverse = (${PojoI}Ptr)0;
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           $cppType::iterator it = std::remove_if(
+[$cpp]               ${property.name}.begin(),
+[$cpp]               ${property.name}.end(),
+[$cpp]               ${removePredicate}(target));
+[$cpp]           ${property.name}.erase(it,${property.name}.end());
+[$cpp]           target->$inverse = (${PojoI}Ptr)0;
 [$cpp]       } 
 
 remove multiple
 
 #set( $removeSetPredicate = "testRemove${elementName}SetFrom${PojoI}" )
-[$cpp] 	     struct ${removeSetPredicate}
-[$cpp] 	     {
-[$cpp] 	         const ${cppType} t;
-[$cpp] 	         ${removeSetPredicate}(const ${cppType} n) : t(n) {}
-[$cpp] 	         bool operator()(${elementName}Ptr const& o) {
-[$cpp] 	             return std::find(t.begin(), t.end(), o) != t.end();
-[$cpp] 	         }
-[$cpp] 
-[$cpp] 	     };    
-
+[$cpp]       struct ${removeSetPredicate}
+[$cpp]       {
+[$cpp]           const ${cppType} t;
+[$cpp]           ${removeSetPredicate}(const ${cppType} n) : t(n) {}
+[$cpp]           bool operator()(${elementName}Ptr const& o) {
+[$cpp]               return std::find(t.begin(), t.end(), o) != t.end();
+[$cpp]           }
+[$cpp]       };    
 
 [$jav]       public void remove${elementName}Set(Collection<${elementName}> targets) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         for( ${elementName} elt : targets) {
-[$jav]           elt.$inverse = null;
-[$jav]           ${property.name}.remove( elt );
-[$jav]         }
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           for( ${elementName} elt : targets) {
+[$jav]               elt.$inverse = null;
+[$jav]               ${property.name}.remove( elt );
+[$jav]           }
 [$jav]       }
+[$pyc]       def remove${elementName}Set(self, targets):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           for elt in targets:
+[$pyc]               elt.$inverse = None
+[$pyc]               self.${property.name}.remove( elt )
+[$pyc]
 [$hdr]       virtual void remove${elementName}Set($cppType targets) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::remove${elementName}Set($cppType targets) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         ${cppType}::iterator end = ${property.name}.end(); 
-[$cpp]         ${cppType}::iterator removed = std::remove_if(
-[$cpp]           ${property.name}.begin(), end,
-[$cpp]           $removeSetPredicate(targets));
-[$cpp]         ${cppType}::iterator beg(removed);
-[$cpp]         for(; beg != end; beg++) {
-[$cpp]           (*beg)->$inverse = (${PojoI}Ptr)0; 
-[$cpp]         }
-[$cpp]         ${property.name}.erase(removed,end);
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           ${cppType}::iterator end = ${property.name}.end(); 
+[$cpp]           ${cppType}::iterator removed = std::remove_if(
+[$cpp]               ${property.name}.begin(), end,
+[$cpp]               $removeSetPredicate(targets));
+[$cpp]           ${cppType}::iterator beg(removed);
+[$cpp]           for(; beg != end; beg++) {
+[$cpp]               (*beg)->$inverse = (${PojoI}Ptr)0; 
+[$cpp]           }
+[$cpp]           ${property.name}.erase(removed,end);
 [$cpp]       }   
 
 clear
 
 [$jav]       public void clear${PropertyName}() throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         for( ${elementName} elt : (Collection<${elementName}>)${property.name}) {
-[$jav]           elt.$inverse = null;
-[$jav]         }
-[$jav]         ${property.name}.clear();
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           for( ${elementName} elt : (Collection<${elementName}>)${property.name}) {
+[$jav]               elt.$inverse = null;
+[$jav]           }
+[$jav]           ${property.name}.clear();
 [$jav]       }
+[$pyc]       def clear${PropertyName}(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           for elt in ${property.name}:
+[$pyc]               elt.$inverse = None
+[$pyc]           ${property.name} = list()
+[$pyc]
 [$hdr]       virtual void clear${PropertyName}() throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::clear${PropertyName}() throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         $cppType::iterator beg = ${property.name}.begin();
-[$cpp]         $cppType::iterator end = ${property.name}.end();
-[$cpp]         for(; beg != end; beg++) {
-[$cpp]           (*beg)->$inverse = (${PojoI}Ptr)0;
-[$cpp]         }
-[$cpp]         ${property.name}.clear();
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           $cppType::iterator beg = ${property.name}.begin();
+[$cpp]           $cppType::iterator end = ${property.name}.end();
+[$cpp]           for(; beg != end; beg++) {
+[$cpp]               (*beg)->$inverse = (${PojoI}Ptr)0;
+[$cpp]           }
+[$cpp]           ${property.name}.clear();
 [$cpp]       }  
 
 Link Modifications
@@ -780,69 +806,93 @@ have linked elements.
 ADD
 
 [$jav]       public void link${linkedName}(${linkedName} addition) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${Link}I link = new ${Link}I();
-[$jav]         link.link( ${order} );
-[$jav]         add${Link}( link, true );
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${Link}I link = new ${Link}I();
+[$jav]           link.link( ${order} );
+[$jav]           add${Link}( link, true );
 [$jav]       }
+[$pyc]       def link${linkedName}(self, addition):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           link = ${Link}I()
+[$pyc]           link.link( ${order} );
+[$pyc]           self.append${Link}( link, True )
+[$pyc]
 [$hdr]       virtual void link${linkedName}(${linkedName}Ptr addition) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::link${linkedName}(${linkedName}Ptr addition) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         ${Link}IPtr link = new ${Link}I();
-[$cpp]         link->link( ${order} );
-[$cpp]         add${Link}( link, true );
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           ${Link}IPtr link = new ${Link}I();
+[$cpp]           link->link( ${order} );
+[$cpp]           add${Link}( link, true );
 [$cpp]       }  
 
 TODO: do we need to do link.parent = ...;
 
 [$jav]       public void add${Link}(${Link} link, boolean bothSides) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${property.name}.add( link );
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${property.name}.add( link );
 #if($bidir) 
 TODO: Should we check for nulls in other?
-[$jav]         if (bothSides && link.${other}.loaded ) {
-[$jav]           ((${linkedName}I)link.${other}).add${Link}( link, false );
-[$jav]         }
+[$jav]           if (bothSides && link.${other}.loaded ) {
+[$jav]               ((${linkedName}I)link.${other}).add${Link}( link, false );
+[$jav]           }
 #end
 [$jav]       }
+[$pyc]       def add${Link}(self, link, bothSides):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           self.${property.name}.append( link )
+#if($bidir) 
+[$pyc]           if bothSides and link.${other}.loaded:
+[$pyc]               link.${other}.add${Link}( link, False )
+#end
+[$pyc]
 [$hdr]       virtual void add${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException);
 [$cpp]       void ${PojoI}::add${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         ${property.name}.push_back( link );
-#if($bidir   )
-[$cpp]         if (bothSides && link->${other}->loaded ) {
-[$cpp]           ${linkedName}IPtr::dynamicCast(link->${other})->add${Link}( link, false );
-[$cpp]         }
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           ${property.name}.push_back( link );
+#if($bidir)
+[$cpp]           if (bothSides && link->${other}->loaded ) {
+[$cpp]               ${linkedName}IPtr::dynamicCast(link->${other})->add${Link}( link, false );
+[$cpp]           }
 #end
 [$cpp]       }  
 
 FIND
 
 [$jav]       public List<$Link> find${Link}(${linkedName} removal) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         List result = new ArrayList();
-[$jav]         for( $Link link : ${property.name} ) {
-[$jav]           if (link.${other} == removal) result.add(link);
-[$jav]         }
-[$jav]         return result;
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           List result = new ArrayList();
+[$jav]           for( $Link link : ${property.name} ) {
+[$jav]               if (link.${other} == removal) result.add(link);
+[$jav]           }
+[$jav]           return result;
 [$jav]       }
+[$pyc]       def find${Link}(self, removal):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           result = list()
+[$pyc]           for link in self.${property.name}:
+[$pyc]               if link.${other} == removal: result.append(link)
+[$pyc]           return result
+[$pyc]
 [$hdr]       virtual std::vector<${Link}Ptr> find${Link}(${linkedName}Ptr removal) throw(omero::UnloadedEntityException);
 [$cpp]       std::vector<${Link}Ptr> ${PojoI}::find${Link}(${linkedName}Ptr removal) throw(omero::UnloadedEntityException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         std::vector<${Link}Ptr> result;
-[$cpp]         $cppType::iterator beg = begin${PropertyName}();
-[$cpp]         $cppType::iterator end = end${PropertyName}();
-[$cpp]         while (beg != end) {
-[$cpp]           if ((*beg)->${other} == removal) result.push_back( *beg );
-[$cpp]           ++beg;
-[$cpp]         }
-[$cpp]         return result;
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           std::vector<${Link}Ptr> result;
+[$cpp]           $cppType::iterator beg = begin${PropertyName}();
+[$cpp]           $cppType::iterator end = end${PropertyName}();
+[$cpp]           while (beg != end) {
+[$cpp]               if ((*beg)->${other} == removal) result.push_back( *beg );
+[$cpp]               ++beg;
+[$cpp]           }
+[$cpp]           return result;
 [$cpp]       }  
 
 REMOVE
@@ -856,12 +906,12 @@ REMOVE
 [$cpp]         ${removeLinkPredicate}(const ${Link}Ptr n, const bool b) : t(n), bothSides(b) {}
 [$cpp]         bool operator()(${Link}Ptr const& o) {
 [$cpp]            if (o == t) {
-#if($bidir   )
-[$cpp]              if (bothSides && t->${other}->loaded){
-[$cpp]                ${linkedName}IPtr::dynamicCast(o->${other})->remove${Link}(t,false);
-[$cpp]              }
+#if($bidir)
+[$cpp]                if (bothSides && t->${other}->loaded){
+[$cpp]                    ${linkedName}IPtr::dynamicCast(o->${other})->remove${Link}(t,false);
+[$cpp]                }
 #end
-[$cpp]              return true;
+[$cpp]                return true;
 [$cpp]            }
 [$cpp]            return false;
 [$cpp]         }
@@ -869,59 +919,75 @@ REMOVE
 [$cpp]
 
 [$jav]       public void unlink${linkedName}(${linkedName} removal) throws omero.UnloadedEntityException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         List<$Link> toRemove = find${Link}(removal);
-[$jav]         Iterator<$Link> it = toRemove.iterator();
-[$jav]         while( it.hasNext() ){
-[$jav]           remove${Link}( it.next(), true );
-[$jav]         }
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           List<$Link> toRemove = find${Link}(removal);
+[$jav]           Iterator<$Link> it = toRemove.iterator();
+[$jav]           while( it.hasNext() ){
+[$jav]               remove${Link}( it.next(), true );
+[$jav]           }
 [$jav]       }
 [$jav]       public void remove${Link}(${Link} link, boolean bothSides ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
-[$jav]         errorIfUnloaded();
-[$jav]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$jav]         ${property.name}.remove( link );
-#if($bidir   )
-[$jav]         if (bothSides && link.${other}.loaded) {
-[$jav]           ((${linkedName}I)link.${other}).remove${Link}(link, false );
-[$jav]         }
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$jav]           ${property.name}.remove( link );
+#if($bidir)
+[$jav]           if (bothSides && link.${other}.loaded) {
+[$jav]               ((${linkedName}I)link.${other}).remove${Link}(link, false );
+[$jav]           }
 #end
 [$jav]       }
+[$pyc]       def unlink${linkedName}(self, removal):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           toRemove = find${Link}(removal)
+[$pyc]           for next in toRemove:
+[$pyc]               self.remove${Link}( next, True )
+[$pyc]
+[$pyc]       def remove${Link}(self, link, bothSides ):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${name}")
+[$pyc]           self.${property.name}.remove( link )
+#if($bidir)
+[$pyc]           if bothSides and link.${other}.loaded:
+[$pyc]               link.${other}.remove${Link}(link, False)
+#end
+[$pyc]
 [$hdr]       virtual void unlink${linkedName}(${linkedName}Ptr removal) throw(omero::UnloadedEntityException,omero::UnloadedCollectionException);
 [$cpp]       void ${PojoI}::unlink${linkedName}(${linkedName}Ptr removal) throw(omero::UnloadedEntityException,omero::UnloadedCollectionException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         std::vector<${Link}Ptr> toRemove = find${Link}(removal);
-[$cpp]         $cppType::iterator beg = toRemove.begin();
-[$cpp]         $cppType::iterator end = toRemove.end();
-[$cpp]         while (beg != end) {
-[$cpp]           remove${Link}( *beg, true );
-[$cpp]           ++beg;
-[$cpp]         }
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           std::vector<${Link}Ptr> toRemove = find${Link}(removal);
+[$cpp]           $cppType::iterator beg = toRemove.begin();
+[$cpp]           $cppType::iterator end = toRemove.end();
+[$cpp]           while (beg != end) {
+[$cpp]             remove${Link}( *beg, true );
+[$cpp]             ++beg;
+[$cpp]           }
 [$cpp]       }
 [$hdr]       virtual void remove${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException, omero::UnloadedCollectionException);
 [$cpp]       void ${PojoI}::remove${Link}(${Link}Ptr link, bool bothSides) throw(omero::UnloadedEntityException, omero::UnloadedCollectionException) {
-[$cpp]         errorIfUnloaded();
-[$cpp]         if (!${propLoaded}) throwNullCollectionException("${name}");
-[$cpp]         // predicate may do reverse side
-[$cpp]         $cppType::iterator it = std::remove_if(
-[$cpp]           ${property.name}.begin(),
-[$cpp]           ${property.name}.end(),
-[$cpp]           ${removeLinkPredicate}(link, false));
-[$cpp]         ${property.name}.erase(it,${property.name}.end());
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${name}");
+[$cpp]           // predicate may do reverse side
+[$cpp]           $cppType::iterator it = std::remove_if(
+[$cpp]               ${property.name}.begin(),
+[$cpp]               ${property.name}.end(),
+[$cpp]               ${removeLinkPredicate}(link, false));
+[$cpp]           ${property.name}.erase(it,${property.name}.end());
 [$cpp]       } 
 
 ##[$jav]    public Iterator<${linkedName}> linked${linkedName}Iterator() throws omero.UnloadedEntityException {
-##[$jav]      errorIfUnloaded();
-##[$jav]      if (!${propLoaded}) throwNullCollectionException("${name}");
-##[$jav]      return null;
+##[$jav]        errorIfUnloaded();
+##[$jav]        if (!${propLoaded}) throwNullCollectionException("${name}");
+##[$jav]        return null;
 ##[$jav]    }
 ##[$hdr]    virtual std::vector<${linkedName}Ptr>::iterator linked${linkedName}Iterator() throw(omero::UnloadedEntityException);
 ##[$cpp]    std::vector<${linkedName}Ptr>::iterator ${PojoI}::linked${linkedName}Iterator() throw(omero::UnloadedEntityException) {
-##[$cpp]      errorIfUnloaded();
-##[$cpp]      std::vector<${linkedName}Ptr>::iterator result;
-##[$cpp]      return result;
-##	TODO------------
+##[$cpp]        errorIfUnloaded();
+##[$cpp]        std::vector<${linkedName}Ptr>::iterator result;
+##[$cpp]        return result;
+##TODO------------
 ##[$cpp]    }
 
 
@@ -940,35 +1006,48 @@ CLASS-LEVEL EXTRA METHODS:
 
 TODO: Should these be <>I or not?
 
-[$jav] 	     public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
-[$jav] 	       errorIfUnloaded();
-[$jav] 	       setParent( _parent );
-[$jav] 	       setChild( _child );
-[$jav] 	     }
-[$jav] 	     public ${parent} parent() throws omero.UnloadedEntityException {
-[$jav] 	       errorIfUnloaded();
-[$jav] 	       return (${parent}) parent;
-[$jav] 	     }
-[$jav] 	     public ${child}I child() throws omero.UnloadedEntityException{
-[$jav] 	       errorIfUnloaded();
-[$jav] 	       return (${child}I) child;
-[$jav] 	     }
-[$hdr] 	     virtual void link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException);
-[$hdr] 	     virtual ${parent}Ptr castParent() throw(omero::UnloadedEntityException);
-[$hdr] 	     virtual ${child}Ptr castChild() throw(omero::UnloadedEntityException);
-[$cpp] 	     void ${PojoI}::link(${parent}Ptr _parent, ${child}Ptr _child) throw(omero::UnloadedEntityException) {
-[$cpp] 	       errorIfUnloaded();
-[$cpp] 	       setParent( _parent );
-[$cpp] 	       setChild(  _child  );
-[$cpp] 	     }
-[$cpp] 	     ${parent}Ptr ${PojoI}::castParent() throw(omero::UnloadedEntityException) {
-[$cpp] 	       errorIfUnloaded();
-[$cpp] 	       return ${parent}Ptr::dynamicCast( parent );
-[$cpp] 	     }
-[$cpp] 	     ${child}Ptr ${PojoI}::castChild() throw(omero::UnloadedEntityException) {
-[$cpp] 	       errorIfUnloaded();
-[$cpp] 	       return ${child}Ptr::dynamicCast( child );
-[$cpp] 	     }     
+[$jav]       public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           setParent( _parent );
+[$jav]           setChild( _child );
+[$jav]       }
+[$jav]       public ${parent} parent() throws omero.UnloadedEntityException {
+[$jav]           errorIfUnloaded();
+[$jav]           return (${parent}) parent;
+[$jav]       }
+[$jav]       public ${child}I child() throws omero.UnloadedEntityException{
+[$jav]           errorIfUnloaded();
+[$jav]           return (${child}I) child;
+[$jav]       }
+[$pyc]       def link(self, _parent, _child):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           self.setParent( _parent )
+[$pyc]           self.setChild( _child )
+[$pyc]       }
+[$pyc]       def parent(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           return self.parent
+[$pyc]       }
+[$pyc]       def child(self):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           return self.child
+[$pyc]       }
+[$hdr]       virtual void link(${parent}Ptr parent, ${child}Ptr child) throw(omero::UnloadedEntityException);
+[$hdr]       virtual ${parent}Ptr castParent() throw(omero::UnloadedEntityException);
+[$hdr]       virtual ${child}Ptr castChild() throw(omero::UnloadedEntityException);
+[$cpp]       void ${PojoI}::link(${parent}Ptr _parent, ${child}Ptr _child) throw(omero::UnloadedEntityException) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           setParent( _parent );
+[$cpp]           setChild(  _child  );
+[$cpp]       }
+[$cpp]       ${parent}Ptr ${PojoI}::castParent() throw(omero::UnloadedEntityException) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           return ${parent}Ptr::dynamicCast( parent );
+[$cpp]       }
+[$cpp]       ${child}Ptr ${PojoI}::castChild() throw(omero::UnloadedEntityException) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           return ${child}Ptr::dynamicCast( child );
+[$cpp]       }     
 #end
 
 

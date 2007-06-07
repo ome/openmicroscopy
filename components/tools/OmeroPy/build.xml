@@ -19,13 +19,15 @@
 <!--    <setup_py>
             <arg value="icegen"/>
         </setup_py> -->
-        <apply executable="slice2py" failonerror="true" parallel="true">
-            <arg value="--output-dir"/>
+<!--    <apply executable="slice2py" failonerror="true" parallel="true">
+            <arg value="X-output-dir"/>
             <arg value="${copy.dir}"/>
+            <arg value="-I${copy.dir}/OMERO/Model"/>
+            <arg value="-I${copy.dir}/OMERO"/>
             <arg value="-I${copy.dir}"/>
             <arg value="-I${py.ICE_HOME}/slice"/>
             <fileset dir="${copy.dir}" includes="**/*.ice"/>
-        </apply>
+        </apply>-->
     </target>
 
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts"/>

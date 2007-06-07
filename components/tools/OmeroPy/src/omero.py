@@ -15,8 +15,8 @@ class client:
 
         try:
             ic = Ice.initialize(args,id)
-            if !ic:
-                throw "Improper initialization"
+            if not ic:
+                raise omero.ClientError("Improper initialization")
             of = ObjectFactory()
             of.registerObjectFactory(ic)
         except:
@@ -50,6 +50,6 @@ class client:
         router = Glacier2::RouterPrx::checkedCast(prx)
         session = router.createSession(username, password)
         self.sf = omero::api::ServiceFactoryPrx::checkedCast(session)
-        if !sf:
-            throw omero.ClientError("No session obtained.")
+        if not sf:
+            raise omero.ClientError("No session obtained.")
 

@@ -4,8 +4,8 @@
         <element   name="filesets" implicit="true"/>
         <sequential>
         <copy todir="@{todir}">
-            <fileset dir="../../blitz/resources" includes="**/*.h,**/*.ice"/>
-            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h,**/*.ice"/>
+            <fileset dir="../../blitz/resources" includes="**/*.ice"/>
+            <fileset dir="../../blitz/target/generated/resources" includes="**/*.ice"/>
             <filesets/>
         </copy>
         <delete>

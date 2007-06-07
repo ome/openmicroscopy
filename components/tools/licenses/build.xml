@@ -42,7 +42,7 @@
 		   value="${ome.services.licenses.Store_class}"/>
 	</target>
 
-    <target name="tools-build" depends="package,make_build" description="Creates all artifacts for tools/target">
+    <target name="tools-build" depends="package,make-build" description="Creates all artifacts for tools/target">
         <mkdir dir="${basedir}/src/slice_generated"/>
     </target>
 
@@ -62,9 +62,9 @@
             <fileset dir="src/slice_generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
         </copy>
-        <antcall target="make_copy" inheritAll="true" inheritRefs="true"/>
+        <antcall target="make-copy" inheritAll="true" inheritRefs="true"/>
     </target>
 
-    <target name="clean" depends="lifecycle.clean,make_clean"/>
+    <target name="clean" depends="lifecycle.clean,make-clean"/>
 
 </project>
