@@ -36,10 +36,9 @@ import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
-import org.jhotdraw.draw.QuadTreeDrawing;
 
 //Application-internal dependencies
-import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.BASIC_TEXT;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -76,6 +75,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 class MeasurementViewerModel 
 {
+	
 	/** The id of the image this {@link MeasurementViewer} is for. */
 	private long					imageID;
 	
@@ -115,6 +115,9 @@ class MeasurementViewerModel
     /** The image's magnification factor. */
     private double					magnification;
     
+    /** The name of the file name where the ROIs are saved. */
+    private String					roiFileName;
+    
     /** 
      * Will either be a data loader or
      * <code>null</code> depending on the current state. 
@@ -146,6 +149,7 @@ class MeasurementViewerModel
 		roiComponent = new ROIComponent();
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
+		roiFileName = pixelsID+".xml";
 	}
 	
 	 /**
@@ -276,7 +280,7 @@ class MeasurementViewerModel
 	void fireROILoading()
 	{
 		state = MeasurementViewer.LOADING_ROI;
-		component.setROI(IOUtil.readFile(imageID+".xml"));
+		component.setROI(IOUtil.readFile(roiFileName));
 	}
 	
 	/**
@@ -291,14 +295,14 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultZ() { return currentPlane.z; }
+	int getDefaultZ() { return currentPlane.getZSection(); }
 	
 	/**
 	 * Returns the currently selected timepoint.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultT() { return currentPlane.t; } //should get t
+	int getDefaultT() { return currentPlane.getTimePoint(); } 
 	
 	/**
      * Returns the image's magnification factor.
@@ -453,10 +457,9 @@ class MeasurementViewerModel
 	 */
 	void figureAttributeChanged(AttributeKey attribute, ROIFigure figure)
 	{
-		if(attribute.getKey().equals(TEXT.getKey()))
-		{
+		if (attribute.getKey().equals(TEXT.getKey())) {
 			ROIShape shape = figure.getROIShape();
-			BASIC_TEXT.set(shape, TEXT.get(figure));
+			AnnotationKeys.BASIC_TEXT.set(shape, TEXT.get(figure));
 		}
 	}
 	
@@ -474,7 +477,7 @@ class MeasurementViewerModel
 	void saveROI()
 		throws ParsingException
 	{
-		roiComponent.saveROI(IOUtil.writeFile(imageID+".xml"));
+		roiComponent.saveROI(IOUtil.writeFile(roiFileName));
 	}
 	
 }	

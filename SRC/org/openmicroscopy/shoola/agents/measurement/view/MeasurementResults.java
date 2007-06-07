@@ -116,14 +116,13 @@ class MeasurementResults
 	 * objects.
 	 */
 	private ListSelectionListener			listener;
-	
 
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		saveButton = new JButton(
 				controller.getAction(MeasurementViewerControl.SAVE_RESULTS));
-		
+		//TODO: Create action
 		resultsWizardButton = new JButton("Results Wizard..");
 		resultsWizardButton.addActionListener(new ActionListener()
 		{
@@ -234,6 +233,116 @@ class MeasurementResults
 	}
 	
 	/**
+	 * Writes the contain of the columns into the passed buffer.
+	 * 
+	 * @param out The buffer to write data into.
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	private void writeColumns(BufferedWriter out) 
+		throws IOException
+	{
+		int n = results.getColumnCount()-1;
+		for (int i = 0 ; i < n+1 ; i++) {
+			out.write(results.getColumnName(i));
+			if (i < n) out.write(",");
+		}
+		out.newLine();
+	}
+	
+	/**
+	 * Writes the data to the passed buffer.
+	 * 
+	 * @param out	The buffer to write data into.
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	private void writeData(BufferedWriter out) 
+		throws IOException
+	{
+		MeasurementTableModel tm = (MeasurementTableModel) results.getModel();
+		for (int i = 0 ; i < results.getRowCount() ; i++)
+			writeRow(out, tm.getRow(i));
+	}
+	
+	/**
+	 * Writes the contain for the passed row to the passed buffer.
+	 * 
+	 * @param out	The buffer to write data into.
+	 * @param row	The row to get data from.
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	private void writeRow(BufferedWriter out, MeasurementObject row) 
+		throws IOException
+	{
+		int height = 1;
+		int width = row.getSize();
+		Object element;
+		ArrayList list;
+		for (int i = 0 ; i < row.getSize(); i++)
+		{
+			element = row.getElement(i);
+			if (element instanceof ArrayList) {
+				list = (ArrayList) element;
+				if (list.size() > height) height = list.size();
+			}
+		}
+		for (int j = 0 ; j < height ; j++)
+		{
+			for (int i = 0 ; i < width ; i++)
+			{
+				out.write(writeElement(row.getElement(i), j));
+				if (i < width-1) out.write(",");
+			}
+			out.newLine();
+		}
+	}
+	
+	/**
+	 * Converts the passed element into a String depending on the specified
+	 * index.
+	 * 
+	 * @param element 	The element to convert.
+	 * @param j			The index.
+	 * @return See above.
+	 */
+	private String writeElement(Object element, int j)
+	{
+		if (element instanceof Double || element instanceof Integer ||
+				element instanceof Float || element instanceof String ||
+				element instanceof Boolean || element instanceof Long)
+			if (j == 0) return convertElement(element);
+			else return "";
+		else if (element instanceof ArrayList)
+		{
+			ArrayList list = (ArrayList)element;
+			if (j < list.size()) return convertElement(list.get(j));
+			else return "";
+		}
+		return "";
+	}
+	
+	/**
+	 * Stringifies the passed object.
+	 * 
+	 * @param element The object to stringify.
+	 * @return See above.
+	 */
+	private String convertElement(Object element)
+	{
+		if (element instanceof Double) 
+			return ((Double) element).doubleValue()+"";
+		if (element instanceof Boolean) return ((Boolean) element).toString();
+		if (element instanceof Long) 
+			return ((Long) element).longValue()+"";
+		if (element instanceof Integer)
+			return ((Integer) element).intValue()+"";
+		if (element instanceof Float)
+			return ((Float) element).floatValue()+"";
+		if (element instanceof String)
+			return (String) element;
+		return "";
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
@@ -309,130 +418,33 @@ class MeasurementResults
 		return icons.getIcon(IconManager.RESULTS);
 	}
 	
-	public void saveResults()
+	/** 
+	 * Save the results.
+	 * 
+	 * @throws IOException Thrown if the data cannot be written.
+	 */
+	void saveResults()
+		throws IOException
 	{
-		JFileChooser chooser;
-
-		chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser();
 		int results = chooser.showSaveDialog(this.getParent());
-		if(results!=JFileChooser.APPROVE_OPTION)
-			return;
+		if (results != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();
-
-		try
-		{
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			writeColumns(out);
-			writeData(out);
-			out.close();
-		}
-		catch(IOException e)
-		{
-
-		}
+		BufferedWriter out = new BufferedWriter(new FileWriter(file));
+		writeColumns(out);
+		writeData(out);
+		out.close();
 	}
 
-	private void writeColumns(BufferedWriter out) throws IOException
-	{
-		for(int i = 0 ; i < results.getColumnCount() ; i++)
-		{
-			out.write(results.getColumnName(i));
-			if(i<results.getColumnCount()-1)
-				out.write(",");
-		}
-		out.newLine();
-	}
-	
-	private void writeData(BufferedWriter out) throws IOException
-	{
-		MeasurementTableModel model = (MeasurementTableModel) results.getModel();
-		for(int i = 0 ; i < results.getRowCount() ; i++)
-		{
-			MeasurementObject row = model.getRow(i);
-			writeRow(out, row);
-		}
-	}
-	
-	private void writeRow(BufferedWriter out, MeasurementObject row) throws IOException
-	{
-		int height=1;
-		int width = row.getSize();
-		for(int i = 0 ; i < row.getSize(); i++)
-		{
-			Object element = row.getElement(i);
-			if(element instanceof ArrayList)
-			{
-				ArrayList list = (ArrayList)element;
-				if(list.size()>height)
-					height = list.size();
-			}
-		}
-		for(int j = 0 ; j < height ; j++)
-		{
-			for(int i = 0 ; i < width ; i++)
-			{
-				Object element = row.getElement(i);
-				out.write(writeElement(element, j));
-				if(i<width-1)
-					out.write(",");
-			}
-			out.newLine();
-		}
-	}
-	
-	private String writeElement(Object element, int j)
-	{
-		if(element instanceof Double || element instanceof Integer ||
-				element instanceof Float || element instanceof String ||
-				element instanceof Boolean || element instanceof Long)
-			if(j==0)
-			{
-				return convertElement(element);
-			}
-			else
-				return "";
-		else if(element instanceof ArrayList)
-		{
-			ArrayList list = (ArrayList)element;
-			if(j<list.size())
-				return convertElement(list.get(j));
-			else
-				return "";
-		}
-		return "";
-	}
-	
-	private String convertElement(Object element)
-	{
-		if(element instanceof Double)
-			return ((Double) element)+"";
-		if(element instanceof Boolean)
-			return ((Boolean) element).toString();
-		if(element instanceof Long)
-			return ((Long) element)+"";
-		if(element instanceof Integer)
-			return ((Integer) element)+"";
-		if(element instanceof Float)
-			return ((Float) element)+"";
-		if(element instanceof String)
-			return (String) element;
-		return "";
-	}
-	
-	public void refreshResults()
-	{
-		populate();
-	}
+	/** Refreshes the result table. */
+	void refreshResults() { populate(); }
 	
 	/** Basic inner class use to set the cell renderer. */
 	class ResultsTable
 		extends JTable
 	{
 		
-		/**
-		 * Creates a new instance.
-		 * 
-		 */
+		/** Creates a new instance. */
 		ResultsTable()
 		{
 			super();
@@ -446,13 +458,9 @@ class MeasurementResults
 		{
 	        return new ResultsCellRenderer();
 	    }
-
 	}
 	
-	
-	/** 
-	 * Inner class used to display the results of measurement.
-	 */
+	/** Inner class used to display the results of measurement. */
 	class MeasurementTableModel 
 		extends AbstractTableModel
 	{

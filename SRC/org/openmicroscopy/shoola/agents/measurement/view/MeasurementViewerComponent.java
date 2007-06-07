@@ -115,7 +115,7 @@ class MeasurementViewerComponent
 			ROIShape shape;
 			while (i.hasNext()) {
 				shape = (ROIShape) i.next();
-			if (shape != null) drawing.add(shape.getFigure());
+				if (shape != null) drawing.add(shape.getFigure());
 			}
 		}
 		
@@ -169,8 +169,7 @@ class MeasurementViewerComponent
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
             default:
-            	//Review that code
-            	postEvent(MeasurementToolLoaded.ADD);
+            	if (!view.isVisible()) postEvent(MeasurementToolLoaded.ADD);
                 view.deIconify();
                 view.setVisible(true);
         }
@@ -206,16 +205,6 @@ class MeasurementViewerComponent
      * @see MeasurementViewer#getState()
      */
 	public int getState() { return model.getState(); }
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#isRecycled()
-     */
-	public boolean isRecycled()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
@@ -383,7 +372,17 @@ class MeasurementViewerComponent
 	*/
 	public void saveResultsTable() 
 	{
-		view.saveResultsTable();
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		try {
+			view.saveResultsTable();
+		} catch (Exception e) {
+			reg.getLogger().error(this, 
+					"Cannot save the results "+e.getMessage());
+			un.notifyInfo("Save ROI results", "Cannot save the ROI results");
+		}
+		un.notifyInfo("Save ROI results", "The ROI results have been " +
+											"successfully saved.");
 	}
 	
 	/** 

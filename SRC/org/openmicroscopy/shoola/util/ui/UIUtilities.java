@@ -162,7 +162,7 @@ public class UIUtilities
     }
     
     /**
-     * Sets the lcoation of the specified child relative to the location
+     * Sets the location of the specified child relative to the location
      * of the specified parent and then makes it visible.
      * This method is mainly useful for windows, frames and dialogs. 
      * 
@@ -184,6 +184,28 @@ public class UIUtilities
         child.setVisible(true);
     }
     
+    /**
+     * Sets the location of the specified child relative to the passed 
+     * bounds.
+     * This method is mainly useful for windows, frames and dialogs. 
+     * 
+     * @param parentBounds  The bounds of the parent.
+     * @param child     	The child to display.
+     */
+    public static void setLocationRelativeTo(Rectangle parentBounds, 
+                                                Component child)
+    {
+        int x = parentBounds.x+parentBounds.width;
+        int y = parentBounds.y;
+        int childWidth = child.getWidth();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        if (x+childWidth > screenSize.getWidth()) {
+            if (childWidth < parentBounds.x) x = parentBounds.x-childWidth;
+            else x = (int) (screenSize.getWidth()-childWidth);
+        } 
+        child.setLocation(x, y);
+        child.setVisible(true);
+    }
     /**
      * Sets the location of the passed component relative to the specified 
      * bounds.

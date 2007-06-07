@@ -54,12 +54,7 @@ public class ROITableCellRenderer
 	extends JComponent
 	implements TableCellRenderer
 {
-	
-	final static Color BACKGROUND_COLOUR_EVEN = new Color(241, 245, 250);
-	final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
-	final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
-	final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
-	
+
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -97,21 +92,9 @@ public class ROITableCellRenderer
     		checkBox.setSelected((Boolean)value);
     		thisComponent = checkBox;
     	}
-		if(!(value instanceof Color))
-		{
-			if(table.getSelectedRow() == row)
-			{
-				thisComponent.setBackground(SELECTED_BACKGROUND_COLOUR);
-				thisComponent.setForeground(FOREGROUND_COLOUR);
-			}
-			else
-			{
-				if(row % 2 == 0)
-					thisComponent.setBackground(BACKGROUND_COLOUR_EVEN);
-				else
-					thisComponent.setBackground(BACKGROUND_COLOUR_ODD);
-				thisComponent.setForeground(FOREGROUND_COLOUR);
-			}
+		if (!(value instanceof Color)) {
+			RendererUtils.setRowColor(thisComponent, table.getSelectedRow(), 
+									row);
 		}
 		return thisComponent;
 	}

@@ -96,14 +96,6 @@ public interface MeasurementViewer
     public int getState();
 	
 	/**
-	 * Returns <code>true</code> if the viewer is recycled, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isRecycled();
-	
-	/**
      * Returns the {@link MeasurementViewerUI View}.
      * 
      * @return See above.

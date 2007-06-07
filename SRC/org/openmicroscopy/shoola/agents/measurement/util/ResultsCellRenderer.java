@@ -22,34 +22,29 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
+
+
+
+//Java imports
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.ScrollPane;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Basic cell renderer displaying analysis results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,10 +61,50 @@ public class ResultsCellRenderer
 	implements TableCellRenderer
 {
 	
-	final static Color BACKGROUND_COLOUR_EVEN = new Color(241, 245, 250);
-	final static Color BACKGROUND_COLOUR_ODD = new Color(255, 255, 255);
-	final static Color SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
-	final static Color FOREGROUND_COLOUR = new Color(0, 0, 0);
+	/**
+	 * Formats the passed object to two decimal places and returns as a string.
+	 * 
+	 * @param value The object to handle.
+	 * @return See above.
+	 */
+	private String twoDecimalPlaces(Float value)
+	{
+		return UIUtilities.twoDecimalPlaces(value.doubleValue());
+	}
+	
+	/**
+	 * Formats the passed object to two decimal places and returns as a string.
+	 * 
+	 * @param value The object to handle.
+	 * @return See above.
+	 */
+	private String twoDecimalPlaces(Double  value)
+	{
+		return UIUtilities.twoDecimalPlaces(value);
+	}
+	
+	/**
+	 * Creates and returns a {@link JList} from the passed object.
+	 * 
+	 * @param value The object to handle.
+	 * @return See above.
+	 */
+	private JList createList(Object value)
+	{
+		ArrayList elementList = (ArrayList)value;
+		JList list = new JList();
+		
+		DefaultListModel model = new DefaultListModel();
+		for (Object element : elementList)
+		{
+			if (element instanceof Double)
+				model.addElement(twoDecimalPlaces((Double) element));
+			else 
+				model.addElement(twoDecimalPlaces((Float) element));
+		}
+		list.setModel(model);
+		return list;
+	}
 	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
@@ -94,81 +129,31 @@ public class ResultsCellRenderer
 		{
 			JLabel label = new JLabel();
 			label.setOpaque(true);
-			if(value instanceof Double)
-			{
-				label.setText(twoDecimalPlaces((Double)value));
-			}
-			else if(value instanceof Float)
-			{
-				label.setText(twoDecimalPlaces((Float)value));
-			}
-			else
-				label.setText(value+"");
+			if (value instanceof Double)
+				label.setText(twoDecimalPlaces((Double) value));
+			else if (value instanceof Float)
+				label.setText(twoDecimalPlaces((Float) value));
+			else label.setText(value+"");
     		thisComponent = label;
-    	} 
-		else if (value instanceof Color) 
-    	{
+    	}  else if (value instanceof Color)  {
     		JLabel label = new JLabel();
     		label.setOpaque(true);
     		label.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
     		label.setBackground((Color) value);
     		thisComponent = label;
-    	}
-    	else if( value instanceof Boolean)
-    	{
+    	} else if( value instanceof Boolean) {
     		JCheckBox checkBox = new JCheckBox();
     		checkBox.setSelected((Boolean)value);
     		thisComponent = checkBox;
-    	}
-    	else if(value instanceof ArrayList)
-    	{
+    	} else if(value instanceof ArrayList) {
     		JList list = createList(value);
-    		//return new JScrollPane(list);
     		thisComponent = list;
     	}
-		if(table.getSelectedRow() == row)
-		{
-			thisComponent.setBackground(SELECTED_BACKGROUND_COLOUR);
-			thisComponent.setForeground(FOREGROUND_COLOUR);
-		}
-		else
-		{
-			if(row % 2 == 0)
-				thisComponent.setBackground(BACKGROUND_COLOUR_EVEN);
-			else
-				thisComponent.setBackground(BACKGROUND_COLOUR_ODD);
-			thisComponent.setForeground(FOREGROUND_COLOUR);
+		if (!(value instanceof Color)) {
+			RendererUtils.setRowColor(thisComponent, table.getSelectedRow(), 
+									row);
 		}
 		return thisComponent;
 	}
-
-	private String twoDecimalPlaces(Float value)
-	{
-		Double newValue = value.doubleValue();
-		return UIUtilities.twoDecimalPlaces(newValue);
-	}
 	
-	private String twoDecimalPlaces(Double  value)
-	{
-		return UIUtilities.twoDecimalPlaces(value);
-	}
-	
-	private JList createList(Object value)
-	{
-		ArrayList elementList = (ArrayList)value;
-		JList list = new JList();
-		
-		DefaultListModel model = new DefaultListModel();
-		for(Object element : elementList)
-		{
-			if(element instanceof Float)
-				model.addElement(twoDecimalPlaces((Float)element));
-			else if(element instanceof Double)
-				model.addElement(twoDecimalPlaces((Double)element));
-			else 
-				model.addElement(twoDecimalPlaces((Float)element));
-		}
-		list.setModel(model);
-		return list;
-	}
 }

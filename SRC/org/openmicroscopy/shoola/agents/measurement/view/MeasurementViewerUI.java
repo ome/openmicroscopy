@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -55,10 +56,6 @@ import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.EllipseAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.LineConnectionAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureEllipseFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureLineConnectionFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureRectangleFigure;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.figures.RectAnnotationFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -433,12 +430,6 @@ class MeasurementViewerUI
     	roiManager.update();
     }
     
-    /** Populates the results tree. */
-    void setROI()
-    {
-    	roiResults.populate();
-    }
-    
     /**
      * Returns the drawing.
      * 
@@ -453,50 +444,37 @@ class MeasurementViewerUI
      */
     DrawingView getDrawingView() { return model.getDrawingView(); }
     
+    /** Rebuilds the ROI table. */
+    void rebuildManagerTable() { roiManager.rebuildTable(); }
+    
+    /** Rebuilds the results table. */
+    void refreshResultsTable() { roiResults.refreshResults(); }
+    
+    /** 
+     * Saves the results table.
+     * 
+     * @throws IOException Thrown if the data cannot be written.
+     */
+    void saveResultsTable() 
+    	throws IOException
+    { 
+    	roiResults.saveResults(); 
+    }
+    
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
      */
     public void setOnScreen()
     {
-        if (model != null) 
-        {
+        if (model != null) { //Shouldn't happen
         	setSize(DEFAULT_SIZE);
-            UIUtilities.incrementRelativeToAndShow(model.getRequesterBounds(), 
-                    this);
-        } 
-        else 
-        {
+            UIUtilities.setLocationRelativeTo(model.getRequesterBounds(), this);
+        } else {
             pack();
             UIUtilities.incrementRelativeToAndShow(null, this);
         }
     }
     
-    /**
-     * Rebuild the ROI  table in the roi manager component.
-     *
-     */
-    void rebuildManagerTable()
-    {
-    	roiManager.rebuildTable();
-    }
-    
-    /**
-     * Rebuild the results table in the roi Results component.
-     *
-     */
-    void refreshResultsTable()
-    {
-    	roiResults.refreshResults();
-    }
-    
-    /**
-     * Save the results table in the roi Results component.
-     *
-     */
-    void saveResultsTable()
-    {
-    	roiResults.saveResults();
-    }
 
 }
