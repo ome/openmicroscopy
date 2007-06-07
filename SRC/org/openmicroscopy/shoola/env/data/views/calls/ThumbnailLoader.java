@@ -100,11 +100,11 @@ public class ThumbnailLoader
         if (pxd == null) {
         	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
+        	int sizeX = maxWidth, sizeY = maxHeight;
+            double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+            if (ratio < 1) sizeX *= ratio;
+            else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
              try {
-            	 int sizeX = maxWidth, sizeY = maxHeight;
-                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-                 if (ratio < 1) sizeX *= ratio;
-                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
                  thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY);
                  //thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
                 //		 										maxWidth);  
@@ -113,10 +113,6 @@ public class ThumbnailLoader
                          "Cannot retrieve thumbnail: "+e.getExtendedMessage());
              }
              if (thumbPix == null) {
-            	 int sizeX = maxWidth, sizeY = maxHeight;
-                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-                 if (ratio < 1) sizeX *= ratio;
-                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
                  thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
              }  
         }
