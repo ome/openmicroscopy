@@ -28,6 +28,10 @@ import javax.swing.filechooser.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.awt.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
@@ -103,6 +107,7 @@ import java.util.*;
 public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     
     // Implementation derived from MetalFileChooserUI
+    private static Log log = LogFactory.getLog(QuaquaPantherFileChooserUI.class);
     
     /* Models. */
     private DirectoryComboBoxModel directoryComboBoxModel;
@@ -212,6 +217,7 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
     private javax.swing.JPanel viewsPanel;
     private javax.swing.JList sidebarList;
     private javax.swing.JScrollPane sidebarScrollPane;
+    
     // End of variables declaration
     
     //
@@ -1594,7 +1600,9 @@ public class QuaquaPantherFileChooserUI extends BasicFileChooserUI {
              
             isAdjusting--;
             long end = System.currentTimeMillis();
-            System.out.println("QuaquaPanttherFileChooserUI.DirectoryCombo.add "+(end-start));
+            if (log.isDebugEnabled()) {
+                log.debug("QuaquaPanttherFileChooserUI.DirectoryCombo.add "+(end-start));
+            }
              */
         }
         
