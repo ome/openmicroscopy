@@ -137,6 +137,7 @@ class TreeViewerModel
     /** Flag indicating if the {@link TreeViewer} is recycled or not. */
     private boolean					recycled;
     
+    /** Flag indicating to retrieve the node data when rolling over. */
     private boolean					rollOver;
     
     /** Reference to the component that embeds this model. */
@@ -784,8 +785,20 @@ class TreeViewerModel
     	return experimenter;
     }
 
+    /**
+     * Returns <code>true</code> if the rollOver option is turned on,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
 	boolean isRollOver() { return rollOver; }
 	
+	/**
+	 * Sets the value of the rollOver flag.
+	 * 
+	 * @param rollOver 	Pass <code>true</code> to turn the flag on,
+	 * 					<code>false</code> to turn off.
+	 */
 	void setRollOver(boolean rollOver) { this.rollOver = rollOver; }
 
 }

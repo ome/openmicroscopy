@@ -102,8 +102,23 @@ public class RemoveAction
         if (selectedDisplay.getParentDisplay() == null) setEnabled(false);
         else {
             Set nodes = model.getBrowser().getSelectedDisplays();
-            if (nodes.size() > 1) setEnabled(false);
-            else {
+            if (nodes.size() > 1) {
+            	Object ho = selectedDisplay.getHierarchyObject();
+                ImageDisplay parent = selectedDisplay.getParentDisplay();
+                Object po = parent.getHierarchyObject();
+            	if (ho instanceof ImageData) {
+            		if (po instanceof DatasetData) {
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    	putValue(Action.NAME, NAME_DATASET);
+                    } else if (po instanceof CategoryData) {
+                    	setEnabled(model.isObjectWritable((DataObject) ho));
+                    	putValue(Action.NAME, NAME_CATEGORY);
+                    } else {
+                    	setEnabled(false);
+                    	putValue(Action.NAME, NAME);
+                    }
+            	} else setEnabled(false);
+            } else {
                 Object ho = selectedDisplay.getHierarchyObject();
                 ImageDisplay parent = selectedDisplay.getParentDisplay();
                 Object po = parent.getHierarchyObject();

@@ -100,25 +100,21 @@ public class ThumbnailLoader
         if (pxd == null) {
         	thumbPix = Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
-             try {
-            	 int sizeX = maxWidth, sizeY = maxHeight;
-                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-                 if (ratio < 1) sizeX *= ratio;
-                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-                 thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY);
-                 //thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
-                //		 										maxWidth);  
-             } catch (RenderingServiceException e) {
-                 context.getLogger().error(this, 
-                         "Cannot retrieve thumbnail: "+e.getExtendedMessage());
-             }
-             if (thumbPix == null) {
-            	 int sizeX = maxWidth, sizeY = maxHeight;
-                 double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-                 if (ratio < 1) sizeX *= ratio;
-                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-                 thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
-             }  
+        	int sizeX = maxWidth, sizeY = maxHeight;
+            double ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+            if (ratio < 1) sizeX *= ratio;
+            else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+            try {
+            	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY);
+            	//thumbPix = service.getThumbnailByLongestSide(pxd.getId(), 
+            	//		 										maxWidth);  
+            } catch (RenderingServiceException e) {
+            	context.getLogger().error(this, 
+            			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
+            }
+            if (thumbPix == null) {
+            	thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
+            }  
         }
         currentThumbnail = new ThumbnailData(images[index].getId(), thumbPix);
     }

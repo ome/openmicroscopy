@@ -31,11 +31,11 @@ import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;

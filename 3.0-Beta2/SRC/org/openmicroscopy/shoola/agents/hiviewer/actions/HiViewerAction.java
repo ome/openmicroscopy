@@ -113,9 +113,13 @@ public abstract class HiViewerAction
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        Browser browser = model.getBrowser();
-        if (browser != null) onDisplayChange(browser.getLastSelectedDisplay());
-        else onDisplayChange(null);
+    	String name = evt.getPropertyName();
+    	if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
+    		Browser browser = model.getBrowser();
+            if (browser != null) 
+            	onDisplayChange(browser.getLastSelectedDisplay());
+            else onDisplayChange(null);
+    	}
     }
 
     /** 
