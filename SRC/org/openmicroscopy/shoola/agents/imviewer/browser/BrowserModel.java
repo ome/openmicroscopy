@@ -166,6 +166,9 @@ class BrowserModel
     /** The magnification factor used to render the annotate image. */
     private double 				ratio;
     
+    /** Flag indicating to initialize {@link #ratio} and {@link #unitBar}. */
+    private boolean				init;
+    
     /**
      * Creates a buffered image.
      * 
@@ -212,10 +215,12 @@ class BrowserModel
         this.parent = parent;
         unitBar = true;
         ratio = RATIO;
+        init = true;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
         gridImages = new ArrayList<BufferedImage>();
+        
     }
     
     /**
@@ -236,7 +241,13 @@ class BrowserModel
         renderedImage = image;
         //Create the annotate image.
         if (renderedImage != null) {
-        	if (image.getWidth() < MINIMUM_SIZE) ratio = 1;
+        	if (init) {
+        		if (image.getWidth() < MINIMUM_SIZE) {
+        			ratio = 1;
+        			unitBar = false;
+        		}
+        		init = false;
+        	}
         	annotateImage = Factory.magnifyImage(ratio, renderedImage);
         } else annotateImage = null;
         displayedImage = null;
