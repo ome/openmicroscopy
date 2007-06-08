@@ -865,7 +865,9 @@ public class PojosServiceTest extends TestCase {
         assertTrue(((Long) original.getDetails().getCounts().get(
                 Dataset.ANNOTATIONS)).intValue() > 0);
 
-        System.out.println(original.getDetails().getCounts());
+        if (log.isDebugEnabled()) {
+            log.debug(original.getDetails().getCounts());
+        }
 
     }
 
@@ -976,8 +978,10 @@ public class PojosServiceTest extends TestCase {
 
         Set updt_ids = new HashSet(updated.collectProjectLinks(new IdBlock()));
 
-        System.out.println(orig_ids);
-        System.out.println(updt_ids);
+        if (log.isDebugEnabled()) {
+            log.debug(orig_ids);
+            log.debug(updt_ids);
+        }
 
         assertTrue(updt_ids.containsAll(orig_ids));
         assertTrue(orig_ids.containsAll(updt_ids));

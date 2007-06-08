@@ -6,6 +6,8 @@
  */
 package ome.adapters.pojos.utests;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.*;
 
 import java.util.HashMap;
@@ -41,6 +43,9 @@ import pojos.PermissionData;
 import pojos.ProjectData;
 
 public class PojosTest extends TestCase {
+
+    private static Log log = LogFactory.getLog(PojosTest.class);
+
     IObject[] all;
 
     Project p;
@@ -113,7 +118,9 @@ public class PojosTest extends TestCase {
         assertNotNull(pd.getDatasets());
         assertFalse(pd.getDatasets().size() == 0);
         assertFalse(pd.getDatasets().iterator().next().getClass() == Dataset.class);
-        System.out.println(pd);
+        if (log.isDebugEnabled()) {
+            log.debug(pd);
+        }
     }
 
     @Test
@@ -161,8 +168,10 @@ public class PojosTest extends TestCase {
         Set p_links = new HashSet(p_2.collectDatasetLinks(null));
         Set d_links = new HashSet(test.collectProjectLinks(null));
 
-        System.out.println(p_links);
-        System.out.println(d_links);
+        if (log.isDebugEnabled()) {
+            log.debug(p_links);
+            log.debug(d_links);
+        }
 
         assertTrue(p_links.containsAll(d_links));
 
@@ -173,8 +182,10 @@ public class PojosTest extends TestCase {
         Set d2_links = new HashSet(d_2.collectImageLinks(null));
         Set i2_links = new HashSet(test2.collectDatasetLinks(null));
 
-        System.out.println(d2_links);
-        System.out.println(i2_links);
+        if (log.isDebugEnabled()) {
+            log.debug(d2_links);
+            log.debug(i2_links);
+        }
 
         assertTrue(d2_links.containsAll(i2_links));
     }
