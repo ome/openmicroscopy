@@ -59,12 +59,6 @@ public interface Browser
     extends ObservableComponent
 {
     
-	/** 
-	 * Factor use to determine the size of the annotate image
-	 * w.r.t the rendered image.
-	 */
-	public static final double 		RATIO = 0.50;
-	
     /**
      * Returns the widget that displays the image.
      *  
@@ -321,5 +315,12 @@ public interface Browser
 	 * @return See above.
 	 */
 	public Point isOnImageInGrid(Rectangle rect);
+	
+	/**
+	 * Returns the magnification factor used to render the annotate image.
+	 * 
+	 * @return See above.
+	 */
+	public double getRatio();
 	
 }

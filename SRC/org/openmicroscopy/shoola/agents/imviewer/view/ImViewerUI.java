@@ -869,7 +869,7 @@ class ImViewerUI
 	    		break;
 	    	case ImViewer.ANNOTATOR_INDEX:
 	    		img = model.getOriginalImage();
-	    		f = (float) Browser.RATIO;
+	    		f = (float) model.getBrowser().getRatio();
 	    		break;
     	}
     	
@@ -921,16 +921,18 @@ class ImViewerUI
 				            if (lensX+width > maxX) lensX = diffX;
 				            if (lensY+height > maxY) lensY = diffY;
 						} else {
-							lensX = (int) (point.x/Browser.RATIO);
-							lensY = (int) (point.y/Browser.RATIO);
+							double r = model.getBrowser().getRatio();
+							lensX = (int) (point.x/r);
+							lensY = (int) (point.y/r);
 						}
 					}
 					break;
 				case ImViewer.VIEW_INDEX:
 				case ImViewer.ANNOTATOR_INDEX:
 					if (index == ImViewer.GRID_INDEX) {
-						lensX = (int) (lensX*Browser.RATIO);
-						lensY = (int) (lensY*Browser.RATIO);
+						double r = model.getBrowser().getRatio();
+						lensX = (int) (lensX*r);
+						lensY = (int) (lensY*r);
 					}
 					break;
 			}
