@@ -461,4 +461,10 @@ class BrowserComponent
 		return gridView.isOnImageInGrid(rect);
 	}
 
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getRatio()
+     */
+	public double getRatio() { return model.getRatio(); }
+	
 }

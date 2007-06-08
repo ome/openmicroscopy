@@ -121,23 +121,29 @@ public class ThumbnailProvider
     //laid out.  Sort this out.
     private void computeDims()
     {
-        PixelsData pxd = imgInfo.getDefaultPixels();
-        int sizeX = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
-        int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
-        originalWidth = THUMB_MAX_WIDTH;
-        originalHeight = THUMB_MAX_HEIGHT;
-        double ratio = 1;
-        if (pxd != null) 
-            ratio = (double) pxd.getSizeX()/pxd.getSizeY();
-        if (ratio < 1) {
-            sizeX *= ratio;
-            originalWidth *= ratio;
-        } else if (ratio > 1 && ratio != 0) {
-            sizeY *= 1/ratio;
-            originalHeight *= 1/ratio;
-        }
-        width = sizeX;
-        height = sizeY;
+    	 PixelsData pxd = imgInfo.getDefaultPixels();
+         int w = THUMB_MAX_WIDTH;
+         int h = THUMB_MAX_HEIGHT;
+         double pixSizeX = pxd.getSizeX();
+         double pixSizeY = pxd.getSizeY();
+         if (pixSizeX < THUMB_MAX_WIDTH) w = (int) pixSizeX;
+         if (pixSizeY < THUMB_MAX_HEIGHT) h = (int) pixSizeY;
+         int sizeX = (int) (w*SCALING_FACTOR);
+         int sizeY = (int) (h*SCALING_FACTOR);
+         originalWidth = w;
+         originalHeight = h;
+         double ratio = 1;
+         if (pxd != null) 
+             ratio = (double) pxd.getSizeX()/pxd.getSizeY();
+         if (ratio < 1) {
+             sizeX *= ratio;
+             originalWidth *= ratio;
+         } else if (ratio > 1 && ratio != 0) {
+             sizeY *= 1/ratio;
+             originalHeight *= 1/ratio;
+         }
+         width = sizeX;
+         height = sizeY;
     }
 
     /** 

@@ -109,6 +109,15 @@ class BrowserModel
 	/** The title of the grid view. */
 	private static final String TITLE_GRIDVIEW = "Split";
 	
+	/** The minimum size of an original image. */
+	private static final int	MINIMUM_SIZE = 96;
+	
+	/** 
+	 * Factor use to determine the size of the annotate image
+	 * w.r.t the rendered image.
+	 */
+	private static final double	RATIO = 0.50;
+	
     /** Reference to the component that embeds this model. */ 
     private Browser         	component;
     
@@ -153,6 +162,9 @@ class BrowserModel
 
     /** Collection of images composing the grid. */
     private List<SplitImage>	splitImages;
+    
+    /** The magnification factor used to render the annotate image. */
+    private double 				ratio;
     
     /**
      * Creates a buffered image.
@@ -199,6 +211,7 @@ class BrowserModel
         data.setId(imageID);
         this.parent = parent;
         unitBar = true;
+        ratio = RATIO;
         unitInMicrons = UnitBarSizeAction.getDefaultValue(); // size microns.
         unitBarColor = ImagePaintingFactory.UNIT_BAR_COLOR;
         backgroundColor = ImagePaintingFactory.DEFAULT_BACKGROUND;
@@ -223,7 +236,8 @@ class BrowserModel
         renderedImage = image;
         //Create the annotate image.
         if (renderedImage != null) {
-        	annotateImage = Factory.magnifyImage(Browser.RATIO, renderedImage);
+        	if (image.getWidth() < MINIMUM_SIZE) ratio = 1;
+        	annotateImage = Factory.magnifyImage(ratio, renderedImage);
         } else annotateImage = null;
         displayedImage = null;
         gridImages.clear();
@@ -239,7 +253,7 @@ class BrowserModel
     	if (images != null) {
     		Iterator i = images.iterator();
         	while (i.hasNext()) {
-        		gridImages.add(Factory.magnifyImage(Browser.RATIO, 
+        		gridImages.add(Factory.magnifyImage(ratio, 
         						(BufferedImage) i.next()));
     		}
     	}
@@ -519,8 +533,8 @@ class BrowserModel
      */
     Dimension getGridSize()
     {
-    	int w = (int) (getMaxX()*Browser.RATIO);
-    	int h = (int) (getMaxY()*Browser.RATIO);
+    	int w = (int) (getMaxX()*ratio);
+    	int h = (int) (getMaxY()*ratio);
     	int n = parent.getMaxC()+1; //add one for combined image.
     	if (getRGBSplit()) n = 4;
     	if (n <=3) n = 4;
@@ -613,5 +627,12 @@ class BrowserModel
 	 * @return See above.
 	 */
 	boolean isTextVisible() { return parent.isTextVisible(); }
-
+	
+	/**
+	 * Returns the magnification factor used to render the annotate image.
+	 * 
+	 * @return See above.
+	 */
+	double getRatio() { return ratio; }
+	
 }
