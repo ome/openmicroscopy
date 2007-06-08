@@ -1,5 +1,8 @@
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
@@ -11,6 +14,8 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 
 public class TestDelete {
+
+    private static Log log = LogFactory.getLog(TestDelete.class);
 
     public static void main(String args[]) {
         
@@ -30,7 +35,9 @@ public class TestDelete {
         ExperimenterGroup [] exg = as.containedGroups(exp.getId());
         
         for (int i=0; i<exg.length; i++) {
-        	System.out.println(exg[i].getName());
+        	if (log.isDebugEnabled()) {
+        	    log.debug(exg[i].getName());
+            }
         }
         
         as.deleteExperimenter(exp);

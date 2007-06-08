@@ -1,3 +1,6 @@
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
@@ -10,6 +13,8 @@ import ome.system.ServiceFactory;
 
 public class TestGroups {
 
+    private static Log log = LogFactory.getLog(TestGroups.class);
+    
     public static void main(String args[]) {
         
        
@@ -31,14 +36,18 @@ public class TestGroups {
         exp_t.setInstitution("some");
         
         ExperimenterGroup df = as.getGroup(2L);
-        System.out.println("df id 2:"+df.getName());
+        if (log.isDebugEnabled()) {
+            log.debug("df id 2:"+df.getName());
+        }
         
         ExperimenterGroup [] exg_t = new ExperimenterGroup[2];
         exg_t[0] = as.getGroup(4L);
         exg_t[1] = as.getGroup(5L);
         
         Long id = as.createExperimenter(exp_t, df, exg_t);
-        System.out.println("id "+id);
+        if (log.isDebugEnabled()) {
+            log.debug("id "+id);
+        }
         
         Experimenter exp = as.getExperimenter(id);
         
@@ -46,7 +55,9 @@ public class TestGroups {
         ExperimenterGroup [] exg = as.containedGroups(exp.getId());
         
         for (int i=0; i<exg.length; i++) {
-        	System.out.println(exg[i].getName());
+            if (log.isDebugEnabled()) {
+                log.debug(exg[i].getName());
+            }
         }
         
         //as.deleteExperimenter(exp);

@@ -7,6 +7,9 @@
 package ome.server.itests;
 
 import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 import ome.model.containers.Project;
@@ -14,6 +17,8 @@ import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 
 public class EventStateChangeTest extends AbstractManagedContextTest {
+
+    private static Log log = LogFactory.getLog(EventStateChangeTest.class);
 
     Long id;
 
@@ -32,9 +37,9 @@ public class EventStateChangeTest extends AbstractManagedContextTest {
 
         Experimenter e = getExperimenter("root");
         iUpdate.saveObject(e);
-        System.out
-                .println("XXXXXXXXXXXXXXXEventStateChangeTest.test_just_experimenter()");
-
+        if (log.isDebugEnabled()) {
+            log.debug("XXXXXXXXXXXXXXXEventStateChangeTest.test_just_experimenter()");
+        }
     }
 
     @Test(groups = { "broken", "versions", "ticket:118" })

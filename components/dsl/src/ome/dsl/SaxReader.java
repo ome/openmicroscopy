@@ -252,15 +252,19 @@ class DSLHandler extends DefaultHandler {
 
     /** simple outputting routine with indention */
     private void outputStart(String element, Attributes attrs) {
-        System.out.print(depth + element);
-        System.out.print("(");
+        if (log.isDebugEnabled()) {
+            log.debug(depth + element + "(");
+        }
         for (int i = 0; i < attrs.getLength(); i++) {
             String attr = attrs.getQName(i);
             String value = attrs.getValue(i);
-            System.out.print(" " + attr + "=\"" + value + "\" ");
+            if (log.isDebugEnabled()) {
+                log.debug(" " + attr + "=\"" + value + "\" ");
+            }
         }
-        System.out.print("):");
-        System.out.println("");
+        if (log.isDebugEnabled()) {
+            log.debug("): ");
+        }
         depth += "  ";
     }
 

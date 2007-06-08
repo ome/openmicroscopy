@@ -8,6 +8,8 @@ package ome.resurrect;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.*;
 import ome.model.meta.Event;
@@ -19,6 +21,8 @@ import ome.resurrect.transform.ExperimenterTrans;
  * 
  */
 public class Resurrect {
+    private static Log log = LogFactory.getLog(Resurrect.class);
+
     /** Connector to the OME 2.5 (OMERO2) database * */
     Omero2Connector c2;
 
@@ -69,7 +73,9 @@ public class Resurrect {
                 new org.eclipse.swt.widgets.Listener() {
                     public void handleEvent(org.eclipse.swt.widgets.Event ev) {
                         if (ev.detail == SWT.CHECK) {
-                            System.out.println(ev.item + " checked");
+                            if (log.isDebugEnabled()) {
+                                log.debug(ev.item + " checked");
+                            }
                         }
                     }
                 });

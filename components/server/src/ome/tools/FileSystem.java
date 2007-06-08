@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.io.FileSystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Extends Sun Microsystems java.io.File for J2SE 5 only. This class provides
@@ -26,6 +28,8 @@ import org.apache.commons.io.FileSystemUtils;
  */
 public class FileSystem extends File {
 
+    private static Log log = LogFactory.getLog(FileSystem.class);
+    
 	/**
 	 * unique serial identifier
 	 */
@@ -173,20 +177,15 @@ public class FileSystem extends File {
 	public static void main(String[] args) {
 		FileSystem file = new FileSystem("/usr/local");
 		long free = file.free("/");
-		System.out.println("Free kilobytes: " + free);
+		if (log.isDebugEnabled()) {
+		    log.debug("Free kilobytes: " + free);
+            log.debug("Time prior to check: " + System.currentTimeMillis());
+        }
 		
-		//ServiceFactory sf = new ServiceFactory("ome.client.test");
-		//RawFileStore rfs = sf.createRawFileStore();
-		//byte[] bytes = null;
-		
-		//System.out.println("Time prior to write only: " + System.currentTimeMillis());
-		//rfs.write(bytes, 0L, 0);
-		//System.out.println("Time after to write only: " + System.currentTimeMillis());
-
-		System.out.println("Time prior to check: " + System.currentTimeMillis());
 		long kb = file.free("/");
-		//rfs.write(bytes, 0L, 0);
-		System.out.println("Time after check: " + System.currentTimeMillis());
-		System.out.println("kb free was " + kb);
+        if (log.isDebugEnabled()) {
+            log.debug("Time after check: " + System.currentTimeMillis());
+            log.debug("kb free was " + kb);
+        }
 	}
 }

@@ -2,6 +2,9 @@
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
@@ -14,13 +17,14 @@ import ome.system.ServiceFactory;
 
 
 public class TestArray2List {
+    
+    private static Log log = LogFactory.getLog(TestArray2List.class);
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-	      
+        
         Login l = new Login("root", "ome", "system", "User");
 		Server s = new Server("warlock.openmicroscopy.org.uk", 1099);
 		ServiceFactory sf = new ServiceFactory(s, l);
@@ -31,15 +35,20 @@ public class TestArray2List {
         
         ExperimenterGroup group = as.getGroup(4L);
         Experimenter [] exps = as.containedExperimenters(group.getId());
-       
-        System.out.println("group "+group.getName());
+        
+        if (log.isDebugEnabled()) {
+            log.debug("group "+group.getName());
+        }
         for (int i=0; i<exps.length; i++) {
         	Experimenter tExp = exps[i];
-        	System.out.println("ex "+tExp.getOmeName()+" id: "+tExp.getId());
+            if (log.isDebugEnabled()) {
+                log.debug("ex "+tExp.getOmeName()+" id: "+tExp.getId());
+            }
         }
         
         List<Experimenter> newExp = Arrays.asList(exps);
-
-        System.out.println(newExp);
+        if (log.isDebugEnabled()) {
+            log.debug(newExp);
+        }
 	}
 }

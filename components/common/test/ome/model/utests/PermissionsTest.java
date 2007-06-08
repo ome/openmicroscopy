@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.*;
 
 import ome.model.internal.Permissions;
@@ -25,6 +27,8 @@ import static ome.model.internal.Permissions.Right.WRITE; // not USE
 import static ome.model.internal.Permissions.Flag.*;
 
 public class PermissionsTest extends TestCase {
+
+    private static Log log = LogFactory.getLog(PermissionsTest.class);
 
     Permissions p;
 
@@ -400,9 +404,13 @@ public class PermissionsTest extends TestCase {
     private void bitCompare(Role role, Right right) {
         Perms pp = new Perms().revoke(role, right);
         long l = pp.toLong();
-        System.out.println(l + ":" + Long.toBinaryString(l));
+        if (log.isDebugEnabled()) {
+            log.debug(l + ":" + Long.toBinaryString(l));
+        }
         long bit = Perms.bit(role, right);
-        System.out.println(bit + ":" + Long.toBinaryString(bit));
+        if (log.isDebugEnabled()) {
+            log.debug(bit + ":" + Long.toBinaryString(bit));
+        }
         assertTrue((l ^ bit) == -1L);
 
     }

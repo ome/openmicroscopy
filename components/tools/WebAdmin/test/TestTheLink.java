@@ -2,6 +2,9 @@
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ome.api.IAdmin;
 import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
@@ -14,6 +17,8 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 
 public class TestTheLink {
+
+    private static Log log = LogFactory.getLog(TestTheLink.class);
 
     public static void main(String args[]) {
         
@@ -34,7 +39,9 @@ public class TestTheLink {
             "where map.child.id = :id", new Parameters().addId(exp.getId()));
         
         for(GroupExperimenterMap map : maps) {
-        	System.out.println("m "+map.getParent().getId());
+        	if (log.isDebugEnabled()) {
+        	    log.debug("m "+map.getParent().getId());
+            }
         	//us.deleteObject(map);
         }
     }
