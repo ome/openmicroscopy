@@ -176,10 +176,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
 		}
 		catch (IOException e)
 		{
-		    final Writer result = new StringWriter();
-		    final PrintWriter printWriter = new PrintWriter(result);
-		    e.printStackTrace(printWriter);
-			log.error(result.toString());
+            log.error("IOException logged.", e.getCause());
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
 		}
@@ -466,7 +463,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     }
 
     private void handleException(Exception e) {
-        e.printStackTrace();
+        log.error("Exception logged.", e.getCause());
 
         if (e instanceof IOException) {
             throw new ResourceError(e.getMessage());

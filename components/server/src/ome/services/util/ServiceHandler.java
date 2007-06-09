@@ -237,29 +237,6 @@ public class ServiceHandler implements MethodInterceptor {
     }
 
     private void printException(String msg, Throwable ex) {
-        if (log.isWarnEnabled()) {
-            StringWriter sw = null;
-            PrintWriter pw = null;
-
-            try {
-                sw = new StringWriter();
-                pw = new PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                sw.flush();
-                log.warn(msg + "\n" + sw.toString());
-            } finally {
-                if (pw != null) {
-                    pw.close();
-                }
-                if (sw != null) {
-                    try {
-                        sw.close();
-                    } catch (IOException ioe) {
-                        // ignore.
-                    }
-                }
-            }
-        }
+        log.error("Exception logged.", ex);
     }
 }

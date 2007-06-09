@@ -6,6 +6,8 @@
  */
 package ome.client.itests;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.*;
 
 import junit.framework.TestCase;
@@ -19,6 +21,8 @@ import ome.testing.ObjectFactory;
 
 @Test(groups = { "client", "integration", "binary" })
 public class RawPixelStoreTest extends TestCase {
+
+    private static Log log = LogFactory.getLog(RawPixelStoreTest.class);
 
     ServiceFactory sf;
     RawPixelsStore raw;
@@ -36,7 +40,7 @@ public class RawPixelStoreTest extends TestCase {
         try {
             sf.getQueryService().get(Experimenter.class, 0L);
         } catch (Exception e) {
-            // e.printStackTrace();
+            log.error("Exception logged.", e.getCause());
             // ok. http://bugs.openmicroscopy.org.uk/show_bug.cgi?id=649
         }
 

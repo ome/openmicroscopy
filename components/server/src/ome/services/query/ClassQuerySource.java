@@ -66,9 +66,7 @@ public class ClassQuerySource extends QuerySource {
                 Constructor c = klass.getConstructor(Parameters.class);
                 q = (Query) c.newInstance(parameters);
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    e.printStackTrace();
-                }
+                log.error("Exception logged.", e.getCause());
                 throw new RuntimeException("Error while trying to instantiate:"
                         + queryID, e);
             }

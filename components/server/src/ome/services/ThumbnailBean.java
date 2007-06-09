@@ -523,7 +523,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         try {
             compressThumbnailToDisk(metadata, image);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException logged.", e.getCause());
             throw new ResourceError(e.getMessage());
         }
     }
@@ -577,7 +577,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             }
             return ioService.getThumbnail(metadata);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException logged.", e.getCause());
             throw new ResourceError(e.getMessage());
         }
     }
@@ -635,13 +635,13 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             byte[] thumbnail = byteStream.toByteArray();
             return thumbnail;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException logged.", e.getCause());
             throw new ResourceError(e.getMessage());
         } finally {
         	try {
         		byteStream.close();
         	} catch (IOException e) {
-        		e.printStackTrace();
+                log.error("IOException logged.", e.getCause());
         		throw new ResourceError(e.getMessage());
         	}
         }

@@ -13,6 +13,9 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DefaultLogger;
@@ -38,6 +41,8 @@ import org.apache.tools.ant.launch.Launcher;
  */
 public @BuildTime
 class BuildRunner {
+
+    private static Log log = LogFactory.getLog(BuildRunner.class);
 
     public static void main(String[] args) {
         BuildRunner.run("generation.xml");
@@ -144,23 +149,23 @@ class BuildRunner {
             run.invoke(null, new Object[] { url.getFile() });
         } catch (SecurityException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("SecurityException logged.", e.getCause());
             throw new RuntimeException("Unimplemented exception.", e);
         } catch (NoSuchMethodException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("NoSuchMethodException logged.", e.getCause());
             throw new RuntimeException("Unimplemented exception.", e);
         } catch (IllegalArgumentException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("IllegalArgumentException logged.", e.getCause());
             throw new RuntimeException("Unimplemented exception.", e);
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("IllegalAccessException logged.", e.getCause());
             throw new RuntimeException("Unimplemented exception.", e);
         } catch (InvocationTargetException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.error("InvocationTargetException logged.", e.getCause());
             throw new RuntimeException("Unimplemented exception.", e);
         }
 

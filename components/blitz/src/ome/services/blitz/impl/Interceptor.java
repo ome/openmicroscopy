@@ -14,6 +14,8 @@ import omero.util.IceMapper;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -21,6 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public class Interceptor implements MethodInterceptor {
 
+    private static Log log = LogFactory.getLog(Interceptor.class);
+    
     Class iface;
 
     String key;
@@ -52,7 +56,7 @@ public class Interceptor implements MethodInterceptor {
             ServiceInterface service = servantHelper.getService(key,__current);
             retVal = invoker.invoke(service, __current, mapper, strippedArgs);
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.error("Throwable logged.", t);
             throw t;
         }
         servantHelper.throwIfNecessary(retVal);

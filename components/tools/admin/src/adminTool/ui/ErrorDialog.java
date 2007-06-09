@@ -29,6 +29,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import src.adminTool.model.AdminToolException;
 
 // Third-party libraries
@@ -47,6 +50,9 @@ import src.adminTool.model.AdminToolException;
  * @since OME3.0
  */
 public class ErrorDialog extends JDialog implements ActionListener {
+
+    private static Log log = LogFactory.getLog(ErrorDialog.class);
+
     /**
      * 
      */
@@ -99,11 +105,9 @@ public class ErrorDialog extends JDialog implements ActionListener {
     }
 
     void getExceptionText() {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
         Exception e = ((AdminToolException) exception).getException();
-        e.printStackTrace(pw);
-        debugText = sw.toString();
+        log.error("Exception logged.", e.getCause());
+        debugText = e.getMessage();
     }
 
     void createUIElements() {

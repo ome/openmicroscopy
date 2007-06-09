@@ -440,10 +440,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         }
         catch (IOException e)
         {
-		    final Writer result = new StringWriter();
-		    final PrintWriter printWriter = new PrintWriter(result);
-		    e.printStackTrace(printWriter);
-			log.error(result.toString());
+            log.error("IOException logged.", e.getCause());
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
         }

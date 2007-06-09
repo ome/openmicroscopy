@@ -31,6 +31,9 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import layout.TableLayout;
 
 /**
@@ -40,6 +43,8 @@ import layout.TableLayout;
  * 
  */
 public class GuiCommonElements {
+
+    private static Log log = LogFactory.getLog(GuiCommonElements.class);
 
     public JPanel addMainPanel(Container container, double tableSize[][],
             int margin_top, int margin_left, int margin_bottom,
@@ -264,7 +269,7 @@ public class GuiCommonElements {
         try {
             doc.insertString(doc.getLength(), text, style);
         } catch (BadLocationException e) {
-            e.printStackTrace();
+            log.error("BadLocationException logged.", e.getCause());
         }
     }
 

@@ -78,11 +78,7 @@ public class LoginHandler implements ActionListener {
                 return;
             }
         } catch (Exception e) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            log.info(sw);
-
+            log.error("Exception logged", e.getCause());
             view.statusBar.setStatusIcon(ImageFactory.get().image(
                     ImageFactory.SERVER_CONNECT_FAILED),
                     "Server connection failure. Please try to login again.");

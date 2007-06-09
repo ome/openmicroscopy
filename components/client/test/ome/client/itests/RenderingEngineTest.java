@@ -6,6 +6,8 @@
  */
 package ome.client.itests;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.*;
 
 import java.util.List;
@@ -30,6 +32,8 @@ import omeis.providers.re.RenderingEngine;
 )
 public class RenderingEngineTest extends TestCase {
 
+    private static Log log = LogFactory.getLog(RenderingEngineTest.class);
+    
     /*
      * Pixels p = new Pixels(); AcquisitionContext ac = new
      * AcquisitionContext(); PhotometricInterpretation pi = new
@@ -55,7 +59,7 @@ public class RenderingEngineTest extends TestCase {
         try {
             sf.getQueryService().get(Experimenter.class, 0L);
         } catch (Exception e) {
-            // e.printStackTrace();
+            log.error("Exception logged.", e.getCause());
             // ok. http://bugs.openmicroscopy.org.uk/show_bug.cgi?id=649
         }
 

@@ -37,6 +37,8 @@ import javax.swing.text.StyledDocument;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import layout.TableLayout;
 
@@ -45,6 +47,9 @@ import layout.TableLayout;
  * 
  */
 public class DebugMessenger extends JDialog implements ActionListener {
+
+    private static Log log = LogFactory.getLog(DebugMessenger.class);
+
     private static final long serialVersionUID = -1026712513033611084L;
 
     boolean debug = false;
@@ -92,11 +97,8 @@ public class DebugMessenger extends JDialog implements ActionListener {
         setLocationRelativeTo(owner);
 
         // Get the full debug text
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-
-        String debugText = sw.toString();
+        log.error("Exception logged.", e.getCause());
+        String debugText = e.getMessage();
 
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] = { { TableLayout.FILL, 100, 5, 100, 10 }, // columns
@@ -244,13 +246,8 @@ public class DebugMessenger extends JDialog implements ActionListener {
             this.dispose();
         } catch (Exception e) {
             // Get the full debug text
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-
-            String debugText = sw.toString();
-
-            e.printStackTrace();
+            log.error("Exception logged.", e.getCause());
+            String debugText = e.getMessage();
             gui.appendTextToDocument(debugDocument, debugStyle, "----\n"
                     + debugText);
             JOptionPane
