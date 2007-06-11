@@ -440,7 +440,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         }
         catch (IOException e)
         {
-            log.error("IOException logged.", e.getCause());
+            log.error("An I/O error occurred.", e.getCause());
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
         }
