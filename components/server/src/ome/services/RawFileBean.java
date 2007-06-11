@@ -174,7 +174,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 		}
 		catch (IOException e)
 		{
-            log.error("IOException logged.", e.getCause());
+            log.error("Buffer could not be closed successfully", e.getCause());
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
 		}
@@ -242,7 +242,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         try {
             buffer.read(buf, position);
         } catch (IOException e) {
-            log.error("IOException logged.", e.getCause());
+            log.error("Buffer could not be read.", e.getCause());
             throw new ResourceError(e.getMessage());
         }
         return rawBuf;
@@ -261,7 +261,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         try {
             buffer.write(nioBuffer, position);
         } catch (IOException e) {
-            log.error("IOException logged.", e.getCause());
+            log.error("Buffer write did not occur.", e.getCause());
             throw new ResourceError(e.getMessage());
         }
     }

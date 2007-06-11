@@ -176,7 +176,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
 		}
 		catch (IOException e)
 		{
-            log.error("IOException logged.", e.getCause());
+            log.error("Buffer could not be closed successfully.", e.getCause());
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
 		}
@@ -463,7 +463,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements RawPixelsStor
     }
 
     private void handleException(Exception e) {
-        log.error("Exception logged.", e.getCause());
+        log.error("Error handling pixels.", e.getCause());
 
         if (e instanceof IOException) {
             throw new ResourceError(e.getMessage());
