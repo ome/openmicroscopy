@@ -147,27 +147,10 @@ class BuildRunner {
         try {
             run = klass.getMethod("run", new Class[] { String.class });
             run.invoke(null, new Object[] { url.getFile() });
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            log.error("SecurityException logged.", e.getCause());
+        } catch (Exception e) {
+            // TODO Auto-generated catch-all block
             throw new RuntimeException("Unimplemented exception.", e);
-        } catch (NoSuchMethodException e) {
-            // TODO Auto-generated catch block
-            log.error("NoSuchMethodException logged.", e.getCause());
-            throw new RuntimeException("Unimplemented exception.", e);
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            log.error("IllegalArgumentException logged.", e.getCause());
-            throw new RuntimeException("Unimplemented exception.", e);
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            log.error("IllegalAccessException logged.", e.getCause());
-            throw new RuntimeException("Unimplemented exception.", e);
-        } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            log.error("InvocationTargetException logged.", e.getCause());
-            throw new RuntimeException("Unimplemented exception.", e);
-        }
+        } 
 
     }
 
