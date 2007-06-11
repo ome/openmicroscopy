@@ -133,6 +133,7 @@
 			<fileset dir="${omero.home}">
 				<include name="omero.class"/>
 				<include name="components/antlib/**"/>
+				<include name="sql/**"/>
 				<include name="lib/tools/**"/>
 				<include name="lib/repository/ant/**"/>
 				<include name="lib/repository/xml-apis/**"/>
@@ -149,11 +150,6 @@
 				<include name="components/client/build.xml"/>
 			</fileset>
 		</copy>
-
-		<!-- SQL to createdb. -->
-		<copy todir="${dist.dir}/sql">
-			<fileset dir="${common.comp}/${generated.rel}/resources" includes="*.sql"/>
-                </copy>
 
 		<!-- Copy new build.xml to ${dist.dir} -->
                 <copy
