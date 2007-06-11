@@ -93,8 +93,19 @@ public class IceMapper extends ome.util.ModelMapper implements ReverseModelMappe
     }
 
     public static String stackAsString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        t.printStackTrace(pw);
         Throwable cause = t.getCause();
-        return cause.getMessage();
+        while (cause != null && cause != t ) {
+            cause.printStackTrace(pw);
+            t = cause;
+            cause = t.getCause();
+        }
+        pw.flush();
+        pw.close();
+
+        return sw.getBuffer().toString();
     }
 
     private static Class<? extends IObject> _class(String className) {
