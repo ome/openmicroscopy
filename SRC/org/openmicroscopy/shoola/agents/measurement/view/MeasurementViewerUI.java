@@ -149,14 +149,13 @@ class MeasurementViewerUI
 		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
 		DrawingAttributes.SHOWMEASUREMENT.set(fig, false);
 		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
+		DrawingAttributes.SHOWTEXT.set(fig, false);
     	if (fig instanceof PointAnnotationFigure) {
     		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
-    		DrawingAttributes.SHOWTEXT.set(fig, false);
     	} else {
     		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
     		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
-    		DrawingAttributes.SHOWTEXT.set(fig, true);
     	}
 	 }
     
@@ -172,7 +171,7 @@ class MeasurementViewerUI
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
 		ROIShape s = fig.getROIShape();
-		AnnotationKeys.INMICRONS.set(s, true);
+		AnnotationKeys.INMICRONS.set(s, false);
 		AnnotationKeys.MICRONSPIXELX.set(s,  (double) model.getPixelSizeX());
 		AnnotationKeys.MICRONSPIXELY.set(s,  (double) model.getPixelSizeY());
    }
@@ -443,11 +442,12 @@ class MeasurementViewerUI
      * Saves the results table.
      * 
      * @throws IOException Thrown if the data cannot be written.
+     * @return false if save cancelled. 
      */
-    void saveResultsTable() 
+    boolean saveResultsTable() 
     	throws IOException
     { 
-    	roiResults.saveResults(); 
+    	return roiResults.saveResults(); 
     }
     
     /**

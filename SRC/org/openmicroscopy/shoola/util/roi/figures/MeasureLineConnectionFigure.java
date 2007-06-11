@@ -86,6 +86,8 @@ public class MeasureLineConnectionFigure
 		super();
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
 	
 		shape = null;
 		roi = null;
@@ -321,10 +323,10 @@ public class MeasureLineConnectionFigure
 	public void calculateMeasurements() 
 	{
 		if (shape == null) return;
-		lengthArray = new ArrayList<Double>();
-		angleArray = new ArrayList<Double>();
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
+	//	lengthArray = new ArrayList<Double>();
+	//	angleArray = new ArrayList<Double>();
+	//	pointArrayX = new ArrayList<Double>();
+	//	pointArrayY = new ArrayList<Double>();
 		
 		pointArrayX.clear();
 		pointArrayY.clear();

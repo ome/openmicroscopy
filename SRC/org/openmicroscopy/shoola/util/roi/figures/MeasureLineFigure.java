@@ -103,6 +103,8 @@ public class MeasureLineFigure
 		boundsArray = new ArrayList<Rectangle2D>();
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
 		shape = null;
 		roi = null;
 	}
@@ -321,10 +323,10 @@ public class MeasureLineFigure
 		if(shape==null)
 			return;
 	
-		lengthArray = new ArrayList<Double>();
-		angleArray = new ArrayList<Double>();
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
+		//lengthArray = new ArrayList<Double>();
+		//angleArray = new ArrayList<Double>();
+		//pointArrayX = new ArrayList<Double>();
+		//pointArrayY = new ArrayList<Double>();
 		
 		pointArrayX.clear();
 		pointArrayY.clear();

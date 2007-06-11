@@ -106,13 +106,13 @@ public 	class ResultsWizard
 	 * 
 	 * @param cFields the initial list of fields. 
 	 */
-	ResultsWizard(List<AnnotationField> cFields)
+	ResultsWizard(List<AnnotationField> cFields, List<AnnotationField> aFields)
 	{
 		this.setModal(true);
 		currentFields = cFields;
+		allFields = aFields;
 		setSize(500, 440);
 		createOriginalSelection();
-		createAllFields();
 		createUI();
 	}
 	
@@ -137,39 +137,7 @@ public 	class ResultsWizard
 		for(AnnotationField field : currentFields)
 			originalSelection.add(field);
 	}
-	
-	/**
-	 * Create the fields which can be selected from. 
-	 *
-	 */
-	private void createAllFields()
-	{
-		allFields = new ArrayList<AnnotationField>();
-		allFields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
-				false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
-			false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
-			false)); 
-	}
-	
+		
 	/**
 	 * Build the UI. 
 	 *

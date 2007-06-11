@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
+
+import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
@@ -131,6 +133,9 @@ class MeasurementViewerModel
     /** Reference to the component that embeds this model. */
     private MeasurementViewer		component;
     
+    /** Boolean to indicating that the tool has been posted to the viewer.*/
+    private boolean 				toolSent;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -154,6 +159,32 @@ class MeasurementViewerModel
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
 		roiFileName = pixelsID+".xml";
+		toolSent = false;
+	}
+	
+	/**
+	 * This checks that we've not posted a message to the viewer already to 
+	 * add the drawing view of the measurement component. Setting this value to 
+	 * true indicates the the MeasurementToolLoaded.ADD has been posted to the 
+	 * viewer. 
+	 * 
+	 * @param state see above.
+	 */
+	void setToolSent(boolean state)
+	{
+		toolSent = state;
+	}
+	
+	/**
+	 * This checks that we've not posted a message to the viewer already to 
+	 * add the drawing view of the measurement component. if this value is 
+	 * true it indicates the the MeasurementToolLoaded.ADD has been posted to 
+	 * the viewer. 
+	 * 
+	 */
+	boolean getToolSent()
+	{
+		return toolSent;
 	}
 	
 	 /**
@@ -486,5 +517,6 @@ class MeasurementViewerModel
 	{
 		roiComponent.saveROI(IOUtil.writeFile(roiFileName));
 	}
+	
 	
 }	

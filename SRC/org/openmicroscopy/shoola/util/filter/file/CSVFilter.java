@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.model.util.Coord3D 
+ * org.openmicroscopy.shoola.util.filter.file.CSVFilter 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.model.util;
+package org.openmicroscopy.shoola.util.filter.file;
+
+import java.io.File;
+
+import javax.swing.filechooser.FileFilter;
 
 //Java imports
-import java.util.Comparator;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
  * 
- *
+ * Filters the <code>CSV</code> files. 
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -43,80 +46,35 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-public class Coord3D 
-	implements Comparator
+public class CSVFilter 
+	extends FileFilter
 {
-	//public int c;
-	public int t;
-	public int z;
-	
-	public Coord3D()
-	{
-		
-	}
-	
-	public Coord3D(int time, int zsec)
-	{
-	//	c = ch;
-		t = time;
-		z = zsec;
-	}
-	
-	
-	//public int getChannel()
-	//{
-	//	return c;
-	//}
-	
-	public int getTimePoint()
-	{
-		return t;
-	}
-	
-	public int getZSection()
-	{
-		return z;
-	}
-	
-	public boolean equals(Object obj)
-	{
-		if(!(obj instanceof Coord3D))
-			return false;
-		Coord3D comp = (Coord3D)obj;
-//		return (comp.c == this.c && comp.t == this.t && comp.z == this.z );
-		return (comp.t == this.t && comp.z == this.z );
-	}
 
-	/* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-	 */
-	public int compare(Object o1, Object o2) 
+	/** Possible file extension. */
+	public static final String  CSV = "csv";
+
+	/**
+	* 	Overriden to return the description of the filter.
+	* 	@see FileFilter#getDescription()
+	*/
+	public String getDescription() { return "Comma separated values file"; }
+    
+	/**
+	* 	Overriden to accept file with the declared file extensions.
+	* @see FileFilter#accept(File)
+	*/
+	public boolean accept(File f)
 	{
-		Coord3D a = (Coord3D)o1;
-		Coord3D b = (Coord3D)o2;
-	//	if(a.c < b.c)
-	//		return -1;
-	//	else if(a.c > b.c)
-	//		return 1;
-		if(a.t < b.t)
-			return -1;
-		else if(a.t > b.t)
-			return 1;
-		else if(a.z<b.z)
-			return -1;
-		else if(a.z>b.z)
-			return 1;
-		else 
-			return 0;
+		if (f.isDirectory()) return true;
+		String s = f.getName();
+		String extension = null;
+		int i = s.lastIndexOf('.');
+		if (i > 0 && i < s.length()-1)
+			extension = s.substring(i+1).toLowerCase();
+		if (extension != null)
+			return (extension.equals(CSV));
+		return false;
 	}
-	
-	public Coord3D clone()
-	{
-//		return new Coord3D(this.c, this.t, this.z);
-		return new Coord3D(this.t, this.z);
-	}
-	
 	
 }
-
 

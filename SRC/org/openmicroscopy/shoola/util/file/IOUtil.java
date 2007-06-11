@@ -64,11 +64,11 @@ public class IOUtil
 		if (fileName == null)
 			throw new IllegalArgumentException("No file name specified.");
 		File f = new File(fileName);
-		BufferedInputStream in;
+		BufferedInputStream in = null;
 		try {
 			in = new BufferedInputStream(new FileInputStream(f));
 		} catch (Exception e) {
-			return null;
+			e.printStackTrace();
 		}
 		return in;
 	}

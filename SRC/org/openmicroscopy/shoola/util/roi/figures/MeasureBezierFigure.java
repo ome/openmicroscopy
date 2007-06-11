@@ -75,6 +75,8 @@ public class MeasureBezierFigure
 
 	private ArrayList<Double>			pointArrayX;
 	private ArrayList<Double>			pointArrayY;
+	private ArrayList<Double>			lengthArray;
+	
 	private	Rectangle2D bounds;
 	private ROI			roi;
 	private ROIShape 	shape;
@@ -84,11 +86,17 @@ public class MeasureBezierFigure
 		super();
 		shape = null;
 		roi = null;
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		lengthArray = new ArrayList<Double>();
 	}
 	
 	public MeasureBezierFigure(boolean closed)
 	{
 		super(closed);
+		pointArrayX = new ArrayList<Double>();
+		pointArrayY = new ArrayList<Double>();
+		lengthArray = new ArrayList<Double>();
 	}
 	
 	public void draw(Graphics2D g)
@@ -293,8 +301,8 @@ public class MeasureBezierFigure
 	public void calculateMeasurements() 
 	{
 		if (shape==null) return;
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
+		//pointArrayX = new ArrayList<Double>();
+		//pointArrayY = new ArrayList<Double>();
 		
 		pointArrayX.clear();
 		pointArrayY.clear();
@@ -316,7 +324,7 @@ public class MeasureBezierFigure
 		}
 		else
 		{
-			ArrayList<Double> lengthArray = new ArrayList<Double>();
+			//ArrayList<Double> lengthArray = new ArrayList<Double>();
 			lengthArray.add(getLength());
 			
 			LENGTH.set(shape, lengthArray);

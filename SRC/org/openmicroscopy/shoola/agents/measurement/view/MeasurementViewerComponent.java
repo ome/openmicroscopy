@@ -25,10 +25,14 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.TreeMap;
+
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -44,6 +48,8 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -247,11 +253,12 @@ class MeasurementViewerComponent
 			if (e instanceof ParsingException) {
 				reg.getLogger().error(this, "Cannot parse the ROI for " 
 						+model.getImageID());
-
+				
 			} else {
-
+				
 			}
-			//TODO: notify 
+			
+				//TODO: notify 
 			return;
 		}
 
@@ -260,7 +267,11 @@ class MeasurementViewerComponent
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
-		postEvent(MeasurementToolLoaded.ADD);
+		if(!model.getToolSent())
+		{
+			model.setToolSent(true);
+			postEvent(MeasurementToolLoaded.ADD);
+		}
 	}
 	
 	/** 
@@ -345,8 +356,18 @@ class MeasurementViewerComponent
      */
 	public void loadROI()
 	{
-		//model.loadROI(); //TODO: MODIFY
-		//updateDrawingArea();
+		JFileChooser chooser = new JFileChooser();
+		FileFilter filter = new XMLFilter();
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
+
+		File f = UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
+		int results = chooser.showOpenDialog(view.getParent());
+		if (results != JFileChooser.APPROVE_OPTION) return;
+		model.fireROILoading(chooser.getSelectedFile().getAbsolutePath());
+		fireStateChange();
+		updateDrawingArea();
 	}
 
 	/** 
@@ -385,14 +406,16 @@ class MeasurementViewerComponent
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
+		boolean saved = false;
 		try {
-			view.saveResultsTable();
+			saved = view.saveResultsTable();
 		} catch (Exception e) {
 			reg.getLogger().error(this, 
 					"Cannot save the results "+e.getMessage());
 			un.notifyInfo("Save ROI results", "Cannot save the ROI results");
 		}
-		un.notifyInfo("Save ROI results", "The ROI results have been " +
+		if(saved)
+			un.notifyInfo("Save ROI results", "The ROI results have been " +
 											"successfully saved.");
 	}
 	

@@ -43,6 +43,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -53,6 +54,7 @@ import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
 import org.openmicroscopy.shoola.agents.measurement.util.MeasurementObject;
 import org.openmicroscopy.shoola.agents.measurement.util.ResultsCellRenderer;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -84,7 +86,10 @@ class MeasurementResults
 	private List<String>					columnNames;
 	
 	/** Collection of column names. */
-	private List<AnnotationField>	fields;
+	private List<AnnotationField>			fields;
+	
+	/** Collection of column names for all possible fields. */
+	private List<AnnotationField>			allFields;
 	
 	/** Button to save locally the results. */
 	private JButton							saveButton;
@@ -124,6 +129,7 @@ class MeasurementResults
 		refreshButton = new JButton(
 				controller.getAction(MeasurementViewerControl.REFRESH_RESULTS));
 		//Create table model.
+		createAllFields();
 		createDefaultFields();
 		results = new ResultsTable();
 		results.getTableHeader().setReorderingAllowed(false);
@@ -146,7 +152,7 @@ class MeasurementResults
 		        	MeasurementTableModel m = 
 	        			(MeasurementTableModel) results.getModel();
 	        		long ROIID = (Long)m.getValueAt(index, 2);
-	        		int T = (Integer)m.getValueAt(index, 0);
+	        		int T = (Integer)m.getValueAt(index, 0)-1;
 	        		int Z = (Integer)m.getValueAt(index, 1)-1;
 	        		view.selectFigure(ROIID, T, Z);
 		        }
@@ -170,6 +176,41 @@ class MeasurementResults
 		this.add(panel, BorderLayout.SOUTH);
 	}
 
+	/**
+	 * Create the fields which can be selected from. 
+	 *
+	 */
+	private void createAllFields()
+	{
+		allFields = new ArrayList<AnnotationField>();
+		allFields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
+				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
+				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
+				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.CENTREY,"Centre Y", 
+				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.AREA,"Area", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,"Perimeter", 
+				false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, "Length", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, "Width", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, "Height", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, "Angle", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, "Points X Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, "Points Y Coord", false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, "Start Point X Coord", 
+			false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, "Start Point Y Coord", 
+			false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,"End Point X Coord", 
+			false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,"End Point Y Coord", 
+			false)); 
+	}
+	
+	
 	/**
 	 * Create the default fields to show results of in the measurement tool.
 	 *
@@ -353,7 +394,7 @@ class MeasurementResults
 				figure = shape.getFigure();
 				figure.calculateMeasurements();
 				row = new MeasurementObject();
-				row.addElement(shape.getCoord3D().getTimePoint());
+				row.addElement(shape.getCoord3D().getTimePoint()+1);
 				row.addElement(shape.getCoord3D().getZSection()+1);
 				row.addElement(shape.getROI().getID());
 				for (int k = 0; k < fields.size(); k++) {
@@ -394,18 +435,31 @@ class MeasurementResults
 	 * Save the results.
 	 * 
 	 * @throws IOException Thrown if the data cannot be written.
+	 * @return true if results saved, false if users cancels save.
 	 */
-	void saveResults()
+	boolean saveResults()
 		throws IOException
 	{
 		JFileChooser chooser = new JFileChooser();
+		FileFilter filter = new CSVFilter();
+		chooser.addChoosableFileFilter(filter);
+		chooser.setFileFilter(filter);
+
+		File f = UIUtilities.getDefaultFolder();
+	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showSaveDialog(this.getParent());
-		if (results != JFileChooser.APPROVE_OPTION) return;
+		if (results != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
+		if(!file.getAbsolutePath().endsWith(CSVFilter.CSV))
+		{
+			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
+			file = new File(fileName);
+		}
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
 		writeColumns(out);
 		writeData(out);
 		out.close();
+		return true;
 	}
 
 	/** Refreshes the result table. */
@@ -417,7 +471,7 @@ class MeasurementResults
 	 */
 	void showResultsWizard()
 	{
-		ResultsWizard resultsWizard = new ResultsWizard(fields);
+		ResultsWizard resultsWizard = new ResultsWizard(fields, allFields);
 		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
 		columnNames.clear();
 		columnNames = new ArrayList<String>();

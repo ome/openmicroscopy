@@ -137,7 +137,6 @@ public class MeasurePointFigure
     
     public double getWidth() 
     {
-    	System.err.println(ellipse.getWidth());
     	return ellipse.getWidth();
     	
     }
@@ -212,9 +211,10 @@ public class MeasurePointFigure
 
 	public Point2D getCentre()
 	{
-		return new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+		return new Point2D.Double(	Math.round(ellipse.getCenterX()), 
+									Math.round(ellipse.getCenterY()));
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getROI()

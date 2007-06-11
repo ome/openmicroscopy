@@ -98,15 +98,14 @@ public class MeasureEllipseFigure
     {
     	if(INMICRONS.get(shape))
     		return getX()*MICRONSPIXELX.get(shape);
-    	else
-        	return getX();
+        return getX();
     }
     
     public double getMeasurementY() 
     {
     	if(INMICRONS.get(shape))
     		return getY()*MICRONSPIXELY.get(shape);
-    	else
+    	
         	return getY();
     }
     
@@ -243,7 +242,8 @@ public class MeasureEllipseFigure
 
 	public Point2D getCentre()
 	{
-		return new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+		return new Point2D.Double(	Math.round(ellipse.getCenterX()), 
+									Math.round(ellipse.getCenterY()));
 	}
 
 	/**

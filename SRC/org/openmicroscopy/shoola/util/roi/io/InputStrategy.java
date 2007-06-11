@@ -227,7 +227,7 @@ public class InputStrategy
 		defaultAttributes.put(AttributeKeys.TEXT, "Text");
 		defaultAttributes.put(DrawingAttributes.MEASUREMENTTEXT_COLOUR, DEFAULT_MEASUREMENT_TEXT_COLOUR);
 		defaultAttributes.put(DrawingAttributes.SHOWMEASUREMENT, new Boolean(false));
-		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(true));
+		defaultAttributes.put(DrawingAttributes.SHOWTEXT, new Boolean(false));
 	}
 	
 	private final static HashMap<String, SVGAttributeParser> attributeParserMap;
