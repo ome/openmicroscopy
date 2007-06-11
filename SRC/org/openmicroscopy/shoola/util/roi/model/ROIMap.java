@@ -30,8 +30,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICoordMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIIDMap;
@@ -81,14 +80,13 @@ public class ROIMap
 	}
 
 	public ROIShape getShape(long id, Coord3D coord) 
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+												throws 	NoSuchROIException
 	{
 		return roiIDMap.getShape(id, coord);
 	}
 
 	public ShapeList getShapeList(Coord3D coord) throws
-														NoSuchShapeException
+														NoSuchROIException
 	{	
 		return roiCoordMap.getShapeList(coord);
 	}
@@ -101,15 +99,14 @@ public class ROIMap
 	}
 
 	public void deleteShape(long id, Coord3D coord) 	
-											throws 	NoSuchROIException, 
-													NoSuchShapeException
+											throws 	NoSuchROIException	
 	{
 		roiCoordMap.deleteShape(id, coord);
 		roiIDMap.deleteShape(id, coord);
 	}
 
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-												throws ROIShapeCreationException, 
+												throws ROICreationException, 
 												NoSuchROIException
 	{
 		roiIDMap.addShape(id, coord, shape);
@@ -118,9 +115,8 @@ public class ROIMap
 
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 															   Coord3D end) 
-												throws ROIShapeCreationException, 
-													   NoSuchROIException, 
-													   NoSuchShapeException
+												throws ROICreationException, 
+													   NoSuchROIException
 	{
 		roiIDMap.propagateShape(id, selectedShape, start, end);
 		ROIShape shape = roiIDMap.getShape(id, selectedShape);
@@ -128,8 +124,7 @@ public class ROIMap
 	}
 
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-													throws 	NoSuchROIException, 
-															NoSuchShapeException
+													throws 	NoSuchROIException
 	{
 		roiCoordMap.deleteShape(id, start, end);
 		roiIDMap.deleteShape(id, start, end);

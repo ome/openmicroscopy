@@ -33,6 +33,7 @@ import net.n3.nanoxml.IXMLElement;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 
@@ -59,8 +60,8 @@ public class SVGFillParser
 	public void parse(ROIFigure figure, IXMLElement element,String value) 
 	{
 		int alpha = 255;
-		if(element.hasAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_FILL_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
+		if(element.hasAttribute(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE))
+			alpha = (int) Math.floor(new Double(element.getAttribute(IOConstants.SVG_FILL_OPACITY_ATTRIBUTE, IOConstants.VALUE_NULL))*255);
 		SVGColour svgColour = new SVGColour();
 		Color svgColourValue = svgColour.toColor(value);
 		Color fillValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);

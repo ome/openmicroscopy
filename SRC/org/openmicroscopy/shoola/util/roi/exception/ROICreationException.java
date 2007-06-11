@@ -44,15 +44,34 @@ package org.openmicroscopy.shoola.util.roi.exception;
 public class ROICreationException
 	extends Exception
 {
+	/**
+	 * Constructs a new exception with the specified detail message and cause.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 * @param cause		The exception that caused this one to be risen.
+	 */
+	public ROICreationException(String message, Throwable cause) 
+	{
+		super(message, cause);
+	}
+	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 */
+	public ROICreationException(String message) { super(message); }
+
 	public ROICreationException(Exception e)
 	{
 		super(e);
 	}
-
+	
 	public ROICreationException()
 	{
 		super();
 	}
+	
 }
 
 

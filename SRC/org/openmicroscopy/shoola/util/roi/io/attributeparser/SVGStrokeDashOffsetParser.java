@@ -32,7 +32,7 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_DASH_PHASE;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 
 /** 
  * 
@@ -55,7 +55,7 @@ public class SVGStrokeDashOffsetParser implements SVGAttributeParser
 	 */
 	public void parse(ROIFigure figure, IXMLElement element, String value) 
 	{
-		if (value != InputStrategy.VALUE_NULL) 
+		if (value != IOConstants.VALUE_NULL) 
 		{
 	            double doubleValue= new Double(value);
 	            STROKE_DASH_PHASE.set(figure, doubleValue);

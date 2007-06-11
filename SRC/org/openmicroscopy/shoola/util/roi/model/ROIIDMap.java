@@ -30,8 +30,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -83,12 +82,11 @@ public class ROIIDMap
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchROIException(e);
+			throw new NoSuchROIException("No ROI with ID : " + id, e);
 		}
 	}
 	
-	public ROIShape getShape(long id, Coord3D coord) throws NoSuchROIException,
-															NoSuchShapeException
+	public ROIShape getShape(long id, Coord3D coord) throws NoSuchROIException
 	{
 		ROI roi;
 		try 
@@ -97,7 +95,8 @@ public class ROIIDMap
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchROIException(e);
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
+				" and Coord : " + coord, e);
 		}
 		return roi.getShape(coord);
 	}
@@ -110,13 +109,14 @@ public class ROIIDMap
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchROIException(e);
+			throw new NoSuchROIException("Cannot delete ROI with id : " 
+				+ id , e);
 		}
 	}
 	
 
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-												throws ROIShapeCreationException,
+												throws ROICreationException,
 													   NoSuchROIException	
 	{
 		ROI roi;
@@ -126,48 +126,50 @@ public class ROIIDMap
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchROIException(e);
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
+				" and Coord : " + coord, e);
 		}
 		roi.addShape(shape);
 	}		
 
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 															   Coord3D end) 
-												throws ROIShapeCreationException,
-													   NoSuchROIException, 
-													   NoSuchShapeException
+												throws ROICreationException,
+													   NoSuchROIException
 	{
 		if(!roiMap.containsKey(id))
-			throw new NoSuchROIException();
+			throw new NoSuchROIException("No ROI with id : "+ id);
 		ROI roi = roiMap.get(id);
 		if(roi.containsKey(start, end))
-			throw new ROIShapeCreationException();
+			throw new ROICreationException("ROI with id : " + id +" already" +
+					" exists between coord : " + start +" and " + end);
 		roi.propagateShape(id, selectedShape, start, end);
 	}
 
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-													throws 	NoSuchROIException, 
-															NoSuchShapeException
+													throws 	NoSuchROIException
 	{
 		if(!roiMap.containsKey(id))
-			throw new NoSuchROIException();
+			throw new NoSuchROIException("ROI with id : " + id +" does not exist");
 		ROI roi = roiMap.get(id);
 		if(!roi.containsKey(start, end))
-			throw new NoSuchShapeException();
+			throw new NoSuchROIException("No ROIShape with ROI id : " + id + 
+				" exists between coord "+ start +" and " + end);
 		roi.deleteShape(start, end);
 		if(roi.getShapes().size()==0)
 			roiMap.remove(id);
 	}
 	
 	public void deleteShape(long id, Coord3D coord) 
-													throws 	NoSuchROIException, 
-															NoSuchShapeException
+													throws 	NoSuchROIException 
+															
 	{
 		if(!roiMap.containsKey(id))
-			throw new NoSuchROIException();
+			throw new NoSuchROIException("No ROI with id : " + id);
 		ROI roi = roiMap.get(id);
 		if(!roi.containsKey(coord))
-			throw new NoSuchShapeException();
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
+				" and Coord : " + coord);
 		roi.deleteShape(coord);
 		if(roi.getShapes().size()==0)
 			roiMap.remove(id);

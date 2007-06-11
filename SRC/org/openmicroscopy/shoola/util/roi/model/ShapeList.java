@@ -29,6 +29,7 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.LongComparator;
@@ -72,14 +73,20 @@ public class ShapeList
 		roiList.put(id, shape);
 	}
 	
-	public ROIShape getShape(long id)
+	public ROIShape getShape(long id) throws NoSuchROIException
 	{
-		return roiList.get(id);
+		if(roiList.containsKey(id))
+			return roiList.get(id);
+		else
+			throw new NoSuchROIException("No such ROIShape : " + id);
 	}
 	
-	public void deleteShape(long id)
+	public void deleteShape(long id) throws NoSuchROIException
 	{
-		roiList.remove(id);
+		if(roiList.containsKey(id))
+			roiList.remove(id);
+		else
+			throw new NoSuchROIException("No such ROIShape : " + id);
 	}
 	
 }

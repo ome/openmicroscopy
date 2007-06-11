@@ -30,6 +30,7 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import net.n3.nanoxml.IXMLElement;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.io.IOConstants;
 import org.openmicroscopy.shoola.util.roi.io.InputStrategy;
 import org.openmicroscopy.shoola.util.roi.io.util.SVGColour;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -57,8 +58,8 @@ public class SVGStrokeParser
 	public void parse(ROIFigure figure,IXMLElement element, String value) 
 	{
 		int alpha = 255;
-		if(element.hasAttribute(InputStrategy.SVG_STROKE_OPACITY_ATTRIBUTE))
-			alpha = (int) Math.floor(new Double(element.getAttribute(InputStrategy.SVG_STROKE_OPACITY_ATTRIBUTE, InputStrategy.VALUE_NULL))*255);
+		if(element.hasAttribute(IOConstants.SVG_STROKE_OPACITY_ATTRIBUTE))
+			alpha = (int) Math.floor(new Double(element.getAttribute(IOConstants.SVG_STROKE_OPACITY_ATTRIBUTE, IOConstants.VALUE_NULL))*255);
 		SVGColour svgColour = new SVGColour();
 		Color svgColourValue = svgColour.toColor(value);
 		Color strokeValue = new Color(svgColourValue.getRed(), svgColourValue.getGreen(), svgColourValue.getBlue(), alpha);

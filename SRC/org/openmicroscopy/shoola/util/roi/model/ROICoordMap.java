@@ -31,7 +31,7 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
@@ -74,22 +74,22 @@ public class ROICoordMap
 		return true;
 	}
 	
-	public  ShapeList getShapeList(Coord3D coord) throws NoSuchShapeException
+	public  ShapeList getShapeList(Coord3D coord) throws NoSuchROIException
 	{
 		if(!containsKey(coord))
-			throw new NoSuchShapeException();
+			throw new NoSuchROIException("No ROIShape on coord " + coord);
 		return coordMap.get(coord);
 	}
 	
 	public  SortedMap<Coord3D,ShapeList> getShapeList(Coord3D start, Coord3D end) 
-													throws NoSuchShapeException
+													throws NoSuchROIException
 	{
 		if(!containsKey(start, end))
-			throw new NoSuchShapeException();
+			throw new NoSuchROIException();
 		return coordMap.subMap(start, end);
 	}
 	
-	public void deleteROI(ROI roi)
+	public void deleteROI(ROI roi) throws NoSuchROIException
 	{
 		TreeMap<Coord3D, ROIShape> roiMap = roi.getShapes();
 		Iterator roiIterator = roiMap.keySet().iterator();
@@ -101,7 +101,7 @@ public class ROICoordMap
 		}
 	}
 	
-	public void deleteShape(long id, Coord3D coord)
+	public void deleteShape(long id, Coord3D coord) throws NoSuchROIException
 	{
 		ShapeList shapeList = coordMap.get(coord);
 		shapeList.deleteShape(id);
@@ -110,10 +110,11 @@ public class ROICoordMap
 	}
 	
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-													throws NoSuchShapeException
+													throws NoSuchROIException
 	{
 		if(!containsKey(start, end))
-			throw new NoSuchShapeException();
+			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
+				" and Coord : " + start + " and " + end);
 		
 	}
 	
@@ -142,12 +143,14 @@ public class ROICoordMap
 	public void propagateShape(ROIShape selectedShape, Coord3D start, Coord3D end)
 	{
 		createShapeList(start, end);
-		TreeMap<Coord3D, ShapeList> subMap = (TreeMap<Coord3D, ShapeList>) coordMap.subMap(start, end);
+		TreeMap<Coord3D, ShapeList> subMap = (TreeMap<Coord3D, ShapeList>) 
+		coordMap.subMap(start, end);
 		Iterator shapeListIterator = subMap.keySet().iterator();
 		while(shapeListIterator.hasNext())
 		{
 			ShapeList list = (ShapeList)shapeListIterator.next();
-			list.add(selectedShape.getID(), new ROIShape(selectedShape.getROI(), list.getCoord3D(), selectedShape));
+			list.add(selectedShape.getID(), new ROIShape(selectedShape.getROI(), 
+				list.getCoord3D(), selectedShape));
 		}
 	}
 	

@@ -31,8 +31,8 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
@@ -128,7 +128,7 @@ public class ROI
 		return roiShapes;
 	}
 	
-	public ROIShape getShape(Coord3D coord) throws NoSuchShapeException
+	public ROIShape getShape(Coord3D coord) throws NoSuchROIException
 	{
 		try 
 		{
@@ -136,24 +136,24 @@ public class ROI
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchShapeException(e);
+			throw new NoSuchROIException(e);
 		}
 	}
 	
-	public ROIFigure getFigure(Coord3D coord) throws NoSuchShapeException
+	public ROIFigure getFigure(Coord3D coord) throws NoSuchROIException
 	{
 		return getShape(coord).getFigure();
 	}
 	
 	public void addShape(ROIShape shape) 
-												throws ROIShapeCreationException
+												throws ROICreationException
 	{
 		if(roiShapes.containsKey(shape.getCoord3D()))
-			throw new ROIShapeCreationException();
+			throw new ROICreationException();
 		roiShapes.put(shape.getCoord3D(), shape);
 	}
 	
-	public void deleteShape(Coord3D coord) throws NoSuchShapeException
+	public void deleteShape(Coord3D coord) throws NoSuchROIException
 	{
 		try
 		{
@@ -161,11 +161,11 @@ public class ROI
 		}
 		catch(Exception e)
 		{
-			throw new NoSuchShapeException(e);
+			throw new NoSuchROIException(e);
 		}
 	}
 	
-	public void deleteShape(Coord3D start, Coord3D end) throws NoSuchShapeException
+	public void deleteShape(Coord3D start, Coord3D end) throws NoSuchROIException
 	{
 		//for(int c = start.c; c < end.c ; c++)
 			for(int t = start.t; t < end.t ; t++)
@@ -174,8 +174,8 @@ public class ROI
 	}
 
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, Coord3D end) 
-												throws ROIShapeCreationException, 
-													   NoSuchShapeException
+												throws ROICreationException, 
+												NoSuchROIException
 	{
 		ROIShape shape = getShape(selectedShape);
 		//for(int c = start.c; c < end.c ; c++)

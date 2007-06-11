@@ -56,6 +56,13 @@ public class NoSuchROIException
 		super(message, cause);
 	}
 	
+	/**
+	 * Constructs a new exception with the specified detail message.
+	 * 
+	 * @param message	Short explanation of the problem.
+	 */
+	public NoSuchROIException(String message) { super(message); }
+
 	public NoSuchROIException(Exception e)
 	{
 		super(e);

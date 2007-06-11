@@ -35,7 +35,6 @@ import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 
 /** 
@@ -79,7 +78,7 @@ public class XMLFileIOStrategy
 	 */
 	public void read(InputStream input, ROIComponent component)
 		throws NoSuchROIException, ParsingException, ROICreationException, 
-				ROIShapeCreationException	   
+				ROICreationException	   
 	{
 		if (input == null)
 			throw new NullPointerException("No input stream specified.");

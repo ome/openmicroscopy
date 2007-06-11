@@ -34,10 +34,8 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
@@ -110,9 +108,6 @@ public class ROIComponent
 	 * 				<code>null</code> if no ROIs previously saved.
 	 * @throws ParsingException				Thrown when an error occured
 	 * 										while parsing the stream.
-	 * @throws ROIShapeCreationException 	Thrown If an error occured while 
-	 * 										creating ROIShape, basic assumption 
-	 * 										is this is linked to memory issues.
 	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
 	 * 									   	Exist. In this case most likely 
 	 * 										reason is that a 
@@ -123,8 +118,8 @@ public class ROIComponent
 	 * 										ROI.
 	 */
 	public void loadROI(InputStream input) 
-		throws NoSuchROIException, ParsingException, ROICreationException,
-				ROIShapeCreationException
+		throws NoSuchROIException, ParsingException, ROICreationException
+				
 	{
 		if (input == null)
 			throw new NullPointerException("No input stream specified.");
@@ -211,8 +206,7 @@ public class ROIComponent
 	 * 								coord then this exception is thrown.
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
-	throws 	NoSuchROIException, 
-	NoSuchShapeException
+	throws 	NoSuchROIException
 	{
 		return roiCollection.getShape(id, coord);
 	}
@@ -228,7 +222,7 @@ public class ROIComponent
 	 * 								throw NoSuchShapeException.
 	 */
 	public ShapeList getShapeList(Coord3D coord) throws
-	NoSuchShapeException
+	NoSuchROIException
 	{
 		return roiCollection.getShapeList(coord);
 	}
@@ -252,12 +246,9 @@ public class ROIComponent
 	 * @param coord	the plane on which the ROIShape resides. 
 	 * @throws NoSuchROIException	This exception is thrown in the ROI 
 	 * 								does not exist.
-	 * @throws NoSuchShapeException The exception is thrown if the ROIShape 
-	 * 								does not exist on the plane coord. 
-	 */
+	 */ 
 	public void deleteShape(long id, Coord3D coord) 	
-	throws 	NoSuchROIException, 
-	NoSuchShapeException
+	throws 	NoSuchROIException
 	{
 		roiCollection.deleteShape(id, coord);
 	}
@@ -274,15 +265,15 @@ public class ROIComponent
 	 * @param id ROI id
 	 * @param coord plane
 	 * @param shape shape to add
-	 * @throws ROIShapeCreationException	- Exception will be thrown if the 
+	 * @throws ROICreationException	- Exception will be thrown if the 
 	 * 										  ROIShape cannot be created.
 	 * @throws NoSuchROIException			- Exception will be thrown id the ROI
 	 * 										  the ROIShape should be added to 	
 	 * 										  does not exist. 
 	 */
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-	throws ROIShapeCreationException, 
-	NoSuchROIException
+												throws 	ROICreationException, 
+														NoSuchROIException
 	{
 		roiCollection.addShape(id, coord, shape);
 	}	
@@ -298,18 +289,14 @@ public class ROIComponent
 	 * @param selectedShape plane where shape is to be duplicated from.
 	 * @param start plane to propagate from
 	 * @param end 	plane to propagate to 
-	 * @throws ROIShapeCreationException	- Exception if shape cannot be created.
 	 * @throws NoSuchROIException			- Exception if ROI with id does not
 	 * 											exist.
-	 * @throws NoSuchShapeException			- Exception if a ROIShape belonging 
-	 * 											to ROI.id does not exist on plane
-	 * 											coord.
 	 */
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 			Coord3D end) 
-	throws ROIShapeCreationException, 
-	NoSuchROIException, 
-	NoSuchShapeException
+												throws  ROICreationException, 
+														NoSuchROIException
+	
 	{
 		roiCollection.propagateShape(id, selectedShape, start, end);
 	}
@@ -328,8 +315,7 @@ public class ROIComponent
 	 * @throws NoSuchShapeException - see above.
 	 */
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-	throws 	NoSuchROIException, 
-	NoSuchShapeException
+	throws 	NoSuchROIException
 	{
 		roiCollection.deleteShape(id, start, end);
 	}

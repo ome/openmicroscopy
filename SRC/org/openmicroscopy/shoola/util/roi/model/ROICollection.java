@@ -33,8 +33,7 @@ import java.util.TreeMap;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
+import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIMap;
 import org.openmicroscopy.shoola.util.roi.model.ROIRelationship;
@@ -136,14 +135,14 @@ public class ROICollection
 	}
 
 	public ROIShape getShape(long id, Coord3D coord) 
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+												throws 	NoSuchROIException
+														
 	{
 		return roiMap.getShape(id, coord);
 	}
 
 	public ShapeList getShapeList(Coord3D coord) throws
-														NoSuchShapeException
+														NoSuchROIException
 	{
 		return roiMap.getShapeList(coord);
 	}
@@ -154,14 +153,14 @@ public class ROICollection
 	}
 
 	public void deleteShape(long id, Coord3D coord) 	
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+												throws 	NoSuchROIException
+														
 	{
 		roiMap.deleteShape(id, coord);
 	}
 
 	public 	void addShape(long id, Coord3D coord, ROIShape shape) 
-												throws ROIShapeCreationException, 
+												throws ROICreationException, 
 													   NoSuchROIException
 	{
 		roiMap.addShape(id, coord, shape);
@@ -169,16 +168,16 @@ public class ROICollection
 
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 				   Coord3D end) 
-												throws ROIShapeCreationException, 
-												       NoSuchROIException, 
-												       NoSuchShapeException
+												throws ROICreationException, 
+												       NoSuchROIException
+												       
 	{
 		roiMap.propagateShape(id, selectedShape, start, end);
 	}
 
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
-												throws 	NoSuchROIException, 
-														NoSuchShapeException
+												throws 	NoSuchROIException
+														
 	{
 		roiMap.deleteShape(id, start, end);
 	}
@@ -225,7 +224,7 @@ public class ROICollection
 	
 	
 	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		// TODO Auto-generated method stub
