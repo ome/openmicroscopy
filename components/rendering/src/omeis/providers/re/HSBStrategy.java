@@ -157,7 +157,7 @@ class HSBStrategy extends RenderingStrategy {
             } 
             catch (IOException e)
             {
-                log.error("IOException logged.", e.getCause());
+                log.error("Pixels could not be closed successfully.", e.getCause());
     			throw new ResourceError(
     					e.getMessage() + " Please check server log.");
             }        	
