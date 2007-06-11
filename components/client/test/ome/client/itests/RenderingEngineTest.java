@@ -59,8 +59,7 @@ public class RenderingEngineTest extends TestCase {
         try {
             sf.getQueryService().get(Experimenter.class, 0L);
         } catch (Exception e) {
-            log.error("Exception logged.", e.getCause());
-            // ok. http://bugs.openmicroscopy.org.uk/show_bug.cgi?id=649
+            // ignore ok. http://bugs.openmicroscopy.org.uk/show_bug.cgi?id=649
         }
 
         Pixels pix = ObjectFactory.createPixelGraph(null);
