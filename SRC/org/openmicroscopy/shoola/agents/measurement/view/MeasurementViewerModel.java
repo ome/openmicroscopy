@@ -50,10 +50,8 @@ import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.exception.ROIShapeCreationException;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -433,10 +431,9 @@ class MeasurementViewerModel
 	 * 
 	 * @param id The id of the <code>ROI</code>.
 	 * @throws NoSuchROIException If the ROI does not exist.
-	 * @throws NoSuchShapeException If the ROI shape does not exist.
 	 */
 	void removeROIShape(long id)
-		throws NoSuchROIException, NoSuchShapeException
+		throws NoSuchROIException
 	{
 		roiComponent.deleteShape(id, getCurrentView());
 	}
@@ -460,11 +457,10 @@ class MeasurementViewerModel
 	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @return Returns the created <code>ROI</code>.
 	 * @throws ROICreationException If the ROI cannot be created.
-	 * @throws ROIShapeCreationException If the ROI shape cannot be created.
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	ROI createROI(ROIFigure figure)
-		throws ROICreationException, ROIShapeCreationException, 
+		throws ROICreationException,  
 			NoSuchROIException
 	{
 		ROI roi = roiComponent.createROI();
@@ -478,10 +474,10 @@ class MeasurementViewerModel
 	 * Returns the {@link ShapeList} for the current plane.
 	 * 
 	 * @return See above.
-	 * @throws NoSuchShapeException Thrown if the ROI doesn't exist.
+	 * @throws NoSuchROIException Thrown if the ROI doesn't exist.
 	 */
 	ShapeList getShapeList()
-		throws NoSuchShapeException
+		throws NoSuchROIException
 	{
 		return roiComponent.getShapeList(currentPlane);
 	}

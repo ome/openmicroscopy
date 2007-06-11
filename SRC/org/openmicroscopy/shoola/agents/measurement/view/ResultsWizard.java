@@ -285,7 +285,8 @@ public 	class ResultsWizard
 	{
 		if(currentFieldsListbox.getSelectedIndex()==-1)
 			return;
-		DefaultListModel model = (DefaultListModel)currentFieldsListbox.getModel();
+		DefaultListModel model = (DefaultListModel)
+									currentFieldsListbox.getModel();
 		int [] indexes = currentFieldsListbox.getSelectedIndices();
 		
 		for( int i = 0 ; i < indexes.length ; i++)
@@ -383,9 +384,8 @@ public 	class ResultsWizard
 		UIUtilities.setDefaultSize(rightPanel, new Dimension(200,300));
 		container.add(Box.createHorizontalStrut(10));
 		container.add(leftPanel);
-		container.add(Box.createHorizontalStrut(10));
+		container.add(Box.createHorizontalStrut(20));
 		container.add(buttonPanel);
-		container.add(Box.createHorizontalStrut(10));
 		container.add(rightPanel);
 		container.add(Box.createHorizontalStrut(10));
 		JPanel topPanel = createInfoPanel();
@@ -411,8 +411,10 @@ public 	class ResultsWizard
 	{
 		JPanel infoPanel = new JPanel();
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
-		JLabel infoText = new JLabel("<html><body>This is wizard to select the " +
-		"measurements you wish to record in the <p>measurement tool</body></html>");
+		JLabel infoText = new JLabel
+		("<html><body>This is wizard to select the " +
+		"measurements you wish to record in the" +
+		"<p>measurement tool</body></html>");
 		infoText.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD));
 		infoPanel.add(Box.createHorizontalStrut(10));
 		infoPanel.add(infoText, BorderLayout.CENTER);
@@ -460,6 +462,7 @@ public 	class ResultsWizard
 	{
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		buttonPanel.add(Box.createVerticalStrut(30));
 		buttonPanel.add(addFieldButton);
 		buttonPanel.add(Box.createVerticalStrut(10));
 		buttonPanel.add(removeFieldButton);
@@ -512,7 +515,8 @@ public 	class ResultsWizard
 		{
 			boolean found = false;
 			for(AnnotationField currentFieldAnnotation : currentFields)
-				if(currentFieldAnnotation.getKey().equals(allFieldAnnotation.getKey()))
+				if(currentFieldAnnotation.getKey().
+						equals(allFieldAnnotation.getKey()))
 					found = true;
 			if(!found)
 				listModel.addElement(allFieldAnnotation.getName());

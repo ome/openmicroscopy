@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAct
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
-import org.openmicroscopy.shoola.util.roi.exception.NoSuchShapeException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
 import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
@@ -241,9 +240,9 @@ class MeasurementViewerUI
 	/**
      * Creates a new instance.
      * The 
-     * {@link #initialize(MeasurementViewerControl, MeasurementViewerModel) initialize} 
-     * method should be called straight after to link this View 
-     * to the Controller.
+     * {@link #initialize(MeasurementViewerControl, 
+     * MeasurementViewerModel) initialize} method should be called straight 
+     * after to link this View to the Controller.
      * 
      * @param title The window title.
      */
@@ -466,8 +465,8 @@ class MeasurementViewerUI
     {
     	Registry reg = MeasurementAgent.getRegistry();
     	if (e instanceof ROICreationException || 
-    		e instanceof NoSuchROIException ||
-    		e instanceof NoSuchShapeException) {
+    		e instanceof NoSuchROIException)
+    	{
     		reg.getLogger().error(this, 
     						"Problem while handling ROI "+e.getMessage());
     		statusBar.setStatus(e.getMessage());

@@ -119,10 +119,10 @@ public class IconManager
         relPaths[RESULTS] = "nuvola_view_text16.png";
         relPaths[LOAD] = "nuvola_revert22.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
-        relPaths[LEFT_ARROW] = "nuvola_1leftarrow32.png";
-        relPaths[RIGHT_ARROW] = "nuvola_1rightarrow32.png";
-        relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow32.png";
-        relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow32.png";
+        relPaths[LEFT_ARROW] = "nuvola_1leftarrow22.png";
+        relPaths[RIGHT_ARROW] = "nuvola_1rightarrow22.png";
+        relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow22.png";
+        relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow22.png";
         relPaths[WIZARD] = "nuvola_wizard32.png";
         relPaths[WIZARD16] = "nuvola_wizard16.png";
         relPaths[SAVE16] = "nuvola_filesaveas16.png";
