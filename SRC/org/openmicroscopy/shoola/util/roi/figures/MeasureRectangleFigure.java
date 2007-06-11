@@ -51,7 +51,9 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
 /**
  * 
@@ -211,9 +213,9 @@ public class MeasureRectangleFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m\u00B2";
+			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
-			return str+"px\u00B2";
+			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 
 
@@ -280,8 +282,8 @@ public class MeasureRectangleFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.RECTANGLE_TYPE; }
-	
+	public FigureType getType() { return FigureType.Rectangle; }
+		
 }
 
 

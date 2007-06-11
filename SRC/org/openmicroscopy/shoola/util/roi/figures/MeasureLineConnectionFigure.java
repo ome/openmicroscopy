@@ -37,6 +37,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineConnectionFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
@@ -54,6 +55,7 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
 /** 
  * 
@@ -167,7 +169,7 @@ public class MeasureLineConnectionFigure
 	
 	public String addDegrees(String str)
 	{
-		return str + "\u00B0";
+		return str + OutputUnit.DEGREES;
 	}
 	
 	public String addUnits(String str)
@@ -175,9 +177,9 @@ public class MeasureLineConnectionFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m";
+			return str+OutputUnit.MICRONS;
 		else
-			return str+"px";
+			return str+OutputUnit.PIXELS;
 	}
 				
 	public Rectangle2D.Double getDrawingArea()
@@ -323,11 +325,7 @@ public class MeasureLineConnectionFigure
 	public void calculateMeasurements() 
 	{
 		if (shape == null) return;
-	//	lengthArray = new ArrayList<Double>();
-	//	angleArray = new ArrayList<Double>();
-	//	pointArrayX = new ArrayList<Double>();
-	//	pointArrayY = new ArrayList<Double>();
-		
+	
 		pointArrayX.clear();
 		pointArrayY.clear();
 		lengthArray.clear();
@@ -371,8 +369,8 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.LINE_TYPE; }
-	
+	public FigureType getType() { return FigureType.LineConnection; }
+		
 }
 
 

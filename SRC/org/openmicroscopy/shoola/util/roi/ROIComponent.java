@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.roi;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.io.InputStream;
@@ -33,9 +34,13 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
+import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.io.XMLFileIOStrategy;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROICollection;
@@ -45,7 +50,9 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 /** 
  * The ROI Component is the main interface to the object which control the 
@@ -67,12 +74,48 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 public class ROIComponent 
 	extends Component 
 {
+		
+	/** The default color of the text. */
+	private static final Color			TEXT_COLOR = Color.ORANGE;
 	
+	/** The default color of the measurement text. */
+	private static final Color			MEASUREMENT_COLOR = 
+											new Color(255, 204, 102, 255);
+	
+	/** The default color used to fill area. */
+	private static final Color			FILL_COLOR = 
+											new Color(220, 220, 220, 120);
+
+	/** The default color used to fill area alpha'ed <sp>. */
+	private static final Color			FILL_COLOR_ALPHA = 
+											new Color(220, 220, 220, 0);
+	
+	/** The default color of the text. */
+	private static final double			FONT_SIZE = 10.0;
+	
+	/** The default width of the stroke. */
+	private static final double			STROKE_WIDTH = 1.0;
+	
+	/** The default color of the stroke. */
+	private static final Color			STROKE_COLOR = Color.WHITE;
+	
+	/** The default color of the stroke alpha'ed <sp> to transparent. */
+	private static final Color			STROKE_COLOR_ALPHA = 
+											new Color(255, 255, 255, 128);
 	/** The main object for storing and manipulating ROIs. */
-	private ROICollection		roiCollection;
+	private ROICollection				roiCollection;
 
 	/** The object used to load and save ROIs. */
-	private XMLFileIOStrategy	ioStrategy;
+	private XMLFileIOStrategy			ioStrategy;
+	
+	/** The number of microns per pixel in the X-Axis. */
+	private double						micronsPixelX;
+
+	/** The number of microns per pixel in the Y-Axis. */
+	private double						micronsPixelY;
+
+	/** The number of microns per pixel in the Y-Axis. */
+	private double						micronsPixelZ;
 
 	/** 
 	 * Creates a new instance. Initializes an collection to keep 
@@ -81,8 +124,168 @@ public class ROIComponent
 	public ROIComponent()
 	{
 		roiCollection = new ROICollection();
+		micronsPixelX = 0;
+		micronsPixelY = 0;
+		micronsPixelZ = 0;
 	}
 
+	/**
+	 * Set the number of microns per pixel in the x-axis. 
+	 * @param x see above.
+	 * 
+	 */
+	public void setMicronsPixelX(double x)
+	{
+		micronsPixelX = x;
+	}
+
+	/**
+	 * Get the number of microns per pixel in the x-axis. 
+	 * @return microns see above.
+	 * 
+	 */
+	public double getMicronsPixelX()
+	{
+		return micronsPixelX;
+	}
+	
+	/**
+	 * Set the number of microns per pixel in the y-axis. 
+	 * @param y see above.
+	 * 
+	 */
+	public void setMicronsPixelY(double y)
+	{
+		micronsPixelY = y;
+	}
+	
+	/**
+	 * Get the number of microns per pixel in the y-axis. 
+	 * @return microns see above.
+	 * 
+	 */
+	public double getMicronsPixelY()
+	{
+		return micronsPixelY;
+	}
+	
+	/**
+	 * Set the number of microns per pixel in the z-axis. 
+	 * @param z see above.
+	 * 
+	 */
+	public void setMicronsPixelZ(double z)
+	{
+		micronsPixelZ = z;
+	}
+	
+	/**
+	 * Get the number of microns per pixel in the z-axis. 
+	 * @return microns see above.
+	 * 
+	 */
+	public double getMicronsPixelZ()
+	{
+		return micronsPixelZ;
+	}
+
+	/**
+     * Helper method to set the attributes of the newly created figure.
+     * 
+     * @param fig The figure to handle.
+     */
+    private void setFigureAttributes(ROIFigure fig)
+    {
+    	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
+		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
+		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
+		DrawingAttributes.SHOWMEASUREMENT.set(fig, false);
+		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
+		DrawingAttributes.SHOWTEXT.set(fig, false);
+    	if (fig instanceof PointAnnotationFigure) {
+    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
+    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
+    	} else {
+    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
+    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
+    	}
+	 }
+    
+    /**
+     * Helper method to set the annotations of the newly created shape.
+     * 
+     * @param shape The shape to handle.
+     */
+    private void setShapeAnnotations(ROIShape shape)
+	{
+    	ROIFigure fig = shape.getFigure();
+		FigureType type = fig.getType();
+		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
+		
+		ROIShape s = fig.getROIShape();
+		AnnotationKeys.INMICRONS.set(s, false);
+		AnnotationKeys.MICRONSPIXELX.set(s,  getMicronsPixelX());
+		AnnotationKeys.MICRONSPIXELY.set(s,  getMicronsPixelY());
+	}
+    
+	/**
+    * Removes the specified figure from the display.
+    * 
+    * @param figure The figure to remove.
+	 * @throws NoSuchROIException 
+    */
+    void removeROI(ROIFigure figure) throws NoSuchROIException
+    {
+    	if (figure == null) return;
+    	long id = figure.getROI().getID();
+    	Coord3D coord = figure.getROIShape().getCoord3D();
+    	deleteShape(id, coord);	
+    }
+    
+    /**
+	 * Creates a <code>ROI</code> from the passed figure.
+	 * 
+	 * @param figure The figure to create the <code>ROI</code> from.
+	 * @param currentPlane The plane to add figure to. 
+	 * @return Returns the created <code>ROI</code>.
+	 * @throws ROICreationException If the ROI cannot be created.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	ROI createROI(ROIFigure figure, Coord3D currentPlane)
+		throws ROICreationException,  
+			NoSuchROIException
+	{
+		ROI roi = createROI();
+		ROIShape newShape = new ROIShape(roi, currentPlane, figure, 
+							figure.getBounds());
+		addShape(roi.getID(), currentPlane, newShape);
+		return roi;
+	}
+	
+    /**
+     * Adds the specified figure to the display.
+     * 
+     * @param figure The figure to add.
+     * @param currentPlane The plane to add figure to.
+     * @return returns the newly created ROI. 
+     * @throws NoSuchROIException 
+     * @throws ROICreationException 
+     */
+    public ROI addROI(ROIFigure figure, Coord3D currentPlane) throws 
+    													ROICreationException, 
+    													NoSuchROIException
+    {
+    	if (figure == null) throw new NullPointerException("Figure param null.");
+    	setFigureAttributes(figure);
+    	ROI roi = null;
+    	roi = createROI(figure, currentPlane);
+		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+    	ROIShape shape = figure.getROIShape();
+    	setShapeAnnotations(shape);
+    	AnnotationKeys.ROIID.set(shape, roi.getID());
+    	return roi;
+    }
+	
 	/** 
 	 * Saves the current ROI data to passed stream. 
 	 * 
@@ -202,8 +405,6 @@ public class ROIComponent
 	 * @return See Above.
 	 * @throws NoSuchROIException	if a ROI.id is used which does not exist this
 	 * 								exception is thrown.
-	 * @throws NoSuchShapeException	if the ROI does not contain the plane
-	 * 								coord then this exception is thrown.
 	 */
 	public ROIShape getShape(long id, Coord3D coord) 
 	throws 	NoSuchROIException
@@ -218,7 +419,7 @@ public class ROIComponent
 	 * 
 	 * @param coord
 	 * @return see above. 
-	 * @throws NoSuchShapeException if no shapes are on plance Coord then 
+	 * @throws NoSuchROIException if no shapes are on plance Coord then 
 	 * 								throw NoSuchShapeException.
 	 */
 	public ShapeList getShapeList(Coord3D coord) throws
@@ -291,6 +492,7 @@ public class ROIComponent
 	 * @param end 	plane to propagate to 
 	 * @throws NoSuchROIException			- Exception if ROI with id does not
 	 * 											exist.
+	 * @throws ROICreationException			- if the ROI cannot be created.
 	 */
 	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
 			Coord3D end) 
@@ -312,7 +514,6 @@ public class ROIComponent
 	 * @param start start plane
 	 * @param end end plane
 	 * @throws NoSuchROIException - returned if no such ROI exists.
-	 * @throws NoSuchShapeException - see above.
 	 */
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
 	throws 	NoSuchROIException

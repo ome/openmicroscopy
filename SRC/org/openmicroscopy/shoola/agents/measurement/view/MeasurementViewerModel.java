@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Rectangle;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 
@@ -36,6 +39,7 @@ import org.jhotdraw.draw.DefaultDrawing;
 import org.jhotdraw.draw.DefaultDrawingEditor;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -43,7 +47,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 
-import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementViewerLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsDimensionsLoader;
 import org.openmicroscopy.shoola.agents.measurement.PixelsLoader;
@@ -327,8 +330,23 @@ class MeasurementViewerModel
 	 * 
 	 * @param dims The value to set.
 	 */
-	void setPixelsDimensions(PixelsDimensions dims) { pixelsDims = dims; }
+	void setPixelsDimensions(PixelsDimensions dims) 
+	{ 
+		pixelsDims = dims; 
+		setMicronsPixelSize();
+	}
 
+	/**
+	 * Sets the microns per pixel in the ROIComponent after the image 
+	 * has loaded. 
+	 */
+	void setMicronsPixelSize()
+	{
+		roiComponent.setMicronsPixelX(getPixelSizeX());
+		roiComponent.setMicronsPixelY(getPixelSizeY());
+		roiComponent.setMicronsPixelZ(getPixelSizeZ());
+	}
+	
 	/**
 	 * Returns the currently selected z-section.
 	 * 
@@ -406,6 +424,28 @@ class MeasurementViewerModel
 	float getPixelSizeY() { return pixelsDims.getSizeY().floatValue(); }
 	
 	/**
+	 * Returns the size in microns of a pixel along the Z-axis.
+	 * 
+	 * @return See above.
+	 */
+	float getPixelSizeZ() { return pixelsDims.getSizeZ().floatValue(); }
+	
+	/**
+	 * Returns the number of z sections in an image.
+	 * 
+	 * @return See above.
+	 */
+	int getNumZSections() { return pixels.getSizeZ(); }
+	
+	/**
+	 * Returns the number of timepoints in an image.
+	 * 
+	 * @return See above.
+	 */
+	int getNumTimePoints() { return pixels.getSizeT(); }
+	
+	
+	/**
 	 * Returns the number of pixels along the X-axis.
 	 * 
 	 * @return See above.
@@ -426,6 +466,22 @@ class MeasurementViewerModel
 	 */
 	DrawingView getDrawingView() { return drawingView; }
 	
+	/** 
+	 * Get the ROI of the currently selected figure in the drawingview. 
+	 * @return see above.
+	 */
+	public Collection<ROI> getSelectedROI()
+	{
+		Collection<Figure> selectedFigs = drawingView.getSelectedFigures();
+		ArrayList<ROI> roiList = new ArrayList<ROI>();
+		Iterator<Figure> figIterator = selectedFigs.iterator();
+		while(figIterator.hasNext())
+		{
+			ROIFigure fig = (ROIFigure)figIterator.next();
+			roiList.add(fig.getROI());
+		}
+		return roiList;
+	}
 	/**
 	 * Removes the <code>ROI</code> corresponding to the passed id.
 	 * 
@@ -452,7 +508,7 @@ class MeasurementViewerModel
 	}
 
 	/**
-	 * Creates a <code>ROI</code> from the passed figure.
+	 * Gets the ROIComponent to create a <code>ROI</code> from the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @return Returns the created <code>ROI</code>.
@@ -463,11 +519,7 @@ class MeasurementViewerModel
 		throws ROICreationException,  
 			NoSuchROIException
 	{
-		ROI roi = roiComponent.createROI();
-		ROIShape newShape = new ROIShape(roi, currentPlane, figure, 
-							figure.getBounds());
-		roiComponent.addShape(roi.getID(), currentPlane, newShape);
-		return roi;
+		return roiComponent.addROI(figure, getCurrentView());
 	}
 	
 	/**

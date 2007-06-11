@@ -34,6 +34,7 @@ import org.jhotdraw.draw.TextFigure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
@@ -109,7 +110,7 @@ public class MeasureTextFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.TEXT_TYPE; }
+	public FigureType getType() { return FigureType.Text; }
 	
 	/**
 	 * Required by the {@link ROIFigure} interface but no-op implementation 

@@ -178,4 +178,7 @@ public interface MeasurementViewer
 	/** Brings up on screen the results wizard. */
 	public void showResultsWizard();
 
+	/** Brings up on screen the ROI Assistant. */
+	public void showROIAssistant();
+
 }

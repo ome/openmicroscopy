@@ -52,8 +52,11 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.POINTARRAYY;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.STARTPOINTX;
+
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 /** 
  * 
@@ -182,7 +185,7 @@ public class MeasureBezierFigure
 	
 	public String addDegrees(String str)
 	{
-		return str + "\u00B0";
+		return str + OutputUnit.DEGREES;
 	}
 	
 	public String addLineUnits(String str)
@@ -191,9 +194,9 @@ public class MeasureBezierFigure
 			return str;
 		
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m";
+			return str+OutputUnit.MICRONS;
 		else
-			return str+"px";
+			return str+OutputUnit.PIXELS;
 	}
 	
 	public String addAreaUnits(String str)
@@ -201,9 +204,9 @@ public class MeasureBezierFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m\u00B2";
+			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
-			return str+"px\u00B2";
+			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 	
 	/**
@@ -301,8 +304,6 @@ public class MeasureBezierFigure
 	public void calculateMeasurements() 
 	{
 		if (shape==null) return;
-		//pointArrayX = new ArrayList<Double>();
-		//pointArrayY = new ArrayList<Double>();
 		
 		pointArrayX.clear();
 		pointArrayY.clear();
@@ -324,7 +325,6 @@ public class MeasureBezierFigure
 		}
 		else
 		{
-			//ArrayList<Double> lengthArray = new ArrayList<Double>();
 			lengthArray.add(getLength());
 			
 			LENGTH.set(shape, lengthArray);
@@ -341,10 +341,10 @@ public class MeasureBezierFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType()
+	public FigureType getType()
 	{
-		if (CLOSED.get(this)) return ROIFigure.POLYGON_TYPE;
-		return ROIFigure.SCRIBBLE_TYPE;
+		if (CLOSED.get(this)) return FigureType.Polygon;
+		return FigureType.Scribble;
 	}
 
 }

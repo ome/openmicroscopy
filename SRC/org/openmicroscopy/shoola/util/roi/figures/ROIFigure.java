@@ -30,6 +30,7 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 
 /** 
@@ -112,7 +113,7 @@ public interface ROIFigure
 	 * 
 	 * @return See above.
 	 */
-	public String getType();
+	public FigureType getType();
 	
 }
 

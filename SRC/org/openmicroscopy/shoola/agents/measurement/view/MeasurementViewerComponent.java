@@ -430,11 +430,20 @@ class MeasurementViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
-	 * @see MeasurementViewer#saveResultsTable()
+	 * @see MeasurementViewer#showResultsWizard()
 	 */
 	public void showResultsWizard()
 	{
 		view.showResultsWizard();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MeasurementViewer} interface.
+	 * @see MeasurementViewer#showROIAssistant()
+	 */
+	public void showROIAssistant()
+	{
+		view.showROIAssistant();
 	}
     
 }

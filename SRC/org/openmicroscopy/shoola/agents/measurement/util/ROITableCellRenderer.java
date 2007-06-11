@@ -33,6 +33,8 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -73,7 +75,8 @@ public class ROITableCellRenderer
 	{
 		Component thisComponent = new JLabel();
 		if ((value instanceof Integer) || (value instanceof Long) ||
-				(value instanceof Double) || (value instanceof String))
+				(value instanceof Double) || (value instanceof String) ||
+				(value instanceof FigureType))
 		{
 			JLabel label = new JLabel();
 			label.setOpaque(true);

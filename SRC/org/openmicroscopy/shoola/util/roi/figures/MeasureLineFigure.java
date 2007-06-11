@@ -37,6 +37,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.LineFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
@@ -53,6 +54,7 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELX;
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
 /** 
  * 
@@ -181,7 +183,7 @@ public class MeasureLineFigure
 	
 	public String addDegrees(String str)
 	{
-		return str + "\u00B0";
+		return str + OutputUnit.DEGREES;
 	}
 	
 	public String addUnits(String str)
@@ -189,9 +191,9 @@ public class MeasureLineFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m";
+			return str+OutputUnit.MICRONS;
 		else
-			return str+"px";
+			return str+OutputUnit.PIXELS;
 	}
 				
 	public Rectangle2D.Double getDrawingArea()
@@ -248,16 +250,9 @@ public class MeasureLineFigure
 	
 	public double getLength(int i , int j)
 	{
-	//	if(INMICRONS.get(shape))
-	//	{
 			Point2D.Double pt1 = getPt(i);
 			Point2D.Double pt2 = getPt(j);
-			//pt1.setLocation(pt1.getX()*MICRONSPIXELX.get(shape), pt1.getY()*MICRONSPIXELY.get(shape));
-			//pt2.setLocation(pt2.getX()*MICRONSPIXELX.get(shape), pt2.getY()*MICRONSPIXELY.get(shape));
 			return pt1.distance(pt2);
-	//	}
-	//	else
-	//		return getPoint(i).distance(getPoint(j));
 	}
 	
 	public double getAngle(int i, int j, int k)
@@ -322,12 +317,7 @@ public class MeasureLineFigure
 	{
 		if(shape==null)
 			return;
-	
-		//lengthArray = new ArrayList<Double>();
-		//angleArray = new ArrayList<Double>();
-		//pointArrayX = new ArrayList<Double>();
-		//pointArrayY = new ArrayList<Double>();
-		
+			
 		pointArrayX.clear();
 		pointArrayY.clear();
 		lengthArray.clear();
@@ -377,8 +367,8 @@ public class MeasureLineFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.LINE_TYPE; }
-
+	public FigureType getType() { return FigureType.Line; }
+	
 }
 
 

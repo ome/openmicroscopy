@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.measurement.actions.RefreshResultsTableA
 import org.openmicroscopy.shoola.agents.measurement.actions.ResultsWizardAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -90,6 +91,9 @@ class MeasurementViewerControl
     
     /** Identifies the <code>Results Wizard</code> action in the menu. */
     static final Integer     RESULTS_WIZARD = new Integer(4);
+
+    /** Identifies the <code>ROI Assistant</code> action in the menu. */
+    static final Integer     ROI_ASSISTANT = new Integer(5);
     
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
@@ -111,6 +115,7 @@ class MeasurementViewerControl
     	actionsMap.put(SAVE_RESULTS, new SaveResultsAction(model));
     	actionsMap.put(REFRESH_RESULTS, new RefreshResultsTableAction(model));
     	actionsMap.put(RESULTS_WIZARD, new ResultsWizardAction(model));
+    	actionsMap.put(ROI_ASSISTANT, new ShowROIAssistant(model));
     }
 
     /**

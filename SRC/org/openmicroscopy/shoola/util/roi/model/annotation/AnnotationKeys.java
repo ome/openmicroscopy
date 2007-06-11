@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -93,8 +95,8 @@ public class AnnotationKeys {
 		new AnnotationKey<Double>("measurementMicronsPixelZ", 0.0);
 	public static final AnnotationKey<Long> ROIID = 
 		new AnnotationKey<Long>("regionOfInterestID", null);
-	public static final AnnotationKey<String> FIGURETYPE = 
-		new AnnotationKey<String>("figureType", null);
+	public static final AnnotationKey<FigureType> FIGURETYPE = 
+		new AnnotationKey<FigureType>("figureType", null);
 	
 	
 	 /**

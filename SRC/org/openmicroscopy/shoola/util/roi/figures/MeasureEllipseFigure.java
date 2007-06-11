@@ -38,6 +38,7 @@ import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
@@ -53,6 +54,7 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
 /** 
  * 
@@ -212,9 +214,9 @@ public class MeasureEllipseFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m\u00B2";
+			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
-			return str+"px\u00B2";
+			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 
 	public double getArea()
@@ -289,7 +291,7 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.ELLIPSE_TYPE; }
-
+	public FigureType getType() { return FigureType.Ellipse; }
+	
 }
 

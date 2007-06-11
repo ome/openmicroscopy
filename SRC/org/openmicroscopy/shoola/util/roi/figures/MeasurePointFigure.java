@@ -36,6 +36,7 @@ import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Application-internal dependencies
 import static org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes.MEASUREMENTTEXT_COLOUR;
@@ -47,6 +48,7 @@ import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys
 import static org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys.MICRONSPIXELY;
 
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.figures.textutil.OutputUnit;
 
 /** 
  * 
@@ -204,9 +206,9 @@ public class MeasurePointFigure
 		if(shape==null)
 			return str;
 		if(INMICRONS.get(shape))
-			return str+"\u00B5m\u00B2";
+			return str+OutputUnit.MICRONS+OutputUnit.SQUARED;
 		else
-			return str+"px\u00B2";
+			return str+OutputUnit.PIXELS+OutputUnit.SQUARED;
 	}
 
 	public Point2D getCentre()
@@ -254,7 +256,7 @@ public class MeasurePointFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public String getType() { return ROIFigure.POINT_TYPE; }
+	public FigureType getType() { return FigureType.Point; }
 	
 }
 

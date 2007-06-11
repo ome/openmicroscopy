@@ -41,6 +41,7 @@ import javax.swing.table.TableCellRenderer;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -102,7 +103,7 @@ public class ResultsCellRenderer
 		Component thisComponent = new JLabel();
 		if ((value instanceof Integer) || (value instanceof Long) ||
 				(value instanceof Double) || (value instanceof String) || 
-				(value instanceof Float))
+				(value instanceof Float) || (value instanceof FigureType))
 		{
 			JLabel label = new JLabel();
 			label.setOpaque(true);

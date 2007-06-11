@@ -40,24 +40,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 
 //Third-party libraries
-import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.measurement.view.roiassistant.ROIAssistant;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.figures.DrawingAttributes;
-import org.openmicroscopy.shoola.util.roi.figures.PointAnnotationFigure;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
-import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -80,34 +77,6 @@ class MeasurementViewerUI
 
 	/** The default size of the window. */
 	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
-	
-	/** The default color of the text. */
-	private static final Color			TEXT_COLOR = Color.ORANGE;
-	
-	/** The default color of the measurement text. */
-	private static final Color			MEASUREMENT_COLOR = 
-											new Color(255, 204, 102, 255);
-	
-	/** The default color used to fill area. */
-	private static final Color			FILL_COLOR = 
-											new Color(220, 220, 220, 120);
-
-	/** The default color used to fill area alpha'ed <sp>. */
-	private static final Color			FILL_COLOR_ALPHA = 
-											new Color(220, 220, 220, 0);
-	
-	/** The default color of the text. */
-	private static final double			FONT_SIZE = 10.0;
-	
-	/** The default width of the stroke. */
-	private static final double			STROKE_WIDTH = 1.0;
-	
-	/** The default color of the stroke. */
-	private static final Color			STROKE_COLOR = Color.WHITE;
-	
-	/** The default color of the stroke alpha'ed <sp> to transparent. */
-	private static final Color			STROKE_COLOR_ALPHA = 
-											new Color(255, 255, 255, 128);
 	
 	/** Reference to the Model. */
 	private MeasurementViewerModel 		model;
@@ -136,44 +105,6 @@ class MeasurementViewerUI
     /** The status bar. */
     private StatusBar					statusBar;
     
-    /**
-     * Helper method to set the attributes of the newly created figure.
-     * 
-     * @param fig The figure to handle.
-     */
-    private void setFigureAttributes(ROIFigure fig)
-    {
-    	AttributeKeys.FONT_SIZE.set(fig, FONT_SIZE);
-		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
-		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
-		DrawingAttributes.SHOWMEASUREMENT.set(fig, false);
-		DrawingAttributes.MEASUREMENTTEXT_COLOUR.set(fig, MEASUREMENT_COLOR);
-		DrawingAttributes.SHOWTEXT.set(fig, false);
-    	if (fig instanceof PointAnnotationFigure) {
-    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR_ALPHA);
-    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR_ALPHA);
-    	} else {
-    		AttributeKeys.FILL_COLOR.set(fig, FILL_COLOR);
-    		AttributeKeys.STROKE_COLOR.set(fig, STROKE_COLOR);
-    	}
-	 }
-    
-    /**
-     * Helper method to set the annotations of the newly created shape.
-     * 
-     * @param shape The shape to handle.
-     */
-    private void setShapeAnnotations(ROIShape shape)
-	{
-    	ROIFigure fig = shape.getFigure();
-		String type = fig.getType();
-		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
-		
-		ROIShape s = fig.getROIShape();
-		AnnotationKeys.INMICRONS.set(s, false);
-		AnnotationKeys.MICRONSPIXELX.set(s,  (double) model.getPixelSizeX());
-		AnnotationKeys.MICRONSPIXELY.set(s,  (double) model.getPixelSizeY());
-   }
     
     /** 
      * Creates the menu bar.
@@ -388,7 +319,6 @@ class MeasurementViewerUI
     void addROI(ROIFigure figure)
     {
     	if (figure == null) return;
-    	setFigureAttributes(figure);
     	ROI roi = null;
     	try {
     		roi = model.createROI(figure);
@@ -396,11 +326,8 @@ class MeasurementViewerUI
 			handleROIException(e);
 		}
     	if (roi == null) return;
-    	ROIShape shape = figure.getROIShape();
-    	setShapeAnnotations(shape);
     	List<ROI> roiList = new ArrayList<ROI>();
     	roiList.add(roi);
-    	AnnotationKeys.ROIID.set(shape, roi.getID());
     	roiManager.addFigures(roiList);
     }
     
@@ -454,7 +381,12 @@ class MeasurementViewerUI
 	 * selection.
 	 */
 	void showResultsWizard() { roiResults.showResultsWizard(); }
-    
+	
+	/**
+	 * Shows the ROIAssistant and updates the ROI based on the users 
+	 * selection.
+	 */
+	void showROIAssistant() { createDisplayROIAssistant(); }    
     
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
@@ -492,4 +424,32 @@ class MeasurementViewerUI
         }
     }
 
+    
+    /**
+	 * Shows the ROIAssistant and updates the ROI based on the users 
+	 * selection.
+	 */
+	private void createDisplayROIAssistant()
+    {
+		Collection<ROI> roiList = model.getSelectedROI();
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		if(roiList.size()==0)
+		{
+				un.notifyInfo("ROI Assistant", "Select a Figure for the ROI " +
+												"Assistant to modify.");
+				return;
+		}
+		if(roiList.size()>1)
+		{
+				un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
+												"only be used on one ROI" +
+												"at a time.");
+				return;
+		}
+		ROI currentROI = roiList.iterator().next();
+    	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
+    		model.getNumZSections(), model.getCurrentView(), currentROI);
+    	assistant.setVisible(true);
+    }
 }
