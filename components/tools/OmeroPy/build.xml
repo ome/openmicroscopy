@@ -19,15 +19,24 @@
 <!--    <setup_py>
             <arg value="icegen"/>
         </setup_py> -->
-<!--    <apply executable="slice2py" failonerror="true" parallel="true">
-            <arg value="X-output-dir"/>
+        <apply executable="slice2py" failonerror="true" parallel="true">
+            <arg value="--output-dir"/>
             <arg value="${copy.dir}"/>
-            <arg value="-I${copy.dir}/OMERO/Model"/>
-            <arg value="-I${copy.dir}/OMERO"/>
+            <arg value="--prefix"/>
+            <arg value="OMERO_"/>
             <arg value="-I${copy.dir}"/>
             <arg value="-I${py.ICE_HOME}/slice"/>
-            <fileset dir="${copy.dir}" includes="**/*.ice"/>
-        </apply>-->
+            <fileset dir="${copy.dir}/OMERO" includes="*.ice"/>
+        </apply>
+        <apply executable="slice2py" failonerror="true" parallel="true">
+            <arg value="--output-dir"/>
+            <arg value="${copy.dir}"/>
+            <arg value="--prefix"/>
+            <arg value="OMERO_Model_"/>
+            <arg value="-I${copy.dir}"/>
+            <arg value="-I${py.ICE_HOME}/slice"/>
+            <fileset dir="${copy.dir}/OMERO/Model/" includes="*.ice"/>
+        </apply>
     </target>
 
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts"/>
@@ -37,6 +46,7 @@
 
    <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
+        <delete dir="build/lib"/>
     </target>
 
 </project>
