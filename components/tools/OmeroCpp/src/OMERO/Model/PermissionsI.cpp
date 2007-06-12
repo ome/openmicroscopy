@@ -73,7 +73,7 @@ namespace omero { namespace model {
     // flags are stored with reverse semantics.
   }
   void PermissionsI::setLocked(bool value, const Ice::Current& c) {
-    set(1,18,!value); // Here we use the granted
+    set(1,18,!value); // Here we use the set
     // logic but without a shift. The not is because
     // flags are stored with reverse semantics.
   }

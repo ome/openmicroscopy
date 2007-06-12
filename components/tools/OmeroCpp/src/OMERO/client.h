@@ -63,11 +63,13 @@ namespace OMERO {
      * the ICE_CONFIG environment property). Command-line arguments
      * with the reserved prefixes, however, override all other values.
      */
-    client(int& argc, char* argv[], 
-	   const Ice::InitializationData& id = Ice::InitializationData());
+    client(int& argc, char* argv[],
+      const Ice::InitializationData& id = Ice::InitializationData());
 
     /*
-     * Destroys the session and the communicator instances.
+     * Destroys the communicator instance. To have the session destroyed,
+     * call close on the client before destruction. Otherwise, the session
+     * will be destroyed by the server on timeout.
      */
     ~client();
 
@@ -81,7 +83,7 @@ namespace OMERO {
 
     // Session management
 
-    /* 
+    /*
      * Creates a session. Calling this method while a session is
      * active will throw an exception. It should only be used again,
      * after a session timeout exception, or similar.
@@ -140,7 +142,7 @@ namespace OMERO {
     void close(const ::Ice::Context& ctx);
 
 
-    /* 
+    /*
      * The callback is currently unused. Rather, this is an example of
      * what a callback would look like.
      */
