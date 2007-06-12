@@ -237,6 +237,8 @@ public class ServiceHandler implements MethodInterceptor {
     }
 
     private void printException(String msg, Throwable ex) {
-        log.error("Exception logged.", ex);
+        if (log.isWarnEnabled()) {
+                log.warn(msg + "\n", ex);
+        } 
     }
 }
