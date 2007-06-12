@@ -241,6 +241,13 @@ public class FileQueueTable
         failedFiles = true;
         table.fireTableDataChanged();
     }
+    
+    public void setProgressUnknown(int row)
+    {
+        table.setValueAt("unknown format", row, 2);
+        failedFiles = true;
+        table.fireTableDataChanged();
+    }    
         
     public void setProgressPrepping(int row)
     {
@@ -421,9 +428,8 @@ public class FileQueueTable
             }
 
             setFont(UIManager.getFont("TableCell.font"));
-            if (queue.getValueAt(row, 2).equals("done") || 
-                    queue.getValueAt(row, 2).equals("failed"))
-            { this.setEnabled(false); } 
+            if (queue.getValueAt(row, 2).equals("done"))
+            { this.setEnabled(false);} 
             else
             { this.setEnabled(true); }
            

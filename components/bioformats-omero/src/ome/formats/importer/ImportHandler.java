@@ -17,12 +17,10 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import loci.formats.FormatException;
-import ome.api.IRepositoryInfo;
 import ome.formats.OMEROMetadataStore;
 import ome.model.core.Pixels;
 
@@ -40,7 +38,6 @@ public class ImportHandler
 {
 
     private ImportLibrary   library;
-    private IRepositoryInfo iInfo;
     private OMEROWrapper    reader;
 
     private Main      viewer;
@@ -72,9 +69,7 @@ public class ImportHandler
             this.qTable = qTable;
             this.reader = reader;
             this.library = new ImportLibrary(store, reader, fads);
-            
-            this.iInfo = store.getRepositoryInfo();
-           
+                       
             runThread = new Thread()
             {
                 public void run()
@@ -148,6 +143,11 @@ public class ImportHandler
                 			    fads[j].imageName,
                 			    fads[j].archive);
                 }
+                catch (FormatException fe)
+                {
+                    qTable.setProgressUnknown(j);
+                    viewer.appendToOutputLn("> [" + j + "] Unknown format.");
+                }
                 catch (Exception e)
                 {
                 	qTable.setProgressFailed(j);
@@ -203,10 +203,11 @@ public class ImportHandler
     {        
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
-
+        
         viewer.appendToOutput("> [" + index + "] Loading image \"" + shortName
                 + "\"...");
-        open(file.getAbsolutePath());
+
+        library.open(file.getAbsolutePath());
         
         viewer.appendToOutput(" Succesfully loaded.\n");
 
@@ -230,6 +231,7 @@ public class ImportHandler
             store.setOriginalFiles(files); 
         }
         reader.getUsedFiles();
+
         List<Pixels> pixList = library.importMetadata(imageName);
 
         int seriesCount = reader.getSeriesCount();
@@ -288,19 +290,5 @@ public class ImportHandler
         
         return pixList;
         
-    }
-
-    /** Opens the given file using the ImageReader. */
-    public void open(String fileName)
-    {
-        try
-        {
-            library.open(fileName);
-        } catch (Exception exc)
-        {
-            exc.printStackTrace();
-            viewer.appendToDebugLn(exc.toString());
-            return;
-        }
     }
 }

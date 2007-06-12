@@ -20,7 +20,7 @@ import ome.model.core.Pixels;
 public class OMEROWrapper extends MinMaxCalculator
 {
     private ChannelSeparator separator;
-    private Boolean minMaxSet = null; 
+    public Boolean minMaxSet = null; 
     private ImageReader iReader;
     /**
 	 * Reference copy of <i>reader</i> so that we can be compatible with the
@@ -45,7 +45,7 @@ public class OMEROWrapper extends MinMaxCalculator
 	/**
 	 * Obtains an object which represents a given plane within the file.
 	 * @param id The path to the file.
-	 * @param no The plane or section within the file to obtain.
+	 * @param planeNumber The plane or section within the file to obtain.
 	 * @param buf Pre-allocated buffer which has a <i>length</i> that can fit
 	 * the byte count of an entire plane.
 	 * @return an object which represents the plane.
@@ -53,7 +53,7 @@ public class OMEROWrapper extends MinMaxCalculator
 	 * @throws IOException if there is an error reading from the file or
 	 *   acquiring permissions to read the file.
 	 */
-	public Plane2D openPlane2D(String id, int no, byte[] buf)
+	public Plane2D openPlane2D(String id, int planeNumber, byte[] buf)
 		throws FormatException, IOException
 	{
 		// FIXME: HACK! The ChannelSeparator isn't exactly what one would call
@@ -61,15 +61,29 @@ public class OMEROWrapper extends MinMaxCalculator
 		// all of the plane data (all three channels) from the file if the file
 		// is RGB.
 		ByteBuffer plane;
-		if (separator.getReader().isRGB() || iReader.getReader() instanceof LeicaReader)
-			plane = ByteBuffer.wrap(openBytes(no));
+		if (separator.getReader().isRGB() || isLeicaReader())
+			plane = ByteBuffer.wrap(openBytes(planeNumber));
 		else
-			plane = ByteBuffer.wrap(openBytes(no, buf));
+			plane = ByteBuffer.wrap(openBytes(planeNumber, buf));
 
 		return new Plane2D(plane, getPixelType(), isLittleEndian(),
 				           getSizeX(), getSizeY());
 	}
 
+    public boolean isLeicaReader()
+    {
+        if (iReader.getReader() instanceof LeicaReader)
+            return true;
+        else
+            return false;
+    }
+    
+    public String getSeriesName(int series)
+    {
+        LeicaReader r = (LeicaReader) iReader.getReader();
+        return r.getSeriesName(series);
+    }
+    
 	/**
 	 * Retrieves the global min and max for each channel and sets those values
 	 * in the MetadataStore.
@@ -87,11 +101,11 @@ public class OMEROWrapper extends MinMaxCalculator
             
             double cMin = getChannelGlobalMinimum(c);
             double cMax = getChannelGlobalMaximum(c);
-            
+
             gMin = cMin;
             gMax = cMax;
                        
-            getMetadataStore().setChannelGlobalMinMax(c, gMin, gMax, null);
+            getMetadataStore().setChannelGlobalMinMax(c, gMin, gMax, new Integer(getSeries()));
         }    
     }
 
@@ -106,8 +120,8 @@ public class OMEROWrapper extends MinMaxCalculator
 		throws FormatException, IOException
 	{
 		// Make sure we have StatsInfo objects.
-		if (getChannelGlobalMinimum(0) == null
-			|| getChannelGlobalMaximum(0) == null)
+		if (getChannelGlobalMinimum(getSizeC() -1) == null
+			|| getChannelGlobalMaximum(getSizeC() -1) == null)
 			setChannelGlobalMinMax(id);
 	}
 
@@ -120,7 +134,7 @@ public class OMEROWrapper extends MinMaxCalculator
             List<Pixels> p = (ArrayList<Pixels>) store.getRoot();
             int series = reader.getSeries();
             List<Channel> channels = p.get(series).getChannels();
-            if (channels.get(0).getStatsInfo() == null)
+            if (channels.get(getSizeC()-1).getStatsInfo() == null)
             {
                 minMaxSet = false;
             } else {

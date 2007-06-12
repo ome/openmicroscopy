@@ -270,6 +270,7 @@ public class OMEROMetadataStore implements MetadataStore
     public void setImage(String name, String creationDate, String description,
             Integer series)
     {
+        
         log.debug(String.format("Setting Image: name (%s), creationDate (%s), "
                 + "description (%s)", name, creationDate, description));
         // FIXME: Image really needs to handle creation date somehow.
@@ -379,45 +380,56 @@ public class OMEROMetadataStore implements MetadataStore
             Integer sizeC, Integer sizeT, Integer pixelType, Boolean bigEndian,
             String dimensionOrder, Integer imageIndex, Integer pixelsIndex)
     {
-        log
-                .debug(String
-                        .format(
-                                "Setting Pixels: x (%d), y (%d), z (%d), c (%d), t (%d), "
-                                        + "PixelType (%s), BigEndian? (%b), dimemsionOrder (%s)",
-                                sizeX, sizeY, sizeZ, sizeC, sizeT, pixelType,
-                                bigEndian, dimensionOrder));
-        // Retrieve enumerations from the server
-               
+        // Retrieve enumerations from the server               
         PixelsType type = null;
+        String pixTypeString = "";
         switch(pixelType)
         {
             case FormatTools.INT8:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int8");
+                pixTypeString = "int8";
                 break;
             case FormatTools.UINT8:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint8");
+                pixTypeString = "uint8";
                 break;
             case FormatTools.INT16:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int16");
+                pixTypeString = "int16";
                 break;
             case FormatTools.UINT16:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint16");
+                pixTypeString = "uint16";
                 break;
             case FormatTools.INT32:
                 type = (PixelsType) getEnumeration(PixelsType.class, "int32");
+                pixTypeString = "int32";
                 break;
             case FormatTools.UINT32:
                 type = (PixelsType) getEnumeration(PixelsType.class, "uint32");
+                pixTypeString = "uint32";
                 break;
             case FormatTools.FLOAT:
                 type = (PixelsType) getEnumeration(PixelsType.class, "float");
+                pixTypeString = "float";
                 break;
             case FormatTools.DOUBLE:
                 type = (PixelsType) getEnumeration(PixelsType.class, "double");
+                pixTypeString = "double";
                 break;
             default: new RuntimeException("Unknown pixelType enumeration: " 
                     + pixelType);
         }
+        
+        log
+        .debug(String
+                .format(
+                        "Setting Pixels: x (%d), y (%d), z (%d), c (%d), t (%d), "
+                                + "PixelType (%s), BigEndian? (%b), dimemsionOrder (%s)",
+                        sizeX, sizeY, sizeZ, sizeC, sizeT, pixTypeString,
+                        bigEndian, dimensionOrder));
+        
+        
         DimensionOrder order = (DimensionOrder) getEnumeration(
                 DimensionOrder.class, dimensionOrder);
 
@@ -948,7 +960,7 @@ public class OMEROMetadataStore implements MetadataStore
 	/**
      * Check the MinMax values stored in the DB and sync them with the new values
      * we generate in the channelMinMax reader, then save them to the DB. 
-     * We could trust that the values are in the right order, but this This just 
+     * We could trust that the values are in the right order, but this just 
      * makes sure.
 	 * @param id
 	 */

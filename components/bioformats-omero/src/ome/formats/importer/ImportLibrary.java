@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
@@ -174,6 +173,7 @@ public class ImportLibrary
         reader.close();
         reader.setMetadataStore(store);
         reader.setId(fileName);
+        //reset series count
         log.debug("Image Count: " + reader.getImageCount());
     }
 
@@ -211,9 +211,16 @@ public class ImportLibrary
     {
         List<Pixels> pixelsArray = (List<Pixels>) store.getRoot();
         // Ensure that our metadata is consistent before writing to the DB.
+        int series = 0;
         for (Pixels pix:pixelsArray)
         {
-            pix.getImage().setName(imageName);
+            String name = imageName;
+            if (reader.isLeicaReader())
+            {
+                name += " [" + reader.getSeriesName(series) + "]";
+            }
+
+            pix.getImage().setName(name);
             if (pix.getPixelsDimensions() == null)
             {   
                 PixelsDimensions pixDims = new PixelsDimensions();
@@ -222,6 +229,7 @@ public class ImportLibrary
                 pixDims.setSizeZ(1.0f);
                 pix.setPixelsDimensions(pixDims);
             }
+            series++;
         }
         
         pixelsArray = store.saveToDB();
