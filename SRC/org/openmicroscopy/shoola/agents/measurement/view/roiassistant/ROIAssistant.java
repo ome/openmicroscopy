@@ -41,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -120,6 +121,7 @@ public class ROIAssistant
 	{
 		model = new ROIAssistantModel(numRow, numCol, currentPlane, selectedROI);
 		table = new ROIAssistantTable(model);
+		table.setRowHeight(16);
 	}
 	
 	/** Create the accept, reset and cancel buttons including actions. */
@@ -191,7 +193,7 @@ public class ROIAssistant
 	/** Layout the UI, adding panels to the form. */
 	private void layoutUI()
 	{
-		this.setSize(500,400);
+		this.setSize(500,500);
 		JPanel panel = new JPanel();
 		JPanel infoPanel = createInfoPanel();
 		JPanel buttonPanel = createButtonPanel();
@@ -202,11 +204,11 @@ public class ROIAssistant
 		
 		panel.add(infoPanel);
 		panel.add(Box.createVerticalStrut(10));
-		panel.add(table);
+		panel.add(new JScrollPane(table));
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(buttonPanel);
 		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(panel);
+		this.getContentPane().add(panel, BorderLayout.CENTER);
 	}
 
 	

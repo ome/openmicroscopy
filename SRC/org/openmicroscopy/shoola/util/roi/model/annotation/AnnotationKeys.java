@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.roi.model.annotation;
 
 
 //Java imports
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,8 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Third-party libraries
 
@@ -95,8 +92,8 @@ public class AnnotationKeys {
 		new AnnotationKey<Double>("measurementMicronsPixelZ", 0.0);
 	public static final AnnotationKey<Long> ROIID = 
 		new AnnotationKey<Long>("regionOfInterestID", null);
-	public static final AnnotationKey<FigureType> FIGURETYPE = 
-		new AnnotationKey<FigureType>("figureType", null);
+	public static final AnnotationKey<String> FIGURETYPE = 
+		new AnnotationKey<String>("figureType", null);
 	
 	
 	 /**

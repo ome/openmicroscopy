@@ -367,7 +367,7 @@ public class MeasureLineFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public FigureType getType() { return FigureType.Line; }
+	public String getType() { return ROIFigure.LINE_TYPE; }
 	
 }
 

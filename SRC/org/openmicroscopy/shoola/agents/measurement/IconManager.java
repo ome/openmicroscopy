@@ -100,11 +100,18 @@ public class IconManager
 	/** The <code>Status Info</code> icon. */
 	public static final int		STATUS_INFO = 14;
 	
-    /** 
+	/** The <code>Rectangle</code> icon. */
+	public static final int		RECTANGLE = 15;
+	
+	/** The <code>Point</code> icon. */
+	public static final int		LINE = 16;
+
+
+	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 14;
+    private static final int    MAX_ID = 16;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -128,6 +135,8 @@ public class IconManager
         relPaths[SAVE16] = "nuvola_filesaveas16.png";
         relPaths[REFRESH16] = "nuvola_reload16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
+        relPaths[RECTANGLE] = "rectimage.png";
+        relPaths[LINE] = "lineicon.png";
     }
     
     /** 

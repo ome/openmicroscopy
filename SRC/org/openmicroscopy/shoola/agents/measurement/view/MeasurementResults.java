@@ -37,6 +37,7 @@ import java.util.TreeMap;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -446,15 +447,23 @@ class MeasurementResults
 		chooser.setFileFilter(filter);
 
 		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
+	    if(f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showSaveDialog(this.getParent());
-		if (results != JFileChooser.APPROVE_OPTION) return false;
+		if(results != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
 		if(!file.getAbsolutePath().endsWith(CSVFilter.CSV))
 		{
 			String fileName = file.getAbsolutePath()+"."+CSVFilter.CSV;
 			file = new File(fileName);
 		}
+		if(file.exists()) 
+		{
+			int response = JOptionPane.showConfirmDialog (null,
+						"Overwrite existing file?","Confirm Overwrite",
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+	        if (response == JOptionPane.CANCEL_OPTION) return false;
+	    }
 		BufferedWriter out = new BufferedWriter(new FileWriter(file));
 		writeColumns(out);
 		writeData(out);

@@ -110,7 +110,7 @@ public class MeasureTextFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public FigureType getType() { return FigureType.Text; }
+	public String getType() { return ROIFigure.TEXT_TYPE; }
 	
 	/**
 	 * Required by the {@link ROIFigure} interface but no-op implementation 

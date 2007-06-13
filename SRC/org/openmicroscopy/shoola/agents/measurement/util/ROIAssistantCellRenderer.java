@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.roi.model.util.Coord5D 
+ * org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,15 +20,30 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.roi.model.util;
+package org.openmicroscopy.shoola.agents.measurement.util;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.RenderingHints;
+
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Java imports
-import java.awt.Point;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.roi.model.util.Coord5D;
 
 /** 
  * 
@@ -43,46 +58,41 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord5D;
  * </small>
  * @since OME3.0
  */
-public class Coord5D 
+public 	class ROIAssistantCellRenderer
+		extends JComponent
+		implements TableCellRenderer
 {
-	public int c;
-	public int t;
-	public int z;
-	
-	public Point point;
-	
-	public int getChannel()
-	{
-		return c;
-	}
-	
-	public int getTimePoint()
-	{
-		return t;
-	}
-	
-	public int getZSection()
-	{
-		return z;
-	}
-	
-	public double getX()
-	{
-		return point.getX();
-	}
-	
-	public double getY()
-	{
-		return point.getY();
-	}
-	
-	public boolean equals(Coord5D obj)
-	{
-		if(obj.c == c && obj.t == t && obj.z == z && obj.point.equals(point))
-			return true;
-		return false;
-	}
-	
+
+/**
+ * Creates a new instance. Sets the opacity of the label to 
+ * <code>true</code>.
+ */
+public ROIAssistantCellRenderer()
+{
+	setOpaque(true);
 }
 
+/**
+ * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
+ * 										boolean, boolean, int, int)
+ */
+public Component getTableCellRendererComponent(JTable table, Object value, 
+		boolean isSelected, boolean hasFocus, int row, int column)
+{
+	JComponent thisComponent;
+	
+	JLabel label = new JLabel();
+	if(value == null)
+	{
+	
+	}
+	else if(value instanceof FigureType)
+	{
+		ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.RECTANGLE);		
+	}
+		
+	thisComponent = label;
+	return thisComponent;
+}
 
+}

@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 /** 
  * The ROI Component is the main interface to the object which control the 
@@ -84,7 +83,7 @@ public class ROIComponent
 	
 	/** The default color used to fill area. */
 	private static final Color			FILL_COLOR = 
-											new Color(220, 220, 220, 120);
+											new Color(220, 220, 220, 32);
 
 	/** The default color used to fill area alpha'ed <sp>. */
 	private static final Color			FILL_COLOR_ALPHA = 
@@ -219,7 +218,7 @@ public class ROIComponent
     private void setShapeAnnotations(ROIShape shape)
 	{
     	ROIFigure fig = shape.getFigure();
-		FigureType type = fig.getType();
+		String type = fig.getType();
 		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
 		ROIShape s = fig.getROIShape();

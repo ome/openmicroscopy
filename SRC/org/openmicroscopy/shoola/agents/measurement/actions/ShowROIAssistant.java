@@ -55,7 +55,7 @@ public class ShowROIAssistant
 	private static final String NAME = "ROI Assistant";
 	
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Brings up the ROI Assistant.";
+	private static final String DESCRIPTION = "Show the ROI Assistant.";
 
 	/**
 	 * Creates a new instance.
@@ -66,7 +66,6 @@ public class ShowROIAssistant
 	{
 		super(model);
 		name = NAME;
-		putValue(Action.NAME, NAME);
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();

@@ -256,7 +256,7 @@ public class MeasurePointFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public FigureType getType() { return FigureType.Point; }
+	public String getType() { return ROIFigure.POINT_TYPE; }
 	
 }
 

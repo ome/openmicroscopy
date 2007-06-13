@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.measurement.view.roiassistant;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
@@ -66,16 +68,36 @@ public class ROIAssistantModel
 	/** The number of the rows in the model. */
 	private int 						numRows;
 	
-	private TreeMap<Coord3D, FigureType> shapeMap;
+	private TreeMap<Coord3D, String> 	shapeMap;
+	
+	private ArrayList<String> 			columnNames;
+	
 	
 	ROIAssistantModel(int numCol, int numRow, Coord3D currentPlane, ROI roi)
 	{
 		this.setColumnCount(numCol);
 		this.setRowCount(numRow);
+		this.columnNames = new ArrayList<String>();
 		this.currentPlane = currentPlane;
 		currentROI = roi;
+		shapeMap = new TreeMap<Coord3D, String>();
+		for(int i = 0 ; i < numCol ; i++)
+			columnNames.add(i+"");
+		populateShapeMap();
 	}
 
+	private void populateShapeMap()
+	{
+		shapeMap.clear();
+		TreeMap<Coord3D, ROIShape> list = currentROI.getShapes();
+		Iterator<ROIShape> shapeIterator = list.values().iterator();
+		while(shapeIterator.hasNext())
+		{
+			ROIShape shape = shapeIterator.next();
+			shapeMap.put(shape.getCoord3D(), shape.getFigure().getType());
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
@@ -83,6 +105,12 @@ public class ROIAssistantModel
 	{
 		return numColumns;
 	}
+
+	/**
+	 * Overridden to return the name of the specified column.
+	 * @see AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int col) { return columnNames.get(col); }
 
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getRowCount()
@@ -108,6 +136,8 @@ public class ROIAssistantModel
 		try
 		{
 			ROIShape shape = currentROI.getShape(new Coord3D(row, col));
+			if(shape == null)
+				return null;
 			return shape.getFigure().getType();
 		}
 		catch (NoSuchROIException e)

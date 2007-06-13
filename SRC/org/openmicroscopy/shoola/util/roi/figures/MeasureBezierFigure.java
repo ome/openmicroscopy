@@ -341,10 +341,10 @@ public class MeasureBezierFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public FigureType getType()
+	public String getType()
 	{
-		if (CLOSED.get(this)) return FigureType.Polygon;
-		return FigureType.Scribble;
+		if (CLOSED.get(this)) return ROIFigure.POLYGON_TYPE;
+		return ROIFigure.SCRIBBLE_TYPE;
 	}
 
 }

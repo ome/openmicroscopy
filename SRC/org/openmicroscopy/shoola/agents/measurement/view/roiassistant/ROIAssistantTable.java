@@ -25,6 +25,11 @@ package org.openmicroscopy.shoola.agents.measurement.view.roiassistant;
 
 //Java imports
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+
+import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
+import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 
 //Third-party libraries
 
@@ -46,10 +51,30 @@ import javax.swing.JTable;
 public class ROIAssistantTable
 	extends JTable
 {	
+	private final static int COLUMNWIDTH = 16;
+	
 	ROIAssistantTable(ROIAssistantModel model)
 	{
 		this.setModel(model);
+	
+		for(int i = 0 ; i < getColumnCount(); i++)
+		{
+			TableColumn col = getColumnModel().getColumn(i);
+			col.setMinWidth(COLUMNWIDTH);
+			col.setMaxWidth(COLUMNWIDTH);
+			col.setPreferredWidth(COLUMNWIDTH);
+		}
 	}
+	
+	/**
+	 * Overridden to return a customized cell renderer.
+	 * @see JTable#getCellRenderer(int, int)
+	 */
+	public TableCellRenderer getCellRenderer(int row, int column) 
+	{
+        return new ROIAssistantCellRenderer();
+    }
+
 }
 
 

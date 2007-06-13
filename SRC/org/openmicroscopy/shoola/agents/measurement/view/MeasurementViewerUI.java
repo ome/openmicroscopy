@@ -246,6 +246,8 @@ class MeasurementViewerUI
     void selectFigure(ROIFigure figure)
     {
     	if (figure == null) return;
+    	if(!figure.getROIShape().getCoord3D().equals(model.getCurrentView())) 
+    		return;
     	DrawingView dv = model.getDrawingView();
     	dv.clearSelection();
 		dv.addToSelection(figure);
@@ -264,7 +266,7 @@ class MeasurementViewerUI
 		} catch (Exception e) {
 			handleROIException(e);
 		}
-		
+		dv.grabFocus();
 		roiInspector.setSelectedFigures(roiList);
 		roiManager.setSelectedFigures(roiList);
     }

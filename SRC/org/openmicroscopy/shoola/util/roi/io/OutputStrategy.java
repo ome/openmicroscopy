@@ -53,9 +53,7 @@ import static org.jhotdraw.draw.AttributeKeys.STROKE_MITER_LIMIT;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import static org.jhotdraw.draw.AttributeKeys.WINDING_RULE;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.FILL_GRADIENT;
-import static org.jhotdraw.samples.svg.SVGAttributeKeys.FILL_OPACITY;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_GRADIENT;
-import static org.jhotdraw.samples.svg.SVGAttributeKeys.STROKE_OPACITY;
 import static org.jhotdraw.samples.svg.SVGAttributeKeys.TRANSFORM;
 
 import org.jhotdraw.draw.AttributeKey;
@@ -139,15 +137,11 @@ public class OutputStrategy
 	 */
 	private HashMap<IXMLElement, String>			identifiedElements;
 	
-	
-	
 	OutputStrategy()
 	{
 		nextId=0;
 	}
-	
-	
-	
+
 	/**
 	 * Gets a unique ID for the specified element.
 	 */
@@ -605,10 +599,10 @@ public class OutputStrategy
 		XMLElement ellipseElement=new XMLElement(IOConstants.ELLIPSE_TAG);
 		svgElement.addChild(ellipseElement);
 		
-		double cx=fig.getX()+fig.getWidth()/2d;
-		double cy=fig.getY()+fig.getHeight()/2d;
 		double rx=fig.getWidth()/2d;
 		double ry=fig.getHeight()/2d;
+		double cx=fig.getX()+rx;
+		double cy=fig.getY()+ry;
 		ellipseElement.setAttribute(IOConstants.CX_ATTRIBUTE, cx+"");
 		ellipseElement.setAttribute(IOConstants.CY_ATTRIBUTE, cy+"");
 		ellipseElement.setAttribute(IOConstants.RX_ATTRIBUTE, rx+"");

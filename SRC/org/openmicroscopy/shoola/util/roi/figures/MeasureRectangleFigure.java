@@ -282,8 +282,8 @@ public class MeasureRectangleFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
 	 */
-	public FigureType getType() { return FigureType.Rectangle; }
-		
+	public String getType() { return ROIFigure.RECTANGLE_TYPE; }
+			
 }
 
 

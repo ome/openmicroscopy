@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
-import java.awt.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -241,9 +240,7 @@ public class InputStrategy
 		basicSVGAttribute.put(IOConstants.GREEN_ATTRIBUTE, true);
 		basicSVGAttribute.put(IOConstants.ALPHA_ATTRIBUTE, true);
 	}
-	
-	
-	
+		
 	/**
 	 * Maps to all XML elements that are identified by an xml:id.
 	 */
@@ -253,68 +250,52 @@ public class InputStrategy
 	 * Maps to all drawing objects from the XML elements they were created from.
 	 */
 	private HashMap<IXMLElement, Object>					elementObjects;
-	
-	
-	
+		
 	/**
 	 * Holds the document that is currently being read.
 	 */
 	private IXMLElement										document;
-	
-	
-	
+		
 	/**
 	 * Holds the ROIs which have been created.
 	 */
 	private ArrayList<ROI>									roiList;
-	
-	
-	
+		
 	/**
 	 * The current coord of the shape being created.
 	 */
 	private Coord3D											currentCoord;
-	
-	
-	
+		
 	/**
 	 * The current roi of the shape being created.
 	 */
 	private long											currentROI;
-	
-	
-	
+		
 	/**
 	 * The ROIComponent 
 	 */
 	private ROIComponent									component;
 	
-	
-	
 	private void setCurrentCoord(Coord3D coord)
 	{
 		currentCoord=coord;
 	}
-	
-	
+		
 	private Coord3D getCurrentCoord()
 	{
 		return currentCoord;
 	}
-	
-	
+		
 	private void setCurrentROI(long ROIid)
 	{
 		currentROI=ROIid;
 	}
-	
-	
+		
 	private long getCurrentROI()
 	{
 		return currentROI;
 	}
-	
-	
+		
 	private ROI createROI(IXMLElement roiElement, ROIComponent component)
 			throws NoSuchROIException, ParsingException, ROICreationException
 	{
@@ -355,8 +336,7 @@ public class InputStrategy
 		}
 		return newROI;
 	}
-	
-	
+		
 	private ROIShape createROIShape(IXMLElement shapeElement, ROI newROI)
 			throws ParsingException
 	{
@@ -384,22 +364,19 @@ public class InputStrategy
 		}
 		return shape;
 	}
-	
-	
+		
 	private boolean isAnnotation(String name)
 	{
 		return (AnnotationKeys.supportedAnnotations.contains(name));
 	}
-	
-	
+		
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
 		String key=annotationElement.getName();
 		AnnotationKey v=new AnnotationKey(key);
 		shape.setAnnotation(v, createAnnotationData(annotationElement));
 	}
-	
-	
+		
 	public Object createAnnotationData(IXMLElement annotationElement)
 	{
 		String dataType=
@@ -520,16 +497,14 @@ public class InputStrategy
 		}
 		return null;
 	}
-	
-	
+		
 	private void addAnnotation(IXMLElement annotationElement, ROI roi)
 	{
 		String key=annotationElement.getName();
 		AnnotationKey annotation=new AnnotationKey(key);
 		roi.setAnnotation(annotation, createAnnotationData(annotationElement));
 	}
-	
-	
+		
 	private ROIFigure createFigure(IXMLElement svgElement)
 			throws ParsingException
 	{
@@ -546,8 +521,7 @@ public class InputStrategy
 		addMissingAttributes(figure);
 		return figure;
 	}
-	
-	
+		
 	private ROIFigure createParentFigure(IXMLElement figureElement)
 			throws ParsingException
 	{
@@ -568,8 +542,7 @@ public class InputStrategy
 		if (figureElement.getName().equals(IOConstants.POLYGON_TAG)) figure=
 				createBezierFigure(figureElement, true);
 		return figure;
-	}
-	
+	}	
 	
 	public BezierAnnotationFigure createBezierFigure(IXMLElement bezierElement,
 			boolean closed)
@@ -603,8 +576,7 @@ public class InputStrategy
 		addAttributes(textFigure, textElement);
 		return textFigure;
 	}
-	
-	
+		
 	private EllipseAnnotationFigure createEllipseFigure(
 			IXMLElement ellipseElement)
 	{
@@ -627,8 +599,8 @@ public class InputStrategy
 		
 		double x=cx-rx;
 		double y=cy-ry;
-		double width=rx*2;
-		double height=ry*2;
+		double width=rx*2d;
+		double height=ry*2d;
 		
 		EllipseAnnotationFigure ellipseFigure=
 				new EllipseAnnotationFigure(x, y, width, height);

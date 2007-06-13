@@ -113,7 +113,7 @@ public interface ROIFigure
 	 * 
 	 * @return See above.
 	 */
-	public FigureType getType();
+	public String getType();
 	
 }
 

@@ -151,7 +151,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         button = new JButton(controller.getAction(
-			MeasurementViewerControl.ROI_ASSISTANT));
+        	MeasurementViewerControl.ROI_ASSISTANT));
         UIUtilities.unifiedButtonLookAndFeel(button);
     	bar.add(button);
         bar.add(new JSeparator());
