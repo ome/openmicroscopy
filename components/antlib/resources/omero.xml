@@ -82,7 +82,7 @@
 
 	<target name="setup-db" depends="classpath-define">
 		<ant antfile="${server.comp}/build.xml" target="reload-db">
-		<property name="sql.dir" value="${basedir}/sql"/>
+		<property name="sql.dir" value="${basedir}/sql/${omero.db.profile}"/>
 		</ant>
 	</target>
 
