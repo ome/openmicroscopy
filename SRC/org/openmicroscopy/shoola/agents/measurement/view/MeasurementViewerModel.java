@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -376,13 +377,18 @@ class MeasurementViewerModel
 	void setMagnification(double magnification)
 	{ 
 		this.magnification = magnification;
-		drawingView.setScaleFactor(magnification);
+		if( state != MeasurementViewer.NEW)
+			drawingView.setScaleFactor(magnification, new 
+						Dimension((int)getSizeX(), (int)getSizeY()));
+		else
+			drawingView.setScaleFactor(magnification);
+			
 	}
 
 	/** 
 	 * Sets the ROI for the pixels set.
 	 *  
-	 * @param input 			The value to set.
+	 * @param input 		The value to set.
 	 * @throws Exception	Forward exception thrown by the 
 	 * 						{@link ROIComponent}.
 	 */

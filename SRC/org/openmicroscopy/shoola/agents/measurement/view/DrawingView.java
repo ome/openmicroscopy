@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -62,15 +63,26 @@ class DrawingView
 	private static final Point2D.Double	ORIGIN = new Point2D.Double(0, 0);
 	
 	/**
+	 * Set the size of the component.
+	 * @see DefaultDrawingView#setScaleFactor(double)
+	 */
+	public void setScaleFactor(double f, Dimension originalSize)
+	{
+		setSize((int) (originalSize.getWidth()*f), 
+				(int) (originalSize.getHeight()*f));
+		super.setScaleFactor(f);
+	}
+	
+	/**
 	 * Overridden to set the size of the component.
 	 * @see DefaultDrawingView#setScaleFactor(double)
 	 */
 	public void setScaleFactor(double f)
 	{
-		setSize((int) (getWidth()*f), (int) (getHeight()*f));
+		setSize((int) (getWidth()*f), 
+				(int) (getHeight()*f));
 		super.setScaleFactor(f);
 	}
-	
 	/**
 	 * Overridden to set the background color only and not fill a rectangle.
 	 * @see DefaultDrawingView#drawBackground(Graphics2D)
