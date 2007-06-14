@@ -155,7 +155,7 @@ public class ImportFixture
         {
 
             @Override
-            public void step(int n)
+            public void step(int series, int n)
             {}
         });
     }

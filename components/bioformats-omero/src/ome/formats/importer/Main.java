@@ -26,7 +26,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -38,7 +37,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -56,11 +54,11 @@ public class Main extends JFrame implements ActionListener, WindowListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 1.1";
+    public static String        versionText = "Beta 2.0";
     
     /** The data of the last release date. */
     public static String        releaseDate      
-         = "2007-02-28 11:02:43 +0000 (Wed, 28 Feb 2007";
+         = "2007-06-06 15:18:13 +0100 (Wed, 06 Jun 2007)";
 
     /** The repository revision. */
     public static String        revision  = "$LastChangedRevision$";

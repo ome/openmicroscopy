@@ -78,10 +78,17 @@ public class OMEROWrapper extends MinMaxCalculator
             return false;
     }
     
-    public String getSeriesName(int series)
+    public String getImageName(int series)
     {
-        LeicaReader r = (LeicaReader) iReader.getReader();
-        return r.getSeriesName(series);
+
+        
+        if (reader.getSeriesCount() > 1)
+        {
+            List<Pixels> p = (List<Pixels>)iReader.getMetadataStoreRoot();
+            String name = p.get(series).getImage().getName(); 
+            return name == null ? "" + series : name;
+        }
+        return null;
     }
     
 	/**

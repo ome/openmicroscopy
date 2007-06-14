@@ -71,7 +71,7 @@ public class ImportLibrary
     public abstract static class Step
     {
 
-        public abstract void step(int n);
+        public abstract void step(int series, int step);
     }
 
     private static Log         log = LogFactory.getLog(ImportLibrary.class);
@@ -215,10 +215,11 @@ public class ImportLibrary
         for (Pixels pix:pixelsArray)
         {
             String name = imageName;
-            if (reader.isLeicaReader())
-            {
-                name += " [" + reader.getSeriesName(series) + "]";
-            }
+            String seriesName = reader.getImageName(series);
+            
+
+            if (seriesName != null)
+                name += " [" + seriesName + "]";
 
             pix.getImage().setName(name);
             if (pix.getPixelsDimensions() == null)
@@ -292,7 +293,7 @@ public class ImportLibrary
                         	reader.openPlane2D(fileName, planeNumber,
                         			           arrayBuf).getData();
                         arrayBuf = swapIfRequired(buf, fileName);
-                        step.step(i);
+                        step.step(series, i);
                         store.setPlane(pixId, arrayBuf, z, c, t);
                         i++;
                     }

@@ -229,9 +229,13 @@ public class FileQueueTable
             table.setValueAt("invalid format", row, 2);    
     }
     
-        public void setImportProgress(int step)
+        public void setImportProgress(int count, int series, int step)
     {
-        String text = step + "/" + maxPlanes;
+        String text;
+        if (count > 1)
+            text = series + 1 + "/" + count + ": " + step + "/" + maxPlanes;
+        else
+            text = step + "/" + maxPlanes;
         table.setValueAt(text, row, 2);   
     }
 

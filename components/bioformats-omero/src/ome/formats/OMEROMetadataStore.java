@@ -152,8 +152,6 @@ public class OMEROMetadataStore implements MetadataStore
             throw new MetadataStoreException(t);
         }
     }
-
-    
     
     /**
      * Creates a new instance.
@@ -260,7 +258,7 @@ public class OMEROMetadataStore implements MetadataStore
                     klass, value);
         return enumeration;
     }
-
+    
     /*
      * (non-Javadoc)
      * 

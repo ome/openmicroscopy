@@ -259,11 +259,11 @@ public class ImportHandler
             {
 
                 @Override
-                public void step(int i)
+                public void step(int series, int step)
                 {
-                    if (i < qTable.getMaximum()) 
+                    if (step <= qTable.getMaximum()) 
                     {   
-                        qTable.setImportProgress(i);
+                        qTable.setImportProgress(reader.getSeriesCount(), series, step);
                     }
                 }
             });
