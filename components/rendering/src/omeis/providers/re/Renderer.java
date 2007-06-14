@@ -777,7 +777,7 @@ public class Renderer {
 		}
 		catch (IOException e)
 		{
-            log.error("Buffer did not close successfully.", e.getCause());
+            log.error("Buffer did not close successfully.", e);
 			throw new ResourceError(
 					e.getMessage() + " Please check server log.");
 		}

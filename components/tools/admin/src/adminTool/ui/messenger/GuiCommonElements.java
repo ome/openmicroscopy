@@ -269,7 +269,9 @@ public class GuiCommonElements {
         try {
             doc.insertString(doc.getLength(), text, style);
         } catch (BadLocationException e) {
-            log.error("BadLocationException logged.", e.getCause());
+            if (log.isDebugEnabled()) {
+                log.debug("String could not be inserted", e);
+            }
         }
     }
 

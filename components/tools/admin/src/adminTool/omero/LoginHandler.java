@@ -78,7 +78,9 @@ public class LoginHandler implements ActionListener {
                 return;
             }
         } catch (Exception e) {
-            log.error("Exception logged", e.getCause());
+            if (log.isInfoEnabled()) {
+                log.info("Dialog could not be shown.", e);
+            }
             view.statusBar.setStatusIcon(ImageFactory.get().image(
                     ImageFactory.SERVER_CONNECT_FAILED),
                     "Server connection failure. Please try to login again.");
@@ -149,6 +151,7 @@ public class LoginHandler implements ActionListener {
 	 */
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+        // This seems like it is used to test Swing
 		System.err.println(e.getActionCommand());
 		
 	}

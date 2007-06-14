@@ -246,7 +246,9 @@ public class DebugMessenger extends JDialog implements ActionListener {
             this.dispose();
         } catch (Exception e) {
             // Get the full debug text
-            log.error("Exception logged.", e.getCause());
+            if (log.isDebugEnabled()) {
+                log.debug("Dialog could not be shown.", e);
+            }
             String debugText = e.getMessage();
             gui.appendTextToDocument(debugDocument, debugStyle, "----\n"
                     + debugText);

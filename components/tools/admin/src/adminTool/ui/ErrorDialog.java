@@ -13,8 +13,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -106,7 +104,9 @@ public class ErrorDialog extends JDialog implements ActionListener {
 
     void getExceptionText() {
         Exception e = ((AdminToolException) exception).getException();
-        log.error("Exception logged.", e.getCause());
+        if (log.isDebugEnabled()) {
+            log.error("Exception text gathered for Swing dialog.", e);
+        }
         debugText = e.getMessage();
     }
 
