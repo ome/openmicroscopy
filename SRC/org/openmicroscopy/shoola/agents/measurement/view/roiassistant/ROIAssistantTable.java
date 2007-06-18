@@ -24,12 +24,13 @@ package org.openmicroscopy.shoola.agents.measurement.view.roiassistant;
 
 
 //Java imports
+import java.awt.Color;
+
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
-import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 
 //Third-party libraries
 
@@ -51,19 +52,32 @@ import org.openmicroscopy.shoola.agents.measurement.util.ROITableCellRenderer;
 public class ROIAssistantTable
 	extends JTable
 {	
-	private final static int COLUMNWIDTH = 16;
+	private final static int 	COLUMNWIDTH = 24;
+	private final static int 	LEADERCOLUMN_WIDTH = 80;
+	private final static Color 	GRIDCOLOUR = new Color(180, 213, 255);
 	
 	ROIAssistantTable(ROIAssistantModel model)
 	{
 		this.setModel(model);
-	
+		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		for(int i = 0 ; i < getColumnCount(); i++)
 		{
+			
 			TableColumn col = getColumnModel().getColumn(i);
-			col.setMinWidth(COLUMNWIDTH);
-			col.setMaxWidth(COLUMNWIDTH);
-			col.setPreferredWidth(COLUMNWIDTH);
+			int width = COLUMNWIDTH;
+			if(i==0)
+				width = LEADERCOLUMN_WIDTH;
+			col.setMinWidth(width);
+			col.setMaxWidth(width);
+			col.setPreferredWidth(width);
+			col.setResizable(false);
 		}
+		setColumnSelectionAllowed(true);
+		setRowSelectionAllowed(true);
+		setRowHeight(COLUMNWIDTH);
+		setGridColor(GRIDCOLOUR);
+		getTableHeader().setReorderingAllowed(false);
+		setShowGrid(true);
 	}
 	
 	/**

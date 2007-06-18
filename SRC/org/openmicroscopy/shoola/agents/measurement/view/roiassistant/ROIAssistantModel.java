@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.TreeMap;
 
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 
 
 //Third-party libraries
@@ -38,7 +37,6 @@ import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 /** 
  * 
@@ -75,12 +73,13 @@ public class ROIAssistantModel
 	
 	ROIAssistantModel(int numCol, int numRow, Coord3D currentPlane, ROI roi)
 	{
-		this.setColumnCount(numCol);
+		this.setColumnCount(numCol+1);
 		this.setRowCount(numRow);
 		this.columnNames = new ArrayList<String>();
 		this.currentPlane = currentPlane;
 		currentROI = roi;
-		shapeMap = new TreeMap<Coord3D, String>();
+		columnNames.add("Z Section\\Time");
+		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
 		for(int i = 0 ; i < numCol ; i++)
 			columnNames.add(i+"");
 		populateShapeMap();
@@ -94,7 +93,10 @@ public class ROIAssistantModel
 		while(shapeIterator.hasNext())
 		{
 			ROIShape shape = shapeIterator.next();
-			shapeMap.put(shape.getCoord3D(), shape.getFigure().getType());
+			Coord3D coord = shape.getCoord3D();
+			numRows = Math.max(numRows, coord.getZSection());
+			String type = shape.getFigure().getType();
+			shapeMap.put(coord, type);
 		}
 	}
 	
@@ -131,13 +133,19 @@ public class ROIAssistantModel
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
-	public Object getValueAt(int col, int row)
+	public Object getValueAt(int zSection, int timePoint)
 	{
+		if(timePoint == 0)
+		{
+			return zSection+"";
+		}
 		try
 		{
-			ROIShape shape = currentROI.getShape(new Coord3D(row, col));
+			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, zSection));
 			if(shape == null)
+			{
 				return null;
+			}
 			return shape.getFigure().getType();
 		}
 		catch (NoSuchROIException e)

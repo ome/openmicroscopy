@@ -34,9 +34,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.table.TableCellRenderer;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
 
 //Java imports
@@ -63,36 +66,76 @@ public 	class ROIAssistantCellRenderer
 		implements TableCellRenderer
 {
 
-/**
- * Creates a new instance. Sets the opacity of the label to 
- * <code>true</code>.
- */
-public ROIAssistantCellRenderer()
-{
-	setOpaque(true);
-}
-
-/**
- * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
- * 										boolean, boolean, int, int)
- */
-public Component getTableCellRendererComponent(JTable table, Object value, 
-		boolean isSelected, boolean hasFocus, int row, int column)
-{
-	JComponent thisComponent;
-	
-	JLabel label = new JLabel();
-	if(value == null)
+	/**
+	 * Creates a new instance. Sets the opacity of the label to 
+	 * <code>true</code>.
+	 */
+	public ROIAssistantCellRenderer()
 	{
+		setOpaque(true);
+	}
 	
-	}
-	else if(value instanceof FigureType)
+	/**
+	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
+	 * 										boolean, boolean, int, int)
+	 */
+	public Component getTableCellRendererComponent(JTable table, Object value, 
+			boolean isSelected, boolean hasFocus, int row, int column)
 	{
-		ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.RECTANGLE);		
-	}
+		JComponent thisComponent;
 		
-	thisComponent = label;
-	return thisComponent;
-}
+		JLabel label = new JLabel();
+		if(value instanceof String)
+		{
+			if(value.equals(ROIFigure.ELLIPSE_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.ELLIPSE);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.RECTANGLE_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.SQUARE);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.SCRIBBLE_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POLYLINE);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.POLYGON_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POLYGON);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.LINE_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.LINE);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.LINE_CONNECTION_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.LINECONNECTION);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.POINT_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.POINT);
+				label.setIcon(i);
+			}
+			else if(value.equals(ROIFigure.TEXT_TYPE))
+			{
+				ImageIcon i = IconManager.getInstance().getImageIcon(IconManager.TEXT);
+				label.setIcon(i);
+			}
+			else 
+			{
+				label.setText((String)value);
+				label.setHorizontalTextPosition(SwingConstants.CENTER);
+			}
+		}
+		RendererUtils.setRowColor(label, table.getSelectedRow(), row);
+		thisComponent = label;
+		return thisComponent;
+	}
 
 }

@@ -101,17 +101,35 @@ public class IconManager
 	public static final int		STATUS_INFO = 14;
 	
 	/** The <code>Rectangle</code> icon. */
-	public static final int		RECTANGLE = 15;
+	public static final int		SQUARE = 15;
+	
+	/** The <code>Rectangle</code> icon. */
+	public static final int	 	ELLIPSE = 16;
 	
 	/** The <code>Point</code> icon. */
-	public static final int		LINE = 16;
+	public static final int		POLYLINE = 17;
+
+	/** The <code>Point</code> icon. */
+	public static final int		POLYGON = 18;
+
+	/** The <code>Point</code> icon. */
+	public static final int		POINT = 19;
+
+	/** The <code>Point</code> icon. */
+	public static final int		LINE = 20;
+
+	/** The <code>Point</code> icon. */
+	public static final int		LINECONNECTION = 21;
+
+	/** The <code>Point</code> icon. */
+	public static final int		TEXT = 22;
 
 
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 16;
+    private static final int    MAX_ID = 22;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -135,8 +153,15 @@ public class IconManager
         relPaths[SAVE16] = "nuvola_filesaveas16.png";
         relPaths[REFRESH16] = "nuvola_reload16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
-        relPaths[RECTANGLE] = "rectimage.png";
-        relPaths[LINE] = "lineicon.png";
+        relPaths[SQUARE] = "square.png";
+        relPaths[ELLIPSE] = "ellipse5.png";
+        relPaths[POLYLINE] = "polyline.png";
+        relPaths[SQUARE] = "square.png";
+        relPaths[LINE] = "line.png";
+        relPaths[LINECONNECTION] = "lineconnection.png";
+        relPaths[POLYGON] = "polygon.png";
+        relPaths[POINT] = "point.png";
+        relPaths[TEXT] = "text.png";
     }
     
     /** 

@@ -24,12 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view.roiassistant;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -43,6 +38,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -121,7 +119,6 @@ public class ROIAssistant
 	{
 		model = new ROIAssistantModel(numRow, numCol, currentPlane, selectedROI);
 		table = new ROIAssistantTable(model);
-		table.setRowHeight(16);
 	}
 	
 	/** Create the accept, reset and cancel buttons including actions. */
@@ -167,9 +164,9 @@ public class ROIAssistant
 		JPanel infoPanel = new JPanel();
 		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
 		JLabel infoText = new JLabel
-		("<html><body>This is ROI Assistant." +
-		"It allows you to create an which ROI extends through " +
-		"<p>time and z-sections.</body></html>");
+		("<html><body>This is the ROI Assistant." +
+		"It allows you to create an ROI which extends through time and " +
+		"z-sections.</body></html>");
 		infoText.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD));
 		infoPanel.add(Box.createHorizontalStrut(10));
 		infoPanel.add(infoText, BorderLayout.CENTER);
@@ -197,14 +194,26 @@ public class ROIAssistant
 		JPanel panel = new JPanel();
 		JPanel infoPanel = createInfoPanel();
 		JPanel buttonPanel = createButtonPanel();
+
+		JScrollPane scroll = new JScrollPane(table);
+		scroll.setVerticalScrollBar(scroll.createVerticalScrollBar());
+		scroll.setHorizontalScrollBar(scroll.createHorizontalScrollBar());
+		
+		
+		JPanel scrollPanel = new JPanel();
+		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.X_AXIS));
+		scrollPanel.add(Box.createHorizontalStrut(10));
+		scrollPanel.add(scroll);
+		scrollPanel.add(Box.createHorizontalStrut(10));
+		
 		UIUtilities.setDefaultSize(infoPanel, new Dimension(500, 70));
-		UIUtilities.setDefaultSize(table, new Dimension(500, 340));
+		UIUtilities.setDefaultSize(scrollPanel, new Dimension(500, 320));
 		UIUtilities.setDefaultSize(buttonPanel, new Dimension(500, 70));
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		panel.add(infoPanel);
 		panel.add(Box.createVerticalStrut(10));
-		panel.add(new JScrollPane(table));
+		panel.add(scrollPanel);
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(buttonPanel);
 		this.getContentPane().setLayout(new BorderLayout());

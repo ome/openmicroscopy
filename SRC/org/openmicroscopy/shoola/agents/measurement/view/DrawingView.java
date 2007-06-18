@@ -63,8 +63,12 @@ class DrawingView
 	private static final Point2D.Double	ORIGIN = new Point2D.Double(0, 0);
 	
 	/**
-	 * Set the size of the component.
-	 * @see DefaultDrawingView#setScaleFactor(double)
+	 * Set the size of the component. This method takes in the original size
+	 * of the image and the scale factor and sets the size of the component 
+	 * then calls {@link DefaultDrawingView#setScaleFactor(double)}.
+	 * 
+	 * @param f The new scale factor. 
+	 * @param originalSize The original size of the image. 
 	 */
 	public void setScaleFactor(double f, Dimension originalSize)
 	{
@@ -83,6 +87,7 @@ class DrawingView
 				(int) (getHeight()*f));
 		super.setScaleFactor(f);
 	}
+	
 	/**
 	 * Overridden to set the background color only and not fill a rectangle.
 	 * @see DefaultDrawingView#drawBackground(Graphics2D)

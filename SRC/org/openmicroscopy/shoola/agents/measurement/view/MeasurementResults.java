@@ -403,7 +403,9 @@ class MeasurementResults
 					Object value = key.get(shape);
 					if(value instanceof ArrayList)
 					{
-						row.addElement(new ArrayList((ArrayList)value));
+						ArrayList valueArray = (ArrayList)value;
+						ArrayList arrayList=new ArrayList(valueArray);
+						row.addElement(arrayList);
 					}
 					else
 						row.addElement(value);
