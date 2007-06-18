@@ -25,6 +25,7 @@ import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import ome.model.display.PlaneSlicingContext;
 import ome.model.display.RenderingDef;
+import ome.model.meta.Event;
 import ome.util.builders.PojoOptions;
 import omero.JArray;
 import omero.JBool;
@@ -54,6 +55,7 @@ import omero.constants.POJOCOUNTS;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
 import omero.model.DatasetI;
+import omero.model.EventI;
 import omero.model.IObject;
 import omero.model.ImageI;
 import omero.model.PlaneSlicingContextI;
@@ -336,4 +338,13 @@ public class AdapterTest extends TestCase {
         assertTrue(reversed.get("a").equals("a"));
     }
 
+    @Test(groups = "ticket:737")
+    public void testEventsAndTimes() throws Exception {
+        Event e = new Event();
+        Timestamp t = new Timestamp(System.currentTimeMillis());
+        e.setTime(t);
+        IceMapper mapper = new IceMapper();
+        EventI ei = (EventI) mapper.map(e);
+        assertNotNull(ei.getTime());
+    }
 }

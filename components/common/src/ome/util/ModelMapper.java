@@ -101,7 +101,8 @@ public abstract class ModelMapper extends ContextFilter {
 
         // IMMUTABLES
         if (null == current || current instanceof Number
-                || current instanceof String || current instanceof Boolean) {
+                || current instanceof String || current instanceof Boolean
+                || current instanceof Timestamp) {
             return current;
         }
 
