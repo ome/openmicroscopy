@@ -8,8 +8,8 @@
         <java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
             <arg value="${omero.rootpass}"/>
         </java>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"/>
-        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"/>
+        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
+        <copy file="${sql.dir}/${omero.dbversion}__${omero.dbpatch}__data.sql" tofile="${target.dir}/data.sql"  overwrite="true"/>
         <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
         <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
         <sql_run>

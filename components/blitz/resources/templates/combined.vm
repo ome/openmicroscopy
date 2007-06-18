@@ -996,7 +996,7 @@ REMOVE
 [$cpp]           $cppType::iterator it = std::remove_if(
 [$cpp]               ${property.name}.begin(),
 [$cpp]               ${property.name}.end(),
-[$cpp]               ${removeLinkPredicate}(link, false));
+[$cpp]               ${removeLinkPredicate}(link, bothSides));
 [$cpp]           ${property.name}.erase(it,${property.name}.end());
 [$cpp]       } 
 

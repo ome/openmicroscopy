@@ -30,7 +30,7 @@
     </target>
 
     <target name="make-clean" unless="make.NOMAKE">
-        <exec executable="make" failonerror="true"> <arg value="clean"/> </exec>
+        <exec executable="make" failonerror="true"> <arg value="maintainer-clean"/> </exec>
     </target>
 
 </project>

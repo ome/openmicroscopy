@@ -37,9 +37,23 @@
 	a no-arg constructor. This allows classes unknown to the server at 
 	compile time to become a part of a distribution. -->
 	<target name="compile" depends="generate" unless="skip.compile">
-		<hardWireCompile pattern="ome/services/licenses/LicenseBean"
-		   token="&quot;ome.services.licenses.Store&quot;"
-		   value="${ome.services.licenses.Store_class}"/>
+		<hard-wire file="ome/services/licenses/LicenseBean.java"
+			token="&quot;ome.services.licenses.Store&quot;"
+			value="${ome.services.licenses.Store_class}"/>
+		<myjavac>
+			<exclude name="**/LicenseBean.java"/>
+			<exclude name="**/LicenseWiring.java"/>
+			<src path="${src.dest}"/>
+			<src path="${src.dir}"/>
+		</myjavac>
+		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseWiring.java"/></copy>
+		<myjavac>
+			<include name="**/LicenseBean.java"/>
+			<include name="**/LicenseWiring.java"/>
+			<src path="${src.dest}"/>
+		</myjavac>
+		<delete file="${src.dest}/ome/services/licenses/LicenseBean.java"/>
+		<delete file="${src.dest}/ome/services/licenses/LicenseWiring.java"/>
 	</target>
 
     <target name="tools-build" depends="package,make-build" description="Creates all artifacts for tools/target">
