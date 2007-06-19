@@ -401,7 +401,7 @@ class RenderingControlProxy
             throw new IllegalArgumentException("Plane def cannot be null.");
         //See if the requested image is in cache.
         
-        BufferedImage img = getFromCache(pDef);
+        BufferedImage img = null;//getFromCache(pDef);
         if (img != null) return img;
         int[] buf = servant.renderAsPackedInt(pDef);
         int sizeX1, sizeX2;

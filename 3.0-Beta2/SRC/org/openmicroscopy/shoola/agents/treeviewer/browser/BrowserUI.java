@@ -182,7 +182,8 @@ class BrowserUI
         button.addMouseListener((FilterMenuAction) 
                             controller.getAction(BrowserControl.FILTER_MENU));
         button.setBorderPainted(false);
-        menuBar.add(button);
+        if (model.getBrowserType() == Browser.IMAGES_EXPLORER)
+        	menuBar.add(button);
         menuBar.add(new JSeparator(JSeparator.VERTICAL));
         button = new JButton(controller.getAction(BrowserControl.COLLAPSE));
         button.setBorderPainted(false);

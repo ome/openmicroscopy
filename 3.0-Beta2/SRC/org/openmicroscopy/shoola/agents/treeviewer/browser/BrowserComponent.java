@@ -188,6 +188,7 @@ class BrowserComponent
     	switch (model.getState()) {
 	        case LOADING_DATA:
 	        case LOADING_LEAVES:
+	        	model.cancel();
 	        case DISCARDED:
 	            throw new IllegalStateException(
 	                    "This method cannot be invoked in the LOADING_DATA, "+

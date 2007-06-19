@@ -142,13 +142,17 @@ class MoviePlayer
     /** Resets the frame number depending on the movie type. */
     private void setFrameNumbers()
     {
-        if (movieType == BACKWARD) {
-            frameNumberZ = endZ;
-            frameNumberT = endT;
-        } else {
-            frameNumberZ = startZ;
-            frameNumberT = startT;
-        }  
+    	switch (movieType) {
+			case BACKWARD:
+			case LOOP_BACKWARD:
+				frameNumberZ = endZ;
+	            frameNumberT = endT;
+				break;
+
+			default:
+				frameNumberZ = startZ;
+            	frameNumberT = startT;
+		}
     }
     
     /** Plays movie across z-sections. */
@@ -362,8 +366,9 @@ class MoviePlayer
      */
     void setStartT(int v)
     {
+    	startT = v;
         setPlayerState(Player.STOP);
-        startT = v;
+        setFrameNumbers();
     }
     
     /**
@@ -373,8 +378,9 @@ class MoviePlayer
      */
     void setStartZ(int v)
     {
-        setPlayerState(Player.STOP);
-        startZ = v;
+    	startZ = v;
+    	setPlayerState(Player.STOP);
+    	setFrameNumbers();
     }
     
     /**
@@ -384,8 +390,9 @@ class MoviePlayer
      */
     void setEndT(int v)
     {
+    	endT = v;
         setPlayerState(Player.STOP);
-        endT = v;
+        setFrameNumbers();
     }
     
     /**
@@ -395,8 +402,9 @@ class MoviePlayer
      */
     void setEndZ(int v)
     {
-        setPlayerState(Player.STOP);
         endZ = v;
+        setPlayerState(Player.STOP);
+        setFrameNumbers();
     }
     
     /**

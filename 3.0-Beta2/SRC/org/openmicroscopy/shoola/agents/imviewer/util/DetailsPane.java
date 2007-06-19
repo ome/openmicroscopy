@@ -83,7 +83,7 @@ class DetailsPane
     {
     	JTextField area = new JTextField(value);
         area.setEditable(false);
-        //area.setEnabled(false);
+        area.setEnabled(false);
         return area;
     }
     

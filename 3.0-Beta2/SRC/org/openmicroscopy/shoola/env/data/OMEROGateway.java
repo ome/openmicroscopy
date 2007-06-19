@@ -394,6 +394,21 @@ class OMEROGateway
     }
     
     /**
+     * Reconnects to server. This method should be invoked when the password
+     * is reset.
+     * 
+     * @param userName	The name of the user who modifies his/her password.
+     * @param password 	The new password.
+     */
+    private void resetFactory(String userName, String password)
+    {
+        entry = new ServiceFactory(server, new Login(userName, password));
+        if (thumbnailService != null) thumbnailService.close();
+        thumbnailService = null;
+        thumbRetrieval = 0;
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param port      The value of the port.
@@ -971,14 +986,17 @@ class OMEROGateway
             return service.getThumbnailDirect(new Integer(sizeX), 
                                                 new Integer(sizeY));
         } catch (Throwable t) {
-        	if (thumbnailService != null) thumbnailService.close();
-        	thumbnailService = null;
+        	Throwable cause = null;
+        	if (t != null) t.getCause();
         	if (t instanceof EJBException || 
-        			t.getCause() instanceof IllegalStateException) {
+        			cause instanceof IllegalStateException || 
+        			cause instanceof EJBException) {
         		throw new DSOutOfServiceException(
         				"Thumbnail service null for pixelsID: "+pixelsID+"\n\n"+
         				printErrorText((Exception) t));
         	}
+        	if (thumbnailService != null) thumbnailService.close();
+        	thumbnailService = null;
             throw new RenderingServiceException("Cannot get thumbnail", t);
         }
     }
@@ -1252,17 +1270,19 @@ class OMEROGateway
     /**
      * Modifies the password of the currently logged in user.
      * 
+     * @param userName	The name of the user whose password has not be changed.
      * @param password	The new password.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-	void changePassword(String password)
+	void changePassword(String userName, String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getIAdmin();
 		try {
 			service.changePassword(password);
+			resetFactory(userName, password);
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
 		}

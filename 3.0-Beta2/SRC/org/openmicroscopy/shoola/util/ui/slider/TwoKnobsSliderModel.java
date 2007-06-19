@@ -84,7 +84,7 @@ class TwoKnobsSliderModel
     
     /** The space between the minor ticks. */
     private int         				minorTickSpacing;
-    
+   
     /** The ticks increment value. */
     private int         				increment;
     

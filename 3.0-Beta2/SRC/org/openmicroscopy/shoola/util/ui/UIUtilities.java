@@ -96,6 +96,9 @@ public class UIUtilities
     /** The Steelblue color. */
     public static final Color               STEELBLUE = new Color(0x4682B4);
     
+    /** The default text color. */
+    public static final Color               DEFAULT_TEXT = Color.WHITE;
+    
     /** Width of the dialog window. */
     public static final int                 DIALOG_WIDTH = 500;
     
@@ -405,7 +408,6 @@ public class UIUtilities
     public static void setTextAreaDefault(JTextComponent area)
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        area.setForeground(STEELBLUE);
         area.setBackground(Color.WHITE);
         area.setOpaque(true);
         area.setEditable(true);
@@ -584,6 +586,19 @@ public class UIUtilities
 			}
 		}
 		return null;
+    }
+    
+    /**
+     * Returns <code>true</code> if the passed color is a dark color,
+     * <code>false</code> otherwise.
+     * 
+     * @param c The color to handle. Mustn't be <code>null</code>.
+     * @return See above.
+     */
+    public static boolean isDarkColor(Color c)
+    {
+    	if (c == null) return false;
+    	return (c.getRed()+c.getGreen()+c.getBlue())/3 < 128;
     }
     
 }

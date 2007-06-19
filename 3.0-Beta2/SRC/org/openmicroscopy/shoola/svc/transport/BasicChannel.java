@@ -99,9 +99,12 @@ class BasicChannel
     {
         HostConfiguration cfg = new HostConfiguration();
         cfg.setHost(serverURL);
+        //String proxyHost = "proxy1.med-fddi.uniklinik-saarland.de";
+    	//int proxyPort = 3128;
+        //cfg.setProxy(proxyHost, proxyPort);
         HttpClient channel = new HttpClient();
         channel.setHostConfiguration(cfg);
-        channel.setConnectionTimeout(connTimeout);
+        channel.setConnectionTimeout(connTimeout);    
         return channel;
     }
  

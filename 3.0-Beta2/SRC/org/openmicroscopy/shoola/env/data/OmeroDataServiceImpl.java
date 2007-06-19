@@ -1004,7 +1004,8 @@ class OmeroDataServiceImpl
 		UserCredentials uc = (UserCredentials) 
 				context.lookup(LookupNames.USER_CREDENTIALS);
 		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
-		gateway.changePassword(newPassword);
+		
+		gateway.changePassword(uc.getUserName(), newPassword);
 		uc.resetPassword(newPassword);
 		return Boolean.TRUE;
 	}

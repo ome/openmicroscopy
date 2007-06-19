@@ -584,6 +584,7 @@ class ImViewerUI
         container.add(tabs, BorderLayout.CENTER);
         container.add(statusBar, BorderLayout.SOUTH);
         tabs.addChangeListener(controller);
+        tabs.setEnabledAt(ImViewer.GRID_INDEX, model.getMaxC() != 1);
     }
 
     /**

@@ -95,7 +95,8 @@ public class ServerEditor
     												"exists.";
     
     /** Example of a new server. */
-    private static final String	EXAMPLE = "(e.g. test.openmicroscopy.org)";
+    private static final String	EXAMPLE = "(e.g. test.openmicroscopy.org " +
+    										"or 134.20.12.33)";
     
     /** Separator used when storing various servers. */
     private static final String  	SERVER_NAME_SEPARATOR = ",";

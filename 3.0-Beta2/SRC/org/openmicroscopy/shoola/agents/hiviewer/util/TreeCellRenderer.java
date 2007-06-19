@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.hiviewer.IconManager;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -77,6 +78,20 @@ public class TreeCellRenderer
     
     /** Reference to the {@link IconManager}. */
     private IconManager         icons;
+    
+    /**
+     * Sets the color of the selected cell depending on the darkness 
+     * of the specified color.
+     * 
+     * @param c The color of reference.
+     */
+    private void setTextColor(Color c)
+    {
+    	if (c == null) return;
+    	// check if the passed color is dark if yes, modify the text color.
+    	if (UIUtilities.isDarkColor(c))
+    		setForeground(UIUtilities.DEFAULT_TEXT);
+    }
     
     /**
      * Sets the icon and the text corresponding to the user's object.
@@ -168,6 +183,7 @@ public class TreeCellRenderer
         DefaultMutableTreeNode  node = (DefaultMutableTreeNode) value;
         if (node.getLevel() == 0) {
             setIcon(icons.getIcon(IconManager.ROOT));
+            if (sel) setTextColor(getBackgroundSelectionColor());
             return this;
         }
         
@@ -216,6 +232,7 @@ public class TreeCellRenderer
         if (getIcon() != null) w += getIcon().getIconWidth();
         w += getIconTextGap();
         setPreferredSize(new Dimension(w, fm.getHeight()));
+        if (sel) setTextColor(getBackgroundSelectionColor());
         return this;
     }
     

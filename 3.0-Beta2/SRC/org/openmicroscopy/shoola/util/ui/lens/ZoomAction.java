@@ -93,16 +93,16 @@ class ZoomAction
 	   
 	static {
 	        names = new String[MAX];
-	        names[ZOOMx1] = "Set Magnification x1";
-	        names[ZOOMx2] = "Set Magnification x2";
-	        names[ZOOMx3] = "Set Magnification x3";
-	        names[ZOOMx4] = "Set Magnification x4";
-	        names[ZOOMx5] = "Set Magnification x5";
-	        names[ZOOMx6] = "Set Magnification x6";
-	        names[ZOOMx7] = "Set Magnification x7";
-	        names[ZOOMx8] = "Set Magnification x8";
-	        names[ZOOMx9] = "Set Magnification x9";
-	        names[ZOOMx10] = "Set Magnification x10";
+	        names[ZOOMx1] = "100%";
+	        names[ZOOMx2] = "200%";
+	        names[ZOOMx3] = "300%";
+	        names[ZOOMx4] = "400%";
+	        names[ZOOMx5] = "500%";
+	        names[ZOOMx6] = "600%";
+	        names[ZOOMx7] = "700%";
+	        names[ZOOMx8] = "800%";
+	        names[ZOOMx9] = "900%";
+	        names[ZOOMx10] = "1000%";
 	}
 
 	/** 
@@ -113,19 +113,19 @@ class ZoomAction
    private void checkIndex(int i)
    {
        switch (i) {
-           case ZOOMx1:
-           case ZOOMx2:
-           case ZOOMx3:
-           case ZOOMx4:
-           case ZOOMx5:
-           case ZOOMx6:
-           case ZOOMx7:
-           case ZOOMx8:
-           case ZOOMx9:
-           case ZOOMx10:
-            return;
-           default:
-               throw new IllegalArgumentException("Index not supported.");
+	       case ZOOMx1:
+	       case ZOOMx2:
+	       case ZOOMx3:
+	       case ZOOMx4:
+	       case ZOOMx5:
+	       case ZOOMx6:
+	       case ZOOMx7:
+	       case ZOOMx8:
+	       case ZOOMx9:
+	       case ZOOMx10:
+	    	   return;
+	       default:
+	    	   throw new IllegalArgumentException("Index not supported.");
        }
    }
    
@@ -138,6 +138,7 @@ class ZoomAction
 	 */
 	ZoomAction(LensComponent lens, int zoomIndex)
 	{
+		if (lens == null) throw new IllegalArgumentException("No component.");
 		this.lens = lens;
 		checkIndex(zoomIndex);
 		index = zoomIndex;

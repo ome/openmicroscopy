@@ -411,7 +411,8 @@ class ImViewerComponent
         newPlane = false;
         model.setImage(image);
         view.setStatus(getStatusText());
-        view.setIconImage(model.getImageIcon());
+        if (!model.isPlayingMovie())
+        	view.setIconImage(model.getImageIcon());
         if (view.isLensVisible()) view.setLensPlaneImage();
         fireStateChange();
     }
@@ -449,25 +450,25 @@ class ImViewerComponent
      */
     public void setChannelColor(int index, Color c)
     {
-        switch (model.getState()) {
-            case NEW:
-            case LOADING_RENDERING_CONTROL:
-            case DISCARDED:
-                throw new IllegalStateException(
-                "This method can't be invoked in the DISCARDED, NEW or" +
-                "LOADING_RENDERING_CONTROL state.");
-        }
-        //Handle Exception
-        try {
-        	model.setChannelColor(index, c);
+    	switch (model.getState()) {
+	        case NEW:
+	        case LOADING_RENDERING_CONTROL:
+	        case DISCARDED:
+	            throw new IllegalStateException(
+	            "This method can't be invoked in the DISCARDED, NEW or" +
+	            "LOADING_RENDERING_CONTROL state.");
+    	}
+	    //Handle Exception
+	    try {
+	    	model.setChannelColor(index, c);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-        
-        view.setChannelColor(index, c);
-        firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
-                new Integer(index));
-        if (model.isChannelActive(index)) renderXYPlane();
+	    
+	    view.setChannelColor(index, c);
+	    firePropertyChange(CHANNEL_COLOR_CHANGE_PROPERTY, new Integer(index-1),
+	            new Integer(index));
+	    if (model.isChannelActive(index)) renderXYPlane();
     }
 
     /** 
@@ -1177,7 +1178,8 @@ class ImViewerComponent
 		}
 		if (source == null) throw new IllegalArgumentException("No component.");
         if (location == null) throw new IllegalArgumentException("No point.");
-		view.showMenu(menuID, source, location);
+        if (model.getMaxC() == 1) controller.showColorPicker(0);
+        else view.showMenu(menuID, source, location);
 	}
 
     /** 

@@ -29,7 +29,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -39,6 +38,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -110,6 +111,20 @@ public class TreeCellRenderer
     }
 
     /**
+     * Sets the color of the selected cell depending on the darkness 
+     * of the specified color.
+     * 
+     * @param c The color of reference.
+     */
+    private void setTextColor(Color c)
+    {
+    	if (c == null) return;
+    	// check if the passed color is dark if yes, modify the text color.
+    	if (UIUtilities.isDarkColor(c))
+    		setForeground(UIUtilities.DEFAULT_TEXT);
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param b Passed <code>true</code> to show the number of children,
@@ -147,9 +162,11 @@ public class TreeCellRenderer
             if (getIcon() != null) w += getIcon().getIconWidth();
             w += getIconTextGap();
             w += fm.stringWidth(getText());
-            setPreferredSize(new Dimension(w, fm.getHeight()));
+            setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
+            if (sel) setTextColor(getBackgroundSelectionColor());
             return this;
         }
+       
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
@@ -158,6 +175,7 @@ public class TreeCellRenderer
         if (c == null) c = tree.getForeground();
         setForeground(c);
         if (!sel) setBorderSelectionColor(getBackground());
+        else setTextColor(getBackgroundSelectionColor());
        
         if (getIcon() != null) w += getIcon().getIconWidth();
         w += getIconTextGap();

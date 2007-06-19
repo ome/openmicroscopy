@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
@@ -62,7 +63,7 @@ class UserNotifierManager
 	/** The default message if an error occured while transfering data. */
 	private static final String	MESSAGE_START = "Sorry, but due to an error " +
 								"we were not able to automatically \n" +
-								"send your . ";
+								"send your ";
 	
 	/** The default message if an error occured while transfering data. */
 	private static final String	MESSAGE_END = "\n\n"+
@@ -123,6 +124,9 @@ class UserNotifierManager
 			
 			JOptionPane.showMessageDialog(source, reply);
 		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print(e);
+			reg.getLogger().error(this, msg);
 			String s = MESSAGE_START;
 			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
 				s += ERROR_MSG;
