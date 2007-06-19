@@ -7,8 +7,10 @@
  *
  */
 """
+import Ice
 import OMERO_Model_Permissions_ice
-import omero.model
+_omero = Ice.openModule("omero")
+_omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
 
 """Permissions class which implements Unix-like rw logic for user/group/world.
@@ -19,7 +21,7 @@ object #0 (::omero::model::Permissions)
     perm1 = -35
 }
 """
-class PermissionsI(omero.model.Permissions):
+class PermissionsI(_omero_model.Permissions):
 
       class PermissionsI_generator:
           def __iter__(self):
@@ -32,6 +34,7 @@ class PermissionsI(omero.model.Permissions):
           return cls.PermissionsI_generator()
 
       def __init__(self, l = -1):
+            super(PermissionsI, self).__init__()
             self.perm1 = l
             self.setGroupWrite(False)
             self.setWorldWrite(False)
@@ -101,7 +104,7 @@ class PermissionsI(omero.model.Permissions):
           self.perm1 = value
           pass
 
-omero.model.PermissionsI = PermissionsI
+_omero_model.PermissionsI = PermissionsI
 
 def _test():
     import doctest

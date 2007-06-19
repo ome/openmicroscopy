@@ -45,18 +45,18 @@ Copyright notice added to all files:
 #foreach($pojo in $c2j.getPOJOIterator( $cfg.getClassMappings() ))
 #if(!$pojo.classModifiers.contains("abstract"))
 [pyc]         import omero_model_${pojo.declarationName}I
-[jav]         __m.put("::omero::model::${pojo.declarationName}I", omero::model::${pojo.declarationName}I::generator());
-[pyc]         __m["::omero::model::${pojo.declarationName}I"] = omero.model.${pojo.declarationName}I.generator()
-[cpp]         __m["::omero::model::${pojo.declarationName}I"] = omero::model::${pojo.declarationName}I::generator();
+[jav]         __m.put("::omero::model::${pojo.declarationName}", omero::model::${pojo.declarationName}I::generator());
+[pyc]         __m["::omero::model::${pojo.declarationName}"] = omero.model.${pojo.declarationName}I.generator()
+[cpp]         __m["::omero::model::${pojo.declarationName}"] = omero::model::${pojo.declarationName}I::generator();
 #end
 #foreach($property in $pojo.allPropertiesIterator)
 #if($c2j.isComponent($property))
 #set($component = $c2j.getPOJOClass($property.getValue()))
 #if(!$component.classModifiers.contains("abstract"))
 [pyc]         import omero_model_${component.declarationName}I
-[jav]         __m.put("::omero::model::${component.declarationName}I", omero::model::${component.declarationName}I::generator());
-[pyc]         __m["::omero::model::${component.declarationName}I"] = omero.model.${component.declarationName}I.generator()
-[cpp]         __m["::omero::model::${component.declarationName}I"] = omero::model::${component.declarationName}I::generator();
+[jav]         __m.put("::omero::model::${component.declarationName}", omero::model::${component.declarationName}I::generator());
+[pyc]         __m["::omero::model::${component.declarationName}"] = omero.model.${component.declarationName}I.generator()
+[cpp]         __m["::omero::model::${component.declarationName}"] = omero::model::${component.declarationName}I::generator();
 #end
 #end
 #end

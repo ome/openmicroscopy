@@ -7,11 +7,13 @@
  *
  */
 """
-import omero.model
+import Ice
 import OMERO_Model_Details_ice
 import omero_model_PermissionsI
+_omero = Ice.openModule("omero") 
+_omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
-class DetailsI(omero.model.Details):
+class DetailsI(_omero_model.Details):
 
       class DetailsI_generator:
           def __iter__(self):
@@ -24,7 +26,8 @@ class DetailsI(omero.model.Details):
           return cls.DetailsI_generator()
 
       def __init__(self):
-          self.permissions = omero.model.PermissionsI()
+          super(DetailsI, self).__init__()
+          self.permissions = _omero_model.PermissionsI()
 
       def getOwner(self):
           return self.owner
@@ -68,4 +71,4 @@ class DetailsI(omero.model.Details):
           self.externalInfo = value
           pass
 
-omero.model.DetailsI = DetailsI
+_omero_model.DetailsI = DetailsI

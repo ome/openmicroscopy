@@ -123,7 +123,7 @@ INTERNAL METHODS:
 [$cpp]       }
 [$jav]       protected void errorIfUnloaded() throws omero.UnloadedEntityException
 [$jav]       {
-[$jav]         if ( ! loaded ) throw new omero.UnloadedEntityException("Object unloaded:"+str(this));
+[$jav]         if ( ! loaded ) throw new omero.UnloadedEntityException("Object unloaded:"+this);
 [$jav]       }
 [$pyc]       def errorIfUnloaded(self):
 [$pyc]           if not self.loaded:
@@ -183,7 +183,7 @@ DEFAULT CONSTRUCTOR BLOCK:
 
 Python combines the two constructors. See below for a comparison.
 [$pyc]       def __init__(self,id = None,loaded = True):
-[$pyc]           super(${Pojo}I, self).__init__(self)
+[$pyc]           super(${Pojo}I, self).__init__()
 [$pyc]           self.id = id
 [$pyc]           self.loaded = loaded
 [$pyc]           if self.loaded:

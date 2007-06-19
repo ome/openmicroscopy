@@ -8,22 +8,23 @@
 #import os
 #dirname = __path__[0]
 #__path__.append(os.path.join(dirname, "_gen"))
-import sys, exceptions
+import exceptions
 import Ice, Glacier2
 import api
 import model
 import util
+from omero_ext import pysys
 
 class client(object):
 
-    def __init__(self, args = sys.argv, id = Ice.InitializationData()):
+    def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
 
         self.ic = None
         ic = Ice.initialize(args,id)
         if not ic:
-            raise omero.ClientError("Improper initialization")
-        of = ObjectFactory()
-        of.registerObjectFactory(ic)
+            raise ClientError("Improper initialization")
+        self.of = ObjectFactory()
+        self.of.registerObjectFactory(ic)
         self.ic = ic
 
     def __del__(self):
@@ -31,8 +32,8 @@ class client(object):
             try:
                 self.ic.destroy()
             except (), msg:
-                sys.stderr.write("Ice exception while destroying communicator:")
-                sys.stderr.write(msg)
+                pysys.stderr.write("Ice exception while destroying communicator:")
+                pysys.stderr.write(msg)
 
     def getCommunicator(self):
         return self.ic
@@ -44,7 +45,7 @@ class client(object):
         return self.ic.getProperties()
 
     def getProperty(self,key):
-        self.getProperties().getProperty(key)
+        return self.getProperties().getProperty(key)
 
     def createSession(self):
         username = self.getProperty("OMERO.username")
@@ -52,10 +53,13 @@ class client(object):
 
         prx = self.ic.getDefaultRouter()
         router = Glacier2.RouterPrx.checkedCast(prx)
+        if not router:
+            raise ClientError("No default router found.")
         session = router.createSession(username, password)
-        self.sf = omero.api.ServiceFactoryPrx.checkedCast(session)
-        if not sf:
-            raise omero.ClientError("No session obtained.")
+        self.sf = api.ServiceFactoryPrx.checkedCast(session)
+        if not self.sf:
+            raise ClientError("No session obtained.")
+        return self.sf
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):
@@ -71,7 +75,7 @@ class ObjectFactory(Ice.ObjectFactory):
     def create(self, type):
         generator = self.__m[type]
         if generator == None:
-            raise omero.ClientError("Unknown type:"+type)
+            raise ClientError("Unknown type:"+type)
         return generator.next()
 
     def destroy(self):
