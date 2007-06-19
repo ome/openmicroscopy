@@ -22,31 +22,24 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.util;
 
+
+//Java imports
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Image;
-import java.awt.RenderingHints;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.border.BevelBorder;
 import javax.swing.table.TableCellRenderer;
-
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
-import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 
 /** 
  * 
@@ -66,6 +59,8 @@ public 	class ROIAssistantCellRenderer
 		implements TableCellRenderer
 {
 
+	private final static Color SELECTED_COLOUR = new Color(180, 213, 255);
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -133,7 +128,11 @@ public 	class ROIAssistantCellRenderer
 				label.setHorizontalTextPosition(SwingConstants.CENTER);
 			}
 		}
-		RendererUtils.setRowColor(label, table.getSelectedRow(), row);
+		if(hasFocus)
+		{
+			label.setBackground(SELECTED_COLOUR);
+		}
+		//RendererUtils.setRowColor(label, table.getSelectedRow(), row);
 		thisComponent = label;
 		return thisComponent;
 	}

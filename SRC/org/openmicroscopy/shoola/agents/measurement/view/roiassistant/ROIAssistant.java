@@ -37,6 +37,9 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 //Third-party libraries
 
@@ -66,25 +69,27 @@ public class ROIAssistant
 	 * The table showing the ROI and allowing the user to propagate the selected
 	 * ROI through time and Z-section. 
 	 */	
-	private 	ROIAssistantTable	table;
+	private 	ROIAssistantTable		table;
 	
 	/**
 	 * The model which will define the ROI's displayed in the table.
 	 */
-	private 	ROIAssistantModel 	model;
+	private 	ROIAssistantModel 		model;
 	
 	/** The user has selected to cancel propagation of the ROI. */
-	private 	JButton 			cancelButton;
+	private 	JButton 				cancelButton;
 
 	/** The user has selected to accept the current propagation of the ROI. */
-	private 	JButton 			acceptButton;
+	private 	JButton 				acceptButton;
 	
 	/** 
 	 * The user has selected to revert to the original ROI time and 
 	 * z-section. 
 	 */
-	private 	JButton 			resetButton;
+	private 	JButton 				resetButton;
 	
+	/** Listener for the selection of cells in the table. */
+	private 	ListSelectionListener	listener;
 	
 	/**
 	 * Construvtor for the ROIAssistant Dialog.
@@ -119,6 +124,36 @@ public class ROIAssistant
 	{
 		model = new ROIAssistantModel(numRow, numCol, currentPlane, selectedROI);
 		table = new ROIAssistantTable(model);
+		listener = new ListSelectionListener() {
+			
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting()) return;
+
+		        ListSelectionModel lsm =
+		            (ListSelectionModel) e.getSource();
+		        if (lsm.isSelectionEmpty()) {
+		        } else {
+		        	int index = lsm.getMinSelectionIndex();
+		        	ROIAssistantModel m = 
+	        			(ROIAssistantModel) table.getModel();
+		        	//TODO: something
+	        	}
+			}
+		
+		};
+		
+
+		table.addMouseListener(new java.awt.event.MouseAdapter() 
+		{
+			public void mouseClicked(java.awt.event.MouseEvent e) 
+			{
+				int col = table.getSelectedColumn();
+				int row = table.getSelectedRow();
+				Object value = table.getValueAt(row, col);
+			
+			}
+		});
+		table.getSelectionModel().addListSelectionListener(listener);
 	}
 	
 	/** Create the accept, reset and cancel buttons including actions. */
@@ -220,20 +255,25 @@ public class ROIAssistant
 		this.getContentPane().add(panel, BorderLayout.CENTER);
 	}
 
+	private void resetChanges()
+	{
+		
+	}
 	
 	private void acceptButtonClicked()
 	{
-		
+		dispose();
 	}
 	
 	private void cancelButtonClicked()
 	{
-		
+		resetChanges();
+		dispose();
 	}
 	
 	private void resetButtonClicked()
 	{
-		
+		resetChanges();
 	}
 
 	

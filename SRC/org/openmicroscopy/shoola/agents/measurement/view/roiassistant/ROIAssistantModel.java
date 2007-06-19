@@ -81,7 +81,7 @@ public class ROIAssistantModel
 		columnNames.add("Z Section\\Time");
 		shapeMap = new TreeMap<Coord3D, String>(new Coord3D());
 		for(int i = 0 ; i < numCol ; i++)
-			columnNames.add(i+"");
+			columnNames.add((i+1)+"");
 		populateShapeMap();
 	}
 
@@ -137,7 +137,7 @@ public class ROIAssistantModel
 	{
 		if(timePoint == 0)
 		{
-			return zSection+"";
+			return (zSection+1)+"";
 		}
 		try
 		{
