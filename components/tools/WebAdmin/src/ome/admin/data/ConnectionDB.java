@@ -423,6 +423,26 @@ public class ConnectionDB {
 
 	}
 
+
+	/**
+	 * Updates {@link ome.model.meta.Experimenter} only for himself
+	 * 
+	 * @param experimenter
+	 *            {@link ome.model.meta.Experimenter}. Not null.
+	 */
+	public void updateSelf(Experimenter experimenter) {
+		logger.info("updateSelf by user ID: " + userid);
+		logger.info("Experimenter details [id: '" + experimenter.getId()
+				+ "', Ome name: '" + experimenter.getOmeName() + "', email: '"
+				+ experimenter.getEmail() + "', First name: '"
+				+ experimenter.getFirstName() + "', Middle name: '"
+				+ experimenter.getMiddleName() + "', Last name: '"
+				+ experimenter.getLastName() + "', Institution: '"
+				+ experimenter.getInstitution() + "]");
+		adminService.updateSelf(experimenter);
+
+	}
+	
 	/**
 	 * Gets {@link ome.model.meta.Experimenter} details by
 	 * {@link ome.model.meta.Experimenter#getId()}

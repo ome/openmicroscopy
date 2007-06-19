@@ -255,7 +255,7 @@ public class LoginBean implements java.io.Serializable{
 				+ port + " by " + username + " ...");
 				
 		try {
-			String jsfnav;
+			String jsfnav = null;
 			try {
 
 				Login l = new Login(username, password, "system", "User");

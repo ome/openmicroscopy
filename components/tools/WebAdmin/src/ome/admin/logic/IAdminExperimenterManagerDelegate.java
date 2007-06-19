@@ -395,7 +395,7 @@ public class IAdminExperimenterManagerDelegate implements java.io.Serializable {
 	 *            {@link ome.model.meta.ExperimenterGroup#getId()}
 	 */
 	public void updateMyAccount(Experimenter experimenter, String group) {
-		db.updateExperimenter(experimenter);
+		db.updateSelf(experimenter);
 		db.setDefaultGroup(experimenter, db.getGroup(Long.parseLong(group)));
 
 	}
