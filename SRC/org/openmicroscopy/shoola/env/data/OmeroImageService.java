@@ -149,7 +149,7 @@ public interface OmeroImageService
      * Loads the pixels set.
      * 
      * @param pixelsID The id of the pixels set.
-     * @return See above
+     * @return See above.
      * @throws DSOutOfServiceException  If the connection is broken, or logged
      *                                  in.
      * @throws DSAccessException        If an error occured while trying to 
@@ -157,5 +157,22 @@ public interface OmeroImageService
      */
     public Pixels loadPixels(long pixelsID)
     	throws DSOutOfServiceException, DSAccessException;
+    
+    /**
+	 * Returns the XY-plane identified by the passed z-section, timepoint 
+	 * and wavelength.
+	 * 
+	 * @param pixelsID 	The id of pixels containing the requested plane.
+	 * @param z			The selected z-section.
+	 * @param t			The selected timepoint.
+	 * @param c			The selected wavelength.
+	 * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+    public byte[] getPlane(long pixelsID, int z, int t, int c)
+		throws DSOutOfServiceException, DSAccessException;
     
 }

@@ -158,6 +158,7 @@ public class ThumbnailProvider
     {
         if (img == null) return null;
         int width = img.getWidth(), height = img.getHeight();
+        if (width <= 0 || height <= 0) return null;
         AffineTransform at = new AffineTransform();
         at.scale(f, f);
         BufferedImageOp biop = new AffineTransformOp(at, 

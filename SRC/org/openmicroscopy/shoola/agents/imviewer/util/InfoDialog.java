@@ -71,7 +71,7 @@ public class InfoDialog
     extends JDialog
 {
 
-    /** Bound property indicating that an update of the channel information. */ 
+	/** Bound property indicating that an update of the channel information. */ 
     public static final String      UPDATE_PROPERTY = "update";
     
     /** The default title of the window. */
@@ -173,6 +173,7 @@ public class InfoDialog
             content.add(label, c);
             area = new JTextField(value);
             area.setEditable(false);
+            area.setEnabled(false);
             label.setLabelFor(area);
             c.gridx = 1;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row

@@ -50,6 +50,7 @@ import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
+import ome.api.RawPixelsStore;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
@@ -121,6 +122,9 @@ class OMEROGateway
     
     /** The raw file store. */
     private RawFileStore			fileStore;
+    
+    /** The raw pixels store. */
+    private RawPixelsStore			pixelsStore;
     
     /**
      * Tells whether we're currently connected and logged into <i>OMERO</i>.
@@ -358,6 +362,16 @@ class OMEROGateway
     }
     
     /**
+     * Returns the {@link RawPixelsStore} service.
+     * 
+     * @return See above.
+     */
+    private RawPixelsStore getPixelsStore()
+    {
+    	return entry.createRawPixelsStore();
+    }
+    
+    /**
      * Checks if some default rendering settings have to be created
      * for the specified set of pixels.
      * 
@@ -391,6 +405,21 @@ class OMEROGateway
     {
     	String n = group.getName();
     	return ("system".equals(n) || "user".equals(n) || "default".equals(n));
+    }
+    
+    /**
+     * Reconnects to server. This method should be invoked when the password
+     * is reset.
+     * 
+     * @param userName	The name of the user who modifies his/her password.
+     * @param password 	The new password.
+     */
+    private void resetFactory(String userName, String password)
+    {
+        entry = new ServiceFactory(server, new Login(userName, password));
+        if (thumbnailService != null) thumbnailService.close();
+        thumbnailService = null;
+        thumbRetrieval = 0;
     }
     
     /**
@@ -1254,17 +1283,19 @@ class OMEROGateway
     /**
      * Modifies the password of the currently logged in user.
      * 
+     * @param userName	The name of the user whose password has not be changed.
      * @param password	The new password.
      * @throws DSOutOfServiceException If the connection is broken, or logged in
      * @throws DSAccessException If an error occured while trying to 
      * retrieve data from OMERO service. 
      */
-	void changePassword(String password)
+	void changePassword(String userName, String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getIAdmin();
 		try {
 			service.changePassword(password);
+			resetFactory(userName, password);
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
 		}
@@ -1282,11 +1313,40 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IAdmin service = getIAdmin();
+		//entry.createRawPixelsStore().getPlane(arg0, arg1, arg2)
 		try {
 			service.updateExperimenter(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}
 	}
-    
+
+	/**
+	 * Returns the XY-plane identified by the passed z-section, timepoint 
+	 * and wavelength.
+	 * 
+	 * @param pixelsID 	The id of pixels containing the requested plane.
+	 * @param z			The selected z-section.
+	 * @param t			The selected timepoint.
+	 * @param c			The selected wavelength.
+	 * @return See above.
+     * @throws DSOutOfServiceException  If the connection is broken, or logged
+     *                                  in.
+     * @throws DSAccessException        If an error occured while trying to 
+     *                                  retrieve data from OMEDS service.
+	 */
+	byte[] getPlane(long pixelsID, int z, int t, int c)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		RawPixelsStore service = getPixelsStore();
+		try {
+			service.setPixelsId(pixelsID);
+			return service.getPlane(z, c, t);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve the plane " +
+					"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID);
+		}
+		return null;
+	}
+	
 }

@@ -63,7 +63,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 class TwoKnobsSliderUI
 {
 
-    /** Extra space added to the track. */
+	/** Extra space added to the track. */
     static final int            EXTRA = 3;
     
     /** Space added to paint the label. */
@@ -104,8 +104,11 @@ class TwoKnobsSliderUI
     /** The color of the font. */
     private Color                   fontColor;
     
-    /** The image used to draw the two knob slider.  */
-    private Image 					knobImage;
+    /** The image used to draw the thumb.  */
+    private Image 					thumbImage;
+    
+    /** The image used to draw the thumb when the slider is disabled.  */
+    private Image 					disabledThumbImage;
     
     /** Initializes the components. */
     private void initialize()
@@ -122,8 +125,10 @@ class TwoKnobsSliderUI
     {
     	// Create the thumb image 
     	IconManager icons = IconManager.getInstance();
-    	ImageIcon knobImageIcon =  icons.getImageIcon(IconManager.THUMB);
-    	knobImage = knobImageIcon.getImage();
+    	ImageIcon icon =  icons.getImageIcon(IconManager.THUMB);
+    	thumbImage = icon.getImage();
+    	icon = icons.getImageIcon(IconManager.THUMB_DISABLED);
+		disabledThumbImage = icon.getImage();
     	/*
        	* I will come back to list later to fix a nicer graphic. 
        	* 
@@ -370,8 +375,10 @@ class TwoKnobsSliderUI
 		//Draw the knobs
 		int w  = component.getKnobWidth();
 		int h = component.getKnobHeight();
-		g2D.drawImage(knobImage, l-w/2, 1, w, h, null);
-        g2D.drawImage(knobImage, r-w/2, 1, w, h, null);
+		Image img = thumbImage;
+		if (!model.isEnabled()) img = disabledThumbImage;
+		g2D.drawImage(img, l-w/2, 1, w, h, null);
+        g2D.drawImage(img, r-w/2, 1, w, h, null);
      }
     
     /**
@@ -399,11 +406,10 @@ class TwoKnobsSliderUI
                 trackRect.height, trackRect.width/3, trackRect.width/3);
 
 		//Draw the knobs
-        //g2D.setColor(startKnobColor);
-		g2D.drawImage(knobImage, x, up, w, h, null);
-     
-        //g2D.setColor(endKnobColor);
-        g2D.drawImage(knobImage, x, down, w, h, null);
+		Image img = thumbImage;
+		if (!model.isEnabled()) img = disabledThumbImage;
+		g2D.drawImage(img, x, up, w, h, null);
+        g2D.drawImage(img, x, down, w, h, null);
      }
     
     /**
@@ -479,8 +485,8 @@ class TwoKnobsSliderUI
      */
     int getKnobWidth()
     {
-    	if (knobImage == null) return 16;
-    	return knobImage.getWidth(null);
+    	if (thumbImage == null) return 16;
+    	return thumbImage.getWidth(null);
     }
     
     /**
@@ -490,8 +496,8 @@ class TwoKnobsSliderUI
      */
     int getKnobHeight()
     {
-    	if (knobImage == null) return 16;
-    	return knobImage.getHeight(null);
+    	if (thumbImage == null) return 16;
+    	return thumbImage.getHeight(null);
     }
     
     /**

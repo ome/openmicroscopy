@@ -71,6 +71,9 @@ class MoviePlayerUI
     extends JPanel
 {
     
+	/** The maximum value for which the ticks are painted. */
+	private static final int		MAX_RANGE = 100;
+	
     /** UI identifier corresponding to {@link MoviePlayer#LOOP}. */
     private static final int        LOOP_CMD = 0;
     
@@ -198,10 +201,13 @@ class MoviePlayerUI
         
          //movie selection
         int maxZ = model.getMaxZ();
-        zSlider = new TwoKnobsSlider(model.getMinZ(), maxZ, 
-                                    model.getStartZ(), model.getEndZ());
+        int minZ = model.getMinZ();
+        int rangeZ = maxZ-minZ;
+        zSlider = new TwoKnobsSlider(minZ, maxZ, model.getStartZ(), 
+        							model.getEndZ());
         zSlider.setPaintEndLabels(false);
         zSlider.setPaintLabels(false);
+        if (rangeZ <= 0 || rangeZ > MAX_RANGE) zSlider.setPaintTicks(false);
         int length = (""+(maxZ+1)).length();
         startZ = new JTextField(""+(model.getStartZ()+1), length);
         startZ.setToolTipText(
@@ -211,10 +217,14 @@ class MoviePlayerUI
                 UIUtilities.formatToolTipText("Enter the end z-section."));
         
         int maxT = model.getMaxT();
-        tSlider = new TwoKnobsSlider(model.getMinT(), maxT, 
-                                model.getStartT(), model.getEndT());
+        int minT = model.getMinZ();
+        int rangeT = maxT-minT;
+        tSlider = new TwoKnobsSlider(minT, maxT, model.getStartT(), 
+        							model.getEndT());
         tSlider.setPaintEndLabels(false);
         tSlider.setPaintLabels(false);
+
+        if (rangeT <= 0 || rangeT > MAX_RANGE) tSlider.setPaintTicks(false);
         startT = new JTextField(""+model.getStartT(), (""+maxT).length());
         startT.setToolTipText(
                 UIUtilities.formatToolTipText("Enter the start timepoint."));

@@ -93,16 +93,16 @@ class LensAction
 	   
 	static {
 	        names = new String[MAX];
-	        names[LENSDEFAULTSIZE] = "Set Lens to Default size";
-	        names[LENS40x40] = "Set lens to 40x40";
-	        names[LENS50x50] = "Set lens to 50x50";
-	        names[LENS60x60] = "Set lens to 60x60";
-	        names[LENS70x70] = "Set lens to 70x70";
-	        names[LENS80x80] = "Set lens to 80x80";
-	        names[LENS90x90] = "Set lens to 90x90";
-	        names[LENS100x100] = "Set lens to 100x100";
-	        names[LENS120x120] = "Set lens to 120x120";
-	        names[LENS150x150] = "Set lens to 150x150";
+	        names[LENSDEFAULTSIZE] = "Default size";
+	        names[LENS40x40] = "40x40";
+	        names[LENS50x50] = "50x50";
+	        names[LENS60x60] = "60x60";
+	        names[LENS70x70] = "70x70";
+	        names[LENS80x80] = "80x80";
+	        names[LENS90x90] = "90x90";
+	        names[LENS100x100] = "100x100";
+	        names[LENS120x120] = "120x120";
+	        names[LENS150x150] = "150x150";
 	}
 
     /** 

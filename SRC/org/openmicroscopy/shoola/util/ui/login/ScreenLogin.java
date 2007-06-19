@@ -174,7 +174,7 @@ public class ScreenLogin
      */
     private void config()
     {
-    	ServerDialog d = new ServerDialog(editor);
+    	ServerDialog d = new ServerDialog(this, editor);
     	d.addPropertyChangeListener(this);
     	UIUtilities.centerAndShow(d);
     }

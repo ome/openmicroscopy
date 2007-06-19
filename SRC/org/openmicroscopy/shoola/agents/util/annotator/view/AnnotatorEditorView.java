@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 //Java imports
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.sql.Timestamp;
@@ -85,8 +87,11 @@ class AnnotatorEditorView
 	extends JPanel
 {
 
-    /** Button to finish the operation. */
+	/** Button to finish the operation. */
     private JButton             	saveButton;
+    
+    /** Button to clear the annotation text. */
+    private JButton             	clearButton;
     
     /** Area where to annotate the <code>DataObject</code>. */
     private MultilineLabel           annotationArea; 
@@ -238,6 +243,14 @@ class AnnotatorEditorView
             
         saveButton = new JButton(
         			controller.getAction(AnnotatorEditorControl.SAVE));
+        clearButton = new JButton("Clear");
+        clearButton.setToolTipText("Clear the annotation text.");
+        clearButton.setEnabled(false);
+        clearButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) { clear(); }
+		
+		});
         annotationArea = new MultilineLabel();
         annotationArea.setBorder(BorderFactory.createEtchedBorder());
         annotationArea.setRows(AnnotatorUtil.ROWS);
@@ -254,6 +267,7 @@ class AnnotatorEditorView
             {
             	model.setAnnotated(true);
             	saveButton.setEnabled(true);
+            	clearButton.setEnabled(true);
             }
             
             /** 
@@ -273,6 +287,12 @@ class AnnotatorEditorView
             
         };
         annotationArea.getDocument().addDocumentListener(listener);
+    }
+    
+    /** Clear the annotation text. */
+    private void clear()
+    {
+    	annotationArea.setText("");
     }
     
     /**
@@ -321,6 +341,8 @@ class AnnotatorEditorView
     	JPanel p = new JPanel();
         p.add(deleteButton);
         p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
+        p.add(clearButton);
+        p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
         p.add(saveButton);
         p.setOpaque(true);
         JPanel bar = new JPanel();
@@ -361,6 +383,7 @@ class AnnotatorEditorView
 				c.setBackground(c.getOriginalBackground());
 				listAnnotations.add(c);
 			} else {
+				c.setBackground(c.getOriginalBackground());
 				pane = new JScrollPane(c);
 				pane.getVerticalScrollBar().setVisible(true);
 				listAnnotations.add(pane);
@@ -385,8 +408,11 @@ class AnnotatorEditorView
     	for (int i = 0; i < l.size(); i++) {
 			c = (MultilineLabel) l.get(i);
 			c.setBackground(c.getOriginalBackground());
-			if (j == i && c != annotationArea) 
+			//if (j == i && c != annotationArea) 
+			if (j == i) {
+				clearButton.setEnabled(c == annotationArea);
 				c.setBackground(AnnotatorUtil.HIGHLIGHT);
+			}
 		}
     	c = (MultilineLabel) l.get(j);
     	scrollToNode(c);
@@ -492,6 +518,7 @@ class AnnotatorEditorView
     void setComponentsEnabled(boolean b)
     {
         saveButton.setEnabled(b);
+        clearButton.setEnabled(b);
         deleteButton.setEnabled(!b);
         //annotationArea.setEditable(b);
         //if (b) {

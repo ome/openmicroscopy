@@ -241,4 +241,14 @@ class OmeroImageServiceImpl
         }
 	}
 
+	/** 
+     * Implemented as specified by {@link OmeroImageService}. 
+     * @see OmeroImageService#getPlane(long, int, int, int)
+     */
+	public byte[] getPlane(long pixelsID, int z, int t, int c)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.getPlane(pixelsID, z, t, c);
+	}
+	
 }

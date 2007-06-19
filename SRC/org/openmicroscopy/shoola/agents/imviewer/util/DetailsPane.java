@@ -55,7 +55,7 @@ class DetailsPane
 	extends JPanel
 {
 	
-    /** String to represent the micron symbol. */
+	/** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5)";
     
     /** Identifies the <code>SizeX</code> field. */
@@ -83,7 +83,7 @@ class DetailsPane
     {
     	JTextField area = new JTextField(value);
         area.setEditable(false);
-        //area.setEnabled(false);
+        area.setEnabled(false);
         return area;
     }
     

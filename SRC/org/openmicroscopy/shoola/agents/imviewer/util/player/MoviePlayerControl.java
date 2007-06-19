@@ -65,7 +65,7 @@ class MoviePlayerControl
             PropertyChangeListener
 {
 
-    /** Identifies the entering of a starting timepoint. */
+	/** Identifies the entering of a starting timepoint. */
     private static final int    START_T = 0;
     
     /** Identifies the entering of a ending timepoint. */
@@ -351,7 +351,6 @@ class MoviePlayerControl
         } catch(NumberFormatException nfe) { 
             throw new Error("Invalid Action ID "+ae.getActionCommand(), nfe); 
         }
-        
     }
 
     /**
@@ -405,20 +404,24 @@ class MoviePlayerControl
         Object source = evt.getSource();
         int s = -1;
         int e = -1;
-        if (name.equals(TwoKnobsSlider.LEFT_MOVED_PROPERTY) || 
-            name.equals(TwoKnobsSlider.RIGHT_MOVED_PROPERTY)) {
+        if (name.equals(TwoKnobsSlider.LEFT_MOVED_PROPERTY)) {
+                if (source.equals(view.zSlider)) {
+                    s = view.zSlider.getStartValue();
+                    model.setStartZ(s);
+                    view.setStartZ(s);
+                } else if (source.equals(view.tSlider)) {
+                    s = view.tSlider.getStartValue();
+                    model.setStartT(s);
+                    view.setStartT(s);
+                }
+            } 
+        if (name.equals(TwoKnobsSlider.RIGHT_MOVED_PROPERTY)) {
             if (source.equals(view.zSlider)) {
-                s = view.zSlider.getStartValue();
                 e = view.zSlider.getEndValue();
-                model.setStartZ(s);
-                view.setStartZ(s);
                 model.setEndZ(e);
                 view.setEndZ(e);
             } else if (source.equals(view.tSlider)) {
-                s = view.tSlider.getStartValue();
                 e = view.tSlider.getEndValue();
-                model.setStartT(s);
-                view.setStartT(s);
                 model.setEndT(e);
                 view.setEndT(e);
             }
@@ -431,4 +434,5 @@ class MoviePlayerControl
      * @see FocusListener#focusGained(FocusEvent)
      */ 
     public void focusGained(FocusEvent e) {}
+    
 }

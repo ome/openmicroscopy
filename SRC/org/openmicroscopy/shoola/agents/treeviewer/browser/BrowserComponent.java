@@ -82,7 +82,7 @@ class BrowserComponent
     implements Browser
 {
 
-    /** The Model sub-component. */
+	 /** The Model sub-component. */
     private BrowserModel    	model;
     
     /** The View sub-component. */
@@ -188,6 +188,7 @@ class BrowserComponent
     	switch (model.getState()) {
 	        case LOADING_DATA:
 	        case LOADING_LEAVES:
+	        	model.cancel();
 	        case DISCARDED:
 	            throw new IllegalStateException(
 	                    "This method cannot be invoked in the LOADING_DATA, "+

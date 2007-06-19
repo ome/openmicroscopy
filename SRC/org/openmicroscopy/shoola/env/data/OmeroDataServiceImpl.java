@@ -71,7 +71,7 @@ class OmeroDataServiceImpl
     implements OmeroDataService
 {
     
-    /** Uses it to gain access to the container's services. */
+	/** Uses it to gain access to the container's services. */
     private Registry                context;
     
     /** Reference to the entry point to access the <i>OMERO</i> services. */
@@ -1004,7 +1004,8 @@ class OmeroDataServiceImpl
 		UserCredentials uc = (UserCredentials) 
 				context.lookup(LookupNames.USER_CREDENTIALS);
 		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
-		gateway.changePassword(newPassword);
+		
+		gateway.changePassword(uc.getUserName(), newPassword);
 		uc.resetPassword(newPassword);
 		return Boolean.TRUE;
 	}

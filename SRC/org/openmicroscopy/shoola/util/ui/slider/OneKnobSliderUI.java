@@ -36,6 +36,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.plaf.basic.BasicSliderUI;
+import javax.swing.plaf.basic.BasicSliderUI.TrackListener;
 
 //Third-party libraries
 
@@ -210,7 +211,8 @@ public class OneKnobSliderUI
 	private void calculateEndLabelRect()
 	{
 		if (slider.getOrientation() == JSlider.HORIZONTAL) {
-			int offsetY = trackRect.height+labelHeight/2+1;//trackRect.height/2-labelHeight/2-1;
+			int offsetY = trackRect.height+labelHeight/2+1;
+			//trackRect.height/2-labelHeight/2-1;
 			//endLabelRect = new Rectangle(trackRect.x-(minArrowRect.width+
 			//		TEXT_SPACE+labelWidth), offsetY, labelWidth, labelHeight);
 			endLabelRect = new Rectangle(0, offsetY, labelWidth, labelHeight);
@@ -456,6 +458,7 @@ public class OneKnobSliderUI
         if (slider.getPaintTicks() && clip.intersects(tickRect)) 
              paintTicks(g);
          
+        //if (slider.getP)
         if (slider.getPaintLabels() && clip.intersects(labelRect)) 
                 paintLabels(g);
          

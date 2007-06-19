@@ -504,7 +504,11 @@ class ImViewerModel
     void setColorModel(String colorModel)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	rndControl.setModel(colorModel);
+    	if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
+    		rndControl.setModel(colorModel);
+    	else if (ImViewer.RGB_MODEL.equals(colorModel) ||
+    			(ImViewer.HSB_MODEL.equals(colorModel)))
+    		rndControl.setModel(ImViewer.HSB_MODEL);
     }
 
     /**

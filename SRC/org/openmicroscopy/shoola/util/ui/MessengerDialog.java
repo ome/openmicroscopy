@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -124,6 +125,11 @@ public class MessengerDialog
 			"Please note that your application may need to be restarted " +
 			"to work properly.";
 	
+	/** The default message displayed when an unvalid e-mail is entered. */
+	private static final String		EMAIL_MESSAGE = "The e-mail address " +
+			"entered \n does not seem to be valid. \n Please enter a new " +
+			"e-mail address.";
+	
 	/** Value of the  comment field. */
 	private static final String		COMMENT_FIELD = "Comment: ";
 	
@@ -201,11 +207,30 @@ public class MessengerDialog
 		}
 	}
 	
+	/**
+	 * Controls if the passed string is a valid e-mail address.
+	 * 
+	 * @param email	The e-mail address to control.
+	 * @return See above.
+	 */
+	private boolean checkValidEmail(String email)
+	{
+		if (email == null || email.length() == 0) return true;
+		String[] array = email.split("@");
+		if (array == null || array.length != 2) return false;
+		return array[1].contains(".");
+	}
+	
 	/** Sends the message. */
 	private void send()
 	{
 		String email = emailArea.getText().trim();
 		String comment = commentArea.getText().trim();
+		if (!checkValidEmail(email)) {
+			JOptionPane.showMessageDialog(this, EMAIL_MESSAGE, "Unvalid email", 
+						JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		String error = null;
 		if (debugArea != null)  error = debugArea.getText().trim();
 		MessengerDetails details = new MessengerDetails(email, comment);

@@ -62,7 +62,7 @@ public class TwoKnobsSlider
     extends JPanel
 {
     
-    /** Bound property name indicating if the dragged knob is released. */
+	/** Bound property name indicating if the dragged knob is released. */
     public final static String          KNOB_RELEASED_PROPERTY = 
                                                         "knobReleased";
     
@@ -237,6 +237,13 @@ public class TwoKnobsSlider
                 
         } else {
             handleMouseEventForVertSlider((int) me.getPoint().getY());
+            if (knobControl == LEFT) {
+                firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, getEndValue());
+            } else if (knobControl == RIGHT) {
+                firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
+                                    getStartValue());
+            }
+            /*
             if (knobControl == LEFT || pushKnobControl == LEFT_KNOB_PUSHED) {
                 firePropertyChange(LEFT_MOVED_PROPERTY, oldEnd, getEndValue());
             } else if (knobControl == RIGHT || 
@@ -245,6 +252,7 @@ public class TwoKnobsSlider
                 firePropertyChange(RIGHT_MOVED_PROPERTY, oldStart,
                                     getStartValue());
             }
+            */
         } 
     }
     
@@ -625,6 +633,32 @@ public class TwoKnobsSlider
         else throw new IllegalArgumentException("Orientation not supported.");
     }
     
+    /**
+	 * Sets the space between the minor ticks. Passes <code>true</code>
+	 * to set the value to <code>0</code>, <code>false</code> otherwise
+	 * 
+	 * @param b 
+	 */
+	public void setPaintMinorTicks(boolean b)
+	{
+		if (b) {
+			int m = model.getMinorTickSpacing();
+			if (m == 0) m = 1;
+			model.setMinorTickSpacing(m);
+		} model.setMinorTickSpacing(0);
+		repaint();
+	}
+	
+	/**
+	 * Sets the space between the minor ticks.
+	 * 
+	 * @param s The space between minor 
+	 */
+	public void setMinorTickSpacing(int s)
+	{
+		model.setMinorTickSpacing(s);
+	}
+	
     /**
      * Overrides method to return the <code>Preferred Size</code>.
      * @see JPanel#getPreferredSize()

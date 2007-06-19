@@ -64,7 +64,7 @@ class ToolBar
     implements ActionListener, FocusListener
 {
 
-    /** Lenght of the z-section selection text field. */
+	/** Lenght of the z-section selection text field. */
     //private static final String     MAX_LENGTH_Z = "99";
     
     /** Lenght of the timepoint selection text field. */

@@ -49,7 +49,7 @@ import java.util.Map;
 class TwoKnobsSliderModel
 {
 
-    /** The default minimum value. */
+	/** The default minimum value. */
     static final int    DEFAULT_MIN = 0;
     
     /** The default maximum value. */
@@ -84,7 +84,7 @@ class TwoKnobsSliderModel
     
     /** The space between the minor ticks. */
     private int         				minorTickSpacing;
-    
+   
     /** The ticks increment value. */
     private int         				increment;
     

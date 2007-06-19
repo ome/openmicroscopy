@@ -101,7 +101,7 @@ class ImViewerControl
     implements ChangeListener, ComponentListener, PropertyChangeListener
 {
 
-    /** Identifies the <code>Close</code> action in the menu. */
+	/** Identifies the <code>Close</code> action in the menu. */
     static final Integer     CLOSE = new Integer(0);
     
     /** Identifies the <code>Renderer</code> action in the menu. */
@@ -508,6 +508,21 @@ class ImViewerControl
     void setHistoryState(int s) { historyState = s; }
     
     /**
+     * Brings up the color picker. Initializes the color picker with
+     * the color associated to the selected channel.
+     * 
+     * @param index The index of the selected channel. 
+     */
+    void showColorPicker(int index) 
+    {
+    	colorPickerIndex = index;
+    	Color c = model.getChannelColor(index);
+        ColourPicker dialog = new ColourPicker(view, c);
+        dialog.addPropertyChangeListener(this);
+        UIUtilities.setLocationRelativeToAndShow(view, dialog);
+    }
+    
+    /**
      * Reacts to state changes in the {@link ImViewer}.
      * @see ChangeListener#stateChanged(ChangeEvent)
      */
@@ -609,10 +624,7 @@ class ImViewerControl
         } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName) ||
         		ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(propName)) {
             colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
-            Color c = model.getChannelColor(colorPickerIndex);
-            ColourPicker dialog = new ColourPicker(view, c);
-            dialog.addPropertyChangeListener(this);
-            UIUtilities.setLocationRelativeToAndShow(view, dialog);
+            showColorPicker(colorPickerIndex);
         } else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
             Color c = (Color) pce.getNewValue();
             if (colorPickerIndex != -1) {

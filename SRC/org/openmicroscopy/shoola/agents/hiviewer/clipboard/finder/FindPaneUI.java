@@ -88,7 +88,7 @@ class FindPaneUI
     extends JPanel
     implements MouseListener, PropertyChangeListener
 {
-	
+
     /** The horizontal space. */
     private static final Dimension H_SPACE_DIM = new Dimension(10, 5);
     
@@ -277,12 +277,18 @@ class FindPaneUI
         // create select panel which will contain find text entry box, match 
         // case check box 
         JPanel selectPanel = new JPanel();
-        selectPanel.add(createLeftMenuBar());
-        selectPanel.add(Box.createRigidArea(H_SPACE_DIM));
-        selectPanel.add(new JLabel("Find: "));
-        selectPanel.add(findArea);
-        selectPanel.add(createRightMenuBar());
-        selectPanel.add(caseSensitive);
+        double[][] tl = {
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
+        		TableLayout.PREFERRED, TableLayout.PREFERRED,
+        		TableLayout.PREFERRED},
+        		{TableLayout.PREFERRED}}; 
+        selectPanel.setLayout(new TableLayout(tl));
+        selectPanel.add(createLeftMenuBar(), "0, 0");
+        selectPanel.add(Box.createRigidArea(H_SPACE_DIM), "1, 0");
+        selectPanel.add(new JLabel("Find: "), "2, 0");
+        selectPanel.add(findArea, "3, 0");
+        selectPanel.add(createRightMenuBar(), "4, 0");
+        selectPanel.add(caseSensitive, "5, 0");
                 
         // title label is the search results status bar which will be displayed 
         // at top of findpane 
@@ -435,13 +441,13 @@ class FindPaneUI
     	onFoundOccurences(results.size());
     	resultsPane = new FindResultsPane(model, results);
         setMessage(resultsPane.getSizeResults());
-       
         scrollPane.getViewport().add(resultsPane);
         if (ClipBoard.HORIZONTAL_SPLIT) {
         	 treeHolderPanel.removeAll();
              treeHolderPanel.add(scrollPane, BorderLayout.CENTER);
              treeHolderPanel.revalidate();
         }
+        revalidate();
     }
 
     /** Finds the next occurence. */

@@ -41,6 +41,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -165,7 +166,6 @@ class ServerDialog
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
-		
 		editor.addPropertyChangeListener(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the window.");
@@ -232,11 +232,12 @@ class ServerDialog
 	/** 
 	 * Creates a new instance. 
 	 * 
-	 * @param editor The server editor. Mustn't be <code>null</code>.
+	 * @param frame		The parent frame. 
+	 * @param editor 	The server editor. Mustn't be <code>null</code>.
 	 */
-	ServerDialog(ServerEditor editor)
+	ServerDialog(JFrame frame, ServerEditor editor)
 	{ 
-		super();
+		super(frame);
 		this.editor = editor;
 		setProperties();
 		initComponents();

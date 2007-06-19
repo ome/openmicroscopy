@@ -55,22 +55,25 @@ public class OneKnobSlider
 {
 
 	/** Show the arrows on the track if true. */
-	private boolean		showArrows;
+	private boolean			showArrows;
 	
 	/** Slider UI for new laf. */
 	private OneKnobSliderUI	sliderUI;	
 	
 	/** This is set to <code>true</code> if the slider has tooltipString. */
-	private boolean 	hasLabel;
+	private boolean 		hasLabel;
 	
 	/** Tooltip string which is shown when slider is dragged, changed value. */
-	private String 		endLabel;
+	private String 			endLabel;
 	
 	/** This value is set to true if the tip label will be displayed. */
-	private	boolean		showTipLabel;
+	private	boolean			showTipLabel;
 	
 	/** This value is set to true if the end label will be displayed. */
-	private boolean 	showEndLabel;
+	private boolean 		showEndLabel;
+	
+	/** The original size of a minor tick spacing. */
+	private int				minorTickSpacing;
 	
 	/**
 	 * Creates a new instance.
@@ -84,13 +87,14 @@ public class OneKnobSlider
 	{
 		super();
 		sliderUI = new OneKnobSliderUI(this);
-		this.setUI(sliderUI);
-		this.setOrientation(orientation);
-		this.setMinimum(min);
-		this.setMaximum(max);
-		this.setValue(value);
-		this.hasLabel = false;
-		this.setSnapToTicks(false);
+		setUI(sliderUI);
+		setOrientation(orientation);
+		setMinimum(min);
+		setMaximum(max);
+		setValue(value);
+		hasLabel = false;
+		setSnapToTicks(false);
+		minorTickSpacing = getMinorTickSpacing();
 	}
 	
 	/** Creates a default slider.  */
@@ -188,5 +192,27 @@ public class OneKnobSlider
 	 * @return See above.
 	 */
 	public boolean showEndLabel() { return showEndLabel; }
-    
+	
+	/**
+	 * Sets the space between the minor ticks. Passes <code>true</code>
+	 * to set the value to <code>0</code>, <code>false</code> otherwise
+	 * 
+	 * @param b 
+	 */
+	public void setPaintMinorTicks(boolean b)
+	{
+		if (b) setMinorTickSpacing(minorTickSpacing);
+		else super.setMinorTickSpacing(0);
+	}
+	
+	/**
+	 * Overridden to reset the space betwen minor ticks.
+	 * @see JSlider#setMinorTickSpacing(int)
+	 */
+	public void setMinorTickSpacing(int s)
+	{
+		minorTickSpacing = s;
+		super.setMinorTickSpacing(s);
+	}
+	
 }
