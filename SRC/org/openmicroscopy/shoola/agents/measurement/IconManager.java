@@ -154,7 +154,7 @@ public class IconManager
         relPaths[REFRESH16] = "nuvola_reload16.png";
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[SQUARE] = "square.png";
-        relPaths[ELLIPSE] = "ellipse5.png";
+        relPaths[ELLIPSE] = "ellipse.png";
         relPaths[POLYLINE] = "polyline.png";
         relPaths[SQUARE] = "square.png";
         relPaths[LINE] = "line.png";
