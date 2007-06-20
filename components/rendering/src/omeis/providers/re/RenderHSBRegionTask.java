@@ -191,7 +191,7 @@ class RenderHSBRegionTask implements RenderingTask {
      */
     private void renderPackedInt() throws QuantizationException {
         int discreteValue, pix;
-        int redRatio, greenRatio, blueRatio;
+        double redRatio, greenRatio, blueRatio;
         int rValue, gValue, bValue;
         int newRValue, newGValue, newBValue;
         int colorOffset = 24;  // Only used when we're doing primary color.
@@ -204,9 +204,9 @@ class RenderHSBRegionTask implements RenderingTask {
         for (Plane2D plane : wData) {
             Color color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);
-            redRatio = color.getRed() > 0? color.getRed() / 255 : 0;
-            greenRatio = color.getGreen() > 0? color.getGreen() / 255 : 0;
-            blueRatio = color.getBlue() > 0? color.getBlue() / 255 : 0;
+            redRatio = color.getRed() > 0? color.getRed() / 255.0 : 0.0;
+            greenRatio = color.getGreen() > 0? color.getGreen() / 255.0 : 0.0;
+            blueRatio = color.getBlue() > 0? color.getBlue() / 255.0 : 0.0;
 
             // Get our color offset if we've got the primary color optimization
             // enabled.
