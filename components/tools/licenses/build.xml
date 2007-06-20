@@ -29,6 +29,7 @@
 	<import file="${classpath.file}"/>
 
     <import file="../make.xml"/>
+    <import file="../python.xml"/>
 
 	<!-- The hard-wiring allows a specific Store implementation to
 	be hard-wired into the LicenseBean.
@@ -42,6 +43,7 @@
 			value="${ome.services.licenses.Store_class}"/>
 		<myjavac>
 			<exclude name="**/LicenseBean.java"/>
+			<exclude name="**/LicenseSessionListener.java"/>
 			<exclude name="**/LicenseWiring.java"/>
 			<src path="${src.dest}"/>
 			<src path="${src.dir}"/>
@@ -49,6 +51,7 @@
 		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseWiring.java"/></copy>
 		<myjavac>
 			<include name="**/LicenseBean.java"/>
+			<include name="**/LicenseSessionListener.java"/>
 			<include name="**/LicenseWiring.java"/>
 			<src path="${src.dest}"/>
 		</myjavac>
@@ -58,6 +61,9 @@
 
     <target name="tools-build" depends="package,make-build" description="Creates all artifacts for tools/target">
         <mkdir dir="${basedir}/src/slice_generated"/>
+        <slice_py todir="${basedir}/target" include="../target/include">
+            <fileset dir="${basedir}/resources/OMERO" includes="*.ice"/>
+        </slice_py>
     </target>
 
     <!-- Additional functionality for the lifecycle.package target.
@@ -76,7 +82,7 @@
             <fileset dir="src/slice_generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
         </copy>
-        <antcall target="make-copy" inheritAll="true" inheritRefs="true"/>
+        <antcall target="make-install" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="clean" depends="lifecycle.clean,make-clean"/>

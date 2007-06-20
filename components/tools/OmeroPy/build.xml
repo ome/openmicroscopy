@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="OmeroPy" default="install" basedir=".">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2007 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        Python bindings for the blitz server.
+    </description>
 
     <dirname property="up-two"        file="${basedir}"/>
     <dirname property="up-one"        file="${up-two}"/>
@@ -19,24 +37,11 @@
 <!--    <setup_py>
             <arg value="icegen"/>
         </setup_py> -->
-        <apply executable="slice2py" failonerror="true" parallel="true">
-            <arg value="--output-dir"/>
-            <arg value="${copy.dir}"/>
-            <arg value="--prefix"/>
-            <arg value="OMERO_"/>
-            <arg value="-I${copy.dir}"/>
-            <arg value="-I${py.ICE_HOME}/slice"/>
+        <slice_py todir="${copy.dir}">
             <fileset dir="${copy.dir}/OMERO" includes="*.ice"/>
-        </apply>
-        <apply executable="slice2py" failonerror="true" parallel="true">
-            <arg value="--output-dir"/>
-            <arg value="${copy.dir}"/>
-            <arg value="--prefix"/>
-            <arg value="OMERO_Model_"/>
-            <arg value="-I${copy.dir}"/>
-            <arg value="-I${py.ICE_HOME}/slice"/>
+        </slice_py>
             <fileset dir="${copy.dir}/OMERO/Model/" includes="*.ice"/>
-        </apply>
+        </slice_py>
     </target>
 
     <target name="tools-build" depends="tools-init,python-build" description="Uses setup.py to build artifacts"/>

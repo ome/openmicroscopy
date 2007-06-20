@@ -14,6 +14,23 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="slice_py">
+        <attribute name="todir"/>
+        <attribute name="include" default="@{todir}"/>
+        <element name="files" implicit="true"/>
+        <sequential>
+            <apply executable="slice2py" failonerror="true" parallel="true">
+                <arg value="--output-dir"/>
+                <arg value="@{todir}"/>
+                <arg value="--prefix"/>
+                <arg value="OMERO_"/>
+                <arg value="-I@{todir}"/>
+                <arg value="-I${py.ICE_HOME}/slice"/>
+                <files/>
+            </apply>
+        </sequential>
+    </macrodef>
+
     <target name="python-build" unless="py.NOPYTHON">
         <setup_py>
             <arg value="build"/>
