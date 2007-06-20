@@ -164,32 +164,7 @@ public class ROI
 			throw new NoSuchROIException(e);
 		}
 	}
-	
-	public void deleteShape(Coord3D start, Coord3D end) throws NoSuchROIException
-	{
-		//for(int c = start.c; c < end.c ; c++)
-			for(int t = start.t; t < end.t ; t++)
-				for(int z = start.z; z < end.z ; z++)
-					deleteShape(new Coord3D(t, z));
-	}
-
-	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, Coord3D end) 
-												throws ROICreationException, 
-												NoSuchROIException
-	{
-		ROIShape shape = getShape(selectedShape);
-		//for(int c = start.c; c < end.c ; c++)
-			for(int t = start.t; t < end.t ; t++)
-				for(int z = start.z; z < end.z ; z++)
-				{
-					Coord3D newCoord = new Coord3D(t, z);
-					ROIShape newShape = new ROIShape(this, newCoord, shape);
-					this.addShape(newShape);
-				}
-	}
-	
-
-    
+	    
     public void setAnnotation(AnnotationKey key, Object newValue) {
         if (forbiddenAnnotations == null
                 || ! forbiddenAnnotations.contains(key)) {

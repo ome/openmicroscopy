@@ -132,34 +132,6 @@ public class ROIIDMap
 		roi.addShape(shape);
 	}		
 
-	public void propagateShape(long id, Coord3D selectedShape, Coord3D start, 
-															   Coord3D end) 
-												throws ROICreationException,
-													   NoSuchROIException
-	{
-		if(!roiMap.containsKey(id))
-			throw new NoSuchROIException("No ROI with id : "+ id);
-		ROI roi = roiMap.get(id);
-		if(roi.containsKey(start, end))
-			throw new ROICreationException("ROI with id : " + id +" already" +
-					" exists between coord : " + start +" and " + end);
-		roi.propagateShape(id, selectedShape, start, end);
-	}
-
-	public void deleteShape(long id, Coord3D start, Coord3D end) 
-													throws 	NoSuchROIException
-	{
-		if(!roiMap.containsKey(id))
-			throw new NoSuchROIException("ROI with id : " + id +" does not exist");
-		ROI roi = roiMap.get(id);
-		if(!roi.containsKey(start, end))
-			throw new NoSuchROIException("No ROIShape with ROI id : " + id + 
-				" exists between coord "+ start +" and " + end);
-		roi.deleteShape(start, end);
-		if(roi.getShapes().size()==0)
-			roiMap.remove(id);
-	}
-	
 	public void deleteShape(long id, Coord3D coord) 
 													throws 	NoSuchROIException 
 															

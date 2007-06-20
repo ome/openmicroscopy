@@ -136,7 +136,7 @@ class ObjectInspector
 					else
 						return;
 				}
-				if (e.getClickCount() == 2) {
+				if (e.getClickCount() > 1) {
 					e.consume();
 					int col = fieldTable.getSelectedColumn();
 					int row = fieldTable.getSelectedRow();

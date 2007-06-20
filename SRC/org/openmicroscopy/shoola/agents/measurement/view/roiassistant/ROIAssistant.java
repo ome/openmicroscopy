@@ -32,11 +32,14 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -45,8 +48,13 @@ import javax.swing.event.ListSelectionListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerModel;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerUI;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -60,6 +68,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
+ * @param <MeasurementViewerModel>
  * @since OME3.0
  */
 public class ROIAssistant
@@ -76,30 +85,33 @@ public class ROIAssistant
 	 */
 	private 	ROIAssistantModel 		model;
 	
-	/** The user has selected to cancel propagation of the ROI. */
-	private 	JButton 				cancelButton;
-
-	/** The user has selected to accept the current propagation of the ROI. */
-	private 	JButton 				acceptButton;
-	
-	/** 
-	 * The user has selected to revert to the original ROI time and 
-	 * z-section. 
-	 */
-	private 	JButton 				resetButton;
+	private 	JTextField				shapeType;
+	private 	JTextField				xCoord;
+	private 	JTextField				yCoord;
+	private 	JTextField				width;
+	private 	JTextField				height;
+	private 	JTextField 				description;
+	private 	JCheckBox 				addButton;
+	private 	JCheckBox				removeButton;
 	
 	/** Listener for the selection of cells in the table. */
 	private 	ListSelectionListener	listener;
 	
+	/** Model for the measyrement tool. */
+	private 	MeasurementViewerUI		view;
+	
+	private 	ROIShape 				initialShape;
 	/**
-	 * Construvtor for the ROIAssistant Dialog.
+	 * Constructor for the ROIAssistant Dialog.
 	 * @param numRow The number of z sections in the image. 
 	 * @param numCol The numer of time points in the image. 
 	 * @param selectedROI The ROI which will be propagated.
 	 */
 	public ROIAssistant(int numRow, int numCol, Coord3D currentPlane, 
-						ROI selectedROI)
+						ROI selectedROI, MeasurementViewerUI view)
 	{
+		this.view = view;
+		initialShape = null;
 		this.setAlwaysOnTop(true);
 		this.setModal(true);
 		createTable(numRow, numCol,currentPlane, selectedROI);
@@ -109,7 +121,6 @@ public class ROIAssistant
 	/** Create the UI for the Assistant. */
 	private void buildUI()
 	{
-		createButtons();
 		layoutUI();
 	}
 	
@@ -145,48 +156,95 @@ public class ROIAssistant
 
 		table.addMouseListener(new java.awt.event.MouseAdapter() 
 		{
-			public void mouseClicked(java.awt.event.MouseEvent e) 
+			public void mousePressed(java.awt.event.MouseEvent e) 
 			{
 				int col = table.getSelectedColumn();
 				int row = table.getSelectedRow();
-				Object value = table.getValueAt(row, col);
+				Object value = table.getShapeAt(row, col);
+				if(value instanceof ROIShape)
+				{
+					ROIShape shape = (ROIShape)value;
+					initialShape = shape;
+					shapeType.setText(shape.getFigure().getType());
+					description.setText((String)shape.getAnnotation(AnnotationKeys.BASIC_TEXT));
+					xCoord.setText(shape.getFigure().getStartPoint().getX()+"");
+					yCoord.setText(shape.getFigure().getStartPoint().getY()+"");
+					width.setText(Math.abs(shape.getFigure().getEndPoint().getX()-shape.getFigure().getStartPoint().getX())+"");
+					height.setText(Math.abs(shape.getFigure().getEndPoint().getY()-shape.getFigure().getStartPoint().getY())+"");
+				}
+				else if(value == null)
+				{
+					
+				}
+					
+			}
 			
+			public void mouseReleased(java.awt.event.MouseEvent e) 
+			{
+				if(initialShape==null)
+					return;
+				int[] col = table.getSelectedColumns();
+				int[] row = table.getSelectedRows();
+				int mincol = col[0];
+				int maxcol = col[0];
+				int minrow = row[0];
+				int maxrow = row[0];
+				for( int i = 0 ; i < col.length; i++)
+				{
+					mincol = Math.min(mincol, col[i]);
+					maxcol = Math.max(maxcol, col[i]);
+				}
+				for( int i = 0 ; i < row.length; i++)
+				{
+					minrow = Math.min(minrow, row[i]);
+					maxrow = Math.max(maxrow, row[i]);
+				}
+				maxcol = maxcol-1;
+				mincol = mincol-1;
+				int boundrow;
+				int boundcol;
+				if(maxcol!=initialShape.getCoord3D().getTimePoint())
+					boundcol = maxcol;
+				else
+					boundcol = mincol;
+				if(maxrow!=initialShape.getCoord3D().getZSection())
+					boundrow = maxrow;
+				else
+					boundrow = minrow;
+				try
+				{
+					if(initialShape != null)
+					{
+						if(addButton.isSelected())
+							view.propagateShape(initialShape, boundcol, boundrow);
+						if(removeButton.isSelected())
+							view.deleteShape(initialShape, boundcol, boundrow);
+						initialShape=null;
+						table.repaint();
+					}
+				}
+				catch(Exception exception)
+				{
+					exception.printStackTrace();
+				}
+					
 			}
 		});
-		table.getSelectionModel().addListSelectionListener(listener);
 	}
 	
-	/** Create the accept, reset and cancel buttons including actions. */
-	private void createButtons()
+	private JPanel createActionPanel()
 	{
-		acceptButton = new JButton("Accept");
-		cancelButton = new JButton("Cancel");
-		resetButton = new JButton("Reset");
-
-		resetButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						resetButtonClicked();
-					}
-				});
-		cancelButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						cancelButtonClicked();
-					}
-				});
-		acceptButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						acceptButtonClicked();
-					}
-				});
+		JPanel actionPanel = new JPanel();
+		addButton = new JCheckBox("Add ROI");
+		removeButton = new JCheckBox("Remove ROI");
+		ButtonGroup group = new ButtonGroup();
+		addButton.setSelected(true);
+		group.add(addButton);
+		group.add(removeButton);
+		actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.Y_AXIS));
+		actionPanel.add(addButton);
+		actionPanel.add(removeButton);
+		return actionPanel;
 	}
 	
 	/**
@@ -196,39 +254,78 @@ public class ROIAssistant
 	 */
 	private JPanel createInfoPanel()
 	{
-		JPanel infoPanel = new JPanel();
-		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
-		JLabel infoText = new JLabel
-		("<html><body>This is the ROI Assistant." +
-		"It allows you to create an ROI which extends through time and " +
-		"z-sections.</body></html>");
-		infoText.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD));
-		infoPanel.add(Box.createHorizontalStrut(10));
-		infoPanel.add(infoText, BorderLayout.CENTER);
+		JPanel infoPanel = new TitlePanel("ROI Assistant", "<html><body>This is " +
+				"the ROI Assistant. It allows you to create an ROI which extends<p> " +
+				"through time and z-sections.</body></html>", 
+				IconManager.getInstance().getIcon(IconManager.WIZARD));
 		return infoPanel;
 	}
 	
 	/** 
-	 * Create the accept, cancel and reset buttons on the panel. 
-	 * @return the panel with the JButtons. 
+	 * Create the shape panel which shows the parameters of the initial shape. 
+	 * @return the shapePanel. 
 	 */
-	private JPanel createButtonPanel()
+	private JPanel createShapePanel()
 	{
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new FlowLayout());
-		buttonPanel.add(resetButton);
-		buttonPanel.add(acceptButton);
-		buttonPanel.add(cancelButton);
-		return buttonPanel;
+		JPanel shapePanel = new JPanel();
+		shapeType = new JTextField();
+		description = new JTextField();
+		xCoord = new JTextField();
+		yCoord = new JTextField();
+		width = new JTextField();
+		height = new JTextField();
+		JLabel shapeTypeLabel = new JLabel("Shape Type ");
+		JLabel xCoordLabel = new JLabel("X Coord");
+		JLabel yCoordLabel = new JLabel("Y Coord");
+		JLabel widthLabel = new JLabel("Width");
+		JLabel heightLabel = new JLabel("Height");
+		JLabel descriptionLabel = new JLabel("Description");
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(createLabelText(shapeTypeLabel, shapeType));
+		panel.add(Box.createVerticalStrut(5));
+		panel.add(createLabelText(descriptionLabel, description));
+		
+		JPanel panel2 = new JPanel();
+		panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
+		panel2.add(createLabelText(xCoordLabel, xCoord));
+		panel2.add(Box.createVerticalStrut(5));
+		panel2.add(createLabelText(yCoordLabel, yCoord));
+		
+		JPanel panel3 = new JPanel();
+		panel3.setLayout(new BoxLayout(panel3, BoxLayout.Y_AXIS));
+		panel3.add(createLabelText(widthLabel, width));
+		panel3.add(Box.createVerticalStrut(5));
+		panel3.add(createLabelText(heightLabel, height));
+		
+		shapePanel.setLayout(new BoxLayout(shapePanel, BoxLayout.X_AXIS));
+		shapePanel.add(panel);
+		shapePanel.add(Box.createHorizontalStrut(10));
+		shapePanel.add(panel2);
+		shapePanel.add(Box.createHorizontalStrut(10));
+		shapePanel.add(panel3);
+		
+		return shapePanel;
+	}
+	
+	JPanel createLabelText(JLabel l, JTextField t)
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.add(l);
+		panel.add(t);
+		UIUtilities.setDefaultSize(l, new Dimension(80,22));
+		UIUtilities.setDefaultSize(t, new Dimension(80,22));
+		return panel;
 	}
 	
 	/** Layout the UI, adding panels to the form. */
 	private void layoutUI()
 	{
-		this.setSize(500,500);
+		this.setSize(550,530);
 		JPanel panel = new JPanel();
 		JPanel infoPanel = createInfoPanel();
-		JPanel buttonPanel = createButtonPanel();
+		JPanel shapePanel = createShapePanel();
 
 		JScrollPane scroll = new JScrollPane(table);
 		scroll.setVerticalScrollBar(scroll.createVerticalScrollBar());
@@ -240,44 +337,22 @@ public class ROIAssistant
 		scrollPanel.add(Box.createHorizontalStrut(10));
 		scrollPanel.add(scroll);
 		scrollPanel.add(Box.createHorizontalStrut(10));
+		scrollPanel.add(createActionPanel());
+		scrollPanel.add(Box.createHorizontalStrut(10));
 		
-		UIUtilities.setDefaultSize(infoPanel, new Dimension(500, 70));
-		UIUtilities.setDefaultSize(scrollPanel, new Dimension(500, 320));
-		UIUtilities.setDefaultSize(buttonPanel, new Dimension(500, 70));
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		panel.add(infoPanel);
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(scrollPanel);
 		panel.add(Box.createVerticalStrut(10));
-		panel.add(buttonPanel);
+		panel.add(shapePanel);
+		panel.add(Box.createVerticalStrut(10));
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(panel, BorderLayout.CENTER);
 	}
 
-	private void resetChanges()
-	{
-		
-	}
-	
-	private void acceptButtonClicked()
-	{
-		dispose();
-	}
-	
-	private void cancelButtonClicked()
-	{
-		resetChanges();
-		dispose();
-	}
-	
-	private void resetButtonClicked()
-	{
-		resetChanges();
-	}
 
-	
-	
 }
 
 

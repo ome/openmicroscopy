@@ -130,6 +130,23 @@ public class ROIAssistantModel
 		
 	}
 	
+	public ROIShape getShapeAt(int zSection, int timePoint)
+	{
+		try
+		{
+			ROIShape shape = currentROI.getShape(new Coord3D(timePoint-1, zSection));
+			if(shape == null)
+			{
+				return null;
+			}
+			return shape;
+		}
+		catch (NoSuchROIException e)
+		{
+			return null;
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */

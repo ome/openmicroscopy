@@ -161,7 +161,10 @@ public interface MeasurementViewer
 
 	/** Rebuild the results table in the measurement results component. */
 	public void refreshResultsTable();
-
+	
+	/** Rebuild the table in the measurement manager component. */
+	public void rebuildManagerTable();
+	
 	/** Save the results table in the measurement results component. */
 	public void saveResultsTable();
 	

@@ -77,6 +77,8 @@ public class ROIShape
 		this.coord = coord;
 		this.boundingBox = (Rectangle2D) shape.getBoundingBox().clone();
 		this.figure = (ROIFigure) shape.getFigure().clone();
+		this.figure.setROIShape(this);
+		this.figure.setROI(parent);
 	}
 	
 	public ROIShape(ROI parent, Coord3D coord, ROIFigure figure, Rectangle2D boundingBox)

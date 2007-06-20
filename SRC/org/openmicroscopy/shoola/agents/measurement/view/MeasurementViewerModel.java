@@ -81,7 +81,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  * </small>
  * @since OME3.0
  */
-class MeasurementViewerModel 
+public class MeasurementViewerModel 
 {
 	
 	/** The id of the image this {@link MeasurementViewer} is for. */
@@ -146,7 +146,7 @@ class MeasurementViewerModel
 	 * @param name		The image's name.
 	 * @param bounds	The bounds of the component requesting the component.
 	 */
-	MeasurementViewerModel(long imageID, long pixelsID, String name, 
+	public MeasurementViewerModel(long imageID, long pixelsID, String name, 
 						Rectangle bounds)
 	{
 		this.imageID = imageID;
@@ -572,5 +572,21 @@ class MeasurementViewerModel
 		roiComponent.saveROI(IOUtil.writeFile(roiFileName));
 	}
 	
+	public void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	throws 	ROICreationException, 
+			NoSuchROIException
+	{
+		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
+		shape.getCoord3D(), new Coord3D(timePoint, zSection));
+	}
+	
+	public void deleteShape(ROIShape shape, int timePoint, int zSection) 
+	throws 	ROICreationException, 
+			NoSuchROIException
+	{
+		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
+			new Coord3D(timePoint, zSection));
+	}
+
 	
 }	

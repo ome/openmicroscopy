@@ -397,6 +397,15 @@ class MeasurementViewerComponent
 	{
 		view.refreshResultsTable();
 	}
+	
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#rebuildManagerTable()
+     */
+	public void rebuildManagerTable() 
+	{
+		view.rebuildManagerTable();
+	}
 
 	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.

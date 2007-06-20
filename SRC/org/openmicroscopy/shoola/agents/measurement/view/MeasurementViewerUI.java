@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -71,7 +72,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-class MeasurementViewerUI 
+public class MeasurementViewerUI 
 	extends TopWindow
 {
 
@@ -177,7 +178,7 @@ class MeasurementViewerUI
      * 
      * @param title The window title.
      */
-	MeasurementViewerUI(String title)
+	public MeasurementViewerUI(String title)
     {
         super(title);
         loadingWindow = new LoadingWindow(this);
@@ -438,8 +439,8 @@ class MeasurementViewerUI
 		UserNotifier un = reg.getUserNotifier();
 		if(roiList.size()==0)
 		{
-				un.notifyInfo("ROI Assistant", "Select a Figure for the ROI " +
-												"Assistant to modify.");
+				un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
+												"using the ROI Assistant.");
 				return;
 		}
 		if(roiList.size()>1)
@@ -451,7 +452,23 @@ class MeasurementViewerUI
 		}
 		ROI currentROI = roiList.iterator().next();
     	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
-    		model.getNumZSections(), model.getCurrentView(), currentROI);
+    		model.getNumZSections(), model.getCurrentView(), currentROI, this);
     	assistant.setVisible(true);
     }
+	
+	public void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	throws 	ROICreationException, 
+			NoSuchROIException
+	{
+		model.propagateShape(shape, timePoint, zSection);
+		rebuildManagerTable();
+	}
+	
+	public void deleteShape(ROIShape shape, int timePoint, int zSection) 
+	throws 	ROICreationException, 
+	NoSuchROIException
+	{
+		model.deleteShape(shape, timePoint, zSection);
+		rebuildManagerTable();
+	}
 }

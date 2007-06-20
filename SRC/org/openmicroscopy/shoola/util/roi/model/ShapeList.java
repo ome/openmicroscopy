@@ -81,6 +81,11 @@ public class ShapeList
 			throw new NoSuchROIException("No such ROIShape : " + id);
 	}
 	
+	public boolean containsKey(long id)
+	{
+		return roiList.containsKey(id);
+	}
+	
 	public void deleteShape(long id) throws NoSuchROIException
 	{
 		if(roiList.containsKey(id))

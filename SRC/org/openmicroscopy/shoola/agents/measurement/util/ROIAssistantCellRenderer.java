@@ -59,7 +59,8 @@ public 	class ROIAssistantCellRenderer
 		implements TableCellRenderer
 {
 
-	private final static Color SELECTED_COLOUR = new Color(180, 213, 255);
+	private final static Color SELECTED_COLOUR = new Color(255, 206, 206);
+	private final static Color FOCUS_COLOUR = new Color(255, 135, 135);
 	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
@@ -80,6 +81,14 @@ public 	class ROIAssistantCellRenderer
 		JComponent thisComponent;
 		
 		JLabel label = new JLabel();
+		label.setOpaque(true);
+		label.setBackground(Color.white);
+		if(column == 0)
+		{
+			if(value instanceof String)
+				label.setText((String)value);
+			return label;
+		}
 		if(value instanceof String)
 		{
 			if(value.equals(ROIFigure.ELLIPSE_TYPE))
@@ -128,9 +137,14 @@ public 	class ROIAssistantCellRenderer
 				label.setHorizontalTextPosition(SwingConstants.CENTER);
 			}
 		}
-		if(hasFocus)
+		
+		if(isSelected)
 		{
 			label.setBackground(SELECTED_COLOUR);
+		}
+		if(hasFocus)
+		{
+			label.setBackground(FOCUS_COLOUR);
 		}
 		//RendererUtils.setRowColor(label, table.getSelectedRow(), row);
 		thisComponent = label;

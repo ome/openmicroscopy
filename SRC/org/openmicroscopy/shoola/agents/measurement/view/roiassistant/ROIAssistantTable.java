@@ -31,6 +31,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.openmicroscopy.shoola.agents.measurement.util.ROIAssistantCellRenderer;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 //Third-party libraries
 
@@ -88,6 +89,11 @@ public class ROIAssistantTable
 	{
         return new ROIAssistantCellRenderer();
     }
+	
+	public ROIShape getShapeAt(int row, int col)
+	{
+		return ((ROIAssistantModel)getModel()).getShapeAt(row, col); 
+	}
 
 }
 

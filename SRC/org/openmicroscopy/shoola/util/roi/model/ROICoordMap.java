@@ -109,15 +109,6 @@ public class ROICoordMap
 			coordMap.remove(coord);
 	}
 	
-	public void deleteShape(long id, Coord3D start, Coord3D end) 
-													throws NoSuchROIException
-	{
-		if(!containsKey(start, end))
-			throw new NoSuchROIException("No ROIShape with ROI ID : " + id + 
-				" and Coord : " + start + " and " + end);
-		
-	}
-	
 	public void add(ROI roi)
 	{
 		TreeMap<Coord3D, ROIShape> roiMap = roi.getShapes();
@@ -138,20 +129,6 @@ public class ROICoordMap
 			createShapeList(coord);
 		ShapeList shapeList = coordMap.get(coord);
 		shapeList.add(id, shape);
-	}
-	
-	public void propagateShape(ROIShape selectedShape, Coord3D start, Coord3D end)
-	{
-		createShapeList(start, end);
-		TreeMap<Coord3D, ShapeList> subMap = (TreeMap<Coord3D, ShapeList>) 
-		coordMap.subMap(start, end);
-		Iterator shapeListIterator = subMap.keySet().iterator();
-		while(shapeListIterator.hasNext())
-		{
-			ShapeList list = (ShapeList)shapeListIterator.next();
-			list.add(selectedShape.getID(), new ROIShape(selectedShape.getROI(), 
-				list.getCoord3D(), selectedShape));
-		}
 	}
 	
 	private void createShapeList(Coord3D coord)

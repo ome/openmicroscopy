@@ -118,17 +118,52 @@ public class ROIMap
 												throws ROICreationException, 
 													   NoSuchROIException
 	{
-		roiIDMap.propagateShape(id, selectedShape, start, end);
-		ROIShape shape = roiIDMap.getShape(id, selectedShape);
-		roiCoordMap.propagateShape(shape, start, end);
+	
+		if(!roiIDMap.containsKey(id))
+			throw new NoSuchROIException("No ROI with id : "+ id);
+		ROI roi = roiIDMap.getROI(id);
+		int mint = Math.min(start.t, end.t);
+		int maxt = Math.max(start.t, end.t);
+		int minz = Math.min(start.z, end.z);
+		int maxz = Math.max(start.z, end.z);
+		maxt = maxt+1;
+		maxz = maxz+1;
+		ROIShape shape = roi.getShape(selectedShape);
+		//for(int c = start.c; c < end.c ; c++)
+			for(int t = mint; t < maxt ; t++)
+				for(int z = minz; z < maxz ; z++)
+				{
+					Coord3D newCoord = new Coord3D(t, z);
+					if(selectedShape.equals(newCoord))
+						continue;
+					if(roi.containsKey(newCoord))
+						deleteShape(id, newCoord);
+					addShape(id, newCoord, new ROIShape(roi, newCoord, 
+						shape));					
+				}
 	}
 
 	public void deleteShape(long id, Coord3D start, Coord3D end) 
 													throws 	NoSuchROIException
 	{
-		roiCoordMap.deleteShape(id, start, end);
-		roiIDMap.deleteShape(id, start, end);
-	}
+		if(!roiIDMap.containsKey(id))
+			throw new NoSuchROIException("No ROI with id : "+ id);
+		ROI roi = roiIDMap.getROI(id);
+		int mint = Math.min(start.t, end.t);
+		int maxt = Math.max(start.t, end.t);
+		int minz = Math.min(start.z, end.z);
+		int maxz = Math.max(start.z, end.z);
+		maxt = maxt+1;
+		maxz = maxz+1;
+		//for(int c = start.c; c < end.c ; c++)
+		for(int t = mint; t < maxt ; t++)
+			for(int z = minz; z < maxz ; z++)
+			{
+				Coord3D newCoord = new Coord3D(t, z);
+				if(roi.containsKey(newCoord))
+					this.deleteShape(id, newCoord);
+			}
+	}	
 
 }
 
