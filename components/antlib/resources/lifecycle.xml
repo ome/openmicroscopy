@@ -243,6 +243,8 @@
 				<exclude name="hibernate.properties"/>
 				<exclude name="jndi.properties"/>
 				<exclude name="log4j.properties"/>
+				<exclude name="**/*.cpp"/>
+				<exclude name="**/*.h"/>
 			</fileset>
 		</jar>
 	</target>
