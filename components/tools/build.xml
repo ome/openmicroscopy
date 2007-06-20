@@ -24,6 +24,16 @@
 			<target name="tools-build"/>
 			<target name="tools-dist"/>
 		</ant>
+	  	<ant dir="${basedir}/OmeroPy" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/OmeroPy"/>
+			<property name="test.with.fail" value="${test.with.fail}"/>
+			<property name="test.skip" value="${test.skip}"/>
+			<property name="generate.skip" value="${generate.skip}"/>
+			<property name="checks.skip" value="${checks.skip}"/>
+			<property name="classpath.file" value="${classpath.file}"/>
+			<target name="tools-build"/>
+			<target name="tools-dist"/>
+		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
 			<property name="test.with.fail" value="${test.with.fail}"/>
@@ -52,6 +62,10 @@
 	<target name="clean" description="Calls 'tools-clean' on all components.">
 	  	<ant dir="${basedir}/OmeroCpp" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/OmeroCpp"/>
+			<target name="clean"/>
+		</ant>
+	  	<ant dir="${basedir}/OmeroPy" inheritAll="false" inheritRefs="false">
+			<property name="current.component" value="tools/OmeroPy"/>
 			<target name="clean"/>
 		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">

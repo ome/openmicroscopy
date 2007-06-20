@@ -40,6 +40,7 @@
         <slice_py todir="${copy.dir}">
             <fileset dir="${copy.dir}/OMERO" includes="*.ice"/>
         </slice_py>
+        <slice_py todir="${copy.dir}">
             <fileset dir="${copy.dir}/OMERO/Model/" includes="*.ice"/>
         </slice_py>
     </target>

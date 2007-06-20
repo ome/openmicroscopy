@@ -24,7 +24,7 @@
                 <arg value="@{todir}"/>
                 <arg value="--prefix"/>
                 <arg value="OMERO_"/>
-                <arg value="-I@{todir}"/>
+                <arg value="-I@{include}"/>
                 <arg value="-I${py.ICE_HOME}/slice"/>
                 <files/>
             </apply>
@@ -37,14 +37,13 @@
         </setup_py>
     </target>
 
-    <target name="python-install" unless="make.NOMAKE">
-        <copy todir="../target">
-            <fileset dir="src/slice_generated" includes="**/*.h"/>
-            <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
+    <target name="python-install" unless="py.NOPYTHON">
+        <copy todir="../target/lib">
+            <fileset dir="build/lib" includes="**/*"/>
         </copy>
     </target>
 
-    <target name="python-clean" unless="make.NOMAKE">
+    <target name="python-clean" unless="py.NOPYTHON">
         <setup_py>
             <arg value="clean"/>
         </setup_py>
