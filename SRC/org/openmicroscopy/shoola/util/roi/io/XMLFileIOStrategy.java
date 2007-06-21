@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -84,6 +85,14 @@ public class XMLFileIOStrategy
 			throw new NullPointerException("No input stream specified.");
 		//TODO: REview that code.
 		ArrayList<ROI> roiList = inputStrategy.readROI(input, component);
+		try
+		{
+			input.close();
+		}
+		catch (IOException e)
+		{
+			throw new ParsingException("Unable to close input file.");
+		}
 	}
 	
 	/**
@@ -98,7 +107,15 @@ public class XMLFileIOStrategy
 		if (output == null)
 			throw new NullPointerException("No input stream specified.");
 		outputStrategy.write(output, component);
-	}
+		try
+		{
+			output.close();
+		}
+		catch (IOException e)
+		{
+			throw new ParsingException("Unable to close output file.");
+		}
+}
 	
 }
 

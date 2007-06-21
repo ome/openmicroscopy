@@ -219,7 +219,7 @@ public class ROIComponent
 	{
     	ROIFigure fig = shape.getFigure();
 		String type = fig.getType();
-		if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
+	//	if (type != null) AnnotationKeys.FIGURETYPE.set(shape, type);
 		
 		ROIShape s = fig.getROIShape();
 		AnnotationKeys.INMICRONS.set(s, false);
@@ -281,7 +281,7 @@ public class ROIComponent
 		if (roi == null) throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
-    	AnnotationKeys.ROIID.set(shape, roi.getID());
+    //	AnnotationKeys.ROIID.set(shape, roi.getID());
     	return roi;
     }
 	

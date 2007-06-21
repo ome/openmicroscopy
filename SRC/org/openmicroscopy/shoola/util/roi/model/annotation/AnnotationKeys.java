@@ -90,10 +90,10 @@ public class AnnotationKeys {
 		new AnnotationKey<Double>("measurementMicronsPixelY", 0.0);
 	public static final AnnotationKey<Double> MICRONSPIXELZ = 
 		new AnnotationKey<Double>("measurementMicronsPixelZ", 0.0);
-	public static final AnnotationKey<Long> ROIID = 
-		new AnnotationKey<Long>("regionOfInterestID", null);
-	public static final AnnotationKey<String> FIGURETYPE = 
-		new AnnotationKey<String>("figureType", null);
+//	public static final AnnotationKey<Long> ROIID = 
+//		new AnnotationKey<Long>("regionOfInterestID", null);
+//	public static final AnnotationKey<String> FIGURETYPE = 
+//		new AnnotationKey<String>("figureType", null);
 	
 	
 	 /**
@@ -126,9 +126,10 @@ public class AnnotationKeys {
         		INMICRONS, 
         		MICRONSPIXELX, 
         		MICRONSPIXELY,
-        		MICRONSPIXELZ, 
-        		ROIID, 
-        		FIGURETYPE
+        		MICRONSPIXELZ
+        	
+        //		ROIID, 
+        //		FIGURETYPE
         		
         }));
         
