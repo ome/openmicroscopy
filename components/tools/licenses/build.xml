@@ -64,7 +64,7 @@
 
     <target name="tools-build" depends="package,make-build,python-build" description="Creates all artifacts for tools/target">
         <mkdir dir="${basedir}/src/slice_generated"/>
-        <slice_py todir="${basedir}/target" include="../../blitz/resources">
+        <slice_py todir="${basedir}/target" include="../../blitz/resources" prefix="OMERO_">
             <fileset dir="${basedir}/resources/OMERO" includes="*.ice"/>
         </slice_py>
     </target>
@@ -88,6 +88,6 @@
         <antcall target="make-install" inheritAll="true" inheritRefs="true"/>
     </target>
 
-    <target name="clean" depends="lifecycle.clean,make-clean,python-clean"/>
+    <target name="tools-clean" depends="clean,make-clean,python-clean"/>
 
 </project>

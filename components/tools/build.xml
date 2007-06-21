@@ -62,19 +62,19 @@
 	<target name="clean" description="Calls 'tools-clean' on all components.">
 	  	<ant dir="${basedir}/OmeroCpp" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/OmeroCpp"/>
-			<target name="clean"/>
+			<target name="tools-clean"/>
 		</ant>
 	  	<ant dir="${basedir}/OmeroPy" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/OmeroPy"/>
-			<target name="clean"/>
+			<target name="tools-clean"/>
 		</ant>
 	  	<ant dir="${basedir}/licenses" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/licenses"/>
-			<target name="clean"/>
+			<target name="tools-clean"/>
 		</ant>
 	  	<ant dir="${basedir}/WebAdmin" inheritAll="false" inheritRefs="false">
 			<property name="current.component" value="tools/WebAdmin"/>
-			<target name="clean"/>
+			<target name="tools-clean"/>
 		</ant>
 		<delete dir="${tools.dest}"/>
 	</target>

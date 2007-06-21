@@ -15,15 +15,17 @@
     </macrodef>
 
     <macrodef name="slice_py">
+        <attribute name="prefix"/>
         <attribute name="todir"/>
         <attribute name="include" default="@{todir}"/>
         <element name="files" implicit="true"/>
         <sequential>
             <apply executable="slice2py" failonerror="true" parallel="true">
+                <arg value="--no-package"/>
                 <arg value="--output-dir"/>
                 <arg value="@{todir}"/>
                 <arg value="--prefix"/>
-                <arg value="OMERO_"/>
+                <arg value="@{prefix}"/>
                 <arg value="-I@{include}"/>
                 <arg value="-I${py.ICE_HOME}/slice"/>
                 <files/>
@@ -45,6 +47,7 @@
     </target>
 
     <target name="python-clean" unless="py.NOPYTHON">
+        <delete dir="${basedir}/build/lib"/>
         <setup_py>
             <arg value="clean"/>
         </setup_py>

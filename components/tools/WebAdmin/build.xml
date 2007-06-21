@@ -29,6 +29,7 @@
 	
       <target name="clean">
           <delete dir="${build.dir}" includeEmptyDirs="true" />
+          <delete dir="${basedir}/target" includeEmptyDirs="true" />
       </target>
   
       <target name="compile">
@@ -77,5 +78,7 @@
         <fileset dir="${basedir}" includes="*.war"/>
       </copy>
     </target>
+
+    <target name="tools-clean" depends="clean"/>
 
   </project>

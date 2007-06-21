@@ -37,10 +37,10 @@
 <!--    <setup_py>
             <arg value="icegen"/>
         </setup_py> -->
-        <slice_py todir="${copy.dir}">
+        <slice_py todir="${copy.dir}" prefix="OMERO_">
             <fileset dir="${copy.dir}/OMERO" includes="*.ice"/>
         </slice_py>
-        <slice_py todir="${copy.dir}">
+        <slice_py todir="${copy.dir}" prefix="OMERO_Model_">
             <fileset dir="${copy.dir}/OMERO/Model/" includes="*.ice"/>
         </slice_py>
     </target>
@@ -52,7 +52,6 @@
 
    <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
-        <delete dir="build/lib"/>
     </target>
 
 </project>

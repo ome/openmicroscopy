@@ -53,8 +53,9 @@
         back, but that depends on how get-source works -->
     </target>
 
-   <target name="clean" depends="make-clean">
+   <target name="tools-clean" depends="make-clean">
         <delete dir="${copy.dir}"/>
+        <delete dir="${basedir}/target"/>
     </target>
 
 </project>
