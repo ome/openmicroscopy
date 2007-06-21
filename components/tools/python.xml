@@ -32,6 +32,7 @@
     </macrodef>
 
     <target name="python-build" unless="py.NOPYTHON">
+        <mkdir dir="${basedir}/build/lib"/>
         <setup_py>
             <arg value="build"/>
         </setup_py>

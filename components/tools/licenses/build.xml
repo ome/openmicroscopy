@@ -48,6 +48,8 @@
 			<src path="${src.dest}"/>
 			<src path="${src.dir}"/>
 		</myjavac>
+		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseBean.java"/></copy>
+		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseSessionListener.java"/></copy>
 		<copy todir="${src.dest}"><fileset dir="${src.dir}" includes="**/LicenseWiring.java"/></copy>
 		<myjavac>
 			<include name="**/LicenseBean.java"/>
@@ -56,6 +58,7 @@
 			<src path="${src.dest}"/>
 		</myjavac>
 		<delete file="${src.dest}/ome/services/licenses/LicenseBean.java"/>
+		<delete file="${src.dest}/ome/services/licenses/LicenseSessionListener.java"/>
 		<delete file="${src.dest}/ome/services/licenses/LicenseWiring.java"/>
 	</target>
 
