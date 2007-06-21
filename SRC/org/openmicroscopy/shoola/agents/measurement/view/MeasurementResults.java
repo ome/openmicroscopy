@@ -184,8 +184,6 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
-		allFields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
-				false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
 				false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
@@ -219,8 +217,6 @@ class MeasurementResults
 	private void createDefaultFields()
 	{
 		fields = new ArrayList<AnnotationField>();
-		fields.add(new AnnotationField(AnnotationKeys.FIGURETYPE,"Figure Type", 
-										false)); 
 		fields.add(new AnnotationField(AnnotationKeys.BASIC_TEXT,"Description", 
 										false)); 
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,"Centre X", 
@@ -236,6 +232,7 @@ class MeasurementResults
 		columnNames.add("Time Point");
 		columnNames.add("Z Section");
 		columnNames.add("ROI ID");
+		columnNames.add("Figure Type");
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
 	}
@@ -398,6 +395,7 @@ class MeasurementResults
 				row.addElement(shape.getCoord3D().getTimePoint()+1);
 				row.addElement(shape.getCoord3D().getZSection()+1);
 				row.addElement(shape.getROI().getID());
+				row.addElement(shape.getFigure().getType());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
 					Object value = key.get(shape);
@@ -489,6 +487,7 @@ class MeasurementResults
 		columnNames.add("Time Point");
 		columnNames.add("Z Section");
 		columnNames.add("ROI ID");
+		columnNames.add("Figure Type");
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(fields.get(i).getName());
 		populate();
@@ -584,10 +583,7 @@ class MeasurementResults
 		 */
 	    public void setValueAt(Object value, int row, int col) 
 	    {
-//	    	if (row < 0 || row > values.size()) return;
-//	    	MeasurementObject rowData = values.get(row);
-//	    	rowData.setElement(value, col);
-//	    	fireTableCellUpdated(row, col);
+
 	    }
 	    
 		/**

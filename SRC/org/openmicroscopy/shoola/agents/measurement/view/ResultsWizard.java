@@ -46,7 +46,7 @@ import javax.swing.JScrollPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.util.AnnotationField;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -62,9 +62,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public 	class ResultsWizard
-		extends JDialog
+class ResultsWizard
+	extends JDialog implements ActionListener
 {
+	
+	/** Action command ID to add a field to the result table. */
+	private static final int ADD = 0;
+	
 	/** Collection of fields. */
 	private List<AnnotationField>	currentFields;
 
@@ -157,14 +161,7 @@ public 	class ResultsWizard
 	 */
 	private void addActionListeners()
 	{
-		addFieldButton.addActionListener(
-				new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0) 
-					{
-						addField();
-					}
-				});
+		addFieldButton.setActionCommand(""+ADD);
 		addAllFieldsButton.addActionListener(
 				new ActionListener()
 				{
@@ -409,15 +406,10 @@ public 	class ResultsWizard
 	 */
 	private JPanel createInfoPanel()
 	{
-		JPanel infoPanel = new JPanel();
-		infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
-		JLabel infoText = new JLabel
-		("<html><body>This is wizard to select the " +
-		"measurements you wish to record in the" +
-		"<p>measurement tool</body></html>");
-		infoText.setIcon(IconManager.getInstance().getIcon(IconManager.WIZARD));
-		infoPanel.add(Box.createHorizontalStrut(10));
-		infoPanel.add(infoText, BorderLayout.CENTER);
+		JPanel infoPanel = new TitlePanel("Results Wizard", 
+			"<html><body>This is wizard to select the measurements you wish " +
+			"to record in the measurement tool</body></html>",	
+		IconManager.getInstance().getIcon(IconManager.WIZARD));
 		return infoPanel;
 	}
 	
@@ -523,6 +515,36 @@ public 	class ResultsWizard
 		}
 		remainingFieldsListbox.setModel(listModel);
 	}
+
+	/**
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent evt)
+	{
+
+		int id = -1;
+		try
+		{
+			id = Integer.parseInt(evt.getActionCommand());
+			switch (id)
+			{
+				case ADD:
+					addField();
+					break;
+				
+				default:
+					break;
+			}
+		}
+		catch (Exception e)
+		{
+			// TODO: handle exception
+		}
+		
+		
+	}
+	
 }
 
 

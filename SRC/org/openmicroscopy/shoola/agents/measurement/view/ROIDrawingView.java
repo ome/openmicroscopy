@@ -49,7 +49,7 @@ import org.jhotdraw.draw.DefaultDrawingView;
  * </small>
  * @since OME3.0
  */
-class DrawingView
+class ROIDrawingView
 	extends DefaultDrawingView
 {
 
@@ -57,10 +57,15 @@ class DrawingView
 	private static final Color	BACKGROUND = new Color(0xf0f0f0);
 	
 	/** 
-	 * Default point used to override the {@link #drawBackground(Graphics2d)}
+	 * Default point used to override the {@link #drawBackground(Graphics2D)}
 	 * method.
 	 */
 	private static final Point2D.Double	ORIGIN = new Point2D.Double(0, 0);
+	
+	ROIDrawingView()
+	{
+		super();
+	}
 	
 	/**
 	 * Set the size of the component. This method takes in the original size
@@ -74,17 +79,6 @@ class DrawingView
 	{
 		setSize((int) (originalSize.getWidth()*f), 
 				(int) (originalSize.getHeight()*f));
-		super.setScaleFactor(f);
-	}
-	
-	/**
-	 * Overridden to set the size of the component.
-	 * @see DefaultDrawingView#setScaleFactor(double)
-	 */
-	public void setScaleFactor(double f)
-	{
-		setSize((int) (getWidth()*f), 
-				(int) (getHeight()*f));
 		super.setScaleFactor(f);
 	}
 	

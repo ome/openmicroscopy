@@ -359,7 +359,7 @@ class ObjectManager
 				case 0: return fig.getROI().getID();
 				case 1: return fig.getROIShape().getCoord3D().getZSection()+1;
 				case 2: return fig.getROIShape().getCoord3D().getTimePoint()+1;
-				case 3: return AnnotationKeys.FIGURETYPE.get(fig.getROIShape());
+				case 3: return fig.getType();
 	        	case 4: return TEXT.get(fig);
 	        	case 5: return fig.isVisible();
 	        	default:

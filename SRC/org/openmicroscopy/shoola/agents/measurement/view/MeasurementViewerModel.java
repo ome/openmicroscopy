@@ -106,7 +106,7 @@ public class MeasurementViewerModel
 	private	DrawingEditor			drawingEditor;
 	
 	/** Component hosting the drawing. */
-	private DrawingView				drawingView;
+	private ROIDrawingView				drawingView;
 	
 	/** The component managing the ROI. */
 	private ROIComponent			roiComponent;
@@ -156,11 +156,11 @@ public class MeasurementViewerModel
 		state = MeasurementViewer.NEW;
 		drawingEditor = new DefaultDrawingEditor();
 		drawing = new DefaultDrawing();
-		drawingView = new DrawingView();
+		drawingView = new ROIDrawingView();
 		roiComponent = new ROIComponent();
 		drawingView.setDrawing(drawing);
 		drawingEditor.add(drawingView);
-		roiFileName = pixelsID+".xml";
+		roiFileName = imageID+".xml";
 		toolSent = false;
 	}
 	
@@ -466,17 +466,18 @@ public class MeasurementViewerModel
 	int getSizeY() { return pixels.getSizeY().intValue(); }
 
 	/**
-	 * Returns the {@link DrawingView}.
+	 * Returns the {@link ROIDrawingView}.
 	 * 
 	 * @return See above.
 	 */
-	DrawingView getDrawingView() { return drawingView; }
+	ROIDrawingView getDrawingView() { return drawingView; }
 	
 	/** 
 	 * Get the ROI of the currently selected figure in the drawingview. 
+	 * 
 	 * @return see above.
 	 */
-	public Collection<ROI> getSelectedROI()
+	Collection<ROI> getSelectedROI()
 	{
 		Collection<Figure> selectedFigs = drawingView.getSelectedFigures();
 		ArrayList<ROI> roiList = new ArrayList<ROI>();
@@ -488,6 +489,7 @@ public class MeasurementViewerModel
 		}
 		return roiList;
 	}
+	
 	/**
 	 * Removes the <code>ROI</code> corresponding to the passed id.
 	 * 
@@ -522,8 +524,7 @@ public class MeasurementViewerModel
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
 	ROI createROI(ROIFigure figure)
-		throws ROICreationException,  
-			NoSuchROIException
+		throws ROICreationException, NoSuchROIException
 	{
 		return roiComponent.addROI(figure, getCurrentView());
 	}
@@ -572,17 +573,32 @@ public class MeasurementViewerModel
 		roiComponent.saveROI(IOUtil.writeFile(roiFileName));
 	}
 	
-	public void propagateShape(ROIShape shape, int timePoint, int zSection) 
-	throws 	ROICreationException, 
-			NoSuchROIException
+	/**
+	 * Propagate the selected shape in the roi model. 
+	 * @param shape ROIShape to propagate.
+	 * @param timePoint timepoint to propagate to.
+	 * @param zSection z section to propagate to.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
+	void propagateShape(ROIShape shape, int timePoint, int zSection) 
+		throws 	ROICreationException, NoSuchROIException
 	{
 		roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 		shape.getCoord3D(), new Coord3D(timePoint, zSection));
 	}
 	
-	public void deleteShape(ROIShape shape, int timePoint, int zSection) 
-	throws 	ROICreationException, 
-			NoSuchROIException
+	/**
+	 * Delete the selected shape from current coord to timepoint and zSection.
+	 * 
+	 * @param shape initial shape to delete.
+	 * @param timePoint time point to delete to.
+	 * @param zSection zsection to delete to.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
+	void deleteShape(ROIShape shape, int timePoint, int zSection) 
+	throws 	ROICreationException, NoSuchROIException
 	{
 		roiComponent.deleteShape(shape.getID(), shape.getCoord3D(), 
 			new Coord3D(timePoint, zSection));

@@ -46,7 +46,6 @@ import org.jhotdraw.draw.Figure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
-import org.openmicroscopy.shoola.agents.measurement.view.roiassistant.ROIAssistant;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -72,7 +71,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class MeasurementViewerUI 
+class MeasurementViewerUI 
 	extends TopWindow
 {
 
@@ -178,7 +177,7 @@ public class MeasurementViewerUI
      * 
      * @param title The window title.
      */
-	public MeasurementViewerUI(String title)
+	MeasurementViewerUI(String title)
     {
         super(title);
         loadingWindow = new LoadingWindow(this);
@@ -249,7 +248,7 @@ public class MeasurementViewerUI
     	if (figure == null) return;
     	if(!figure.getROIShape().getCoord3D().equals(model.getCurrentView())) 
     		return;
-    	DrawingView dv = model.getDrawingView();
+    	ROIDrawingView dv = model.getDrawingView();
     	dv.clearSelection();
 		dv.addToSelection(figure);
 		Collection figures = dv.getSelectedFigures();
@@ -359,7 +358,7 @@ public class MeasurementViewerUI
      * 
      * @return See above.
      */
-    DrawingView getDrawingView() { return model.getDrawingView(); }
+    ROIDrawingView getDrawingView() { return model.getDrawingView(); }
     
     /** Rebuilds the ROI table. */
     void rebuildManagerTable() { roiManager.rebuildTable(); }
@@ -389,7 +388,7 @@ public class MeasurementViewerUI
 	 * Shows the ROIAssistant and updates the ROI based on the users 
 	 * selection.
 	 */
-	void showROIAssistant() { createDisplayROIAssistant(); }    
+	void showROIAssistant() { displayROIAssistant(); }    
     
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
@@ -432,7 +431,7 @@ public class MeasurementViewerUI
 	 * Shows the ROIAssistant and updates the ROI based on the users 
 	 * selection.
 	 */
-	private void createDisplayROIAssistant()
+	private void displayROIAssistant()
     {
 		Collection<ROI> roiList = model.getSelectedROI();
 		Registry reg = MeasurementAgent.getRegistry();
@@ -453,10 +452,18 @@ public class MeasurementViewerUI
 		ROI currentROI = roiList.iterator().next();
     	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
     		model.getNumZSections(), model.getCurrentView(), currentROI, this);
-    	assistant.setVisible(true);
+    	UIUtilities.setLocationRelativeToAndShow(this, assistant);
     }
 	
-	public void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	/**
+	 * Propagate the selected shape in the roi model. 
+	 * @param shape ROIShape to propagate.
+	 * @param timePoint timepoint to propagate to.
+	 * @param zSection z section to propagate to.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
+	void propagateShape(ROIShape shape, int timePoint, int zSection) 
 	throws 	ROICreationException, 
 			NoSuchROIException
 	{
@@ -464,7 +471,15 @@ public class MeasurementViewerUI
 		rebuildManagerTable();
 	}
 	
-	public void deleteShape(ROIShape shape, int timePoint, int zSection) 
+	/**
+	 * Delete the selected shape from current coord to timepoint and zSection.
+	 * @param shape initial shape to delete.
+	 * @param timePoint time point to delete to.
+	 * @param zSection zsection to delete to.
+	 * @throws ROICreationException
+	 * @throws NoSuchROIException
+	 */
+	void deleteShape(ROIShape shape, int timePoint, int zSection) 
 	throws 	ROICreationException, 
 	NoSuchROIException
 	{
