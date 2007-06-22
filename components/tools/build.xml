@@ -56,7 +56,7 @@
 		</copy>
 		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${basedir}/target/service-classes" includes="**/*"/>
 		<!-- This must be reworked upstream -->
-		<jar update="true" destfile="${dist.dir}/GlencoeDME.ear" basedir="${dist.dir}/blitz" includes="services.jar"/>
+		<jar update="true" destfile="${dist.dir}/omero.ear" basedir="${dist.dir}/blitz" includes="services.jar"/>
 	</target>
 
 	<target name="clean" description="Calls 'tools-clean' on all components.">
